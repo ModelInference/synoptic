@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="model"
+    nsURI="http:///com/vetta/synos/model.ecore" nsPrefix="com.vetta.synos.model">
+  <eClassifiers xsi:type="ecore:EClass" name="Area" eSuperTypes="#//Equipment"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Association">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="firstEnd" eType="#//AssociationEnd"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="secondEnd" eType="#//AssociationEnd"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AssociationEnd">
+    <eOperations name="getIsNavigable" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="equipment" eType="#//Equipment"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DynamicAttribute" eSuperTypes="#//EquipmentAttribute">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="service" eType="#//Service"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Enterprise" eSuperTypes="#//Equipment"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Equipment">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="equipmentClass" eType="#//EquipmentClass"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
+        eType="#//EquipmentAttribute" containment="true" resolveProxies="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="container" eType="#//Equipment"
+        eOpposite="#//Equipment/children"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="children" upperBound="-1"
+        eType="#//Equipment" eOpposite="#//Equipment/container"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EquipmentAttribute" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="property" eType="#//EquipmentProperty"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EquipmentClass">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="properties" upperBound="-1"
+        eType="#//EquipmentProperty" containment="true" resolveProxies="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EquipmentProperty">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ProcessCell" eSuperTypes="#//WorkCenter"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ProductionLine" eSuperTypes="#//WorkCenter"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ProductionUnit" eSuperTypes="#//WorkCenter"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Service">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Site" eSuperTypes="#//Equipment"/>
+  <eClassifiers xsi:type="ecore:EClass" name="StaticAttribute" eSuperTypes="#//EquipmentAttribute">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="StorageUnit" eSuperTypes="#//WorkUnit"/>
+  <eClassifiers xsi:type="ecore:EClass" name="StorageZone" eSuperTypes="#//WorkCenter"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Synoptic">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="equipments" upperBound="-1"
+        eType="#//Equipment" containment="true" resolveProxies="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="associations" upperBound="-1"
+        eType="#//Association" containment="true" resolveProxies="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="title" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Unit" eSuperTypes="#//WorkUnit"/>
+  <eClassifiers xsi:type="ecore:EClass" name="WorkCell" eSuperTypes="#//WorkUnit"/>
+  <eClassifiers xsi:type="ecore:EClass" name="WorkCenter" abstract="true" eSuperTypes="#//Equipment"/>
+  <eClassifiers xsi:type="ecore:EClass" name="WorkUnit" abstract="true" eSuperTypes="#//Equipment"/>
+</ecore:EPackage>
