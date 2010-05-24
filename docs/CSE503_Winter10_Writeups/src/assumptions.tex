@@ -1,0 +1,49 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Assumptions}
+\label{sec:assumptions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We make a few assumptions concerning the environment or the
+distributed system whose traces we analyze.
+
+\begin{itemize}
+
+\item We assume a non-broadcast networking medium at the message
+  capture layer. For example, we do not handle wireless environments
+  in which the nodes in the system sniff and thereby receive all
+  messages. However, we can operate in a wireless environment with all
+  nodes restricted to using TCP for communication, or in which all
+  sniffed traffic is also logged in the trace.
+
+\item We assume that the nodes are using a reliable communication
+  protocol so that messages are never lost. This assumption may be
+  dropped if in addition to message transmission the trace also
+  includes message reception. In the absence of observable reception,
+  Synoptic cannot distinguish between messaging behavior at the
+  receiver node caused by a lost message and receiver behavior caused
+  by message reception.
+
+\item We assume that messages reordering does not occur. This is
+  necessary to prevent re-orderings from adversely impacting our
+  temporal invariant inference algorithm. A more robust algorithm can
+  relax this assumption to a certain degree.
+
+  % \item We assume that message transmission time is non-zero.
+
+% \item We assume that the set of nodes in the system is constant and
+%   does not change throughout the trace. That is, nodes do not fail and
+%   new nodes do not join the system.
+
+\item If the system is composed of just one physical host the local
+  clock can be used for timestamping all messages. To analyze the
+  behavior of multiple network nodes, a consistent notion of time is
+  necessary. As a simplification, we assume correctly synchronized
+  clocks (e.g. nodes use NTP). This assumption can be relaxed by
+  establishing a global partial ordering on all the messages in the
+  system with a vector clock algorithm~\cite{LamportClocks}.
+
+% \item To simplify message capture and processing Synoptic assumes that
+%   the system uses protobufs~\cite{protobuf}. However, this is not a
+%   fundamental assumption, and is an artifact of our implementation.
+
+\end{itemize}

@@ -1,0 +1,15 @@
+digraph {
+  ae [style="bold"]
+  bf [style="bold"]
+  dg [style="bold"]
+
+  s -> ae [label=""]
+  s -> i [label=""]
+
+  ae -> bf [label="A", color="red", style="setlinewidth(3),dashed"]
+  ae -> c [label="B"]
+  bf -> dg [label="D"]
+
+  i -> j [label="A"]
+  i -> k [label="C"]
+}

@@ -1,0 +1,114 @@
+\begin{figure}[!t]
+
+\begin{lstlisting}[mathescape=true,morekeywords={Input,Output}]
+Input: $(V,E)$
+Let $S$ := k-equiv($G$)
+While $S \neq \emptyset$
+  Let ($s_1$, $s_2$) = DE.getMerge($(V,E)$, $S$)
+  Let $(V',E')$ = k-merge($(V,E)$, $s_1$, $s_2$)
+  If DE.checkGraphValidity($(G',V')$)
+    $(V,E)$ := $(V',E')$
+    $S$ := k-equiv($(V,E)$)
+  Else
+    $S$ := $S - \{(s_1, s_2)\}$
+Output: $(V,E)$
+\end{lstlisting}
+
+\caption{The GK-Tail algorithm}
+\label{fig:gk_alg}
+
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The GK-Tail Algorithm}
+\label{sec:gk_tail}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We now describe our adaptation of the GK-Tail algorithm. This
+algorithm consists of two steps. First the algorithm merges all
+input-equivalent traces, which are sequences of the same messages but
+with potentially different fields. This is an initial data-reduction
+step. Second, the algorithm starts with the most refined graph
+representation of the trace and proceeds to coarsen this graph at each
+step by merging some number of nodes. It terminates when it cannot
+find any nodes to merge, either because they are no two nodes that are
+similar enough, or because a merge of any two nodes would violate a
+temporal trace invariant.
+
+% \subsection{Partitioning the trace}
+
+% Partitioning of the trace first merges input-equivalent traces. 
+
+% ~\footnote{We plan to use Daikon to detect likely
+%   invariants over these parameters in the future.}
+
+% \item Use \texttt{Daikon}~\cite{Daikon} to come up with the most
+%   general representations for the sets of values on the arcs. This
+%   produces an initial FSM.
+
+% Next the trace is partitioned into a set of traces using a partition
+% function. 
+
+\subsection{Coarsening}
+\label{subsec:gk_tail_coarsening}
+
+Let $G=(S,M)$ be the graph obtained by treating every trace as a
+sequence of states with edges between the states representing
+consecutive messages in the trace. We then define two helper
+functions:
+
+\begin{itemize}
+
+\item \texttt{k-equiv(S,M)} returns $T \subseteq S \times S$ such that
+  for all $(s,t)\in{T}$ we have that $s$ is $k$-similar to $t$ in
+  $G$. By this we mean that the directed graph rooted at $s$, which is
+  a subgraph of $G$ with maximum path length of $k$ is a subgraph of a
+  similarly constructed graph rooted at $t$. There is a stronger
+  version of $k$-similarity which mandates that the subgraphs be
+  equivalent, however, we ignore this form in this paper.
+
+\item \texttt{k-merge($G,s_1, s_2$)} returns $G'$ that is obtained
+  from the graph $G$ by merging the nodes $s_1$ and $s_2$ up to depth
+  $k$.
+
+\end{itemize}
+
+Now we can formulate our modified GK-Tail algorithm as shown in
+Figure~\ref{fig:gk_alg}. The $k$ in this algorithm is a key parameter
+that can be thought of as the degree of dependency between
+messages. If messages are completely independent, a $k$ value of 1 is
+sufficient. However, if a message influences a message downstream that
+is $n$ messages away, $k$ should be set to a value $\geq n$. A smaller
+$k$ value produces more compact representations, but it does so at the
+loss of potential dependency information. A larger value of $k$
+retains this information, however, it can be difficult to set the
+right value of $k$. Moreover, a static value of $k$ might not be
+appropriate for all steps of a protocol. At the moment our algorithm
+uses a static value of $k$.
+
+% \textbf{TODO: describe what we do: what value of k do we use? and
+%   why?}
+
+\subsection{Complexity of GK-Tail}
+
+In the worst case, the GK-Tail algorithm will have to consider all
+pairs of states in the current graph, if they are all $k$-equivalent,
+before finding a pair that, when merged, gives a valid
+representation. When a merge is performed, exactly one state is
+removed from the graph. Thus, in the worst case the time-complexity of
+the algorithm is $O(kn^3)$. Predictably, this does not scale well and
+in practice does not handle input traces with more than 1000 entries.
+
+\subsection{Divide and Conquer Optimization}
+
+We address the poor scalability of GK-Tail algorithm by employing a
+divide-and-conquer approach. We make the observation that the GK-Tail
+algorithm may be applied independently to subgraphs of the original
+graph as long as the shortest path connecting the subgraphs is no
+shorter than $k$. We implement this by dividing the initial graph and
+performing GK-Tail on each of the resulting sub-graphs before merging
+the resulting graphs and performing GK-Tail on the merged graph. The
+theoretical worst-case time-complexity is unchanged, but we find that
+this divide and conquer approach works well in practice and makes the
+algorithm scale effectively to traces of more than 20,000 entries (see
+section~\ref{subsec:perf_eval} for more).

@@ -1,0 +1,11 @@
+# Scalable GK Tail Test Parameters ( Trace Type=1 M=X n=2 r=10 k=1 invariants=false)
+# M vs. time in ms
+100 3
+200 14
+300 79
+400 84
+500 267
+600 229
+700 308
+800 541
+900 725

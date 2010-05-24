@@ -1,0 +1,29 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Distributed system implementations are difficult to debug and
+understand. Often the only way to gain insight into a system is to
+track messages sent between nodes, which may be implementing multiple
+concurrently executing distributed protocols. There are few tools to
+help with this task -- a common approach is to log all node events and
+then manually inspect the logs for clues that might reveal why the
+system behaves the way that it does.
+
+To help with this task we developed \emph{Synoptic} -- a summarization
+tool that takes the system's logged messages as input and outputs a
+finite state automata representation. Compared to the raw message
+traces, the resulting representation is visually concise, and is also
+rich with inferred temporal relationships mined from the messages.
+
+We describe how Synoptic works, and present its core algorithms and
+the intuition that led to their design. We evaluate Synoptic by
+applying it to a variety of real and synthetic distributed systems'
+traces. We evaluate its performance with benchmarks, and we carry out
+a user study with a distributed systems developer to evaluate its
+utility. Our results suggest that Synoptic has reasonable overhead for
+an offline analysis tool, and that it helps to augment distributed
+system designers understanding of system behavior.
+
+\end{abstract}
+

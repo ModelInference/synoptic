@@ -1,0 +1,16 @@
+digraph mygraph { 
+jn -> o [label="TXC"]
+jn -> jn [label="TXC"]
+ghi -> k [label="A"]
+ghi -> lm [label="A"]
+ghi -> ghi [label="A"]
+lm -> o [label="TXA"]
+lm -> lm [label="TXA"]
+abc -> abc [label="P"]
+abc -> def [label="P"]
+abc -> ghi [label="P"]
+def -> def [label="C"]
+def -> jn [label="C"]
+def -> ghi [label="C"]
+k -> lm [label="C"]
+}
