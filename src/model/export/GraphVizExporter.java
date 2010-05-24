@@ -154,13 +154,12 @@ public class GraphVizExporter {
 			else
 				foo = e.getTransitions();
 			for (ITransition<T> trans : foo) {
-				if (!transSeen.add(trans)) {
+				if (!transSeen.add(trans) || !graph.getNodes().contains(trans.getTarget())) {
 					writer.write("/* skipping " + trans + " */" + "\n");
 					continue;
 				}
 				final T targetExpr = trans.getTarget();
 				final int targetStateNo = targetExpr.hashCode();
-
 				writer.write(sourceStateNo
 						+ "->"
 						+ targetStateNo

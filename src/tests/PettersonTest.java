@@ -8,11 +8,15 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.management.RuntimeErrorException;
+
 import algorithms.bisim.Bisimulation;
 import algorithms.graph.GraphUtil;
+import algorithms.graph.StronglyConnectedComponents;
 import invariants.TemporalInvariantSet;
 import model.Graph;
 import model.MessageEvent;
+import model.Partition;
 import model.PartitionGraph;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
@@ -29,14 +33,16 @@ public class PettersonTest {
 
 		// r.readGraphSet("traces/PetersonLeaderElection/generated_traces/5node1seed_withid.trace",
 		// 5);
-		// r.readGraphSet("traces/PetersonLeaderElection/generated_traces/peterson_trace-more-n5-1-s?.txt",
-		// 5);
-		r
+		
+		r.readGraphSet("traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
+		 150);
+		/*r
 				.readGraphSet(
 						"traces/PetersonLeaderElection/generated_traces/peterson_trace-rounds-0-s?.txt",
-						5);
+						5);*/
 		Graph<MessageEvent> g = b.getRawGraph();
-		mineSplitInvariants(g, e);
+		//mineSplitInvariants(g, e);
+		System.out.println("Computing Invariants...");
 		e.exportAsDotAndPng("output/peterson/initial.dot", g);
 		TemporalInvariantSet s = TemporalInvariantSet.computeInvariants(g);
 		e.exportAsDotAndPng("output/peterson/invariants.dot", s
@@ -48,13 +54,28 @@ public class PettersonTest {
 		e.exportAsDotAndPng("output/peterson/invariants-NFby.dot", s
 				.getInvariantGraph("NFby"));
 		System.out.println(s);
+		System.out.println("Creating Partition Graph...");
 		PartitionGraph pg = new PartitionGraph(g, true);
 		e.exportAsDotAndPngFast("output/peterson/initial-pg.dot", pg);
+		System.out.println("Refining Partitions...");
 		Bisimulation.refinePartitionsSmart(pg);
 		e.exportAsDotAndPngFast("output/peterson/output-pg.dot", pg);
+		
+		int totalCount = 0;
+		Set<MessageEvent> all = new HashSet<MessageEvent>();
+		for (Partition p : pg.getNodes()) {
+			if (p.size() == 0)
+				throw new RuntimeException("bisim produced empty partiton!");
+			all.addAll(p.getMessages());
+			totalCount += p.size();
+		}
+		if (totalCount != all.size())
+			throw new RuntimeException("partitions are not partitioning messages (overlap)!");
+		System.out.println("Merging Partitions...");
 		Bisimulation.mergePartitions(pg);
 		System.out.println("Merge done.");
-		// e.exportAsDotAndPng("output/peterson/output-pg-merged.dot", pg);
+		e.exportAsDotAndPngFast("output/peterson/output-pg-merged.dot", pg);
+		exportSCCsWithInvariants(e, pg);
 		// Bisimulation.mergePartitions(pg);
 		// e.exportAsDotAndPng("output/peterson/output-pg-merged.dot", pg);
 		NetBuilder netBuilder = new NetBuilder();
@@ -71,6 +92,31 @@ public class PettersonTest {
 		}
 
 		e.exportAsDotAndPng("output/peterson/output-net-condensed.dot", net);
+	}
+
+	private static void exportSCCsWithInvariants(GraphVizExporter e,
+			PartitionGraph pg) throws Exception {
+		StronglyConnectedComponents<Partition> sccs = new StronglyConnectedComponents<Partition>(pg);
+		int partN = 0;
+		for (Set<Partition> scc : sccs) {
+			Graph<Partition> graph = new Graph<Partition>();
+			Graph<MessageEvent> messageGraph = new Graph<MessageEvent>();
+			for (Partition p : scc) {
+				graph.add(p);
+				for (MessageEvent m : p.getMessages()) {
+					messageGraph.add(m);
+				}
+			}
+			e.exportAsDotAndPngFast("output/peterson/messageGraph.dot", messageGraph);
+			e.exportAsDotAndPngFast("output/peterson/partition-"+partN+".dot", graph);
+			System.out.println(scc);
+			TemporalInvariantSet.generateStructuralInvariants = true;
+			TemporalInvariantSet s2 = TemporalInvariantSet.computeInvariants(messageGraph);
+			e.exportAsDotAndPng("output/peterson/partition-"+partN+"-invariants.dot", s2
+					.getInvariantGraph("AP"));
+			TemporalInvariantSet.generateStructuralInvariants = false;
+			partN++;
+		}
 	}
 
 	private static void mineSplitInvariants(Graph<MessageEvent> g,

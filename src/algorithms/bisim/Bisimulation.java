@@ -163,7 +163,7 @@ public abstract class Bisimulation {
 			for (RelationPath<Partition> relPath : rp) {
 				PartitionSplit d = getSplit(relPath, partitionGraph);
 				if (d == null || !d.isValid()) {
-					// System.out.println("  -- invalid");
+					 System.out.println("  -- invalid: " + d);
 					// continue path;
 					continue;
 				}
@@ -210,9 +210,10 @@ public abstract class Bisimulation {
 			Set<MessageEvent> successors = new HashSet<MessageEvent>();
 			for (MessageEvent m : hot)
 				successors.addAll(m.getSuccessors(relPath.invariant.getRelation()));
+			hot = successors;
 		}
-		
 		ITransition<Partition> partTrans = prevPartition.getTransition(nextPartition, relPath.invariant.getRelation());
+		System.out.println(partTrans);
 
 		return prevPartition.getCandidateDivision(partTrans);
 	}
@@ -260,7 +261,7 @@ public abstract class Bisimulation {
 			boolean progress = false;
 			ArrayList<Partition> partitions = new ArrayList<Partition>();
 			partitions.addAll(partitionGraph.getPartitions());
-			for (Partition p : partitions) {
+			out: for (Partition p : partitions) {
 				for (Partition q : partitions) {
 					if (p.getAction().equals(q.getAction()) && p != q) {
 						System.out.println("merge " + p + " with " + q);
@@ -298,7 +299,7 @@ public abstract class Bisimulation {
 							}
 						} else {
 							progress = true;
-							break;
+							break out;
 						}
 					}
 				}
