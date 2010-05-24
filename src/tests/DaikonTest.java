@@ -38,7 +38,7 @@ public class DaikonTest extends TestCase {
 		Vector<Invariant> enterInvs = new Vector<Invariant>();
 		Vector<Invariant> exitInvs = new Vector<Invariant>();
 		Vector<Invariant> flow = new Vector<Invariant>();
-		d.genDaikonInvariants(enterInvs, exitInvs, flow);
+		d.genDaikonInvariants(enterInvs, exitInvs, flow, false);
 
 		System.out.println("Enter invariants:");
 		for (int i = 0; i < enterInvs.size(); i++) {

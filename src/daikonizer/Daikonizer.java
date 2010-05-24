@@ -48,7 +48,7 @@ public class Daikonizer {
 
 	}
 
-	public void genDaikonInvariants(List<Invariant> enter, List<Invariant> exit, List<Invariant> flow) {
+	public void genDaikonInvariants(List<Invariant> enter, List<Invariant> exit, List<Invariant> flow, boolean norestict) {
 		String fname = "daikon-tmp/daikonizer_" + System.currentTimeMillis()
 				+ ".dtrace";
 		// System.out.println("using fname: " + fname);
@@ -73,21 +73,23 @@ public class Daikonizer {
 		// execute daikon
 		daikon.Daikon.mainHelper(daikonArgs);
 
-		// reset output to previous stream
-		System.setOut(oldStdout);
+	
 
 		for (PptTopLevel ppt : daikon.Daikon.all_ppts.all_ppts()) {
 			// System.out.println("PPT-Name: " + ppt.name());
 			// System.out.println("#Samples: " + ppt.num_samples());
 			for (Invariant inv : ppt.getInvariants()) {
-				if (ppt.type == PptType.ENTER && inv.enoughSamples() /*&& inv.isObvious() == null*/)
+				if (ppt.type == PptType.ENTER && (norestict || inv.enoughSamples()) /*&& inv.isObvious() == null*/)
 					enter.add(inv);
-				else if (ppt.type == PptType.EXIT && inv.enoughSamples() /*&& inv.isObvious() == null*/)
+				else if (ppt.type == PptType.EXIT && (norestict || inv.enoughSamples()) /*&& inv.isObvious() == null*/)
 					exit.add(inv);
-				 else if (ppt.type == PptType.SUBEXIT && inv.enoughSamples() && inv.isObvious() == null)
+				 else if (ppt.type == PptType.SUBEXIT && (norestict || (inv.enoughSamples() && inv.isObvious() == null)))
 					flow.add(inv);
 			}
-		}
+		}	
+		
+		// reset output to previous stream
+		System.setOut(oldStdout);
 		enter = filter_invs(enter);
 		exit = filter_invs(exit);
 		flow = filter_invs(flow);

@@ -28,7 +28,7 @@ public class ProgramPoint {
 			ret += "  var-kind variable\n";
 			ret += "  dec-type " + var.vtype + "\n";
 			ret += "  rep-type " + var.vtype + "\n";
-			ret += "  comparability " + comparability++ + "\n";
+			//ret += "  comparability " + comparability++ + "\n";
 		}
 		return ret;
 	}

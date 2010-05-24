@@ -30,7 +30,7 @@ public class Partition implements
 
 	public Partition(Set<MessageEvent> messages,
 			Set<SystemState<Partition>> sources, SystemState<Partition> target) {
-		this.messages = messages;
+		this.messages = new HashSet<MessageEvent>(messages);
 		for (final MessageEvent m : messages)
 			m.setParent(this);
 		transition = new MultiSourceTransition<SystemState<Partition>>(sources,
@@ -123,7 +123,7 @@ public class Partition implements
 			List<Invariant> sInvNot = TemporalInvariantSet.generateInvariants(s.getFulfillsNot());
 			List<Invariant> rel = TemporalInvariantSet.getRelevantInvariants(sInv, sInvNot, all);
 			List<Invariant> flow = TemporalInvariantSet.generateFlowInvariants(tr.getSource().getMessages(), tr.getAction(), tr.getTarget().getAction().getLabel());
-			tr.setInvariants(flow);
+			tr.setInvariants(rel);
 			tr.setFrequency(s.getFulfills().size()/(double)tr.getSource().getMessages().size());
 			System.out.println(flow);
 		}

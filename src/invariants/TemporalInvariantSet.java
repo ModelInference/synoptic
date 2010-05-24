@@ -38,7 +38,7 @@ import model.interfaces.INode;
 import model.interfaces.ITransition;
 
 public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
-	private static boolean generateStructuralInvariants = false;
+	public static boolean generateStructuralInvariants = false;
 	HashSet<TemporalInvariant> invariants = new HashSet<TemporalInvariant>();
 	final static boolean DEBUG = false;
 
@@ -230,7 +230,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				if (alwaysPreceded)
 					set.add(new AlwaysPrecedesInvariant(label2, label1,
 							relation));
-				else if (!label1.equals(label2) && generateStructuralInvariants) {
+				else if (generateStructuralInvariants) {
 					ArrayList<String> datafieldList = new ArrayList<String>();
 					ArrayList<String> datatypes = new ArrayList<String>();
 					getFields(hasPredecessor, datafieldList, datatypes);
@@ -254,12 +254,12 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 						if (list.size() > 0 || list2.size() > 0) {
 							System.out.println("    " + label2 + list2
 									+ "\nAP  " + label1 + list);
-							for (Invariant i : list) {
-								double r = getInvariantRelevance(i,
-										(Collection) partitions.get(label1),
-										datafieldList);
-								System.out.println("Conf " + r + " for " + i);
-							}
+//							for (Invariant i : list) {
+//								double r = getInvariantRelevance(i,
+//										(Collection) partitions.get(label1),
+//										datafieldList);
+//								System.out.println("Conf " + r + " for " + i);
+//							}
 						}
 					}
 				}
@@ -345,7 +345,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			List<Invariant> enter = new ArrayList<Invariant>();
 			List<Invariant> exit = new ArrayList<Invariant>();
 			List<Invariant> flow = new ArrayList<Invariant>();
-			d.genDaikonInvariants(enter, exit, flow);
+			d.genDaikonInvariants(enter, exit, flow, false);
 			return enter;
 		}
 		return null;
@@ -400,7 +400,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			List<Invariant> enter = new ArrayList<Invariant>();
 			List<Invariant> exit = new ArrayList<Invariant>();
 			List<Invariant> flow = new ArrayList<Invariant>();
-			d.genDaikonInvariants(enter, exit, flow);
+			d.genDaikonInvariants(enter, exit, flow, false);
 			return flow;
 		}
 		return null;

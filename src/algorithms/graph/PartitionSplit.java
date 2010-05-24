@@ -40,9 +40,9 @@ public class PartitionSplit implements Operation {
 			newState.addSuccessorProvider(newPartition);
 		} else {
 			newPartition = removed;
+			removed.addAllMessages(getFulfills());
 			newState = removed.getTarget();
 		}
-
 		partition.removeMessages(getFulfills());
 		partitionGraph.add(newPartition);
 		stateGraph.add(newState);
