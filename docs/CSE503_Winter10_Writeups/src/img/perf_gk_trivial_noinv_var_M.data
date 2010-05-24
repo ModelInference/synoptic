@@ -1,0 +1,11 @@
+# Trivial GK Tail Test Parameters ( Trace Type=1 M=X n=2 r=10 k=1 invariants=false)
+# M vs. time in ms
+100 20
+200 87
+300 242
+400 681
+500 1174
+600 2134
+700 3244
+800 4630
+900 5635

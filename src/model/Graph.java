@@ -1,0 +1,90 @@
+package model;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import model.interfaces.IModifiableGraph;
+import model.interfaces.INode;
+import model.interfaces.ITransition;
+
+
+public class Graph<NodeType extends INode<NodeType>> implements IModifiableGraph<NodeType> {
+	private Set<NodeType> nodes = new HashSet<NodeType>();
+	private final Map<Action, Set<NodeType>> initialNodes = new HashMap<Action, Set<NodeType>>();
+
+	/**
+	 * Create a graph from nodes.
+	 * 
+	 * @param nodes
+	 *            the nodes of the graph
+	 */
+	public Graph(Collection<NodeType> nodes) {
+		this.nodes.addAll(nodes);
+	}
+
+	/**
+	 * Create an empty graph.
+	 */
+	public Graph() {
+	}
+
+	@Override
+	public Set<NodeType> getInitialNodes() {
+		Set<NodeType> nodes = new HashSet<NodeType>();
+		for (Set<NodeType> v : initialNodes.values())
+			nodes.addAll(v);
+		return nodes;
+	}
+
+	@Override
+	public Set<NodeType> getInitialNodes(Action relation) {
+		if (!initialNodes.containsKey(relation))
+			return Collections.emptySet();
+		return initialNodes.get(relation);
+	}
+
+	@Override
+	public Set<NodeType> getNodes() {
+		return nodes;
+	}
+
+	@Override
+	public Set<Action> getRelations() {
+		Set<Action> relations = new HashSet<Action>();
+		for (NodeType node : nodes)
+			for (Iterator<? extends ITransition<NodeType>> iter = node.getTransitionsIterator(); iter.hasNext();)
+				relations.add(iter.next().getAction());
+		return relations;
+	}
+
+	public void add(NodeType node) {
+		nodes.add(node);
+	}
+
+	public void remove(NodeType node) {
+		nodes.remove(node);
+	}
+
+	public void addInitial(NodeType initialNode, Action relation) {
+		if (initialNode == null)
+			throw new IllegalArgumentException("argument was null");
+		if (!initialNodes.containsKey(relation))
+			initialNodes.put(relation, new HashSet<NodeType>());
+		initialNodes.get(relation).add(initialNode);
+	}
+
+	public void merge(Graph<NodeType> g) {
+		nodes.addAll(g.getNodes());
+		for (Action key : g.initialNodes.keySet()) {
+			if (!initialNodes.containsKey(key))
+				initialNodes.put(key, new HashSet<NodeType>());
+			initialNodes.get(key).addAll(g.initialNodes.get(key));
+		}
+	}
+
+}
