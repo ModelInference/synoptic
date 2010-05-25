@@ -175,4 +175,17 @@ public class PartitionGraph implements IGraph<Partition> {
 			initial.addAll(set);
 		return initial;
 	}
+
+	public void checkSanity() {
+		int totalCount = 0;
+		Set<MessageEvent> all = new HashSet<MessageEvent>();
+		for (Partition p : getNodes()) {
+			if (p.size() == 0)
+				throw new RuntimeException("bisim produced empty partiton!");
+			all.addAll(p.getMessages());
+			totalCount += p.size();
+		}
+		if (totalCount != all.size())
+			throw new RuntimeException("partitions are not partitioning messages (overlap)!");		
+	}
 }
