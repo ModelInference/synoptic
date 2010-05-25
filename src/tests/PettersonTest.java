@@ -35,7 +35,7 @@ public class PettersonTest {
 		// 5);
 		
 		r.readGraphSet("traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
-		 150);
+		 15);
 		/*r
 				.readGraphSet(
 						"traces/PetersonLeaderElection/generated_traces/peterson_trace-rounds-0-s?.txt",
@@ -61,16 +61,7 @@ public class PettersonTest {
 		Bisimulation.refinePartitionsSmart(pg);
 		e.exportAsDotAndPngFast("output/peterson/output-pg.dot", pg);
 		
-		int totalCount = 0;
-		Set<MessageEvent> all = new HashSet<MessageEvent>();
-		for (Partition p : pg.getNodes()) {
-			if (p.size() == 0)
-				throw new RuntimeException("bisim produced empty partiton!");
-			all.addAll(p.getMessages());
-			totalCount += p.size();
-		}
-		if (totalCount != all.size())
-			throw new RuntimeException("partitions are not partitioning messages (overlap)!");
+		pg.checkSanity();
 		System.out.println("Merging Partitions...");
 		Bisimulation.mergePartitions(pg);
 		System.out.println("Merge done.");

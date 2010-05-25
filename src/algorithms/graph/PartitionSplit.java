@@ -33,7 +33,7 @@ public class PartitionSplit implements Operation {
 			IModifiableGraph<Partition> partitionGraph,
 			IModifiableGraph<SystemState<Partition>> stateGraph) {
 		SystemState<Partition> newState = null;
-		Partition newPartition = null;
+		Partition newPartition = removed;
 		if (newPartition == null) {
 			newState = new SystemState<Partition>("");
 			newPartition = new Partition(getFulfills(), partition.getSources(), newState);

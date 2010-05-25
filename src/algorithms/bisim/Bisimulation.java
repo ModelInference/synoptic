@@ -239,18 +239,8 @@ public abstract class Bisimulation {
 			GraphVizExporter.quickExport("output/rounds/initials.dot",
 					partitionGraph.getSystemStateGraph());
 		}
-		while (true) {
-			TemporalInvariantSet invariants = partitionGraph.getInvariants();
-			if (!invariants.check(partitionGraph)) {
-				System.out.println("Invariants broken. Stopping.");
-				System.out.println(invariants);
-				System.out.println(TemporalInvariantSet
-						.computeInvariants(partitionGraph));
-				System.out.println("unsat "
-						+ invariants.getUnsatisfiedInvariants(partitionGraph));
-				break;
-			}
-
+		TemporalInvariantSet invariants = partitionGraph.getInvariants();
+		out: while (true) {
 			if (DEBUG) {
 				GraphVizExporter.quickExport("output/rounds/" + outer + ".dot",
 						partitionGraph);
@@ -261,7 +251,7 @@ public abstract class Bisimulation {
 			boolean progress = false;
 			ArrayList<Partition> partitions = new ArrayList<Partition>();
 			partitions.addAll(partitionGraph.getPartitions());
-			out: for (Partition p : partitions) {
+			for (Partition p : partitions) {
 				for (Partition q : partitions) {
 					if (p.getAction().equals(q.getAction()) && p != q) {
 						System.out.println("merge " + p + " with " + q);
@@ -275,8 +265,11 @@ public abstract class Bisimulation {
 									+ outer + "as.dot", partitionGraph
 									.getSystemStateGraph());
 						}
+						Set<Partition> parts = new HashSet<Partition>();
+						parts.addAll(partitionGraph.getNodes());
 						Operation rewindOperation = partitionGraph
 								.apply(new PartitionMerge(p, q));
+						partitionGraph.checkSanity();
 						if (DEBUG) {
 							GraphVizExporter.quickExport("output/rounds/"
 									+ outer + "b.dot", partitionGraph);
@@ -287,6 +280,10 @@ public abstract class Bisimulation {
 						if (!invariants.check(partitionGraph)) {
 							System.out.println("  REWIND");
 							partitionGraph.apply(rewindOperation);
+							partitionGraph.checkSanity();
+							if (!parts.containsAll(partitionGraph.getNodes()) ||
+								!partitionGraph.getNodes().containsAll(parts))
+								throw new RuntimeException("partition set changed due to rewind: " + rewindOperation);
 							if (DEBUG) {
 								GraphVizExporter.quickExport("output/rounds/"
 										+ outer + "c.dot", partitionGraph);
@@ -299,7 +296,7 @@ public abstract class Bisimulation {
 							}
 						} else {
 							progress = true;
-							break out;
+							continue out;
 						}
 					}
 				}

@@ -224,6 +224,7 @@ public class Partition implements
 	@Override
 	public String toStringConcise() {
 		return getAction().getLabel();
+		//return toString();
 	}
 
 	@Override

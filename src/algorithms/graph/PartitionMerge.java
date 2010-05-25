@@ -32,6 +32,7 @@ public class PartitionMerge implements Operation {
 		for (SystemState<Partition> s : removed.getSources()) {
 			//stateGraph.remove(s);
 		}
+		removed.removeMessages(removed.getMessages());
 		partitionGraph.remove(removed);
 		System.out.println("merge rewind: " + split);
 		if (removedSize + retainedSize != retained.size())
