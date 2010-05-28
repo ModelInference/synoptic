@@ -44,7 +44,7 @@ public class PartitionGraph implements IGraph<Partition> {
 			relations.add(relation);
 		}
 		if (partitionByLabel)
-			partitionByLabels(g.getNodes());
+			partitionByLabels(g.getNodes(), g.getInitialNodes());
 		else
 			partitionSeparately(g.getNodes());
 		stateGraph = GraphUtil.convertPartitionGraphToStateGraph(this);
@@ -73,7 +73,7 @@ public class PartitionGraph implements IGraph<Partition> {
 		return op.commit(this, modifiableInterface, stateGraph);
 	}
 
-	private void partitionByLabels(Collection<MessageEvent> messages) {
+	private void partitionByLabels(Collection<MessageEvent> messages, Set<MessageEvent> initial) {
 		partitions = new HashSet<Partition>();
 		final Map<String, Partition> prepartitions = new HashMap<String, Partition>();
 		for (MessageEvent message : messages) {
@@ -87,6 +87,38 @@ public class PartitionGraph implements IGraph<Partition> {
 				prepartitions.put(message.getLabel(), partition);
 			}
 			prepartitions.get(message.getLabel()).addMessage(message);
+		}
+	}
+	
+	private void partitionByLabelsAndInitial(Collection<MessageEvent> messages, Set<MessageEvent> initial) {
+		partitions = new HashSet<Partition>();
+		final Map<String, Partition> prepartitions = new HashMap<String, Partition>();
+		for (MessageEvent message : messages) {
+			for (ITransition<MessageEvent> t : message.getTransitions())
+				relations.add(t.getAction());
+			if (!prepartitions.containsKey(message.getLabel())) {
+				final Partition partition = new Partition(
+						new HashSet<MessageEvent>(),
+						new HashSet<SystemState<Partition>>(), null);
+				prepartitions.put(message.getLabel(), partition);
+			}
+			prepartitions.get(message.getLabel()).addMessage(message);
+		}
+		for (Partition t : prepartitions.values()) {
+			HashSet<MessageEvent> iSet = new HashSet<MessageEvent>();
+			for (MessageEvent e : t.getMessages()) {
+				if (initial.contains(e))
+					iSet.add(e);
+			}
+			if (iSet.size() == 0)
+				partitions.add(t);
+			else {
+				t.removeMessages(iSet);
+				partitions.add(t);
+				partitions.add(new Partition(
+						iSet,
+						new HashSet<SystemState<Partition>>(), null));
+			}
 		}
 	}
 
