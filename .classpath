@@ -14,23 +14,23 @@
 	<classpathentry kind="lib" path="lib/svnkit.jar"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.1.jar"/>
 	<classpathentry kind="lib" path="src/trace/twitter/modtwitter.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/collections-generic-4.01.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/colt-1.2.0.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/concurrent-1.3.4.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/j3d-core-1.3.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/jung-3d-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/jung-3d-demos-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/jung-algorithms-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/jung-api-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/jung-graph-impl-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/jung-io-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/jung-jai-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/jung-jai-samples-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/jung-samples-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/jung-visualization-2.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/stax-api-1.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/vecmath-1.3.1.jar"/>
-	<classpathentry kind="lib" path="/home/sigurd/cse503-system-analysis/lib/jung/wstx-asl-3.2.6.jar"/>
+	<classpathentry kind="lib" path="lib/jung/collections-generic-4.01.jar" sourcepath="lib/jung/collections-generic-4.01.jar"/>
+	<classpathentry kind="lib" path="lib/jung/colt-1.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/jung/concurrent-1.3.4.jar"/>
+	<classpathentry kind="lib" path="lib/jung/j3d-core-1.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-3d-2.0.1.jar" sourcepath="lib/src/jung-visualization-2.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-3d-demos-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-algorithms-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-graph-impl-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-jai-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-jai-samples-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-samples-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-visualization-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/vecmath-1.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/wstx-asl-3.2.6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="/usr/lib/jvm/java-6-openjdk/lib/tools.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-openjdk"/>

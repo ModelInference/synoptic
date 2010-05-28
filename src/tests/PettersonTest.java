@@ -36,6 +36,8 @@ public class PettersonTest {
 		
 		r.readGraphSet("traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
 		 15);
+		//r.readGraphSet("traces/TapioExampleTrace/trace.txt",
+		//		 1);
 		/*r
 				.readGraphSet(
 						"traces/PetersonLeaderElection/generated_traces/peterson_trace-rounds-0-s?.txt",
@@ -66,23 +68,23 @@ public class PettersonTest {
 		Bisimulation.mergePartitions(pg);
 		System.out.println("Merge done.");
 		e.exportAsDotAndPngFast("output/peterson/output-pg-merged.dot", pg);
-		exportSCCsWithInvariants(e, pg);
+		//exportSCCsWithInvariants(e, pg);
 		// Bisimulation.mergePartitions(pg);
 		// e.exportAsDotAndPng("output/peterson/output-pg-merged.dot", pg);
-		NetBuilder netBuilder = new NetBuilder();
-		GraphUtil.copyTo(pg, netBuilder);
-		Net net = netBuilder.getNet();
+		//NetBuilder netBuilder = new NetBuilder();
+		//GraphUtil.copyTo(pg, netBuilder);
+		//Net net = netBuilder.getNet();
 
-		HashMap<Event, ArrayList<Event>> entries = getEventSequences(net);
-		e.exportAsDotAndPng("output/peterson/output-net.dot", net);
-		for (ArrayList<Event> seq : entries.values()) {
-			if (seq.size() > 1) {
-				System.out.println(seq);
-				net.replace(seq, conciseName(seq));
-			}
-		}
+		//HashMap<Event, ArrayList<Event>> entries = getEventSequences(net);
+		//e.exportAsDotAndPng("output/peterson/output-net.dot", net);
+		//for (ArrayList<Event> seq : entries.values()) {
+		//	if (seq.size() > 1) {
+		//		System.out.println(seq);
+		//		net.replace(seq, conciseName(seq));
+		//	}
+		//}
 
-		e.exportAsDotAndPng("output/peterson/output-net-condensed.dot", net);
+		//e.exportAsDotAndPng("output/peterson/output-net-condensed.dot", net);
 	}
 
 	private static void exportSCCsWithInvariants(GraphVizExporter e,
@@ -103,7 +105,7 @@ public class PettersonTest {
 			System.out.println(scc);
 			TemporalInvariantSet.generateStructuralInvariants = true;
 			TemporalInvariantSet s2 = TemporalInvariantSet.computeInvariants(messageGraph);
-			e.exportAsDotAndPng("output/peterson/partition-"+partN+"-invariants.dot", s2
+			e.exportAsDotAndPngFast("output/peterson/partition-"+partN+"-invariants.dot", s2
 					.getInvariantGraph("AP"));
 			TemporalInvariantSet.generateStructuralInvariants = false;
 			partN++;

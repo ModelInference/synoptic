@@ -16,6 +16,10 @@ public class PartitionMerge implements Operation {
 		if (retained.size() == 0 || removed.size() == 0)
 			throw new RuntimeException("merging empty partitions: " + retained.size() + ", " + removed.size());
 	}
+	
+	public Partition getRemoved() {
+		return removed;
+	}
 
 	@Override
 	public Operation commit(PartitionGraph g, IModifiableGraph<Partition> partitionGraph,
