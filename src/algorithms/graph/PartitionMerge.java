@@ -38,7 +38,7 @@ public class PartitionMerge implements Operation {
 		}
 		removed.removeMessages(removed.getMessages());
 		partitionGraph.remove(removed);
-		System.out.println("merge rewind: " + split);
+		//System.out.println("merge rewind: " + split);
 		if (removedSize + retainedSize != retained.size())
 			throw new RuntimeException("lost messages!: " + removedSize+ "+" + retainedSize + "!= " + retained.size());
 		return split;

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -96,6 +97,24 @@ public class Partition implements
 		return ret;
 	}
 
+	public PartitionSplit getCandidateDivisionReach(Partition from,
+			ITransition<Partition> trans2) {
+		PartitionSplit s = new PartitionSplit(this);
+		Set<MessageEvent> evts = new HashSet<MessageEvent>();
+		for (final MessageEvent otherExpr : from.messages) {
+			evts.addAll(otherExpr.getSuccessors(trans2.getAction()));
+			evts.retainAll(messages);
+		}
+		for (MessageEvent m : messages) {
+			if (evts.contains(m))
+				s.addFulfills(m);
+			else
+				s.addFulfillsNot(m);
+		}
+		
+		return s;
+	}
+
 	private static boolean fulfillsStrong(MessageEvent otherExpr,
 			ITransition<Partition> trans) {
 		for (final ITransition<MessageEvent> t : otherExpr.getTransitions())
@@ -112,19 +131,26 @@ public class Partition implements
 	public int size() {
 		return messages.size();
 	}
-	
+
 	public Set<Relation<Partition>> getTransitions() {
 		Set<Relation<Partition>> set = new HashSet<Relation<Partition>>();
 		for (Relation<Partition> tr : getTransitionsIterator()) {
 			set.add(tr);
 			PartitionSplit s = getCandidateDivision(tr);
-			List<Invariant> all = TemporalInvariantSet.generateInvariants(tr.getSource().getMessages()); 
-			List<Invariant> sInv = TemporalInvariantSet.generateInvariants(s.getFulfills());
-			List<Invariant> sInvNot = TemporalInvariantSet.generateInvariants(s.getFulfillsNot());
-			List<Invariant> rel = TemporalInvariantSet.getRelevantInvariants(sInv, sInvNot, all);
-			List<Invariant> flow = TemporalInvariantSet.generateFlowInvariants(tr.getSource().getMessages(), tr.getAction(), tr.getTarget().getAction().getLabel());
+			List<Invariant> all = TemporalInvariantSet.generateInvariants(tr
+					.getSource().getMessages());
+			List<Invariant> sInv = TemporalInvariantSet.generateInvariants(s
+					.getFulfills());
+			List<Invariant> sInvNot = TemporalInvariantSet.generateInvariants(s
+					.getFulfillsNot());
+			List<Invariant> rel = TemporalInvariantSet.getRelevantInvariants(
+					sInv, sInvNot, all);
+			List<Invariant> flow = TemporalInvariantSet.generateFlowInvariants(
+					tr.getSource().getMessages(), tr.getAction(), tr
+							.getTarget().getAction().getLabel());
 			tr.setInvariants(rel);
-			tr.setFrequency(s.getFulfills().size()/(double)tr.getSource().getMessages().size());
+			tr.setFrequency(s.getFulfills().size()
+					/ (double) tr.getSource().getMessages().size());
 			System.out.println(flow);
 		}
 		return set;
@@ -152,9 +178,9 @@ public class Partition implements
 						if (seen.add(transToPart))
 							return transToPart;
 					} else
-						transItr = act == null ? msgItr.next()
-								.getTransitions().iterator() : msgItr.next()
-								.getTransitions(act).iterator();
+						transItr = act == null ? msgItr.next().getTransitions()
+								.iterator() : msgItr.next().getTransitions(act)
+								.iterator();
 				}
 
 				return null;
@@ -224,7 +250,7 @@ public class Partition implements
 	@Override
 	public String toStringConcise() {
 		return getAction().getLabel();
-		//return toString();
+		// return toString();
 	}
 
 	@Override

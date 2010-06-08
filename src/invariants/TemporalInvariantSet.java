@@ -40,12 +40,12 @@ import model.interfaces.ITransition;
 public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	public static boolean generateStructuralInvariants = false;
 	HashSet<TemporalInvariant> invariants = new HashSet<TemporalInvariant>();
-	final static boolean DEBUG = false;
+	static boolean DEBUG = false;
 
 	public <T extends INode<T>> boolean check(IGraph<T> g) {
 		TemporalInvariantSet set = computeInvariants(g);
 		boolean result = set.invariants.containsAll(invariants);
-		if (!result) {
+		if (!result && DEBUG) {
 			System.out.println(getUnsatisfiedInvariants(g));
 		}
 		return result;

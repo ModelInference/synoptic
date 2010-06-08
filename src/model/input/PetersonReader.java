@@ -108,13 +108,13 @@ public class PetersonReader<T extends IEvent> {
 	}
 
 	public void readGraphSet(String baseName, int n) throws IOException {
-		System.out.print("Reading Graph set");
+		//System.out.print("Reading Graph set");
 		for (int i = 1; i <= n; ++i) {
 			readGraphDirect(baseName.replace("?", "" + i));
 			builder.split();
-			System.out.print(".");
+		//	System.out.print(".");
 		}
-		System.out.println();
+		//System.out.println();
 	}
 
 	public void readGraph(String baseName) throws IOException {
