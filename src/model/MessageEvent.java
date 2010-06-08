@@ -136,6 +136,21 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 		}
 	}
 
+	public List<Relation<MessageEvent>> getTransitions(Partition target,
+			Action action) {
+		List<Relation<MessageEvent>> forAction = transitionsByAction.get(action);
+		if (forAction == null)
+			return Collections.emptyList();
+		
+		List<Relation<MessageEvent>> res = new ArrayList<Relation<MessageEvent>>();
+		for (Relation<MessageEvent> t : forAction) {
+			if (t.getTarget().getParent() == target) {
+				res.add(t);
+			}
+		}
+		return res;
+	}
+
 	public List<Relation<MessageEvent>> getTransitions(MessageEvent target,
 			Action action) {
 		HashMap<MessageEvent, List<Relation<MessageEvent>>> forAction = transitionsByActionAndTarget
@@ -256,4 +271,5 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 			successors.add(e.getTarget());
 		return successors;
 	}
+
 }

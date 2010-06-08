@@ -157,7 +157,7 @@ public class GraphLTLChecker<T extends INode<T>>  {
 				e.setAttribute("inode", m);
 			}
 		}
-		System.out.println(targetGraph.getEdgeCount());
+		//System.out.println(targetGraph.getEdgeCount());
 		return targetGraph;
 	}
 

@@ -49,6 +49,8 @@ public class GraphVizExporter {
 
 	public <T extends INode<T>> void export(File dotFile, IGraph<T> newHead)
 			throws Exception {
+		if (true)
+			return;
 		final PrintWriter writer;
 		try {
 			writer = new PrintWriter(dotFile);
@@ -60,6 +62,8 @@ public class GraphVizExporter {
 	}
 
 	public void export(File dotFile, Net net) throws Exception {
+		if (true)
+			return;
 		final PrintWriter writer;
 		try {
 			writer = new PrintWriter(dotFile);
@@ -293,6 +297,8 @@ public class GraphVizExporter {
 
 	public void debugExportAsDotAndPng(String fileName, PartitionGraph pg)
 			throws Exception {
+		if (true)
+			return;
 		File f = new File(fileName);
 		final PrintWriter writer;
 		try {
