@@ -10,6 +10,8 @@ import java.util.StringTokenizer;
 
 
 import model.Action;
+import model.Graph;
+import model.MessageEvent;
 import model.PartitionGraph;
 
 public class NfsTraceParser extends DefaultScalableTraceParser {
@@ -17,7 +19,7 @@ public class NfsTraceParser extends DefaultScalableTraceParser {
 	public final static int SPLIT_NONE = 0;
 	public final static int SPLIT_BY_FILE = 1;
 	
-	public PartitionGraph parseTraceFile(String fileName, int linesToRead, int splitStrategy) {
+	public Graph<MessageEvent> parseTraceFile(String fileName, int linesToRead, int splitStrategy) {
 		try {
 			FileInputStream fstream = new FileInputStream(fileName);
 			BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -46,7 +48,7 @@ public class NfsTraceParser extends DefaultScalableTraceParser {
 		}
 	}
 
-	public PartitionGraph parseTrace(String[] traceLines) {
+	public Graph<MessageEvent> parseTrace(String[] traceLines) {
 		GraphBuilder gb = new GraphBuilder();
 //		int ctr = 0;
 		for (String line : traceLines) {
@@ -55,10 +57,10 @@ public class NfsTraceParser extends DefaultScalableTraceParser {
 //			if (++ctr % splitInterval == 0)
 //				gb.split();
 		}
-		return gb.getGraph(false);
+		return gb.getRawGraph();
 	}
 	
-	public PartitionGraph parseTraceByFile(String[] traceLines) {
+	public Graph<MessageEvent> parseTraceByFile(String[] traceLines) {
 		GraphBuilder gb = new GraphBuilder();
 		HashMap<String, ArrayList<Action>> sets = new HashMap<String, ArrayList<Action>>();
 		for (String line : traceLines) {
@@ -77,7 +79,7 @@ public class NfsTraceParser extends DefaultScalableTraceParser {
 			}
 			gb.split();
 		}
-		return gb.getGraph(false);
+		return gb.getRawGraph();
 	}
 
 	private Action parseTraceEntry(String entry) {
