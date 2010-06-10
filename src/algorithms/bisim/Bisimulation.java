@@ -180,6 +180,7 @@ public abstract class Bisimulation {
 						if (VERBOSE)
 							System.out.println("  -- invalid: " + d);
 						// continue path;
+						noprogress = true;
 						continue;
 					}
 
@@ -189,7 +190,7 @@ public abstract class Bisimulation {
 					if (unsatAfter.size() == unsat.size() && !noprogress_this) {
 						partitionGraph.apply(rewindOperation);
 						if (VERBOSE)
-							System.out.println(" NO PROGRESS ");
+							System.out.println(" -- rewind (no progress): " + d);
 						noprogress = true;
 						continue;
 					}
@@ -205,14 +206,15 @@ public abstract class Bisimulation {
 						if (VERBOSE)
 							System.out.println("  -- ok");
 						effectiveSplits.add(d);
-						noprogress = false;
 					} else if (VERBOSE)
 						System.out.println("  -- forced");
+					noprogress = false;
 					break off;
 				}
 			}
 			// if (noprogress_this)
 			// break;
+			System.out.println(partitionGraph.getNodes().size());
 			outer++;
 		}
 

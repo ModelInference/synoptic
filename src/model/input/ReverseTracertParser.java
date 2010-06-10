@@ -7,11 +7,13 @@ import java.util.ArrayList;
 
 
 import model.Action;
+import model.Graph;
+import model.MessageEvent;
 import model.PartitionGraph;
 
 public class ReverseTracertParser extends DefaultScalableTraceParser {
 	
-	public PartitionGraph parseTraceFile(String fileName, int linesToRead, int __unused) {
+	public Graph<MessageEvent> parseTraceFile(String fileName, int linesToRead, int __unused) {
 		try {
 			FileInputStream fstream = new FileInputStream(fileName);
 			BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -40,7 +42,7 @@ public class ReverseTracertParser extends DefaultScalableTraceParser {
 				line.equals("FAILED"));
 	}
 
-	public PartitionGraph parseTrace(String[] traceLines) {
+	public Graph<MessageEvent> parseTrace(String[] traceLines) {
 		GraphBuilder gb = new GraphBuilder();
 		boolean nextSplit = false;
 		for (String line : traceLines) {
@@ -60,7 +62,7 @@ public class ReverseTracertParser extends DefaultScalableTraceParser {
 			gb.append(a);
 			
 		}
-		return gb.getGraph(false);
+		return gb.getRawGraph();
 	}
 
 	private Action parseTraceEntry(String entry) {
