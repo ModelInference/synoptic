@@ -32,12 +32,12 @@ public class Benchmarks {
 		for (int i = 15; i < 150; i += 15) {
 			list.add(i);
 		}
+		ArrayList<HashMap<String,Long>> resList = new ArrayList<HashMap<String,Long>>();
 		for (int count : list) {
 			HashMap<String, Long> res = new HashMap<String, Long>();
-			int nodes = 0;
 			for (int i = 0; i < REPETITIONS; ++i) {
-				TimedTask total = new TimedTask("total time", 1);
-				TimedTask load = new TimedTask("load files", 1);
+				TimedTask total = new TimedTask("total", 1);
+				TimedTask load = new TimedTask("load", 1);
 				GraphBuilder b = new GraphBuilder();
 				PetersonReader<MessageEvent> r = new PetersonReader<MessageEvent>(
 						b);
@@ -46,7 +46,6 @@ public class Benchmarks {
 								"traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
 								count);
 				Graph<MessageEvent> g = b.getRawGraph();
-				nodes += g.getNodes().size();
 				load.stop();
 				TimedTask invariants = new TimedTask("invariants", 1);
 				PartitionGraph pg = new PartitionGraph(g, true);
@@ -65,12 +64,17 @@ public class Benchmarks {
 				record(res, refinement);
 				record(res, coarsening);
 				record(res, total);
+				res.put("nodes", (long)g.getNodes().size());
 			}
-			System.out.println(nodes/3 + " Nodes");
 			for (Entry<String, Long> entry : res.entrySet()) {
 				System.out.println(entry.getKey() + "\t" + entry.getValue() / 3);
+				res.put(entry.getKey(), entry.getValue()/3);
 			}
 			System.out.println();
+			resList.add(res);
+		}
+		for (HashMap<String, Long> map : resList) {
+			System.out.println(map.get("nodes") + " " +map.get("load") + " " +map.get("refinement") + " " +map.get("coarsening") + " " +map.get("invariants") + " " +map.get("total"));
 		}
 	}
 
