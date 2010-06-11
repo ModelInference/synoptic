@@ -9,6 +9,7 @@ import model.input.ReverseTracertParser;
 public class ReverseTraceroute {
 	public static void main(String[] args) throws Exception {
 		GraphVizExporter export = new GraphVizExporter();
+		//model.Graph<MessageEvent> raw = readMultiple();
 		model.Graph<MessageEvent> raw = readMultiple();
 		PartitionGraph g = new PartitionGraph(raw, true);
 		export.exportAsDotAndPngFast("output/reverseTraceroute/input.dot", g);
@@ -16,12 +17,12 @@ public class ReverseTraceroute {
 		System.out.println("merging.");
 		Bisimulation.mergePartitions(g);
 
-		export.exportAsDotAndPngFast("output/reverseTraceroute/output.dot", g);
+		export.exportAsDotAndPng("output/reverseTraceroute/output.dot", g);
 	}
 	
-	model.Graph<MessageEvent> readSingle() {
+	static model.Graph<MessageEvent> readSingle() {
 		return (new ReverseTracertParser()).parseTraceFile(
-				"data/rt/parsed/Doris-UA-AS8343_revtr.err", 10000, 0);
+				"traces/ReverseTraceroute/rt_parsed/velia.net-AS29066_revtr.err", 10000, 0);
 	}
 	
 	static model.Graph<MessageEvent> readMultiple() {
@@ -54,7 +55,7 @@ public class ReverseTraceroute {
 				"TeliaSonera-AS1299_revtr.err", "Telus-AS852_revtr.err",
 				"UKR-AS16124_revtr.err", "UNNET-AS31323_revtr.err",
 				"UkrSat-AS12369_revtr.err", "Ultraspeed_revtr.err",
-				"Viatel-AS8190_revtr.err", };
+				/*"velia.net-AS29066_revtr.err"*/};
 
 		String[] traces_62 = new String[] {
 				"APAN-AS7660-2_revtr.err",
@@ -67,7 +68,7 @@ public class ReverseTraceroute {
 				"Cogent-AS174_revtr.err",
 				"Companhia-Portuguesa-Radio-Marconi-AS8657_revtr.err",
 				"Doris-UA-AS8343_revtr.err",
-				/*"EUnet-Finland-AS6667_revtr.err",
+				"EUnet-Finland-AS6667_revtr.err",
 				"Eastlink_revtr.err",
 				"Elite-AS29611_revtr.err",
 				"EuroNet-AS5390_revtr.err",
@@ -110,12 +111,14 @@ public class ReverseTraceroute {
 				"Telmex-Chile-AS19338_revtr.err", "Telus-AS852_revtr.err",
 				"Titan-Networks-AS20640_revtr.err", "UKR-AS16124_revtr.err",
 				"UNNET-AS31323_revtr.err", "UkrSat-AS12369_revtr.err",
-				"Ultraspeed_revtr.err", "Viatel-AS8190_revtr.err",*/ };
+				"Ultraspeed_revtr.err", "Viatel-AS8190_revtr.err", };
+		
+		String[] traces_long = {"velia.net-AS29066_revtr.err", "hotze.com-AS8596_revtr.err"};
 
 		GraphVizExporter export = new GraphVizExporter();
 		model.Graph<MessageEvent> g = new model.Graph<MessageEvent>();
 		String prefix = "data/rt/parsed/";
-		for (String trace : traces_62) {
+		for (String trace : traces_34) {
 			g.merge((new ReverseTracertParser()).parseTraceFile(prefix
 					+ trace, 1000, 0));
 		}

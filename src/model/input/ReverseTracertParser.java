@@ -36,10 +36,12 @@ public class ReverseTracertParser extends DefaultScalableTraceParser {
 	}
 	
 	public boolean isSeparator(String line) {
-		return (line.equals("REACHED") ||
-				line.equals("FOUND") ||
-				line.equals("NONE") ||
-				line.equals("FAILED"));
+		return false;
+		//	 line.equals("REACHED") //||
+		//		line.equals("FOUND") ||
+		//		line.equals("NONE") ||
+		//		line.equals("FAILED")
+		//		;
 	}
 
 	public Graph<MessageEvent> parseTrace(String[] traceLines) {
