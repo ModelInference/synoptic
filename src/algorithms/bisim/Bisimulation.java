@@ -145,8 +145,6 @@ public abstract class Bisimulation {
 		int outer = 1;
 		if (DEBUG) {
 			GraphVizExporter.quickExport("output/rounds/0.dot", partitionGraph);
-			GraphVizExporter.quickExport("output/rounds/0s.dot", partitionGraph
-					.getSystemStateGraph());
 		}
 		boolean noprogress = false;
 		HashMap<Partition, PartitionSplit> partDepsOn = new HashMap<Partition, PartitionSplit>();
@@ -184,6 +182,10 @@ public abstract class Bisimulation {
 						continue;
 					}
 					Operation rewindOperation = partitionGraph.apply(d);
+					if (DEBUG) {
+						GraphVizExporter.quickExport("output/rounds/" + outer
+								+ ".dot", partitionGraph);
+					}
 					if (noprogress_this)
 						break off;
 					TemporalInvariantSet unsatAfter = invariants
@@ -196,10 +198,7 @@ public abstract class Bisimulation {
 						continue;
 					}
 					System.out.flush();
-					if (DEBUG) {
-						GraphVizExporter.quickExport("output/rounds/" + outer
-								+ ".dot", partitionGraph);
-					}
+					
 					PartitionMerge m = (PartitionMerge) rewindOperation;
 					partDepsOn.put(m.getRemoved(), d);
 					rewinds.put(d, rewindOperation);
@@ -215,15 +214,13 @@ public abstract class Bisimulation {
 			}
 			// if (noprogress_this)
 			// break;
-			System.out.println(partitionGraph.getNodes().size());
+			//System.out.println(partitionGraph.getNodes().size() + " " + unsat.size());
 			outer++;
 		}
 
 		if (DEBUG) {
 			GraphVizExporter.quickExport("output/rounds/" + outer
 					+ "-final.dot", partitionGraph);
-			GraphVizExporter.quickExport("output/rounds/" + outer
-					+ "-finals.dot", partitionGraph.getSystemStateGraph());
 		}
 
 		// HashSet<Operation> needed = new HashSet<Operation>();
@@ -282,8 +279,8 @@ public abstract class Bisimulation {
 		if (partTrans2 != null) {
 			if (VERBOSE)
 				System.out.println(partTrans2);
-			//ret.add(curPartition.getCandidateDivisionReach(prevPartition,
-			//		partTrans2));
+			ret.add(curPartition.getCandidateDivisionReach(prevPartition,
+					partTrans2));
 		}
 		return ret;
 	}
@@ -301,22 +298,12 @@ public abstract class Bisimulation {
 	}
 
 	public static void mergePartitions(PartitionGraph partitionGraph) {
-		DEBUG = false;
 		int outer = 0;
-		if (DEBUG) {
-			GraphVizExporter.quickExport("output/rounds/initial.dot",
-					partitionGraph);
-			GraphVizExporter.quickExport("output/rounds/initials.dot",
-					partitionGraph.getSystemStateGraph());
-		}
 		TemporalInvariantSet invariants = partitionGraph.getInvariants();
 		out: while (true) {
 			if (DEBUG) {
-				GraphVizExporter.quickExport("output/rounds/" + outer + ".dot",
+				GraphVizExporter.quickExport("output/rounds/m" + outer + ".dot",
 						partitionGraph);
-				GraphVizExporter.quickExport(
-						"output/rounds/" + outer + "s.dot", partitionGraph
-								.getSystemStateGraph());
 			}
 			boolean progress = false;
 			ArrayList<Partition> partitions = new ArrayList<Partition>();
@@ -324,33 +311,21 @@ public abstract class Bisimulation {
 			for (Partition p : partitions) {
 				for (Partition q : partitions) {
 					if (p.getAction().equals(q.getAction()) && p != q) {
-						if (partitionGraph.getInitialNodes().contains(p) != partitionGraph
-								.getInitialNodes().contains(q))
-							continue;
+						//if (partitionGraph.getInitialNodes().contains(p) != partitionGraph
+						//		.getInitialNodes().contains(q))
+						//	continue;
 						if (VERBOSE)
 							System.out.println("merge " + p + " with " + q);
 						PartitionSplit split = new PartitionSplit(p);
 						for (MessageEvent m : q.getMessages())
 							split.addFulfills(m);
-						if (DEBUG) {
-							GraphVizExporter.quickExport("output/rounds/"
-									+ outer + "a.dot", partitionGraph);
-							GraphVizExporter.quickExport("output/rounds/"
-									+ outer + "as.dot", partitionGraph
-									.getSystemStateGraph());
-						}
 						Set<Partition> parts = new HashSet<Partition>();
 						parts.addAll(partitionGraph.getNodes());
 						Operation rewindOperation = partitionGraph
 								.apply(new PartitionMerge(p, q));
 						partitionGraph.checkSanity();
-						if (DEBUG) {
-							GraphVizExporter.quickExport("output/rounds/"
-									+ outer + "b.dot", partitionGraph);
-							GraphVizExporter.quickExport("output/rounds/"
-									+ outer + "bs.dot", partitionGraph
-									.getSystemStateGraph());
-						}
+					//	if (true)
+					//		continue out;
 						if (!invariants.check(partitionGraph)) {
 							if (VERBOSE)
 								System.out.println("  REWIND");
@@ -362,13 +337,6 @@ public abstract class Bisimulation {
 								throw new RuntimeException(
 										"partition set changed due to rewind: "
 												+ rewindOperation);
-							if (DEBUG) {
-								GraphVizExporter.quickExport("output/rounds/"
-										+ outer + "c.dot", partitionGraph);
-								GraphVizExporter.quickExport("output/rounds/"
-										+ outer + "cs.dot", partitionGraph
-										.getSystemStateGraph());
-							}
 							if (!invariants.check(partitionGraph)) {
 								throw new RuntimeException("could not rewind");
 							}
@@ -386,10 +354,8 @@ public abstract class Bisimulation {
 				System.out.println();
 		}
 		if (DEBUG) {
-			GraphVizExporter.quickExport("output/rounds/" + outer
+			GraphVizExporter.quickExport("output/rounds/m" + outer
 					+ "-final.dot", partitionGraph);
-			GraphVizExporter.quickExport("output/rounds/" + outer
-					+ "-finals.dot", partitionGraph.getSystemStateGraph());
 		}
 	}
 }

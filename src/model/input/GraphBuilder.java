@@ -130,6 +130,17 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 		}
 		return gb.getGraph(false);
 	}
+	
+	public void buildGraphLocal(String[][] traces) {
+		for (int i = 0; i < traces.length; ++i) {
+			for (String t : traces[i]) {
+				append(new Action(t));
+			}
+			if (i != traces.length - 1) {
+				split();
+			}
+		}
+	}
 
 	public static PartitionGraph buildGraph(TraceSet traceSet) {
 		GraphBuilder gb = new GraphBuilder();

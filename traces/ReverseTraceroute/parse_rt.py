@@ -32,13 +32,11 @@ exprs = [
     "Current hop .+ stamps 0, so not asking for stamp",
     "Backing off along current path",
     "Rev Seg is",
+    "NONE",
+    "FAILED"
 ]
 
 partition_exprs = [
-    "REACHED",
-    "FOUND",
-    "NONE",
-    "FAILED",
     "--------",
     ]
 

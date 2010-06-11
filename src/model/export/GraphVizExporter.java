@@ -275,7 +275,7 @@ public class GraphVizExporter {
 			IGraph<T> g) {
 		GraphVizExporter e = new GraphVizExporter();
 		try {
-			e.exportAsDotAndPngFast(fileName, g);
+			e.exportAsDotAndPng(fileName, g);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}

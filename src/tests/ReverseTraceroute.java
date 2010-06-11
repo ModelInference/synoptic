@@ -32,8 +32,9 @@ public class ReverseTraceroute {
 				"CERN-AS513_revtr.err",
 				"Cogent-AS174_revtr.err",
 				"Companhia-Portuguesa-Radio-Marconi-AS8657_revtr.err",
+				"Viatel-AS8190_revtr.err",
 				// "Doris-UA-AS8343_revtr.err",
-				"EUnet-Finland-AS6667_revtr.err",
+				/*"EUnet-Finland-AS6667_revtr.err",
 				"Eastlink_revtr.err",
 				"Exobit-Networks-AS30653_revtr.err",
 				"Friedberg-University-AS680_revtr.err",
@@ -55,7 +56,7 @@ public class ReverseTraceroute {
 				"TeliaSonera-AS1299_revtr.err", "Telus-AS852_revtr.err",
 				"UKR-AS16124_revtr.err", "UNNET-AS31323_revtr.err",
 				"UkrSat-AS12369_revtr.err", "Ultraspeed_revtr.err",
-				/*"velia.net-AS29066_revtr.err"*/};
+				"velia.net-AS29066_revtr.err"*/};
 
 		String[] traces_62 = new String[] {
 				"APAN-AS7660-2_revtr.err",
@@ -117,10 +118,10 @@ public class ReverseTraceroute {
 
 		GraphVizExporter export = new GraphVizExporter();
 		model.Graph<MessageEvent> g = new model.Graph<MessageEvent>();
-		String prefix = "data/rt/parsed/";
-		for (String trace : traces_34) {
+		String prefix = "traces/ReverseTraceroute/rt_parsed/";
+		for (String trace : traces_62) {
 			g.merge((new ReverseTracertParser()).parseTraceFile(prefix
-					+ trace, 1000, 0));
+					+ trace, 10000, 0));
 		}
 		System.out.println(g.getNodes().size());
 		return g;
