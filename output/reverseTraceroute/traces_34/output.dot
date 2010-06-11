@@ -1,4 +1,5 @@
 digraph {
+  nodesep=2;
   31218752 [label="Issuing spoofed recordroutes"];
 31218752->17567655 [label="t, freq 0.00", weight=0.0];
 31218752->21604360 [label="t, freq 0.00", weight=0.0];

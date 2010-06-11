@@ -137,7 +137,7 @@ public class Partition implements
 		for (Relation<Partition> tr : getTransitionsIterator()) {
 			set.add(tr);
 			PartitionSplit s = getCandidateDivision(tr);
-			List<Invariant> all = TemporalInvariantSet.generateInvariants(tr
+			/*List<Invariant> all = TemporalInvariantSet.generateInvariants(tr
 					.getSource().getMessages());
 			List<Invariant> sInv = TemporalInvariantSet.generateInvariants(s
 					.getFulfills());
@@ -148,10 +148,13 @@ public class Partition implements
 			List<Invariant> flow = TemporalInvariantSet.generateFlowInvariants(
 					tr.getSource().getMessages(), tr.getAction(), tr
 							.getTarget().getAction().getLabel());
-			tr.setInvariants(rel);
-			tr.setFrequency(s.getFulfills().size()
+			tr.setInvariants(rel);*/
+			System.out.println(s.getFulfills().size() + " " + s.getFulfillsNot().size());
+			
+			tr.setFrequency((double)s.getFulfills().size()
 					/ (double) tr.getSource().getMessages().size());
-			System.out.println(flow);
+			tr.addCount(s.getFulfills().size());
+			//System.out.println(flow);
 		}
 		return set;
 	}

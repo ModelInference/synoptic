@@ -183,8 +183,9 @@ public abstract class Bisimulation {
 						noprogress = true;
 						continue;
 					}
-
 					Operation rewindOperation = partitionGraph.apply(d);
+					if (noprogress_this)
+						break off;
 					TemporalInvariantSet unsatAfter = invariants
 							.getUnsatisfiedInvariants(partitionGraph);
 					if (unsatAfter.size() == unsat.size() && !noprogress_this) {
@@ -281,8 +282,8 @@ public abstract class Bisimulation {
 		if (partTrans2 != null) {
 			if (VERBOSE)
 				System.out.println(partTrans2);
-			ret.add(curPartition.getCandidateDivisionReach(prevPartition,
-					partTrans2));
+			//ret.add(curPartition.getCandidateDivisionReach(prevPartition,
+			//		partTrans2));
 		}
 		return ret;
 	}

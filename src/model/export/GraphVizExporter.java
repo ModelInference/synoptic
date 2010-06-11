@@ -49,8 +49,6 @@ public class GraphVizExporter {
 
 	public <T extends INode<T>> void export(File dotFile, IGraph<T> newHead)
 			throws Exception {
-		if (true)
-			return;
 		final PrintWriter writer;
 		try {
 			writer = new PrintWriter(dotFile);
@@ -169,7 +167,7 @@ public class GraphVizExporter {
 						+ targetStateNo
 						+ " [label=\""
 						+ quote(trans.toStringConcise())
-						+ "\", weight=0.0"
+						+ "\", weight=\""+trans.toStringConcise()+"\""
 						+ (trans.toStringConcise().equals("i") ? ",color=blue"
 								: "") + "];" + "\n");
 				if (statesSeen.add(targetExpr))

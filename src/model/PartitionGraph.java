@@ -49,6 +49,7 @@ public class PartitionGraph implements IGraph<Partition> {
 			partitionSeparately(g.getNodes());
 		stateGraph = GraphUtil.convertPartitionGraphToStateGraph(this);
 		invariants = TemporalInvariantSet.computeInvariants(g);
+		System.out.println(invariants.size() + " invariants found.");
 	}
 
 	private void addInitialMessages(Set<MessageEvent> initialMessages, Action relation) {

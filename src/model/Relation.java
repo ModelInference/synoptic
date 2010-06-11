@@ -31,7 +31,9 @@ public class Relation<StateType> extends Transition<StateType> {
 
 	public String toStringConcise() {
 		Locale.setDefault(Locale.ENGLISH);
-		return getAction().toString()+(inv.size()==0 ? "" : " if "+inv)+", freq "+String.format("%.2f", frequency)+"";
+		//return getAction().toString()+(inv.size()==0 ? "" : " if "+inv)+", freq "+String.format("%.2f", frequency)+"";
+		//return String.format("%.2f", frequency);
+		return String.format("%.2f", frequency);
 	}
 	
 	public String toString() {
@@ -45,14 +47,6 @@ public class Relation<StateType> extends Transition<StateType> {
 
 	@Override
 	public void setTarget(StateType target) {
-		throw new NotImplementedException();
-	}
-	
-	public void addCount(int count) {
-		throw new NotImplementedException();
-	}
-	
-	public int getCount() {
 		throw new NotImplementedException();
 	}
 
