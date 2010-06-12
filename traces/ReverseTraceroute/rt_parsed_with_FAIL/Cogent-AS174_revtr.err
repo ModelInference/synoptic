@@ -16,17 +16,13 @@ RR VPs left to try
 Issuing spoofed recordroutes
 Current hop .+ seems to be unresponsive
 Connecting to adjacency_server
-Adjacents for .+ are
 TS adjacents left to try
-Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
 Rev Seg is
 NONE
-FAILED
 Checking .+ for traceroutes to source
 NONE
-FAILED
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -41,22 +37,17 @@ Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
 Current hop .+ seems to be unresponsive
-Adjacents for .+ are
 TS adjacents left to try
-Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
 Rev Seg is
 NONE
-FAILED
 Checking .+ for traceroutes to source
 NONE
-FAILED
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
 NONE
-FAILED
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -71,22 +62,17 @@ Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
 Current hop .+ seems to be unresponsive
-Adjacents for .+ are
 TS adjacents left to try
-Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
 Rev Seg is
 NONE
-FAILED
 Checking .+ for traceroutes to source
 NONE
-FAILED
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
 NONE
-FAILED
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -105,15 +91,12 @@ TS adjacents left to try
 No adjacents to
 Rev Seg is
 NONE
-FAILED
 Checking .+ for traceroutes to source
 NONE
-FAILED
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
 NONE
-FAILED
 Issuing traceroutes
 Issuing traceroutes
 Rev Seg is
@@ -129,17 +112,13 @@ Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
 Current hop .+ seems to be unresponsive
-Adjacents for .+ are
 TS adjacents left to try
-Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
 Rev Seg is
 NONE
-FAILED
 Checking .+ for traceroutes to source
 NONE
-FAILED
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -150,7 +129,6 @@ Issuing recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
 NONE
-FAILED
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Initializing RR VPs
@@ -161,8 +139,6 @@ RR VPs left to try
 FOUND RECENT SPOOFER TO USE
 Issuing spoofed recordroutes
 NONE
-FAILED
 Checking .+ for traceroutes to source
 NONE
-FAILED
 
