@@ -28,6 +28,7 @@ public class Partition implements
 		ISuccessorProvider<Partition> {
 	protected final Set<MessageEvent> messages;
 	private MultiSourceTransition<SystemState<Partition>> transition;
+	private String label;
 
 	public Partition(Set<MessageEvent> messages,
 			Set<SystemState<Partition>> sources, SystemState<Partition> target) {
@@ -125,6 +126,8 @@ public class Partition implements
 	}
 
 	public String getLabel() {
+		if (label != null)
+			return label;
 		return messages.iterator().next().getLabel();
 	}
 
@@ -252,7 +255,7 @@ public class Partition implements
 
 	@Override
 	public String toStringConcise() {
-		return getAction().getLabel();
+		return getLabel();
 		// return toString();
 	}
 
@@ -346,4 +349,10 @@ public class Partition implements
 
 		};
 	}
+
+	public void setLabel(String str) {
+		this.label = str;
+	}
+	
+	
 }
