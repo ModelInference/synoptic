@@ -150,9 +150,11 @@ public abstract class Bisimulation {
 		HashMap<Partition, PartitionSplit> partDepsOn = new HashMap<Partition, PartitionSplit>();
 		HashSet<PartitionSplit> effectiveSplits = new HashSet<PartitionSplit>();
 		HashMap<PartitionSplit, Operation> rewinds = new HashMap<PartitionSplit, Operation>();
+		int lastUnsatSize = 0;
 		while (true) {
 			boolean noprogress_this = noprogress;
 			noprogress = true;
+			boolean lastWasGood = false;
 			TemporalInvariantSet invariants = partitionGraph.getInvariants();
 			TemporalInvariantSet unsat = invariants
 					.getUnsatisfiedInvariants(partitionGraph);
@@ -170,7 +172,7 @@ public abstract class Bisimulation {
 
 			off: for (RelationPath<Partition> relPath : rp) {
 				List<PartitionSplit> dl = getSplit(relPath, partitionGraph);
-				Collections.reverse(dl);
+				//Collections.reverse(dl);
 				for (PartitionSplit d : dl)
 				// PartitionSplit d = dl.get(1);
 				{
@@ -202,10 +204,11 @@ public abstract class Bisimulation {
 					PartitionMerge m = (PartitionMerge) rewindOperation;
 					partDepsOn.put(m.getRemoved(), d);
 					rewinds.put(d, rewindOperation);
-					if (unsatAfter.size() != unsat.size()) {
+					if (unsatAfter.size() < unsat.size()) {
 						if (VERBOSE)
 							System.out.println("  -- ok");
 						effectiveSplits.add(d);
+						lastWasGood = true;
 					} else if (VERBOSE)
 						System.out.println("  -- forced");
 					noprogress = false;
@@ -214,8 +217,13 @@ public abstract class Bisimulation {
 			}
 			// if (noprogress_this)
 			// break;
+			if (lastWasGood || lastUnsatSize > unsat.size()) {
+				//System.out.println("recompressing...");
+				//Bisimulation.mergePartitions(partitionGraph, TemporalInvariantSet.computeInvariants(partitionGraph));
+			}
 			//System.out.println(partitionGraph.getNodes().size() + " " + unsat.size());
 			outer++;
+			lastUnsatSize = unsat.size();
 		}
 
 		if (DEBUG) {
@@ -279,8 +287,8 @@ public abstract class Bisimulation {
 		if (partTrans2 != null) {
 			if (VERBOSE)
 				System.out.println(partTrans2);
-			ret.add(curPartition.getCandidateDivisionReach(prevPartition,
-					partTrans2));
+			//ret.add(curPartition.getCandidateDivisionReach(prevPartition,
+			//		partTrans2));
 		}
 		return ret;
 	}
@@ -298,9 +306,15 @@ public abstract class Bisimulation {
 	}
 
 	public static void mergePartitions(PartitionGraph partitionGraph) {
-		int outer = 0;
 		TemporalInvariantSet invariants = partitionGraph.getInvariants();
+		mergePartitions(partitionGraph, invariants);
+	}
+	public static void mergePartitions(PartitionGraph partitionGraph, TemporalInvariantSet invariants) {
+		int outer = 0;
+		HashMap<Partition, HashSet<Partition>> blacklist = new HashMap<Partition, HashSet<Partition>>();
 		out: while (true) {
+			if (VERBOSE)
+				System.out.println(partitionGraph.getNodes().size());
 			if (DEBUG) {
 				GraphVizExporter.quickExport("output/rounds/m" + outer + ".dot",
 						partitionGraph);
@@ -311,6 +325,8 @@ public abstract class Bisimulation {
 			for (Partition p : partitions) {
 				for (Partition q : partitions) {
 					if (p.getAction().equals(q.getAction()) && p != q) {
+						if ((blacklist.containsKey(p) && blacklist.get(p).contains(q)) || (blacklist.containsKey(q) && blacklist.get(q).contains(p)))
+							continue;
 						//if (partitionGraph.getInitialNodes().contains(p) != partitionGraph
 						//		.getInitialNodes().contains(q))
 						//	continue;
@@ -329,6 +345,9 @@ public abstract class Bisimulation {
 						if (!invariants.check(partitionGraph)) {
 							if (VERBOSE)
 								System.out.println("  REWIND");
+							if (!blacklist.containsKey(p))
+								blacklist.put(p, new HashSet<Partition>());
+							blacklist.get(p).add(q);
 							partitionGraph.apply(rewindOperation);
 							partitionGraph.checkSanity();
 							if (!parts.containsAll(partitionGraph.getNodes())
@@ -350,8 +369,6 @@ public abstract class Bisimulation {
 			if (!progress)
 				break;
 			outer++;
-			if (VERBOSE)
-				System.out.println();
 		}
 		if (DEBUG) {
 			GraphVizExporter.quickExport("output/rounds/m" + outer

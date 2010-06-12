@@ -120,7 +120,7 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 	}
 
 	public List<Relation<MessageEvent>> getTransitions(Action action) {
-		checkConsistency();
+		//checkConsistency();
 		List<Relation<MessageEvent>> res = transitionsByAction.get(action);
 		if (res == null) {
 			return Collections.emptyList();

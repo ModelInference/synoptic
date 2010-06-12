@@ -24,7 +24,7 @@ import model.nets.Event;
 import model.nets.Net;
 
 public class Benchmarks {
-	private static final int REPETITIONS = 3;
+	private static final int REPETITIONS = 10;
 
 	public static void main(String[] args) throws Exception {
 		GraphVizExporter e = new GraphVizExporter();
@@ -64,11 +64,13 @@ public class Benchmarks {
 				record(res, refinement);
 				record(res, coarsening);
 				record(res, total);
-				res.put("nodes", (long)g.getNodes().size());
+				if (!res.containsKey("nodes"))
+					res.put("nodes", 0L);
+				res.put("nodes", res.get("nodes")+(long)g.getNodes().size());
 			}
 			for (Entry<String, Long> entry : res.entrySet()) {
-				System.out.println(entry.getKey() + "\t" + entry.getValue() / 3);
-				res.put(entry.getKey(), entry.getValue()/3);
+				System.out.println(entry.getKey() + "\t" + entry.getValue() / REPETITIONS);
+				res.put(entry.getKey(), entry.getValue()/REPETITIONS);
 			}
 			System.out.println();
 			resList.add(res);
