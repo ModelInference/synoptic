@@ -218,10 +218,10 @@ public abstract class Bisimulation {
 			// if (noprogress_this)
 			// break;
 			if (lastWasGood || lastUnsatSize > unsat.size()) {
-				//System.out.println("recompressing...");
-				//Bisimulation.mergePartitions(partitionGraph, TemporalInvariantSet.computeInvariants(partitionGraph));
+				System.out.println("recompressing...");
+				Bisimulation.mergePartitions(partitionGraph, TemporalInvariantSet.computeInvariants(partitionGraph));
 			}
-			//System.out.println(partitionGraph.getNodes().size() + " " + unsat.size());
+			System.out.println(partitionGraph.getNodes().size() + " " + unsat.size());
 			outer++;
 			lastUnsatSize = unsat.size();
 		}
@@ -287,8 +287,8 @@ public abstract class Bisimulation {
 		if (partTrans2 != null) {
 			if (VERBOSE)
 				System.out.println(partTrans2);
-			//ret.add(curPartition.getCandidateDivisionReach(prevPartition,
-			//		partTrans2));
+			ret.add(curPartition.getCandidateDivisionReach(prevPartition,
+					partTrans2));
 		}
 		return ret;
 	}
@@ -313,8 +313,8 @@ public abstract class Bisimulation {
 		int outer = 0;
 		HashMap<Partition, HashSet<Partition>> blacklist = new HashMap<Partition, HashSet<Partition>>();
 		out: while (true) {
-			if (VERBOSE)
-				System.out.println(partitionGraph.getNodes().size());
+			//if (VERBOSE)
+				System.out.println("m " + partitionGraph.getNodes().size());
 			if (DEBUG) {
 				GraphVizExporter.quickExport("output/rounds/m" + outer + ".dot",
 						partitionGraph);

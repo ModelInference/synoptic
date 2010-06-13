@@ -58,7 +58,7 @@ public class ReverseTraceroute {
 	public static void main(String[] args) throws Exception {
 		GraphVizExporter export = new GraphVizExporter();
 		// model.Graph<MessageEvent> raw = readMultiple();
-		model.Graph<MessageEvent> raw = readOverkill();
+		model.Graph<MessageEvent> raw = readMultiple();
 		PartitionGraph g = new PartitionGraph(raw, true);
 		export.exportAsDotAndPngFast("output/reverseTraceroute/input.dot", g);
 		Bisimulation.refinePartitionsSmart(g);
@@ -101,11 +101,10 @@ public class ReverseTraceroute {
 				"American-Internet-Services_revtr.err", "CERN-AS513_revtr.err",
 				"Cogent-AS174_revtr.err",
 				"Companhia-Portuguesa-Radio-Marconi-AS8657_revtr.err",
-				"Viatel-AS8190_revtr.err",
-		// "Doris-UA-AS8343_revtr.err",
-		/*
-		 * "EUnet-Finland-AS6667_revtr.err", "Eastlink_revtr.err",
-		 * "Exobit-Networks-AS30653_revtr.err",
+				"Viatel-AS8190_revtr.err", "Doris-UA-AS8343_revtr.err",
+		
+		 "EUnet-Finland-AS6667_revtr.err",// "Eastlink_revtr.err",
+		/* "Exobit-Networks-AS30653_revtr.err",
 		 * "Friedberg-University-AS680_revtr.err", "ISP-Services-BV_revtr.err",
 		 * "Leaseweb_revtr.err", "MANAP-AS29129_revtr.err",
 		 * "MuntInternet_revtr.err", "NORDUnet-AS2603_revtr.err",
@@ -183,7 +182,7 @@ public class ReverseTraceroute {
 
 		GraphVizExporter export = new GraphVizExporter();
 		model.Graph<MessageEvent> g = new model.Graph<MessageEvent>();
-		String prefix = "traces/ReverseTraceroute/rt_parsed_with_FAIL/";
+		String prefix = "traces/ReverseTraceroute/rt_parsed_rich/";
 		for (String trace : traces_34) {
 			g.merge((new ReverseTracertParser()).parseTraceFile(prefix + trace,
 					10000, 0));
@@ -203,8 +202,8 @@ public class ReverseTraceroute {
 			Set<Partition> post = getPostMessageEvents(event);
 			if (post.size() != 1)
 				continue;
-			if (getPreMessageEvents(net, event).size() > 1)
-				continue;
+			//if (getPreMessageEvents(net, event).size() > 1)
+			//	continue;
 			entries.put(event, new ArrayList<Partition>(Collections
 					.singleton(event)));
 			Iterator<Partition> iter = post.iterator();
@@ -228,6 +227,7 @@ public class ReverseTraceroute {
 					break;
 				}
 				entries.get(event).add(next);
+				
 				if (post2.size() == 0) {
 					break;
 				}
