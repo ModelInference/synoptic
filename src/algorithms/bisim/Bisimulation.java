@@ -27,7 +27,7 @@ import model.interfaces.ITransition;
  * https://ccs.hammacher.name Licence: Eclipse Public * License v1.0.
  */
 public abstract class Bisimulation {
-	private static final boolean ESSENTIAL = true;
+	private static final boolean ESSENTIAL = false;
 	private static boolean VERBOSE = false;
 	private static boolean DEBUG = false;
 	private static boolean incommingEdgeSplit = false;
@@ -163,19 +163,19 @@ public abstract class Bisimulation {
 			noprogress = true;
 			boolean lastWasGood = false;
 			TemporalInvariantSet invariants = partitionGraph.getInvariants();
-			TemporalInvariantSet unsat = invariants
-					.getUnsatisfiedInvariants(partitionGraph);
-			if (unsat.size() == 0) {
+			//TemporalInvariantSet unsat = invariants
+			//		.getUnsatisfiedInvariants(partitionGraph);
+			List<RelationPath<Partition>> rp = invariants
+			.getViolations(partitionGraph);
+			if (rp == null || rp.size() == 0) {
 				if (VERBOSE)
 					System.out.println("Invariants statisfied. Stopping.");
 				break;
 			} else if (ESSENTIAL) {
-				System.out.println("" + unsat.size()
-						+ " unsatisfied invariants: " + unsat);
+				System.out.println("" + rp.size()
+						+ " unsatisfied invariants: " + rp);
 			}
 
-			List<RelationPath<Partition>> rp = unsat
-					.getViolations(partitionGraph);
 
 			off: for (RelationPath<Partition> relPath : rp) {
 				List<PartitionSplit> dl = getSplit(relPath, partitionGraph);
@@ -198,9 +198,8 @@ public abstract class Bisimulation {
 					}
 					if (noprogress_this)
 						break off;
-					TemporalInvariantSet unsatAfter = invariants
-							.getUnsatisfiedInvariants(partitionGraph);
-					if (unsatAfter.size() == unsat.size() && !noprogress_this) {
+					List<RelationPath<Partition>> unsatAfter = invariants.getViolations(partitionGraph);
+					if (unsatAfter.size() == rp.size() && !noprogress_this) {
 						partitionGraph.apply(rewindOperation);
 						if (VERBOSE)
 							System.out.println(" -- rewind (no progress): " + d);
@@ -212,7 +211,7 @@ public abstract class Bisimulation {
 					PartitionMerge m = (PartitionMerge) rewindOperation;
 					partDepsOn.put(m.getRemoved(), d);
 					rewinds.put(d, rewindOperation);
-					if (unsatAfter.size() < unsat.size()) {
+					if (unsatAfter.size() < rp.size()) {
 						if (VERBOSE)
 							System.out.println("  -- ok");
 						effectiveSplits.add(d);
@@ -225,14 +224,14 @@ public abstract class Bisimulation {
 			}
 			// if (noprogress_this)
 			// break;
-			if ((lastWasGood || lastUnsatSize > unsat.size()) && interleavedMerging ) {
+			if ((lastWasGood || lastUnsatSize > rp.size()) && interleavedMerging ) {
 				System.out.println("recompressing...");
 				Bisimulation.mergePartitions(partitionGraph, TemporalInvariantSet.computeInvariants(partitionGraph));
 			}
 			if (ESSENTIAL)
-				System.out.println(partitionGraph.getNodes().size() + " " + unsat.size());
+				System.out.println(partitionGraph.getNodes().size() + " " + rp.size());
 			outer++;
-			lastUnsatSize = unsat.size();
+			lastUnsatSize = rp.size();
 		}
 
 		if (DEBUG) {

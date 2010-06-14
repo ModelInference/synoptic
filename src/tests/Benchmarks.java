@@ -24,7 +24,7 @@ import model.nets.Event;
 import model.nets.Net;
 
 public class Benchmarks {
-	private static final int REPETITIONS = 1;
+	private static final int REPETITIONS = 3;
 
 	public static void main(String[] args) throws Exception {
 		GraphVizExporter e = new GraphVizExporter();
