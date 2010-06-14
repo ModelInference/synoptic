@@ -26,8 +26,8 @@ Connecting to adjacency_server
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
@@ -45,10 +45,9 @@ TS adjacents left to try
 Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Initializing RR VPs
@@ -68,10 +67,9 @@ TS adjacents left to try
 Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -93,10 +91,9 @@ TS adjacents left to try
 Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -120,13 +117,12 @@ TS adjacents left to try
 Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -138,11 +134,11 @@ RR VPs left to try
 Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -154,8 +150,8 @@ RR VPs left to try
 Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
@@ -164,8 +160,8 @@ Issuing recordroutes
 RR VPs left to try
 FOUND RECENT SPOOFER TO USE
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -174,16 +170,16 @@ Initializing RR VPs
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -271,8 +267,8 @@ Issuing spoofed_timestamps
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
@@ -282,8 +278,8 @@ RR VPs left to try
 Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
@@ -294,11 +290,11 @@ FOUND RECENT SPOOFER TO USE
 Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Issuing traceroutes
 Rev Seg is
@@ -311,8 +307,8 @@ RR VPs left to try
 Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
@@ -321,11 +317,11 @@ Issuing recordroutes
 RR VPs left to try
 FOUND RECENT SPOOFER TO USE
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -337,8 +333,8 @@ RR VPs left to try
 Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
@@ -347,8 +343,8 @@ Issuing recordroutes
 RR VPs left to try
 FOUND RECENT SPOOFER TO USE
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
@@ -382,18 +378,14 @@ Issuing spoofed recordroutes
 Adjacents for .+ are
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ reverse hop!
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
@@ -426,79 +418,56 @@ Issuing spoofed recordroutes
 Adjacents for .+ are
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 No adjacents to
 Issuing traceroutes
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
@@ -508,11 +477,11 @@ RR VPs left to try
 Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -524,18 +493,18 @@ RR VPs left to try
 Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -547,8 +516,8 @@ RR VPs left to try
 Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
@@ -557,11 +526,11 @@ Issuing recordroutes
 RR VPs left to try
 FOUND RECENT SPOOFER TO USE
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -573,8 +542,8 @@ RR VPs left to try
 Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
@@ -583,11 +552,11 @@ Issuing recordroutes
 RR VPs left to try
 FOUND RECENT SPOOFER TO USE
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -599,9 +568,9 @@ RR VPs left to try
 Issuing spoofed recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 

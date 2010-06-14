@@ -23,8 +23,8 @@ Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -63,13 +63,12 @@ TS adjacents left to try
 Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -90,8 +89,8 @@ Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -130,13 +129,12 @@ TS adjacents left to try
 Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -157,8 +155,8 @@ Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -197,13 +195,12 @@ TS adjacents left to try
 Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -224,8 +221,8 @@ Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -264,13 +261,12 @@ TS adjacents left to try
 Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -291,8 +287,8 @@ Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -331,13 +327,12 @@ TS adjacents left to try
 Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -358,8 +353,8 @@ Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -398,13 +393,12 @@ TS adjacents left to try
 Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -425,8 +419,8 @@ Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -465,13 +459,12 @@ TS adjacents left to try
 Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -492,8 +485,8 @@ Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -532,10 +525,9 @@ TS adjacents left to try
 Issuing timestamps
 Issuing spoofed_timestamps
 Current hop .+ seems to be TS unresponsive
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -560,11 +552,10 @@ Current hop .+ seems to be unresponsive
 Current hop .+ seems to be unresponsive
 TS adjacents left to try
 No adjacents to
-Backing off along current path
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 

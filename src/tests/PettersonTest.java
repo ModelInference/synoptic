@@ -30,6 +30,7 @@ import model.nets.Net;
 public class PettersonTest {
 	public static void main(String[] args) throws Exception {
 		TimedTask load = new TimedTask("load files", 1);
+		TimedTask total = new TimedTask("total", 1);
 		GraphBuilder b = new GraphBuilder();
 		PetersonReader<MessageEvent> r = new PetersonReader<MessageEvent>(b);
 		GraphVizExporter e = new GraphVizExporter();
@@ -81,6 +82,7 @@ public class PettersonTest {
 		System.out.println("Merging Partitions...");
 		Bisimulation.mergePartitions(pg);
 		coarsening.stop();
+		total.stop();
 		System.out.println("Merge done.");
 		e.exportAsDotAndPngFast("output/peterson/output-pg-merged.dot", pg);
 		//exportSCCsWithInvariants(e, pg);
@@ -100,11 +102,13 @@ public class PettersonTest {
 		//}
 
 		//e.exportAsDotAndPng("output/peterson/output-net-condensed.dot", net);
+		
 		System.out.println(nodes + " Nodes");
 		System.out.println(load);
 		System.out.println(invariants);
 		System.out.println(refinement);
 		System.out.println(coarsening);
+		System.out.println(total);
 	}
 
 	private static void exportSCCsWithInvariants(GraphVizExporter e,

@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import model.Action;
+import model.MessageEvent;
 import model.Partition;
 import model.PartitionGraph;
 import model.SystemState;
@@ -136,12 +137,22 @@ public class GraphVizExporter {
 			 * if (graph.getInitialNodes(new Action("i")).contains(e))
 			 * attributes = attributes + ",shape=box,color=blue"; else
 			 */
+			boolean terminal=false;
+			if (e instanceof Partition) {
+				Partition p = (Partition)e;
+				for (MessageEvent m: p.getMessages()) {
+					if (m.getTransitions().size() == 0)
+						terminal = true;
+				}
+			}
 			if (graph.getRelations().contains(new Action("t"))
 					&& graph.getInitialNodes(new Action("t")).contains(e))
 				attributes = attributes + ",shape=box";
 			else if (graph.getRelations().contains(new Action("i"))
 					&& graph.getInitialNodes(new Action("i")).contains(e))
 				attributes = attributes + ",shape=box,color=blue";
+			else if (terminal)
+				attributes = attributes + ",shape=diamond";
 
 			String comment = "";
 			// if (e == newHead.getInitialState()) { // start node

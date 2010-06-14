@@ -11,8 +11,8 @@ using non_spoofed
 Issuing recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -21,12 +21,12 @@ Initializing RR VPs
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -36,8 +36,8 @@ using non_spoofed
 Issuing recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -49,8 +49,8 @@ Issuing recordroutes
 RR VPs left to try
 FOUND RECENT SPOOFER TO USE
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -58,16 +58,16 @@ Initializing RR VPs
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -77,11 +77,11 @@ using non_spoofed
 Issuing recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -91,11 +91,11 @@ using non_spoofed
 Issuing recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -105,11 +105,11 @@ using non_spoofed
 Issuing recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -119,8 +119,8 @@ using non_spoofed
 Issuing recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -129,11 +129,11 @@ Initializing RR VPs
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -141,23 +141,23 @@ Initializing RR VPs
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -167,8 +167,8 @@ using non_spoofed
 Issuing recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
@@ -180,8 +180,8 @@ Issuing recordroutes
 RR VPs left to try
 FOUND RECENT SPOOFER TO USE
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Initializing RR VPs
@@ -191,11 +191,11 @@ Issuing recordroutes
 RR VPs left to try
 FOUND RECENT SPOOFER TO USE
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -205,11 +205,11 @@ using non_spoofed
 Issuing recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -219,9 +219,9 @@ using non_spoofed
 Issuing recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 

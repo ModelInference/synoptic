@@ -36,7 +36,7 @@ public class ReverseTracertParser extends DefaultScalableTraceParser {
 	}
 	
 	public boolean isSeparator(String line) {
-		return false;
+		return line.equals("--------");
 		//	 line.equals("REACHED") //||
 		//		line.equals("FOUND") ||
 		//		line.equals("NONE") ||
@@ -57,9 +57,9 @@ public class ReverseTracertParser extends DefaultScalableTraceParser {
 			
 			if (isSeparator(line)) {
 				nextSplit = true;
+				//continue;
 			} 
 			
-
 			Action a = parseTraceEntry(line);
 			gb.append(a);
 			

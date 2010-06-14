@@ -128,7 +128,7 @@ public class Partition implements
 	public String getLabel() {
 		if (label != null)
 			return label;
-		return messages.iterator().next().getLabel();
+		return messages.iterator().next().getAction().getLabel();
 	}
 
 	public int size() {
