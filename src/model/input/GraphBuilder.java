@@ -142,7 +142,7 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 		}
 	}
 
-	public static PartitionGraph buildGraph(TraceSet traceSet) {
+	public static PartitionGraph buildGraph(TraceSet traceSet, boolean merge) {
 		GraphBuilder gb = new GraphBuilder();
 		for (FullTrace t : traceSet.getFullTraceList()) {
 			for (WrappedMessage m : t.getWrappedMessageList()) {
@@ -165,7 +165,7 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 			}
 			gb.split();
 		}
-		return gb.getGraph(false);
+		return gb.getGraph(merge);
 	}
 
 	public ArrayList<PingPongMessage> extractCommunicationWith(Trace t, int addr) {

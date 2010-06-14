@@ -19,7 +19,12 @@ public class StateUtil {
 	 *         of equivalence.
 	 */
 	static public <NodeType extends INode<NodeType>> boolean kEquals(INode<NodeType> s1, INode<NodeType> s2, int k, boolean subsumption) {
+		
+		if (!s1.getLabel().equals(s2.getLabel()))
+			return false;
+		
 		// base case
+		
 		if (k == 0) {
 			return true;
 		}
@@ -53,7 +58,7 @@ public class StateUtil {
 					notExistent = false;
 				}
 				if (notExistent) {
-					checkNotThere(s2, t2.getAction());
+					//checkNotThere(s2, t2.getAction());
 					return false;
 				}
 			}

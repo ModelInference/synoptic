@@ -3,8 +3,8 @@ Issuing traceroutes
 Connecting to controller
 Rev Seg is
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -13,8 +13,8 @@ Connecting to vp_server
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
@@ -72,8 +72,8 @@ Issuing spoofed_timestamps
 TS adjacents left to try
 No adjacents to
 Issuing traceroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 RR VPs left to try
 Issuing spoofed recordroutes
@@ -88,360 +88,244 @@ Issuing spoofed recordroutes
 Adjacents for .+ are
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 Issuing timestamps
-TS probe is non_spoofed .+ no reverse hop found
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -449,50 +333,23 @@ Initializing RR VPs
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
 Initializing RR VPs
 RR VPs left to try
 using non_spoofed
 Issuing recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
-NONE
-FAILED
-Issuing traceroutes
-Rev Seg is
-Checking .+ for traceroutes to source
-Initializing RR VPs
-RR VPs left to try
-using non_spoofed
-Issuing recordroutes
-RR VPs left to try
-Issuing spoofed recordroutes
-NONE
-FAILED
-Checking .+ for traceroutes to source
-NONE
-FAILED
-Issuing traceroutes
-Rev Seg is
-Checking .+ for traceroutes to source
-Initializing RR VPs
-RR VPs left to try
-using non_spoofed
-Issuing recordroutes
-NONE
-FAILED
-Checking .+ for traceroutes to source
-NONE
-FAILED
-Issuing traceroutes
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -502,21 +359,24 @@ using non_spoofed
 Issuing recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
-NONE
-FAILED
-Issuing traceroutes
-Rev Seg is
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
+Issuing traceroutes
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -526,12 +386,36 @@ using non_spoofed
 Issuing recordroutes
 RR VPs left to try
 Issuing spoofed recordroutes
-NONE
-FAILED
+REACHED
+--------
+Checking .+ for traceroutes to source
+REACHED
+--------
+Issuing traceroutes
+Rev Seg is
+Checking .+ for traceroutes to source
+REACHED
+--------
+Issuing traceroutes
+Rev Seg is
+Checking .+ for traceroutes to source
+REACHED
+--------
+Issuing traceroutes
+Rev Seg is
+Checking .+ for traceroutes to source
+Initializing RR VPs
+RR VPs left to try
+using non_spoofed
+Issuing recordroutes
+RR VPs left to try
+Issuing spoofed recordroutes
+REACHED
+--------
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 

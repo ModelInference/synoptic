@@ -9,9 +9,11 @@ import java.util.Iterator;
 import java.util.Set;
 
 import sun.tools.tree.ThisExpression;
+import util.TimedTask;
 
 import algorithms.bisim.Bisimulation;
 import algorithms.graph.Operation;
+import model.Graph;
 import model.MessageEvent;
 import model.Partition;
 import model.PartitionGraph;
@@ -58,19 +60,26 @@ public class ReverseTraceroute {
 	public static void main(String[] args) throws Exception {
 		GraphVizExporter export = new GraphVizExporter();
 		// model.Graph<MessageEvent> raw = readMultiple();
-		model.Graph<MessageEvent> raw = readMultiple();
-		PartitionGraph g = new PartitionGraph(raw, true);
-		export.exportAsDotAndPngFast("output/reverseTraceroute/input.dot", g);
-		Bisimulation.refinePartitionsSmart(g);
+		model.Graph<MessageEvent> raw = readSingle();
+		//export.exportAsDotAndPngFast("output/reverseTraceroute/raw.dot", raw);
+		TimedTask all = new TimedTask("all", 0);
+		PartitionGraph g = new PartitionGraph(raw, false);
+		//export.exportAsDotAndPngFast("output/reverseTraceroute/input.dot", g);
+		//Bisimulation.refinePartitionsSmart(g);
 		System.out.println("merging.");
-		Bisimulation.mergePartitions(g);
+		Bisimulation.mergePartitions(g, g.getInvariants(), 0);
+		all.stop();
+		int states = g.getNodes().size();
 		HashMap<Partition, ArrayList<Partition>> seq = getMessageEventSequences(g);
 		export.exportAsDotAndPng("output/reverseTraceroute/output.dot", g);
 		for (ArrayList<Partition> s : seq.values()) {
-			g.apply(new ReplaceOperation(s));
+			if (s.size() > 1)
+				g.apply(new ReplaceOperation(s));
 		}
 		export.exportAsDotAndPng(
 				"output/reverseTraceroute/output-condensed.dot", g);
+		System.out.println(states);
+		System.out.println(all);
 	}
 
 	static model.Graph<MessageEvent> readOverkill() {
@@ -90,20 +99,36 @@ public class ReverseTraceroute {
 	}
 
 	static model.Graph<MessageEvent> readSingle() {
-		return (new ReverseTracertParser())
+		Graph<MessageEvent> g = (new ReverseTracertParser())
 				.parseTraceFile(
-						"traces/ReverseTraceroute/rt_parsed/velia.net-AS29066_revtr.err",
-						10000, 0);
+						"traces/ReverseTraceroute/rt_parsed_rich/Viafacil-AS16814_revtr.err",
+						100000, 0);
+		
+		System.out.println(g.getNodes().size());
+		return g;
 	}
 
 	static model.Graph<MessageEvent> readMultiple() {
-		String[] traces_34 = new String[] { "APAN-AS7660-2_revtr.err",
-				"American-Internet-Services_revtr.err", "CERN-AS513_revtr.err",
+		String[] traces_34 = new String[] {// "APAN-AS7660-2_revtr.err",
+			//	"American-Internet-Services_revtr.err",
+			//  "CERN-AS513_revtr.err",
+				"Internet-Partners,-Inc.-AS10248-2_revtr.err",
 				"Cogent-AS174_revtr.err",
-				"Companhia-Portuguesa-Radio-Marconi-AS8657_revtr.err",
-				"Viatel-AS8190_revtr.err", "Doris-UA-AS8343_revtr.err",
+			//	"Companhia-Portuguesa-Radio-Marconi-AS8657_revtr.err",
+			//	"Viatel-AS8190_revtr.err",
+			//	"3GNTW-AS25137_revtr.err",
+				"Broadcastchile-Networks-AS6535_revtr.err",
+				"Elite-AS29611_revtr.err",
+				"Rede-Nacional-de-Ensino-e-Pesquisa-RNP-AS1916_revtr.err",
+			//	"hotze.com-AS8596_revtr.err",
+				//"Titan-Networks-AS20640_revtr.err"
+			//	"velia.net-AS29066_revtr.err",
+			//	"Telesweet-AS41399_revtr.err"
+			//	"TATA-Communications-Ltd_revtr.err",
+			//	"Telus-AS852_revtr.err"
+				//"Ultraspeed_revtr.err"//"Doris-UA-AS8343_revtr.err",//"Friedberg-University-AS680_revtr.err"
 		
-		 "EUnet-Finland-AS6667_revtr.err",// "Eastlink_revtr.err",
+		/* "EUnet-Finland-AS6667_revtr.err", "Eastlink_revtr.err",
 		/* "Exobit-Networks-AS30653_revtr.err",
 		 * "Friedberg-University-AS680_revtr.err", "ISP-Services-BV_revtr.err",
 		 * "Leaseweb_revtr.err", "MANAP-AS29129_revtr.err",

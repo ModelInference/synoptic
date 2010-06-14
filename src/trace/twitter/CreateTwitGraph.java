@@ -7,6 +7,7 @@ import algorithms.bisim.Bisimulation;
 import algorithms.ktail.KTail;
 
 import trace.MessageTrace.TraceSet;
+import util.TimedTask;
 import model.PartitionGraph;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
@@ -16,23 +17,33 @@ public class CreateTwitGraph {
 		GraphVizExporter exporter = new GraphVizExporter();
 		TraceSet tr = TraceSet.parseFrom(new FileInputStream(
 				"src/trace/twitter/TwitTrace2.trace"));
-		PartitionGraph org = GraphBuilder.buildGraph(tr);
-		File file = new File("output/TwitTrace2.dot");
-		exporter.export(file, org);
-		exporter.exportPng(file);
+		PartitionGraph orgBisim = GraphBuilder.buildGraph(tr, true);
 
-		Bisimulation.refinePartitions(org);
+		Bisimulation.refinePartitionsSmart(orgBisim);
+		Bisimulation.mergePartitions(orgBisim);
 
 		File file2 = new File("output/TwitTrace2-bisim.dot");
-		exporter.export(file2, org);
+		exporter.export(file2, orgBisim);
 		exporter.exportPng(file2);
 
-		org = GraphBuilder.buildGraph(tr);
-		KTail.kReduce(org, 1, true, true);
+		// File file = new File("output/TwitTrace2.dot");
+		// exporter.export(file, orgGK);
+		// exporter.exportPng(file);
+		int acc = 0;
+		for (int i = 0; i < 100; ++i) {
+			TimedTask t = new TimedTask("time", 0);
+			PartitionGraph orgGK = GraphBuilder.buildGraph(tr, true);
 
-		File file3 = new File("output/TwitTrace2-gktail.dot");
-		exporter.export(file3, org);
-		exporter.exportPng(file3);
+			//Bisimulation.mergePartitions(orgGK, orgGK.getInvariants(), 0);
+			Bisimulation.refinePartitionsSmart(orgGK);
+			Bisimulation.mergePartitions(orgGK);
+			t.stop();
+			acc += t.getTime();
+		}
+		System.out.println(acc/100);
+		// File file3 = new File("output/TwitTrace2-gktail.dot");
+		// exporter.export(file3, orgGK);
+		// exporter.exportPng(file3);
 	}
 
 }

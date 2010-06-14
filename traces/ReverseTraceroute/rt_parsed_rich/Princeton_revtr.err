@@ -19,11 +19,11 @@ Connecting to adjacency_server
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -41,11 +41,11 @@ Current hop .+ seems to be unresponsive
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -63,11 +63,11 @@ Current hop .+ seems to be unresponsive
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -85,11 +85,11 @@ Current hop .+ seems to be unresponsive
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -107,11 +107,11 @@ Current hop .+ seems to be unresponsive
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -129,11 +129,11 @@ Current hop .+ seems to be unresponsive
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -151,11 +151,11 @@ Current hop .+ seems to be unresponsive
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -173,11 +173,11 @@ Current hop .+ seems to be unresponsive
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Rev Seg is
 Checking .+ for traceroutes to source
@@ -195,11 +195,11 @@ Current hop .+ seems to be unresponsive
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 Issuing traceroutes
 Issuing traceroutes
 Rev Seg is
@@ -218,9 +218,9 @@ Current hop .+ seems to be unresponsive
 TS adjacents left to try
 No adjacents to
 Rev Seg is
-NONE
-FAILED
+REACHED
+--------
 Checking .+ for traceroutes to source
-NONE
-FAILED
+REACHED
+--------
 

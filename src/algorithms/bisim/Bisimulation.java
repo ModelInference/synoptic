@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import algorithms.graph.Operation;
 import algorithms.graph.PartitionMerge;
 import algorithms.graph.PartitionSplit;
+import algorithms.ktail.StateUtil;
 
 import model.MessageEvent;
 import model.Partition;
@@ -26,8 +27,13 @@ import model.interfaces.ITransition;
  * https://ccs.hammacher.name Licence: Eclipse Public * License v1.0.
  */
 public abstract class Bisimulation {
+	private static final boolean ESSENTIAL = true;
 	private static boolean VERBOSE = false;
 	private static boolean DEBUG = false;
+	private static boolean incommingEdgeSplit = false;
+	private static boolean interleavedMerging = false;
+	public static int steps;
+	public static int merge;
 
 	private Bisimulation() {
 		// forbid instantiation
@@ -146,6 +152,7 @@ public abstract class Bisimulation {
 		if (DEBUG) {
 			GraphVizExporter.quickExport("output/rounds/0.dot", partitionGraph);
 		}
+		steps = 0;
 		boolean noprogress = false;
 		HashMap<Partition, PartitionSplit> partDepsOn = new HashMap<Partition, PartitionSplit>();
 		HashSet<PartitionSplit> effectiveSplits = new HashSet<PartitionSplit>();
@@ -162,7 +169,7 @@ public abstract class Bisimulation {
 				if (VERBOSE)
 					System.out.println("Invariants statisfied. Stopping.");
 				break;
-			} else if (VERBOSE) {
+			} else if (ESSENTIAL) {
 				System.out.println("" + unsat.size()
 						+ " unsatisfied invariants: " + unsat);
 			}
@@ -184,6 +191,7 @@ public abstract class Bisimulation {
 						continue;
 					}
 					Operation rewindOperation = partitionGraph.apply(d);
+					steps++;
 					if (DEBUG) {
 						GraphVizExporter.quickExport("output/rounds/" + outer
 								+ ".dot", partitionGraph);
@@ -217,11 +225,12 @@ public abstract class Bisimulation {
 			}
 			// if (noprogress_this)
 			// break;
-			if (lastWasGood || lastUnsatSize > unsat.size()) {
+			if ((lastWasGood || lastUnsatSize > unsat.size()) && interleavedMerging ) {
 				System.out.println("recompressing...");
 				Bisimulation.mergePartitions(partitionGraph, TemporalInvariantSet.computeInvariants(partitionGraph));
 			}
-			System.out.println(partitionGraph.getNodes().size() + " " + unsat.size());
+			if (ESSENTIAL)
+				System.out.println(partitionGraph.getNodes().size() + " " + unsat.size());
 			outer++;
 			lastUnsatSize = unsat.size();
 		}
@@ -284,7 +293,7 @@ public abstract class Bisimulation {
 				System.out.println(partTrans);
 			ret.add(curPartition.getCandidateDivision(partTrans));
 		}
-		if (partTrans2 != null) {
+		if (partTrans2 != null && incommingEdgeSplit ) {
 			if (VERBOSE)
 				System.out.println(partTrans2);
 			ret.add(curPartition.getCandidateDivisionReach(prevPartition,
@@ -310,10 +319,15 @@ public abstract class Bisimulation {
 		mergePartitions(partitionGraph, invariants);
 	}
 	public static void mergePartitions(PartitionGraph partitionGraph, TemporalInvariantSet invariants) {
+		mergePartitions(partitionGraph, invariants, 0);
+	}
+	
+	public static void mergePartitions(PartitionGraph partitionGraph, TemporalInvariantSet invariants, int k) {
 		int outer = 0;
+		merge = 0;
 		HashMap<Partition, HashSet<Partition>> blacklist = new HashMap<Partition, HashSet<Partition>>();
 		out: while (true) {
-			//if (VERBOSE)
+			if (ESSENTIAL)
 				System.out.println("m " + partitionGraph.getNodes().size());
 			if (DEBUG) {
 				GraphVizExporter.quickExport("output/rounds/m" + outer + ".dot",
@@ -324,7 +338,7 @@ public abstract class Bisimulation {
 			partitions.addAll(partitionGraph.getPartitions());
 			for (Partition p : partitions) {
 				for (Partition q : partitions) {
-					if (p.getAction().equals(q.getAction()) && p != q) {
+					if (p != q && StateUtil.kEquals(p, q, k, false)) {
 						if ((blacklist.containsKey(p) && blacklist.get(p).contains(q)) || (blacklist.containsKey(q) && blacklist.get(q).contains(p)))
 							continue;
 						//if (partitionGraph.getInitialNodes().contains(p) != partitionGraph
@@ -332,17 +346,15 @@ public abstract class Bisimulation {
 						//	continue;
 						if (VERBOSE)
 							System.out.println("merge " + p + " with " + q);
-						PartitionSplit split = new PartitionSplit(p);
-						for (MessageEvent m : q.getMessages())
-							split.addFulfills(m);
 						Set<Partition> parts = new HashSet<Partition>();
 						parts.addAll(partitionGraph.getNodes());
 						Operation rewindOperation = partitionGraph
 								.apply(new PartitionMerge(p, q));
+						merge++;
 						partitionGraph.checkSanity();
 					//	if (true)
 					//		continue out;
-						if (!invariants.check(partitionGraph)) {
+						if (invariants != null && !invariants.check(partitionGraph)) {
 							if (VERBOSE)
 								System.out.println("  REWIND");
 							if (!blacklist.containsKey(p))
@@ -374,5 +386,9 @@ public abstract class Bisimulation {
 			GraphVizExporter.quickExport("output/rounds/m" + outer
 					+ "-final.dot", partitionGraph);
 		}
+	}
+
+	public static void kReduce(PartitionGraph partitionGraph, int k) {
+		mergePartitions(partitionGraph, null, k);
 	}
 }

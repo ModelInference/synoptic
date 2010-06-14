@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 import sys
 
@@ -20,8 +21,9 @@ exprs = [
     "No adjacents to",
     "Adjacents for .+ are",
     "Issuing timestamps",
-    "TS probe is non_spoofed .+ no reverse hop found",
-    "TS probe is non_spoofed .+ reverse hop!",
+#    "TS probe is non_spoofed .+ no reverse hop found",
+#    "TS probe is non_spoofed .+ reverse hop!",
+    "Checking .+ for traceroutes to source",
     "TS probe is .+ no reverse hop for dst that stamps 0",
     "TS probe is .+ dst does not stamp, but spoofer .+ got a stamp",
     "Issuing to verify for dest does not stamp",
@@ -30,14 +32,17 @@ exprs = [
     "Current hop .+ seems to be TS unresponsive",
     "TS adjacents left to try",
     "Current hop .+ stamps 0, so not asking for stamp",
-    "Backing off along current path",
+#   "Backing off along current path",
     "Rev Seg is",
-    "NONE",
-    "FAILED"
+#    "NONE",
+#    "FAILED",
+#    "FOUND",
+    "REACHED",
 ]
 
 partition_exprs = [
     "--------",
+   ".+RevPath.*"
     ]
 
 def parse(lines, compiled_res, compiled_res_parts):
