@@ -27,7 +27,7 @@ import model.interfaces.ITransition;
  * https://ccs.hammacher.name Licence: Eclipse Public * License v1.0.
  */
 public abstract class Bisimulation {
-	private static final boolean ESSENTIAL = false;
+	private static final boolean ESSENTIAL = true;
 	private static boolean VERBOSE = false;
 	private static boolean DEBUG = false;
 	private static boolean incommingEdgeSplit = false;
@@ -158,15 +158,15 @@ public abstract class Bisimulation {
 		HashSet<PartitionSplit> effectiveSplits = new HashSet<PartitionSplit>();
 		HashMap<PartitionSplit, Operation> rewinds = new HashMap<PartitionSplit, Operation>();
 		int lastUnsatSize = 0;
+		TemporalInvariantSet invariants = partitionGraph.getInvariants();
+		//TemporalInvariantSet unsat = invariants
+		//		.getUnsatisfiedInvariants(partitionGraph);
+		List<RelationPath<Partition>> rp = invariants
+		.getViolations(partitionGraph);
 		while (true) {
 			boolean noprogress_this = noprogress;
 			noprogress = true;
 			boolean lastWasGood = false;
-			TemporalInvariantSet invariants = partitionGraph.getInvariants();
-			//TemporalInvariantSet unsat = invariants
-			//		.getUnsatisfiedInvariants(partitionGraph);
-			List<RelationPath<Partition>> rp = invariants
-			.getViolations(partitionGraph);
 			if (rp == null || rp.size() == 0) {
 				if (VERBOSE)
 					System.out.println("Invariants statisfied. Stopping.");
@@ -175,7 +175,6 @@ public abstract class Bisimulation {
 				System.out.println("" + rp.size()
 						+ " unsatisfied invariants: " + rp);
 			}
-
 
 			off: for (RelationPath<Partition> relPath : rp) {
 				List<PartitionSplit> dl = getSplit(relPath, partitionGraph);
@@ -196,10 +195,8 @@ public abstract class Bisimulation {
 						GraphVizExporter.quickExport("output/rounds/" + outer
 								+ ".dot", partitionGraph);
 					}
-					if (noprogress_this)
-						break off;
 					List<RelationPath<Partition>> unsatAfter = invariants.getViolations(partitionGraph);
-					if (unsatAfter.size() == rp.size() && !noprogress_this) {
+					if (unsatAfter != null && unsatAfter.size() == rp.size() && !noprogress_this) {
 						partitionGraph.apply(rewindOperation);
 						if (VERBOSE)
 							System.out.println(" -- rewind (no progress): " + d);
@@ -211,7 +208,7 @@ public abstract class Bisimulation {
 					PartitionMerge m = (PartitionMerge) rewindOperation;
 					partDepsOn.put(m.getRemoved(), d);
 					rewinds.put(d, rewindOperation);
-					if (unsatAfter.size() < rp.size()) {
+					if (unsatAfter == null || unsatAfter.size() < rp.size()) {
 						if (VERBOSE)
 							System.out.println("  -- ok");
 						effectiveSplits.add(d);
@@ -219,6 +216,7 @@ public abstract class Bisimulation {
 					} else if (VERBOSE)
 						System.out.println("  -- forced");
 					noprogress = false;
+					rp = unsatAfter;
 					break off;
 				}
 			}
@@ -229,9 +227,10 @@ public abstract class Bisimulation {
 				Bisimulation.mergePartitions(partitionGraph, TemporalInvariantSet.computeInvariants(partitionGraph));
 			}
 			if (ESSENTIAL)
-				System.out.println(partitionGraph.getNodes().size() + " " + rp.size());
+				System.out.println(partitionGraph.getNodes().size() + " " + (rp != null ? rp.size() : 0));
 			outer++;
-			lastUnsatSize = rp.size();
+			if (rp != null)
+				lastUnsatSize = rp.size();
 		}
 
 		if (DEBUG) {
@@ -350,10 +349,15 @@ public abstract class Bisimulation {
 						Operation rewindOperation = partitionGraph
 								.apply(new PartitionMerge(p, q));
 						merge++;
-						partitionGraph.checkSanity();
+						List<RelationPath<Partition>> vio = null;
+						//	partitionGraph.checkSanity();
 					//	if (true)
 					//		continue out;
-						if (invariants != null && !invariants.check(partitionGraph)) {
+						if (invariants != null)
+							vio  = invariants.getViolations(partitionGraph);
+							
+						if (invariants != null && vio != null && vio.size() > 0) {
+							
 							if (VERBOSE)
 								System.out.println("  REWIND");
 							if (!blacklist.containsKey(p))
@@ -367,9 +371,9 @@ public abstract class Bisimulation {
 								throw new RuntimeException(
 										"partition set changed due to rewind: "
 												+ rewindOperation);
-							if (!invariants.check(partitionGraph)) {
-								throw new RuntimeException("could not rewind");
-							}
+							//if (!invariants.check(partitionGraph)) {
+							//	throw new RuntimeException("could not rewind");
+							//}
 						} else {
 							progress = true;
 							continue out;

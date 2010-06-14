@@ -83,8 +83,12 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	public static class RelationPath<T> {
 		public TemporalInvariant invariant;
 		public List<T> path;
+		
+		public String toString() {
+			return invariant.toString();
+		}
 	}
-
+	
 	public <T extends INode<T>> List<RelationPath<T>> getViolations(IGraph<T> g) {
 		List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
 		GraphLTLChecker<T> c = new GraphLTLChecker<T>();
