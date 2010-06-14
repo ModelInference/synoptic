@@ -1,11 +1,16 @@
 package tests;
 
+import invariants.TemporalInvariant;
+import invariants.TemporalInvariantSet;
+import invariants.TemporalInvariantSet.RelationPath;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import sun.tools.tree.ThisExpression;
@@ -67,17 +72,27 @@ public class ReverseTraceroute {
 		//export.exportAsDotAndPngFast("output/reverseTraceroute/input.dot", g);
 		//Bisimulation.refinePartitionsSmart(g);
 		System.out.println("merging.");
-		Bisimulation.mergePartitions(g, g.getInvariants(), 0);
+		Bisimulation.mergePartitions(g, null, 1);
 		all.stop();
+		TemporalInvariantSet inv = g.getInvariants().getUnsatisfiedInvariants(g);
+		//for (TemporalInvariant i : inv) {
+		//	System.out.println(i);
+		//}
+		System.out.println(inv.size());
+		List<RelationPath<Partition>> vio = g.getInvariants().getViolations(g);
+		for (RelationPath<Partition> v : vio) {
+			System.out.println(v.invariant);
+		}
+		System.out.println(vio.size());
 		int states = g.getNodes().size();
-		HashMap<Partition, ArrayList<Partition>> seq = getMessageEventSequences(g);
+	/*	HashMap<Partition, ArrayList<Partition>> seq = getMessageEventSequences(g);
 		export.exportAsDotAndPng("output/reverseTraceroute/output.dot", g);
 		for (ArrayList<Partition> s : seq.values()) {
 			if (s.size() > 1)
 				g.apply(new ReplaceOperation(s));
 		}
 		export.exportAsDotAndPng(
-				"output/reverseTraceroute/output-condensed.dot", g);
+				"output/reverseTraceroute/output-condensed.dot", g);*/
 		System.out.println(states);
 		System.out.println(all);
 	}

@@ -165,8 +165,14 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 						.get(relation));
 			v.exportPng(new File("output/post.dot"));
 		}
-
+		
 		TemporalInvariantSet set = extractInvariantsForAllRelations(g, tc);
+		List<RelationPath<T>> vio = set.getViolations(g);
+		if (vio == null)
+			return set;
+		for (RelationPath<T> i : vio) {
+			set.invariants.remove(i);
+		}
 		// System.out.println("done.");
 		return set;
 	}
@@ -224,9 +230,9 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 					set
 							.add(new NeverFollowedInvariant(label1, label2,
 									relation));
-				if (alwaysFollowedBy)
+				if (alwaysFollowedBy) 
 					set.add(new AlwaysFollowedInvariant(label1, label2,
-							relation));
+							relation));				
 				if (alwaysPreceded)
 					set.add(new AlwaysPrecedesInvariant(label2, label1,
 							relation));
