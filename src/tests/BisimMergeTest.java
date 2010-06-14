@@ -28,7 +28,7 @@ public class BisimMergeTest {
 		PartitionGraph pg = null;
 		for (int i = 0; i < LOOPS; ++i) {
 			pg = new PartitionGraph(gb.getRawGraph(), true);
-		//	Bisimulation.refinePartitionsSmart(pg);
+			Bisimulation.refinePartitionsSmart(pg);
 			Bisimulation.mergePartitions(pg);
 		}
 		benchmark.stop();
