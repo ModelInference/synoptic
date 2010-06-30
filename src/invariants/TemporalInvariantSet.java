@@ -38,6 +38,9 @@ import model.interfaces.INode;
 import model.interfaces.ITransition;
 
 public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
+	/**
+	 * Enable Dikon support to extract structural invariants (alpha)
+	 */
 	public static boolean generateStructuralInvariants = false;
 	HashSet<TemporalInvariant> invariants = new HashSet<TemporalInvariant>();
 	static boolean DEBUG = false;
@@ -83,12 +86,12 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	public static class RelationPath<T> {
 		public TemporalInvariant invariant;
 		public List<T> path;
-		
+
 		public String toString() {
 			return invariant.toString();
 		}
 	}
-	
+
 	public <T extends INode<T>> List<RelationPath<T>> getViolations(IGraph<T> g) {
 		List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
 		GraphLTLChecker<T> c = new GraphLTLChecker<T>();
@@ -149,6 +152,21 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		return ret && ret2;
 	}
 
+	/**
+	 * Compute invariants of the graph g. Enumerating all possibly invariants
+	 * syntactically, and then checking them was considered too costly (although
+	 * we never benchmarked it!). So we are mining invariants from the
+	 * transitive closure using {@code extractInvariantsForAllRelations}, which
+	 * is supposed to return an overapproximation of the invariants that hold
+	 * (i.e. it may return invariants that do not hold, but may not fail to
+	 * return an invariant that does not hold)
+	 * 
+	 * @param <T>
+	 *            The node type of the graph
+	 * @param g
+	 *            the graph of nodes of type T
+	 * @return the set of temporal invariants the graph satisfies
+	 */
 	static public <T extends INode<T>> TemporalInvariantSet computeInvariants(
 			IGraph<T> g) {
 		if (DEBUG) {
@@ -160,27 +178,38 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				e.printStackTrace();
 			}
 		}
-		AllRelationsTransitiveClosure<T> tc = new AllRelationsTransitiveClosure<T>(
+		AllRelationsTransitiveClosure<T> transitiveClosure = new AllRelationsTransitiveClosure<T>(
 				g);
 		if (DEBUG) {
 			GraphVizExporter v = new GraphVizExporter();
-			for (Action relation : tc.getRelations())
-				writeDot("output/post-" + relation + ".dot", g, tc
-						.get(relation));
+			for (Action relation : transitiveClosure.getRelations())
+				writeDot("output/post-" + relation + ".dot", g,
+						transitiveClosure.get(relation));
 			v.exportPng(new File("output/post.dot"));
 		}
-		
-		TemporalInvariantSet set = extractInvariantsForAllRelations(g, tc);
-		List<RelationPath<T>> vio = set.getViolations(g);
-		if (vio == null)
-			return set;
-		for (RelationPath<T> i : vio) {
-			set.invariants.remove(i);
+		// get overapproximation
+		TemporalInvariantSet overapproximatedInvariantsSet = extractInvariantsForAllRelations(
+				g, transitiveClosure);
+		List<RelationPath<T>> violations = overapproximatedInvariantsSet
+				.getViolations(g);
+		if (violations == null)
+			return overapproximatedInvariantsSet;
+		// Remove all invariants that do not hold
+		for (RelationPath<T> i : violations) {
+			overapproximatedInvariantsSet.invariants.remove(i);
 		}
-		// System.out.println("done.");
-		return set;
+		return overapproximatedInvariantsSet;
 	}
 
+	/**
+	 * Extract invariants for all relations, iteratively. Since we are not
+	 * considering invariants over multiple relations, this is sufficient.
+	 * 
+	 * @param <T> the node type of the graph
+	 * @param g the graph
+	 * @param tcs the transitive closure to mine invariants from
+	 * @return the mined invariants
+	 */
 	private static <T extends INode<T>> TemporalInvariantSet extractInvariantsForAllRelations(
 			IGraph<T> g, AllRelationsTransitiveClosure<T> tcs) {
 		TemporalInvariantSet invariants = new TemporalInvariantSet();
@@ -190,6 +219,14 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		return invariants;
 	}
 
+	/**
+	 * Extract an overapproximated set of invariants from the transitive closure {@code tc} of the graph {@code g}. 
+	 * @param <T> the node type of the graph
+	 * @param g the graph
+	 * @param tc the transitive closure (of {@code g}) to mine invariants from 
+	 * @param relation the relation to consider for the invariants
+	 * @return the overapproximated set of invariants
+	 */
 	private static <T extends INode<T>> TemporalInvariantSet extractInvariants(
 			IGraph<T> g, TransitiveClosure<T> tc, Action relation) {
 		HashMap<String, ArrayList<T>> partitions = new HashMap<String, ArrayList<T>>();
@@ -234,9 +271,9 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 					set
 							.add(new NeverFollowedInvariant(label1, label2,
 									relation));
-				if (alwaysFollowedBy) 
+				if (alwaysFollowedBy)
 					set.add(new AlwaysFollowedInvariant(label1, label2,
-							relation));				
+							relation));
 				if (alwaysPreceded)
 					set.add(new AlwaysPrecedesInvariant(label2, label1,
 							relation));
@@ -264,12 +301,12 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 						if (list.size() > 0 || list2.size() > 0) {
 							System.out.println("    " + label2 + list2
 									+ "\nAP  " + label1 + list);
-//							for (Invariant i : list) {
-//								double r = getInvariantRelevance(i,
-//										(Collection) partitions.get(label1),
-//										datafieldList);
-//								System.out.println("Conf " + r + " for " + i);
-//							}
+							// for (Invariant i : list) {
+							// double r = getInvariantRelevance(i,
+							// (Collection) partitions.get(label1),
+							// datafieldList);
+							// System.out.println("Conf " + r + " for " + i);
+							// }
 						}
 					}
 				}

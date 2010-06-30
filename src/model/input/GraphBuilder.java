@@ -98,6 +98,10 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 		return new PartitionGraph(graph, merge);
 	}
 	
+	/**
+	 * Return the graph as it was built.
+	 * @return the graph as it was built.
+	 */
 	public Graph<MessageEvent> getRawGraph() {
 		return graph;
 	}

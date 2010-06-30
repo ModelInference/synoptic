@@ -30,7 +30,8 @@ public class CreateTwitGraph {
 		// exporter.export(file, orgGK);
 		// exporter.exportPng(file);
 		int acc = 0;
-		for (int i = 0; i < 100; ++i) {
+		int TIMES = 5;
+		for (int i = 0; i < TIMES ; ++i) {
 			TimedTask t = new TimedTask("time", 0);
 			PartitionGraph orgGK = GraphBuilder.buildGraph(tr, true);
 
@@ -40,7 +41,7 @@ public class CreateTwitGraph {
 			t.stop();
 			acc += t.getTime();
 		}
-		System.out.println(acc/100);
+		System.out.println(acc/TIMES);
 		// File file3 = new File("output/TwitTrace2-gktail.dot");
 		// exporter.export(file3, orgGK);
 		// exporter.exportPng(file3);
