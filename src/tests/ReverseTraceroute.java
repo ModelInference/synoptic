@@ -68,11 +68,11 @@ public class ReverseTraceroute {
 		model.Graph<MessageEvent> raw = readSingle();
 		//export.exportAsDotAndPngFast("output/reverseTraceroute/raw.dot", raw);
 		TimedTask all = new TimedTask("all", 0);
-		PartitionGraph g = new PartitionGraph(raw, false);
-		//export.exportAsDotAndPngFast("output/reverseTraceroute/input.dot", g);
-		//Bisimulation.refinePartitionsSmart(g);
+		PartitionGraph g = new PartitionGraph(raw, true);
+		export.exportAsDotAndPngFast("output/reverseTraceroute/input.dot", g);
+		Bisimulation.refinePartitionsSmart(g);
 		System.out.println("merging.");
-		Bisimulation.mergePartitions(g, null, 1);
+		Bisimulation.mergePartitions(g);
 		all.stop();
 		TemporalInvariantSet inv = g.getInvariants().getUnsatisfiedInvariants(g);
 		//for (TemporalInvariant i : inv) {
@@ -85,14 +85,14 @@ public class ReverseTraceroute {
 		}
 		System.out.println(vio.size());
 		int states = g.getNodes().size();
-	/*	HashMap<Partition, ArrayList<Partition>> seq = getMessageEventSequences(g);
+		HashMap<Partition, ArrayList<Partition>> seq = getMessageEventSequences(g);
 		export.exportAsDotAndPng("output/reverseTraceroute/output.dot", g);
 		for (ArrayList<Partition> s : seq.values()) {
 			if (s.size() > 1)
 				g.apply(new ReplaceOperation(s));
 		}
 		export.exportAsDotAndPng(
-				"output/reverseTraceroute/output-condensed.dot", g);*/
+				"output/reverseTraceroute/output-condensed.dot", g);
 		System.out.println(states);
 		System.out.println(all);
 	}

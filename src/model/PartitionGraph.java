@@ -14,8 +14,17 @@ import model.interfaces.ITransition;
 
 import algorithms.graph.GraphUtil;
 import algorithms.graph.Operation;
-
-
+/**
+ * This class implements a partition graph. Nodes are sets of messages ({@code MessageEvent}) and edges 
+ * are not maintained explicitly, but generated on-the-fly by class {@code Partition}. PartitionGraph maintains
+ * a member {@code stateGraph} which represents the state based graph version of the partition graph. To ensure
+ * that {@code stateGraph} reflects the current shape of the graph, PartitionGraphs can only be modified via 
+ * the method {@code apply} which takes a object implementing {@code Operation}. Operations must perform changes
+ * on both representations. 
+ * 
+ * @author sigurd
+ *
+ */
 public class PartitionGraph implements IGraph<Partition> {
 	/** holds all partitions in this graph */
 	private Set<Partition> partitions = null;
@@ -38,6 +47,15 @@ public class PartitionGraph implements IGraph<Partition> {
 		this(g, false);
 	}
 
+	/**
+	 * Construct a PartitionGraph. Invariants from {@code g} will be extracted
+	 * and stored. If partitionByLabel is true, all messages with identical
+	 * labels in {@code g} will become one partition. Otherwise, every message
+	 * gets its own partition (useful if only coarsening is to be performed)
+	 * 
+	 * @param g - the initial graph
+	 * @param partitionByLabel - whether initial partitioning by label should be done
+	 */
 	public PartitionGraph(IGraph<MessageEvent> g, boolean partitionByLabel) {
 		for (Action relation : g.getRelations()) {
 			addInitialMessages(g.getInitialNodes(relation), relation);
@@ -47,12 +65,14 @@ public class PartitionGraph implements IGraph<Partition> {
 			partitionByLabels(g.getNodes(), g.getInitialNodes());
 		else
 			partitionSeparately(g.getNodes());
+		
 		stateGraph = GraphUtil.convertPartitionGraphToStateGraph(this);
 		invariants = TemporalInvariantSet.computeInvariants(g);
 		System.out.println(invariants.size() + " invariants found.");
 	}
 
-	private void addInitialMessages(Set<MessageEvent> initialMessages, Action relation) {
+	private void addInitialMessages(Set<MessageEvent> initialMessages,
+			Action relation) {
 		if (!this.initialMessages.containsKey(relation))
 			this.initialMessages.put(relation, new HashSet<MessageEvent>());
 		this.initialMessages.get(relation).addAll(initialMessages);
@@ -69,12 +89,13 @@ public class PartitionGraph implements IGraph<Partition> {
 	public Partition partitionFromMessage(MessageEvent message) {
 		return message.getParent();
 	}
-	
+
 	public Operation apply(Operation op) {
 		return op.commit(this, modifiableInterface, stateGraph);
 	}
 
-	private void partitionByLabels(Collection<MessageEvent> messages, Set<MessageEvent> initial) {
+	private void partitionByLabels(Collection<MessageEvent> messages,
+			Set<MessageEvent> initial) {
 		partitions = new HashSet<Partition>();
 		final Map<String, Partition> prepartitions = new HashMap<String, Partition>();
 		for (MessageEvent message : messages) {
@@ -90,8 +111,9 @@ public class PartitionGraph implements IGraph<Partition> {
 			prepartitions.get(message.getLabel()).addMessage(message);
 		}
 	}
-	
-	private void partitionByLabelsAndInitial(Collection<MessageEvent> messages, Set<MessageEvent> initial) {
+
+	private void partitionByLabelsAndInitial(Collection<MessageEvent> messages,
+			Set<MessageEvent> initial) {
 		partitions = new HashSet<Partition>();
 		final Map<String, Partition> prepartitions = new HashMap<String, Partition>();
 		for (MessageEvent message : messages) {
@@ -116,8 +138,7 @@ public class PartitionGraph implements IGraph<Partition> {
 			else {
 				t.removeMessages(iSet);
 				partitions.add(t);
-				partitions.add(new Partition(
-						iSet,
+				partitions.add(new Partition(iSet,
 						new HashSet<SystemState<Partition>>(), null));
 			}
 		}
@@ -168,11 +189,14 @@ public class PartitionGraph implements IGraph<Partition> {
 	public Set<Action> getRelations() {
 		return relations;
 	}
-
+	
+	/**
+	 * An interface that can be passed to methods that must modify the graph.
+	 */
 	private IModifiableGraph<Partition> modifiableInterface = new IModifiableGraph<Partition>() {
 		public void add(Partition node) {
 			for (MessageEvent m : node.getMessages())
-					relations.addAll(m.getRelations());
+				relations.addAll(m.getRelations());
 			partitions.add(node);
 		}
 
@@ -209,6 +233,9 @@ public class PartitionGraph implements IGraph<Partition> {
 		return initial;
 	}
 
+	/**
+	 * Check that all partitions are non-empty and disjunct.
+	 */
 	public void checkSanity() {
 		int totalCount = 0;
 		Set<MessageEvent> all = new HashSet<MessageEvent>();
@@ -219,6 +246,7 @@ public class PartitionGraph implements IGraph<Partition> {
 			totalCount += p.size();
 		}
 		if (totalCount != all.size())
-			throw new RuntimeException("partitions are not partitioning messages (overlap)!");		
+			throw new RuntimeException(
+					"partitions are not partitioning messages (overlap)!");
 	}
 }

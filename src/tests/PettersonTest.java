@@ -71,11 +71,11 @@ public class PettersonTest {
 		TimedTask refinement = new TimedTask("refinement", 1);
 		System.out.println("Creating Partition Graph...");
 		PartitionGraph pg = new PartitionGraph(g, true);
-		e.exportAsDotAndPngFast("output/peterson/initial-pg.dot", pg);
+		//e.exportAsDotAndPngFast("output/peterson/initial-pg.dot", pg);
 		System.out.println("Refining Partitions...");
 		Bisimulation.refinePartitionsSmart(pg);
 		System.out.println("Refined to " + pg.getNodes().size()+ " nodes.");
-		e.exportAsDotAndPngFast("output/peterson/output-pg.dot", pg);
+		//e.exportAsDotAndPngFast("output/peterson/output-pg.dot", pg);
 		refinement.stop();
 		pg.checkSanity();
 		TimedTask coarsening = new TimedTask("coarsening", 1);

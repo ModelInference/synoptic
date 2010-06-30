@@ -29,7 +29,7 @@ public class Benchmarks {
 	public static void main(String[] args) throws Exception {
 		GraphVizExporter e = new GraphVizExporter();
 		ArrayList<Integer> list = new ArrayList<Integer>();
-		for (int i = 15; i < 150; i += 15) {
+		for (int i = 15; i < 70; i += 10) {
 			list.add(i);
 		}
 		ArrayList<HashMap<String,Long>> resList = new ArrayList<HashMap<String,Long>>();
@@ -64,7 +64,7 @@ public class Benchmarks {
 				refinement.stop();
 				int size_reduction = pg.getNodes().size();
 				TimedTask coarsening = new TimedTask("coarsening", 1);
-				Bisimulation.mergePartitions(pg);
+				Bisimulation.mergePartitions(pg, pg.getInvariants(), 0);
 				coarsening.stop();
 				total.stop();
 				size_reduction -= pg.getNodes().size();
@@ -77,6 +77,9 @@ public class Benchmarks {
 				if (!res.containsKey("nodes"))
 					res.put("nodes", 0L);
 				res.put("nodes", res.get("nodes")+(long)g.getNodes().size());
+				if (!res.containsKey("finalsize"))
+					res.put("finalsize", 0L);
+				res.put("finalsize", res.get("finalsize")+(long)pg.getNodes().size());
 				if (!res.containsKey("steps"))
 					res.put("steps", 0L);
 				res.put("steps", res.get("steps")+Bisimulation.steps);
