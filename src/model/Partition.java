@@ -23,6 +23,21 @@ import algorithms.graph.PartitionSplit;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import util.IterableIterator;
 
+/**
+ * Implements a partition in a partition graph. Partitions are nodes, but they
+ * do not explictly represent their edges. Instead, they know the MessageEvents
+ * they contain, and generate the edges on the fly using existential
+ * abstraction.
+ * 
+ * The class is complicated by the fact that in the state based view, each
+ * partition corresponds to possibly several transitions. The implementation
+ * here can only handle state based views where a partition corresponds to a set
+ * of transitions that all have the same target (but possibly different
+ * sources).
+ * 
+ * @author sigurd
+ * 
+ */
 public class Partition implements
 		IMultiSourceTransition<SystemState<Partition>>, INode<Partition>,
 		ISuccessorProvider<Partition> {
@@ -74,6 +89,13 @@ public class Partition implements
 		return str.toString();
 	}
 
+	/**
+	 * Split the messages according to the presence of an outgoing transition
+	 * trans (the source in trans is ignored here)
+	 * 
+	 * @param trans the transition that will be checked for
+	 * @return the resulting split
+	 */
 	public PartitionSplit getCandidateDivision(ITransition<Partition> trans) {
 		PartitionSplit ret = null;
 		for (final MessageEvent otherExpr : messages) {
@@ -98,6 +120,14 @@ public class Partition implements
 		return ret;
 	}
 
+	/**
+	 * Split the partition according to an incomming transition from from
+	 * labeled with {@code trans2.getAction()}.
+	 * 
+	 * @param from the partition the transition should be incomming from
+	 * @param trans2 provides the action to consider
+	 * @return returns the resulting split
+	 */
 	public PartitionSplit getCandidateDivisionReach(Partition from,
 			ITransition<Partition> trans2) {
 		PartitionSplit s = new PartitionSplit(this);
@@ -112,7 +142,7 @@ public class Partition implements
 			else
 				s.addFulfillsNot(m);
 		}
-		
+
 		return s;
 	}
 
@@ -135,33 +165,46 @@ public class Partition implements
 		return messages.size();
 	}
 
+	/**
+	 * This method returns the set of transitions. It augments the edges with
+	 * information about frequency and number of observation.
+	 */
 	public Set<Relation<Partition>> getTransitions() {
 		Set<Relation<Partition>> set = new HashSet<Relation<Partition>>();
 		for (Relation<Partition> tr : getTransitionsIterator()) {
 			set.add(tr);
 			PartitionSplit s = getCandidateDivision(tr);
-			/*List<Invariant> all = TemporalInvariantSet.generateInvariants(tr
-					.getSource().getMessages());
-			List<Invariant> sInv = TemporalInvariantSet.generateInvariants(s
-					.getFulfills());
-			List<Invariant> sInvNot = TemporalInvariantSet.generateInvariants(s
-					.getFulfillsNot());
-			List<Invariant> rel = TemporalInvariantSet.getRelevantInvariants(
-					sInv, sInvNot, all);
-			List<Invariant> flow = TemporalInvariantSet.generateFlowInvariants(
-					tr.getSource().getMessages(), tr.getAction(), tr
-							.getTarget().getAction().getLabel());
-			tr.setInvariants(rel);*/
-			System.out.println(s.getFulfills().size() + " " + s.getFulfillsNot().size());
-			
-			tr.setFrequency((double)s.getFulfills().size()
+			// List<Invariant> all = TemporalInvariantSet.generateInvariants(tr
+			// .getSource().getMessages());
+			// List<Invariant> sInv = TemporalInvariantSet.generateInvariants(s
+			// .getFulfills());
+			// List<Invariant> sInvNot =
+			// TemporalInvariantSet.generateInvariants(s
+			// .getFulfillsNot());
+			// List<Invariant> rel = TemporalInvariantSet.getRelevantInvariants(
+			// sInv, sInvNot, all);
+			// List<Invariant> flow =
+			// TemporalInvariantSet.generateFlowInvariants(
+			// tr.getSource().getMessages(), tr.getAction(), tr
+			// .getTarget().getAction().getLabel());
+			// tr.setInvariants(rel);
+			System.out.println(s.getFulfills().size() + " "
+					+ s.getFulfillsNot().size());
+
+			tr.setFrequency((double) s.getFulfills().size()
 					/ (double) tr.getSource().getMessages().size());
 			tr.addCount(s.getFulfills().size());
-			//System.out.println(flow);
+			// System.out.println(flow);
 		}
 		return set;
 	}
 
+	/**
+	 * Generate Edges on the fly. We examine all contained messages and find the
+	 * appropriate successor messages. We then check to which partition the
+	 * successor messages belong and create an edge between the partitions.
+	 * Duplicates are eliminated.
+	 */
 	@Override
 	public IterableIterator<Relation<Partition>> getTransitionsIterator(
 			final Action act) {
@@ -353,6 +396,5 @@ public class Partition implements
 	public void setLabel(String str) {
 		this.label = str;
 	}
-	
-	
+
 }
