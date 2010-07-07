@@ -20,12 +20,12 @@ import model.interfaces.ITransition;
 
 /**
  * This class provides some methods to compute the quotient of the LTS w.r.t
- * weak or strong bisimulation (i.e. it computes the smalles weak/strong
+ * weak or strong bisimulation (i.e. it computes the smallest weak/strong
  * bisimilar LTS. The main functionality is provided by {@code
  * refinePartitionsSmart}.
  * 
- * It is bases on the code from Clemens Hammacher's implementation. Source:
- * https://ccs.hammacher.name Licence: Eclipse Public * License v1.0.
+ * It is based on the code from Clemens Hammacher's implementation. Source:
+ * https://ccs.hammacher.name Licence: Eclipse Public License v1.0.
  */
 public abstract class Bisimulation {
 	/**
@@ -106,7 +106,7 @@ public abstract class Bisimulation {
 					if (r.path.size() <= i) {
 						continue;
 					}
-					// System.out.println("Shortes violation: " + r.path);
+					// System.out.println("Shortest violation: " + r.path);
 					if (DEBUG) {
 						GraphVizExporter.quickExport("output/rounds/" + outer
 								+ "-" + i + ".dot", partitionGraph);
