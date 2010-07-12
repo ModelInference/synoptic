@@ -1,3 +1,4 @@
+/** kTail implementation */
 package algorithms.ktail;
 
 import java.util.Iterator;

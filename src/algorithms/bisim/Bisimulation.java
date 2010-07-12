@@ -1,3 +1,5 @@
+/** Implementation of the main algorithms */
+
 package algorithms.bisim;
 
 import invariants.TemporalInvariantSet;
@@ -19,12 +21,12 @@ import model.interfaces.IGraph;
 import model.interfaces.ITransition;
 
 /**
- * This class provides some methods to compute the quotient of the LTS w.r.t
- * weak or strong bisimulation (i.e. it computes the smallest weak/strong
- * bisimilar LTS. The main functionality is provided by {@code
- * refinePartitionsSmart}.
+ * This class implements the algorithm BisimH ({@code Bisimulation.refinePartitions}), and a
+ * modified version of the algorithm kTail ({@code Bisimulation.mergePartitions}) that
+ * considers state labels instead of state transitions.
  * 
- * It is based on the code from Clemens Hammacher's implementation. Source:
+ * It is based on the code from Clemens Hammacher's implementation of a
+ * partition refinement algorithm for bisimulation minimization. Source:
  * https://ccs.hammacher.name Licence: Eclipse Public License v1.0.
  */
 public abstract class Bisimulation {
@@ -41,7 +43,7 @@ public abstract class Bisimulation {
 	 */
 	private static boolean DEBUG = false;
 	/**
-	 * Consider incomming edges for splitting
+	 * Consider incoming edges for splitting
 	 */
 	private static boolean incommingEdgeSplit = false;
 	/**
@@ -60,16 +62,20 @@ public abstract class Bisimulation {
 	public static int merge;
 
 	private Bisimulation() throws InstantiationException {
-		throw new InstantiationException(this.getClass().getCanonicalName() + " is supposed to be used as static class only.");
+		throw new InstantiationException(this.getClass().getCanonicalName()
+				+ " is supposed to be used as static class only.");
 	}
 
 	/**
-	 * Construct a partition graph from {@code graph} (by partitioning by label), call refine partitions on it, and return the refined graph.
-	 * @param graph the graph from which should be used as initial graph
+	 * Construct a partition graph from {@code graph} (by partitioning by
+	 * label), call refine partitions on it, and return the refined graph.
+	 * 
+	 * @param graph
+	 *            the graph from which should be used as initial graph
 	 * @return
 	 * @throws InterruptedException
 	 */
-	private static PartitionGraph computePartitions(IGraph<MessageEvent> graph)
+	public static PartitionGraph computePartitions(IGraph<MessageEvent> graph)
 			throws InterruptedException {
 		PartitionGraph g = new PartitionGraph(graph, true);
 		refinePartitions(g);
@@ -188,7 +194,7 @@ public abstract class Bisimulation {
 	}
 
 	/**
-	 * Comupte possible splits to remove the path relPath from partitionGraph.
+	 * Compute possible splits to remove the path relPath from partitionGraph.
 	 * This is done by following relPath in the original graph and determining
 	 * the point where partitionGraph allows a transition it should not allow.
 	 * The original graph is accessed via the Messages (which are nodes in the
@@ -244,8 +250,12 @@ public abstract class Bisimulation {
 	}
 
 	/**
-	 * Construct a partition graph from {@code graph} (by partitioning by label), call {@link refinePartitions} on it, and return the refined graph.
-	 * @param graph the graph from which should be used as initial graph
+	 * Construct a partition graph from {@code graph} (by partitioning by
+	 * label), call {@code refinePartitions} on it, and return the refined
+	 * graph.
+	 * 
+	 * @param graph
+	 *            the graph from which should be used as initial graph
 	 * @return the refined graph
 	 * @throws InterruptedException
 	 */
@@ -257,19 +267,24 @@ public abstract class Bisimulation {
 	}
 
 	/**
-	 * Construct a partition graph from {@code graph} (by partitioning by label), call {@link mergePartitions} on it, and return the refined graph.
-	 * @param graph the graph from which should be used as initial graph
+	 * Construct a partition graph from {@code graph} (by partitioning by
+	 * label), call {@code mergePartitions} on it, and return the refined graph.
+	 * 
+	 * @param graph
+	 *            the graph from which should be used as initial graph
 	 * @return the merged graph
 	 * @throws InterruptedException
 	 */
-	public static PartitionGraph getMergedSystem(IGraph<MessageEvent> graph) {
+	public static PartitionGraph getMergedGraph(IGraph<MessageEvent> graph) {
 		PartitionGraph g = new PartitionGraph(graph);
 		mergePartitions(g);
 		return null;
 	}
 
 	/**
-	 * Works as {@code mergePartitions} but fixes invariants to {@code partitionGraph.getInvariants()}
+	 * Works as {@code mergePartitions} but fixes invariants to {@code
+	 * partitionGraph.getInvariants()}
+	 * 
 	 * @param partitionGraph
 	 */
 	public static void mergePartitions(PartitionGraph partitionGraph) {
@@ -279,6 +294,7 @@ public abstract class Bisimulation {
 
 	/**
 	 * Works as {@code mergePartitions} but fixes k to 0.
+	 * 
 	 * @param partitionGraph
 	 * @param invariants
 	 */
@@ -288,10 +304,15 @@ public abstract class Bisimulation {
 	}
 
 	/**
-	 * Merge partitions if they are {@code k} equal, while maintaining {@code invariants}
-	 * @param partitionGraph the graph to coarsen
-	 * @param invariants - the invariants to maintain, can be null
-	 * @param k - the k parameter for k-equality
+	 * Merge partitions if they are {@code k} equal, while maintaining {@code
+	 * invariants}
+	 * 
+	 * @param partitionGraph
+	 *            the graph to coarsen
+	 * @param invariants
+	 *            - the invariants to maintain, can be null
+	 * @param k
+	 *            - the k parameter for k-equality
 	 */
 	public static void mergePartitions(PartitionGraph partitionGraph,
 			TemporalInvariantSet invariants, int k) {
@@ -371,8 +392,11 @@ public abstract class Bisimulation {
 
 	/**
 	 * Wrapper to mergePartitions without invariant preservation.
-	 * @param partitionGraph the graph to reduce (merge {@code k}-equivalent partitions)
-	 * @param k parameter for equality
+	 * 
+	 * @param partitionGraph
+	 *            the graph to reduce (merge {@code k}-equivalent partitions)
+	 * @param k
+	 *            parameter for equality
 	 */
 	public static void kReduce(PartitionGraph partitionGraph, int k) {
 		mergePartitions(partitionGraph, null, k);
