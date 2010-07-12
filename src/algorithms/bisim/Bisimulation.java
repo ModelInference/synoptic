@@ -32,6 +32,9 @@ public abstract class Bisimulation {
 	 * Essential status output
 	 */
 	private static final boolean ESSENTIAL = true;
+	/**
+	 * Set output to verbose
+	 */
 	private static boolean VERBOSE = false;
 	/**
 	 * Export a graph in every round
@@ -56,114 +59,21 @@ public abstract class Bisimulation {
 	 */
 	public static int merge;
 
-	private Bisimulation() {
-		// forbid instantiation
+	private Bisimulation() throws InstantiationException {
+		throw new InstantiationException(this.getClass().getCanonicalName() + " is supposed to be used as static class only.");
 	}
 
+	/**
+	 * Construct a partition graph from {@code graph} (by partitioning by label), call refine partitions on it, and return the refined graph.
+	 * @param graph the graph from which should be used as initial graph
+	 * @return
+	 * @throws InterruptedException
+	 */
 	private static PartitionGraph computePartitions(IGraph<MessageEvent> graph)
 			throws InterruptedException {
 		PartitionGraph g = new PartitionGraph(graph, true);
 		refinePartitions(g);
 		return g;
-	}
-
-	public static void refinePartitions(PartitionGraph partitionGraph)
-			throws InterruptedException {
-		Partition partition;
-		int outer = 1;
-		if (DEBUG) {
-			GraphVizExporter.quickExport("output/rounds/0.dot", partitionGraph);
-			GraphVizExporter.quickExport("output/rounds/0s.dot", partitionGraph
-					.getSystemStateGraph());
-		}
-		boolean noprogress = false;
-		while (true) {
-			boolean noprogress_this = noprogress;
-			noprogress = false;
-			TemporalInvariantSet invariants = partitionGraph.getInvariants();
-			TemporalInvariantSet unsat = invariants
-					.getUnsatisfiedInvariants(partitionGraph);
-			if (unsat.size() == 0) {
-				if (VERBOSE)
-					System.out.println("Invariants statisfied. Stopping.");
-				break;
-			} else {
-				if (VERBOSE)
-					System.out.println("" + unsat.size()
-							+ " unsatisfied invariants: " + unsat);
-			}
-
-			List<RelationPath<Partition>> rp = unsat
-					.getViolations(partitionGraph);
-			int maxSize = 0;
-			for (RelationPath<Partition> r : rp) {
-				Collections.reverse(r.path);
-				maxSize = Math.max(maxSize, r.path.size());
-			}
-
-			path: for (int i = 1; i < maxSize; ++i) {
-				for (RelationPath<Partition> r : rp) {
-					if (r.path.size() <= i) {
-						continue;
-					}
-					// System.out.println("Shortest violation: " + r.path);
-					if (DEBUG) {
-						GraphVizExporter.quickExport("output/rounds/" + outer
-								+ "-" + i + ".dot", partitionGraph);
-						GraphVizExporter.quickExport("output/rounds/" + outer
-								+ "-" + i + "s.dot", partitionGraph
-								.getSystemStateGraph());
-					}
-					partition = r.path.get(i - 1);
-					Partition prevPartition = r.path.get(i);
-					ITransition<Partition> partTrans = prevPartition
-							.getTransition(partition, r.invariant.getRelation());
-					if (prevPartition.getMessages().size() < 2) {
-						if (VERBOSE)
-							System.out
-									.println("Could not get rid of " + r.path);
-						continue;
-					}
-
-					PartitionSplit d = prevPartition
-							.getCandidateDivision(partTrans);
-					if (d == null || !d.isValid()) {
-						// System.out.println("  -- invalid");
-						// continue path;
-						continue;
-					}
-
-					Operation rewindOperation = partitionGraph.apply(d);
-					TemporalInvariantSet unsatAfter = invariants
-							.getUnsatisfiedInvariants(partitionGraph);
-					if (unsatAfter.size() == unsat.size() && !noprogress_this) {
-						partitionGraph.apply(rewindOperation);
-						// System.out.println(" NO PROGRESS ");
-						noprogress = true;
-						continue;
-					}
-					if (VERBOSE) {
-						System.out.println("Splitting according to "
-								+ partTrans + "\n  to satisfy " + r.invariant);
-						System.out.println("  path:" + r.path);
-						System.out.flush();
-						System.out.println("  -- ok");
-					}
-					noprogress = false;
-					break path;
-				}
-			}
-			// if (noprogress)
-			// break;
-			outer++;
-		}
-
-		if (DEBUG) {
-			GraphVizExporter.quickExport("output/rounds/" + outer
-					+ "-final.dot", partitionGraph);
-			GraphVizExporter.quickExport("output/rounds/" + outer
-					+ "-finals.dot", partitionGraph.getSystemStateGraph());
-		}
 	}
 
 	/**
@@ -173,7 +83,7 @@ public abstract class Bisimulation {
 	 * @param partitionGraph
 	 *            - the partition graph to refine
 	 */
-	public static void refinePartitionsSmart(PartitionGraph partitionGraph) {
+	public static void refinePartitions(PartitionGraph partitionGraph) {
 		int outer = 1;
 		if (DEBUG) {
 			GraphVizExporter.quickExport("output/rounds/0.dot", partitionGraph);
@@ -186,9 +96,6 @@ public abstract class Bisimulation {
 		boolean noprogress = false;
 		// This keeps track of the splitting done; currently it is not used
 		// anymore.
-		HashMap<Partition, PartitionSplit> partDepsOn = new HashMap<Partition, PartitionSplit>();
-		HashSet<PartitionSplit> effectiveSplits = new HashSet<PartitionSplit>();
-		HashMap<PartitionSplit, Operation> rewinds = new HashMap<PartitionSplit, Operation>();
 		int lastUnsatSize = 0;
 		// These invariants will be satisfied
 		TemporalInvariantSet invariants = partitionGraph.getInvariants();
@@ -245,13 +152,9 @@ public abstract class Bisimulation {
 					System.out.flush();
 					// This is just bookkeeping that is not used for anything
 					// atm.
-					PartitionMerge m = (PartitionMerge) rewindOperation;
-					partDepsOn.put(m.getRemoved(), d);
-					rewinds.put(d, rewindOperation);
 					if (unsatAfter == null || unsatAfter.size() < rp.size()) {
 						if (VERBOSE)
 							System.out.println("  -- ok");
-						effectiveSplits.add(d);
 						lastWasSuccessful = true;
 					} else if (VERBOSE)
 						System.out.println("  -- forced");
@@ -282,24 +185,6 @@ public abstract class Bisimulation {
 			GraphVizExporter.quickExport("output/rounds/" + outer
 					+ "-final.dot", partitionGraph);
 		}
-
-		// HashSet<Operation> needed = new HashSet<Operation>();
-		// for (PartitionSplit s : effectiveSplits) {
-		// needed.add(s);
-		// while (partDepsOn.containsKey(s.getPartition())) {
-		// s = partDepsOn.get(s.getPartition());
-		// needed.add(s);
-		// }
-		// }
-		// int rewound = 0;
-		// for (Entry<PartitionSplit, Operation> e : rewinds.entrySet()) {
-		// if (needed.contains(e.getKey()))
-		// continue;
-		// partitionGraph.apply(e.getValue());
-		// rewound++;
-		// }
-		// System.out.println("rewound " + rewound + " of " + rewinds.size());
-
 	}
 
 	/**
@@ -358,12 +243,25 @@ public abstract class Bisimulation {
 		return ret;
 	}
 
-	public static PartitionGraph getRefinedSystem(IGraph<MessageEvent> system)
+	/**
+	 * Construct a partition graph from {@code graph} (by partitioning by label), call {@link refinePartitions} on it, and return the refined graph.
+	 * @param graph the graph from which should be used as initial graph
+	 * @return the refined graph
+	 * @throws InterruptedException
+	 */
+	public static PartitionGraph getRefinedGraph(IGraph<MessageEvent> graph)
 			throws InterruptedException {
-		PartitionGraph g = Bisimulation.computePartitions(system);
+		PartitionGraph g = new PartitionGraph(graph, true);
+		refinePartitions(g);
 		return g;
 	}
 
+	/**
+	 * Construct a partition graph from {@code graph} (by partitioning by label), call {@link mergePartitions} on it, and return the refined graph.
+	 * @param graph the graph from which should be used as initial graph
+	 * @return the merged graph
+	 * @throws InterruptedException
+	 */
 	public static PartitionGraph getMergedSystem(IGraph<MessageEvent> graph) {
 		PartitionGraph g = new PartitionGraph(graph);
 		mergePartitions(g);
@@ -471,6 +369,11 @@ public abstract class Bisimulation {
 		}
 	}
 
+	/**
+	 * Wrapper to mergePartitions without invariant preservation.
+	 * @param partitionGraph the graph to reduce (merge {@code k}-equivalent partitions)
+	 * @param k parameter for equality
+	 */
 	public static void kReduce(PartitionGraph partitionGraph, int k) {
 		mergePartitions(partitionGraph, null, k);
 	}

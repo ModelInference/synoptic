@@ -43,7 +43,7 @@ public class SplitTest {
 		GraphVizExporter e = new GraphVizExporter();
 		PartitionGraph pg = new PartitionGraph(g, true);
 		e.exportAsDotAndPngFast("output/tests/initial.dot", pg);
-		Bisimulation.refinePartitionsSmart(pg);
+		Bisimulation.refinePartitions(pg);
 		e.exportAsDotAndPngFast("output/tests/final.dot", pg);
 	}
 }

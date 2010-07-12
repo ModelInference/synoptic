@@ -19,7 +19,7 @@ public class CreateTwitGraph {
 				"src/trace/twitter/TwitTrace2.trace"));
 		PartitionGraph orgBisim = GraphBuilder.buildGraph(tr, true);
 
-		Bisimulation.refinePartitionsSmart(orgBisim);
+		Bisimulation.refinePartitions(orgBisim);
 		Bisimulation.mergePartitions(orgBisim);
 
 		File file2 = new File("output/TwitTrace2-bisim.dot");
@@ -36,7 +36,7 @@ public class CreateTwitGraph {
 			PartitionGraph orgGK = GraphBuilder.buildGraph(tr, true);
 
 			//Bisimulation.mergePartitions(orgGK, orgGK.getInvariants(), 0);
-			Bisimulation.refinePartitionsSmart(orgGK);
+			Bisimulation.refinePartitions(orgGK);
 			Bisimulation.mergePartitions(orgGK);
 			t.stop();
 			acc += t.getTime();
