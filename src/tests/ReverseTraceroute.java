@@ -70,7 +70,7 @@ public class ReverseTraceroute {
 		TimedTask all = new TimedTask("all", 0);
 		PartitionGraph g = new PartitionGraph(raw, true);
 		export.exportAsDotAndPngFast("output/reverseTraceroute/input.dot", g);
-		Bisimulation.refinePartitionsSmart(g);
+		Bisimulation.refinePartitions(g);
 		System.out.println("merging.");
 		Bisimulation.mergePartitions(g);
 		all.stop();

@@ -60,7 +60,7 @@ public class Benchmarks {
 				invariants.stop();
 
 				TimedTask refinement = new TimedTask("refinement", 1);
-				Bisimulation.refinePartitionsSmart(pg);
+				Bisimulation.refinePartitions(pg);
 				refinement.stop();
 				int size_reduction = pg.getNodes().size();
 				TimedTask coarsening = new TimedTask("coarsening", 1);
