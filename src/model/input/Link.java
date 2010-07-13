@@ -3,27 +3,32 @@ package model.input;
 public class Link {
 	private int source;
 	private int destination;
+
 	public Link(int source, int destination) {
 		this.source = source;
 		this.destination = destination;
 	}
+
 	public int getSource() {
 		return source;
 	}
+
 	public void setSource(int source) {
 		this.source = source;
 	}
+
 	public int getDestination() {
 		return destination;
 	}
+
 	public void setDestination(int destination) {
 		this.destination = destination;
 	}
-	
+
 	public Link getResponseLink() {
 		return new Link(destination, source);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -32,6 +37,7 @@ public class Link {
 		result = prime * result + source;
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -47,6 +53,5 @@ public class Link {
 			return false;
 		return true;
 	}
-	
-}
 
+}
