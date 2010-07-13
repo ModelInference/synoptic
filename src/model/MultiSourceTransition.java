@@ -57,13 +57,13 @@ public class MultiSourceTransition<NodeType> implements IMultiSourceTransition<N
 	}
 
 	@Override
-	public void addCount(int count) {
+	public void addWeight(int count) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public int getCount() {
+	public int getWeight() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

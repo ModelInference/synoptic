@@ -199,11 +199,11 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 		return list.size() == 0 ? null : list.get(0);
 	}
 
-	public int getCount() {
+	public int getWeight() {
 		return count;
 	}
 
-	public void addCount(int count) {
+	public void addWeight(int count) {
 		this.count += count;
 	}
 

@@ -193,7 +193,7 @@ public class Partition implements
 
 			tr.setFrequency((double) s.getFulfills().size()
 					/ (double) tr.getSource().getMessages().size());
-			tr.addCount(s.getFulfills().size());
+			tr.addWeight(s.getFulfills().size());
 			// System.out.println(flow);
 		}
 		return set;
@@ -323,13 +323,13 @@ public class Partition implements
 	}
 
 	@Override
-	public void addCount(int count) {
+	public void addWeight(int count) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public int getCount() {
+	public int getWeight() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

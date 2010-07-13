@@ -4,6 +4,12 @@ import java.util.Set;
 
 import model.Action;
 
+/**
+ * This is the interface all graphs have to provide. The interface has no methods to modify the graph.
+ * @author sigurd
+ *
+ * @param <NodeType> the class of a node in a graph
+ */
 public interface IGraph<NodeType extends INode<NodeType>> {
 	/**
 	 * Get all nodes in this graph

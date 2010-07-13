@@ -502,7 +502,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	public Graph<MessageEvent> getInvariantGraph(String shortName) {
 		HashMap<String, MessageEvent> messageMap = new HashMap<String, MessageEvent>();
 		for (TemporalInvariant i : invariants) {
-			for (String label : i.getLabels()) {
+			for (String label : i.getPredicates()) {
 				if (!messageMap.containsKey(label))
 					messageMap.put(label, new MessageEvent(new Action(label),
 							null, null, 0));
