@@ -1,7 +1,12 @@
 package model;
 
 import model.interfaces.ITransition;
-
+/**
+ * An implementation of a transition.
+ * @author Sigurd Schneider
+ *
+ * @param <StateType>
+ */
 public class Transition<StateType> implements ITransition<StateType> {
 	protected StateType source;
 	protected StateType target;
@@ -14,14 +19,17 @@ public class Transition<StateType> implements ITransition<StateType> {
 		this.action = action;
 	}
 
+	@Override
 	public StateType getTarget() {
 		return target;
 	}
 
+	@Override
 	public StateType getSource() {
 		return source;
 	}
-
+	
+	@Override
 	public Action getAction() {
 		return action;
 	}
@@ -75,12 +83,12 @@ public class Transition<StateType> implements ITransition<StateType> {
 	}
 
 	@Override
-	public void addCount(int count) {
+	public void addWeight(int count) {
 		this.count += count;
 	}
 
 	@Override
-	public int getCount() {
+	public int getWeight() {
 		return count ;
 	}
 

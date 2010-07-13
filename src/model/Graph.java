@@ -12,9 +12,25 @@ import model.interfaces.IModifiableGraph;
 import model.interfaces.INode;
 import model.interfaces.ITransition;
 
-
-public class Graph<NodeType extends INode<NodeType>> implements IModifiableGraph<NodeType> {
+/**
+ * A graph implementation that provides a merge operation to merge another graph
+ * into it. The graph can be modified by adding nodes to it. Whether edges can
+ * be added depends on the capability of the {@code NodeType} class.
+ * 
+ * @author sigurd
+ * 
+ * @param <NodeType> the class of a node in the graph
+ */
+public class Graph<NodeType extends INode<NodeType>> implements
+		IModifiableGraph<NodeType> {
+	/**
+	 * The nodes of the graph. The edges are managed by the nodes.
+	 */
 	private Set<NodeType> nodes = new HashSet<NodeType>();
+
+	/**
+	 * The initial nodes of the graph, with respect to which they are initial.
+	 */
 	private final Map<Action, Set<NodeType>> initialNodes = new HashMap<Action, Set<NodeType>>();
 
 	/**
@@ -57,19 +73,23 @@ public class Graph<NodeType extends INode<NodeType>> implements IModifiableGraph
 	public Set<Action> getRelations() {
 		Set<Action> relations = new HashSet<Action>();
 		for (NodeType node : nodes)
-			for (Iterator<? extends ITransition<NodeType>> iter = node.getTransitionsIterator(); iter.hasNext();)
+			for (Iterator<? extends ITransition<NodeType>> iter = node
+					.getTransitionsIterator(); iter.hasNext();)
 				relations.add(iter.next().getAction());
 		return relations;
 	}
 
+	@Override
 	public void add(NodeType node) {
 		nodes.add(node);
 	}
 
+	@Override
 	public void remove(NodeType node) {
 		nodes.remove(node);
 	}
 
+	@Override
 	public void addInitial(NodeType initialNode, Action relation) {
 		if (initialNode == null)
 			throw new IllegalArgumentException("argument was null");
@@ -78,12 +98,18 @@ public class Graph<NodeType extends INode<NodeType>> implements IModifiableGraph
 		initialNodes.get(relation).add(initialNode);
 	}
 
-	public void merge(Graph<NodeType> g) {
-		nodes.addAll(g.getNodes());
-		for (Action key : g.initialNodes.keySet()) {
+	/**
+	 * Merge {@code graph} into this graph.
+	 * 
+	 * @param graph
+	 *            the graph to merge into this one
+	 */
+	public void merge(Graph<NodeType> graph) {
+		nodes.addAll(graph.getNodes());
+		for (Action key : graph.initialNodes.keySet()) {
 			if (!initialNodes.containsKey(key))
 				initialNodes.put(key, new HashSet<NodeType>());
-			initialNodes.get(key).addAll(g.initialNodes.get(key));
+			initialNodes.get(key).addAll(graph.initialNodes.get(key));
 		}
 	}
 

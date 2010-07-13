@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+  @(#)package.html	1.60 98/01/27
+
+  Copyright 1998 Sun Microsystems, Inc. 901 San Antonio Road, 
+  Palo Alto, California, 94303, U.S.A.  All Rights Reserved.
+
+  This software is the confidential and proprietary information of Sun
+  Microsystems, Inc. ("Confidential Information").  You shall not
+  disclose such Confidential Information and shall use it only in
+  accordance with the terms of the license agreement you entered into
+  with Sun.
+
+  CopyrightVersion 1.2
+
+-->
+</head>
+<body bgcolor="white">
+
+Provides basic data structures, such as graphs, transitions, and events.
+
+<h3>Graphs</h3>
+
+<p>
+The main data-structure in Synoptic is a graph. In the implementation a graph is represented by a set of nodes.
+Synoptic's graphs do not contain edges themselves, but leave it to the nodes to store the edges. 
+Edges of nodes can be accessed via the interface <code>INode</code> which all classes 
+representing nodes must implement. </p>
+
+<p>There are two important classes that implement the interface <code>INode</code> and thus can be used to build graphs:
+ <code>MessageEvent</code> and <code>Partition</code>. <code>MessageEvent</code> is used to build input graphs from raw data. 
+ This class provides methods to add edges between different nodes of type <code>MessageEvent</code>. A typical input graph has type
+  <code>Graph&lt;MessageEvent&gt;</code>. 
+  
+  </p><p>A <code>Partition</code> is a set of <code>MessageEvent</code>, and plays the role of a node in the <code>PartitionGraph</code>. 
+  Partitions support merging and splitting of nodes, and do not store their edges explicitly. Thus they have no direct means of inserting an edge. 
+  Instead, they generate edges implicitly and on the fly from the <code>MessageEvent</code>s they contain. This has the advantage that edges are
+   always up-to-date and <code>MessageEvent</code>s can be moved freely among Partitions (as long as they are contained in at most one partition at every given time). </p>
+
+<h2>Package Specification</h2>
+
+<!-- ##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
+<ul>
+  <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
+</ul> -->
+
+<h2>Related Documentation</h2>
+
+For overviews, tutorials, examples, guides, and tool documentation, please see:
+<ul>
+  <li><a href="http://synoptic.googlecode.com/">Synoptic Project</a>
+</ul>
+
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>
+

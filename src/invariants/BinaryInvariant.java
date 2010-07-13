@@ -81,7 +81,7 @@ public abstract class BinaryInvariant implements TemporalInvariant {
 	}
 	
 	@Override
-	public Set<String> getLabels() {
+	public Set<String> getPredicates() {
 		Set<String> set = new HashSet<String>();
 		set.add(first);
 		set.add(second);
