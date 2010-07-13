@@ -2,6 +2,7 @@
 
 package algorithms.bisim;
 
+import invariants.TemporalInvariant;
 import invariants.TemporalInvariantSet;
 import invariants.TemporalInvariantSet.RelationPath;
 
@@ -105,13 +106,19 @@ public abstract class Bisimulation {
 		int lastUnsatSize = 0;
 		// These invariants will be satisfied
 		TemporalInvariantSet invariants = partitionGraph.getInvariants();
-		List<RelationPath<Partition>> rp = invariants
-				.getViolations(partitionGraph);
+		
+		Set<TemporalInvariant> unsatisfiedInvariants = new HashSet<TemporalInvariant>();
+		unsatisfiedInvariants.addAll(partitionGraph.getInvariants().getSet());
 
-		while (true) {
+		List<RelationPath<Partition>> rp = null;
+		while (unsatisfiedInvariants.size() > 0) {
 			boolean noprogress_this = noprogress;
 			noprogress = true;
 			boolean lastWasSuccessful = false;
+	
+			if (!noprogress_this)
+				rp = invariants.getViolations(partitionGraph);
+			
 			if (rp == null || rp.size() == 0) {
 				if (VERBOSE)
 					System.out.println("Invariants statisfied. Stopping.");
@@ -119,6 +126,11 @@ public abstract class Bisimulation {
 			} else if (ESSENTIAL) {
 				System.out.println("" + rp.size() + " unsatisfied invariants: "
 						+ rp);
+			}
+			
+			unsatisfiedInvariants.clear();
+			for (RelationPath<Partition> relPath : rp) {
+				unsatisfiedInvariants.add(relPath.invariant);
 			}
 
 			off: for (RelationPath<Partition> relPath : rp) {
@@ -138,16 +150,15 @@ public abstract class Bisimulation {
 								+ ".dot", partitionGraph);
 					}
 					// Now we must check if we changed something
-					List<RelationPath<Partition>> unsatAfter = invariants
-							.getViolations(partitionGraph);
+					RelationPath<Partition> unsatAfter = invariants
+							.getViolation(relPath.invariant, partitionGraph);
 					// if the unsatAfter size is the same, and we are still
 					// determining
 					// if progress is possible, then rewind here.
 					// Note that since refining may never introduce invariant
 					// violations for our three types of invariants,
 					// a size check is enough here
-					if (unsatAfter != null && unsatAfter.size() == rp.size()
-							&& !noprogress_this) {
+					if (unsatAfter != null && !noprogress_this) {
 						partitionGraph.apply(rewindOperation);
 						if (VERBOSE)
 							System.out
@@ -158,17 +169,17 @@ public abstract class Bisimulation {
 					System.out.flush();
 					// This is just bookkeeping that is not used for anything
 					// atm.
-					if (unsatAfter == null || unsatAfter.size() < rp.size()) {
+					if (unsatAfter == null) {
 						if (VERBOSE)
 							System.out.println("  -- ok");
 						lastWasSuccessful = true;
+						unsatisfiedInvariants.remove(relPath.invariant);
 					} else if (VERBOSE)
 						System.out.println("  -- forced");
 					// if we are here, we did a successful split. Either because
 					// we removed a violation,
 					// or because we did any split because noprogress was true.
 					noprogress = false;
-					rp = unsatAfter;
 					break off;
 				}
 			}
