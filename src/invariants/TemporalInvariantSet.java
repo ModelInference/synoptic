@@ -44,6 +44,10 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	public static boolean generateStructuralInvariants = false;
 	HashSet<TemporalInvariant> invariants = new HashSet<TemporalInvariant>();
 	static boolean DEBUG = false;
+	
+	public Set<TemporalInvariant> getSet() {
+		return invariants;
+	}
 
 	public <T extends INode<T>> boolean check(IGraph<T> g) {
 		TemporalInvariantSet set = computeInvariants(g);
@@ -92,6 +96,34 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		}
 	}
 
+	public <T extends INode<T>> RelationPath<T> getViolation(TemporalInvariant inv, IGraph<T> g) {
+		RelationPath<T> r = new RelationPath<T>();
+		GraphLTLChecker<T> c = new GraphLTLChecker<T>();
+		try {
+			Counterexample ce = c.check(g, inv, new IModelCheckingMonitor() {
+				public void subTask(String str) {
+				}
+			});
+			if (ce == null)
+				return null;
+			r.invariant = inv;
+			List<T> trace = c.convertCounterexample(ce);
+			if (trace != null) {
+				// System.out.println(i.toString() + trace);
+				r.path = inv.shorten(trace);
+				if (r.path == null) {
+					throw new RuntimeException(
+							"shortening returned null for " + inv
+									+ " and trace " + trace);
+				}
+				// System.out.println(r.path);
+			}
+		} catch (ParseErrorException e) {
+			e.printStackTrace();
+		}
+		return r;
+	}
+	
 	public <T extends INode<T>> List<RelationPath<T>> getViolations(IGraph<T> g) {
 		List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
 		GraphLTLChecker<T> c = new GraphLTLChecker<T>();
