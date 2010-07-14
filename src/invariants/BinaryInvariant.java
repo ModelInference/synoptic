@@ -71,7 +71,9 @@ public abstract class BinaryInvariant implements TemporalInvariant {
 	public gov.nasa.ltl.graph.Graph getAutomaton() {
 		try {
 			if (automaton == null) {
-				String formula = LTLFormula.prepare(getLTLString());
+				String formula = getLTLString();
+				if (useDIDCAN)
+					formula = LTLFormula.prepare(getLTLString());
 				automaton = LTL2Buchi.translate("! (" + formula + ")");
 			}
 			return automaton;
