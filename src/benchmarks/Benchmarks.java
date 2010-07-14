@@ -1,4 +1,4 @@
-package tests;
+package benchmarks;
 
 import java.util.ArrayList;
 import java.util.Collections;

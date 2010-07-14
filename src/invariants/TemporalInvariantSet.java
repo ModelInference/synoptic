@@ -39,12 +39,19 @@ import model.interfaces.ITransition;
 
 public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	/**
-	 * Enable Dikon support to extract structural invariants (alpha)
+	 * Enable Daikon support to extract structural invariants (alpha)
 	 */
 	public static boolean generateStructuralInvariants = false;
 	HashSet<TemporalInvariant> invariants = new HashSet<TemporalInvariant>();
 	static boolean DEBUG = false;
 	
+	public TemporalInvariantSet() {
+	}
+	
+	public TemporalInvariantSet(Set<TemporalInvariant> invariants) {
+		this.invariants.addAll(invariants);
+	}
+
 	public Set<TemporalInvariant> getSet() {
 		return invariants;
 	}
@@ -141,7 +148,8 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				List<T> trace = c.convertCounterexample(ce);
 				if (trace != null) {
 					// System.out.println(i.toString() + trace);
-					r.path = i.shorten(trace);
+					//r.path = i.shorten(trace);
+					r.path = trace;
 					if (r.path == null) {
 						throw new RuntimeException(
 								"shortening returned null for " + i

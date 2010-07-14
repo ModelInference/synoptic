@@ -31,6 +31,7 @@ public class DidCanTranslator {
 
 				// add a node <l, n> in did/can-extended graph g
 				Node ln = new Node(g);
+				ln.setAttributes(current.getAttributes());
 				List<AtomicProposition> label = new ArrayList<AtomicProposition>();
 				// with did set to l:
 				label.add(new AtomicProposition(edge.getAction(), AtomicProposition.PropositionType.Did));
@@ -46,6 +47,7 @@ public class DidCanTranslator {
 				}
 
 				ln.setAttribute("label",label);
+				
 
 				states_o2n.put(new Pair<String, Node> (edge.getAction(), current), ln);
 			}

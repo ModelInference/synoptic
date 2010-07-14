@@ -22,9 +22,10 @@ import model.interfaces.IGraph;
 import model.interfaces.ITransition;
 
 /**
- * This class implements the algorithm BisimH ({@code Bisimulation.refinePartitions}), and a
- * modified version of the algorithm kTail ({@code Bisimulation.mergePartitions}) that
- * considers state labels instead of state transitions.
+ * This class implements the algorithm BisimH ({@code
+ * Bisimulation.refinePartitions}), and a modified version of the algorithm
+ * kTail ({@code Bisimulation.mergePartitions}) that considers state labels
+ * instead of state transitions.
  * 
  * It is based on the code from Clemens Hammacher's implementation of a
  * partition refinement algorithm for bisimulation minimization. Source:
@@ -46,7 +47,7 @@ public abstract class Bisimulation {
 	/**
 	 * Consider incoming edges for splitting
 	 */
-	private static boolean incommingEdgeSplit = false;
+	private static boolean incommingEdgeSplit = true;
 	/**
 	 * Coarsen the representation after each successful split (i.e. each split
 	 * that caused a previously unsatisfied invariant to become satisfied. This
@@ -106,19 +107,20 @@ public abstract class Bisimulation {
 		int lastUnsatSize = 0;
 		// These invariants will be satisfied
 		TemporalInvariantSet invariants = partitionGraph.getInvariants();
-		
+
 		Set<TemporalInvariant> unsatisfiedInvariants = new HashSet<TemporalInvariant>();
 		unsatisfiedInvariants.addAll(partitionGraph.getInvariants().getSet());
+		Set<TemporalInvariant> satisfiedInvariants = new HashSet<TemporalInvariant>();
 
 		List<RelationPath<Partition>> rp = null;
 		while (unsatisfiedInvariants.size() > 0) {
 			boolean noprogress_this = noprogress;
 			noprogress = true;
 			boolean lastWasSuccessful = false;
-	
+
 			if (!noprogress_this)
-				rp = invariants.getViolations(partitionGraph);
-			
+				rp = new TemporalInvariantSet(unsatisfiedInvariants).getViolations(partitionGraph);
+
 			if (rp == null || rp.size() == 0) {
 				if (VERBOSE)
 					System.out.println("Invariants statisfied. Stopping.");
@@ -127,10 +129,14 @@ public abstract class Bisimulation {
 				System.out.println("" + rp.size() + " unsatisfied invariants: "
 						+ rp);
 			}
-			
-			unsatisfiedInvariants.clear();
-			for (RelationPath<Partition> relPath : rp) {
-				unsatisfiedInvariants.add(relPath.invariant);
+			if (!noprogress_this) {
+				unsatisfiedInvariants.clear();
+				for (RelationPath<Partition> relPath : rp) {
+					unsatisfiedInvariants.add(relPath.invariant);
+				}
+				satisfiedInvariants.clear();
+				satisfiedInvariants.addAll(partitionGraph.getInvariants().getSet());
+				satisfiedInvariants.removeAll(unsatisfiedInvariants);
 			}
 
 			off: for (RelationPath<Partition> relPath : rp) {
@@ -155,7 +161,7 @@ public abstract class Bisimulation {
 					// if the unsatAfter size is the same, and we are still
 					// determining
 					// if progress is possible, then rewind here.
-					// Note that since refining may never introduce invariant
+					// Note that since refininge may never introduce invariant
 					// violations for our three types of invariants,
 					// a size check is enough here
 					if (unsatAfter != null && !noprogress_this) {
@@ -173,6 +179,7 @@ public abstract class Bisimulation {
 						if (VERBOSE)
 							System.out.println("  -- ok");
 						lastWasSuccessful = true;
+						satisfiedInvariants.add(relPath.invariant);
 						unsatisfiedInvariants.remove(relPath.invariant);
 					} else if (VERBOSE)
 						System.out.println("  -- forced");
@@ -186,9 +193,10 @@ public abstract class Bisimulation {
 			// handle interleaved merging
 			if ((lastWasSuccessful || lastUnsatSize > rp.size())
 					&& interleavedMerging) {
-				System.out.println("recompressing...");
+				if (VERBOSE)
+					System.out.println("recompressing...");
 				Bisimulation.mergePartitions(partitionGraph,
-						TemporalInvariantSet.computeInvariants(partitionGraph));
+						new TemporalInvariantSet(satisfiedInvariants));
 			}
 			if (ESSENTIAL)
 				System.out.println(partitionGraph.getNodes().size() + " "
@@ -228,6 +236,8 @@ public abstract class Bisimulation {
 		if (VERBOSE)
 			System.out.println(relPath.path);
 		for (Partition part : relPath.path) {
+			if (part == null)
+				throw new RuntimeException("relation path contained null");
 			prevPartition = curPartition;
 			curPartition = nextPartition;
 			nextPartition = part;

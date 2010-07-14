@@ -25,7 +25,7 @@ import gov.nasa.ltl.graph.Node;
 import gov.nasa.ltl.graph.Graph;
 import gov.nasa.ltl.trans.ParseErrorException;
 
-public class GraphLTLChecker<T extends INode<T>>  {
+public class GraphLTLChecker<T extends INode<T>> {
 	private static final boolean DEBUG = false;
 	private HashMap<Action, Graph> lastTargetGraph = new HashMap<Action, Graph>();
 	private HashMap<Action, IGraph<T>> lastSourceGraph = new HashMap<Action, IGraph<T>>();
@@ -42,8 +42,9 @@ public class GraphLTLChecker<T extends INode<T>>  {
 	 *         satisfied
 	 * @throws ParseErrorException
 	 */
-	public Counterexample check(model.interfaces.IGraph<T> sourceGraph, TemporalInvariant invariant,
-			IModelCheckingMonitor monitor) throws ParseErrorException {
+	public Counterexample check(model.interfaces.IGraph<T> sourceGraph,
+			TemporalInvariant invariant, IModelCheckingMonitor monitor)
+			throws ParseErrorException {
 		if (monitor == null) {
 			monitor = new IModelCheckingMonitor() {
 				public void subTask(String str) {
@@ -52,12 +53,13 @@ public class GraphLTLChecker<T extends INode<T>>  {
 			};
 		}
 
-		//formula = LTLFormulaPreprocessor.preprocessFormula(formula);
-		//monitor.subTask("Preprocessed LTL formula: " + formula);
+		// formula = LTLFormulaPreprocessor.preprocessFormula(formula);
+		// monitor.subTask("Preprocessed LTL formula: " + formula);
 
 		Graph targetGraph = null;
 		Action relation = invariant.getRelation();
-		if (lastSourceGraph.containsKey(relation) && lastSourceGraph.get(relation).equals(sourceGraph)) {
+		if (lastSourceGraph.containsKey(relation)
+				&& lastSourceGraph.get(relation).equals(sourceGraph)) {
 			targetGraph = lastTargetGraph.get(relation);
 		}
 
@@ -71,12 +73,13 @@ public class GraphLTLChecker<T extends INode<T>>  {
 		if (DEBUG) {
 			GraphVizExporter v = new GraphVizExporter();
 			try {
-				v.exportAsDotAndPng("output/sourceGraph-"+relation+".dot", sourceGraph);
+				v.exportAsDotAndPng("output/sourceGraph-" + relation + ".dot",
+						sourceGraph);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			writeDot(targetGraph, "output/targetGraph-"+relation+".dot");
+			writeDot(targetGraph, "output/targetGraph-" + relation + ".dot");
 		}
 		// run model-checker for this graph structure
 		Counterexample c = invariants.ltlcheck.LtlModelChecker.check(
@@ -99,10 +102,11 @@ public class GraphLTLChecker<T extends INode<T>>  {
 
 			for (Node n : g.getNodes()) {
 				for (Edge e : n.getOutgoingEdges()) {
-					p.println(e.getSource().hashCode() + " -> "
-							+ e.getNext().hashCode() + " [label=\""
-							+ ((T) e.getAttribute("inode")).getLabel()
-							+ "\"];");
+					p
+							.println(e.getSource().hashCode() + " -> "
+									+ e.getNext().hashCode() + " [label=\""
+									+ ((T) e.getAttribute("inode")).getLabel()
+									+ "\"];");
 				}
 			}
 
@@ -116,7 +120,8 @@ public class GraphLTLChecker<T extends INode<T>>  {
 		}
 	}
 
-	public Graph convertGraph(model.interfaces.IGraph<T> sourceGraph, Action relation) {
+	private Graph convertGraph(model.interfaces.IGraph<T> sourceGraph,
+			Action relation) {
 		Graph targetGraph = new Graph();
 
 		Set<T> initialMessages = sourceGraph.getInitialNodes(relation);
@@ -126,6 +131,7 @@ public class GraphLTLChecker<T extends INode<T>>  {
 		HashMap<T, Node> nextState = new HashMap<T, Node>();
 		HashMap<T, Set<Node>> prevStates = new HashMap<T, Set<Node>>();
 
+		
 		for (T initialMessage : initialMessages) {
 			if (!prevStates.containsKey(initialMessage))
 				prevStates.put(initialMessage, new HashSet<Node>());
@@ -139,8 +145,8 @@ public class GraphLTLChecker<T extends INode<T>>  {
 		}
 
 		for (T m : allNodes) {
-			for (Iterator<? extends ITransition<T>> i = m.getTransitionsIterator(relation); i
-					.hasNext();) {
+			for (Iterator<? extends ITransition<T>> i = m
+					.getTransitionsIterator(relation); i.hasNext();) {
 				ITransition<T> t = i.next();
 				T n = t.getTarget();
 				if (!prevStates.containsKey(n))
@@ -157,21 +163,34 @@ public class GraphLTLChecker<T extends INode<T>>  {
 				e.setAttribute("inode", m);
 			}
 		}
-		//System.out.println(targetGraph.getEdgeCount());
+		// System.out.println(targetGraph.getEdgeCount());
 		return targetGraph;
 	}
+	
 
 	@SuppressWarnings("unchecked")
 	public ArrayList<T> convertCounterexample(Counterexample c) {
 		ArrayList<T> list = new ArrayList<T>();
 		for (Edge e : c.getPrefix()) {
+			//System.out.println(e.getSource().getAttribute("post") + " -> "
+			//		+ e.getNext().getAttribute("post"));
 			T inode = (T) e.getAttribute("inode");
-			assert inode != null;
+			if (inode == null) {
+				// Translation done in invariants.ltlcheck.LtlModelChecker.check
+				// inserts artificial start and end nodes, which have no inode
+				// attribute. We ignore them.
+				continue;
+			}
 			list.add(inode);
 		}
 		for (Edge e : c.getCycle()) {
 			T inode = (T) e.getAttribute("inode");
-			assert inode != null;
+			if (inode == null) {
+				// Translation done in invariants.ltlcheck.LtlModelChecker.check
+				// inserts artificial start and end nodes, which have no inode
+				// attribute. We ignore them.
+				continue;
+			}
 			list.add(inode);
 		}
 

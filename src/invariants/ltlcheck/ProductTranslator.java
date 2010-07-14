@@ -49,6 +49,7 @@ public class ProductTranslator {
 
 							if (!p_states.containsKey(key_from)) {
 								p_from = new Node(p);
+								p_from.setAttributes(dcts_from.getAttributes());
 								p_from.setStringAttribute("name", "<" + dcts_from.getId() + "," + ba_from.getId() + ">");
 								// set accpeting if ba node is accepting
 								if (ba_from.getBooleanAttribute("accepting")) {
@@ -60,6 +61,7 @@ public class ProductTranslator {
 							}
 							if (!p_states.containsKey(key_to)) {
 								p_to = new Node(p);
+								p_to.setAttributes(dcts_to.getAttributes());
 								p_to.setStringAttribute("name", "<" + dcts_to.getId() + "," + ba_to.getId() + ">");
 								// set accepting if ba node is accepting
 								if (ba_to.getBooleanAttribute("accepting")) {
