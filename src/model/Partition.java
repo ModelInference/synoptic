@@ -1,17 +1,12 @@
 package model;
 
-import invariants.TemporalInvariantSet;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
-import daikon.inv.Invariant;
 
 import model.interfaces.IMultiSourceTransition;
 import model.interfaces.INode;
@@ -47,7 +42,7 @@ public class Partition implements
 
 	public Partition(Set<MessageEvent> messages,
 			Set<SystemState<Partition>> sources, SystemState<Partition> target) {
-		this.messages = new HashSet<MessageEvent>(messages);
+		this.messages = new LinkedHashSet<MessageEvent>(messages);
 		for (final MessageEvent m : messages)
 			m.setParent(this);
 		transition = new MultiSourceTransition<SystemState<Partition>>(sources,

@@ -1,12 +1,12 @@
 package model;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import model.interfaces.IMultiSourceTransition;
 
 public class MultiSourceTransition<NodeType> implements IMultiSourceTransition<NodeType> {
-	private Set<NodeType> sources = new HashSet<NodeType>();
+	private Set<NodeType> sources = new LinkedHashSet<NodeType>();
 	private NodeType target;
 	private Action action;
 	

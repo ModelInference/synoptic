@@ -3,8 +3,8 @@ package model;
 import invariants.TemporalInvariantSet;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,12 +27,12 @@ import algorithms.graph.Operation;
  */
 public class PartitionGraph implements IGraph<Partition> {
 	/** holds all partitions in this graph */
-	private Set<Partition> partitions = null;
+	private LinkedHashSet<Partition> partitions = null;
 	/**
 	 * holds all initial messages in this graph, grouped by the relation w.r.t.
 	 * which they are initial
 	 */
-	private HashMap<Action, Set<MessageEvent>> initialMessages = new HashMap<Action, Set<MessageEvent>>();
+	private LinkedHashMap<Action, Set<MessageEvent>> initialMessages = new LinkedHashMap<Action, Set<MessageEvent>>();
 
 	/** maintains the corresponding state graph */
 	private Graph<SystemState<Partition>> stateGraph;
@@ -41,7 +41,7 @@ public class PartitionGraph implements IGraph<Partition> {
 	private TemporalInvariantSet invariants;
 
 	/** holds all relations known to exist in this graph */
-	private Set<Action> relations = new HashSet<Action>();
+	private Set<Action> relations = new LinkedHashSet<Action>();
 
 	public PartitionGraph(IGraph<MessageEvent> g) {
 		this(g, false);
@@ -74,7 +74,7 @@ public class PartitionGraph implements IGraph<Partition> {
 	private void addInitialMessages(Set<MessageEvent> initialMessages,
 			Action relation) {
 		if (!this.initialMessages.containsKey(relation))
-			this.initialMessages.put(relation, new HashSet<MessageEvent>());
+			this.initialMessages.put(relation, new LinkedHashSet<MessageEvent>());
 		this.initialMessages.get(relation).addAll(initialMessages);
 	}
 
@@ -96,15 +96,15 @@ public class PartitionGraph implements IGraph<Partition> {
 
 	private void partitionByLabels(Collection<MessageEvent> messages,
 			Set<MessageEvent> initial) {
-		partitions = new HashSet<Partition>();
-		final Map<String, Partition> prepartitions = new HashMap<String, Partition>();
+		partitions = new LinkedHashSet<Partition>();
+		final Map<String, Partition> prepartitions = new LinkedHashMap<String, Partition>();
 		for (MessageEvent message : messages) {
 			for (ITransition<MessageEvent> t : message.getTransitions())
 				relations.add(t.getAction());
 			if (!prepartitions.containsKey(message.getLabel())) {
 				final Partition partition = new Partition(
-						new HashSet<MessageEvent>(),
-						new HashSet<SystemState<Partition>>(), null);
+						new LinkedHashSet<MessageEvent>(),
+						new LinkedHashSet<SystemState<Partition>>(), null);
 				partitions.add(partition);
 				prepartitions.put(message.getLabel(), partition);
 			}
@@ -114,21 +114,21 @@ public class PartitionGraph implements IGraph<Partition> {
 
 	private void partitionByLabelsAndInitial(Collection<MessageEvent> messages,
 			Set<MessageEvent> initial) {
-		partitions = new HashSet<Partition>();
-		final Map<String, Partition> prepartitions = new HashMap<String, Partition>();
+		partitions = new LinkedHashSet<Partition>();
+		final Map<String, Partition> prepartitions = new LinkedHashMap<String, Partition>();
 		for (MessageEvent message : messages) {
 			for (ITransition<MessageEvent> t : message.getTransitions())
 				relations.add(t.getAction());
 			if (!prepartitions.containsKey(message.getLabel())) {
 				final Partition partition = new Partition(
-						new HashSet<MessageEvent>(),
-						new HashSet<SystemState<Partition>>(), null);
+						new LinkedHashSet<MessageEvent>(),
+						new LinkedHashSet<SystemState<Partition>>(), null);
 				prepartitions.put(message.getLabel(), partition);
 			}
 			prepartitions.get(message.getLabel()).addMessage(message);
 		}
 		for (Partition t : prepartitions.values()) {
-			HashSet<MessageEvent> iSet = new HashSet<MessageEvent>();
+			LinkedHashSet<MessageEvent> iSet = new LinkedHashSet<MessageEvent>();
 			for (MessageEvent e : t.getMessages()) {
 				if (initial.contains(e))
 					iSet.add(e);
@@ -139,19 +139,19 @@ public class PartitionGraph implements IGraph<Partition> {
 				t.removeMessages(iSet);
 				partitions.add(t);
 				partitions.add(new Partition(iSet,
-						new HashSet<SystemState<Partition>>(), null));
+						new LinkedHashSet<SystemState<Partition>>(), null));
 			}
 		}
 	}
 
 	private void partitionSeparately(Collection<MessageEvent> messages) {
-		partitions = new HashSet<Partition>();
-		final Map<MessageEvent, Partition> prepartitions = new HashMap<MessageEvent, Partition>();
+		partitions = new LinkedHashSet<Partition>();
+		final Map<MessageEvent, Partition> prepartitions = new LinkedHashMap<MessageEvent, Partition>();
 		for (MessageEvent message : messages) {
 			if (!prepartitions.containsKey(message)) {
 				final Partition partition = new Partition(
-						new HashSet<MessageEvent>(),
-						new HashSet<SystemState<Partition>>(), null);
+						new LinkedHashSet<MessageEvent>(),
+						new LinkedHashSet<SystemState<Partition>>(), null);
 				partitions.add(partition);
 				prepartitions.put(message, partition);
 			}
@@ -166,7 +166,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
 	@Override
 	public Set<Partition> getInitialNodes() {
-		Set<Partition> initial = new HashSet<Partition>();
+		Set<Partition> initial = new LinkedHashSet<Partition>();
 		for (Action relation : getRelations())
 			initial.addAll(getInitialNodes(relation));
 		return initial;
@@ -174,7 +174,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
 	@Override
 	public Set<Partition> getInitialNodes(Action relation) {
-		Set<Partition> initialNodes = new HashSet<Partition>();
+		Set<Partition> initialNodes = new LinkedHashSet<Partition>();
 		for (MessageEvent m : initialMessages.get(relation)) {
 			initialNodes.add(m.getParent());
 		}
@@ -227,7 +227,7 @@ public class PartitionGraph implements IGraph<Partition> {
 	};
 
 	public Set<MessageEvent> getInitialMessages() {
-		Set<MessageEvent> initial = new HashSet<MessageEvent>();
+		Set<MessageEvent> initial = new LinkedHashSet<MessageEvent>();
 		for (Set<MessageEvent> set : initialMessages.values())
 			initial.addAll(set);
 		return initial;
@@ -238,7 +238,7 @@ public class PartitionGraph implements IGraph<Partition> {
 	 */
 	public void checkSanity() {
 		int totalCount = 0;
-		Set<MessageEvent> all = new HashSet<MessageEvent>();
+		Set<MessageEvent> all = new LinkedHashSet<MessageEvent>();
 		for (Partition p : getNodes()) {
 			if (p.size() == 0)
 				throw new RuntimeException("bisim produced empty partiton!");

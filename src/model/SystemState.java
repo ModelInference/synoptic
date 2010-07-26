@@ -1,15 +1,11 @@
 package model;
 
-import invariants.TemporalInvariantSet;
-
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import algorithms.graph.PartitionSplit;
-import daikon.inv.Invariant;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import util.IterableIterator;
@@ -25,7 +21,7 @@ public class SystemState<T extends ITransition<SystemState<T>>> implements
 		INode<SystemState<T>> {
 	public final String label;
 	private boolean initialState;
-	private Set<ISuccessorProvider<T>> successorProviders = new HashSet<ISuccessorProvider<T>>();
+	private Set<ISuccessorProvider<T>> successorProviders = new LinkedHashSet<ISuccessorProvider<T>>();
 	private Partition parent;
 
 	public SystemState(String label) {

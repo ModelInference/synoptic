@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,7 +43,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	 * Enable Daikon support to extract structural invariants (alpha)
 	 */
 	public static boolean generateStructuralInvariants = false;
-	HashSet<TemporalInvariant> invariants = new HashSet<TemporalInvariant>();
+	LinkedHashSet<TemporalInvariant> invariants = new LinkedHashSet<TemporalInvariant>();
 	static boolean DEBUG = false;
 	
 	public TemporalInvariantSet() {
@@ -495,7 +496,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 
 	private static <T> void getFields(Collection<T> hasPredecessor,
 			ArrayList<String> datafieldList, ArrayList<String> datatypes) {
-		Set<String> datafields = new HashSet<String>();
+		Set<String> datafields = new LinkedHashSet<String>();
 		for (T n : hasPredecessor) {
 			if (!(n instanceof IEvent))
 				break;
