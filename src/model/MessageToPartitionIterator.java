@@ -1,7 +1,7 @@
 package model;
 
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -9,7 +9,7 @@ import util.IterableIterator;
 
 
 public class MessageToPartitionIterator implements IterableIterator<Partition> {
-	private final Set<Partition> seen = new HashSet<Partition>();
+	private final Set<Partition> seen = new LinkedHashSet<Partition>();
 	private final Iterator<MessageEvent> messageIterator;
 	private Partition next = null;
 	private Action act = null;

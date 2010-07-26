@@ -7,7 +7,6 @@ import invariants.TemporalInvariantSet;
 import invariants.TemporalInvariantSet.RelationPath;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 import algorithms.graph.Operation;
 import algorithms.graph.PartitionMerge;
@@ -108,9 +107,9 @@ public abstract class Bisimulation {
 		// These invariants will be satisfied
 		TemporalInvariantSet invariants = partitionGraph.getInvariants();
 
-		Set<TemporalInvariant> unsatisfiedInvariants = new HashSet<TemporalInvariant>();
+		Set<TemporalInvariant> unsatisfiedInvariants = new LinkedHashSet<TemporalInvariant>();
 		unsatisfiedInvariants.addAll(partitionGraph.getInvariants().getSet());
-		Set<TemporalInvariant> satisfiedInvariants = new HashSet<TemporalInvariant>();
+		Set<TemporalInvariant> satisfiedInvariants = new LinkedHashSet<TemporalInvariant>();
 
 		List<RelationPath<Partition>> rp = null;
 		while (unsatisfiedInvariants.size() > 0) {

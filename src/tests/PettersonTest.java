@@ -39,7 +39,7 @@ public class PettersonTest {
 		// 5);
 		
 		r.readGraphSet("traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
-		 15);
+		 75);
 		
 		//r.readGraphSet("traces/TapioExampleTrace/trace.txt",
 		//		 1);
@@ -57,7 +57,9 @@ public class PettersonTest {
 		//mineSplitInvariants(g, e);
 		System.out.println("Computing Invariants...");
 		e.exportAsDotAndPng("output/peterson/initial.dot", g);
-		TemporalInvariantSet s = TemporalInvariantSet.computeInvariants(g);
+		System.out.println("Creating Partition Graph...");
+		PartitionGraph pg = new PartitionGraph(g, true);
+		TemporalInvariantSet s = pg.getInvariants();
 		invariants.stop();
 		e.exportAsDotAndPng("output/peterson/invariants.dot", s
 				.getInvariantGraph(null));
@@ -69,8 +71,6 @@ public class PettersonTest {
 				.getInvariantGraph("NFby"));
 		System.out.println(s);
 		TimedTask refinement = new TimedTask("refinement", 1);
-		System.out.println("Creating Partition Graph...");
-		PartitionGraph pg = new PartitionGraph(g, true);
 		//e.exportAsDotAndPngFast("output/peterson/initial-pg.dot", pg);
 		System.out.println("Refining Partitions...");
 		Bisimulation.refinePartitions(pg);

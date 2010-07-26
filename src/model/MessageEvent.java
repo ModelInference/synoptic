@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -22,8 +23,8 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 	private Transition<SystemState<MessageEvent>> transition;
 
 	List<Relation<MessageEvent>> transitions = new ArrayList<Relation<MessageEvent>>();
-	HashMap<Action, List<Relation<MessageEvent>>> transitionsByAction = new HashMap<Action, List<Relation<MessageEvent>>>();
-	HashMap<Action, HashMap<MessageEvent, List<Relation<MessageEvent>>>> transitionsByActionAndTarget = new HashMap<Action, HashMap<MessageEvent, List<Relation<MessageEvent>>>>();
+	LinkedHashMap<Action, List<Relation<MessageEvent>>> transitionsByAction = new LinkedHashMap<Action, List<Relation<MessageEvent>>>();
+	LinkedHashMap<Action, LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>> transitionsByActionAndTarget = new LinkedHashMap<Action, LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>>();
 
 	public MessageEvent(MessageEvent target) {
 		transition = new Transition<SystemState<MessageEvent>>(target
@@ -79,10 +80,10 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 		}
 		ref.add(transition);
 
-		HashMap<MessageEvent, List<Relation<MessageEvent>>> ref1 = transitionsByActionAndTarget
+		LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>> ref1 = transitionsByActionAndTarget
 				.get(action);
 		if (ref1 == null) {
-			ref1 = new HashMap<MessageEvent, List<Relation<MessageEvent>>>();
+			ref1 = new LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>();
 			transitionsByActionAndTarget.put(action, ref1);
 		}
 		List<Relation<MessageEvent>> ref2 = ref1.get(target);
@@ -114,7 +115,7 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 	}
 
 	public Set<Relation<MessageEvent>> getTransitions() {
-		Set<Relation<MessageEvent>> set = new HashSet<Relation<MessageEvent>>();
+		Set<Relation<MessageEvent>> set = new LinkedHashSet<Relation<MessageEvent>>();
 		set.addAll(transitions);
 		return set;
 	}
@@ -128,7 +129,10 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 		return res;
 	}
 
-	private void checkConsistency() {
+	/**
+	 * Check that all transitions are in local cache.
+	 */
+	public void checkConsistency() {
 		for (ITransition<MessageEvent> t : transitions) {
 			if (!transitionsByAction.get(t.getAction()).contains(t))
 				throw new RuntimeException(
@@ -266,7 +270,7 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 	}
 
 	public Set<MessageEvent> getSuccessors(Action action) {
-		Set<MessageEvent> successors = new HashSet<MessageEvent>();
+		Set<MessageEvent> successors = new LinkedHashSet<MessageEvent>();
 		for (Relation<MessageEvent> e : getTransitionsIterator(action))
 			successors.add(e.getTarget());
 		return successors;
