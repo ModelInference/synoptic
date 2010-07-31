@@ -13,6 +13,7 @@ import model.MessageEvent;
 import model.Partition;
 import model.PartitionGraph;
 import model.SystemState;
+import model.Transition;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
 import model.input.NfsTraceParser;
@@ -24,7 +25,7 @@ public class StateTest extends TestCase {
 
 	public void testKEquals1() {
 		// A simple case: just one state should be equal to itself
-		SystemState<MessageEvent> s = new SystemState<MessageEvent>("foo");
+		SystemState<Transition<SystemState>> s = new SystemState<Transition<SystemState>>("foo");
 		s.addSuccessorProvider(GraphBuilder.makeSuccessorProvider());
 
 		assertTrue(StateUtil.kEquals(s, s, 0, true));

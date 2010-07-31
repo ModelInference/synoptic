@@ -39,5 +39,5 @@ public interface IModifiableGraph<NodeType extends INode<NodeType>> extends
 	 * @param relation
 	 *            the relation with respect to which the node should be initial
 	 */
-	public void addInitial(NodeType initialNode, Action relation);
+	public void addInitial(NodeType initialNode, String relation);
 }

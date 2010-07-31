@@ -10,10 +10,10 @@ import model.interfaces.ITransition;
 public class Transition<StateType> implements ITransition<StateType> {
 	protected StateType source;
 	protected StateType target;
-	protected final Action action;
+	protected final String action;
 	private int count = 0;
 	
-	public Transition(StateType source, StateType target, Action action) {
+	public Transition(StateType source, StateType target, String action) {
 		this.source = source;
 		this.target = target;
 		this.action = action;
@@ -30,7 +30,7 @@ public class Transition<StateType> implements ITransition<StateType> {
 	}
 	
 	@Override
-	public Action getAction() {
+	public String getAction() {
 		return action;
 	}
 
@@ -94,6 +94,6 @@ public class Transition<StateType> implements ITransition<StateType> {
 
 	@Override
 	public String toStringConcise() {
-		return getAction().getLabel();
+		return getAction();
 	}
 }

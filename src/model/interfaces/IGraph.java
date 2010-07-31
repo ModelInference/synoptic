@@ -21,7 +21,7 @@ public interface IGraph<NodeType extends INode<NodeType>> {
 	 * Get all relations that appear in this graph.
 	 * @return the set of nodes in the graph
 	 */
-	Set<Action> getRelations();
+	Set<String> getRelations();
 	
 	/**
 	 * Get the union over all relations of the initial nodes
@@ -34,5 +34,5 @@ public interface IGraph<NodeType extends INode<NodeType>> {
 	 * @param relation the relation
 	 * @return the set of initial nodes w.r.t. the relation
 	 */
-	Set<NodeType> getInitialNodes(Action relation);
+	Set<NodeType> getInitialNodes(String relation);
 }

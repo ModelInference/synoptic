@@ -56,7 +56,7 @@ public class SystemState<T extends ITransition<SystemState<T>>> implements
 
 	@Override
 	public Relation<SystemState<T>> getTransition(SystemState<T> iNode,
-			Action relation) {
+			String relation) {
 		throw new NotImplementedException();
 	}
 
@@ -67,7 +67,7 @@ public class SystemState<T extends ITransition<SystemState<T>>> implements
 
 	@Override
 	public IterableIterator<ITransition<SystemState<T>>> getTransitionsIterator(
-			final Action act) {
+			final String act) {
 		return new IterableIterator<ITransition<SystemState<T>>>() {
 			private final Set<ITransition<SystemState<T>>> seen = new HashSet<ITransition<SystemState<T>>>();
 			private final Iterator<ISuccessorProvider<T>> spItr = successorProviders

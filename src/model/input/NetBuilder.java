@@ -69,12 +69,12 @@ public class NetBuilder implements IBuilder<Event> {
 	}
 
 	@Override
-	public void addInitial(Event curMessage, Action relation) {
+	public void addInitial(Event curMessage, String relation) {
 		//TODO: this is implicit in nets		
 	}
 
 	@Override
-	public void connect(Event first, Event second, Action relation) {
+	public void connect(Event first, Event second, String relation) {
 		// relation is ignored.
 		if (createEventAndPlace)
 			net.connectEvents(first, second);

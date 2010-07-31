@@ -2,13 +2,12 @@ package invariants;
 
 import java.util.List;
 
-import model.Action;
 import model.interfaces.INode;
 
 public class AlwaysPrecedesInvariant extends BinaryInvariant {
 
 	public AlwaysPrecedesInvariant(String typeFrist, String typeSecond,
-			Action relation) {
+			String relation) {
 		super(typeFrist, typeSecond, relation);
 	}
 

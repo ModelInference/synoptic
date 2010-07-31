@@ -117,11 +117,11 @@ public class StenningReader<T> {
 
 		for (Occurence m : directSuccessors.keySet())
 			for (Occurence s : directSuccessors.get(m)) {
-				builder.connect(m.message, s.message, new Action(relation));
+				builder.connect(m.message, s.message, relation);
 				noPredecessor.remove(s);
 			}
 		for (Occurence m : noPredecessor)
-			builder.addInitial(m.message, new Action(relation));
+			builder.addInitial(m.message, relation);
 	}
 
 }

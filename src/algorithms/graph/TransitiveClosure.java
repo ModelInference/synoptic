@@ -16,10 +16,10 @@ import model.interfaces.ITransition;
  */
 public class TransitiveClosure<NodeType extends INode<NodeType>> {
 	private HashMap<NodeType, HashMap<NodeType, Boolean>> tc = new HashMap<NodeType, HashMap<NodeType, Boolean>>();
-	private Action relation;
+	private String relation;
 	private IGraph<NodeType> graph;
 	
-	public TransitiveClosure(IGraph<NodeType> graph, Action relation) {
+	public TransitiveClosure(IGraph<NodeType> graph, String relation) {
 		this.relation = relation;
 		this.graph = graph;
 		for (NodeType m : graph.getNodes())

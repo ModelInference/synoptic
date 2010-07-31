@@ -4,7 +4,9 @@ import java.util.Set;
 
 import util.IterableIterator;
 import model.Action;
+import model.MessageEvent;
 import model.Partition;
+import model.Relation;
 
 /**
  * The interface all nodes must implement. The inteface does not contain methods
@@ -44,7 +46,7 @@ public interface INode<NodeType extends INode<NodeType>> {
 	 *         node
 	 */
 	IterableIterator<? extends ITransition<NodeType>> getTransitionsIterator(
-			Action relation);
+			String relation);
 
 	/**
 	 * Check to see if a transition to node {@code node} exists that is labeled
@@ -56,7 +58,7 @@ public interface INode<NodeType extends INode<NodeType>> {
 	 *            the transition label
 	 * @return null if no such transition exists, the transition otherwise
 	 */
-	ITransition<NodeType> getTransition(NodeType node, Action relation);
+	ITransition<NodeType> getTransition(NodeType node, String relation);
 
 	/**
 	 * Returns the set of all outgoing transitions of this node. The difference

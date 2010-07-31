@@ -16,10 +16,10 @@ import model.interfaces.INode;
  *
  */
 public class AllRelationsTransitiveClosure<NodeType extends INode<NodeType>> {
-	private HashMap<Action, TransitiveClosure<NodeType>> tcs = new HashMap<Action, TransitiveClosure<NodeType>>();
+	private HashMap<String, TransitiveClosure<NodeType>> tcs = new HashMap<String, TransitiveClosure<NodeType>>();
 
 	public AllRelationsTransitiveClosure(IGraph<NodeType> g) {
-		for (Action relation : g.getRelations())
+		for (String relation : g.getRelations())
 			tcs.put(relation, new TransitiveClosure<NodeType>(g, relation));
 	}
 
@@ -29,11 +29,11 @@ public class AllRelationsTransitiveClosure<NodeType extends INode<NodeType>> {
 		return tcs.get(relation).isReachable(m, n);
 	}
 
-	public TransitiveClosure<NodeType> get(Action relation) {
+	public TransitiveClosure<NodeType> get(String relation) {
 		return tcs.get(relation);
 	}
 
-	public Set<Action> getRelations() {
+	public Set<String> getRelations() {
 		return tcs.keySet();
 	}
 }

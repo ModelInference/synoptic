@@ -16,31 +16,29 @@ import model.input.VectorTime;
 import model.interfaces.INode;
 import model.interfaces.ITransition;
 
-public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
-		INode<MessageEvent>, IEvent {
+public class MessageEvent implements INode<MessageEvent>, IEvent {
 	private int count;
 	private Partition parent;
-	private Transition<SystemState<MessageEvent>> transition;
+	private Action action;
 
 	List<Relation<MessageEvent>> transitions = new ArrayList<Relation<MessageEvent>>();
-	LinkedHashMap<Action, List<Relation<MessageEvent>>> transitionsByAction = new LinkedHashMap<Action, List<Relation<MessageEvent>>>();
-	LinkedHashMap<Action, LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>> transitionsByActionAndTarget = new LinkedHashMap<Action, LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>>();
+	LinkedHashMap<String, List<Relation<MessageEvent>>> transitionsByAction = new LinkedHashMap<String, List<Relation<MessageEvent>>>();
+	LinkedHashMap<String, LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>> transitionsByActionAndTarget = new LinkedHashMap<String, LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>>();
 
-	public MessageEvent(MessageEvent target) {
-		transition = new Transition<SystemState<MessageEvent>>(target
-				.getSource(), target.getTarget(), target.getAction());
-		this.count = target.count;
+	public MessageEvent(MessageEvent copyFrom) {
+		this.count = copyFrom.count;
+		this.parent = copyFrom.parent;
+		this.action = copyFrom.action;
 	}
 
-	public MessageEvent(Action signature, SystemState<MessageEvent> prevState,
-			SystemState<MessageEvent> nextState, int count) {
-		transition = new Transition<SystemState<MessageEvent>>(prevState,
-				nextState, signature);
+	public MessageEvent(Action signature, int count) {
 		this.count = count;
+		this.action = signature;
+		this.parent = null;
 	}
 
 	public String getLabel() {
-		return getAction().getLabel();
+		return action.getLabel();
 	}
 
 	public Partition getParent() {
@@ -55,23 +53,23 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 		return "[" + getAction() + " (" + hashCode() + ")" + "]";
 	}
 
-	public void addTransition(MessageEvent dest, Action action) {
+	public void addTransition(MessageEvent dest, String relation) {
 		if (dest == null)
 			throw new RuntimeException("Dest was null");
-		addTransition(new Relation<MessageEvent>(this, dest, action));
+		addTransition(new Relation<MessageEvent>(this, dest, relation));
 	}
 
-	public void addTransition(MessageEvent dest, Action action,
+	public void addTransition(MessageEvent dest, String relation,
 			double probability) {
 		if (dest == null)
 			throw new RuntimeException("Dest was null");
-		addTransition(new Relation<MessageEvent>(this, dest, action,
+		addTransition(new Relation<MessageEvent>(this, dest, relation,
 				probability));
 	}
 
 	public void addTransition(Relation<MessageEvent> transition) {
 		transitions.add(transition);
-		Action action = transition.getAction();
+		String action = transition.getAction();
 		MessageEvent target = transition.getTarget();
 		List<Relation<MessageEvent>> ref = transitionsByAction.get(action);
 		if (ref == null) {
@@ -120,9 +118,9 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 		return set;
 	}
 
-	public List<Relation<MessageEvent>> getTransitions(Action action) {
+	public List<Relation<MessageEvent>> getTransitions(String relation) {
 		//checkConsistency();
-		List<Relation<MessageEvent>> res = transitionsByAction.get(action);
+		List<Relation<MessageEvent>> res = transitionsByAction.get(relation);
 		if (res == null) {
 			return Collections.emptyList();
 		}
@@ -141,8 +139,8 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 	}
 
 	public List<Relation<MessageEvent>> getTransitions(Partition target,
-			Action action) {
-		List<Relation<MessageEvent>> forAction = transitionsByAction.get(action);
+			String relation) {
+		List<Relation<MessageEvent>> forAction = transitionsByAction.get(relation);
 		if (forAction == null)
 			return Collections.emptyList();
 		
@@ -156,9 +154,9 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 	}
 
 	public List<Relation<MessageEvent>> getTransitions(MessageEvent target,
-			Action action) {
+			String relation) {
 		HashMap<MessageEvent, List<Relation<MessageEvent>>> forAction = transitionsByActionAndTarget
-				.get(action);
+				.get(relation);
 		if (forAction == null)
 			return Collections.emptyList();
 		List<Relation<MessageEvent>> res = forAction.get(target);
@@ -179,8 +177,7 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 	}
 
 	public String toStringFull() {
-		return "[{" + getSource().hashCode() + "} -> {"
-				+ getTarget().hashCode() + "} A: " + getAction() + " ("
+		return "[MessageEvent A: " + getAction() + " ("
 				+ hashCode() + ")" + "]";
 	}
 
@@ -191,15 +188,15 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 	}
 
 	@Override
-	public IterableIterator<Relation<MessageEvent>> getTransitionsIterator(
-			Action act) {
-		return IterableAdapter.make(getTransitions(act).iterator());
+	public IterableIterator<Relation<MessageEvent>> getTransitionsIterator(String
+			relation) {
+		return IterableAdapter.make(getTransitions(relation).iterator());
 	}
 
 	@Override
 	public ITransition<MessageEvent> getTransition(MessageEvent target,
-			Action action) {
-		List<Relation<MessageEvent>> list = getTransitions(target, action);
+			String relation) {
+		List<Relation<MessageEvent>> list = getTransitions(target, relation);
 		return list.size() == 0 ? null : list.get(0);
 	}
 
@@ -216,64 +213,43 @@ public class MessageEvent implements ITransition<SystemState<MessageEvent>>,
 		return getAction().getLabel();
 	}
 
-	@Override
 	public Action getAction() {
-		return transition.getAction();
+		return action;
 	}
 
-	@Override
-	public SystemState<MessageEvent> getSource() {
-		return transition.getSource();
-	}
-
-	@Override
-	public SystemState<MessageEvent> getTarget() {
-		return transition.getTarget();
-	}
-
-	@Override
-	public void setSource(SystemState<MessageEvent> source) {
-		transition.setSource(source);
-	}
-
-	@Override
-	public void setTarget(SystemState<MessageEvent> target) {
-		transition.setTarget(target);
-	}
-
-	public Set<Action> getRelations() {
+	//TODO: order
+	public Set<String> getRelations() {
 		return transitionsByAction.keySet();
 	}
 
 	public VectorTime getTime() {
-		return transition.getAction().getTime();
+		return action.getTime();
 	}
 
 	@Override
 	public String getStringArgument(String name) {
-		return transition.getAction().getStringArgument(name);
+		return action.getStringArgument(name);
 	}
 
 	@Override
 	public void setStringArgument(String name, String value) {
-		transition.getAction().setStringArgument(name, value);
+		action.setStringArgument(name, value);
 	}
 
 	@Override
 	public String getName() {
-		return transition.getAction().getLabel();
+		return action.getLabel();
 	}
 
 	@Override
 	public Set<String> getStringArguments() {
-		return transition.getAction().getStringArgumentNames();
+		return action.getStringArgumentNames();
 	}
 
-	public Set<MessageEvent> getSuccessors(Action action) {
+	public Set<MessageEvent> getSuccessors(String relation) {
 		Set<MessageEvent> successors = new LinkedHashSet<MessageEvent>();
-		for (Relation<MessageEvent> e : getTransitionsIterator(action))
+		for (Relation<MessageEvent> e : getTransitionsIterator(relation))
 			successors.add(e.getTarget());
 		return successors;
 	}
-
 }

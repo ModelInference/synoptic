@@ -49,7 +49,7 @@ public interface TemporalInvariant {
 	 * 
 	 * @return the relation occurring in this invariant
 	 */
-	public Action getRelation();
+	public String getRelation();
 
 	/**
 	 * Get the set of predicates occurring in this property. Predicates are here
