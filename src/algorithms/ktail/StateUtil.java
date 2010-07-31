@@ -68,7 +68,7 @@ public class StateUtil {
 	}
 
 
-	private static <NodeType extends INode<NodeType>> void checkNotThere(INode<NodeType> s, Action action) {
+	private static <NodeType extends INode<NodeType>> void checkNotThere(INode<NodeType> s, String action) {
 		for (Iterator<? extends ITransition<NodeType>> i1 = s.getTransitionsIterator(); i1.hasNext();) {
 			if (i1.next().getAction().equals(action)){
 				throw new RuntimeException("inconsistent");

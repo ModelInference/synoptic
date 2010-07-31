@@ -50,8 +50,8 @@ public class Partition implements
 	}
 
 	@Override
-	public Action getAction() {
-		return messages.iterator().next().getAction();
+	public String getAction() {
+		return messages.iterator().next().getLabel();
 	}
 
 	public void addMessage(MessageEvent message) {
@@ -76,7 +76,7 @@ public class Partition implements
 
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("Partition " + hashCode() + " " + getAction().getLabel());
+		str.append("Partition " + hashCode() + " " + getAction());
 		// for (StateWrapper w : messageWrappers) {
 		// str.append(", " + w.label.toString());
 		// }
@@ -153,7 +153,7 @@ public class Partition implements
 	public String getLabel() {
 		if (label != null)
 			return label;
-		return messages.iterator().next().getAction().getLabel();
+		return messages.iterator().next().getLabel();
 	}
 
 	public int size() {
@@ -202,7 +202,7 @@ public class Partition implements
 	 */
 	@Override
 	public IterableIterator<Relation<Partition>> getTransitionsIterator(
-			final Action act) {
+			final String act) {
 		return new IterableIterator<Relation<Partition>>() {
 			private final Set<ITransition<Partition>> seen = new HashSet<ITransition<Partition>>();
 			private final Iterator<MessageEvent> msgItr = messages.iterator();
@@ -257,7 +257,7 @@ public class Partition implements
 	}
 
 	@Override
-	public ITransition<Partition> getTransition(Partition iNode, Action action) {
+	public ITransition<Partition> getTransition(Partition iNode, String action) {
 		for (Iterator<Relation<Partition>> iter = getTransitionsIterator(action); iter
 				.hasNext();) {
 			ITransition<Partition> t = iter.next();
@@ -347,7 +347,7 @@ public class Partition implements
 	}
 
 	@Override
-	public IterableIterator<Partition> getSuccessorIterator(final Action act) {
+	public IterableIterator<Partition> getSuccessorIterator(final String act) {
 		return new IterableIterator<Partition>() {
 			private final Set<Partition> seen = new HashSet<Partition>();
 			private final Iterator<Relation<Partition>> trnsItr = getTransitionsIterator(act);

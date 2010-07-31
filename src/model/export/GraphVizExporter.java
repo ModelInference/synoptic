@@ -146,10 +146,10 @@ public class GraphVizExporter {
 				}
 			}
 			if (graph.getRelations().contains(new Action("t"))
-					&& graph.getInitialNodes(new Action("t")).contains(e))
+					&& graph.getInitialNodes("t").contains(e))
 				attributes = attributes + ",shape=box";
-			else if (graph.getRelations().contains(new Action("i"))
-					&& graph.getInitialNodes(new Action("i")).contains(e))
+			else if (graph.getRelations().contains("i")
+					&& graph.getInitialNodes("i").contains(e))
 				attributes = attributes + ",shape=box,color=blue";
 			else if (terminal)
 				attributes = attributes + ",shape=diamond";

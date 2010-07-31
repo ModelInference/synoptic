@@ -25,7 +25,7 @@ public class GraphTest extends TestCase {
 		s2prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new MessageEvent(new Action("baz"), s2prime, s3prime, 1))));
 
 		Graph<SystemState<MessageEvent>> g = new Graph<SystemState<MessageEvent>>();
-		g.addInitial(s1prime, new Action("t"));
+		g.addInitial(s1prime, "t");
 		GraphVizExporter export = new GraphVizExporter();
 		String text = export.export(g);
 		System.out.println(text);

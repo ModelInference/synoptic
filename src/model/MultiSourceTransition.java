@@ -32,8 +32,8 @@ public class MultiSourceTransition<NodeType> implements IMultiSourceTransition<N
 	}
 
 	@Override
-	public Action getAction() {
-		return action;
+	public String getAction() {
+		return action.getLabel();
 	}
 
 	@Override

@@ -12,21 +12,21 @@ public class MessageToPartitionIterator implements IterableIterator<Partition> {
 	private final Set<Partition> seen = new LinkedHashSet<Partition>();
 	private final Iterator<MessageEvent> messageIterator;
 	private Partition next = null;
-	private Action act = null;
+	private String relation = null;
 	
 	public MessageToPartitionIterator(Iterator<MessageEvent> messageIterator) {
 		this.messageIterator = messageIterator;
 	}
 	
-	public MessageToPartitionIterator(Iterator<MessageEvent> messageIterator, Action act) {
+	public MessageToPartitionIterator(Iterator<MessageEvent> messageIterator, String relation) {
 		this.messageIterator = messageIterator;
-		this.act = act;
+		this.relation = relation;
 	}
 
 	private Partition getNext() {
 		while (messageIterator.hasNext()) {
 			final Partition found = messageIterator.next().getParent();
-			if (seen.add(found) && (act == null || found.getAction().equals(act)))
+			if (seen.add(found) && (relation == null || found.getAction().equals(relation)))
 				return found;
 		}
 		return null;

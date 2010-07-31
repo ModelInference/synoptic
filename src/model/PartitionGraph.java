@@ -32,7 +32,7 @@ public class PartitionGraph implements IGraph<Partition> {
 	 * holds all initial messages in this graph, grouped by the relation w.r.t.
 	 * which they are initial
 	 */
-	private LinkedHashMap<Action, Set<MessageEvent>> initialMessages = new LinkedHashMap<Action, Set<MessageEvent>>();
+	private LinkedHashMap<String, Set<MessageEvent>> initialMessages = new LinkedHashMap<String, Set<MessageEvent>>();
 
 	/** maintains the corresponding state graph */
 	private Graph<SystemState<Partition>> stateGraph;
@@ -41,7 +41,7 @@ public class PartitionGraph implements IGraph<Partition> {
 	private TemporalInvariantSet invariants;
 
 	/** holds all relations known to exist in this graph */
-	private Set<Action> relations = new LinkedHashSet<Action>();
+	private Set<String> relations = new LinkedHashSet<String>();
 
 	public PartitionGraph(IGraph<MessageEvent> g) {
 		this(g, false);
@@ -57,7 +57,7 @@ public class PartitionGraph implements IGraph<Partition> {
 	 * @param partitionByLabel - whether initial partitioning by label should be done
 	 */
 	public PartitionGraph(IGraph<MessageEvent> g, boolean partitionByLabel) {
-		for (Action relation : g.getRelations()) {
+		for (String relation : g.getRelations()) {
 			addInitialMessages(g.getInitialNodes(relation), relation);
 			relations.add(relation);
 		}
@@ -72,7 +72,7 @@ public class PartitionGraph implements IGraph<Partition> {
 	}
 
 	private void addInitialMessages(Set<MessageEvent> initialMessages,
-			Action relation) {
+			String relation) {
 		if (!this.initialMessages.containsKey(relation))
 			this.initialMessages.put(relation, new LinkedHashSet<MessageEvent>());
 		this.initialMessages.get(relation).addAll(initialMessages);
@@ -167,13 +167,13 @@ public class PartitionGraph implements IGraph<Partition> {
 	@Override
 	public Set<Partition> getInitialNodes() {
 		Set<Partition> initial = new LinkedHashSet<Partition>();
-		for (Action relation : getRelations())
+		for (String relation : getRelations())
 			initial.addAll(getInitialNodes(relation));
 		return initial;
 	}
 
 	@Override
-	public Set<Partition> getInitialNodes(Action relation) {
+	public Set<Partition> getInitialNodes(String relation) {
 		Set<Partition> initialNodes = new LinkedHashSet<Partition>();
 		for (MessageEvent m : initialMessages.get(relation)) {
 			initialNodes.add(m.getParent());
@@ -186,7 +186,7 @@ public class PartitionGraph implements IGraph<Partition> {
 	}
 
 	@Override
-	public Set<Action> getRelations() {
+	public Set<String> getRelations() {
 		return relations;
 	}
 	
@@ -200,7 +200,7 @@ public class PartitionGraph implements IGraph<Partition> {
 			partitions.add(node);
 		}
 
-		public void addInitial(Partition initialNode, Action relation) {
+		public void addInitial(Partition initialNode, String relation) {
 			partitions.add(initialNode);
 			addInitialMessages(initialNode.getMessages(), relation);
 		}
@@ -213,7 +213,7 @@ public class PartitionGraph implements IGraph<Partition> {
 			return PartitionGraph.this.getInitialNodes();
 		}
 
-		public Set<Partition> getInitialNodes(Action relation) {
+		public Set<Partition> getInitialNodes(String relation) {
 			return PartitionGraph.this.getInitialNodes(relation);
 		}
 
@@ -221,7 +221,7 @@ public class PartitionGraph implements IGraph<Partition> {
 			return PartitionGraph.this.getNodes();
 		}
 
-		public Set<Action> getRelations() {
+		public Set<String> getRelations() {
 			return PartitionGraph.this.getRelations();
 		}
 	};

@@ -223,7 +223,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				g);
 		if (DEBUG) {
 			GraphVizExporter v = new GraphVizExporter();
-			for (Action relation : transitiveClosure.getRelations())
+			for (String relation : transitiveClosure.getRelations())
 				writeDot("output/post-" + relation + ".dot", g,
 						transitiveClosure.get(relation));
 			v.exportPng(new File("output/post.dot"));
@@ -254,7 +254,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	private static <T extends INode<T>> TemporalInvariantSet extractInvariantsForAllRelations(
 			IGraph<T> g, AllRelationsTransitiveClosure<T> tcs) {
 		TemporalInvariantSet invariants = new TemporalInvariantSet();
-		for (Action relation : g.getRelations()) {
+		for (String relation : g.getRelations()) {
 			invariants.add(extractInvariants(g, tcs.get(relation), relation));
 		}
 		return invariants;
@@ -269,7 +269,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	 * @return the overapproximated set of invariants
 	 */
 	private static <T extends INode<T>> TemporalInvariantSet extractInvariants(
-			IGraph<T> g, TransitiveClosure<T> tc, Action relation) {
+			IGraph<T> g, TransitiveClosure<T> tc, String relation) {
 		HashMap<String, ArrayList<T>> partitions = new HashMap<String, ArrayList<T>>();
 		for (T m : g.getNodes()) {
 			if (!partitions.containsKey(m.getLabel()))
@@ -440,7 +440,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	}
 
 	public static <T extends INode<T>> List<Invariant> generateFlowInvariants(
-			Collection<T> messages, Action relation, String targetType) {
+			Collection<T> messages, String relation, String targetType) {
 		ArrayList<String> datafieldList = new ArrayList<String>();
 		ArrayList<String> datatypes = new ArrayList<String>();
 		getFields(messages, datafieldList, datatypes);
@@ -449,7 +449,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	}
 
 	public static <T extends INode<T>> List<Invariant> generateFlowInvariants(
-			Collection<T> messages, Action relation, String targetType,
+			Collection<T> messages, String relation, String targetType,
 			List<String> datafieldList, List<String> datatypes) {
 		Daikonizer d = new Daikonizer("foo", datafieldList, datatypes);
 		boolean dont = false;
@@ -545,8 +545,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		for (TemporalInvariant i : invariants) {
 			for (String label : i.getPredicates()) {
 				if (!messageMap.containsKey(label))
-					messageMap.put(label, new MessageEvent(new Action(label),
-							null, null, 0));
+					messageMap.put(label, new MessageEvent(new Action(label), 0));
 			}
 		}
 
@@ -556,7 +555,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				BinaryInvariant bi = (BinaryInvariant) i;
 				messageMap.get(bi.getFirst()).addTransition(
 						messageMap.get(bi.getSecond()),
-						new Action(bi.getShortName()));
+						bi.getShortName());
 			}
 		}
 

@@ -119,7 +119,7 @@ public class PetersonReader<T extends IEvent> {
 
 	public void readGraph(String baseName) throws IOException {
 		List<Occurence> set = readFile(baseName);
-		final Action relation = new Action("t");
+		final String relation = "t";
 		for (Occurence m1 : set) {
 			if (m1.time.isOneTime())
 				this.builder.addInitial(m1.message, relation);
@@ -168,10 +168,10 @@ public class PetersonReader<T extends IEvent> {
 
 		for (Occurence m : directSuccessors.keySet())
 			for (Occurence s : directSuccessors.get(m)) {
-				builder.connect(m.message, s.message, new Action(relation));
+				builder.connect(m.message, s.message, relation);
 				noPredecessor.remove(s);
 			}
 		for (Occurence m : noPredecessor)
-			builder.addInitial(m.message, new Action(relation));
+			builder.addInitial(m.message, relation);
 	}
 }

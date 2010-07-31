@@ -12,10 +12,10 @@ import model.Action;
 public abstract class BinaryInvariant implements TemporalInvariant {
 	protected String first;
 	protected String second;
-	protected Action relation;
+	protected String relation;
 	private Graph automaton;
 
-	public BinaryInvariant(String typeFrist, String typeSecond, Action relation) {
+	public BinaryInvariant(String typeFrist, String typeSecond, String relation) {
 		this.first = typeFrist;
 		this.second = typeSecond;
 		this.relation = relation;
@@ -25,7 +25,7 @@ public abstract class BinaryInvariant implements TemporalInvariant {
 		return getLTLString();
 	}
 	
-	public Action getRelation() {
+	public String getRelation() {
 		return relation;
 	}
 

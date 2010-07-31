@@ -21,7 +21,7 @@ import model.nets.Place;
 import algorithms.graph.GraphUtil;
 
 public class TraceCondenserTest {
-	private static Action igAPRel = new Action("AP");
+	private static String igAPRel = "AP";
 
 	public static void main(String[] args) throws Exception {
 		GraphBuilder b = new GraphBuilder();
@@ -123,7 +123,7 @@ public class TraceCondenserTest {
 			Event first = nb.insert(new Action(e.getName()));
 			Event e2 = e;
 			map2.put(e, first);
-			nb.addInitial(first, new Action(""));
+			nb.addInitial(first, "");
 
 			while (e2.getPost().size() > 0) {
 				Set<Event> post = e2.getPostEvents();
@@ -140,7 +140,7 @@ public class TraceCondenserTest {
 				Event newEvent = nb.insert(new Action(e2.getName()));
 				map2.put(e2, newEvent);
 				for (Event rel : relatedTranslated) {
-					nb.connect(rel, newEvent, new Action(""));
+					nb.connect(rel, newEvent, "");
 				}
 			}
 		}

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
 	/**
 	 * The initial nodes of the graph, with respect to which they are initial.
 	 */
-	private final Map<Action, Set<NodeType>> initialNodes = new HashMap<Action, Set<NodeType>>();
+	private final Map<String, Set<NodeType>> initialNodes = new HashMap<String, Set<NodeType>>();
 
 	/**
 	 * Create a graph from nodes.
@@ -58,7 +59,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
 	}
 
 	@Override
-	public Set<NodeType> getInitialNodes(Action relation) {
+	public Set<NodeType> getInitialNodes(String relation) {
 		if (!initialNodes.containsKey(relation))
 			return Collections.emptySet();
 		return initialNodes.get(relation);
@@ -70,8 +71,8 @@ public class Graph<NodeType extends INode<NodeType>> implements
 	}
 
 	@Override
-	public Set<Action> getRelations() {
-		Set<Action> relations = new HashSet<Action>();
+	public Set<String> getRelations() {
+		Set<String> relations = new LinkedHashSet<String>();
 		for (NodeType node : nodes)
 			for (Iterator<? extends ITransition<NodeType>> iter = node
 					.getTransitionsIterator(); iter.hasNext();)
@@ -90,7 +91,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
 	}
 
 	@Override
-	public void addInitial(NodeType initialNode, Action relation) {
+	public void addInitial(NodeType initialNode, String relation) {
 		if (initialNode == null)
 			throw new IllegalArgumentException("argument was null");
 		if (!initialNodes.containsKey(relation))
@@ -106,7 +107,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
 	 */
 	public void merge(Graph<NodeType> graph) {
 		nodes.addAll(graph.getNodes());
-		for (Action key : graph.initialNodes.keySet()) {
+		for (String key : graph.initialNodes.keySet()) {
 			if (!initialNodes.containsKey(key))
 				initialNodes.put(key, new HashSet<NodeType>());
 			initialNodes.get(key).addAll(graph.initialNodes.get(key));

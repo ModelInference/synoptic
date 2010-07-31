@@ -29,7 +29,7 @@ public class GraphUtil {
 	public static Graph<SystemState<Partition>> convertPartitionGraphToStateGraph(PartitionGraph pg) {
 		Graph<SystemState<Partition>> graph = new Graph<SystemState<Partition>>();
 		Set<Partition> initialPartitions = pg.getInitialNodes();
-		final Action relation = new Action("");
+		final String relation = "";
 
 		for (final Partition p : initialPartitions) {
 			SystemState<Partition> initial = new SystemState<Partition>("I-"
@@ -47,8 +47,8 @@ public class GraphUtil {
 				}
 
 				@Override
-				public IterableIterator<Partition> getSuccessorIterator(Action act) {
-					return new MessageToPartitionIterator(messages.iterator(), act);
+				public IterableIterator<Partition> getSuccessorIterator(String relation) {
+					return new MessageToPartitionIterator(messages.iterator(), relation);
 				}
 			});
 			p.addSource(initial);
@@ -105,7 +105,7 @@ public class GraphUtil {
 		}
 	}
 
-	public static void heuristicTransitiveReduction(Graph<MessageEvent> graph, Action relation) {
+	public static void heuristicTransitiveReduction(Graph<MessageEvent> graph, String relation) {
 		TransitiveClosure<MessageEvent> tc = new TransitiveClosure<MessageEvent>(graph, relation);
 		HashSet<ITransition<MessageEvent>> essential = new HashSet<ITransition<MessageEvent>>();
 		boolean change = true;
@@ -135,7 +135,7 @@ public class GraphUtil {
 
 	public static <T> void copyNetTo(Net net, IBuilder<T> gBuilder) {
 		HashMap<Event, T> map = new HashMap<Event, T>();
-		Action relation = new Action("");
+		String relation = "";
 		for (Event e : net.getEvents()) {
 			T t = gBuilder.insert(new Action(e.getName()));
 			map.put(e, t);

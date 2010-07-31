@@ -27,8 +27,8 @@ import gov.nasa.ltl.trans.ParseErrorException;
 
 public class GraphLTLChecker<T extends INode<T>> {
 	private static final boolean DEBUG = false;
-	private HashMap<Action, Graph> lastTargetGraph = new HashMap<Action, Graph>();
-	private HashMap<Action, IGraph<T>> lastSourceGraph = new HashMap<Action, IGraph<T>>();
+	private HashMap<String, Graph> lastTargetGraph = new HashMap<String, Graph>();
+	private HashMap<String, IGraph<T>> lastSourceGraph = new HashMap<String, IGraph<T>>();
 
 	/**
 	 * Checks the formula after preprocessing it. So it's allowed to have things
@@ -57,7 +57,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 		// monitor.subTask("Preprocessed LTL formula: " + formula);
 
 		Graph targetGraph = null;
-		Action relation = invariant.getRelation();
+		String relation = invariant.getRelation();
 		if (lastSourceGraph.containsKey(relation)
 				&& lastSourceGraph.get(relation).equals(sourceGraph)) {
 			targetGraph = lastTargetGraph.get(relation);
@@ -121,7 +121,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 	}
 
 	private Graph convertGraph(model.interfaces.IGraph<T> sourceGraph,
-			Action relation) {
+			String relation) {
 		Graph targetGraph = new Graph();
 
 		Set<T> initialMessages = sourceGraph.getInitialNodes(relation);
@@ -155,8 +155,10 @@ public class GraphLTLChecker<T extends INode<T>> {
 			}
 		}
 		for (T m : allNodes) {
-			if (prevStates.get(m) == null || nextState.get(m) == null)
-				throw new RuntimeException("got the null");
+			if (prevStates.get(m) == null)
+				throw new RuntimeException("null in prevStates");
+			if (nextState.get(m) == null)
+				throw new RuntimeException("null in nextState");
 			for (Node prev : prevStates.get(m)) {
 				Edge e = new Edge(prev, nextState.get(m), "-", m.getLabel(),
 						null);

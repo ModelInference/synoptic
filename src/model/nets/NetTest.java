@@ -39,7 +39,7 @@ public class NetTest {
 		e.exportAsDotAndPng("output/petri/invariants-AP.dot", igAP);
 		e.exportAsDotAndPng("output/petri/invariants-NFby.dot", igNFby);
 		e.exportAsDotAndPng("output/petri/invariants-AFby.dot", igAFby);
-		GraphUtil.heuristicTransitiveReduction(igAP, new Action("AP"));
+		GraphUtil.heuristicTransitiveReduction(igAP, "AP");
 		NetBuilder b = new NetBuilder(true);
 		GraphUtil.copyTo(igAP, b);
 		Net n = b.getNet();

@@ -12,11 +12,11 @@ public class Relation<StateType> extends Transition<StateType> {
 	double frequency = 0.0;
 	private List<Invariant> inv = new ArrayList<Invariant>();
 
-	public Relation(StateType source, StateType target, Action action){
+	public Relation(StateType source, StateType target, String action){
 		super(source, target, action);
 	}
 	
-	public Relation(StateType source, StateType target, Action action, double probability) {
+	public Relation(StateType source, StateType target, String action, double probability) {
 		super(source, target, action);
 		this.frequency = probability;
 	}

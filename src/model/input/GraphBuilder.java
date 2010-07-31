@@ -27,34 +27,12 @@ import util.IterableAdapter;
 import util.IterableIterator;
 
 public class GraphBuilder implements IBuilder<MessageEvent> {
-	public static ISuccessorProvider<MessageEvent> makeSuccessorProvider(final Collection<MessageEvent> successors) {
-		return new ISuccessorProvider<MessageEvent>() {
-			public IterableIterator<MessageEvent> getSuccessorIterator() {
-				return new IterableAdapter<MessageEvent>(successors.iterator());
-			}
-			public void setTarget(SystemState<MessageEvent> s) {}
-			public IterableIterator<MessageEvent> getSuccessorIterator(Action act) {
-				Set<MessageEvent> filtered = new HashSet<MessageEvent>();
-				for (MessageEvent m : successors)
-					if (m.getAction().equals(act))
-						filtered.add(m);
-				return new IterableAdapter<MessageEvent>(filtered.iterator());
-			}
-		};
-	}
-	public static ISuccessorProvider<MessageEvent> makeSuccessorProvider() {
-		return makeSuccessorProvider(Collections.<MessageEvent>emptyList());
-	}
-
-	
 	private Graph<MessageEvent> graph;
-	private SystemState<MessageEvent> curState;
 	private MessageEvent curMessage;
 	private int stateCtr = 0;
-	private Action relation = new Action("t");
+	private static final String defaultRelation = "t".intern();
 
 	public GraphBuilder() {
-		curState = new SystemState<MessageEvent>("start");
 		curMessage = null;
 		graph = new Graph<MessageEvent>();
 		// graph.addInitialState(curState);
@@ -62,34 +40,26 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
  
 	@Override
 	public MessageEvent append(Action act) {
-		SystemState<MessageEvent> nextState = new SystemState<MessageEvent>(""
-				+ (stateCtr++));
-		MessageEvent nextMessage = new MessageEvent(act, curState, nextState, 1);
-		curState.addSuccessorProvider(makeSuccessorProvider(Collections.singleton(nextMessage)));
+		MessageEvent nextMessage = new MessageEvent(act, 1);
 		if (curMessage != null) {
-			curMessage.addTransition(nextMessage, relation);
+			curMessage.addTransition(nextMessage, defaultRelation);
 		} else
-			graph.addInitial(nextMessage, relation);
+			graph.addInitial(nextMessage, defaultRelation);
 		// graph.addState(nextState);
 		graph.add(nextMessage);
-		curState = nextState;
 		curMessage = nextMessage;
 		return curMessage;
 	}
 	
 	@Override
 	public MessageEvent insertAfter(MessageEvent curMessage, Action act) {
-		SystemState<MessageEvent> nextState = new SystemState<MessageEvent>(""
-				+ (stateCtr++));
-		MessageEvent nextMessage = new MessageEvent(act, curState, nextState, 1);
-		curState.addSuccessorProvider(makeSuccessorProvider(Collections.singleton(nextMessage)));
+		MessageEvent nextMessage = new MessageEvent(act, 1);
 		if (curMessage != null) {
-			curMessage.addTransition(nextMessage, relation);
+			curMessage.addTransition(nextMessage, defaultRelation);
 		} else
-			graph.addInitial(nextMessage, relation);
+			graph.addInitial(nextMessage, defaultRelation);
 		// graph.addState(nextState);
 		graph.add(nextMessage);
-		curState = nextState;
 		curMessage = nextMessage;
 		return nextMessage;
 	}
@@ -108,7 +78,6 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 
 	@Override
 	public void split() {
-		curState = new SystemState<MessageEvent>("split");
 		curMessage = null;
 		// graph.addInitial(curState);
 	}
@@ -184,18 +153,15 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 
 	public void buildGraph(Trace t, int addr) {
 		ArrayList<MessageEvent> previous = new ArrayList<MessageEvent>();
-		SystemState<MessageEvent> previousState = curState;
 		List<PingPongMessage> list = extractCommunicationWith(t, addr);
 		HashMap<Link, ArrayList<MessageEvent>> previousR = new HashMap<Link, ArrayList<MessageEvent>>();
 		for (int i = 0; i < list.size();) {
 			long time = list.get(i).getTimestamp();
 			ArrayList<MessageEvent> current = new ArrayList<MessageEvent>();
-			SystemState<MessageEvent> currentState = new SystemState<MessageEvent>("");
 			// graph.addState(currentState);
 			for (int j = i; j < list.size()
 					&& time == list.get(j).getTimestamp(); ++j, ++i) {
-				MessageEvent m = new MessageEvent(new Action(list.get(j).getType()),
-						previousState, currentState, 1);
+				MessageEvent m = new MessageEvent(new Action(list.get(j).getType()), 1);
 				graph.add(m);
 				PingPongMessage org = list.get(j);
 				Link l = new Link(org.getSrc(), org.getDst());
@@ -215,32 +181,29 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 				}
 				previousR.get(l).add(m);
 				current.add(m);
-				previousState.addSuccessorProvider(makeSuccessorProvider(Collections.singleton(m)));
 			}
 			for (MessageEvent prev : previous) {
 				for (MessageEvent cur : current) {
 					// this blows performace
-					prev.addTransition(cur, new Action("t"));
+					prev.addTransition(cur, defaultRelation);
 				}
 			}
 			previous = current;
-			previousState = currentState;
 		}
-		curState = new SystemState<MessageEvent>("");
 	}
 	@Override
 	public MessageEvent insert(Action act) {
-		MessageEvent nextMessage = new MessageEvent(act, null, null, 1);
+		MessageEvent nextMessage = new MessageEvent(act, 1);
 		graph.add(nextMessage);
 		return nextMessage;
 	}
 	@Override
-	public void addInitial(MessageEvent curMessage, Action relation) {
+	public void addInitial(MessageEvent curMessage, String relation) {
 		graph.addInitial(curMessage, relation);
 		
 	}
 	@Override
-	public void connect(MessageEvent first, MessageEvent second, Action relation) {
+	public void connect(MessageEvent first, MessageEvent second, String relation) {
 		first.addTransition(second, relation);
 	}
 	@Override
