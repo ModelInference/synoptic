@@ -1,12 +1,11 @@
 package model.interfaces;
 
-import model.Action;
-
 /**
  * A generic interface for a transition. This interface provides method to modify the transition.
  * @author sigurd
  *
  * @param <NodeType> the type of the nodes which are connected by this transition
+ * @param <LabelType> the type of the label with which the transition is labeled
  */
 public interface ITransition<NodeType> {
 	/**

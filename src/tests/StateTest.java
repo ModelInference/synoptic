@@ -9,23 +9,21 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import model.Action;
-import model.MessageEvent;
+import model.EventTransition;
 import model.Partition;
 import model.PartitionGraph;
 import model.SystemState;
-import model.Transition;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
 import model.input.NfsTraceParser;
-import model.input.ReverseTracertParser;
-import model.scalability.ScalableGraph;import algorithms.ktail.KTail;
+import algorithms.ktail.KTail;
 import algorithms.ktail.StateUtil;
 
 public class StateTest extends TestCase {
 
 	public void testKEquals1() {
 		// A simple case: just one state should be equal to itself
-		SystemState<Transition<SystemState>> s = new SystemState<Transition<SystemState>>("foo");
+		SystemState<EventTransition> s = new SystemState<EventTransition>("foo");
 		s.addSuccessorProvider(GraphBuilder.makeSuccessorProvider());
 
 		assertTrue(StateUtil.kEquals(s, s, 0, true));
@@ -35,14 +33,14 @@ public class StateTest extends TestCase {
 
 	public void testKEquals2() {
 		// A more complicated case, a two-node system.
-		SystemState<MessageEvent> s2 = new SystemState<MessageEvent>("s2");
-		SystemState<MessageEvent> s1 = new SystemState<MessageEvent>("s1");
-		s1.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new MessageEvent(new Action("foo"), s1, s2, 1))));
+		SystemState<EventTransition> s2 = new SystemState<EventTransition>("s2");
+		SystemState<EventTransition> s1 = new SystemState<EventTransition>("s1");
+		s1.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new EventTransition(s1, s2, "foo"))));
 		s2.addSuccessorProvider(GraphBuilder.makeSuccessorProvider());
 		
-		SystemState<MessageEvent> s2prime = new SystemState<MessageEvent>("s2prime");
-		SystemState<MessageEvent> s1prime = new SystemState<MessageEvent>("s1prime");
-		s1prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new MessageEvent(new Action("foo"), s1prime, s2prime, 1))));
+		SystemState<EventTransition> s2prime = new SystemState<EventTransition>("s2prime");
+		SystemState<EventTransition> s1prime = new SystemState<EventTransition>("s1prime");
+		s1prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new EventTransition(s1prime, s2prime, "foo"))));
 		s2prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider());
 
 		assertTrue(StateUtil.kEquals(s1, s1prime, 0, true));
@@ -52,18 +50,18 @@ public class StateTest extends TestCase {
 
 	public void testKEquals3() {
 		// A three node system that is equal at k:1 but not k:2
-		SystemState<MessageEvent> s3 = new SystemState<MessageEvent>("s3");
-		SystemState<MessageEvent> s2 = new SystemState<MessageEvent>("s2");
-		SystemState<MessageEvent> s1 = new SystemState<MessageEvent>("s1");
-		s1.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new MessageEvent(new Action("foo"), s1, s2, 1))));
-		s2.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new MessageEvent(new Action("bar"), s2, s3, 1))));
+		SystemState<EventTransition> s3 = new SystemState<EventTransition>("s3");
+		SystemState<EventTransition> s2 = new SystemState<EventTransition>("s2");
+		SystemState<EventTransition> s1 = new SystemState<EventTransition>("s1");
+		s1.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new EventTransition(s1, s2, "foo"))));
+		s2.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new EventTransition(s2, s3, "bar"))));
 		s3.addSuccessorProvider(GraphBuilder.makeSuccessorProvider());
 		
-		SystemState<MessageEvent> s3prime = new SystemState<MessageEvent>("s3");
-		SystemState<MessageEvent> s2prime = new SystemState<MessageEvent>("s2");
-		SystemState<MessageEvent> s1prime = new SystemState<MessageEvent>("s1");
-		s1prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new MessageEvent(new Action("foo"), s1prime, s2prime, 1))));
-		s2prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new MessageEvent(new Action("baz"), s2prime, s3prime, 1))));
+		SystemState<EventTransition> s3prime = new SystemState<EventTransition>("s3");
+		SystemState<EventTransition> s2prime = new SystemState<EventTransition>("s2");
+		SystemState<EventTransition> s1prime = new SystemState<EventTransition>("s1");
+		s1prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new EventTransition(s1prime, s2prime, "foo"))));
+		s2prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new EventTransition(s2prime, s3prime, "baz"))));
 		s3prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider());
 		
 		assertTrue(StateUtil.kEquals(s1, s1prime, 0, true));

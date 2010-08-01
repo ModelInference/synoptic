@@ -13,10 +13,16 @@ public class Transition<StateType> implements ITransition<StateType> {
 	protected final String action;
 	private int count = 0;
 	
+	/**
+	 * Create a new transition. The action will be interned.
+	 * @param source source node
+	 * @param target target node
+	 * @param action the label of the transition (will be interned)
+	 */
 	public Transition(StateType source, StateType target, String action) {
 		this.source = source;
 		this.target = target;
-		this.action = action;
+		this.action = action.intern();
 	}
 
 	@Override
@@ -44,6 +50,7 @@ public class Transition<StateType> implements ITransition<StateType> {
 		return result;
 	}
 
+	//TODO make use of the fact that action is interned.
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object obj) {

@@ -13,6 +13,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import net.unto.twitter.UtilProtos.Url;
 
 import model.Action;
+import model.EventTransition;
 import model.Graph;
 import model.MessageEvent;
 import model.PartitionGraph;
@@ -27,6 +28,35 @@ import util.IterableAdapter;
 import util.IterableIterator;
 
 public class GraphBuilder implements IBuilder<MessageEvent> {
+	public static ISuccessorProvider<EventTransition> makeSuccessorProvider(
+			final Collection<EventTransition> successors) {
+		return new ISuccessorProvider<EventTransition>() {
+			@Override
+			public IterableIterator<EventTransition> getSuccessorIterator() {
+				return new IterableAdapter<EventTransition>(successors
+						.iterator());
+			}
+
+			@Override
+			public void setTarget(SystemState<EventTransition> s) {
+			}
+
+			@Override
+			public IterableIterator<EventTransition> getSuccessorIterator(
+					String relation) {
+				Set<EventTransition> filtered = new HashSet<EventTransition>();
+				for (EventTransition m : successors)
+					if (m.getAction().equals(relation))
+						filtered.add(m);
+				return new IterableAdapter<EventTransition>(filtered.iterator());
+			}
+		};
+	}
+
+	public static ISuccessorProvider<EventTransition> makeSuccessorProvider() {
+		return makeSuccessorProvider(Collections.<EventTransition> emptyList());
+	}
+
 	private Graph<MessageEvent> graph;
 	private MessageEvent curMessage;
 	private int stateCtr = 0;
@@ -37,7 +67,7 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 		graph = new Graph<MessageEvent>();
 		// graph.addInitialState(curState);
 	}
- 
+
 	@Override
 	public MessageEvent append(Action act) {
 		MessageEvent nextMessage = new MessageEvent(act, 1);
@@ -50,7 +80,7 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 		curMessage = nextMessage;
 		return curMessage;
 	}
-	
+
 	@Override
 	public MessageEvent insertAfter(MessageEvent curMessage, Action act) {
 		MessageEvent nextMessage = new MessageEvent(act, 1);
@@ -67,9 +97,10 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 	public PartitionGraph getGraph(boolean merge) {
 		return new PartitionGraph(graph, merge);
 	}
-	
+
 	/**
 	 * Return the graph as it was built.
+	 * 
 	 * @return the graph as it was built.
 	 */
 	public Graph<MessageEvent> getRawGraph() {
@@ -103,7 +134,7 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 		}
 		return gb.getGraph(false);
 	}
-	
+
 	public void buildGraphLocal(String[][] traces) {
 		for (int i = 0; i < traces.length; ++i) {
 			for (String t : traces[i]) {
@@ -161,16 +192,17 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 			// graph.addState(currentState);
 			for (int j = i; j < list.size()
 					&& time == list.get(j).getTimestamp(); ++j, ++i) {
-				MessageEvent m = new MessageEvent(new Action(list.get(j).getType()), 1);
+				MessageEvent m = new MessageEvent(new Action(list.get(j)
+						.getType()), 1);
 				graph.add(m);
 				PingPongMessage org = list.get(j);
 				Link l = new Link(org.getSrc(), org.getDst());
-				ArrayList<MessageEvent> initials = previousR
-						.get(l.getResponseLink());
+				ArrayList<MessageEvent> initials = previousR.get(l
+						.getResponseLink());
 				if (initials != null && initials.size() > 0) {
-					//for (Message im : initials) {
-						// im.addTransition(m, new Action("r"));
-					//}
+					// for (Message im : initials) {
+					// im.addTransition(m, new Action("r"));
+					// }
 					initials.clear();
 				} /*
 				 * else graph.addInitial(previousState);
@@ -191,26 +223,29 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 			previous = current;
 		}
 	}
+
 	@Override
 	public MessageEvent insert(Action act) {
 		MessageEvent nextMessage = new MessageEvent(act, 1);
 		graph.add(nextMessage);
 		return nextMessage;
 	}
+
 	@Override
 	public void addInitial(MessageEvent curMessage, String relation) {
 		graph.addInitial(curMessage, relation);
-		
+
 	}
+
 	@Override
 	public void connect(MessageEvent first, MessageEvent second, String relation) {
 		first.addTransition(second, relation);
 	}
+
 	@Override
 	public void setTerminal(MessageEvent terminalNode) {
-			// TODO Auto-generated method stub
-			
-	}
+		// TODO Auto-generated method stub
 
+	}
 
 }
