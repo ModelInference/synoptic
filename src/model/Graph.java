@@ -34,6 +34,8 @@ public class Graph<NodeType extends INode<NodeType>> implements
 	 */
 	private final Map<String, Set<NodeType>> initialNodes = new HashMap<String, Set<NodeType>>();
 
+	private Set<String> cachedRelations = null;
+
 	/**
 	 * Create a graph from nodes.
 	 * 
@@ -72,22 +74,26 @@ public class Graph<NodeType extends INode<NodeType>> implements
 
 	@Override
 	public Set<String> getRelations() {
-		Set<String> relations = new LinkedHashSet<String>();
+		if (cachedRelations != null)
+			return cachedRelations;
+		cachedRelations = new LinkedHashSet<String>();
 		for (NodeType node : nodes)
 			for (Iterator<? extends ITransition<NodeType>> iter = node
 					.getTransitionsIterator(); iter.hasNext();)
-				relations.add(iter.next().getAction());
-		return relations;
+				cachedRelations.add(iter.next().getAction());
+		return cachedRelations;
 	}
 
 	@Override
 	public void add(NodeType node) {
 		nodes.add(node);
+		cachedRelations = null;
 	}
 
 	@Override
 	public void remove(NodeType node) {
 		nodes.remove(node);
+		cachedRelations = null;
 	}
 
 	@Override
@@ -97,6 +103,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
 		if (!initialNodes.containsKey(relation))
 			initialNodes.put(relation, new HashSet<NodeType>());
 		initialNodes.get(relation).add(initialNode);
+		cachedRelations = null;
 	}
 
 	/**
@@ -112,6 +119,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
 				initialNodes.put(key, new HashSet<NodeType>());
 			initialNodes.get(key).addAll(graph.initialNodes.get(key));
 		}
+		cachedRelations = null;
 	}
 
 }

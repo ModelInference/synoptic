@@ -36,6 +36,8 @@ public class Node {
 
 	private Attributes attributes;
 
+	private int id;
+
 	public Node(Graph g, Attributes a) {
 		init(g, a);
 	}
@@ -71,18 +73,10 @@ public class Node {
 	}
 
 	public synchronized void setAttribute(String name, Object value) {
-		if (name.equals("_id")) {
-			return;
-		}
-
 		attributes.set(name, value);
 	}
 
 	public synchronized void setBooleanAttribute(String name, boolean value) {
-		if (name.equals("_id")) {
-			return;
-		}
-
 		attributes.setBoolean(name, value);
 	}
 
@@ -95,7 +89,7 @@ public class Node {
 	}
 
 	public synchronized int getId() {
-		return attributes.getInt("_id");
+		return id;
 	}
 
 	public int getIncomingEdgeCount() {
@@ -107,10 +101,6 @@ public class Node {
 	}
 
 	public synchronized void setIntAttribute(String name, int value) {
-		if (name.equals("_id")) {
-			return;
-		}
-
 		attributes.setInt(name, value);
 	}
 
@@ -127,10 +117,6 @@ public class Node {
 	}
 
 	public synchronized void setStringAttribute(String name, String value) {
-		if (name.equals("_id")) {
-			return;
-		}
-
 		attributes.setString(name, value);
 	}
 
@@ -157,7 +143,7 @@ public class Node {
 	}
 
 	synchronized void setId(int id) {
-		attributes.setInt("_id", id);
+		this.id = id;
 	}
 
 	synchronized void addIncomingEdge(Edge e) {
@@ -241,7 +227,6 @@ public class Node {
 		int id = getId();
 		out.print("  ");
 		out.println(outgoingEdges.size());
-		attributes.unset("_id");
 		out.print("  ");
 		out.println(attributes);
 		setId(id);
@@ -277,7 +262,6 @@ public class Node {
 	private void save_xml(PrintStream out) {
 		int id = getId();
 		out.println("<node id=\"" + id + "\">");
-		attributes.unset("_id");
 		attributes.save(out, Graph.XML_FORMAT);
 		setId(id);
 

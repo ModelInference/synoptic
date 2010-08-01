@@ -39,7 +39,7 @@ public class PettersonTest {
 		// 5);
 		
 		r.readGraphSet("traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
-		 15);
+		 5);
 		
 		//r.readGraphSet("traces/TapioExampleTrace/trace.txt",
 		//		 1);

@@ -1,10 +1,19 @@
 package invariants.ltlcheck;
 
+import java.util.HashMap;
+
 import invariants.TemporalInvariant;
 import gov.nasa.ltl.graph.Graph;
 import gov.nasa.ltl.trans.ParseErrorException;
 
 public class LtlModelChecker {
+	/**
+	 * Cache graphs that we got as argument previously. This is possible since
+	 * the only caller is GraphLTLChecker.check, and it guarantees that whenever
+	 * the graph changes, a new graph object is passed to this method.
+	 */
+	private static HashMap<Graph, Graph> translationCache = new HashMap<Graph, Graph>();
+
 	public static Counterexample check(Graph ts, TemporalInvariant invariant,
 			IModelCheckingMonitor monitor) throws ParseErrorException {
 		assert monitor != null;
@@ -13,8 +22,14 @@ public class LtlModelChecker {
 		Graph dcts = ts;
 
 		if (TemporalInvariant.useDIDCAN) {
-			monitor.subTask("Adding did/can attributes...");
-			dcts = DidCanTranslator.translate(ts);
+			if (translationCache.containsKey(ts)) {
+				monitor.subTask("Adding did/can attributes... (cached)");
+				dcts = translationCache.get(ts);
+			} else {
+				monitor.subTask("Adding did/can attributes...");
+				dcts = DidCanTranslator.translate(ts);
+				translationCache.put(ts, dcts);
+			}
 		}
 
 		// Remove deadlock
