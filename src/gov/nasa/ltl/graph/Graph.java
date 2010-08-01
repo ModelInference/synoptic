@@ -48,6 +48,8 @@ public class Graph {
 
 	private Attributes attributes;
 
+	private int nextCnt;
+
 	public Graph(Attributes a) {
 		init(a);
 	}
@@ -291,7 +293,7 @@ public class Graph {
 			init = n;
 		}
 
-		number();
+		n.setId(nextCnt++);
 	}
 
 	synchronized void removeNode(Node n) {
@@ -369,6 +371,7 @@ public class Graph {
 				n.setId(cnt++);
 			}
 		}
+		nextCnt = cnt;
 	}
 
 	private static Attributes readAttributes(BufferedReader in)
