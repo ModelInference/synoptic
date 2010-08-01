@@ -10,10 +10,9 @@ public class Action {
 	String label;
 	private int cachedHashCode;
 	private VectorTime vectorTime;
+	private static HashMap<Integer,Action> internMap = new HashMap<Integer,Action>();
 
 	// Arguments
-	Map<String, Integer> integerArguments = new HashMap<String, Integer>();
-	Map<String, Boolean> booleanArguments = new HashMap<String, Boolean>();
 	Map<String, String> stringArguments = new HashMap<String, String>();
 
 	public Action(String label) {
@@ -30,8 +29,6 @@ public class Action {
 	}
 
 	public void mergeFromAction(Action action) {
-		integerArguments.putAll(action.integerArguments);
-		booleanArguments.putAll(action.booleanArguments);
 		stringArguments.putAll(action.stringArguments);
 	}
 
@@ -84,5 +81,13 @@ public class Action {
 
 	public Set<String> getStringArgumentNames() {
 		return stringArguments.keySet();
+	}
+
+	public Action intern() {
+		if (internMap.containsKey(this.hashCode())) {
+			return internMap.get(this.hashCode());
+		}
+		internMap.put(this.hashCode(), this);
+		return this;
 	}
 }

@@ -72,6 +72,7 @@ public class PetersonReader<T extends IEvent> {
 		if (!roundCounter.containsKey(nodeName))
 			roundCounter.put(nodeName, 0);
 		action.setStringArgument("localRoundId", roundCounter.get(nodeName).toString());
+		action = action.intern();
 		T message = null;
 		if (!messageId.equals("") && identifyMessages) {
 			if (messageMap.containsKey(messageId))
