@@ -6,11 +6,13 @@ import algorithms.graph.GraphMerge;
 import algorithms.ktail.InputEquivalence;
 import junit.framework.TestCase;
 import model.Action;
+import model.EventTransition;
 import model.Graph;
 import model.MessageEvent;
 import model.Partition;
 import model.PartitionGraph;
 import model.SystemState;
+import model.Transition;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
 import model.interfaces.IGraph;
@@ -18,13 +20,13 @@ import model.scalability.ScalableGraph;
 
 public class GraphTest extends TestCase {
 	public void testGraph() {
-		SystemState<MessageEvent> s3prime = new SystemState<MessageEvent>("s3");
-		SystemState<MessageEvent> s2prime = new SystemState<MessageEvent>("s2");
-		SystemState<MessageEvent> s1prime = new SystemState<MessageEvent>("s1");
-		s1prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new MessageEvent(new Action("foo"), s1prime, s2prime, 1))));
-		s2prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new MessageEvent(new Action("baz"), s2prime, s3prime, 1))));
+		SystemState<EventTransition> s3prime = new SystemState<EventTransition>("s3");
+		SystemState<EventTransition> s2prime = new SystemState<EventTransition>("s2");
+		SystemState<EventTransition> s1prime = new SystemState<EventTransition>("s1");
+		s1prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new EventTransition(s1prime, s2prime, "foo"))));
+		s2prime.addSuccessorProvider(GraphBuilder.makeSuccessorProvider(Collections.singleton(new EventTransition(s2prime, s3prime, "baz"))));
 
-		Graph<SystemState<MessageEvent>> g = new Graph<SystemState<MessageEvent>>();
+		Graph<SystemState<EventTransition>> g = new Graph<SystemState<EventTransition>>();
 		g.addInitial(s1prime, "t");
 		GraphVizExporter export = new GraphVizExporter();
 		String text = export.export(g);

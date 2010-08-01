@@ -87,7 +87,7 @@ public class PettersonTest {
 		e.exportAsDotAndPngFast("output/peterson/output-pg-merged.dot", pg);
 		//exportSCCsWithInvariants(e, pg);
 		// Bisimulation.mergePartitions(pg);
-		// e.exportAsDotAndPng("output/peterson/output-pg-merged.dot", pg);
+		e.exportAsDotAndPng("output/peterson/output-pg-merged-S.dot", pg.getSystemStateGraph());
 		//NetBuilder netBuilder = new NetBuilder();
 		//GraphUtil.copyTo(pg, netBuilder);
 		//Net net = netBuilder.getNet();
