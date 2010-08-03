@@ -6,42 +6,76 @@ import java.util.Set;
 
 import model.input.VectorTime;
 
+/**
+ * The action class abstracts an event. Each event needs at least a name, called
+ * a label. Optionally, a vector time and data fields can set. If datafields
+ * will be used, {@code useDatafields} must be set before compilation.
+ * 
+ * @author Sigurd Schneider
+ * 
+ */
 public class Action {
+	/**
+	 * The action's label.
+	 */
 	String label;
-	private int cachedHashCode;
+	/**
+	 * Cache for the hash code of this object.
+	 */
+	private Integer cachedHashCode = null;
+	/**
+	 * The time this action occured.
+	 */
 	private VectorTime vectorTime;
-	private static HashMap<Integer,Action> internMap = new HashMap<Integer,Action>();
+	/**
+	 * A map to ensure each Action object is unique.
+	 */
+	private static HashMap<Action, Action> internMap = new HashMap<Action, Action>();
+	/**
+	 * Set this to true if you want equals and hashcode to respect the contents
+	 * of stringArgumens.
+	 */
+	private final static boolean useDatafields = false;
 
-	// Arguments
+	/**
+	 * The map that stores the arguments and their values. Arguments are named
+	 * properties.
+	 */
 	Map<String, String> stringArguments = new HashMap<String, String>();
 
+	/**
+	 * Create an action with a label.
+	 * 
+	 * @param label
+	 *            the label for the action
+	 */
 	public Action(String label) {
 		this.label = label;
 		computeHashCode();
 	}
 
-	public void setStringArgument(String name, String value) {
-		stringArguments.put(name, value);
-	}
-
-	public String getStringArgument(String name) {
-		return stringArguments.get(name);
-	}
-
-	public void mergeFromAction(Action action) {
-		stringArguments.putAll(action.stringArguments);
-	}
-
+	@Override
 	public String toString() {
 		return label;
 	}
 
-	public int computeHashCode() {
+	/**
+	 * Compute the hash code. This method should be called whenever the internal
+	 * representation changes.
+	 * 
+	 * @return the new hash code.
+	 */
+	private int computeHashCode() {
 		final int prime = 31;
 		cachedHashCode = prime + ((label == null) ? 0 : label.hashCode());
+		if (useDatafields) {
+			cachedHashCode += prime * vectorTime.hashCode() + 7 * prime
+					* stringArguments.hashCode();
+		}
 		return cachedHashCode;
 	}
 
+	@Override
 	public int hashCode() {
 		return cachedHashCode;
 	}
@@ -60,34 +94,112 @@ public class Action {
 				return false;
 		} else if (!label.equals(other.label))
 			return false;
+		if (useDatafields) {
+			if (!vectorTime.equals(other.vectorTime))
+				return false;
+			if (!stringArguments.equals(other.stringArguments))
+				return false;
+		}
 		return true;
 	}
 
+	/**
+	 * Get the label of the action.
+	 * 
+	 * @return the label
+	 */
 	public String getLabel() {
 		return label;
 	}
 
+	/**
+	 * Set the time when this action occurred.
+	 * 
+	 * @param vectorTime
+	 *            the time
+	 */
+
 	public void setTime(VectorTime vectorTime) {
 		this.vectorTime = vectorTime;
+		computeHashCode();
 	}
 
+	/**
+	 * Get the vector time of this action.
+	 * 
+	 * @return the vector time when this action occured.
+	 */
 	public VectorTime getTime() {
 		return vectorTime;
 	}
-	
+
+	/**
+	 * Return the internal map that stores the arguments.
+	 * 
+	 * @return the internal map
+	 */
+	@Deprecated
 	public Map<String, String> getStringArguments() {
 		return stringArguments;
 	}
 
+	/**
+	 * Get all names for which we have argument values set.
+	 * 
+	 * @return the names
+	 */
 	public Set<String> getStringArgumentNames() {
 		return stringArguments.keySet();
 	}
 
+	/**
+	 * Intern this object. Depending on whether {@code useDatafields} is set,
+	 * the action's time and arguments will be taken into acount.
+	 * 
+	 * @return the interned action
+	 */
 	public Action intern() {
-		if (internMap.containsKey(this.hashCode())) {
-			return internMap.get(this.hashCode());
+		if (internMap.containsKey(this)) {
+			return internMap.get(this);
 		}
-		internMap.put(this.hashCode(), this);
+		internMap.put(this, this);
 		return this;
 	}
+
+	/**
+	 * Set a string argument.
+	 * 
+	 * @param name
+	 *            name of the argument
+	 * @param value
+	 *            value of the argument
+	 */
+	public void setStringArgument(String name, String value) {
+		stringArguments.put(name, value);
+		computeHashCode();
+	}
+
+	/**
+	 * Retrieve an argument value.
+	 * 
+	 * @param name
+	 *            the name of the argument
+	 * @return its value
+	 */
+	public String getStringArgument(String name) {
+		return stringArguments.get(name);
+	}
+
+	/**
+	 * Add all arguments from {@code action} to this action's arguments,
+	 * possibly overwriting arguments of this action.
+	 * 
+	 * @param action
+	 *            the action to read the additional arguments form.
+	 */
+	public void mergeFromAction(Action action) {
+		stringArguments.putAll(action.stringArguments);
+		computeHashCode();
+	}
+
 }
