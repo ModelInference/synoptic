@@ -96,11 +96,6 @@ public abstract class Bisimulation {
 			GraphVizExporter.quickExport("output/rounds/0.dot", partitionGraph);
 		}
 		steps = 0;
-		/**
-		 * noprogress is true if all splits tried did cause any unsatisfied
-		 * invariant to become satisfied
-		 */
-		boolean noprogress = false;
 		// This keeps track of the splitting done; currently it is not used
 		// anymore.
 		int lastUnsatSize = 0;
@@ -111,98 +106,109 @@ public abstract class Bisimulation {
 		unsatisfiedInvariants.addAll(partitionGraph.getInvariants().getSet());
 		Set<TemporalInvariant> satisfiedInvariants = new LinkedHashSet<TemporalInvariant>();
 
-		List<RelationPath<Partition>> rp = null;
+		List<RelationPath<Partition>> counterexampleTraces = null;
 		while (unsatisfiedInvariants.size() > 0) {
-			boolean noprogress_this = noprogress;
-			noprogress = true;
+			List<PartitionSplit> splitsToDo = new ArrayList<PartitionSplit>();
+			List<RelationPath<Partition>> splitsToDoTraces = new ArrayList<RelationPath<Partition>>();
 			boolean lastWasSuccessful = false;
 
-			if (!noprogress_this)
-				rp = new TemporalInvariantSet(unsatisfiedInvariants).getViolations(partitionGraph);
+			counterexampleTraces = new TemporalInvariantSet(
+					unsatisfiedInvariants).getViolations(partitionGraph);
 
-			if (rp == null || rp.size() == 0) {
+			if (counterexampleTraces == null
+					|| counterexampleTraces.size() == 0) {
 				if (VERBOSE)
 					System.out.println("Invariants statisfied. Stopping.");
 				break;
 			} else if (ESSENTIAL) {
-				System.out.println("" + rp.size() + " unsatisfied invariants: "
-						+ rp);
+				System.out.println("" + counterexampleTraces.size()
+						+ " unsatisfied invariants: " + counterexampleTraces);
 			}
-			if (!noprogress_this) {
-				unsatisfiedInvariants.clear();
-				for (RelationPath<Partition> relPath : rp) {
-					unsatisfiedInvariants.add(relPath.invariant);
-				}
-				satisfiedInvariants.clear();
-				satisfiedInvariants.addAll(partitionGraph.getInvariants().getSet());
-				satisfiedInvariants.removeAll(unsatisfiedInvariants);
+			unsatisfiedInvariants.clear();
+			for (RelationPath<Partition> relPath : counterexampleTraces) {
+				unsatisfiedInvariants.add(relPath.invariant);
 			}
+			satisfiedInvariants.clear();
+			satisfiedInvariants.addAll(partitionGraph.getInvariants().getSet());
+			satisfiedInvariants.removeAll(unsatisfiedInvariants);
 
-			off: for (RelationPath<Partition> relPath : rp) {
-				List<PartitionSplit> dl = getSplits(relPath, partitionGraph);
-				for (PartitionSplit d : dl) {
-					if (d == null || !d.isValid()) {
+			PartitionSplit arbitrarySplit = null;
+			off: for (RelationPath<Partition> counterexampleTrace : counterexampleTraces) {
+				List<PartitionSplit> candidateSplits = getSplits(
+						counterexampleTrace, partitionGraph);
+				for (PartitionSplit candidateSplit : candidateSplits) {
+					if (candidateSplit == null || !candidateSplit.isValid()) {
 						if (VERBOSE)
-							System.out.println("  -- invalid: " + d);
-						// continue path;
-						noprogress = true;
+							System.out.println("  -- invalid: "
+									+ candidateSplit);
 						continue;
 					}
-					Operation rewindOperation = partitionGraph.apply(d);
-					steps++;
+					if (arbitrarySplit == null)
+						arbitrarySplit = candidateSplit;
+					Operation rewindOperation = partitionGraph
+							.apply(candidateSplit);
 					if (DEBUG) {
 						GraphVizExporter.quickExport("output/rounds/" + outer
 								+ ".dot", partitionGraph);
 					}
+
 					// Now we must check if we changed something
-					RelationPath<Partition> unsatAfter = invariants
-							.getViolation(relPath.invariant, partitionGraph);
-					// if the unsatAfter size is the same, and we are still
-					// determining
-					// if progress is possible, then rewind here.
-					// Note that since refininge may never introduce invariant
-					// violations for our three types of invariants,
-					// a size check is enough here
-					if (unsatAfter != null && !noprogress_this) {
-						partitionGraph.apply(rewindOperation);
-						if (VERBOSE)
-							System.out
-									.println(" -- rewind (no progress): " + d);
-						noprogress = true;
-						continue;
+					RelationPath<Partition> violation = invariants
+							.getViolation(counterexampleTrace.invariant,
+									partitionGraph);
+
+					// if the invariant has no further violation, we made
+					// progress.
+					// so remember the split as useful.
+					if (violation == null) {
+						splitsToDo.add(candidateSplit);
+						splitsToDoTraces.add(counterexampleTrace);
 					}
-					System.out.flush();
-					// This is just bookkeeping that is not used for anything
-					// atm.
-					if (unsatAfter == null) {
-						if (VERBOSE)
-							System.out.println("  -- ok");
-						lastWasSuccessful = true;
-						satisfiedInvariants.add(relPath.invariant);
-						unsatisfiedInvariants.remove(relPath.invariant);
-					} else if (VERBOSE)
-						System.out.println("  -- forced");
-					// if we are here, we did a successful split. Either because
-					// we removed a violation,
-					// or because we did any split because noprogress was true.
-					noprogress = false;
-					break off;
+
+					partitionGraph.apply(rewindOperation);
 				}
 			}
-			// handle interleaved merging
-			if ((lastWasSuccessful || lastUnsatSize > rp.size())
-					&& interleavedMerging) {
-				if (VERBOSE)
-					System.out.println("recompressing...");
-				Bisimulation.mergePartitions(partitionGraph,
-						new TemporalInvariantSet(satisfiedInvariants));
+			if (splitsToDo.size() == 0) {
+				partitionGraph.apply(arbitrarySplit);
+				if (ESSENTIAL)
+					System.out.println("1 arbitrary split, "
+							+ partitionGraph.getNodes().size()
+							+ " nodes in graph.");
+			} else {
+				Set<Partition> splitsDone = new HashSet<Partition>();
+				for (int i = 0; i < splitsToDo.size(); ++i) {
+					PartitionSplit currentSplit = splitsToDo.get(i);
+					if (!splitsDone.contains(currentSplit.getPartition())) {
+						splitsDone.add(currentSplit.getPartition());
+						partitionGraph.apply(currentSplit);
+						satisfiedInvariants
+								.add(splitsToDoTraces.get(i).invariant);
+						unsatisfiedInvariants
+								.remove(splitsToDoTraces.get(i).invariant);
+					}
+				}
+				// handle interleaved merging
+				if (interleavedMerging) {
+					if (VERBOSE)
+						System.out.println("recompressing...");
+					Bisimulation.mergePartitions(partitionGraph,
+							new TemporalInvariantSet(satisfiedInvariants));
+				}
+				if (ESSENTIAL)
+					System.out
+							.println(splitsDone.size()
+									+ " split(s) done (of "+splitsToDo.size()+"), "
+									+ partitionGraph.getNodes().size()
+									+ " nodes in graph, "
+
+									+ (counterexampleTraces != null ? counterexampleTraces
+											.size()
+											: 0)
+									+ " unsatisfiedInvariants left.");
 			}
-			if (ESSENTIAL)
-				System.out.println(partitionGraph.getNodes().size() + " "
-						+ (rp != null ? rp.size() : 0));
 			outer++;
-			if (rp != null)
-				lastUnsatSize = rp.size();
+			if (counterexampleTraces != null)
+				lastUnsatSize = counterexampleTraces.size();
 		}
 
 		if (DEBUG) {

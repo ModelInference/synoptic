@@ -77,7 +77,7 @@ public class PettersonTest {
 		pg.checkSanity();
 		TimedTask coarsening = new TimedTask("coarsening", 1);
 		System.out.println("Merging Partitions...");
-		Bisimulation.mergePartitions(pg);
+		//Bisimulation.mergePartitions(pg);
 		coarsening.stop();
 		total.stop();
 		System.out.println("Merge done.");

@@ -32,7 +32,7 @@ public class Benchmarks {
 		for (int i = 15; i < 70; i += 10) {
 			list.add(i);
 		}
-		ArrayList<HashMap<String,Long>> resList = new ArrayList<HashMap<String,Long>>();
+		ArrayList<HashMap<String, Long>> resList = new ArrayList<HashMap<String, Long>>();
 		for (int count : list) {
 			HashMap<String, Long> res = new HashMap<String, Long>();
 			for (int i = 0; i < REPETITIONS; ++i) {
@@ -40,18 +40,23 @@ public class Benchmarks {
 				TimedTask load = new TimedTask("load", 1);
 				GraphBuilder b = new GraphBuilder();
 				if (true) {
-				PetersonReader<MessageEvent> r = new PetersonReader<MessageEvent>(
-						b);
-				r
-						.readGraphSet(
-								"traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
-								count);
+					PetersonReader<MessageEvent> r = new PetersonReader<MessageEvent>(
+							b);
+					r
+							.readGraphSet(
+									"traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
+									count);
 				} else {
-					String[] trace1 = new String[] { "p", "p", "c", "c", "txc", "txc", };
-					String[] trace2 = new String[] { "p", "p", "c", "a", "txa", "txa", };
-					String[] trace3 = new String[] { "p", "p", "a", "c", "txa", "txa", };
-					String[] trace4 = new String[] { "p", "p", "a", "a", "txa", "txa", };
-					b.buildGraphLocal(new String[][] { trace1, trace2, trace3, trace4 });
+					String[] trace1 = new String[] { "p", "p", "c", "c", "txc",
+							"txc", };
+					String[] trace2 = new String[] { "p", "p", "c", "a", "txa",
+							"txa", };
+					String[] trace3 = new String[] { "p", "p", "a", "c", "txa",
+							"txa", };
+					String[] trace4 = new String[] { "p", "p", "a", "a", "txa",
+							"txa", };
+					b.buildGraphLocal(new String[][] { trace1, trace2, trace3,
+							trace4 });
 				}
 				Graph<MessageEvent> g = b.getRawGraph();
 				load.stop();
@@ -73,38 +78,43 @@ public class Benchmarks {
 				record(res, refinement);
 				record(res, coarsening);
 				record(res, total);
-				
+
 				if (!res.containsKey("nodes"))
 					res.put("nodes", 0L);
-				res.put("nodes", res.get("nodes")+(long)g.getNodes().size());
+				res.put("nodes", res.get("nodes") + (long) g.getNodes().size());
 				if (!res.containsKey("finalsize"))
 					res.put("finalsize", 0L);
-				res.put("finalsize", res.get("finalsize")+(long)pg.getNodes().size());
+				res.put("finalsize", res.get("finalsize")
+						+ (long) pg.getNodes().size());
 				if (!res.containsKey("steps"))
 					res.put("steps", 0L);
-				res.put("steps", res.get("steps")+Bisimulation.steps);
+				res.put("steps", res.get("steps") + Bisimulation.steps);
 				if (!res.containsKey("merge steps"))
 					res.put("merge steps", 0L);
-				res.put("merge steps", res.get("merge steps")+Bisimulation.merge);
+				res.put("merge steps", res.get("merge steps")
+						+ Bisimulation.merge);
 				if (!res.containsKey("sizeRed"))
 					res.put("sizeRed", 0L);
-				res.put("sizeRed", res.get("sizeRed")+Bisimulation.merge);
+				res.put("sizeRed", res.get("sizeRed") + Bisimulation.merge);
 			}
 			for (Entry<String, Long> entry : res.entrySet()) {
-				System.out.println(entry.getKey() + "\t" + entry.getValue() / REPETITIONS);
-				res.put(entry.getKey(), entry.getValue()/REPETITIONS);
+				System.out.println(entry.getKey() + "\t" + entry.getValue()
+						/ REPETITIONS);
+				res.put(entry.getKey(), entry.getValue() / REPETITIONS);
 			}
 			System.out.println();
 			resList.add(res);
 		}
 		for (HashMap<String, Long> map : resList) {
-			System.out.println(map.get("nodes") + " " +map.get("load") + " " +map.get("refinement") + " " +map.get("coarsening") + " " +map.get("invariants") + " " +map.get("total"));
+			System.out.println(map.get("nodes") + " " + map.get("load") + " "
+					+ map.get("refinement") + " " + map.get("coarsening") + " "
+					+ map.get("invariants") + " " + map.get("total"));
 		}
 	}
 
 	private static void record(HashMap<String, Long> res, TimedTask load) {
 		if (!res.containsKey(load.getTask()))
 			res.put(load.getTask(), 0L);
-		res.put(load.getTask(), load.getTime()+res.get(load.getTask()));
+		res.put(load.getTask(), load.getTime() + res.get(load.getTask()));
 	}
 }
