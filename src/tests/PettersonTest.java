@@ -8,12 +8,10 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.management.RuntimeErrorException;
 
 import util.TimedTask;
 
 import algorithms.bisim.Bisimulation;
-import algorithms.graph.GraphUtil;
 import algorithms.graph.StronglyConnectedComponents;
 import invariants.TemporalInvariantSet;
 import model.Graph;
@@ -22,7 +20,6 @@ import model.Partition;
 import model.PartitionGraph;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
-import model.input.NetBuilder;
 import model.input.PetersonReader;
 import model.nets.Event;
 import model.nets.Net;
@@ -39,7 +36,7 @@ public class PettersonTest {
 		// 5);
 		
 		r.readGraphSet("traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
-		 5);
+		 15);
 		
 		//r.readGraphSet("traces/TapioExampleTrace/trace.txt",
 		//		 1);
