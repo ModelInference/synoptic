@@ -106,7 +106,6 @@ public class Partition implements
 						ret.addFulfills(e2);
 					}
 				}
-				ret.addFulfillsNot(otherExpr);
 			}
 		}
 		if (ret == null) {
@@ -134,8 +133,6 @@ public class Partition implements
 		for (MessageEvent m : messages) {
 			if (evts.contains(m))
 				s.addFulfills(m);
-			else
-				s.addFulfillsNot(m);
 		}
 
 		return s;
@@ -183,8 +180,8 @@ public class Partition implements
 			// tr.getSource().getMessages(), tr.getAction(), tr
 			// .getTarget().getAction().getLabel());
 			// tr.setInvariants(rel);
-			System.out.println(s.getFulfills().size() + " "
-					+ s.getFulfillsNot().size());
+			//System.out.println(s.getFulfills().size() + " "
+			//		+ s.getFulfillsNot().size());
 
 			tr.setFrequency((double) s.getFulfills().size()
 					/ (double) tr.getSource().getMessages().size());

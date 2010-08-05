@@ -29,8 +29,8 @@ public class PartitionMerge implements Operation {
 		PartitionSplit split = new PartitionSplit(retained, removed);
 		for (MessageEvent m : removed.getMessages())
 			split.addFulfills(m);
-		for (MessageEvent m : retained.getMessages())
-			split.addFulfillsNot(m);
+	//	for (MessageEvent m : retained.getMessages())
+	//		split.addFulfillsNot(m);
 		retained.addAllMessages(removed.getMessages());
 		stateGraph.remove(removed.getTarget());
 		for (SystemState<Partition> s : removed.getSources()) {

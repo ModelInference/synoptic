@@ -13,20 +13,17 @@ import model.interfaces.IModifiableGraph;
 public class PartitionSplit implements Operation {
 	private Partition partition = null;
 	private Set<MessageEvent> fulfills = null;
-	private Set<MessageEvent> fulfillsNot = null;
 	private Partition removed = null;
 
 	public PartitionSplit(Partition partition) {
 		this.partition = partition;
 		fulfills = new HashSet<MessageEvent>(partition.size());
-		fulfillsNot = new HashSet<MessageEvent>(partition.size());
 	}
 
 	public PartitionSplit(Partition retained, Partition removed) {
 		this.partition = retained;
 		this.removed = removed;
 		fulfills = new HashSet<MessageEvent>(partition.size());
-		fulfillsNot = new HashSet<MessageEvent>(partition.size());
 	}
 
 	public Operation commit(PartitionGraph g,
@@ -36,7 +33,8 @@ public class PartitionSplit implements Operation {
 		Partition newPartition = removed;
 		if (newPartition == null) {
 			newState = new SystemState<Partition>("");
-			newPartition = new Partition(getFulfills(), partition.getSources(), newState);
+			newPartition = new Partition(getFulfills(), partition.getSources(),
+					newState);
 			newState.addSuccessorProvider(newPartition);
 		} else {
 			newPartition = removed;
@@ -50,24 +48,15 @@ public class PartitionSplit implements Operation {
 	}
 
 	public boolean isValid() {
-		return partition != null && fulfills.size() > 0
-				&& fulfillsNot.size() > 0;
+		return partition != null && fulfills.size() > 0 && partition.getMessages().size() > fulfills.size();
 	}
 
 	public String toString() {
-		return fulfills.size() + "/" + fulfillsNot.size();
+		return fulfills.size() + "/" + (partition.getMessages().size()-fulfills.size());
 	}
 
 	public void addFulfills(MessageEvent node) {
 		fulfills.add(node);
-	}
-
-	public void addFulfillsNot(MessageEvent node) {
-		fulfillsNot.add(node);
-	}
-
-	public Set<MessageEvent> getFulfillsNot() {
-		return fulfillsNot;
 	}
 
 	public Set<MessageEvent> getFulfills() {
@@ -81,7 +70,13 @@ public class PartitionSplit implements Operation {
 	public static PartitionSplit onlyFulfills(Partition partition) {
 		PartitionSplit s = new PartitionSplit(partition);
 		s.fulfills = partition.getMessages();
-		s.fulfillsNot = Collections.emptySet();
 		return s;
+	}
+
+	public PartitionMultiSplit incorporate(PartitionSplit candidateSplit) {
+		if (removed == null || candidateSplit.getPartition() != partition)
+			throw new IllegalArgumentException();
+		PartitionMultiSplit multiSplit = new PartitionMultiSplit(this);
+		return multiSplit.incorporate(candidateSplit);
 	}
 }
