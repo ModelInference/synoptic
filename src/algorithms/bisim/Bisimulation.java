@@ -97,9 +97,6 @@ public abstract class Bisimulation {
 			GraphVizExporter.quickExport("output/rounds/0.dot", partitionGraph);
 		}
 		steps = 0;
-		// This keeps track of the splitting done; currently it is not used
-		// anymore.
-		int lastUnsatSize = 0;
 		// These invariants will be satisfied
 		TemporalInvariantSet invariants = partitionGraph.getInvariants();
 
@@ -109,13 +106,22 @@ public abstract class Bisimulation {
 
 		List<RelationPath<Partition>> counterexampleTraces = null;
 		while (unsatisfiedInvariants.size() > 0) {
+			/**
+			 * Stores all splits that cause an invariant to be satisfied,
+			 * indexed by partition to which they are applied.
+			 */
 			LinkedHashMap<Partition, PartitionMultiSplit> splitsToDoByPartition = new LinkedHashMap<Partition, PartitionMultiSplit>();
+			/**
+			 * Stores all invariants for which we have a split that satisfies
+			 * it.
+			 */
 			ArrayList<TemporalInvariant> newlySatisfiedInvariants = new ArrayList<TemporalInvariant>();
-			boolean lastWasSuccessful = false;
 
+			// retrieve the counterexamples.
 			counterexampleTraces = new TemporalInvariantSet(
 					unsatisfiedInvariants).getViolations(partitionGraph);
 
+			// if we have no counterexamples, we are done
 			if (counterexampleTraces == null
 					|| counterexampleTraces.size() == 0) {
 				if (VERBOSE)
@@ -125,6 +131,7 @@ public abstract class Bisimulation {
 				System.out.println("" + counterexampleTraces.size()
 						+ " unsatisfied invariants: " + counterexampleTraces);
 			}
+			// Update the sets with satisfied and unsatisfied invariants.
 			unsatisfiedInvariants.clear();
 			for (RelationPath<Partition> relPath : counterexampleTraces) {
 				unsatisfiedInvariants.add(relPath.invariant);
@@ -133,19 +140,27 @@ public abstract class Bisimulation {
 			satisfiedInvariants.addAll(partitionGraph.getInvariants().getSet());
 			satisfiedInvariants.removeAll(unsatisfiedInvariants);
 
+			/**
+			 * Stores the first valid split. This split will be performed if no
+			 * other split (that would resolve an invariant) is available.
+			 */
 			PartitionSplit arbitrarySplit = null;
-			off: for (RelationPath<Partition> counterexampleTrace : counterexampleTraces) {
+			for (RelationPath<Partition> counterexampleTrace : counterexampleTraces) {
+				// Get the possible splits to resolve this invariant.
 				List<PartitionSplit> candidateSplits = getSplits(
 						counterexampleTrace, partitionGraph);
 				for (PartitionSplit candidateSplit : candidateSplits) {
+					// See if the split is valid
 					if (candidateSplit == null || !candidateSplit.isValid()) {
 						if (VERBOSE)
 							System.out.println("  -- invalid: "
 									+ candidateSplit);
 						continue;
 					}
+					// store away an arbitrary split
 					if (arbitrarySplit == null)
 						arbitrarySplit = candidateSplit;
+					// Perform the split
 					Operation rewindOperation = partitionGraph
 							.apply(candidateSplit);
 					if (DEBUG) {
@@ -153,42 +168,50 @@ public abstract class Bisimulation {
 								+ ".dot", partitionGraph);
 					}
 
-					// Now we must check if we changed something
+					// see if splitting resolved the violation
 					RelationPath<Partition> violation = invariants
 							.getViolation(counterexampleTrace.invariant,
 									partitionGraph);
 
 					// if the invariant has no further violation, we made
-					// progress.
-					// so remember the split as useful.
+					// progress, so the split as marked as useful.
 					if (violation == null) {
+						// If we already have a split for that partition, we
+						// incorporate the new split into it
 						if (splitsToDoByPartition.containsKey(candidateSplit
 								.getPartition())) {
-							splitsToDoByPartition.put(candidateSplit
-									.getPartition(), splitsToDoByPartition.get(
+							splitsToDoByPartition.get(
 									candidateSplit.getPartition()).incorporate(
-									candidateSplit));
+									candidateSplit);
 						} else
 							splitsToDoByPartition.put(candidateSplit
-									.getPartition(), new PartitionMultiSplit(candidateSplit));
+									.getPartition(), new PartitionMultiSplit(
+									candidateSplit));
+						// Remember that we resolved this invariant violation
 						newlySatisfiedInvariants
 								.add(counterexampleTrace.invariant);
 					}
 
+					// rewind for now
 					partitionGraph.apply(rewindOperation);
 				}
 			}
 			if (splitsToDoByPartition.size() == 0) {
+				// we have no splits that make progress. See if we have an arbitrary split.
+				if (arbitrarySplit == null)
+					continue;
 				partitionGraph.apply(arbitrarySplit);
 				if (ESSENTIAL)
 					System.out.println("1 arbitrary split, "
 							+ partitionGraph.getNodes().size()
 							+ " nodes in graph.");
 			} else {
+				// we have splits to do, perform them
 				for (PartitionMultiSplit currentSplit : splitsToDoByPartition
 						.values()) {
 					partitionGraph.apply(currentSplit);
 				}
+				// update invariants
 				satisfiedInvariants.addAll(newlySatisfiedInvariants);
 				unsatisfiedInvariants.removeAll(newlySatisfiedInvariants);
 
@@ -200,20 +223,15 @@ public abstract class Bisimulation {
 							new TemporalInvariantSet(satisfiedInvariants));
 				}
 				if (ESSENTIAL)
-					System.out
-							.println(newlySatisfiedInvariants.size()
-									+ " splits done, "
-									+ partitionGraph.getNodes().size()
-									+ " nodes in graph, "
+					System.out.println(newlySatisfiedInvariants.size()
+							+ " splits done, "
+							+ partitionGraph.getNodes().size()
+							+ " nodes in graph, "
 
-									+ (counterexampleTraces != null ? counterexampleTraces
-											.size()
-											: 0)
-									+ " unsatisfiedInvariants left.");
+							+ unsatisfiedInvariants.size()
+							+ " unsatisfiedInvariants left.");
 			}
 			outer++;
-			if (counterexampleTraces != null)
-				lastUnsatSize = counterexampleTraces.size();
 		}
 
 		if (DEBUG) {
