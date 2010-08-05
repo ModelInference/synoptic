@@ -110,7 +110,7 @@ public class PartitionGraphTest {
 		PartitionSplit split = new PartitionSplit(splitNode);
 		Iterator<MessageEvent> m = splitNode.getMessages().iterator();
 		split.addFulfills(m.next());
-		split.addFulfillsNot(m.next());
+		//split.addFulfillsNot(m.next());
 		Operation rewind = pg.apply(split);
 		print("splitPartitionTop", pg);
 		pg.apply(rewind);
@@ -126,7 +126,7 @@ public class PartitionGraphTest {
 		Iterator<MessageEvent> m = splitNode.getMessages().iterator();
 		PartitionSplit split = new PartitionSplit(splitNode);
 		split.addFulfills(m.next());
-		split.addFulfillsNot(m.next());
+		//split.addFulfillsNot(m.next());
 		Operation rewind = pg.apply(split);
 		print("splitPartitionBottom", pg);
 		pg.apply(rewind);

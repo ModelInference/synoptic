@@ -10,6 +10,7 @@ import java.util.*;
 
 import algorithms.graph.Operation;
 import algorithms.graph.PartitionMerge;
+import algorithms.graph.PartitionMultiSplit;
 import algorithms.graph.PartitionSplit;
 import algorithms.ktail.StateUtil;
 
@@ -108,8 +109,8 @@ public abstract class Bisimulation {
 
 		List<RelationPath<Partition>> counterexampleTraces = null;
 		while (unsatisfiedInvariants.size() > 0) {
-			List<PartitionSplit> splitsToDo = new ArrayList<PartitionSplit>();
-			List<RelationPath<Partition>> splitsToDoTraces = new ArrayList<RelationPath<Partition>>();
+			LinkedHashMap<Partition, PartitionMultiSplit> splitsToDoByPartition = new LinkedHashMap<Partition, PartitionMultiSplit>();
+			ArrayList<TemporalInvariant> newlySatisfiedInvariants = new ArrayList<TemporalInvariant>();
 			boolean lastWasSuccessful = false;
 
 			counterexampleTraces = new TemporalInvariantSet(
@@ -161,32 +162,36 @@ public abstract class Bisimulation {
 					// progress.
 					// so remember the split as useful.
 					if (violation == null) {
-						splitsToDo.add(candidateSplit);
-						splitsToDoTraces.add(counterexampleTrace);
+						if (splitsToDoByPartition.containsKey(candidateSplit
+								.getPartition())) {
+							splitsToDoByPartition.put(candidateSplit
+									.getPartition(), splitsToDoByPartition.get(
+									candidateSplit.getPartition()).incorporate(
+									candidateSplit));
+						} else
+							splitsToDoByPartition.put(candidateSplit
+									.getPartition(), new PartitionMultiSplit(candidateSplit));
+						newlySatisfiedInvariants
+								.add(counterexampleTrace.invariant);
 					}
 
 					partitionGraph.apply(rewindOperation);
 				}
 			}
-			if (splitsToDo.size() == 0) {
+			if (splitsToDoByPartition.size() == 0) {
 				partitionGraph.apply(arbitrarySplit);
 				if (ESSENTIAL)
 					System.out.println("1 arbitrary split, "
 							+ partitionGraph.getNodes().size()
 							+ " nodes in graph.");
 			} else {
-				Set<Partition> splitsDone = new HashSet<Partition>();
-				for (int i = 0; i < splitsToDo.size(); ++i) {
-					PartitionSplit currentSplit = splitsToDo.get(i);
-					if (!splitsDone.contains(currentSplit.getPartition())) {
-						splitsDone.add(currentSplit.getPartition());
-						partitionGraph.apply(currentSplit);
-						satisfiedInvariants
-								.add(splitsToDoTraces.get(i).invariant);
-						unsatisfiedInvariants
-								.remove(splitsToDoTraces.get(i).invariant);
-					}
+				for (PartitionMultiSplit currentSplit : splitsToDoByPartition
+						.values()) {
+					partitionGraph.apply(currentSplit);
 				}
+				satisfiedInvariants.addAll(newlySatisfiedInvariants);
+				unsatisfiedInvariants.removeAll(newlySatisfiedInvariants);
+
 				// handle interleaved merging
 				if (interleavedMerging) {
 					if (VERBOSE)
@@ -196,8 +201,8 @@ public abstract class Bisimulation {
 				}
 				if (ESSENTIAL)
 					System.out
-							.println(splitsDone.size()
-									+ " split(s) done (of "+splitsToDo.size()+"), "
+							.println(newlySatisfiedInvariants.size()
+									+ " splits done, "
 									+ partitionGraph.getNodes().size()
 									+ " nodes in graph, "
 

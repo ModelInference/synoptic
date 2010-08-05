@@ -36,7 +36,7 @@ public class PettersonTest {
 		// 5);
 		
 		r.readGraphSet("traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
-		 15);
+		 75);
 		
 		//r.readGraphSet("traces/TapioExampleTrace/trace.txt",
 		//		 1);
@@ -77,7 +77,7 @@ public class PettersonTest {
 		pg.checkSanity();
 		TimedTask coarsening = new TimedTask("coarsening", 1);
 		System.out.println("Merging Partitions...");
-		//Bisimulation.mergePartitions(pg);
+		Bisimulation.mergePartitions(pg);
 		coarsening.stop();
 		total.stop();
 		System.out.println("Merge done.");
