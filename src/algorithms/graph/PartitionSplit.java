@@ -77,6 +77,7 @@ public class PartitionSplit implements Operation {
 		if (removed == null || candidateSplit.getPartition() != partition)
 			throw new IllegalArgumentException();
 		PartitionMultiSplit multiSplit = new PartitionMultiSplit(this);
-		return multiSplit.incorporate(candidateSplit);
+		multiSplit.incorporate(candidateSplit);
+		return multiSplit;
 	}
 }
