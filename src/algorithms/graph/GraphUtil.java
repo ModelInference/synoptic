@@ -83,7 +83,7 @@ public class GraphUtil {
 			boolean foundTransition = false;
 			for (ITransition<T> t : node.getTransitionsIterator()) {
 				foundTransition = true;
-				builder.connect(map.get(t.getSource()), map.get(t.getTarget()), t.getAction());
+				builder.connect(map.get(t.getSource()), map.get(t.getTarget()), t.getRelation());
 			}
 			if (!foundTransition)
 				builder.setTerminal(map.get(node));
@@ -98,7 +98,7 @@ public class GraphUtil {
 			boolean foundTransition = false;
 			for (ITransition<T> t : node.getTransitionsIterator()) {
 				foundTransition = true;
-				builder.connect(map.get(t.getTarget()), map.get(t.getSource()), t.getAction());
+				builder.connect(map.get(t.getTarget()), map.get(t.getSource()), t.getRelation());
 			}
 			if (!foundTransition)
 				builder.setTerminal(map.get(node));

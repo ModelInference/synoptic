@@ -32,7 +32,7 @@ public class MultiSourceTransition<NodeType> implements IMultiSourceTransition<N
 	}
 
 	@Override
-	public String getAction() {
+	public String getRelation() {
 		return action.getLabel();
 	}
 

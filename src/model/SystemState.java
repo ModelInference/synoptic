@@ -81,9 +81,9 @@ public class SystemState<T extends ITransition<SystemState<T>>> implements
 						final T found = tItr.next();
 						final ITransition<SystemState<T>> transToPart = new Transition<SystemState<T>>(
 								SystemState.this, found.getTarget(), found
-										.getAction());
+										.getRelation());
 						if (seen.add(transToPart)
-								&& (act == null || transToPart.getAction()
+								&& (act == null || transToPart.getRelation()
 										.equals(act)))
 							return transToPart;
 					} else
@@ -161,7 +161,7 @@ public class SystemState<T extends ITransition<SystemState<T>>> implements
 					if (tItr.hasNext()) {
 						final T found = tItr.next();
 						if (seen.add(found)
-								&& (act == null || found.getAction()
+								&& (act == null || found.getRelation()
 										.equals(act)))
 							return found;
 					} else

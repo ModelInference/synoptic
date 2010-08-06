@@ -7,18 +7,25 @@ import java.util.Set;
 
 import util.IterableIterator;
 
-
+/**
+ * This adapter can transform an iterator over messages into an iterator over
+ * transitions.
+ * 
+ * @author Sigurd Schneider
+ * 
+ */
 public class MessageToPartitionIterator implements IterableIterator<Partition> {
 	private final Set<Partition> seen = new LinkedHashSet<Partition>();
 	private final Iterator<MessageEvent> messageIterator;
 	private Partition next = null;
 	private String relation = null;
-	
+
 	public MessageToPartitionIterator(Iterator<MessageEvent> messageIterator) {
 		this.messageIterator = messageIterator;
 	}
-	
-	public MessageToPartitionIterator(Iterator<MessageEvent> messageIterator, String relation) {
+
+	public MessageToPartitionIterator(Iterator<MessageEvent> messageIterator,
+			String relation) {
 		this.messageIterator = messageIterator;
 		this.relation = relation;
 	}
@@ -26,7 +33,9 @@ public class MessageToPartitionIterator implements IterableIterator<Partition> {
 	private Partition getNext() {
 		while (messageIterator.hasNext()) {
 			final Partition found = messageIterator.next().getParent();
-			if (seen.add(found) && (relation == null || found.getAction().equals(relation)))
+			if (seen.add(found)
+					&& (relation == null || found.getRelation()
+							.equals(relation)))
 				return found;
 		}
 		return null;

@@ -32,7 +32,7 @@ public class StateUtil {
 		for (Iterator<? extends ITransition<NodeType>> i1 = s1.getTransitionsIterator(); i1.hasNext();) {
 			ITransition<NodeType> t1 = i1.next();
 			boolean notExistent = true;
-			for (Iterator<? extends ITransition<NodeType>> i2 = s2.getTransitionsIterator(t1.getAction()); i2.hasNext();) {
+			for (Iterator<? extends ITransition<NodeType>> i2 = s2.getTransitionsIterator(t1.getRelation()); i2.hasNext();) {
 				ITransition<NodeType> t2 = i2.next();
 				if (!kEquals(t1.getTarget(), t2.getTarget(), k-1, subsumption)) {
 					return false;
@@ -40,7 +40,7 @@ public class StateUtil {
 				notExistent = false;
 			}
 			if (notExistent) {
-				checkNotThere(s2, t1.getAction());
+				checkNotThere(s2, t1.getRelation());
 				return false;
 			}
 		}
@@ -50,7 +50,7 @@ public class StateUtil {
 			for (Iterator<? extends ITransition<NodeType>> i2 = s2.getTransitionsIterator(); i2.hasNext();) {
 				ITransition<NodeType> t2 = i2.next();
 				boolean notExistent = true;
-				for (Iterator<? extends ITransition<NodeType>> i1 = s1.getTransitionsIterator(t2.getAction()); i1.hasNext();) {
+				for (Iterator<? extends ITransition<NodeType>> i1 = s1.getTransitionsIterator(t2.getRelation()); i1.hasNext();) {
 					ITransition<NodeType> t1 = i1.next();
 					if (!kEquals(t1.getTarget(), t2.getTarget(), k-1, subsumption)) {
 						return false;
@@ -70,7 +70,7 @@ public class StateUtil {
 
 	private static <NodeType extends INode<NodeType>> void checkNotThere(INode<NodeType> s, String action) {
 		for (Iterator<? extends ITransition<NodeType>> i1 = s.getTransitionsIterator(); i1.hasNext();) {
-			if (i1.next().getAction().equals(action)){
+			if (i1.next().getRelation().equals(action)){
 				throw new RuntimeException("inconsistent");
 			}
 		}
