@@ -100,7 +100,7 @@ public class PartitionGraph implements IGraph<Partition> {
 		final Map<String, Partition> prepartitions = new LinkedHashMap<String, Partition>();
 		for (MessageEvent message : messages) {
 			for (ITransition<MessageEvent> t : message.getTransitions())
-				relations.add(t.getAction());
+				relations.add(t.getRelation());
 			if (!prepartitions.containsKey(message.getLabel())) {
 				final Partition partition = new Partition(
 						new LinkedHashSet<MessageEvent>(),
@@ -118,7 +118,7 @@ public class PartitionGraph implements IGraph<Partition> {
 		final Map<String, Partition> prepartitions = new LinkedHashMap<String, Partition>();
 		for (MessageEvent message : messages) {
 			for (ITransition<MessageEvent> t : message.getTransitions())
-				relations.add(t.getAction());
+				relations.add(t.getRelation());
 			if (!prepartitions.containsKey(message.getLabel())) {
 				final Partition partition = new Partition(
 						new LinkedHashSet<MessageEvent>(),

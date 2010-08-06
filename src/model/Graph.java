@@ -80,7 +80,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
 		for (NodeType node : nodes)
 			for (Iterator<? extends ITransition<NodeType>> iter = node
 					.getTransitionsIterator(); iter.hasNext();)
-				cachedRelations.add(iter.next().getAction());
+				cachedRelations.add(iter.next().getRelation());
 		return cachedRelations;
 	}
 

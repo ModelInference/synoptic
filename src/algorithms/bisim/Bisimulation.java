@@ -37,6 +37,11 @@ public abstract class Bisimulation {
 	 */
 	private static final boolean ESSENTIAL = true;
 	/**
+	 * If true, a partition may be split on incoming/outgoing edges at once, if
+	 * both splits resolve the invariant (when considered separately).
+	 */
+	private static final boolean fourWaySplit = true;
+	/**
 	 * Set output to verbose
 	 */
 	private static boolean VERBOSE = false;
@@ -45,9 +50,9 @@ public abstract class Bisimulation {
 	 */
 	private static boolean DEBUG = false;
 	/**
-	 * Consider incoming edges for splitting
+	 * Consider incoming transitions for splitting
 	 */
-	private static boolean incommingEdgeSplit = true;
+	private static boolean incommingTransitionSplit = true;
 	/**
 	 * Coarsen the representation after each successful split (i.e. each split
 	 * that caused a previously unsatisfied invariant to become satisfied. This
@@ -173,6 +178,9 @@ public abstract class Bisimulation {
 							.getViolation(counterexampleTrace.invariant,
 									partitionGraph);
 
+					// rewind for now
+					partitionGraph.apply(rewindOperation);
+					
 					// if the invariant has no further violation, we made
 					// progress, so the split as marked as useful.
 					if (violation == null) {
@@ -190,14 +198,15 @@ public abstract class Bisimulation {
 						// Remember that we resolved this invariant violation
 						newlySatisfiedInvariants
 								.add(counterexampleTrace.invariant);
+						if (!fourWaySplit) {
+							continue;
+						}
 					}
-
-					// rewind for now
-					partitionGraph.apply(rewindOperation);
 				}
 			}
 			if (splitsToDoByPartition.size() == 0) {
-				// we have no splits that make progress. See if we have an arbitrary split.
+				// we have no splits that make progress. See if we have an
+				// arbitrary split.
 				if (arbitrarySplit == null)
 					continue;
 				partitionGraph.apply(arbitrarySplit);
@@ -224,7 +233,7 @@ public abstract class Bisimulation {
 				}
 				if (ESSENTIAL)
 					System.out.println(newlySatisfiedInvariants.size()
-							+ " splits done, "
+							+ " split(s) done, "
 							+ partitionGraph.getNodes().size()
 							+ " nodes in graph, "
 
@@ -247,55 +256,69 @@ public abstract class Bisimulation {
 	 * The original graph is accessed via the Messages (which are nodes in the
 	 * original graph) in the partitions.
 	 * 
-	 * @param relPath
+	 * @param counterexampleTrace
 	 *            - the path to remove
 	 * @param partitionGraph
 	 *            - the graph from which the path shall be removed
 	 * @return a list of partition splits that remove relPath
 	 */
 	private static List<PartitionSplit> getSplits(
-			RelationPath<Partition> relPath, PartitionGraph partitionGraph) {
-		List<PartitionSplit> ret = new ArrayList<PartitionSplit>();
+			RelationPath<Partition> counterexampleTrace,
+			PartitionGraph partitionGraph) {
+		/**
+		 * Holds the return values.
+		 */
+		List<PartitionSplit> candidateSplits = new ArrayList<PartitionSplit>();
+		/**
+		 * The messages (i.e. nodes in the original graph) that are on the
+		 * counterexampleTrace
+		 */
 		Set<MessageEvent> hot = new HashSet<MessageEvent>();
-		hot.addAll(relPath.path.get(0).getMessages());
+		hot.addAll(counterexampleTrace.path.get(0).getMessages());
 		Partition prevPartition = null;
 		Partition nextPartition = null;
 		Partition curPartition = null;
 		if (VERBOSE)
-			System.out.println(relPath.path);
-		for (Partition part : relPath.path) {
+			System.out.println(counterexampleTrace.path);
+		// Walk along the path
+		for (Partition part : counterexampleTrace.path) {
 			if (part == null)
 				throw new RuntimeException("relation path contained null");
 			prevPartition = curPartition;
 			curPartition = nextPartition;
 			nextPartition = part;
 			hot.retainAll(part.getMessages());
+			// if we cannot follow, we found the partition we have to split.
 			if (hot.size() == 0)
 				break;
-			Set<MessageEvent> successors = new HashSet<MessageEvent>();
+			// Compute the sucessor messages
+			Set<MessageEvent> successorMessages = new HashSet<MessageEvent>();
 			for (MessageEvent m : hot)
-				successors.addAll(m.getSuccessors(relPath.invariant
-						.getRelation()));
-			hot = successors;
+				successorMessages.addAll(m
+						.getSuccessors(counterexampleTrace.invariant
+								.getRelation()));
+			hot = successorMessages;
 		}
-		ITransition<Partition> partTrans = curPartition.getTransition(
-				nextPartition, relPath.invariant.getRelation());
-		ITransition<Partition> partTrans2 = null;
+		ITransition<Partition> outgoingTransition = curPartition.getTransition(
+				nextPartition, counterexampleTrace.invariant.getRelation());
+		ITransition<Partition> incommingTransition = null;
 		if (prevPartition != null)
-			partTrans2 = prevPartition.getTransition(curPartition,
-					relPath.invariant.getRelation());
-		if (partTrans != null) {
+			incommingTransition = prevPartition.getTransition(curPartition,
+					counterexampleTrace.invariant.getRelation());
+		if (outgoingTransition != null) {
 			if (VERBOSE)
-				System.out.println(partTrans);
-			ret.add(curPartition.getCandidateDivision(partTrans));
+				System.out.println(outgoingTransition);
+			candidateSplits.add(curPartition
+					.getCandidateDivision(outgoingTransition));
 		}
-		if (partTrans2 != null && incommingEdgeSplit) {
+		if (incommingTransition != null && incommingTransitionSplit) {
 			if (VERBOSE)
-				System.out.println(partTrans2);
-			ret.add(curPartition.getCandidateDivisionReach(prevPartition,
-					partTrans2));
+				System.out.println(incommingTransition);
+			candidateSplits.add(curPartition
+					.getCandidateDivisionBasedOnIncoming(prevPartition,
+							incommingTransition.getRelation()));
 		}
-		return ret;
+		return candidateSplits;
 	}
 
 	/**

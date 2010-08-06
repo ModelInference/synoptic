@@ -36,7 +36,7 @@ public class Transition<StateType> implements ITransition<StateType> {
 	}
 	
 	@Override
-	public String getAction() {
+	public String getRelation() {
 		return action;
 	}
 
@@ -101,6 +101,6 @@ public class Transition<StateType> implements ITransition<StateType> {
 
 	@Override
 	public String toStringConcise() {
-		return getAction();
+		return getRelation();
 	}
 }

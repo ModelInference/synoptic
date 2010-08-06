@@ -25,7 +25,7 @@ public class CascadingStateMerge extends StateMerge {
 		for (Partition a : retained.getSuccessorIterator()) {
 			for (ISuccessorProvider<Partition> sp : retained.getSuccessorProviders()) {
 				for (Partition b : sp.getSuccessorIterator()) {
-					if (a == b || !a.getAction().equals(b.getAction()))
+					if (a == b || !a.getRelation().equals(b.getRelation()))
 						continue;
 					PartitionMerge m = new PartitionMerge(a, b);
 					//System.out.println("merge " + a + " <- " + b);

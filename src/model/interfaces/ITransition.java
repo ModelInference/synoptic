@@ -24,7 +24,7 @@ public interface ITransition<NodeType> {
 	 * get the label of the transition (i.e. the relation)
 	 * @return
 	 */
-	public String getAction();
+	public String getRelation();
 	
 	/**
 	 * Set the target node.

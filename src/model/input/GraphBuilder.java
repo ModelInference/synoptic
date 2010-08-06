@@ -46,7 +46,7 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 					String relation) {
 				Set<EventTransition> filtered = new HashSet<EventTransition>();
 				for (EventTransition m : successors)
-					if (m.getAction().equals(relation))
+					if (m.getRelation().equals(relation))
 						filtered.add(m);
 				return new IterableAdapter<EventTransition>(filtered.iterator());
 			}

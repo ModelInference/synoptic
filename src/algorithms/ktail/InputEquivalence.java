@@ -33,7 +33,7 @@ public class InputEquivalence {
 				"Cannot determine input equivalence on non-trace graph.");
 			// If messages are not the same, the traces are not input
 			// equivalent.
-			if (!t1.getAction().equals(t2.getAction()))
+			if (!t1.getRelation().equals(t2.getRelation()))
 				return false;
 			iIter = t1.getTarget().getTransitionsIterator();
 			jIter = t2.getTarget().getTransitionsIterator();

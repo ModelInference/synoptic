@@ -50,7 +50,7 @@ public class Partition implements
 	}
 
 	@Override
-	public String getAction() {
+	public String getRelation() {
 		return messages.iterator().next().getLabel();
 	}
 
@@ -76,7 +76,7 @@ public class Partition implements
 
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("Partition " + hashCode() + " " + getAction());
+		str.append("Partition " + hashCode() + " " + getRelation());
 		// for (StateWrapper w : messageWrappers) {
 		// str.append(", " + w.label.toString());
 		// }
@@ -115,33 +115,33 @@ public class Partition implements
 	}
 
 	/**
-	 * Split the partition according to an incomming transition from from
-	 * labeled with {@code trans2.getAction()}.
+	 * Split the partition according to an incoming transition from from
+	 * labeled with {@code relation}.
 	 * 
-	 * @param from the partition the transition should be incomming from
-	 * @param trans2 provides the action to consider
+	 * @param previous the partition the transition should be incoming from
+	 * @param relation provides the relation name to consider
 	 * @return returns the resulting split
 	 */
-	public PartitionSplit getCandidateDivisionReach(Partition from,
-			ITransition<Partition> trans2) {
-		PartitionSplit s = new PartitionSplit(this);
-		Set<MessageEvent> evts = new HashSet<MessageEvent>();
-		for (final MessageEvent otherExpr : from.messages) {
-			evts.addAll(otherExpr.getSuccessors(trans2.getAction()));
-			evts.retainAll(messages);
+	public PartitionSplit getCandidateDivisionBasedOnIncoming(Partition previous,
+			String relation) {
+		PartitionSplit candidateSplit = new PartitionSplit(this);
+		Set<MessageEvent> messagesReachableFromPrevious = new HashSet<MessageEvent>();
+		for (final MessageEvent otherExpr : previous.messages) {
+			messagesReachableFromPrevious.addAll(otherExpr.getSuccessors(relation));
+			messagesReachableFromPrevious.retainAll(messages);
 		}
 		for (MessageEvent m : messages) {
-			if (evts.contains(m))
-				s.addFulfills(m);
+			if (messagesReachableFromPrevious.contains(m))
+				candidateSplit.addFulfills(m);
 		}
 
-		return s;
+		return candidateSplit;
 	}
 
 	private static boolean fulfillsStrong(MessageEvent otherExpr,
 			ITransition<Partition> trans) {
 		for (final ITransition<MessageEvent> t : otherExpr.getTransitions())
-			if (t.getAction().equals(trans.getAction())
+			if (t.getRelation().equals(trans.getRelation())
 					&& t.getTarget().getParent().equals(trans.getTarget()))
 				return true;
 		return false;
@@ -215,7 +215,7 @@ public class Partition implements
 						final Relation<Partition> transToPart = new Relation<Partition>(
 								found.getSource().getParent(), found
 										.getTarget().getParent(), found
-										.getAction());
+										.getRelation());
 						if (seen.add(transToPart))
 							return transToPart;
 					} else

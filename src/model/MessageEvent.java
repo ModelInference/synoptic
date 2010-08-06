@@ -69,7 +69,7 @@ public class MessageEvent implements INode<MessageEvent>, IEvent {
 
 	public void addTransition(Relation<MessageEvent> transition) {
 		transitions.add(transition);
-		String action = transition.getAction();
+		String action = transition.getRelation();
 		MessageEvent target = transition.getTarget();
 		List<Relation<MessageEvent>> ref = transitionsByAction.get(action);
 		if (ref == null) {
@@ -96,16 +96,16 @@ public class MessageEvent implements INode<MessageEvent>, IEvent {
 		this.transitions.removeAll(transitions);
 		for (Relation<MessageEvent> transition : transitions) {
 
-			if (transitionsByAction.containsKey(transition.getAction())) {
-				transitionsByAction.get(transition.getAction()).remove(
+			if (transitionsByAction.containsKey(transition.getRelation())) {
+				transitionsByAction.get(transition.getRelation()).remove(
 						transition);
 			}
 
 			if (transitionsByActionAndTarget
-					.containsKey(transition.getAction())
-					&& transitionsByActionAndTarget.get(transition.getAction())
+					.containsKey(transition.getRelation())
+					&& transitionsByActionAndTarget.get(transition.getRelation())
 							.containsKey(transition.getTarget())) {
-				transitionsByActionAndTarget.get(transition.getAction()).get(
+				transitionsByActionAndTarget.get(transition.getRelation()).get(
 						transition.getTarget()).remove(transition);
 			}
 		}
@@ -132,7 +132,7 @@ public class MessageEvent implements INode<MessageEvent>, IEvent {
 	 */
 	public void checkConsistency() {
 		for (ITransition<MessageEvent> t : transitions) {
-			if (!transitionsByAction.get(t.getAction()).contains(t))
+			if (!transitionsByAction.get(t.getRelation()).contains(t))
 				throw new RuntimeException(
 						"inconsistent transitions in message");
 		}
