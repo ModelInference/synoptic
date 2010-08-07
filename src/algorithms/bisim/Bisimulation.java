@@ -79,7 +79,7 @@ public abstract class Bisimulation {
 	 * 
 	 * @param graph
 	 *            the graph from which should be used as initial graph
-	 * @return
+	 * @return the refined graph
 	 * @throws InterruptedException
 	 */
 	public static PartitionGraph computePartitions(IGraph<MessageEvent> graph)

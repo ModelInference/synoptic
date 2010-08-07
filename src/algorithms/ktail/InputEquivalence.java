@@ -17,7 +17,7 @@ public class InputEquivalence {
 	 * 
 	 * @param i
 	 * @param j
-	 * @return
+	 * @return true if {@code i} and {@code j} are input equivalent
 	 */
 	public static <T extends INode<T>>  boolean isInputEquivalent(T i, T j) {
 		Iterator<? extends ITransition<T>> iIter = i.getTransitionsIterator();

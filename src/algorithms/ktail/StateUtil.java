@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import algorithms.graph.StateMerge;
 
-import model.Action;
 import model.Partition;
 import model.PartitionGraph;
 import model.SystemState;
@@ -68,9 +67,16 @@ public class StateUtil {
 	}
 
 
-	private static <NodeType extends INode<NodeType>> void checkNotThere(INode<NodeType> s, String action) {
-		for (Iterator<? extends ITransition<NodeType>> i1 = s.getTransitionsIterator(); i1.hasNext();) {
-			if (i1.next().getRelation().equals(action)){
+	/**
+	 * Check that {@code state} has no outgoing transition labeled with {@code relation}.
+	 * @param <NodeType>
+	 * @param state the state to check
+	 * @param relation the name of the relation
+	 * @throws RuntimeException if transition is there
+	 */
+	private static <NodeType extends INode<NodeType>> void checkNotThere(INode<NodeType> state, String relation) {
+		for (Iterator<? extends ITransition<NodeType>> i1 = state.getTransitionsIterator(); i1.hasNext();) {
+			if (i1.next().getRelation().equals(relation)){
 				throw new RuntimeException("inconsistent");
 			}
 		}
@@ -80,8 +86,8 @@ public class StateUtil {
 	/**
 	 * Merge two states to depth k.
 	 * 
-	 * @param s
-	 * @param k
+	 * @param s1 first state to merge
+	 * @param s2 state to merge first with
 	 */
 	public static void kMerge(PartitionGraph g, SystemState<Partition> s1, SystemState<Partition> s2, int k) {
 		if (k!=1) {

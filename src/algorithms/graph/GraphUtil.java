@@ -1,6 +1,5 @@
 package algorithms.graph;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,10 +24,20 @@ import model.interfaces.ITransition;
 import model.nets.Event;
 import model.nets.Net;
 
+/**
+ * Utility procedures for the graph.
+ * @author Sigurd Schneider
+ *
+ */
 public class GraphUtil {
-	public static Graph<SystemState<Partition>> convertPartitionGraphToStateGraph(PartitionGraph pg) {
+	/**
+	 * Generate the corresponding state graph for a partition graph.
+	 * @param partitionGraph the partition graph
+	 * @return the state graph
+	 */
+	public static Graph<SystemState<Partition>> convertPartitionGraphToStateGraph(PartitionGraph partitionGraph) {
 		Graph<SystemState<Partition>> graph = new Graph<SystemState<Partition>>();
-		Set<Partition> initialPartitions = pg.getInitialNodes();
+		Set<Partition> initialPartitions = partitionGraph.getInitialNodes();
 		final String relation = "";
 
 		for (final Partition p : initialPartitions) {
@@ -56,7 +65,7 @@ public class GraphUtil {
 			graph.addInitial(initial, relation);
 		}
 
-		for (Partition p : pg.getNodes()) {
+		for (Partition p : partitionGraph.getNodes()) {
 			SystemState<Partition> s = new SystemState<Partition>("P-"
 					+ p.getLabel());
 			graph.add(s);
@@ -64,7 +73,7 @@ public class GraphUtil {
 			s.addSuccessorProvider(p);
 		}
 
-		for (Partition m : pg.getNodes()) {
+		for (Partition m : partitionGraph.getNodes()) {
 			for (Iterator<Relation<Partition>> iter = m
 					.getTransitionsIterator(); iter.hasNext();) {
 				ITransition<Partition> t = iter.next();
@@ -75,6 +84,13 @@ public class GraphUtil {
 		return graph;
 	}
 	
+	/**
+	 * Copy a graph to a builder.
+	 * @param <T> the node type of the graph
+	 * @param <U> the node type of the builder
+	 * @param graph the graph to copy from
+	 * @param builder the builder to write to
+	 */
 	public static <T extends INode<T>, U> void copyTo(IGraph<T> graph, IBuilder<U> builder) {
 		HashMap<T, U> map = new HashMap<T, U>();
 		for (T node : graph.getNodes())
@@ -90,6 +106,13 @@ public class GraphUtil {
 		}
 	}
 	
+	/**
+	 * Copy the reverse graph to a Builder.
+	 * @param <T> node type of the graph
+	 * @param <U> node type of the builder
+	 * @param graph the graph to read from
+	 * @param builder the builder to write to
+	 */
 	public static <T extends INode<T>, U> void copyReverseTo(IGraph<T> graph, IBuilder<U> builder) {
 		HashMap<T, U> map = new HashMap<T, U>();
 		for (T node : graph.getNodes())
@@ -105,34 +128,13 @@ public class GraphUtil {
 		}
 	}
 
-	public static void heuristicTransitiveReduction(Graph<MessageEvent> graph, String relation) {
-		TransitiveClosure<MessageEvent> tc = new TransitiveClosure<MessageEvent>(graph, relation);
-		HashSet<ITransition<MessageEvent>> essential = new HashSet<ITransition<MessageEvent>>();
-		boolean change = true;
-		while (change) {
-			Relation<MessageEvent> removed = null;
-			MessageEvent m = null;
-			for (MessageEvent node : graph.getNodes()) {
-				for (Relation<MessageEvent> t : node.getTransitionsIterator()) {
-					if (!essential.contains(t)) {
-						removed = t;
-						m = node;
-						break;
-					}
-				}
-			}
-			if (removed == null)
-				break;
-			m.removeTransitions(Collections.singletonList(removed));
-			
-			TransitiveClosure<MessageEvent> newTc = new TransitiveClosure<MessageEvent>(graph, relation);
-			if (!tc.isEqual(newTc)) {
-				essential.add(removed);
-				m.addTransition(removed);
-			}
-		}
-	}
-
+	
+	/**
+	 * Copies a net to a graph builder.
+	 * @param <T> the node type
+	 * @param net the net to copy from
+	 * @param gBuilder the builder to write to
+	 */
 	public static <T> void copyNetTo(Net net, IBuilder<T> gBuilder) {
 		HashMap<Event, T> map = new HashMap<Event, T>();
 		String relation = "";

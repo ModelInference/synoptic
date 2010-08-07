@@ -5,7 +5,6 @@ package model.interfaces;
  * @author sigurd
  *
  * @param <NodeType> the type of the nodes which are connected by this transition
- * @param <LabelType> the type of the label with which the transition is labeled
  */
 public interface ITransition<NodeType> {
 	/**
@@ -22,7 +21,7 @@ public interface ITransition<NodeType> {
 	
 	/**
 	 * get the label of the transition (i.e. the relation)
-	 * @return
+	 * @return the name of the relation
 	 */
 	public String getRelation();
 	

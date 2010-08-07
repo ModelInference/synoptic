@@ -1,6 +1,5 @@
 package benchmarks;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;

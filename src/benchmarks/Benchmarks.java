@@ -1,27 +1,18 @@
 package benchmarks;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import util.TimedTask;
 
 import algorithms.bisim.Bisimulation;
-import algorithms.graph.StronglyConnectedComponents;
-import invariants.TemporalInvariantSet;
 import model.Graph;
 import model.MessageEvent;
-import model.Partition;
 import model.PartitionGraph;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
 import model.input.PetersonReader;
-import model.nets.Event;
-import model.nets.Net;
 
 public class Benchmarks {
 	private static final int REPETITIONS = 3;

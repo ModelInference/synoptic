@@ -7,11 +7,15 @@ import model.interfaces.IModifiableGraph;
 
 // TODO: Implement Graph merging
 /**
- * Implements merging a Partition Graph into another
+ * Implements merging a Partition Graph into another.
  */
 public class GraphMerge implements Operation {
 	PartitionGraph graph;
 	
+	/**
+	 * Construct a graph merge.
+	 * @param graph the graph to merge with the graph the operation is later applied to.
+	 */
 	public GraphMerge(PartitionGraph graph) {
 		this.graph = graph;
 	}
