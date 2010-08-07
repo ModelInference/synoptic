@@ -4,6 +4,11 @@ import java.util.List;
 
 import model.interfaces.INode;
 
+/**
+ * 
+ * @author Sigurd Schneider
+ *
+ */
 public class AlwaysFollowedInvariant extends BinaryInvariant {
 
 	public AlwaysFollowedInvariant(String typeFrist, String typeSecond,

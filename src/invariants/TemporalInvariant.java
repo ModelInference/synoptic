@@ -3,7 +3,6 @@ package invariants;
 import java.util.List;
 import java.util.Set;
 
-import model.Action;
 import model.interfaces.INode;
 
 /**

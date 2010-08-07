@@ -35,9 +35,9 @@ public class LTLFormula {
 	}
 	
 	/**
-	 * 
-	 * @param formula
-	 * @return
+	 * Augment formula with did and can.
+	 * @param formula an LTL formula
+	 * @return a did/can-LTL formula
 	 */
 	public static String prepare(String formula) {
 		 return prepare(prepare(formula, "did"), "can");

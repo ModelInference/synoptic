@@ -11,39 +11,39 @@ import model.interfaces.IModifiableGraph;
 import model.interfaces.ISuccessorProvider;
 
 /**
- * An operation that splits a state
+ * An operation that splits a state.
  * @author Sigurd Schneider
  *
  */
 public class StateSplit implements Operation {
-	private SystemState<Partition> state = null;
+	private SystemState<Partition> stateToSplit = null;
 	private Set<ISuccessorProvider<Partition>> positives = null;
 	private Set<ISuccessorProvider<Partition>> negatives = null;
-	private SystemState<Partition> removed = null;
+	private SystemState<Partition> stateToInsert = null;
 
 	/**
 	 * Create a state split. 
-	 * @param state the state to be split
+	 * @param stateToSplit the state to be split
 	 * @param positives the successor providers to remain in the state
 	 * @param negatives the successor providers to move to a new state
 	 */
-	public StateSplit(SystemState<Partition> state,
+	public StateSplit(SystemState<Partition> stateToSplit,
 			Set<ISuccessorProvider<Partition>> positives, Set<ISuccessorProvider<Partition>> negatives) {
-		this.state = state;
+		this.stateToSplit = stateToSplit;
 		this.positives = new HashSet<ISuccessorProvider<Partition>>(positives);
 		this.negatives = new HashSet<ISuccessorProvider<Partition>>(negatives);
 	}
 
 	/**
 	 * Creates a state split. (Provided for undo operations)
-	 * @param retained the state that gets split
-	 * @param removed the state that should be introduced newly
+	 * @param stateToSplit the state that gets split
+	 * @param stateToInsert the state that should be introduced newly
 	 */
-	public StateSplit(SystemState<Partition> retained,
-			SystemState<Partition> removed) {
-		this.state = retained;
-		this.removed = removed;
-		positives = removed.getSuccessorProviders();
+	public StateSplit(SystemState<Partition> stateToSplit,
+			SystemState<Partition> stateToInsert) {
+		this.stateToSplit = stateToSplit;
+		this.stateToInsert = stateToInsert;
+		positives = stateToInsert.getSuccessorProviders();
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class StateSplit implements Operation {
 	 * @return the state that gets split
 	 */
 	public SystemState<Partition> getState() {
-		return state;
+		return stateToSplit;
 	}
 
 	/**
@@ -74,16 +74,16 @@ public class StateSplit implements Operation {
 	public Operation commit(PartitionGraph g, IModifiableGraph<Partition> partitionGraph,
 			IModifiableGraph<SystemState<Partition>> stateGraph) {
 		SystemState<Partition> newState = null;
-		if (removed == null) {
+		if (stateToInsert == null) {
 			newState = new SystemState<Partition>("");
 			newState.addSuccessorProviders(getPositive());
 			newState.setParent(getState().getParent());
 			
 		} else {
-			newState = removed;
+			newState = stateToInsert;
 		}
 		stateGraph.add(newState);
 		getState().removeSuccessorProviders(getNegatives());
-		return new StateMerge(state, newState);
+		return new StateMerge(stateToSplit, newState);
 	}
 }

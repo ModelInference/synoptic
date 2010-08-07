@@ -7,8 +7,12 @@ import gov.nasa.ltl.graph.Graph;
 import gov.nasa.ltl.trans.LTL2Buchi;
 import gov.nasa.ltl.trans.ParseErrorException;
 import invariants.ltlchecker.LTLFormula;
-import model.Action;
 
+/**
+ * Class for code that is shared by all binary temporal invariants.
+ * @author Sigurd Schneider
+ *
+ */
 public abstract class BinaryInvariant implements TemporalInvariant {
 	protected String first;
 	protected String second;

@@ -504,7 +504,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			datafields.addAll(e.getStringArguments());
 		}
 		datafieldList.addAll(datafields);
-		for (String s : datafieldList)
+		for (String s : datafieldList) // s intentionally not used
 			datatypes.add("int");
 	}
 

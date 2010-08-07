@@ -16,6 +16,11 @@ import model.input.VectorTime;
 import model.interfaces.INode;
 import model.interfaces.ITransition;
 
+/**
+ * The event class. This class may need some work.
+ * @author Sigurd Schneider
+ *
+ */
 public class MessageEvent implements INode<MessageEvent>, IEvent {
 	private int count;
 	private Partition parent;

@@ -3,7 +3,6 @@ package algorithms.graph;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import model.Action;
 import model.interfaces.IGraph;
 import model.interfaces.INode;
 import model.interfaces.ITransition;

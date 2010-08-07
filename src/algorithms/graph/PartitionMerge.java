@@ -39,9 +39,9 @@ public class PartitionMerge implements Operation {
 	//		split.addFulfillsNot(m);
 		retained.addAllMessages(removed.getMessages());
 		stateGraph.remove(removed.getTarget());
-		for (SystemState<Partition> s : removed.getSources()) {
+		//for (SystemState<Partition> s : removed.getSources()) {
 			//stateGraph.remove(s);
-		}
+		//}
 		removed.removeMessages(removed.getMessages());
 		partitionGraph.remove(removed);
 		//System.out.println("merge rewind: " + split);

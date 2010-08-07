@@ -74,7 +74,7 @@ public class StronglyConnectedComponents<NodeType extends INode<NodeType>> imple
 	/**
 	 * Return the list of SCCs in the graph.
 	 * 
-	 * @return
+	 * @return a list of the strongly connected components
 	 */
 	public List<Set<NodeType>> getSCCs() {
 		return sccs;

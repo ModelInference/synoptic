@@ -98,7 +98,7 @@ import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
  * provides a File menu with an option to save the visible graph as a jpeg file.
  * 
  * @author Tom Nelson
- * 
+ * Edits to display our graphs.
  */
 public class Launcher extends JApplet implements Printable {
 

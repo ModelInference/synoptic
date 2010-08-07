@@ -6,8 +6,18 @@ import model.SystemState;
 import model.interfaces.IModifiableGraph;
 import model.interfaces.ISuccessorProvider;
 
+/**
+ * A merge operation that spawns merges on successors.
+ * @author Sigurd Schneider
+ *
+ */
 public class CascadingStateMerge extends StateMerge {
 
+	/**
+	 * Constructs a cascading state merge.
+	 * @param retained the state retained
+	 * @param removed the state removed
+	 */
 	public CascadingStateMerge(SystemState<Partition> retained,
 			SystemState<Partition> removed) {
 		super(retained, removed);

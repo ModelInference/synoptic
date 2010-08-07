@@ -11,7 +11,7 @@ import model.interfaces.IGraph;
 import model.interfaces.INode;
 import model.interfaces.ITransition;
 /**
- * Topological sort.
+ * Topological sort. Algorithm form wikipedia.
  * @author sigurd
  *
  * @param <NodeType>

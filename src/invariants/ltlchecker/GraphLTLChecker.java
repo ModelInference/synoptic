@@ -34,7 +34,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 	 * Checks the formula after preprocessing it. So it's allowed to have things
 	 * in it like WFAIR(a).
 	 * 
-	 * @param exp
+	 * @param sourceGraph
 	 *            - The expression to check (it has to be evaluated before!)
 	 * @param invariant
 	 *            - the formula to check
