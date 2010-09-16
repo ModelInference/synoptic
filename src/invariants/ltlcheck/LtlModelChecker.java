@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import invariants.TemporalInvariant;
 import gov.nasa.ltl.graph.Graph;
+import gov.nasa.ltl.graph.Node;
+import gov.nasa.ltl.graph.SynchronousProduct;
 import gov.nasa.ltl.trans.ParseErrorException;
 
 public class LtlModelChecker {
@@ -13,28 +15,34 @@ public class LtlModelChecker {
 	 * the graph changes, a new graph object is passed to this method.
 	 */
 	private static HashMap<Graph, Graph> translationCache = new HashMap<Graph, Graph>();
+	//CACHE: cache translated graphs
 
-	public static Counterexample check(Graph ts, TemporalInvariant invariant,
-			IModelCheckingMonitor monitor) throws ParseErrorException {
+	public static Counterexample check(Graph transitionSystem,
+			TemporalInvariant invariant, IModelCheckingMonitor monitor)
+			throws ParseErrorException {
 		assert monitor != null;
 
 		// Generate Did/Can Expanded Graph
-		Graph dcts = ts;
+		Graph didCanTransitionSystem = transitionSystem;
 
 		if (TemporalInvariant.useDIDCAN) {
-			if (translationCache.containsKey(ts)) {
+			if (translationCache.containsKey(transitionSystem)) {
 				monitor.subTask("Adding did/can attributes... (cached)");
-				dcts = translationCache.get(ts);
+				didCanTransitionSystem = translationCache.get(transitionSystem);
 			} else {
 				monitor.subTask("Adding did/can attributes...");
-				dcts = DidCanTranslator.translate(ts);
-				translationCache.put(ts, dcts);
+				didCanTransitionSystem = DidCanTranslator
+						.translate(transitionSystem);
+				translationCache.put(transitionSystem, didCanTransitionSystem);
+			}
+			if (translationCache.size() > 5) {
+				translationCache.clear();
 			}
 		}
 
 		// Remove deadlock
 		monitor.subTask("Massaging deadlock states...");
-		GraphTransformations.removeDeadlock(dcts);
+		GraphTransformations.removeDeadlock(didCanTransitionSystem);
 
 		// Generate Buchi Automata for negated LTL formula
 		monitor.subTask("Generate Buchi automaton...");
@@ -46,7 +54,8 @@ public class LtlModelChecker {
 		// Generate Product Automata of Did/Can Expanded Graph and Buchi
 		// Automata of LTL formula
 		monitor.subTask("Generate product automaton...");
-		final GeneralGraph pa = ProductTranslator.translate(dcts, ba);
+		final GeneralGraph pa = ProductTranslator.translate(
+				didCanTransitionSystem, ba);
 
 		// Check Property via reachable cycle detection
 		monitor.subTask("Checking property...");
@@ -54,5 +63,6 @@ public class LtlModelChecker {
 		pc.run();
 
 		return pc.getCounterexample();
+
 	}
 }

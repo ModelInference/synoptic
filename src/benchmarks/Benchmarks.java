@@ -20,7 +20,7 @@ public class Benchmarks {
 	public static void main(String[] args) throws Exception {
 		GraphVizExporter e = new GraphVizExporter();
 		ArrayList<Integer> list = new ArrayList<Integer>();
-		for (int i = 15; i < 70; i += 10) {
+		for (int i = 15; i < 150; i += 15) {
 			list.add(i);
 		}
 		ArrayList<HashMap<String, Long>> resList = new ArrayList<HashMap<String, Long>>();

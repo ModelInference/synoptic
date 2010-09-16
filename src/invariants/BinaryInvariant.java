@@ -17,6 +17,7 @@ public abstract class BinaryInvariant implements TemporalInvariant {
 	protected String first;
 	protected String second;
 	protected String relation;
+	//CACHE:
 	private Graph automaton;
 
 	public BinaryInvariant(String typeFrist, String typeSecond, String relation) {

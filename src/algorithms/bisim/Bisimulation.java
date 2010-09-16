@@ -42,6 +42,10 @@ public abstract class Bisimulation {
 	 */
 	private static final boolean fourWaySplit = true;
 	/**
+	 * Set to combine all candidate splits for each partition into a multi split.
+	 */
+	private static final boolean combineCandidates = false;
+	/**
 	 * Set output to verbose
 	 */
 	private static boolean VERBOSE = false;
@@ -149,25 +153,38 @@ public abstract class Bisimulation {
 			 * Stores the first valid split. This split will be performed if no
 			 * other split (that would resolve an invariant) is available.
 			 */
-			PartitionSplit arbitrarySplit = null;
+			Operation arbitrarySplit = null;
 			for (RelationPath<Partition> counterexampleTrace : counterexampleTraces) {
 				// Get the possible splits to resolve this invariant.
 				List<PartitionSplit> candidateSplits = getSplits(
 						counterexampleTrace, partitionGraph);
-				for (PartitionSplit candidateSplit : candidateSplits) {
-					// See if the split is valid
-					if (candidateSplit == null || !candidateSplit.isValid()) {
-						if (VERBOSE)
-							System.out.println("  -- invalid: "
-									+ candidateSplit);
+				PartitionMultiSplit combinedSplit = null;
+
+				if (combineCandidates) {
+					for (PartitionSplit candidateSplit : candidateSplits) {
+						if (candidateSplit == null || !candidateSplit.isValid()) {
+							System.out.println("Skipping invalid source: " + candidateSplit);
+							continue;
+						}
+						if (combinedSplit == null)
+							combinedSplit = new PartitionMultiSplit(
+									candidateSplit);
+						else 
+							combinedSplit.incorporate(candidateSplit);
+					}
+					if (combinedSplit == null) {
+						System.out.println("No valid sources available.");
 						continue;
 					}
-					// store away an arbitrary split
+					if (!combinedSplit.isValid()) {
+						System.out.println("Combined split is invalid.");
+						continue;
+					}
 					if (arbitrarySplit == null)
-						arbitrarySplit = candidateSplit;
-					// Perform the split
+						arbitrarySplit = combinedSplit;
+
 					Operation rewindOperation = partitionGraph
-							.apply(candidateSplit);
+							.apply(combinedSplit);
 					if (DEBUG) {
 						GraphVizExporter.quickExport("output/rounds/" + outer
 								+ ".dot", partitionGraph);
@@ -180,26 +197,76 @@ public abstract class Bisimulation {
 
 					// rewind for now
 					partitionGraph.apply(rewindOperation);
-					
+
 					// if the invariant has no further violation, we made
 					// progress, so the split as marked as useful.
 					if (violation == null) {
 						// If we already have a split for that partition, we
 						// incorporate the new split into it
-						if (splitsToDoByPartition.containsKey(candidateSplit
+						if (splitsToDoByPartition.containsKey(combinedSplit
 								.getPartition())) {
+							System.out.println("recombining");
 							splitsToDoByPartition.get(
-									candidateSplit.getPartition()).incorporate(
-									candidateSplit);
+									combinedSplit.getPartition()).incorporate(
+									combinedSplit);
 						} else
-							splitsToDoByPartition.put(candidateSplit
-									.getPartition(), new PartitionMultiSplit(
-									candidateSplit));
-						// Remember that we resolved this invariant violation
+							splitsToDoByPartition.put(combinedSplit
+									.getPartition(), combinedSplit);
+						// Remember that we resolved this invariant
+						// violation
 						newlySatisfiedInvariants
 								.add(counterexampleTrace.invariant);
-						if (!fourWaySplit) {
+					}
+				} else {
+					for (PartitionSplit candidateSplit : candidateSplits) {
+						// See if the split is valid
+						if (candidateSplit == null || !candidateSplit.isValid()) {
+							if (VERBOSE)
+								System.out.println("  -- invalid: "
+										+ candidateSplit);
 							continue;
+						}
+						// store away an arbitrary split
+						if (arbitrarySplit == null)
+							arbitrarySplit = candidateSplit;
+						// Perform the split
+						Operation rewindOperation = partitionGraph
+								.apply(candidateSplit);
+						if (DEBUG) {
+							GraphVizExporter.quickExport("output/rounds/"
+									+ outer + ".dot", partitionGraph);
+						}
+
+						// see if splitting resolved the violation
+						RelationPath<Partition> violation = invariants
+								.getViolation(counterexampleTrace.invariant,
+										partitionGraph);
+
+						// rewind for now
+						partitionGraph.apply(rewindOperation);
+
+						// if the invariant has no further violation, we made
+						// progress, so the split as marked as useful.
+						if (violation == null) {
+							// If we already have a split for that partition, we
+							// incorporate the new split into it
+							if (splitsToDoByPartition
+									.containsKey(candidateSplit.getPartition())) {
+								splitsToDoByPartition.get(
+										candidateSplit.getPartition())
+										.incorporate(candidateSplit);
+							} else
+								splitsToDoByPartition
+										.put(candidateSplit.getPartition(),
+												new PartitionMultiSplit(
+														candidateSplit));
+							// Remember that we resolved this invariant
+							// violation
+							newlySatisfiedInvariants
+									.add(counterexampleTrace.invariant);
+							if (!fourWaySplit) {
+								continue;
+							}
 						}
 					}
 				}
@@ -207,13 +274,15 @@ public abstract class Bisimulation {
 			if (splitsToDoByPartition.size() == 0) {
 				// we have no splits that make progress. See if we have an
 				// arbitrary split.
-				if (arbitrarySplit == null)
+				if (arbitrarySplit == null) {
+					System.out.println("no valid split available, recomputing.");
 					continue;
+				}
 				partitionGraph.apply(arbitrarySplit);
 				if (ESSENTIAL)
 					System.out.println("1 arbitrary split, "
 							+ partitionGraph.getNodes().size()
-							+ " nodes in graph.");
+							+ " nodes in graph. Split is: " + arbitrarySplit);
 			} else {
 				// we have splits to do, perform them
 				for (PartitionMultiSplit currentSplit : splitsToDoByPartition

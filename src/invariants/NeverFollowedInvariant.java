@@ -17,7 +17,10 @@ public class NeverFollowedInvariant extends BinaryInvariant {
 
 	@Override
 	public String getLTLString() {
-		return "[](did(" + first + ") -> X([] !did(" + second + ")))";
+		if (useDIDCAN)
+			return "[](did(" + first + ") -> X([] !(did(" + second + "))))";
+		else
+			return "[](\"" + first + "\" -> X([] !(\"" + second + "\")))";
 	}
 
 	private <T extends INode<T>> List<T> shortenImp(boolean seen, int len, List<T> trace) {

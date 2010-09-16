@@ -4,6 +4,7 @@ import gov.nasa.ltl.graph.Edge;
 import gov.nasa.ltl.graph.Graph;
 import gov.nasa.ltl.graph.Node;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class ProductTranslator {
 				for (Edge dcts_edge : dcts_from.getOutgoingEdges()) {
 					Node dcts_to = dcts_edge.getNext();
 					String alpha = dcts_edge.getGuard();
-					List<AtomicProposition> dcts_to_label = (List<AtomicProposition>) dcts_to.getAttribute("label");
+					List<AtomicProposition> dcts_to_label = getLabel(dcts_to, dcts_edge);
 
 					// iterate over all outgoing edges of buchi automata node
 					for (Edge ba_edge : ba_from.getOutgoingEdges()) {
@@ -93,7 +94,8 @@ public class ProductTranslator {
 					// BA from node must be in Q0 !!!
 					if (edge.getSource() == ba.getInit()) {
 						Conjunction conj = (Conjunction)edge.getAttribute("parsedaction");
-						List<AtomicProposition> label = (List<AtomicProposition>) dcts_node.getAttribute("label");
+						List<AtomicProposition> label = getLabel(dcts_node, null);
+						
 						if (conj.allows(label)) {
 							p.getInitialNodes().add(p_states.get(key));
 							continue;
@@ -104,5 +106,13 @@ public class ProductTranslator {
 		}
 
 		return p;
+	}
+
+	private static List<AtomicProposition> getLabel(Node dcts_to, Edge dcts_edge) {
+		List<AtomicProposition> dcts_to_label = (List<AtomicProposition>) dcts_to.getAttribute("label");
+		if (dcts_to_label == null) {
+			dcts_to_label = Collections.singletonList(new AtomicProposition(dcts_edge.getAction(), AtomicProposition.PropositionType.Unknown));
+		}
+		return dcts_to_label;
 	}
 }

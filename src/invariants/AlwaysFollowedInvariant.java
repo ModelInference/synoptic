@@ -23,7 +23,10 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
 
 	@Override
 	public String getLTLString() {
-		return "[](did(" + first + ") -> <" + "> did(" + second + ")))";
+		if (useDIDCAN)
+			return "[](did(" + first + ") -> <" + "> did(" + second + ")))";
+		else
+			return "[](\""+first+"\" -> (<>\""+second+"\"))";
 	}
 
 	@Override
