@@ -3,6 +3,8 @@ algorithms.graph
 algorithms.ktail
 benchmarks
 daikonizer
+gov.nasa.ltl.graph
+gov.nasa.ltl.trans
 gui
 invariants
 invariants.ltlcheck
