@@ -1,6 +1,7 @@
 package invariants.ltlcheck;
 
 import java.util.*;
+
 import gov.nasa.ltl.graph.*;
 
 public class PersistenceChecker
@@ -18,6 +19,13 @@ public class PersistenceChecker
 	{
 		super();
 		this.ir = g.getInitialNodes();
+	}
+	
+	public PersistenceChecker(Graph g)
+	{
+		super();
+		this.ir = new HashSet<Node>();
+		this.ir.add(g.getInit());
 	}
 	
 	public void run()

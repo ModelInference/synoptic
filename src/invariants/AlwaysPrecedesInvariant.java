@@ -12,12 +12,15 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
 	}
 
 	public String toString() {
-		return first + " AlwaysPrecedes("+relation+") " + second;
+		return first + " AlwaysPrecedes(" + relation + ") " + second;
 	}
 
 	@Override
 	public String getLTLString() {
-		return "!(did(" + second + ")) W (did(" + first + "))";
+		if (useDIDCAN)
+			return "(<>(did(second)))->((!did(first)) U did(second))";
+		else
+			return "(<>(second))->((!first) U second)";
 	}
 
 	private <T extends INode<T>> List<T> shortenImp(boolean seen, int len,
@@ -28,15 +31,15 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
 		if (message.getLabel().equals(first))
 			seen = true;
 		if (message.getLabel().equals(second) && !seen)
-			return trace.subList(0, len+1);
-		return shortenImp(seen, len+1, trace);
+			return trace.subList(0, len + 1);
+		return shortenImp(seen, len + 1, trace);
 	}
 
 	@Override
 	public <T extends INode<T>> List<T> shorten(List<T> trace) {
 		return shortenImp(false, 0, trace);
 	}
-	
+
 	@Override
 	public String getShortName() {
 		return "AP";

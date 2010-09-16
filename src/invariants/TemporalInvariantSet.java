@@ -20,6 +20,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import util.TimedTask;
+
 import daikon.ValueTuple;
 import daikon.inv.Invariant;
 import daikon.inv.InvariantStatus;
@@ -44,11 +46,19 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	 */
 	public static boolean generateStructuralInvariants = false;
 	LinkedHashSet<TemporalInvariant> invariants = new LinkedHashSet<TemporalInvariant>();
-	static boolean DEBUG = false;
-	
+	static final boolean DEBUG = false;
+	/**
+	 * Enable timing output
+	 */
+	static final boolean BENCHMARK = true;
+	/**
+	 * Model check that every mined invariant actually holds.
+	 */
+	static final boolean DOUBLECKECK_MINING = true;
+
 	public TemporalInvariantSet() {
 	}
-	
+
 	public TemporalInvariantSet(Set<TemporalInvariant> invariants) {
 		this.invariants.addAll(invariants);
 	}
@@ -104,7 +114,8 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		}
 	}
 
-	public <T extends INode<T>> RelationPath<T> getViolation(TemporalInvariant inv, IGraph<T> g) {
+	public <T extends INode<T>> RelationPath<T> getViolation(
+			TemporalInvariant inv, IGraph<T> g) {
 		RelationPath<T> r = new RelationPath<T>();
 		GraphLTLChecker<T> c = new GraphLTLChecker<T>();
 		try {
@@ -120,9 +131,8 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				// System.out.println(i.toString() + trace);
 				r.path = inv.shorten(trace);
 				if (r.path == null) {
-					throw new RuntimeException(
-							"shortening returned null for " + inv
-									+ " and trace " + trace);
+					throw new RuntimeException("shortening returned null for "
+							+ inv + " and trace " + trace);
 				}
 				// System.out.println(r.path);
 			}
@@ -131,7 +141,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		}
 		return r;
 	}
-	
+
 	public <T extends INode<T>> List<RelationPath<T>> getViolations(IGraph<T> g) {
 		List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
 		GraphLTLChecker<T> c = new GraphLTLChecker<T>();
@@ -149,7 +159,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				List<T> trace = c.convertCounterexample(ce);
 				if (trace != null) {
 					// System.out.println(i.toString() + trace);
-					//r.path = i.shorten(trace);
+					// r.path = i.shorten(trace);
 					r.path = trace;
 					if (r.path == null) {
 						throw new RuntimeException(
@@ -219,6 +229,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				e.printStackTrace();
 			}
 		}
+		TimedTask itc = new TimedTask("invariants_transitive_closure", 1);
 		AllRelationsTransitiveClosure<T> transitiveClosure = new AllRelationsTransitiveClosure<T>(
 				g);
 		if (DEBUG) {
@@ -229,26 +240,67 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			v.exportPng(new File("output/post.dot"));
 		}
 		// get overapproximation
+		itc.stop();
+		if (BENCHMARK)
+			System.out.println(itc);
+		TimedTask io = new TimedTask("invariants_approximation", 1);
 		TemporalInvariantSet overapproximatedInvariantsSet = extractInvariantsForAllRelations(
 				g, transitiveClosure);
-		List<RelationPath<T>> violations = overapproximatedInvariantsSet
-				.getViolations(g);
-		if (violations == null)
-			return overapproximatedInvariantsSet;
-		// Remove all invariants that do not hold
-		for (RelationPath<T> i : violations) {
-			overapproximatedInvariantsSet.invariants.remove(i);
+		io.stop();
+		if (BENCHMARK)
+			System.out.println(io);
+		int overapproximatedInvariantsSetSize = overapproximatedInvariantsSet
+				.size();
+		TimedTask iri = new TimedTask("invariants_remove_invalid", 1);
+		if (DOUBLECKECK_MINING) {
+			List<RelationPath<T>> violations = overapproximatedInvariantsSet
+					.getViolations(g);
+			if (violations == null) {
+				iri.stop();
+				System.out.println(iri);
+				printStats(g, overapproximatedInvariantsSet,
+						overapproximatedInvariantsSetSize);
+				return overapproximatedInvariantsSet;
+			}
+			// Remove all invariants that do not hold
+			for (RelationPath<T> i : violations) {
+				overapproximatedInvariantsSet.invariants.remove(i);
+			}
 		}
+		iri.stop();
+		if (BENCHMARK)
+			System.out.println(iri);
+		printStats(g, overapproximatedInvariantsSet,
+				overapproximatedInvariantsSetSize);
 		return overapproximatedInvariantsSet;
+	}
+
+	private static <T extends INode<T>> void printStats(IGraph<T> g,
+			TemporalInvariantSet overapproximatedInvariantsSet,
+			int overapproximatedInvariantsSetSize) {
+		Set<String> labels = new HashSet<String>();
+		for (T n : g.getNodes())
+			labels.add(n.getLabel());
+		int possibleInvariants = 3 /* invariant types */* labels.size()
+				* labels.size() /* reflexive invariants are allowed */;
+		int percentReduction = 100 - (overapproximatedInvariantsSetSize * 100 / possibleInvariants);
+		System.out.println("" + overapproximatedInvariantsSet.size()
+				+ " true invariants, approximation guessed "
+				+ overapproximatedInvariantsSetSize
+				+ ", max possible invariants " + possibleInvariants + " ("
+				+ percentReduction + "% reduction through approximation).");
 	}
 
 	/**
 	 * Extract invariants for all relations, iteratively. Since we are not
 	 * considering invariants over multiple relations, this is sufficient.
 	 * 
-	 * @param <T> the node type of the graph
-	 * @param g the graph
-	 * @param tcs the transitive closure to mine invariants from
+	 * @param <T>
+	 *            the node type of the graph
+	 * @param g
+	 *            the graph
+	 * @param tcs
+	 *            the transitive closure to mine invariants from
 	 * @return the mined invariants
 	 */
 	private static <T extends INode<T>> TemporalInvariantSet extractInvariantsForAllRelations(
@@ -261,11 +313,17 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	}
 
 	/**
-	 * Extract an overapproximated set of invariants from the transitive closure {@code tc} of the graph {@code g}. 
-	 * @param <T> the node type of the graph
-	 * @param g the graph
-	 * @param tc the transitive closure (of {@code g}) to mine invariants from 
-	 * @param relation the relation to consider for the invariants
+	 * Extract an overapproximated set of invariants from the transitive closure
+	 * {@code tc} of the graph {@code g}.
+	 * 
+	 * @param <T>
+	 *            the node type of the graph
+	 * @param g
+	 *            the graph
+	 * @param tc
+	 *            the transitive closure (of {@code g}) to mine invariants from
+	 * @param relation
+	 *            the relation to consider for the invariants
 	 * @return the overapproximated set of invariants
 	 */
 	private static <T extends INode<T>> TemporalInvariantSet extractInvariants(
@@ -286,26 +344,26 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				boolean neverFollowed = true;
 				boolean alwaysFollowedBy = true;
 				boolean alwaysPreceded = true;
-				for (T m1 : partitions.get(label1)) {
+				for (T node1 : partitions.get(label1)) {
 					boolean followerFound = false;
 					boolean predecessorFound = false;
-					for (T n1 : partitions.get(label2)) {
-						if (tc.isReachable(m1, n1)) {
+					for (T node2 : partitions.get(label2)) {
+						if (tc.isReachable(node1, node2)) {
 							neverFollowed = false;
 							followerFound = true;
 						}
-						if (tc.isReachable(n1, m1)) {
+						if (tc.isReachable(node2, node1)) {
 							predecessorFound = true;
-							hasPredecessor.add(m1);
-							isPredecessor.add(n1);
+							hasPredecessor.add(node1);
+							isPredecessor.add(node2);
 						} else
-							isNoPredecessor.add(n1);
+							isNoPredecessor.add(node2);
 					}
 					if (!followerFound)
 						alwaysFollowedBy = false;
 					if (!predecessorFound) {
 						alwaysPreceded = false;
-						hasNoPredecessor.add(m1);
+						hasNoPredecessor.add(node1);
 					}
 				}
 				if (neverFollowed)
@@ -504,7 +562,8 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			datafields.addAll(e.getStringArguments());
 		}
 		datafieldList.addAll(datafields);
-		for (String s : datafieldList) // s intentionally not used
+		for (String s : datafieldList)
+			// s intentionally not used
 			datatypes.add("int");
 	}
 
@@ -545,7 +604,8 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		for (TemporalInvariant i : invariants) {
 			for (String label : i.getPredicates()) {
 				if (!messageMap.containsKey(label))
-					messageMap.put(label, new MessageEvent(new Action(label), 0));
+					messageMap.put(label,
+							new MessageEvent(new Action(label), 0));
 			}
 		}
 
@@ -554,8 +614,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 					&& (shortName == null || i.getShortName().equals(shortName))) {
 				BinaryInvariant bi = (BinaryInvariant) i;
 				messageMap.get(bi.getFirst()).addTransition(
-						messageMap.get(bi.getSecond()),
-						bi.getShortName());
+						messageMap.get(bi.getSecond()), bi.getShortName());
 			}
 		}
 

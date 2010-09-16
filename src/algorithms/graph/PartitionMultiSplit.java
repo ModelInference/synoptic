@@ -44,11 +44,17 @@ public class PartitionMultiSplit implements Operation {
 			IModifiableGraph<SystemState<Partition>> stateGraph) {
 		// We have to remove one of the sets, because the partition currently in
 		// the graph will hold exactly that set of message events.
-		partitioning.remove(0);
+		boolean skippedFirst = false;
+		ArrayList<Partition> newPartitions = new  ArrayList<Partition>();
 		for (Set<MessageEvent> set : partitioning) {
+			if (!skippedFirst) {
+				skippedFirst = true;
+				continue;
+			}
 			SystemState<Partition> newState = new SystemState<Partition>("");
 			Partition newPartition = new Partition(set, partition.getSources(),
 					newState);
+			newPartitions.add(newPartition);
 			newState.addSuccessorProvider(newPartition);
 			partition.removeMessages(set);
 			newPartition.addAllMessages(set);
@@ -56,7 +62,7 @@ public class PartitionMultiSplit implements Operation {
 			stateGraph.add(newState);
 		}
 		g.checkSanity();
-		return null;
+		return new PartitionMultiMerge(partition, newPartitions);
 	}
 
 	@Override
@@ -74,7 +80,8 @@ public class PartitionMultiSplit implements Operation {
 	 * of partitions this multi spit creates (although in practice, newly
 	 * introduced partitions are often empty, and thus discarded)
 	 * 
-	 * @param split the split to incorporate
+	 * @param split
+	 *            the split to incorporate
 	 */
 	public void incorporate(PartitionSplit split) {
 		if (split.getPartition() != partition)
@@ -92,5 +99,42 @@ public class PartitionMultiSplit implements Operation {
 			if (iter.next().size() == 0)
 				iter.remove();
 		}
+	}
+
+	/**
+	 * Gets the partition that will be split.
+	 * @return the partition that will be split
+	 */
+	public Partition getPartition() {
+		return this.partition;
+	}
+
+	/**
+	 * Incorporates a partition multi split.
+	 * @param split the multi split to incorporate
+	 */
+	public void incorporate(PartitionMultiSplit split) {
+		if (split.getPartition() != partition)
+			throw new IllegalArgumentException();
+		ArrayList<Set<MessageEvent>> newSets = new ArrayList<Set<MessageEvent>>();
+		for (Set<MessageEvent> set : partitioning) {
+			for (Set<MessageEvent> otherSet : split.partitioning) {
+				Set<MessageEvent> newSet = new HashSet<MessageEvent>(set);
+				set.removeAll(otherSet);
+				newSet.retainAll(otherSet);
+				newSets.add(newSet);
+			}
+		}
+		partitioning.addAll(newSets);
+		for (Iterator<Set<MessageEvent>> iter = partitioning.iterator(); iter
+				.hasNext();) {
+			if (iter.next().size() == 0)
+				iter.remove();
+		}
+		System.out.println(partitioning);
+	}
+
+	public boolean isValid() {
+		return partitioning.size() > 1;
 	}
 }

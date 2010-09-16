@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import model.Action;
 import model.export.GraphVizExporter;
 import model.interfaces.IGraph;
 import model.interfaces.INode;
@@ -27,8 +26,16 @@ import gov.nasa.ltl.trans.ParseErrorException;
 
 public class GraphLTLChecker<T extends INode<T>> {
 	private static final boolean DEBUG = false;
+	/**
+	 * Cache for that last target graphs.
+	 */
 	private HashMap<String, Graph> lastTargetGraph = new HashMap<String, Graph>();
+	//CACHE:
+	/**
+	 * Cache for the last source graphs.
+	 */
 	private HashMap<String, IGraph<T>> lastSourceGraph = new HashMap<String, IGraph<T>>();
+	//CACHE:
 
 	/**
 	 * Checks the formula after preprocessing it. So it's allowed to have things
@@ -62,6 +69,13 @@ public class GraphLTLChecker<T extends INode<T>> {
 				&& lastSourceGraph.get(relation).equals(sourceGraph)) {
 			targetGraph = lastTargetGraph.get(relation);
 		}
+		
+
+		if (lastSourceGraph.size() > 5) {
+			lastSourceGraph.clear();
+			lastTargetGraph.clear();
+		}
+		
 
 		if (targetGraph == null) {
 			monitor.subTask("Building CCS Graph...");

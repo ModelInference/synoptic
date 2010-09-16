@@ -36,7 +36,7 @@ public class PettersonTest {
 		// 5);
 		
 		r.readGraphSet("traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
-		 15);
+		 5);
 		
 		//r.readGraphSet("traces/TapioExampleTrace/trace.txt",
 		//		 1);
@@ -57,6 +57,7 @@ public class PettersonTest {
 		System.out.println("Creating Partition Graph...");
 		PartitionGraph pg = new PartitionGraph(g, true);
 		TemporalInvariantSet s = pg.getInvariants();
+		System.out.println("InvSize: " + s.size());
 		invariants.stop();
 		e.exportAsDotAndPng("output/peterson/invariants.dot", s
 				.getInvariantGraph(null));
