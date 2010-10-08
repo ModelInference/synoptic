@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import model.Partition;
 import model.PartitionGraph;
-import model.SystemState;
 import model.interfaces.IModifiableGraph;
 /**
  * An operation that provides a multi merge, i.e. merging multiple partitions into another partition.
@@ -28,11 +27,9 @@ public class PartitionMultiMerge implements Operation {
 
 	@Override
 	public Operation commit(PartitionGraph g,
-			IModifiableGraph<Partition> partitionGraph,
-			IModifiableGraph<SystemState<Partition>> stateGraph) {
+			IModifiableGraph<Partition> partitionGraph) {
 		for (Partition removed : partitionsToMerge) {
 			retainedPartition.addAllMessages(removed.getMessages());
-			stateGraph.remove(removed.getTarget());
 			removed.removeMessages(removed.getMessages());
 			partitionGraph.remove(removed);
 		}

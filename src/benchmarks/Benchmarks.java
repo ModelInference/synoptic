@@ -79,14 +79,14 @@ public class Benchmarks {
 						+ (long) pg.getNodes().size());
 				if (!res.containsKey("steps"))
 					res.put("steps", 0L);
-				res.put("steps", res.get("steps") + Bisimulation.steps);
+				res.put("steps", res.get("steps") + Bisimulation.numSplitSteps);
 				if (!res.containsKey("merge steps"))
 					res.put("merge steps", 0L);
 				res.put("merge steps", res.get("merge steps")
-						+ Bisimulation.merge);
+						+ Bisimulation.numMergeSteps);
 				if (!res.containsKey("sizeRed"))
 					res.put("sizeRed", 0L);
-				res.put("sizeRed", res.get("sizeRed") + Bisimulation.merge);
+				res.put("sizeRed", res.get("sizeRed") + Bisimulation.numMergeSteps);
 			}
 			for (Entry<String, Long> entry : res.entrySet()) {
 				System.out.println(entry.getKey() + "\t" + entry.getValue()

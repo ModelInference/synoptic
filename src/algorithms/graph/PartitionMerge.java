@@ -2,7 +2,6 @@ package algorithms.graph;
 
 import model.MessageEvent;
 import model.Partition;
-import model.SystemState;
 import model.PartitionGraph;
 import model.interfaces.IModifiableGraph;
 
@@ -28,8 +27,7 @@ public class PartitionMerge implements Operation {
 	}
 	
 	@Override
-	public Operation commit(PartitionGraph g, IModifiableGraph<Partition> partitionGraph,
-			IModifiableGraph<SystemState<Partition>> stateGraph) {
+	public Operation commit(PartitionGraph g, IModifiableGraph<Partition> partitionGraph) {
 		int retainedSize = retained.size();
 		int removedSize = removed.size();
 		PartitionSplit split = new PartitionSplit(retained, removed);
@@ -38,10 +36,6 @@ public class PartitionMerge implements Operation {
 	//	for (MessageEvent m : retained.getMessages())
 	//		split.addFulfillsNot(m);
 		retained.addAllMessages(removed.getMessages());
-		stateGraph.remove(removed.getTarget());
-		//for (SystemState<Partition> s : removed.getSources()) {
-			//stateGraph.remove(s);
-		//}
 		removed.removeMessages(removed.getMessages());
 		partitionGraph.remove(removed);
 		//System.out.println("merge rewind: " + split);

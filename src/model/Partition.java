@@ -8,9 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import model.interfaces.IMultiSourceTransition;
 import model.interfaces.INode;
-import model.interfaces.ISuccessorProvider;
 import model.interfaces.ITransition;
 
 import algorithms.graph.PartitionSplit;
@@ -20,7 +18,7 @@ import util.IterableIterator;
 
 /**
  * Implements a partition in a partition graph. Partitions are nodes, but they
- * do not explictly represent their edges. Instead, they know the MessageEvents
+ * do not explicitly represent their edges. Instead, they know the MessageEvents
  * they contain, and generate the edges on the fly using existential
  * abstraction.
  * 
@@ -33,25 +31,14 @@ import util.IterableIterator;
  * @author sigurd
  * 
  */
-public class Partition implements
-		IMultiSourceTransition<SystemState<Partition>>, INode<Partition>,
-		ISuccessorProvider<Partition> {
+public class Partition implements INode<Partition> {
 	protected final Set<MessageEvent> messages;
-	private MultiSourceTransition<SystemState<Partition>> transition;
 	private String label;
 
-	public Partition(Set<MessageEvent> messages,
-			Set<SystemState<Partition>> sources, SystemState<Partition> target) {
+	public Partition(Set<MessageEvent> messages) {
 		this.messages = new LinkedHashSet<MessageEvent>(messages);
 		for (final MessageEvent m : messages)
 			m.setParent(this);
-		transition = new MultiSourceTransition<SystemState<Partition>>(sources,
-				target, null);
-	}
-
-	@Override
-	public String getRelation() {
-		return messages.iterator().next().getLabel();
 	}
 
 	public void addMessage(MessageEvent message) {
@@ -66,6 +53,9 @@ public class Partition implements
 		}
 	}
 
+	/**	
+	 * Transitions between partitions are not stored but generated on demand using this iterator 
+	 */
 	public IterableIterator<Relation<Partition>> getTransitionsIterator() {
 		return getTransitionsIterator(null);
 	}
@@ -76,7 +66,7 @@ public class Partition implements
 
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("Partition " + hashCode() + " " + getRelation());
+		str.append("Partition " + hashCode());
 		// for (StateWrapper w : messageWrappers) {
 		// str.append(", " + w.label.toString());
 		// }
@@ -279,111 +269,11 @@ public class Partition implements
 	}
 
 	@Override
-	public SystemState<Partition> getTarget() {
-		return transition.getTarget();
-	}
-
-	@Override
-	public void setTarget(SystemState<Partition> target) {
-		transition.setTarget(target);
-	}
-
-	@Override
 	public String toStringConcise() {
 		return getLabel();
 		// return toString();
 	}
 
-	@Override
-	public void addSource(SystemState<Partition> source) {
-		transition.addSource(source);
-	}
-
-	@Override
-	public Set<SystemState<Partition>> getSources() {
-		return transition.getSources();
-	}
-
-	@Override
-	public void addSources(Set<SystemState<Partition>> sources) {
-		transition.addSources(sources);
-	}
-
-	@Override
-	public void clearSources() {
-		transition.clearSources();
-	}
-
-	@Override
-	public void addWeight(int count) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public int getWeight() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public SystemState<Partition> getSource() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setSource(SystemState<Partition> source) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public IterableIterator<Partition> getSuccessorIterator() {
-		return getSuccessorIterator(null);
-	}
-
-	@Override
-	public IterableIterator<Partition> getSuccessorIterator(final String act) {
-		return new IterableIterator<Partition>() {
-			private final Set<Partition> seen = new HashSet<Partition>();
-			private final Iterator<Relation<Partition>> trnsItr = getTransitionsIterator(act);
-			private Partition next = null;
-
-			private Partition getNext() {
-				while (trnsItr.hasNext()) {
-					final Partition found = trnsItr.next().getTarget();
-					if (seen.add(found))
-						return found;
-				}
-				return null;
-			}
-
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-
-			public Partition next() {
-				if (!hasNext())
-					throw new NoSuchElementException();
-				final Partition oldNext = next;
-				next = null;
-				return oldNext;
-			}
-
-			public boolean hasNext() {
-				if (next == null)
-					next = getNext();
-				return next != null;
-			}
-
-			@Override
-			public Iterator<Partition> iterator() {
-				return this;
-			}
-
-		};
-	}
 
 	public void setLabel(String str) {
 		this.label = str;

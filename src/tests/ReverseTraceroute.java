@@ -23,7 +23,6 @@ import model.MessageEvent;
 import model.Partition;
 import model.PartitionGraph;
 import model.Relation;
-import model.SystemState;
 import model.export.GraphVizExporter;
 import model.input.ReverseTracertParser;
 import model.interfaces.IGraph;
@@ -40,8 +39,7 @@ public class ReverseTraceroute {
 
 		@Override
 		public Operation commit(PartitionGraph g,
-				IModifiableGraph<Partition> partitionGraph,
-				IModifiableGraph<SystemState<Partition>> stateGraph) {
+				IModifiableGraph<Partition> partitionGraph) {
 			HashSet<MessageEvent> nodes = new HashSet<MessageEvent>();
 			String str = "";
 			for (Partition p : s) {
@@ -52,9 +50,7 @@ public class ReverseTraceroute {
 			nodes.addAll(s.get(0).getMessages());
 			nodes.addAll(s.get(s.size() - 1).getMessages());
 			System.out.println(str);
-			SystemState<Partition> newState = new SystemState<Partition>("");
-			Partition newPartition = new Partition(nodes,
-					s.get(0).getSources(), newState);
+			Partition newPartition = new Partition(nodes);
 			newPartition.setLabel(str);
 			partitionGraph.add(newPartition);
 			return null;

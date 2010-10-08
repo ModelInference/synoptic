@@ -2,7 +2,6 @@ package algorithms.graph;
 
 import model.Partition;
 import model.PartitionGraph;
-import model.SystemState;
 import model.interfaces.IModifiableGraph;
 
 // TODO: Implement Graph merging
@@ -21,12 +20,9 @@ public class GraphMerge implements Operation {
 	}
 	
 	@Override
-	public Operation commit(PartitionGraph g, IModifiableGraph<Partition> partitionGraph,
-			IModifiableGraph<SystemState<Partition>> stateGraph) {
+	public Operation commit(PartitionGraph g, IModifiableGraph<Partition> partitionGraph) {
 		for (Partition p : graph.getNodes())
 			partitionGraph.add(p);
-		for (SystemState<Partition> s : graph.getSystemStateGraph().getNodes())
-			stateGraph.add(s);
 		return null;
 	}
 }

@@ -5,7 +5,6 @@ import java.util.Set;
 
 import model.MessageEvent;
 import model.Partition;
-import model.SystemState;
 import model.PartitionGraph;
 import model.interfaces.IModifiableGraph;
 
@@ -44,23 +43,16 @@ public class PartitionSplit implements Operation {
 
 	@Override
 	public Operation commit(PartitionGraph g,
-			IModifiableGraph<Partition> partitionGraph,
-			IModifiableGraph<SystemState<Partition>> stateGraph) {
-		SystemState<Partition> newState = null;
+			IModifiableGraph<Partition> partitionGraph) {
 		Partition newPartition = partitionToInsert;
 		if (newPartition == null) {
-			newState = new SystemState<Partition>("");
-			newPartition = new Partition(getFulfills(), partitionToSplit.getSources(),
-					newState);
-			newState.addSuccessorProvider(newPartition);
+			newPartition = new Partition(getFulfills());
 		} else {
 			newPartition = partitionToInsert;
 			partitionToInsert.addAllMessages(getFulfills());
-			newState = partitionToInsert.getTarget();
 		}
 		partitionToSplit.removeMessages(getFulfills());
 		partitionGraph.add(newPartition);
-		stateGraph.add(newState);
 		return new PartitionMerge(getPartition(), newPartition);
 	}
 
