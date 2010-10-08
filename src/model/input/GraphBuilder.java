@@ -13,12 +13,9 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import net.unto.twitter.UtilProtos.Url;
 
 import model.Action;
-import model.EventTransition;
 import model.Graph;
 import model.MessageEvent;
 import model.PartitionGraph;
-import model.SystemState;
-import model.interfaces.ISuccessorProvider;
 import trace.MessageTrace.FullTrace;
 import trace.MessageTrace.TraceSet;
 import trace.MessageTrace.WrappedMessage;
@@ -28,38 +25,8 @@ import util.IterableAdapter;
 import util.IterableIterator;
 
 public class GraphBuilder implements IBuilder<MessageEvent> {
-	public static ISuccessorProvider<EventTransition> makeSuccessorProvider(
-			final Collection<EventTransition> successors) {
-		return new ISuccessorProvider<EventTransition>() {
-			@Override
-			public IterableIterator<EventTransition> getSuccessorIterator() {
-				return new IterableAdapter<EventTransition>(successors
-						.iterator());
-			}
-
-			@Override
-			public void setTarget(SystemState<EventTransition> s) {
-			}
-
-			@Override
-			public IterableIterator<EventTransition> getSuccessorIterator(
-					String relation) {
-				Set<EventTransition> filtered = new HashSet<EventTransition>();
-				for (EventTransition m : successors)
-					if (m.getRelation().equals(relation))
-						filtered.add(m);
-				return new IterableAdapter<EventTransition>(filtered.iterator());
-			}
-		};
-	}
-
-	public static ISuccessorProvider<EventTransition> makeSuccessorProvider() {
-		return makeSuccessorProvider(Collections.<EventTransition> emptyList());
-	}
-
 	private Graph<MessageEvent> graph;
 	private MessageEvent curMessage;
-	private int stateCtr = 0;
 	private static final String defaultRelation = "t".intern();
 
 	public GraphBuilder() {

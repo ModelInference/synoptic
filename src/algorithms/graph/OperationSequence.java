@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 import model.Partition;
 import model.PartitionGraph;
-import model.SystemState;
 import model.interfaces.IModifiableGraph;
 
 /**
@@ -17,8 +16,7 @@ public class OperationSequence implements Operation {
 
 	@Override
 	public Operation commit(PartitionGraph g,
-			IModifiableGraph<Partition> partitionGraph,
-			IModifiableGraph<SystemState<Partition>> stateGraph) {
+			IModifiableGraph<Partition> partitionGraph) {
 		OperationSequence rewindOperation = new OperationSequence();
 		for (Operation op : sequence)
 			rewindOperation.addFirst(g.apply(op));

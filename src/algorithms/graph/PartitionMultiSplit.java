@@ -8,7 +8,6 @@ import java.util.Set;
 import model.MessageEvent;
 import model.Partition;
 import model.PartitionGraph;
-import model.SystemState;
 import model.interfaces.IModifiableGraph;
 
 /**
@@ -40,8 +39,7 @@ public class PartitionMultiSplit implements Operation {
 
 	@Override
 	public Operation commit(PartitionGraph g,
-			IModifiableGraph<Partition> partitionGraph,
-			IModifiableGraph<SystemState<Partition>> stateGraph) {
+			IModifiableGraph<Partition> partitionGraph) {
 		// We have to remove one of the sets, because the partition currently in
 		// the graph will hold exactly that set of message events.
 		boolean skippedFirst = false;
@@ -51,15 +49,11 @@ public class PartitionMultiSplit implements Operation {
 				skippedFirst = true;
 				continue;
 			}
-			SystemState<Partition> newState = new SystemState<Partition>("");
-			Partition newPartition = new Partition(set, partition.getSources(),
-					newState);
+			Partition newPartition = new Partition(set);
 			newPartitions.add(newPartition);
-			newState.addSuccessorProvider(newPartition);
 			partition.removeMessages(set);
 			newPartition.addAllMessages(set);
 			partitionGraph.add(newPartition);
-			stateGraph.add(newState);
 		}
 		g.checkSanity();
 		return new PartitionMultiMerge(partition, newPartitions);

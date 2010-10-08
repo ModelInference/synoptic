@@ -1,7 +1,6 @@
 package tests;
 
 import algorithms.bisim.Bisimulation;
-import algorithms.ktail.KTail;
 import junit.framework.TestCase;
 import model.PartitionGraph;
 import model.input.GraphBuilder;
@@ -91,7 +90,8 @@ public class PerformanceTests extends TestCase {
 			PartitionGraph g = GraphBuilder.buildGraph(traces);
 	
 			long startTime = System.currentTimeMillis();
-			KTail.kReduce(g, k, true, invariants);
+			// TODO: call our k-Tail
+			// KTail.kReduce(g, k, true, invariants);
 			total_delta  += System.currentTimeMillis() - startTime;
 		}
 		long delta = total_delta / iterations;

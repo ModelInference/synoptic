@@ -14,10 +14,8 @@ import model.Action;
 import model.MessageEvent;
 import model.Partition;
 import model.PartitionGraph;
-import model.SystemState;
 import model.interfaces.IGraph;
 import model.interfaces.INode;
-import model.interfaces.ISuccessorProvider;
 import model.interfaces.ITransition;
 import model.nets.Edge;
 import model.nets.Event;
@@ -222,30 +220,6 @@ public class GraphVizExporter {
 			}
 	}
 
-	public void debugExport(final Writer writer, PartitionGraph graph)
-			throws IOException {
-		// begin graph
-		writer.write("digraph {\n");
-		exportGraph(writer, graph, false);
-		exportGraph(writer, graph.getSystemStateGraph(), false);
-		for (SystemState<Partition> s : graph.getSystemStateGraph().getNodes()) {
-			for (ISuccessorProvider<Partition> sp : s.getSuccessorProviders()) {
-				writer.write(s.hashCode() + "->" + sp.hashCode() + " [label=\""
-						+ quote("succProv") + "\",color=blue];\n");
-			}
-		}
-		for (Partition p : graph.getNodes()) {
-			for (SystemState<Partition> source : p.getSources())
-				writer.write(p.hashCode() + "->" + source.hashCode()
-						+ " [label=\"" + quote("source") + "\",color=red];\n");
-
-		}
-		writer.write("} // digraph\n");
-
-		// close the dot file
-		writer.close();
-	}
-
 	private static String quote(String string) {
 		final StringBuilder sb = new StringBuilder(string.length() + 2);
 		for (int i = 0; i < string.length(); ++i) {
@@ -302,22 +276,6 @@ public class GraphVizExporter {
 		}
 
 		return s.toString();
-	}
-
-	public void debugExportAsDotAndPng(String fileName, PartitionGraph pg)
-			throws Exception {
-		if (true)
-			return;
-		File f = new File(fileName);
-		final PrintWriter writer;
-		try {
-			writer = new PrintWriter(f);
-		} catch (final IOException e) {
-			throw new Exception("Error opening .dot-File: " + e.getMessage(), e);
-		}
-
-		debugExport(writer, pg);
-		exportPng(f);
 	}
 
 	public <T extends INode<T>> void exportAsDotAndPngFast(String fileName, IGraph<T> pg) throws Exception {

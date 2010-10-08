@@ -15,11 +15,9 @@ import model.MessageToPartitionIterator;
 import model.Partition;
 import model.PartitionGraph;
 import model.Relation;
-import model.SystemState;
 import model.input.IBuilder;
 import model.interfaces.IGraph;
 import model.interfaces.INode;
-import model.interfaces.ISuccessorProvider;
 import model.interfaces.ITransition;
 import model.nets.Event;
 import model.nets.Net;
@@ -30,60 +28,6 @@ import model.nets.Net;
  *
  */
 public class GraphUtil {
-	/**
-	 * Generate the corresponding state graph for a partition graph.
-	 * @param partitionGraph the partition graph
-	 * @return the state graph
-	 */
-	public static Graph<SystemState<Partition>> convertPartitionGraphToStateGraph(PartitionGraph partitionGraph) {
-		Graph<SystemState<Partition>> graph = new Graph<SystemState<Partition>>();
-		Set<Partition> initialPartitions = partitionGraph.getInitialNodes();
-		final String relation = "";
-
-		for (final Partition p : initialPartitions) {
-			SystemState<Partition> initial = new SystemState<Partition>("I-"
-					+ p.getLabel());
-			initial.addSuccessorProvider(new ISuccessorProvider<Partition>() {
-				Set<MessageEvent> messages = new HashSet<MessageEvent>(p.getMessages());
-				
-				public IterableIterator<Partition> getSuccessorIterator() {
-					return new MessageToPartitionIterator(messages.iterator());
-				}
-
-				@Override
-				public void setTarget(SystemState<Partition> s) {
-					// Do Nothing. We are successor provider for the initial node
-				}
-
-				@Override
-				public IterableIterator<Partition> getSuccessorIterator(String relation) {
-					return new MessageToPartitionIterator(messages.iterator(), relation);
-				}
-			});
-			p.addSource(initial);
-			graph.add(initial);
-			graph.addInitial(initial, relation);
-		}
-
-		for (Partition p : partitionGraph.getNodes()) {
-			SystemState<Partition> s = new SystemState<Partition>("P-"
-					+ p.getLabel());
-			graph.add(s);
-			p.setTarget(s);
-			s.addSuccessorProvider(p);
-		}
-
-		for (Partition m : partitionGraph.getNodes()) {
-			for (Iterator<Relation<Partition>> iter = m
-					.getTransitionsIterator(); iter.hasNext();) {
-				ITransition<Partition> t = iter.next();
-				INode<Partition> n = t.getTarget();
-				((Partition) n).addSource(m.getTarget());
-			}
-		}
-		return graph;
-	}
-	
 	/**
 	 * Copy a graph to a builder.
 	 * @param <T> the node type of the graph

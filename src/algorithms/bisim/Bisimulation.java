@@ -64,13 +64,13 @@ public abstract class Bisimulation {
 	 */
 	private static boolean interleavedMerging = false;
 	/**
-	 * Number of steps done in refinePartitionsSmart
+	 * Number of split steps done in refinePartitionsSmart
 	 */
-	public static int steps;
+	public static int numSplitSteps;
 	/**
-	 * Number of merges done in coarsenPartitions
+	 * Number of merge steps done in coarsenPartitions
 	 */
-	public static int merge;
+	public static int numMergeSteps;
 
 	private Bisimulation() throws InstantiationException {
 		throw new InstantiationException(this.getClass().getCanonicalName()
@@ -82,8 +82,8 @@ public abstract class Bisimulation {
 	 * label), call refine partitions on it, and return the refined graph.
 	 * 
 	 * @param graph
-	 *            the graph from which should be used as initial graph
-	 * @return the refined graph
+	 *            the graph which should be used as the initial graph
+	 * @return the refined version of {@code graph}
 	 * @throws InterruptedException
 	 */
 	public static PartitionGraph computePartitions(IGraph<MessageEvent> graph)
@@ -105,7 +105,7 @@ public abstract class Bisimulation {
 		if (DEBUG) {
 			GraphVizExporter.quickExport("output/rounds/0.dot", partitionGraph);
 		}
-		steps = 0;
+		numSplitSteps = 0;
 		// These invariants will be satisfied
 		TemporalInvariantSet invariants = partitionGraph.getInvariants();
 
@@ -458,7 +458,7 @@ public abstract class Bisimulation {
 	public static void mergePartitions(PartitionGraph partitionGraph,
 			TemporalInvariantSet invariants, int k) {
 		int outer = 0;
-		merge = 0;
+		numMergeSteps = 0;
 		HashMap<Partition, HashSet<Partition>> blacklist = new HashMap<Partition, HashSet<Partition>>();
 		out: while (true) {
 			if (ESSENTIAL)
@@ -488,7 +488,7 @@ public abstract class Bisimulation {
 						parts.addAll(partitionGraph.getNodes());
 						Operation rewindOperation = partitionGraph
 								.apply(new PartitionMerge(p, q));
-						merge++;
+						numMergeSteps++;
 						List<RelationPath<Partition>> vio = null;
 						// partitionGraph.checkSanity();
 						// if (true)

@@ -9,22 +9,17 @@ import model.Action;
 import model.MessageEvent;
 import model.Partition;
 import model.PartitionGraph;
-import model.SystemState;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
 import model.interfaces.IGraph;
 import model.interfaces.INode;
-import model.interfaces.ISuccessorProvider;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import algorithms.graph.CascadingStateMerge;
 import algorithms.graph.Operation;
 import algorithms.graph.PartitionMerge;
 import algorithms.graph.PartitionSplit;
-import algorithms.graph.StateMerge;
-import algorithms.graph.StateSplit;
 
 public class PartitionGraphTest {
 	private GraphVizExporter exporter;
@@ -35,9 +30,6 @@ public class PartitionGraphTest {
 		try {
 			//exporter.debugExportAsDotAndPng("output/tests/" + name + ".dot", pg);
 			exporter.exportAsDotAndPngFast("output/tests/" + name + ".dot", pg);
-					
-			exporter.exportAsDotAndPngFast("output/tests/" + name + "-S.dot", pg
-					.getSystemStateGraph());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -133,24 +125,6 @@ public class PartitionGraphTest {
 		print("splitPartitionBottomRewound", pg);
 	}
 	
-	@Test
-	public void testMergeStatesTop() {
-		Iterator<SystemState<Partition>> iter = pg.getSystemStateGraph().getInitialNodes().iterator();
-		Operation rewind = pg.apply(new StateMerge(iter.next(), iter.next()));
-		print("mergeStatesTop", pg);
-		pg.apply(rewind);
-		print("mergeStatesTopRewound", pg);
-	}
-	
-	@Test
-	public void testMergeStatesBottom() {
-		IGraph<SystemState<Partition>> sg = pg.getSystemStateGraph();
-		Operation rewind = pg.apply(new StateMerge(getNodeByName(sg, "P-B"), getNodeByName(sg, "P-D")));
-		print("mergeStatesBottom", pg);
-		pg.apply(rewind);
-		print("mergeStatesBottomRewound", pg);
-	}
-	
 	private <T extends INode<T>> T getNodeByName(IGraph<T> g, String nodeName) {
 		for (T node : g.getNodes()) {
 			if (node.getLabel().equals(nodeName))
@@ -158,53 +132,5 @@ public class PartitionGraphTest {
 		}
 		return null;
 	}
-	
-	@Test
-	public void testMergeStatesMiddle() {
-		IGraph<SystemState<Partition>> sg = pg.getSystemStateGraph();
-		Operation rewind = pg.apply(new StateMerge(getNodeByName(sg, "P-A"), getNodeByName(sg, "P-C")));
-		print("mergeStatesMiddle", pg);
-		pg.apply(rewind);
-		print("mergeStatesMiddleRewound", pg);
-	}
-	
-	@Test
-	public void testMergeStatesMiddle2() {
-		IGraph<SystemState<Partition>> sg = pgSingle.getSystemStateGraph();
-		Operation rewind = pgSingle.apply(new StateMerge(getNodeByName(sg, "P-A"), getNodeByName(sg, "P-C")));
-		print("mergeStatesMiddle2", pgSingle);
-		pg.apply(rewind);
-		print("mergeStatesMiddle2Rewound", pg);
-	}
-	
-	@Test
-	public void testMergeStatesCascadingMiddle() {
-		IGraph<SystemState<Partition>> sg = pgSingle.getSystemStateGraph();
-		Operation rewind = pgSingle.apply(new CascadingStateMerge(getNodeByName(sg, "P-A"), getNodeByName(sg, "P-C")));
-		print("mergeStatesCascadingMiddle", pgSingle);
-		pg.apply(rewind);
-		print("mergeStatesCascadingMiddleRewound", pg);
-	}
-	
-	@Test
-	public void testSplitStateMiddle() {
-		IGraph<SystemState<Partition>> sg = pg.getSystemStateGraph();
-		SystemState<Partition> node = getNodeByName(sg, "P-A");
-		Operation rewind = pg.apply(new StateSplit(node, node.getSuccessorProviders(), Collections.<ISuccessorProvider<Partition>>emptySet()));
-		print("testSplitStateMiddle", pg);
-		pg.apply(rewind);
-		print("testSplitStateMiddleRewound", pg);
-	}
-	
-	@Test
-	public void testSplitStateTop() {
-		IGraph<SystemState<Partition>> sg = pg.getSystemStateGraph();
-		SystemState<Partition> node = getNodeByName(sg, "I-A");
-		Operation rewind = pg.apply(new StateSplit(node, node.getSuccessorProviders(), Collections.<ISuccessorProvider<Partition>>emptySet()));
-		print("testSplitStateTop", pg);
-		pg.apply(rewind);
-		print("testSplitStateTopRewound", pg);
-	}
-
 }
 

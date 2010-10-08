@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import algorithms.bisim.Bisimulation;
-import algorithms.ktail.KTail;
+
 
 import trace.MessageTrace.TraceSet;
 import util.TimedTask;

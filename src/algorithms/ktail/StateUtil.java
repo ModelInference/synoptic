@@ -2,11 +2,8 @@ package algorithms.ktail;
 
 import java.util.Iterator;
 
-import algorithms.graph.StateMerge;
-
 import model.Partition;
 import model.PartitionGraph;
-import model.SystemState;
 import model.interfaces.INode;
 import model.interfaces.ITransition;
 
@@ -82,18 +79,4 @@ public class StateUtil {
 		}
 	}
 
-
-	/**
-	 * Merge two states to depth k.
-	 * 
-	 * @param s1 first state to merge
-	 * @param s2 state to merge first with
-	 */
-	public static void kMerge(PartitionGraph g, SystemState<Partition> s1, SystemState<Partition> s2, int k) {
-		if (k!=1) {
-			throw new IllegalArgumentException("k>1 is not yet supported");
-		}
-		StateMerge merge = new StateMerge(s1, s2);
-		g.apply(merge);
-	}
 }
