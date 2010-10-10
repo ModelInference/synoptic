@@ -43,9 +43,9 @@ public class ArgumentParser {
 		 * un-flagged option that grabs the regular expression to use on the
 		 * logfile
 		 */
-		UnflaggedOption opt_reg_exp = new UnflaggedOption("reg_exp")
+		FlaggedOption opt_reg_exp = new FlaggedOption("reg_exp")
 				.setStringParser(JSAP.STRING_PARSER).setRequired(true)
-				.setGreedy(true);
+				.setShortFlag('e').setLongFlag("reg_exp");
 		opt_reg_exp.setHelp("Regular expression used to parse the logfile.");
 		this.jsap.registerParameter(opt_reg_exp);
 

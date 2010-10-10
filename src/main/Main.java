@@ -32,11 +32,11 @@ public class Main implements Callable<Integer> {
 	public Integer call() throws Exception {
 		String logfile = this.config.getString("logfile");
 		Boolean print_invariants = this.config.getBoolean("print_invariants");
-		String[] reg_exp = this.config.getStringArray("reg_exp");
+		String reg_exp = this.config.getString("reg_exp");
 
 		System.out.println("logfile: " + logfile);
 		System.out.println("print_invs: " + print_invariants.toString());
-		System.out.println("reg_exp: " + reg_exp.toString());
+		System.out.println("reg_exp: " + reg_exp);
 		
 		// TODO: do something here
 
