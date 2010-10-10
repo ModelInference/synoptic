@@ -7,6 +7,7 @@ import invariants.TemporalInvariantSet.RelationPath;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -109,7 +110,17 @@ public class ReverseTraceroute {
 		String prefix = "traces/ReverseTraceroute/rt_parsed_rich/";
 		File dir = new File(prefix);
 		int read = 0;
+		ArrayList<File> files = new ArrayList<File>();
 		for (File file : dir.listFiles()) {
+			files.add(file);
+		}
+		Collections.sort(files, new Comparator<File>() {
+			@Override
+			public int compare(File o1, File o2) {
+				return new Long(o1.length()).compareTo(o2.length());
+			}
+		});
+		for (File file : files) {
 			if (read++ >= limit)
 				break;
 			if (file.isDirectory())

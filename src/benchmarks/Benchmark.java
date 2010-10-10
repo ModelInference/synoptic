@@ -122,11 +122,11 @@ public class Benchmark<ArgumentType> {
 				PerformanceMetrics.get().record(total);
 
 			}
-			if (isFirst) {
+			if (isFirst || true) {
 				System.out.println(PerformanceMetrics.get().getHeader());
 				isFirst = false;
 			}
-			System.out.println(PerformanceMetrics.get().getData());
+			System.out.println(PerformanceMetrics.get().getDataDividedBy(repetitions));
 			PerformanceMetrics metrics = PerformanceMetrics.get();
 			PerformanceMetrics.clear();
 			taskFactory.record(arg, metrics);

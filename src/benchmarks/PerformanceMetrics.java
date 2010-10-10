@@ -128,18 +128,34 @@ public class PerformanceMetrics {
 	}
 
 	/**
-	 * Get the data associated with the keys in alphabetic order.
+	 * Get the data averaged over recording numbers. That means every
+	 * measurements is divided by the number of measurements for that key.
 	 * 
-	 * @return data in alphabetic order
+	 * @return the data in alphabetic order
 	 */
-	public String getData() {
+	public String getDataRelative() {
 		ArrayList<String> keys = new ArrayList<String>(values.keySet());
 		Collections.sort(keys);
 		StringBuilder str = new StringBuilder();
 		for (String key : keys) {
-			str.append(values.get(key)
-					/ (getAccumulativity(key) ? 1 : numberOfMesurements
-							.get(key)) + " ");
+			str.append(values.get(key) / numberOfMesurements.get(key) + " ");
+		}
+		return str.toString();
+	}
+
+	/**
+	 * Get the data associated with the keys in alphabetic order.
+	 * 
+	 * @param divisor
+	 *            the number to divide each measurement through (use for avg)
+	 * @return data in alphabetic order
+	 */
+	public String getDataDividedBy(int divisor) {
+		ArrayList<String> keys = new ArrayList<String>(values.keySet());
+		Collections.sort(keys);
+		StringBuilder str = new StringBuilder();
+		for (String key : keys) {
+			str.append(values.get(key) / divisor + " ");
 		}
 		return str.toString();
 	}

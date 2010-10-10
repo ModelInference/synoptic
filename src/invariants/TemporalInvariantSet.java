@@ -55,7 +55,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	/**
 	 * Model check that every mined invariant actually holds.
 	 */
-	static final boolean DOUBLECKECK_MINING = true;
+	static final boolean DOUBLECKECK_MINING = false;
 
 	public TemporalInvariantSet() {
 	}
@@ -117,6 +117,8 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 
 	public <T extends INode<T>> RelationPath<T> getViolation(
 			TemporalInvariant inv, IGraph<T> g) {
+		TimedTask refinement = PerformanceMetrics.createTask("singleViolation", true);
+		try {
 		RelationPath<T> r = new RelationPath<T>();
 		GraphLTLChecker<T> c = new GraphLTLChecker<T>();
 		try {
@@ -141,11 +143,14 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			e.printStackTrace();
 		}
 		return r;
+		} finally {
+			refinement.stop();
+		}
 	}
 
 	public <T extends INode<T>> List<RelationPath<T>> getViolations(IGraph<T> g) {
 		TimedTask violations = PerformanceMetrics.createTask("getViolations",
-				true);
+				false);
 		try {
 			List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
 			GraphLTLChecker<T> c = new GraphLTLChecker<T>();
@@ -309,11 +314,11 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 					+ overapproximatedInvariantsSetSize
 					+ ", max possible invariants " + possibleInvariants + " ("
 					+ percentReduction + "% reduction through approximation).");
-		PerformanceMetrics.get().record("true invariants",
+		PerformanceMetrics.get().record("true_invariants",
 				overapproximatedInvariantsSet.size());
-		PerformanceMetrics.get().record("approx invariants",
+		PerformanceMetrics.get().record("approx_invariants",
 				overapproximatedInvariantsSetSize);
-		PerformanceMetrics.get().record("max possible invariants",
+		PerformanceMetrics.get().record("max_possible_invariants",
 				possibleInvariants);
 		PerformanceMetrics.get().record("percentReduction", percentReduction);
 	}
