@@ -2,7 +2,8 @@ package tests;
 
 import java.io.File;
 
-import util.TimedTask;
+import benchmarks.TimedTask;
+
 
 import model.PartitionGraph;
 import model.export.GraphVizExporter;
@@ -23,7 +24,7 @@ public class BisimMergeTest {
 		// the graph will contain each trace as separate component
 		gb.buildGraphLocal(new String[][] { trace1, trace2, trace3, trace4 });
 		exporter.exportAsDotAndPng("output/twoc/dot", gb.getRawGraph());
-		TimedTask benchmark = new TimedTask("time", 0);
+		TimedTask benchmark = new TimedTask("time");
 		PartitionGraph pg = null;
 		for (int i = 0; i < LOOPS; ++i) {
 			pg = new PartitionGraph(gb.getRawGraph(), true);

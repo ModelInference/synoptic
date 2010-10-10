@@ -13,8 +13,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import benchmarks.PerformanceMetrics;
+import benchmarks.TimedTask;
+
 import sun.tools.tree.ThisExpression;
-import util.TimedTask;
 
 import algorithms.bisim.Bisimulation;
 import algorithms.graph.Operation;
@@ -64,11 +66,11 @@ public class ReverseTraceroute {
 		// model.Graph<MessageEvent> raw = readSingle();
 		// export.exportAsDotAndPngFast("output/reverseTraceroute/raw.dot",
 		// raw);
-		TimedTask all = new TimedTask("all", 0);
+		TimedTask all = new TimedTask("all");
 		PartitionGraph g = new PartitionGraph(raw, true);
 		export.exportAsDotAndPngFast("output/reverseTraceroute/input.dot", g);
 		Bisimulation.refinePartitions(g);
-		System.out.println("merging.");
+		//System.out.println("merging.");
 		Bisimulation.mergePartitions(g);
 		all.stop();
 		TemporalInvariantSet inv = g.getInvariants()
@@ -98,19 +100,24 @@ public class ReverseTraceroute {
 		System.out.println(all);
 	}
 
-	static model.Graph<MessageEvent> readOverkill() {
-		GraphVizExporter export = new GraphVizExporter();
+	public static model.Graph<MessageEvent> readOverkill() {
+		return readOverkill(Integer.MAX_VALUE);
+	}
+
+	public static model.Graph<MessageEvent> readOverkill(int limit) {
 		model.Graph<MessageEvent> g = new model.Graph<MessageEvent>();
 		String prefix = "traces/ReverseTraceroute/rt_parsed_rich/";
 		File dir = new File(prefix);
+		int read = 0;
 		for (File file : dir.listFiles()) {
+			if (read++ >= limit)
+				break;
 			if (file.isDirectory())
 				continue;
 			g.merge((new ReverseTracertParser()).parseTraceFile(prefix
 					+ file.getName(), 10000, 0));
 		}
-		System.out.println(g.getNodes().size());
-
+		PerformanceMetrics.get().record("log size", g.getNodes().size());
 		return g;
 	}
 
@@ -120,7 +127,7 @@ public class ReverseTraceroute {
 						"traces/ReverseTraceroute/rt_parsed_rich/Viafacil-AS16814_revtr.err",
 						100000, 0);
 
-		System.out.println(g.getNodes().size());
+		//System.out.println(g.getNodes().size());
 		return g;
 	}
 
@@ -229,7 +236,7 @@ public class ReverseTraceroute {
 			g.merge((new ReverseTracertParser()).parseTraceFile(prefix + trace,
 					10000, 0));
 		}
-		System.out.println(g.getNodes().size());
+		//System.out.println(g.getNodes().size());
 
 		return g;
 	}

@@ -20,7 +20,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import util.TimedTask;
+import benchmarks.PerformanceMetrics;
+import benchmarks.TimedTask;
 
 import daikon.ValueTuple;
 import daikon.inv.Invariant;
@@ -50,7 +51,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	/**
 	 * Enable timing output
 	 */
-	static final boolean BENCHMARK = true;
+	static final boolean VERBOSE_BENCHMARK = false;
 	/**
 	 * Model check that every mined invariant actually holds.
 	 */
@@ -143,48 +144,56 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	}
 
 	public <T extends INode<T>> List<RelationPath<T>> getViolations(IGraph<T> g) {
-		List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
-		GraphLTLChecker<T> c = new GraphLTLChecker<T>();
-		for (TemporalInvariant i : invariants) {
-			// List<Transition<Message>> path = i.check(g);
-			try {
-				Counterexample ce = c.check(g, i, new IModelCheckingMonitor() {
-					public void subTask(String str) {
+		TimedTask violations = PerformanceMetrics.createTask("getViolations",
+				true);
+		try {
+			List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
+			GraphLTLChecker<T> c = new GraphLTLChecker<T>();
+			for (TemporalInvariant i : invariants) {
+				// List<Transition<Message>> path = i.check(g);
+				try {
+					Counterexample ce = c.check(g, i,
+							new IModelCheckingMonitor() {
+								public void subTask(String str) {
+								}
+							});
+					if (ce == null)
+						continue;
+					RelationPath<T> r = new RelationPath<T>();
+					r.invariant = i;
+					List<T> trace = c.convertCounterexample(ce);
+					if (trace != null) {
+						// System.out.println(i.toString() + trace);
+						// r.path = i.shorten(trace);
+						r.path = trace;
+						if (r.path == null) {
+							throw new RuntimeException(
+									"shortening returned null for " + i
+											+ " and trace " + trace);
+						}
+						// System.out.println(r.path);
+						paths.add(r);
 					}
-				});
-				if (ce == null)
-					continue;
-				RelationPath<T> r = new RelationPath<T>();
-				r.invariant = i;
-				List<T> trace = c.convertCounterexample(ce);
-				if (trace != null) {
-					// System.out.println(i.toString() + trace);
-					// r.path = i.shorten(trace);
-					r.path = trace;
-					if (r.path == null) {
-						throw new RuntimeException(
-								"shortening returned null for " + i
-										+ " and trace " + trace);
-					}
-					// System.out.println(r.path);
-					paths.add(r);
+				} catch (ParseErrorException e) {
+					e.printStackTrace();
 				}
-			} catch (ParseErrorException e) {
-				e.printStackTrace();
 			}
+
+			if (paths.size() == 0)
+				return null;
+
+			Collections.sort(paths, new Comparator<RelationPath<T>>() {
+				@Override
+				public int compare(RelationPath<T> o1, RelationPath<T> o2) {
+					return new Integer(o1.path.size())
+							.compareTo(o2.path.size());
+				}
+			});
+
+			return paths;
+		} finally {
+			violations.stop();
 		}
-
-		if (paths.size() == 0)
-			return null;
-
-		Collections.sort(paths, new Comparator<RelationPath<T>>() {
-			@Override
-			public int compare(RelationPath<T> o1, RelationPath<T> o2) {
-				return new Integer(o1.path.size()).compareTo(o2.path.size());
-			}
-		});
-
-		return paths;
 	}
 
 	public boolean sameInvariants(TemporalInvariantSet set2) {
@@ -220,59 +229,69 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	 */
 	static public <T extends INode<T>> TemporalInvariantSet computeInvariants(
 			IGraph<T> g) {
-		if (DEBUG) {
-			GraphVizExporter v = new GraphVizExporter();
-			try {
-				v.exportAsDotAndPng("output/pre.dot", g);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		TimedTask mineInvariants = PerformanceMetrics.createTask(
+				"mineInvariants", false);
+		try {
+			if (DEBUG) {
+				GraphVizExporter v = new GraphVizExporter();
+				try {
+					v.exportAsDotAndPng("output/pre.dot", g);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-		}
-		TimedTask itc = new TimedTask("invariants_transitive_closure", 1);
-		AllRelationsTransitiveClosure<T> transitiveClosure = new AllRelationsTransitiveClosure<T>(
-				g);
-		if (DEBUG) {
-			GraphVizExporter v = new GraphVizExporter();
-			for (String relation : transitiveClosure.getRelations())
-				writeDot("output/post-" + relation + ".dot", g,
-						transitiveClosure.get(relation));
-			v.exportPng(new File("output/post.dot"));
-		}
-		// get overapproximation
-		itc.stop();
-		if (BENCHMARK)
-			System.out.println(itc);
-		TimedTask io = new TimedTask("invariants_approximation", 1);
-		TemporalInvariantSet overapproximatedInvariantsSet = extractInvariantsForAllRelations(
-				g, transitiveClosure);
-		io.stop();
-		if (BENCHMARK)
-			System.out.println(io);
-		int overapproximatedInvariantsSetSize = overapproximatedInvariantsSet
-				.size();
-		TimedTask iri = new TimedTask("invariants_remove_invalid", 1);
-		if (DOUBLECKECK_MINING) {
-			List<RelationPath<T>> violations = overapproximatedInvariantsSet
-					.getViolations(g);
-			if (violations == null) {
-				iri.stop();
+			TimedTask itc = PerformanceMetrics.createTask(
+					"invariants_transitive_closure", false);
+			AllRelationsTransitiveClosure<T> transitiveClosure = new AllRelationsTransitiveClosure<T>(
+					g);
+			if (DEBUG) {
+				GraphVizExporter v = new GraphVizExporter();
+				for (String relation : transitiveClosure.getRelations())
+					writeDot("output/post-" + relation + ".dot", g,
+							transitiveClosure.get(relation));
+				v.exportPng(new File("output/post.dot"));
+			}
+			// get overapproximation
+			itc.stop();
+			if (VERBOSE_BENCHMARK)
+				System.out.println(itc);
+			TimedTask io = PerformanceMetrics.createTask(
+					"invariants_approximation", false);
+			TemporalInvariantSet overapproximatedInvariantsSet = extractInvariantsForAllRelations(
+					g, transitiveClosure);
+			io.stop();
+			if (VERBOSE_BENCHMARK)
+				System.out.println(io);
+			int overapproximatedInvariantsSetSize = overapproximatedInvariantsSet
+					.size();
+			TimedTask iri = PerformanceMetrics.createTask(
+					"invariants_remove_invalid", false);
+			if (DOUBLECKECK_MINING) {
+				List<RelationPath<T>> violations = overapproximatedInvariantsSet
+						.getViolations(g);
+				if (violations == null) {
+					iri.stop();
+					if (VERBOSE_BENCHMARK)
+						System.out.println(iri);
+					printStats(g, overapproximatedInvariantsSet,
+							overapproximatedInvariantsSetSize);
+					return overapproximatedInvariantsSet;
+				}
+				// Remove all invariants that do not hold
+				for (RelationPath<T> i : violations) {
+					overapproximatedInvariantsSet.invariants.remove(i);
+				}
+			}
+			iri.stop();
+			if (VERBOSE_BENCHMARK)
 				System.out.println(iri);
-				printStats(g, overapproximatedInvariantsSet,
-						overapproximatedInvariantsSetSize);
-				return overapproximatedInvariantsSet;
-			}
-			// Remove all invariants that do not hold
-			for (RelationPath<T> i : violations) {
-				overapproximatedInvariantsSet.invariants.remove(i);
-			}
+			printStats(g, overapproximatedInvariantsSet,
+					overapproximatedInvariantsSetSize);
+			return overapproximatedInvariantsSet;
+		} finally {
+			mineInvariants.stop();
 		}
-		iri.stop();
-		if (BENCHMARK)
-			System.out.println(iri);
-		printStats(g, overapproximatedInvariantsSet,
-				overapproximatedInvariantsSetSize);
-		return overapproximatedInvariantsSet;
 	}
 
 	private static <T extends INode<T>> void printStats(IGraph<T> g,
@@ -284,11 +303,19 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		int possibleInvariants = 3 /* invariant types */* labels.size()
 				* labels.size() /* reflexive invariants are allowed */;
 		int percentReduction = 100 - (overapproximatedInvariantsSetSize * 100 / possibleInvariants);
-		System.out.println("" + overapproximatedInvariantsSet.size()
-				+ " true invariants, approximation guessed "
-				+ overapproximatedInvariantsSetSize
-				+ ", max possible invariants " + possibleInvariants + " ("
-				+ percentReduction + "% reduction through approximation).");
+		if (VERBOSE_BENCHMARK)
+			System.out.println("" + overapproximatedInvariantsSet.size()
+					+ " true invariants, approximation guessed "
+					+ overapproximatedInvariantsSetSize
+					+ ", max possible invariants " + possibleInvariants + " ("
+					+ percentReduction + "% reduction through approximation).");
+		PerformanceMetrics.get().record("true invariants",
+				overapproximatedInvariantsSet.size());
+		PerformanceMetrics.get().record("approx invariants",
+				overapproximatedInvariantsSetSize);
+		PerformanceMetrics.get().record("max possible invariants",
+				possibleInvariants);
+		PerformanceMetrics.get().record("percentReduction", percentReduction);
 	}
 
 	/**

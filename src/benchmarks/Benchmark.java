@@ -1,105 +1,135 @@
 package benchmarks;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-
-import algorithms.bisim.Bisimulation;
-
-import util.TimedTask;
-
-import model.Graph;
-import model.MessageEvent;
-import model.PartitionGraph;
-import model.export.GraphVizExporter;
-import model.input.GraphBuilder;
-import model.input.PetersonReader;
 
 /**
- * A common base for all benchmarks.
- * @author sigurd
- *
+ * A class to facilitate benchmarks. Just set your benchmark up as a
+ * ConfigureableBenchmark, and pass it to the constructor. The benchmarks can be
+ * run by passing the configuration arguments to run. The benchmark will be run
+ * for each argument in the collection. Afterwards, the ConfigureableBenchmark
+ * can be queried for the results.
+ * 
+ * @author Sigurd Schneider
+ * 
+ * @param <ArgumentType>
+ *            The argument type for the benchmark.
  */
-public class Benchmark implements Callable<HashMap<String, Long>> {
-		private static final int REPETITIONS = 1;
+public class Benchmark<ArgumentType> {
+	/**
+	 * The number of repetitions to run the benchmark.
+	 */
+	private int repetitions = 2;
+	/**
+	 * The factory that creates the actual benchmarks from the configs.
+	 */
+	private ConfigureableBenchmark<ArgumentType> taskFactory;
 
-		public static void main(String[] args) throws Exception {
-			Benchmark b = new Benchmark();
-			b.call();
+	/**
+	 * An interface to a configureable benchmark.
+	 * 
+	 * @author Sigurd Schneider
+	 * 
+	 * @param <ArgumentType>
+	 *            The argument for the benchmark.
+	 */
+	static public abstract class ConfigureableBenchmark<ArgumentType> {
+		/**
+		 * A hash map to store the results of the runs.
+		 */
+		private HashMap<ArgumentType, PerformanceMetrics> results = new HashMap<ArgumentType, PerformanceMetrics>();
+
+		/**
+		 * Records the results of a benchmark run (identified by the arguments).
+		 * 
+		 * @param arg
+		 *            identifies the benchmark
+		 * @param performanceMetrics
+		 *            the results
+		 */
+		private synchronized void record(ArgumentType arg,
+				PerformanceMetrics performanceMetrics) {
+			results.put(arg, performanceMetrics);
 		}
-		
-		@Override
-		public HashMap<String, Long> call() throws Exception {
-			GraphVizExporter e = new GraphVizExporter();
-				HashMap<String, Long> res = new HashMap<String, Long>();
-				for (int i = 0; i < REPETITIONS; ++i) {
-					TimedTask total = new TimedTask("total", 1);
-					TimedTask load = new TimedTask("load", 1);
-					GraphBuilder b = new GraphBuilder();
-					if (true) {
-					PetersonReader<MessageEvent> r = new PetersonReader<MessageEvent>(
-							b);
-					r
-							.readGraphSet(
-									"traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
-									30);
-					} else {
-						String[] trace1 = new String[] { "p", "p", "c", "c", "txc", "txc", };
-						String[] trace2 = new String[] { "p", "p", "c", "a", "txa", "txa", };
-						String[] trace3 = new String[] { "p", "p", "a", "c", "txa", "txa", };
-						String[] trace4 = new String[] { "p", "p", "a", "a", "txa", "txa", };
-						b.buildGraphLocal(new String[][] { trace1, trace2, trace3, trace4 });
-					}
-					Graph<MessageEvent> g = b.getRawGraph();
-					load.stop();
-					TimedTask invariants = new TimedTask("invariants", 1);
-					PartitionGraph pg = new PartitionGraph(g, true);
-					invariants.stop();
 
-					TimedTask refinement = new TimedTask("refinement", 1);
-					Bisimulation.refinePartitions(pg);
-					refinement.stop();
-					int size_reduction = pg.getNodes().size();
-					TimedTask coarsening = new TimedTask("coarsening", 1);
-					Bisimulation.mergePartitions(pg, pg.getInvariants(), 0);
-					coarsening.stop();
-					total.stop();
-					size_reduction -= pg.getNodes().size();
-					record(res, load);
-					record(res, invariants);
-					record(res, refinement);
-					record(res, coarsening);
-					record(res, total);
-					
-					if (!res.containsKey("nodes"))
-						res.put("nodes", 0L);
-					res.put("nodes", res.get("nodes")+(long)g.getNodes().size());
-					if (!res.containsKey("finalsize"))
-						res.put("finalsize", 0L);
-					res.put("finalsize", res.get("finalsize")+(long)pg.getNodes().size());
-					if (!res.containsKey("steps"))
-						res.put("steps", 0L);
-					res.put("steps", res.get("steps")+Bisimulation.numSplitSteps);
-					if (!res.containsKey("merge steps"))
-						res.put("merge steps", 0L);
-					res.put("merge steps", res.get("merge steps")+Bisimulation.numMergeSteps);
-					if (!res.containsKey("sizeRed"))
-						res.put("sizeRed", 0L);
-					res.put("sizeRed", res.get("sizeRed")+Bisimulation.numMergeSteps);
+		/**
+		 * The method our clients have to implement. This method should run the
+		 * benchmark for the configure given in val.
+		 * 
+		 * @param val
+		 *            the config for the benchmark.
+		 */
+		protected abstract void run(ArgumentType val);
+
+		/**
+		 * Get the results for the run with argument arg. Will return null if
+		 * the benchmark was not run.
+		 * 
+		 * @param arg
+		 *            the argument
+		 * @return the metrics collected for the benchmark run
+		 */
+		public synchronized PerformanceMetrics getResults(ArgumentType arg) {
+			return results.get(arg);
+		}
+
+		/**
+		 * Returns a runnable that represents the benchmark. This is provided
+		 * for future parallelization. TODO: fix the race for performance
+		 * metrics.
+		 * 
+		 * @param val
+		 *            the configuration to use
+		 * @return a runnable that encapsulates the benchmark
+		 */
+		public final Runnable configure(final ArgumentType val) {
+			return new Runnable() {
+				public void run() {
+					ConfigureableBenchmark.this.run(val);
 				}
-				for (Entry<String, Long> entry : res.entrySet()) {
-					System.out.println(entry.getKey() + "\t" + entry.getValue() / REPETITIONS);
-					res.put(entry.getKey(), entry.getValue()/REPETITIONS);
-				}
-				System.out.println();
-				System.out.println(res.get("nodes") + " " +res.get("load") + " " +res.get("refinement") + " " +res.get("coarsening") + " " +res.get("invariants") + " " +res.get("total"));
-			return res;
+			};
 		}
+	}
 
-		private static void record(HashMap<String, Long> res, TimedTask load) {
-			if (!res.containsKey(load.getTask()))
-				res.put(load.getTask(), 0L);
-			res.put(load.getTask(), load.getTime()+res.get(load.getTask()));
+	/**
+	 * Constructs a benchmark.
+	 * 
+	 * @param repetitions
+	 *            the number of repetitions to average about
+	 * @param taskFactory
+	 *            the taskFactory that creates benchmarks from configuration
+	 *            arguments
+	 */
+	public Benchmark(int repetitions,
+			ConfigureableBenchmark<ArgumentType> taskFactory) {
+		this.repetitions = repetitions;
+		this.taskFactory = taskFactory;
+	}
+
+	/**
+	 * Run the benchmarks for each arg in arguments.
+	 * 
+	 * @param arguments
+	 *            the arguments to run the benchmark for
+	 */
+	public void run(Collection<ArgumentType> arguments) {
+		boolean isFirst = true;
+		for (ArgumentType arg : arguments) {
+			for (int i = 0; i < repetitions; ++i) {
+				Runnable task = taskFactory.configure(arg);
+				TimedTask total = new TimedTask("total");
+				task.run();
+				PerformanceMetrics.get().record(total);
+
+			}
+			if (isFirst) {
+				System.out.println(PerformanceMetrics.get().getHeader());
+				isFirst = false;
+			}
+			System.out.println(PerformanceMetrics.get().getData());
+			PerformanceMetrics metrics = PerformanceMetrics.get();
+			PerformanceMetrics.clear();
+			taskFactory.record(arg, metrics);
 		}
-
+	}
 }

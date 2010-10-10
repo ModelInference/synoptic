@@ -8,8 +8,9 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import benchmarks.TimedTask;
 
-import util.TimedTask;
+
 
 import algorithms.bisim.Bisimulation;
 import algorithms.graph.StronglyConnectedComponents;
@@ -26,8 +27,8 @@ import model.nets.Net;
 
 public class PettersonTest {
 	public static void main(String[] args) throws Exception {
-		TimedTask load = new TimedTask("load files", 1);
-		TimedTask total = new TimedTask("total", 1);
+		TimedTask load = new TimedTask("load files");
+		TimedTask total = new TimedTask("total");
 		GraphBuilder b = new GraphBuilder();
 		PetersonReader<MessageEvent> r = new PetersonReader<MessageEvent>(b);
 		GraphVizExporter e = new GraphVizExporter();
@@ -50,7 +51,7 @@ public class PettersonTest {
 		System.out.println("Nodes: " + g.getNodes().size());
 		load.stop();
 		System.out.println(load);
-		TimedTask invariants = new TimedTask("invariants", 1);
+		TimedTask invariants = new TimedTask("invariants");
 		//mineSplitInvariants(g, e);
 		System.out.println("Computing Invariants...");
 		e.exportAsDotAndPng("output/peterson/initial.dot", g);
@@ -68,7 +69,7 @@ public class PettersonTest {
 		e.exportAsDotAndPng("output/peterson/invariants-NFby.dot", s
 				.getInvariantGraph("NFby"));
 		System.out.println(s);
-		TimedTask refinement = new TimedTask("refinement", 1);
+		TimedTask refinement = new TimedTask("refinement");
 		//e.exportAsDotAndPngFast("output/peterson/initial-pg.dot", pg);
 		System.out.println("Refining Partitions...");
 		Bisimulation.refinePartitions(pg);
@@ -76,7 +77,7 @@ public class PettersonTest {
 		//e.exportAsDotAndPngFast("output/peterson/output-pg.dot", pg);
 		refinement.stop();
 		pg.checkSanity();
-		TimedTask coarsening = new TimedTask("coarsening", 1);
+		TimedTask coarsening = new TimedTask("coarsening");
 		System.out.println("Merging Partitions...");
 		Bisimulation.mergePartitions(pg);
 		coarsening.stop();

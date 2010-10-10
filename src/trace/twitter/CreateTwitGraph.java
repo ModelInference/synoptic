@@ -3,11 +3,12 @@ package trace.twitter;
 import java.io.File;
 import java.io.FileInputStream;
 
+import benchmarks.TimedTask;
+
 import algorithms.bisim.Bisimulation;
 
 
 import trace.MessageTrace.TraceSet;
-import util.TimedTask;
 import model.PartitionGraph;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
@@ -32,7 +33,7 @@ public class CreateTwitGraph {
 		int acc = 0;
 		int TIMES = 5;
 		for (int i = 0; i < TIMES ; ++i) {
-			TimedTask t = new TimedTask("time", 0);
+			TimedTask t = new TimedTask("time");
 			PartitionGraph orgGK = GraphBuilder.buildGraph(tr, true);
 
 			//Bisimulation.mergePartitions(orgGK, orgGK.getInvariants(), 0);

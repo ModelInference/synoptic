@@ -8,6 +8,10 @@ import invariants.TemporalInvariantSet.RelationPath;
 
 import java.util.*;
 
+import benchmarks.PerformanceMetrics;
+import benchmarks.TimedTask;
+
+
 import algorithms.graph.Operation;
 import algorithms.graph.PartitionMerge;
 import algorithms.graph.PartitionMultiSplit;
@@ -35,7 +39,7 @@ public abstract class Bisimulation {
 	/**
 	 * Essential status output
 	 */
-	private static final boolean ESSENTIAL = true;
+	private static final boolean ESSENTIAL = false;
 	/**
 	 * If true, a partition may be split on incoming/outgoing edges at once, if
 	 * both splits resolve the invariant (when considered separately).
@@ -63,14 +67,6 @@ public abstract class Bisimulation {
 	 * may or may not speed up operation.
 	 */
 	private static boolean interleavedMerging = false;
-	/**
-	 * Number of split steps done in refinePartitionsSmart
-	 */
-	public static int numSplitSteps;
-	/**
-	 * Number of merge steps done in coarsenPartitions
-	 */
-	public static int numMergeSteps;
 
 	private Bisimulation() throws InstantiationException {
 		throw new InstantiationException(this.getClass().getCanonicalName()
@@ -101,11 +97,12 @@ public abstract class Bisimulation {
 	 *            - the partition graph to refine
 	 */
 	public static void refinePartitions(PartitionGraph partitionGraph) {
+		TimedTask refinement = PerformanceMetrics.createTask("refinement", false);
 		int outer = 1;
 		if (DEBUG) {
 			GraphVizExporter.quickExport("output/rounds/0.dot", partitionGraph);
 		}
-		numSplitSteps = 0;
+		int numSplitSteps = 0;
 		// These invariants will be satisfied
 		TemporalInvariantSet invariants = partitionGraph.getInvariants();
 
@@ -310,12 +307,16 @@ public abstract class Bisimulation {
 							+ " unsatisfiedInvariants left.");
 			}
 			outer++;
+			numSplitSteps++;
 		}
+		
 
 		if (DEBUG) {
 			GraphVizExporter.quickExport("output/rounds/" + outer
 					+ "-final.dot", partitionGraph);
 		}
+		PerformanceMetrics.get().record("numOfSplitSteps", numSplitSteps);
+		refinement.stop();
 	}
 
 	/**
@@ -457,8 +458,9 @@ public abstract class Bisimulation {
 	 */
 	public static void mergePartitions(PartitionGraph partitionGraph,
 			TemporalInvariantSet invariants, int k) {
+		TimedTask coarsening = PerformanceMetrics.createTask("coarsening", false);
 		int outer = 0;
-		numMergeSteps = 0;
+		int numMergeSteps = 0;
 		HashMap<Partition, HashSet<Partition>> blacklist = new HashMap<Partition, HashSet<Partition>>();
 		out: while (true) {
 			if (ESSENTIAL)
@@ -504,7 +506,8 @@ public abstract class Bisimulation {
 								blacklist.put(p, new HashSet<Partition>());
 							blacklist.get(p).add(q);
 							partitionGraph.apply(rewindOperation);
-							partitionGraph.checkSanity();
+							if (DEBUG)
+								partitionGraph.checkSanity();
 							if (!parts.containsAll(partitionGraph.getNodes())
 									|| !partitionGraph.getNodes().containsAll(
 											parts))
@@ -529,6 +532,8 @@ public abstract class Bisimulation {
 			GraphVizExporter.quickExport("output/rounds/m" + outer
 					+ "-final.dot", partitionGraph);
 		}
+		PerformanceMetrics.get().record("numOfMergeSteps", numMergeSteps);
+		coarsening.stop();
 	}
 
 	/**

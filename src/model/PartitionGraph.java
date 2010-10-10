@@ -69,7 +69,7 @@ public class PartitionGraph implements IGraph<Partition> {
 		invariants = TemporalInvariantSet.computeInvariants(g);
 		/*****************************************/
 		
-		System.out.println(invariants.size() + " invariants found.");
+		//System.out.println(invariants.size() + " invariants found.");
 	}
 
 	private void addInitialMessages(Set<MessageEvent> initialMessages,
