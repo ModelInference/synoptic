@@ -491,14 +491,14 @@ public abstract class Bisimulation {
 						Operation rewindOperation = partitionGraph
 								.apply(new PartitionMerge(p, q));
 						numMergeSteps++;
-						List<RelationPath<Partition>> vio = null;
+						RelationPath<Partition> vio = null;
 						// partitionGraph.checkSanity();
 						// if (true)
 						// continue out;
 						if (invariants != null)
-							vio = invariants.getViolations(partitionGraph);
+							vio = invariants.getFirstViolation(partitionGraph);
 
-						if (invariants != null && vio != null && vio.size() > 0) {
+						if (invariants != null && vio != null) {
 
 							if (VERBOSE)
 								System.out.println("  REWIND");

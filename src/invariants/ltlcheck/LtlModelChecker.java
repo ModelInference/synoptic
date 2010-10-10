@@ -2,6 +2,9 @@ package invariants.ltlcheck;
 
 import java.util.HashMap;
 
+import benchmarks.PerformanceMetrics;
+import benchmarks.TimedTask;
+
 import invariants.TemporalInvariant;
 import gov.nasa.ltl.graph.Graph;
 import gov.nasa.ltl.graph.Node;
@@ -25,6 +28,7 @@ public class LtlModelChecker {
 		// Generate Did/Can Expanded Graph
 		Graph didCanTransitionSystem = transitionSystem;
 
+		TimedTask didCanTrans = PerformanceMetrics.createTask("didCanTranslation");
 		if (TemporalInvariant.useDIDCAN) {
 			if (translationCache.containsKey(transitionSystem)) {
 				monitor.subTask("Adding did/can attributes... (cached)");
@@ -39,28 +43,35 @@ public class LtlModelChecker {
 				translationCache.clear();
 			}
 		}
+		didCanTrans.stop();
 
 		// Remove deadlock
 		monitor.subTask("Massaging deadlock states...");
 		GraphTransformations.removeDeadlock(didCanTransitionSystem);
 
 		// Generate Buchi Automata for negated LTL formula
+		TimedTask buchiTrans = PerformanceMetrics.createTask("buchiTrans");
 		monitor.subTask("Generate Buchi automaton...");
 		Graph ba = invariant.getAutomaton();
+		buchiTrans.stop();
 
 		monitor.subTask("Parsing transition labels...");
 		GraphActionParser.parseTransitions(ba);
 
 		// Generate Product Automata of Did/Can Expanded Graph and Buchi
 		// Automata of LTL formula
+		TimedTask productAutomaton = PerformanceMetrics.createTask("productAutomaton");
 		monitor.subTask("Generate product automaton...");
 		final GeneralGraph pa = ProductTranslator.translate(
 				didCanTransitionSystem, ba);
+		productAutomaton.stop();
 
 		// Check Property via reachable cycle detection
+		TimedTask cycleChecking = PerformanceMetrics.createTask("cycleChecking");
 		monitor.subTask("Checking property...");
 		final PersistenceChecker pc = new PersistenceChecker(pa);
 		pc.run();
+		cycleChecking.stop();
 
 		return pc.getCounterexample();
 

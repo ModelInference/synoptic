@@ -14,6 +14,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import benchmarks.PerformanceMetrics;
+import benchmarks.TimedTask;
+
 import model.export.GraphVizExporter;
 import model.interfaces.IGraph;
 import model.interfaces.INode;
@@ -62,7 +65,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 
 		// formula = LTLFormulaPreprocessor.preprocessFormula(formula);
 		// monitor.subTask("Preprocessed LTL formula: " + formula);
-
+		TimedTask transToMC = PerformanceMetrics.createTask("transToMC");
 		Graph targetGraph = null;
 		String relation = invariant.getRelation();
 		if (lastSourceGraph.containsKey(relation)
@@ -84,6 +87,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 			lastSourceGraph.put(relation, sourceGraph);
 			lastTargetGraph.put(relation, targetGraph);
 		}
+		transToMC.stop();
 		if (DEBUG) {
 			GraphVizExporter v = new GraphVizExporter();
 			try {

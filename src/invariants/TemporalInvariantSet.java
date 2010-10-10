@@ -117,32 +117,35 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 
 	public <T extends INode<T>> RelationPath<T> getViolation(
 			TemporalInvariant inv, IGraph<T> g) {
-		TimedTask refinement = PerformanceMetrics.createTask("singleViolation", true);
+		TimedTask refinement = PerformanceMetrics.createTask("singleViolation",
+				true);
 		try {
-		RelationPath<T> r = new RelationPath<T>();
-		GraphLTLChecker<T> c = new GraphLTLChecker<T>();
-		try {
-			Counterexample ce = c.check(g, inv, new IModelCheckingMonitor() {
-				public void subTask(String str) {
+			RelationPath<T> r = new RelationPath<T>();
+			GraphLTLChecker<T> c = new GraphLTLChecker<T>();
+			try {
+				Counterexample ce = c.check(g, inv,
+						new IModelCheckingMonitor() {
+							public void subTask(String str) {
+							}
+						});
+				if (ce == null)
+					return null;
+				r.invariant = inv;
+				List<T> trace = c.convertCounterexample(ce);
+				if (trace != null) {
+					// System.out.println(i.toString() + trace);
+					r.path = inv.shorten(trace);
+					if (r.path == null) {
+						throw new RuntimeException(
+								"shortening returned null for " + inv
+										+ " and trace " + trace);
+					}
+					// System.out.println(r.path);
 				}
-			});
-			if (ce == null)
-				return null;
-			r.invariant = inv;
-			List<T> trace = c.convertCounterexample(ce);
-			if (trace != null) {
-				// System.out.println(i.toString() + trace);
-				r.path = inv.shorten(trace);
-				if (r.path == null) {
-					throw new RuntimeException("shortening returned null for "
-							+ inv + " and trace " + trace);
-				}
-				// System.out.println(r.path);
+			} catch (ParseErrorException e) {
+				e.printStackTrace();
 			}
-		} catch (ParseErrorException e) {
-			e.printStackTrace();
-		}
-		return r;
+			return r;
 		} finally {
 			refinement.stop();
 		}
@@ -196,6 +199,56 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			});
 
 			return paths;
+		} finally {
+			violations.stop();
+		}
+	}
+
+	/**
+	 * Returns the first violation encountered in the graph g. The order of
+	 * exploration is unspecified.
+	 * 
+	 * @param <T>
+	 *            the node type
+	 * @param g
+	 *            the graph to check
+	 * @return null if no violation is found, the counter-example path otherwise
+	 */
+	public <T extends INode<T>> RelationPath<T> getFirstViolation(IGraph<T> g) {
+		TimedTask violations = PerformanceMetrics.createTask("getViolations",
+				false);
+		try {
+			GraphLTLChecker<T> c = new GraphLTLChecker<T>();
+			for (TemporalInvariant i : invariants) {
+				// List<Transition<Message>> path = i.check(g);
+				try {
+					Counterexample ce = c.check(g, i,
+							new IModelCheckingMonitor() {
+								public void subTask(String str) {
+								}
+							});
+					if (ce == null)
+						continue;
+					RelationPath<T> r = new RelationPath<T>();
+					r.invariant = i;
+					List<T> trace = c.convertCounterexample(ce);
+					if (trace != null) {
+						// System.out.println(i.toString() + trace);
+						// r.path = i.shorten(trace);
+						r.path = trace;
+						if (r.path == null) {
+							throw new RuntimeException(
+									"shortening returned null for " + i
+											+ " and trace " + trace);
+						}
+						// System.out.println(r.path);
+						return r;
+					}
+				} catch (ParseErrorException e) {
+					e.printStackTrace();
+				}
+			}
+			return null;
 		} finally {
 			violations.stop();
 		}
