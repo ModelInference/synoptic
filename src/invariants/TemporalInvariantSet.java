@@ -360,7 +360,9 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			labels.add(n.getLabel());
 		int possibleInvariants = 3 /* invariant types */* labels.size()
 				* labels.size() /* reflexive invariants are allowed */;
-		int percentReduction = 100 - (overapproximatedInvariantsSetSize * 100 / possibleInvariants);
+		
+		int percentReduction = possibleInvariants == 0 ? 0 :
+			100 - (overapproximatedInvariantsSetSize * 100 / possibleInvariants);
 		if (VERBOSE_BENCHMARK)
 			System.out.println("" + overapproximatedInvariantsSet.size()
 					+ " true invariants, approximation guessed "

@@ -40,6 +40,10 @@ public class VectorTime {
 		return true;
 	}
 
+	public boolean isSingular() {
+		return vector.size() == 1;
+	}
+	
 	public VectorTime step(int i) {
 		List<Integer> vector = new ArrayList<Integer>();
 		vector.addAll(this.vector);
@@ -79,5 +83,9 @@ public class VectorTime {
 			}
 		}
 		return true;
+	}
+	
+	public String toString() {
+		return vector.toString();
 	}
 }

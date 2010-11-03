@@ -33,6 +33,8 @@ public class GraphVizExporter {
 			"C:\\Programme\\Graphviz2.26\\bin\\dot.exe",
 			"C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe" };
 
+	public boolean edgeLabels = true;
+	
 	private static String getDotCommand() {
 		for (String dotCommand : dotCommands) {
 			File f = new File(dotCommand);
@@ -173,18 +175,20 @@ public class GraphVizExporter {
 				final int targetStateNo = targetExpr.hashCode();
 				writer.write(sourceStateNo
 						+ "->"
-						+ targetStateNo
-						+ " [label=\""
+						+ targetStateNo + " [");
+				if (this.edgeLabels) {
+					writer.write("label=\""
 						+ quote(trans.toStringConcise())
-						+ "\", weight=\""+trans.toStringConcise()+"\""
-						+ (trans.toStringConcise().equals("i") ? ",color=blue"
+						+ "\", weight=\""+trans.toStringConcise()+"\",");
+				}
+				writer.write((trans.toStringConcise().equals("i") ? ",color=blue"
 								: "") + "];" + "\n");
 				if (statesSeen.add(targetExpr))
 					queue.add(targetExpr);
 			}
 		}
 	}
-
+	
 	private void exportNet(final Writer writer, Net net) throws IOException {
 		// write the transitions (nodes are generated implicitly by graphviz)
 		Set<Place> initialPlaces = net.getInitalPlaces();
