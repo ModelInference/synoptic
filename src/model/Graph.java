@@ -1,5 +1,6 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,6 +9,9 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
+
+import util.Pair;
 
 import model.interfaces.IModifiableGraph;
 import model.interfaces.INode;
@@ -122,4 +126,62 @@ public class Graph<NodeType extends INode<NodeType>> implements
 		cachedRelations = null;
 	}
 
+	
+	// Following interface / functions for generic graph equality.
+	
+	public interface I2Predicate<Domain> {
+		public boolean func(Domain a, Domain b);
+	}
+	
+	private class IgnoreRelation implements I2Predicate<String> {
+		public boolean func(String a, String b) { return true; }
+	}
+	
+	public boolean equalsWith(Graph<NodeType> other, I2Predicate<NodeType> np) {
+		return equalsWith(other, np, new IgnoreRelation());
+	}
+	
+	public boolean equalsWith(Graph<NodeType> other, I2Predicate<NodeType> np, I2Predicate<String> rp) {
+		Set<NodeType> unusedOther = other.getInitialNodes();
+		for (NodeType n1 : this.getInitialNodes()) {
+			boolean foundMatch = false;
+			for (NodeType n2 : unusedOther) {
+				if (np.func(n1, n2) && transitionEquality(n1, n2, np, rp)) {
+					foundMatch = true;
+					unusedOther.remove(n2);
+					break;
+				}
+			}
+			if (!foundMatch) return false;
+		}
+		return true;
+	}
+	
+	// Helper for equalsWith.
+	private boolean transitionEquality(NodeType a, NodeType b, I2Predicate<NodeType> np, I2Predicate<String> rp) {
+		Set<NodeType> visited = new HashSet<NodeType>();
+		Stack<util.Pair<NodeType,NodeType>> toVisit = new Stack<util.Pair<NodeType,NodeType>>();
+		toVisit.push(new Pair<NodeType,NodeType>(a, b));
+		while (!toVisit.isEmpty()) {
+			Pair<NodeType,NodeType> tv = toVisit.pop();
+			visited.add(tv.getLeft());
+			for(ITransition<NodeType> trans1 : tv.getLeft().getTransitions()) {
+				boolean foundMatch = false;
+				for (ITransition<NodeType> trans2 : tv.getRight().getTransitions()) {
+					//System.out.println("comparing " + trans1.getRelation() + " with " + 
+					//		trans2.getRelation());
+					if (rp.func(trans1.getRelation(), trans2.getRelation()) &&
+						np.func(trans1.getTarget(), trans2.getTarget())) {
+						if (!visited.contains(trans1.getTarget())) {
+							toVisit.push(new Pair<NodeType,NodeType>(trans1.getTarget(), trans2.getTarget()));
+						}
+						foundMatch = true;
+						break;
+					}
+				}
+				if (!foundMatch) return false;
+			}
+		}
+		return true;
+	}
 }

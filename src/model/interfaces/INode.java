@@ -9,7 +9,7 @@ import model.Partition;
 import model.Relation;
 
 /**
- * The interface all nodes must implement. The inteface does not contain methods
+ * The interface all nodes must implement. The interface does not contain methods
  * that allow modification of the node (with the exception of {@code setParent}.
  * 
  * @author sigurd

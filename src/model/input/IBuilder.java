@@ -24,7 +24,7 @@ public interface IBuilder<T> {
 
 	/**
 	 * Insert a new node with payload act after node (i.e.. creating an edge
-	 * from node to the newly created one). If split as called immediatelly
+	 * from node to the newly created one). If split was called immediatelly
 	 * before, this will behave like insert, e.g. no edge will be created.
 	 * 
 	 * @param node
@@ -61,7 +61,7 @@ public interface IBuilder<T> {
 	void addInitial(T curMessage, String relation);
 
 	/**
-	 * Add a new edge between first and last.
+	 * Add a new edge between first and second.
 	 * 
 	 * @param first
 	 *            source node

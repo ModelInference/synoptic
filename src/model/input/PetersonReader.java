@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import main.TraceParser.Occurrence;
 import model.Action;
 import model.IEvent;
 
@@ -148,6 +149,7 @@ public class PetersonReader<T extends IEvent> {
 				if (nodeInternal && !m2.nodeName.equals(m1.nodeName))
 					continue;
 				if (m1.getTime().lessThan(m2.getTime())) {
+					//System.out.println(m1.nodeName + " vs " + m2.nodeName);
 					boolean add = true;
 					List<Occurence> removeSet = new ArrayList<Occurence>();
 					for (Occurence m : directSuccessors.get(m1)) {

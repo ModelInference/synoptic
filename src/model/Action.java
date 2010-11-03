@@ -35,7 +35,7 @@ public class Action {
 	 * Set this to true if you want equals and hashcode to respect the contents
 	 * of stringArgumens.
 	 */
-	private final static boolean useDatafields = false;
+	private final static boolean useDatafields = true;
 
 	/**
 	 * The map that stores the arguments and their values. Arguments are named
@@ -69,7 +69,9 @@ public class Action {
 		final int prime = 31;
 		cachedHashCode = prime + ((label == null) ? 0 : label.hashCode());
 		if (useDatafields) {
-			cachedHashCode += prime * vectorTime.hashCode() + 7 * prime
+			if (vectorTime != null)
+				cachedHashCode += prime * vectorTime.hashCode();
+			cachedHashCode += 7 * prime
 					* stringArguments.hashCode();
 		}
 		return cachedHashCode;
@@ -95,7 +97,7 @@ public class Action {
 		} else if (!label.equals(other.label))
 			return false;
 		if (useDatafields) {
-			if (!vectorTime.equals(other.vectorTime))
+			if ((vectorTime == null && other.vectorTime == null) || !vectorTime.equals(other.vectorTime))
 				return false;
 			if (!stringArguments.equals(other.stringArguments))
 				return false;

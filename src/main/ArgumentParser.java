@@ -27,28 +27,44 @@ public class ArgumentParser {
 			System.out.println(this.args[i]);
 
 		/* logfile string parameter */
-		FlaggedOption opt_logfile = new FlaggedOption("logfile")
+		UnflaggedOption opt_logfiles = new UnflaggedOption("logfiles")
 				.setStringParser(JSAP.STRING_PARSER).setRequired(true)
-				.setShortFlag('f').setLongFlag("logfile");
-		opt_logfile.setHelp("The logfile to be processed by Synoptic");
-		this.jsap.registerParameter(opt_logfile);
+				.setGreedy(true);
+		opt_logfiles.setHelp("The logfiles to analyze.");
+		this.jsap.registerParameter(opt_logfiles);
 
-		/* print invariants switch */
-		Switch sw_print_invs = new Switch("print_invariants").setLongFlag("p")
-				.setLongFlag("print_invariants");
-		sw_print_invs.setHelp("Output the list of mined invariants.");
-		this.jsap.registerParameter(sw_print_invs);
-
-		/*
-		 * un-flagged option that grabs the regular expression to use on the
-		 * logfile
-		 */
-		FlaggedOption opt_reg_exp = new FlaggedOption("reg_exp")
+		FlaggedOption opt_parser = new FlaggedOption("parser")
 				.setStringParser(JSAP.STRING_PARSER).setRequired(true)
-				.setShortFlag('e').setLongFlag("reg_exp");
-		opt_reg_exp.setHelp("Regular expression used to parse the logfile.");
-		this.jsap.registerParameter(opt_reg_exp);
+				.setShortFlag('p').setLongFlag("parser");
+		opt_parser.setHelp("Log parser configuration regexes.");
+		this.jsap.registerParameter(opt_parser);
 
+/*TODO
+		FlaggedOption opt_config = new FlaggedOption("config")
+				.setStringParser(JSAP.STRING_PARSER).setRequired(false)
+				.setShortFlag('c').setLongFlag("config");
+		opt_configfile.setHelp("Log parser configuration file.");
+*/
+
+		FlaggedOption opt_filter = new FlaggedOption("filter")
+				.setStringParser(JSAP.STRING_PARSER).setRequired(false)
+				.setShortFlag('c').setLongFlag("filter");
+		opt_filter.setHelp("Name of the variable to use to group events into sets.");
+		this.jsap.registerParameter(opt_filter);
+		
+		/* verbosity switch */
+		Switch sw_verbose = new Switch("verbose").setShortFlag('v')
+				.setLongFlag("verbose");
+		sw_verbose.setHelp("Show debugging / diagnostic information.");
+		this.jsap.registerParameter(sw_verbose);
+
+		/* line count cap */
+		FlaggedOption opt_lines = new FlaggedOption("lines")
+				.setStringParser(JSAP.INTEGER_PARSER).setRequired(false)
+				.setLongFlag("lines").setDefault("-1");
+		opt_lines.setHelp("Set the cap on lines to read from each log file.");
+		this.jsap.registerParameter(opt_lines);
+		
 		/*
 		 * parse the arguments
 		 */
