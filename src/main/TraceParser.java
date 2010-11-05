@@ -28,7 +28,7 @@ import util.NamedMatcher;
 import util.NamedPattern;
 
 /**
- * TraceParser is a generic trace parser, configured in terms of Java 7 styles
+ * TraceParser is a generic trace parser, configured in terms of Java 7 style
  * named capture regexes.
  * @author mgsloan
  */
@@ -76,17 +76,22 @@ public class TraceParser {
 		matchPreIncrement     = Pattern.compile("\\(\\?<\\+\\+(\\w*)>\\)"),
 		matchPostIncrement    = Pattern.compile("\\(\\?<(\\w*)\\+\\+>\\)"),
 		matchDefault          = Pattern.compile("\\(\\?<(\\w*)>\\)"),
+		matchDefaultOptional  = Pattern.compile("\\(\\?<(\\w*)>\\)\\?"),
 		matchReference        = Pattern.compile("\\\\k<(\\w*)>");
 	
 	/**
 	 * Adds an individual trace line type, which consists of a regex with
 	 * additional syntax.  This additional syntax is as follows:
 	 * 
-	 * (?<name>)        Matches the default field regex, \s*\S*\s*, and
-	 *                  binds it to the name.
+	 * (?<name>)        Matches the default field regex, \s*(?<name>\S*)\s*
+	 * 
+	 * (?<name>)?       Matches an optional field regex, (?:\s*(?<name>\S*)\s*)?
 	 * 
 	 * (?<name=value>)  This specifies a constant field, which provides a
 	 *                  value to bind to the name.  No content regex allowed.
+	 * 
+	 * (?<name++>)      These specify context fields which are included with
+	 * (?<++name>)      every type of trace 
 	 * 
 	 * \;\; becomes ;;  (this is to support the parsing of multiple regexes,
 	 *                   described above).
@@ -126,8 +131,11 @@ public class TraceParser {
 		regex = matcher.replaceAll("");
 		this.incrementors.add(incMap);
 		
+		// Replace optional fields which lack regex content with appropriate default.
+		regex = matchDefaultOptional.matcher(regex).replaceAll("(?:\\\\s*(?<$1>\\\\S*)\\\\s*)?");
+		
 		// Replace fields which lack regex content with default.
-		regex = matchDefault.matcher(regex).replaceAll("(?<$1>\\\\s*\\\\S*\\\\s*)");
+		regex = matchDefault.matcher(regex).replaceAll("\\\\s*(?<$1>\\\\S*)\\\\s*");
 
 		NamedPattern parser = null;
 		try {
@@ -283,10 +291,7 @@ public class TraceParser {
 				}
 				
 				// Overlay extracted groups.
-				Map<String, String> matched = matcher.toMatchResult().namedGroups();
-				for (Map.Entry<String, String> entry : matched.entrySet()) {
-					gs.put(entry.getKey(), entry.getValue().trim());
-				}
+				gs.putAll(matcher.toMatchResult().namedGroups());
 				
 				// Perform preincrements.
 				for (Map.Entry<String, Boolean> inc : this.incrementors.get(i).entrySet())
