@@ -8,7 +8,7 @@ import java.util.List;
 import java.io.File;
 import java.lang.Integer;
 
-import util.TimedTask;
+import benchmarks.TimedTask;
 import utilMDE.ArraysMDE;
 
 import algorithms.bisim.Bisimulation;
@@ -62,9 +62,16 @@ public class Main implements Callable<Integer> {
 			System.out.println("filter: " + filter);
 			System.out.println("lines cap: " + lines);
 		}
+		
+		// Default parser
+		if (parserString == null) {
+			parserString = "^\\s*$(?<SEPCOUNT++>);;(?<TIME>)?(?<TYPE>.*)";
+			filter = "\\k<SEPCOUNT>\\k<FILE>"; //TODO: remove \k<FILE> ?
+			System.out.println("Using default parser " + parserString);
+		}
 
 		parser = new TraceParser(parserString);
-		//parser.LOG = new Logger("mainlog");
+		parser.LOG = Logger.getLogger("TraceParser");
 		parser.builder = new GraphBuilder();
 		List<Occurrence> occurrences = new ArrayList<Occurrence>();
 		for (String file : logfiles) {
@@ -78,7 +85,7 @@ public class Main implements Callable<Integer> {
 
 		GraphVizExporter export = new GraphVizExporter();
 
-		TimedTask all = new TimedTask("all", 0);
+		TimedTask all = new TimedTask("all");
 		PartitionGraph g = new PartitionGraph(graph, true);
 		export.export(new File("input.dot"), g);
 		Bisimulation.refinePartitions(g);
