@@ -1,6 +1,10 @@
 package main;
 
 import com.martiansoftware.jsap.JSAPResult;
+
+import invariants.TemporalInvariantSet;
+import invariants.fsmcheck.FsmModelChecker;
+
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import java.util.ArrayList;
@@ -88,12 +92,18 @@ public class Main implements Callable<Integer> {
 		TimedTask all = new TimedTask("all");
 		PartitionGraph g = new PartitionGraph(graph, true);
 		export.export(new File("input.dot"), g);
+		
+		TemporalInvariantSet inv = g.getInvariants();
+		FsmModelChecker<MessageEvent> checker = new FsmModelChecker<MessageEvent>(inv, graph);
+		checker.runToCompletion();
+		
+		/*
 		Bisimulation.refinePartitions(g);
 		if (verbose) System.out.println("merging.");
 		Bisimulation.mergePartitions(g);
 		all.stop();
 		if (verbose) System.out.println(all);
-
+*/
 //      TODO: print invariants
 //		TemporalInvariantSet inv = g.getInvariants();
 
