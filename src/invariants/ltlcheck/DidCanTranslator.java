@@ -13,7 +13,7 @@ public class DidCanTranslator {
 	private final static boolean debug = false;
 
 	/**
-	 * Translates the graph in a did-can transleted one (see return).
+	 * Translates the graph in a did-can translated one (see return).
 	 * 
 	 * @param lts original Graph
 	 * @return expanded graph with atomic propositions for the action did before and 
@@ -26,7 +26,7 @@ public class DidCanTranslator {
 		// for each node n in lts
 		for (Node current :  lts.getNodes()) {
 
-			// and each incoming edge labelled l
+			// and each incoming edge labeled l
 			for (Edge edge : current.getIncomingEdges()) {
 
 				// add a node <l, n> in did/can-extended graph g

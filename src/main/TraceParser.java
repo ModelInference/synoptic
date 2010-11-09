@@ -61,11 +61,11 @@ public class TraceParser {
 	public TraceParser(String parser) {
 		this.parsers = new ArrayList<NamedPattern>();
 		this.constantFields = new ArrayList<Map<String, String>>();
+		this.incrementors = new ArrayList<Map<String, Boolean>>();
+		this.filters = new HashSet<String>();
 		for (String regex : matchSeparator.split(parser)) {
 			addRegex(regex);
 		}
-		this.incrementors = new ArrayList<Map<String, Boolean>>();
-		this.filters = new HashSet<String>();
 	}
 	
 	// Patterns used to pre-process regular expressions
@@ -76,16 +76,13 @@ public class TraceParser {
 		matchPreIncrement     = Pattern.compile("\\(\\?<\\+\\+(\\w*)>\\)"),
 		matchPostIncrement    = Pattern.compile("\\(\\?<(\\w*)\\+\\+>\\)"),
 		matchDefault          = Pattern.compile("\\(\\?<(\\w*)>\\)"),
-		matchDefaultOptional  = Pattern.compile("\\(\\?<(\\w*)>\\)\\?"),
 		matchReference        = Pattern.compile("\\\\k<(\\w*)>");
 	
 	/**
 	 * Adds an individual trace line type, which consists of a regex with
 	 * additional syntax.  This additional syntax is as follows:
 	 * 
-	 * (?<name>)        Matches the default field regex, \s*(?<name>\S*)\s*
-	 * 
-	 * (?<name>)?       Matches an optional field regex, (?:\s*(?<name>\S*)\s*)?
+	 * (?<name>)        Matches the default field regex, (?:\s*(?<name>\S*)\s*)
 	 * 
 	 * (?<name=value>)  This specifies a constant field, which provides a
 	 *                  value to bind to the name.  No content regex allowed.
@@ -131,12 +128,21 @@ public class TraceParser {
 		regex = matcher.replaceAll("");
 		this.incrementors.add(incMap);
 		
-		// Replace optional fields which lack regex content with appropriate default.
-		regex = matchDefaultOptional.matcher(regex).replaceAll("(?:\\\\s*(?<$1>\\\\S*)\\\\s*)?");
-		
 		// Replace fields which lack regex content with default.
-		regex = matchDefault.matcher(regex).replaceAll("\\\\s*(?<$1>\\\\S*)\\\\s*");
-
+		matcher = matchDefault.matcher(regex);
+		StringBuffer newRegex = new StringBuffer();
+		boolean isFirst = true;
+		while (matcher.find()) {
+			if (isFirst) {
+				matcher.appendReplacement(newRegex, "(?:\\\\s*(?<$1>\\\\S+)\\\\s*)");
+				isFirst = false;
+			} else {
+				matcher.appendReplacement(newRegex, "(?:\\\\s+(?<$1>\\\\S+)\\\\s*)");
+			}
+		}
+		matcher.appendTail(newRegex);
+		regex = newRegex.toString();
+		
 		NamedPattern parser = null;
 		try {
 			parser = NamedPattern.compile(regex);

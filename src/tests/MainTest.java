@@ -3,6 +3,8 @@ package tests;
 import java.util.ArrayList;
 import java.util.List;
 
+import util.Predicate;
+
 import benchmarks.TimedTask;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
@@ -105,8 +107,8 @@ public class MainTest {
 	}
 
 	// Comparison of messages based on label.  Passed into Graph.equalsWith.
-	public static class MessageEquality implements model.Graph.I2Predicate<MessageEvent> {
-		public boolean func(MessageEvent a, MessageEvent b) {
+	public static class MessageEquality implements Predicate.IBinary<MessageEvent, MessageEvent> {
+		public boolean eval(MessageEvent a, MessageEvent b) {
 			return a.getAction().getLabel().equals(b.getAction().getLabel());
 		}
 	}
