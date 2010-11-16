@@ -42,6 +42,7 @@ public class TraceParser {
 	public Set<String> filters;
 	public boolean internActions = true;
 	
+	// TODO: this must be initialized, or we must fail
 	public static Logger LOG = null;
 	
 	//TODO: figure out how we deal with constraints which involve the multiple parsers.
