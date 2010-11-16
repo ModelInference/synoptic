@@ -34,7 +34,7 @@ public class MainTest {
 		TimedTask newTimer = new TimedTask("new");
 		TraceParser m = new TraceParser();
 		
-		m.addSeperator("--------");
+		m.addSeparator("--------");
 		//Equivalent to:
 		//m.addRegex("--------(?<section++>)");
 		//m.setPartitioner("\\k<section>");
@@ -56,9 +56,7 @@ public class MainTest {
 		return results;
 	}
 	
-	//TODO: all caps special fields
-	//TODO: set filter -> setPartitionMap ?
-	
+
 	public static void testPeterson() throws Exception {
 		TimedTask oldTimer = new TimedTask("old");
 		GraphBuilder b = new GraphBuilder();

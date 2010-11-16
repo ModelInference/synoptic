@@ -176,7 +176,7 @@ public class TraceParser {
 		this.filters.add(field);
 	}
 	
-	public void addSeperator(String regex) {
+	public void addSeparator(String regex) {
 		this.addRegex(regex + "(?<SEPCOUNT++>)");
 		this.addPartitionField("SEPCOUNT");
 	}
@@ -347,6 +347,11 @@ public class TraceParser {
 				
 				if (internActions) action = action.intern();
 				String nodeName = getNodeName(action);
+				
+				LOG.info("builder is" + builder.toString());
+				LOG.info("action is" + action.toString());
+				LOG.info("nextTime is" + nextTime.toString());
+				LOG.info("nodeName is" + nodeName.toString());
 				return new Occurrence(builder.insert(action), nextTime, nodeName);
 			}
 		}
