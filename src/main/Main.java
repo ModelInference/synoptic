@@ -232,7 +232,12 @@ public class Main implements Callable<Integer> {
     	return tokens;
     }
 
-    	
+    /**
+     *  The workhorse method, whichuses TraceParser to parse the input files, and calls
+     *  the primary Synoptic functions to perform refinement\coarsening and
+     *  finally outputs the final graph to the output file (specified as a
+     *  command line option).
+     */
 	@Override
 	public Integer call() throws Exception {
 		// TODO: is there a way to print all the set Options?
@@ -244,12 +249,12 @@ public class Main implements Callable<Integer> {
 		VerbosePrint(debug_msg);
 
 		TraceParser parser = new TraceParser();
-		parser.LOG = Logger.getLogger("Parser Logger");
+		TraceParser.LOG = Logger.getLogger("Parser Logger");
         
 		VerbosePrint("Setting up the log file parser.");
         
         if (Main.separator != null) {
-            parser.addSeperator(Main.separator);
+            parser.addSeparator(Main.separator);
         }
         
         if (Main.regExps != null) {
@@ -261,7 +266,7 @@ public class Main implements Callable<Integer> {
         	ArrayList<String> exps = TokenizeStringOfQuotes(Main.regExps);
         	Iterator<String> expsItr = exps.iterator();
         	String exp = null;
-        	while(expsItr.hasNext()) {
+        	while (expsItr.hasNext()) {
         		exp = expsItr.next();
         		VerbosePrint("\taddRegex with exp:" + exp);
         		parser.addRegex(exp);
@@ -282,17 +287,17 @@ public class Main implements Callable<Integer> {
         	Iterator<String> filenamesItr = filenames.iterator();
         	String filename = null;
         	parsedEvents = new ArrayList<TraceParser.Occurrence>();
-        	while(filenamesItr.hasNext()) {
+        	parser.builder = new GraphBuilder();
+        	while (filenamesItr.hasNext()) {
         		filename = filenamesItr.next();
         		VerbosePrint("\tcalling parseTraceFile with filename:" + filename);
         		parsedEvents.addAll(parser.parseTraceFile(filename, -1));
         	}
         }
-        
+
         // If we parses any events then run Synoptic
         if (parsedEvents != null) {
         	VerbosePrint("Running Synoptic..");
-            parser.builder = new GraphBuilder();
         	parser.generateDirectTemporalRelation(parsedEvents, true);
             model.Graph<MessageEvent> synopticGraph = ((GraphBuilder) parser.builder).getRawGraph();
             
