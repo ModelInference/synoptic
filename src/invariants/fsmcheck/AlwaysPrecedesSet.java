@@ -12,8 +12,8 @@ public class AlwaysPrecedesSet extends StateSet {
 		addState(false);    // State 3: Accept state (B seen after A)
 		addState(false);    // State 4: Fail state   (A seen after B)
 	}
-	
-	// State 4 indicates permanent failure.
+
+	// State 4 indicates failure, failure is permanent.
 	public BitSet isFail() { return (BitSet)sets.get(3).clone(); }
 	public BitSet isPermanentFail() { return (BitSet)sets.get(3).clone(); }
 	
