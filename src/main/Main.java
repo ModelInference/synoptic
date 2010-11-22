@@ -7,13 +7,12 @@ import java.util.List;
 import java.lang.Integer;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import java.util.Iterator;
 
 import plume.Option;
 import plume.Options;
 import plume.OptionGroup;
 
-import model.*;
+import model.MessageEvent;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
 
@@ -167,6 +166,10 @@ public class Main implements Callable<Integer> {
         Options options = new Options (usage_string, Main.class);
         // TODO: currently not using commandlineArgs for anything..
         String[] commandLineArgs = options.parse_or_usage(args);
+        
+//        for (int i = 0; i < args.length; i++) {
+//        	System.out.println("arg " + i + " : " + args[i]);
+//        }
 
         // Display help for all option groups, including 'unpublicized' ones
         if (allHelp) {
