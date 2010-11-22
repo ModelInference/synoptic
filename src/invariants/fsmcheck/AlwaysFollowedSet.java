@@ -12,7 +12,7 @@ public class AlwaysFollowedSet extends StateSet {
 	}
 	
 	public BitSet isFail() { return (BitSet)sets.get(1).clone(); }
-	public BitSet isPermanentFail() { return new BitSet(); }
+	public BitSet isPermanentFail() { return zero; }
 	
 	public void transition(List<BitSet> inputs) {
 		/*

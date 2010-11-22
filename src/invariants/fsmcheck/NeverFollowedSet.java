@@ -10,12 +10,11 @@ public class NeverFollowedSet extends StateSet {
 		addState(true);		// State 1: Accept state (no A seen, maybe B seen)
 		addState(false);    // State 2: Accept state (A seen)
 		addState(false);    // State 3: Accept state (B seen after A)
-		addState(false);    // State 4: Fail state   (A seen after B)
 	}
 	
-	// State 4 indicates permanent failure.
-	public BitSet isFail() { return (BitSet)sets.get(3).clone(); }
-	public BitSet isPermanentFail() { return (BitSet)sets.get(3).clone(); }
+	// State 3 indicates failure, failure is permanent.
+	public BitSet isFail() { return (BitSet)sets.get(2).clone(); }
+	public BitSet isPermanentFail() { return (BitSet)sets.get(2).clone(); }
 	
 	public void transition(List<BitSet> inputs) {
 		/*
