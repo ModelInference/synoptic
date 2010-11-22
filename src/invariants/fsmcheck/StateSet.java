@@ -11,12 +11,14 @@ import java.util.Map;
 public abstract class StateSet<T> {
 	protected List<BitSet> sets;
 	protected int count;
+	protected List<Map<T, BitSet>> inputCache;
 	protected List<Map<T, Integer>> inputMaps;
 	
 	public StateSet(int n) {
 		this.count = n;
 		sets = new ArrayList<BitSet>(4);
 		inputMaps = new ArrayList<Map<T, Integer>>(2);
+		inputCache = new ArrayList<Map<T, BitSet>>(2);
 	}
 	
 	protected void addState(boolean initialValue) {
@@ -27,6 +29,7 @@ public abstract class StateSet<T> {
 	
 	protected void addInput(Map<T, Integer> m) {
 		inputMaps.add(m);
+		inputCache.add(new HashMap<T, BitSet>());
 	}
 	
 	public static void addBinaryInvariants(StateSet<String> set, List<BinaryInvariant> invariants) {
@@ -60,6 +63,7 @@ public abstract class StateSet<T> {
 		}
 		result.count = count;
 		result.inputMaps = inputMaps;
+		result.inputCache = inputCache;
 		ArrayList<BitSet> newSets = new ArrayList<BitSet>();
 		for (int i = 0; i < sets.size(); i++) {
 			newSets.add((BitSet)sets.get(i).clone());
@@ -68,12 +72,21 @@ public abstract class StateSet<T> {
 		return result;
 	}
 	
-	// TODO: cache
+	public static zero = new BitSet();
+	
 	public BitSet inputBits(T input, int ix) {
-		BitSet result = new BitSet();
-		Integer index = inputMaps.get(ix).get(input);
-		if (index != null) {
-			result.set(index);
+		Map<T, BitSet> cacheMap = this.inputCache.get(ix); 
+		BitSet result = cacheMap.get(input);
+		if (result == null) {
+			Integer index = inputMaps.get(ix).get(input);
+			if (index != null) {
+			    // Only cache non-zero sets
+				result = new BitSet();
+				result.set(index);
+				cacheMap.put(input, result);  
+			} else {
+				result = zero;
+			}
 		}
 		return result;
 	}
