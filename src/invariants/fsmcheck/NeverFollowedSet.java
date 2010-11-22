@@ -1,30 +1,23 @@
 package invariants.fsmcheck;
 
-import invariants.BinaryInvariant;
-
 import java.util.BitSet;
 import java.util.List;
 
 // A never followed by B
-public class NeverFollowedSet extends StateSet<String> {	
+public class NeverFollowedSet extends StateSet {	
 	public NeverFollowedSet(int size) {
 		super(size);
-	}
-	public NeverFollowedSet(List<BinaryInvariant> invariants) {
-		super(invariants.size());
 		addState(true);		// State 1: Accept state (no A seen, maybe B seen)
 		addState(false);    // State 2: Accept state (A seen)
 		addState(false);    // State 3: Accept state (B seen after A)
 		addState(false);    // State 4: Fail state   (A seen after B)
-		StateSet.addBinaryInvariants(this, invariants);
 	}
 	
 	// State 4 indicates permanent failure.
 	public BitSet isFail() { return (BitSet)sets.get(3).clone(); }
 	public BitSet isPermanentFail() { return (BitSet)sets.get(3).clone(); }
 	
-	
-	public void next(String x) {
+	public void transition(List<BitSet> inputs) {
 		/*
 		 * state 1 (no A seen, maybe some B seen), 2 (A seen) are accepting states
 		 * state 3 (B after A seen) fail state
@@ -37,7 +30,7 @@ public class NeverFollowedSet extends StateSet<String> {
 		 * s2 = (s2 & n) | (!s3 & isA)
 		 * s3 = s3 | (s2 & isB)
 		 */
-		BitSet isA = inputBits(x, 0), isB = inputBits(x, 1),
+		BitSet isA = inputs.get(0), isB = inputs.get(1),
 		       s1 = sets.get(0), s2 = sets.get(1), s3 = sets.get(2);
 
 		BitSet neither = (BitSet)isA.clone();

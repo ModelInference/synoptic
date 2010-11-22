@@ -3,6 +3,7 @@ package invariants.fsmcheck;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Map;
 
 import model.interfaces.INode;
 
@@ -17,10 +18,6 @@ import model.interfaces.INode;
  * @param <T> The node type of the graph this worker traverses.
  */
 public class FsmWorker<T extends INode<T>> {
-	public List<StateSet<String>> machines;
-	public HistoryNode history;
-	public BitSet fail, permanentFail;
-	
 	public class HistoryNode {
 		T node;
 		HistoryNode previous;
@@ -42,25 +39,34 @@ public class FsmWorker<T extends INode<T>> {
 		}
 	}
 	
-	public FsmWorker(List<StateSet<String>> machines) {
+	public List<StateSet> machines;
+	public List<Map<String, BitSet>> inputMappings;
+	public HistoryNode history;
+	public BitSet fail, permanentFail;
+	
+	// Constructs the worker given an initial 
+	public FsmWorker(List<StateSet> machines) {
 		this.machines = machines;
-		this.history = null;
-		this.fail = new BitSet();
+		this.inputMappings = new ArrayList<Map<String, BitSet>>(); 
+		this.history       = null;
+		this.fail          = new BitSet();
 		this.permanentFail = new BitSet();
 	}
 	
+	// Clone constructor, to avoid initializing empty structures which are duplicated
 	public FsmWorker(FsmWorker<T> other) { 
-		List<StateSet<String>> newMachines = new ArrayList<StateSet<String>>();
-		for (StateSet<String> machine : other.machines) {
+		List<StateSet> newMachines = new ArrayList<StateSet>();
+		for (StateSet machine : other.machines) {
 			newMachines.add(machine.clone());
 		}
 		this.machines = newMachines;
-		this.fail = other.fail;
-		this.permanentFail = other.permanentFail;
-		this.history = other.history;
+		this.inputMappings = other.inputMappings;
+		this.fail          = (BitSet) other.fail.clone();
+		this.permanentFail = (BitSet) other.permanentFail.clone();
+		this.history       = other.history;
 	}
 	
-	// Can't believe this isn't in the API.
+	// Can't believe this isn't in the BitSet API.
 	private static void setRange(BitSet destination, int from, BitSet source) {
 		for (int i = from; i < from + source.size(); i++)
 			destination.set(i, source.get(i));
@@ -72,8 +78,8 @@ public class FsmWorker<T extends INode<T>> {
 	public void next(T x, boolean isFinal) {
 		int offset = 0;
 		for (int i = 0; i < machines.size(); i++) {
-			StateSet<String> machine = machines.get(i);
-			machine.next(x.getLabel());
+			StateSet machine = machines.get(i);
+			machine.visit(inputMappings, x.getLabel());
 			setRange(fail, offset, machine.isFail());
 			setRange(permanentFail, offset, machine.isPermanentFail());
 			offset += machine.count;
@@ -103,11 +109,13 @@ public class FsmWorker<T extends INode<T>> {
 		return true;
 	}
 	
+	// Sets the history to null.
 	public void resetHistory(T node) {
 		this.history = new HistoryNode(node, null, false);
 	}
 	
-	// Equality / hashing on machine state, not history.
+	// Equality & hashing on machine state, ignoring other fields.
+	
 	public int hashCode() {
 		return machines.hashCode();
 	}
