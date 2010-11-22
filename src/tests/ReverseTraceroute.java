@@ -17,8 +17,6 @@ import java.util.Set;
 import benchmarks.PerformanceMetrics;
 import benchmarks.TimedTask;
 
-import sun.tools.tree.ThisExpression;
-
 import algorithms.bisim.Bisimulation;
 import algorithms.graph.Operation;
 import model.Graph;

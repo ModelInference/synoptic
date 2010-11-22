@@ -215,15 +215,15 @@ public class Main implements Callable<Integer> {
     }
     
     
+    Pattern quotePattern = Pattern.compile("\"(\\([^)]*\\)|[^\"])*\"");
+    
     /**
      * Tokenizes a string of doubled quoted strings delimited with commas.
      * @param str Input string to tokenize
      * @return an array of tokens, without the quotes
      */
     public ArrayList<String> TokenizeStringOfQuotes(String str) {
-    	String regex = "\"(\\([^)]*\\)|[^\"])*\"";
-    	Pattern p = Pattern.compile(regex);
-    	Matcher m = p.matcher(str);
+    	Matcher m = quotePattern.matcher(str);
     	ArrayList<String> tokens = new ArrayList<String>();
     	while(m.find()) {
     		String exp = str.substring(m.start() + 1, m.end() - 1);
@@ -233,7 +233,7 @@ public class Main implements Callable<Integer> {
     }
 
     /**
-     *  The workhorse method, whichuses TraceParser to parse the input files, and calls
+     *  The workhorse method, which uses TraceParser to parse the input files, and calls
      *  the primary Synoptic functions to perform refinement\coarsening and
      *  finally outputs the final graph to the output file (specified as a
      *  command line option).
@@ -260,14 +260,7 @@ public class Main implements Callable<Integer> {
         if (Main.regExps != null) {
         	// The regExps string is assumed to be comma delimited
         	// with each regular expression enclosed in double quotes.
-
-        	// TODO: this is too verbose, and also repeats below.
-        	//       Could this be made more concise?
-        	ArrayList<String> exps = TokenizeStringOfQuotes(Main.regExps);
-        	Iterator<String> expsItr = exps.iterator();
-        	String exp = null;
-        	while (expsItr.hasNext()) {
-        		exp = expsItr.next();
+        	for (String exp : TokenizeStringOfQuotes(Main.regExps)) {
         		VerbosePrint("\taddRegex with exp:" + exp);
         		parser.addRegex(exp);
         	}
@@ -277,25 +270,23 @@ public class Main implements Callable<Integer> {
             parser.setPartitioner(Main.partitionRegExp);
         }
         
-        // Parse all the log filenames, constructing the parsedEvents List
+        // Parses all the log filenames, constructing the parsedEvents List.
         List<TraceParser.Occurrence> parsedEvents = null;
         if (Main.logFilenames != null) {
         	VerbosePrint("Parsing input files..");
-        	// The logFilenames string is assumed to be comma delimited
-        	// with each filename enclosed in double quotes.
-        	ArrayList<String> filenames = TokenizeStringOfQuotes(Main.logFilenames);
-        	Iterator<String> filenamesItr = filenames.iterator();
-        	String filename = null;
+        	
         	parsedEvents = new ArrayList<TraceParser.Occurrence>();
         	parser.builder = new GraphBuilder();
-        	while (filenamesItr.hasNext()) {
-        		filename = filenamesItr.next();
+        	
+        	// The logFilenames string is assumed to be comma delimited
+        	// with each filename enclosed in double quotes.
+        	for (String filename : TokenizeStringOfQuotes(Main.logFilenames)) {
         		VerbosePrint("\tcalling parseTraceFile with filename:" + filename);
         		parsedEvents.addAll(parser.parseTraceFile(filename, -1));
         	}
         }
 
-        // If we parses any events then run Synoptic
+        // If we parsed any events, then run Synoptic.
         if (parsedEvents != null) {
         	VerbosePrint("Running Synoptic..");
         	parser.generateDirectTemporalRelation(parsedEvents, true);

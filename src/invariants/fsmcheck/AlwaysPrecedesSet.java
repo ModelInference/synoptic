@@ -3,27 +3,21 @@ package invariants.fsmcheck;
 import java.util.BitSet;
 import java.util.List;
 
-import invariants.BinaryInvariant;
-
 // Indicates that A always precedes B.
-public class AlwaysPrecedesSet extends StateSet<String> {
+public class AlwaysPrecedesSet extends StateSet {
 	public AlwaysPrecedesSet(int size) {
 		super(size);
-	}
-	public AlwaysPrecedesSet(List<BinaryInvariant> invariants) {
-		super(invariants.size());
 		addState(true);		// State 1: Accept state (no A or B seen)
 		addState(false);    // State 2: Accept state (A seen)
 		addState(false);    // State 3: Accept state (B seen after A)
 		addState(false);    // State 4: Fail state   (A seen after B)
-		StateSet.addBinaryInvariants(this, invariants);
 	}
 	
 	// State 4 indicates permanent failure.
 	public BitSet isFail() { return (BitSet)sets.get(3).clone(); }
 	public BitSet isPermanentFail() { return (BitSet)sets.get(3).clone(); }
 	
-	public void next(String x) {
+	public void transition(List<BitSet> inputs) {
 		/*
 		 *  1 -a-> 2
 		 *  1 -b-> 4
@@ -43,7 +37,7 @@ public class AlwaysPrecedesSet extends StateSet<String> {
 		 * s2 = (s2 & !isB) | (s1 & isA)
 		 * s3 = (s3 & !isA) | (s2 & isB)
 		 */
-		BitSet isA = inputBits(x, 0), isB = inputBits(x, 1),
+		BitSet isA = inputs.get(0), isB = inputs.get(1),
 		       s1 = sets.get(0), s2 = sets.get(1), s3 = sets.get(2), s4 = sets.get(3);
 		
 		// Temporary sets

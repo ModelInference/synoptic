@@ -8,6 +8,7 @@ import invariants.TemporalInvariant;
 import invariants.TemporalInvariantSet;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -25,8 +26,16 @@ public class FsmModelChecker<T extends INode<T>> {
 	Queue<FsmWorker<T>> workList;
 	Map<T, Set<FsmWorker<T>>> cachedStates;
 	Graph<T> graph;
+	List<List<Map<String, BitSet>>> inputMappings;
 	
 	public FsmModelChecker(TemporalInvariantSet invariants, Graph<T> graph) {
+		this.graph = graph;
+		this.workList = new LinkedList<FsmWorker<T>>();
+		this.cachedStates = new HashMap<T, Set<FsmWorker<T>>>();
+		for (T node : graph.getNodes()) {
+			cachedStates.put(node, new HashSet<FsmWorker<T>>());
+		}
+		
 		// TODO: store this instead of post processing the set
 		alwaysFollowed = new ArrayList<BinaryInvariant>();
 		alwaysPrecedes = new ArrayList<BinaryInvariant>();
@@ -40,17 +49,17 @@ public class FsmModelChecker<T extends INode<T>> {
 				alwaysFollowed.add((BinaryInvariant)inv);
 			}
 		}
-		this.graph = graph;
-		this.workList = new LinkedList<FsmWorker<T>>();
-		this.cachedStates = new HashMap<T, Set<FsmWorker<T>>>();
-		for (T node : graph.getNodes()) {
-			cachedStates.put(node, new HashSet<FsmWorker<T>>());
-		}
 		
-		List<StateSet<String>> machines = new ArrayList<StateSet<String>>(3);
-		machines.add(new AlwaysFollowedSet(alwaysFollowed));
-		machines.add(new AlwaysPrecedesSet(alwaysPrecedes));
-		machines.add(new NeverFollowedSet(neverFollowed));
+		inputMappings = new ArrayList<List<Map<String, BitSet>>>();
+		inputMappings.add(StateSet.getMapping(alwaysFollowed));
+		inputMappings.add(StateSet.getMapping(alwaysPrecedes));
+		inputMappings.add(StateSet.getMapping(neverFollowed));
+		
+		List<StateSet> machines = new ArrayList<StateSet>(3);
+		machines.add(new AlwaysFollowedSet(alwaysFollowed.size()));
+		machines.add(new AlwaysPrecedesSet(alwaysPrecedes.size()));
+		machines.add(new NeverFollowedSet(neverFollowed.size()));
+		
 		FsmWorker<T> initialWorker = new FsmWorker<T>(machines);
 		for (T initial : graph.getInitialNodes()) {
 			FsmWorker<T> newWorker = new FsmWorker<T>(initialWorker);
