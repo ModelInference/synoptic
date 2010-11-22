@@ -7,9 +7,8 @@ import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-/*
+/**
  * Abstract class to provide functionality for nondeterministic finite state
  * machines which utilize BitSets as a method for evaluating the transitions
  * of many instances in parallel.
@@ -17,34 +16,39 @@ import java.util.Map.Entry;
 public abstract class StateSet {
 	protected List<BitSet> sets;
 	protected int count;
-	/*
+	
+	/**
 	 * Initializes the data structures, taking the number of instances of
 	 * the machines to simulate in parallel.
+	 * 
+	 * @param numSimulators
 	 */
-	protected StateSet(int n) {
-		this.count = n;
+	protected StateSet(int numSimulators) {
+		this.count = numSimulators;
+		// TODO: explain why sets is initialized to be a list of length 4?
 		sets = new ArrayList<BitSet>(4);
 	}
 	
 	public abstract void transition(List<BitSet> inputs);
 	
-	/* 
+	/**
 	 * At final states (partitions which contain ending nodes of some sample
 	 * traces), this indicates which of the invariants maintained by this
 	 * stateset would be considered to not be satisfied.
 	 */
 	public abstract BitSet isFail();
 	
-	/*
+	/**
 	 * When machines are permanently locked in a failure state, i.e. no recovery
-	 * is possible, that fact is indicated as a 1 in this bitset.  This can be
+	 * is possible, that fact is indicated as a 1 in this bitset. This can be
 	 * used to preemptively halt search.
 	 */
 	public abstract BitSet isPermanentFail();
 	
-	/*
-	 * Adds a state, with the given initial value (use true to indicate the
-	 * initial state).
+	/**
+	 * Adds a state, with a given initial value
+	 * 
+	 * @param initialValue true = 1, false = 0
 	 */
 	protected void addState(boolean initialValue) {
 		BitSet newState = new BitSet(count);
@@ -52,9 +56,13 @@ public abstract class StateSet {
 		sets.add(newState);
 	}
 	
-	/*
+	/**
 	 * Merges this stateset with another, by ORing all of the state vectors.
-	 * Exceptions are thrown if the 
+	 * Exceptions are thrown if
+	 * 	- statesets have different sizes
+	 * 	- statesets have different number of parallel instances
+	 *  
+	 * @param other
 	 */
 	public void mergeWith(StateSet other) {
 		assert(sets.size() == other.sets.size());
@@ -64,7 +72,7 @@ public abstract class StateSet {
 		}
 	}
 	
-	/*
+	/**
 	 * Clones this set of states, using reflection to ascertain the actual type
 	 * to construct.
 	 * 
