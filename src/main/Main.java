@@ -1,5 +1,9 @@
 package main;
 
+import invariants.TemporalInvariant;
+import invariants.TemporalInvariantSet;
+import invariants.fsmcheck.FsmModelChecker;
+
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import java.util.ArrayList;
@@ -7,6 +11,8 @@ import java.util.List;
 import java.lang.Integer;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+
+import algorithms.bisim.Bisimulation;
 
 import plume.Option;
 import plume.Options;
@@ -70,10 +76,10 @@ public class Main implements Callable<Integer> {
      * List of regular expression strings for parsing lines in the input files.
      */
     @Option (value="-r Parser regular expressions", aliases={"-regexps"})
-    public static String regExps = null;
+    public static String[] regExps = null;
 
     /**
-     * A regular expression to partition the lines of the input files.
+     * A substitution expression to partition the lines of the input files.
      */
     @Option (value="-p Partition regular expression", aliases={"-partition"})
     public static String partitionRegExp = null;
@@ -86,7 +92,7 @@ public class Main implements Callable<Integer> {
      * Input log files to run Synoptic on. 
      */
     @Option(value="-f <log-filenames> input log filenames", aliases={"-logfiles"})
-    public static String logFilenames = null;
+    public static String[] logFilenames = null;
     // end option group "Input Options"
 
     
@@ -216,24 +222,6 @@ public class Main implements Callable<Integer> {
     		System.out.println(msg);
     	}
     }
-    
-    
-    Pattern quotePattern = Pattern.compile("\"(\\([^)]*\\)|[^\"])*\"");
-    
-    /**
-     * Tokenizes a string of doubled quoted strings delimited with commas.
-     * @param str Input string to tokenize
-     * @return an array of tokens, without the quotes
-     */
-    public ArrayList<String> TokenizeStringOfQuotes(String str) {
-    	Matcher m = quotePattern.matcher(str);
-    	ArrayList<String> tokens = new ArrayList<String>();
-    	while(m.find()) {
-    		String exp = str.substring(m.start() + 1, m.end() - 1);
-    		tokens.add(exp);
-    	}
-    	return tokens;
-    }
 
     /**
      *  The workhorse method, which uses TraceParser to parse the input files, and calls
@@ -253,55 +241,68 @@ public class Main implements Callable<Integer> {
 
 		TraceParser parser = new TraceParser();
 		TraceParser.LOG = Logger.getLogger("Parser Logger");
-        
+		
 		VerbosePrint("Setting up the log file parser.");
-        
-        if (Main.separator != null) {
-            parser.addSeparator(Main.separator);
-        }
-        
-        if (Main.regExps != null) {
-        	// The regExps string is assumed to be comma delimited
-        	// with each regular expression enclosed in double quotes.
-        	for (String exp : TokenizeStringOfQuotes(Main.regExps)) {
-        		VerbosePrint("\taddRegex with exp:" + exp);
-        		parser.addRegex(exp);
-        	}
-        }
-        
-        if (Main.partitionRegExp != null) {
-            parser.setPartitioner(Main.partitionRegExp);
-        }
-        
-        // Parses all the log filenames, constructing the parsedEvents List.
-        List<TraceParser.Occurrence> parsedEvents = null;
-        if (Main.logFilenames != null) {
-        	VerbosePrint("Parsing input files..");
-        	
-        	parsedEvents = new ArrayList<TraceParser.Occurrence>();
-        	parser.builder = new GraphBuilder();
-        	
-        	// The logFilenames string is assumed to be comma delimited
-        	// with each filename enclosed in double quotes.
-        	for (String filename : TokenizeStringOfQuotes(Main.logFilenames)) {
-        		VerbosePrint("\tcalling parseTraceFile with filename:" + filename);
-        		parsedEvents.addAll(parser.parseTraceFile(filename, -1));
-        	}
-        }
+		
+		if (Main.regExps != null) {
+			// The regExps string is assumed to be comma delimited
+			// with each regular expression enclosed in double quotes.
+			for (String exp : Main.regExps) {
+				VerbosePrint("\taddRegex with exp:" + exp);
+				parser.addRegex(exp);
+			}
+			parser.setPartitioner(Main.partitionRegExp != null ? Main.partitionRegExp :
+				"\\k<FILE>");
+		} else {
+			parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
+			parser.addRegex("(?<TIME>)?(?<TYPE>.*)");
 
-        // If we parsed any events, then run Synoptic.
-        if (parsedEvents != null) {
-        	VerbosePrint("Running Synoptic..");
-        	parser.generateDirectTemporalRelation(parsedEvents, true);
-            model.Graph<MessageEvent> synopticGraph = ((GraphBuilder) parser.builder).getRawGraph();
-            
-            // If we were given an output filename then export the resulting graph into this filename 
-            if (Main.outputFilename != null) {
-            	VerbosePrint("Exporting final graph..");
-            	GraphVizExporter exporter = new GraphVizExporter();
-            	exporter.exportAsDotAndPngFast(Main.outputFilename, synopticGraph);
-            }
-        }
+			parser.setPartitioner(Main.partitionRegExp != null ? Main.partitionRegExp :
+				"\\k<SEPCOUNT>\\k<FILE>");
+		}
+
+		if (Main.separator != null) {
+			parser.addSeparator(Main.separator);
+		}
+ 
+		if (Main.logFilenames == null) return 1;
+		
+		// Parses all the log filenames, constructing the parsedEvents List.
+		List<TraceParser.Occurrence> parsedEvents = new ArrayList<TraceParser.Occurrence>();
+		
+		VerbosePrint("Parsing input files..");
+		parser.builder = new GraphBuilder();
+		
+		// The logFilenames string is assumed to be comma delimited
+		// with each filename enclosed in double quotes.
+		for (String filename : Main.logFilenames) {
+			VerbosePrint("\tcalling parseTraceFile with filename:" + filename);
+			parsedEvents.addAll(parser.parseTraceFile(filename, -1));
+		}
+
+		// If we parsed any events, then run Synoptic.
+		VerbosePrint("Running Synoptic..");
+		parser.generateDirectTemporalRelation(parsedEvents, true);
+		model.Graph<MessageEvent> inputGraph = ((GraphBuilder) parser.builder).getRawGraph();
+		PartitionGraph result = new PartitionGraph(inputGraph, true);
+		
+		TemporalInvariantSet invariants = result.getInvariants();
+		FsmModelChecker<MessageEvent> checker = new FsmModelChecker<MessageEvent>(invariants, inputGraph);
+		checker.runToCompletion();
+		
+		Bisimulation.refinePartitions(result);
+		VerbosePrint("Merging..");
+		Bisimulation.mergePartitions(result);
+		
+		TemporalInvariantSet unsatisfied = invariants.getUnsatisfiedInvariants(result);
+		
+		// If we were given an output filename then export the resulting graph into this filename 
+		if (Main.outputFilename != null) {
+			VerbosePrint("Exporting final graph..");
+			GraphVizExporter exporter = new GraphVizExporter();
+			exporter.exportAsDotAndPngFast(Main.outputFilename, result);
+		}
+		
 		return new Integer(0);
 	}
 }
