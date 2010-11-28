@@ -257,4 +257,9 @@ public class MessageEvent implements INode<MessageEvent>, IEvent {
 			successors.add(e.getTarget());
 		return successors;
 	}
+	
+	@Override
+	public boolean isFinal() {
+		return transitions.isEmpty();
+	}
 }

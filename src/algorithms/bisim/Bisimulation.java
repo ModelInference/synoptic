@@ -56,7 +56,7 @@ public abstract class Bisimulation {
 	/**
 	 * Export a graph in every round
 	 */
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	/**
 	 * Consider incoming transitions for splitting
 	 */

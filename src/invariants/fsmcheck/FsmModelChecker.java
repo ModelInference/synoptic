@@ -6,6 +6,8 @@ import invariants.BinaryInvariant;
 import invariants.NeverFollowedInvariant;
 import invariants.TemporalInvariant;
 import invariants.TemporalInvariantSet;
+import invariants.TemporalInvariantSet.RelationPath;
+import invariants.fsmcheck.FsmWorker.HistoryNode;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -17,18 +19,18 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import model.Graph;
+import model.interfaces.IGraph;
 import model.interfaces.INode;
 import model.interfaces.ITransition;
 
 public class FsmModelChecker<T extends INode<T>> {
-	public List<BinaryInvariant> alwaysFollowed, alwaysPrecedes, neverFollowed;
+	public List<List<BinaryInvariant>> invariants;
 	Queue<FsmWorker<T>> workList;
 	Map<T, Set<FsmWorker<T>>> cachedStates;
-	Graph<T> graph;
+	IGraph<T> graph;
 	List<List<Map<String, BitSet>>> inputMappings;
 	
-	public FsmModelChecker(TemporalInvariantSet invariants, Graph<T> graph) {
+	public FsmModelChecker(Iterable<TemporalInvariant> invariants, IGraph<T> graph) {
 		this.graph = graph;
 		this.workList = new LinkedList<FsmWorker<T>>();
 		this.cachedStates = new HashMap<T, Set<FsmWorker<T>>>();
@@ -37,9 +39,9 @@ public class FsmModelChecker<T extends INode<T>> {
 		}
 		
 		// TODO: store this instead of post processing the set
-		alwaysFollowed = new ArrayList<BinaryInvariant>();
-		alwaysPrecedes = new ArrayList<BinaryInvariant>();
-		neverFollowed  = new ArrayList<BinaryInvariant>();
+		List<BinaryInvariant> alwaysFollowed = new ArrayList<BinaryInvariant>();
+		List<BinaryInvariant> alwaysPrecedes = new ArrayList<BinaryInvariant>();
+		List<BinaryInvariant> neverFollowed  = new ArrayList<BinaryInvariant>();
 		for (TemporalInvariant inv : invariants) {
 			if (inv.getClass().equals(AlwaysFollowedInvariant.class)) {
 				alwaysFollowed.add((BinaryInvariant)inv);
@@ -60,7 +62,12 @@ public class FsmModelChecker<T extends INode<T>> {
 		machines.add(new AlwaysPrecedesSet(alwaysPrecedes.size()));
 		machines.add(new NeverFollowedSet(neverFollowed.size()));
 		
-		FsmWorker<T> initialWorker = new FsmWorker<T>(machines);
+		this.invariants = new ArrayList<List<BinaryInvariant>>();
+		this.invariants.add(alwaysFollowed);
+		this.invariants.add(alwaysPrecedes);
+		this.invariants.add(neverFollowed);
+		
+		FsmWorker<T> initialWorker = new FsmWorker<T>(machines, inputMappings);
 		for (T initial : graph.getInitialNodes()) {
 			FsmWorker<T> newWorker = new FsmWorker<T>(initialWorker);
 			newWorker.resetHistory(initial);
@@ -71,7 +78,7 @@ public class FsmModelChecker<T extends INode<T>> {
 	
 	public void runToCompletion() {
 		while (makeProgress()) { System.out.println("Worklist size: " + workList.size()); }
-		printAllHistory(true);
+		//printAllHistory(true);
 	}
 	
 	public boolean makeProgress() {
@@ -81,7 +88,7 @@ public class FsmModelChecker<T extends INode<T>> {
 			for (ITransition<T> adjacent : worker.history.node.getTransitions()) {
 				FsmWorker<T> nextWorker = new FsmWorker<T>(worker);
 				T target = adjacent.getTarget();
-				nextWorker.next(target, false /* TODO */);
+				nextWorker.next(target);
 				
 				boolean visited = false;
 				Set<FsmWorker<T>> states = cachedStates.get(target);
@@ -94,7 +101,7 @@ public class FsmModelChecker<T extends INode<T>> {
 				
 				if (!visited) {
 					workList.add(nextWorker);
-					//TODO: this throws away shorter errors. ugh.
+					//TODO: this throws away shorter counter examples. ugh.
 					for (FsmWorker<T> priorState : states) {
 						if (priorState.isSubset(nextWorker)) {
 							states.remove(priorState);
@@ -108,17 +115,51 @@ public class FsmModelChecker<T extends INode<T>> {
 		return false;
 	}
 	
+	List<BitSet> oldFailures = new ArrayList<BitSet>();
 	
-	public void printAllHistory(boolean matchFailures) {
-		Set<T> visited = new HashSet<T>();
-		Queue<T> toVisit = new LinkedList<T>();
-		toVisit.addAll(this.graph.getInitialNodes());
-		while (!toVisit.isEmpty()) {
-			T elem = toVisit.remove();
-			for (ITransition<T> trans : elem.getTransitions()) {
-				T targ = trans.getTarget();
-				if (!visited.contains(targ)) toVisit.add(targ);
+	/* Returns counterexamples for invariants which have not been found to fail in prior calls.
+	 * TODO: integrate into makeprogress so that the whole graph isn't re-scanned.
+	 * TODO: consider storing unioned fail vectors in worker, and seeing if it's a subset.
+	 */
+	public List<RelationPath<T>> newFailures() {
+		List<RelationPath<T>> results = new ArrayList<RelationPath<T>>();
+		for (int i = 0; i < invariants.size(); i++) {
+			BitSet old = oldFailures.get(i);
+			List<BinaryInvariant> invs = invariants.get(i);
+			for (T elem : graph.getNodes()) {
+				Set<FsmWorker<T>> states = cachedStates.get(elem);
+				if (states == null) continue;
+				for (FsmWorker<T> state : states) {
+					StateSet machine = state.machines.get(i);
+					BitSet isFail = machine.isPermanentFail();
+					if (elem.isFinal()) isFail.or(machine.isFail());
+					isFail.andNot(old);
+					if (!isFail.isEmpty()) {
+						List<T> path = new ArrayList<T>();
+						for (FsmWorker<T>.HistoryNode cur = state.history; cur != null; cur = cur.previous) {
+							path.add(cur.node);
+						}
+						//TODO: should the path be reversed?
+						// Iterate new failures, recording counterexamples.
+						for (int j = isFail.nextSetBit(0); j >= 0; j = isFail.nextSetBit(j + 1)) {
+							//TODO: make this more efficient by making relationpath use the linked representation
+							RelationPath<T> counterexample = new RelationPath<T>();
+							counterexample.invariant = invs.get(j);
+							//NOTE: These should be cloned before being mutated, at any point henceforth.
+							counterexample.path = counterexample.invariant.shorten(path);
+							results.add(counterexample);
+						}
+						old.or(isFail);
+					}
+				}
 			}
+		}
+		return results;
+	}
+	
+	/*
+	public void printAllHistory(boolean matchFailures) {
+		for (T elem : graph.getNodes()) {
 			for (FsmWorker<T> worker : this.cachedStates.get(elem)) {
 				if (worker.history == null) {
 					System.out.println("null history!!!"); continue;
@@ -126,11 +167,8 @@ public class FsmModelChecker<T extends INode<T>> {
 				if (!worker.permanentFail.isEmpty() ||
 					(worker.history.node.getTransitions().isEmpty() && !worker.fail.isEmpty())) {
 					System.out.println(worker.fail.cardinality() + " invariants invalid " + worker.history.fullHistory());
-					//result.add(worker.history);
 				}
 			}
-			visited.add(elem);
 		}
-		//return result;
-	}
+	} */
 }

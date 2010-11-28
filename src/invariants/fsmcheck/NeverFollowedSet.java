@@ -32,29 +32,22 @@ public class NeverFollowedSet extends StateSet {
 		 * s2 = (s2 & n) | (!s3 & isA)
 		 * s3 = s3 | (s2 & isB)
 		 */
-		// TODO: assert(inputs.size() == 2) ?
-		// TODO: assert(inputs.get(0) == count)
-		//       assert(inputs.get(1) == count) ?
+
 		BitSet isA = inputs.get(0), isB = inputs.get(1),
+		       neither = nor(isA, isB, count),
 		       s1 = sets.get(0), s2 = sets.get(1), s3 = sets.get(2);
 
-		BitSet neither = (BitSet)isA.clone();
-		neither.or(isB); 
-		StateSet.flip(neither);
-		
-        // name = expression in terms of original values
+        //                      var = expression in terms of original values
 		
 		BitSet t = (BitSet)s2.clone();
-		t.and(isB);          // t = s2 & isB
-		s3.or(t);            // s3 = s3 | (s2 & isB)
+		t.and(isB);          // t   = s2 & isB
+		s3.or(t);            // s3  = s3 | (s2 & isB)
 		
-		s2.and(neither);     // s2 = s2 & n
-		StateSet.flip(isA);  // isA = !isA
-		isA.or(s3);          // isA = s3 | !isA
-		StateSet.flip(isA);  // isA = !(s3 | !isA)
-		s2.or(isA);          // s2 = (s2 & n) | !(s3 | !isA)
+		s2.and(neither);     // s2  = s2 & n
+		isA.andNot(s3);      // isA = !s3 & isA
+		s2.or(isA);          // s2  = (s2 & n) | (!s3 & isA)
 		
-		neither.or(isB);     // n = n | isB
-		s1.and(neither);     // s1 = s1 & (n | isB)
+		neither.or(isB);     // n   = n | isB
+		s1.and(neither);     // s1  = s1 & (n | isB)
 	}
 }

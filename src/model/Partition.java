@@ -279,4 +279,11 @@ public class Partition implements INode<Partition> {
 		this.label = str;
 	}
 
+	//TODO: benchmark how expensive this is -- cache and maintain?
+	public boolean isFinal() {
+		for (MessageEvent e : messages) {
+			if (e.isFinal()) return true;
+		}
+		return false;
+	}
 }

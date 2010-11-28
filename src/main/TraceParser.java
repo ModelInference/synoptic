@@ -42,7 +42,6 @@ public class TraceParser {
 	public Set<String> filters;
 	public boolean internActions = true;
 	
-	// TODO: this must be initialized, or we must fail
 	public static Logger LOG = null;
 	
 	//TODO: figure out how we deal with constraints which involve the multiple parsers.
@@ -53,6 +52,7 @@ public class TraceParser {
 		this.constantFields = new ArrayList<Map<String, String>>();
 		this.incrementors = new ArrayList<Map<String, Boolean>>();
 		this.filters = new HashSet<String>();
+		this.LOG = Logger.getLogger("Parser Logger");
 	}
 	
 	/**
@@ -471,20 +471,20 @@ public class TraceParser {
 				}
 			}
 		}
-		
+		/*
 		for (Occurrence m : directSuccessors.keySet()) {
 			for (Occurrence s : directSuccessors.get(m)) {
 				noPredecessor.remove(s);
 			}
-		}
+		} */
 		for (Occurrence m : directSuccessors.keySet()) {
 			for (Occurrence s : directSuccessors.get(m)) {
-				this.builder.connect(m.message, s.message, 
-					noPredecessor.contains(m) ? "i" : "t");
+				this.builder.connect(m.message, s.message, "t");
+				noPredecessor.remove(s);
 			}
 		}
 		for (Occurrence m : noPredecessor) {
-			this.builder.addInitial(m.message, "i");
+			this.builder.addInitial(m.message, "t");
 		}
 	}
 

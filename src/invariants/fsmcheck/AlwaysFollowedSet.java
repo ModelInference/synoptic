@@ -12,7 +12,7 @@ public class AlwaysFollowedSet extends StateSet {
 	}
 	
 	public BitSet isFail() { return (BitSet)sets.get(1).clone(); }
-	public BitSet isPermanentFail() { return zero; }
+	public BitSet isPermanentFail() { return new BitSet(); }
 	
 	public void transition(List<BitSet> inputs) {
 		/*
@@ -28,11 +28,8 @@ public class AlwaysFollowedSet extends StateSet {
 		 */
 		
 		BitSet isA = inputs.get(0), isB = inputs.get(1),
+		       neither = nor(isA, isB, count),
 		       s1 = sets.get(0), s2 = sets.get(1);
-		
-		BitSet neither = (BitSet) isA.clone();
-		neither.or(isB);
-		StateSet.flip(neither);
 		
 		s1.and(neither);
 		s1.or(isB);

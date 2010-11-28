@@ -314,7 +314,7 @@ public class Main implements Callable<Integer> {
 		
 		logger.fine("Setting up the log file parser.");
 		
-		if (Main.regExps != null) {
+		if (!Main.regExps.isEmpty()) {
 			for (String exp : Main.regExps) {
 				logger.fine("\taddRegex with exp:" + exp);
 				parser.addRegex(exp);

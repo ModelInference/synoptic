@@ -78,7 +78,6 @@ public abstract class StateSet {
 	 * 
 	 * @see java.lang.Object#clone()
 	 */
-	@SuppressWarnings("unchecked")
 	public StateSet clone() {
 		StateSet result;
 		try {
@@ -96,9 +95,18 @@ public abstract class StateSet {
 		return result;
 	}
 	
-
-	// Helper function to flip every bit in a BitSet.
-	public static void flip(BitSet o) { o.flip(0, o.size()); }
+	/* A B result
+	 * 0 0 1
+	 * 0 1 0
+	 * 1 0 0
+	 * 1 1 0
+	 */
+	public static BitSet nor(BitSet a, BitSet b, int count) {
+		BitSet result = (BitSet) a.clone();
+		result.or(b);
+		result.flip(0, count);
+		return result;
+	}
 
 	// Helpers for dealing with mapping from some event representation to BitSets,
 	// which indicate which boolean inputs to provide to each of the machines which
