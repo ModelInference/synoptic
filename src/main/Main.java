@@ -1,16 +1,20 @@
 package main;
 
+import java.lang.Integer;
+import java.util.concurrent.Callable;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.logging.Logger;
+import java.util.logging.Handler;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+
 import invariants.TemporalInvariant;
 import invariants.TemporalInvariantSet;
 import invariants.fsmcheck.FsmModelChecker;
-
-import java.util.concurrent.Callable;
-import java.util.logging.Logger;
-import java.util.ArrayList;
-import java.util.List;
-import java.lang.Integer;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 import algorithms.bisim.Bisimulation;
 
@@ -19,12 +23,14 @@ import plume.Options;
 import plume.OptionGroup;
 
 import model.MessageEvent;
+import model.PartitionGraph;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
 
 
 public class Main implements Callable<Integer> {
-	// public class Main {
+	public static Logger logger = null;
+
     /**
      * The current Synoptic version.
      */
@@ -58,10 +64,17 @@ public class Main implements Callable<Integer> {
     @OptionGroup("Execution Options")
     ////////////////////////////////////////////////////
     /**
-     * Be quiet, do not print much information.
+     * Be quiet, do not print much information. Sets the log level to WARNING.
      */
     @Option (value="-Q Be quiet, do not print much information", aliases={"-quiet"})
-    public static boolean reallyQuiet = false;
+    public static boolean logLvlQuiet = false;
+    
+    /**
+     * Be verbose, print extra detailed information. Sets the log level to FINEST.  
+     */
+    @Option (value="-V Print extra detailed information.", aliases={"-verbose"})
+    public static boolean logLvlVerbose = false;
+    // end option group "Execution Options"
 
     
     @OptionGroup("Parser Options")
@@ -75,8 +88,8 @@ public class Main implements Callable<Integer> {
     /**
      * List of regular expression strings for parsing lines in the input files.
      */
-    @Option (value="-r Parser regular expressions", aliases={"-regexps"})
-    public static String[] regExps = null;
+    @Option (value="-r Parser regular expression(s)", aliases={"-regexp"})
+    public static List<String> regExps = null;
 
     /**
      * A substitution expression to partition the lines of the input files.
@@ -89,10 +102,11 @@ public class Main implements Callable<Integer> {
     @OptionGroup ("Input Options")
     ////////////////////////////////////////////////////
     /**
-     * Input log files to run Synoptic on. 
+     * Command line arguments input filename to use.
      */
-    @Option(value="-f <log-filenames> input log filenames", aliases={"-logfiles"})
-    public static String[] logFilenames = null;
+    // TODO: write code to use this option
+    @Option(value="-c Command line arguments input filename", aliases={"-argsfile"})
+    public static String argsFilename= null;
     // end option group "Input Options"
 
     
@@ -121,14 +135,22 @@ public class Main implements Callable<Integer> {
     public static boolean dumpInvariants = false;
     
     /**
+     * Dump the dot representation of the initial graph to file. The file
+     * will have the name <outputFilename>.initial.dot, where 'outputFilename'
+     * is the filename of the final Synoptic output.
+     */
+    @Option("Dump the initial graph to file <outputFilename>.initial.dot")
+    public static boolean dumpInitialGraph = false;
+    
+    /**
      * Dump the dot representations for intermediate Synoptic steps to
      * file. Each of these files will have a name like:
-     * <outputFilename>.<S>.<N> where 'outputFilename' is the filename
+     * <outputFilename>.<S>.<N>.dot where 'outputFilename' is the filename
      * of the final Synoptic output, 'S' is the stage (either 'r' for
      * refinement, or 'c' for coarsening), and 'N' is the step number
      * within the stage (starting from 1 for each stage).
      */
-    @Option("Dump dot files from intermediate Synoptic stages to file")
+    @Option("Dump dot files from intermediate Synoptic stages to files of form <outputFilename>.<S>.<N>.dot")
     public static boolean dumpIntermediateStages = false;
     // end option group "Verbosity Options"
 
@@ -155,6 +177,12 @@ public class Main implements Callable<Integer> {
     @Option("Do not perform refinement")
     public static boolean noRefinement = false;
     // end option group "Debugging Options"
+    
+    /**
+     * Input log files to run Synoptic on. These should appear without any
+     * options as the final elements in the command line.
+     */
+    public static List<String> logFilenames = null;
 
     
     /** One line synopsis of usage */
@@ -170,15 +198,20 @@ public class Main implements Callable<Integer> {
     public static void main(String[] args) throws Exception {
         // this directly sets the static member options of the Main class
         Options options = new Options (usage_string, Main.class);
-        // TODO: currently not using commandlineArgs for anything..
         String[] commandLineArgs = options.parse_or_usage(args);
+        // The remainder of the command line is treated as a list of log
+        // filenames to process 
+        logFilenames = Arrays.asList(commandLineArgs);
         
+        SetUpLogging();
+
 //        for (int i = 0; i < args.length; i++) {
-//        	System.out.println("arg " + i + " : " + args[i]);
+//        	logger.finest("arg " + i + " : " + args[i]);
 //        }
 
         // Display help for all option groups, including 'unpublicized' ones
         if (allHelp) {
+        	System.out.println("Usage: " + usage_string);
             System.out.println(
                 options.usage("General Options",
                               "Execution Options",
@@ -200,11 +233,57 @@ public class Main implements Callable<Integer> {
             System.out.println(Main.versionString);
             return;
         }
+        
+		if (logFilenames == null) {
+			logger.severe("No log filenames specified, exiting.");
+			return;
+		}
 
         Main mainInstance = new Main();
         Integer ret = mainInstance.call();
-		System.out.println("Main.call() returned " + ret.toString());
+        logger.fine("Main.call() returned " + ret.toString());
 		System.exit(ret); 
+    }
+
+    
+    /**
+     * Sets up and configures the Main.logger object based on command line
+     * arguments
+     */
+    public static void SetUpLogging() {
+    	// Get the top Logger instance
+        logger = Logger.getLogger("");
+        
+        // Handler for console (reuse it if it already exists)
+        Handler consoleHandler = null;
+        
+        // See if there is already a console handler
+        for (Handler handler : logger.getHandlers()) {
+        	if (handler instanceof ConsoleHandler) {
+        		consoleHandler = handler;
+        		break;
+        	}
+        }
+        
+	    if (consoleHandler == null) {
+	    	// No console handler found, create a new one
+	    	consoleHandler = new ConsoleHandler();
+	    	logger.addHandler(consoleHandler);
+	    }
+	    
+	    // The consoleHandler will write out anything the logger gives it
+	    consoleHandler.setLevel(Level.ALL);
+        
+	    // Set the logger's log level based on command line arguments
+        if (logLvlQuiet) {
+        	logger.setLevel(Level.WARNING);
+        } else if (logLvlVerbose) {
+        	logger.setLevel(Level.FINEST);
+        } else {
+        	logger.setLevel(Level.INFO);
+        }
+
+        return;
     }
 
     /***********************************************************/
@@ -213,16 +292,6 @@ public class Main implements Callable<Integer> {
     	// TODO: can set up graphical state here
     }
     
-    /**
-     * Prints out a message unless the reallyQuiet option is set 
-     * @param msg string to print
-     */
-    public void VerbosePrint(String msg) {
-    	if (! Main.reallyQuiet) {
-    		System.out.println(msg);
-    	}
-    }
-
     /**
      *  The workhorse method, which uses TraceParser to parse the input files, and calls
      *  the primary Synoptic functions to perform refinement\coarsening and
@@ -233,30 +302,29 @@ public class Main implements Callable<Integer> {
 	public Integer call() throws Exception {
 		// TODO: is there a way to print all the set Options?
 		String debug_msg = 
-				"logfiles: " + Main.logFilenames + 
-				"\nseparator: " + Main.separator +
-				"\nregExps: " + Main.regExps +
-				"\npartitionRegExp: " + Main.partitionRegExp; 
-		VerbosePrint(debug_msg);
+				"logfiles: " + Main.logFilenames + " size: " + Main.logFilenames.size() +  
+				"\n\tseparator: " + Main.separator +
+				"\n\tregExps: " + Main.regExps + " size: " + Main.regExps.size() +  
+				"\n\tpartitionRegExp: " + Main.partitionRegExp;
+		
+		logger.fine(debug_msg);
 
 		TraceParser parser = new TraceParser();
 		TraceParser.LOG = Logger.getLogger("Parser Logger");
 		
-		VerbosePrint("Setting up the log file parser.");
+		logger.fine("Setting up the log file parser.");
 		
 		if (Main.regExps != null) {
-			// The regExps string is assumed to be comma delimited
-			// with each regular expression enclosed in double quotes.
 			for (String exp : Main.regExps) {
-				VerbosePrint("\taddRegex with exp:" + exp);
+				logger.fine("\taddRegex with exp:" + exp);
 				parser.addRegex(exp);
 			}
+			
 			parser.setPartitioner(Main.partitionRegExp != null ? Main.partitionRegExp :
 				"\\k<FILE>");
 		} else {
 			parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
 			parser.addRegex("(?<TIME>)?(?<TYPE>.*)");
-
 			parser.setPartitioner(Main.partitionRegExp != null ? Main.partitionRegExp :
 				"\\k<SEPCOUNT>\\k<FILE>");
 		}
@@ -264,41 +332,50 @@ public class Main implements Callable<Integer> {
 		if (Main.separator != null) {
 			parser.addSeparator(Main.separator);
 		}
- 
-		if (Main.logFilenames == null) return 1;
-		
+
 		// Parses all the log filenames, constructing the parsedEvents List.
 		List<TraceParser.Occurrence> parsedEvents = new ArrayList<TraceParser.Occurrence>();
 		
-		VerbosePrint("Parsing input files..");
+		logger.fine("Parsing input files..");
 		parser.builder = new GraphBuilder();
 		
-		// The logFilenames string is assumed to be comma delimited
-		// with each filename enclosed in double quotes.
 		for (String filename : Main.logFilenames) {
-			VerbosePrint("\tcalling parseTraceFile with filename:" + filename);
+			logger.fine("\tcalling parseTraceFile with filename:" + filename);
 			parsedEvents.addAll(parser.parseTraceFile(filename, -1));
 		}
-
+		
 		// If we parsed any events, then run Synoptic.
-		VerbosePrint("Running Synoptic..");
+		logger.fine("Running Synoptic..");
 		parser.generateDirectTemporalRelation(parsedEvents, true);
 		model.Graph<MessageEvent> inputGraph = ((GraphBuilder) parser.builder).getRawGraph();
-		PartitionGraph result = new PartitionGraph(inputGraph, true);
 		
+		
+		if (dumpInitialGraph) {
+            // If we were given an output filename then export the resulting graph 
+			// into outputFilename.initial.dot
+            if (Main.outputFilename != null) {
+                logger.fine("Exporting initial graph..");
+                GraphVizExporter exporter = new GraphVizExporter();
+                exporter.exportAsDotAndPngFast(Main.outputFilename + ".initial.dot", inputGraph);
+            } else {
+            	logger.warning("Cannot output initial graph as outputFilename is not specified");            	
+            }
+        }		
+		
+		PartitionGraph result = new PartitionGraph(inputGraph, true);
 		TemporalInvariantSet invariants = result.getInvariants();
 		FsmModelChecker<MessageEvent> checker = new FsmModelChecker<MessageEvent>(invariants, inputGraph);
 		checker.runToCompletion();
 		
 		Bisimulation.refinePartitions(result);
-		VerbosePrint("Merging..");
+		logger.fine("Merging..");
 		Bisimulation.mergePartitions(result);
 		
 		TemporalInvariantSet unsatisfied = invariants.getUnsatisfiedInvariants(result);
 		
 		// If we were given an output filename then export the resulting graph into this filename 
 		if (Main.outputFilename != null) {
-			VerbosePrint("Exporting final graph..");
+			logger.fine("Exporting final graph..");
 			GraphVizExporter exporter = new GraphVizExporter();
 			exporter.exportAsDotAndPngFast(Main.outputFilename, result);
 		}
