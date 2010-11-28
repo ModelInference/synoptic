@@ -37,18 +37,15 @@ public class AlwaysPrecedesSet extends StateSet {
 		 * s2 = (s2 & !isB) | (s1 & isA)
 		 * s3 = (s3 & !isA) | (s2 & isB)
 		 */
+		
 		BitSet isA = inputs.get(0), isB = inputs.get(1),
+		       neither = nor(isA, isB, count),
 		       s1 = sets.get(0), s2 = sets.get(1), s3 = sets.get(2), s4 = sets.get(3);
 		
 		// Temporary sets
 		BitSet t1, t2;
 		
-		BitSet neither = (BitSet)isA.clone();
-		neither.or(isB);
-		StateSet.flip(neither);
-		
 		                   // name = expression in terms of original values
-		
 		t1 = (BitSet)s1.clone();
 		t1.and(isB);         // t1 = s1 & isB
 		t2 = (BitSet)s3.clone();

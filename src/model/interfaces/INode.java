@@ -87,4 +87,9 @@ public interface INode<NodeType>{
 	 * @return a short description
 	 */
 	String toStringConcise();
+	
+	/**
+	 * Gets whether this node is the last in some sample traces.
+	 */
+	boolean isFinal();
 }

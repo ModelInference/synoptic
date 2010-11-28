@@ -1,6 +1,7 @@
 package invariants;
 
 import gov.nasa.ltl.trans.ParseErrorException;
+import invariants.fsmcheck.FsmModelChecker;
 import invariants.ltlcheck.Counterexample;
 import invariants.ltlcheck.IModelCheckingMonitor;
 import invariants.ltlchecker.GraphLTLChecker;
@@ -57,6 +58,8 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	 */
 	static final boolean DOUBLECKECK_MINING = false;
 
+	static boolean USE_FSMCHECKER = false;
+	
 	public TemporalInvariantSet() {
 	}
 
@@ -115,75 +118,70 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		}
 	}
 
+	private <T extends INode<T>> RelationPath<T> getCounterExample(
+			TemporalInvariant inv, IGraph<T> g, GraphLTLChecker<T> c) {
+		RelationPath<T> r = new RelationPath<T>();
+		try {
+			Counterexample ce = c.check(g, inv,
+					new IModelCheckingMonitor() {
+						public void subTask(String str) {
+						}
+					});
+			if (ce == null)
+				return null;
+			r.invariant = inv;
+			List<T> trace = c.convertCounterexample(ce);
+			if (trace != null) {
+				// System.out.println(i.toString() + trace);
+				r.path = inv.shorten(trace);
+				if (r.path == null) {
+					throw new RuntimeException(
+							"shortening returned null for " + inv
+									+ " and trace " + trace);
+				}
+				// System.out.println(r.path);
+			}
+		} catch (ParseErrorException e) {
+			e.printStackTrace();
+		}
+		return r;
+	}
+	
 	public <T extends INode<T>> RelationPath<T> getViolation(
 			TemporalInvariant inv, IGraph<T> g) {
-		TimedTask refinement = PerformanceMetrics.createTask("singleViolation",
-				true);
+		TimedTask refinement = PerformanceMetrics.createTask("singleViolation", true);
 		try {
-			RelationPath<T> r = new RelationPath<T>();
-			GraphLTLChecker<T> c = new GraphLTLChecker<T>();
-			try {
-				Counterexample ce = c.check(g, inv,
-						new IModelCheckingMonitor() {
-							public void subTask(String str) {
-							}
-						});
-				if (ce == null)
-					return null;
-				r.invariant = inv;
-				List<T> trace = c.convertCounterexample(ce);
-				if (trace != null) {
-					// System.out.println(i.toString() + trace);
-					r.path = inv.shorten(trace);
-					if (r.path == null) {
-						throw new RuntimeException(
-								"shortening returned null for " + inv
-										+ " and trace " + trace);
-					}
-					// System.out.println(r.path);
+			if (USE_FSMCHECKER) {
+				List<TemporalInvariant> invs = new ArrayList<TemporalInvariant>();
+				invs.add(inv);
+				FsmModelChecker<T> c = new FsmModelChecker<T>(invs, g);
+				while (c.makeProgress()) {
+					List<RelationPath<T>> paths = c.newFailures();
+					if (!paths.isEmpty()) return paths.get(0);
 				}
-			} catch (ParseErrorException e) {
-				e.printStackTrace();
+				return null;
+			} else {
+				return getCounterExample(inv, g, new GraphLTLChecker<T>());
 			}
-			return r;
 		} finally {
 			refinement.stop();
 		}
 	}
 
 	public <T extends INode<T>> List<RelationPath<T>> getViolations(IGraph<T> g) {
-		TimedTask violations = PerformanceMetrics.createTask("getViolations",
-				false);
+		TimedTask violations = PerformanceMetrics.createTask("getViolations", false);
 		try {
 			List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
-			GraphLTLChecker<T> c = new GraphLTLChecker<T>();
-			for (TemporalInvariant i : invariants) {
-				// List<Transition<Message>> path = i.check(g);
-				try {
-					Counterexample ce = c.check(g, i,
-							new IModelCheckingMonitor() {
-								public void subTask(String str) {
-								}
-							});
-					if (ce == null)
-						continue;
-					RelationPath<T> r = new RelationPath<T>();
-					r.invariant = i;
-					List<T> trace = c.convertCounterexample(ce);
-					if (trace != null) {
-						// System.out.println(i.toString() + trace);
-						// r.path = i.shorten(trace);
-						r.path = trace;
-						if (r.path == null) {
-							throw new RuntimeException(
-									"shortening returned null for " + i
-											+ " and trace " + trace);
-						}
-						// System.out.println(r.path);
-						paths.add(r);
-					}
-				} catch (ParseErrorException e) {
-					e.printStackTrace();
+			if (USE_FSMCHECKER) {
+				FsmModelChecker<T> c = new FsmModelChecker<T>(this, g);
+				while (c.makeProgress()) paths.addAll(c.newFailures());
+				return null;
+			} else {
+				GraphLTLChecker<T> c = new GraphLTLChecker<T>();
+				for (TemporalInvariant i : invariants) {
+					RelationPath<T> path = getCounterExample(i, g, c);
+					if (path != null)
+						paths.add(path);
 				}
 			}
 
@@ -199,6 +197,9 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			});
 
 			return paths;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		} finally {
 			violations.stop();
 		}
@@ -215,37 +216,20 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	 * @return null if no violation is found, the counter-example path otherwise
 	 */
 	public <T extends INode<T>> RelationPath<T> getFirstViolation(IGraph<T> g) {
-		TimedTask violations = PerformanceMetrics.createTask("getViolations",
-				false);
+		TimedTask violations = PerformanceMetrics.createTask("getViolations", false);
 		try {
-			GraphLTLChecker<T> c = new GraphLTLChecker<T>();
-			for (TemporalInvariant i : invariants) {
-				// List<Transition<Message>> path = i.check(g);
-				try {
-					Counterexample ce = c.check(g, i,
-							new IModelCheckingMonitor() {
-								public void subTask(String str) {
-								}
-							});
-					if (ce == null)
-						continue;
-					RelationPath<T> r = new RelationPath<T>();
-					r.invariant = i;
-					List<T> trace = c.convertCounterexample(ce);
-					if (trace != null) {
-						// System.out.println(i.toString() + trace);
-						// r.path = i.shorten(trace);
-						r.path = trace;
-						if (r.path == null) {
-							throw new RuntimeException(
-									"shortening returned null for " + i
-											+ " and trace " + trace);
-						}
-						// System.out.println(r.path);
-						return r;
-					}
-				} catch (ParseErrorException e) {
-					e.printStackTrace();
+			if (USE_FSMCHECKER) {
+				FsmModelChecker<T> c = new FsmModelChecker<T>(this, g);
+				while (c.makeProgress()) {
+					List<RelationPath<T>> paths = c.newFailures();
+					if (!paths.isEmpty()) return paths.get(0);
+				}
+			} else {
+				GraphLTLChecker<T> c = new GraphLTLChecker<T>();
+				for (TemporalInvariant i : invariants) {
+					// List<Transition<Message>> path = i.check(g);
+					RelationPath<T> result = getCounterExample(i, g, c);
+					if (result != null) return result;
 				}
 			}
 			return null;
