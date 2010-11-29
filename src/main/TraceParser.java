@@ -250,7 +250,7 @@ public class TraceParser {
 				results.add(occ);
 			}
 			br.close();
-			LOG.log(Level.FINE, "Successfully parsed " + results.size() + " events from " + fileName);
+			LOG.log(Level.INFO, "Successfully parsed " + results.size() + " events from " + fileName);
 			return results;
 		} catch (IOException e) {
 			LOG.log(Level.SEVERE, "Error while attempting to read log file: "

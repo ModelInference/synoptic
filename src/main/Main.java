@@ -373,12 +373,13 @@ public class Main implements Callable<Integer> {
 		logger.fine("Merging..");
 		Bisimulation.mergePartitions(result);
 		
-		TemporalInvariantSet unsatisfied = invariants.getUnsatisfiedInvariants(result);
+		//TemporalInvariantSet unsatisfied = invariants.getUnsatisfiedInvariants(result);
 		
 		// If we were given an output filename then export the resulting graph into this filename 
 		if (Main.outputFilename != null) {
-			logger.fine("Exporting final graph..");
+			logger.fine("Exporting final graph with " + result.getNodes().size() + " nodes..");
 			GraphVizExporter exporter = new GraphVizExporter();
+			exporter.edgeLabels = false;
 			exporter.exportAsDotAndPngFast(Main.outputFilename, result);
 		}
 		
