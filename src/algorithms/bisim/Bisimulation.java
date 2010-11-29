@@ -11,6 +11,7 @@ import java.util.*;
 import benchmarks.PerformanceMetrics;
 import benchmarks.TimedTask;
 
+import main.Main;
 
 import algorithms.graph.Operation;
 import algorithms.graph.PartitionMerge;
@@ -54,9 +55,9 @@ public abstract class Bisimulation {
 	 */
 	private static boolean VERBOSE = false;
 	/**
-	 * Export a graph in every round
+	 * Perform extra correctness checks.
 	 */
-	private static boolean DEBUG = true;
+	private static boolean EXTRA_CHECKS = true;
 	/**
 	 * Consider incoming transitions for splitting
 	 */
@@ -99,8 +100,9 @@ public abstract class Bisimulation {
 	public static void refinePartitions(PartitionGraph partitionGraph) {
 		TimedTask refinement = PerformanceMetrics.createTask("refinement", false);
 		int outer = 1;
-		if (DEBUG) {
-			GraphVizExporter.quickExport("output/rounds/0.dot", partitionGraph);
+		
+		if (Main.dumpIntermediateStages) {
+			GraphVizExporter.quickExport(Main.GetIntermediateDumpFilename("r", 0), partitionGraph);
 		}
 		int numSplitSteps = 0;
 		// These invariants will be satisfied
@@ -182,9 +184,9 @@ public abstract class Bisimulation {
 
 					Operation rewindOperation = partitionGraph
 							.apply(combinedSplit);
-					if (DEBUG) {
-						GraphVizExporter.quickExport("output/rounds/" + outer
-								+ ".dot", partitionGraph);
+					if (Main.dumpIntermediateStages) {
+						GraphVizExporter.quickExport(Main.GetIntermediateDumpFilename("r", outer),
+									partitionGraph);
 					}
 
 					// see if splitting resolved the violation
@@ -229,9 +231,10 @@ public abstract class Bisimulation {
 						// Perform the split
 						Operation rewindOperation = partitionGraph
 								.apply(candidateSplit);
-						if (DEBUG) {
-							GraphVizExporter.quickExport("output/rounds/"
-									+ outer + ".dot", partitionGraph);
+						
+						if (Main.dumpIntermediateStages) {
+							GraphVizExporter.quickExport(Main.GetIntermediateDumpFilename("r", outer),
+									partitionGraph);
 						}
 
 						// see if splitting resolved the violation
@@ -310,11 +313,11 @@ public abstract class Bisimulation {
 			numSplitSteps++;
 		}
 		
-
-		if (DEBUG) {
-			GraphVizExporter.quickExport("output/rounds/" + outer
-					+ "-final.dot", partitionGraph);
+		if (Main.dumpIntermediateStages) {
+			GraphVizExporter.quickExport(Main.GetIntermediateDumpFilename("r", outer),
+					partitionGraph);
 		}
+		
 		PerformanceMetrics.get().record("numOfSplitSteps", numSplitSteps);
 		refinement.stop();
 	}
@@ -465,10 +468,12 @@ public abstract class Bisimulation {
 		out: while (true) {
 			if (ESSENTIAL)
 				System.out.println("m " + partitionGraph.getNodes().size());
-			if (DEBUG) {
-				GraphVizExporter.quickExport(
-						"output/rounds/m" + outer + ".dot", partitionGraph);
+			
+			if (Main.dumpIntermediateStages) {
+				GraphVizExporter.quickExport(Main.GetIntermediateDumpFilename("c", outer),
+						partitionGraph);
 			}
+			
 			boolean progress = false;
 			ArrayList<Partition> partitions = new ArrayList<Partition>();
 			partitions.addAll(partitionGraph.getPartitions());
@@ -506,8 +511,10 @@ public abstract class Bisimulation {
 								blacklist.put(p, new HashSet<Partition>());
 							blacklist.get(p).add(q);
 							partitionGraph.apply(rewindOperation);
-							if (DEBUG)
+							
+							if (EXTRA_CHECKS)
 								partitionGraph.checkSanity();
+							
 							if (!parts.containsAll(partitionGraph.getNodes())
 									|| !partitionGraph.getNodes().containsAll(
 											parts))
@@ -528,10 +535,12 @@ public abstract class Bisimulation {
 				break;
 			outer++;
 		}
-		if (DEBUG) {
-			GraphVizExporter.quickExport("output/rounds/m" + outer
-					+ "-final.dot", partitionGraph);
+
+		if (Main.dumpIntermediateStages) {
+				GraphVizExporter.quickExport(Main.GetIntermediateDumpFilename("c", outer),
+						partitionGraph);
 		}
+
 		PerformanceMetrics.get().record("numOfMergeSteps", numMergeSteps);
 		coarsening.stop();
 	}
