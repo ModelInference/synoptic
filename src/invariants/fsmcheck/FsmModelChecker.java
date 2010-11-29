@@ -29,6 +29,7 @@ public class FsmModelChecker<T extends INode<T>> {
 	Map<T, Set<FsmWorker<T>>> cachedStates;
 	IGraph<T> graph;
 	List<List<Map<String, BitSet>>> inputMappings;
+	List<BitSet> oldFailures = new ArrayList<BitSet>();
 	
 	public FsmModelChecker(Iterable<TemporalInvariant> invariants, IGraph<T> graph) {
 		this.graph = graph;
@@ -74,6 +75,10 @@ public class FsmModelChecker<T extends INode<T>> {
 			workList.add(newWorker);
 			cachedStates.get(initial).add(newWorker);
 		}
+		
+		for (int i = 0; i < 3; i++) {
+			oldFailures.add(new BitSet());
+		}
 	}
 	
 	public void runToCompletion() {
@@ -115,7 +120,6 @@ public class FsmModelChecker<T extends INode<T>> {
 		return false;
 	}
 	
-	List<BitSet> oldFailures = new ArrayList<BitSet>();
 	
 	/* Returns counterexamples for invariants which have not been found to fail in prior calls.
 	 * TODO: integrate into makeprogress so that the whole graph isn't re-scanned.
