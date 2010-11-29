@@ -113,8 +113,7 @@ public class Main implements Callable<Integer> {
     @OptionGroup("Output Options")
     ////////////////////////////////////////////////////
     /**
-     * Output filename which will contain dot output for the final
-     * Synoptic representation
+     * Store the final Synoptic representation output in outputFilename.dot
      */
     @Option(value="-o Output filename for dot output", aliases={"--output"})
     public static String outputFilename = null;
@@ -145,12 +144,12 @@ public class Main implements Callable<Integer> {
     /**
      * Dump the dot representations for intermediate Synoptic steps to
      * file. Each of these files will have a name like:
-     * <outputFilename>.<S>.<N>.dot where 'outputFilename' is the filename
-     * of the final Synoptic output, 'S' is the stage (either 'r' for
-     * refinement, or 'c' for coarsening), and 'N' is the step number
-     * within the stage (starting from 1 for each stage).
+     * <outputFilename>.stage-<S>.round-<R>.dot where 'outputFilename' is the
+     * filename of the final Synoptic output, <S> is the name of the stage
+     * (e.g. r for refinement, and c for coarsening), and <R> is the round number
+     * within the stage.
      */
-    @Option("Dump dot files from intermediate Synoptic stages to files of form <outputFilename>.<S>.<N>.dot")
+    @Option("Dump dot files from intermediate Synoptic stages to files of form <outputFilename>.stage-<S>.round-<R>.dot")
     public static boolean dumpIntermediateStages = false;
     // end option group "Verbosity Options"
 
@@ -191,7 +190,7 @@ public class Main implements Callable<Integer> {
 
    /**
     * The main method to perform the inference algorithm.  See user
-    * documentation an explanation of the options.
+    * documentation for an explanation of the options.
     *
     * @param args - command-line options
     */        
@@ -285,6 +284,10 @@ public class Main implements Callable<Integer> {
 
         return;
     }
+    
+    public static String GetIntermediateDumpFilename(String stageName, int roundNum) {
+    	return new String(outputFilename + ".stage-" + stageName + ".round-"+ roundNum + ".dot");
+    }
 
     /***********************************************************/
     
@@ -310,7 +313,6 @@ public class Main implements Callable<Integer> {
 		logger.fine(debug_msg);
 
 		TraceParser parser = new TraceParser();
-		TraceParser.LOG = Logger.getLogger("Parser Logger");
 		
 		logger.fine("Setting up the log file parser.");
 		
