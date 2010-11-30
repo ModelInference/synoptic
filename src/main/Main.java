@@ -74,8 +74,14 @@ public class Main implements Callable<Integer> {
      */
     @Option (value="-V Print extra detailed information.", aliases={"-verbose"})
     public static boolean logLvlVerbose = false;
+    
+    /**
+     * Use the new FSM checker instead of the LTL checker. 
+     */
+    @Option (value="-f Use FSM checker instead of the default LTL checker.", aliases={"-use-fsm-checker"})
+    public static boolean useFSMChecker = false;
     // end option group "Execution Options"
-
+    
     
     @OptionGroup("Parser Options")
     ////////////////////////////////////////////////////
@@ -285,6 +291,16 @@ public class Main implements Callable<Integer> {
         return;
     }
     
+    /**
+     * Returns the filename for an intermediate dot file based on the given
+     * stage name and round number. Adheres to the convention specified above
+     * in usage, namely that the filename is of the format:
+     * <outputFilename>.stage-<S>.round-<R>.dot
+     * 
+     * @param stageName Stage name string, e.g. "r" for refinement
+     * @param roundNum Round number within the stage
+     * @return
+     */
     public static String GetIntermediateDumpFilename(String stageName, int roundNum) {
     	return new String(outputFilename + ".stage-" + stageName + ".round-"+ roundNum + ".dot");
     }
@@ -372,7 +388,8 @@ public class Main implements Callable<Integer> {
 		Bisimulation.refinePartitions(result);
 		logger.fine("Merging..");
 		Bisimulation.mergePartitions(result);
-		
+
+		// TODO: check that none of the initially mined invariants are unsatisfied in the result		
 		//TemporalInvariantSet unsatisfied = invariants.getUnsatisfiedInvariants(result);
 		
 		// If we were given an output filename then export the resulting graph into this filename 

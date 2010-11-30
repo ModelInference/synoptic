@@ -42,7 +42,7 @@ public class TraceParser {
 	public Set<String> filters;
 	public boolean internActions = true;
 	
-	public static Logger LOG = null;
+	public static Logger logger = Logger.getLogger("Parser Logger");
 	
 	//TODO: figure out how we deal with constraints which involve the multiple parsers.
 	//  Eg, how do we verify that either none of the parsers have time fields, or all do.
@@ -52,7 +52,6 @@ public class TraceParser {
 		this.constantFields = new ArrayList<Map<String, String>>();
 		this.incrementors = new ArrayList<Map<String, Boolean>>();
 		this.filters = new HashSet<String>();
-		this.LOG = Logger.getLogger("Parser Logger");
 	}
 	
 	/**
@@ -148,23 +147,23 @@ public class TraceParser {
 		try {
 			parser = NamedPattern.compile(regex);
 		} catch (Exception e) {
-			LOG.severe("Error parsing named-captures in " + regex + ":");
-			LOG.severe(e.toString());
+			logger.severe("Error parsing named-captures in " + regex + ":");
+			logger.severe(e.toString());
 			return;
 		}
 		this.parsers.add(parser);
 
 		List<String> groups = parser.groupNames();
-		if (LOG != null) {
-			LOG.info(input_regex);
-			LOG.info("processed: " + regex);
-			LOG.info("standard: " + parser.standardPattern());
+		if (logger != null) {
+			logger.info(input_regex);
+			logger.info("processed: " + regex);
+			logger.info("standard: " + parser.standardPattern());
 			if (!groups.isEmpty())
-				LOG.info("groups: " + groups.toString());
+				logger.info("groups: " + groups.toString());
 			if (!cmap.isEmpty())
-				LOG.info("fields: " + cmap.toString());
+				logger.info("fields: " + cmap.toString());
 			if (!incMap.isEmpty())
-				LOG.info("incs: " + incMap.toString());
+				logger.info("incs: " + incMap.toString());
 			/* TODO: warn about missing time / type fields. eg (old code):
 			System.err.println("Error: 'type' named group required in regex.");
 			System.out.println("No provided time field; Using integer time.");
@@ -250,10 +249,10 @@ public class TraceParser {
 				results.add(occ);
 			}
 			br.close();
-			LOG.log(Level.INFO, "Successfully parsed " + results.size() + " events from " + fileName);
+			logger.info("Successfully parsed " + results.size() + " events from " + fileName);
 			return results;
 		} catch (IOException e) {
-			LOG.log(Level.SEVERE, "Error while attempting to read log file: "
+			logger.severe("Error while attempting to read log file: "
 				+ e.getMessage());
 		}
 		return null;
@@ -328,8 +327,8 @@ public class TraceParser {
 					try {
 						nextTime = new VectorTime(timeField.trim());
 					} catch (Exception e) {
-						LOG.warning("Could not parse time field " + e.toString());
-						LOG.warning("For this log line: " + line);
+						logger.warning("Could not parse time field " + e.toString());
+						logger.warning("For this log line: " + line);
 						nextTime = incTime(prevTime);
 					}
 				}

@@ -1,6 +1,7 @@
 package invariants;
 
 import gov.nasa.ltl.trans.ParseErrorException;
+
 import invariants.fsmcheck.FsmModelChecker;
 import invariants.ltlcheck.Counterexample;
 import invariants.ltlcheck.IModelCheckingMonitor;
@@ -42,6 +43,9 @@ import model.interfaces.IGraph;
 import model.interfaces.INode;
 import model.interfaces.ITransition;
 
+import main.Main;
+
+
 public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	/**
 	 * Enable Daikon support to extract structural invariants (alpha)
@@ -58,8 +62,6 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	 */
 	static final boolean DOUBLECKECK_MINING = false;
 
-	static boolean USE_FSMCHECKER = false;
-	
 	public TemporalInvariantSet() {
 	}
 
@@ -149,9 +151,9 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	
 	public <T extends INode<T>> RelationPath<T> getViolation(
 			TemporalInvariant inv, IGraph<T> g) {
-		TimedTask refinement = PerformanceMetrics.createTask("singleViolation", true);
+		TimedTask refinement = PerformanceMetrics.createTask("getViolation", true);
 		try {
-			if (USE_FSMCHECKER) {
+			if (Main.useFSMChecker) {
 				List<TemporalInvariant> invs = new ArrayList<TemporalInvariant>();
 				invs.add(inv);
 				FsmModelChecker<T> c = new FsmModelChecker<T>(invs, g);
@@ -172,7 +174,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		TimedTask violations = PerformanceMetrics.createTask("getViolations", false);
 		try {
 			List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
-			if (USE_FSMCHECKER) {
+			if (Main.useFSMChecker) {
 				FsmModelChecker<T> c = new FsmModelChecker<T>(this, g);
 				while (c.makeProgress()) paths.addAll(c.newFailures());
 				return null;
@@ -216,9 +218,9 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	 * @return null if no violation is found, the counter-example path otherwise
 	 */
 	public <T extends INode<T>> RelationPath<T> getFirstViolation(IGraph<T> g) {
-		TimedTask violations = PerformanceMetrics.createTask("getViolations", false);
+		TimedTask violations = PerformanceMetrics.createTask("getFirstViolation", false);
 		try {
-			if (USE_FSMCHECKER) {
+			if (Main.useFSMChecker) {
 				FsmModelChecker<T> c = new FsmModelChecker<T>(this, g);
 				while (c.makeProgress()) {
 					List<RelationPath<T>> paths = c.newFailures();
