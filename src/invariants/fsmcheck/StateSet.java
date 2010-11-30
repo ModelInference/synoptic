@@ -12,6 +12,25 @@ import java.util.Map;
  * Abstract class to provide functionality for nondeterministic finite state
  * machines which utilize BitSets as a method for evaluating the transitions
  * of many instances in parallel.
+ * 
+ * If you imagine the BitSets as creating a matrix, where each row is a set,
+ * then each row corresponds to a state of the machine, and each column
+ * corresponds to an individual state machine.  1 in this matrix indicates that
+ * that particular state is active in that particular machine.
+ * 
+ * The input which drives the transition of the state machines consists of a
+ * list of BitSets, each corresponding to a logical input of the machine. With
+ * all of the current implementations of this interface (AlwaysFollowedSet,
+ * AlwaysPrecedesSet, NeverFollowedSet), there are two inputs, as these are
+ * binary invariants.  In other words, each individual machine being simulated
+ * is watching for just two events.  1 in the nth bit of the first input
+ * indicates that the first event that the nth invariant is watching for
+ * ("A" in A afby B) is being used as the input for the transition.
+ * 
+ * Unless an invariant is watching for the same event on each of its inputs,
+ * the inputs can be thought of as a one-hot encoding: input[0] & input[1] = 0.
+ * The only time this doesn't happen in practice is "A NFby A", which indicates
+ * that A is singleton in the traces.
  */
 public abstract class StateSet {
 	protected List<BitSet> sets;
@@ -25,7 +44,7 @@ public abstract class StateSet {
 	 */
 	protected StateSet(int numSimulators) {
 		this.count = numSimulators;
-		// TODO: explain why sets is initialized to be a list of length 4?
+		// Initial capacity set to 4 as none of our current inheritors exceed.
 		sets = new ArrayList<BitSet>(4);
 	}
 	
@@ -95,7 +114,9 @@ public abstract class StateSet {
 		return result;
 	}
 	
-	/* A B result
+	/**
+	 * Helper to perform nor, for (neither = input[0] nor input[1])
+	 * A B result
 	 * 0 0 1
 	 * 0 1 0
 	 * 1 0 0
@@ -108,12 +129,19 @@ public abstract class StateSet {
 		return result;
 	}
 
-	// Helpers for dealing with mapping from some event representation to BitSets,
-	// which indicate which boolean inputs to provide to each of the machines which
-	// are being simulated.
+	/* Helpers for dealing with mapping from some event representation to BitSets,
+	 * which indicate which boolean inputs to provide to each of the machines which
+	 * are being simulated.
+	 */
 	
 	public static final BitSet zero = new BitSet();
 
+	/**
+	 * Helper function to visit an event, giving a mapping from it to inputs.
+	 * 
+	 * @param mappings A list of mapping from event to bitset, one for each input.
+	 * @param x The event to visit.
+	 */
 	public <T> void visit(List<Map<T, BitSet>> mappings, T x) {
 		List<BitSet> inputs = new ArrayList<BitSet>();
 		for (Map<T, BitSet> mapping : mappings) {
@@ -123,6 +151,16 @@ public abstract class StateSet {
 		transition(inputs);
 	}
 	
+	/**
+	 * Converts a list of binary invariants, presumably used to construct a
+	 * stateset simulation of the invariants, to the mapping used for converting
+	 * from events to input bitsets.  (see visit, above)
+	 * 
+	 * @param invariants A list of binary invariants to convert to a list of
+	 *     mappings from 
+	 * @return A list of two mappings from node labels to the first and second
+	 *     inputs, respectively, of the invariants in the list.
+	 */
 	public static List<Map<String, BitSet>> getMapping(List<BinaryInvariant> invariants) {
 		List<Map<String, BitSet>> result = new ArrayList<Map<String, BitSet>>(2);
 		Map<String, BitSet> amap = new HashMap<String, BitSet>(),
