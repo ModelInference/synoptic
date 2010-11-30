@@ -51,7 +51,7 @@ public class AlwaysPrecedesSet extends StateSet {
 		t2 = (BitSet)s3.clone();
 		t2.and(isA);         // t2 = s3 & isA
 		s4.or(t1);           // s4 = s4 | (s1 & isB)
-		s4.or(t2);           // s4 = s4 | (s1 & isB) | (s3 &isA)
+		s4.or(t2);           // s4 = s4 | (s1 & isB) | (s3 & isA)
 		
 		t1 = (BitSet)s3.clone();
 		t1.or(s2);           // t1 = s2 | s3

@@ -33,7 +33,8 @@ public class NeverFollowedSet extends StateSet {
 		 * s3 = s3 | (s2 & isB)
 		 */
 
-		BitSet isA = inputs.get(0), isB = inputs.get(1),
+		// isA is cloned so that it can be mutated.
+		BitSet isA = (BitSet)inputs.get(0).clone(), isB = inputs.get(1),
 		       neither = nor(isA, isB, count),
 		       s1 = sets.get(0), s2 = sets.get(1), s3 = sets.get(2);
 
@@ -43,11 +44,12 @@ public class NeverFollowedSet extends StateSet {
 		t.and(isB);          // t   = s2 & isB
 		s3.or(t);            // s3  = s3 | (s2 & isB)
 		
+		neither.or(isB);     // n   = n | isB
+		s1.and(neither);     // s1  = s1 & (n | isB)
+		
 		s2.and(neither);     // s2  = s2 & n
 		isA.andNot(s3);      // isA = !s3 & isA
 		s2.or(isA);          // s2  = (s2 & n) | (!s3 & isA)
 		
-		neither.or(isB);     // n   = n | isB
-		s1.and(neither);     // s1  = s1 & (n | isB)
 	}
 }
