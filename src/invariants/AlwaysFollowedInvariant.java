@@ -29,6 +29,10 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
 			return "[](\""+first+"\" -> (<>\""+second+"\"))";
 	}
 
+	/**
+	 * TODO: why does this invariant type not need violating trace shortening
+	 * like the other types? 
+	 */
 	@Override
 	public <T extends INode<T>> List<T> shorten(List<T> trace) {
 		return trace;

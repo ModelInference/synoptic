@@ -23,16 +23,32 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
 			return "(<>(second))->((!first) U second)";
 	}
 
-	private <T extends INode<T>> List<T> shortenImp(boolean seen, int len,
-			List<T> trace) {
-		if (trace.size() <= len)
+	/**
+	 * Returns a sub-trace of the violating trace that looks like
+	 * ...'second'
+	 * where 'first' APby 'second' is this invariant and where 'first'
+	 * does _not_ appear in the returned sub-trace at all.
+	 *
+	 * The returned sequence includes the entire trace up to the first appearance
+	 * of 'second'. If the trace has a 'first' before a 'second' then it returns
+	 * null.
+	 * 
+	 * @param <T>
+	 * @param first_seen whether or not we've seen' first' in the trace so far
+	 * @param trace_pos the position of where we are in the trace so far
+	 * @param trace the trace we are operating on
+	 * @return the sub-trace described above
+	 */
+	private <T extends INode<T>> List<T> shortenImp(boolean first_seen,
+			int trace_pos, List<T> trace) {
+		if (trace.size() <= trace_pos)
 			return null;
-		T message = trace.get(len);
+		T message = trace.get(trace_pos);
 		if (message.getLabel().equals(first))
-			seen = true;
-		if (message.getLabel().equals(second) && !seen)
-			return trace.subList(0, len + 1);
-		return shortenImp(seen, len + 1, trace);
+			first_seen = true;
+		if (message.getLabel().equals(second) && !first_seen)
+			return trace.subList(0, trace_pos + 1);
+		return shortenImp(first_seen, trace_pos + 1, trace);
 	}
 
 	@Override

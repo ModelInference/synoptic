@@ -35,7 +35,7 @@ import model.interfaces.ITransition;
  * 
  * It is based on the code from Clemens Hammacher's implementation of a
  * partition refinement algorithm for bisimulation minimization. Source:
- * https://ccs.hammacher.name Licence: Eclipse Public License v1.0.
+ * https://ccs.hammacher.name License: Eclipse Public License v1.0.
  */
 public abstract class Bisimulation {
 	public static Logger logger = Logger.getLogger("Bisimulation");
@@ -336,7 +336,7 @@ public abstract class Bisimulation {
 			// if we cannot follow, we found the partition we have to split.
 			if (hot.size() == 0)
 				break;
-			// Compute the sucessor messages
+			// Compute the valid successor messages in the original trace
 			Set<MessageEvent> successorMessages = new HashSet<MessageEvent>();
 			for (MessageEvent m : hot)
 				successorMessages.addAll(m
@@ -346,20 +346,20 @@ public abstract class Bisimulation {
 		}
 		ITransition<Partition> outgoingTransition = curPartition.getTransition(
 				nextPartition, counterexampleTrace.invariant.getRelation());
-		ITransition<Partition> incommingTransition = null;
+		ITransition<Partition> incomingTransition = null;
 		if (prevPartition != null)
-			incommingTransition = prevPartition.getTransition(curPartition,
+			incomingTransition = prevPartition.getTransition(curPartition,
 					counterexampleTrace.invariant.getRelation());
 		if (outgoingTransition != null) {
 			logger.fine("" + outgoingTransition);
 			candidateSplits.add(curPartition
 					.getCandidateDivision(outgoingTransition));
 		}
-		if (incommingTransition != null && incomingTransitionSplit) {
-			logger.fine("" + incommingTransition);
+		if (incomingTransition != null && incomingTransitionSplit) {
+			logger.fine("" + incomingTransition);
 			candidateSplits.add(curPartition
 					.getCandidateDivisionBasedOnIncoming(prevPartition,
-							incommingTransition.getRelation()));
+							incomingTransition.getRelation()));
 		}
 		return candidateSplits;
 	}
