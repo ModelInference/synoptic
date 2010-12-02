@@ -51,7 +51,11 @@ public class MainTest {
 	public static List<TraceParser.Occurrence> readGraphSet(TraceParser m, String baseName, int count, int linesToRead) {
 		List<TraceParser.Occurrence> results = new ArrayList<TraceParser.Occurrence>();
 		for (int i = 1; i <= count; ++i) {
-			results.addAll(m.parseTraceFile(baseName.replace("?", "" + i), linesToRead));
+			try {
+				results.addAll(m.parseTraceFile(baseName.replace("?", "" + i), linesToRead));
+			} catch (ParseException e) {
+				// TODO: fail somehow
+			}
 		}
 		return results;
 	}
