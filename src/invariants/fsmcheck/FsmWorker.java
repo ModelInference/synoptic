@@ -77,16 +77,7 @@ public class FsmWorker<T extends INode<T>> {
 	 */
 	public boolean isSubset(FsmWorker<T> other) {
 		for (int i = 0; i < machines.size(); i++) {
-			List<BitSet> sets = machines.get(i).sets;
-			List<BitSet> osets = other.machines.get(i).sets;
-			if (sets.size() != osets.size()) return false;
-			for (int j = 0; j < sets.size(); j++) {
-				BitSet thisSet = sets.get(j);
-				BitSet s = (BitSet) thisSet.clone();
-				s.and(osets.get(j));
-				s.xor(thisSet);     // (intersection != this) == 0 for subset
-				if (!s.isEmpty()) return false;
-			}
+			if(!machines.get(i).isSubset(other.machines.get(i))) return false;
 		}
 		return true;
 	}

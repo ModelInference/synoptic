@@ -92,6 +92,23 @@ public abstract class StateSet {
 	}
 	
 	/**
+	 * Checks if one StateSet's inhabited states is a subset of another.
+	 * @param other The other set.
+	 * @return Returns true if the otherset is a superset.
+	 */
+	public boolean isSubset(StateSet other) {
+		if (sets.size() != other.sets.size()) return false;
+		for (int j = 0; j < sets.size(); j++) {
+			BitSet thisSet = sets.get(j);
+			BitSet s = (BitSet) thisSet.clone();
+			s.and(other.sets.get(j));
+			s.xor(thisSet);     // (intersection != this) == 0 for subset
+			if (!s.isEmpty()) return false;
+		}
+		return true;
+	}
+	
+	/**
 	 * Clones this set of states, using reflection to ascertain the actual type
 	 * to construct.
 	 * 
