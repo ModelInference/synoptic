@@ -5,12 +5,11 @@ import invariants.AlwaysPrecedesInvariant;
 import invariants.BinaryInvariant;
 import invariants.NeverFollowedInvariant;
 import invariants.TemporalInvariant;
-import invariants.TemporalInvariantSet;
 import invariants.TemporalInvariantSet.RelationPath;
-import invariants.fsmcheck.FsmWorker.HistoryNode;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -25,154 +24,198 @@ import model.interfaces.ITransition;
 
 public class FsmModelChecker<T extends INode<T>> {
 	public List<List<BinaryInvariant>> invariants;
-	Queue<FsmWorker<T>> workList;
-	Map<T, Set<FsmWorker<T>>> cachedStates;
 	IGraph<T> graph;
-	List<List<Map<String, BitSet>>> inputMappings;
-	List<BitSet> oldFailures = new ArrayList<BitSet>();
 	
+	@SuppressWarnings("unchecked")
 	public FsmModelChecker(Iterable<TemporalInvariant> invariants, IGraph<T> graph) {
 		this.graph = graph;
-		this.workList = new LinkedList<FsmWorker<T>>();
-		this.cachedStates = new HashMap<T, Set<FsmWorker<T>>>();
-		for (T node : graph.getNodes()) {
-			cachedStates.put(node, new HashSet<FsmWorker<T>>());
-		}
 		
 		// TODO: store this instead of post processing the set
 		List<BinaryInvariant> alwaysFollowed = new ArrayList<BinaryInvariant>();
 		List<BinaryInvariant> alwaysPrecedes = new ArrayList<BinaryInvariant>();
 		List<BinaryInvariant> neverFollowed  = new ArrayList<BinaryInvariant>();
 		for (TemporalInvariant inv : invariants) {
-			if (inv.getClass().equals(AlwaysFollowedInvariant.class)) {
+			Class<Object> clazz = (Class<Object>) inv.getClass();
+			if (clazz.equals(AlwaysFollowedInvariant.class)) {
 				alwaysFollowed.add((BinaryInvariant)inv);
-			} else if (inv.getClass().equals(AlwaysPrecedesInvariant.class)) {
+			} else if (clazz.equals(AlwaysPrecedesInvariant.class)) {
 				alwaysPrecedes.add((BinaryInvariant)inv);
-			} else if (inv.getClass().equals(NeverFollowedInvariant.class)) {
+			} else if (clazz.equals(NeverFollowedInvariant.class)) {
 				alwaysFollowed.add((BinaryInvariant)inv);
 			}
 		}
-		
-		inputMappings = new ArrayList<List<Map<String, BitSet>>>();
-		inputMappings.add(StateSet.getMapping(alwaysFollowed));
-		inputMappings.add(StateSet.getMapping(alwaysPrecedes));
-		inputMappings.add(StateSet.getMapping(neverFollowed));
-		
-		List<StateSet> machines = new ArrayList<StateSet>(3);
-		machines.add(new AlwaysFollowedSet(alwaysFollowed.size()));
-		machines.add(new AlwaysPrecedesSet(alwaysPrecedes.size()));
-		machines.add(new NeverFollowedSet(neverFollowed.size()));
 		
 		this.invariants = new ArrayList<List<BinaryInvariant>>();
 		this.invariants.add(alwaysFollowed);
 		this.invariants.add(alwaysPrecedes);
 		this.invariants.add(neverFollowed);
-		
-		FsmWorker<T> initialWorker = new FsmWorker<T>(machines, inputMappings);
-		for (T initial : graph.getInitialNodes()) {
-			FsmWorker<T> newWorker = new FsmWorker<T>(initialWorker);
-			newWorker.resetHistory(initial);
-			workList.add(newWorker);
-			cachedStates.get(initial).add(newWorker);
-		}
-		
-		for (int i = 0; i < 3; i++) {
-			oldFailures.add(new BitSet());
-		}
 	}
 	
-	public void runToCompletion() {
-		while (makeProgress()) { System.out.println("Worklist size: " + workList.size()); }
-		//printAllHistory(true);
-	}
-	
-	public boolean makeProgress() {
-		while (!workList.isEmpty()) {
-			FsmWorker<T> worker = workList.remove();
-			//TODO: use iterator?
-			for (ITransition<T> adjacent : worker.history.node.getTransitions()) {
-				FsmWorker<T> nextWorker = new FsmWorker<T>(worker);
-				T target = adjacent.getTarget();
-				nextWorker.next(target);
-				
-				boolean visited = false;
-				Set<FsmWorker<T>> states = cachedStates.get(target);
-				for (FsmWorker<T> priorState : states) {
-					if (nextWorker.isSubset(priorState)) {
-						visited = true;
-						break;
-					}
-				}
-				
-				if (!visited) {
-					workList.add(nextWorker);
-					//TODO: this throws away shorter counter examples. ugh.
-					for (FsmWorker<T> priorState : states) {
-						if (priorState.isSubset(nextWorker)) {
-							states.remove(priorState);
-						}
-					}
-					states.add(nextWorker);
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	
-	/* Returns counterexamples for invariants which have not been found to fail in prior calls.
-	 * TODO: integrate into makeprogress so that the whole graph isn't re-scanned.
-	 * TODO: consider storing unioned fail vectors in worker, and seeing if it's a subset.
-	 */
-	public List<RelationPath<T>> newFailures() {
-		List<RelationPath<T>> results = new ArrayList<RelationPath<T>>();
-		for (int i = 0; i < invariants.size(); i++) {
-			BitSet old = oldFailures.get(i);
-			List<BinaryInvariant> invs = invariants.get(i);
-			for (T elem : graph.getNodes()) {
-				Set<FsmWorker<T>> states = cachedStates.get(elem);
-				if (states == null) continue;
-				for (FsmWorker<T> state : states) {
-					StateSet machine = state.machines.get(i);
-					BitSet isFail = machine.isPermanentFail();
-					if (elem.isFinal()) isFail.or(machine.isFail());
-					isFail.andNot(old);
-					if (!isFail.isEmpty()) {
-						List<T> path = new ArrayList<T>();
-						for (FsmWorker<T>.HistoryNode cur = state.history; cur != null; cur = cur.previous) {
-							path.add(cur.node);
-						}
-						//TODO: should the path be reversed?
-						// Iterate new failures, recording counterexamples.
-						for (int j = isFail.nextSetBit(0); j >= 0; j = isFail.nextSetBit(j + 1)) {
-							//TODO: make this more efficient by making relationpath use the linked representation
-							RelationPath<T> counterexample = new RelationPath<T>();
-							counterexample.invariant = invs.get(j);
-							//NOTE: These should be cloned before being mutated, at any point henceforth.
-							counterexample.path = counterexample.invariant.shorten(path);
-							results.add(counterexample);
-						}
-						old.or(isFail);
-					}
-				}
-			}
+	protected List<StateSet> newMachines(List<StateSet> old) {
+		List<StateSet> results = new ArrayList<StateSet>();
+		for (StateSet ss : old) {
+			results.add(ss.clone());
 		}
 		return results;
 	}
 	
-	/*
-	public void printAllHistory(boolean matchFailures) {
-		for (T elem : graph.getNodes()) {
-			for (FsmWorker<T> worker : this.cachedStates.get(elem)) {
-				if (worker.history == null) {
-					System.out.println("null history!!!"); continue;
-				}
-				if (!worker.permanentFail.isEmpty() ||
-					(worker.history.node.getTransitions().isEmpty() && !worker.fail.isEmpty())) {
-					System.out.println(worker.fail.cardinality() + " invariants invalid " + worker.history.fullHistory());
-				}
+	protected List<StateSet> visit(T node, List<List<Map<String, BitSet>>> mapping, List<StateSet> states) {
+		for (int i = 0; i < states.size(); i++) {
+			states.get(i).visit(mapping.get(i), node.getLabel());
+		}
+		return states;
+	}
+	
+	protected boolean isSubset(List<StateSet> a, List<StateSet> b) {
+		for (int i = 0; i < a.size(); i++) {
+			if (!a.get(i).isSubset(b.get(i))) return false;
+		}
+		return true;
+	}
+	
+	protected BitSet failureBits(List<StateSet> states, boolean isFinal) {
+		BitSet result = new BitSet();
+		int pos = 0;
+		for (StateSet state : states) {
+			BitSet fail = isFinal ? state.isFail() : state.isPermanentFail();
+			for (int i = fail.nextSetBit(0); i >= 0; i = fail.nextSetBit(i + 1)) {
+				result.set(i + pos);
+			}
+			pos += state.count;
+		}
+		return result;
+	}
+	
+	public List<RelationPath<T>> getCounterexamples() {
+		return findFailures(mergeBitSets(whichFail().values()));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Map<T, BitSet> whichFail() {
+		int count = invariants.size();
+		List<List<Map<String, BitSet>>> mappings = new ArrayList<List<Map<String, BitSet>>>(count);
+		List<StateSet> machines = new ArrayList<StateSet>(count);
+		for (List<BinaryInvariant> invs : invariants) {
+			mappings.add(StateSet.getMapping(invs));
+			Class<BinaryInvariant> clazz = (Class<BinaryInvariant>) invs.get(0).getClass();
+			if (clazz.equals(AlwaysFollowedInvariant.class)) {
+				machines.add(new AlwaysFollowedSet(invs.size()));
+			} else if (clazz.equals(AlwaysPrecedesInvariant.class)) {
+				machines.add(new AlwaysPrecedesSet(invs.size()));
+			} else if (clazz.equals(NeverFollowedInvariant.class)) {
+				machines.add(new NeverFollowedSet(invs.size()));
 			}
 		}
-	} */
+		
+		Map<T, List<StateSet>> states = new HashMap<T, List<StateSet>>();
+		Queue<T> workList = new LinkedList<T>();
+		for (T initial : graph.getInitialNodes()) {
+			workList.add(initial);
+			states.put(initial, newMachines(machines));
+		}
+		
+		while(!workList.isEmpty()) {
+			T node = workList.remove();
+			List<StateSet> current = states.get(node);
+			for (ITransition<T> adjacent : node.getTransitions()) {
+				T target = adjacent.getTarget();
+				List<StateSet> other = states.get(target);
+				List<StateSet> newMachines = visit(target, mappings, newMachines(current));
+				if (other != null) {
+					if (isSubset(newMachines, other)) continue;
+					for (int i = 0; i < newMachines.size(); i++) {
+						newMachines.get(i).mergeWith(other.get(i));
+					}
+				}
+				states.put(target, newMachines);
+				workList.add(target);
+			}
+		}
+		
+		Map<T, BitSet> result = new HashMap<T, BitSet>();
+		for (T node : graph.getNodes()) {
+			List<StateSet> xs = states.get(node);
+			if (states != null) result.put(node, failureBits(xs, node.isFinal()));
+		}
+		return result;
+	}
+	
+	public static BitSet mergeBitSets(Collection<BitSet> failures) {
+		BitSet result = new BitSet();
+		for (BitSet b : failures)
+			result.or(b);
+		return result;
+	}
+	
+	public List<RelationPath<T>> findFailures(BitSet failures) {
+		List<RelationPath<T>> results = new ArrayList<RelationPath<T>>();
+		
+		for (int i = failures.nextSetBit(0); i >= 0; i++)
+			invariantCounterexamples(results, i);
+		
+		return results;
+	}
+	
+	public BinaryInvariant getInvariant(int index) {
+		int i = 0;
+		while (i < invariants.size() && invariants.get(i).size() <= index) {
+			int sz = invariants.get(i).size();
+			if (index < sz) {
+				return invariants.get(i).get(index);
+			} else {
+				index -= sz;
+				i++;
+			}
+		}
+		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected void invariantCounterexamples(List<RelationPath<T>> results, int index) {
+		TracingStateSet<T> stateset = null;
+		BinaryInvariant invariant = getInvariant(index);
+		Class<BinaryInvariant> clazz = (Class<BinaryInvariant>) invariant.getClass();
+		if (clazz.equals(AlwaysFollowedInvariant.class)) {
+			stateset = new AlwaysFollowedTracingSet<T>(invariant);
+		} else if (clazz.equals(AlwaysPrecedesInvariant.class)) {
+			stateset = new AlwaysPrecedesTracingSet<T>(invariant);
+		} else if (clazz.equals(NeverFollowedInvariant.class)) {
+			stateset = new NeverFollowedTracingSet<T>(invariant);
+		}
+		
+		Set<T> onWorklist = new HashSet<T>();
+		Queue<T> workList = new LinkedList<T>();
+		Map<T, TracingStateSet> states = new HashMap<T, TracingStateSet>();
+		
+		for (T node : graph.getNodes()) {
+			states.put(node, stateset.clone());
+		}
+		
+		for (T node : graph.getInitialNodes()) {
+			onWorklist.add(node);
+			workList.add(node);
+			states.get(node).setInitial(node);
+		}
+		
+		while (!workList.isEmpty()) {
+			T node = workList.remove();
+			TracingStateSet current = states.get(node);
+			for (ITransition<T> adjacent : node.getTransitions()) {
+				T target = adjacent.getTarget();
+				TracingStateSet other = states.get(target);
+				TracingStateSet temp = current.clone();
+				temp.transition(target);
+				if (temp.isSubset(other)) continue;
+				other.merge(temp);
+				workList.add(target);
+			}
+		}
+		
+		for (T node : graph.getNodes()) {
+			TracingStateSet<T> state = states.get(node);
+			if (node.isFinal()) {
+				results.add(state.failstate().toCounterexample((TemporalInvariant)invariant));
+			}
+		}
+	}
 }

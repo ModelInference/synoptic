@@ -50,6 +50,5 @@ public class NeverFollowedSet extends StateSet {
 		s2.and(neither);     // s2  = s2 & n
 		isA.andNot(s3);      // isA = !s3 & isA
 		s2.or(isA);          // s2  = (s2 & n) | (!s3 & isA)
-		
 	}
 }
