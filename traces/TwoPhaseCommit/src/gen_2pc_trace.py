@@ -5,20 +5,20 @@ See README.txt
 import random
 import sys
 
-def gen_msg(mtype, src, dst):
-    print "%s, %s, %s"%(src, dst, mtype)
+def gen_msg(mtype, src, dst, txid):
+    print "%s, %s, %s, %s"%(src, dst, mtype, txid)
 
 def perform_sim(num_nodes, num_itters):
-    for i in range(num_itters):
+    for txid in range(num_itters):
         for i in range(num_nodes):
-            gen_msg("tx_prepare", "TM", i)
+            gen_msg("tx_prepare", "TM", i, txid)
 
         tx = True
         for i in range(num_nodes):
             mtype = random.sample(["abort", "commit"], 1)[0]
             if (mtype == "abort"):
                 tx = False
-            gen_msg(mtype, i, "TM")
+            gen_msg(mtype, i, "TM", txid)
 
         if tx:
             mtype = "tx_commit"
@@ -26,7 +26,7 @@ def perform_sim(num_nodes, num_itters):
             mtype = "tx_abort"
             
         for i in range(num_nodes):
-            gen_msg(mtype, "TM", i)
+            gen_msg(mtype, "TM", i, txid)
 
 
 def usage(err_msg):

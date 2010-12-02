@@ -24,6 +24,9 @@ import model.input.GraphBuilder;
 import model.input.IBuilder;
 import model.input.VectorTime;
 
+import main.ParseException;
+import main.Main;
+
 import util.NamedMatcher;
 import util.NamedPattern;
 
@@ -227,8 +230,9 @@ public class TraceParser {
 	 * @param linesToRead Bound on the number of lines to read.  Negatives
 	 *     indicate unbounded.
 	 * @return The parsed occurrences.
+	 * @throws Exception 
 	 */
-	public List<Occurrence> parseTraceFile(String fileName, int linesToRead) {
+	public List<Occurrence> parseTraceFile(String fileName, int linesToRead) throws ParseException {
 		try {
 			FileInputStream fstream = new FileInputStream(fileName);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
@@ -254,8 +258,8 @@ public class TraceParser {
 		} catch (IOException e) {
 			logger.severe("Error while attempting to read log file: "
 				+ e.getMessage());
+			throw new ParseException();
 		}
-		return null;
 	}
 	
 	/* Increment time if it's a singleton. */
@@ -276,11 +280,12 @@ public class TraceParser {
 		//return a.getStringArgument(filter);
 	}
 	
+	
 	/* 
 	 * Parse an individual line.  If it contains no time field, prevTime is
 	 * incremented and used instead.
 	 */
-	private Occurrence parseLine(VectorTime prevTime, String line, String filename, Map<String, Integer> context) {
+	private Occurrence parseLine(VectorTime prevTime, String line, String filename, Map<String, Integer> context) throws ParseException {
 		Action action = null;
 		VectorTime nextTime = null;
 		for (int i = 0; i < this.parsers.size(); i++) {
@@ -299,7 +304,7 @@ public class TraceParser {
 				// Overlay extracted groups.
 				gs.putAll(matcher.toMatchResult().namedGroups());
 				
-				// Perform preincrements.
+				// Perform pre-increments.
 				for (Map.Entry<String, Boolean> inc : this.incrementors.get(i).entrySet())
 					if (inc.getValue() == false)
 						context.put(inc.getKey(), context.get(inc.getKey()) + 1);
@@ -327,9 +332,16 @@ public class TraceParser {
 					try {
 						nextTime = new VectorTime(timeField.trim());
 					} catch (Exception e) {
-						logger.warning("Could not parse time field " + e.toString());
-						logger.warning("For this log line: " + line);
-						nextTime = incTime(prevTime);
+						if (main.Main.recoverFromParseErrors) {
+							logger.warning("Failed to parse time field " + e.toString() +
+									" for log line:\n" + line +
+									"\nincrementing prior time value and continuing.");
+							nextTime = incTime(prevTime);
+						} else {
+							logger.severe("Failed to parse time field " + e.toString() +
+									" for log line:\n" + line);
+							throw new ParseException();
+						}
 					}
 				}
 				for (Map.Entry<String, String> group : gs.entrySet()) {
@@ -339,7 +351,7 @@ public class TraceParser {
 					}
 				}
 				
-				// Perform postincrements.
+				// Perform post-increments.
 				for (Map.Entry<String, Boolean> inc : this.incrementors.get(i).entrySet())
 					if (inc.getValue() == true)
 						context.put(inc.getKey(), context.get(inc.getKey()) + 1);
@@ -349,14 +361,20 @@ public class TraceParser {
 				return new Occurrence(builder.insert(action), nextTime, nodeName);
 			}
 		}
-		System.err.println("Warning: Failed to parse trace line.  Using entire line as type.");
-		System.err.println(line);
-		action = new Action(line);
-		if (internActions) action = action.intern();
-		return new Occurrence(builder.insert(action), incTime(prevTime), null);
+
+		if (main.Main.recoverFromParseErrors) {
+			logger.warning("Failed to parse trace line: \n" + line +
+					"\n" + "Using entire line as type.");
+			action = new Action(line);
+			if (internActions) action = action.intern();
+			return new Occurrence(builder.insert(action), incTime(prevTime), null);
+		}
+		
+		logger.severe("Failed to parse trace line: \n" + line);
+		throw new ParseException();
 	}
 
-	/**  TODO: deprecated --> remove
+	/**  TODO: @deprecated --> remove
 	 * 
 	 * Splits on all actions containing a <?sep> named field.
 	 * 
@@ -386,8 +404,9 @@ public class TraceParser {
 	 * @param linesToRead Maximum number of tracelines to read.  Negative if unlimited.
 	 * @param partition True indicates partitioning the occurrences on the nodeName field.
 	 * @return The resulting graph.
+	 * @throws ParseException 
 	 */
-	public Graph<MessageEvent> readGraph(String file, int linesToRead, boolean partition) {
+	public Graph<MessageEvent> readGraph(String file, int linesToRead, boolean partition) throws ParseException {
 		this.builder = new GraphBuilder();
 		List<Occurrence> set = this.parseTraceFile(file, linesToRead);
 		generateDirectTemporalRelation(set, partition);

@@ -102,6 +102,13 @@ public class Main implements Callable<Integer> {
      */
     @Option (value="-p Partition regular expression", aliases={"-partition"})
     public static String partitionRegExp = null;
+    
+    /**
+     * This flag allows users to get away with sloppy\incorrect regular expressions
+     * that might not fully cover the range of log lines appearing in the log files.
+     */
+    @Option (value="-i Ignore and recover from parse errors as much as possible.", aliases={"-ignore-parse-errors"})
+    public static boolean recoverFromParseErrors = false;
     // end option group "Parser Options"
     
     
@@ -359,7 +366,12 @@ public class Main implements Callable<Integer> {
 		
 		for (String filename : Main.logFilenames) {
 			logger.fine("\tcalling parseTraceFile with filename:" + filename);
-			parsedEvents.addAll(parser.parseTraceFile(filename, -1));
+			try {
+				parsedEvents.addAll(parser.parseTraceFile(filename, -1));
+			} catch (ParseException e) {
+				logger.severe("Caught ParseException -- unable to continue, exiting.");
+				return new Integer(1);
+			}
 		}
 		
 		// If we parsed any events, then run Synoptic.
