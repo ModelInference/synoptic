@@ -393,9 +393,8 @@ public class Main implements Callable<Integer> {
         }		
 		
 		PartitionGraph result = new PartitionGraph(inputGraph, true);
-		TemporalInvariantSet invariants = result.getInvariants();
-		FsmModelChecker<MessageEvent> checker = new FsmModelChecker<MessageEvent>(invariants, inputGraph);
-		checker.runToCompletion();
+		//TemporalInvariantSet invariants = result.getInvariants();
+		//FsmModelChecker<MessageEvent> checker = new FsmModelChecker<MessageEvent>(invariants, inputGraph);
 		
 		Bisimulation.refinePartitions(result);
 		logger.fine("Merging..");
