@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -157,11 +158,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				List<TemporalInvariant> invs = new ArrayList<TemporalInvariant>();
 				invs.add(inv);
 				FsmModelChecker<T> c = new FsmModelChecker<T>(invs, g);
-				while (c.makeProgress()) {
-					List<RelationPath<T>> paths = c.newFailures();
-					if (!paths.isEmpty()) return paths.get(0);
-				}
-				return null;
+				return c.findFailures(FsmModelChecker.mergeBitSets(c.whichFail().values())).get(0);
 			} else {
 				return getCounterExample(inv, g, new GraphLTLChecker<T>());
 			}
@@ -176,8 +173,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
 			if (Main.useFSMChecker) {
 				FsmModelChecker<T> c = new FsmModelChecker<T>(this, g);
-				while (c.makeProgress()) paths.addAll(c.newFailures());
-				return null;
+				return c.findFailures(FsmModelChecker.mergeBitSets(c.whichFail().values()));
 			} else {
 				GraphLTLChecker<T> c = new GraphLTLChecker<T>();
 				for (TemporalInvariant i : invariants) {
@@ -222,10 +218,10 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		try {
 			if (Main.useFSMChecker) {
 				FsmModelChecker<T> c = new FsmModelChecker<T>(this, g);
-				while (c.makeProgress()) {
-					List<RelationPath<T>> paths = c.newFailures();
-					if (!paths.isEmpty()) return paths.get(0);
-				}
+				BitSet whichBits = FsmModelChecker.mergeBitSets(c.whichFail().values());
+				whichBits.clear(whichBits.nextSetBit(0) + 1, whichBits.size());
+				List<RelationPath<T>> results = c.findFailures(whichBits);
+				return results.get(0);
 			} else {
 				GraphLTLChecker<T> c = new GraphLTLChecker<T>();
 				for (TemporalInvariant i : invariants) {
