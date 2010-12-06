@@ -41,7 +41,7 @@ public class FsmModelChecker<T extends INode<T>> {
 			} else if (clazz.equals(AlwaysPrecedesInvariant.class)) {
 				alwaysPrecedes.add((BinaryInvariant)inv);
 			} else if (clazz.equals(NeverFollowedInvariant.class)) {
-				alwaysFollowed.add((BinaryInvariant)inv);
+				neverFollowed.add((BinaryInvariant)inv);
 			}
 		}
 		
@@ -54,30 +54,57 @@ public class FsmModelChecker<T extends INode<T>> {
 	protected List<StateSet> newMachines(List<StateSet> old) {
 		List<StateSet> results = new ArrayList<StateSet>();
 		for (StateSet ss : old) {
-			results.add(ss.clone());
+			results.add(ss != null ? ss.clone() : null);
 		}
 		return results;
 	}
 	
 	protected List<StateSet> visit(T node, List<List<Map<String, BitSet>>> mapping, List<StateSet> states) {
+		String label = node.getLabel();
 		for (int i = 0; i < states.size(); i++) {
-			states.get(i).visit(mapping.get(i), node.getLabel());
+			StateSet state = states.get(i);
+			if (state != null) state.visit(mapping.get(i), label);
 		}
 		return states;
 	}
 	
-	protected boolean isSubset(List<StateSet> a, List<StateSet> b) {
-		for (int i = 0; i < a.size(); i++) {
-			if (!a.get(i).isSubset(b.get(i))) return false;
+	/**
+	 * Predicate for determining if one set of states is the strict subset of another.
+	 * @param as  The first list of statesets, true is yielded if it's a subset / equal
+	 * @param bs  The second list of statesets, true is yielded if it's a superset / equal
+	 */
+	protected boolean isSubset(List<StateSet> as, List<StateSet> bs) {
+		assert(as.size() == bs.size());
+		for (int i = 0; i < as.size(); i++) {
+			StateSet a = as.get(i), b = bs.get(i);
+			// if a is null, then the value of b doesn't matter, and it doesn't
+			// tell us that this is a subset.
+			if (a != null && !a.isSubset(b)) return false;
 		}
 		return true;
 	}
 	
+	protected void merge(List<StateSet> as, List<StateSet> bs) {
+		for (int i = 0; i < as.size(); i++) {
+			StateSet a = as.get(i), b = bs.get(i);
+			if (a == null && b != null) {
+				as.set(i, b.clone());
+			} else {
+				a.mergeWith(b);
+			}
+		}
+	}
+	
+	/*
+	 * Merges the failure bits of a list of statesets into one unified failure bitset.
+	 */
 	protected BitSet failureBits(List<StateSet> states, boolean isFinal) {
 		BitSet result = new BitSet();
+		if (!isFinal) return result;
 		int pos = 0;
 		for (StateSet state : states) {
-			BitSet fail = isFinal ? state.isFail() : state.isPermanentFail();
+			if (state == null) continue;
+			BitSet fail = state.isFail(); //isFinal ? state.isFail() : state.isPermanentFail();
 			for (int i = fail.nextSetBit(0); i >= 0; i = fail.nextSetBit(i + 1)) {
 				result.set(i + pos);
 			}
@@ -97,6 +124,7 @@ public class FsmModelChecker<T extends INode<T>> {
 		List<StateSet> machines = new ArrayList<StateSet>(count);
 		for (List<BinaryInvariant> invs : invariants) {
 			mappings.add(StateSet.getMapping(invs));
+			if (invs.isEmpty()) { machines.add(null); continue; }
 			Class<BinaryInvariant> clazz = (Class<BinaryInvariant>) invs.get(0).getClass();
 			if (clazz.equals(AlwaysFollowedInvariant.class)) {
 				machines.add(new AlwaysFollowedSet(invs.size()));
@@ -123,9 +151,7 @@ public class FsmModelChecker<T extends INode<T>> {
 				List<StateSet> newMachines = visit(target, mappings, newMachines(current));
 				if (other != null) {
 					if (isSubset(newMachines, other)) continue;
-					for (int i = 0; i < newMachines.size(); i++) {
-						newMachines.get(i).mergeWith(other.get(i));
-					}
+					merge(newMachines, other);
 				}
 				states.put(target, newMachines);
 				workList.add(target);
@@ -150,21 +176,29 @@ public class FsmModelChecker<T extends INode<T>> {
 	public List<RelationPath<T>> findFailures(BitSet failures) {
 		List<RelationPath<T>> results = new ArrayList<RelationPath<T>>();
 		
-		for (int i = failures.nextSetBit(0); i >= 0; i++)
+		for (int i = failures.nextSetBit(0); i >= 0; i = failures.nextSetBit(i + 1)) {
+			System.out.println(results.size() + " size before");
 			invariantCounterexamples(results, i);
+		}
 		
 		return results;
 	}
 	
+	public int invariantCount() {
+		int result = 0;
+		for (int i = 0; i < this.invariants.size(); i++) {
+			result += this.invariants.get(i).size();
+		}
+		return result;
+	}
+	
 	public BinaryInvariant getInvariant(int index) {
-		int i = 0;
-		while (i < invariants.size() && invariants.get(i).size() <= index) {
+		for (int i = 0; i < invariants.size(); i++) {
 			int sz = invariants.get(i).size();
 			if (index < sz) {
 				return invariants.get(i).get(index);
 			} else {
 				index -= sz;
-				i++;
 			}
 		}
 		return null;
@@ -174,6 +208,7 @@ public class FsmModelChecker<T extends INode<T>> {
 	protected void invariantCounterexamples(List<RelationPath<T>> results, int index) {
 		TracingStateSet<T> stateset = null;
 		BinaryInvariant invariant = getInvariant(index);
+		if (invariant == null) return;
 		Class<BinaryInvariant> clazz = (Class<BinaryInvariant>) invariant.getClass();
 		if (clazz.equals(AlwaysFollowedInvariant.class)) {
 			stateset = new AlwaysFollowedTracingSet<T>(invariant);
@@ -183,7 +218,7 @@ public class FsmModelChecker<T extends INode<T>> {
 			stateset = new NeverFollowedTracingSet<T>(invariant);
 		}
 		
-		Set<T> onWorklist = new HashSet<T>();
+		Set<T> onWorkList = new HashSet<T>();
 		Queue<T> workList = new LinkedList<T>();
 		Map<T, TracingStateSet> states = new HashMap<T, TracingStateSet>();
 		
@@ -192,29 +227,35 @@ public class FsmModelChecker<T extends INode<T>> {
 		}
 		
 		for (T node : graph.getInitialNodes()) {
-			onWorklist.add(node);
+			onWorkList.add(node);
 			workList.add(node);
 			states.get(node).setInitial(node);
 		}
 		
 		while (!workList.isEmpty()) {
 			T node = workList.remove();
+			onWorkList.remove(node);
 			TracingStateSet current = states.get(node);
 			for (ITransition<T> adjacent : node.getTransitions()) {
 				T target = adjacent.getTarget();
 				TracingStateSet other = states.get(target);
 				TracingStateSet temp = current.clone();
 				temp.transition(target);
-				if (temp.isSubset(other)) continue;
+				boolean isSubset = temp.isSubset(other);
 				other.merge(temp);
-				workList.add(target);
+				if (!isSubset && !onWorkList.contains(target)) {
+					workList.add(target);
+					onWorkList.add(target);
+				}
 			}
 		}
 		
 		for (T node : graph.getNodes()) {
 			TracingStateSet<T> state = states.get(node);
 			if (node.isFinal()) {
-				results.add(state.failstate().toCounterexample((TemporalInvariant)invariant));
+				if (state.failstate() != null) {
+					results.add(state.failstate().toCounterexample((TemporalInvariant)invariant));
+				}
 			}
 		}
 	}

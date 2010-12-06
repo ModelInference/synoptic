@@ -18,22 +18,28 @@ public class AlwaysFollowedTracingSet<T extends INode<T>> extends TracingStateSe
 	}
 	
 	public void setInitial(T x) {
-		s1 = new HistoryNode(x, null, 1);
-		s2 = null;
+		String name = x.getLabel();
+		HistoryNode newHistory = new HistoryNode(x, null, 1);
+		if (name.equals(a)) {
+			s1 = null;
+			s2 = newHistory;
+		} else {
+			s1 = newHistory;
+			s2 = null;
+		}
 	}
 	
 	public void transition(T x) {
 		String name = x.getLabel();
 		if (a.equals(name)) {
-			s1 = null;
 			s2 = preferShorter(s1, s2);
+			s1 = null;
 		} else if (b.equals(name)) {
 			s1 = preferShorter(s2, s1);
 			s2 = null;
-		} else {
-			if (s1 != null) s1 = extend(x, s1);
-			if (s2 != null) s2 = extend(x, s2);
 		}
+		s1 = extend(x, s1);
+		s2 = extend(x, s2);
 	}
 	
 	public HistoryNode failstate() { return s2; }
@@ -51,10 +57,11 @@ public class AlwaysFollowedTracingSet<T extends INode<T>> extends TracingStateSe
 		s2 = preferShorter(s2, casted.s2);
 	}
 	
+	// Returns true if this is a subset of other.
 	public boolean isSubset(TracingStateSet<T> other) {
 		AlwaysFollowedTracingSet<T> casted = (AlwaysFollowedTracingSet<T>) other;
-		if (casted.s1 != null) { if (s1 == null) return false; }
-		if (casted.s2 != null) { if (s2 == null) return false; }
+		if (casted.s1 == null) { if (s1 != null) return false; }
+		if (casted.s2 == null) { if (s2 != null) return false; }
 		return true;
 	}
 }

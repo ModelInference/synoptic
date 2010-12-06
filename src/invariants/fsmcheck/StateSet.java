@@ -97,6 +97,7 @@ public abstract class StateSet {
 	 * @return Returns true if the otherset is a superset.
 	 */
 	public boolean isSubset(StateSet other) {
+		if (other == null) return false;
 		if (sets.size() != other.sets.size()) return false;
 		for (int j = 0; j < sets.size(); j++) {
 			BitSet thisSet = sets.get(j);
@@ -185,10 +186,12 @@ public abstract class StateSet {
 		result.add(amap);
 		result.add(bmap);
 		for (int i = 0; i < invariants.size(); i++) {
-			BitSet aset = amap.get(invariants.get(i).getFirst());
-			BitSet bset = bmap.get(invariants.get(i).getSecond());
-			if (aset == null) aset = new BitSet();
-			if (bset == null) bset = new BitSet();
+			String first = invariants.get(i).getFirst();
+			String second = invariants.get(i).getSecond();
+			BitSet aset = amap.get(first);
+			BitSet bset = bmap.get(second);
+			if (aset == null) amap.put(first,  aset = new BitSet());
+			if (bset == null) bmap.put(second, bset = new BitSet());
 			aset.set(i);
 			bset.set(i);
 		}

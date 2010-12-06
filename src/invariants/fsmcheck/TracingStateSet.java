@@ -1,6 +1,7 @@
 package invariants.fsmcheck;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import invariants.TemporalInvariant;
 import invariants.TemporalInvariantSet.RelationPath;
@@ -31,14 +32,15 @@ public abstract class TracingStateSet<T> {
 				result.path.add(cur.node);
 				cur = cur.previous;
 			}
-			//TODO: reverse list here?
+			//Collections.reverse(result.path);
 			result.invariant = inv;
 			return result;
 		}
 	}
 	
 	public HistoryNode extend(T node, HistoryNode prior) {
-		return new HistoryNode(node, prior, prior.depth + 1);
+		if (prior == null) return null;
+		return new HistoryNode(node, prior, prior == null ? 1 : prior.depth + 1);
 	}
 	
 	public HistoryNode preferShorter(HistoryNode a, HistoryNode b) {
