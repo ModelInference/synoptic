@@ -1,0 +1,6 @@
+-V
+-r ^(?<isSender>),(?<msgId>),(?<TYPE>),(?<txId>)
+-p \\k<txId>
+-o output/twopc
+--dumpInitialGraph=true
+--dumpIntermediateStages=true
