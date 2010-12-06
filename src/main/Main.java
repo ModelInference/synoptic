@@ -14,6 +14,7 @@ import java.util.logging.Level;
 
 import invariants.TemporalInvariant;
 import invariants.TemporalInvariantSet;
+import invariants.TemporalInvariantSet.RelationPath;
 import invariants.fsmcheck.FsmModelChecker;
 
 import algorithms.bisim.Bisimulation;
@@ -393,8 +394,12 @@ public class Main implements Callable<Integer> {
         }		
 		
 		PartitionGraph result = new PartitionGraph(inputGraph, true);
-		//TemporalInvariantSet invariants = result.getInvariants();
-		//FsmModelChecker<MessageEvent> checker = new FsmModelChecker<MessageEvent>(invariants, inputGraph);
+		/* TemporalInvariantSet invariants = result.getInvariants();
+		FsmModelChecker<MessageEvent> checker = new FsmModelChecker<MessageEvent>(invariants, inputGraph);
+		List<RelationPath<MessageEvent>> paths = checker.getCounterexamples();
+		if (paths.isEmpty()) {
+			System.out.println("model checker ok.");
+		} */
 		
 		Bisimulation.refinePartitions(result);
 		logger.fine("Merging..");

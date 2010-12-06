@@ -28,27 +28,26 @@ public class NeverFollowedSet extends StateSet {
 		 * 2 -a-> 2 // TODO: shouldn't this be 2 - (all except b) -> 2 ?
 		 * 2 -b-> 3
 		 * 
-		 * s1 = s1 & (n | isB)
-		 * s2 = (s2 & n) | (!s3 & isA)
-		 * s3 = s3 | (s2 & isB)
-		 */
-
+		 * s1 = s1 & !isA
+		 * s2 = (s1 & isA) | (s2 & !isB) 
+ 		 * s3 = s3 | (s2 & isB)
+ 		 */
+		 
 		// isA is cloned so that it can be mutated.
 		BitSet isA = (BitSet)inputs.get(0).clone(), isB = inputs.get(1),
 		       neither = nor(isA, isB, count),
-		       s1 = sets.get(0), s2 = sets.get(1), s3 = sets.get(2);
-
-        //                      var = expression in terms of original values
+ 		       s1 = sets.get(0), s2 = sets.get(1), s3 = sets.get(2);
+		 
+		//                      var = expression in terms of original values
 		
 		BitSet t = (BitSet)s2.clone();
-		t.and(isB);          // t   = s2 & isB
+		t.and(isB);          // s3  = s2 & isB
 		s3.or(t);            // s3  = s3 | (s2 & isB)
 		
-		neither.or(isB);     // n   = n | isB
-		s1.and(neither);     // s1  = s1 & (n | isB)
+		s1.andNot(isA);      // s1  = s1 & !isA
 		
-		s2.and(neither);     // s2  = s2 & n
-		isA.andNot(s3);      // isA = !s3 & isA
-		s2.or(isA);          // s2  = (s2 & n) | (!s3 & isA)
+		s2.andNot(isB);      // s2  = s2 & !isB
+		isA.and(s1);         // isA = s1 & isA
+		s2.or(isA);          // s2  = (s1 & isA) | (s2 & !isB)
 	}
 }

@@ -107,6 +107,8 @@ public abstract class Bisimulation {
 			counterexampleTraces = new TemporalInvariantSet(
 					unsatisfiedInvariants).getViolations(partitionGraph);
 
+			List<RelationPath<Partition>> newExamples = new ArrayList<RelationPath<Partition>>();
+			
 			// if we have no counterexamples, we are done
 			if (counterexampleTraces == null
 					|| counterexampleTraces.size() == 0) {

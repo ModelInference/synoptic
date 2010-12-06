@@ -150,6 +150,29 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		return r;
 	}
 	
+        /*
+	protected List<RelationPath<T>> comparingNaive(BitSet which) {
+		FsmModelChecker<T> c = new FsmModelChecker<T>(this, g);
+		
+		List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
+		GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
+		for (int i = 0; i < c.invariantCount(); i++) {
+			BinaryInvariant inv = c.getInvariant(i);
+			RelationPath<T> path = getCounterExample(inv, g, ch);
+			BitSet which = new BitSet();
+			which.set(i);
+			List<RelationPath<T>> npaths = c.findFailures(which);
+			boolean cannonical = path != null;
+			if (!npaths.isEmpty() != cannonical) {
+				System.out.println("value deviates from cannonical in " + inv.toString());
+				System.out.println(path.path.toString() + " " + paths.get(0).path.toString());
+			}
+			if (cannonical) paths.add(path);
+		}
+		return paths;
+	}
+        */
+
 	public <T extends INode<T>> RelationPath<T> getViolation(
 			TemporalInvariant inv, IGraph<T> g) {
 		TimedTask refinement = PerformanceMetrics.createTask("getViolation", true);
@@ -158,7 +181,11 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				List<TemporalInvariant> invs = new ArrayList<TemporalInvariant>();
 				invs.add(inv);
 				FsmModelChecker<T> c = new FsmModelChecker<T>(invs, g);
-				return c.findFailures(FsmModelChecker.mergeBitSets(c.whichFail().values())).get(0);
+				BitSet oneSet = new BitSet(1);
+				oneSet.set(0);
+				List<RelationPath<T>> paths = c.findFailures(oneSet);
+				if (paths.isEmpty()) return null; 
+				return paths.get(0);
 			} else {
 				return getCounterExample(inv, g, new GraphLTLChecker<T>());
 			}
@@ -170,11 +197,25 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	public <T extends INode<T>> List<RelationPath<T>> getViolations(IGraph<T> g) {
 		TimedTask violations = PerformanceMetrics.createTask("getViolations", false);
 		try {
-			List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
+			List<RelationPath<T>> paths = null;
 			if (Main.useFSMChecker) {
 				FsmModelChecker<T> c = new FsmModelChecker<T>(this, g);
-				return c.findFailures(FsmModelChecker.mergeBitSets(c.whichFail().values()));
+				BitSet failures = FsmModelChecker.mergeBitSets(c.whichFail().values());
+				paths = c.findFailures(failures);
+				
+				paths = new ArrayList<RelationPath<T>>();
+				GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
+				for (int i = 0; i < c.invariantCount(); i++) {
+					BinaryInvariant inv = c.getInvariant(i);
+					RelationPath<T> path = getCounterExample(inv, g, ch);
+					boolean cannonical = path != null;
+					if (failures.get(i) != cannonical) {
+						System.out.println("value deviates from cannonical in " + inv.toString());
+					}
+					if (cannonical) paths.add(path);
+				}
 			} else {
+				paths = new ArrayList<RelationPath<T>>();
 				GraphLTLChecker<T> c = new GraphLTLChecker<T>();
 				for (TemporalInvariant i : invariants) {
 					RelationPath<T> path = getCounterExample(i, g, c);
@@ -221,6 +262,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				BitSet whichBits = FsmModelChecker.mergeBitSets(c.whichFail().values());
 				whichBits.clear(whichBits.nextSetBit(0) + 1, whichBits.size());
 				List<RelationPath<T>> results = c.findFailures(whichBits);
+				if (results.isEmpty()) return null;
 				return results.get(0);
 			} else {
 				GraphLTLChecker<T> c = new GraphLTLChecker<T>();
