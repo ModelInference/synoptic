@@ -1,0 +1,7 @@
+-V
+-r ^(?:#.*|\\s*|.*round-done.*)(?<HIDE=true>)$
+-r (?<nodename>)(?<TIME>)(?<TYPE>)(?:(?<mtype>)(?:(?<roundId>)(?:(?<payload>)(?:(?<id>))?)?)?)?
+-p \\k<FILE>\\k<nodename>
+-o output/peterson
+--dumpInitialGraph=true
+--dumpIntermediateStages=true
