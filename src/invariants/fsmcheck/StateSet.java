@@ -16,7 +16,7 @@ import java.util.Map;
  * Note the "nondeterministic".  This means that each machine can be in
  * multiple states at once.  This allows us to associate with each node in
  * the model a set of states which can be inhabited (by some path from an
- * initial mode).
+ * initial node).
  * 
  * If you imagine the BitSets as creating a matrix, where each row is a set,
  * then each row corresponds to a state of the machine, and each column
