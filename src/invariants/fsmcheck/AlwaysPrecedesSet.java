@@ -3,7 +3,19 @@ package invariants.fsmcheck;
 import java.util.BitSet;
 import java.util.List;
 
-// Indicates that A always precedes B.
+/**
+ * Represents a set of "A always precedes B" invariants to simulate.
+ * 
+ * This finite state machine enters a permanent success state upon encountering
+ * A, and enters a permanent failure state upon encountering B.  This reflects
+ * the fact that the first of the two events encountered is the only thing
+ * relevant to the failure state of the invariant.
+ * 
+ * @author Michael Sloan (mgsloan@gmail.com)
+ * 
+ * @see AlwaysPrecedesTracingSet
+ * @see StateSet
+ */
 public class AlwaysPrecedesSet extends StateSet {
 	public AlwaysPrecedesSet(int size) {
 		super(size);
@@ -13,11 +25,15 @@ public class AlwaysPrecedesSet extends StateSet {
 	}
 
 	// State 4 indicates failure, failure is permanent.
+	@Override
 	public BitSet isFail() { return (BitSet)sets.get(2).clone(); }
+	@Override
 	public BitSet isPermanentFail() { return (BitSet)sets.get(2).clone(); }
 	
+	@Override
 	public void transition(List<BitSet> inputs) {
 		/*
+		 * (non-a/b preserves state)
 		 *  1 -a-> 2
 		 *  1 -b-> 3
 		 *

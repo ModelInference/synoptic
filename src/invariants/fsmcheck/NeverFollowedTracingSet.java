@@ -3,6 +3,19 @@ package invariants.fsmcheck;
 import invariants.BinaryInvariant;
 import model.interfaces.INode;
 
+/**
+ * Represents a set of "A never followed by B" invariants to simulate, recording
+ * the shortest historical path to reach a particular state.
+ * 
+ * This finite state machine enters a particular state (s2) when A is provided.
+ * If we are in this state when a B is provided, then we enter into a failure
+ * state.
+ * 
+ * @author Michael Sloan (mgsloan@gmail.com)
+ *  
+ * @see NeverFollowedSet
+ * @see StateSet
+ */
 public class NeverFollowedTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 	HistoryNode s1, s2, s3;
 	String a, b;
@@ -16,7 +29,8 @@ public class NeverFollowedTracingSet<T extends INode<T>> extends TracingStateSet
 		a = inv.getFirst();
 		b = inv.getSecond();
 	}
-	
+
+	@Override
 	public void setInitial(T x) {
 		String name = x.getLabel();
 		HistoryNode newHistory = new HistoryNode(x, null, 1);
@@ -26,8 +40,15 @@ public class NeverFollowedTracingSet<T extends INode<T>> extends TracingStateSet
 		else
 			s1 = newHistory;
 	}
-	
+
+	@Override
 	public void transition(T x) {
+		/* (non-a/b preserves state)
+		 * 1 -a-> 2
+		 * 1 -b-> 1
+		 * 2 -a-> 2
+		 * 2 -b-> 3
+		 */
 		String name = x.getLabel();
 		if (a.equals(name)) {
 			s2 = preferShorter(s1, s2);
@@ -40,9 +61,11 @@ public class NeverFollowedTracingSet<T extends INode<T>> extends TracingStateSet
 		s2 = extend(x, s2);
 		s3 = extend(x, s3);
 	}
-	
+
+	@Override
 	public HistoryNode failstate() { return s3; }
-	
+
+	@Override
 	public NeverFollowedTracingSet<T> clone() {
 		NeverFollowedTracingSet<T> result = new  NeverFollowedTracingSet<T>(a, b);
 		result.s1 = s1;
@@ -50,14 +73,16 @@ public class NeverFollowedTracingSet<T extends INode<T>> extends TracingStateSet
 		result.s3 = s3;
 		return result;
 	}
-	
+
+	@Override
 	public void merge(TracingStateSet<T> other) {
 		NeverFollowedTracingSet<T> casted = (NeverFollowedTracingSet<T>) other;
 		s1 = preferShorter(s1, casted.s1);
 		s2 = preferShorter(s2, casted.s2);
 		s3 = preferShorter(s3, casted.s3);
 	}
-	
+
+	@Override
 	public boolean isSubset(TracingStateSet<T> other) {
 		NeverFollowedTracingSet<T> casted = (NeverFollowedTracingSet<T>) other;
 		if (casted.s1 == null) { if (s1 != null) return false; }

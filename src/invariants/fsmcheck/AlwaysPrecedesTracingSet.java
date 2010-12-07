@@ -2,7 +2,22 @@ package invariants.fsmcheck;
 
 import invariants.BinaryInvariant;
 import model.interfaces.INode;
-
+/**
+ * Represents a set of "A always precedes B" invariants to simulate, recording
+ * the shortest historical path to reach a particular state.
+ * 
+ * This finite state machine enters a permanent success state upon encountering
+ * A, and enters a permanent failure state upon encountering B.  This reflects
+ * the fact that the first of the two events encountered is the only thing
+ * relevant to the failure state of the invariant.
+ * 
+ * @author Michael Sloan (mgsloan@gmail.com)
+ *
+ * @param <T> The node type, used as an input, and stored in path-history.
+ * 
+ * @see AlwaysPrecedesSet
+ * @see TracingStateSet
+ */
 public class AlwaysPrecedesTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 	HistoryNode s1, s2, s3;
 	String a, b;
@@ -17,6 +32,7 @@ public class AlwaysPrecedesTracingSet<T extends INode<T>> extends TracingStateSe
 		b = inv.getSecond();
 	}
 	
+	@Override
 	public void setInitial(T x) {
 		String name = x.getLabel();
 		HistoryNode newHistory = new HistoryNode(x, null, 1);
@@ -29,7 +45,13 @@ public class AlwaysPrecedesTracingSet<T extends INode<T>> extends TracingStateSe
 			s1 = newHistory;
 	}
 	
+	@Override
 	public void transition(T x) {
+		/*
+		 * (non-a/b preserves state)
+		 *  1 -a-> 2
+		 *  1 -b-> 3
+		 */
 		String name = x.getLabel();
 		if (a.equals(name)) {
 			s2 = preferShorter(s1, s2);
@@ -42,9 +64,11 @@ public class AlwaysPrecedesTracingSet<T extends INode<T>> extends TracingStateSe
 		s2 = extend(x, s2);
 		s3 = extend(x, s3);
 	}
-	
+
+	@Override
 	public HistoryNode failstate() { return s3; }
 
+	@Override
 	public AlwaysPrecedesTracingSet<T> clone() {
 		AlwaysPrecedesTracingSet<T> result = new AlwaysPrecedesTracingSet<T>(a, b);
 		result.s1 = s1;
@@ -53,14 +77,15 @@ public class AlwaysPrecedesTracingSet<T extends INode<T>> extends TracingStateSe
 		return result;
 	}
 	
-	// Returns true if any states which were previously uninhabited are now inhabited.
+	@Override
 	public void merge(TracingStateSet<T> other) {
 		AlwaysPrecedesTracingSet<T> casted = (AlwaysPrecedesTracingSet<T>) other;
 		s1 = preferShorter(s1, casted.s1);
 		s2 = preferShorter(s2, casted.s2);
 		s3 = preferShorter(s3, casted.s3);
 	}
-	
+
+	@Override
 	public boolean isSubset(TracingStateSet<T> other) {
 		AlwaysPrecedesTracingSet<T> casted = (AlwaysPrecedesTracingSet<T>) other;
 		if (casted.s1 == null) { if (s1 != null) return false; }

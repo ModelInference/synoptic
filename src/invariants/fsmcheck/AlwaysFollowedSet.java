@@ -3,19 +3,38 @@ package invariants.fsmcheck;
 import java.util.BitSet;
 import java.util.List;
 
-// Indicates that A is always followed by B.
+/**
+ * Represents a set of "A always followed by B" invariants to simulate.
+ * 
+ * This finite state machine enters a failure state when A is encountered,
+ * and enters a success state when B is encountered.  This means that the
+ * failure state upon encountering a final node indicates which, of A
+ * and B, was last encountered.
+ * 
+ * NOTE: ensure this documentation stays consistent with AlwaysFollowedTracingSet.
+ * 
+ * @author Michael Sloan (mgsloan@gmail.com)
+ * 
+ * @see AlwaysFollowedTracingSet
+ * @see StateSet
+ */
 public class AlwaysFollowedSet extends StateSet {
 	public AlwaysFollowedSet(int size) {
 		super(size);
 		addState(true);		// State 1: Accept state
 		addState(false);    // State 2: Fail state
 	}
-	
+
+	@Override
 	public BitSet isFail() { return (BitSet)sets.get(1).clone(); }
+
+	@Override
 	public BitSet isPermanentFail() { return new BitSet(); }
-	
+
+	@Override
 	public void transition(List<BitSet> inputs) {
 		/*
+		 * (non-a/b preserves state)
 		 * 1 -a-> 2
 		 * 1 -b-> 1
 		 * 2 -a-> 2

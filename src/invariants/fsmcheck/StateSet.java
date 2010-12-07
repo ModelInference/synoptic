@@ -9,9 +9,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Abstract class to provide functionality for nondeterministic finite state
- * machines which utilize BitSets as a method for evaluating the transitions
- * of many instances in parallel.
+ * Abstract class to provide functionality for simulating nondeterministic
+ * finite state machines, utilizing BitSets as a method for evaluating the
+ * transitions of many instances in parallel.
+ * 
+ * Note the "nondeterministic".  This means that each machine can be in
+ * multiple states at once.  This allows us to associate with each node in
+ * the model a set of states which can be inhabited (by some path from an
+ * initial mode).
  * 
  * If you imagine the BitSets as creating a matrix, where each row is a set,
  * then each row corresponds to a state of the machine, and each column
@@ -30,7 +35,14 @@ import java.util.Map;
  * Unless an invariant is watching for the same event on each of its inputs,
  * the inputs can be thought of as a one-hot encoding: input[0] & input[1] = 0.
  * The only time this doesn't happen in practice is "A NFby A", which indicates
- * that A is singleton in the traces.
+ * that A is singleton in the traces.  Furthermore, if all input bits are 0,
+ * then the corresponding machines should not change state.
+ * 
+ * @author Michael Sloan (mgsloan@gmail.com)
+ * 
+ * @see AlwaysFollowedSet
+ * @see AlwaysPrecedesSet
+ * @see NeverFollowedSet
  */
 public abstract class StateSet {
 	protected List<BitSet> sets;
@@ -48,6 +60,11 @@ public abstract class StateSet {
 		sets = new ArrayList<BitSet>(4);
 	}
 	
+	/**
+	 * Mutates the stateset, to reflect the states which may be inhabited after
+	 * processing the input.
+	 * @param inputs The input bitsets to provide for transitioning the 
+	 */
 	public abstract void transition(List<BitSet> inputs);
 	
 	/**
@@ -80,7 +97,7 @@ public abstract class StateSet {
 	 * Exceptions are thrown if
 	 * 	- statesets have different sizes
 	 * 	- statesets have different number of parallel instances
-	 *  
+	 *
 	 * @param other
 	 */
 	public void mergeWith(StateSet other) {
@@ -93,6 +110,11 @@ public abstract class StateSet {
 	
 	/**
 	 * Checks if one StateSet's inhabited states is a subset of another.
+	 * In other words, if every onebit in this StateSet has a corresponding
+	 * onebit in the other bitset, then it is a subset.  This query is used
+	 * for determining when a particular state transition propagation changes
+	 * the state at a node.  This allows the graph to arrive at a fixpoint. 
+	 * 
 	 * @param other The other set.
 	 * @return Returns true if the otherset is a superset.
 	 */
