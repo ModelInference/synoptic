@@ -4,7 +4,16 @@ import java.util.BitSet;
 import java.util.List;
 
 /**
- * Represents the "A never followed by B" FSM
+ * Represents a set of "A never followed by B" invariants to simulate.
+ * 
+ * This finite state machine enters a particular state (s2) when A is provided.
+ * If we are in this state when a B is provided, then we enter into a failure
+ * state.
+ * 
+ * @author Michael Sloan (mgsloan@gmail.com)
+ *  
+ * @see NeverFollowedTracingSet
+ * @see StateSet
  */
 public class NeverFollowedSet extends StateSet {	
 	public NeverFollowedSet(int size) {
@@ -15,17 +24,22 @@ public class NeverFollowedSet extends StateSet {
 	}
 	
 	// State 3 indicates failure, failure is permanent.
+	@Override
 	public BitSet isFail() { return (BitSet)sets.get(2).clone(); }
+	@Override
 	public BitSet isPermanentFail() { return (BitSet)sets.get(2).clone(); }
-	
+
+	@Override
 	public void transition(List<BitSet> inputs) {
 		/*
 		 * state 1 (no A seen, maybe some B seen) : accepting state
 		 * state 2 (A seen) : accepting states
 		 * state 3 (B after A seen) : failing state
+		 * 
+		 * (non-a/b preserves state)
 		 * 1 -a-> 2
-		 * 1 -b-> 1 // TODO: shouldn't this be 1 - (all except a) -> 1 ?
-		 * 2 -a-> 2 // TODO: shouldn't this be 2 - (all except b) -> 2 ?
+		 * 1 -b-> 1
+		 * 2 -a-> 2
 		 * 2 -b-> 3
 		 * 
 		 * s1 = s1 & !isA
@@ -35,7 +49,6 @@ public class NeverFollowedSet extends StateSet {
 		 
 		// isA is cloned so that it can be mutated.
 		BitSet isA = (BitSet)inputs.get(0).clone(), isB = inputs.get(1),
-		       neither = nor(isA, isB, count),
  		       s1 = sets.get(0), s2 = sets.get(1), s3 = sets.get(2);
 		 
 		//                      var = expression in terms of original values

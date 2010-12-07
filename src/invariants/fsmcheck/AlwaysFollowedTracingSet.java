@@ -3,6 +3,24 @@ package invariants.fsmcheck;
 import invariants.BinaryInvariant;
 import model.interfaces.INode;
 
+/**
+ * Represents a "A always followed by B" invariants to simulate, recording
+ * the shortest historical path to reach a particular state.
+ * 
+ * This finite state machine enters a failure state when A is encountered,
+ * and enters a success state when B is encountered.  This means that the
+ * failure state upon encountering a final node indicates which, of A
+ * and B, was last encountered.
+ *
+ * NOTE: ensure this documentation stays consistent with AlwaysFollowedSet.
+ *
+ * @author Michael Sloan (mgsloan@gmail.com)
+ *
+ * @param <T> The node type, used as an input, and stored in path-history.
+ * 
+ * @see AlwaysFollowedSet
+ * @see TracingStateSet
+ */
 public class AlwaysFollowedTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 	HistoryNode s1, s2;
 	String a, b;
@@ -16,7 +34,8 @@ public class AlwaysFollowedTracingSet<T extends INode<T>> extends TracingStateSe
 		a = inv.getFirst();
 		b = inv.getSecond();
 	}
-	
+
+	@Override
 	public void setInitial(T x) {
 		String name = x.getLabel();
 		HistoryNode newHistory = new HistoryNode(x, null, 1);
@@ -28,8 +47,16 @@ public class AlwaysFollowedTracingSet<T extends INode<T>> extends TracingStateSe
 			s2 = null;
 		}
 	}
-	
+
+	@Override
 	public void transition(T x) {
+		/*
+		 * (non-a/b preserves state)
+		 * 1 -a-> 2
+		 * 1 -b-> 1
+		 * 2 -a-> 2
+		 * 2 -b-> 1
+		 */
 		String name = x.getLabel();
 		if (a.equals(name)) {
 			s2 = preferShorter(s1, s2);
@@ -41,23 +68,26 @@ public class AlwaysFollowedTracingSet<T extends INode<T>> extends TracingStateSe
 		s1 = extend(x, s1);
 		s2 = extend(x, s2);
 	}
-	
+
+	@Override
 	public HistoryNode failstate() { return s2; }
-	
+
+	@Override
 	public AlwaysFollowedTracingSet<T> clone() {
 		AlwaysFollowedTracingSet<T> result = new AlwaysFollowedTracingSet<T>(a, b);
 		result.s1 = s1;
 		result.s2 = s2;
 		return result;
 	}
-	
+
+	@Override
 	public void merge(TracingStateSet<T> other) {
 		AlwaysFollowedTracingSet<T> casted = (AlwaysFollowedTracingSet<T>) other;
 		s1 = preferShorter(s1, casted.s1);
 		s2 = preferShorter(s2, casted.s2);
 	}
 	
-	// Returns true if this is a subset of other.
+	@Override
 	public boolean isSubset(TracingStateSet<T> other) {
 		AlwaysFollowedTracingSet<T> casted = (AlwaysFollowedTracingSet<T>) other;
 		if (casted.s1 == null) { if (s1 != null) return false; }
