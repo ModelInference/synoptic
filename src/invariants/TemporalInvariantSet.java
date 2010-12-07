@@ -200,7 +200,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			List<RelationPath<T>> paths = null;
 			if (Main.useFSMChecker) {
 				FsmModelChecker<T> c = new FsmModelChecker<T>(this, g);
-				BitSet failures = FsmModelChecker.mergeBitSets(c.whichFail().values());
+				BitSet failures = c.whichFail();
 				paths = c.findFailures(failures);
 				
 				paths = new ArrayList<RelationPath<T>>();
@@ -259,7 +259,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		try {
 			if (Main.useFSMChecker) {
 				FsmModelChecker<T> c = new FsmModelChecker<T>(this, g);
-				BitSet whichBits = FsmModelChecker.mergeBitSets(c.whichFail().values());
+				BitSet whichBits = c.whichFail();
 				whichBits.clear(whichBits.nextSetBit(0) + 1, whichBits.size());
 				List<RelationPath<T>> results = c.findFailures(whichBits);
 				if (results.isEmpty()) return null;
