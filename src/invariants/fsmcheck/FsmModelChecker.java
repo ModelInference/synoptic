@@ -279,8 +279,8 @@ public class FsmModelChecker<T extends INode<T>> {
 		List<RelationPath<T>> results = new ArrayList<RelationPath<T>>();
 		
 		for (int i = which.nextSetBit(0); i >= 0; i = which.nextSetBit(i + 1)) {
-			System.out.println(results.size() + " size before");
-			invariantCounterexamples(results, i);
+			RelationPath<T> result = invariantCounterexamples(i);
+			if (result != null) results.add(result);
 		}
 		
 		return results;
@@ -288,13 +288,16 @@ public class FsmModelChecker<T extends INode<T>> {
 	
 	
 	/**
-	 * Runs path history tracking finite state machines over the model graph,
-	 * @param results
-	 * @param index
-	 * @return 
+	 * Runs invariant-checking finite state machines over the model graph,
+	 * while keeping history paths which justify any particular state.  This
+	 * allows us to report counterexample paths, where a failure state is
+	 * reached on a final node.
+	 * 
+	 * @param index The index of the invariant to test (see getInvariant)
+	 * @return The shortest counterexample path for this invariant.
 	 */
 	@SuppressWarnings("unchecked")
-	protected RelationPath<T> invariantCounterexamples(List<RelationPath<T>> results, int index) {
+	protected RelationPath<T> invariantCounterexamples(int index) {
 		TracingStateSet<T> stateset = null;
 		BinaryInvariant invariant = getInvariant(index);
 		if (invariant == null) return null;
