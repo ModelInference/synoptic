@@ -40,7 +40,8 @@ import java.io.LineNumberReader;
  * DOCUMENT ME!
  */
 public class LTL2Buchi {
-	private static boolean debug = false;
+	//private static boolean debug = false;
+	private static boolean debug = true;
 
 	public static void main(String[] args) {
 		String ltl = null;
@@ -147,8 +148,8 @@ public class LTL2Buchi {
 
 	public static Graph translate(String formula, boolean rewrite,
 			boolean bisim, boolean fair_sim) throws ParseErrorException {
-		//	System.out.println("Translating formula: " + formula);
-		// System.out.println();
+		System.out.println("Translating formula: " + formula);
+		System.out.println();
 		final boolean superset = true;
 		final boolean scc = true;
 
@@ -159,10 +160,10 @@ public class LTL2Buchi {
 				throw new ParseErrorException(e.getMessage());
 			}
 
-			if (debug) {
+			//if (debug) {
 				System.out.println("Rewritten as       : " + formula);
 				System.out.println();
-			}
+			//}
 		}
 
 		if (formula == null) {

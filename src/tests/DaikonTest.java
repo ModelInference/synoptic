@@ -7,7 +7,7 @@ import daikon.inv.Invariant;
 import daikonizer.Daikonizer;
 
 public class DaikonTest extends TestCase {
-	public void testDaikonOutput() {
+	public void testDaikonOutput() throws Exception {
 		Vector<String> varNames = new Vector<String>();
 		varNames.add("x");
 		varNames.add("y");
