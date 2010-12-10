@@ -48,7 +48,7 @@ public class Daikonizer {
 
 	}
 
-	public void genDaikonInvariants(List<Invariant> enter, List<Invariant> exit, List<Invariant> flow, boolean norestict) {
+	public void genDaikonInvariants(List<Invariant> enter, List<Invariant> exit, List<Invariant> flow, boolean norestict) throws Exception {
 		String fname = "daikon-tmp/daikonizer_" + System.currentTimeMillis()
 				+ ".dtrace";
 		// System.out.println("using fname: " + fname);
@@ -95,20 +95,26 @@ public class Daikonizer {
 		flow = filter_invs(flow);
 	}
 
-	private List<Invariant> filter_invs(List<Invariant> invs) {
+	private List<Invariant> filter_invs(List<Invariant> invs) throws Exception {
 		invs = PrintInvariants.sort_invariant_list(invs);
-		List<Invariant> filtered = Daikon.filter_invs(invs);
-		InvariantFilters fi = InvariantFilters.defaultFilters();
+		
+		//XXX
+		throw new Exception("filter_invs cannot be accessed within Daikon.jar");
+		// TODO: fix this for daikon integration
+		// List<Invariant> filtered = Daikon.filter_invs(invs);
 
-		List<Invariant> filterFI = new ArrayList<Invariant>();
-		for (Invariant i : filtered) {
-			if (fi.shouldKeep(i) == null)
-				filterFI.add(i);				
-		}
-		invs = filterFI;
-		invs
-	      = InvariantFilters.addEqualityInvariants(invs);
-		return invs;
+//		InvariantFilters fi = InvariantFilters.	defaultFilters();
+//		
+//		List<Invariant> filterFI = new ArrayList<Invariant>();
+//		
+//		for (Invariant i : filtered) {
+//			if (fi.shouldKeep(i) == null)
+//				filterFI.add(i);				
+//		}
+//		invs = filterFI;
+//		invs
+//	      = InvariantFilters.addEqualityInvariants(invs);
+//		return invs;
 	}
 
 	private boolean writeDtraceFile(String filename) {

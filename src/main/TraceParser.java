@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -332,7 +331,7 @@ public class TraceParser {
 					try {
 						nextTime = new VectorTime(timeField.trim());
 					} catch (Exception e) {
-						if (main.Main.recoverFromParseErrors) {
+						if (Main.recoverFromParseErrors) {
 							logger.warning("Failed to parse time field " + e.toString() +
 									" for log line:\n" + line +
 									"\nincrementing prior time value and continuing.");
@@ -362,7 +361,7 @@ public class TraceParser {
 			}
 		}
 
-		if (main.Main.recoverFromParseErrors) {
+		if (Main.recoverFromParseErrors) {
 			logger.warning("Failed to parse trace line: \n" + line +
 					"\n" + "Using entire line as type.");
 			action = new Action(line);

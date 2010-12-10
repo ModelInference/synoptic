@@ -74,7 +74,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		return invariants;
 	}
 
-	public <T extends INode<T>> boolean check(IGraph<T> g) {
+	public <T extends INode<T>> boolean check(IGraph<T> g) throws Exception {
 		TemporalInvariantSet set = computeInvariants(g);
 		boolean result = set.invariants.containsAll(invariants);
 		if (!result && DEBUG) {
@@ -84,7 +84,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	}
 
 	public <T extends INode<T>> TemporalInvariantSet getUnsatisfiedInvariants(
-			IGraph<T> g) {
+			IGraph<T> g) throws Exception {
 		TemporalInvariantSet set = computeInvariants(g);
 		TemporalInvariantSet res = new TemporalInvariantSet();
 		res.invariants.addAll(invariants);
@@ -308,6 +308,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	 * @param g
 	 *            the graph of nodes of type T
 	 * @return the set of temporal invariants the graph satisfies
+	 * @throws Exception 
 	 */
 	static public <T extends INode<T>> TemporalInvariantSet computeInvariants(
 			IGraph<T> g) {
@@ -413,6 +414,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	 * @param tcs
 	 *            the transitive closure to mine invariants from
 	 * @return the mined invariants
+	 * @throws Exception 
 	 */
 	private static <T extends INode<T>> TemporalInvariantSet extractInvariantsForAllRelations(
 			IGraph<T> g, AllRelationsTransitiveClosure<T> tcs) {
@@ -436,6 +438,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	 * @param relation
 	 *            the relation to consider for the invariants
 	 * @return the overapproximated set of invariants
+	 * @throws Exception 
 	 */
 	private static <T extends INode<T>> TemporalInvariantSet extractInvariants(
 			IGraph<T> g, TransitiveClosure<T> tc, String relation) {
@@ -488,37 +491,41 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 					set.add(new AlwaysPrecedesInvariant(label2, label1,
 							relation));
 				else if (generateStructuralInvariants) {
-					ArrayList<String> datafieldList = new ArrayList<String>();
-					ArrayList<String> datatypes = new ArrayList<String>();
-					getFields(hasPredecessor, datafieldList, datatypes);
-					List<Invariant> inv = generateInvariants(hasPredecessor,
-							datafieldList, datatypes);
-					List<Invariant> invNo = generateInvariants(
-							hasNoPredecessor, datafieldList, datatypes);
-					List<Invariant> all = generateInvariants(partitions
-							.get(label1), datafieldList, datatypes);
-					if (inv != null && invNo != null) {
-						ArrayList<Invariant> list = getRelevantInvariants(inv,
-								invNo, all);
-						List<Invariant> inv2 = generateInvariants(
-								isPredecessor, datafieldList, datatypes);
-						List<Invariant> invNo2 = generateInvariants(
-								isNoPredecessor, datafieldList, datatypes);
-						List<Invariant> all2 = generateInvariants(partitions
-								.get(label2), datafieldList, datatypes);
-						ArrayList<Invariant> list2 = getRelevantInvariants(
-								inv2, invNo2, all2);
-						if (list.size() > 0 || list2.size() > 0) {
-							System.out.println("    " + label2 + list2
-									+ "\nAP  " + label1 + list);
+					// XXX
+					
+//					ArrayList<String> datafieldList = new ArrayList<String>();
+//					ArrayList<String> datatypes = new ArrayList<String>();
+//					getFields(hasPredecessor, datafieldList, datatypes);
+//					List<Invariant> inv = generateInvariants(hasPredecessor,
+//							datafieldList, datatypes);
+//					List<Invariant> invNo = generateInvariants(
+//							hasNoPredecessor, datafieldList, datatypes);
+//					List<Invariant> all = generateInvariants(partitions
+//							.get(label1), datafieldList, datatypes);
+//					if (inv != null && invNo != null) {
+//						ArrayList<Invariant> list = getRelevantInvariants(inv,
+//								invNo, all);
+//						List<Invariant> inv2 = generateInvariants(
+//								isPredecessor, datafieldList, datatypes);
+//						List<Invariant> invNo2 = generateInvariants(
+//								isNoPredecessor, datafieldList, datatypes);
+//						List<Invariant> all2 = generateInvariants(partitions
+//								.get(label2), datafieldList, datatypes);
+//						ArrayList<Invariant> list2 = getRelevantInvariants(
+//								inv2, invNo2, all2);
+//						if (list.size() > 0 || list2.size() > 0) {
+//							System.out.println("    " + label2 + list2
+//									+ "\nAP  " + label1 + list);
+							
+							
 							// for (Invariant i : list) {
 							// double r = getInvariantRelevance(i,
 							// (Collection) partitions.get(label1),
 							// datafieldList);
 							// System.out.println("Conf " + r + " for " + i);
 							// }
-						}
-					}
+//						}
+//					}
 				}
 			}
 		}
@@ -580,7 +587,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 
 	public static <T> List<Invariant> generateInvariants(
 			Collection<T> hasPredecessor, List<String> datafieldList,
-			List<String> datatypes) {
+			List<String> datatypes) throws Exception {
 		Daikonizer d = new Daikonizer("foo", datafieldList, datatypes);
 		boolean dont = false;
 		for (T n : hasPredecessor) {
@@ -609,7 +616,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	}
 
 	public static <T extends INode<T>> List<Invariant> generateFlowInvariants(
-			Collection<T> messages, String relation, String targetType) {
+			Collection<T> messages, String relation, String targetType) throws Exception {
 		ArrayList<String> datafieldList = new ArrayList<String>();
 		ArrayList<String> datatypes = new ArrayList<String>();
 		getFields(messages, datafieldList, datatypes);
@@ -619,7 +626,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 
 	public static <T extends INode<T>> List<Invariant> generateFlowInvariants(
 			Collection<T> messages, String relation, String targetType,
-			List<String> datafieldList, List<String> datatypes) {
+			List<String> datafieldList, List<String> datatypes) throws Exception {
 		Daikonizer d = new Daikonizer("foo", datafieldList, datatypes);
 		boolean dont = false;
 		for (T n : messages) {
@@ -737,7 +744,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	}
 
 	public static TemporalInvariantSet computeInvariantsSplt(
-			Graph<MessageEvent> g, String label) {
+			Graph<MessageEvent> g, String label) throws Exception {
 		Graph<MessageEvent> g2 = splitAndDuplicate(g, label);
 		GraphVizExporter.quickExport("output/traceCondenser/test.dot", g2);
 		return computeInvariants(g2);
@@ -763,7 +770,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		return b.getRawGraph();
 	}
 
-	public static List<Invariant> generateInvariants(Set<MessageEvent> messages) {
+	public static List<Invariant> generateInvariants(Set<MessageEvent> messages) throws Exception {
 		ArrayList<String> datafieldList = new ArrayList<String>();
 		ArrayList<String> datatypes = new ArrayList<String>();
 		getFields(messages, datafieldList, datatypes);

@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="lib/java"/>
 	<classpathentry kind="lib" path="tools/build/apache-ant-1.8.0RC1/lib/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="tools/build/apache-ant-1.8.0RC1/lib/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/protobuf-java-2.3.0.jar"/>
-	<classpathentry kind="lib" path="lib/java/ChicoryPremain.jar"/>
-	<classpathentry kind="lib" path="lib/java/dcomp_premain.jar"/>
-	<classpathentry kind="lib" path="lib/bcel.jar"/>
-	<classpathentry kind="lib" path="lib/xom-1.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/ical4j.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
-	<classpathentry kind="lib" path="lib/svnkit.jar"/>
-	<classpathentry kind="lib" path="lib/ini4j-0.5.1.jar"/>
 	<classpathentry kind="lib" path="src/trace/twitter/modtwitter.jar"/>
 	<classpathentry kind="lib" path="lib/jung/collections-generic-4.01.jar" sourcepath="lib/jung/collections-generic-4.01.jar"/>
 	<classpathentry kind="lib" path="lib/jung/colt-1.2.0.jar"/>
@@ -34,5 +25,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/plume.jar"/>
+	<classpathentry kind="lib" path="lib/daikon.jar"/>
+	<classpathentry kind="lib" path="lib/stixar-0.0.1-alpha.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

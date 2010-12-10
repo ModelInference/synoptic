@@ -11,7 +11,7 @@ import model.interfaces.ITransition;
  * Code taken from
  * http://www.cs.princeton.edu/courses/archive/fall05/cos226/lectures
  * /digraph.pdf
- * Computes the transitive closue.
+ * Computes the transitive closure.
  * @author Sigurd
  * 
  */
@@ -39,8 +39,8 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
 	}
 
 	/**
-	 * Mark that {@code m} can reach {@code n}, and start a dfs at {@code m}.
-	 * @param m the node to start dfs at
+	 * Mark that {@code m} can reach {@code n}, and start a DFS at {@code m}.
+	 * @param m the node to start DFS at
 	 * @param n a node that can be reached from m
 	 */
 	private void dfs(NodeType m, NodeType n) {
