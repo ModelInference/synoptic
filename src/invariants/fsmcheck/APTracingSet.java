@@ -2,34 +2,36 @@ package invariants.fsmcheck;
 
 import invariants.BinaryInvariant;
 import model.interfaces.INode;
-
 /**
- * Represents a set of "A never followed by B" invariants to simulate, recording
+ * Represents a set of "A always precedes B" invariants to simulate, recording
  * the shortest historical path to reach a particular state.
  * 
- * This finite state machine enters a particular state (s2) when A is provided.
- * If we are in this state when a B is provided, then we enter into a failure
- * state.
+ * This finite state machine enters a permanent success state upon encountering
+ * A, and enters a permanent failure state upon encountering B.  This reflects
+ * the fact that the first of the two events encountered is the only thing
+ * relevant to the failure state of the invariant.
  * 
  * @author Michael Sloan (mgsloan@gmail.com)
- *  
- * @see NeverFollowedSet
- * @see StateSet
+ *
+ * @param <T> The node type, used as an input, and stored in path-history.
+ * 
+ * @see APInvFsms
+ * @see TracingStateSet
  */
-public class NeverFollowedTracingSet<T extends INode<T>> extends TracingStateSet<T> {
+public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 	HistoryNode s1, s2, s3;
 	String a, b;
 	
-	public NeverFollowedTracingSet(String a, String b) {
+	public APTracingSet(String a, String b) {
 		this.a = a;
 		this.b = b;
 	}
 	
-	public NeverFollowedTracingSet(BinaryInvariant inv) {
+	public APTracingSet(BinaryInvariant inv) {
 		a = inv.getFirst();
 		b = inv.getSecond();
 	}
-
+	
 	@Override
 	public void setInitial(T x) {
 		String name = x.getLabel();
@@ -37,25 +39,26 @@ public class NeverFollowedTracingSet<T extends INode<T>> extends TracingStateSet
 		s1 = s2 = s3 = null;
 		if (a.equals(name))
 			s2 = newHistory;
+		else if (b.equals(name))
+			s3 = newHistory;
 		else
 			s1 = newHistory;
 	}
-
+	
 	@Override
 	public void transition(T x) {
-		/* (non-a/b preserves state)
-		 * 1 -a-> 2
-		 * 1 -b-> 1
-		 * 2 -a-> 2
-		 * 2 -b-> 3
+		/*
+		 * (non-a/b preserves state)
+		 *  1 -a-> 2
+		 *  1 -b-> 3
 		 */
 		String name = x.getLabel();
 		if (a.equals(name)) {
 			s2 = preferShorter(s1, s2);
 			s1 = null;
 		} else if (b.equals(name)) {
-			s3 = preferShorter(s2, s3);
-			s2 = null;
+			s3 = preferShorter(s1, s3);
+			s1 = null;
 		}
 		s1 = extend(x, s1);
 		s2 = extend(x, s2);
@@ -66,17 +69,17 @@ public class NeverFollowedTracingSet<T extends INode<T>> extends TracingStateSet
 	public HistoryNode failstate() { return s3; }
 
 	@Override
-	public NeverFollowedTracingSet<T> clone() {
-		NeverFollowedTracingSet<T> result = new  NeverFollowedTracingSet<T>(a, b);
+	public APTracingSet<T> clone() {
+		APTracingSet<T> result = new APTracingSet<T>(a, b);
 		result.s1 = s1;
 		result.s2 = s2;
 		result.s3 = s3;
 		return result;
 	}
-
+	
 	@Override
 	public void merge(TracingStateSet<T> other) {
-		NeverFollowedTracingSet<T> casted = (NeverFollowedTracingSet<T>) other;
+		APTracingSet<T> casted = (APTracingSet<T>) other;
 		s1 = preferShorter(s1, casted.s1);
 		s2 = preferShorter(s2, casted.s2);
 		s3 = preferShorter(s3, casted.s3);
@@ -84,7 +87,7 @@ public class NeverFollowedTracingSet<T extends INode<T>> extends TracingStateSet
 
 	@Override
 	public boolean isSubset(TracingStateSet<T> other) {
-		NeverFollowedTracingSet<T> casted = (NeverFollowedTracingSet<T>) other;
+		APTracingSet<T> casted = (APTracingSet<T>) other;
 		if (casted.s1 == null) { if (s1 != null) return false; }
 		if (casted.s2 == null) { if (s2 != null) return false; }
 		if (casted.s3 == null) { if (s3 != null) return false; }

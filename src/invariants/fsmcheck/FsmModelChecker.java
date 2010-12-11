@@ -33,29 +33,39 @@ import model.interfaces.ITransition;
  * @param <T> The nodetype of the graphs used for model checking.
  */
 public class FsmModelChecker<T extends INode<T>> {
+	/**
+	 * Contains a list of lists, where the top-level list corresponds to different
+	 * types of invariants. And each inner list is a list of invariants of a single
+	 * type. e.g. [AFby: [(a,b), (c,d)], NFby: .., AP: ..] 
+	 */
 	public List<List<BinaryInvariant>> invariants;
+	
+	/**
+	 * Graph that we model check
+	 */
 	IGraph<T> graph;
 	
-	/*
+	/**
 	 * Constructs an model checking environment from a set of invariants and a graph
-	 * to check.
+	 * to check. To check a new graph, you will have to create another instance of the
+	 * FsmModelChecker.
 	 */
 	@SuppressWarnings("unchecked")
 	public FsmModelChecker(Iterable<TemporalInvariant> invariants, IGraph<T> graph) {
 		this.graph = graph;
 		
-		// TODO: store the set this way instead of needing to process it.
+		// TODO: store the TemporalInvariantSet in this way instead of needing to process it here.
 		// Filter the elements of the set into categorized lists.
 		List<BinaryInvariant> alwaysFollowed = new ArrayList<BinaryInvariant>();
 		List<BinaryInvariant> alwaysPrecedes = new ArrayList<BinaryInvariant>();
 		List<BinaryInvariant> neverFollowed  = new ArrayList<BinaryInvariant>();
 		for (TemporalInvariant inv : invariants) {
-			Class<Object> clazz = (Class<Object>) inv.getClass();
-			if (clazz.equals(AlwaysFollowedInvariant.class)) {
+			Class<Object> invClass = (Class<Object>) inv.getClass();
+			if (invClass.equals(AlwaysFollowedInvariant.class)) {
 				alwaysFollowed.add((BinaryInvariant)inv);
-			} else if (clazz.equals(AlwaysPrecedesInvariant.class)) {
+			} else if (invClass.equals(AlwaysPrecedesInvariant.class)) {
 				alwaysPrecedes.add((BinaryInvariant)inv);
-			} else if (clazz.equals(NeverFollowedInvariant.class)) {
+			} else if (invClass.equals(NeverFollowedInvariant.class)) {
 				neverFollowed.add((BinaryInvariant)inv);
 			}
 		}
@@ -66,6 +76,9 @@ public class FsmModelChecker<T extends INode<T>> {
 		this.invariants.add(neverFollowed);
 	}
 	
+	/**
+	 * @return the total number of invariants in this.invariants
+	 */
 	public int invariantCount() {
 		int result = 0;
 		for (int i = 0; i < this.invariants.size(); i++) {
@@ -75,9 +88,8 @@ public class FsmModelChecker<T extends INode<T>> {
 	}
 	
 	/**
-	 * Yields an invariant out of the lists of invariants stored by this checker.
-	 * Since it stores lists of different types, this indexing is equivalent to
-	 * indexing the concatenated version of the invariants list.
+	 * Treats invariants as flat list and yields an invariant out of this flattened
+	 * lists stored at index.
 	 */
 	public BinaryInvariant getInvariant(int index) {
 		for (int i = 0; i < invariants.size(); i++) {
@@ -95,9 +107,9 @@ public class FsmModelChecker<T extends INode<T>> {
 	 * Helper functions utilized by whichFail(): */
 	
 	// Clones every stateset in the given list, placing them on a new list.
-	protected List<StateSet> newMachines(List<StateSet> old) {
-		List<StateSet> results = new ArrayList<StateSet>();
-		for (StateSet ss : old) {
+	protected List<FsmStateSet> cloneMachines(List<FsmStateSet> old) {
+		List<FsmStateSet> results = new ArrayList<FsmStateSet>();
+		for (FsmStateSet ss : old) {
 			results.add(ss != null ? ss.clone() : null);
 		}
 		return results;
@@ -105,13 +117,13 @@ public class FsmModelChecker<T extends INode<T>> {
 	
 	// Given a list of machines, and a list of input mappings (one for each),
 	// this calls the 'visit' method on each stateset.  This effectively
-	protected List<StateSet> visit(T node, List<List<Map<String, BitSet>>> mapping, List<StateSet> states) {
-		String label = node.getLabel();
-		for (int i = 0; i < states.size(); i++) {
-			StateSet state = states.get(i);
+	protected List<FsmStateSet> visit(T nextNode, List<List<Map<String, BitSet>>> mapping, List<FsmStateSet> prevNodeStates) {
+		String label = nextNode.getLabel();
+		for (int i = 0; i < prevNodeStates.size(); i++) {
+			FsmStateSet state = prevNodeStates.get(i);
 			if (state != null) state.visit(mapping.get(i), label);
 		}
-		return states;
+		return prevNodeStates;
 	}
 	
 	/**
@@ -120,10 +132,10 @@ public class FsmModelChecker<T extends INode<T>> {
 	 * @param as  The first list of statesets, true is yielded if it's a subset / equal
 	 * @param bs  The second list of statesets, true is yielded if it's a superset / equal
 	 */
-	protected boolean isSubset(List<StateSet> as, List<StateSet> bs) {
+	protected boolean isSubset(List<FsmStateSet> as, List<FsmStateSet> bs) {
 		assert(as.size() == bs.size());
 		for (int i = 0; i < as.size(); i++) {
-			StateSet a = as.get(i), b = bs.get(i);
+			FsmStateSet a = as.get(i), b = bs.get(i);
 			// if a is null, then the value of b doesn't matter, and it doesn't
 			// tell us that this is a subset.
 			if (a != null && !a.isSubset(b)) return false;
@@ -137,9 +149,9 @@ public class FsmModelChecker<T extends INode<T>> {
 	 * @param as The list of states the merge is being applied to
 	 * @param bs The list of states to be merged in
 	 */
-	protected void merge(List<StateSet> as, List<StateSet> bs) {
+	protected void merge(List<FsmStateSet> as, List<FsmStateSet> bs) {
 		for (int i = 0; i < as.size(); i++) {
-			StateSet a = as.get(i), b = bs.get(i);
+			FsmStateSet a = as.get(i), b = bs.get(i);
 			if (a == null && b != null) {
 				as.set(i, b.clone());
 			} else {
@@ -156,10 +168,10 @@ public class FsmModelChecker<T extends INode<T>> {
 	 * @return The collective failure bitset, with fail bits from each set
 	 *     appended end-to-end.
 	 */
-	protected BitSet failureBits(List<StateSet> states) {
+	protected BitSet failureBits(List<FsmStateSet> states) {
 		BitSet result = new BitSet();
 		int pos = 0;
-		for (StateSet state : states) {
+		for (FsmStateSet state : states) {
 			if (state == null) continue;
 			BitSet fail = state.isFail();
 			for (int i = fail.nextSetBit(0); i >= 0; i = fail.nextSetBit(i + 1)) {
@@ -191,34 +203,41 @@ public class FsmModelChecker<T extends INode<T>> {
 		 * already nearly the same.
 		 */
 		
-		int count = invariants.size();
-		List<List<Map<String, BitSet>>> mappings = new ArrayList<List<Map<String, BitSet>>>(count);
+		int invTypeCount = invariants.size();
+		
+		// [invariant type => [invariant param =>
+		//   (event type string labels -> bitsets representing FSMs that need to be evaluate when
+		//    we observe an event type that matches _the_ invariant parameter)
+		// e.g. [AFby : [a : ["X" -> bitsetA, "Y" -> bisetY, ..], b : [..]], NFby: .., AP: ..]
+		// where a 1 in position i of bitsetA correspond to the ith FSM for AFby  
+		List<List<Map<String, BitSet>>> eventFsmDeps = new ArrayList<List<Map<String, BitSet>>>(invTypeCount);
 		
 		// Construct StateSet machines from each type of invariant, via type-based dispatch.
-		List<StateSet> machines = new ArrayList<StateSet>(count);
+		List<FsmStateSet> machines = new ArrayList<FsmStateSet>(invTypeCount);
 		for (List<BinaryInvariant> invs : invariants) {
-			mappings.add(StateSet.getMapping(invs));
+			eventFsmDeps.add(FsmStateSet.getInvEventFsmDeps(invs));
 			if (invs.isEmpty()) { machines.add(null); continue; }
-			Class<BinaryInvariant> clazz = (Class<BinaryInvariant>) invs.get(0).getClass();
-			if (clazz.equals(AlwaysFollowedInvariant.class)) {
-				machines.add(new AlwaysFollowedSet(invs.size()));
-			} else if (clazz.equals(AlwaysPrecedesInvariant.class)) {
-				machines.add(new AlwaysPrecedesSet(invs.size()));
-			} else if (clazz.equals(NeverFollowedInvariant.class)) {
-				machines.add(new NeverFollowedSet(invs.size()));
+			//
+			Class<BinaryInvariant> invClass = (Class<BinaryInvariant>) invs.get(0).getClass();
+			if (invClass.equals(AlwaysFollowedInvariant.class)) {
+				machines.add(new AFbyInvFsms(invs.size()));
+			} else if (invClass.equals(AlwaysPrecedesInvariant.class)) {
+				machines.add(new APInvFsms(invs.size()));
+			} else if (invClass.equals(NeverFollowedInvariant.class)) {
+				machines.add(new NFbyInvFsms(invs.size()));
 			}
 		}
 		
 		// Stores which set of states we currently inhabit.  The list, is of
 		// course because we have multiple types of state machines.
-		Map<T, List<StateSet>> states = new HashMap<T, List<StateSet>>();
+		Map<T, List<FsmStateSet>> states = new HashMap<T, List<FsmStateSet>>();
 		
 		// Populate the worklist and states map, with initial machines at each
 		// initial node.
 		Queue<T> workList = new LinkedList<T>();
 		for (T initial : graph.getInitialNodes()) {
 			workList.add(initial);
-			states.put(initial, newMachines(machines));
+			states.put(initial, cloneMachines(machines));
 		}
 		
 		// Actual model checking step - takes an item off the worklist, and
@@ -231,17 +250,17 @@ public class FsmModelChecker<T extends INode<T>> {
 		// worklist (the changed states need to be propagated).
 		while(!workList.isEmpty()) {
 			T node = workList.remove();
-			List<StateSet> current = states.get(node);
+			List<FsmStateSet> currStateSet = states.get(node);
 			for (ITransition<T> adjacent : node.getTransitions()) {
-				T target = adjacent.getTarget();
-				List<StateSet> other = states.get(target);
-				List<StateSet> newMachines = visit(target, mappings, newMachines(current));
-				if (other != null) {
-					if (isSubset(newMachines, other)) continue;
-					merge(newMachines, other);
+				T targetNode = adjacent.getTarget();
+				List<FsmStateSet> nextStateSet = states.get(targetNode);
+				List<FsmStateSet> transitionedCurrStateSet = visit(targetNode, eventFsmDeps, cloneMachines(currStateSet));
+				if (nextStateSet != null) {
+					if (isSubset(transitionedCurrStateSet, nextStateSet)) continue;
+					merge(nextStateSet, transitionedCurrStateSet);
 				}
-				states.put(target, newMachines);
-				workList.add(target);
+				states.put(targetNode, transitionedCurrStateSet);
+				workList.add(targetNode);
 			}
 		}
 		
@@ -275,10 +294,10 @@ public class FsmModelChecker<T extends INode<T>> {
 	 * This is a convenience function, which, given a set of invariants to check,
 	 * returns a list of the shortest counterexample paths for each.
 	 */
-	public List<RelationPath<T>> findFailures(BitSet which) {
+	public List<RelationPath<T>> findFailures(BitSet invsToCheck) {
 		List<RelationPath<T>> results = new ArrayList<RelationPath<T>>();
 		
-		for (int i = which.nextSetBit(0); i >= 0; i = which.nextSetBit(i + 1)) {
+		for (int i = invsToCheck.nextSetBit(0); i >= 0; i = invsToCheck.nextSetBit(i + 1)) {
 			RelationPath<T> result = invariantCounterexamples(i);
 			if (result != null) results.add(result);
 		}
@@ -301,13 +320,13 @@ public class FsmModelChecker<T extends INode<T>> {
 		TracingStateSet<T> stateset = null;
 		BinaryInvariant invariant = getInvariant(index);
 		if (invariant == null) return null;
-		Class<BinaryInvariant> clazz = (Class<BinaryInvariant>) invariant.getClass();
-		if (clazz.equals(AlwaysFollowedInvariant.class)) {
-			stateset = new AlwaysFollowedTracingSet<T>(invariant);
-		} else if (clazz.equals(AlwaysPrecedesInvariant.class)) {
-			stateset = new AlwaysPrecedesTracingSet<T>(invariant);
-		} else if (clazz.equals(NeverFollowedInvariant.class)) {
-			stateset = new NeverFollowedTracingSet<T>(invariant);
+		Class<BinaryInvariant> invClass = (Class<BinaryInvariant>) invariant.getClass();
+		if (invClass.equals(AlwaysFollowedInvariant.class)) {
+			stateset = new AFbyTracingSet<T>(invariant);
+		} else if (invClass.equals(AlwaysPrecedesInvariant.class)) {
+			stateset = new APTracingSet<T>(invariant);
+		} else if (invClass.equals(NeverFollowedInvariant.class)) {
+			stateset = new NFbyTracingSet<T>(invariant);
 		}
 		
 		Set<T> onWorkList = new HashSet<T>();

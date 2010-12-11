@@ -15,11 +15,11 @@ import java.util.List;
  * 
  * @author Michael Sloan (mgsloan@gmail.com)
  * 
- * @see AlwaysFollowedTracingSet
- * @see StateSet
+ * @see AFbyTracingSet
+ * @see FsmStateSet
  */
-public class AlwaysFollowedSet extends StateSet {
-	public AlwaysFollowedSet(int size) {
+public class AFbyInvFsms extends FsmStateSet {
+	public AFbyInvFsms(int size) {
 		super(size);
 		addState(true);		// State 1: Accept state
 		addState(false);    // State 2: Fail state
@@ -46,9 +46,11 @@ public class AlwaysFollowedSet extends StateSet {
 		 * s2 = (s2 & neither) | isA 
 		 */
 		
-		BitSet isA = inputs.get(0), isB = inputs.get(1),
+		BitSet isA = inputs.get(0),
+			   isB = inputs.get(1),
 		       neither = nor(isA, isB, count),
-		       s1 = sets.get(0), s2 = sets.get(1);
+		       s1 = sets.get(0),
+		       s2 = sets.get(1);
 		
 		s1.and(neither);
 		s1.or(isB);

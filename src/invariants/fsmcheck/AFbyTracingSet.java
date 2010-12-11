@@ -18,19 +18,19 @@ import model.interfaces.INode;
  *
  * @param <T> The node type, used as an input, and stored in path-history.
  * 
- * @see AlwaysFollowedSet
+ * @see AFbyInvFsms
  * @see TracingStateSet
  */
-public class AlwaysFollowedTracingSet<T extends INode<T>> extends TracingStateSet<T> {
+public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 	HistoryNode s1, s2;
 	String a, b;
 	
-	public AlwaysFollowedTracingSet(String a, String b) {
+	public AFbyTracingSet(String a, String b) {
 		this.a = a;
 		this.b = b;
 	}
 	
-	public AlwaysFollowedTracingSet(BinaryInvariant inv) {
+	public AFbyTracingSet(BinaryInvariant inv) {
 		a = inv.getFirst();
 		b = inv.getSecond();
 	}
@@ -73,8 +73,8 @@ public class AlwaysFollowedTracingSet<T extends INode<T>> extends TracingStateSe
 	public HistoryNode failstate() { return s2; }
 
 	@Override
-	public AlwaysFollowedTracingSet<T> clone() {
-		AlwaysFollowedTracingSet<T> result = new AlwaysFollowedTracingSet<T>(a, b);
+	public AFbyTracingSet<T> clone() {
+		AFbyTracingSet<T> result = new AFbyTracingSet<T>(a, b);
 		result.s1 = s1;
 		result.s2 = s2;
 		return result;
@@ -82,14 +82,14 @@ public class AlwaysFollowedTracingSet<T extends INode<T>> extends TracingStateSe
 
 	@Override
 	public void merge(TracingStateSet<T> other) {
-		AlwaysFollowedTracingSet<T> casted = (AlwaysFollowedTracingSet<T>) other;
+		AFbyTracingSet<T> casted = (AFbyTracingSet<T>) other;
 		s1 = preferShorter(s1, casted.s1);
 		s2 = preferShorter(s2, casted.s2);
 	}
 	
 	@Override
 	public boolean isSubset(TracingStateSet<T> other) {
-		AlwaysFollowedTracingSet<T> casted = (AlwaysFollowedTracingSet<T>) other;
+		AFbyTracingSet<T> casted = (AFbyTracingSet<T>) other;
 		if (casted.s1 == null) { if (s1 != null) return false; }
 		if (casted.s2 == null) { if (s2 != null) return false; }
 		return true;
