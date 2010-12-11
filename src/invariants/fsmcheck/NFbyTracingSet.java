@@ -2,36 +2,34 @@ package invariants.fsmcheck;
 
 import invariants.BinaryInvariant;
 import model.interfaces.INode;
+
 /**
- * Represents a set of "A always precedes B" invariants to simulate, recording
+ * Represents a set of "A never followed by B" invariants to simulate, recording
  * the shortest historical path to reach a particular state.
  * 
- * This finite state machine enters a permanent success state upon encountering
- * A, and enters a permanent failure state upon encountering B.  This reflects
- * the fact that the first of the two events encountered is the only thing
- * relevant to the failure state of the invariant.
+ * This finite state machine enters a particular state (s2) when A is provided.
+ * If we are in this state when a B is provided, then we enter into a failure
+ * state.
  * 
  * @author Michael Sloan (mgsloan@gmail.com)
- *
- * @param <T> The node type, used as an input, and stored in path-history.
- * 
- * @see AlwaysPrecedesSet
- * @see TracingStateSet
+ *  
+ * @see NFbyInvFsms
+ * @see FsmStateSet
  */
-public class AlwaysPrecedesTracingSet<T extends INode<T>> extends TracingStateSet<T> {
+public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 	HistoryNode s1, s2, s3;
 	String a, b;
 	
-	public AlwaysPrecedesTracingSet(String a, String b) {
+	public NFbyTracingSet(String a, String b) {
 		this.a = a;
 		this.b = b;
 	}
 	
-	public AlwaysPrecedesTracingSet(BinaryInvariant inv) {
+	public NFbyTracingSet(BinaryInvariant inv) {
 		a = inv.getFirst();
 		b = inv.getSecond();
 	}
-	
+
 	@Override
 	public void setInitial(T x) {
 		String name = x.getLabel();
@@ -39,26 +37,25 @@ public class AlwaysPrecedesTracingSet<T extends INode<T>> extends TracingStateSe
 		s1 = s2 = s3 = null;
 		if (a.equals(name))
 			s2 = newHistory;
-		else if (b.equals(name))
-			s3 = newHistory;
 		else
 			s1 = newHistory;
 	}
-	
+
 	@Override
 	public void transition(T x) {
-		/*
-		 * (non-a/b preserves state)
-		 *  1 -a-> 2
-		 *  1 -b-> 3
+		/* (non-a/b preserves state)
+		 * 1 -a-> 2
+		 * 1 -b-> 1
+		 * 2 -a-> 2
+		 * 2 -b-> 3
 		 */
 		String name = x.getLabel();
 		if (a.equals(name)) {
 			s2 = preferShorter(s1, s2);
 			s1 = null;
 		} else if (b.equals(name)) {
-			s3 = preferShorter(s1, s3);
-			s1 = null;
+			s3 = preferShorter(s2, s3);
+			s2 = null;
 		}
 		s1 = extend(x, s1);
 		s2 = extend(x, s2);
@@ -69,17 +66,17 @@ public class AlwaysPrecedesTracingSet<T extends INode<T>> extends TracingStateSe
 	public HistoryNode failstate() { return s3; }
 
 	@Override
-	public AlwaysPrecedesTracingSet<T> clone() {
-		AlwaysPrecedesTracingSet<T> result = new AlwaysPrecedesTracingSet<T>(a, b);
+	public NFbyTracingSet<T> clone() {
+		NFbyTracingSet<T> result = new  NFbyTracingSet<T>(a, b);
 		result.s1 = s1;
 		result.s2 = s2;
 		result.s3 = s3;
 		return result;
 	}
-	
+
 	@Override
 	public void merge(TracingStateSet<T> other) {
-		AlwaysPrecedesTracingSet<T> casted = (AlwaysPrecedesTracingSet<T>) other;
+		NFbyTracingSet<T> casted = (NFbyTracingSet<T>) other;
 		s1 = preferShorter(s1, casted.s1);
 		s2 = preferShorter(s2, casted.s2);
 		s3 = preferShorter(s3, casted.s3);
@@ -87,7 +84,7 @@ public class AlwaysPrecedesTracingSet<T extends INode<T>> extends TracingStateSe
 
 	@Override
 	public boolean isSubset(TracingStateSet<T> other) {
-		AlwaysPrecedesTracingSet<T> casted = (AlwaysPrecedesTracingSet<T>) other;
+		NFbyTracingSet<T> casted = (NFbyTracingSet<T>) other;
 		if (casted.s1 == null) { if (s1 != null) return false; }
 		if (casted.s2 == null) { if (s2 != null) return false; }
 		if (casted.s3 == null) { if (s3 != null) return false; }

@@ -12,11 +12,11 @@ import java.util.List;
  * 
  * @author Michael Sloan (mgsloan@gmail.com)
  *  
- * @see NeverFollowedTracingSet
- * @see StateSet
+ * @see NFbyTracingSet
+ * @see FsmStateSet
  */
-public class NeverFollowedSet extends StateSet {	
-	public NeverFollowedSet(int size) {
+public class NFbyInvFsms extends FsmStateSet {	
+	public NFbyInvFsms(int size) {
 		super(size);
 		addState(true);		// State 1: Accept state (no A seen, maybe B seen)
 		addState(false);    // State 2: Accept state (A seen)
@@ -48,8 +48,11 @@ public class NeverFollowedSet extends StateSet {
  		 */
 		 
 		// isA is cloned so that it can be mutated.
-		BitSet isA = (BitSet)inputs.get(0).clone(), isB = inputs.get(1),
- 		       s1 = sets.get(0), s2 = sets.get(1), s3 = sets.get(2);
+		BitSet isA = (BitSet)inputs.get(0).clone(),
+			   isB = inputs.get(1),
+ 		       s1 = sets.get(0),
+ 		       s2 = sets.get(1),
+ 		       s3 = sets.get(2);
 		 
 		//                      var = expression in terms of original values
 		

@@ -5,12 +5,13 @@ import java.util.concurrent.Callable;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.util.logging.Logger;
 import java.util.logging.Handler;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
+
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 import invariants.TemporalInvariant;
 import invariants.TemporalInvariantSet;
@@ -118,7 +119,6 @@ public class Main implements Callable<Integer> {
     /**
      * Command line arguments input filename to use.
      */
-    // TODO: write code to use this option
     @Option(value="-c Command line arguments input filename", aliases={"-argsfile"})
     public static String argsFilename= null;
     // end option group "Input Options"
@@ -211,10 +211,25 @@ public class Main implements Callable<Integer> {
     public static void main(String[] args) throws Exception {
         // this directly sets the static member options of the Main class
         Options options = new Options (usage_string, Main.class);
-        String[] commandLineArgs = options.parse_or_usage(args);
+        String[] cmdLineArgs = options.parse_or_usage(args);
+        
+		if (argsFilename != null) {
+			// read program arguments from a file
+			InputStream argsStream = new FileInputStream(argsFilename);
+			ListedProperties props = new ListedProperties();
+			props.load(argsStream);
+			String[] cmdLineFileArgs = props.getCmdArgsLine();
+			// the file-based args become the default args
+			options.parse_or_usage(cmdLineFileArgs);
+		}
+		
+		// we have to parse the command line args in the case that they override
+		// any of the args in the argsFilename
+		options.parse_or_usage(args);
+
         // The remainder of the command line is treated as a list of log
         // filenames to process 
-        logFilenames = Arrays.asList(commandLineArgs);
+        logFilenames = Arrays.asList(cmdLineArgs);
         
         SetUpLogging();
 
@@ -247,12 +262,12 @@ public class Main implements Callable<Integer> {
             return;
         }
         
-		if (logFilenames == null) {
+		if (logFilenames.size() == 0) {
 			logger.severe("No log filenames specified, exiting.");
 			return;
 		}
-
-        Main mainInstance = new Main();
+		
+		Main mainInstance = new Main();
         Integer ret = mainInstance.call();
         logger.fine("Main.call() returned " + ret.toString());
 		System.exit(ret); 

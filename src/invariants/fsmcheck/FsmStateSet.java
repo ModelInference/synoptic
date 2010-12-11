@@ -40,11 +40,11 @@ import java.util.Map;
  * 
  * @author Michael Sloan (mgsloan@gmail.com)
  * 
- * @see AlwaysFollowedSet
- * @see AlwaysPrecedesSet
- * @see NeverFollowedSet
+ * @see AFbyInvFsms
+ * @see APInvFsms
+ * @see NFbyInvFsms
  */
-public abstract class StateSet {
+public abstract class FsmStateSet {
 	protected List<BitSet> sets;
 	protected int count;
 	
@@ -54,7 +54,7 @@ public abstract class StateSet {
 	 * 
 	 * @param numSimulators
 	 */
-	protected StateSet(int numSimulators) {
+	protected FsmStateSet(int numSimulators) {
 		this.count = numSimulators;
 		// Initial capacity set to 4 as none of our current inheritors exceed.
 		sets = new ArrayList<BitSet>(4);
@@ -63,7 +63,8 @@ public abstract class StateSet {
 	/**
 	 * Mutates the stateset, to reflect the states which may be inhabited after
 	 * processing the input.
-	 * @param inputs The input bitsets to provide for transitioning the 
+	 * 
+	 * @param inputs The input bitsets to provide for transitioning the FSMs
 	 */
 	public abstract void transition(List<BitSet> inputs);
 	
@@ -100,7 +101,7 @@ public abstract class StateSet {
 	 *
 	 * @param other
 	 */
-	public void mergeWith(StateSet other) {
+	public void mergeWith(FsmStateSet other) {
 		assert(sets.size() == other.sets.size());
 		assert(count == other.count);
 		for (int i = 0; i < sets.size(); i++) {
@@ -118,7 +119,7 @@ public abstract class StateSet {
 	 * @param other The other set.
 	 * @return Returns true if the otherset is a superset.
 	 */
-	public boolean isSubset(StateSet other) {
+	public boolean isSubset(FsmStateSet other) {
 		if (other == null) return false;
 		if (sets.size() != other.sets.size()) return false;
 		for (int j = 0; j < sets.size(); j++) {
@@ -137,10 +138,10 @@ public abstract class StateSet {
 	 * 
 	 * @see java.lang.Object#clone()
 	 */
-	public StateSet clone() {
-		StateSet result;
+	public FsmStateSet clone() {
+		FsmStateSet result;
 		try {
-			result = (StateSet)this.getClass().getConstructors()[0].newInstance(sets.size());
+			result = (FsmStateSet)this.getClass().getConstructors()[0].newInstance(sets.size());
 		} catch (Exception e) {
 			System.out.println("ERROR: Failed to clone stateset.");
 			return null;
@@ -180,12 +181,12 @@ public abstract class StateSet {
 	 * Helper function to visit an event, giving a mapping from it to inputs.
 	 * 
 	 * @param mappings A list of mapping from event to bitset, one for each input.
-	 * @param x The event to visit.
+	 * @param event The event to visit.
 	 */
-	public <T> void visit(List<Map<T, BitSet>> mappings, T x) {
+	public <T> void visit(List<Map<T, BitSet>> mappings, T event) {
 		List<BitSet> inputs = new ArrayList<BitSet>();
 		for (Map<T, BitSet> mapping : mappings) {
-			BitSet input = mapping.get(x);
+			BitSet input = mapping.get(event);
 			inputs.add(input == null ? zero : input);
 		}
 		transition(inputs);
@@ -201,7 +202,7 @@ public abstract class StateSet {
 	 * @return A list of two mappings from node labels to the first and second
 	 *     inputs, respectively, of the invariants in the list.
 	 */
-	public static List<Map<String, BitSet>> getMapping(List<BinaryInvariant> invariants) {
+	public static List<Map<String, BitSet>> getInvEventFsmDeps (List<BinaryInvariant> invariants) {
 		List<Map<String, BitSet>> result = new ArrayList<Map<String, BitSet>>(2);
 		Map<String, BitSet> amap = new HashMap<String, BitSet>(),
 		                    bmap = new HashMap<String, BitSet>();

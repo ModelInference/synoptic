@@ -13,11 +13,11 @@ import java.util.List;
  * 
  * @author Michael Sloan (mgsloan@gmail.com)
  * 
- * @see AlwaysPrecedesTracingSet
- * @see StateSet
+ * @see APTracingSet
+ * @see FsmStateSet
  */
-public class AlwaysPrecedesSet extends StateSet {
-	public AlwaysPrecedesSet(int size) {
+public class APInvFsms extends FsmStateSet {
+	public APInvFsms(int size) {
 		super(size);
 		addState(true);		// State 1: Accept state (no A or B seen)
 		addState(false);    // State 2: Permanent accept state (A seen first)
@@ -45,9 +45,12 @@ public class AlwaysPrecedesSet extends StateSet {
 		 */
 		
 		// inputs cloned so that they can be mutated.
-		BitSet isA = (BitSet)inputs.get(0).clone(), isB = (BitSet)inputs.get(1).clone(),
+		BitSet isA = (BitSet)inputs.get(0).clone(),
+			   isB = (BitSet)inputs.get(1).clone(),
 		       neither = nor(isA, isB, count),
-		       s1 = sets.get(0), s2 = sets.get(1), s3 = sets.get(2);
+		       s1 = sets.get(0),
+		       s2 = sets.get(1),
+		       s3 = sets.get(2);
 		
 		s1.and(neither);
 		
