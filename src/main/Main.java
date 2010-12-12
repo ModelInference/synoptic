@@ -39,12 +39,12 @@ public class Main implements Callable<Integer> {
     public static final String versionString = "Synoptic version 0.0.2";
 
 
-    @OptionGroup("General Options")
     ////////////////////////////////////////////////////
     /**
      * Print the short usage message.  This does not include verbosity
      * or debugging options.
      */
+    @OptionGroup("General Options")
     @Option(value="-h Print short usage message", aliases={"-help"})
     public static boolean help = false;
         
@@ -62,12 +62,12 @@ public class Main implements Callable<Integer> {
     public static boolean version = false;
     // end option group "General Options"
 
-
-    @OptionGroup("Execution Options")
+    
     ////////////////////////////////////////////////////
     /**
      * Be quiet, do not print much information. Sets the log level to WARNING.
      */
+    @OptionGroup("Execution Options")
     @Option (value="-Q Be quiet, do not print much information", aliases={"-quiet"})
     public static boolean logLvlQuiet = false;
     
@@ -85,11 +85,11 @@ public class Main implements Callable<Integer> {
     // end option group "Execution Options"
     
     
-    @OptionGroup("Parser Options")
     ////////////////////////////////////////////////////
     /**
      * Regular expression separator string for determining mining granularity 
      */
+    @OptionGroup("Parser Options")
     @Option (value="-s Separator regular expression", aliases={"-separator"})
     public static String separator = null;
 
@@ -113,37 +113,35 @@ public class Main implements Callable<Integer> {
     public static boolean recoverFromParseErrors = false;
     // end option group "Parser Options"
     
-    
-    @OptionGroup ("Input Options")
+
     ////////////////////////////////////////////////////
     /**
      * Command line arguments input filename to use.
      */
+    @OptionGroup ("Input Options")
     @Option(value="-c Command line arguments input filename", aliases={"-argsfile"})
     public static String argsFilename= null;
     // end option group "Input Options"
 
     
-    @OptionGroup("Output Options")
     ////////////////////////////////////////////////////
     /**
      * Store the final Synoptic representation output in outputFilename.dot
      */
     @Option(value="-o Output filename for dot output", aliases={"--output"})
+    @OptionGroup("Output Options")
     public static String outputFilename = null;
     // end option group "Output Options"
 
 
-    /** 
-     * NOTE: this group of options is 'unpublicized', which means that
-     * it will not appear in the default usage message
-     */
-    @OptionGroup (value="Verbosity Options", unpublicized=true)
     ////////////////////////////////////////////////////
     /**
      * Dump the complete list of mined invariants for the set of input files
-     * to stdout
+     * to stdout.
+     * 
+     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
      */
+    @OptionGroup (value="Verbosity Options", unpublicized=true)
     @Option("Dump complete list of mined invariant to stdout")
     public static boolean dumpInvariants = false;
     
@@ -151,6 +149,8 @@ public class Main implements Callable<Integer> {
      * Dump the dot representation of the initial graph to file. The file
      * will have the name <outputFilename>.initial.dot, where 'outputFilename'
      * is the filename of the final Synoptic output.
+     * 
+     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
      */
     @Option("Dump the initial graph to file <outputFilename>.initial.dot")
     public static boolean dumpInitialGraph = false;
@@ -158,26 +158,26 @@ public class Main implements Callable<Integer> {
     /**
      * Dump the dot representations for intermediate Synoptic steps to
      * file. Each of these files will have a name like:
-     * <outputFilename>.stage-<S>.round-<R>.dot where 'outputFilename' is the
-     * filename of the final Synoptic output, <S> is the name of the stage
-     * (e.g. r for refinement, and c for coarsening), and <R> is the round number
+     * outputFilename.stage-S.round-R.dot where 'outputFilename' is the
+     * filename of the final Synoptic output, 'S' is the name of the stage
+     * (e.g. r for refinement, and c for coarsening), and 'R' is the round number
      * within the stage.
+     * 
+     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
      */
-    @Option("Dump dot files from intermediate Synoptic stages to files of form <outputFilename>.stage-<S>.round-<R>.dot")
+    @Option("Dump dot files from intermediate Synoptic stages to files of form outputFilename.stage-S.round-R.dot")
     public static boolean dumpIntermediateStages = false;
     // end option group "Verbosity Options"
 
 
-    /** 
-     * NOTE: this group of options is 'unpublicized', which means that
-     * it will not appear in the default usage message
-     */
-    @OptionGroup (value="Debugging Options", unpublicized=true)
     ////////////////////////////////////////////////////
     /**
      * Do not perform the coarsening stage in Synoptic, and as final
-     * output use the most refined representation
+     * output use the most refined representation.
+     * 
+     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
      */
+    @OptionGroup (value="Debugging Options", unpublicized=true)
     @Option("Do not perform the coarsening stage")
     public static boolean noCoarsening = false;
 
@@ -186,10 +186,13 @@ public class Main implements Callable<Integer> {
      * coarsening) and do not produce any representation as
      * output. This is useful for just printing the list of mined
      * invariants (using the option 'dumpInvariants' above).
+     * 
+     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
      */
     @Option("Do not perform refinement")
     public static boolean noRefinement = false;
     // end option group "Debugging Options"
+
     
     /**
      * Input log files to run Synoptic on. These should appear without any
@@ -237,7 +240,7 @@ public class Main implements Callable<Integer> {
 //        	logger.finest("arg " + i + " : " + args[i]);
 //        }
 
-        // Display help for all option groups, including 'unpublicized' ones
+        // Display help for all option groups, including unpublicized ones
         if (allHelp) {
         	System.out.println("Usage: " + usage_string);
             System.out.println(
@@ -318,7 +321,7 @@ public class Main implements Callable<Integer> {
      * Returns the filename for an intermediate dot file based on the given
      * stage name and round number. Adheres to the convention specified above
      * in usage, namely that the filename is of the format:
-     * <outputFilename>.stage-<S>.round-<R>.dot
+     * outputFilename.stage-S.round-R.dot
      * 
      * @param stageName Stage name string, e.g. "r" for refinement
      * @param roundNum Round number within the stage

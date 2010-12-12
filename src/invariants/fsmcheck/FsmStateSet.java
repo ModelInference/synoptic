@@ -9,34 +9,34 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Abstract class to provide functionality for simulating nondeterministic
+ * <p>Abstract class to provide functionality for simulating nondeterministic
  * finite state machines, utilizing BitSets as a method for evaluating the
- * transitions of many instances in parallel.
+ * transitions of many instances in parallel.</p>
  * 
- * Note the "nondeterministic".  This means that each machine can be in
+ * <p>Note the "nondeterministic".  This means that each machine can be in
  * multiple states at once.  This allows us to associate with each node in
  * the model a set of states which can be inhabited (by some path from an
- * initial node).
+ * initial node).</p>
  * 
- * If you imagine the BitSets as creating a matrix, where each row is a set,
+ * <p>If you imagine the BitSets as creating a matrix, where each row is a set,
  * then each row corresponds to a state of the machine, and each column
  * corresponds to an individual state machine.  1 in this matrix indicates that
- * that particular state is active in that particular machine.
+ * that particular state is active in that particular machine.</p>
  * 
- * The input which drives the transition of the state machines consists of a
+ * <p>The input which drives the transition of the state machines consists of a
  * list of BitSets, each corresponding to a logical input of the machine. With
  * all of the current implementations of this interface (AlwaysFollowedSet,
  * AlwaysPrecedesSet, NeverFollowedSet), there are two inputs, as these are
  * binary invariants.  In other words, each individual machine being simulated
  * is watching for just two events.  1 in the nth bit of the first input
  * indicates that the first event that the nth invariant is watching for
- * ("A" in A afby B) is being used as the input for the transition.
+ * ("A" in A afby B) is being used as the input for the transition.</p>
  * 
- * Unless an invariant is watching for the same event on each of its inputs,
+ * <p>Unless an invariant is watching for the same event on each of its inputs,
  * the inputs can be thought of as a one-hot encoding: input[0] & input[1] = 0.
  * The only time this doesn't happen in practice is "A NFby A", which indicates
  * that A is singleton in the traces.  Furthermore, if all input bits are 0,
- * then the corresponding machines should not change state.
+ * then the corresponding machines should not change state.</p>
  * 
  * @author Michael Sloan (mgsloan@gmail.com)
  * 
