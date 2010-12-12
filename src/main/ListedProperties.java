@@ -10,7 +10,7 @@ import java.util.Iterator;
  * Extends Java's Properties class with the ability to specify and recall
  * a list of property values corresponding to a key. This is used by Synoptic
  * to handle property files that encode Synoptic command line options, which
- * e.g. use the -r option to specify _multiple_ regular expressions.
+ * e.g. use the -r option to specify <i>multiple</i> regular expressions.
  *  
  * @author ivan
  */
