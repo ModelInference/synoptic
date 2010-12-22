@@ -1,11 +1,14 @@
 package tests.units;
 
-import static org.junit.Assert.*;
+import model.Action;
+import model.MessageEvent;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import invariants.fsmcheck.AFbyInvFsms;
 import invariants.fsmcheck.APInvFsms;
@@ -14,6 +17,8 @@ import invariants.fsmcheck.FsmStateSet;
 
 public class FsmStateSetTests {
 
+	public static MessageEvent msg = new MessageEvent(new Action("x"), 0);
+	
 	private static BitSet parseBitSet(String str) {
 		BitSet result = new BitSet();
 		for (int i = str.length() - 1; i >= 0; i--)
@@ -21,26 +26,34 @@ public class FsmStateSetTests {
 		return result;
 	}
 	
-	private static void transfer(FsmStateSet s, String input) {
+	private static void transfer(FsmStateSet<MessageEvent> s, String input) {
 		String[] inputs = input.split(" ");
-		List<BitSet> bitsets = new ArrayList<BitSet>(inputs.length);
-		for (String str : inputs)
-			bitsets.add(parseBitSet(str));
-		s.transition(bitsets);
+		for (int i = 0; i < inputs.length; i++)
+			s.mappings.get(i).put("x", parseBitSet(inputs[i]));
+		s.transition(msg);
+	}
+	
+	public static void setMapping(FsmStateSet<MessageEvent> s) {
+		s.mappings = new ArrayList<Map<String, BitSet>>();
+		s.mappings.clear();
+		s.mappings.add(new HashMap<String,BitSet>());
+		s.mappings.add(new HashMap<String,BitSet>());
 	}
 
 	@Test
 	public void AFbyInvFsmsTest() {
-		FsmStateSet a = new AFbyInvFsms(4);
-		FsmStateSet before = a.clone();
+		FsmStateSet<MessageEvent> a = new AFbyInvFsms<MessageEvent>(4);
+		setMapping(a);
+		a.setInitial(msg);
+		FsmStateSet<MessageEvent> before = a.copy();
 		
 		transfer(a, "0000 0000");
 		assert(a.equals(before));
 		transfer(a, "0000 0101");
 		assert(a.equals(before));
-		assert(a.isFail().equals(new BitSet()));
+		assert(a.whichFail().equals(new BitSet()));
 		transfer(a, "1010 0000");
-		assert(a.isFail().equals(parseBitSet("1010")));
+		assert(a.whichFail().equals(parseBitSet("1010")));
 		assert(!a.equals(before));
 		transfer(a, "0000 1000");
 		assert(!a.equals(before));
@@ -51,26 +64,30 @@ public class FsmStateSetTests {
 	@Test
 	public void NFbyInvFsmsTest() {
 		//FsmStateSet a = new AFbyInvFsms(4);
-		FsmStateSet b = new APInvFsms(4);
-		FsmStateSet before;
+		FsmStateSet<MessageEvent> b = new APInvFsms<MessageEvent>(4);
+		setMapping(b);
+		b.setInitial(msg);
+		FsmStateSet<MessageEvent> before;
 		
 		//assert(a.isFail().equals(new BitSet()));
 		transfer(b, "0111 1000");
-		assert(b.isFail().equals(parseBitSet("1000")));
+		assert(b.whichFail().equals(parseBitSet("1000")));
 		
-		before = b.clone();
+		before = b.copy();
 		transfer(b, "0101 0000");
 		transfer(b, "0010 0000");
 		assert(b.equals(before));
 		transfer(b, "0000 0110");
 		assert(!b.equals(before));
 		transfer(b, "0100 0000");
-		assert(b.isFail().equals(parseBitSet("1100")));
+		assert(b.whichFail().equals(parseBitSet("1100")));
 	}
 	
 	@Test
 	public void APInvFsmsTest() {
-		FsmStateSet c = new NFbyInvFsms(4);
+		FsmStateSet<MessageEvent> c = new NFbyInvFsms<MessageEvent>(4);
+		setMapping(c);
+		c.setInitial(msg);
 		
 		transfer(c, "0000 0101");
 		// assert(b.equals(before));

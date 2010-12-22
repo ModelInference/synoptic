@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import model.interfaces.INode;
+
 /**
  * <p>Abstract class to provide functionality for simulating nondeterministic
  * finite state machines, utilizing BitSets as a method for evaluating the
@@ -44,54 +46,64 @@ import java.util.Map;
  * @see APInvFsms
  * @see NFbyInvFsms
  */
-public abstract class FsmStateSet {
+public abstract class FsmStateSet<T extends INode<T>> implements IStateSet<T, FsmStateSet<T>> {
 	protected List<BitSet> sets;
 	protected int count;
+	public List<Map<String, BitSet>> mappings;  // public for testing.
 	
 	/**
-	 * Initializes the data structures, taking the number of instances of
-	 * the machines to simulate in parallel.
+	 * Initializes the bitsets, taking the number of instances of the machines
+	 * to simulate in parallel.
 	 * 
-	 * @param numSimulators
+	 * TODO: necessary?
+	 * 
+	 * @param numSimulators Number of machines to simulate in parallel.
 	 */
-	protected FsmStateSet(int numSimulators) {
+	protected FsmStateSet(int numSimulators, int numStates) {
 		this.count = numSimulators;
-		// Initial capacity set to 4 as none of our current inheritors exceed.
-		sets = new ArrayList<BitSet>(4);
+		sets = new ArrayList<BitSet>(numStates);
+		for (int i = 0; i < numStates; i++)
+		    sets.add(new BitSet());
 	}
 	
 	/**
-	 * Mutates the stateset, to reflect the states which may be inhabited after
-	 * processing the input.
-	 * 
-	 * @param inputs The input bitsets to provide for transitioning the FSMs
+	 * Initializes the bitsets, and assigns the input mapping, based on the
+	 * passed invariants.  NOTE: this assumes that all of the passed invariants
+	 * are of the appropriate type.
 	 */
-	public abstract void transition(List<BitSet> inputs);
-	
+	protected FsmStateSet(List<BinaryInvariant> invariants, int numStates) {
+		this(invariants.size(), numStates);
+		
+		mappings = new ArrayList<Map<String, BitSet>>(2);
+		Map<String, BitSet> amap = new HashMap<String, BitSet>(),
+		                    bmap = new HashMap<String, BitSet>();
+		mappings.add(amap);
+		mappings.add(bmap);
+		for (int i = 0; i < invariants.size(); i++) {
+			String first = invariants.get(i).getFirst();
+			String second = invariants.get(i).getSecond();
+			BitSet aset = amap.get(first);
+			BitSet bset = bmap.get(second);
+			if (aset == null) amap.put(first,  aset = new BitSet());
+			if (bset == null) bmap.put(second, bset = new BitSet());
+			aset.set(i);
+			bset.set(i);
+		}
+	}
+
 	/**
 	 * At final states (partitions which contain ending nodes of some sample
 	 * traces), this indicates which of the invariants maintained by this
 	 * stateset would be considered to not be satisfied.
 	 */
-	public abstract BitSet isFail();
+	public abstract BitSet whichFail();
 	
 	/**
 	 * When machines are permanently locked in a failure state, i.e. no recovery
 	 * is possible, that fact is indicated as a 1 in this bitset. This can be
 	 * used to preemptively halt search.
 	 */
-	public abstract BitSet isPermanentFail();
-	
-	/**
-	 * Adds a state, with a given initial value
-	 * 
-	 * @param initialValue true = 1, false = 0
-	 */
-	protected void addState(boolean initialValue) {
-		BitSet newState = new BitSet(count);
-		newState.set(0, count, initialValue);
-		sets.add(newState);
-	}
+	public abstract BitSet whichPermanentFail();
 	
 	/**
 	 * Merges this stateset with another, by ORing all of the state vectors.
@@ -101,9 +113,8 @@ public abstract class FsmStateSet {
 	 *
 	 * @param other
 	 */
-	public void mergeWith(FsmStateSet other) {
-		assert(sets.size() == other.sets.size());
-		assert(count == other.count);
+	public void mergeWith(FsmStateSet<T> other) {
+		assert(other.mappings == mappings);
 		for (int i = 0; i < sets.size(); i++) {
 			sets.get(i).or(other.sets.get(i));
 		}
@@ -119,9 +130,9 @@ public abstract class FsmStateSet {
 	 * @param other The other set.
 	 * @return Returns true if the otherset is a superset.
 	 */
-	public boolean isSubset(FsmStateSet other) {
+	public boolean isSubset(FsmStateSet<T> other) {
 		if (other == null) return false;
-		if (sets.size() != other.sets.size()) return false;
+		assert(other.mappings == mappings);
 		for (int j = 0; j < sets.size(); j++) {
 			BitSet thisSet = sets.get(j);
 			BitSet s = (BitSet) thisSet.clone();
@@ -138,10 +149,11 @@ public abstract class FsmStateSet {
 	 * 
 	 * @see java.lang.Object#clone()
 	 */
-	public FsmStateSet clone() {
-		FsmStateSet result;
+	@SuppressWarnings("unchecked")
+	public FsmStateSet<T> copy() {
+		FsmStateSet<T> result;
 		try {
-			result = (FsmStateSet)this.getClass().getConstructors()[0].newInstance(sets.size());
+			result = (FsmStateSet<T>)this.getClass().getConstructors()[1].newInstance(sets.size());
 		} catch (Exception e) {
 			System.out.println("ERROR: Failed to clone stateset.");
 			return null;
@@ -152,7 +164,21 @@ public abstract class FsmStateSet {
 			newSets.add((BitSet)sets.get(i).clone());
 		}
 		result.sets = newSets;
+		result.mappings = mappings;
 		return result;
+	}
+	
+	public BitSet getInput(int ix, T input) {
+		BitSet result = mappings.get(ix).get(input.getLabel());
+		if (result == null) return new BitSet();
+		return result;
+	}
+	
+	public BitSet getInputCopy(int ix, T input) {
+		String label = input.getLabel();
+		BitSet result = mappings.get(ix).get(label);
+		if (result == null) return new BitSet();
+		return (BitSet)result.clone();
 	}
 	
 	/**
@@ -176,48 +202,4 @@ public abstract class FsmStateSet {
 	 */
 	
 	public static final BitSet zero = new BitSet();
-
-	/**
-	 * Helper function to visit an event, giving a mapping from it to inputs.
-	 * 
-	 * @param mappings A list of mapping from event to bitset, one for each input.
-	 * @param event The event to visit.
-	 */
-	public <T> void visit(List<Map<T, BitSet>> mappings, T event) {
-		List<BitSet> inputs = new ArrayList<BitSet>();
-		for (Map<T, BitSet> mapping : mappings) {
-			BitSet input = mapping.get(event);
-			inputs.add(input == null ? zero : input);
-		}
-		transition(inputs);
-	}
-	
-	/**
-	 * Converts a list of binary invariants, presumably used to construct a
-	 * stateset simulation of the invariants, to the mapping used for converting
-	 * from events to input bitsets.  (see visit, above)
-	 * 
-	 * @param invariants A list of binary invariants to convert to a list of
-	 *     mappings from 
-	 * @return A list of two mappings from node labels to the first and second
-	 *     inputs, respectively, of the invariants in the list.
-	 */
-	public static List<Map<String, BitSet>> getInvEventFsmDeps (List<BinaryInvariant> invariants) {
-		List<Map<String, BitSet>> result = new ArrayList<Map<String, BitSet>>(2);
-		Map<String, BitSet> amap = new HashMap<String, BitSet>(),
-		                    bmap = new HashMap<String, BitSet>();
-		result.add(amap);
-		result.add(bmap);
-		for (int i = 0; i < invariants.size(); i++) {
-			String first = invariants.get(i).getFirst();
-			String second = invariants.get(i).getSecond();
-			BitSet aset = amap.get(first);
-			BitSet bset = bmap.get(second);
-			if (aset == null) amap.put(first,  aset = new BitSet());
-			if (bset == null) bmap.put(second, bset = new BitSet());
-			aset.set(i);
-			bset.set(i);
-		}
-		return result;
-	}
 }
