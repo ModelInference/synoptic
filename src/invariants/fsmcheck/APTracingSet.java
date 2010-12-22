@@ -19,7 +19,9 @@ import model.interfaces.INode;
  * @see TracingStateSet
  */
 public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
-	HistoryNode s1, s2, s3;
+	HistoryNode neitherSeen; // Neither A or B yet seen
+	HistoryNode firstA;      // A seen before B (permanent success) 
+	HistoryNode firstB;      // B seen before A (permanent failure)
 	String a, b;
 	
 	public APTracingSet(String a, String b) {
@@ -28,69 +30,63 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 	}
 	
 	public APTracingSet(BinaryInvariant inv) {
-		a = inv.getFirst();
-		b = inv.getSecond();
+		this(inv.getFirst(), inv.getSecond());
 	}
 	
 	@Override
 	public void setInitial(T x) {
 		String name = x.getLabel();
 		HistoryNode newHistory = new HistoryNode(x, null, 1);
-		s1 = s2 = s3 = null;
+		neitherSeen = firstA = firstB = null;
 		if (a.equals(name))
-			s2 = newHistory;
+			firstA = newHistory;
 		else if (b.equals(name))
-			s3 = newHistory;
+			firstB = newHistory;
 		else
-			s1 = newHistory;
+			neitherSeen = newHistory;
 	}
 	
 	@Override
 	public void transition(T x) {
-		/*
-		 * (non-a/b preserves state)
-		 *  1 -a-> 2
-		 *  1 -b-> 3
-		 */
 		String name = x.getLabel();
 		if (a.equals(name)) {
-			s2 = preferShorter(s1, s2);
-			s1 = null;
+			firstA = preferShorter(neitherSeen, firstA);
+			neitherSeen = null;
 		} else if (b.equals(name)) {
-			s3 = preferShorter(s1, s3);
-			s1 = null;
+			firstB = preferShorter(neitherSeen, firstB);
+			neitherSeen = null;
 		}
-		s1 = extend(x, s1);
-		s2 = extend(x, s2);
-		s3 = extend(x, s3);
+		neitherSeen = extend(x, neitherSeen);
+		firstA = extend(x, firstA);
+		firstB = extend(x, firstB);
 	}
 
 	@Override
-	public HistoryNode failstate() { return s3; }
+	public HistoryNode failpath() { return firstB; }
 
 	@Override
-	public APTracingSet<T> clone() {
+	public APTracingSet<T> copy() {
 		APTracingSet<T> result = new APTracingSet<T>(a, b);
-		result.s1 = s1;
-		result.s2 = s2;
-		result.s3 = s3;
+		result.neitherSeen = neitherSeen;
+		result.firstA = firstA;
+		result.firstB = firstB;
 		return result;
 	}
 	
 	@Override
-	public void merge(TracingStateSet<T> other) {
+	public void mergeWith(TracingStateSet<T> other) {
 		APTracingSet<T> casted = (APTracingSet<T>) other;
-		s1 = preferShorter(s1, casted.s1);
-		s2 = preferShorter(s2, casted.s2);
-		s3 = preferShorter(s3, casted.s3);
+		neitherSeen = preferShorter(neitherSeen, casted.neitherSeen);
+		firstA = preferShorter(firstA, casted.firstA);
+		firstB = preferShorter(firstB, casted.firstB);
 	}
 
 	@Override
 	public boolean isSubset(TracingStateSet<T> other) {
 		APTracingSet<T> casted = (APTracingSet<T>) other;
-		if (casted.s1 == null) { if (s1 != null) return false; }
-		if (casted.s2 == null) { if (s2 != null) return false; }
-		if (casted.s3 == null) { if (s3 != null) return false; }
+		if (casted.neitherSeen == null) { if (neitherSeen != null) return false; }
+		if (casted.firstA == null) { if (firstA != null) return false; }
+		if (casted.firstB == null) { if (firstB != null) return false; }
 		return true;
 	}
 }

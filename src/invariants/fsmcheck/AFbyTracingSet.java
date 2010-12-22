@@ -22,7 +22,8 @@ import model.interfaces.INode;
  * @see TracingStateSet
  */
 public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
-	HistoryNode s1, s2;
+	HistoryNode wasA; // Indicates that A was seen more recently than B (failing state)
+	HistoryNode wasB; // Indicates that B was seen more recently than A
 	String a, b;
 	
 	public AFbyTracingSet(String a, String b) {
@@ -31,8 +32,7 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 	}
 	
 	public AFbyTracingSet(BinaryInvariant inv) {
-		a = inv.getFirst();
-		b = inv.getSecond();
+		this(inv.getFirst(), inv.getSecond());
 	}
 
 	@Override
@@ -40,58 +40,51 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 		String name = x.getLabel();
 		HistoryNode newHistory = new HistoryNode(x, null, 1);
 		if (name.equals(a)) {
-			s1 = null;
-			s2 = newHistory;
+			wasB = null;
+			wasA = newHistory;
 		} else {
-			s1 = newHistory;
-			s2 = null;
+			wasB = newHistory;
+			wasA = null;
 		}
 	}
 
 	@Override
 	public void transition(T x) {
-		/*
-		 * (non-a/b preserves state)
-		 * 1 -a-> 2
-		 * 1 -b-> 1
-		 * 2 -a-> 2
-		 * 2 -b-> 1
-		 */
 		String name = x.getLabel();
 		if (a.equals(name)) {
-			s2 = preferShorter(s1, s2);
-			s1 = null;
+			wasA = preferShorter(wasB, wasA);
+			wasB = null;
 		} else if (b.equals(name)) {
-			s1 = preferShorter(s2, s1);
-			s2 = null;
+			wasB = preferShorter(wasA, wasB);
+			wasA = null;
 		}
-		s1 = extend(x, s1);
-		s2 = extend(x, s2);
+		wasA = extend(x, wasA);
+		wasB = extend(x, wasB);
 	}
 
 	@Override
-	public HistoryNode failstate() { return s2; }
+	public HistoryNode failpath() { return wasA; }
 
 	@Override
-	public AFbyTracingSet<T> clone() {
+	public AFbyTracingSet<T> copy() {
 		AFbyTracingSet<T> result = new AFbyTracingSet<T>(a, b);
-		result.s1 = s1;
-		result.s2 = s2;
+		result.wasA = wasA;
+		result.wasB = wasB;
 		return result;
 	}
 
 	@Override
-	public void merge(TracingStateSet<T> other) {
+	public void mergeWith(TracingStateSet<T> other) {
 		AFbyTracingSet<T> casted = (AFbyTracingSet<T>) other;
-		s1 = preferShorter(s1, casted.s1);
-		s2 = preferShorter(s2, casted.s2);
+		wasA = preferShorter(wasA, casted.wasA);
+		wasB = preferShorter(wasB, casted.wasB);
 	}
 	
 	@Override
 	public boolean isSubset(TracingStateSet<T> other) {
 		AFbyTracingSet<T> casted = (AFbyTracingSet<T>) other;
-		if (casted.s1 == null) { if (s1 != null) return false; }
-		if (casted.s2 == null) { if (s2 != null) return false; }
+		if (casted.wasA == null) { if (wasA != null) return false; }
+		if (casted.wasB == null) { if (wasB != null) return false; }
 		return true;
 	}
 }

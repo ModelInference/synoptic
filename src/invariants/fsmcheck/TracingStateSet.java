@@ -3,6 +3,9 @@ package invariants.fsmcheck;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import model.Partition;
+import model.interfaces.ITransition;
+
 import invariants.TemporalInvariant;
 import invariants.TemporalInvariantSet.RelationPath;
 
@@ -15,7 +18,7 @@ import invariants.TemporalInvariantSet.RelationPath;
  *
  * @param <T> The node type, used as an input, and stored in path-history.
  */
-public abstract class TracingStateSet<T> {
+public abstract class TracingStateSet<T> implements IStateSet<T, TracingStateSet<T>> {
 	/**
 	 * HistoryNode class used to construct a linked-list path through the
 	 * model graph.  This linked list structure is used, rather than explicit
@@ -42,13 +45,37 @@ public abstract class TracingStateSet<T> {
 			RelationPath<T> result = new RelationPath<T>();
 			result.path = new ArrayList<T>();
 			HistoryNode cur = this;
+			assert(((Partition)cur.node).isFinal());
 			while (cur != null) {
 				result.path.add(cur.node);
+				if (cur.previous != null) {
+					Partition prev = (Partition) cur.previous.node;
+					boolean found = false;
+					for (ITransition<Partition> trans : prev.getTransitions()) {
+						if(trans.getTarget().equals(cur.node)) {
+							found = true;
+							break;
+						}
+					}
+					assert(found);
+				}
 				cur = cur.previous;
 			}
 			Collections.reverse(result.path);
 			result.invariant = inv;
 			return result;
+		}
+		
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			HistoryNode cur = this;
+			while (cur != null) {
+				Partition p = (Partition) cur.node;
+				sb.append(p.getLabel());
+				sb.append(" <- ");
+				cur = cur.previous;
+			}
+			return sb.toString();
 		}
 	}
 	
@@ -72,47 +99,12 @@ public abstract class TracingStateSet<T> {
 	}
 	
 	/**
-	 * Sets the states of the stateset to their initial conditions.
-	 * @param x The node that this state starts on (to initialize history).
-	 */
-	public abstract void setInitial(T x);
-	
-	/**
-	 * Mutates this stateset, given the input which determines its next states,
-	 * appending to the history necessary to get to those states.
-	 * @param x The input which is provided to the state machine
-	 */
-	public abstract void transition(T x);
-	
-	/**
-	 * Queries whether this stateset is a subset of another, in other words,
-	 * if every state inhabited by this set is also inhabited by the other.
-	 * Another way of thinking about this is that merging 'this' into 'other'
-	 * does not affect other when this is a subset.
-	 *  
-	 * @param other The set to compare against - superset, if result is true.
-	 * @return If this is a subset of other.
-	 */
-	public abstract boolean isSubset(TracingStateSet<T> other);
-	
-	/**
-	 * Merges the 'other' stateset into this, preferring the shorter paths,
-	 * when a choice is possible.
-	 * @param other The other stateSet to use, left unmutated.
-	 */
-	public abstract void merge(TracingStateSet<T> other);
-	
-	/**
 	 * Queries the state for the shortest path which leads to a failing state.
 	 * @return The HistoryNode at the head of the linked list of nodes within
 	 *     the model.
 	 */
-	public abstract HistoryNode failstate();
+	public abstract HistoryNode failpath();
 	
-	/**
-	 * Clones the TracingStateSet
-	 * @return A copy of this.
-	 */
-	public abstract TracingStateSet<T> clone();
+	@Override
+	public boolean isFail() { return failpath() != null; }
 }
-;

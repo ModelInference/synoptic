@@ -1,5 +1,7 @@
 package main;
 
+import invariants.TemporalInvariantSet;
+
 import java.lang.Integer;
 import java.util.concurrent.Callable;
 import java.util.Arrays;
@@ -13,11 +15,6 @@ import java.util.logging.Level;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import invariants.TemporalInvariant;
-import invariants.TemporalInvariantSet;
-import invariants.TemporalInvariantSet.RelationPath;
-import invariants.fsmcheck.FsmModelChecker;
-
 import algorithms.bisim.Bisimulation;
 
 import plume.Option;
@@ -29,6 +26,7 @@ import model.PartitionGraph;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
 
+import main.ListedProperties;
 
 public class Main implements Callable<Integer> {
 	public static Logger logger = null;
@@ -153,7 +151,7 @@ public class Main implements Callable<Integer> {
      * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
      */
     @Option("Dump the initial graph to file <outputFilename>.initial.dot")
-    public static boolean dumpInitialGraph = false;
+    public static boolean dumpInitialGraph = true;
     
     /**
      * Dump the dot representations for intermediate Synoptic steps to
@@ -276,7 +274,6 @@ public class Main implements Callable<Integer> {
 		System.exit(ret); 
     }
 
-    
     /**
      * Sets up and configures the Main.logger object based on command line
      * arguments
@@ -417,14 +414,14 @@ public class Main implements Callable<Integer> {
 		List<RelationPath<MessageEvent>> paths = checker.getCounterexamples();
 		if (paths.isEmpty()) {
 			System.out.println("model checker ok.");
-		} */
+		} */		
+		TemporalInvariantSet unsatisfied = result.getInvariants();
 		
 		Bisimulation.refinePartitions(result);
 		logger.fine("Merging..");
 		Bisimulation.mergePartitions(result);
 
 		// TODO: check that none of the initially mined invariants are unsatisfied in the result		
-		//TemporalInvariantSet unsatisfied = invariants.getUnsatisfiedInvariants(result);
 		
 		// If we were given an output filename then export the resulting graph into this filename 
 		if (Main.outputFilename != null) {
@@ -437,4 +434,3 @@ public class Main implements Callable<Integer> {
 		return new Integer(0);
 	}
 }
-
