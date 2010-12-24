@@ -1,5 +1,3 @@
-package trace.twitter;
-
 import java.io.File;
 import java.io.FileInputStream;
 

@@ -5,9 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import trace.ProtoTrace.GenericMessage;
-import trace.ProtoTrace.PingPongMessage;
-import trace.ProtoTrace.Trace;
+import ProtoTrace.GenericMessage;
+import ProtoTrace.PingPongMessage;
+import ProtoTrace.Trace;
 
 public class Reader {
 	

@@ -8,19 +8,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.protobuf.InvalidProtocolBufferException;
+//import com.google.protobuf.InvalidProtocolBufferException;
 
-import net.unto.twitter.UtilProtos.Url;
+//import net.unto.twitter.UtilProtos.Url;
 
 import model.Action;
 import model.Graph;
 import model.MessageEvent;
 import model.PartitionGraph;
-import trace.MessageTrace.FullTrace;
-import trace.MessageTrace.TraceSet;
-import trace.MessageTrace.WrappedMessage;
-import trace.ProtoTrace.PingPongMessage;
-import trace.ProtoTrace.Trace;
+//import trace.MessageTrace.FullTrace;
+//import trace.MessageTrace.TraceSet;
+//import trace.MessageTrace.WrappedMessage;
+//import trace.ProtoTrace.PingPongMessage;
+//import trace.ProtoTrace.Trace;
 import util.IterableAdapter;
 import util.IterableIterator;
 
@@ -113,83 +113,88 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 		}
 	}
 
-	public static PartitionGraph buildGraph(TraceSet traceSet, boolean merge) {
-		GraphBuilder gb = new GraphBuilder();
-		for (FullTrace t : traceSet.getFullTraceList()) {
-			for (WrappedMessage m : t.getWrappedMessageList()) {
-				Action a = new Action("error");
-				if (m.getType().equals("Url get")
-						|| m.getType().equals("Url post")) {
-					Url p;
-					try {
-						p = Url.parseFrom(m.getTheMessage());
-						a = new Action(p.getPath());
-					} catch (InvalidProtocolBufferException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				} else {
-					a = new Action(m.getType());
-				}
-				// TODO replace action with a WrappedMessageType
-				gb.append(a);
-			}
-			gb.split();
-		}
-		return gb.getGraph(merge);
-	}
+	
 
-	public ArrayList<PingPongMessage> extractCommunicationWith(Trace t, int addr) {
-		ArrayList<PingPongMessage> result = new ArrayList<PingPongMessage>();
-		for (PingPongMessage p : t.getPingPongMessageList()) {
-			if (p.getSrc() == addr || p.getDst() == addr) {
-				result.add(p);
-			}
-		}
-		return result;
-	}
-
-	public void buildGraph(Trace t, int addr) {
-		ArrayList<MessageEvent> previous = new ArrayList<MessageEvent>();
-		List<PingPongMessage> list = extractCommunicationWith(t, addr);
-		HashMap<Link, ArrayList<MessageEvent>> previousR = new HashMap<Link, ArrayList<MessageEvent>>();
-		for (int i = 0; i < list.size();) {
-			long time = list.get(i).getTimestamp();
-			ArrayList<MessageEvent> current = new ArrayList<MessageEvent>();
-			// graph.addState(currentState);
-			for (int j = i; j < list.size()
-					&& time == list.get(j).getTimestamp(); ++j, ++i) {
-				MessageEvent m = new MessageEvent(new Action(list.get(j)
-						.getType()), 1);
-				graph.add(m);
-				PingPongMessage org = list.get(j);
-				Link l = new Link(org.getSrc(), org.getDst());
-				ArrayList<MessageEvent> initials = previousR.get(l
-						.getResponseLink());
-				if (initials != null && initials.size() > 0) {
-					// for (Message im : initials) {
-					// im.addTransition(m, new Action("r"));
-					// }
-					initials.clear();
-				} /*
-				 * else graph.addInitial(previousState);
-				 */
-				initials = previousR.get(l);
-				if (initials == null) {
-					previousR.put(l, new ArrayList<MessageEvent>());
-				}
-				previousR.get(l).add(m);
-				current.add(m);
-			}
-			for (MessageEvent prev : previous) {
-				for (MessageEvent cur : current) {
-					// this blows performace
-					prev.addTransition(cur, defaultRelation);
-				}
-			}
-			previous = current;
-		}
-	}
+// This code is used to interface with ProtoBuf formatted messages
+// TODO: refactor into a separate library
+//
+//	Public Static Partitiongraph Buildgraph(Traceset Traceset, Boolean Merge) {
+//		Graphbuilder Gb = New Graphbuilder();
+//		For (Fulltrace T : Traceset.Getfulltracelist()) {
+//			For (Wrappedmessage M : T.Getwrappedmessagelist()) {
+//				Action A = New Action("Error");
+//				If (M.Gettype().Equals("Url Get")
+//						|| M.Gettype().Equals("Url Post")) {
+//					Url P;
+//					Try {
+//						P = Url.Parsefrom(M.Getthemessage());
+//						A = New Action(P.Getpath());
+//					} Catch (Invalidprotocolbufferexception E) {
+//						// Todo Auto-generated Catch Block
+//						E.Printstacktrace();
+//					}
+//				} Else {
+//					A = New Action(M.Gettype());
+//				}
+//				// Todo Replace Action With A Wrappedmessagetype
+//				Gb.Append(A);
+//			}
+//			Gb.Split();
+//		}
+//		Return Gb.Getgraph(Merge);
+//	}
+//
+//	Public Arraylist<Pingpongmessage> Extractcommunicationwith(Trace T, Int Addr) {
+//		Arraylist<Pingpongmessage> Result = New Arraylist<Pingpongmessage>();
+//		For (Pingpongmessage P : T.Getpingpongmessagelist()) {
+//			If (P.Getsrc() == Addr || P.Getdst() == Addr) {
+//				Result.Add(P);
+//			}
+//		}
+//		Return Result;
+//	}
+//
+//	Public Void Buildgraph(Trace T, Int Addr) {
+//		Arraylist<Messageevent> Previous = New Arraylist<Messageevent>();
+//		List<Pingpongmessage> List = Extractcommunicationwith(T, Addr);
+//		Hashmap<Link, Arraylist<Messageevent>> Previousr = New Hashmap<Link, Arraylist<Messageevent>>();
+//		For (Int I = 0; I < List.Size();) {
+//			Long Time = List.Get(I).Gettimestamp();
+//			Arraylist<Messageevent> Current = New Arraylist<Messageevent>();
+//			// Graph.Addstate(Currentstate);
+//			For (Int J = I; J < List.Size()
+//					&& Time == List.Get(J).Gettimestamp(); ++J, ++I) {
+//				Messageevent M = New Messageevent(New Action(List.Get(J)
+//						.Gettype()), 1);
+//				Graph.Add(M);
+//				Pingpongmessage Org = List.Get(J);
+//				Link L = New Link(Org.Getsrc(), Org.Getdst());
+//				Arraylist<Messageevent> Initials = Previousr.Get(L
+//						.Getresponselink());
+//				If (Initials != Null && Initials.Size() > 0) {
+//					// For (Message Im : Initials) {
+//					// Im.Addtransition(M, New Action("R"));
+//					// }
+//					Initials.Clear();
+//				} /*
+//				 * Else Graph.Addinitial(Previousstate);
+//				 */
+//				Initials = Previousr.Get(L);
+//				If (Initials == Null) {
+//					Previousr.Put(L, New Arraylist<Messageevent>());
+//				}
+//				Previousr.Get(L).Add(M);
+//				Current.Add(M);
+//			}
+//			For (Messageevent Prev : Previous) {
+//				For (Messageevent Cur : Current) {
+//					// This Blows Performace
+//					Prev.Addtransition(Cur, Defaultrelation);
+//				}
+//			}
+//			Previous = Current;
+//		}
+//	}
 
 	@Override
 	public MessageEvent insert(Action act) {

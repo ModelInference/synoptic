@@ -39,21 +39,24 @@ public class TraceParser {
 	private List<Map<String, String>> constantFields;
 	private List<Map<String, Boolean>> incrementors;
 	
-	//TODO: some things fail when this is uninitialized.  Either initialize or add preconditions.
 	public IBuilder<MessageEvent> builder;
-	public Set<String> filters;
-	public boolean internActions = true;
-	
-	public static Logger logger = Logger.getLogger("Parser Logger");
+	private Set<String> filters;
+	private boolean internActions = true;
+	private static Logger logger = Logger.getLogger("Parser Logger");
 	
 	//TODO: figure out how we deal with constraints which involve the multiple parsers.
 	//  Eg, how do we verify that either none of the parsers have time fields, or all do.
 	
-	public TraceParser() {
+	public TraceParser(IBuilder<MessageEvent> builder) {
+		this.builder = builder;
 		this.parsers = new ArrayList<NamedPattern>();
 		this.constantFields = new ArrayList<Map<String, String>>();
 		this.incrementors = new ArrayList<Map<String, Boolean>>();
 		this.filters = new HashSet<String>();
+	}
+	
+	public TraceParser() {
+		this(new GraphBuilder());
 	}
 	
 	/**
@@ -61,10 +64,7 @@ public class TraceParser {
 	 * initializes the parsers with them.
 	 */
 	public TraceParser(String parser) {
-		this.parsers = new ArrayList<NamedPattern>();
-		this.constantFields = new ArrayList<Map<String, String>>();
-		this.incrementors = new ArrayList<Map<String, Boolean>>();
-		this.filters = new HashSet<String>();
+		this(new GraphBuilder());
 		for (String regex : matchSeparator.split(parser)) {
 			addRegex(regex);
 		}
@@ -357,7 +357,7 @@ public class TraceParser {
 				
 				if (internActions) action = action.intern();
 				String nodeName = getNodeName(action);
-				return new Occurrence(builder.insert(action), nextTime, nodeName);
+				return new Occurrence(this.builder.insert(action), nextTime, nodeName);
 			}
 		}
 
@@ -366,7 +366,7 @@ public class TraceParser {
 					"\n" + "Using entire line as type.");
 			action = new Action(line);
 			if (internActions) action = action.intern();
-			return new Occurrence(builder.insert(action), incTime(prevTime), null);
+			return new Occurrence(this.builder.insert(action), incTime(prevTime), null);
 		}
 		
 		logger.severe("Failed to parse trace line: \n" + line);
@@ -406,7 +406,6 @@ public class TraceParser {
 	 * @throws ParseException 
 	 */
 	public Graph<MessageEvent> readGraph(String file, int linesToRead, boolean partition) throws ParseException {
-		this.builder = new GraphBuilder();
 		List<Occurrence> set = this.parseTraceFile(file, linesToRead);
 		generateDirectTemporalRelation(set, partition);
 		return ((GraphBuilder)this.builder).getRawGraph();

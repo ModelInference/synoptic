@@ -1,4 +1,3 @@
-package trace.twitter;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.Date;
@@ -6,10 +5,10 @@ import java.util.Map.Entry;
 
 import com.google.protobuf.Descriptors.FieldDescriptor;
 
-import trace.Tracer;
-import trace.MessageTrace.FullTrace;
-import trace.MessageTrace.TraceSet;
-import trace.MessageTrace.WrappedMessage;
+import Tracer;
+import MessageTrace.FullTrace;
+import MessageTrace.TraceSet;
+import MessageTrace.WrappedMessage;
 import net.unto.twitter.Api;
 import net.unto.twitter.TwitterProtos.RateLimitStatus;
 import net.unto.twitter.TwitterProtos.Relationship;
