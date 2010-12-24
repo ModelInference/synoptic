@@ -75,7 +75,6 @@ public class MainTest {
 		m.addRegex("^(?:#.*|\\s*|.*round-done.*)(?<HIDE=true>)$");
 		m.addRegex("(?<nodename>)(?<TIME>)(?<TYPE>)(?:(?<mtype>)(?:(?<roundId>)(?:(?<payload>)(?:(?<id>))?)?)?)?");
 		m.setPartitioner("\\k<FILE>\\k<nodename>");
-		m.builder = new GraphBuilder();
 		List<TraceParser.Occurrence> occs = readGraphSet(m, file, 2, -1);
 		m.generateDirectTemporalRelation(occs, true);
 		model.Graph<MessageEvent> g2 = ((GraphBuilder)m.builder).getRawGraph();

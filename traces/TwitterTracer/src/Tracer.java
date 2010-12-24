@@ -1,8 +1,6 @@
-package trace;
-
-import trace.MessageTrace.FullTrace;
-import trace.MessageTrace.WrappedMessage;
-import trace.MessageTrace.TraceSet;
+import MessageTrace.FullTrace;
+import MessageTrace.WrappedMessage;
+import MessageTrace.TraceSet;
 import com.google.protobuf.ByteString;
 
 
@@ -39,8 +37,7 @@ public class Tracer {
 	//Logs a single message in the current trace
 	public static void log(int src, int dst, long timeStamp, String messageType, ByteString message){
 		WrappedMessage.Builder resultMessage = WrappedMessage.newBuilder();
-
-		// stdout.print("Building message...");
+		stdout.print("Building message...");
 		resultMessage.setSrc(src);
 		resultMessage.setDst(dst);
 		resultMessage.setTimestamp(timeStamp);

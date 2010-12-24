@@ -378,7 +378,6 @@ public class Main implements Callable<Integer> {
 		List<TraceParser.Occurrence> parsedEvents = new ArrayList<TraceParser.Occurrence>();
 		
 		logger.fine("Parsing input files..");
-		parser.builder = new GraphBuilder();
 		
 		for (String filename : Main.logFilenames) {
 			logger.fine("\tcalling parseTraceFile with filename:" + filename);
@@ -394,7 +393,6 @@ public class Main implements Callable<Integer> {
 		logger.fine("Running Synoptic..");
 		parser.generateDirectTemporalRelation(parsedEvents, true);
 		model.Graph<MessageEvent> inputGraph = ((GraphBuilder) parser.builder).getRawGraph();
-		
 		
 		if (dumpInitialGraph) {
             // If we were given an output filename then export the resulting graph 
