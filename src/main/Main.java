@@ -12,14 +12,20 @@ import java.util.logging.Handler;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.InputStream;
+
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.io.FilenameUtils;
 
 import algorithms.bisim.Bisimulation;
 
 import plume.Option;
 import plume.Options;
 import plume.OptionGroup;
+import util.CustomFormatter;
 
 import model.MessageEvent;
 import model.PartitionGraph;
@@ -214,6 +220,7 @@ public class Main implements Callable<Integer> {
         Options options = new Options (usage_string, Main.class);
         String[] cmdLineArgs = options.parse_or_usage(args);
         
+        //TODO: make other provided parameters override / supplement this config.
 		if (argsFilename != null) {
 			// read program arguments from a file
 			InputStream argsStream = new FileInputStream(argsFilename);
@@ -301,6 +308,8 @@ public class Main implements Callable<Integer> {
 	    
 	    // The consoleHandler will write out anything the logger gives it
 	    consoleHandler.setLevel(Level.ALL);
+
+	    //TODO consoleHandler.setFormatter(new CustomFormatter());
         
 	    // Set the logger's log level based on command line arguments
         if (logLvlQuiet) {
@@ -314,6 +323,19 @@ public class Main implements Callable<Integer> {
         return;
     }
     
+    public static File[] getFiles(String fileArg) {
+    	int wildix = fileArg.indexOf("*");
+    	if (wildix == -1) {
+    		return new File[]{ new File(fileArg) };
+    	} else {
+    		String uptoWild = fileArg.substring(0, wildix);
+    		String path = FilenameUtils.getFullPath(uptoWild);
+    		String filter = FilenameUtils.getName(uptoWild) + fileArg.substring(wildix);
+    		File dir = new File(path);
+    		return dir.listFiles((FileFilter)new WildcardFileFilter(filter));
+    	}
+    }
+    
     /**
      * Returns the filename for an intermediate dot file based on the given
      * stage name and round number. Adheres to the convention specified above
@@ -324,7 +346,7 @@ public class Main implements Callable<Integer> {
      * @param roundNum Round number within the stage
      * @return
      */
-    public static String GetIntermediateDumpFilename(String stageName, int roundNum) {
+    public static String getIntermediateDumpFilename(String stageName, int roundNum) {
     	return new String(outputFilename + ".stage-" + stageName + ".round-"+ roundNum + ".dot");
     }
 
@@ -379,13 +401,16 @@ public class Main implements Callable<Integer> {
 		
 		logger.fine("Parsing input files..");
 		
-		for (String filename : Main.logFilenames) {
-			logger.fine("\tcalling parseTraceFile with filename:" + filename);
-			try {
-				parsedEvents.addAll(parser.parseTraceFile(filename, -1));
-			} catch (ParseException e) {
-				logger.severe("Caught ParseException -- unable to continue, exiting.");
-				return new Integer(1);
+		for (String fileArg : Main.logFilenames) {
+			logger.fine("\tprocessing fileArg: " + fileArg);
+			for (File file : getFiles(fileArg)) {
+				logger.fine("\tcalling parseTraceFile with file: " + file.getAbsolutePath());
+				try {
+					parsedEvents.addAll(parser.parseTraceFile(file, -1));
+				} catch (ParseException e) {
+					logger.severe("Caught ParseException -- unable to continue, exiting.");
+					return new Integer(1);
+				}
 			}
 		}
 		
@@ -417,7 +442,10 @@ public class Main implements Callable<Integer> {
 		
 		Bisimulation.refinePartitions(result);
 		logger.fine("Merging..");
-		Bisimulation.mergePartitions(result);
+		Bisimulation.mergePartitions(result, unsatisfied);
+		
+		// TODO: or do we want?
+		//Bisimulation.mergePartitions(result);
 
 		// TODO: check that none of the initially mined invariants are unsatisfied in the result		
 		

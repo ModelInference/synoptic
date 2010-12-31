@@ -1,6 +1,7 @@
 package main;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -231,9 +232,9 @@ public class TraceParser {
 	 * @return The parsed occurrences.
 	 * @throws Exception 
 	 */
-	public List<Occurrence> parseTraceFile(String fileName, int linesToRead) throws ParseException {
+	public List<Occurrence> parseTraceFile(File file, int linesToRead) throws ParseException {
 		try {
-			FileInputStream fstream = new FileInputStream(fileName);
+			FileInputStream fstream = new FileInputStream(file);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
 			ArrayList<Occurrence> results = new ArrayList<Occurrence>();
 			String strLine = null;
@@ -246,13 +247,13 @@ public class TraceParser {
 			}
 			while ((strLine = br.readLine()) != null) {
 				if (results.size() == linesToRead) break;
-				Occurrence occ = parseLine(prevTime, strLine, fileName, context);
+				Occurrence occ = parseLine(prevTime, strLine, file.getAbsolutePath(), context);
 				if (occ == null) continue;
 				prevTime = occ.getTime();
 				results.add(occ);
 			}
 			br.close();
-			logger.info("Successfully parsed " + results.size() + " events from " + fileName);
+			logger.info("Successfully parsed " + results.size() + " events from " + file.getName());
 			return results;
 		} catch (IOException e) {
 			logger.severe("Error while attempting to read log file: "
@@ -406,7 +407,7 @@ public class TraceParser {
 	 * @throws ParseException 
 	 */
 	public Graph<MessageEvent> readGraph(String file, int linesToRead, boolean partition) throws ParseException {
-		List<Occurrence> set = this.parseTraceFile(file, linesToRead);
+		List<Occurrence> set = this.parseTraceFile(new File(file), linesToRead);
 		generateDirectTemporalRelation(set, partition);
 		return ((GraphBuilder)this.builder).getRawGraph();
 	}

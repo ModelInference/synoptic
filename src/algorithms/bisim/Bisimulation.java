@@ -79,7 +79,7 @@ public abstract class Bisimulation {
 		TimedTask refinement = PerformanceMetrics.createTask("refinement", false);
 		
 		if (Main.dumpIntermediateStages) {
-			GraphVizExporter.quickExport(Main.GetIntermediateDumpFilename("r", 0), partitionGraph);
+			GraphVizExporter.quickExport(Main.getIntermediateDumpFilename("r", 0), partitionGraph);
 		}
 		
 		int numSplitSteps = 0;
@@ -164,7 +164,7 @@ public abstract class Bisimulation {
 					Operation rewindOperation = partitionGraph
 							.apply(combinedSplit);
 					if (Main.dumpIntermediateStages) {
-						GraphVizExporter.quickExport(Main.GetIntermediateDumpFilename("r", numSplitSteps + 1),
+						GraphVizExporter.quickExport(Main.getIntermediateDumpFilename("r", numSplitSteps + 1),
 									partitionGraph);
 					}
 
@@ -212,7 +212,7 @@ public abstract class Bisimulation {
 								.apply(candidateSplit);
 						
 						if (Main.dumpIntermediateStages) {
-							GraphVizExporter.quickExport(Main.GetIntermediateDumpFilename("r", numSplitSteps + 1),
+							GraphVizExporter.quickExport(Main.getIntermediateDumpFilename("r", numSplitSteps + 1),
 									partitionGraph);
 						}
 
@@ -255,8 +255,11 @@ public abstract class Bisimulation {
 				// we have no splits that make progress. See if we have an
 				// arbitrary split.
 				if (arbitrarySplit == null) {
+					/*
 					System.out.println("no valid split available, recomputing.");
-					continue;
+					continue; */
+					System.out.println("no valid split available, exiting.");
+					break;
 				}
 				partitionGraph.apply(arbitrarySplit);
 				logger.info("1 arbitrary split, "
@@ -289,7 +292,7 @@ public abstract class Bisimulation {
 		}
 		
 		if (Main.dumpIntermediateStages) {
-			GraphVizExporter.quickExport(Main.GetIntermediateDumpFilename("r", numSplitSteps),
+			GraphVizExporter.quickExport(Main.getIntermediateDumpFilename("r", numSplitSteps),
 					partitionGraph);
 		}
 		
@@ -441,7 +444,7 @@ public abstract class Bisimulation {
 			logger.info("m " + partitionGraph.getNodes().size());
 			
 			if (Main.dumpIntermediateStages) {
-				GraphVizExporter.quickExport(Main.GetIntermediateDumpFilename("c", outer),
+				GraphVizExporter.quickExport(Main.getIntermediateDumpFilename("c", outer),
 						partitionGraph);
 			}
 			
@@ -506,7 +509,7 @@ public abstract class Bisimulation {
 		}
 
 		if (Main.dumpIntermediateStages) {
-				GraphVizExporter.quickExport(Main.GetIntermediateDumpFilename("c", outer),
+				GraphVizExporter.quickExport(Main.getIntermediateDumpFilename("c", outer),
 						partitionGraph);
 		}
 

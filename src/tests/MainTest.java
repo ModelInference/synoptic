@@ -1,5 +1,6 @@
 package tests;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class MainTest {
 		List<TraceParser.Occurrence> results = new ArrayList<TraceParser.Occurrence>();
 		for (int i = 1; i <= count; ++i) {
 			try {
-				results.addAll(m.parseTraceFile(baseName.replace("?", "" + i), linesToRead));
+				results.addAll(m.parseTraceFile(new File(baseName.replace("?", "" + i)), linesToRead));
 			} catch (ParseException e) {
 				// TODO: fail somehow
 			}
