@@ -181,6 +181,7 @@ public class FsmModelChecker {
 		// invariant to fail.
 		TracingStateSet<T>.HistoryNode shortestPath = null; 
 		for(Entry<T, TracingStateSet<T>> e : runChecker(stateset, graph).entrySet()) {
+			//if (!invClass.equals(AlwaysFollowedInvariant.class) || e.getKey().isFinal()) {
 			if (e.getKey().isFinal()) {
 				TracingStateSet<T>.HistoryNode path = e.getValue().failpath(); 
 				if (path != null && (shortestPath == null || shortestPath.count > path.count)) {

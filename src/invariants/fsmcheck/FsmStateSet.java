@@ -2,6 +2,7 @@ package invariants.fsmcheck;
 
 import invariants.BinaryInvariant;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -153,7 +154,12 @@ public abstract class FsmStateSet<T extends INode<T>> implements IStateSet<T, Fs
 	public FsmStateSet<T> copy() {
 		FsmStateSet<T> result;
 		try {
-			result = (FsmStateSet<T>)this.getClass().getConstructors()[1].newInstance(sets.size());
+			Constructor cons = null;
+			for (Constructor c : this.getClass().getConstructors()) {
+				Class[] params = c.getParameterTypes();
+				if (params.length == 1  && params[0].toString().equals("int")) cons = c;
+			}
+			result = (FsmStateSet<T>)cons.newInstance(sets.size());
 		} catch (Exception e) {
 			System.out.println("ERROR: Failed to clone stateset.");
 			return null;

@@ -157,6 +157,8 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		}
 		return r;
 	}
+	
+	public static boolean compare = false;
 
 	public <T extends INode<T>> List<RelationPath<T>> compareViolations(List<TemporalInvariant> invs, IGraph<T> graph) {		
 		List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
@@ -166,6 +168,14 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			bitSetInput.add((BinaryInvariant)tinv);
 		}
 		List<BinaryInvariant> violated = FsmModelChecker.runBitSetChecker(bitSetInput, graph);
+		if (!compare) {
+			for (BinaryInvariant inv : violated) {
+				RelationPath<T> path = FsmModelChecker.invariantCounterexample(inv, graph);
+				assert(path != null); // same behavior as bitset checker
+				paths.add(path);
+			}
+			return paths;
+		}
 		for (int i = 0; i < invs.size(); i++) {
 			BinaryInvariant inv = (BinaryInvariant) invs.get(i);
 			RelationPath<T> path = this.getCounterExample(inv, graph, ch);
@@ -176,6 +186,12 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				System.out.println("both found " + inv);
 				System.out.println("fsm_path.size = " + fsm_path.path.size());
 				System.out.println("path.size = " + path.path.size());
+				if (fsm_path.path.size() > path.path.size()) {
+					System.out.println("that's curious..");
+				}
+				if (!path.path.get(path.path.size() - 1).isFinal()) {
+					System.out.println("normal path doesn't end with final");
+				}
 			}
 			if ((fsm_path != null) != violated.contains(inv)) {
 				System.out.println("Bitset checker deviates from cannonical in " + inv.toString());
