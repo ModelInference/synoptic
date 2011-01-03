@@ -18,7 +18,9 @@ import invariants.TemporalInvariantSet.RelationPath;
  *
  * @param <T> The node type, used as an input, and stored in path-history.
  */
-public abstract class TracingStateSet<T> implements IStateSet<T, TracingStateSet<T>> {
+public abstract class TracingStateSet<T> implements IStateSet<T, TracingStateSet<T>> {	
+	public static boolean checkPath = false;
+
 	/**
 	 * HistoryNode class used to construct a linked-list path through the
 	 * model graph.  This linked list structure is used, rather than explicit
@@ -39,7 +41,7 @@ public abstract class TracingStateSet<T> implements IStateSet<T, TracingStateSet
 			if (this == other) return 0;
 			return this.count - other.count;
 		}
-		
+				
 		// Converts this chain into a RelationPath list.
 		public RelationPath<T> toCounterexample(TemporalInvariant inv) {
 			RelationPath<T> result = new RelationPath<T>();
@@ -48,7 +50,7 @@ public abstract class TracingStateSet<T> implements IStateSet<T, TracingStateSet
 			assert(((Partition)cur.node).isFinal());
 			while (cur != null) {
 				result.path.add(cur.node);
-				if (cur.previous != null) {
+				if (checkPath && cur.previous != null) {
 					Partition prev = (Partition) cur.previous.node;
 					boolean found = false;
 					for (ITransition<Partition> trans : prev.getTransitions()) {
