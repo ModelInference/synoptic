@@ -25,7 +25,6 @@ import algorithms.bisim.Bisimulation;
 import plume.Option;
 import plume.Options;
 import plume.OptionGroup;
-import util.CustomFormatter;
 
 import model.MessageEvent;
 import model.PartitionGraph;

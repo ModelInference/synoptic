@@ -160,22 +160,35 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	
 	public static boolean compare = false;
 
-	public <T extends INode<T>> List<RelationPath<T>> compareViolations(List<TemporalInvariant> invs, IGraph<T> graph) {		
-		List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
-		GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
+	public <T extends INode<T>> List<BinaryInvariant> getViolated(List<TemporalInvariant> invs, IGraph<T> graph) {
 		List<BinaryInvariant> bitSetInput = new ArrayList<BinaryInvariant>();
 		for (TemporalInvariant tinv : invs) {
 			bitSetInput.add((BinaryInvariant)tinv);
 		}
-		List<BinaryInvariant> violated = FsmModelChecker.runBitSetChecker(bitSetInput, graph);
+		return FsmModelChecker.runBitSetChecker(bitSetInput, graph);
+	}
+	
+	public <T extends INode<T>> List<RelationPath<T>> compareViolations(List<TemporalInvariant> invs, IGraph<T> graph) {		
+		List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
+		GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
+		
 		if (!compare) {
-			for (BinaryInvariant inv : violated) {
-				RelationPath<T> path = FsmModelChecker.invariantCounterexample(inv, graph);
-				assert(path != null); // same behavior as bitset checker
-				paths.add(path);
+			if (invs.size() > 5) {
+				List<BinaryInvariant> viol = this.getViolated(invs, graph);
+				for (BinaryInvariant inv : viol) {
+					RelationPath<T> path = FsmModelChecker.invariantCounterexample(inv, graph);
+					assert(path != null); // same behavior as bitset checker
+					paths.add(path);
+				}
+			} else {
+				for (TemporalInvariant tinv : invs) {
+					RelationPath<T> path = FsmModelChecker.invariantCounterexample((BinaryInvariant)tinv, graph);
+					if (path != null) paths.add(path);
+				}
 			}
 			return paths;
 		}
+		List<BinaryInvariant> violated = this.getViolated(invs, graph);
 		for (int i = 0; i < invs.size(); i++) {
 			BinaryInvariant inv = (BinaryInvariant) invs.get(i);
 			RelationPath<T> path = this.getCounterExample(inv, graph, ch);
