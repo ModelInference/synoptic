@@ -47,7 +47,7 @@ public class FsmModelChecker {
 	 * @return The associations between node and stateset.
 	 */
 	public static <T extends INode<T>, S extends IStateSet<T, S>>
-	Map<T, S> runChecker(IStateSet<T, S> initial, IGraph<T> graph) {
+	Map<T, S> runChecker(IStateSet<T, S> initial, IGraph<T> graph, boolean earlyExit) {
 		
 		Set<T> onWorkList = new HashSet<T>();
 		Queue<T> workList = new LinkedList<T>();
@@ -78,13 +78,16 @@ public class FsmModelChecker {
 			T node = workList.remove();
 			onWorkList.remove(node);
 			S current = states.get(node);
-			for (ITransition<T> adjacent : node.getTransitions()) {
+			for (ITransition<T> adjacent : node.getTransitionsIterator()) {
 				T target = adjacent.getTarget();
 				S other = states.get(target);
 				S temp = current.copy();
 				temp.transition(target);
 				boolean isSubset = temp.isSubset(other);
 				other.mergeWith(temp);
+				if (earlyExit && other.isFail() && target.isFinal()) {
+					return states;
+				}
 				if (!isSubset && !onWorkList.contains(target)) {
 					workList.add(target);
 					onWorkList.add(target);
@@ -99,8 +102,7 @@ public class FsmModelChecker {
 	// resulting states into a summary failure-indicating BitSet.
 	protected static <T extends INode<T>>
 	BitSet whichFail(FsmStateSet<T> initial, IGraph<T> graph) {
-		
-		Map<T, FsmStateSet<T>> states = runChecker(initial, graph);
+		Map<T, FsmStateSet<T>> states = runChecker(initial, graph, false);
 		BitSet result = new BitSet();
 		for (Entry<T, FsmStateSet<T>> entry : states.entrySet()) {
 			if (entry.getKey().isFinal()) result.or(entry.getValue().whichFail()); 
@@ -180,7 +182,7 @@ public class FsmModelChecker {
 		// Return the shortest path, ending on a final node, which causes the
 		// invariant to fail.
 		TracingStateSet<T>.HistoryNode shortestPath = null; 
-		for(Entry<T, TracingStateSet<T>> e : runChecker(stateset, graph).entrySet()) {
+		for(Entry<T, TracingStateSet<T>> e : runChecker(stateset, graph, true).entrySet()) {
 			//if (!invClass.equals(AlwaysFollowedInvariant.class) || e.getKey().isFinal()) {
 			if (e.getKey().isFinal()) {
 				TracingStateSet<T>.HistoryNode path = e.getValue().failpath(); 
