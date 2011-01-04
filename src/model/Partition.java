@@ -1,10 +1,12 @@
 package model;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -151,10 +153,10 @@ public class Partition implements INode<Partition> {
 	 * This method returns the set of transitions. It augments the edges with
 	 * information about frequency and number of observation.
 	 */
-	public Set<Relation<Partition>> getTransitions() {
-		Set<Relation<Partition>> set = new HashSet<Relation<Partition>>();
+	public List<Relation<Partition>> getTransitions() {
+		List<Relation<Partition>> result = new ArrayList<Relation<Partition>>();
 		for (Relation<Partition> tr : getTransitionsIterator()) {
-			set.add(tr);
+			result.add(tr);
 			PartitionSplit s = getCandidateDivision(tr);
 			// List<Invariant> all = TemporalInvariantSet.generateInvariants(tr
 			// .getSource().getMessages());
@@ -178,7 +180,7 @@ public class Partition implements INode<Partition> {
 			tr.addWeight(s.getFulfills().size());
 			// System.out.println(flow);
 		}
-		return set;
+		return result;
 	}
 
 	/**

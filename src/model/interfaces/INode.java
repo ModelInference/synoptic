@@ -1,5 +1,6 @@
 package model.interfaces;
 
+import java.util.List;
 import java.util.Set;
 
 import util.IterableIterator;
@@ -68,7 +69,7 @@ public interface INode<NodeType>{
 	 * 
 	 * @return the set of all outgoing transitions
 	 */
-	Set<? extends ITransition<NodeType>> getTransitions();
+	List<? extends ITransition<NodeType>> getTransitions();
 
 	/**
 	 * Set the parent partition of this node. 

@@ -117,10 +117,10 @@ public class MessageEvent implements INode<MessageEvent>, IEvent {
 
 	}
 
-	public Set<Relation<MessageEvent>> getTransitions() {
-		Set<Relation<MessageEvent>> set = new LinkedHashSet<Relation<MessageEvent>>();
-		set.addAll(transitions);
-		return set;
+	public final List<Relation<MessageEvent>> getTransitions() {
+		//Set<Relation<MessageEvent>> set = new LinkedHashSet<Relation<MessageEvent>>();
+		//set.addAll(transitions);
+		return transitions;
 	}
 
 	public List<Relation<MessageEvent>> getTransitions(String relation) {
