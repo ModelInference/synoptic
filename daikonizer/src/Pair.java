@@ -1,5 +1,3 @@
-package daikonizer;
-
 // pair object for grouping
 public class Pair {
 	public Object o1;

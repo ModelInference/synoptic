@@ -183,6 +183,14 @@ public class Main implements Callable<Integer> {
     @OptionGroup (value="Debugging Options", unpublicized=true)
     @Option("Do not perform the coarsening stage")
     public static boolean noCoarsening = false;
+    
+    /**
+     * Perform benchmarking and output benchmark information
+     * 
+     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
+     */
+    @Option("Perform benchmarking and output benchmark information")
+    public static boolean doBenchmarking = false;
 
     /**
      * Do not perform the refinement (and therefore do not perform
@@ -219,8 +227,7 @@ public class Main implements Callable<Integer> {
         Options options = new Options (usage_string, Main.class);
         String[] cmdLineArgs = options.parse_or_usage(args);
         
-        //TODO: make other provided parameters override / supplement this config.
-		if (argsFilename != null) {
+        if (argsFilename != null) {
 			// read program arguments from a file
 			InputStream argsStream = new FileInputStream(argsFilename);
 			ListedProperties props = new ListedProperties();
@@ -230,8 +237,7 @@ public class Main implements Callable<Integer> {
 			options.parse_or_usage(cmdLineFileArgs);
 		}
 		
-		// we have to parse the command line args in the case that they override
-		// any of the args in the argsFilename
+		// Parse the command line args to override any of the above config file args
 		options.parse_or_usage(args);
 
         // The remainder of the command line is treated as a list of log
@@ -239,10 +245,6 @@ public class Main implements Callable<Integer> {
         logFilenames = Arrays.asList(cmdLineArgs);
         
         SetUpLogging();
-
-//        for (int i = 0; i < args.length; i++) {
-//        	logger.finest("arg " + i + " : " + args[i]);
-//        }
 
         // Display help for all option groups, including unpublicized ones
         if (allHelp) {
@@ -270,7 +272,7 @@ public class Main implements Callable<Integer> {
         }
         
 		if (logFilenames.size() == 0) {
-			logger.severe("No log filenames specified, exiting.");
+			logger.severe("No log filenames specified, exiting. Use -h for help.");
 			return;
 		}
 		
@@ -308,7 +310,7 @@ public class Main implements Callable<Integer> {
 	    // The consoleHandler will write out anything the logger gives it
 	    consoleHandler.setLevel(Level.ALL);
 
-	    //TODO consoleHandler.setFormatter(new CustomFormatter());
+	    // consoleHandler.setFormatter(new CustomFormatter());
         
 	    // Set the logger's log level based on command line arguments
         if (logLvlQuiet) {
@@ -407,7 +409,7 @@ public class Main implements Callable<Integer> {
 				try {
 					parsedEvents.addAll(parser.parseTraceFile(file, -1));
 				} catch (ParseException e) {
-					logger.severe("Caught ParseException -- unable to continue, exiting.");
+					logger.severe("Caught ParseException -- unable to continue, exiting. Use -h for help.");
 					return new Integer(1);
 				}
 			}
@@ -437,18 +439,16 @@ public class Main implements Callable<Integer> {
 		if (paths.isEmpty()) {
 			System.out.println("model checker ok.");
 		} */		
-		TemporalInvariantSet unsatisfied = result.getInvariants();
 		
+		logger.fine("Splitting..");
 		Bisimulation.refinePartitions(result);
-		logger.fine("Merging..");
-		Bisimulation.mergePartitions(result, unsatisfied);
 		
-		// TODO: or do we want?
-		//Bisimulation.mergePartitions(result);
+		logger.fine("Merging..");
+		Bisimulation.mergePartitions(result);
 
 		// TODO: check that none of the initially mined invariants are unsatisfied in the result		
 		
-		// If we were given an output filename then export the resulting graph into this filename 
+		// export the resulting graph
 		if (Main.outputFilename != null) {
 			logger.fine("Exporting final graph with " + result.getNodes().size() + " nodes..");
 			GraphVizExporter exporter = new GraphVizExporter();

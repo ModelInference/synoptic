@@ -6,7 +6,7 @@ import benchmarks.TimedTask;
 import algorithms.bisim.Bisimulation;
 
 
-import trace.MessageTrace.TraceSet;
+import MessageTrace.TraceSet;
 import model.PartitionGraph;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;

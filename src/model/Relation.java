@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import daikon.inv.Invariant;
+//import daikon.inv.Invariant;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -16,7 +16,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  */
 public class Relation<StateType> extends Transition<StateType> {
 	double frequency = 0.0;
-	private List<Invariant> inv = new ArrayList<Invariant>();
+//	private List<Invariant> inv = new ArrayList<Invariant>();
 
 	/**
 	 * Creates a relation.
@@ -64,10 +64,10 @@ public class Relation<StateType> extends Transition<StateType> {
 		return String.format("%.2f", frequency);
 	}
 	
-	@Override
-	public String toString() {
-		return getSource() + "-"+getRelation()+"-"+inv+"-("+frequency+")>"+getTarget();
-	}
+//	@Override
+//	public String toString() {
+//		return getSource() + "-"+getRelation()+"-"+inv+"-("+frequency+")>"+getTarget();
+//	}
 
 	@Override
 	public void setSource(StateType target) {
@@ -83,7 +83,7 @@ public class Relation<StateType> extends Transition<StateType> {
 	 * Set the invariants of this transition.
 	 * @param inv the invariants to set.
 	 */
-	public void setInvariants(List<Invariant> inv) {
-		this.inv = inv;
-	}
+//	public void setInvariants(List<Invariant> inv) {
+//		this.inv = inv;
+//	}
 }

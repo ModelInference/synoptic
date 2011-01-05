@@ -23,7 +23,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/plume.jar"/>
-	<classpathentry kind="lib" path="lib/daikon.jar"/>
 	<classpathentry kind="lib" path="lib/stixar-0.0.1-alpha.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
