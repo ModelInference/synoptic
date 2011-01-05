@@ -1,8 +1,12 @@
 package main;
 
-import invariants.TemporalInvariantSet;
+import java.io.*;
+import java.util.*;
+import java.util.jar.*;
 
+        	
 import java.lang.Integer;
+import java.net.URL;
 import java.util.concurrent.Callable;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -20,18 +24,19 @@ import java.io.InputStream;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.io.FilenameUtils;
 
-import algorithms.bisim.Bisimulation;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
 
 import plume.Option;
 import plume.Options;
 import plume.OptionGroup;
 
+import algorithms.bisim.Bisimulation;
+
 import model.MessageEvent;
 import model.PartitionGraph;
 import model.export.GraphVizExporter;
 import model.input.GraphBuilder;
-
-import main.ListedProperties;
 
 public class Main implements Callable<Integer> {
 	public static Logger logger = null;
@@ -191,6 +196,14 @@ public class Main implements Callable<Integer> {
      */
     @Option("Perform benchmarking and output benchmark information")
     public static boolean doBenchmarking = false;
+    
+    /**
+     * Run all the tests, and then terminate. 
+     * 
+     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
+     */
+    @Option("Run all the tests, and then terminate.")
+    public static boolean runTests = false;
 
     /**
      * Do not perform the refinement (and therefore do not perform
@@ -269,6 +282,77 @@ public class Main implements Callable<Integer> {
         if (version) {
             System.out.println(Main.versionString);
             return;
+        }
+        
+        if (runTests) {
+        	//String jarName = "/Users/ivan/synoptic/synoptic.jar";
+        	String jarName1 = Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+        	Class klass = Main.class;
+        	//System.out.println(klass.getResource(klass.getName() + ".class"));
+        	
+        	//System.out.println(Main.class.getClass().getResource("Main.class"));
+        	//System.out.println("location " + location.toString());
+        	//new FileInputStream(klass.getProtectionDomain().getCodeSource().getLocation().getPath());
+        	
+        	//String path = "" + Main.class.getResource("../any.properties");
+        	//File file = new File((path).substring(5, path.length()));
+        	// Properties props = readProps(file);
+        	String path = "any.properties";
+
+        	InputStream in = Main.class.getClassLoader().getResourceAsStream(path); //file);
+        	if (in == null) {
+        		System.out.println("ugly error handling :D");
+        	}
+        	Properties props = new java.util.Properties();
+        	try {
+        		props.load(in);
+        	} catch (IOException e) {
+        		e.printStackTrace();
+        	}
+        	String jarName3 = props.getProperty("anything");
+        	
+        	String jarName2 = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        	URL location = klass.getResource('/'+klass.getName().replace('.', '/')+".class");
+        	
+        	
+        	ClassLoader loader = klass.getClassLoader();
+        	System.out.println(loader.getResource("main/Main.class"));
+        	
+        	System.out.println(jarName1);
+        	System.out.println(jarName2);
+        	System.out.println(jarName3);
+        	System.out.println(location);
+        	
+        	String jarName = jarName3;
+        	
+        	String packageName = "tests.units";
+        	ArrayList arrayList = new ArrayList ();
+        	packageName = packageName.replaceAll("\\." , "/");
+	        System.out.println("Jar " + jarName + " for " + packageName);
+	        try{
+	        	// JarInputStream jarFile = new JarInputStream(new FileInputStream (jarName));
+	        	JarInputStream jarFile = new JarInputStream(new FileInputStream (location.toString()));
+	        	JarEntry jarEntry;
+	        	while(true) {
+	        		jarEntry=jarFile.getNextJarEntry ();
+	        		if(jarEntry == null){
+	        			break;
+	        		}
+	        		if((jarEntry.getName ().startsWith (packageName)) &&
+	        				(jarEntry.getName ().endsWith (".class")) ) {
+	        			arrayList.add (jarEntry.getName().replaceAll("/", "\\."));
+	        		}
+	        	}
+	        }
+	        catch( Exception e){
+	        	e.printStackTrace ();
+	        }
+	        System.out.println("Found: " + arrayList);
+
+        	//Result testResults = JUnitCore.runClasses(tests.units.FsmStateSetTests.class, tests.units.ListedPropertiesTest.class);
+	        // JUnitCore.main("tests.units.FsmStateSetTests", "tests.units.ListedPropertiesTest");
+        	//System.out.println("Test results: \n" + testResults.toString());
+        	return; 
         }
         
 		if (logFilenames.size() == 0) {
