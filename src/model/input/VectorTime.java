@@ -6,16 +6,29 @@ import java.util.List;
 public class VectorTime {
 	ArrayList<Integer> vector = new ArrayList<Integer>();
 
-	public VectorTime(String time) {
-		String[] times = time.split(",");
+	/**
+	 * Builds a VectorTime from a string that looks like "1,2,3"
+	 * @param timeStr string input representing a vtime
+	 */
+	public VectorTime(String timeStr) {
+		String[] times = timeStr.split(",");
 		for (String t : times)
 			vector.add(Integer.parseInt(t));
 	}
 
+	/**
+	 * Builds a VectorTime from a vector
+	 * @param vector input vector
+	 */
 	public VectorTime(List<Integer> vector) {
 		this.vector.addAll(vector);
 	}
 
+	/**
+	 * Returns true if (this < t), otherwise returns false
+	 * @param t the other vtime
+	 * @return
+	 */
 	public boolean lessThan(VectorTime t) {
 		boolean foundStrictlyLess = false;
 		for (int i = 0; i < vector.size(); ++i) {
@@ -27,6 +40,9 @@ public class VectorTime {
 		return foundStrictlyLess;
 	}
 
+	/**
+	 * @return Whether or not this is a unit vector
+	 */
 	public boolean isOneTime() {
 		boolean sawOne = false;
 		for (int i = 0; i < vector.size(); ++i) {
@@ -40,17 +56,25 @@ public class VectorTime {
 		return true;
 	}
 
+	/**
+	 * @return Whether or not the vector is of length 1
+	 */
 	public boolean isSingular() {
 		return vector.size() == 1;
 	}
 	
-	public VectorTime step(int i) {
+	/**
+	 * Increments vtime at an index and returns the new vtime
+	 * @param index
+	 * @return the newly created, incremented vtime 
+	 */
+	public VectorTime step(int index) {
 		List<Integer> vector = new ArrayList<Integer>();
 		vector.addAll(this.vector);
-		vector.set(i, vector.get(i) + 1);
+		vector.set(index, vector.get(index) + 1);
 		return new VectorTime(vector);
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

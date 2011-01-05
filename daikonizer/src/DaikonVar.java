@@ -1,5 +1,3 @@
-package daikonizer;
-
 // daikon variable representation : defined by a var name and type
 public class DaikonVar {
 	public String vname;

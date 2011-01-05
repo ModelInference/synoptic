@@ -1,10 +1,7 @@
-package tests;
-
 import java.util.Vector;
 
 import junit.framework.TestCase;
 import daikon.inv.Invariant;
-import daikonizer.Daikonizer;
 
 public class DaikonTest extends TestCase {
 	public void testDaikonOutput() throws Exception {

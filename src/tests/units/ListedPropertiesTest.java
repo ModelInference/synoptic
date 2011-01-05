@@ -20,7 +20,7 @@ public class ListedPropertiesTest {
 	 * Uses ListedProperties to convert an options string to a cmd args array
 	 * 
 	 * @param optionsStr options string to process
-	 * @return command line args arary
+	 * @return command line args array
 	 */
 	private String[] optionsStringToCmdArgs(String optionsStr) {
 		StringReader reader = new StringReader(optionsStr);

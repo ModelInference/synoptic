@@ -6,14 +6,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
 import model.Action;
 import model.MessageEvent;
 import model.Partition;
-import model.PartitionGraph;
 import model.interfaces.IGraph;
 import model.interfaces.INode;
 import model.interfaces.ITransition;
@@ -29,6 +27,8 @@ import model.nets.Place;
  */
 
 public class GraphVizExporter {
+	static final boolean exportCanonically = true;
+	
 	static final String[] dotCommands = { "/usr/bin/dot",
 			"C:\\Programme\\Graphviz2.26\\bin\\dot.exe",
 			"C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe" };
@@ -116,8 +116,9 @@ public class GraphVizExporter {
 		// close the dot file
 		writer.close();
 	}
+	
 
-	private <T extends INode<T>> void exportGraph(final Writer writer,
+	private <T extends INode<T>> void exportGraph(final Writer writer,	
 			IGraph<T> graph, boolean fast) throws IOException {
 		// write the transitions (nodes are generated implicitly by graphviz)
 		final LinkedList<T> queue = new LinkedList<T>();
@@ -129,6 +130,28 @@ public class GraphVizExporter {
 			queue.add(s);
 			statesSeen.add(s);
 		}
+		
+		
+		if (exportCanonically) {
+			// TODO:
+			// 0. Create a list of initial nodes 
+			// 1. Sort this list of initial nodes by label
+
+			// 2. assign counters to all nodes in the list:
+			//   a. consider all parents and all children of the node
+			//   b. assign numbers to initial nodes first in order of min(label string), min count(#children), min count(#parents) = 1
+			//   c. for nodes that have all of these the same -- choose an arbitrary order
+			//   d. now number the rest of the nodes in the graph with the same strategy
+			
+			// 3. Walk the graph starting from the initial nodes -- in the order of their counters
+			// 4. Deterministically walk depth first through lists of children by using the counters set with above strategy
+			// 5. Output transitions in dot format during the walk.
+			
+			// int counter = 0;
+			// Set<T> nodesSet = graph.getNodes();
+			// HashMap<T, Integer> nodeToIntMap = new HashMap<T, Integer>();
+		}
+		
 		while (!queue.isEmpty()) {
 			final T e = queue.poll();
 			final int sourceStateNo = e.hashCode();
