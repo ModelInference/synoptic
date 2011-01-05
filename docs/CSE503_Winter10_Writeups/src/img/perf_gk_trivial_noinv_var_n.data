@@ -1,7 +1,0 @@
-# Trivial GK Tail Test Parameters ( Trace Type=1 M=800 n=X r=10 k=1 invariants=false)
-# n vs. time in ms
-1 5085
-2 4655
-4 4571
-5 4529
-10 4429
