@@ -1,0 +1,147 @@
+package synoptic.tests;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import synoptic.algorithms.ktail.InputEquivalence;
+import synoptic.benchmarks.TimedTask;
+import synoptic.main.*;
+import synoptic.model.*;
+import synoptic.model.export.GraphVizExporter;
+import synoptic.model.input.GraphBuilder;
+import synoptic.model.input.PetersonReader;
+import synoptic.model.input.ReverseTracertParser;
+import synoptic.model.input.StenningReader;
+import synoptic.util.Predicate;
+
+
+
+// Compares the behavior of functionality found in Main with the hardcoded synoptic.tests.
+public class MainTest {
+	public static void main(String[] args) throws Exception {
+		testReverseTracert();
+		testPeterson();
+		testStenning();
+	}
+
+	public static void testReverseTracert() throws Exception {
+		TimedTask oldTimer = new TimedTask("old");
+		ReverseTracertParser parser = new ReverseTracertParser();
+		String file = "traces/ReverseTraceroute/rt_parsed_rich/Internet-Partners,-Inc.-AS10248-2_revtr.err";
+		synoptic.model.Graph<MessageEvent> g1 = parser.parseTraceFile(file, 10000, 0);
+		oldTimer.stop();
+		
+		TimedTask newTimer = new TimedTask("new");
+		TraceParser m = new TraceParser();
+		
+		m.addSeparator("--------");
+		//Equivalent to:
+		//m.addRegex("--------(?<section++>)");
+		//m.setPartitioner("\\k<section>");
+		m.addRegex("^\\s*$(?<HIDE=true>)");
+		m.addRegex("(?<TYPE>.*)");
+		
+		synoptic.model.Graph<MessageEvent> g2 = m.readGraph(file, 10000, true);
+		newTimer.stop();
+		
+		checkGraphs("reversetraceroute", g1, g2);
+		System.out.println(oldTimer + " vs " + newTimer);
+	}
+	
+	public static List<TraceParser.Occurrence> readGraphSet(TraceParser m, String baseName, int count, int linesToRead) {
+		List<TraceParser.Occurrence> results = new ArrayList<TraceParser.Occurrence>();
+		for (int i = 1; i <= count; ++i) {
+			try {
+				results.addAll(m.parseTraceFile(new File(baseName.replace("?", "" + i)), linesToRead));
+			} catch (ParseException e) {
+				// TODO: fail somehow
+			}
+		}
+		return results;
+	}
+	
+
+	public static void testPeterson() throws Exception {
+		TimedTask oldTimer = new TimedTask("old");
+		GraphBuilder b = new GraphBuilder();
+		PetersonReader<MessageEvent> parser = new PetersonReader<MessageEvent>(b);
+		String file = "traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt";
+		parser.readGraphSet(file, 2);
+		synoptic.model.Graph<MessageEvent> g1 = b.getRawGraph();
+		oldTimer.stop();
+		
+		TimedTask newTimer = new TimedTask("new");
+		TraceParser m = new TraceParser();
+		m.addRegex("^(?:#.*|\\s*|.*round-done.*)(?<HIDE=true>)$");
+		m.addRegex("(?<nodename>)(?<TIME>)(?<TYPE>)(?:(?<mtype>)(?:(?<roundId>)(?:(?<payload>)(?:(?<id>))?)?)?)?");
+		m.setPartitioner("\\k<FILE>\\k<nodename>");
+		List<TraceParser.Occurrence> occs = readGraphSet(m, file, 2, -1);
+		m.generateDirectTemporalRelation(occs, true);
+		synoptic.model.Graph<MessageEvent> g2 = ((GraphBuilder)m.builder).getRawGraph();
+		newTimer.stop();
+		
+		checkGraphs("peterson", g1, g2);
+		System.out.println(oldTimer + " vs " + newTimer);
+	}
+	
+	//TODO: fix word boundary whitespace
+	
+	public static void testStenning() throws Exception {
+		TimedTask oldTimer = new TimedTask("old");
+		GraphBuilder b = new GraphBuilder();
+		StenningReader<MessageEvent> r = new StenningReader<MessageEvent>(b);
+		String file = "traces/StenningDataLink/generated_traces/t-10-0.5-0-s1.txt";
+		r.readGraphDirect(file);
+		synoptic.model.Graph<MessageEvent> g1 = b.getRawGraph();
+		oldTimer.stop();
+
+		TimedTask newTimer = new TimedTask("new");
+		TraceParser m = new TraceParser();
+		m.addRegex("#.*(?<HIDE=true>)");
+		m.addRegex("(?<role>)(?<fragment>)(?<TYPE>.*)");
+		m.setPartitioner("\\k<FILE>");
+		synoptic.model.Graph<MessageEvent> g2 = m.readGraph(file, -1, false);
+		newTimer.stop();
+
+		checkGraphs("stenning", g1, g2);
+		System.out.println(oldTimer + " vs " + newTimer);
+	}
+
+	// Comparison of messages based on label.  Passed into Graph.equalsWith.
+	public static class MessageEquality implements Predicate.IBinary<MessageEvent, MessageEvent> {
+		public boolean eval(MessageEvent a, MessageEvent b) {
+			return a.getAction().getLabel().equals(b.getAction().getLabel());
+		}
+	}
+	
+	// Exports the provided graphs, and checks if they are equal.
+	public static void checkGraphs(String prefix, Graph<MessageEvent> g1, Graph<MessageEvent> g2) {
+		GraphVizExporter export = new GraphVizExporter();
+		export.edgeLabels = false;
+		try {
+			export.exportAsDotAndPngFast(prefix + "_input1.dot", g1);
+			export.exportAsDotAndPngFast(prefix + "_input2.dot", g2);
+		} catch (Exception e) {
+			System.err.println("Couldn't export graphs because: " + e.toString());
+		}
+		
+		if (!g1.equalsWith(g2, new MessageEquality())) {
+			System.out.println("Error: " + prefix + " input graphs are different.");
+			System.out.println("sizes: " + g1.getNodes().size() + " vs " + g2.getNodes().size());
+			System.out.println("headcount: " + g1.getInitialNodes().size() + " vs " + g2.getInitialNodes().size());
+		} else {
+			System.out.println(prefix + " yielded same results.");
+		}
+/*
+		int count = 0;
+		for (MessageEvent e1 : g1.getInitialNodes()) {
+		    for (MessageEvent e2 : g2.getInitialNodes()) {
+				if (InputEquivalence.isInputEquivalent(e1, e2)) {
+				    count++;
+				}
+		    }
+		}
+		System.out.printf("%d of the trace pairs found to be equivalent.", count); */
+	}
+}
