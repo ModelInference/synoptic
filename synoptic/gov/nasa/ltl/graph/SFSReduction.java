@@ -60,7 +60,7 @@ public class SFSReduction {
   }
 
   public static Graph reduce (Graph g) {
-    // debugged by Dimitra 3/4/02 - added |PO| information so that main while
+    // debugged by Dimitra 3/4/02 - added |PO| information so that synoptic.main while
     // loop works correctly - removed break statement based on color only
     int        currNumColors;
     int        prevNumColors = 1;
