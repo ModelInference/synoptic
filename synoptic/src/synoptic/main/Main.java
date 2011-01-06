@@ -6,6 +6,7 @@ import java.util.jar.*;
 
         	
 import java.lang.Integer;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.concurrent.Callable;
 import java.util.Arrays;
@@ -285,74 +286,7 @@ public class Main implements Callable<Integer> {
         }
         
         if (runTests) {
-        	//String jarName = "/Users/ivan/synoptic/synoptic.jar";
-        	String jarName1 = Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-        	Class klass = Main.class;
-        	//System.out.println(klass.getResource(klass.getName() + ".class"));
-        	
-        	//System.out.println(Main.class.getClass().getResource("Main.class"));
-        	//System.out.println("location " + location.toString());
-        	//new FileInputStream(klass.getProtectionDomain().getCodeSource().getLocation().getPath());
-        	
-        	//String path = "" + Main.class.getResource("../any.properties");
-        	//File file = new File((path).substring(5, path.length()));
-        	// Properties props = readProps(file);
-        	String path = "any.properties";
-
-        	InputStream in = Main.class.getClassLoader().getResourceAsStream(path); //file);
-        	if (in == null) {
-        		System.out.println("ugly error handling :D");
-        	}
-        	Properties props = new java.util.Properties();
-        	try {
-        		props.load(in);
-        	} catch (IOException e) {
-        		e.printStackTrace();
-        	}
-        	String jarName3 = props.getProperty("anything");
-        	
-        	String jarName2 = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        	URL location = klass.getResource('/'+klass.getName().replace('.', '/')+".class");
-        	
-        	
-        	ClassLoader loader = klass.getClassLoader();
-        	System.out.println(loader.getResource("synoptic.main/Main.class"));
-        	
-        	System.out.println(jarName1);
-        	System.out.println(jarName2);
-        	System.out.println(jarName3);
-        	System.out.println(location);
-        	
-        	String jarName = jarName3;
-        	
-        	String packageName = "synoptic.tests.units";
-        	ArrayList arrayList = new ArrayList ();
-        	packageName = packageName.replaceAll("\\." , "/");
-	        System.out.println("Jar " + jarName + " for " + packageName);
-	        try{
-	        	// JarInputStream jarFile = new JarInputStream(new FileInputStream (jarName));
-	        	JarInputStream jarFile = new JarInputStream(new FileInputStream (location.toString()));
-	        	JarEntry jarEntry;
-	        	while(true) {
-	        		jarEntry=jarFile.getNextJarEntry ();
-	        		if(jarEntry == null){
-	        			break;
-	        		}
-	        		if((jarEntry.getName ().startsWith (packageName)) &&
-	        				(jarEntry.getName ().endsWith (".class")) ) {
-	        			arrayList.add (jarEntry.getName().replaceAll("/", "\\."));
-	        		}
-	        	}
-	        }
-	        catch( Exception e){
-	        	e.printStackTrace ();
-	        }
-	        System.out.println("Found: " + arrayList);
-
-        	//Result testResults = JUnitCore.runClasses(synoptic.tests.units.FsmStateSetTests.class, synoptic.tests.units.ListedPropertiesTest.class);
-	        // JUnitCore.main("synoptic.tests.units.FsmStateSetTests", "synoptic.tests.units.ListedPropertiesTest");
-        	//System.out.println("Test results: \n" + testResults.toString());
-        	return; 
+        	runTests();
         }
         
 		if (logFilenames.size() == 0) {
@@ -365,6 +299,71 @@ public class Main implements Callable<Integer> {
         logger.fine("Main.call() returned " + ret.toString());
 		System.exit(ret); 
     }
+    
+    
+    /**
+     * Runs all the synoptic unit tests
+     * 
+     * @throws URISyntaxException if Main.class can't be located
+     */
+    public static void runTests() throws URISyntaxException {
+    	// If we are running from within a jar then jarName contains the path to the jar
+    	// otherwise, it contains the path to where Main.class is located on the filesystem 
+    	String jarName = Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+    	System.out.println("Looking for tests in: " + jarName);
+    	        	
+    	// We assume that the tests we want to run are classes within the following
+    	// packageName, which can be found with the corresponding packagePath filesystem offset
+    	String packageName = "synoptic.tests.units.";
+    	String packagePath = packageName.replaceAll("\\.", File.separator);
+    	
+    	ArrayList<String> testClasses = new ArrayList<String>();
+    	
+        try{
+        	// Case1: running from within a jar
+        	// Open the jar file and locate the tests by their path
+        	JarInputStream jarFile = new JarInputStream(new FileInputStream(jarName));
+        	JarEntry jarEntry;
+        	while (true) {
+        		jarEntry = jarFile.getNextJarEntry();
+        		if (jarEntry == null){
+        			break;
+        		}
+        		String className = jarEntry.getName();
+        		if ((className.startsWith(packagePath)) &&
+        				(className.endsWith(".class")) ) {
+        			int endIndex = className.lastIndexOf(".class");
+        			className = className.substring(0, endIndex);
+        			testClasses.add(className.replaceAll("/", "\\."));
+        		}
+        	}
+        }
+        catch (java.io.FileNotFoundException e) {
+        	// Case2: not running from within a jar
+        	// Find the tests by walking through the directory structure
+        	File folder = new File(jarName + packagePath);
+        	File[] listOfFiles = folder.listFiles();
+        	for (int i = 0; i < listOfFiles.length; i++) {
+        		String className = listOfFiles[i].getName();
+        		if (listOfFiles[i].isFile() && className.endsWith(".class")) {
+        			int endIndex = className.lastIndexOf(".class");
+        			className = className.substring(0, endIndex);
+        			testClasses.add(packageName + className);
+        		}
+        	}
+        }
+        catch( Exception e){
+        	e.printStackTrace ();
+        	return;
+        }
+        
+        System.out.println("Running tests: " + testClasses);
+        String[] testClassesAr = new String[testClasses.size()];
+        testClassesAr = testClasses.toArray(testClassesAr);
+        JUnitCore.main(testClassesAr);
+    	return; 
+    }
+    
 
     /**
      * Sets up and configures the Main.logger object based on command line

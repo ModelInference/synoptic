@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Implementation-Title: synoptic
+Implementation-Version: 0.0.2
+Main-Class: synoptic.main.Main
+Class-Path: lib/plume.jar
+
