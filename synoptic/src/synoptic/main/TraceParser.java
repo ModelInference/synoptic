@@ -1,4 +1,4 @@
-package synoptic.main;
+package main;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,18 +17,19 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import model.Action;
+import model.Graph;
+import model.MessageEvent;
+import model.input.GraphBuilder;
+import model.input.IBuilder;
+import model.input.VectorTime;
 
+import main.ParseException;
+import main.Main;
 
-import synoptic.main.Main;
-import synoptic.main.ParseException;
-import synoptic.model.Action;
-import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
-import synoptic.model.input.GraphBuilder;
-import synoptic.model.input.IBuilder;
-import synoptic.model.input.VectorTime;
-import synoptic.util.NamedMatcher;
-import synoptic.util.NamedPattern;
+import util.NamedMatcher;
+import util.NamedPattern;
+import util.NamedSubstitution;
 
 /**
  * TraceParser is a generic trace parser, configured in terms of Java 7 style
@@ -37,11 +38,11 @@ import synoptic.util.NamedPattern;
  */
 public class TraceParser {
 	private List<NamedPattern> parsers;
-	private List<Map<String, String>> constantFields;
-	private List<Map<String, Boolean>> incrementors;
+	private List<HashMap<String, NamedSubstitution>> constantFields;
+	private List<HashMap<String, Boolean>> incrementors;
 	
 	public IBuilder<MessageEvent> builder;
-	private Set<String> filters;
+	private NamedSubstitution filter;
 	private boolean internActions = true;
 	private static Logger logger = Logger.getLogger("Parser Logger");
 	
@@ -51,9 +52,9 @@ public class TraceParser {
 	public TraceParser(IBuilder<MessageEvent> builder) {
 		this.builder = builder;
 		this.parsers = new ArrayList<NamedPattern>();
-		this.constantFields = new ArrayList<Map<String, String>>();
-		this.incrementors = new ArrayList<Map<String, Boolean>>();
-		this.filters = new HashSet<String>();
+		this.constantFields = new ArrayList<HashMap<String, NamedSubstitution>>();
+		this.incrementors = new ArrayList<HashMap<String, Boolean>>();
+		this.filter = new NamedSubstitution("");
 	}
 	
 	public TraceParser() {
@@ -75,11 +76,10 @@ public class TraceParser {
 	private static Pattern
 		matchSeparator        = Pattern.compile(";;"),
 		matchEscapedSeparator = Pattern.compile("\\\\;\\\\;"),
-		matchConstant         = Pattern.compile("\\(\\?<(\\w*)=(\\w*)>\\)"),
+		matchAssign           = Pattern.compile("\\(\\?<(\\w*)=>([^\\)]*)\\)"),
 		matchPreIncrement     = Pattern.compile("\\(\\?<\\+\\+(\\w*)>\\)"),
 		matchPostIncrement    = Pattern.compile("\\(\\?<(\\w*)\\+\\+>\\)"),
-		matchDefault          = Pattern.compile("\\(\\?<(\\w*)>\\)"),
-		matchReference        = Pattern.compile("\\\\k<(\\w*)>");
+		matchDefault          = Pattern.compile("\\(\\?<(\\w*)>\\)");
 	
 	/**
 	 * Adds an individual trace line type, which consists of a regex with
@@ -87,8 +87,8 @@ public class TraceParser {
 	 * 
 	 * (?<name>)        Matches the default field regex, (?:\s*(?<name>\S*)\s*)
 	 * 
-	 * (?<name=value>)  This specifies a constant field, which provides a
-	 *                  value to bind to the name.  No content regex allowed.
+	 * (?<name=>value)  This specifies a value for a field, potentially with
+	 *                  backreferences which get filled.
 	 * 
 	 * (?<name++>)      These specify context fields which are included with
 	 * (?<++name>)      every type of trace 
@@ -106,11 +106,11 @@ public class TraceParser {
 		String regex = matchEscapedSeparator.matcher(input_regex).replaceAll(";;");
 
 		// Parse out all of the constants.
-		Matcher matcher = matchConstant.matcher(regex);
+		Matcher matcher = matchAssign.matcher(regex);
 
-		Map<String, String> cmap = new HashMap<String, String>();
+		HashMap<String, NamedSubstitution> cmap = new HashMap<String, NamedSubstitution>();
 		while (matcher.find()) {
-			cmap.put(matcher.group(1), matcher.group(2));
+			cmap.put(matcher.group(1), new NamedSubstitution(matcher.group(2)));
 		}
 		this.constantFields.add(this.parsers.size(), cmap);
 		
@@ -119,7 +119,7 @@ public class TraceParser {
 
 		// Parse out all of the incrementors.
 		matcher = matchPreIncrement.matcher(regex);
-		Map<String, Boolean> incMap = new HashMap<String, Boolean>();
+		HashMap<String, Boolean> incMap = new HashMap<String, Boolean>();
 		while (matcher.find()) {
 			incMap.put(matcher.group(1), false);
 		}
@@ -174,20 +174,20 @@ public class TraceParser {
 		}
 	}
 	
-	public void addPartitionField(String field) {
-		this.filters.add(field);
-	}
-	
+	/**
+	 * Create a seperator-granularity match.  This works by creating an incrementing
+	 * variable (on seperator match), and adding SEPCOUNT to the granularity filter. 
+	 */
 	public void addSeparator(String regex) {
 		this.addRegex(regex + "(?<SEPCOUNT++>)");
-		this.addPartitionField("SEPCOUNT");
+		this.filter.concat(new NamedSubstitution("\\k<SEPCOUNT>"));
 	}
 	
+	/**
+	 * Sets the partitioning filter, to the passed, backreference containing string.
+	 */
 	public void setPartitioner(String filter) {
-		Matcher matcher = matchReference.matcher(filter);
-		while (matcher.find()) {
-			addPartitionField(matcher.group(1));
-		}
+		this.filter = new NamedSubstitution(filter);
 	}
 	
 	/**
@@ -214,14 +214,6 @@ public class TraceParser {
 			return message.getStringArgument("HIDE") != null;
 		}
 	}
-	/*
-	public List<Occurrence> parseTraceFiles(String wildcardPath, int linesToRead) {
-		List<Occurrence> result = new ArrayList<Occurrence>();
-		FileFilter filter = new WildcardFileFilter(wildcardPath);
-		for (File f : (new File(".")).listFiles(filter)) {
-			parseTraceFile(f.getAbsolutePath(), linesToRead);
-		}
-	}*/
 	
 	/**
 	 * Parses a trace file into a list of occurrences.
@@ -239,12 +231,16 @@ public class TraceParser {
 			ArrayList<Occurrence> results = new ArrayList<Occurrence>();
 			String strLine = null;
 			VectorTime prevTime = new VectorTime("0");
+			
+			// Initialize incrementor context.
 			Map<String, Integer> context = new HashMap<String, Integer>();
 			for (Map<String, Boolean> incs : incrementors) {
 				for (String incField : incs.keySet()) {
 					context.put(incField, 0);
 				}
 			}
+			
+			// Process each line in sequence.
 			while ((strLine = br.readLine()) != null) {
 				if (results.size() == linesToRead) break;
 				Occurrence occ = parseLine(prevTime, strLine, file.getAbsolutePath(), context);
@@ -268,18 +264,10 @@ public class TraceParser {
 	}
 
 	/* If there's a filter, this helper yields that argument from an action. */
+	@SuppressWarnings("deprecation")
 	private String getNodeName(Action a) {
-		if (filters == null) return null;
-		StringBuilder result = new StringBuilder();
-		for (String filter : filters) {
-			result.append(a.getStringArgument(filter));
-			result.append(" ");
-		}
-		return result.toString();
-		//if (filter == null || filter.equals("")) return null;
-		//return a.getStringArgument(filter);
+		return filter.substitute(a.getStringArguments());
 	}
-	
 	
 	/* 
 	 * Parse an individual line.  If it contains no time field, prevTime is
@@ -291,18 +279,10 @@ public class TraceParser {
 		for (int i = 0; i < this.parsers.size(); i++) {
 			NamedMatcher matcher = this.parsers.get(i).matcher(line);
 			if (matcher.matches()) {
-				Map<String, String> gs = this.constantFields.get(i);
-				
-				// Re-set members of the context with constant fields
-				for (Map.Entry<String, String> entry : gs.entrySet()) {
-					Integer parsed = Integer.getInteger(entry.getValue(), Integer.MIN_VALUE);
-					if (context.containsKey(entry.getKey()) && parsed != Integer.MIN_VALUE) {
-						context.put(entry.getKey(), parsed);
-					}
-				}
-				
-				// Overlay extracted groups.
-				gs.putAll(matcher.toMatchResult().namedGroups());
+				@SuppressWarnings("unchecked")
+				Map<String, NamedSubstitution> cs = (Map<String, NamedSubstitution>)
+					this.constantFields.get(i).clone();
+				Map<String, String> matched = matcher.toMatchResult().namedGroups();
 				
 				// Perform pre-increments.
 				for (Map.Entry<String, Boolean> inc : this.incrementors.get(i).entrySet())
@@ -311,19 +291,36 @@ public class TraceParser {
 				
 				// Overlay increment context.
 				for (Map.Entry<String, Integer> entry : context.entrySet()) {
-					gs.put(entry.getKey(), entry.getValue().toString());
+					matched.put(entry.getKey(), entry.getValue().toString());
 				}
 				
-				if (gs.get("HIDE") != null) return null;
+				for (Map.Entry<String, NamedSubstitution> entry : cs.entrySet()) {
+					// Process the constant field by substituting backreferences.
+					String key = entry.getKey();
+					String val = entry.getValue().substitute(matched);
+					
+					// Special case for integers, to allow for setting incrementors.
+					Integer parsed = Integer.getInteger(val, Integer.MIN_VALUE);
+					if (context.containsKey(key)) {
+						context.put(key, parsed);
+					}
+					
+					//TODO: Determine policy of constfields vs extracted have overlay priority
+					if (!matched.containsKey(key)) {
+						matched.put(key, val);
+					}
+				}
+				
+				if (matched.get("HIDE") != null) return null;
 
-				String eventType = gs.get("TYPE");
+				String eventType = matched.get("TYPE");
 				//TODO: determine if this is desired + print warning
 				// In the absence of a type, use the entire line
 				action = new Action(eventType == null ? line : eventType);
 				
 				action.setStringArgument("FILE", filename);
 
-				String timeField = gs.get("TIME");
+				String timeField = matched.get("TIME");
 				if (timeField == null) {
 					//TODO: warning when appropriate.
 					nextTime = incTime(prevTime);
@@ -344,7 +341,7 @@ public class TraceParser {
 						}
 					}
 				}
-				for (Map.Entry<String, String> group : gs.entrySet()) {
+				for (Map.Entry<String, String> group : matched.entrySet()) {
 					String name = group.getKey();
 					if (!name.equals("TYPE") && !name.equals("TIME")) {
 						action.setStringArgument(name, group.getValue());
@@ -373,29 +370,6 @@ public class TraceParser {
 		logger.severe("Failed to parse trace line: \n" + line);
 		throw new ParseException();
 	}
-
-	/**  TODO: @deprecated --> remove
-	 * 
-	 * Splits on all actions containing a <?sep> named field.
-	 * 
-	 * @param os The list of actions to separate.
-	 * @return A list of lists, where each list (except potentially the last)
-	 *     ends with a separator. 
-	public ArrayList<ArrayList<Occurrence>> splitOnSeperators(List<Occurrence> os) {
-		ArrayList<ArrayList<Occurrence>> result = new ArrayList<ArrayList<Occurrence>>();
-		ArrayList<Occurrence> current = new ArrayList<Occurrence>();
-		for (Occurrence o : os) {
-			current.add(o);
-			if (o.isSeperator()) {
-				result.add(current);
-				current = new ArrayList<Occurrence>();
-			}
-		}
-		if (!current.isEmpty())
-			result.add(current);
-		return result;
-	}
-	*/
 	
 	/**
 	 * Convenience function, yielding a graph for the specified file.
