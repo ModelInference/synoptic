@@ -15,7 +15,7 @@ import java.util.Arrays;
  * 
  * @author ivan
  */
-public class ListedPropertiesTest {
+public class ListedPropertiesTests {
 	
 	/**
 	 * Uses ListedProperties to convert an options string to a cmd args array

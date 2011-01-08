@@ -1,4 +1,4 @@
-package main;
+package synoptic.main;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,19 +17,19 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import model.Action;
-import model.Graph;
-import model.MessageEvent;
-import model.input.GraphBuilder;
-import model.input.IBuilder;
-import model.input.VectorTime;
+import synoptic.model.Action;
+import synoptic.model.Graph;
+import synoptic.model.MessageEvent;
+import synoptic.model.input.GraphBuilder;
+import synoptic.model.input.IBuilder;
+import synoptic.model.input.VectorTime;
 
-import main.ParseException;
-import main.Main;
+import synoptic.main.Main;
+import synoptic.main.ParseException;
 
-import util.NamedMatcher;
-import util.NamedPattern;
-import util.NamedSubstitution;
+import synoptic.util.NamedMatcher;
+import synoptic.util.NamedPattern;
+import synoptic.util.NamedSubstitution;
 
 /**
  * TraceParser is a generic trace parser, configured in terms of Java 7 style
