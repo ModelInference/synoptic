@@ -5,10 +5,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.logging.Logger;
 
+import plume.Option;
+
+import synoptic.main.Main;
 import synoptic.model.Action;
 import synoptic.model.MessageEvent;
 import synoptic.model.Partition;
@@ -28,6 +33,8 @@ import synoptic.model.nets.Place;
  */
 
 public class GraphVizExporter {
+	static Logger logger = Logger.getLogger("GraphVizExporter");
+	
 	static final boolean exportCanonically = true;
 	
 	static final String[] dotCommands = { "/usr/bin/dot",
@@ -36,13 +43,30 @@ public class GraphVizExporter {
 
 	public boolean edgeLabels = true;
 	
+	/**
+	 * @return Returns the dot command executable or null on error
+	 */
 	private static String getDotCommand() {
 		for (String dotCommand : dotCommands) {
 			File f = new File(dotCommand);
 			if (f.exists())
 				return dotCommand;
 		}
-		return "";
+		if (Main.dotExecutablePath == null) {
+			Field field;
+			try {
+				field = Main.class.getField("dotExecutablePath");
+			} catch (SecurityException e) {
+				e.printStackTrace();
+				return null;
+			} catch (NoSuchFieldException e) {
+				e.printStackTrace();
+				return null;
+			}
+			Option opt = field.getAnnotation(Option.class);
+			logger.severe("Unable to locate the dot command executable, use the following cmd line option:\n" + opt.value());
+		}
+		return Main.dotExecutablePath;
 	}
 
 	public GraphVizExporter() {
@@ -83,12 +107,16 @@ public class GraphVizExporter {
 	 */
 	public void exportPng(File dotFile) {
 		String dotCommand = getDotCommand();
+		if (dotCommand == null) {
+			// could not locate a dot executable
+			return;
+		}
 		String execCommand = dotCommand + " -O -Tpng "
 				+ dotFile.getAbsolutePath();
 		try {
 			Runtime.getRuntime().exec(execCommand);
 		} catch (IOException e) {
-			System.out.println("Could not run dotCommand '" + execCommand
+			logger.severe("Could not run dotCommand '" + execCommand
 					+ "': " + e.getMessage());
 		}
 	}
