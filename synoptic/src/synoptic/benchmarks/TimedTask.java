@@ -91,7 +91,7 @@ public class TimedTask {
 
 	/**
 	 * Stop the timed task. This takes the current system time and saves it.
-	 * Calling stop on TimedTasks that have been stoped before has no effect. If
+	 * Calling stop on TimedTasks that have been stopped before has no effect. If
 	 * the task was given a recordAt argument at construction time, it will be
 	 * recorded there.
 	 */

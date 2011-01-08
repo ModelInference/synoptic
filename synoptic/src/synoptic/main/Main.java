@@ -1,17 +1,13 @@
 package synoptic.main;
 
-import java.io.*;
-import java.util.*;
-import java.util.jar.*;
-
-        	
 import java.lang.Integer;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.concurrent.Callable;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import java.util.logging.Logger;
 import java.util.logging.Handler;
 import java.util.logging.ConsoleHandler;
@@ -26,7 +22,6 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.io.FilenameUtils;
 
 import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
 
 import plume.Option;
 import plume.Options;

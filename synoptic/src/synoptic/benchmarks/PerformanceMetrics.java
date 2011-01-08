@@ -1,5 +1,6 @@
 package synoptic.benchmarks;
 
+import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,20 +17,17 @@ import java.util.HashMap;
  * 
  */
 public class PerformanceMetrics {
+	private static Logger logger = Logger.getLogger("Performance Metrics");
 	/**
-	 * Print all recorded values.
-	 */
-	private static boolean VERBOSE = false;
-	/**
-	 * A global performance metric instance to record stats to.
+	 * A global performance metric instance to record statistics.
 	 */
 	private static PerformanceMetrics globalPerformanceMetrics = new PerformanceMetrics();
 	/**
-	 * The last created timed task. This is used to create hierarchy.
+	 * The last created timed task. This is used to create a hierarchy of tasks.
 	 */
-	private static TimedTask previous = null;
+	private static TimedTask previousTask = null;
 	/**
-	 * Holds the values mesured for each metric. Consecutive mesurements will be
+	 * Holds the values measured for each metric. Consecutive measurements will be
 	 * accumulated by addition here.
 	 */
 	HashMap<String, Long> values = new HashMap<String, Long>();
@@ -48,7 +46,7 @@ public class PerformanceMetrics {
 
 	/**
 	 * Record the task t. This will increment the number of measurements for
-	 * that task name, and pop previous from the task stack.
+	 * that task name, and pop previousTask from the task stack.
 	 * 
 	 * @param t
 	 *            the task to record
@@ -57,7 +55,7 @@ public class PerformanceMetrics {
 		t.stop();
 		record(t.getTask(), t.getTime());
 		accumulativity.put(t.getTask(), t.getAccumulativity());
-		previous = t.getParent();
+		previousTask = t.getParent();
 	}
 
 	/**
@@ -80,8 +78,9 @@ public class PerformanceMetrics {
 	 *            the measured value
 	 */
 	public void record(String key, long value) {
-		if (VERBOSE && !getAccumulativity(key)) {
-			System.out.println(key + " = " + value);
+		if (!getAccumulativity(key)) {
+			// Print all recorded values.
+			logger.fine(key + " = " + value);
 		}
 		if (!values.containsKey(key))
 			values.put(key, 0L);
@@ -115,16 +114,16 @@ public class PerformanceMetrics {
 	/**
 	 * Create a new task.
 	 * 
-	 * @param string
+	 * @param taskName
 	 *            the task name. Choose something unique.
 	 * @param accumulativity
 	 *            set this task to be accumulative
-	 * @return the timed task created
+	 * @return the created timed task
 	 */
-	public static TimedTask createTask(String string, boolean accumulativity) {
-		previous = new TimedTask(string, previous, globalPerformanceMetrics,
+	public static TimedTask createTask(String taskName, boolean accumulativity) {
+		previousTask = new TimedTask(taskName, previousTask, globalPerformanceMetrics,
 				accumulativity);
-		return previous;
+		return previousTask;
 	}
 
 	/**

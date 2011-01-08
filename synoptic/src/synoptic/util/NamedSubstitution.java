@@ -1,4 +1,4 @@
-package util;
+package synoptic.util;
 
 import java.util.ArrayList;
 import java.util.List;
