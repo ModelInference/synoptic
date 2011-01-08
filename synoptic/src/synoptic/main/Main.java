@@ -1,6 +1,7 @@
 package synoptic.main;
 
 import java.lang.Integer;
+import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 import java.util.Arrays;
@@ -135,6 +136,13 @@ public class Main implements Callable<Integer> {
     @Option(value="-o Output filename for dot output", aliases={"--output"})
     @OptionGroup("Output Options")
     public static String outputFilename = null;
+    
+    /**
+     * The absolute path to the dot command executable to use for outputting graphical representations of Synoptic models
+     */
+    @Option(value="-d Path to the Graphviz dot command executable to use", aliases={"--dot-executable"})
+    public static String dotExecutablePath = null;
+    
     // end option group "Output Options"
 
 
@@ -290,6 +298,11 @@ public class Main implements Callable<Integer> {
 		}
 		
 		Main mainInstance = new Main();
+		
+		if (logLvlVerbose) {
+			mainInstance.printOptions();
+		}
+
         Integer ret = mainInstance.call();
         logger.fine("Main.call() returned " + ret.toString());
 		System.exit(ret); 
@@ -435,6 +448,29 @@ public class Main implements Callable<Integer> {
     	// TODO: can set up graphical state here
     }
     
+
+    /**
+     * Prints the values of all the options for this -- instance of Main class
+     * 
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
+    public void printOptions() throws IllegalArgumentException, IllegalAccessException {
+    	String optsString = "Synoptic options:\n";
+		for (Field field : this.getClass().getDeclaredFields()) {
+			if (field.getAnnotation(Option.class) != null) {
+				optsString += "\t" + field.getName() + ": "; 
+				if (field.get(this) != null) {
+					optsString += field.get(this).toString() + "\n";
+				} else {
+					optsString += "null\n";
+				}
+			}
+		}
+		System.out.println(optsString);
+    }
+
+    
     /**
      *  The workhorse method, which uses TraceParser to parse the input files, and calls
      *  the primary Synoptic functions to perform refinement\coarsening and
@@ -443,15 +479,6 @@ public class Main implements Callable<Integer> {
      */
 	@Override
 	public Integer call() throws Exception {
-		// TODO: is there a way to print all the set Options?
-		String debug_msg = 
-				"logfiles: " + Main.logFilenames + " size: " + Main.logFilenames.size() +  
-				"\n\tseparator: " + Main.separator +
-				"\n\tregExps: " + Main.regExps + " size: " + Main.regExps.size() +  
-				"\n\tpartitionRegExp: " + Main.partitionRegExp;
-		
-		logger.fine(debug_msg);
-
 		TraceParser parser = new TraceParser();
 		
 		logger.fine("Setting up the log file parser.");
