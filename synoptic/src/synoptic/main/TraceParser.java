@@ -6,8 +6,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,20 +59,8 @@ public class TraceParser {
 		this(new GraphBuilder());
 	}
 	
-	/**
-	 * This constructor takes a string of the form regex1;;regex2;;regex3, and
-	 * initializes the parsers with them.
-	 */
-	public TraceParser(String parser) {
-		this(new GraphBuilder());
-		for (String regex : matchSeparator.split(parser)) {
-			addRegex(regex);
-		}
-	}
-	
 	// Patterns used to pre-process regular expressions
 	private static Pattern
-		matchSeparator        = Pattern.compile(";;"),
 		matchEscapedSeparator = Pattern.compile("\\\\;\\\\;"),
 		matchAssign           = Pattern.compile("\\(\\?<(\\w*)=>([^\\)]*)\\)"),
 		matchPreIncrement     = Pattern.compile("\\(\\?<\\+\\+(\\w*)>\\)"),
@@ -132,6 +118,7 @@ public class TraceParser {
 		this.incrementors.add(incMap);
 		
 		// Replace fields which lack regex content with default.
+		//TODO: Different defaults for some special fields.
 		matcher = matchDefault.matcher(regex);
 		StringBuffer newRegex = new StringBuffer();
 		boolean isFirst = true;
@@ -175,8 +162,8 @@ public class TraceParser {
 	}
 	
 	/**
-	 * Create a seperator-granularity match.  This works by creating an incrementing
-	 * variable (on seperator match), and adding SEPCOUNT to the granularity filter. 
+	 * Create a separator-granularity match.  This works by creating an incrementing
+	 * variable (on separator match), and adding SEPCOUNT to the granularity filter. 
 	 */
 	public void addSeparator(String regex) {
 		this.addRegex(regex + "(?<SEPCOUNT++>)");
@@ -479,6 +466,7 @@ public class TraceParser {
 		}
 	}
 
+	/* TODO: reinstate if sweepline transitive reduction is used.
 	class TemporalComparator implements Comparator<Occurrence> {
 		public int compare(Occurrence a, Occurrence b) {
 			if (a == b) return 0;
@@ -495,4 +483,5 @@ public class TraceParser {
 	private void sortTrace(List<Occurrence> acts) {
 		Collections.sort(acts, comparator);
 	}
+	*/
 }

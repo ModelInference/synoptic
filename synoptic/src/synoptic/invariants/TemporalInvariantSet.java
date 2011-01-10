@@ -168,7 +168,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
 		
 		if (!compare) {
-			if (invs.size() > 5) {
+			if (invs.size() > 5) {  // arbitrary threshold
 				List<BinaryInvariant> viol = this.getViolated(invs, graph);
 				for (BinaryInvariant inv : viol) {
 					RelationPath<T> path = FsmModelChecker.invariantCounterexample(inv, graph);
@@ -238,7 +238,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				all.set(0, c.invariantCount(), true);
 				paths = c.findFailures(all);
 				*/
-				paths = this.compareViolations(new ArrayList<TemporalInvariant>((Collection)invariants), g);
+				paths = this.compareViolations(new ArrayList<TemporalInvariant>(invariants), g);
 			} else {
 				paths = new ArrayList<RelationPath<T>>();
 				GraphLTLChecker<T> c = new GraphLTLChecker<T>();
@@ -289,7 +289,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				failingInvariants.clear(failingInvariants.nextSetBit(0) + 1, failingInvariants.size());
 				List<RelationPath<T>> results = c.findFailures(failingInvariants);
 				*/
-				List<RelationPath<T>> results = this.compareViolations(new ArrayList<TemporalInvariant>((Collection)invariants), g);
+				List<RelationPath<T>> results = this.compareViolations(new ArrayList<TemporalInvariant>(invariants), g);
 				if (results.isEmpty()) return null;
 				return results.get(0);
 			} else {

@@ -33,8 +33,6 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
 
-
-
 public class Main implements Callable<Integer> {
 	public static Logger logger = null;
 
@@ -92,20 +90,35 @@ public class Main implements Callable<Integer> {
     
     ////////////////////////////////////////////////////
     /**
-     * Regular expression separator string for determining mining granularity 
+     * Regular expression separator string.  When lines are found which match this
+     * expression, the lines before and after are considered to be in different
+     * 'traces', each to be considered an individual sample of the behavior of the
+     * system.
+     * 
+     * This is implemented by augmenting the separator expression with an incrementor,
+     * (?<SEPCOUNT++>), and adding \k<>.
      */
     @OptionGroup("Parser Options")
     @Option (value="-s Separator regular expression", aliases={"-separator"})
     public static String separator = null;
 
     /**
-     * List of regular expression strings for parsing lines in the input files.
+     * Regular expressions used for parsing the trace file.  This parameter may, and
+     * is often repeated, in order to express the different formats of log lines which
+     * should be parsed.  The ordering is significant, and matching is attempted in
+     * the order in which the expressions are given.
+     * 
+     * These 'regular' expressions are a bit specialized, in that they have named
+     * group matches of the form (?<name>regex), in order to extract the significant
+     * components of the log line.  There are a few more variants on this, detailed in
+     * the online documentation.
      */
     @Option (value="-r Parser regular expression(s)", aliases={"-regexp"})
     public static List<String> regExps = null;
 
     /**
-     * A substitution expression to partition the lines of the input files.
+     * A substitution expression, used to express how to partition the trace lines into
+     * traces, to be considered as an individual sample of the behavior of the system.
      */
     @Option (value="-p Partition regular expression", aliases={"-partition"})
     public static String partitionRegExp = null;
@@ -144,8 +157,7 @@ public class Main implements Callable<Integer> {
     public static String dotExecutablePath = null;
     
     // end option group "Output Options"
-
-
+    
     ////////////////////////////////////////////////////
     /**
      * Dump the complete list of mined synoptic.invariants for the set of input files
@@ -415,6 +427,11 @@ public class Main implements Callable<Integer> {
         return;
     }
     
+    /**
+     * Given a potentially wild-carded file path, finds all those which match.
+     * @param fileArg The file path which may potentially contain wildcards.
+     * @return An array of File handles which match.
+     */
     public static File[] getFiles(String fileArg) {
     	int wildix = fileArg.indexOf("*");
     	if (wildix == -1) {
@@ -424,6 +441,7 @@ public class Main implements Callable<Integer> {
     		String path = FilenameUtils.getFullPath(uptoWild);
     		String filter = FilenameUtils.getName(uptoWild) + fileArg.substring(wildix);
     		File dir = new File(path);
+    		//TODO: check that listFiles is working properly recursively here.
     		return dir.listFiles((FileFilter)new WildcardFileFilter(filter));
     	}
     }
@@ -484,6 +502,7 @@ public class Main implements Callable<Integer> {
 		logger.fine("Setting up the log file parser.");
 		
 		if (!Main.regExps.isEmpty()) {
+			// User provided regular expressions - parse them!
 			for (String exp : Main.regExps) {
 				logger.fine("\taddRegex with exp:" + exp);
 				parser.addRegex(exp);
@@ -492,8 +511,9 @@ public class Main implements Callable<Integer> {
 			parser.setPartitioner(Main.partitionRegExp != null ? Main.partitionRegExp :
 				"\\k<FILE>");
 		} else {
+			// No expressions provided - use the default regex.
 			parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
-			parser.addRegex("(?<TIME>)?(?<TYPE>.*)");
+			parser.addRegex("(?<TYPE>.*)");
 			parser.setPartitioner(Main.partitionRegExp != null ? Main.partitionRegExp :
 				"\\k<SEPCOUNT>\\k<FILE>");
 		}
