@@ -4,28 +4,28 @@
 
 package synoptic.util;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NamedPattern {
 
 	private static final Pattern NAMED_GROUP_PATTERN = Pattern.compile("\\(\\?<(\\w+)>");
+	private static final Pattern NAMED_GROUP_PREFIX = Pattern.compile("\\(\\?<");
 
 	private Pattern pattern;
 	private String namedPattern;
 	private List<String> groupNames;
 
-    public static NamedPattern compile(String regex) {
+    public static NamedPattern compile(String regex) throws Exception {
         return new NamedPattern(regex, 0);
     }
 
-    public static NamedPattern compile(String regex, int flags) {
+    public static NamedPattern compile(String regex, int flags) throws Exception {
         return new NamedPattern(regex, flags);
     }
 
-    private NamedPattern(String regex, int i) {
+    private NamedPattern(String regex, int i) throws Exception {
     	namedPattern = regex;
     	pattern = buildStandardPattern(regex);
     	groupNames = extractGroupNames(regex);
@@ -76,8 +76,30 @@ public class NamedPattern {
 		return groupNames;
 	}
 
-	static Pattern buildStandardPattern(String namedPattern) {
-		return Pattern.compile(NAMED_GROUP_PATTERN.matcher(namedPattern).replaceAll("("));
+	private static String repeatString(String str, int reps) {
+		String result = "";
+		for (int i = 0; i < reps; i++) result.concat(str);
+		return result;
+	}
+	
+	static Pattern buildStandardPattern(String namedPattern) throws Exception {
+		String regularPattern = NAMED_GROUP_PATTERN.matcher(namedPattern).replaceAll("(");
+		Matcher errorMatch = NAMED_GROUP_PREFIX.matcher(regularPattern);
+		if (errorMatch.find()) {
+			StringBuilder err = new StringBuilder("Parse error in named pattern:\n");
+			err.append(namedPattern);
+			err.append("\n");
+			int prev = 0;
+			while (true) {
+				int nxt = errorMatch.start();
+				err.append(repeatString(" ", nxt - prev - 1));
+				err.append("^");
+				prev = nxt;
+				if (!errorMatch.find()) break;
+			}
+			throw new Exception(err.toString());
+		}
+		return Pattern.compile(regularPattern);
 	}
 
 }
