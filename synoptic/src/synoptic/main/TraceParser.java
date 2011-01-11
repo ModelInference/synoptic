@@ -71,7 +71,7 @@ public class TraceParser {
 	 * Adds an individual trace line type, which consists of a regex with
 	 * additional syntax.  This additional syntax is as follows:
 	 * 
-	 * (?<name>)        Matches the default field regex, (?:\s*(?<name>\S*)\s*)
+	 * (?<name>)        Matches the default field regex, (?:\s*(?<name>\S+)\s*)
 	 * 
 	 * (?<name=>value)  This specifies a value for a field, potentially with
 	 *                  backreferences which get filled.
