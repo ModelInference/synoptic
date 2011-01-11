@@ -1,5 +1,7 @@
 package synoptic.model.interfaces;
 
+import synoptic.model.Relation;
+
 /**
  * A generic interface for a transition. This interface provides method to modify the transition.
  * @author sigurd
@@ -54,4 +56,5 @@ public interface ITransition<NodeType> {
 	 * @return a short description
 	 */
 	public String toStringConcise();
+
 }

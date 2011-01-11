@@ -14,7 +14,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  *
  * @param <StateType>
  */
-public class Relation<StateType> extends Transition<StateType> {
+public class Relation<StateType> extends Transition<StateType> implements Comparable<Relation<StateType>>{
 	double frequency = 0.0;
 //	private List<Invariant> inv = new ArrayList<Invariant>();
 
@@ -77,6 +77,24 @@ public class Relation<StateType> extends Transition<StateType> {
 	@Override
 	public void setTarget(StateType target) {
 		throw new NotImplementedException();
+	}
+
+	@Override
+	public int compareTo(Relation<StateType> other) {
+		// compare references
+		if (this == other) {
+			return 0;
+		}
+
+		// compare frequencies associated with relation
+		int freqCmp = Double.compare(this.getFrequency(), other.getFrequency());
+		if (freqCmp != 0) {
+			return freqCmp;
+		}
+		
+		// compare just the labels of the StateTypes
+		int actionCmp = this.action.compareTo(other.action);
+		return actionCmp;
 	}
 
 	/**

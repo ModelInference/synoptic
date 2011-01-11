@@ -3,6 +3,7 @@ package synoptic.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -33,7 +34,7 @@ import synoptic.util.IterableIterator;
  * @author sigurd
  * 
  */
-public class Partition implements INode<Partition> {
+public class Partition implements INode<Partition>, Comparable<Partition> {
 	protected final Set<MessageEvent> messages;
 	private String label;
 
@@ -148,6 +149,7 @@ public class Partition implements INode<Partition> {
 	public int size() {
 		return messages.size();
 	}
+	
 
 	/**
 	 * This method returns the set of transitions. It augments the edges with
@@ -287,5 +289,42 @@ public class Partition implements INode<Partition> {
 			if (e.isFinal()) return true;
 		}
 		return false;
+	}
+
+	@Override
+	public int compareTo(Partition other) {
+		// compare references
+		if (this == other) {
+			return 0;
+		}
+		
+		// 1. compare label strings
+		int labelCmp = this.getLabel().compareTo(other.getLabel());
+		if (labelCmp != 0) {
+			return labelCmp;
+		}
+		
+		// 2. compare number of children
+		List<Relation<Partition>> tnsThis = getTransitions();
+		List<Relation<Partition>> tnsOther = getTransitions();
+		int childrenCmp = ((Integer) tnsThis.size()).compareTo(tnsOther.size());
+		if (childrenCmp != 0) {
+			return childrenCmp;
+		}
+		
+		// 3. compare labels of children
+		Collections.sort(tnsThis);
+		Collections.sort(tnsOther);
+		int index = 0;
+		int childCmp;
+		for (Relation<Partition> p : tnsThis) {
+			// sizes of tnsThis and tnsOther were checked to be equal above
+			Relation<Partition> p2 = tnsOther.get(index);
+			childCmp = p.compareTo(p2);
+			if (childCmp != 0) {
+				return childCmp;
+			}
+		}
+		return 0;
 	}
 }
