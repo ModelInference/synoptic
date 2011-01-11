@@ -53,7 +53,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 	 *         satisfied
 	 * @throws ParseErrorException
 	 */
-	public Counterexample check(synoptic.model.interfaces.IGraph<T> sourceGraph,
+	public Counterexample check(IGraph<T> sourceGraph,
 			TemporalInvariant invariant, IModelCheckingMonitor monitor)
 			throws ParseErrorException {
 		if (monitor == null) {
@@ -139,7 +139,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 		}
 	}
 
-	private Graph convertGraph(synoptic.model.interfaces.IGraph<T> sourceGraph,
+	private Graph convertGraph(IGraph<T> sourceGraph,
 			String relation) {
 		Graph targetGraph = new Graph();
 

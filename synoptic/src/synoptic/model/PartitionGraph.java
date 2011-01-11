@@ -169,7 +169,11 @@ public class PartitionGraph implements IGraph<Partition> {
 	@Override
 	public Set<Partition> getInitialNodes(String relation) {
 		Set<Partition> initialNodes = new LinkedHashSet<Partition>();
-		for (MessageEvent m : initialMessages.get(relation)) {
+		Set<MessageEvent> initMsgs = initialMessages.get(relation);
+		if (initMsgs == null) {
+			return initialNodes;
+		}
+		for (MessageEvent m : initMsgs) {
 			initialNodes.add(m.getParent());
 		}
 		return initialNodes;

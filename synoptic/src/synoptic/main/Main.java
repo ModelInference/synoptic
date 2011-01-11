@@ -28,6 +28,7 @@ import plume.Option;
 import plume.Options;
 import plume.OptionGroup;
 import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.model.Graph;
 import synoptic.model.MessageEvent;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
@@ -231,6 +232,16 @@ public class Main implements Callable<Integer> {
      */
     @Option("Do not perform refinement")
     public static boolean noRefinement = false;
+    
+    /**
+     * Export graphs in a canonical format. Graphs that are identical
+     * will generated the same dot files. The generated graphviz dot files
+     * may then be diff'ed to check if they represent the same graphs.
+     * 
+     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
+     */
+    @Option("Export graphs in a canonical graphviz format (allows diff'ing)")
+    public static boolean exportCanonically = false;
     // end option group "Debugging Options"
 
     
@@ -543,7 +554,7 @@ public class Main implements Callable<Integer> {
 		// If we parsed any events, then run Synoptic.
 		logger.fine("Running Synoptic..");
 		parser.generateDirectTemporalRelation(parsedEvents, true);
-		synoptic.model.Graph<MessageEvent> inputGraph = ((GraphBuilder) parser.builder).getRawGraph();
+		Graph<MessageEvent> inputGraph = ((GraphBuilder) parser.builder).getRawGraph();
 		
 		if (dumpInitialGraph) {
             // If we were given an output filename then export the resulting graph 

@@ -21,7 +21,7 @@ import synoptic.util.IterableIterator;
  * @author Sigurd Schneider
  *
  */
-public class MessageEvent implements INode<MessageEvent>, IEvent {
+public class MessageEvent implements INode<MessageEvent>, IEvent, Comparable<MessageEvent> {
 	private int count;
 	private Partition parent;
 	private Action action;
@@ -261,5 +261,38 @@ public class MessageEvent implements INode<MessageEvent>, IEvent {
 	@Override
 	public boolean isFinal() {
 		return transitions.isEmpty();
+	}
+
+	@Override
+	public int compareTo(MessageEvent other) {
+		if (this == other) {
+			return 0;
+		}
+		
+		// compare labels of the two message events
+		int labelCmp = this.getLabel().compareTo(other.getLabel());
+		if (labelCmp != 0) {
+			return labelCmp;
+		}
+		
+		// compare number of children
+		int transitionCntCmp = new Integer(this.transitions.size()).compareTo(other.transitions.size());
+		if (transitionCntCmp != 0) {
+			return transitionCntCmp;
+		}
+		
+		// compare children labels
+		ArrayList<Relation<MessageEvent>> thisSortedTrans = new ArrayList<Relation<MessageEvent>>(this.transitions);
+		ArrayList<Relation<MessageEvent>> otherSortedTrans = new ArrayList<Relation<MessageEvent>>(other.transitions);
+		Collections.sort(thisSortedTrans);
+		Collections.sort(otherSortedTrans);
+		for (int i = 0; i < thisSortedTrans.size(); i++) {
+			int childCmp = thisSortedTrans.get(i).compareTo(otherSortedTrans.get(i));
+			if (childCmp != 0) {
+				return childCmp;
+			}
+		}
+
+		return 0;
 	}
 }

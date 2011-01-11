@@ -6,8 +6,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -35,8 +38,13 @@ import synoptic.model.nets.Place;
 public class GraphVizExporter {
 	static Logger logger = Logger.getLogger("GraphVizExporter");
 	
-	static final boolean exportCanonically = true;
-	
+	static final HashMap<String, String> relationColors;
+	static {
+		relationColors = new HashMap<String, String>();
+		relationColors.put("t", "");
+		relationColors.put("i", "blue");
+	}
+			
 	static final String[] dotCommands = { "/usr/bin/dot",
 			"C:\\Programme\\Graphviz2.26\\bin\\dot.exe",
 			"C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe" };
@@ -126,8 +134,12 @@ public class GraphVizExporter {
 		// begin graph
 		writer.write("digraph {\n");
 
-		exportGraph(writer, graph, fast);
-
+		if (Main.exportCanonically) {
+			exportGraphCanonically(writer, graph, fast);
+		} else {
+			exportGraphNonCanonically(writer, graph, fast);	
+		}
+		
 		writer.write("} // digraph\n");
 
 		// close the dot file
@@ -147,11 +159,122 @@ public class GraphVizExporter {
 	}
 	
 
-	private <T extends INode<T>> void exportGraph(final Writer writer,	
+	private <T extends INode<T>> String nodeDotAttributes(T node, boolean initial, boolean terminal, String color) {
+		String attributes = "label=\"" + quote(node.toStringConcise()) + "\"";
+		if (initial) {
+			attributes = attributes + ",shape=box";
+		} else if (terminal) {
+			attributes = attributes + ",shape=diamond";
+		}
+		if (color != "") {
+			attributes = attributes + ",color=" + color;
+		}
+		return attributes;
+	}
+	
+	
+	private <T extends INode<T>> int exportRelationNodes(
+			final Writer writer,
+			IGraph<T> graph,
+			String relation,
+			LinkedList<ITransition<T>> allTransitions,
+			HashMap<T, Integer> nodeToInt,
+			int nodeCnt) throws IOException {
+		
+		LinkedList<T> rootNodes = new LinkedList<T>(graph.getInitialNodes(relation));
+		LinkedList<T> parentNodes = new LinkedList<T>(rootNodes);
+		boolean isTerminal, isInitial;
+						
+		logger.finest("<exportRelationNodes>, nodeCnt is " + nodeCnt);
+		LinkedList<T> childrenNodes = null;
+		while (parentNodes.size() != 0) {
+			logger.finest("Main loop with parentNodes: " + parentNodes.toString());
+			childrenNodes = new LinkedList<T>();
+			Collections.sort(parentNodes);
+			//Collections.sort(parentNodes);
+			//Collections.sort(List<T> parentNodes);
+			
+			for (T node : parentNodes) {
+				logger.finest("Consider parent: " + node.toStringConcise());
+				
+				if (nodeToInt.containsKey(node)) {
+					// Skip nodes that have been processed previously.
+					logger.finest("Skipping previously seen node: " + node.toStringConcise());
+					continue;
+				}
+				
+				isTerminal=false;
+				if (node instanceof Partition) {
+					Partition p = (Partition) node;
+					for (MessageEvent m: p.getMessages()) {
+						if (m.getTransitions().size() == 0)
+							isTerminal = true;
+					}
+				}
+				isInitial = rootNodes.contains(node);
+				
+				String attrs = nodeDotAttributes(node, isInitial, isTerminal, relationColors.get(relation));
+				writer.write("  " + nodeCnt + " [" + attrs + "];\n");
+				nodeToInt.put(node, nodeCnt);
+				List<? extends ITransition<T>> transitions = node.getTransitions();
+				for (ITransition<T> trans: transitions) {
+					T child = trans.getTarget();
+					logger.finest("Considering child: " + child.toStringConcise() + ", and its class is: " + child.getClass().toString());
+					childrenNodes.add(child);
+					
+					logger.finest("ChildrenNodes is now: " + childrenNodes.toString());
+				}
+				allTransitions.addAll(transitions);
+				nodeCnt += 1;
+				logger.finest("Main loop end, new nodeCnt is " + nodeCnt);
+			}
+			parentNodes = childrenNodes;
+		}
+		writer.flush();
+		return nodeCnt;
+	}
+		
+	
+	private <T extends INode<T>> void exportGraphCanonically(final Writer writer,	
 			IGraph<T> graph, boolean fast) throws IOException {
-		// write the transitions (nodes are generated implicitly by graphviz)
+		
+		logger.finest("Performing canonical export..");
+		HashMap<T, Integer> nodeToInt = new HashMap<T, Integer>();
+		LinkedList<ITransition<T>> allTransitions = new LinkedList<ITransition<T>>();
+		int nodeCnt = 0;
+		
+		nodeCnt = exportRelationNodes(writer, graph, "t", allTransitions, nodeToInt, nodeCnt);
+		logger.finest("</exportRelationNodes>, nodeCnt is " + nodeCnt);
+		
+		nodeCnt = exportRelationNodes(writer, graph, "i", allTransitions, nodeToInt, nodeCnt);
+		logger.finest("</exportRelationNodes>, nodeCnt is " + nodeCnt);
+						
+		// Output edges:
+		for (ITransition<T> trans: allTransitions) {
+			int sourceInt = nodeToInt.get(trans.getSource());
+			int targetInt = nodeToInt.get(trans.getTarget());
+			writer.write(sourceInt
+					+ "->"
+					+ targetInt+ " [");
+			if (this.edgeLabels) {
+				writer.write("label=\""
+					+ quote(trans.toStringConcise())
+					+ "\", weight=\""+trans.toStringConcise()+"\",");
+			}
+			writer.write((trans.toStringConcise().equals("i") ? ",color=blue"
+							: "") + "];" + "\n");
+		}
+		return;
+	}
+	
+	
+	
+	private <T extends INode<T>> void exportGraphNonCanonically(final Writer writer,	
+			IGraph<T> graph, boolean fast) throws IOException {
+		
+		logger.finest("Performing standard export..");
+		
 		final LinkedList<T> queue = new LinkedList<T>();
-
 		final Set<T> statesSeen = new HashSet<T>();
 		final HashSet<ITransition<T>> transSeen = new HashSet<ITransition<T>>();
 
@@ -160,58 +283,25 @@ public class GraphVizExporter {
 			statesSeen.add(s);
 		}
 		
-		
-		if (exportCanonically) {
-			// TODO:
-			// 0. Create a list of initial nodes 
-			// 1. Sort this list of initial nodes by label
-
-			// 2. assign counters to all nodes in the list:
-			//   a. consider all parents and all children of the node
-			//   b. assign numbers to initial nodes first in order of min(label string), min count(#children), min count(#parents) = 1
-			//   c. for nodes that have all of these the same -- choose an arbitrary order
-			//   d. now number the rest of the nodes in the graph with the same strategy
-			
-			// 3. Walk the graph starting from the initial nodes -- in the order of their counters
-			// 4. Deterministically walk depth first through lists of children by using the counters set with above strategy
-			// 5. Output transitions in dot format during the walk.
-			
-			// int counter = 0;
-			// Set<T> nodesSet = graph.getNodes();
-			// HashMap<T, Integer> nodeToIntMap = new HashMap<T, Integer>();
-		}
-		
 		while (!queue.isEmpty()) {
 			final T e = queue.poll();
 			final int sourceStateNo = e.hashCode();
-			String attributes = "label=\"" + quote(e.toStringConcise()) + "\"";
-			/*
-			 * if (graph.getInitialNodes(new Action("i")).contains(e))
-			 * attributes = attributes + ",shape=box,color=blue"; else
-			 */
-			boolean terminal=false;
+			
+			boolean isTerminal=false;
 			if (e instanceof Partition) {
 				Partition p = (Partition)e;
 				for (MessageEvent m: p.getMessages()) {
 					if (m.getTransitions().size() == 0)
-						terminal = true;
+						isTerminal = true;
 				}
 			}
-			if (graph.getRelations().contains(new Action("t"))
-					&& graph.getInitialNodes("t").contains(e))
-				attributes = attributes + ",shape=box";
-			else if (graph.getRelations().contains("i")
-					&& graph.getInitialNodes("i").contains(e))
-				attributes = attributes + ",shape=box,color=blue";
-			else if (terminal)
-				attributes = attributes + ",shape=diamond";
-
-			String comment = "";
-			// if (e == newHead.getInitialState()) { // start node
-			// attributes += ",shape=box";
-			// }
-			writer.write("  " + sourceStateNo + " [" + attributes + "];"
-					+ comment + "\n");
+		
+			// TODO: set this to the appropriate relation
+			String relation = "t";
+			boolean isInitial = graph.getRelations().contains(new Action(relation)) && graph.getInitialNodes(relation).contains(e);
+			String attributes = nodeDotAttributes(e, isInitial, isTerminal, relationColors.get(relation));
+			
+			writer.write("  " + sourceStateNo + " [" + attributes + "];\n");
 
 			Iterable<? extends ITransition<T>> foo = null;
 			if (fast)

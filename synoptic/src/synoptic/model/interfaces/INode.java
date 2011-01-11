@@ -19,8 +19,7 @@ import synoptic.util.IterableIterator;
  *            the interface is parametrized with the type of the implementing
  *            class to allow more specific types
  */
-//public interface INode<NodeType extends INode<NodeType>> {
-public interface INode<NodeType>{
+public interface INode<NodeType> extends Comparable<NodeType>{
 	/**
 	 * Returns the label of the node.
 	 * 
