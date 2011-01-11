@@ -97,7 +97,7 @@ public class Main implements Callable<Integer> {
      * system.
      * 
      * This is implemented by augmenting the separator expression with an incrementor,
-     * (?<SEPCOUNT++>), and adding \k<>.
+     * (?<SEPCOUNT++>), and adding \k<SEPCOUNT> to the partitioner.
      */
     @OptionGroup("Parser Options")
     @Option (value="-s Separator regular expression", aliases={"-separator"})
@@ -122,7 +122,7 @@ public class Main implements Callable<Integer> {
      * traces, to be considered as an individual sample of the behavior of the system.
      */
     @Option (value="-p Partition regular expression", aliases={"-partition"})
-    public static String partitionRegExp = null;
+    public static String partitionRegExp = "\\k<FILE>";
     
     /**
      * This flag allows users to get away with sloppy\incorrect regular expressions
@@ -519,14 +519,12 @@ public class Main implements Callable<Integer> {
 				parser.addRegex(exp);
 			}
 			
-			parser.setPartitioner(Main.partitionRegExp != null ? Main.partitionRegExp :
-				"\\k<FILE>");
+			parser.setPartitioner(Main.partitionRegExp);
 		} else {
 			// No expressions provided - use the default regex.
 			parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
 			parser.addRegex("(?<TYPE>.*)");
-			parser.setPartitioner(Main.partitionRegExp != null ? Main.partitionRegExp :
-				"\\k<SEPCOUNT>\\k<FILE>");
+			parser.setPartitioner(Main.partitionRegExp);
 		}
 
 		if (Main.separator != null) {
