@@ -33,6 +33,7 @@ import synoptic.model.MessageEvent;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
+import synoptic.util.BriefLogFormatter;
 
 public class Main implements Callable<Integer> {
 	public static Logger logger = null;
@@ -127,9 +128,17 @@ public class Main implements Callable<Integer> {
     /**
      * This flag allows users to get away with sloppy\incorrect regular expressions
      * that might not fully cover the range of log lines appearing in the log files.
+     * 
+     * TODO: remove in favor of (?<HIDE=>true) ?
      */
     @Option (value="-i Ignore and recover from parse errors as much as possible.", aliases={"-ignore-parse-errors"})
     public static boolean recoverFromParseErrors = false;
+    
+    /**
+     * This flag causes the trace parser to output the fields extracted from each log line.
+     */
+    @Option (value="Debug the field values extracted from the log.", aliases={"-debugParse"})
+    public static boolean debugParse = false;
     // end option group "Parser Options"
     
 
@@ -147,14 +156,14 @@ public class Main implements Callable<Integer> {
     /**
      * Store the final Synoptic representation output in outputFilename.dot
      */
-    @Option(value="-o Output filename for dot output", aliases={"--output"})
+    @Option(value="-o Output filename for dot output", aliases={"-output"})
     @OptionGroup("Output Options")
     public static String outputFilename = null;
     
     /**
      * The absolute path to the dot command executable to use for outputting graphical representations of Synoptic models
      */
-    @Option(value="-d Path to the Graphviz dot command executable to use", aliases={"--dot-executable"})
+    @Option(value="-d Path to the Graphviz dot command executable to use", aliases={"-dot-executable"})
     public static String dotExecutablePath = null;
     
     // end option group "Output Options"
@@ -435,6 +444,8 @@ public class Main implements Callable<Integer> {
         	logger.setLevel(Level.INFO);
         }
 
+        consoleHandler.setFormatter(new BriefLogFormatter());
+        
         return;
     }
     

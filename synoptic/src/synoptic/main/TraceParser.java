@@ -342,6 +342,17 @@ public class TraceParser {
 				
 				if (internActions) action = action.intern();
 				String nodeName = getNodeName(action);
+				if (Main.debugParse) {
+					logger.warning("input: " + line);
+					StringBuilder msg = new StringBuilder("{");
+					for (Map.Entry<String, String> entry : action.getStringArguments().entrySet()) {
+						if (entry.getKey().equals("FILE")) continue;
+						msg.append(entry.getKey() + " = " + entry.getValue() + ", ");
+					}
+					msg.append("TYPE = " + nodeName);
+					msg.append("}");
+					logger.info(msg.toString());
+				}
 				return new Occurrence(this.builder.insert(action), nextTime, nodeName);
 			}
 		}
