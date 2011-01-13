@@ -63,7 +63,7 @@ public class Main implements Callable<Integer> {
     /**
      * Print the current Synoptic version.
      */
-    @Option (value="-v Print program version", aliases={"-version"})
+    @Option (value="-V Print program version", aliases={"-version"})
     public static boolean version = false;
     // end option group "General Options"
 
@@ -73,19 +73,19 @@ public class Main implements Callable<Integer> {
      * Be quiet, do not print much information. Sets the log level to WARNING.
      */
     @OptionGroup("Execution Options")
-    @Option (value="-Q Be quiet, do not print much information", aliases={"-quiet"})
+    @Option (value="-q Be quiet, do not print much information", aliases={"-quiet"})
     public static boolean logLvlQuiet = false;
     
     /**
      * Be verbose, print extra detailed information. Sets the log level to FINEST.  
      */
-    @Option (value="-V Print extra detailed information.", aliases={"-verbose"})
+    @Option (value="-v Print extra detailed information", aliases={"-verbose"})
     public static boolean logLvlVerbose = false;
     
     /**
      * Use the new FSM checker instead of the LTL checker. 
      */
-    @Option (value="-f Use FSM checker instead of the default LTL checker.", aliases={"-use-fsm-checker"})
+    @Option (value="-f Use FSM checker instead of the default LTL checker", aliases={"-use-fsm-checker"})
     public static boolean useFSMChecker = false;
     // end option group "Execution Options"
     
@@ -101,7 +101,7 @@ public class Main implements Callable<Integer> {
      * (?<SEPCOUNT++>), and adding \k<SEPCOUNT> to the partitioner.
      */
     @OptionGroup("Parser Options")
-    @Option (value="-s Separator regular expression", aliases={"-separator"})
+    @Option (value="-s Partitions separator reg-exp: log lines below and above the matching line are placed into different partitions", aliases={"-partition-separator"})
     public static String separator = null;
 
     /**
@@ -115,29 +115,27 @@ public class Main implements Callable<Integer> {
      * components of the log line.  There are a few more variants on this, detailed in
      * the online documentation.
      */
-    @Option (value="-r Parser regular expression(s)", aliases={"-regexp"})
+    @Option (value="-r Parser reg-exp: extracts event type and event time from a log line", aliases={"-regexp"})
     public static List<String> regExps = null;
 
     /**
-     * A substitution expression, used to express how to partition the trace lines into
-     * traces, to be considered as an individual sample of the behavior of the system.
+     * A substitution expression, used to express how to map the trace lines into
+     * partition traces, to be considered as an individual sample of the behavior of the system.
      */
-    @Option (value="-p Partition regular expression", aliases={"-partition"})
+    @Option (value="-m Partitions mapping reg-exp: maps a log line to a partition", aliases={"-partition-mapping"})
     public static String partitionRegExp = "\\k<FILE>";
     
     /**
-     * This flag allows users to get away with sloppy\incorrect regular expressions
+     * This allows users to get away with sloppy\incorrect regular expressions
      * that might not fully cover the range of log lines appearing in the log files.
-     * 
-     * TODO: remove in favor of (?<HIDE=>true) ?
      */
-    @Option (value="-i Ignore and recover from parse errors as much as possible.", aliases={"-ignore-parse-errors"})
+    @Option (value="-i Ignore parser warnings and attempt to recover from parse errors if possible", aliases={"-ignore-parse-errors"})
     public static boolean recoverFromParseErrors = false;
     
     /**
-     * This flag causes the trace parser to output the fields extracted from each log line.
+     * Output the fields extracted from each log line.
      */
-    @Option (value="Debug the field values extracted from the log.", aliases={"-debugParse"})
+    @Option (value="Debug the parser by printing field values extracted from the log", aliases={"-debugParse"})
     public static boolean debugParse = false;
     // end option group "Parser Options"
     
@@ -154,18 +152,21 @@ public class Main implements Callable<Integer> {
     
     ////////////////////////////////////////////////////
     /**
-     * Store the final Synoptic representation output in outputFilename.dot
+     * Specifies the prefix of where to store the final Synoptic representation output. This
+     * prefix is also used to determine filenames of intermediary files as well, like
+     * corresponding dot file and intermediate stage representations and dot files
+     * (if specified, e.g. with --dumpIntermediateStages).
      */
-    @Option(value="-o Output filename for dot output", aliases={"-output"})
     @OptionGroup("Output Options")
-    public static String outputFilename = null;
+    @Option(value="-o Output path prefix for generating Graphviz dot files graphics", aliases={"-output-prefix"})
+    public static String outputPathPrefix = null;
     
     /**
-     * The absolute path to the dot command executable to use for outputting graphical representations of Synoptic models
+     * The absolute path to the dot command executable to use for outputting
+     * graphical representations of Synoptic models
      */
     @Option(value="-d Path to the Graphviz dot command executable to use", aliases={"-dot-executable"})
     public static String dotExecutablePath = null;
-    
     // end option group "Output Options"
     
     ////////////////////////////////////////////////////
@@ -181,25 +182,25 @@ public class Main implements Callable<Integer> {
     
     /**
      * Dump the dot representation of the initial graph to file. The file
-     * will have the name <outputFilename>.initial.dot, where 'outputFilename'
+     * will have the name <outputPathPrefix>.initial.dot, where 'outputPathPrefix'
      * is the filename of the final Synoptic output.
      * 
      * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
      */
-    @Option("Dump the initial graph to file <outputFilename>.initial.dot")
+    @Option("Dump the initial graph to file <outputPathPrefix>.initial.dot")
     public static boolean dumpInitialGraph = true;
     
     /**
      * Dump the dot representations for intermediate Synoptic steps to
      * file. Each of these files will have a name like:
-     * outputFilename.stage-S.round-R.dot where 'outputFilename' is the
+     * outputPathPrefix.stage-S.round-R.dot where 'outputPathPrefix' is the
      * filename of the final Synoptic output, 'S' is the name of the stage
      * (e.g. r for refinement, and c for coarsening), and 'R' is the round number
      * within the stage.
      * 
      * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
      */
-    @Option("Dump dot files from intermediate Synoptic stages to files of form outputFilename.stage-S.round-R.dot")
+    @Option("Dump dot files from intermediate Synoptic stages to files of form outputPathPrefix.stage-S.round-R.dot")
     public static boolean dumpIntermediateStages = false;
     // end option group "Verbosity Options"
 
@@ -244,12 +245,12 @@ public class Main implements Callable<Integer> {
     
     /**
      * Export graphs in a canonical format. Graphs that are identical
-     * will generated the same dot files. The generated graphviz dot files
-     * may then be diff'ed to check if they represent the same graphs.
+     * will generated the same dot files. The generated Graphviz dot files
+     * may then be diff-ed to check if they represent the same graphs.
      * 
      * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
      */
-    @Option("Export graphs in a canonical graphviz format (allows diff'ing)")
+    @Option("Export graphs in a canonical Graphviz format (can use diff to tell if two dot files are the same)")
     public static boolean exportCanonically = false;
     // end option group "Debugging Options"
 
@@ -472,14 +473,14 @@ public class Main implements Callable<Integer> {
      * Returns the filename for an intermediate dot file based on the given
      * stage name and round number. Adheres to the convention specified above
      * in usage, namely that the filename is of the format:
-     * outputFilename.stage-S.round-R.dot
+     * outputPathPrefix.stage-S.round-R.dot
      * 
      * @param stageName Stage name string, e.g. "r" for refinement
      * @param roundNum Round number within the stage
      * @return
      */
     public static String getIntermediateDumpFilename(String stageName, int roundNum) {
-    	return new String(outputFilename + ".stage-" + stageName + ".round-"+ roundNum + ".dot");
+    	return new String(outputPathPrefix + ".stage-" + stageName + ".round-"+ roundNum + ".dot");
     }
 
     /***********************************************************/
@@ -567,13 +568,13 @@ public class Main implements Callable<Integer> {
 		
 		if (dumpInitialGraph) {
             // If we were given an output filename then export the resulting graph 
-			// into outputFilename.initial.dot
-            if (Main.outputFilename != null) {
+			// into outputPathPrefix.initial.dot
+            if (Main.outputPathPrefix != null) {
                 logger.fine("Exporting initial graph..");
                 GraphVizExporter exporter = new GraphVizExporter();
-                exporter.exportAsDotAndPngFast(Main.outputFilename + ".initial.dot", inputGraph);
+                exporter.exportAsDotAndPngFast(Main.outputPathPrefix + ".initial.dot", inputGraph);
             } else {
-            	logger.warning("Cannot output initial graph as outputFilename is not specified");            	
+            	logger.warning("Cannot output initial graph as outputPathPrefix is not specified");            	
             }
         }		
 		
@@ -594,11 +595,11 @@ public class Main implements Callable<Integer> {
 		// TODO: check that none of the initially mined synoptic.invariants are unsatisfied in the result		
 		
 		// export the resulting graph
-		if (Main.outputFilename != null) {
+		if (Main.outputPathPrefix != null) {
 			logger.fine("Exporting final graph with " + result.getNodes().size() + " nodes..");
 			GraphVizExporter exporter = new GraphVizExporter();
 			exporter.edgeLabels = false;
-			exporter.exportAsDotAndPngFast(Main.outputFilename, result);
+			exporter.exportAsDotAndPngFast(Main.outputPathPrefix, result);
 		}
 		
 		return new Integer(0);
