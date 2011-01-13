@@ -349,7 +349,7 @@ public class TraceParser {
 						if (entry.getKey().equals("FILE")) continue;
 						msg.append(entry.getKey() + " = " + entry.getValue() + ", ");
 					}
-					msg.append("TYPE = " + nodeName);
+					msg.append("TYPE = " + eventType);
 					msg.append("}");
 					logger.info(msg.toString());
 				}
