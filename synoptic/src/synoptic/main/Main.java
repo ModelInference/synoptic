@@ -556,6 +556,7 @@ public class Main implements Callable<Integer> {
 					parsedEvents.addAll(parser.parseTraceFile(file, -1));
 				} catch (ParseException e) {
 					logger.severe("Caught ParseException -- unable to continue, exiting. Use -h for help.");
+					logger.severe(e.toString());
 					return new Integer(1);
 				}
 			}
