@@ -161,13 +161,18 @@ public class TraceParser {
 		}
 	}
 	
+	private static <T> void cycle(List<T> l) {
+		l.add(0, l.remove(l.size() - 1));
+	}
+	
 	/**
 	 * Create a separator-granularity match.  This works by creating an incrementing
 	 * variable (on separator match), and adding SEPCOUNT to the granularity filter. 
 	 */
 	public void addSeparator(String regex) {
-		this.addRegex(regex + "(?<SEPCOUNT++>)");
-		this.filter.concat(new NamedSubstitution("\\k<SEPCOUNT>"));
+		addRegex(regex + "(?<SEPCOUNT++>)(?<HIDE=>true)");
+		cycle(parsers); cycle(this.incrementors); cycle(this.constantFields);
+		filter.concat(new NamedSubstitution("\\k<SEPCOUNT>"));
 	}
 	
 	/**
@@ -298,7 +303,13 @@ public class TraceParser {
 					}
 				}
 				
-				if (matched.get("HIDE") != null) return null;
+				if (matched.get("HIDE") != null) {
+					// Perform post-increments and exit.
+					for (Map.Entry<String, Boolean> inc : this.incrementors.get(i).entrySet())
+						if (inc.getValue() == true)
+							context.put(inc.getKey(), context.get(inc.getKey()) + 1);
+					return null;
+				}
 
 				String eventType = matched.get("TYPE");
 				//TODO: determine if this is desired + print warning
@@ -365,7 +376,7 @@ public class TraceParser {
 			return new Occurrence(this.builder.insert(action), incTime(prevTime), null);
 		}
 		
-		logger.severe("Failed to parse trace line: \n" + line);
+		logger.severe("Does not match any of the provided regular exceptions (use -i to ignore these errors): \n" + line);
 		throw new ParseException();
 	}
 	
