@@ -133,9 +133,9 @@ public class Main implements Callable<Integer> {
     public static boolean recoverFromParseErrors = false;
     
     /**
-     * Output the fields extracted from each log line.
+     * Output the fields extracted from each log line and terminate.
      */
-    @Option (value="Debug the parser by printing field values extracted from the log", aliases={"-debugParse"})
+    @Option (value="Debug the parser by printing field values extracted from the log and then terminate.", aliases={"-debugParse"})
     public static boolean debugParse = false;
     // end option group "Parser Options"
     
@@ -174,7 +174,7 @@ public class Main implements Callable<Integer> {
      * Dump the complete list of mined synoptic.invariants for the set of input files
      * to stdout.
      * 
-     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
+     * This option is <i>unpublicized</i>; it will not appear in the default usage message
      */
     @OptionGroup (value="Verbosity Options", unpublicized=true)
     @Option("Dump complete list of mined invariant to stdout")
@@ -185,7 +185,7 @@ public class Main implements Callable<Integer> {
      * will have the name <outputPathPrefix>.initial.dot, where 'outputPathPrefix'
      * is the filename of the final Synoptic output.
      * 
-     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
+     * This option is <i>unpublicized</i>; it will not appear in the default usage message
      */
     @Option("Dump the initial graph to file <outputPathPrefix>.initial.dot")
     public static boolean dumpInitialGraph = true;
@@ -198,7 +198,7 @@ public class Main implements Callable<Integer> {
      * (e.g. r for refinement, and c for coarsening), and 'R' is the round number
      * within the stage.
      * 
-     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
+     * This option is <i>unpublicized</i>; it will not appear in the default usage message
      */
     @Option("Dump dot files from intermediate Synoptic stages to files of form outputPathPrefix.stage-S.round-R.dot")
     public static boolean dumpIntermediateStages = false;
@@ -210,7 +210,7 @@ public class Main implements Callable<Integer> {
      * Do not perform the coarsening stage in Synoptic, and as final
      * output use the most refined representation.
      * 
-     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
+     * This option is <i>unpublicized</i>; it will not appear in the default usage message
      */
     @OptionGroup (value="Debugging Options", unpublicized=true)
     @Option("Do not perform the coarsening stage")
@@ -219,7 +219,7 @@ public class Main implements Callable<Integer> {
     /**
      * Perform benchmarking and output benchmark information
      * 
-     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
+     * This option is <i>unpublicized</i>; it will not appear in the default usage message
      */
     @Option("Perform benchmarking and output benchmark information")
     public static boolean doBenchmarking = false;
@@ -227,7 +227,7 @@ public class Main implements Callable<Integer> {
     /**
      * Run all the synoptic.tests, and then terminate. 
      * 
-     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
+     * This option is <i>unpublicized</i>; it will not appear in the default usage message
      */
     @Option("Run all the synoptic.tests, and then terminate.")
     public static boolean runTests = false;
@@ -238,7 +238,7 @@ public class Main implements Callable<Integer> {
      * output. This is useful for just printing the list of mined
      * synoptic.invariants (using the option 'dumpInvariants' above).
      * 
-     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
+     * This option is <i>unpublicized</i>; it will not appear in the default usage message
      */
     @Option("Do not perform refinement")
     public static boolean noRefinement = false;
@@ -248,7 +248,7 @@ public class Main implements Callable<Integer> {
      * will generated the same dot files. The generated Graphviz dot files
      * may then be diff-ed to check if they represent the same graphs.
      * 
-     * This option is <i>unpublicized</i>; it will not be listed appear in the default usage message
+     * This option is <i>unpublicized</i>; it will not appear in the default usage message
      */
     @Option("Export graphs in a canonical Graphviz format (can use diff to tell if two dot files are the same)")
     public static boolean exportCanonically = false;
@@ -452,6 +452,9 @@ public class Main implements Callable<Integer> {
     
     /**
      * Given a potentially wild-carded file path, finds all those which match.
+     * 
+     * TODO: make sure that the same file doesn't appear twice in the returned list
+     * 
      * @param fileArg The file path which may potentially contain wildcards.
      * @return An array of File handles which match.
      */
@@ -562,6 +565,12 @@ public class Main implements Callable<Integer> {
 			}
 		}
 		
+		if (Main.debugParse) {
+			// Terminate since the user is interested in debugging the parser.
+			logger.info("Terminating. To continue further, re-run without the debugParse option.");
+			return new Integer(0);
+		}
+		
 		// If we parsed any events, then run Synoptic.
 		logger.fine("Running Synoptic..");
 		parser.generateDirectTemporalRelation(parsedEvents, true);
@@ -571,7 +580,7 @@ public class Main implements Callable<Integer> {
             // If we were given an output filename then export the resulting graph 
 			// into outputPathPrefix.initial.dot
             if (Main.outputPathPrefix != null) {
-                logger.fine("Exporting initial graph..");
+                logger.info("Exporting initial graph [" + inputGraph.getNodes().size() + " nodes]..");
                 GraphVizExporter exporter = new GraphVizExporter();
                 exporter.exportAsDotAndPngFast(Main.outputPathPrefix + ".initial.dot", inputGraph);
             } else {
@@ -597,7 +606,7 @@ public class Main implements Callable<Integer> {
 		
 		// export the resulting graph
 		if (Main.outputPathPrefix != null) {
-			logger.fine("Exporting final graph with " + result.getNodes().size() + " nodes..");
+			logger.info("Exporting final graph [" + result.getNodes().size() + " nodes]..");
 			GraphVizExporter exporter = new GraphVizExporter();
 			exporter.edgeLabels = false;
 			exporter.exportAsDotAndPngFast(Main.outputPathPrefix, result);

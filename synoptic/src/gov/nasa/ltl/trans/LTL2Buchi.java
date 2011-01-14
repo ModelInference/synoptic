@@ -35,13 +35,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.util.logging.Logger;
 
 /**
  * DOCUMENT ME!
  */
 public class LTL2Buchi {
-	//private static boolean debug = false;
-	private static boolean debug = true;
+	private static Logger logger = Logger.getLogger("LTL2Buchi Logger");
 
 	public static void main(String[] args) {
 		String ltl = null;
@@ -50,8 +50,7 @@ public class LTL2Buchi {
 		boolean fairSim = true;
 		boolean file_provided = false;
 		int format = Graph.FSP_FORMAT;
-		debug = true;
-
+		
 		System.out.println("\nAuthors Dimitra Giannakopoulou & Flavio Lerda, \n(c) 2001,2003 NASA Ames Research Center\n");
 
 		Translator.set_algorithm(Translator.LTL2BUCHI);
@@ -84,8 +83,6 @@ public class LTL2Buchi {
 					bisim = false;
 				} else if (args[i].equals("-nofsim")) {
 					fairSim = false;
-				} else if (args[i].equals("-nodebug")) {
-					debug = false;
 				} else if (args[i].equals("-o")) {
 					i++;
 
@@ -134,9 +131,11 @@ public class LTL2Buchi {
 		try {
 			final Graph g = translate(ltl, rewrite, bisim, fairSim);
 			g.save(format);
-			System.out.println("\n***********************\n");
+			
+			logger.fine("\n***********************\n");
+			
 		} catch (final ParseErrorException ex) {
-			System.out.println("Error: " + ex);
+			logger.fine("Error: " + ex);
 		}
 	}
 
@@ -148,8 +147,7 @@ public class LTL2Buchi {
 
 	public static Graph translate(String formula, boolean rewrite,
 			boolean bisim, boolean fair_sim) throws ParseErrorException {
-		System.out.println("Translating formula: " + formula);
-		System.out.println();
+		logger.fine("Translating formula: " + formula);
 		final boolean superset = true;
 		final boolean scc = true;
 
@@ -160,29 +158,23 @@ public class LTL2Buchi {
 				throw new ParseErrorException(e.getMessage());
 			}
 
-			//if (debug) {
-				System.out.println("Rewritten as       : " + formula);
-				System.out.println();
-			//}
+			logger.fine("Rewritten as       : " + formula);
 		}
 
 		if (formula == null) {
-			System.out.println("Unexpected null formula");
+			logger.fine("Unexpected null formula");
 		}
 
 		Graph gba = Translator.translate(formula);
 
-		if (debug) {
-			//      gba.save("gba.sm");
-			System.out.println("\n***********************");
-			System.out.println("\nGeneralized buchi automaton generated");
-			System.out.println("\t" + gba.getNodeCount() + " states "
-					+ gba.getEdgeCount() + " transitions");
+		//      gba.save("gba.sm");
+		logger.fine("\n***********************");
+		logger.fine("\nGeneralized buchi automaton generated");
+		logger.fine("\t" + gba.getNodeCount() + " states "
+				+ gba.getEdgeCount() + " transitions");
 
-			//    System.out.println();
-			//	  gba.save(Graph.FSP_FORMAT);
-			//      System.out.println("***********************\n\n");
-		}
+		//	  gba.save(Graph.FSP_FORMAT);
+		//      System.out.println("***********************\n\n");
 
 		/*
 		 // Omitted - does not seem to always at this stage, for example !(aU (bUc))
@@ -203,77 +195,68 @@ public class LTL2Buchi {
 		if (superset) {
 			gba = SuperSetReduction.reduce(gba);
 
-			if (debug) {
-				//    	gba.save("ssr-gba.sm");
-				System.out.println("\n***********************");
-				System.out.println("Superset reduction");
-				System.out.println("\t" + gba.getNodeCount() + " states "
-						+ gba.getEdgeCount() + " transitions");
+			
+			//    	gba.save("ssr-gba.sm");
+			logger.fine("\n***********************");
+			logger.fine("Superset reduction");
+			logger.fine("\t" + gba.getNodeCount() + " states "
+					+ gba.getEdgeCount() + " transitions");
 
-				//      System.out.println();
-				//      gba.save(Graph.FSP_FORMAT);
-			}
+			//      System.out.println();
+			//      gba.save(Graph.FSP_FORMAT);
 		}
 
 		Graph ba = Degeneralize.degeneralize(gba);
 
 		//    ba.save("ba.sm");
-		if (debug) {
-			System.out.println("\n***********************");
-			System.out.println("Degeneralized buchi automaton generated");
-			System.out.println("\t" + ba.getNodeCount() + " states "
-					+ ba.getEdgeCount() + " transitions");
+		logger.fine("\n***********************");
+		logger.fine("Degeneralized buchi automaton generated");
+		logger.fine("\t" + ba.getNodeCount() + " states "
+				+ ba.getEdgeCount() + " transitions");
 
 			//    System.out.println();
 			//    ba.save(Graph.FSP_FORMAT);
-		}
-
+		
 		if (scc) {
 			ba = SCCReduction.reduce(ba);
 
-			if (debug) {
-				//    	ba.save("scc-ba.sm");
-				System.out.println("\n***********************");
-				System.out.println("Strongly connected component reduction");
-				System.out.println("\t" + ba.getNodeCount() + " states "
-						+ ba.getEdgeCount() + " transitions");
+			//    	ba.save("scc-ba.sm");
+			logger.fine("\n***********************");
+			logger.fine("Strongly connected component reduction");
+			logger.fine("\t" + ba.getNodeCount() + " states "
+					+ ba.getEdgeCount() + " transitions");
 
-				//      	System.out.println();
-				//		ba.save(Graph.FSP_FORMAT);
-			}
+			//      	System.out.println();
+			//		ba.save(Graph.FSP_FORMAT);
 		}
 
 		if (bisim) {
 			ba = Simplify.simplify(ba);
 
-			if (debug) {
-				//     ba.save("bisim-final.sm");
-				System.out.println("\n***********************");
-				System.out.println("Bisimulation applied");
-				System.out.println("\t" + ba.getNodeCount() + " states "
-						+ ba.getEdgeCount() + " transitions");
+			//     ba.save("bisim-final.sm");
+			logger.fine("\n***********************");
+			logger.fine("Bisimulation applied");
+			logger.fine("\t" + ba.getNodeCount() + " states "
+					+ ba.getEdgeCount() + " transitions");
 
-				//    	System.out.println();
-				//		ba.save(Graph.FSP_FORMAT);
-			}
+			//    	System.out.println();
+			//		ba.save(Graph.FSP_FORMAT);
 		}
 
 		if (fair_sim) {
 			ba = SFSReduction.reduce(ba);
 
-			if (debug) {
-				//    	ba.save("fairSim-final.sm");
-				System.out.println("\n***********************");
-				System.out.println("Fair simulation applied");
-				System.out.println("\t" + ba.getNodeCount() + " states "
-						+ ba.getEdgeCount() + " transitions");
+			//    	ba.save("fairSim-final.sm");
+			logger.fine("\n***********************");
+			logger.fine("Fair simulation applied");
+			logger.fine("\t" + ba.getNodeCount() + " states "
+					+ ba.getEdgeCount() + " transitions");
 
-				//        System.out.println();
-				//        ba.save(Graph.FSP_FORMAT);
-			}
+			//        System.out.println();
+			//        ba.save(Graph.FSP_FORMAT);
 		}
 
-		//System.out.println("***********************\n");
+		//logger.fine("***********************\n");
 
 		reset_all_static();
 
@@ -320,7 +303,7 @@ public class LTL2Buchi {
 	 } catch (ParseErrorException e) {
 	 throw new ParseErrorException(e.getMessage());
 	 }
-	 System.out.println("Rewritten as       : " + formula);
+	 logger.fine("Rewritten as       : " + formula);
 	 System.out.println();
 	 }
 
@@ -400,7 +383,7 @@ public class LTL2Buchi {
 
 	 }
 
-	 System.out.println("***********************\n");
+	 logger.fine("***********************\n");
 
 	 reset_all_static();
 	 return ba;
