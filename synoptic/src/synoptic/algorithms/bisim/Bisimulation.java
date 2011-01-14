@@ -448,7 +448,7 @@ public abstract class Bisimulation {
 		int numMergeSteps = 0;
 		HashMap<Partition, HashSet<Partition>> blacklist = new HashMap<Partition, HashSet<Partition>>();
 		out: while (true) {
-			logger.info("m " + partitionGraph.getNodes().size());
+			logger.fine("Number of nodes in final graph: " + partitionGraph.getNodes().size());
 			
 			if (Main.dumpIntermediateStages) {
 				GraphVizExporter.quickExport(Main.getIntermediateDumpFilename("c", outer),

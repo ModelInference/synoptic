@@ -119,8 +119,14 @@ public class GraphVizExporter {
 			// could not locate a dot executable
 			return;
 		}
-		String execCommand = dotCommand + " -O -Tpng "
+		
+		String imageExt = "png";
+		
+		String execCommand = dotCommand + " -O -T" + imageExt + " "
 				+ dotFile.getAbsolutePath();
+		
+		logger.info("Exporting graph to: " + dotFile.toString() + "." + imageExt);
+		
 		try {
 			Runtime.getRuntime().exec(execCommand);
 		} catch (IOException e) {
@@ -426,6 +432,7 @@ public class GraphVizExporter {
 
 	public <T extends INode<T>> void exportAsDotAndPngFast(String fileName, IGraph<T> pg) throws Exception {
 		File f = new File(fileName);
+		logger.info("Exporting dot file to: " + fileName);
 		final PrintWriter writer;
 		try {
 			writer = new PrintWriter(f);

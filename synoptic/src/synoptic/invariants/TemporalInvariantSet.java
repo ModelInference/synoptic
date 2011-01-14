@@ -266,7 +266,9 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			return null;
 		} finally {
 			violations.stop();
-			System.out.println(violations.toString());
+			if (Main.doBenchmarking) {
+				System.out.println("BENCHM: " + violations.toString());
+			}
 		}
 	}
 
@@ -365,8 +367,9 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 //			}
 			// get overapproximation
 			itc.stop();
-			if (Main.doBenchmarking)
-				System.out.println(itc);
+			if (Main.doBenchmarking) {
+				System.out.println("BENCHM: " + itc);
+			}
 			TimedTask io = PerformanceMetrics.createTask(
 					"invariants_approximation", false);
 			TemporalInvariantSet overapproximatedInvariantsSet = extractInvariantsForAllRelations(
@@ -416,12 +419,15 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		
 		int percentReduction = possibleInvariants == 0 ? 0 :
 			100 - (overapproximatedInvariantsSetSize * 100 / possibleInvariants);
-		if (Main.doBenchmarking)
-			System.out.println("" + overapproximatedInvariantsSet.size()
+
+		if (Main.doBenchmarking) {
+			System.out.println("BENCHM: " + overapproximatedInvariantsSet.size()
 					+ " true synoptic.invariants, approximation guessed "
 					+ overapproximatedInvariantsSetSize
 					+ ", max possible synoptic.invariants " + possibleInvariants + " ("
 					+ percentReduction + "% reduction through approximation).");
+		}
+		
 		PerformanceMetrics.get().record("true_invariants",
 				overapproximatedInvariantsSet.size());
 		PerformanceMetrics.get().record("approx_invariants",

@@ -87,8 +87,9 @@ public class TraceParser {
 	 * @param input_regex Regular expression of the form described.
 	 */
 	public void addRegex(String input_regex) {
-		//TODO: this method for splitting is ugly, but it works for now
+		// TODO: this method for splitting is ugly, but it works for now
 		// In order to use ";;" in a regex, escape as \;\;
+		// TODO: document this on the wiki
 		String regex = matchEscapedSeparator.matcher(input_regex).replaceAll(";;");
 
 		// Parse out all of the constants.
@@ -118,7 +119,8 @@ public class TraceParser {
 		this.incrementors.add(incMap);
 		
 		// Replace fields which lack regex content with default.
-		//TODO: Different defaults for some special fields.
+		// TODO: Different defaults for some special fields.
+		// TODO: document defaults on the wiki
 		matcher = matchDefault.matcher(regex);
 		StringBuffer newRegex = new StringBuffer();
 		boolean isFirst = true;
@@ -144,21 +146,24 @@ public class TraceParser {
 		this.parsers.add(parser);
 
 		List<String> groups = parser.groupNames();
-		if (logger != null) {
-			logger.info(input_regex);
+
+		if (Main.debugParse) {
+			logger.info("input: " + input_regex);
 			logger.info("processed: " + regex);
 			logger.info("standard: " + parser.standardPattern());
 			if (!groups.isEmpty())
-				logger.info("groups: " + groups.toString());
+				logger.info("\tgroups: " + groups.toString());
 			if (!cmap.isEmpty())
-				logger.info("fields: " + cmap.toString());
+				logger.info("\tfields: " + cmap.toString());
 			if (!incMap.isEmpty())
-				logger.info("incs: " + incMap.toString());
-			/* TODO: warn about missing time / type fields. eg (old code):
-			System.err.println("Error: 'type' named group required in regex.");
-			System.out.println("No provided time field; Using integer time.");
-			 */
+				logger.info("\tincs: " + incMap.toString());
 		}
+		
+		/* TODO: warn about missing time / type fields. eg (old code):
+			System.err.println("Error: 'type' named group required in regex.");
+		    System.out.println("No provided time field; Using integer time.");
+		 */	
+
 	}
 	
 	private static <T> void cycle(List<T> l) {
