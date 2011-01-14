@@ -118,7 +118,6 @@ public class MainTest {
 	// Exports the provided graphs, and checks if they are equal.
 	public static void checkGraphs(String prefix, Graph<MessageEvent> g1, Graph<MessageEvent> g2) {
 		GraphVizExporter export = new GraphVizExporter();
-		export.edgeLabels = false;
 		try {
 			export.exportAsDotAndPngFast(prefix + "_input1.dot", g1);
 			export.exportAsDotAndPngFast(prefix + "_input2.dot", g2);

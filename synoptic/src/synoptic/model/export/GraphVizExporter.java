@@ -49,8 +49,6 @@ public class GraphVizExporter {
 			"C:\\Programme\\Graphviz2.26\\bin\\dot.exe",
 			"C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe" };
 
-	public boolean edgeLabels = true;
-	
 	/**
 	 * @return Returns the dot command executable or null on error
 	 */
@@ -197,8 +195,6 @@ public class GraphVizExporter {
 			logger.finest("Main loop with parentNodes: " + parentNodes.toString());
 			childrenNodes = new LinkedList<T>();
 			Collections.sort(parentNodes);
-			//Collections.sort(parentNodes);
-			//Collections.sort(List<T> parentNodes);
 			
 			for (T node : parentNodes) {
 				logger.finest("Consider parent: " + node.toStringConcise());
@@ -216,7 +212,12 @@ public class GraphVizExporter {
 						if (m.getTransitions().size() == 0)
 							isTerminal = true;
 					}
+				} else if (node instanceof MessageEvent) {
+					MessageEvent e = (MessageEvent) node;
+					if (e.getTransitions().size() == 0) 
+						isTerminal = true; 
 				}
+				
 				isInitial = rootNodes.contains(node);
 				
 				String attrs = nodeDotAttributes(node, isInitial, isTerminal, relationColors.get(relation));
@@ -262,13 +263,15 @@ public class GraphVizExporter {
 			writer.write(sourceInt
 					+ "->"
 					+ targetInt+ " [");
-			if (this.edgeLabels) {
+			if (Main.outputEdgeLabels) {
 				writer.write("label=\""
 					+ quote(trans.toStringConcise())
 					+ "\", weight=\""+trans.toStringConcise()+"\",");
 			}
-			writer.write((trans.toStringConcise().equals("i") ? ",color=blue"
-							: "") + "];" + "\n");
+			if (trans.toStringConcise().equals("i")) {
+				writer.write(",color=blue");
+			}
+			writer.write("];" + "\n");
 		}
 		return;
 	}
@@ -324,7 +327,7 @@ public class GraphVizExporter {
 				writer.write(sourceStateNo
 						+ "->"
 						+ targetStateNo + " [");
-				if (this.edgeLabels) {
+				if (Main.outputEdgeLabels) {
 					writer.write("label=\""
 						+ quote(trans.toStringConcise())
 						+ "\", weight=\""+trans.toStringConcise()+"\",");

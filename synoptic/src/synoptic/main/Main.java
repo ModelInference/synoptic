@@ -167,6 +167,12 @@ public class Main implements Callable<Integer> {
      */
     @Option(value="-d Path to the Graphviz dot command executable to use", aliases={"-dot-executable"})
     public static String dotExecutablePath = null;
+    
+    /**
+     * This sets the otuput edge labels on graphs that are exported.
+     */
+    @Option(value="Output edge labels on graphs to indicate transition probabilities", aliases={"-outputEdgeLabels"})
+    public static boolean outputEdgeLabels = true;
     // end option group "Output Options"
     
     ////////////////////////////////////////////////////
@@ -251,7 +257,7 @@ public class Main implements Callable<Integer> {
      * This option is <i>unpublicized</i>; it will not appear in the default usage message
      */
     @Option("Export graphs in a canonical Graphviz format (can use diff to tell if two dot files are the same)")
-    public static boolean exportCanonically = false;
+    public static boolean exportCanonically = true;
     // end option group "Debugging Options"
 
     
@@ -608,7 +614,6 @@ public class Main implements Callable<Integer> {
 		if (Main.outputPathPrefix != null) {
 			logger.info("Exporting final graph [" + result.getNodes().size() + " nodes]..");
 			GraphVizExporter exporter = new GraphVizExporter();
-			exporter.edgeLabels = false;
 			exporter.exportAsDotAndPngFast(Main.outputPathPrefix, result);
 		}
 		
