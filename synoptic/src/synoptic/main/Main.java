@@ -614,7 +614,7 @@ public class Main implements Callable<Integer> {
 		if (Main.outputPathPrefix != null) {
 			logger.info("Exporting final graph [" + result.getNodes().size() + " nodes]..");
 			GraphVizExporter exporter = new GraphVizExporter();
-			exporter.exportAsDotAndPngFast(Main.outputPathPrefix, result);
+			exporter.exportAsDotAndPngFast(Main.outputPathPrefix + ".dot", result);
 		}
 		
 		return new Integer(0);
