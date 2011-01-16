@@ -126,10 +126,18 @@ public class Main implements Callable<Integer> {
     public static String partitionRegExp = "\\k<FILE>";
     
     /**
+     * This option relieves the user from writing regular expressions to parse lines
+     * that they are not interested in. This also help to avoid parsing of lines
+     * that are corrupted.  
+     */
+    @Option (value="-i Ignore lines that do not match any of the passed regular expressions")
+    public static boolean ignoreNonMatchingLines = false;
+    
+    /**
      * This allows users to get away with sloppy\incorrect regular expressions
      * that might not fully cover the range of log lines appearing in the log files.
      */
-    @Option (value="-i Ignore parser warnings and attempt to recover from parse errors if possible", aliases={"-ignore-parse-errors"})
+    @Option (value="Ignore parser warnings and attempt to recover from parse errors if possible", aliases={"-ignore-parse-errors"})
     public static boolean recoverFromParseErrors = false;
     
     /**
