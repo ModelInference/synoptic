@@ -45,7 +45,7 @@ public class GraphVizExporter {
 		relationColors.put("i", "blue");
 	}
 			
-	static final String[] dotCommands = { "/usr/bin/dot",
+	static final String[] dotCommands = {"/usr/bin/dot",
 			"C:\\Programme\\Graphviz2.26\\bin\\dot.exe",
 			"C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe" };
 
@@ -59,18 +59,8 @@ public class GraphVizExporter {
 				return dotCommand;
 		}
 		if (Main.dotExecutablePath == null) {
-			Field field;
-			try {
-				field = Main.class.getField("dotExecutablePath");
-			} catch (SecurityException e) {
-				e.printStackTrace();
-				return null;
-			} catch (NoSuchFieldException e) {
-				e.printStackTrace();
-				return null;
-			}
-			Option opt = field.getAnnotation(Option.class);
-			logger.severe("Unable to locate the dot command executable, use the following cmd line option:\n" + opt.value());
+			logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t" + 
+					Main.getCmdLineOptDesc("dotExecutablePath"));
 		}
 		return Main.dotExecutablePath;
 	}

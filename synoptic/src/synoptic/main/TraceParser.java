@@ -387,7 +387,9 @@ public class TraceParser {
 									"\nIgnoring line and continuing.");
 							} else {
 								logger.severe("Failed to parse time field " + e.toString() +
-										" for log line:\n" + line);
+										" for log line:\n" + line + "\n\tTry cmd line options:\n\t" +
+										Main.getCmdLineOptDesc("ignoreNonMatchingLines") + "\n\t" +
+										Main.getCmdLineOptDesc("debugParse"));
 								throw new ParseException();
 							}
 						}
@@ -408,6 +410,7 @@ public class TraceParser {
 				if (internActions) action = action.intern();
 				String nodeName = getNodeName(action);
 				if (Main.debugParse) {
+					// TODO: include partition name in the list of field values
 					logger.warning("input: " + line);
 					StringBuilder msg = new StringBuilder("{");
 					for (Map.Entry<String, String> entry : action.getStringArguments().entrySet()) {
@@ -434,7 +437,9 @@ public class TraceParser {
 			return null;
 		}
 		
-		logger.severe("Line does not match any of the provided regular exceptions (use -i to ignore such lines): \n" + line);
+		logger.severe("Line does not match any of the provided regular exceptions:\n" + line + "\nTry cmd line options:\n\t" +
+				Main.getCmdLineOptDesc("ignoreNonMatchingLines") + "\n\t" +
+				Main.getCmdLineOptDesc("debugParse"));
 		throw new ParseException();
 	}
 	
