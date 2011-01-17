@@ -41,7 +41,7 @@ public class Main implements Callable<Integer> {
     /**
      * The current Synoptic version.
      */
-    public static final String versionString = "Synoptic version 0.0.2";
+    public static final String versionString = "Synoptic version 0.0.3";
 
 
     ////////////////////////////////////////////////////
@@ -340,7 +340,8 @@ public class Main implements Callable<Integer> {
         }
         
 		if (logFilenames.size() == 0) {
-			logger.severe("No log filenames specified, exiting. Use -h for help.");
+			logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t" +
+					Main.getCmdLineOptDesc("help"));
 			return;
 		}
 		
@@ -353,6 +354,45 @@ public class Main implements Callable<Integer> {
         Integer ret = mainInstance.call();
         logger.fine("Main.call() returned " + ret.toString());
 		System.exit(ret); 
+    }
+    
+    
+    /**
+     * Outputs a user-friendly screen detailing an internal error 
+     * 
+     * @param e Exception that triggered the internal error
+     */
+    public static void printInternalError(Exception e) {
+    	logger.severe("Internal error, notify developers. Error traceback:");
+    	e.printStackTrace();	
+    }
+    
+    
+    /**
+     * Returns a command line option description for an option name
+     * 
+     * @param optName The option variable name
+     * @return a string description of the option
+     */
+    public static String getCmdLineOptDesc(String optName) {
+    	Field field;
+    	try {
+    		field = Main.class.getField(optName);
+		} catch (SecurityException e) {
+			printInternalError(e);
+			return "";
+		} catch (NoSuchFieldException e) {
+			printInternalError(e);
+			return "";
+		}
+		Option opt = field.getAnnotation(Option.class);
+		String desc = opt.value();
+		if (desc.length() > 0 && desc.charAt(0) != '-') {
+			// For options that do not have a short option form,
+			// include the long option trigger in the description. 
+			desc = "--" + optName + " " + desc; 
+		}
+		return desc; 
     }
     
     
@@ -572,7 +612,8 @@ public class Main implements Callable<Integer> {
 				try {
 					parsedEvents.addAll(parser.parseTraceFile(file, -1));
 				} catch (ParseException e) {
-					logger.severe("Caught ParseException -- unable to continue, exiting. Use -h for help.");
+					logger.severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t" +
+							Main.getCmdLineOptDesc("help"));
 					logger.severe(e.toString());
 					return new Integer(1);
 				}
@@ -598,9 +639,12 @@ public class Main implements Callable<Integer> {
                 GraphVizExporter exporter = new GraphVizExporter();
                 exporter.exportAsDotAndPngFast(Main.outputPathPrefix + ".initial.dot", inputGraph);
             } else {
-            	logger.warning("Cannot output initial graph as outputPathPrefix is not specified");            	
+            	logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t" +
+            		Main.getCmdLineOptDesc("outputPathPrefix"));
             }
-        }		
+        }
+		
+		logger.info("Running Synotic...");
 		
 		PartitionGraph result = new PartitionGraph(inputGraph, true);
 		/* TemporalInvariantSet synoptic.invariants = result.getInvariants();
@@ -623,6 +667,9 @@ public class Main implements Callable<Integer> {
 			logger.info("Exporting final graph [" + result.getNodes().size() + " nodes]..");
 			GraphVizExporter exporter = new GraphVizExporter();
 			exporter.exportAsDotAndPngFast(Main.outputPathPrefix + ".dot", result);
+		} else {
+            logger.warning("Cannot output final graph. Specify output path prefix using:\n\t" +
+            		Main.getCmdLineOptDesc("outputPathPrefix"));            	
 		}
 		
 		return new Integer(0);

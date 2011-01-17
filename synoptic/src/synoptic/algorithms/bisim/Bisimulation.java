@@ -122,7 +122,7 @@ public abstract class Bisimulation {
 				logger.fine("Invariants statisfied. Stopping.");
 				break;
 			}
-			logger.info("" + counterexampleTraces.size()
+			logger.fine("" + counterexampleTraces.size()
 					+ " unsatisfied synoptic.invariants: " + counterexampleTraces);
 
 			// Update the sets with satisfied and unsatisfied synoptic.invariants.
@@ -265,11 +265,11 @@ public abstract class Bisimulation {
 					/*
 					System.out.println("no valid split available, recomputing.");
 					continue; */
-					System.out.println("no valid split available, exiting.");
+					logger.fine("no valid split available, exiting.");
 					break;
 				}
 				partitionGraph.apply(arbitrarySplit);
-				logger.info("1 arbitrary split, "
+				logger.fine("1 arbitrary split, "
 							+ partitionGraph.getNodes().size()
 							+ " nodes in graph. Split is: " + arbitrarySplit);
 			} else {
@@ -288,7 +288,7 @@ public abstract class Bisimulation {
 					Bisimulation.mergePartitions(partitionGraph,
 							new TemporalInvariantSet(satisfiedInvariants));
 				}
-				logger.info(newlySatisfiedInvariants.size()
+				logger.fine(newlySatisfiedInvariants.size()
 						+ " split(s) done, "
 						+ partitionGraph.getNodes().size()
 						+ " nodes in graph, "
