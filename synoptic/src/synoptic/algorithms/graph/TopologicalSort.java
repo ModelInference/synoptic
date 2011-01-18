@@ -7,12 +7,13 @@ import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Set;
 
+import synoptic.util.Pair;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 
 /**
- * Topological sort. Algorithm form wikipedia.
+ * Topological sort. Algorithm from wikipedia.
  * @author sigurd
  *
  * @param <NodeType>
@@ -48,36 +49,28 @@ public class TopologicalSort<NodeType extends INode<NodeType>> {
 		sort.add(0,n);
 	}
 	
-	class Pair {
-		public int level;
-		public NodeType node;
-		public Pair(int level, NodeType node) {
-			this.level = level;
-			this.node = node;
-		}
-	}
-	
 	private void sort(IGraph<NodeType> graph) {
-		PriorityQueue<Pair> active = new PriorityQueue<Pair>(10, new Comparator<Pair>() {
+		// Pair is parameterized with <int, NodeType> = <level, node>
+		PriorityQueue<Pair<Integer, NodeType>> active = new PriorityQueue<Pair<Integer, NodeType>>(10, new Comparator<Pair<Integer, NodeType>>() {
 			@Override
-			public int compare(Pair arg0, Pair arg1) {
-				return new Integer(arg0.level).compareTo(arg1.level);
+			public int compare(Pair<Integer, NodeType> arg0, Pair<Integer, NodeType> arg1) {
+				return new Integer(arg0.getLeft()).compareTo(arg1.getLeft());
 			}
 		});
 		for (NodeType n : getSourceNodes(graph))
-			active.add(new Pair(0, n));
+			active.add(new Pair<Integer, NodeType>(0, n));
 		HashSet<ITransition<NodeType>> seen = new HashSet<ITransition<NodeType>>();
 		while (!active.isEmpty()) {
-			Pair pair = active.poll();
-			sort.add(pair.node);
-			if (!lattice.containsKey(pair.level))
-				lattice.put(pair.level, new HashSet<NodeType>());
-			lattice.get(pair.level).add(pair.node);
-			for (ITransition<NodeType> t : pair.node.getTransitionsIterator()) {
+			Pair<Integer, NodeType> pair = active.poll();
+			sort.add(pair.getRight());
+			if (!lattice.containsKey(pair.getLeft()))
+				lattice.put(pair.getLeft(), new HashSet<NodeType>());
+			lattice.get(pair.getLeft()).add(pair.getRight());
+			for (ITransition<NodeType> t : pair.getRight().getTransitionsIterator()) {
 				if (!seen.add(t))
 					continue;
 				if (containsAllIncommingTransitions(graph, seen, t.getTarget()))
-					active.add(new Pair(pair.level+1, t.getTarget()));
+					active.add(new Pair<Integer, NodeType>(pair.getLeft() + 1, t.getTarget()));
 			}
 		}
 	}

@@ -7,7 +7,6 @@ import synoptic.benchmarks.Benchmark.ConfigureableBenchmark;
 import synoptic.model.MessageEvent;
 import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.IGraph;
-import synoptic.tests.ReverseTraceroute;
 
 /**
  * A benchmark for reverse traceroute.

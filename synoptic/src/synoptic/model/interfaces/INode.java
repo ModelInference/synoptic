@@ -1,12 +1,8 @@
 package synoptic.model.interfaces;
 
 import java.util.List;
-import java.util.Set;
 
-import synoptic.model.Action;
-import synoptic.model.MessageEvent;
 import synoptic.model.Partition;
-import synoptic.model.Relation;
 import synoptic.util.IterableIterator;
 
 /**

@@ -1,4 +1,4 @@
-package synoptic.tests;
+package synoptic.benchmarks;
 
 
 import java.io.File;
@@ -13,8 +13,6 @@ import java.util.Set;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.graph.Operation;
-import synoptic.benchmarks.PerformanceMetrics;
-import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.TemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.TemporalInvariantSet.RelationPath;

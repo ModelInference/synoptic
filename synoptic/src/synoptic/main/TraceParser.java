@@ -27,6 +27,7 @@ import synoptic.model.input.VectorTime;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 
+import synoptic.util.InternalSynopticException;
 import synoptic.util.NamedMatcher;
 import synoptic.util.NamedPattern;
 import synoptic.util.NamedSubstitution;
@@ -87,8 +88,9 @@ public class TraceParser {
 	 * The regex must match the entire line.
 	 *
 	 * @param input_regex Regular expression of the form described.
+	 * @throws ParseException When the input_regex can't be compiled
 	 */
-	public void addRegex(String input_regex) {
+	public void addRegex(String input_regex) throws ParseException {
 		// TODO: this method for splitting is ugly, but it works for now
 		// In order to use ";;" in a regex, escape as \;\;
 		// TODO: document this on the wiki
@@ -143,7 +145,7 @@ public class TraceParser {
 		} catch (Exception e) {
 			logger.severe("Error parsing named-captures in " + regex + ":");
 			logger.severe(e.toString());
-			return;
+			throw new ParseException();
 		}
 		this.parsers.add(parser);
 
@@ -175,15 +177,20 @@ public class TraceParser {
 	/**
 	 * Create a separator-granularity match.  This works by creating an incrementing
 	 * variable (on separator match), and adding SEPCOUNT to the granularity filter. 
+	 * @throws InternalSynopticException On internal error: wrong internal separator reg-exp
 	 */
-	public void addSeparator(String regex) {
-		addRegex(regex + "(?<SEPCOUNT++>)(?<HIDE=>true)");
+	public void addSeparator(String regex) throws InternalSynopticException {
+		try {
+			addRegex(regex + "(?<SEPCOUNT++>)(?<HIDE=>true)");
+		} catch (ParseException e) {
+			throw new InternalSynopticException();
+		}
 		cycle(parsers); cycle(this.incrementors); cycle(this.constantFields);
 		filter.concat(new NamedSubstitution("\\k<SEPCOUNT>"));
 	}
 	
 	/**
-	 * Sets the partitioning filter, to the passed, backreference containing string.
+	 * Sets the partitioning filter, to the passed, back-reference containing string.
 	 */
 	public void setPartitioner(String filter) {
 		this.filter = new NamedSubstitution(filter);
@@ -221,9 +228,10 @@ public class TraceParser {
 	 * @param linesToRead Bound on the number of lines to read. Negatives
 	 *     indicate unbounded.
 	 * @return The parsed occurrences.
-	 * @throws ParseException
+	 * @throws ParseException when user supplied expressions are the problem
+	 * @throws InternalSynopticException when Synoptic code is the problem
 	 */
-	public List<Occurrence> parseTraceFile(File file, int linesToRead) throws ParseException {
+	public List<Occurrence> parseTraceFile(File file, int linesToRead) throws ParseException, InternalSynopticException {
 		String fileName = "";
 		try {
 			FileInputStream fstream = new FileInputStream(file);
@@ -245,9 +253,10 @@ public class TraceParser {
 	 * @param linesToRead Bound on the number of lines to read. Negatives
 	 *     indicate unbounded.
 	 * @return The parsed occurrences.
-	 * @throws ParseException
+	 * @throws ParseException when user supplied expressions are the problem
+	 * @throws InternalSynopticException when Synoptic code is the problem
 	 */
-	public List<Occurrence> parseTraceString(String trace, String traceName, int linesToRead) throws ParseException {
+	public List<Occurrence> parseTraceString(String trace, String traceName, int linesToRead) throws ParseException, InternalSynopticException {
 		StringReader stringReader = new StringReader(trace);
 		try {
 		return parseTrace(stringReader, traceName, linesToRead);
@@ -265,10 +274,11 @@ public class TraceParser {
 	 * @param linesToRead Bound on the number of lines to read. Negatives
 	 *     indicate unbounded.
 	 * @return The parsed occurrences.
-	 * @throws IOException 
-	 * @throws ParseException 
+	 * @throws IOException when the reader we're using is the problem
+	 * @throws ParseException when user supplied expressions are the problem
+	 * @throws InternalSynopticException when Synoptic code is the problem 
 	 */
-	public List<Occurrence> parseTrace(Reader traceReader, String traceName, int linesToRead) throws ParseException, IOException {
+	public List<Occurrence> parseTrace(Reader traceReader, String traceName, int linesToRead) throws ParseException, IOException, InternalSynopticException {
 		BufferedReader br = new BufferedReader(traceReader);
 			
 		// Initialize incrementor context.
@@ -311,7 +321,7 @@ public class TraceParser {
 	 * Parse an individual line.  If it contains no time field, prevTime is
 	 * incremented and used instead.
 	 */
-	private Occurrence parseLine(VectorTime prevTime, String line, String filename, Map<String, Integer> context) throws ParseException {
+	private Occurrence parseLine(VectorTime prevTime, String line, String filename, Map<String, Integer> context) throws ParseException, InternalSynopticException {
 		Action action = null;
 		VectorTime nextTime = null;
 		for (int i = 0; i < this.parsers.size(); i++) {
@@ -437,7 +447,7 @@ public class TraceParser {
 			return null;
 		}
 		
-		logger.severe("Line does not match any of the provided regular exceptions:\n" + line + "\nTry cmd line options:\n\t" +
+		logger.severe("Line from file [" + filename + "] does not match any of the provided regular exceptions:\n" + line + "\nTry cmd line options:\n\t" +
 				Main.getCmdLineOptDesc("ignoreNonMatchingLines") + "\n\t" +
 				Main.getCmdLineOptDesc("debugParse"));
 		throw new ParseException();
@@ -451,8 +461,9 @@ public class TraceParser {
 	 * @param partition True indicates partitioning the occurrences on the nodeName field.
 	 * @return The resulting graph.
 	 * @throws ParseException 
+	 * @throws InternalSynopticException 
 	 */
-	public Graph<MessageEvent> readGraph(String file, int linesToRead, boolean partition) throws ParseException {
+	public Graph<MessageEvent> readGraph(String file, int linesToRead, boolean partition) throws ParseException, InternalSynopticException {
 		List<Occurrence> set = this.parseTraceFile(new File(file), linesToRead);
 		generateDirectTemporalRelation(set, partition);
 		return ((GraphBuilder)this.builder).getRawGraph();

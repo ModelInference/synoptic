@@ -8,15 +8,17 @@ import static org.junit.Assert.*;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.main.TraceParser.Occurrence;
+import synoptic.util.InternalSynopticException;
 
 
 public class TraceParserTests {
 	/**
 	 * Parse a log with implicit time that increments on each log line.
 	 * @throws ParseException 
+	 * @throws InternalSynopticException 
 	 */
 	@Test
-	public void parseImplicitTimeTest() throws ParseException {
+	public void parseImplicitTimeTest() throws ParseException, InternalSynopticException {
 		TraceParser parser = new TraceParser();
 		String trace = "a\nb\nc\n";
 		parser.addRegex("^(?<TYPE>)$");

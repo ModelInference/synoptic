@@ -27,6 +27,7 @@ import synoptic.model.nets.Edge;
 import synoptic.model.nets.Event;
 import synoptic.model.nets.Net;
 import synoptic.model.nets.Place;
+import synoptic.util.InternalSynopticException;
 
 
 /*
@@ -51,6 +52,7 @@ public class GraphVizExporter {
 
 	/**
 	 * @return Returns the dot command executable or null on error
+	 * @throws InternalSynopticException problem looking up a command line option description
 	 */
 	private static String getDotCommand() {
 		for (String dotCommand : dotCommands) {
@@ -59,8 +61,12 @@ public class GraphVizExporter {
 				return dotCommand;
 		}
 		if (Main.dotExecutablePath == null) {
+			try {
 			logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t" + 
 					Main.getCmdLineOptDesc("dotExecutablePath"));
+			} catch (InternalSynopticException e) {
+				System.out.println(e);
+			}
 		}
 		return Main.dotExecutablePath;
 	}
