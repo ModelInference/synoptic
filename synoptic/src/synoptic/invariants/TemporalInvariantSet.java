@@ -375,8 +375,9 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			TemporalInvariantSet overapproximatedInvariantsSet = extractInvariantsForAllRelations(
 					g, transitiveClosure);
 			io.stop();
-			if (Main.doBenchmarking)
+			if (Main.doBenchmarking) {
 				System.out.println(io);
+			}
 			int overapproximatedInvariantsSetSize = overapproximatedInvariantsSet
 					.size();
 			TimedTask iri = PerformanceMetrics.createTask(

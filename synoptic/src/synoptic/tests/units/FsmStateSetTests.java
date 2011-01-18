@@ -1,7 +1,7 @@
 package synoptic.tests.units;
 
-
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 import synoptic.invariants.fsmcheck.AFbyInvFsms;
 import synoptic.invariants.fsmcheck.APInvFsms;
@@ -49,17 +49,17 @@ public class FsmStateSetTests {
 		FsmStateSet<MessageEvent> before = a.copy();
 		
 		transfer(a, "0000 0000");
-		assert(a.equals(before));
+		assertTrue(a.equals(before));
 		transfer(a, "0000 0101");
-		assert(a.equals(before));
-		assert(a.whichFail().equals(new BitSet()));
+		assertTrue(a.equals(before));
+		assertTrue(a.whichFail().equals(new BitSet()));
 		transfer(a, "1010 0000");
-		assert(a.whichFail().equals(parseBitSet("1010")));
-		assert(!a.equals(before));
+		assertTrue(a.whichFail().equals(parseBitSet("1010")));
+		assertTrue(!a.equals(before));
 		transfer(a, "0000 1000");
-		assert(!a.equals(before));
+		assertTrue(!a.equals(before));
 		transfer(a, "0000 0010");
-		assert(a.equals(before));
+		assertTrue(a.equals(before));
 	}
 	
 	@Test
@@ -70,18 +70,18 @@ public class FsmStateSetTests {
 		b.setInitial(msg);
 		FsmStateSet<MessageEvent> before;
 		
-		//assert(a.isFail().equals(new BitSet()));
+		//assertTrue(a.isFail().equals(new BitSet()));
 		transfer(b, "0111 1000");
-		assert(b.whichFail().equals(parseBitSet("1000")));
+		assertTrue(b.whichFail().equals(parseBitSet("1000")));
 		
 		before = b.copy();
 		transfer(b, "0101 0000");
 		transfer(b, "0010 0000");
-		assert(b.equals(before));
+		assertTrue(b.equals(before));
 		transfer(b, "0000 0110");
-		assert(!b.equals(before));
+		assertTrue(!b.equals(before));
 		transfer(b, "0100 0000");
-		assert(b.whichFail().equals(parseBitSet("1100")));
+		assertTrue(b.whichFail().equals(parseBitSet("1100")));
 	}
 	
 	@Test
@@ -91,12 +91,12 @@ public class FsmStateSetTests {
 		c.setInitial(msg);
 		
 		transfer(c, "0000 0101");
-		// assert(b.equals(before));
+		// assertTrue(b.equals(before));
 		transfer(c, "1010 0101");
-		//assert(!b.equals(before));
-		//assert(a.isFail().equals(new BitSet()));
+		//assertTrue(!b.equals(before));
+		//assertTrue(a.isFail().equals(new BitSet()));
 		transfer(c, "0010 1000");
-		//assert(a.isFail().equals(parseBitSet("1000")));
+		//assertTrue(a.isFail().equals(parseBitSet("1000")));
 	}
 	
 }

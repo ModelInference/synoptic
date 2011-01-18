@@ -34,6 +34,7 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
 import synoptic.util.BriefLogFormatter;
+import synoptic.util.InternalSynopticException;
 
 public class Main implements Callable<Integer> {
 	public static Logger logger = null;
@@ -239,13 +240,21 @@ public class Main implements Callable<Integer> {
     public static boolean doBenchmarking = false;
     
     /**
-     * Run all the synoptic.tests, and then terminate. 
+     * Run all tests in synoptic.tests.units -- all the unit tests, and then terminate. 
      * 
      * This option is <i>unpublicized</i>; it will not appear in the default usage message
      */
-    @Option("Run all the synoptic.tests, and then terminate.")
+    @Option("Run all tests in synoptic.tests.units, and then terminate.")
     public static boolean runTests = false;
-
+    
+    /**
+     * Run all tests in synoptic.tests -- unit and integration tests, and then terminate. 
+     * 
+     * This option is <i>unpublicized</i>; it will not appear in the default usage message
+     */
+    @Option("Run all tests in synoptic.tests, and then terminate.")
+    public static boolean runAllTests = false;
+        
     /**
      * Do not perform the refinement (and therefore do not perform
      * coarsening) and do not produce any representation as
@@ -335,8 +344,11 @@ public class Main implements Callable<Integer> {
             return;
         }
         
-        if (runTests) {
-        	runTests();
+        if (runAllTests) {
+        	runTestsInPackage("synoptic.tests.units.");
+        	runTestsInPackage("synoptic.tests.integration.");
+        } else if (runTests) {
+        	runTestsInPackage("synoptic.tests.units.");
         }
         
 		if (logFilenames.size() == 0) {
@@ -358,32 +370,20 @@ public class Main implements Callable<Integer> {
     
     
     /**
-     * Outputs a user-friendly screen detailing an internal error 
-     * 
-     * @param e Exception that triggered the internal error
-     */
-    public static void printInternalError(Exception e) {
-    	logger.severe("Internal error, notify developers. Error traceback:");
-    	e.printStackTrace();	
-    }
-    
-    
-    /**
      * Returns a command line option description for an option name
      * 
      * @param optName The option variable name
      * @return a string description of the option
+     * @throws InternalSynopticException if optName cannot be accessed
      */
-    public static String getCmdLineOptDesc(String optName) {
+    public static String getCmdLineOptDesc(String optName) throws InternalSynopticException {
     	Field field;
     	try {
     		field = Main.class.getField(optName);
 		} catch (SecurityException e) {
-			printInternalError(e);
-			return "";
+			throw new InternalSynopticException();
 		} catch (NoSuchFieldException e) {
-			printInternalError(e);
-			return "";
+			throw new InternalSynopticException();
 		}
 		Option opt = field.getAnnotation(Option.class);
 		String desc = opt.value();
@@ -401,15 +401,14 @@ public class Main implements Callable<Integer> {
      * 
      * @throws URISyntaxException if Main.class can't be located
      */
-    public static void runTests() throws URISyntaxException {
+    public static void runTestsInPackage(String packageName) throws URISyntaxException {
     	// If we are running from within a jar then jarName contains the path to the jar
     	// otherwise, it contains the path to where Main.class is located on the filesystem 
     	String jarName = Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
     	System.out.println("Looking for tests in: " + jarName);
     	        	
-    	// We assume that the tests we want to run are classes within the following
+    	// We assume that the tests we want to run are classes within
     	// packageName, which can be found with the corresponding packagePath filesystem offset
-    	String packageName = "synoptic.tests.units.";
     	String packagePath = packageName.replaceAll("\\.", File.separator);
     	
     	ArrayList<String> testClasses = new ArrayList<String>();
