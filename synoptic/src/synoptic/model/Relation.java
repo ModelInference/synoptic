@@ -1,12 +1,11 @@
 package synoptic.model;
 
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Locale;
 
 //import daikon.inv.Invariant;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import org.apache.commons.lang.NotImplementedException;
 
 /**
  * A relation that supports storing frequencies and synoptic.invariants.

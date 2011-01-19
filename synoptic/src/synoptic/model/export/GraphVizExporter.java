@@ -185,31 +185,31 @@ public class GraphVizExporter {
 		LinkedList<T> parentNodes = new LinkedList<T>(rootNodes);
 		boolean isTerminal, isInitial;
 						
-		logger.finest("<exportRelationNodes>, nodeCnt is " + nodeCnt);
+		//logger.finest("<exportRelationNodes>, nodeCnt is " + nodeCnt);
 		LinkedList<T> childrenNodes = null;
 		while (parentNodes.size() != 0) {
-			logger.finest("Main loop with parentNodes: " + parentNodes.toString());
+			//logger.finest("Main loop with parentNodes: " + parentNodes.toString());
 			childrenNodes = new LinkedList<T>();
 			Collections.sort(parentNodes);
 			
 			for (T node : parentNodes) {
-				logger.finest("Consider parent: " + node.toStringConcise());
+			//	logger.finest("Consider parent: " + node.toStringConcise());
 				
 				if (nodeToInt.containsKey(node)) {
 					// Skip nodes that have been processed previously.
-					logger.finest("Skipping previously seen node: " + node.toStringConcise());
+				//	logger.finest("Skipping previously seen node: " + node.toStringConcise());
 					continue;
 				}
 				
 				isTerminal=false;
-				if (node instanceof Partition) {
-					Partition p = (Partition) node;
+				if ((INode<?>)node instanceof Partition) {
+					Partition p = (Partition)(INode<?>) node;
 					for (MessageEvent m: p.getMessages()) {
 						if (m.getTransitions().size() == 0)
 							isTerminal = true;
 					}
-				} else if (node instanceof MessageEvent) {
-					MessageEvent e = (MessageEvent) node;
+				} else if ((INode<?>)node instanceof MessageEvent) {
+					MessageEvent e = (MessageEvent)(INode<?>) node;
 					if (e.getTransitions().size() == 0) 
 						isTerminal = true; 
 				}
@@ -222,14 +222,14 @@ public class GraphVizExporter {
 				List<? extends ITransition<T>> transitions = node.getTransitions();
 				for (ITransition<T> trans: transitions) {
 					T child = trans.getTarget();
-					logger.finest("Considering child: " + child.toStringConcise() + ", and its class is: " + child.getClass().toString());
+					//logger.finest("Considering child: " + child.toStringConcise() + ", and its class is: " + child.getClass().toString());
 					childrenNodes.add(child);
 					
-					logger.finest("ChildrenNodes is now: " + childrenNodes.toString());
+					//logger.finest("ChildrenNodes is now: " + childrenNodes.toString());
 				}
 				allTransitions.addAll(transitions);
 				nodeCnt += 1;
-				logger.finest("Main loop end, new nodeCnt is " + nodeCnt);
+				//logger.finest("Main loop end, new nodeCnt is " + nodeCnt);
 			}
 			parentNodes = childrenNodes;
 		}
@@ -293,8 +293,8 @@ public class GraphVizExporter {
 			final int sourceStateNo = e.hashCode();
 			
 			boolean isTerminal=false;
-			if (e instanceof Partition) {
-				Partition p = (Partition)e;
+			if ((INode<?>)e instanceof Partition) {
+				Partition p = (Partition)(INode<?>)e;
 				for (MessageEvent m: p.getMessages()) {
 					if (m.getTransitions().size() == 0)
 						isTerminal = true;

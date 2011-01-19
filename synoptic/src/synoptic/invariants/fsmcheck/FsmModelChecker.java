@@ -134,7 +134,7 @@ public class FsmModelChecker {
 		List<BinaryInvariant> neverFollowed  = new ArrayList<BinaryInvariant>();
 		for (TemporalInvariant inv : invariants) {
 			@SuppressWarnings("unchecked")
-			Class<Object> invClass = (Class<Object>) inv.getClass();
+			Class<Object> invClass = (Class<Object>) (Class) inv.getClass();
 			if (invClass.equals(AlwaysFollowedInvariant.class)) {
 				alwaysFollowed.add((BinaryInvariant)inv);
 			} else if (invClass.equals(AlwaysPrecedesInvariant.class)) {

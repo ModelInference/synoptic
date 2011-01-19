@@ -11,9 +11,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.commons.lang.NotImplementedException;
 
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
