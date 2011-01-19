@@ -36,22 +36,26 @@ import synoptic.util.IterableIterator;
 public class Partition implements INode<Partition>, Comparable<Partition> {
 	protected final Set<MessageEvent> messages;
 	private String label;
+	private boolean isFinal;
 
 	public Partition(Set<MessageEvent> messages) {
 		this.messages = new LinkedHashSet<MessageEvent>(messages);
 		for (final MessageEvent m : messages)
 			m.setParent(this);
+		this.updateIsFinal();
 	}
 
 	public void addMessage(MessageEvent message) {
 		messages.add(message);
 		message.setParent(this);
+		isFinal |= message.isFinal();
 	}
 
 	public void addAllMessages(Collection<MessageEvent> messages) {
 		this.messages.addAll(messages);
 		for (final MessageEvent m : messages) {
 			m.setParent(this);
+			isFinal |= m.isFinal();
 		}
 	}
 
@@ -282,13 +286,14 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 		this.label = str;
 	}
 
-	//TODO: benchmark how expensive this is -- cache and maintain?
-	public boolean isFinal() {
+	protected boolean updateIsFinal() {
 		for (MessageEvent e : messages) {
 			if (e.isFinal()) return true;
 		}
 		return false;
 	}
+	
+	public boolean isFinal() { return isFinal; }
 
 	@Override
 	public int compareTo(Partition other) {
