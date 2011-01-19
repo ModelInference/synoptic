@@ -53,7 +53,7 @@ public class Main implements Callable<Integer> {
     @OptionGroup("General Options")
     @Option(value="-h Print short usage message", aliases={"-help"})
     public static boolean help = false;
-        
+    
     /**
      * Print the extended usage message.  This includes verbosity and
      * debugging options but not internal options.
@@ -67,7 +67,6 @@ public class Main implements Callable<Integer> {
     @Option (value="-V Print program version", aliases={"-version"})
     public static boolean version = false;
     // end option group "General Options"
-
     
     ////////////////////////////////////////////////////
     /**
@@ -510,8 +509,9 @@ public class Main implements Callable<Integer> {
      * 
      * @param fileArg The file path which may potentially contain wildcards.
      * @return An array of File handles which match.
+     * @throws Exception 
      */
-    public static File[] getFiles(String fileArg) {
+    public static File[] getFiles(String fileArg) throws Exception {
     	int wildix = fileArg.indexOf("*");
     	if (wildix == -1) {
     		return new File[]{ new File(fileArg) };
@@ -519,9 +519,14 @@ public class Main implements Callable<Integer> {
     		String uptoWild = fileArg.substring(0, wildix);
     		String path = FilenameUtils.getFullPath(uptoWild);
     		String filter = FilenameUtils.getName(uptoWild) + fileArg.substring(wildix);
-    		File dir = new File(path);
+    		File dir = new File(path).getAbsoluteFile();
     		//TODO: check that listFiles is working properly recursively here.
-    		return dir.listFiles((FileFilter)new WildcardFileFilter(filter));
+    		File[] results = dir.listFiles((FileFilter)new WildcardFileFilter(filter));
+    		if (results == null) {
+    			throw new Exception("Wildcard match failed: " + ( dir.isDirectory() ?
+    					dir.toString() + " not a directory" : " for unknown reason"));
+    		}
+    		return results;
     	}
     }
     
@@ -606,7 +611,8 @@ public class Main implements Callable<Integer> {
 		
 		for (String fileArg : Main.logFilenames) {
 			logger.fine("\tprocessing fileArg: " + fileArg);
-			for (File file : getFiles(fileArg)) {
+			File[] files = getFiles(fileArg);
+			for (File file : files) {
 				logger.fine("\tcalling parseTraceFile with file: " + file.getAbsolutePath());
 				try {
 					parsedEvents.addAll(parser.parseTraceFile(file, -1));

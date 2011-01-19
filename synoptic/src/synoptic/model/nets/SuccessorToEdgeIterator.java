@@ -3,7 +3,8 @@ package synoptic.model.nets;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import org.apache.commons.lang.NotImplementedException;
+
 import synoptic.util.IterableIterator;
 
 public class SuccessorToEdgeIterator<S, T> implements
