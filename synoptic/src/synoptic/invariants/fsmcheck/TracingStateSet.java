@@ -110,4 +110,10 @@ public abstract class TracingStateSet<T> implements IStateSet<T, TracingStateSet
 	
 	@Override
 	public boolean isFail() { return failpath() != null; }
+
+	// Utility function in common with all TracingSet toString definitions.
+	protected static void appendWNull(StringBuilder s, Object o) {
+		if (o == null) s.append("0"); else s.append(o.toString());
+	}
+
 }
