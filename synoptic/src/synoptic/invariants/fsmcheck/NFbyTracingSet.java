@@ -95,4 +95,16 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 		if (casted.bSeenAfter == null) { if (bSeenAfter != null) return false; }
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+                result.append("NFby: ");
+		appendWNull(result, bSeenAfter); // Failure case first.	
+		result.append(" | ");
+		appendWNull(result, aSeen);
+		result.append(" | ");
+		appendWNull(result, aNotSeen);
+		return result.toString();
+	}
 }

@@ -79,6 +79,9 @@ public class FsmModelChecker {
 			T node = workList.remove();
 			onWorkList.remove(node);
 			S current = states.get(node);
+		/*	System.out.println();
+			System.out.println(node.getLabel() + " " + node.toString());
+			System.out.println(current.toString()); */
 			for (ITransition<T> adjacent : node.getTransitionsIterator()) {
 				T target = adjacent.getTarget();
 				S other = states.get(target);
@@ -90,9 +93,16 @@ public class FsmModelChecker {
 					return states;
 				}
 				if (!isSubset && !onWorkList.contains(target)) {
+					/*System.out.println("propogated to " + 
+							target.getLabel() + " " + target.toString() + (target.isFinal() ? "final" : ""));
+					System.out.println(other); */
 					workList.add(target);
 					onWorkList.add(target);
-				}
+				} /*else {
+					System.out.println("subset found on " +
+							target.getLabel() + " " + target.toString() + (target.isFinal() ? "final" : ""));
+					System.out.println(other);
+				}*/
 			}
 		}
 		
@@ -182,14 +192,13 @@ public class FsmModelChecker {
 
 		// Return the shortest path, ending on a final node, which causes the
 		// invariant to fail.
-		TracingStateSet<T>.HistoryNode shortestPath = null; 
+		TracingStateSet<T>.HistoryNode shortestPath = null;
 		for(Entry<T, TracingStateSet<T>> e : runChecker(stateset, graph, true).entrySet()) {
 			//if (!invClass.equals(AlwaysFollowedInvariant.class) || e.getKey().isFinal()) {
-			if (e.getKey().isFinal()) {
-				TracingStateSet<T>.HistoryNode path = e.getValue().failpath(); 
-				if (path != null && (shortestPath == null || shortestPath.count > path.count)) {
-					shortestPath = path;
-				}
+			TracingStateSet<T>.HistoryNode path = e.getValue().failpath();
+			boolean fin = e.getKey().isFinal();
+			if (fin && path != null && (shortestPath == null || shortestPath.count > path.count)) {
+				shortestPath = path;
 			}
 		}
 		

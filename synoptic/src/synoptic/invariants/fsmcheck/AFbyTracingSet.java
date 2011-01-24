@@ -87,4 +87,14 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 		if (casted.wasB == null) { if (wasB != null) return false; }
 		return true;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+                result.append("AFby: ");
+		appendWNull(result, wasA); // Failure case first.	
+		result.append(" | ");
+		appendWNull(result, wasB);
+		return result.toString();
+	}
 }

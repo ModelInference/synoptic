@@ -89,4 +89,16 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 		if (casted.firstB == null) { if (firstB != null) return false; }
 		return true;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+                result.append("AP: ");
+		appendWNull(result, firstB); // Failure case first.	
+		result.append(" | ");
+		appendWNull(result, firstA);
+		result.append(" | ");
+		appendWNull(result, neitherSeen);
+		return result.toString();
+	}
 }
