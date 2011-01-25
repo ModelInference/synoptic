@@ -7,7 +7,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import synoptic.algorithms.graph.GraphUtil;
 import synoptic.algorithms.graph.Operation;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.interfaces.IGraph;
@@ -189,7 +188,8 @@ public class PartitionGraph implements IGraph<Partition> {
 	}
 	
 	/**
-	 * An interface that can be passed to methods that must modify the graph.
+	 * An anonymous class instance implementing ModifiableGraph<Partition>, which
+	 * can be passed to methods that must modify this PartitionGraph instance.
 	 */
 	private IModifiableGraph<Partition> modifiableInterface = new IModifiableGraph<Partition>() {
 		public void add(Partition node) {
@@ -239,7 +239,7 @@ public class PartitionGraph implements IGraph<Partition> {
 		Set<MessageEvent> all = new LinkedHashSet<MessageEvent>();
 		for (Partition p : getNodes()) {
 			if (p.size() == 0)
-				throw new RuntimeException("bisim produced empty partiton!");
+				throw new RuntimeException("bisim produced empty partition!");
 			all.addAll(p.getMessages());
 			totalCount += p.size();
 		}

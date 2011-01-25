@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.logging.Logger;
@@ -43,7 +44,11 @@ public class Main implements Callable<Integer> {
 	 * The current Synoptic version.
 	 */
 	public static final String versionString = "Synoptic version 0.0.3";
-
+	
+	/**
+	 * Global source of pseudo-random numbers.
+	 */
+	public static Random random;
 
 	////////////////////////////////////////////////////
 	/**
@@ -87,6 +92,19 @@ public class Main implements Callable<Integer> {
 	 */
 	@Option (value="-f Use FSM checker instead of the default LTL checker", aliases={"-use-fsm-checker"})
 	public static boolean useFSMChecker = false;
+	
+	/**
+	 * Sets the random seed for Synoptic's source of pseudo-random numbers.
+	 */
+	@Option (value="Use a specific random seed for pseudo-random number generator")
+	public static Long randomSeed = null;
+	
+	
+	/**
+	 * Use vector time indexes to  
+	 */
+	//@Option (value="Use FSM checker instead of the default LTL checker", aliases={"-use-fsm-checker"})
+	//public static boolean separateVTimeIndexSets = false;
 	// end option group "Execution Options"
 	
 	
@@ -177,7 +195,7 @@ public class Main implements Callable<Integer> {
 	public static String dotExecutablePath = null;
 	
 	/**
-	 * This sets the otuput edge labels on graphs that are exported.
+	 * This sets the output edge labels on graphs that are exported.
 	 */
 	@Option(value="Output edge labels on graphs to indicate transition probabilities", aliases={"-outputEdgeLabels"})
 	public static boolean outputEdgeLabels = true;
@@ -361,7 +379,13 @@ public class Main implements Callable<Integer> {
 		if (logLvlVerbose) {
 			mainInstance.printOptions();
 		}
-
+		
+		if (randomSeed == null) {
+			Main.randomSeed = System.currentTimeMillis();
+		}
+		Main.random = new Random(randomSeed);
+		logger.info("Using random seed: " + randomSeed);
+		
 		Integer ret = mainInstance.call();
 		logger.fine("Main.call() returned " + ret.toString());
 		System.exit(ret); 
@@ -380,9 +404,9 @@ public class Main implements Callable<Integer> {
 		try {
 			field = Main.class.getField(optName);
 		} catch (SecurityException e) {
-			throw new InternalSynopticException();
+			throw new InternalSynopticException(e);
 		} catch (NoSuchFieldException e) {
-			throw new InternalSynopticException();
+			throw new InternalSynopticException(e);
 		}
 		Option opt = field.getAnnotation(Option.class);
 		String desc = opt.value();
@@ -607,7 +631,7 @@ public class Main implements Callable<Integer> {
 		// Parses all the log filenames, constructing the parsedEvents List.
 		List<TraceParser.Occurrence> parsedEvents = new ArrayList<TraceParser.Occurrence>();
 		
-		logger.fine("Parsing input files..");
+		logger.info("Parsing input files..");
 		
 		for (String fileArg : Main.logFilenames) {
 			logger.fine("\tprocessing fileArg: " + fileArg);
@@ -632,7 +656,7 @@ public class Main implements Callable<Integer> {
 		}
 		
 		// If we parsed any events, then run Synoptic.
-		logger.fine("Running Synoptic..");
+		logger.info("Mining invariants..");
 		parser.generateDirectTemporalRelation(parsedEvents, true);
 		Graph<MessageEvent> inputGraph = ((GraphBuilder) parser.builder).getRawGraph();
 		
@@ -659,10 +683,18 @@ public class Main implements Callable<Integer> {
 			System.out.println("synoptic.model checker ok.");
 		} */		
 		
-		logger.fine("Splitting..");
+		if (Main.logLvlVerbose) {
+			System.out.println("");
+			System.out.println("");
+		}
+		logger.fine("Refining (Splitting)...");
 		Bisimulation.refinePartitions(result);
 		
-		logger.fine("Merging..");
+		if (Main.logLvlVerbose) {
+			System.out.println("");
+			System.out.println("");
+		}
+		logger.fine("Coarsening (Merging)..");
 		Bisimulation.mergePartitions(result);
 
 		// TODO: check that none of the initially mined synoptic.invariants are unsatisfied in the result		

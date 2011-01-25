@@ -1,7 +1,5 @@
 package synoptic.model.interfaces;
 
-import synoptic.model.Action;
-
 /**
  * The interface modifiable graphs must implement. It allows nodes to be added,
  * removed, and to be marked as initial nodes.

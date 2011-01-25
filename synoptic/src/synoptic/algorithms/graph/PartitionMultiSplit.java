@@ -31,10 +31,10 @@ public class PartitionMultiSplit implements Operation {
 	 */
 	public PartitionMultiSplit(PartitionSplit split) {
 		partition = split.getPartition();
-		partitioning.add(split.getFulfills());
+		partitioning.add(split.getSplitEvents());
 		Set<MessageEvent> otherMessages = new HashSet<MessageEvent>(partition
 				.getMessages());
-		otherMessages.removeAll(split.getFulfills());
+		otherMessages.removeAll(split.getSplitEvents());
 		partitioning.add(otherMessages);
 	}
 
@@ -62,11 +62,13 @@ public class PartitionMultiSplit implements Operation {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("MultiSplit");
+		// NOTE: this string only makes sense before the operation is committed,
+		// after a commit() the partition may have a different # of messages!
+		StringBuilder sb = new StringBuilder("S." + partition.getLabel() + ".");
 		for (Set<MessageEvent> m : partitioning) {
-			sb.append(" " + m.size());
+			sb.append(m.size() + "/");
 		}
-		return sb.toString();
+		return sb.toString().substring(0, sb.length() - 1);
 	}
 
 	/**
@@ -81,14 +83,17 @@ public class PartitionMultiSplit implements Operation {
 	public void incorporate(PartitionSplit split) {
 		if (split.getPartition() != partition)
 			throw new IllegalArgumentException();
+		
 		ArrayList<Set<MessageEvent>> newSets = new ArrayList<Set<MessageEvent>>();
 		for (Set<MessageEvent> set : partitioning) {
 			Set<MessageEvent> newSet = new HashSet<MessageEvent>(set);
-			set.removeAll(split.getFulfills());
-			newSet.retainAll(split.getFulfills());
+			set.removeAll(split.getSplitEvents());
+			newSet.retainAll(split.getSplitEvents());
 			newSets.add(newSet);
 		}
 		partitioning.addAll(newSets);
+		
+		// Remove all the partitions that are empty as a result of the incorporation.
 		for (Iterator<Set<MessageEvent>> iter = partitioning.iterator(); iter
 				.hasNext();) {
 			if (iter.next().size() == 0)
@@ -121,12 +126,13 @@ public class PartitionMultiSplit implements Operation {
 			}
 		}
 		partitioning.addAll(newSets);
+		
+		// Remove all the partitions that are empty as a result of the incorporation.
 		for (Iterator<Set<MessageEvent>> iter = partitioning.iterator(); iter
 				.hasNext();) {
 			if (iter.next().size() == 0)
 				iter.remove();
 		}
-		System.out.println(partitioning);
 	}
 
 	public boolean isValid() {

@@ -15,7 +15,7 @@ $ python gen_2pc_trace.py N R
 
 where,
   N : number of nodes to simulate
-  R : number of 2pc rounds to simulate
+  R : number of protocol rounds to simulate
 
 Notes
 =====
@@ -27,19 +27,13 @@ Output
 ======
 The output looks like the following:
 
-0 0 send
-0 0 send
-0 0 send
-1 0 ack
-0 1 send
-1 0 ack
-0 1 send
-1 1 ack
-0 2 send
+TM, 0, tx_prepare, 0
+TM, 1, tx_prepare, 0
+TM, 2, tx_prepare, 0
 
-The first integer indicates whether the node is a sender (0) or a
-receiver (1). The second integer indicates the message id. The last
-string specifies whether the message is a 'send' or an 'ack'. Right
-now the sender only generates 'send' and the receiver only generates
-'ack.'
+The fields are:
+1: sender of the message
+2: receiver of the messages
+3: message type
+4: transaction id
 

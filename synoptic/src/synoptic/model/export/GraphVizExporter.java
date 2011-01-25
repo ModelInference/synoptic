@@ -241,16 +241,16 @@ public class GraphVizExporter {
 	private <T extends INode<T>> void exportGraphCanonically(final Writer writer,	
 			IGraph<T> graph, boolean fast) throws IOException {
 		
-		logger.finest("Performing canonical export..");
+		// logger.finest("Performing canonical export..");
 		HashMap<T, Integer> nodeToInt = new HashMap<T, Integer>();
 		LinkedList<ITransition<T>> allTransitions = new LinkedList<ITransition<T>>();
 		int nodeCnt = 0;
 		
 		nodeCnt = exportRelationNodes(writer, graph, "t", allTransitions, nodeToInt, nodeCnt);
-		logger.finest("</exportRelationNodes>, nodeCnt is " + nodeCnt);
+		// logger.finest("</exportRelationNodes relation(t)>, nodeCnt is " + nodeCnt);
 		
 		nodeCnt = exportRelationNodes(writer, graph, "i", allTransitions, nodeToInt, nodeCnt);
-		logger.finest("</exportRelationNodes>, nodeCnt is " + nodeCnt);
+		// logger.finest("</exportRelationNodes relation(i)>, nodeCnt is " + nodeCnt);
 						
 		// Output edges:
 		for (ITransition<T> trans: allTransitions) {

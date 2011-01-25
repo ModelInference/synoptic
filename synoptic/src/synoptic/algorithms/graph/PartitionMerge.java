@@ -6,7 +6,7 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.IModifiableGraph;
 
 /**
- * An operation that merges two states into one.
+ * An operation that merges two partitions into one.
  * @author Sigurd Schneider
  *
  */
@@ -22,8 +22,9 @@ public class PartitionMerge implements Operation {
 	public PartitionMerge(Partition retained, Partition removed) {
 		this.retained = retained;
 		this.removed = removed;
-		if (retained.size() == 0 || removed.size() == 0)
+		if (retained.size() == 0 || removed.size() == 0) {
 			throw new RuntimeException("merging empty partitions: " + retained.size() + ", " + removed.size());
+		}
 	}
 	
 	@Override
@@ -31,16 +32,15 @@ public class PartitionMerge implements Operation {
 		int retainedSize = retained.size();
 		int removedSize = removed.size();
 		PartitionSplit split = new PartitionSplit(retained, removed);
-		for (MessageEvent m : removed.getMessages())
-			split.addFulfills(m);
-	//	for (MessageEvent m : retained.getMessages())
-	//		split.addFulfillsNot(m);
+		for (MessageEvent m : removed.getMessages()) {
+			split.addEventToSplit(m);
+		}
 		retained.addAllMessages(removed.getMessages());
 		removed.removeMessages(removed.getMessages());
 		partitionGraph.remove(removed);
-		//System.out.println("merge rewind: " + split);
-		if (removedSize + retainedSize != retained.size())
+		if (removedSize + retainedSize != retained.size()) {
 			throw new RuntimeException("lost messages!: " + removedSize+ "+" + retainedSize + "!= " + retained.size());
+		}
 		return split;
 	}
 	

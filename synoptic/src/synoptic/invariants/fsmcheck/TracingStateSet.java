@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import synoptic.invariants.TemporalInvariant;
-import synoptic.invariants.TemporalInvariantSet.RelationPath;
+import synoptic.invariants.RelationPath;
 import synoptic.model.Partition;
 import synoptic.model.interfaces.ITransition;
 
@@ -45,12 +45,11 @@ public abstract class TracingStateSet<T> implements IStateSet<T, TracingStateSet
 				
 		// Converts this chain into a RelationPath list.
 		public RelationPath<T> toCounterexample(TemporalInvariant inv) {
-			RelationPath<T> result = new RelationPath<T>();
-			result.path = new ArrayList<T>();
+			ArrayList<T> path = new ArrayList<T>();
 			HistoryNode cur = this;
 			assert(((Partition)cur.node).isFinal());
 			while (cur != null) {
-				result.path.add(cur.node);
+				path.add(cur.node);
 				if (checkPath && cur.previous != null) {
 					Partition prev = (Partition) cur.previous.node;
 					boolean found = false;
@@ -64,9 +63,8 @@ public abstract class TracingStateSet<T> implements IStateSet<T, TracingStateSet
 				}
 				cur = cur.previous;
 			}
-			Collections.reverse(result.path);
-			result.invariant = inv;
-			return result;
+			Collections.reverse(path);
+			return new RelationPath<T>(inv, path);
 		}
 		
 		public String toString() {

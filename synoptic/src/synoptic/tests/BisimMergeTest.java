@@ -1,16 +1,10 @@
 package synoptic.tests;
 
-import java.io.File;
-
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.benchmarks.TimedTask;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
-import synoptic.model.interfaces.IGraph;
-
-
-
 
 public class BisimMergeTest {
 	private static final int LOOPS = 20;
@@ -24,7 +18,7 @@ public class BisimMergeTest {
 		String[] trace4 = new String[] { "p", "p", "a", "a", "txa", "txa", };
 		// the graph will contain each trace as separate component
 		gb.buildGraphLocal(new String[][] { trace1, trace2, trace3, trace4 });
-		exporter.exportAsDotAndPng("output/twoc/dot", gb.getRawGraph());
+		exporter.exportAsDotAndPng("/Users/ivan/synoptic/trunk/output/mergetest.dot", gb.getRawGraph());
 		TimedTask benchmark = new TimedTask("time");
 		PartitionGraph pg = null;
 		for (int i = 0; i < LOOPS; ++i) {

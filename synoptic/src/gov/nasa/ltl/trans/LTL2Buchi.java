@@ -35,6 +35,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -42,7 +43,10 @@ import java.util.logging.Logger;
  */
 public class LTL2Buchi {
 	private static Logger logger = Logger.getLogger("LTL2Buchi Logger");
-
+	static {
+		logger.setLevel(Level.INFO);
+	}
+	
 	public static void main(String[] args) {
 		String ltl = null;
 		boolean rewrite = true;

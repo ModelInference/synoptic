@@ -183,7 +183,7 @@ public class TraceParser {
 		try {
 			addRegex(regex + "(?<SEPCOUNT++>)(?<HIDE=>true)");
 		} catch (ParseException e) {
-			throw new InternalSynopticException();
+			throw new InternalSynopticException(e);
 		}
 		cycle(parsers); cycle(this.incrementors); cycle(this.constantFields);
 		filter.concat(new NamedSubstitution("\\k<SEPCOUNT>"));

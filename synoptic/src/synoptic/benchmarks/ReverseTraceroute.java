@@ -13,9 +13,8 @@ import java.util.Set;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.graph.Operation;
-import synoptic.invariants.TemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.invariants.TemporalInvariantSet.RelationPath;
+import synoptic.invariants.RelationPath;
 import synoptic.model.Graph;
 import synoptic.model.MessageEvent;
 import synoptic.model.Partition;
@@ -23,9 +22,7 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.Relation;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.ReverseTracertParser;
-import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.IModifiableGraph;
-import synoptic.model.interfaces.INode;
 
 
 
