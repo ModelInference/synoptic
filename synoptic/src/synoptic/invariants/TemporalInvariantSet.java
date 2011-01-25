@@ -36,6 +36,7 @@ import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
+import synoptic.util.InternalSynopticException;
 
 //import daikonizer.Daikonizer;
 
@@ -107,26 +108,9 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		invariants.add(inv);
 	}
 
-	public static class RelationPath<T> {
-		public TemporalInvariant invariant;
-		public List<T> path;
-
-		public String toString() {
-			//return invariant.toString();
-			StringBuilder result = new StringBuilder();
-			result.append(invariant.toString());
-			result.append(": ");
-			for (T n : path) {
-				result.append(((Partition)n).getLabel());
-				result.append(" ");
-			}
-			return result.toString();
-		}
-	}
-
 	private <T extends INode<T>> RelationPath<T> getCounterExample(
 			TemporalInvariant inv, IGraph<T> g, GraphLTLChecker<T> c) {
-		RelationPath<T> r = new RelationPath<T>();
+		RelationPath<T> r = null;
 		try {
 			Counterexample ce = c.check(g, inv,
 					new IModelCheckingMonitor() {
@@ -135,17 +119,14 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 					});
 			if (ce == null)
 				return null;
-			r.invariant = inv;
 			List<T> trace = c.convertCounterexample(ce);
 			if (trace != null) {
-				// System.out.println(i.toString() + trace);
-				r.path = inv.shorten(trace);
+				r = new RelationPath<T>(inv, inv.shorten(trace));		
 				if (r.path == null) {
 					throw new RuntimeException(
 							"shortening returned null for " + inv
 									+ " and trace " + trace);
 				}
-				// System.out.println(r.path);
 			}
 		} catch (ParseErrorException e) {
 			e.printStackTrace();
@@ -227,7 +208,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		}
 	}
 
-	public <T extends INode<T>> List<RelationPath<T>> getViolations(IGraph<T> g) {
+	public <T extends INode<T>> List<RelationPath<T>> getViolations(IGraph<T> graph) {
 		TimedTask violations = PerformanceMetrics.createTask("getViolations", false);
 		try {
 			List<RelationPath<T>> paths = null;
@@ -238,12 +219,12 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				all.set(0, c.invariantCount(), true);
 				paths = c.findFailures(all);
 				*/
-				paths = this.compareViolations(new ArrayList<TemporalInvariant>(invariants), g);
+				paths = this.compareViolations(new ArrayList<TemporalInvariant>(invariants), graph);
 			} else {
 				paths = new ArrayList<RelationPath<T>>();
-				GraphLTLChecker<T> c = new GraphLTLChecker<T>();
-				for (TemporalInvariant i : invariants) {
-					RelationPath<T> path = getCounterExample(i, g, c);
+				GraphLTLChecker<T> checker = new GraphLTLChecker<T>();
+				for (TemporalInvariant inv : invariants) {
+					RelationPath<T> path = getCounterExample(inv, graph, checker);
 					if (path != null)
 						paths.add(path);
 				}
@@ -262,7 +243,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 
 			return paths;
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(new InternalSynopticException(e));
 			return null;
 		} finally {
 			violations.stop();

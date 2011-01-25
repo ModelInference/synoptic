@@ -72,11 +72,9 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 
 	public String toString() {
 		StringBuilder str = new StringBuilder();
-		str.append("Partition " + hashCode());
-		// for (StateWrapper w : messageWrappers) {
-		// str.append(", " + w.label.toString());
-		// }
-		str.append(" [" + messages.size() + "].");
+		// str.append("Partition " + hashCode());
+		str.append("P." + this.getLabel());
+		str.append("." + messages.size());
 		return str.toString();
 	}
 
@@ -92,20 +90,22 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 		for (final MessageEvent otherExpr : messages) {
 			if (fulfillsStrong(otherExpr, trans)) {
 				if (ret != null)
-					ret.addFulfills(otherExpr);
+					ret.addEventToSplit(otherExpr);
 			} else {
 				if (ret == null) {
 					ret = new PartitionSplit(this);
 					for (final MessageEvent e2 : messages) {
 						if (e2.equals(otherExpr))
 							break;
-						ret.addFulfills(e2);
+						ret.addEventToSplit(e2);
 					}
 				}
 			}
 		}
 		if (ret == null) {
-			ret = PartitionSplit.onlyFulfills(this);
+			// TODO: why do we want this?
+			// ret.isValid() will now return false
+			ret = PartitionSplit.newSplitWithAllEvents(this);
 		}
 		return ret;
 	}
@@ -128,7 +128,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 		}
 		for (MessageEvent m : messages) {
 			if (messagesReachableFromPrevious.contains(m))
-				candidateSplit.addFulfills(m);
+				candidateSplit.addEventToSplit(m);
 		}
 
 		return candidateSplit;
@@ -162,6 +162,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 		List<Relation<Partition>> result = new ArrayList<Relation<Partition>>();
 		for (Relation<Partition> tr : getTransitionsIterator()) {
 			result.add(tr);
+			// Use splitting to compute the transition probabilities\labels.
 			PartitionSplit s = getCandidateDivision(tr);
 			// List<Invariant> all = TemporalInvariantSet.generateInvariants(tr
 			// .getSource().getMessages());
@@ -180,9 +181,9 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 			//System.out.println(s.getFulfills().size() + " "
 			//		+ s.getFulfillsNot().size());
 
-			tr.setFrequency((double) s.getFulfills().size()
+			tr.setFrequency((double) s.getSplitEvents().size()
 					/ (double) tr.getSource().getMessages().size());
-			tr.addWeight(s.getFulfills().size());
+			tr.addWeight(s.getSplitEvents().size());
 			// System.out.println(flow);
 		}
 		return result;

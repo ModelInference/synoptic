@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import synoptic.main.Main;
+
 /**
  * A class to record performance metrics. It is a key value store, that keeps
  * record of the number of updates to each value. An update to a value (using
@@ -80,7 +82,9 @@ public class PerformanceMetrics {
 	public void record(String key, long value) {
 		if (!getAccumulativity(key)) {
 			// Print all recorded values.
-			logger.fine(key + " = " + value);
+			if (Main.doBenchmarking) {
+				logger.fine(key + " = " + value);
+			}
 		}
 		if (!values.containsKey(key))
 			values.put(key, 0L);

@@ -37,10 +37,10 @@ public interface TemporalInvariant {
 	public <T extends INode<T>> List<T> shorten(List<T> path);
 
 	/**
-	 * get the Büchi-automaton that corresponds to this LTL property. This
+	 * get the Buchi-automaton that corresponds to this LTL property. This
 	 * method should cache the automaton.
 	 * 
-	 * @return a Büchi-automaton represented as a graph
+	 * @return a Buchi-automaton represented as a graph
 	 */
 	public gov.nasa.ltl.graph.Graph getAutomaton();
 

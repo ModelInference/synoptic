@@ -1,6 +1,6 @@
--V
--r ^(?<isSender>),(?<msgId>),(?<TYPE>),(?<txId>)
--p \\k<txId>
--o output/twopc
+-v
+-r ^(?<sender>),(?<receiver>),(?<TYPE>),(?<txId>)
+-m \\k<txId>
+-o output/twopc/twopc
 --dumpInitialGraph=true
 --dumpIntermediateStages=true

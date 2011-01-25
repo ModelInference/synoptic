@@ -107,6 +107,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 		return c;
 	}
 
+	// TODO: refactor this code to instead use the GraphVizExporter 
 	@SuppressWarnings("unchecked")
 	public void writeDot(Graph g, String filename) {
 		try {

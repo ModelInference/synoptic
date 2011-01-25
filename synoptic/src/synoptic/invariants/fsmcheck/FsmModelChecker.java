@@ -17,7 +17,7 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariant;
-import synoptic.invariants.TemporalInvariantSet.RelationPath;
+import synoptic.invariants.RelationPath;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
