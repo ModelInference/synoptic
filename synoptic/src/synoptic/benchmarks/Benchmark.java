@@ -26,7 +26,7 @@ public class Benchmark<ArgumentType> {
 	private ConfigureableBenchmark<ArgumentType> taskFactory;
 
 	/**
-	 * An interface to a configureable benchmark.
+	 * An interface to a configurable benchmark.
 	 * 
 	 * @author Sigurd Schneider
 	 * 

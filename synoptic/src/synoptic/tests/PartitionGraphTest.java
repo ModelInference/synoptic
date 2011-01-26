@@ -9,7 +9,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import synoptic.algorithms.graph.Operation;
+import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMerge;
 import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.model.Action;
@@ -79,7 +79,7 @@ public class PartitionGraphTest {
 	@Test
 	public void testMergePartitionTop() {
 		Iterator<Partition> iter = pg.getInitialNodes().iterator();
-		Operation rewind = pg.apply(new PartitionMerge(iter.next(), iter.next()));
+		IOperation rewind = pg.apply(new PartitionMerge(iter.next(), iter.next()));
 		print("mergePartitionTop", pg);
 		pg.apply(rewind);
 		print("mergePartitionTopRewound", pg);
@@ -91,7 +91,7 @@ public class PartitionGraphTest {
 		set.addAll(pg.getNodes());
 		set.removeAll(pg.getInitialNodes());
 		Iterator<Partition> iter = set.iterator();
-		Operation rewind = pg.apply(new PartitionMerge(iter.next(), iter.next()));
+		IOperation rewind = pg.apply(new PartitionMerge(iter.next(), iter.next()));
 		print("mergePartitionBottom", pg);
 		pg.apply(rewind);
 		print("mergePartitionBottomRewound", pg);
@@ -104,7 +104,7 @@ public class PartitionGraphTest {
 		Iterator<MessageEvent> m = splitNode.getMessages().iterator();
 		split.addEventToSplit(m.next());
 		//split.addFulfillsNot(m.next());
-		Operation rewind = pg.apply(split);
+		IOperation rewind = pg.apply(split);
 		print("splitPartitionTop", pg);
 		pg.apply(rewind);
 		print("splitPartitionTopRewound", pg);
@@ -120,7 +120,7 @@ public class PartitionGraphTest {
 		PartitionSplit split = new PartitionSplit(splitNode);
 		split.addEventToSplit(m.next());
 		//split.addFulfillsNot(m.next());
-		Operation rewind = pg.apply(split);
+		IOperation rewind = pg.apply(split);
 		print("splitPartitionBottom", pg);
 		pg.apply(rewind);
 		print("splitPartitionBottomRewound", pg);

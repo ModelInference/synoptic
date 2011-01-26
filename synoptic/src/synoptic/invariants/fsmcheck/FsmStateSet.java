@@ -39,7 +39,7 @@ import synoptic.model.interfaces.INode;
  * <p>Unless an invariant is watching for the same event on each of its inputs,
  * the inputs can be thought of as a one-hot encoding: input[0] & input[1] = 0.
  * The only time this doesn't happen in practice is "A NFby A", which indicates
- * that A is singleton in the traces.  Furthermore, if all input bits are 0,
+ * that A is a singleton in the traces.  Furthermore, if all input bits are 0,
  * then the corresponding machines should not change state.</p>
  * 
  * @author Michael Sloan (mgsloan@gmail.com)

@@ -11,7 +11,7 @@ import synoptic.model.interfaces.IModifiableGraph;
  * @author Sigurd Schneider
  *
  */
-public class PartitionMultiMerge implements Operation {
+public class PartitionMultiMerge implements IOperation {
 	private Partition retainedPartition;
 	private ArrayList<Partition> partitionsToMerge;
 
@@ -27,7 +27,7 @@ public class PartitionMultiMerge implements Operation {
 	}
 
 	@Override
-	public Operation commit(PartitionGraph g,
+	public IOperation commit(PartitionGraph g,
 			IModifiableGraph<Partition> partitionGraph) {
 		for (Partition removed : partitionsToMerge) {
 			retainedPartition.addAllMessages(removed.getMessages());

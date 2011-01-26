@@ -16,7 +16,7 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.invariants.TemporalInvariant;
+import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -142,7 +142,7 @@ public class FsmModelChecker {
 		List<BinaryInvariant> alwaysFollowed = new ArrayList<BinaryInvariant>();
 		List<BinaryInvariant> alwaysPrecedes = new ArrayList<BinaryInvariant>();
 		List<BinaryInvariant> neverFollowed  = new ArrayList<BinaryInvariant>();
-		for (TemporalInvariant inv : invariants) {
+		for (ITemporalInvariant inv : invariants) {
 			@SuppressWarnings("unchecked")
 			Class<Object> invClass = (Class<Object>) (Class) inv.getClass();
 			if (invClass.equals(AlwaysFollowedInvariant.class)) {
@@ -204,6 +204,6 @@ public class FsmModelChecker {
 		
 		// Convert to RelationPath
 		if (shortestPath == null) return null;
-		return shortestPath.toCounterexample((TemporalInvariant)invariant);
+		return shortestPath.toCounterexample((ITemporalInvariant)invariant);
 	}
 }

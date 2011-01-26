@@ -6,10 +6,10 @@ import synoptic.model.Partition;
 
 
 public class RelationPath<T> {
-	public TemporalInvariant invariant;
+	public ITemporalInvariant invariant;
 	public List<T> path;
 	
-	public RelationPath(TemporalInvariant invariant, List<T> path) {
+	public RelationPath(ITemporalInvariant invariant, List<T> path) {
 		this.invariant = invariant;
 		this.path = path;
 	}

@@ -49,6 +49,8 @@ public class FsmStateSetTests {
 		FsmStateSet<MessageEvent> before = a.copy();
 		
 		transfer(a, "0000 0000");
+		System.out.println(a.mappings);
+		System.out.println(before.mappings);
 		assertTrue(a.equals(before));
 		transfer(a, "0000 0101");
 		assertTrue(a.equals(before));

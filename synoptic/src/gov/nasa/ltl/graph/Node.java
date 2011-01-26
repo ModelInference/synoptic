@@ -124,7 +124,7 @@ public class Node {
 		return attributes.getString(name);
 	}
 
-	public synchronized void forAllEdges(Visitor v) {
+	public synchronized void forAllEdges(IVisitor v) {
 		for (Iterator<Edge> i = new LinkedList<Edge>(outgoingEdges).iterator(); i.hasNext();) {
 			v.visitEdge(i.next());
 		}

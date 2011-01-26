@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
-import synoptic.invariants.TemporalInvariant;
+import synoptic.invariants.ITemporalInvariant;
 
 
 import gov.nasa.ltl.graph.Graph;
@@ -22,7 +22,7 @@ public class LtlModelChecker {
 	//CACHE: cache translated graphs
 
 	public static Counterexample check(Graph transitionSystem,
-			TemporalInvariant invariant, IModelCheckingMonitor monitor)
+			ITemporalInvariant invariant, IModelCheckingMonitor monitor)
 			throws ParseErrorException {
 		assert monitor != null;
 
@@ -30,7 +30,7 @@ public class LtlModelChecker {
 		Graph didCanTransitionSystem = transitionSystem;
 
 		TimedTask didCanTrans = PerformanceMetrics.createTask("didCanTranslation");
-		if (TemporalInvariant.useDIDCAN) {
+		if (ITemporalInvariant.useDIDCAN) {
 			if (translationCache.containsKey(transitionSystem)) {
 				monitor.subTask("Adding did/can attributes... (cached)");
 				didCanTransitionSystem = translationCache.get(transitionSystem);

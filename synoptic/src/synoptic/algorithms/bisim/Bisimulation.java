@@ -13,14 +13,14 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.Collections;
 
-import synoptic.algorithms.graph.Operation;
+import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMerge;
 import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.algorithms.ktail.StateUtil;
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
-import synoptic.invariants.TemporalInvariant;
+import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.RelationPath;
 import synoptic.main.Main;
@@ -59,6 +59,8 @@ public abstract class Bisimulation {
 	private static final boolean combineCandidates = false;
 	/**
 	 * Perform extra correctness checks.
+	 * 
+	 * TODO: expose this via command line options, and make it false by default (?)
 	 */
 	private static boolean EXTRA_CHECKS = true;
 	/**
@@ -88,7 +90,7 @@ public abstract class Bisimulation {
 			PartitionMultiSplit splitOp) {
 
 		// Perform the split
-		Operation rewindOperation = partitionGraph.apply(splitOp);
+		IOperation rewindOperation = partitionGraph.apply(splitOp);
 		
 		// See if splitting resolved the violation.
 		RelationPath<Partition> violation = invariants.getViolation(counterexampleTrace.invariant, partitionGraph);
@@ -114,14 +116,14 @@ public abstract class Bisimulation {
 	}
 	
 	
-	public static Operation tryAndRecordCandidateSplits(
+	public static IOperation tryAndRecordCandidateSplits(
 			List<RelationPath<Partition>> counterexampleTraces,
 			PartitionGraph partitionGraph,
 			TemporalInvariantSet invariants,
 			LinkedHashMap<Partition, PartitionMultiSplit> splitsToDoByPartition,
-			ArrayList<TemporalInvariant> newlySatisfiedInvariants) {
+			ArrayList<ITemporalInvariant> newlySatisfiedInvariants) {
 
-		Operation arbitrarySplit = null;
+		IOperation arbitrarySplit = null;
 		
 		// TODO: we are considering counter-example traces in an arbitrary order
 		// there's probably room for a heuristic here.
@@ -219,9 +221,9 @@ public abstract class Bisimulation {
 		// These synoptic.invariants will be satisfied
 		TemporalInvariantSet invariants = partitionGraph.getInvariants();
 
-		Set<TemporalInvariant> unsatisfiedInvariants = new LinkedHashSet<TemporalInvariant>();
+		Set<ITemporalInvariant> unsatisfiedInvariants = new LinkedHashSet<ITemporalInvariant>();
 		unsatisfiedInvariants.addAll(partitionGraph.getInvariants().getSet());
-		Set<TemporalInvariant> satisfiedInvariants = new LinkedHashSet<TemporalInvariant>();
+		Set<ITemporalInvariant> satisfiedInvariants = new LinkedHashSet<ITemporalInvariant>();
 
 		List<RelationPath<Partition>> counterexampleTraces = null;
 		while (unsatisfiedInvariants.size() > 0) {
@@ -234,12 +236,19 @@ public abstract class Bisimulation {
 			 * Stores all synoptic.invariants for which we have a split that satisfies
 			 * it.
 			 */
-			ArrayList<TemporalInvariant> newlySatisfiedInvariants = new ArrayList<TemporalInvariant>();
+			ArrayList<ITemporalInvariant> newlySatisfiedInvariants = new ArrayList<ITemporalInvariant>();
 
 			// Retrieve the counterexamples for the unsatisfied invariants
 			counterexampleTraces = new TemporalInvariantSet(
 					unsatisfiedInvariants).getViolations(partitionGraph);
-
+			
+			// TODO: add an EXTRA_CHECKS if clause that will make sure that there are
+			// no counter-examples for the satisfiedInvariants list.
+			
+						
+			// TODO: check that getViolations returns the list of c-examples deterministically.
+			// This is necessary for random seed control to work properly.
+			
 			// If we have no counterexamples, then we are done.
 			if (counterexampleTraces == null || counterexampleTraces.size() == 0) {
 				logger.fine("Invariants statisfied. Stopping.");
@@ -265,7 +274,7 @@ public abstract class Bisimulation {
 			 * Stores the first valid split. This split will be performed if no
 			 * other split (that would resolve an invariant) is available.
 			 */
-			Operation arbitrarySplit = tryAndRecordCandidateSplits(
+			IOperation arbitrarySplit = tryAndRecordCandidateSplits(
 				counterexampleTraces, partitionGraph, invariants,
 				splitsToDoByPartition, newlySatisfiedInvariants);
 			
@@ -501,7 +510,7 @@ public abstract class Bisimulation {
 					
 					Set<Partition> parts = new HashSet<Partition>();
 					parts.addAll(partitionGraph.getNodes());
-					Operation rewindOperation = partitionGraph
+					IOperation rewindOperation = partitionGraph
 					.apply(new PartitionMerge(p, q));
 					numAttemptedMerges++;
 

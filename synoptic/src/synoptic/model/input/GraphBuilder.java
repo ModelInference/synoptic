@@ -22,7 +22,7 @@ import synoptic.model.Graph;
 import synoptic.model.MessageEvent;
 import synoptic.model.PartitionGraph;
 import synoptic.util.IterableAdapter;
-import synoptic.util.IterableIterator;
+import synoptic.util.IIterableIterator;
 
 public class GraphBuilder implements IBuilder<MessageEvent> {
 	private Graph<MessageEvent> graph;

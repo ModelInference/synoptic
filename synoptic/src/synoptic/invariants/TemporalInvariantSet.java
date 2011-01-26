@@ -40,14 +40,14 @@ import synoptic.util.InternalSynopticException;
 
 //import daikonizer.Daikonizer;
 
-public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
+public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	private static Logger logger = Logger.getLogger("TemporalInvSet Logger");
 	
 	/**
 	 * Enable Daikon support to extract structural synoptic.invariants (alpha)
 	 */
 	public static boolean generateStructuralInvariants = false;
-	LinkedHashSet<TemporalInvariant> invariants = new LinkedHashSet<TemporalInvariant>();
+	LinkedHashSet<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 	
 	/**
 	 * Model check that every mined invariant actually holds.
@@ -57,11 +57,11 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	public TemporalInvariantSet() {
 	}
 
-	public TemporalInvariantSet(Set<TemporalInvariant> invariants) {
+	public TemporalInvariantSet(Set<ITemporalInvariant> invariants) {
 		this.invariants.addAll(invariants);
 	}
 
-	public Set<TemporalInvariant> getSet() {
+	public Set<ITemporalInvariant> getSet() {
 		return invariants;
 	}
 
@@ -83,7 +83,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		return res;
 	}
 
-	public void addAll(Collection<TemporalInvariant> invariants) {
+	public void addAll(Collection<ITemporalInvariant> invariants) {
 		this.invariants.addAll(invariants);
 	}
 
@@ -91,7 +91,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		this.invariants.addAll(set.invariants);
 	}
 
-	public Iterator<TemporalInvariant> iterator() {
+	public Iterator<ITemporalInvariant> iterator() {
 		return invariants.iterator();
 	}
 
@@ -99,12 +99,12 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		return invariants.toString();
 	}
 
-	public void add(TemporalInvariant inv) {
+	public void add(ITemporalInvariant inv) {
 		invariants.add(inv);
 	}
 
 	private <T extends INode<T>> RelationPath<T> getCounterExample(
-			TemporalInvariant inv, IGraph<T> g, GraphLTLChecker<T> c) {
+			ITemporalInvariant inv, IGraph<T> g, GraphLTLChecker<T> c) {
 		RelationPath<T> r = null;
 		try {
 			Counterexample ce = c.check(g, inv,
@@ -131,15 +131,15 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	
 	public static boolean compare = false;
 
-	public <T extends INode<T>> List<BinaryInvariant> getViolated(List<TemporalInvariant> invs, IGraph<T> graph) {
+	public <T extends INode<T>> List<BinaryInvariant> getViolated(List<ITemporalInvariant> invs, IGraph<T> graph) {
 		List<BinaryInvariant> bitSetInput = new ArrayList<BinaryInvariant>();
-		for (TemporalInvariant tinv : invs) {
+		for (ITemporalInvariant tinv : invs) {
 			bitSetInput.add((BinaryInvariant)tinv);
 		}
 		return FsmModelChecker.runBitSetChecker(bitSetInput, graph);
 	}
 	
-	public <T extends INode<T>> List<RelationPath<T>> compareViolations(List<TemporalInvariant> invs, IGraph<T> graph) {		
+	public <T extends INode<T>> List<RelationPath<T>> compareViolations(List<ITemporalInvariant> invs, IGraph<T> graph) {		
 		List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
 		GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
 		
@@ -152,7 +152,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 					paths.add(path);
 				}
 			} else {
-				for (TemporalInvariant tinv : invs) {
+				for (ITemporalInvariant tinv : invs) {
 					RelationPath<T> path = FsmModelChecker.invariantCounterexample((BinaryInvariant)tinv, graph);
 					if (path != null) paths.add(path);
 				}
@@ -186,11 +186,11 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	}
 	
 	public <T extends INode<T>> RelationPath<T> getViolation(
-			TemporalInvariant inv, IGraph<T> g) {
+			ITemporalInvariant inv, IGraph<T> g) {
 		TimedTask refinement = PerformanceMetrics.createTask("getViolation", true);
 		try {
 			if (Main.useFSMChecker) {
-				List<TemporalInvariant> invs = new ArrayList<TemporalInvariant>();
+				List<ITemporalInvariant> invs = new ArrayList<ITemporalInvariant>();
 				invs.add(inv);
 				List<RelationPath<T>> paths = compareViolations(invs, g);
 				if (paths.isEmpty()) return null; 
@@ -214,11 +214,11 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				all.set(0, c.invariantCount(), true);
 				paths = c.findFailures(all);
 				*/
-				paths = this.compareViolations(new ArrayList<TemporalInvariant>(invariants), graph);
+				paths = this.compareViolations(new ArrayList<ITemporalInvariant>(invariants), graph);
 			} else {
 				paths = new ArrayList<RelationPath<T>>();
 				GraphLTLChecker<T> checker = new GraphLTLChecker<T>();
-				for (TemporalInvariant inv : invariants) {
+				for (ITemporalInvariant inv : invariants) {
 					RelationPath<T> path = getCounterExample(inv, graph, checker);
 					if (path != null)
 						paths.add(path);
@@ -267,12 +267,12 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 				failingInvariants.clear(failingInvariants.nextSetBit(0) + 1, failingInvariants.size());
 				List<RelationPath<T>> results = c.findFailures(failingInvariants);
 				*/
-				List<RelationPath<T>> results = this.compareViolations(new ArrayList<TemporalInvariant>(invariants), g);
+				List<RelationPath<T>> results = this.compareViolations(new ArrayList<ITemporalInvariant>(invariants), g);
 				if (results.isEmpty()) return null;
 				return results.get(0);
 			} else {
 				GraphLTLChecker<T> c = new GraphLTLChecker<T>();
-				for (TemporalInvariant i : invariants) {
+				for (ITemporalInvariant i : invariants) {
 					// List<Transition<Message>> path = i.check(g);
 					RelationPath<T> result = getCounterExample(i, g, c);
 					if (result != null) return result;
@@ -288,11 +288,11 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		boolean ret = invariants.containsAll(set2.invariants);
 		boolean ret2 = set2.invariants.containsAll(invariants);
 		if (!ret || !ret2) {
-			ArrayList<TemporalInvariant> foo = new ArrayList<TemporalInvariant>();
+			ArrayList<ITemporalInvariant> foo = new ArrayList<ITemporalInvariant>();
 			foo.addAll(invariants);
 			foo.removeAll(set2.invariants);
 			System.out.println("Not remotely contained: " + foo);
-			foo = new ArrayList<TemporalInvariant>();
+			foo = new ArrayList<ITemporalInvariant>();
 			foo.addAll(set2.invariants);
 			foo.removeAll(invariants);
 			System.out.println("Not locally contained: " + foo);
@@ -551,7 +551,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 
 	public Graph<MessageEvent> getInvariantGraph(String shortName) {
 		HashMap<String, MessageEvent> messageMap = new HashMap<String, MessageEvent>();
-		for (TemporalInvariant i : invariants) {
+		for (ITemporalInvariant i : invariants) {
 			for (String label : i.getPredicates()) {
 				if (!messageMap.containsKey(label))
 					messageMap.put(label,
@@ -559,7 +559,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 			}
 		}
 
-		for (TemporalInvariant i : invariants) {
+		for (ITemporalInvariant i : invariants) {
 			if (i instanceof BinaryInvariant
 					&& (shortName == null || i.getShortName().equals(shortName))) {
 				BinaryInvariant bi = (BinaryInvariant) i;

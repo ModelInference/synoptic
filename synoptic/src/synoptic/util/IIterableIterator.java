@@ -14,5 +14,5 @@ import java.util.Iterator;
  * @param <T>
  *            The Type being of the collection which is iterated over.
  */
-public interface IterableIterator<T> extends Iterator<T>, Iterable<T> {
+public interface IIterableIterator<T> extends Iterator<T>, Iterable<T> {
 }

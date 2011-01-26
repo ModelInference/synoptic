@@ -5,10 +5,10 @@ import java.util.NoSuchElementException;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import synoptic.util.IterableIterator;
+import synoptic.util.IIterableIterator;
 
 public class SuccessorToEdgeIterator<S, T> implements
-		IterableIterator<Edge<S, T>> {
+		IIterableIterator<Edge<S, T>> {
 	private final S source;
 	private final Iterator<T> targetIterator;
 	private Edge<S, T> next = null;

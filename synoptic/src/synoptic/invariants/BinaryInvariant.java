@@ -14,7 +14,7 @@ import gov.nasa.ltl.trans.ParseErrorException;
  * @author Sigurd Schneider
  *
  */
-public abstract class BinaryInvariant implements TemporalInvariant {
+public abstract class BinaryInvariant implements ITemporalInvariant {
 	protected String first;
 	protected String second;
 	protected String relation;

@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import synoptic.util.IterableIterator;
+import synoptic.util.IIterableIterator;
 
 public class Place {
 	String name;
@@ -18,7 +18,7 @@ public class Place {
 		return name;
 	}
 
-	public IterableIterator<Edge<Place, Event>> getEdgeIterator(Net net) {
+	public IIterableIterator<Edge<Place, Event>> getEdgeIterator(Net net) {
 		return new SuccessorToEdgeIterator<Place, Event>(this, successors
 				.iterator(), Math.max(1, net.getPre(this).size()));
 	}

@@ -16,7 +16,7 @@ import org.apache.commons.lang.NotImplementedException;
 import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.IterableIterator;
+import synoptic.util.IIterableIterator;
 
 /**
  * Implements a partition in a partition graph. Partitions are nodes, but they
@@ -62,7 +62,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 	/**	
 	 * Transitions between partitions are not stored but generated on demand using this iterator 
 	 */
-	public IterableIterator<Relation<Partition>> getTransitionsIterator() {
+	public IIterableIterator<Relation<Partition>> getTransitionsIterator() {
 		return getTransitionsIterator(null);
 	}
 
@@ -196,9 +196,9 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 	 * Duplicates are eliminated.
 	 */
 	@Override
-	public IterableIterator<Relation<Partition>> getTransitionsIterator(
+	public IIterableIterator<Relation<Partition>> getTransitionsIterator(
 			final String act) {
-		return new IterableIterator<Relation<Partition>>() {
+		return new IIterableIterator<Relation<Partition>>() {
 			private final Set<ITransition<Partition>> seen = new HashSet<ITransition<Partition>>();
 			private final Iterator<MessageEvent> msgItr = messages.iterator();
 			private Iterator<? extends ITransition<MessageEvent>> transItr = act == null ? msgItr

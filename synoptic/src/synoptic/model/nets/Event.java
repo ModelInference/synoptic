@@ -7,7 +7,7 @@ import java.util.Set;
 
 import synoptic.model.IEvent;
 import synoptic.model.input.VectorTime;
-import synoptic.util.IterableIterator;
+import synoptic.util.IIterableIterator;
 
 public class Event implements IEvent {
 	private String name;
@@ -24,7 +24,7 @@ public class Event implements IEvent {
 		return name;
 	}
 	
-	public IterableIterator<Edge<Event, Place>> getEdgeIterator() {
+	public IIterableIterator<Edge<Event, Place>> getEdgeIterator() {
 		return new SuccessorToEdgeIterator<Event, Place>(this, successors.iterator(), 1);
 	}
 

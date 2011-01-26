@@ -598,7 +598,7 @@ public class Main implements Callable<Integer> {
 
 	
 	/**
-	 *  The workhorse method, which uses TraceParser to parse the input files, and calls
+	 *  The workhorse method, which uses ITraceParser to parse the input files, and calls
 	 *  the primary Synoptic functions to perform refinement\coarsening and
 	 *  finally outputs the final graph to the output file (specified as a
 	 *  command line option).

@@ -11,7 +11,7 @@ import java.util.TreeSet;
 
 /**
  * A Queue in which every element is only inserted once. Further insertions have
- * no effekt.
+ * no effect.
  *
  * @author Clemens Hammacher
  */

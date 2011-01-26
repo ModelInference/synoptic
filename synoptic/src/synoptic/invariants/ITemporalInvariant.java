@@ -12,7 +12,7 @@ import synoptic.model.interfaces.INode;
  * @author Sigurd Schneider
  * 
  */
-public interface TemporalInvariant {
+public interface ITemporalInvariant {
 	/**
 	 * Use Did/Can LTL instead of LTL. (Not using it is only partially implemented.)
 	 */

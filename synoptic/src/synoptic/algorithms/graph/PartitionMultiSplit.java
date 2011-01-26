@@ -17,7 +17,7 @@ import synoptic.model.interfaces.IModifiableGraph;
  * @author Sigurd Schneider
  * 
  */
-public class PartitionMultiSplit implements Operation {
+public class PartitionMultiSplit implements IOperation {
 	private ArrayList<Set<MessageEvent>> partitioning = new ArrayList<Set<MessageEvent>>();
 	private Partition partition;
 
@@ -39,7 +39,7 @@ public class PartitionMultiSplit implements Operation {
 	}
 
 	@Override
-	public Operation commit(PartitionGraph g,
+	public IOperation commit(PartitionGraph g,
 			IModifiableGraph<Partition> partitionGraph) {
 		// We have to remove one of the sets, because the partition currently in
 		// the graph will hold exactly that set of message events.

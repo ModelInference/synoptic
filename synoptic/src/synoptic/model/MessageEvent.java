@@ -13,7 +13,7 @@ import synoptic.model.input.VectorTime;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.IterableAdapter;
-import synoptic.util.IterableIterator;
+import synoptic.util.IIterableIterator;
 
 
 /**
@@ -188,12 +188,12 @@ public class MessageEvent implements INode<MessageEvent>, IEvent, Comparable<Mes
 
 	// INode
 	@Override
-	public IterableIterator<Relation<MessageEvent>> getTransitionsIterator() {
+	public IIterableIterator<Relation<MessageEvent>> getTransitionsIterator() {
 		return IterableAdapter.make(getTransitions().iterator());
 	}
 
 	@Override
-	public IterableIterator<Relation<MessageEvent>> getTransitionsIterator(String
+	public IIterableIterator<Relation<MessageEvent>> getTransitionsIterator(String
 			relation) {
 		return IterableAdapter.make(getTransitions(relation).iterator());
 	}

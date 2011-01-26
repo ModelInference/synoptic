@@ -14,7 +14,7 @@ import synoptic.model.interfaces.IModifiableGraph;
  * @author Sigurd Schneider
  *
  */
-public class PartitionSplit implements Operation {
+public class PartitionSplit implements IOperation {
 	private Partition partitionToSplit = null;
 	/**
 	 * The messages that will be split out into a separate node.
@@ -43,7 +43,7 @@ public class PartitionSplit implements Operation {
 	}
 
 	@Override
-	public Operation commit(PartitionGraph g,
+	public IOperation commit(PartitionGraph g,
 			IModifiableGraph<Partition> partitionGraph) {
 		Partition newPartition = partitionToInsert;
 		if (newPartition == null) {

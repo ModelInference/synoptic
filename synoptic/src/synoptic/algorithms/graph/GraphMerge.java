@@ -8,7 +8,7 @@ import synoptic.model.interfaces.IModifiableGraph;
 /**
  * Implements merging a Partition Graph into another.
  */
-public class GraphMerge implements Operation {
+public class GraphMerge implements IOperation {
 	PartitionGraph graph;
 	
 	/**
@@ -20,7 +20,7 @@ public class GraphMerge implements Operation {
 	}
 	
 	@Override
-	public Operation commit(PartitionGraph g, IModifiableGraph<Partition> partitionGraph) {
+	public IOperation commit(PartitionGraph g, IModifiableGraph<Partition> partitionGraph) {
 		for (Partition p : graph.getNodes())
 			partitionGraph.add(p);
 		return null;

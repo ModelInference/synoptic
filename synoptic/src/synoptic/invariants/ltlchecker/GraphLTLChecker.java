@@ -13,7 +13,7 @@ import java.util.Set;
 
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
-import synoptic.invariants.TemporalInvariant;
+import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.ltlcheck.Counterexample;
 import synoptic.invariants.ltlcheck.IModelCheckingMonitor;
 import synoptic.model.export.GraphVizExporter;
@@ -54,7 +54,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 	 * @throws ParseErrorException
 	 */
 	public Counterexample check(IGraph<T> sourceGraph,
-			TemporalInvariant invariant, IModelCheckingMonitor monitor)
+			ITemporalInvariant invariant, IModelCheckingMonitor monitor)
 			throws ParseErrorException {
 		if (monitor == null) {
 			monitor = new IModelCheckingMonitor() {
