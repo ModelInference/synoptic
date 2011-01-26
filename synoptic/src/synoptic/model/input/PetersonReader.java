@@ -124,7 +124,7 @@ public class PetersonReader<T extends IEvent> {
 		List<Occurence> set = readFile(baseName);
 		final String relation = "t";
 		for (Occurence m1 : set) {
-			if (m1.time.isOneTime())
+			if (m1.time.isUnitVector())
 				this.builder.addInitial(m1.message, relation);
 			for (Occurence m2 : set) {
 				if (m1.time.lessThan(m2.time)) {

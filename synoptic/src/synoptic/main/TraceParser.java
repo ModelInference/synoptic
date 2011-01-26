@@ -33,7 +33,7 @@ import synoptic.util.NamedPattern;
 import synoptic.util.NamedSubstitution;
 
 /**
- * TraceParser is a generic trace parser, configured in terms of Java 7 style
+ * ITraceParser is a generic trace parser, configured in terms of Java 7 style
  * named capture regexes.
  * @author mgsloan
  */

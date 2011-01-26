@@ -16,7 +16,7 @@ import synoptic.model.interfaces.INode;
  * failure state upon encountering a final node indicates which, of A
  * and B, was last encountered.
  * 
- * NOTE: ensure this documentation stays consistent with AlwaysFollowedTracingSet.
+ * NOTE: ensure this documentation stays consistent with AFbyTracingSet.
  * 
  * @author Michael Sloan (mgsloan@gmail.com)
  * 
@@ -72,5 +72,9 @@ public class AFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
 		
 		s2.and(neither);
 		s2.or(isA);
+	}
+	
+	public String toString() {
+		return "bam";
 	}
 }

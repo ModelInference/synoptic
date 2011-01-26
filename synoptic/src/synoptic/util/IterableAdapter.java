@@ -2,7 +2,7 @@ package synoptic.util;
 
 import java.util.Iterator;
 
-public class IterableAdapter<T> implements IterableIterator<T>{
+public class IterableAdapter<T> implements IIterableIterator<T>{
 	private Iterator<T> iterator;
 	
 	public IterableAdapter(Iterator<T> iterator) {
@@ -29,7 +29,7 @@ public class IterableAdapter<T> implements IterableIterator<T>{
 		return iterator;
 	}
 
-	public static <T> IterableIterator<T> make(Iterator<T> iterator) {
+	public static <T> IIterableIterator<T> make(Iterator<T> iterator) {
 		return new IterableAdapter<T>(iterator);
 	}
 }

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.algorithms.graph.Operation;
+import synoptic.algorithms.graph.IOperation;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.RelationPath;
 import synoptic.model.Graph;
@@ -27,7 +27,7 @@ import synoptic.model.interfaces.IModifiableGraph;
 
 
 public class ReverseTraceroute {
-	public static class ReplaceOperation implements Operation {
+	public static class ReplaceOperation implements IOperation {
 		private ArrayList<Partition> s;
 
 		public ReplaceOperation(ArrayList<Partition> s) {
@@ -35,7 +35,7 @@ public class ReverseTraceroute {
 		}
 
 		@Override
-		public Operation commit(PartitionGraph g,
+		public IOperation commit(PartitionGraph g,
 				IModifiableGraph<Partition> partitionGraph) {
 			HashSet<MessageEvent> nodes = new HashSet<MessageEvent>();
 			String str = "";
@@ -70,7 +70,7 @@ public class ReverseTraceroute {
 		all.stop();
 		TemporalInvariantSet inv = g.getInvariants()
 				.getUnsatisfiedInvariants(g);
-		// for (TemporalInvariant i : inv) {
+		// for (ITemporalInvariant i : inv) {
 		// System.out.println(i);
 		// }
 		System.out.println(inv.size());

@@ -21,7 +21,7 @@ package gov.nasa.ltl.graph;
 /**
  * DOCUMENT ME!
  */
-public class EmptyVisitor implements Visitor {
+public class EmptyVisitor implements IVisitor {
 	protected Object arg;
 
 	public EmptyVisitor() {

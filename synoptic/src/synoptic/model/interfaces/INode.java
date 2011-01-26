@@ -3,7 +3,7 @@ package synoptic.model.interfaces;
 import java.util.List;
 
 import synoptic.model.Partition;
-import synoptic.util.IterableIterator;
+import synoptic.util.IIterableIterator;
 
 /**
  * The interface all nodes must implement. The interface does not contain methods
@@ -24,25 +24,25 @@ public interface INode<NodeType> extends Comparable<NodeType>{
 	String getLabel();
 
 	/**
-	 * Returns an {@code IterableIterator} over all outgoing transitions of this
+	 * Returns an {@code IIterableIterator} over all outgoing transitions of this
 	 * node. An implementation may delay computation of the transitions until
 	 * {@code next} is called on the returned iterator.
 	 * 
-	 * @return an {@code IterableIterator} over all outgoing transitions of this
+	 * @return an {@code IIterableIterator} over all outgoing transitions of this
 	 *         node
 	 */
-	IterableIterator<? extends ITransition<NodeType>> getTransitionsIterator();
+	IIterableIterator<? extends ITransition<NodeType>> getTransitionsIterator();
 
 	/**
-	 * Returns an {@code IterableIterator} those outgoing transitions of this
+	 * Returns an {@code IIterableIterator} those outgoing transitions of this
 	 * node that are labeled with {@code relation}.An implementation may delay
 	 * computation of the transitions until {@code next} is called on the
 	 * returned iterator.
 	 * 
-	 * @return an {@code IterableIterator} over all outgoing transitions of this
+	 * @return an {@code IIterableIterator} over all outgoing transitions of this
 	 *         node
 	 */
-	IterableIterator<? extends ITransition<NodeType>> getTransitionsIterator(
+	IIterableIterator<? extends ITransition<NodeType>> getTransitionsIterator(
 			String relation);
 
 	/**

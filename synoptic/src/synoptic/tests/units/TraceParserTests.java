@@ -22,7 +22,7 @@ public class TraceParserTests {
 		TraceParser parser = new TraceParser();
 		String trace = "a\nb\nc\n";
 		parser.addRegex("^(?<TYPE>)$");
-		// Purposefully don't handle the ParseException because the parse is broken
+		// Purposefully don't handle the ParseException because it implies the parse is broken
 		List<Occurrence> occs = parser.parseTraceString(trace, new String("test"), -1);
 		// TODO: test occs here.
 	}

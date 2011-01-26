@@ -18,7 +18,7 @@ import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.model.nets.Event;
 import synoptic.model.nets.Net;
-import synoptic.util.IterableIterator;
+import synoptic.util.IIterableIterator;
 
 
 

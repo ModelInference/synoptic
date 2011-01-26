@@ -10,7 +10,7 @@ import synoptic.model.interfaces.IModifiableGraph;
  * @author Sigurd Schneider
  *
  */
-public class PartitionMerge implements Operation {
+public class PartitionMerge implements IOperation {
 	Partition retained;
 	Partition removed;
 
@@ -28,7 +28,7 @@ public class PartitionMerge implements Operation {
 	}
 	
 	@Override
-	public Operation commit(PartitionGraph g, IModifiableGraph<Partition> partitionGraph) {
+	public IOperation commit(PartitionGraph g, IModifiableGraph<Partition> partitionGraph) {
 		int retainedSize = retained.size();
 		int removedSize = removed.size();
 		PartitionSplit split = new PartitionSplit(retained, removed);

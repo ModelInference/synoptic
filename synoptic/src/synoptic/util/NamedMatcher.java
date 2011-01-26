@@ -12,7 +12,7 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class NamedMatcher implements NamedMatchResult {
+public class NamedMatcher implements INamedMatchResult {
 
 	private Matcher matcher;
 	private NamedPattern parentPattern;
@@ -58,7 +58,7 @@ public class NamedMatcher implements NamedMatchResult {
 		return matcher.matches();
 	}
 
-	public NamedMatchResult toMatchResult() {
+	public INamedMatchResult toMatchResult() {
 		return new NamedMatcher(this.parentPattern, matcher.toMatchResult());
 	}
 

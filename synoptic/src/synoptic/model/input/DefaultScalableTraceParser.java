@@ -4,7 +4,7 @@ import synoptic.model.Graph;
 import synoptic.model.MessageEvent;
 import synoptic.model.scalability.ScalableGraph;
 
-public abstract class DefaultScalableTraceParser implements TraceParser {
+public abstract class DefaultScalableTraceParser implements ITraceParser {
 
 	@Override
 	public Graph<MessageEvent> parseTraceFileLarge(String fileName, int linesToRead,

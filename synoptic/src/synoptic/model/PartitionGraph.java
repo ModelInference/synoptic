@@ -7,7 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import synoptic.algorithms.graph.Operation;
+import synoptic.algorithms.graph.IOperation;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.IModifiableGraph;
@@ -19,7 +19,7 @@ import synoptic.model.interfaces.ITransition;
  * are not maintained explicitly, but generated on-the-fly by class {@code Partition}. PartitionGraph maintains
  * a member {@code stateGraph} which represents the state based graph version of the partition graph. To ensure
  * that {@code stateGraph} reflects the current shape of the graph, PartitionGraphs can only be modified via 
- * the method {@code apply} which takes a object implementing {@code Operation}. Operations must perform changes
+ * the method {@code apply} which takes a object implementing {@code IOperation}. Operations must perform changes
  * on both representations. 
  * 
  * @author sigurd
@@ -87,7 +87,7 @@ public class PartitionGraph implements IGraph<Partition> {
 		return message.getParent();
 	}
 
-	public Operation apply(Operation op) {
+	public IOperation apply(IOperation op) {
 		return op.commit(this, modifiableInterface);
 	}
 

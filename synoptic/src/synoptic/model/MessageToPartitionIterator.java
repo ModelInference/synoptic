@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import synoptic.util.IterableIterator;
+import synoptic.util.IIterableIterator;
 
 /**
  * This adapter can transform an iterator over messages into an iterator over
@@ -14,7 +14,7 @@ import synoptic.util.IterableIterator;
  * @author Sigurd Schneider
  * 
  */
-public class MessageToPartitionIterator implements IterableIterator<Partition> {
+public class MessageToPartitionIterator implements IIterableIterator<Partition> {
 	private final Set<Partition> seen = new LinkedHashSet<Partition>();
 	private final Iterator<MessageEvent> messageIterator;
 	private Partition next = null;

@@ -223,7 +223,7 @@ public class Graph {
 		return graph;
 	}
 
-	public synchronized void dfs(Visitor v) {
+	public synchronized void dfs(IVisitor v) {
 		if (init == null) {
 			return;
 		}
@@ -245,7 +245,7 @@ public class Graph {
 		});
 	}
 
-	public synchronized void forAll(Visitor v) {
+	public synchronized void forAll(IVisitor v) {
 		for (final Iterator<Node> i = new LinkedList<Node>(nodes).iterator(); i.hasNext();) {
 			final Node n = i.next();
 
@@ -255,7 +255,7 @@ public class Graph {
 		}
 	}
 
-	public synchronized void forAllEdges(Visitor v) {
+	public synchronized void forAllEdges(IVisitor v) {
 		for (final Iterator<Node> i = new LinkedList<Node>(nodes).iterator(); i.hasNext();) {
 			final Node n = i.next();
 
@@ -263,7 +263,7 @@ public class Graph {
 		}
 	}
 
-	public synchronized void forAllNodes(Visitor v) {
+	public synchronized void forAllNodes(IVisitor v) {
 		for (final Iterator<Node> i = new LinkedList<Node>(nodes).iterator(); i.hasNext();) {
 			final Node n = i.next();
 			v.visitNode(n);
@@ -405,8 +405,8 @@ public class Graph {
 		return readLine(in);
 	}
 
-	protected synchronized void dfs(Node n, Visitor v) {
-		final Visitor visitor = v;
+	protected synchronized void dfs(Node n, IVisitor v) {
+		final IVisitor visitor = v;
 
 		if (n.getBooleanAttribute("_reached")) {
 			return;

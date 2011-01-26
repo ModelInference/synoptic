@@ -12,14 +12,14 @@ import synoptic.model.interfaces.IModifiableGraph;
  * @author Sigurd Schneider
  *
  */
-public class OperationSequence implements Operation {
-	LinkedList<Operation> sequence = new LinkedList<Operation>();
+public class OperationSequence implements IOperation {
+	LinkedList<IOperation> sequence = new LinkedList<IOperation>();
 
 	@Override
-	public Operation commit(PartitionGraph g,
+	public IOperation commit(PartitionGraph g,
 			IModifiableGraph<Partition> partitionGraph) {
 		OperationSequence rewindOperation = new OperationSequence();
-		for (Operation op : sequence)
+		for (IOperation op : sequence)
 			rewindOperation.addFirst(g.apply(op));
 		return rewindOperation;
 	}
@@ -28,7 +28,7 @@ public class OperationSequence implements Operation {
 	 * Add an operation before the head of the sequence.
 	 * @param operation the operation to add
 	 */
-	public void addFirst(Operation operation) {
+	public void addFirst(IOperation operation) {
 		sequence.addFirst(operation);
 	}
 }

@@ -22,7 +22,7 @@ package gov.nasa.ltl.graph;
 /**
  * DOCUMENT ME!
  */
-public interface Visitor {
+public interface IVisitor {
   void visitEdge (Edge e);
 
   void visitNode (Node n);

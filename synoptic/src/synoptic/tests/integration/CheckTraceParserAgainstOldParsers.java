@@ -24,7 +24,7 @@ import synoptic.util.Predicate;
 
 
 /**
- * Compares TraceParser against the older hard-coded parsers
+ * Compares ITraceParser against the older hard-coded parsers
  * 
  * @author mgsloan
  */

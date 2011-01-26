@@ -5,22 +5,34 @@ import java.util.List;
 
 public class VectorTime {
 	ArrayList<Integer> vector = new ArrayList<Integer>();
-
+	
 	/**
 	 * Builds a VectorTime from a string that looks like "1,2,3"
 	 * @param timeStr string input representing a vtime
+	 * @throws IllegalArgumentException when timeStr contains negative integers
 	 */
-	public VectorTime(String timeStr) {
+	public VectorTime(String timeStr) throws IllegalArgumentException {
 		String[] times = timeStr.split(",");
-		for (String t : times)
-			vector.add(Integer.parseInt(t));
+		for (String t : times) {
+			Integer i = Integer.parseInt(t);
+			if (i < 0) {
+				throw new IllegalArgumentException();
+			}
+			vector.add(i);
+		}
 	}
 
 	/**
 	 * Builds a VectorTime from a vector
 	 * @param vector input vector
+	 * @throws IllegalArgumentException when vector contains negative integers
 	 */
-	public VectorTime(List<Integer> vector) {
+	public VectorTime(List<Integer> vector) throws IllegalArgumentException {
+		for (Integer i: vector) {
+			if (i < 0) {
+				throw new IllegalArgumentException();
+			}
+		}
 		this.vector.addAll(vector);
 	}
 
@@ -31,6 +43,12 @@ public class VectorTime {
 	 */
 	public boolean lessThan(VectorTime t) {
 		boolean foundStrictlyLess = false;
+		
+		if (vector.size() != t.vector.size()) {
+			// Two vectors are only comparable if they have the same length.
+			return false;
+		}
+		
 		for (int i = 0; i < vector.size(); ++i) {
 			if (vector.get(i) < t.vector.get(i))
 				foundStrictlyLess = true;
@@ -43,17 +61,20 @@ public class VectorTime {
 	/**
 	 * @return Whether or not this is a unit vector
 	 */
-	public boolean isOneTime() {
+	public boolean isUnitVector() {
 		boolean sawOne = false;
 		for (int i = 0; i < vector.size(); ++i) {
-			if (sawOne && vector.get(i) == 1)
+			if (sawOne && vector.get(i) == 1) {
 				return false;
-			if (vector.get(i) == 1)
+			}
+			if (vector.get(i) == 1) {
 				sawOne = true;
-			if (vector.get(i) > 0)
+			}
+			if (vector.get(i) > 1) {
 				return false;
+			}
 		}
-		return true;
+		return sawOne;
 	}
 
 	/**
