@@ -40,11 +40,6 @@ import synoptic.util.InternalSynopticException;
 
 //import daikonizer.Daikonizer;
 
-
-
-
-
-
 public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 	private static Logger logger = Logger.getLogger("TemporalInvSet Logger");
 	
@@ -149,7 +144,7 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
 		
 		if (!compare) {
-			if (invs.size() > 5) {  // arbitrary threshold
+			if (false) {  // arbitrary threshold
 				List<BinaryInvariant> viol = this.getViolated(invs, graph);
 				for (BinaryInvariant inv : viol) {
 					RelationPath<T> path = FsmModelChecker.invariantCounterexample(inv, graph);
@@ -182,10 +177,10 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 					System.out.println("normal path doesn't end with final");
 				}
 			}
-			if ((fsm_path != null) != violated.contains(inv)) {
+			if ((path != null) != violated.contains(inv)) {
 				System.out.println("Bitset checker deviates from cannonical in " + inv.toString());
 			}
-			if (fsm_path != null) paths.add(fsm_path);
+			if (path != null) paths.add(path);
 		}
 		return paths;
 	}
@@ -606,6 +601,4 @@ public class TemporalInvariantSet implements Iterable<TemporalInvariant> {
 		}
 		return b.getRawGraph();
 	}
-
-	
 }

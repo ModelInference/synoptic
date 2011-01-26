@@ -77,10 +77,4 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
-    <target name="Peterson">
-        <java classname="synoptic.main.Main" failonerror="true" fork="yes">
-            <arg line="-v -r &quot;^(?:#.*|\\s*|.*round-done.*)(?&lt;HIDE=&gt;true)$&quot; -r &quot;(?&lt;nodename&gt;)(?&lt;TIME&gt;)(?&lt;TYPE&gt;)(?:(?&lt;mtype&gt;)(?:(?&lt;roundId&gt;)(?:(?&lt;payload&gt;)(?:(?&lt;id&gt;))?)?)?)?&quot; -s &quot;\\k&lt;FILE&gt;&quot; -o output/fsm-peterson --dumpInitialGraph=true --dumpIntermediateStages=true ../traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s*.txt"/>
-            <classpath refid="synoptic.classpath"/>
-        </java>
-    </target>
 </project>
