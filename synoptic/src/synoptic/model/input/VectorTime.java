@@ -86,6 +86,7 @@ public class VectorTime {
 	
 	/**
 	 * Increments vtime at an index and returns the new vtime
+	 * 
 	 * @param index
 	 * @return the newly created, incremented vtime 
 	 */

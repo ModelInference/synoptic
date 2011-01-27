@@ -17,7 +17,6 @@ import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMerge;
 import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.algorithms.graph.PartitionSplit;
-import synoptic.algorithms.ktail.StateUtil;
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.ITemporalInvariant;
@@ -37,7 +36,7 @@ import synoptic.model.interfaces.ITransition;
 
 /**
  * This class implements the algorithm BisimH ({@code
- * Bisimulation.refinePartitions}), and a modified version of the algorithm
+ * Bisimulation.splitPartitions}), and a modified version of the algorithm
  * kTail ({@code Bisimulation.mergePartitions}) that considers state labels
  * instead of state transitions.
  * 
@@ -204,13 +203,12 @@ public abstract class Bisimulation {
 	}
 
 	/**
-	 * Refines the partitions in {@code partitionGraph} until all synoptic.invariants
+	 * Splits the partitions in {@code partitionGraph} until all synoptic.invariants
 	 * returned by {@code partitionGraph.getInvariants()} are satisfied.
 	 * 
-	 * @param partitionGraph
-	 *            - the partition graph to refine
+	 * @param partitionGraph the partition graph to refine\split
 	 */
-	public static void refinePartitions(PartitionGraph partitionGraph) {
+	public static void splitPartitions(PartitionGraph partitionGraph) {
 		TimedTask refinement = PerformanceMetrics.createTask("refinement", false);
 		
 		if (Main.dumpIntermediateStages) {
@@ -412,7 +410,7 @@ public abstract class Bisimulation {
 	
 	/**
 	 * Construct a partition graph from {@code graph} (by partitioning by
-	 * label), call {@code refinePartitions} on it, and return the refined
+	 * label), call {@code splitPartitions} on it, and return the refined
 	 * graph.
 	 * 
 	 * @param graph
@@ -420,16 +418,16 @@ public abstract class Bisimulation {
 	 * @return the refined graph
 	 * @throws InterruptedException
 	 */
-	public static PartitionGraph getRefinedGraph(IGraph<MessageEvent> graph)
+	public static PartitionGraph getSplitGraph(IGraph<MessageEvent> graph)
 			throws InterruptedException {
 		PartitionGraph g = new PartitionGraph(graph, true);
-		refinePartitions(g);
+		splitPartitions(g);
 		return g;
 	}
 
 	/**
 	 * Construct a partition graph from {@code graph} (by partitioning by
-	 * label), call {@code mergePartitions} on it, and return the refined graph.
+	 * label), call {@code mergePartitions} on it, and return the merged graph.
 	 * 
 	 * @param graph
 	 *            the graph from which should be used as initial graph
@@ -499,7 +497,7 @@ public abstract class Bisimulation {
 					if (p == q) continue;
 					
 					// 2. Only merge partitions that are k-equivalent
-					if (!StateUtil.kEquals(p, q, k, false)) continue;
+					if (!KTails.kEquals(p, q, k, false)) continue;
 					
 					// 3. Ignore partition pairs that were previously tried (are in blacklist)
 					if ((blacklist.containsKey(p) && blacklist.get(p).contains(q))

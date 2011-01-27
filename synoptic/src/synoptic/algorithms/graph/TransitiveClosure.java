@@ -1,3 +1,4 @@
+
 package synoptic.algorithms.graph;
 
 import java.util.HashMap;

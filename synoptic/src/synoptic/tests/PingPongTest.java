@@ -30,7 +30,7 @@ public class PingPongTest {
 		GraphVizExporter exporter = new GraphVizExporter();
 		exporter.exportAsDotAndPng("output/ping-pong/ping.dot", t);
 		System.out.println("Wrote ping.dot.");
-		PartitionGraph g = Bisimulation.getRefinedGraph(t);
+		PartitionGraph g = Bisimulation.getSplitGraph(t);
 		System.out.println("Done minimizing.");
 		exporter.exportAsDotAndPng("output/ping-pong/ping-minimized.dot", g);
 		System.out.println("done.");

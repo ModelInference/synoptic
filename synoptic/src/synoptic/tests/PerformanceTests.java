@@ -69,7 +69,7 @@ public class PerformanceTests extends TestCase {
 			PartitionGraph g = GraphBuilder.buildGraph(traces);
 	
 			long startTime = System.currentTimeMillis();
-			Bisimulation.refinePartitions(g);
+			Bisimulation.splitPartitions(g);
 			total_delta  += System.currentTimeMillis() - startTime;
 		}
 		long delta = total_delta / iterations;

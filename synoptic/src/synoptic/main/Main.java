@@ -688,7 +688,7 @@ public class Main implements Callable<Integer> {
 			System.out.println("");
 		}
 		logger.fine("Refining (Splitting)...");
-		Bisimulation.refinePartitions(result);
+		Bisimulation.splitPartitions(result);
 		
 		if (Main.logLvlVerbose) {
 			System.out.println("");

@@ -21,7 +21,7 @@ public class ReverseTracerouteBenchmark {
 		protected void run(Integer val) {
 			IGraph<MessageEvent> raw = ReverseTraceroute.readOverkill(val);
 			PartitionGraph g = new PartitionGraph(raw, true);
-			Bisimulation.refinePartitions(g);
+			Bisimulation.splitPartitions(g);
 			//Bisimulation.mergePartitions(g);
 		}
 		
