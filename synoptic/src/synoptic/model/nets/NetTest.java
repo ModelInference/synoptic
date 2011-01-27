@@ -143,7 +143,7 @@ public class NetTest {
 		e.exportAsDotAndPng("output/petri/condensed-input.dot", condensedGraph);
 		PartitionGraph pgCondensed = new PartitionGraph(condensedGraph, true);
 		e.exportAsDotAndPng("output/petri/condensed-merged.dot", pgCondensed);
-		Bisimulation.refinePartitions(pgCondensed);
+		Bisimulation.splitPartitions(pgCondensed);
 		e.exportAsDotAndPng("output/petri/condensed-refined.dot", pgCondensed);
 	}
 

@@ -1,5 +1,7 @@
 package synoptic.tests.units;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 /**
@@ -13,7 +15,7 @@ public class TimedTaskTests {
 	 */
 	@Test
 	public void runTaskTest() {
-		// TODO
+		fail("TODO");
 	}
 	
 	/**
@@ -21,6 +23,6 @@ public class TimedTaskTests {
 	 */
 	@Test
 	public void runAndTimeTaskTest() {
-		// TODO
+		fail("TODO");
 	}
 }

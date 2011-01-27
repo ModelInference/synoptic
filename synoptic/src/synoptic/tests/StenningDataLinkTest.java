@@ -32,7 +32,7 @@ public class StenningDataLinkTest {
 		System.out.println(s);
 		PartitionGraph pg = new PartitionGraph(g, true);
 		e.exportAsDotAndPng("output/stenning/initial-pg.dot", pg);
-		Bisimulation.refinePartitions(pg);
+		Bisimulation.splitPartitions(pg);
 		e.exportAsDotAndPng("output/stenning/output-pg.dot", pg);
 		Bisimulation.mergePartitions(pg);
 		System.out.println("Merge done.");

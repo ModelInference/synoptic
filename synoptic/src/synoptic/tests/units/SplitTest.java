@@ -1,18 +1,28 @@
-package synoptic.tests;
+package synoptic.tests.units;
 
+import static org.junit.Assert.*;
 
+import java.util.Random;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.main.Main;
 import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.MessageEvent;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 
-
-
 public class SplitTest {
+	
+	@Before
+	public void setUp() {
+		int randomSeed = 0;
+		Main.random = new Random(randomSeed);
+	}
+	
 	@Test
 	public void test() throws Exception {
 		Action a = new Action("a");
@@ -43,8 +53,8 @@ public class SplitTest {
 		g.add(B1);
 		GraphVizExporter e = new GraphVizExporter();
 		PartitionGraph pg = new PartitionGraph(g, true);
-		e.exportAsDotAndPngFast("output/synoptic.tests/initial.dot", pg);
-		Bisimulation.refinePartitions(pg);
-		e.exportAsDotAndPngFast("output/synoptic.tests/final.dot", pg);
+		Bisimulation.splitPartitions(pg);
+		// TODO: test the resulting graph
+		fail("TODO");
 	}
 }

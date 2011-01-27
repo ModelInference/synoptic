@@ -15,21 +15,18 @@ public class VectorTimeTests {
 	
 	@Test
 	public void constructorNoExceptionsTest() {
-		VectorTime v1;
-		v1 = new VectorTime("1,2,3");
-		v1 = new VectorTime(Arrays.asList(new Integer[]{1,2,3}));
+		new VectorTime("1,2,3");
+		new VectorTime(Arrays.asList(new Integer[]{1,2,3}));
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void constructorWithException1Test() {
-		VectorTime v1;
-		v1 = new VectorTime("-1,2,3");
+		new VectorTime("-1,2,3");
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void constructorWithException2Test() {
-		VectorTime v1;
-		v1 = new VectorTime(Arrays.asList(new Integer[]{1,-2,3}));
+		new VectorTime(Arrays.asList(new Integer[]{1,-2,3}));
 	}
 	
 	@Test
@@ -38,8 +35,10 @@ public class VectorTimeTests {
 		
 		v1 = new VectorTime("1,2,3");
 		v2 = new VectorTime(Arrays.asList(new Integer[]{1,2,3}));
+		assertTrue(v1.equals(v1));
 		assertTrue(v1.equals(v2));
 		
+		assertFalse(v1.equals("1"));	
 		assertFalse(v1.equals(null));
 		
 		v3 = new VectorTime(Arrays.asList(new Integer[]{1,2,4}));
@@ -80,6 +79,8 @@ public class VectorTimeTests {
 		assertTrue(v1.isUnitVector());
 		v1 = new VectorTime("1");
 		assertTrue(v1.isUnitVector());
+		v1 = new VectorTime("0,1,1");
+		assertFalse(v1.isUnitVector());
 		v1 = new VectorTime("2");
 		assertFalse(v1.isUnitVector());
 		v1 = new VectorTime("0,0,2");
@@ -115,10 +116,20 @@ public class VectorTimeTests {
 	
 	@Test
 	public void toStringTest() {
-		VectorTime v1, v2;
+		VectorTime v1;
 		v1 = new VectorTime("1,2,3,1");
 		String s = v1.toString();
-		assertTrue(s != null);
+		assertEquals("[1, 2, 3, 1]", s);
+	}
+	
+	@Test
+	public void hashCodeTest() {
+		VectorTime v1, v2;
+		v1 = new VectorTime("1,2,3");
+		v2 = new VectorTime("1,2,4");
+		
+		assertTrue(v1.hashCode() == v1.hashCode());
+		assertTrue(v1.hashCode() != v2.hashCode());
 	}
 		
 }

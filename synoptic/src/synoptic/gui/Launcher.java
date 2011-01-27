@@ -421,7 +421,7 @@ public class Launcher extends JApplet implements Printable {
 						1);
 		synoptic.model.Graph<MessageEvent> g = b.getRawGraph();
 		PartitionGraph pg = new PartitionGraph(g, true);
-		Bisimulation.refinePartitions(pg);
+		Bisimulation.splitPartitions(pg);
 	//	Bisimulation.mergePartitions(pg);
 		GraphVizExporter e = new GraphVizExporter();
 		e.exportAsDotAndPngFast("output/launcher.dot", pg);

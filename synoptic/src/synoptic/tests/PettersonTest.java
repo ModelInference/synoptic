@@ -73,7 +73,7 @@ public class PettersonTest {
 		TimedTask refinement = new TimedTask("refinement");
 		//e.exportAsDotAndPngFast("output/peterson/initial-pg.dot", pg);
 		System.out.println("Refining Partitions...");
-		Bisimulation.refinePartitions(pg);
+		Bisimulation.splitPartitions(pg);
 		System.out.println("Refined to " + pg.getNodes().size()+ " nodes.");
 		//e.exportAsDotAndPngFast("output/peterson/output-pg.dot", pg);
 		refinement.stop();

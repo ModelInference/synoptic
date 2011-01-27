@@ -1,5 +1,7 @@
 package synoptic.tests.units;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 public class GraphVizExporterTests {
@@ -9,7 +11,7 @@ public class GraphVizExporterTests {
 	 */
 	@Test
 	public void canonicalExportTest() {
-		// TODO
+		fail("TODO");
 	}
 
 }

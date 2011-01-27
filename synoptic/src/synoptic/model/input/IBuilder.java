@@ -42,7 +42,7 @@ public interface IBuilder<T> {
 	void split();
 
 	/**
-	 * Insert a new event with payload act, and do not created any edges.
+	 * Insert a new event with payload act, and do not create any edges.
 	 * 
 	 * @param act
 	 *            the payload for the new event

@@ -234,8 +234,8 @@ public class TraceParser {
 	public List<Occurrence> parseTraceFile(File file, int linesToRead) throws ParseException, InternalSynopticException {
 		String fileName = "";
 		try {
-			FileInputStream fstream = new FileInputStream(file);
 			fileName = file.getAbsolutePath();
+			FileInputStream fstream = new FileInputStream(file);
 			InputStreamReader fileReader = new InputStreamReader(fstream);
 			return parseTrace(fileReader, fileName, linesToRead);
 		} catch (IOException e) {
@@ -317,7 +317,7 @@ public class TraceParser {
 		return filter.substitute(a.getStringArguments());
 	}
 	
-	/* 
+	/**
 	 * Parse an individual line.  If it contains no time field, prevTime is
 	 * incremented and used instead.
 	 */
