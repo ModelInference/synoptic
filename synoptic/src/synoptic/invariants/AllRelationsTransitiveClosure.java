@@ -11,7 +11,7 @@ import synoptic.model.interfaces.INode;
 
 
 /**
- * Code taken from
+ * Code taken from:
  * http://www.cs.princeton.edu/courses/archive/fall05/cos226/lectures/digraph.pdf
  * @author Sigurd
  *

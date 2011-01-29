@@ -88,8 +88,6 @@ public class GraphVizExporter {
 	}
 
 	public void export(File dotFile, Net net) throws Exception {
-		if (true)
-			return;
 		final PrintWriter writer;
 		try {
 			writer = new PrintWriter(dotFile);
@@ -166,7 +164,7 @@ public class GraphVizExporter {
 		} else if (terminal) {
 			attributes = attributes + ",shape=diamond";
 		}
-		if (color != "") {
+		if (!color.equals("")) {
 			attributes = attributes + ",color=" + color;
 		}
 		return attributes;
@@ -249,7 +247,7 @@ public class GraphVizExporter {
 		nodeCnt = exportRelationNodes(writer, graph, "t", allTransitions, nodeToInt, nodeCnt);
 		// logger.finest("</exportRelationNodes relation(t)>, nodeCnt is " + nodeCnt);
 		
-		nodeCnt = exportRelationNodes(writer, graph, "i", allTransitions, nodeToInt, nodeCnt);
+		exportRelationNodes(writer, graph, "i", allTransitions, nodeToInt, nodeCnt);
 		// logger.finest("</exportRelationNodes relation(i)>, nodeCnt is " + nodeCnt);
 						
 		// Output edges:

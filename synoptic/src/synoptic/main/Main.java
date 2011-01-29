@@ -1,6 +1,5 @@
 package synoptic.main;
 
-import java.lang.Integer;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
@@ -43,7 +42,7 @@ public class Main implements Callable<Integer> {
 	/**
 	 * The current Synoptic version.
 	 */
-	public static final String versionString = "Synoptic version 0.0.3";
+	public static final String versionString = "0.0.3";
 	
 	/**
 	 * Global source of pseudo-random numbers.
@@ -357,7 +356,7 @@ public class Main implements Callable<Integer> {
 		}
 
 		if (version) {
-			System.out.println(Main.versionString);
+			System.out.println("Synoptic version " + Main.versionString);
 			return;
 		}
 		
