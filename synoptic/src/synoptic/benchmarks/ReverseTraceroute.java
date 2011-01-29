@@ -234,7 +234,6 @@ public class ReverseTraceroute {
 		String[] traces_long = { "velia.net-AS29066_revtr.err",
 				"hotze.com-AS8596_revtr.err" };
 
-		GraphVizExporter export = new GraphVizExporter();
 		synoptic.model.Graph<MessageEvent> g = new synoptic.model.Graph<MessageEvent>();
 		String prefix = "traces/ReverseTraceroute/rt_parsed_rich/";
 		for (String trace : traces_34) {

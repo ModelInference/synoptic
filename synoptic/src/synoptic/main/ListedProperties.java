@@ -63,9 +63,10 @@ public class ListedProperties extends Properties {
 	 * 
 	 * @return string array corresponding to the properties command line
 	 */
+	@SuppressWarnings("unchecked")
 	public String[] getCmdArgsLine() {
 		// get all the keys
-		Enumeration keys = propertyNames();
+		Enumeration<String> keys = (Enumeration<String>) propertyNames();
 		// we'll construct the vector first, and then convert it to String[]
 		Vector<String> argsVector = new Vector<String>();
 		// list of values for a single key

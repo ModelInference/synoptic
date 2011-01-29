@@ -51,7 +51,6 @@ public class SplitTest {
 		g.addInitial(a4, t);
 		g.add(A1);
 		g.add(B1);
-		GraphVizExporter e = new GraphVizExporter();
 		PartitionGraph pg = new PartitionGraph(g, true);
 		Bisimulation.splitPartitions(pg);
 		// TODO: test the resulting graph

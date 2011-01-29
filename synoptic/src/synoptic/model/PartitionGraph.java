@@ -15,13 +15,11 @@ import synoptic.model.interfaces.ITransition;
 
 
 /**
- * This class implements a partition graph. Nodes are sets of messages ({@code MessageEvent}) and edges 
- * are not maintained explicitly, but generated on-the-fly by class {@code Partition}. PartitionGraph maintains
- * a member {@code stateGraph} which represents the state based graph version of the partition graph. To ensure
- * that {@code stateGraph} reflects the current shape of the graph, PartitionGraphs can only be modified via 
+ * This class implements a partition graph. Nodes are sets of messages ({@code MessageEvent}) and edges
+ * are not maintained explicitly, but generated on-the-fly by class {@code Partition}. PartitionGraphs can only be modified via
  * the method {@code apply} which takes a object implementing {@code IOperation}. Operations must perform changes
- * on both representations. 
- * 
+ * on both representations.
+ *
  * @author sigurd
  *
  */
@@ -37,7 +35,7 @@ public class PartitionGraph implements IGraph<Partition> {
 	private LinkedHashMap<String, Set<MessageEvent>> initialMessages = new LinkedHashMap<String, Set<MessageEvent>>();
 
 	/** holds synoptic.invariants that were mined when the graph was created */
-	private TemporalInvariantSet invariants;
+	private TemporalInvariantSet invariants = null;
 
 	/** holds all relations known to exist in this graph */
 	private Set<String> relations = new LinkedHashSet<String>();
@@ -51,7 +49,7 @@ public class PartitionGraph implements IGraph<Partition> {
 	 * and stored. If partitionByLabel is true, all messages with identical
 	 * labels in {@code g} will become one partition. Otherwise, every message
 	 * gets its own partition (useful if only coarsening is to be performed)
-	 * 
+	 *
 	 * @param g - the initial graph
 	 * @param partitionByLabel - whether initial partitioning by label should be done
 	 */
@@ -60,16 +58,15 @@ public class PartitionGraph implements IGraph<Partition> {
 			addInitialMessages(g.getInitialNodes(relation), relation);
 			relations.add(relation);
 		}
-		if (partitionByLabel)
+
+		if (partitionByLabel) {
 			partitionByLabels(g.getNodes(), g.getInitialNodes());
-		else
+		} else {
 			partitionSeparately(g.getNodes());
-		
-		/* compute the synoptic.invariants for the graph! */
+		}
+
+		// Compute the invariants for the graph.
 		invariants = TemporalInvariantSet.computeInvariants(g);
-		/*****************************************/
-		
-		//System.out.println(synoptic.invariants.size() + " synoptic.invariants found.");
 	}
 
 	private void addInitialMessages(Set<MessageEvent> initialMessages,
@@ -186,7 +183,7 @@ public class PartitionGraph implements IGraph<Partition> {
 	public Set<String> getRelations() {
 		return relations;
 	}
-	
+
 	/**
 	 * An anonymous class instance implementing ModifiableGraph<Partition>, which
 	 * can be passed to methods that must modify this PartitionGraph instance.

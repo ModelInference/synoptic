@@ -116,13 +116,13 @@ public class NfsTraceParser extends DefaultScalableTraceParser {
 		try {
 			
 			
-			String time = itr.nextToken(); // 1
-			String src = itr.nextToken(); // 2
-			String dest = itr.nextToken(); // 3
-			String protocol = itr.nextToken(); // 4
-			String version = itr.nextToken(); // 5
-			String xid = itr.nextToken(); // 6
-			String fun_num = itr.nextToken(); // 7
+//			String time = itr.nextToken(); // 1
+//			String src = itr.nextToken(); // 2
+//			String dest = itr.nextToken(); // 3
+//			String protocol = itr.nextToken(); // 4
+//			String version = itr.nextToken(); // 5
+//			String xid = itr.nextToken(); // 6
+//			String fun_num = itr.nextToken(); // 7
 			String fun = itr.nextToken(); // 8
 			String fun_2 = itr.nextToken(); // 9
 			// TODO: use more of these fields as arguments.

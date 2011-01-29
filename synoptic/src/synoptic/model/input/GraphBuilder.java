@@ -55,9 +55,7 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
 			curMessage.addTransition(nextMessage, defaultRelation);
 		} else
 			graph.addInitial(nextMessage, defaultRelation);
-		// graph.addState(nextState);
 		graph.add(nextMessage);
-		curMessage = nextMessage;
 		return nextMessage;
 	}
 

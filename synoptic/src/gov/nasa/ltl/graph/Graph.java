@@ -196,6 +196,9 @@ public class Graph {
 		// add labelled edges
 		for (int i = 0; i < nr_trans; i++) {
 			line = reader.readLine();
+			if (line == null) {
+				throw new IOException("Error in parsing aut file: invalid number of transitions");
+			}
 			s1 = line.indexOf('(', 0);
 			s2 = line.indexOf(',', 0);
 			s3 = line.indexOf(',', s2+1);
@@ -388,7 +391,9 @@ public class Graph {
 
 		do {
 			line = in.readLine();
-
+			if (line == null) {
+				return "";
+			}
 			final int idx = line.indexOf('#');
 
 			if (idx != -1) {

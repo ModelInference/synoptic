@@ -2,7 +2,6 @@ package synoptic.invariants;
 
 import gov.nasa.ltl.trans.ParseErrorException;
 
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -29,9 +28,7 @@ import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.Main;
 import synoptic.model.Action;
 import synoptic.model.Graph;
-import synoptic.model.IEvent;
 import synoptic.model.MessageEvent;
-import synoptic.model.Partition;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
 import synoptic.model.interfaces.IGraph;
@@ -42,17 +39,17 @@ import synoptic.util.InternalSynopticException;
 
 public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	private static Logger logger = Logger.getLogger("TemporalInvSet Logger");
-	
+
 	/**
 	 * Enable Daikon support to extract structural synoptic.invariants (alpha)
 	 */
 	public static boolean generateStructuralInvariants = false;
 	LinkedHashSet<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
-	
+
 	/**
 	 * Model check that every mined invariant actually holds.
 	 */
-	static final boolean DOUBLECKECK_MINING = false;
+	static final boolean DOUBLECHECK_MINING = false;
 
 	public TemporalInvariantSet() {
 	}
@@ -116,7 +113,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 				return null;
 			List<T> trace = c.convertCounterexample(ce);
 			if (trace != null) {
-				r = new RelationPath<T>(inv, inv.shorten(trace));		
+				r = new RelationPath<T>(inv, inv.shorten(trace));
 				if (r.path == null) {
 					throw new RuntimeException(
 							"shortening returned null for " + inv
@@ -128,7 +125,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 		}
 		return r;
 	}
-	
+
 	public static boolean compare = false;
 
 	public <T extends INode<T>> List<BinaryInvariant> getViolated(List<ITemporalInvariant> invs, IGraph<T> graph) {
@@ -138,53 +135,45 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 		}
 		return FsmModelChecker.runBitSetChecker(bitSetInput, graph);
 	}
-	
-	public <T extends INode<T>> List<RelationPath<T>> compareViolations(List<ITemporalInvariant> invs, IGraph<T> graph) {		
+
+	public <T extends INode<T>> List<RelationPath<T>> compareViolations(List<ITemporalInvariant> invs, IGraph<T> graph) {
 		List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
 		GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
-		
+
 		if (!compare) {
-			if (false) {  // arbitrary threshold
-				List<BinaryInvariant> viol = this.getViolated(invs, graph);
-				for (BinaryInvariant inv : viol) {
-					RelationPath<T> path = FsmModelChecker.invariantCounterexample(inv, graph);
-					assert(path != null); // same behavior as bitset checker
-					paths.add(path);
-				}
-			} else {
-				for (ITemporalInvariant tinv : invs) {
-					RelationPath<T> path = FsmModelChecker.invariantCounterexample((BinaryInvariant)tinv, graph);
-					if (path != null) paths.add(path);
-				}
+			for (ITemporalInvariant tinv : invs) {
+				RelationPath<T> path = FsmModelChecker.invariantCounterexample((BinaryInvariant)tinv, graph);
+				if (path != null) paths.add(path);
 			}
 			return paths;
 		}
+
 		List<BinaryInvariant> violated = this.getViolated(invs, graph);
 		for (int i = 0; i < invs.size(); i++) {
 			BinaryInvariant inv = (BinaryInvariant) invs.get(i);
 			RelationPath<T> path = this.getCounterExample(inv, graph, ch);
 			RelationPath<T> fsm_path = FsmModelChecker.invariantCounterexample(inv, graph);
 			if ((fsm_path == null) != (path == null)) {
-				System.out.println("value deviates from cannonical in " + inv.toString());
+				logger.info("value deviates from cannonical in " + inv.toString());
 			} else if (fsm_path != null) {
-				System.out.println("both found " + inv);
-				System.out.println("fsm_path.size = " + fsm_path.path.size());
-				System.out.println("path.size = " + path.path.size());
+				logger.info("both found " + inv);
+				logger.info("fsm_path.size = " + fsm_path.path.size());
+				logger.info("path.size = " + path.path.size());
 				if (fsm_path.path.size() > path.path.size()) {
-					System.out.println("that's curious..");
+					logger.info("that's curious..");
 				}
 				if (!path.path.get(path.path.size() - 1).isFinal()) {
-					System.out.println("normal path doesn't end with final");
+					logger.info("normal path doesn't end with final");
 				}
 			}
 			if ((path != null) != violated.contains(inv)) {
-				System.out.println("Bitset checker deviates from cannonical in " + inv.toString());
+				logger.info("Bitset checker deviates from cannonical in " + inv.toString());
 			}
 			if (path != null) paths.add(path);
 		}
 		return paths;
 	}
-	
+
 	public <T extends INode<T>> RelationPath<T> getViolation(
 			ITemporalInvariant inv, IGraph<T> g) {
 		TimedTask refinement = PerformanceMetrics.createTask("getViolation", true);
@@ -193,7 +182,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 				List<ITemporalInvariant> invs = new ArrayList<ITemporalInvariant>();
 				invs.add(inv);
 				List<RelationPath<T>> paths = compareViolations(invs, g);
-				if (paths.isEmpty()) return null; 
+				if (paths.isEmpty()) return null;
 				return paths.get(0);
 			} else {
 				return getCounterExample(inv, g, new GraphLTLChecker<T>());
@@ -238,12 +227,12 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 
 			return paths;
 		} catch (Exception e) {
-			System.out.println(new InternalSynopticException(e));
+			logger.info((new InternalSynopticException(e)).toString());
 			return null;
 		} finally {
 			violations.stop();
 			if (Main.doBenchmarking) {
-				System.out.println("BENCHM: " + violations.toString());
+				logger.info("BENCHM: " + violations.toString());
 			}
 		}
 	}
@@ -251,7 +240,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	/**
 	 * Returns the first violation encountered in the graph g. The order of
 	 * exploration is unspecified.
-	 * 
+	 *
 	 * @param <T>
 	 *            the node type
 	 * @param g
@@ -291,11 +280,11 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 			ArrayList<ITemporalInvariant> foo = new ArrayList<ITemporalInvariant>();
 			foo.addAll(invariants);
 			foo.removeAll(set2.invariants);
-			System.out.println("Not remotely contained: " + foo);
+			logger.info("Not remotely contained: " + foo);
 			foo = new ArrayList<ITemporalInvariant>();
 			foo.addAll(set2.invariants);
 			foo.removeAll(invariants);
-			System.out.println("Not locally contained: " + foo);
+			logger.info("Not locally contained: " + foo);
 		}
 		return ret && ret2;
 	}
@@ -308,43 +297,29 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	 * is supposed to return an over-approximation of the synoptic.invariants that hold
 	 * (i.e. it may return synoptic.invariants that do not hold, but may not fail to
 	 * return an invariant that does not hold)
-	 * 
+	 *
 	 * @param <T>
 	 *            The node type of the graph
 	 * @param g
 	 *            the graph of nodes of type T
 	 * @return the set of temporal synoptic.invariants the graph satisfies
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	static public <T extends INode<T>> TemporalInvariantSet computeInvariants(
 			IGraph<T> g) {
 		TimedTask mineInvariants = PerformanceMetrics.createTask(
 				"mineInvariants", false);
 		try {
-//			if (DEBUG) {
-//				GraphVizExporter v = new GraphVizExporter();
-//				try {
-//					v.exportAsDotAndPng("output/pre.dot", g);
-//				} catch (Exception e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
+
 			TimedTask itc = PerformanceMetrics.createTask(
 					"invariants_transitive_closure", false);
 			AllRelationsTransitiveClosure<T> transitiveClosure = new AllRelationsTransitiveClosure<T>(
 					g);
-//			if (DEBUG) {
-//				GraphVizExporter v = new GraphVizExporter();
-//				for (String relation : transitiveClosure.getRelations())
-//					writeDot("output/post-" + relation + ".dot", g,
-//							transitiveClosure.get(relation));
-//				v.exportPng(new File("output/post.dot"));
-//			}
-			// get overapproximation
+
+			// get over-approximation
 			itc.stop();
 			if (Main.doBenchmarking) {
-				System.out.println("BENCHM: " + itc);
+				logger.info("BENCHM: " + itc);
 			}
 			TimedTask io = PerformanceMetrics.createTask(
 					"invariants_approximation", false);
@@ -352,33 +327,26 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 					g, transitiveClosure);
 			io.stop();
 			if (Main.doBenchmarking) {
-				System.out.println(io);
+				logger.info("BENCHM: " +io);
 			}
-			int overapproximatedInvariantsSetSize = overapproximatedInvariantsSet
-					.size();
-			TimedTask iri = PerformanceMetrics.createTask(
-					"invariants_remove_invalid", false);
-			if (DOUBLECKECK_MINING) {
-				List<RelationPath<T>> violations = overapproximatedInvariantsSet
-						.getViolations(g);
-				if (violations == null) {
-					iri.stop();
-					if (Main.doBenchmarking)
-						System.out.println(iri);
+
+			if (DOUBLECHECK_MINING) {
+				int overapproximatedInvariantsSetSize = overapproximatedInvariantsSet.size();
+				TimedTask iri = PerformanceMetrics.createTask("invariants_remove_invalid", false);
+				List<RelationPath<T>> violations = overapproximatedInvariantsSet.getViolations(g);
+				if (violations != null) {
+					// Remove all synoptic.invariants that do not hold
+					for (RelationPath<T> i : violations) {
+						overapproximatedInvariantsSet.invariants.remove(i);
+					}
+				}
+				iri.stop();
+				if (Main.doBenchmarking) {
+					logger.info("BENCHM: " +iri);
 					printStats(g, overapproximatedInvariantsSet,
 							overapproximatedInvariantsSetSize);
-					return overapproximatedInvariantsSet;
-				}
-				// Remove all synoptic.invariants that do not hold
-				for (RelationPath<T> i : violations) {
-					overapproximatedInvariantsSet.invariants.remove(i);
 				}
 			}
-			iri.stop();
-			if (Main.doBenchmarking)
-				System.out.println(iri);
-			printStats(g, overapproximatedInvariantsSet,
-					overapproximatedInvariantsSetSize);
 			return overapproximatedInvariantsSet;
 		} finally {
 			mineInvariants.stop();
@@ -391,20 +359,21 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 		Set<String> labels = new HashSet<String>();
 		for (T n : g.getNodes())
 			labels.add(n.getLabel());
-		int possibleInvariants = 3 /* invariant types */* labels.size()
-				* labels.size() /* reflexive synoptic.invariants are allowed */;
-		
+		int possibleInvariants = 3 /* invariant types */
+		        * labels.size()
+				* labels.size(); /* reflexive synoptic.invariants are allowed */
+
 		int percentReduction = possibleInvariants == 0 ? 0 :
 			100 - (overapproximatedInvariantsSetSize * 100 / possibleInvariants);
 
 		if (Main.doBenchmarking) {
-			System.out.println("BENCHM: " + overapproximatedInvariantsSet.size()
+			logger.info("BENCHM: " + overapproximatedInvariantsSet.size()
 					+ " true synoptic.invariants, approximation guessed "
 					+ overapproximatedInvariantsSetSize
 					+ ", max possible synoptic.invariants " + possibleInvariants + " ("
 					+ percentReduction + "% reduction through approximation).");
 		}
-		
+
 		PerformanceMetrics.get().record("true_invariants",
 				overapproximatedInvariantsSet.size());
 		PerformanceMetrics.get().record("approx_invariants",
@@ -417,7 +386,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	/**
 	 * Extract synoptic.invariants for all relations, iteratively. Since we are not
 	 * considering synoptic.invariants over multiple relations, this is sufficient.
-	 * 
+	 *
 	 * @param <T>
 	 *            the node type of the graph
 	 * @param g
@@ -425,7 +394,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	 * @param tcs
 	 *            the transitive closure to mine synoptic.invariants from
 	 * @return the mined synoptic.invariants
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private static <T extends INode<T>> TemporalInvariantSet extractInvariantsForAllRelations(
 			IGraph<T> g, AllRelationsTransitiveClosure<T> tcs) {
@@ -439,7 +408,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	/**
 	 * Extract an overapproximated set of synoptic.invariants from the transitive closure
 	 * {@code tc} of the graph {@code g}.
-	 * 
+	 *
 	 * @param <T>
 	 *            the node type of the graph
 	 * @param g
@@ -449,7 +418,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	 * @param relation
 	 *            the relation to consider for the synoptic.invariants
 	 * @return the overapproximated set of synoptic.invariants
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private static <T extends INode<T>> TemporalInvariantSet extractInvariants(
 			IGraph<T> g, TransitiveClosure<T> tc, String relation) {
@@ -516,38 +485,6 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 		return set;
 	}
 
-	
-	private static <T extends INode<T>> void writeDot(String filename,
-			IGraph<T> g, TransitiveClosure<T> tc) {
-		try {
-			File f = new File(filename);
-			PrintWriter p = new PrintWriter(new FileOutputStream(f));
-			p.println("digraph {");
-
-			for (T m : g.getNodes()) {
-				p.println(m.hashCode() + " [label=\"" + m.getLabel() + "\"]; ");
-			}
-
-			/*
-			 * TODO: fix this this does not work for some reason.
-			 */
-			for (T m : g.getNodes()) {
-				for (T n : g.getNodes()) {
-					if (tc.isReachable(m, n)) {
-						p.println(m.hashCode() + " -> " + n.hashCode() + ";");
-					}
-				}
-			}
-
-			p.println("}");
-			p.close();
-			GraphVizExporter v = new GraphVizExporter();
-			v.exportPng(f);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
 	public Graph<MessageEvent> getInvariantGraph(String shortName) {
 		HashMap<String, MessageEvent> messageMap = new HashMap<String, MessageEvent>();
