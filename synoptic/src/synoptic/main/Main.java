@@ -701,7 +701,7 @@ public class Main implements Callable<Integer> {
 		// export the resulting graph
 		if (Main.outputPathPrefix != null) {
 			logger.info("Exporting final graph [" + result.getNodes().size() + " nodes]..");
-			GraphVizExporter exporter = new GraphVizExporter();
+			GraphVizExporter exporter = new GraphVizExporter(false);
 			exporter.exportAsDotAndPngFast(Main.outputPathPrefix + ".dot", result);
 		} else {
 			logger.warning("Cannot output final graph. Specify output path prefix using:\n\t" +

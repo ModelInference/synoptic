@@ -50,7 +50,7 @@ public class GraphVizExporter {
 			"C:\\Programme\\Graphviz2.26\\bin\\dot.exe",
 			"C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe" };
 	
-	private boolean initial;
+	private boolean isInitialGraph;
 
 	/**
 	 * @return Returns the dot command executable or null on error
@@ -79,7 +79,7 @@ public class GraphVizExporter {
 	
 	public GraphVizExporter(boolean initial){
 		this();
-		this.initial = initial;
+		this.isInitialGraph = initial;
 	}
 
 	public <T extends INode<T>> void export(File dotFile, IGraph<T> newHead)
@@ -264,7 +264,7 @@ public class GraphVizExporter {
 			writer.write(sourceInt
 					+ "->"
 					+ targetInt+ " [");
-			if (Main.outputEdgeLabels && !initial) {
+			if (Main.outputEdgeLabels && !isInitialGraph) {
 				writer.write("label=\""
 					+ quote(trans.toStringConcise())
 					+ "\", weight=\""+trans.toStringConcise()+"\",");
@@ -328,7 +328,7 @@ public class GraphVizExporter {
 				writer.write(sourceStateNo
 						+ "->"
 						+ targetStateNo + " [");
-				if (Main.outputEdgeLabels && !initial) {
+				if (Main.outputEdgeLabels && !isInitialGraph) {
 					writer.write("label=\""
 						+ quote(trans.toStringConcise())
 						+ "\", weight=\""+trans.toStringConcise()+"\",");
