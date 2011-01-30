@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
+import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.TemporalInvariantSet;
@@ -41,14 +42,16 @@ public class TemporalInvariantSetTests {
 	 * Sets up the parser state and Main static variables
 	 *
 	 * @throws ParseException
+	 * @throws InternalSynopticException
 	 */
 	@Before
-	public void setUp() throws ParseException {
+	public void setUp() throws ParseException, InternalSynopticException {
 		Main.recoverFromParseErrors = false;
 		Main.ignoreNonMatchingLines = false;
 		Main.debugParse = false;
 		parser = new TraceParser();
 		parser.addRegex("^(?<TYPE>)$");
+		parser.addSeparator("^--$");
 	}
 
 	/**
@@ -116,7 +119,7 @@ public class TemporalInvariantSetTests {
 
 	@Test
 	public void mineBasicTest() throws ParseException, InternalSynopticException {
-		String[] log = new String[] {"a", "b"};
+		String[] log = new String[] {"a", "b", "--"};
 		TemporalInvariantSet minedInvs = this.genInvariants(log);
 		TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
@@ -129,23 +132,94 @@ public class TemporalInvariantSetTests {
 		assertTrue(trueInvs.sameInvariants(minedInvs));
 	}
 
+	/**
+	 * Compose a log in which "a AFby b" is the only true invariant.
+	 *
+	 * @throws ParseException
+	 * @throws InternalSynopticException
+	 */
 	@Test
 	public void mineAFbyTest() throws ParseException, InternalSynopticException {
-		fail("TODO");
+		String[] log = new String[] {"a", "a", "b", "--",
+									 "b", "a", "b", "--"};
+		TemporalInvariantSet minedInvs = this.genInvariants(log);
+		TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+		trueInvs.add(new AlwaysFollowedInvariant("a", "b", defRelation));
+		assertTrue(trueInvs.sameInvariants(minedInvs));
+	}
+
+	/**
+	 * Compose a log in which "a NFby b" is the only true invariant.
+	 *
+	 * @throws InternalSynopticException
+	 * @throws ParseException
+	 */
+	@Test
+	public void mineNFbyTest() throws ParseException, InternalSynopticException {
+		String[] log = new String[] {"a", "a", "--",
+									 "a", "--",
+									 "b", "a", "--",
+									 "b", "b", "--",
+									 "b", "--"};
+		TemporalInvariantSet minedInvs = this.genInvariants(log);
+		TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+		trueInvs.add(new NeverFollowedInvariant("a", "b", defRelation));
+		assertTrue(trueInvs.sameInvariants(minedInvs));
+	}
+
+	/**
+	 * Compose a log in which "a AP b" is the only true invariant.
+	 *
+	 * @throws InternalSynopticException
+	 * @throws ParseException
+	 */
+	@Test
+	public void mineAPbyTest() throws ParseException, InternalSynopticException {
+		String[] log = new String[] {"a", "a", "b", "--",
+									 "a", "--",
+									 "a", "b", "a", "b", "--"};
+		TemporalInvariantSet minedInvs = this.genInvariants(log);
+		TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+		trueInvs.add(new AlwaysPrecedesInvariant("a", "b", defRelation));
+		assertTrue(trueInvs.sameInvariants(minedInvs));
 	}
 
 	@Test
-	public void mineNFbyTest() {
-		fail("TODO");
-	}
+	public void mineAcrossMultiplePartitionsTest() throws ParseException, InternalSynopticException {
+		String[] log1 = new String[] {"a", "b", "--"};
+		String[] log2 = new String[] {"x", "y", "--"};
+		String[] log3 = new String[] {"a", "b", "--",
+ 									  "x", "y", "--"};
 
-	@Test
-	public void mineAPbyTest() {
-		fail("TODO");
-	}
+		TemporalInvariantSet minedInvs1 = this.genInvariants(log1);
+		TemporalInvariantSet minedInvs2 = this.genInvariants(log2);
+		TemporalInvariantSet minedInvs3 = this.genInvariants(log3);
 
-	@Test
-	public void mineMultiplePartitionsTest() {
-		fail("TODO");
+		// Mined log3 invariants should be a union of invariants mined form log1
+		// and log2, as well as a few invariants that relate events between the
+		// two partitions.
+		TemporalInvariantSet trueInvs3 = new TemporalInvariantSet();
+		for (ITemporalInvariant inv: minedInvs1) {
+			trueInvs3.add(inv);
+		}
+		for (ITemporalInvariant inv: minedInvs2) {
+			trueInvs3.add(inv);
+		}
+
+		trueInvs3.add(new NeverFollowedInvariant("a", "x", defRelation));
+		trueInvs3.add(new NeverFollowedInvariant("a", "y", defRelation));
+		trueInvs3.add(new NeverFollowedInvariant("b", "x", defRelation));
+		trueInvs3.add(new NeverFollowedInvariant("b", "y", defRelation));
+
+		trueInvs3.add(new NeverFollowedInvariant("x", "a", defRelation));
+		trueInvs3.add(new NeverFollowedInvariant("y", "b", defRelation));
+		trueInvs3.add(new NeverFollowedInvariant("x", "a", defRelation));
+		trueInvs3.add(new NeverFollowedInvariant("y", "b", defRelation));
+
+		// System.out.println("mined: " + minedInvs3);
+		assertTrue(trueInvs3.sameInvariants(minedInvs3));
 	}
 }

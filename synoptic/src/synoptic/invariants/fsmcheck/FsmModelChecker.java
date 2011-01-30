@@ -29,7 +29,7 @@ import synoptic.model.interfaces.ITransition;
  * in one relatively efficient pass.  Following this pass, a less efficient synoptic.model
  * is invoked, which keeps track of the path required to end up in the failing
  * state.
- * 
+ *
  * @author Michael Sloan (mgsloan@gmail.com)
  *
  * @param <T> The nodetype of the graphs used for synoptic.model checking.
@@ -41,7 +41,7 @@ public class FsmModelChecker {
 	 * along edges, and merged at the nodes.  Once every merge causes no change
 	 * to the graph, the resulting association between nodes in the graph and
 	 * states is yielded.
-	 * 
+	 *
 	 * @param <S> The type of StateSet we are propagating.
 	 * @param initial The initial state of each node.
 	 * @param graph The graph to analyze.
@@ -49,16 +49,16 @@ public class FsmModelChecker {
 	 */
 	public static <T extends INode<T>, S extends IStateSet<T, S>>
 	Map<T, S> runChecker(IStateSet<T, S> initial, IGraph<T> graph, boolean earlyExit) {
-		
+
 		Set<T> onWorkList = new HashSet<T>();
 		Queue<T> workList = new LinkedList<T>();
 		Map<T, S> states = new HashMap<T, S>();
-		
+
 		// Populate the state map with initial states.s
 		for (T node : graph.getNodes()) {
 			states.put(node, initial.copy());
 		}
-		
+
 		// Populate the worklist with the initial nodes, and set the initial
 		// path history on each.
 		for (T node : graph.getInitialNodes()) {
@@ -66,7 +66,7 @@ public class FsmModelChecker {
 			workList.add(node);
 			states.get(node).setInitial(node);
 		}
-		
+
 		// Actual synoptic.model checking step - takes an item off the worklist, and
 		// transitions the state found at that node, using the labels of all
 		// of the adjacent nodes as input.  The resulting state is then checked
@@ -93,7 +93,7 @@ public class FsmModelChecker {
 					return states;
 				}
 				if (!isSubset && !onWorkList.contains(target)) {
-					/*System.out.println("propogated to " + 
+					/*System.out.println("propogated to " +
 							target.getLabel() + " " + target.toString() + (target.isFinal() ? "final" : ""));
 					System.out.println(other); */
 					workList.add(target);
@@ -105,10 +105,10 @@ public class FsmModelChecker {
 				}*/
 			}
 		}
-		
+
 		return states;
 	}
-	
+
 	// Helper which invokes runChecker given an fsm state set, and process the
 	// resulting states into a summary failure-indicating BitSet.
 	protected static <T extends INode<T>>
@@ -116,11 +116,11 @@ public class FsmModelChecker {
 		Map<T, FsmStateSet<T>> states = runChecker(initial, graph, false);
 		BitSet result = new BitSet();
 		for (Entry<T, FsmStateSet<T>> entry : states.entrySet()) {
-			if (entry.getKey().isFinal()) result.or(entry.getValue().whichFail()); 
+			if (entry.getKey().isFinal()) result.or(entry.getValue().whichFail());
 		}
 		return result;
 	}
-	
+
 	// Helper to append the elements of a list corresponding to 1s in a BitSet
 	// to another list, which is accumulating results.
 	protected static <E> void bitFilter(BitSet set, List<E> list, List<E> results) {
@@ -129,14 +129,14 @@ public class FsmModelChecker {
 			results.add(list.get(i));
 		}
 	}
-	
+
 	/**
 	 * Use the BitSet checker to evaluate, and return which synoptic.invariants failed.
 	 * @param synoptic.invariants
 	 */
 	public static <T extends INode<T>> List<BinaryInvariant>
 	  runBitSetChecker(Iterable<BinaryInvariant> invariants, IGraph<T> graph) {
-	
+
 		// TODO: store the TemporalInvariantSet in this way instead of needing to process it here.
 		// Filter the elements of the set into categorized lists.
 		List<BinaryInvariant> alwaysFollowed = new ArrayList<BinaryInvariant>();
@@ -153,32 +153,32 @@ public class FsmModelChecker {
 				neverFollowed.add((BinaryInvariant)inv);
 			}
 		}
-		
+
 		BitSet afs = whichFail(new AFbyInvFsms<T>(alwaysFollowed), graph),
 		       aps = whichFail(new APInvFsms<T>  (alwaysPrecedes), graph),
 		       nfs = whichFail(new NFbyInvFsms<T>(neverFollowed),  graph);
-		
+
 		List<BinaryInvariant> results = new ArrayList<BinaryInvariant>();
 		bitFilter(afs, alwaysFollowed, results);
 		bitFilter(aps, alwaysPrecedes, results);
 		bitFilter(nfs, neverFollowed,  results);
 		return results;
 	}
-	
-	
+
+
 	/**
 	 * Runs invariant-checking finite state machines over the synoptic.model graph,
 	 * while keeping history paths which justify any particular state.  This
 	 * allows us to report counterexample paths, where a failure state is
 	 * reached on a final node.
-	 * 
+	 *
 	 * @param invariant The invariant to test.
 	 * @return The shortest counterexample path for this invariant.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T extends INode<T>> RelationPath<T>
-	invariantCounterexample(BinaryInvariant invariant, IGraph<T> graph) {
-		
+	getCounterExample(BinaryInvariant invariant, IGraph<T> graph) {
+
 		TracingStateSet<T> stateset = null;
 		if (invariant == null) return null;
 		Class<BinaryInvariant> invClass = (Class<BinaryInvariant>) invariant.getClass();
@@ -201,7 +201,7 @@ public class FsmModelChecker {
 				shortestPath = path;
 			}
 		}
-		
+
 		// Convert to RelationPath
 		if (shortestPath == null) return null;
 		return shortestPath.toCounterexample((ITemporalInvariant)invariant);

@@ -1,11 +1,6 @@
 package synoptic.invariants;
 
-import gov.nasa.ltl.trans.ParseErrorException;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,8 +17,6 @@ import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
-import synoptic.invariants.ltlcheck.Counterexample;
-import synoptic.invariants.ltlcheck.IModelCheckingMonitor;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.Main;
 import synoptic.model.Action;
@@ -37,6 +30,9 @@ import synoptic.util.InternalSynopticException;
 
 //import daikonizer.Daikonizer;
 
+/**
+ * Maintains a set of temporal invariants.
+ */
 public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	private static Logger logger = Logger.getLogger("TemporalInvSet Logger");
 
@@ -54,13 +50,29 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	public TemporalInvariantSet() {
 	}
 
+	/**
+	 * Build an invariant set based on an existing invariant set.
+	 *
+	 * @param invariants
+	 */
 	public TemporalInvariantSet(Set<ITemporalInvariant> invariants) {
 		this.invariants.addAll(invariants);
 	}
 
+	/**
+	 * @return The set of invariants.
+	 */
 	public Set<ITemporalInvariant> getSet() {
 		return invariants;
 	}
+
+	/**
+	 * @return The number of invariants in this set.
+	 */
+	public int numInvariants() {
+		return invariants.size();
+	}
+
 
 	public <T extends INode<T>> boolean check(IGraph<T> g) throws Exception {
 		TemporalInvariantSet set = computeInvariants(g);
@@ -100,117 +112,59 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 		invariants.add(inv);
 	}
 
-	private <T extends INode<T>> RelationPath<T> getCounterExample(
-			ITemporalInvariant inv, IGraph<T> g, GraphLTLChecker<T> c) {
-		RelationPath<T> r = null;
-		try {
-			Counterexample ce = c.check(g, inv,
-					new IModelCheckingMonitor() {
-						public void subTask(String str) {
-						}
-					});
-			if (ce == null)
-				return null;
-			List<T> trace = c.convertCounterexample(ce);
-			if (trace != null) {
-				r = new RelationPath<T>(inv, inv.shorten(trace));
-				if (r.path == null) {
-					throw new RuntimeException(
-							"shortening returned null for " + inv
-									+ " and trace " + trace);
-				}
-			}
-		} catch (ParseErrorException e) {
-			e.printStackTrace();
-		}
-		return r;
-	}
 
-	public static boolean compare = false;
-
-	public <T extends INode<T>> List<BinaryInvariant> getViolated(List<ITemporalInvariant> invs, IGraph<T> graph) {
-		List<BinaryInvariant> bitSetInput = new ArrayList<BinaryInvariant>();
-		for (ITemporalInvariant tinv : invs) {
-			bitSetInput.add((BinaryInvariant)tinv);
-		}
-		return FsmModelChecker.runBitSetChecker(bitSetInput, graph);
-	}
-
-	public <T extends INode<T>> List<RelationPath<T>> compareViolations(List<ITemporalInvariant> invs, IGraph<T> graph) {
-		List<RelationPath<T>> paths = new ArrayList<RelationPath<T>>();
-		GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
-
-		if (!compare) {
-			for (ITemporalInvariant tinv : invs) {
-				RelationPath<T> path = FsmModelChecker.invariantCounterexample((BinaryInvariant)tinv, graph);
-				if (path != null) paths.add(path);
-			}
-			return paths;
-		}
-
-		List<BinaryInvariant> violated = this.getViolated(invs, graph);
-		for (int i = 0; i < invs.size(); i++) {
-			BinaryInvariant inv = (BinaryInvariant) invs.get(i);
-			RelationPath<T> path = this.getCounterExample(inv, graph, ch);
-			RelationPath<T> fsm_path = FsmModelChecker.invariantCounterexample(inv, graph);
-			if ((fsm_path == null) != (path == null)) {
-				logger.info("value deviates from cannonical in " + inv.toString());
-			} else if (fsm_path != null) {
-				logger.info("both found " + inv);
-				logger.info("fsm_path.size = " + fsm_path.path.size());
-				logger.info("path.size = " + path.path.size());
-				if (fsm_path.path.size() > path.path.size()) {
-					logger.info("that's curious..");
-				}
-				if (!path.path.get(path.path.size() - 1).isFinal()) {
-					logger.info("normal path doesn't end with final");
-				}
-			}
-			if ((path != null) != violated.contains(inv)) {
-				logger.info("Bitset checker deviates from cannonical in " + inv.toString());
-			}
-			if (path != null) paths.add(path);
-		}
-		return paths;
-	}
-
-	public <T extends INode<T>> RelationPath<T> getViolation(
+	/**
+	 * Returns a path that violates a specific invariant in a graph. Uses
+	 * the model checker designated by the Main.UseFSMChecker variable.
+	 *
+	 * @param <T> the type of nodes in graph g
+	 * @param inv invariant for which we are to find a violating path
+	 * @param g the graph within which the violating path must be found
+	 * @return a path in g that violates inv or null if one doesn't exist
+	 */
+	public <T extends INode<T>> RelationPath<T> getCounterExample(
 			ITemporalInvariant inv, IGraph<T> g) {
-		TimedTask refinement = PerformanceMetrics.createTask("getViolation", true);
+		TimedTask refinement = PerformanceMetrics.createTask("getCounterExample", true);
 		try {
 			if (Main.useFSMChecker) {
-				List<ITemporalInvariant> invs = new ArrayList<ITemporalInvariant>();
-				invs.add(inv);
-				List<RelationPath<T>> paths = compareViolations(invs, g);
-				if (paths.isEmpty()) return null;
-				return paths.get(0);
+				return FsmModelChecker.getCounterExample((BinaryInvariant) inv, g);
 			} else {
-				return getCounterExample(inv, g, new GraphLTLChecker<T>());
+				GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
+				return ch.getCounterExample(inv, g);
 			}
 		} finally {
 			refinement.stop();
 		}
 	}
 
-	public <T extends INode<T>> List<RelationPath<T>> getViolations(IGraph<T> graph) {
-		TimedTask violations = PerformanceMetrics.createTask("getViolations", false);
+	/**
+	 * Returns a list of paths, each of which violates an invariant maintained
+	 * by this invariant set (i.e. each of which is a counter-example).
+	 *
+	 * @param <T> the type of nodes in graph g
+	 * @param graph the graph within which the violating paths must be found
+	 * @return a list of violating paths
+	 */
+	public <T extends INode<T>> List<RelationPath<T>> getAllCounterExamples(IGraph<T> graph) {
+		TimedTask violations = PerformanceMetrics.createTask("getAllCounterExamples", false);
 		try {
 			List<RelationPath<T>> paths = null;
 			if (Main.useFSMChecker) {
-				/*
-				//BitSet failures = c.whichFail();
-				BitSet all = new BitSet();
-				all.set(0, c.invariantCount(), true);
-				paths = c.findFailures(all);
-				*/
-				paths = this.compareViolations(new ArrayList<ITemporalInvariant>(invariants), graph);
+				paths = new ArrayList<RelationPath<T>>();
+				for (ITemporalInvariant tinv : invariants) {
+					RelationPath<T> path = FsmModelChecker.getCounterExample((BinaryInvariant)tinv, graph);
+					if (path != null) {
+						paths.add(path);
+					}
+				}
 			} else {
 				paths = new ArrayList<RelationPath<T>>();
 				GraphLTLChecker<T> checker = new GraphLTLChecker<T>();
 				for (ITemporalInvariant inv : invariants) {
-					RelationPath<T> path = getCounterExample(inv, graph, checker);
-					if (path != null)
+					RelationPath<T> path = checker.getCounterExample(inv, graph);
+					if (path != null) {
 						paths.add(path);
+					}
 				}
 			}
 
@@ -238,32 +192,28 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	}
 
 	/**
-	 * Returns the first violation encountered in the graph g. The order of
+	 * Returns the first counter-example encountered in the graph g. The order of
 	 * exploration is unspecified.
 	 *
-	 * @param <T>
-	 *            the node type
-	 * @param g
-	 *            the graph to check
+	 * @param <T> the node type
+	 * @param g the graph to check
 	 * @return null if no violation is found, the counter-example path otherwise
 	 */
-	public <T extends INode<T>> RelationPath<T> getFirstViolation(IGraph<T> g) {
-		TimedTask violations = PerformanceMetrics.createTask("getFirstViolation", false);
+	public <T extends INode<T>> RelationPath<T> getFirstCounterExample(IGraph<T> g) {
+		TimedTask violations = PerformanceMetrics.createTask("getFirstCounterExample", false);
 		try {
 			if (Main.useFSMChecker) {
-				/*
-				BitSet failingInvariants = c.whichFail();
-				failingInvariants.clear(failingInvariants.nextSetBit(0) + 1, failingInvariants.size());
-				List<RelationPath<T>> results = c.findFailures(failingInvariants);
-				*/
-				List<RelationPath<T>> results = this.compareViolations(new ArrayList<ITemporalInvariant>(invariants), g);
-				if (results.isEmpty()) return null;
-				return results.get(0);
+				for (ITemporalInvariant tinv : invariants) {
+					RelationPath<T> path = FsmModelChecker.getCounterExample((BinaryInvariant) tinv, g);
+					if (path != null) {
+						return path;
+					}
+				}
+				return null;
 			} else {
 				GraphLTLChecker<T> c = new GraphLTLChecker<T>();
 				for (ITemporalInvariant i : invariants) {
-					// List<Transition<Message>> path = i.check(g);
-					RelationPath<T> result = getCounterExample(i, g, c);
+					RelationPath<T> result = c.getCounterExample(i, g);
 					if (result != null) return result;
 				}
 			}
@@ -273,6 +223,12 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 		}
 	}
 
+	/**
+	 * Tests whether two invariant sets are equivalent.
+	 *
+	 * @param set2 the other set to test equality with.
+	 * @return true if the two sets are equal, false otherwise.
+	 */
 	public boolean sameInvariants(TemporalInvariantSet set2) {
 		boolean ret = invariants.containsAll(set2.invariants);
 		boolean ret2 = set2.invariants.containsAll(invariants);
@@ -290,7 +246,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	}
 
 	/**
-	 * Compute synoptic.invariants of the graph g. Enumerating all possibly synoptic.invariants
+	 * Compute invariants of a graph g. Enumerating all possibly invariants
 	 * syntactically, and then checking them was considered too costly (although
 	 * we never benchmarked it!). So we are mining synoptic.invariants from the
 	 * transitive closure using {@code extractInvariantsForAllRelations}, which
@@ -298,12 +254,9 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	 * (i.e. it may return synoptic.invariants that do not hold, but may not fail to
 	 * return an invariant that does not hold)
 	 *
-	 * @param <T>
-	 *            The node type of the graph
-	 * @param g
-	 *            the graph of nodes of type T
+	 * @param <T> The node type of the graph
+	 * @param g the graph of nodes of type T
 	 * @return the set of temporal synoptic.invariants the graph satisfies
-	 * @throws Exception
 	 */
 	static public <T extends INode<T>> TemporalInvariantSet computeInvariants(
 			IGraph<T> g) {
@@ -311,8 +264,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 				"mineInvariants", false);
 		try {
 
-			TimedTask itc = PerformanceMetrics.createTask(
-					"invariants_transitive_closure", false);
+			TimedTask itc = PerformanceMetrics.createTask("invariants_transitive_closure", false);
 			AllRelationsTransitiveClosure<T> transitiveClosure = new AllRelationsTransitiveClosure<T>(
 					g);
 
@@ -321,19 +273,17 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 			if (Main.doBenchmarking) {
 				logger.info("BENCHM: " + itc);
 			}
-			TimedTask io = PerformanceMetrics.createTask(
-					"invariants_approximation", false);
-			TemporalInvariantSet overapproximatedInvariantsSet = extractInvariantsForAllRelations(
-					g, transitiveClosure);
+			TimedTask io = PerformanceMetrics.createTask("invariants_approximation", false);
+			TemporalInvariantSet overapproximatedInvariantsSet = extractInvariantsForAllRelations(g, transitiveClosure);
 			io.stop();
 			if (Main.doBenchmarking) {
 				logger.info("BENCHM: " +io);
 			}
 
 			if (DOUBLECHECK_MINING) {
-				int overapproximatedInvariantsSetSize = overapproximatedInvariantsSet.size();
+				int overapproximatedInvariantsSetSize = overapproximatedInvariantsSet.numInvariants();
 				TimedTask iri = PerformanceMetrics.createTask("invariants_remove_invalid", false);
-				List<RelationPath<T>> violations = overapproximatedInvariantsSet.getViolations(g);
+				List<RelationPath<T>> violations = overapproximatedInvariantsSet.getAllCounterExamples(g);
 				if (violations != null) {
 					// Remove all synoptic.invariants that do not hold
 					for (RelationPath<T> i : violations) {
@@ -367,7 +317,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 			100 - (overapproximatedInvariantsSetSize * 100 / possibleInvariants);
 
 		if (Main.doBenchmarking) {
-			logger.info("BENCHM: " + overapproximatedInvariantsSet.size()
+			logger.info("BENCHM: " + overapproximatedInvariantsSet.numInvariants()
 					+ " true synoptic.invariants, approximation guessed "
 					+ overapproximatedInvariantsSetSize
 					+ ", max possible synoptic.invariants " + possibleInvariants + " ("
@@ -375,7 +325,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 		}
 
 		PerformanceMetrics.get().record("true_invariants",
-				overapproximatedInvariantsSet.size());
+				overapproximatedInvariantsSet.numInvariants());
 		PerformanceMetrics.get().record("approx_invariants",
 				overapproximatedInvariantsSetSize);
 		PerformanceMetrics.get().record("max_possible_invariants",
@@ -461,15 +411,11 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 					}
 				}
 				if (neverFollowed)
-					set
-							.add(new NeverFollowedInvariant(label1, label2,
-									relation));
+					set.add(new NeverFollowedInvariant(label1, label2, relation));
 				if (alwaysFollowedBy)
-					set.add(new AlwaysFollowedInvariant(label1, label2,
-							relation));
+					set.add(new AlwaysFollowedInvariant(label1, label2, relation));
 				if (alwaysPreceded)
-					set.add(new AlwaysPrecedesInvariant(label2, label1,
-							relation));
+					set.add(new AlwaysPrecedesInvariant(label2, label1, relation));
 				else if (generateStructuralInvariants) {
 					try {
 						// TODO
@@ -506,10 +452,6 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 		}
 
 		return new Graph<MessageEvent>(messageMap.values());
-	}
-
-	public int size() {
-		return invariants.size();
 	}
 
 	public static TemporalInvariantSet computeInvariantsSplt(

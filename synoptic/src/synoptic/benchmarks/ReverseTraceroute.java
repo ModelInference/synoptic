@@ -73,8 +73,8 @@ public class ReverseTraceroute {
 		// for (ITemporalInvariant i : inv) {
 		// System.out.println(i);
 		// }
-		System.out.println(inv.size());
-		List<RelationPath<Partition>> vio = g.getInvariants().getViolations(g);
+		System.out.println(inv.numInvariants());
+		List<RelationPath<Partition>> vio = g.getInvariants().getAllCounterExamples(g);
 		if (vio != null) {
 			for (RelationPath<Partition> v : vio) {
 				System.out.println(v.invariant);

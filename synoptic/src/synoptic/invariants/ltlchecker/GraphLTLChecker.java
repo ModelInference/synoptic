@@ -9,11 +9,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.RelationPath;
 import synoptic.invariants.ltlcheck.Counterexample;
 import synoptic.invariants.ltlcheck.IModelCheckingMonitor;
 import synoptic.model.export.GraphVizExporter;
@@ -44,7 +46,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 	/**
 	 * Checks the formula after preprocessing it. So it's allowed to have things
 	 * in it like WFAIR(a).
-	 * 
+	 *
 	 * @param sourceGraph
 	 *            - The expression to check (it has to be evaluated before!)
 	 * @param invariant
@@ -73,13 +75,13 @@ public class GraphLTLChecker<T extends INode<T>> {
 				&& lastSourceGraph.get(relation).equals(sourceGraph)) {
 			targetGraph = lastTargetGraph.get(relation);
 		}
-		
+
 
 		if (lastSourceGraph.size() > 5) {
 			lastSourceGraph.clear();
 			lastTargetGraph.clear();
 		}
-		
+
 
 		if (targetGraph == null) {
 			monitor.subTask("Building CCS Graph...");
@@ -107,7 +109,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 		return c;
 	}
 
-	// TODO: refactor this code to instead use the GraphVizExporter 
+	// TODO: refactor this code to instead use the GraphVizExporter
 	@SuppressWarnings("unchecked")
 	public void writeDot(Graph g, String filename) {
 		try {
@@ -151,7 +153,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 		HashMap<T, Node> nextState = new HashMap<T, Node>();
 		HashMap<T, Set<Node>> prevStates = new HashMap<T, Set<Node>>();
 
-		
+
 		for (T initialMessage : initialMessages) {
 			if (!prevStates.containsKey(initialMessage))
 				prevStates.put(initialMessage, new HashSet<Node>());
@@ -188,10 +190,10 @@ public class GraphLTLChecker<T extends INode<T>> {
 		// System.out.println(targetGraph.getEdgeCount());
 		return targetGraph;
 	}
-	
+
 
 	@SuppressWarnings("unchecked")
-	public ArrayList<T> convertCounterexample(Counterexample c) {
+	private ArrayList<T> convertCounterexample(Counterexample c) {
 		ArrayList<T> list = new ArrayList<T>();
 		for (Edge e : c.getPrefix()) {
 			//System.out.println(e.getSource().getAttribute("post") + " -> "
@@ -217,6 +219,39 @@ public class GraphLTLChecker<T extends INode<T>> {
 		}
 
 		return list;
+	}
+
+	/**
+	 * Returns a counter-example path that violates a specific invariant in a
+	 * graph.
+	 *
+	 * @param <T> the type of nodes in graph g
+	 * @param inv invariant for which we are to find a violating path
+	 * @param g the graph within which the violating path must be found
+	 * @return a path in g that violates inv or null if one doesn't exist
+	 */
+	public RelationPath<T> getCounterExample(ITemporalInvariant inv, IGraph<T> g) {
+		RelationPath<T> r = null;
+		try {
+			Counterexample ce = this.check(g, inv,
+					new IModelCheckingMonitor() {
+						public void subTask(String str) {
+						}
+					});
+			if (ce == null)
+				return null;
+			ArrayList<T> trace = this.convertCounterexample(ce);
+			if (trace != null) {
+				r = new RelationPath<T>(inv, inv.shorten(trace));
+				if (r.path == null) {
+					throw new RuntimeException("shortening returned null for " + inv
+									+ " and trace " + trace);
+				}
+			}
+		} catch (ParseErrorException e) {
+			e.printStackTrace();
+		}
+		return r;
 	}
 
 }

@@ -36,17 +36,17 @@ public class PettersonTest {
 
 		// r.readGraphSet("traces/PetersonLeaderElection/generated_traces/5node1seed_withid.trace",
 		// 5);
-		
+
 		r.readGraphSet("traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
 		 5);
-		
+
 		//r.readGraphSet("traces/TapioExampleTrace/trace.txt",
 		//		 1);
 		/*r
 				.readGraphSet(
 						"traces/PetersonLeaderElection/generated_traces/peterson_trace-rounds-0-s?.txt",
 						5);*/
-		
+
 		Graph<MessageEvent> g = b.getRawGraph();
 		int nodes = g.getNodes().size();
 		System.out.println("Nodes: " + g.getNodes().size());
@@ -59,7 +59,7 @@ public class PettersonTest {
 		System.out.println("Creating Partition Graph...");
 		PartitionGraph pg = new PartitionGraph(g, true);
 		TemporalInvariantSet s = pg.getInvariants();
-		System.out.println("InvSize: " + s.size());
+		System.out.println("InvSize: " + s.numInvariants());
 		invariants.stop();
 		e.exportAsDotAndPng("output/peterson/synoptic.invariants.dot", s
 				.getInvariantGraph(null));
@@ -101,7 +101,7 @@ public class PettersonTest {
 		//}
 
 		//e.exportAsDotAndPng("output/peterson/output-net-condensed.dot", net);
-		
+
 		System.out.println(nodes + " Nodes");
 		System.out.println(load);
 		System.out.println(invariants);
