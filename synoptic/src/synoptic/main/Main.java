@@ -664,7 +664,7 @@ public class Main implements Callable<Integer> {
 			// into outputPathPrefix.initial.dot
 			if (Main.outputPathPrefix != null) {
 				logger.info("Exporting initial graph [" + inputGraph.getNodes().size() + " nodes]..");
-				GraphVizExporter exporter = new GraphVizExporter();
+				GraphVizExporter exporter = new GraphVizExporter(true);
 				exporter.exportAsDotAndPngFast(Main.outputPathPrefix + ".initial.dot", inputGraph);
 			} else {
 				logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t" +
