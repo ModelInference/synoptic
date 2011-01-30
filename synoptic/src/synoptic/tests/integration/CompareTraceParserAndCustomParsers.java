@@ -28,7 +28,7 @@ import synoptic.util.Predicate;
  * 
  * @author mgsloan
  */
-public class CheckTraceParserAgainstOldParsers {
+public class CompareTraceParserAndCustomParsers {
 	
 	@Test
 	public void testReverseTracert() throws ParseException, InternalSynopticException {

@@ -92,7 +92,7 @@ public abstract class Bisimulation {
 		IOperation rewindOperation = partitionGraph.apply(splitOp);
 		
 		// See if splitting resolved the violation.
-		RelationPath<Partition> violation = invariants.getViolation(counterexampleTrace.invariant, partitionGraph);
+		RelationPath<Partition> violation = invariants.getCounterExample(counterexampleTrace.invariant, partitionGraph);
 
 		// Rewind for now
 		partitionGraph.apply(rewindOperation);
@@ -238,7 +238,7 @@ public abstract class Bisimulation {
 
 			// Retrieve the counterexamples for the unsatisfied invariants
 			counterexampleTraces = new TemporalInvariantSet(
-					unsatisfiedInvariants).getViolations(partitionGraph);
+					unsatisfiedInvariants).getAllCounterExamples(partitionGraph);
 			
 			// TODO: add an EXTRA_CHECKS if clause that will make sure that there are
 			// no counter-examples for the satisfiedInvariants list.
@@ -515,7 +515,7 @@ public abstract class Bisimulation {
 					RelationPath<Partition> vio = null;
 
 					if (invariants != null) {
-						vio = invariants.getFirstViolation(partitionGraph);
+						vio = invariants.getFirstCounterExample(partitionGraph);
 					}
 
 					if (vio != null) {
