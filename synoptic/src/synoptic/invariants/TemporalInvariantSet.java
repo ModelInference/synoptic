@@ -42,11 +42,6 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 	public static boolean generateStructuralInvariants = false;
 	LinkedHashSet<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
-	/**
-	 * Model check that every mined invariant actually holds.
-	 */
-	static final boolean DOUBLECHECK_MINING = false;
-
 	public TemporalInvariantSet() {
 	}
 
@@ -280,23 +275,6 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 				logger.info("BENCHM: " +io);
 			}
 
-			if (DOUBLECHECK_MINING) {
-				int overapproximatedInvariantsSetSize = overapproximatedInvariantsSet.numInvariants();
-				TimedTask iri = PerformanceMetrics.createTask("invariants_remove_invalid", false);
-				List<RelationPath<T>> violations = overapproximatedInvariantsSet.getAllCounterExamples(g);
-				if (violations != null) {
-					// Remove all synoptic.invariants that do not hold
-					for (RelationPath<T> i : violations) {
-						overapproximatedInvariantsSet.invariants.remove(i);
-					}
-				}
-				iri.stop();
-				if (Main.doBenchmarking) {
-					logger.info("BENCHM: " +iri);
-					printStats(g, overapproximatedInvariantsSet,
-							overapproximatedInvariantsSetSize);
-				}
-			}
 			return overapproximatedInvariantsSet;
 		} finally {
 			mineInvariants.stop();

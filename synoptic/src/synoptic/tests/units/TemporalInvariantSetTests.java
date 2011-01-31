@@ -1,6 +1,8 @@
 package synoptic.tests.units;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -10,6 +12,7 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
@@ -72,20 +75,34 @@ public class TemporalInvariantSetTests {
 	}
 
 	/**
-	 * Generates a TemporalInvariantSet based on a sequence of log events.
+	 * Generates a TemporalInvariantSet based on a sequence of log events -- a
+	 * set of invariants that are mined from the log, and hold true for the
+	 * initial graph of the log.
 	 *
 	 * @param a log of events, each one in the format: (?<TYPE>)
-	 * @return an invariant set for this sequence of events
+	 * @return an invariant set for the input log
 	 * @throws ParseException
 	 * @throws InternalSynopticException
 	 */
 	private TemporalInvariantSet genInvariants(String[] events) throws ParseException, InternalSynopticException {
+		Graph<MessageEvent> inputGraph = genInitialGraph(events);
+		PartitionGraph result = new PartitionGraph(inputGraph, true);
+		return result.getInvariants();
+	}
+
+	/**
+	 * Generates an initial graph based on a sequence of log events.
+	 *
+	 * @param a log of events, each one in the format: (?<TYPE>)
+	 * @return an initial graph corresponding to the log of events
+	 * @throws ParseException
+	 * @throws InternalSynopticException
+	 */
+	private Graph<MessageEvent> genInitialGraph(String[] events) throws ParseException, InternalSynopticException {
 		String traceStr = joinString(events);
 		List<Occurrence> parsedEvents = parser.parseTraceString(traceStr, "test", -1);
 		parser.generateDirectTemporalRelation(parsedEvents, true);
-		Graph<MessageEvent> inputGraph = ((GraphBuilder) parser.builder).getRawGraph();
-		PartitionGraph result = new PartitionGraph(inputGraph, true);
-		return result.getInvariants();
+		return ((GraphBuilder) parser.builder).getRawGraph();
 	}
 
 	/**
@@ -117,6 +134,12 @@ public class TemporalInvariantSetTests {
 		assertFalse(s2.sameInvariants(s1));
 	}
 
+	/**
+	 * Checks the mined invariants from a log with just two events types.
+	 *
+	 * @throws ParseException
+	 * @throws InternalSynopticException
+	 */
 	@Test
 	public void mineBasicTest() throws ParseException, InternalSynopticException {
 		String[] log = new String[] {"a", "b", "--"};
@@ -187,6 +210,13 @@ public class TemporalInvariantSetTests {
 		assertTrue(trueInvs.sameInvariants(minedInvs));
 	}
 
+	/**
+	 * Tests the correctness of the invariants mined between two partitions,
+	 * which have no event types in common.
+	 *
+	 * @throws ParseException
+	 * @throws InternalSynopticException
+	 */
 	@Test
 	public void mineAcrossMultiplePartitionsTest() throws ParseException, InternalSynopticException {
 		String[] log1 = new String[] {"a", "b", "--"};
@@ -221,5 +251,55 @@ public class TemporalInvariantSetTests {
 
 		// System.out.println("mined: " + minedInvs3);
 		assertTrue(trueInvs3.sameInvariants(minedInvs3));
+	}
+
+	/**
+	 * Mines invariants from a randomly generated log and then uses the model checker to check that every mined invariant actually holds.
+	 * @throws InternalSynopticException
+	 * @throws ParseException
+	 */
+	@Test
+	public void testApproximationExactnessTest() throws ParseException, InternalSynopticException {
+		ArrayList<String> log = new ArrayList<String>();
+		Random generator = new Random();
+
+		// Arbitrary partition limit.
+		int numPartitions = 5;
+
+		// Event types allowed in the log, with partition string at index 0.
+		String[] eventTypes = new String[] {"--", "a", "b", "c"};
+
+		// Generate a random log.
+		while (numPartitions != 0) {
+			int rndIndex = generator.nextInt(eventTypes.length);
+			log.add(eventTypes[rndIndex]);
+			if (rndIndex == 0) {
+				numPartitions -= 1;
+			}
+		}
+
+		Graph<MessageEvent> inputGraph = genInitialGraph(log.toArray(new String[log.size()]));
+		PartitionGraph graph= new PartitionGraph(inputGraph, true);
+		TemporalInvariantSet minedInvs = graph.getInvariants();
+
+		// Test with FSM checker.
+		Main.useFSMChecker = true;
+		List<RelationPath<MessageEvent>> cExamples = minedInvs.getAllCounterExamples(inputGraph);
+		if (cExamples != null) {
+			System.out.println("log: " + log);
+			System.out.println("minedInvs: " + minedInvs);
+			System.out.println("[FSM] cExamples: " + cExamples);
+		}
+		assertTrue(cExamples == null);
+
+		// Test with LTL checker.
+		Main.useFSMChecker = false;
+		cExamples = minedInvs.getAllCounterExamples(inputGraph);
+		if (cExamples != null) {
+			System.out.println("log: " + log);
+			System.out.println("minedInvs: " + minedInvs);
+			System.out.println("[LTL] cExamples: " + cExamples);
+		}
+		assertTrue(cExamples == null);
 	}
 }
