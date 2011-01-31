@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,8 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
-
-import plume.Option;
 
 import synoptic.main.Main;
 import synoptic.model.Action;
@@ -33,24 +30,24 @@ import synoptic.util.InternalSynopticException;
 /*
  * This file is bases on the code from Clemens Hammacher.
  * Source: https://ccs.hammacher.name
- * Licence: Eclipse Public License v1.0. 
+ * Licence: Eclipse Public License v1.0.
  */
 
 public class GraphVizExporter {
 	static Logger logger = Logger.getLogger("GraphVizExporter");
-	
+
 	static final HashMap<String, String> relationColors;
 	static {
 		relationColors = new HashMap<String, String>();
 		relationColors.put("t", "");
 		relationColors.put("i", "blue");
 	}
-			
+
 	static final String[] dotCommands = {"/usr/bin/dot",
 			"C:\\Programme\\Graphviz2.26\\bin\\dot.exe",
 			"C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe" };
-	
-	private boolean isInitialGraph;
+
+	private boolean isInitialGraph = false;
 
 	/**
 	 * @return Returns the dot command executable or null on error
@@ -64,7 +61,7 @@ public class GraphVizExporter {
 		}
 		if (Main.dotExecutablePath == null) {
 			try {
-			logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t" + 
+			logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t" +
 					Main.getCmdLineOptDesc("dotExecutablePath"));
 			} catch (InternalSynopticException e) {
 				System.out.println(e);
@@ -76,7 +73,7 @@ public class GraphVizExporter {
 	public GraphVizExporter() {
 		super();
 	}
-	
+
 	public GraphVizExporter(boolean initial){
 		this();
 		this.isInitialGraph = initial;
@@ -108,7 +105,7 @@ public class GraphVizExporter {
 	/**
 	 * Export .png file from given dotFile. The file will be created in the
 	 * current working directory.
-	 * 
+	 *
 	 * @param dotFile
 	 *            - filename of .dot file.
 	 */
@@ -118,14 +115,14 @@ public class GraphVizExporter {
 			// could not locate a dot executable
 			return;
 		}
-		
+
 		String imageExt = "png";
-		
+
 		String execCommand = dotCommand + " -O -T" + imageExt + " "
 				+ dotFile.getAbsolutePath();
-		
+
 		logger.info("Exporting graph to: " + dotFile.toString() + "." + imageExt);
-		
+
 		try {
 			Runtime.getRuntime().exec(execCommand);
 		} catch (IOException e) {
@@ -142,9 +139,9 @@ public class GraphVizExporter {
 		if (Main.exportCanonically) {
 			exportGraphCanonically(writer, graph, fast);
 		} else {
-			exportGraphNonCanonically(writer, graph, fast);	
+			exportGraphNonCanonically(writer, graph, fast);
 		}
-		
+
 		writer.write("} // digraph\n");
 
 		// close the dot file
@@ -162,7 +159,7 @@ public class GraphVizExporter {
 		// close the dot file
 		writer.close();
 	}
-	
+
 
 	private <T extends INode<T>> String nodeDotAttributes(T node, boolean initial, boolean terminal, String color) {
 		String attributes = "label=\"" + quote(node.toStringConcise()) + "\"";
@@ -176,8 +173,8 @@ public class GraphVizExporter {
 		}
 		return attributes;
 	}
-	
-	
+
+
 	private <T extends INode<T>> int exportRelationNodes(
 			final Writer writer,
 			IGraph<T> graph,
@@ -185,27 +182,27 @@ public class GraphVizExporter {
 			LinkedList<ITransition<T>> allTransitions,
 			HashMap<T, Integer> nodeToInt,
 			int nodeCnt) throws IOException {
-		
+
 		LinkedList<T> rootNodes = new LinkedList<T>(graph.getInitialNodes(relation));
 		LinkedList<T> parentNodes = new LinkedList<T>(rootNodes);
 		boolean isTerminal, isInitial;
-						
+
 		//logger.finest("<exportRelationNodes>, nodeCnt is " + nodeCnt);
 		LinkedList<T> childrenNodes = null;
 		while (parentNodes.size() != 0) {
 			//logger.finest("Main loop with parentNodes: " + parentNodes.toString());
 			childrenNodes = new LinkedList<T>();
 			Collections.sort(parentNodes);
-			
+
 			for (T node : parentNodes) {
 			//	logger.finest("Consider parent: " + node.toStringConcise());
-				
+
 				if (nodeToInt.containsKey(node)) {
 					// Skip nodes that have been processed previously.
 				//	logger.finest("Skipping previously seen node: " + node.toStringConcise());
 					continue;
 				}
-				
+
 				isTerminal=false;
 				if ((INode<?>)node instanceof Partition) {
 					Partition p = (Partition)(INode<?>) node;
@@ -215,12 +212,12 @@ public class GraphVizExporter {
 					}
 				} else if ((INode<?>)node instanceof MessageEvent) {
 					MessageEvent e = (MessageEvent)(INode<?>) node;
-					if (e.getTransitions().size() == 0) 
-						isTerminal = true; 
+					if (e.getTransitions().size() == 0)
+						isTerminal = true;
 				}
-				
+
 				isInitial = rootNodes.contains(node);
-				
+
 				String attrs = nodeDotAttributes(node, isInitial, isTerminal, relationColors.get(relation));
 				writer.write("  " + nodeCnt + " [" + attrs + "];\n");
 				nodeToInt.put(node, nodeCnt);
@@ -229,7 +226,7 @@ public class GraphVizExporter {
 					T child = trans.getTarget();
 					//logger.finest("Considering child: " + child.toStringConcise() + ", and its class is: " + child.getClass().toString());
 					childrenNodes.add(child);
-					
+
 					//logger.finest("ChildrenNodes is now: " + childrenNodes.toString());
 				}
 				allTransitions.addAll(transitions);
@@ -241,22 +238,22 @@ public class GraphVizExporter {
 		writer.flush();
 		return nodeCnt;
 	}
-		
-	
-	private <T extends INode<T>> void exportGraphCanonically(final Writer writer,	
+
+
+	private <T extends INode<T>> void exportGraphCanonically(final Writer writer,
 			IGraph<T> graph, boolean fast) throws IOException {
-		
+
 		// logger.finest("Performing canonical export..");
 		HashMap<T, Integer> nodeToInt = new HashMap<T, Integer>();
 		LinkedList<ITransition<T>> allTransitions = new LinkedList<ITransition<T>>();
 		int nodeCnt = 0;
-		
+
 		nodeCnt = exportRelationNodes(writer, graph, "t", allTransitions, nodeToInt, nodeCnt);
 		// logger.finest("</exportRelationNodes relation(t)>, nodeCnt is " + nodeCnt);
-		
+
 		exportRelationNodes(writer, graph, "i", allTransitions, nodeToInt, nodeCnt);
 		// logger.finest("</exportRelationNodes relation(i)>, nodeCnt is " + nodeCnt);
-						
+
 		// Output edges:
 		for (ITransition<T> trans: allTransitions) {
 			int sourceInt = nodeToInt.get(trans.getSource());
@@ -276,14 +273,14 @@ public class GraphVizExporter {
 		}
 		return;
 	}
-	
-	
-	
-	private <T extends INode<T>> void exportGraphNonCanonically(final Writer writer,	
+
+
+
+	private <T extends INode<T>> void exportGraphNonCanonically(final Writer writer,
 			IGraph<T> graph, boolean fast) throws IOException {
-		
+
 		logger.finest("Performing standard export..");
-		
+
 		final LinkedList<T> queue = new LinkedList<T>();
 		final Set<T> statesSeen = new HashSet<T>();
 		final HashSet<ITransition<T>> transSeen = new HashSet<ITransition<T>>();
@@ -292,11 +289,11 @@ public class GraphVizExporter {
 			queue.add(s);
 			statesSeen.add(s);
 		}
-		
+
 		while (!queue.isEmpty()) {
 			final T e = queue.poll();
 			final int sourceStateNo = e.hashCode();
-			
+
 			boolean isTerminal=false;
 			if ((INode<?>)e instanceof Partition) {
 				Partition p = (Partition)(INode<?>)e;
@@ -305,12 +302,12 @@ public class GraphVizExporter {
 						isTerminal = true;
 				}
 			}
-		
+
 			// TODO: set this to the appropriate relation
 			String relation = "t";
 			boolean isInitial = graph.getRelations().contains(new Action(relation)) && graph.getInitialNodes(relation).contains(e);
 			String attributes = nodeDotAttributes(e, isInitial, isTerminal, relationColors.get(relation));
-			
+
 			writer.write("  " + sourceStateNo + " [" + attributes + "];\n");
 
 			Iterable<? extends ITransition<T>> foo = null;
@@ -340,7 +337,7 @@ public class GraphVizExporter {
 			}
 		}
 	}
-	
+
 	private void exportNet(final Writer writer, Net net) throws IOException {
 		// write the transitions (nodes are generated implicitly by graphviz)
 		Set<Place> initialPlaces = net.getInitalPlaces();

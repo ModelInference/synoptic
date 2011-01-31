@@ -13,12 +13,12 @@ import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.IModifiableGraph;
 import synoptic.model.interfaces.ITransition;
 
-
 /**
- * This class implements a partition graph. Nodes are sets of messages ({@code MessageEvent}) and edges
- * are not maintained explicitly, but generated on-the-fly by class {@code Partition}. PartitionGraphs can only be modified via
- * the method {@code apply} which takes a object implementing {@code IOperation}. Operations must perform changes
- * on both representations.
+ * This class implements a partition graph. Nodes are sets of messages ({@code
+ * MessageEvent}) and edges are not maintained explicitly, but generated
+ * on-the-fly by class {@code Partition}. PartitionGraphs can only be modified
+ * via the method {@code apply} which takes a object implementing {@code
+ * IOperation}. Operations must perform changes on both representations.
  *
  * @author sigurd
  *
@@ -28,9 +28,9 @@ public class PartitionGraph implements IGraph<Partition> {
 	private LinkedHashSet<Partition> partitions = null;
 	/**
 	 * holds all initial messages in this graph, grouped by the relation w.r.t.
-	 * which they are initial
-	 * We keep track of initial (rhombus) partitions by keeping track of the initial messages
-	 * but we need to do this for every relation, which is specified by the first string arg in the hashmap
+	 * which they are initial We keep track of initial (rhombus) partitions by
+	 * keeping track of the initial messages but we need to do this for every
+	 * relation, which is specified by the first string arg in the hashmap
 	 */
 	private LinkedHashMap<String, Set<MessageEvent>> initialMessages = new LinkedHashMap<String, Set<MessageEvent>>();
 
