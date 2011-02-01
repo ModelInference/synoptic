@@ -12,6 +12,7 @@ import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.IModifiableGraph;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.InternalSynopticException;
 
 /**
  * This class implements a partition graph. Nodes are sets of messages ({@code
@@ -236,12 +237,12 @@ public class PartitionGraph implements IGraph<Partition> {
 		Set<MessageEvent> all = new LinkedHashSet<MessageEvent>();
 		for (Partition p : getNodes()) {
 			if (p.size() == 0)
-				throw new RuntimeException("bisim produced empty partition!");
+				throw new InternalSynopticException("bisim produced empty partition!");
 			all.addAll(p.getMessages());
 			totalCount += p.size();
 		}
 		if (totalCount != all.size())
-			throw new RuntimeException(
+			throw new InternalSynopticException(
 					"partitions are not partitioning messages (overlap)!");
 	}
 }

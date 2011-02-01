@@ -4,6 +4,7 @@ import synoptic.model.MessageEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.IModifiableGraph;
+import synoptic.util.InternalSynopticException;
 
 /**
  * An operation that merges two partitions into one.
@@ -16,14 +17,18 @@ public class PartitionMerge implements IOperation {
 
 	/**
 	 * Creates a PartitionMerge.
-	 * @param retained the partition that remains in the graph
-	 * @param removed the partition that gets removed. Its messages are moved to the partition {@code retained}
+	 * 
+	 * @param retained
+	 *            the partition that remains in the graph
+	 * @param removed
+	 *            the partition that gets removed. Its messages are moved to the
+	 *            partition {@code retained}
 	 */
 	public PartitionMerge(Partition retained, Partition removed) {
 		this.retained = retained;
 		this.removed = removed;
 		if (retained.size() == 0 || removed.size() == 0) {
-			throw new RuntimeException("merging empty partitions: " + retained.size() + ", " + removed.size());
+			throw new InternalSynopticException("merging empty partitions: " + retained.size() + ", " + removed.size());
 		}
 	}
 	
@@ -36,10 +41,12 @@ public class PartitionMerge implements IOperation {
 			split.addEventToSplit(m);
 		}
 		retained.addAllMessages(removed.getMessages());
+		// TODO: do we have to call removed.removeMessages() prior to calling
+		// partitionGraph.remove() ?
 		removed.removeMessages(removed.getMessages());
 		partitionGraph.remove(removed);
 		if (removedSize + retainedSize != retained.size()) {
-			throw new RuntimeException("lost messages!: " + removedSize+ "+" + retainedSize + "!= " + retained.size());
+			throw new InternalSynopticException("lost messages!: " + removedSize+ "+" + retainedSize + "!= " + retained.size());
 		}
 		return split;
 	}

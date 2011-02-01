@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -28,6 +29,7 @@ import plume.Option;
 import plume.Options;
 import plume.OptionGroup;
 import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.Graph;
 import synoptic.model.MessageEvent;
 import synoptic.model.PartitionGraph;
@@ -606,6 +608,8 @@ public class Main implements Callable<Integer> {
 	public Integer call() throws Exception {
 		TraceParser parser = new TraceParser();
 		
+		Locale.setDefault(Locale.US);
+		
 		logger.fine("Setting up the log file parser.");
 		
 		if (!Main.regExps.isEmpty()) {
@@ -674,13 +678,13 @@ public class Main implements Callable<Integer> {
 		
 		logger.info("Running Synoptic...");
 		
+		// Create the partition graph and mine the invariants.
 		PartitionGraph result = new PartitionGraph(inputGraph, true);
-		/* TemporalInvariantSet synoptic.invariants = result.getInvariants();
-		FsmModelChecker<MessageEvent> checker = new FsmModelChecker<MessageEvent>(synoptic.invariants, inputGraph);
-		List<RelationPath<MessageEvent>> paths = checker.getCounterexamples();
-		if (paths.isEmpty()) {
-			System.out.println("synoptic.model checker ok.");
-		} */		
+		TemporalInvariantSet minedInvs = result.getInvariants();
+		logger.info("Mined " + minedInvs.numInvariants() + " invariants");
+		if (dumpInvariants) {
+			logger.info("Mined invariants: " + result.getInvariants());
+		}
 		
 		if (Main.logLvlVerbose) {
 			System.out.println("");

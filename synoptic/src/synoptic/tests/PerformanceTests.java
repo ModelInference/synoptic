@@ -4,6 +4,7 @@ import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.model.PartitionGraph;
 import synoptic.model.input.GraphBuilder;
 import synoptic.model.scalability.ScalableGraph;
+import synoptic.util.InternalSynopticException;
 import junit.framework.TestCase;
 
 public class PerformanceTests extends TestCase {
@@ -32,7 +33,7 @@ public class PerformanceTests extends TestCase {
 			try {
 				runTestBisim(1, M, n, r, false);
 			} catch (Exception exn) {
-				throw new RuntimeException(exn);
+				throw new InternalSynopticException(exn);
 			}
 		}
 	}
@@ -51,7 +52,7 @@ public class PerformanceTests extends TestCase {
 				runTestBisim(1, M, n_values[i], r, false);
 			} catch (Exception exn) {
 				exn.printStackTrace();
-				throw new RuntimeException(exn);
+				throw new InternalSynopticException(exn);
 			}
 		}
 	}

@@ -18,6 +18,8 @@ import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 
+import synoptic.util.InternalSynopticException;
+
 class LayoutChooser implements ActionListener {
 	static final Class[] constructorArgsWanted = { Graph.class };
 
@@ -43,7 +45,7 @@ class LayoutChooser implements ActionListener {
 			Layout l = (Layout) o;
 			vv.setGraphLayout(l);
 		} catch (Exception e) {
-			throw new RuntimeException("Could not load layout " + lay);
+			throw new InternalSynopticException("Could not load layout " + lay);
 		}
 	}
 

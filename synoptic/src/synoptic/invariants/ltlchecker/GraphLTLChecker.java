@@ -22,6 +22,7 @@ import synoptic.model.export.GraphVizExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.InternalSynopticException;
 
 
 
@@ -178,9 +179,9 @@ public class GraphLTLChecker<T extends INode<T>> {
 		}
 		for (T m : allNodes) {
 			if (prevStates.get(m) == null)
-				throw new RuntimeException("null in prevStates");
+				throw new InternalSynopticException("null in prevStates");
 			if (nextState.get(m) == null)
-				throw new RuntimeException("null in nextState");
+				throw new InternalSynopticException("null in nextState");
 			for (Node prev : prevStates.get(m)) {
 				Edge e = new Edge(prev, nextState.get(m), "-", m.getLabel(),
 						null);
@@ -244,7 +245,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 			if (trace != null) {
 				r = new RelationPath<T>(inv, inv.shorten(trace));
 				if (r.path == null) {
-					throw new RuntimeException("shortening returned null for " + inv
+					throw new InternalSynopticException("shortening returned null for " + inv
 									+ " and trace " + trace);
 				}
 			}
