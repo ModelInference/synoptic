@@ -1,8 +1,6 @@
 package synoptic.model;
 
 
-import java.util.Locale;
-
 //import daikon.inv.Invariant;
 
 import org.apache.commons.lang.NotImplementedException;
@@ -57,9 +55,7 @@ public class Relation<StateType> extends Transition<StateType> implements Compar
 
 	@Override
 	public String toStringConcise() {
-		Locale.setDefault(Locale.ENGLISH);
 		//return getAction().toString()+(inv.size()==0 ? "" : " if "+inv)+", freq "+String.format("%.2f", frequency)+"";
-		//return String.format("%.2f", frequency);
 		return String.format("%.2f", frequency);
 	}
 	

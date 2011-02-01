@@ -15,61 +15,85 @@ import synoptic.model.interfaces.IModifiableGraph;
  *
  */
 public class PartitionSplit implements IOperation {
+	/**
+	 * Partition that will be split by this operation.
+	 */
 	private Partition partitionToSplit = null;
+	
 	/**
 	 * The messages that will be split out into a separate node.
 	 */
 	private Set<MessageEvent> eventsToSplitOut = null;
-	private Partition partitionToInsert = null;
-
-	/** 
-	 * Creates a partition split. The split is defined by the messages added using {@code addEventToSplit}.
-	 * @param partition the partition to split
+	
+	/**
+	 * Partition that will be used for storing eventsToSplitOut once this
+	 * operation commits.
 	 */
-	public PartitionSplit(Partition partition) {
-		this.partitionToSplit = partition;
-		eventsToSplitOut = new HashSet<MessageEvent>(partition.size());
-	}
+	private Partition newPartition = null;
 
 	/**
-	 * Creates a partition split, forcing the inserted node to be {@code removed}. Provided for undo functionality.
-	 * @param partitionToSplit the partition split
-	 * @param partitionToInsert the partition that will be inserted
+	 * Creates a partition split. The split is defined by the messages added
+	 * using {@code addEventToSplit}.
+	 * 
+	 * @param partitionToSplit
+	 *            the partition to split
 	 */
-	public PartitionSplit(Partition partitionToSplit, Partition partitionToInsert) {
+	public PartitionSplit(Partition partitionToSplit) {
 		this.partitionToSplit = partitionToSplit;
-		this.partitionToInsert = partitionToInsert;
 		eventsToSplitOut = new HashSet<MessageEvent>(partitionToSplit.size());
+		newPartition = null;
+	}
+	
+	/**
+	 * Creates a partition split. The split is defined by the messages added
+	 * using {@code addEventToSplit}. Will use newPartitionArg for the messages
+	 * that will be split out (instead of creating a new partition) -- this is 
+	 * important in cases when splits need to preserve the partition set of a
+	 * graph.   
+	 * 
+	 * @param partitionToSplit
+	 *            the partition to split
+	 * @param newPartitionArg
+	 *            the partition to use for events to split out
+	 */
+	public PartitionSplit(Partition partitionToSplit, Partition newPartitionArg) {
+		this(partitionToSplit);
+		newPartition = newPartitionArg;
 	}
 
 	@Override
 	public IOperation commit(PartitionGraph g,
 			IModifiableGraph<Partition> partitionGraph) {
-		Partition newPartition = partitionToInsert;
+		assert(this.isValid());
+		
 		if (newPartition == null) {
 			newPartition = new Partition(getSplitEvents());
-		} else {
-			newPartition = partitionToInsert;
-			partitionToInsert.addAllMessages(getSplitEvents());
 		}
+		
+		newPartition.addAllMessages(getSplitEvents());
 		partitionToSplit.removeMessages(getSplitEvents());
+		
 		partitionGraph.add(newPartition);
-		return new PartitionMerge(getPartition(), newPartition);
+		PartitionMerge m = new PartitionMerge(getPartition(), newPartition);
+		return m;
 	}
 
 	/**
-	 * Check whether this partition split is valid to perform. This should
-	 * be used prior to applying the operation on a graph.
+	 * Check whether this partition split is valid to perform. This should be
+	 * used prior to applying the operation on a graph.
 	 * 
 	 * @return true if valid
 	 */
 	public boolean isValid() {
-		return partitionToSplit != null && eventsToSplitOut.size() > 0 && partitionToSplit.getMessages().size() > eventsToSplitOut.size();
+		return partitionToSplit != null
+				&& eventsToSplitOut.size() > 0
+				&& partitionToSplit.getMessages().size() > eventsToSplitOut
+						.size();
 	}
 
 	@Override
 	public String toString() {
-		// NOTE: this string only makes sense before the operation is committed,
+		// NOTE: this string only makes sense BEFORE the operation is committed,
 		// after a commit() the partition may have a different # of messages!
 		return "S." + partitionToSplit.getLabel() + "."
 			+ eventsToSplitOut.size() + "/"
@@ -78,7 +102,9 @@ public class PartitionSplit implements IOperation {
 
 	/**
 	 * Mark a message for splitting into a separate node.
-	 * @param node the node to mark
+	 * 
+	 * @param node
+	 *            the node to mark
 	 */
 	public void addEventToSplit(MessageEvent event) {
 		eventsToSplitOut.add(event);
@@ -101,8 +127,10 @@ public class PartitionSplit implements IOperation {
 	}
 
 	/**
-	 * Create a partition split that would split all messages of {@code partition} into a separate node.
- 	 * @param partition
+	 * Create a partition split that would split all messages of {@code
+	 * partition} into a separate node.
+	 * 
+	 * @param partition
 	 * @return the newly created partition split
 	 */
 	public static PartitionSplit newSplitWithAllEvents(Partition partition) {
@@ -112,12 +140,15 @@ public class PartitionSplit implements IOperation {
 	}
 
 	/**
-	 * Incorporates {@code candidateSplit} into this split, yielding a multi split.
-	 * @param candidateSplit the candidate split to incorporate
+	 * Incorporates {@code candidateSplit} into this split, yielding a multi
+	 * split.
+	 * 
+	 * @param candidateSplit
+	 *            the candidate split to incorporate
 	 * @return the resulting multi split
 	 */
 	public PartitionMultiSplit incorporate(PartitionSplit candidateSplit) {
-		if (partitionToInsert == null || candidateSplit.getPartition() != partitionToSplit)
+		if (candidateSplit.getPartition() != partitionToSplit)
 			throw new IllegalArgumentException();
 		PartitionMultiSplit multiSplit = new PartitionMultiSplit(this);
 		multiSplit.incorporate(candidateSplit);

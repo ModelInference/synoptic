@@ -14,6 +14,7 @@ import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.IterableAdapter;
 import synoptic.util.IIterableIterator;
+import synoptic.util.InternalSynopticException;
 
 
 /**
@@ -60,14 +61,14 @@ public class MessageEvent implements INode<MessageEvent>, IEvent, Comparable<Mes
 
 	public void addTransition(MessageEvent dest, String relation) {
 		if (dest == null)
-			throw new RuntimeException("Dest was null");
+			throw new InternalSynopticException("Dest was null");
 		addTransition(new Relation<MessageEvent>(this, dest, relation));
 	}
 
 	public void addTransition(MessageEvent dest, String relation,
 			double probability) {
 		if (dest == null)
-			throw new RuntimeException("Dest was null");
+			throw new InternalSynopticException("Dest was null");
 		addTransition(new Relation<MessageEvent>(this, dest, relation,
 				probability));
 	}
@@ -138,7 +139,7 @@ public class MessageEvent implements INode<MessageEvent>, IEvent, Comparable<Mes
 	public void checkConsistency() {
 		for (ITransition<MessageEvent> t : transitions) {
 			if (!transitionsByAction.get(t.getRelation()).contains(t))
-				throw new RuntimeException(
+				throw new InternalSynopticException(
 						"inconsistent transitions in message");
 		}
 	}

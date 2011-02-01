@@ -18,6 +18,7 @@ import synoptic.model.nets.Event;
 import synoptic.model.nets.Net;
 import synoptic.model.nets.Place;
 import synoptic.statistics.FrequencyMiner;
+import synoptic.util.InternalSynopticException;
 
 
 public class TraceCondenserTest {
@@ -130,7 +131,7 @@ public class TraceCondenserTest {
 				if (post.size() == 0)
 					break;
 				if (post.size() > 1)
-					throw new RuntimeException("not linear");
+					throw new InternalSynopticException("not linear");
 				e2 = post.iterator().next();
 				Set<Event> related = getFirstRelatedPredecessor(net, e2, map);
 				System.out.println(e2 + " related " + related);
@@ -152,7 +153,7 @@ public class TraceCondenserTest {
 		HashSet<Event> relatedEvents = new HashSet<Event>();
 		Set<Event> pre = net.getPreEvents(e2);
 		if (pre.size() > 1)
-			throw new RuntimeException("not linear");
+			throw new InternalSynopticException("not linear");
 		Event current = pre.iterator().next();
 		HashMap<Event, Set<Event>> related = new HashMap<Event, Set<Event>>();
 		while (current != null) {
@@ -166,7 +167,7 @@ public class TraceCondenserTest {
 			if (pre2.size() == 0)
 				return relatedEvents;
 			if (pre2.size() > 1)
-				throw new RuntimeException("not linear");
+				throw new InternalSynopticException("not linear");
 			current = pre2.iterator().next();
 		}
 		return relatedEvents;

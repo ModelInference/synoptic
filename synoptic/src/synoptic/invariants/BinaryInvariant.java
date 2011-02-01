@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import synoptic.invariants.ltlchecker.LTLFormula;
+import synoptic.util.InternalSynopticException;
 
 import gov.nasa.ltl.graph.Graph;
 import gov.nasa.ltl.trans.LTL2Buchi;
@@ -84,7 +85,7 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
 			}
 			return automaton;
 		} catch (ParseErrorException e) {
-			throw new RuntimeException(e);
+			throw new InternalSynopticException(e);
 		}
 	}
 	

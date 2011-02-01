@@ -29,6 +29,7 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.InternalSynopticException;
 
 
 
@@ -139,7 +140,7 @@ public abstract class Bisimulation {
 		
 				for (PartitionSplit candidateSplit : candidateSplits) {
 					if (candidateSplit == null || !candidateSplit.isValid()) {
-						System.out.println("Skipping invalid source: " + candidateSplit);
+						logger.fine("Skipping invalid source: " + candidateSplit);
 						continue;
 					}
 
@@ -150,14 +151,14 @@ public abstract class Bisimulation {
 				}
 
 				if (combinedSplit == null) {
-					System.out.println("No valid sources available.");
+					logger.fine("No valid sources available.");
 					return null;
 				}
 				if (!combinedSplit.isValid()) {
-					System.out.println("Combined split is invalid.");
+					logger.fine("Combined split is invalid.");
 					return null;
 				}
-
+				
 				if (arbitrarySplit == null) {
 					arbitrarySplit = combinedSplit;
 				}
@@ -177,12 +178,11 @@ public abstract class Bisimulation {
 				for (PartitionSplit candidateSplit : candidateSplits) {
 					// Only consider valid splits
 					if (candidateSplit == null || !candidateSplit.isValid()) {
-						logger.fine("candidateSplit invalid: " + candidateSplit);
 						continue;
 					}
 					
 					if (arbitrarySplit == null) {
-						arbitrarySplit = candidateSplits.get(0);
+						arbitrarySplit = candidateSplit;
 					}
 
 					if (tryAndRecordSplitOp(
@@ -198,7 +198,6 @@ public abstract class Bisimulation {
 				}						
 			}
 		}
-		
 		return arbitrarySplit;
 	}
 
@@ -369,7 +368,7 @@ public abstract class Bisimulation {
 		// Walk along the path
 		for (Partition part : counterexampleTrace.path) {
 			if (part == null)
-				throw new RuntimeException("relation path contained null");
+				throw new InternalSynopticException("relation path contained null");
 			prevPartition = curPartition;
 			curPartition = nextPartition;
 			nextPartition = part;
@@ -388,12 +387,13 @@ public abstract class Bisimulation {
 		ITransition<Partition> outgoingTransition = curPartition.getTransition(
 				nextPartition, counterexampleTrace.invariant.getRelation());
 		ITransition<Partition> incomingTransition = null;
-		if (prevPartition != null)
+		if (prevPartition != null) {
 			incomingTransition = prevPartition.getTransition(curPartition,
 					counterexampleTrace.invariant.getRelation());
+		}
 		if (outgoingTransition != null) {
 			// logger.fine("outgoingTrans:" + outgoingTransition);
-			PartitionSplit newSplit = curPartition.getCandidateDivision(outgoingTransition);
+			PartitionSplit newSplit = curPartition.getCandidateDivisionBasedOnOutgoing(outgoingTransition);
 			// logger.fine("outgoingSplit:" + newSplit);
 			candidateSplits.add(newSplit);
 			
@@ -530,13 +530,17 @@ public abstract class Bisimulation {
 						if (EXTRA_CHECKS)
 							partitionGraph.checkSanity();
 
-						if (!parts.containsAll(partitionGraph.getNodes())
-								|| !partitionGraph.getNodes().containsAll(
-										parts)) {
-							throw new RuntimeException(
+						// We cannot change the partition sets because we are
+						// iterating over the partitions. Therefore, check that
+						// the resulting partition set is the same as the 
+						// original partition set.
+						if (!(parts.containsAll(partitionGraph.getNodes())
+							&& partitionGraph.getNodes().containsAll(parts))) {
+							throw new InternalSynopticException(
 									"partition set changed due to rewind: "
 									+ rewindOperation);
 						}
+						
 					} else {
 						logger.fine("Merge maintains invs, continuing");
 						continue outerWhile;

@@ -80,12 +80,17 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 
 	/**
 	 * Split the messages according to the presence of an outgoing transition
-	 * trans (the source in trans is ignored here)
+	 * trans (the source in trans is ignored here). Note that the returned
+	 * candidate must be a valid split, therefore we cannot split on a
+	 * transition that is the sole transition between two partitions -- a
+	 * split candidate would create a partition with 0 events, which is an
+	 * invalid split.
 	 * 
-	 * @param trans the transition that will be checked for
+	 * @param trans
+	 *            the transition that will be checked for
 	 * @return the resulting split
 	 */
-	public PartitionSplit getCandidateDivision(ITransition<Partition> trans) {
+	public PartitionSplit getCandidateDivisionBasedOnOutgoing(ITransition<Partition> trans) {
 		PartitionSplit ret = null;
 		for (final MessageEvent otherExpr : messages) {
 			if (fulfillsStrong(otherExpr, trans)) {
@@ -102,20 +107,17 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 				}
 			}
 		}
-		if (ret == null) {
-			// TODO: why do we want this?
-			// ret.isValid() will now return false
-			ret = PartitionSplit.newSplitWithAllEvents(this);
-		}
 		return ret;
 	}
 
 	/**
-	 * Split the partition according to an incoming transition from from
-	 * labeled with {@code relation}.
+	 * Split the partition according to an incoming transition from {@code
+	 * previous} labeled with {@code relation}.
 	 * 
-	 * @param previous the partition the transition should be incoming from
-	 * @param relation provides the relation name to consider
+	 * @param previous
+	 *            the partition the transition should be incoming from
+	 * @param relation
+	 *            provides the relation name to consider
 	 * @return returns the resulting split
 	 */
 	public PartitionSplit getCandidateDivisionBasedOnIncoming(Partition previous,
@@ -130,7 +132,8 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 			if (messagesReachableFromPrevious.contains(m))
 				candidateSplit.addEventToSplit(m);
 		}
-
+		// TODO: is it possible for candidateSplit.isValid() to be false?
+		// if so, should we check and return null in this case?
 		return candidateSplit;
 	}
 
@@ -163,7 +166,10 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 		for (Relation<Partition> tr : getTransitionsIterator()) {
 			result.add(tr);
 			// Use splitting to compute the transition probabilities\labels.
-			PartitionSplit s = getCandidateDivision(tr);
+			PartitionSplit s = getCandidateDivisionBasedOnOutgoing(tr);
+			if (s == null) {
+				s = PartitionSplit.newSplitWithAllEvents(this);
+			}
 			// List<Invariant> all = TemporalInvariantSet.generateInvariants(tr
 			// .getSource().getMessages());
 			// List<Invariant> sInv = TemporalInvariantSet.generateInvariants(s
@@ -180,10 +186,10 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 			// tr.setInvariants(rel);
 			//System.out.println(s.getFulfills().size() + " "
 			//		+ s.getFulfillsNot().size());
-
-			tr.setFrequency((double) s.getSplitEvents().size()
-					/ (double) tr.getSource().getMessages().size());
-			tr.addWeight(s.getSplitEvents().size());
+			int numOutgoing = s.getSplitEvents().size();
+			int totalAtSource = tr.getSource().getMessages().size();
+			tr.setFrequency((double) numOutgoing / (double) totalAtSource);
+			tr.addWeight(numOutgoing);
 			// System.out.println(flow);
 		}
 		return result;

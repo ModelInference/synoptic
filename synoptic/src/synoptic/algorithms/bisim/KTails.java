@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.InternalSynopticException;
 
 
 public class KTails {
@@ -70,12 +71,11 @@ public class KTails {
 	 * @param <NodeType>
 	 * @param state the state to check
 	 * @param relation the name of the relation
-	 * @throws RuntimeException if transition is there
 	 */
 	private static <NodeType extends INode<NodeType>> void checkNotThere(INode<NodeType> state, String relation) {
 		for (Iterator<? extends ITransition<NodeType>> i1 = state.getTransitionsIterator(); i1.hasNext();) {
 			if (i1.next().getRelation().equals(relation)){
-				throw new RuntimeException("inconsistent");
+				throw new InternalSynopticException("inconsistent");
 			}
 		}
 	}
