@@ -21,48 +21,49 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import synoptic.util.InternalSynopticException;
 
 class LayoutChooser implements ActionListener {
-	static final Class[] constructorArgsWanted = { Graph.class };
+    static final Class[] constructorArgsWanted = { Graph.class };
 
-	private final JComboBox jcb;
-	private final Graph g;
-	private final VisualizationViewer vv;
+    private final JComboBox jcb;
+    private final Graph g;
+    private final VisualizationViewer vv;
 
-	private LayoutChooser(JComboBox jcb, Graph g, VisualizationViewer gd) {
-		super();
-		this.jcb = jcb;
-		this.g = g;
-		this.vv = gd;
-	}
+    private LayoutChooser(JComboBox jcb, Graph g, VisualizationViewer gd) {
+        super();
+        this.jcb = jcb;
+        this.g = g;
+        vv = gd;
+    }
 
-	public void actionPerformed(ActionEvent arg0) {
-		Object[] constructorArgs = { g };
+    public void actionPerformed(ActionEvent arg0) {
+        Object[] constructorArgs = { g };
 
-		Class layoutC = (Class) jcb.getSelectedItem();
-		Class lay = layoutC;
-		try {
-			Constructor constructor = lay.getConstructor(constructorArgsWanted);
-			Object o = constructor.newInstance(constructorArgs);
-			Layout l = (Layout) o;
-			vv.setGraphLayout(l);
-		} catch (Exception e) {
-			throw new InternalSynopticException("Could not load layout " + lay);
-		}
-	}
+        Class layoutC = (Class) jcb.getSelectedItem();
+        Class lay = layoutC;
+        try {
+            Constructor constructor = lay.getConstructor(constructorArgsWanted);
+            Object o = constructor.newInstance(constructorArgs);
+            Layout l = (Layout) o;
+            vv.setGraphLayout(l);
+        } catch (Exception e) {
+            throw new InternalSynopticException("Could not load layout " + lay);
+        }
+    }
 
-	public static void addLayoutCombo(JPanel panel, Graph g, VisualizationViewer vv) {
-		final JComboBox jcb = new JComboBox(getCombos());
-		jcb.setSelectedItem(FRLayout.class);
-		jcb.addActionListener(new LayoutChooser(jcb, g, vv));
-		panel.add(jcb, BorderLayout.NORTH);
-	}
+    public static void addLayoutCombo(JPanel panel, Graph g,
+            VisualizationViewer vv) {
+        final JComboBox jcb = new JComboBox(getCombos());
+        jcb.setSelectedItem(FRLayout.class);
+        jcb.addActionListener(new LayoutChooser(jcb, g, vv));
+        panel.add(jcb, BorderLayout.NORTH);
+    }
 
-	private static Vector<Class> getCombos() {
-		Vector<Class> layouts = new Vector<Class>();
-		layouts.add(KKLayout.class);
-		layouts.add(FRLayout.class);
-		layouts.add(CircleLayout.class);
-		layouts.add(SpringLayout.class);
-		layouts.add(ISOMLayout.class);
-		return layouts;
-	}
+    private static Vector<Class> getCombos() {
+        Vector<Class> layouts = new Vector<Class>();
+        layouts.add(KKLayout.class);
+        layouts.add(FRLayout.class);
+        layouts.add(CircleLayout.class);
+        layouts.add(SpringLayout.class);
+        layouts.add(ISOMLayout.class);
+        return layouts;
+    }
 }

@@ -1,6 +1,6 @@
 package synoptic.tests.units;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -10,19 +10,19 @@ import org.junit.Test;
  * @author ivan
  */
 public class TimedTaskTests {
-	/**
-	 * Make sure we can run a task.
-	 */
-	@Test
-	public void runTaskTest() {
-		fail("TODO");
-	}
-	
-	/**
-	 * Run and time a task.
-	 */
-	@Test
-	public void runAndTimeTaskTest() {
-		fail("TODO");
-	}
+    /**
+     * Make sure we can run a task.
+     */
+    @Test
+    public void runTaskTest() {
+        fail("TODO");
+    }
+
+    /**
+     * Run and time a task.
+     */
+    @Test
+    public void runAndTimeTaskTest() {
+        fail("TODO");
+    }
 }

@@ -12,80 +12,82 @@ import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 
-
 /**
  * An implementation of tarjans algorithm for finding the SCC of a graph.
  * Description available at http://en.wikipedia.org/wiki/Tarjan%27
  * s_strongly_connected_components_algorithm
  * 
  * @author sigurd
- * 
  * @param <NodeType>
  *            The node type used in the graph
  */
-public class StronglyConnectedComponents<NodeType extends INode<NodeType>> implements Iterable<Set<NodeType>> {
-	private HashMap<NodeType, Integer> index = new HashMap<NodeType, Integer>();
-	private HashMap<NodeType, Integer> lowlink = new HashMap<NodeType, Integer>();
-	private Stack<NodeType> stack = new Stack<NodeType>();
-	private int currentIndex = 0;
-	private List<Set<NodeType>> sccs = new ArrayList<Set<NodeType>>();
+public class StronglyConnectedComponents<NodeType extends INode<NodeType>>
+        implements Iterable<Set<NodeType>> {
+    private final HashMap<NodeType, Integer> index = new HashMap<NodeType, Integer>();
+    private final HashMap<NodeType, Integer> lowlink = new HashMap<NodeType, Integer>();
+    private final Stack<NodeType> stack = new Stack<NodeType>();
+    private int currentIndex = 0;
+    private final List<Set<NodeType>> sccs = new ArrayList<Set<NodeType>>();
 
-	/**
-	 * Computes the strongly connected components and stores them in the object.
-	 * 
-	 * @param graph
-	 *            the graph to compute the SCCs for
-	 */
-	public StronglyConnectedComponents(IGraph<NodeType> graph) {
-		for (NodeType n : graph.getNodes())
-			if (!index.containsKey(n))
-				tarjan(n);
-	}
+    /**
+     * Computes the strongly connected components and stores them in the object.
+     * 
+     * @param graph
+     *            the graph to compute the SCCs for
+     */
+    public StronglyConnectedComponents(IGraph<NodeType> graph) {
+        for (NodeType n : graph.getNodes()) {
+            if (!index.containsKey(n)) {
+                tarjan(n);
+            }
+        }
+    }
 
-	/**
-	 * The synoptic.main worker function. See documentation at <a href="http://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm"
-	 * >Tarjan's algorithm</a>.
-	 * 
-	 * @param n
-	 */
-	private void tarjan(NodeType n) {
-		index.put(n, currentIndex);
-		lowlink.put(n, currentIndex);
-		++currentIndex;
-		stack.push(n);
-		for (ITransition<NodeType> t : n.getTransitionsIterator()) {
-			if (!index.containsKey(t.getTarget())) {
-				tarjan(t.getTarget());
-				lowlink.put(n, Math.min(lowlink.get(n), lowlink.get(t
-						.getTarget())));
-			} else if (stack.contains(t.getTarget()))
-				lowlink.put(n, Math.min(lowlink.get(n), index
-						.get(t.getTarget())));
-		}
-		if (lowlink.get(n) == index.get(n)) {
-			HashSet<NodeType> scc = new HashSet<NodeType>();
-			for (NodeType m = stack.pop(); !m.equals(n); m = stack.pop()) {
-				scc.add(m);
-			}
-			scc.add(n);
-			sccs.add(scc);
-		}
-	}
+    /**
+     * The synoptic.main worker function. See documentation at <a href="http://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm"
+     * >Tarjan's algorithm</a>.
+     * 
+     * @param n
+     */
+    private void tarjan(NodeType n) {
+        index.put(n, currentIndex);
+        lowlink.put(n, currentIndex);
+        ++currentIndex;
+        stack.push(n);
+        for (ITransition<NodeType> t : n.getTransitionsIterator()) {
+            if (!index.containsKey(t.getTarget())) {
+                tarjan(t.getTarget());
+                lowlink.put(n, Math.min(lowlink.get(n), lowlink.get(t
+                        .getTarget())));
+            } else if (stack.contains(t.getTarget())) {
+                lowlink.put(n, Math.min(lowlink.get(n), index
+                        .get(t.getTarget())));
+            }
+        }
+        if (lowlink.get(n) == index.get(n)) {
+            HashSet<NodeType> scc = new HashSet<NodeType>();
+            for (NodeType m = stack.pop(); !m.equals(n); m = stack.pop()) {
+                scc.add(m);
+            }
+            scc.add(n);
+            sccs.add(scc);
+        }
+    }
 
-	/**
-	 * Return the list of SCCs in the graph.
-	 * 
-	 * @return a list of the strongly connected components
-	 */
-	public List<Set<NodeType>> getSCCs() {
-		return sccs;
-	}
+    /**
+     * Return the list of SCCs in the graph.
+     * 
+     * @return a list of the strongly connected components
+     */
+    public List<Set<NodeType>> getSCCs() {
+        return sccs;
+    }
 
-	/**
-	 * Provided for convenience in for-each loops.
-	 */
-	@Override
-	public Iterator<Set<NodeType>> iterator() {
-		return sccs.iterator();
-	}
+    /**
+     * Provided for convenience in for-each loops.
+     */
+    @Override
+    public Iterator<Set<NodeType>> iterator() {
+        return sccs.iterator();
+    }
 }
