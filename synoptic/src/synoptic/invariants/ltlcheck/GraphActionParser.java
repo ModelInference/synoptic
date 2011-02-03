@@ -1,92 +1,81 @@
 package synoptic.invariants.ltlcheck;
 
-import gov.nasa.ltl.graph.Edge;
-import gov.nasa.ltl.graph.Graph;
-import gov.nasa.ltl.graph.Node;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-public final class GraphActionParser
-{
+import gov.nasa.ltl.graph.Edge;
+import gov.nasa.ltl.graph.Graph;
+import gov.nasa.ltl.graph.Node;
 
-	private static boolean incomingOutgoingInvariant(Graph g) {
-		Set<Edge> outgoing = new HashSet<Edge>();
-		Set<Edge> incoming = new HashSet<Edge>();
-		int outgoingCount = 0;
-		int incomingCount = 0;
+public final class GraphActionParser {
 
-		for (Node n: g.getNodes()) {
-			outgoingCount += n.getOutgoingEdgeCount();
-			incomingCount += n.getIncomingEdgeCount();
-			outgoing.addAll(n.getOutgoingEdges());
-			incoming.addAll(n.getIncomingEdges());
-		}
+    private static boolean incomingOutgoingInvariant(Graph g) {
+        Set<Edge> outgoing = new HashSet<Edge>();
+        Set<Edge> incoming = new HashSet<Edge>();
+        int outgoingCount = 0;
+        int incomingCount = 0;
 
-		assert incomingCount == outgoingCount;
-		assert outgoing.equals(incoming);
-		return true;
-	}
+        for (Node n : g.getNodes()) {
+            outgoingCount += n.getOutgoingEdgeCount();
+            incomingCount += n.getIncomingEdgeCount();
+            outgoing.addAll(n.getOutgoingEdges());
+            incoming.addAll(n.getIncomingEdges());
+        }
 
-	public static void parseTransitions(Graph g)
-	{
-		assert incomingOutgoingInvariant(g);
+        assert incomingCount == outgoingCount;
+        assert outgoing.equals(incoming);
+        return true;
+    }
 
-		for(Node n: g.getNodes()) {
-			for(Edge e: n.getOutgoingEdges()) 
-			{
-				Conjunction pa = parse(e.getGuard());
-				e.setAttribute("parsedaction", pa);
-			}
-		}
-	}
+    public static void parseTransitions(Graph g) {
+        assert incomingOutgoingInvariant(g);
 
-	// Parse the simple formulas on NBA transitions, e.g. !a&b&!c
-	private static Conjunction parse(String formula)
-	{
-		Conjunction c = new Conjunction();
+        for (Node n : g.getNodes()) {
+            for (Edge e : n.getOutgoingEdges()) {
+                Conjunction pa = parse(e.getGuard());
+                e.setAttribute("parsedaction", pa);
+            }
+        }
+    }
 
-		if(!formula.equals("-"))
-		{
-			StringTokenizer tok = new StringTokenizer(formula, "&");
-			while(tok.hasMoreTokens())
-			{
-				String token = tok.nextToken();
-				Literal l = new Literal();
+    // Parse the simple formulas on NBA transitions, e.g. !a&b&!c
+    private static Conjunction parse(String formula) {
+        Conjunction c = new Conjunction();
 
-				if(token.charAt(0) == '!')
-				{
-					l.setPositive(false);
-					token = token.substring(1);
-				}
+        if (!formula.equals("-")) {
+            StringTokenizer tok = new StringTokenizer(formula, "&");
+            while (tok.hasMoreTokens()) {
+                String token = tok.nextToken();
+                Literal l = new Literal();
 
-				AtomicProposition atom = new AtomicProposition();
-				if(token.toLowerCase().startsWith("can(") && token.substring(token.length() - 1).equals(")"))
-				{
-					atom.setType(AtomicProposition.PropositionType.Can);
-					atom.setAtom(token.substring(4, token.length() - 1));
-				}
-				else if(token.toLowerCase().startsWith("did(") && token.substring(token.length() - 1).equals(")"))
-				{
-					atom.setType(AtomicProposition.PropositionType.Did);
-					atom.setAtom(token.substring(4, token.length() - 1));
-				}
-				else if(token.toLowerCase().equals("true"))
-				{
-					atom.setType(AtomicProposition.PropositionType.True);
-				}
-				else if(token.toLowerCase().equals("false"))
-				{
-					atom.setType(AtomicProposition.PropositionType.False);
-				}
-				else atom.setAtom(token);
+                if (token.charAt(0) == '!') {
+                    l.setPositive(false);
+                    token = token.substring(1);
+                }
 
-				l.setAtom(atom);
-				c.add(l);
-			}
-		}
+                AtomicProposition atom = new AtomicProposition();
+                if (token.toLowerCase().startsWith("can(")
+                        && token.substring(token.length() - 1).equals(")")) {
+                    atom.setType(AtomicProposition.PropositionType.Can);
+                    atom.setAtom(token.substring(4, token.length() - 1));
+                } else if (token.toLowerCase().startsWith("did(")
+                        && token.substring(token.length() - 1).equals(")")) {
+                    atom.setType(AtomicProposition.PropositionType.Did);
+                    atom.setAtom(token.substring(4, token.length() - 1));
+                } else if (token.toLowerCase().equals("true")) {
+                    atom.setType(AtomicProposition.PropositionType.True);
+                } else if (token.toLowerCase().equals("false")) {
+                    atom.setType(AtomicProposition.PropositionType.False);
+                } else {
+                    atom.setAtom(token);
+                }
 
-		return c;
-	}
+                l.setAtom(atom);
+                c.add(l);
+            }
+        }
+
+        return c;
+    }
 }

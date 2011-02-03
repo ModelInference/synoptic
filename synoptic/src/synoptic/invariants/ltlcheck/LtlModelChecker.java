@@ -1,80 +1,83 @@
 package synoptic.invariants.ltlcheck;
 
 import java.util.HashMap;
+import java.util.logging.Logger;
+
+import gov.nasa.ltl.graph.Graph;
+import gov.nasa.ltl.trans.ParseErrorException;
 
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.ITemporalInvariant;
 
-
-import gov.nasa.ltl.graph.Graph;
-import gov.nasa.ltl.graph.Node;
-import gov.nasa.ltl.graph.SynchronousProduct;
-import gov.nasa.ltl.trans.ParseErrorException;
-
 public class LtlModelChecker {
-	/**
-	 * Cache graphs that we got as argument previously. This is possible since
-	 * the only caller is GraphLTLChecker.check, and it guarantees that whenever
-	 * the graph changes, a new graph object is passed to this method.
-	 */
-	private static HashMap<Graph, Graph> translationCache = new HashMap<Graph, Graph>();
-	//CACHE: cache translated graphs
+    private static Logger logger = Logger.getLogger("LtlModelChecker Logger");
 
-	public static Counterexample check(Graph transitionSystem,
-			ITemporalInvariant invariant, IModelCheckingMonitor monitor)
-			throws ParseErrorException {
-		assert monitor != null;
+    /**
+     * Cache graphs that we got as argument previously. This is possible since
+     * the only caller is GraphLTLChecker.check, and it guarantees that whenever
+     * the graph changes, a new graph object is passed to this method.
+     */
+    private static HashMap<Graph, Graph> translationCache = new HashMap<Graph, Graph>();
 
-		// Generate Did/Can Expanded Graph
-		Graph didCanTransitionSystem = transitionSystem;
+    // CACHE: cache translated graphs
 
-		TimedTask didCanTrans = PerformanceMetrics.createTask("didCanTranslation");
-		if (ITemporalInvariant.useDIDCAN) {
-			if (translationCache.containsKey(transitionSystem)) {
-				monitor.subTask("Adding did/can attributes... (cached)");
-				didCanTransitionSystem = translationCache.get(transitionSystem);
-			} else {
-				monitor.subTask("Adding did/can attributes...");
-				didCanTransitionSystem = DidCanTranslator
-						.translate(transitionSystem);
-				translationCache.put(transitionSystem, didCanTransitionSystem);
-			}
-			if (translationCache.size() > 5) {
-				translationCache.clear();
-			}
-		}
-		didCanTrans.stop();
+    public static Counterexample check(Graph transitionSystem,
+            ITemporalInvariant invariant) throws ParseErrorException {
 
-		// Remove deadlock
-		monitor.subTask("Massaging deadlock states...");
-		GraphTransformations.removeDeadlock(didCanTransitionSystem);
+        // Generate Did/Can Expanded Graph
+        // Graph didCanTransitionSystem = transitionSystem;
+        Graph didCanTransitionSystem = null;
 
-		// Generate Buchi Automata for negated LTL formula
-		TimedTask buchiTrans = PerformanceMetrics.createTask("buchiTrans");
-		monitor.subTask("Generate Buchi automaton...");
-		Graph ba = invariant.getAutomaton();
-		buchiTrans.stop();
+        TimedTask didCanTrans = PerformanceMetrics
+                .createTask("didCanTranslation");
+        if (ITemporalInvariant.useDIDCAN) {
+            if (translationCache.containsKey(transitionSystem)) {
+                logger.fine("Adding did/can attributes... (cached)");
+                didCanTransitionSystem = translationCache.get(transitionSystem);
+            } else {
+                logger.fine("Adding did/can attributes...");
+                didCanTransitionSystem = DidCanTranslator
+                        .translate(transitionSystem);
+                translationCache.put(transitionSystem, didCanTransitionSystem);
+            }
+            // TODO: why limit the translation cache to 5 entries?
+            if (translationCache.size() > 5) {
+                translationCache.clear();
+            }
+        }
+        didCanTrans.stop();
 
-		monitor.subTask("Parsing transition labels...");
-		GraphActionParser.parseTransitions(ba);
+        // Remove deadlock
+        GraphTransformations.removeDeadlock(didCanTransitionSystem);
 
-		// Generate Product Automata of Did/Can Expanded Graph and Buchi
-		// Automata of LTL formula
-		TimedTask productAutomaton = PerformanceMetrics.createTask("productAutomaton");
-		monitor.subTask("Generate product automaton...");
-		final GeneralGraph pa = ProductTranslator.translate(
-				didCanTransitionSystem, ba);
-		productAutomaton.stop();
+        // Generate Buchi Automata for negated LTL formula
+        TimedTask buchiTrans = PerformanceMetrics.createTask("buchiTrans");
+        logger.fine("Generate Buchi automaton...");
+        Graph ba = invariant.getAutomaton();
+        buchiTrans.stop();
 
-		// Check Property via reachable cycle detection
-		TimedTask cycleChecking = PerformanceMetrics.createTask("cycleChecking");
-		monitor.subTask("Checking property...");
-		final PersistenceChecker pc = new PersistenceChecker(pa);
-		pc.run();
-		cycleChecking.stop();
+        logger.fine("Parsing transition labels...");
+        GraphActionParser.parseTransitions(ba);
 
-		return pc.getCounterexample();
+        // Generate Product Automata of Did/Can Expanded Graph and Buchi
+        // Automata of LTL formula
+        TimedTask productAutomaton = PerformanceMetrics
+                .createTask("productAutomaton");
+        logger.fine("Generate product automaton...");
+        final GeneralGraph pa = ProductTranslator.translate(
+                didCanTransitionSystem, ba);
+        productAutomaton.stop();
 
-	}
+        // Check Property via reachable cycle detection
+        TimedTask cycleChecking = PerformanceMetrics
+                .createTask("cycleChecking");
+        logger.fine("Checking property...");
+        final PersistenceChecker pc = new PersistenceChecker(pa);
+        pc.run();
+        cycleChecking.stop();
+
+        return pc.getCounterexample();
+
+    }
 }

@@ -12,288 +12,303 @@ import java.util.Set;
 import synoptic.model.input.VectorTime;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.IterableAdapter;
 import synoptic.util.IIterableIterator;
 import synoptic.util.InternalSynopticException;
-
+import synoptic.util.IterableAdapter;
 
 /**
  * The event class. This class may need some work.
+ * 
  * @author Sigurd Schneider
- *
  */
-public class MessageEvent implements INode<MessageEvent>, IEvent, Comparable<MessageEvent> {
-	private int count;
-	private Partition parent;
-	private Action action;
+public class MessageEvent implements INode<MessageEvent>, IEvent,
+        Comparable<MessageEvent> {
+    private int count;
+    private Partition parent;
+    private final Action action;
 
-	List<Relation<MessageEvent>> transitions = new ArrayList<Relation<MessageEvent>>();
-	LinkedHashMap<String, List<Relation<MessageEvent>>> transitionsByAction = new LinkedHashMap<String, List<Relation<MessageEvent>>>();
-	LinkedHashMap<String, LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>> transitionsByActionAndTarget = new LinkedHashMap<String, LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>>();
+    List<Relation<MessageEvent>> transitions = new ArrayList<Relation<MessageEvent>>();
+    LinkedHashMap<String, List<Relation<MessageEvent>>> transitionsByAction = new LinkedHashMap<String, List<Relation<MessageEvent>>>();
+    LinkedHashMap<String, LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>> transitionsByActionAndTarget = new LinkedHashMap<String, LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>>();
 
-	public MessageEvent(MessageEvent copyFrom) {
-		this.count = copyFrom.count;
-		this.parent = copyFrom.parent;
-		this.action = copyFrom.action;
-	}
+    public MessageEvent(MessageEvent copyFrom) {
+        count = copyFrom.count;
+        parent = copyFrom.parent;
+        action = copyFrom.action;
+    }
 
-	public MessageEvent(Action signature, int count) {
-		this.count = count;
-		this.action = signature;
-		this.parent = null;
-	}
+    public MessageEvent(Action signature, int count) {
+        this.count = count;
+        action = signature;
+        parent = null;
+    }
 
-	public String getLabel() {
-		return action.getLabel();
-	}
+    public String getLabel() {
+        return action.getLabel();
+    }
 
-	public Partition getParent() {
-		return parent;
-	}
+    public Partition getParent() {
+        return parent;
+    }
 
-	public void setParent(Partition parent) {
-		this.parent = parent;
-	}
+    public void setParent(Partition parent) {
+        this.parent = parent;
+    }
 
-	public String toString() {
-		return "[" + getAction() + " (" + hashCode() + ")" + "]";
-	}
+    @Override
+    public String toString() {
+        return "[" + getAction() + " (" + hashCode() + ")" + "]";
+    }
 
-	public void addTransition(MessageEvent dest, String relation) {
-		if (dest == null)
-			throw new InternalSynopticException("Dest was null");
-		addTransition(new Relation<MessageEvent>(this, dest, relation));
-	}
+    public void addTransition(MessageEvent dest, String relation) {
+        if (dest == null) {
+            throw new InternalSynopticException("Dest was null");
+        }
+        addTransition(new Relation<MessageEvent>(this, dest, relation));
+    }
 
-	public void addTransition(MessageEvent dest, String relation,
-			double probability) {
-		if (dest == null)
-			throw new InternalSynopticException("Dest was null");
-		addTransition(new Relation<MessageEvent>(this, dest, relation,
-				probability));
-	}
+    public void addTransition(MessageEvent dest, String relation,
+            double probability) {
+        if (dest == null) {
+            throw new InternalSynopticException("Dest was null");
+        }
+        addTransition(new Relation<MessageEvent>(this, dest, relation,
+                probability));
+    }
 
-	public void addTransition(Relation<MessageEvent> transition) {
-		transitions.add(transition);
-		String action = transition.getRelation();
-		MessageEvent target = transition.getTarget();
-		List<Relation<MessageEvent>> ref = transitionsByAction.get(action);
-		if (ref == null) {
-			ref = new ArrayList<Relation<MessageEvent>>();
-			transitionsByAction.put(action, ref);
-		}
-		ref.add(transition);
+    public void addTransition(Relation<MessageEvent> transition) {
+        transitions.add(transition);
+        String action = transition.getRelation();
+        MessageEvent target = transition.getTarget();
+        List<Relation<MessageEvent>> ref = transitionsByAction.get(action);
+        if (ref == null) {
+            ref = new ArrayList<Relation<MessageEvent>>();
+            transitionsByAction.put(action, ref);
+        }
+        ref.add(transition);
 
-		LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>> ref1 = transitionsByActionAndTarget
-				.get(action);
-		if (ref1 == null) {
-			ref1 = new LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>();
-			transitionsByActionAndTarget.put(action, ref1);
-		}
-		List<Relation<MessageEvent>> ref2 = ref1.get(target);
-		if (ref2 == null) {
-			ref2 = new ArrayList<Relation<MessageEvent>>();
-			ref1.put(target, ref2);
-		}
-		ref2.add(transition);
-	}
+        LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>> ref1 = transitionsByActionAndTarget
+                .get(action);
+        if (ref1 == null) {
+            ref1 = new LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>();
+            transitionsByActionAndTarget.put(action, ref1);
+        }
+        List<Relation<MessageEvent>> ref2 = ref1.get(target);
+        if (ref2 == null) {
+            ref2 = new ArrayList<Relation<MessageEvent>>();
+            ref1.put(target, ref2);
+        }
+        ref2.add(transition);
+    }
 
-	public void removeTransitions(List<Relation<MessageEvent>> transitions) {
-		this.transitions.removeAll(transitions);
-		for (Relation<MessageEvent> transition : transitions) {
+    public void removeTransitions(List<Relation<MessageEvent>> transitions) {
+        this.transitions.removeAll(transitions);
+        for (Relation<MessageEvent> transition : transitions) {
 
-			if (transitionsByAction.containsKey(transition.getRelation())) {
-				transitionsByAction.get(transition.getRelation()).remove(
-						transition);
-			}
+            if (transitionsByAction.containsKey(transition.getRelation())) {
+                transitionsByAction.get(transition.getRelation()).remove(
+                        transition);
+            }
 
-			if (transitionsByActionAndTarget
-					.containsKey(transition.getRelation())
-					&& transitionsByActionAndTarget.get(transition.getRelation())
-							.containsKey(transition.getTarget())) {
-				transitionsByActionAndTarget.get(transition.getRelation()).get(
-						transition.getTarget()).remove(transition);
-			}
-		}
+            if (transitionsByActionAndTarget.containsKey(transition
+                    .getRelation())
+                    && transitionsByActionAndTarget.get(
+                            transition.getRelation()).containsKey(
+                            transition.getTarget())) {
+                transitionsByActionAndTarget.get(transition.getRelation()).get(
+                        transition.getTarget()).remove(transition);
+            }
+        }
 
-	}
+    }
 
-	public final List<Relation<MessageEvent>> getTransitions() {
-		//Set<Relation<MessageEvent>> set = new LinkedHashSet<Relation<MessageEvent>>();
-		//set.addAll(transitions);
-		return transitions;
-	}
+    public final List<Relation<MessageEvent>> getTransitions() {
+        // Set<Relation<MessageEvent>> set = new
+        // LinkedHashSet<Relation<MessageEvent>>();
+        // set.addAll(transitions);
+        return transitions;
+    }
 
-	public List<Relation<MessageEvent>> getTransitions(String relation) {
-		//checkConsistency();
-		List<Relation<MessageEvent>> res = transitionsByAction.get(relation);
-		if (res == null) {
-			return Collections.emptyList();
-		}
-		return res;
-	}
+    public List<Relation<MessageEvent>> getTransitions(String relation) {
+        // checkConsistency();
+        List<Relation<MessageEvent>> res = transitionsByAction.get(relation);
+        if (res == null) {
+            return Collections.emptyList();
+        }
+        return res;
+    }
 
-	/**
-	 * Check that all transitions are in local cache.
-	 */
-	public void checkConsistency() {
-		for (ITransition<MessageEvent> t : transitions) {
-			if (!transitionsByAction.get(t.getRelation()).contains(t))
-				throw new InternalSynopticException(
-						"inconsistent transitions in message");
-		}
-	}
+    /**
+     * Check that all transitions are in local cache.
+     */
+    public void checkConsistency() {
+        for (ITransition<MessageEvent> t : transitions) {
+            if (!transitionsByAction.get(t.getRelation()).contains(t)) {
+                throw new InternalSynopticException(
+                        "inconsistent transitions in message");
+            }
+        }
+    }
 
-	public List<Relation<MessageEvent>> getTransitions(Partition target,
-			String relation) {
-		List<Relation<MessageEvent>> forAction = transitionsByAction.get(relation);
-		if (forAction == null)
-			return Collections.emptyList();
-		
-		List<Relation<MessageEvent>> res = new ArrayList<Relation<MessageEvent>>();
-		for (Relation<MessageEvent> t : forAction) {
-			if (t.getTarget().getParent() == target) {
-				res.add(t);
-			}
-		}
-		return res;
-	}
+    public List<Relation<MessageEvent>> getTransitions(Partition target,
+            String relation) {
+        List<Relation<MessageEvent>> forAction = transitionsByAction
+                .get(relation);
+        if (forAction == null) {
+            return Collections.emptyList();
+        }
 
-	public List<Relation<MessageEvent>> getTransitions(MessageEvent target,
-			String relation) {
-		HashMap<MessageEvent, List<Relation<MessageEvent>>> forAction = transitionsByActionAndTarget
-				.get(relation);
-		if (forAction == null)
-			return Collections.emptyList();
-		List<Relation<MessageEvent>> res = forAction.get(target);
-		if (res == null)
-			return Collections.emptyList();
-		return res;
-	}
+        List<Relation<MessageEvent>> res = new ArrayList<Relation<MessageEvent>>();
+        for (Relation<MessageEvent> t : forAction) {
+            if (t.getTarget().getParent() == target) {
+                res.add(t);
+            }
+        }
+        return res;
+    }
 
-	public void addTransitions(Collection<Relation<MessageEvent>> transitions) {
-		for (Relation<MessageEvent> t : transitions) {
-			this.addTransition(t);
-		}
-	}
+    public List<Relation<MessageEvent>> getTransitions(MessageEvent target,
+            String relation) {
+        HashMap<MessageEvent, List<Relation<MessageEvent>>> forAction = transitionsByActionAndTarget
+                .get(relation);
+        if (forAction == null) {
+            return Collections.emptyList();
+        }
+        List<Relation<MessageEvent>> res = forAction.get(target);
+        if (res == null) {
+            return Collections.emptyList();
+        }
+        return res;
+    }
 
-	public void setTransitions(ArrayList<Relation<MessageEvent>> t) {
-		transitions.clear();
-		transitions.addAll(t);
-	}
+    public void addTransitions(Collection<Relation<MessageEvent>> transitions) {
+        for (Relation<MessageEvent> t : transitions) {
+            this.addTransition(t);
+        }
+    }
 
-	public String toStringFull() {
-		return "[MessageEvent A: " + getAction() + " ("
-				+ hashCode() + ")" + "]";
-	}
+    public void setTransitions(ArrayList<Relation<MessageEvent>> t) {
+        transitions.clear();
+        transitions.addAll(t);
+    }
 
-	// INode
-	@Override
-	public IIterableIterator<Relation<MessageEvent>> getTransitionsIterator() {
-		return IterableAdapter.make(getTransitions().iterator());
-	}
+    public String toStringFull() {
+        return "[MessageEvent A: " + getAction() + " (" + hashCode() + ")"
+                + "]";
+    }
 
-	@Override
-	public IIterableIterator<Relation<MessageEvent>> getTransitionsIterator(String
-			relation) {
-		return IterableAdapter.make(getTransitions(relation).iterator());
-	}
+    // INode
+    @Override
+    public IIterableIterator<Relation<MessageEvent>> getTransitionsIterator() {
+        return IterableAdapter.make(getTransitions().iterator());
+    }
 
-	@Override
-	public ITransition<MessageEvent> getTransition(MessageEvent target,
-			String relation) {
-		List<Relation<MessageEvent>> list = getTransitions(target, relation);
-		return list.size() == 0 ? null : list.get(0);
-	}
+    @Override
+    public IIterableIterator<Relation<MessageEvent>> getTransitionsIterator(
+            String relation) {
+        return IterableAdapter.make(getTransitions(relation).iterator());
+    }
 
-	public int getWeight() {
-		return count;
-	}
+    @Override
+    public ITransition<MessageEvent> getTransition(MessageEvent target,
+            String relation) {
+        List<Relation<MessageEvent>> list = getTransitions(target, relation);
+        return list.size() == 0 ? null : list.get(0);
+    }
 
-	public void addWeight(int count) {
-		this.count += count;
-	}
+    public int getWeight() {
+        return count;
+    }
 
-	@Override
-	public String toStringConcise() {
-		return getAction().getLabel();
-	}
+    public void addWeight(int count) {
+        this.count += count;
+    }
 
-	public Action getAction() {
-		return action;
-	}
+    @Override
+    public String toStringConcise() {
+        return getAction().getLabel();
+    }
 
-	//TODO: order
-	public Set<String> getRelations() {
-		return transitionsByAction.keySet();
-	}
+    public Action getAction() {
+        return action;
+    }
 
-	public VectorTime getTime() {
-		return action.getTime();
-	}
+    // TODO: order
+    public Set<String> getRelations() {
+        return transitionsByAction.keySet();
+    }
 
-	@Override
-	public String getStringArgument(String name) {
-		return action.getStringArgument(name);
-	}
+    public VectorTime getTime() {
+        return action.getTime();
+    }
 
-	@Override
-	public void setStringArgument(String name, String value) {
-		action.setStringArgument(name, value);
-	}
+    @Override
+    public String getStringArgument(String name) {
+        return action.getStringArgument(name);
+    }
 
-	@Override
-	public String getName() {
-		return action.getLabel();
-	}
+    @Override
+    public void setStringArgument(String name, String value) {
+        action.setStringArgument(name, value);
+    }
 
-	@Override
-	public Set<String> getStringArguments() {
-		return action.getStringArgumentNames();
-	}
+    @Override
+    public String getName() {
+        return action.getLabel();
+    }
 
-	public Set<MessageEvent> getSuccessors(String relation) {
-		Set<MessageEvent> successors = new LinkedHashSet<MessageEvent>();
-		for (Relation<MessageEvent> e : getTransitionsIterator(relation))
-			successors.add(e.getTarget());
-		return successors;
-	}
-	
-	@Override
-	public boolean isFinal() {
-		return transitions.isEmpty();
-	}
+    @Override
+    public Set<String> getStringArguments() {
+        return action.getStringArgumentNames();
+    }
 
-	@Override
-	public int compareTo(MessageEvent other) {
-		if (this == other) {
-			return 0;
-		}
-		
-		// compare labels of the two message events
-		int labelCmp = this.getLabel().compareTo(other.getLabel());
-		if (labelCmp != 0) {
-			return labelCmp;
-		}
-		
-		// compare number of children
-		int transitionCntCmp = new Integer(this.transitions.size()).compareTo(other.transitions.size());
-		if (transitionCntCmp != 0) {
-			return transitionCntCmp;
-		}
-		
-		// compare children labels
-		ArrayList<Relation<MessageEvent>> thisSortedTrans = new ArrayList<Relation<MessageEvent>>(this.transitions);
-		ArrayList<Relation<MessageEvent>> otherSortedTrans = new ArrayList<Relation<MessageEvent>>(other.transitions);
-		Collections.sort(thisSortedTrans);
-		Collections.sort(otherSortedTrans);
-		for (int i = 0; i < thisSortedTrans.size(); i++) {
-			int childCmp = thisSortedTrans.get(i).compareTo(otherSortedTrans.get(i));
-			if (childCmp != 0) {
-				return childCmp;
-			}
-		}
+    public Set<MessageEvent> getSuccessors(String relation) {
+        Set<MessageEvent> successors = new LinkedHashSet<MessageEvent>();
+        for (Relation<MessageEvent> e : getTransitionsIterator(relation)) {
+            successors.add(e.getTarget());
+        }
+        return successors;
+    }
 
-		return 0;
-	}
+    @Override
+    public boolean isFinal() {
+        return transitions.isEmpty();
+    }
+
+    @Override
+    public int compareTo(MessageEvent other) {
+        if (this == other) {
+            return 0;
+        }
+
+        // compare labels of the two message events
+        int labelCmp = getLabel().compareTo(other.getLabel());
+        if (labelCmp != 0) {
+            return labelCmp;
+        }
+
+        // compare number of children
+        int transitionCntCmp = new Integer(transitions.size())
+                .compareTo(other.transitions.size());
+        if (transitionCntCmp != 0) {
+            return transitionCntCmp;
+        }
+
+        // compare children labels
+        ArrayList<Relation<MessageEvent>> thisSortedTrans = new ArrayList<Relation<MessageEvent>>(
+                transitions);
+        ArrayList<Relation<MessageEvent>> otherSortedTrans = new ArrayList<Relation<MessageEvent>>(
+                other.transitions);
+        Collections.sort(thisSortedTrans);
+        Collections.sort(otherSortedTrans);
+        for (int i = 0; i < thisSortedTrans.size(); i++) {
+            int childCmp = thisSortedTrans.get(i).compareTo(
+                    otherSortedTrans.get(i));
+            if (childCmp != 0) {
+                return childCmp;
+            }
+        }
+
+        return 0;
+    }
 }

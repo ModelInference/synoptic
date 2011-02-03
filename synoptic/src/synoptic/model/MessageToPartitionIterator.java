@@ -12,55 +12,56 @@ import synoptic.util.IIterableIterator;
  * transitions.
  * 
  * @author Sigurd Schneider
- * 
  */
 public class MessageToPartitionIterator implements IIterableIterator<Partition> {
-	private final Set<Partition> seen = new LinkedHashSet<Partition>();
-	private final Iterator<MessageEvent> messageIterator;
-	private Partition next = null;
-	private String relation = null;
+    private final Set<Partition> seen = new LinkedHashSet<Partition>();
+    private final Iterator<MessageEvent> messageIterator;
+    private Partition next = null;
+    private String relation = null;
 
-	public MessageToPartitionIterator(Iterator<MessageEvent> messageIterator) {
-		this.messageIterator = messageIterator;
-	}
+    public MessageToPartitionIterator(Iterator<MessageEvent> messageIterator) {
+        this.messageIterator = messageIterator;
+    }
 
-	public MessageToPartitionIterator(Iterator<MessageEvent> messageIterator,
-			String relation) {
-		this.messageIterator = messageIterator;
-		this.relation = relation;
-	}
+    public MessageToPartitionIterator(Iterator<MessageEvent> messageIterator,
+            String relation) {
+        this.messageIterator = messageIterator;
+        this.relation = relation;
+    }
 
-	private Partition getNext() {
-		while (messageIterator.hasNext()) {
-			final Partition found = messageIterator.next().getParent();
-			if (seen.add(found)
-					&& (relation == null || found.getLabel()
-							.equals(relation)))
-				return found;
-		}
-		return null;
-	}
+    private Partition getNext() {
+        while (messageIterator.hasNext()) {
+            final Partition found = messageIterator.next().getParent();
+            if (seen.add(found)
+                    && (relation == null || found.getLabel().equals(relation))) {
+                return found;
+            }
+        }
+        return null;
+    }
 
-	public void remove() {
-		throw new UnsupportedOperationException();
-	}
+    public void remove() {
+        throw new UnsupportedOperationException();
+    }
 
-	public Partition next() {
-		if (!hasNext())
-			throw new NoSuchElementException();
-		final Partition oldNext = next;
-		next = null;
-		return oldNext;
-	}
+    public Partition next() {
+        if (!hasNext()) {
+            throw new NoSuchElementException();
+        }
+        final Partition oldNext = next;
+        next = null;
+        return oldNext;
+    }
 
-	public boolean hasNext() {
-		if (next == null)
-			next = getNext();
-		return next != null;
-	}
+    public boolean hasNext() {
+        if (next == null) {
+            next = getNext();
+        }
+        return next != null;
+    }
 
-	@Override
-	public Iterator<Partition> iterator() {
-		return this;
-	}
+    @Override
+    public Iterator<Partition> iterator() {
+        return this;
+    }
 }
