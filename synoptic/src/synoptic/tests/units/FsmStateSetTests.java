@@ -14,11 +14,11 @@ import synoptic.invariants.fsmcheck.APInvFsms;
 import synoptic.invariants.fsmcheck.FsmStateSet;
 import synoptic.invariants.fsmcheck.NFbyInvFsms;
 import synoptic.model.Action;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 
 public class FsmStateSetTests {
 
-    public static MessageEvent msg = new MessageEvent(new Action("x"), 0);
+    public static LogEvent msg = new LogEvent(new Action("x"));
 
     private static BitSet parseBitSet(String str) {
         BitSet result = new BitSet();
@@ -28,7 +28,7 @@ public class FsmStateSetTests {
         return result;
     }
 
-    private static void transfer(FsmStateSet<MessageEvent> s, String input) {
+    private static void transfer(FsmStateSet<LogEvent> s, String input) {
         String[] inputs = input.split(" ");
         for (int i = 0; i < inputs.length; i++) {
             s.mappings.get(i).put("x", parseBitSet(inputs[i]));
@@ -36,7 +36,7 @@ public class FsmStateSetTests {
         s.transition(msg);
     }
 
-    public static void setMapping(FsmStateSet<MessageEvent> s) {
+    public static void setMapping(FsmStateSet<LogEvent> s) {
         s.mappings = new ArrayList<Map<String, BitSet>>();
         s.mappings.clear();
         s.mappings.add(new HashMap<String, BitSet>());
@@ -45,10 +45,10 @@ public class FsmStateSetTests {
 
     @Test
     public void AFbyInvFsmsTest() {
-        FsmStateSet<MessageEvent> a = new AFbyInvFsms<MessageEvent>(4);
+        FsmStateSet<LogEvent> a = new AFbyInvFsms<LogEvent>(4);
         setMapping(a);
         a.setInitial(msg);
-        FsmStateSet<MessageEvent> before = a.copy();
+        FsmStateSet<LogEvent> before = a.copy();
 
         transfer(a, "0000 0000");
         System.out.println(a.mappings);
@@ -69,10 +69,10 @@ public class FsmStateSetTests {
     @Test
     public void NFbyInvFsmsTest() {
         // FsmStateSet a = new AFbyInvFsms(4);
-        FsmStateSet<MessageEvent> b = new APInvFsms<MessageEvent>(4);
+        FsmStateSet<LogEvent> b = new APInvFsms<LogEvent>(4);
         setMapping(b);
         b.setInitial(msg);
-        FsmStateSet<MessageEvent> before;
+        FsmStateSet<LogEvent> before;
 
         // assertTrue(a.isFail().equals(new BitSet()));
         transfer(b, "0111 1000");
@@ -90,7 +90,7 @@ public class FsmStateSetTests {
 
     @Test
     public void APInvFsmsTest() {
-        FsmStateSet<MessageEvent> c = new NFbyInvFsms<MessageEvent>(4);
+        FsmStateSet<LogEvent> c = new NFbyInvFsms<LogEvent>(4);
         setMapping(c);
         c.setInitial(msg);
 

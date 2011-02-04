@@ -3,12 +3,12 @@ package synoptic.model.input;
 import java.util.Map.Entry;
 
 import synoptic.model.Action;
-import synoptic.model.nets.Event;
 import synoptic.model.nets.Net;
+import synoptic.model.nets.PetriEvent;
 
-public class NetBuilder implements IBuilder<Event> {
+public class NetBuilder implements IBuilder<PetriEvent> {
     Net net = new Net();
-    private Event lastEvent;
+    private PetriEvent lastEvent;
     private final boolean createEventAndPlace;
 
     public NetBuilder() {
@@ -20,8 +20,8 @@ public class NetBuilder implements IBuilder<Event> {
     }
 
     @Override
-    public Event append(Action act) {
-        Event oldLastEvent = lastEvent;
+    public PetriEvent append(Action act) {
+        PetriEvent oldLastEvent = lastEvent;
         if (createEventAndPlace) {
             lastEvent = net.createEvent(act.getLabel(), act.getTime());
         } else {
@@ -42,33 +42,13 @@ public class NetBuilder implements IBuilder<Event> {
     }
 
     @Override
-    public Event insertAfter(Event event, Action act) {
-        Event lastEvent = null;
-        if (createEventAndPlace) {
-            lastEvent = net.createEvent(act.getLabel(), act.getTime());
-        } else {
-            lastEvent = net.createEventWithoutPlace(act.getLabel(), act
-                    .getTime());
-        }
-        for (Entry<String, String> e : act.getStringArguments().entrySet()) {
-            lastEvent.setStringArgument(e.getKey(), e.getValue());
-        }
-        if (createEventAndPlace) {
-            net.connectEvents(event, lastEvent);
-        } else {
-            net.connectEventsWithNewPlace(event, lastEvent);
-        }
-        return lastEvent;
-    }
-
-    @Override
     public void split() {
         lastEvent = null;
     }
 
     @Override
-    public Event insert(Action act) {
-        Event lastEvent = null;
+    public PetriEvent insert(Action act) {
+        PetriEvent lastEvent = null;
         if (createEventAndPlace) {
             lastEvent = net.createEvent(act.getLabel(), act.getTime());
         } else {
@@ -82,12 +62,7 @@ public class NetBuilder implements IBuilder<Event> {
     }
 
     @Override
-    public void addInitial(Event curMessage, String relation) {
-        // TODO: this is implicit in nets
-    }
-
-    @Override
-    public void connect(Event first, Event second, String relation) {
+    public void connect(PetriEvent first, PetriEvent second, String relation) {
         // relation is ignored.
         if (createEventAndPlace) {
             net.connectEvents(first, second);
@@ -101,7 +76,12 @@ public class NetBuilder implements IBuilder<Event> {
     }
 
     @Override
-    public void setTerminal(Event terminalNode) {
+    public void tagTerminal(PetriEvent terminalNode) {
         net.connect(terminalNode, net.createPlace());
+    }
+
+    @Override
+    public void tagInitial(PetriEvent first, String relation) {
+        // TODO: this is implicit in nets
     }
 }

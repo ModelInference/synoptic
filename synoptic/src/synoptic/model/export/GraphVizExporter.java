@@ -15,13 +15,13 @@ import java.util.logging.Logger;
 
 import synoptic.main.Main;
 import synoptic.model.Action;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.model.nets.Edge;
-import synoptic.model.nets.Event;
+import synoptic.model.nets.PetriEvent;
 import synoptic.model.nets.Net;
 import synoptic.model.nets.Place;
 import synoptic.util.InternalSynopticException;
@@ -207,13 +207,13 @@ public class GraphVizExporter {
                 isTerminal = false;
                 if ((INode<?>) node instanceof Partition) {
                     Partition p = (Partition) (INode<?>) node;
-                    for (MessageEvent m : p.getMessages()) {
+                    for (LogEvent m : p.getMessages()) {
                         if (m.getTransitions().size() == 0) {
                             isTerminal = true;
                         }
                     }
-                } else if ((INode<?>) node instanceof MessageEvent) {
-                    MessageEvent e = (MessageEvent) (INode<?>) node;
+                } else if ((INode<?>) node instanceof LogEvent) {
+                    LogEvent e = (LogEvent) (INode<?>) node;
                     if (e.getTransitions().size() == 0) {
                         isTerminal = true;
                     }
@@ -305,7 +305,7 @@ public class GraphVizExporter {
             boolean isTerminal = false;
             if ((INode<?>) e instanceof Partition) {
                 Partition p = (Partition) (INode<?>) e;
-                for (MessageEvent m : p.getMessages()) {
+                for (LogEvent m : p.getMessages()) {
                     if (m.getTransitions().size() == 0) {
                         isTerminal = true;
                     }
@@ -358,7 +358,7 @@ public class GraphVizExporter {
         // write the transitions (nodes are generated implicitly by graphviz)
         Set<Place> initialPlaces = net.getInitalPlaces();
 
-        for (Event e : net.getEvents()) {
+        for (PetriEvent e : net.getEvents()) {
             final int eventNo = e.hashCode();
             String attributes = "label=\"" + quote(e.toString() /*
                                                                  * + " (" +
@@ -375,15 +375,15 @@ public class GraphVizExporter {
             writer.write(placeNo + " [" + attributes + "];" + "\n");
         }
 
-        for (Event e : net.getEvents()) {
-            for (Edge<Event, Place> edge : e.getEdgeIterator()) {
+        for (PetriEvent e : net.getEvents()) {
+            for (Edge<PetriEvent, Place> edge : e.getEdgeIterator()) {
                 writer.write(edge.getSource().hashCode() + "->"
                         + edge.getTarget().hashCode() + " [label=\""
                         + edge.getWeight() + "\"];" + "\n");
             }
         }
         for (Place p : net.getPlaces()) {
-            for (Edge<Place, Event> edge : p.getEdgeIterator(net)) {
+            for (Edge<Place, PetriEvent> edge : p.getEdgeIterator(net)) {
                 writer.write(edge.getSource().hashCode() + "->"
                         + edge.getTarget().hashCode() + " [label=\""
                         + edge.getWeight() + "\"];" + "\n");

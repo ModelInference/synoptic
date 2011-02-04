@@ -7,11 +7,11 @@ import java.util.ArrayList;
 
 import synoptic.model.Action;
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 
 public class ReverseTracertParser extends DefaultScalableTraceParser {
 
-    public Graph<MessageEvent> parseTraceFile(String fileName, int linesToRead,
+    public Graph<LogEvent> parseTraceFile(String fileName, int linesToRead,
             int __unused) {
         try {
             FileInputStream fstream = new FileInputStream(fileName);
@@ -45,7 +45,7 @@ public class ReverseTracertParser extends DefaultScalableTraceParser {
         // ;
     }
 
-    public Graph<MessageEvent> parseTrace(String[] traceLines) {
+    public Graph<LogEvent> parseTrace(String[] traceLines) {
         GraphBuilder gb = new GraphBuilder();
         boolean nextSplit = false;
         for (String line : traceLines) {
@@ -67,7 +67,7 @@ public class ReverseTracertParser extends DefaultScalableTraceParser {
             gb.append(a);
 
         }
-        return gb.getRawGraph();
+        return gb.getGraph();
     }
 
     private Action parseTraceEntry(String entry) {

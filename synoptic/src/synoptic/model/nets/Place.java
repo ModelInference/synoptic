@@ -8,7 +8,7 @@ import synoptic.util.IIterableIterator;
 
 public class Place {
     String name;
-    Set<Event> successors = new HashSet<Event>();
+    Set<PetriEvent> successors = new HashSet<PetriEvent>();
 
     public Place(String name) {
         this.name = name;
@@ -19,30 +19,30 @@ public class Place {
         return name;
     }
 
-    public IIterableIterator<Edge<Place, Event>> getEdgeIterator(Net net) {
-        return new SuccessorToEdgeIterator<Place, Event>(this, successors
+    public IIterableIterator<Edge<Place, PetriEvent>> getEdgeIterator(Net net) {
+        return new SuccessorToEdgeIterator<Place, PetriEvent>(this, successors
                 .iterator(), Math.max(1, net.getPre(this).size()));
     }
 
-    public void add(Event e) {
+    public void add(PetriEvent e) {
         successors.add(e);
     }
 
-    public Set<Event> getPost() {
+    public Set<PetriEvent> getPost() {
         return successors;
     }
 
-    public void addAll(Collection<Event> events) {
+    public void addAll(Collection<PetriEvent> events) {
         successors.addAll(events);
     }
 
-    public void remove(Event event) {
+    public void remove(PetriEvent event) {
         successors.remove(event);
     }
 
     public Set<Place> getPostPlaces() {
         Set<Place> postEvents = new HashSet<Place>();
-        for (Event p : getPost()) {
+        for (PetriEvent p : getPost()) {
             postEvents.addAll(p.getPost());
         }
         return postEvents;

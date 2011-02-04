@@ -12,8 +12,7 @@ import org.junit.Test;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
-import synoptic.main.TraceParser.Occurrence;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.input.VectorTime;
 import synoptic.util.InternalSynopticException;
 
@@ -69,26 +68,24 @@ public class TraceParserTests {
     // //////////////////////////////////////////////////////////////////////////
 
     /**
-     * Checks that the type and the time of each occurrence in a list is
-     * correct.
+     * Checks that the type and the time of each log event in a list is correct.
      * 
-     * @param occs
+     * @param events
      *            List of occurrences to check
      * @param vtimeStrs
      *            Array of corresponding occurrence vector times
      * @param types
      *            Array of corresponding occurrence types
      */
-    public void checkOccsTypesTimes(List<Occurrence> occs, String[] vtimeStrs,
-            String[] types) {
-        assertSame(occs.size(), vtimeStrs.length);
+    public void checkLogEventTypesTimes(List<LogEvent> events,
+            String[] vtimeStrs, String[] types) {
+        assertSame(events.size(), vtimeStrs.length);
         assertSame(vtimeStrs.length, types.length);
-        for (int i = 0; i < occs.size(); i++) {
-            Occurrence occ = occs.get(i);
-            MessageEvent msg = occ.message;
-            VectorTime eventTime = occ.getTime();
+        for (int i = 0; i < events.size(); i++) {
+            LogEvent e = events.get(i);
+            VectorTime eventTime = e.getTime();
             // Check that the type and the time of the occurrence are correct
-            assertTrue(msg.getLabel().equals(types[i]));
+            assertTrue(e.getLabel().equals(types[i]));
             assertTrue(new VectorTime(vtimeStrs[i]).equals(eventTime));
         }
     }
@@ -107,7 +104,7 @@ public class TraceParserTests {
             InternalSynopticException {
         String traceStr = "a\nb\nc\n";
         parser.addRegex("^(?<TYPE>)$");
-        checkOccsTypesTimes(parser.parseTraceString(traceStr, "test", -1),
+        checkLogEventTypesTimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1", "2", "3" }, // NOTE: implicit time starts
                 // with 1
                 new String[] { "a", "b", "c" });
@@ -122,7 +119,7 @@ public class TraceParserTests {
             InternalSynopticException {
         String traceStr = "2 a\n3 b\n4 c\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
-        checkOccsTypesTimes(parser.parseTraceString(traceStr, "test", -1),
+        checkLogEventTypesTimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "2", "3", "4" }, new String[] { "a", "b", "c" });
     }
 
@@ -134,7 +131,7 @@ public class TraceParserTests {
             InternalSynopticException {
         String traceStr = "1,1,1 a\n2,2,2 b\n3,3,4 c\n";
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
-        checkOccsTypesTimes(parser.parseTraceString(traceStr, "test", -1),
+        checkLogEventTypesTimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1,1,1", "2,2,2", "3,3,4" }, new String[] { "a",
                         "b", "c" });
     }
@@ -237,7 +234,7 @@ public class TraceParserTests {
             InternalSynopticException {
         String traceStr = "1 a a\n2 b b\n3 c c\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>.+)$");
-        checkOccsTypesTimes(parser.parseTraceString(traceStr, "test", -1),
+        checkLogEventTypesTimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1", "2", "3" }, new String[] { "a a", "b b",
                         "c c" });
     }
@@ -250,7 +247,7 @@ public class TraceParserTests {
             InternalSynopticException {
         String traceStr = "1 a\n2 b\n3 c\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
-        checkOccsTypesTimes(parser.parseTraceString(traceStr, "test", 2),
+        checkLogEventTypesTimes(parser.parseTraceString(traceStr, "test", 2),
                 new String[] { "1", "2" }, new String[] { "a", "b" });
     }
 

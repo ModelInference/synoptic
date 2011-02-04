@@ -22,9 +22,29 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
     @Override
     public String getLTLString() {
         if (useDIDCAN) {
-            return "[](did(" + first + ") -> <" + "> did(" + second + ")))";
+            /**
+             * Version 1: "[](did(" + first + ") -> <> did(" + second + ")))";
+             * Can loop infinitely in a loop that does not reach a terminal
+             * node. In a sense it is completely unfair -- it has no fairness
+             * constraints.
+             */
+            /**
+             * Version 2: "<> TERMINAL -> [](did(" + first + ") -> <> did(" +
+             * second + ")))"; Only considers paths that can reach the TERMINAL
+             * node, and only then checks the AFby invariant along those paths.
+             * WARNING: this version does not work (at all) for non-terminating
+             * traces!
+             */
+            /**
+             * For more information see: http://mitpress.
+             * mit.edu/catalog/item/default.asp?ttype=2&tid=11481
+             */
+            // Using Version 1.
+            return "[](did(" + first + ") -> <> did(" + second + ")))";
         } else {
-            return "[](\"" + first + "\" -> (<>\"" + second + "\"))";
+            // Version 1: return "[](" + first + " -> (<>" + second + "))";
+            // Using Version 1.
+            return "[](" + first + " -> (<>" + second + "))";
         }
     }
 

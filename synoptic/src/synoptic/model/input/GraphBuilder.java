@@ -2,47 +2,61 @@ package synoptic.model.input;
 
 import synoptic.model.Action;
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.PartitionGraph;
 
-public class GraphBuilder implements IBuilder<MessageEvent> {
-    private final Graph<MessageEvent> graph;
-    private MessageEvent curMessage;
+/**
+ * Used to build a graph composed of nodes that are LogEvent. Essentially
+ * converts a set of traces into graph form.
+ */
+public class GraphBuilder implements IBuilder<LogEvent> {
+    /**
+     * The graph this GraphBuilder will gradually build up.
+     */
+    private final Graph<LogEvent> graph;
+
+    /**
+     * The last event that was added to the graph.
+     */
+    private LogEvent prevEvent;
+
+    /**
+     * The default relation to use when composing the graph.
+     */
     private static final String defaultRelation = "t".intern();
 
+    /**
+     * Generate a new, empty graph.
+     */
     public GraphBuilder() {
-        curMessage = null;
-        graph = new Graph<MessageEvent>();
-        // graph.addInitialState(curState);
+        prevEvent = null;
+        graph = new Graph<LogEvent>();
     }
 
+    /**
+     * Add a node
+     */
     @Override
-    public MessageEvent append(Action act) {
-        MessageEvent nextMessage = new MessageEvent(act, 1);
-        if (curMessage != null) {
-            curMessage.addTransition(nextMessage, defaultRelation);
+    public LogEvent append(Action act) {
+        LogEvent nextMessage = new LogEvent(act);
+        if (prevEvent != null) {
+            prevEvent.addTransition(nextMessage, defaultRelation);
         } else {
-            graph.addInitial(nextMessage, defaultRelation);
-        }
-        // graph.addState(nextState);
-        graph.add(nextMessage);
-        curMessage = nextMessage;
-        return curMessage;
-    }
-
-    @Override
-    public MessageEvent insertAfter(MessageEvent curMessage, Action act) {
-        MessageEvent nextMessage = new MessageEvent(act, 1);
-        if (curMessage != null) {
-            curMessage.addTransition(nextMessage, defaultRelation);
-        } else {
-            graph.addInitial(nextMessage, defaultRelation);
+            // This is the first node in the graph. Tag it as initial.
+            graph.tagInitial(nextMessage, defaultRelation);
         }
         graph.add(nextMessage);
-        return nextMessage;
+        prevEvent = nextMessage;
+        return prevEvent;
     }
 
-    public PartitionGraph getGraph(boolean merge) {
+    /**
+     * Creates and returns a partition graph.
+     * 
+     * @param merge
+     * @return
+     */
+    public PartitionGraph getPartitionGraph(boolean merge) {
         return new PartitionGraph(graph, merge);
     }
 
@@ -51,14 +65,27 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
      * 
      * @return the graph as it was built.
      */
-    public Graph<MessageEvent> getRawGraph() {
+    public Graph<LogEvent> getGraph() {
         return graph;
     }
 
+    /**
+     * Create a new partition by "spitting" off whatever we've build up so far.
+     * NOTE: this is the ONLY way that nodes are marked as terminals, therefore
+     * the last partition must also be split if its last event is intended to be
+     * a terminal event.
+     */
     @Override
     public void split() {
-        curMessage = null;
-        // graph.addInitial(curState);
+        // We split, or create a new partition by losing information about
+        // the last node, which we can now tag as terminal.
+        assert (prevEvent != null);
+        // Mark last node in the partition as terminal w.r.t all relations
+        // it is a part of.
+        for (String relation : prevEvent.getRelations()) {
+            graph.tagTerminal(prevEvent, relation);
+        }
+        prevEvent = null;
     }
 
     public static PartitionGraph buildGraph(String[] trace) {
@@ -67,7 +94,7 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
         for (String t : trace) {
             gb.append(new Action(t));
         }
-        return gb.getGraph(false);
+        return gb.getPartitionGraph(false);
     }
 
     public static PartitionGraph buildGraph(String[][] traces) {
@@ -80,7 +107,7 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
                 gb.split();
             }
         }
-        return gb.getGraph(false);
+        return gb.getPartitionGraph(false);
     }
 
     public void buildGraphLocal(String[][] traces) {
@@ -92,6 +119,30 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
                 split();
             }
         }
+    }
+
+    @Override
+    public void tagTerminal(LogEvent terminalNode) {
+        for (String relation : terminalNode.getRelations()) {
+            graph.tagTerminal(terminalNode, relation);
+        }
+    }
+
+    @Override
+    public void tagInitial(LogEvent initialNode, String relation) {
+        graph.tagInitial(initialNode, relation);
+    }
+
+    @Override
+    public LogEvent insert(Action act) {
+        LogEvent nextMessage = new LogEvent(act);
+        graph.add(nextMessage);
+        return nextMessage;
+    }
+
+    @Override
+    public void connect(LogEvent first, LogEvent second, String relation) {
+        first.addTransition(second, relation);
     }
 
     // This code is used to interface with ProtoBuf formatted messages
@@ -177,29 +228,4 @@ public class GraphBuilder implements IBuilder<MessageEvent> {
     // Previous = Current;
     // }
     // }
-
-    @Override
-    public MessageEvent insert(Action act) {
-        MessageEvent nextMessage = new MessageEvent(act, 1);
-        graph.add(nextMessage);
-        return nextMessage;
-    }
-
-    @Override
-    public void addInitial(MessageEvent curMessage, String relation) {
-        graph.addInitial(curMessage, relation);
-
-    }
-
-    @Override
-    public void connect(MessageEvent first, MessageEvent second, String relation) {
-        first.addTransition(second, relation);
-    }
-
-    @Override
-    public void setTerminal(MessageEvent terminalNode) {
-        // TODO Auto-generated method stub
-
-    }
-
 }

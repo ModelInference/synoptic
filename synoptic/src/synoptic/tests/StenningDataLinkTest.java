@@ -3,7 +3,7 @@ package synoptic.tests;
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
@@ -12,7 +12,7 @@ import synoptic.model.input.StenningReader;
 public class StenningDataLinkTest {
     public static void main(String[] args) throws Exception {
         GraphBuilder b = new GraphBuilder();
-        StenningReader<MessageEvent> r = new StenningReader<MessageEvent>(b);
+        StenningReader<LogEvent> r = new StenningReader<LogEvent>(b);
         GraphVizExporter e = new GraphVizExporter();
         // r.readGraphSet("traces/PetersonLeaderElection/generated_traces/5node1seed_withid.trace",
         // 5);
@@ -21,7 +21,7 @@ public class StenningDataLinkTest {
         r.readGraphSet(
                 "./traces/StenningDataLink/generated_traces/t-10-0.5-0-s?.txt",
                 5);
-        Graph<MessageEvent> g = b.getRawGraph();
+        Graph<LogEvent> g = b.getGraph();
         e.exportAsDotAndPng("output/stenning/initial.dot", g);
         TemporalInvariantSet s = TemporalInvariantSet.computeInvariants(g);
         e.exportAsDotAndPng("output/stenning/synoptic.invariants.dot", s

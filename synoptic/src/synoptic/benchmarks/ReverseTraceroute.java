@@ -15,13 +15,12 @@ import synoptic.algorithms.graph.IOperation;
 import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.Relation;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.ReverseTracertParser;
-import synoptic.model.interfaces.IModifiableGraph;
 
 public class ReverseTraceroute {
     public static class ReplaceOperation implements IOperation {
@@ -32,12 +31,11 @@ public class ReverseTraceroute {
         }
 
         @Override
-        public IOperation commit(PartitionGraph g,
-                IModifiableGraph<Partition> partitionGraph) {
-            HashSet<MessageEvent> nodes = new HashSet<MessageEvent>();
+        public IOperation commit(PartitionGraph g) {
+            HashSet<LogEvent> nodes = new HashSet<LogEvent>();
             String str = "";
             for (Partition p : s) {
-                partitionGraph.remove(p);
+                g.remove(p);
                 // nodes.addAll(p.getMessages());
                 str = str + p.getLabel() + "*";
             }
@@ -46,7 +44,7 @@ public class ReverseTraceroute {
             System.out.println(str);
             Partition newPartition = new Partition(nodes);
             newPartition.setLabel(str);
-            partitionGraph.add(newPartition);
+            g.add(newPartition);
             return null;
         }
 
@@ -54,8 +52,8 @@ public class ReverseTraceroute {
 
     public static void main(String[] args) throws Exception {
         GraphVizExporter export = new GraphVizExporter();
-        synoptic.model.Graph<MessageEvent> raw = readMultiple();
-        // synoptic.model.Graph<MessageEvent> raw = readSingle();
+        synoptic.model.Graph<LogEvent> raw = readMultiple();
+        // synoptic.model.Graph<LogEvent> raw = readSingle();
         // export.exportAsDotAndPngFast("output/reverseTraceroute/raw.dot",
         // raw);
         TimedTask all = new TimedTask("all");
@@ -94,12 +92,12 @@ public class ReverseTraceroute {
         System.out.println(all);
     }
 
-    public static synoptic.model.Graph<MessageEvent> readOverkill() {
+    public static synoptic.model.Graph<LogEvent> readOverkill() {
         return readOverkill(Integer.MAX_VALUE);
     }
 
-    public static synoptic.model.Graph<MessageEvent> readOverkill(int limit) {
-        synoptic.model.Graph<MessageEvent> g = new synoptic.model.Graph<MessageEvent>();
+    public static synoptic.model.Graph<LogEvent> readOverkill(int limit) {
+        synoptic.model.Graph<LogEvent> g = new synoptic.model.Graph<LogEvent>();
         String prefix = "traces/ReverseTraceroute/rt_parsed_rich/";
         File dir = new File(prefix);
         int read = 0;
@@ -127,8 +125,8 @@ public class ReverseTraceroute {
         return g;
     }
 
-    static synoptic.model.Graph<MessageEvent> readSingle() {
-        Graph<MessageEvent> g = new ReverseTracertParser()
+    static synoptic.model.Graph<LogEvent> readSingle() {
+        Graph<LogEvent> g = new ReverseTracertParser()
                 .parseTraceFile(
                         "traces/ReverseTraceroute/rt_parsed_rich/Viafacil-AS16814_revtr.err",
                         100000, 0);
@@ -137,7 +135,7 @@ public class ReverseTraceroute {
         return g;
     }
 
-    static synoptic.model.Graph<MessageEvent> readMultiple() {
+    static synoptic.model.Graph<LogEvent> readMultiple() {
         String[] traces_34 = new String[] {// "APAN-AS7660-2_revtr.err",
                 // "American-Internet-Services_revtr.err",
                 // "CERN-AS513_revtr.err",
@@ -235,7 +233,7 @@ public class ReverseTraceroute {
         String[] traces_long = { "velia.net-AS29066_revtr.err",
                 "hotze.com-AS8596_revtr.err" };
 
-        synoptic.model.Graph<MessageEvent> g = new synoptic.model.Graph<MessageEvent>();
+        synoptic.model.Graph<LogEvent> g = new synoptic.model.Graph<LogEvent>();
         String prefix = "traces/ReverseTraceroute/rt_parsed_rich/";
         for (String trace : traces_34) {
             g.merge(new ReverseTracertParser().parseTraceFile(prefix + trace,

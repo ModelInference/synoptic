@@ -44,10 +44,16 @@ public abstract class TracingStateSet<T> implements
             return this.count - other.count;
         }
 
-        // Converts this chain into a RelationPath list.
+        /**
+         * Converts this chain into a RelationPath list.
+         * 
+         * @param inv
+         * @return
+         */
         public RelationPath<T> toCounterexample(ITemporalInvariant inv) {
             ArrayList<T> path = new ArrayList<T>();
             HistoryNode cur = this;
+            // TODO: why do we require isFinal here?
             assert ((Partition) cur.node).isFinal();
             while (cur != null) {
                 path.add(cur.node);

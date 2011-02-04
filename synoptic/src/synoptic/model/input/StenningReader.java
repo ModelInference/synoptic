@@ -128,7 +128,7 @@ public class StenningReader<T> {
             }
         }
         for (Occurence m : noPredecessor) {
-            builder.addInitial(m.message, relation);
+            builder.tagInitial(m.message, relation);
         }
     }
 

@@ -128,7 +128,7 @@ public class PetersonReader<T extends IEvent> {
         final String relation = "t";
         for (Occurence m1 : set) {
             if (m1.time.isUnitVector()) {
-                this.builder.addInitial(m1.message, relation);
+                this.builder.tagInitial(m1.message, relation);
             }
             for (Occurence m2 : set) {
                 if (m1.time.lessThan(m2.time)) {
@@ -183,7 +183,7 @@ public class PetersonReader<T extends IEvent> {
             }
         }
         for (Occurence m : noPredecessor) {
-            builder.addInitial(m.message, relation);
+            builder.tagInitial(m.message, relation);
         }
     }
 }

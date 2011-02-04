@@ -16,7 +16,7 @@ public class SimulationChecker {
     }
 
     public boolean tryPerform(String eventName) {
-        out: for (Event e : net.getEvents()) {
+        out: for (PetriEvent e : net.getEvents()) {
             if (!e.getName().equals(eventName)) {
                 continue;
             }

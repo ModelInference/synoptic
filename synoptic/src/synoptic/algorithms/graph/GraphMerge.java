@@ -2,9 +2,9 @@ package synoptic.algorithms.graph;
 
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.interfaces.IModifiableGraph;
 
 // TODO: Implement Graph merging
+
 /**
  * Implements merging a Partition Graph into another.
  */
@@ -23,10 +23,9 @@ public class GraphMerge implements IOperation {
     }
 
     @Override
-    public IOperation commit(PartitionGraph g,
-            IModifiableGraph<Partition> partitionGraph) {
+    public IOperation commit(PartitionGraph g) {
         for (Partition p : graph.getNodes()) {
-            partitionGraph.add(p);
+            g.add(p);
         }
         return null;
     }

@@ -8,26 +8,26 @@ import synoptic.model.input.VectorTime;
 
 public class Net {
     Set<Place> places = new HashSet<Place>();
-    Set<Event> events = new HashSet<Event>();
+    Set<PetriEvent> events = new HashSet<PetriEvent>();
 
-    public Event createEventWithoutPlace(String name, VectorTime vectorTime) {
-        Event event = new Event(name, vectorTime);
+    public PetriEvent createEventWithoutPlace(String name, VectorTime vectorTime) {
+        PetriEvent event = new PetriEvent(name, vectorTime);
         events.add(event);
         return event;
     }
 
-    public Event createEvent(String name, VectorTime vectorTime) {
+    public PetriEvent createEvent(String name, VectorTime vectorTime) {
         Place place = new Place("P-" + name);
         places.add(place);
-        Event event = new Event(name, vectorTime);
+        PetriEvent event = new PetriEvent(name, vectorTime);
         events.add(event);
         place.add(event);
         return event;
     }
 
-    public void connectEventsWithNewPlace(Event event, Set<Event> events) {
+    public void connectEventsWithNewPlace(PetriEvent event, Set<PetriEvent> events) {
         Place place = new Place("");
-        Set<Event> postEvents = event.getPostEvents();
+        Set<PetriEvent> postEvents = event.getPostEvents();
         events.removeAll(postEvents);
         if (events.size() == 0) {
             return;
@@ -37,20 +37,20 @@ public class Net {
         event.add(place);
     }
 
-    public void connectEventsWithNewPlace(Event from, Event to) {
+    public void connectEventsWithNewPlace(PetriEvent from, PetriEvent to) {
         Place place = new Place("");
         from.add(place);
         places.add(place);
         place.add(to);
     }
 
-    public void connectEvents(Event first, Event last) {
+    public void connectEvents(PetriEvent first, PetriEvent last) {
         for (Place p : getPre(last)) {
             first.add(p);
         }
     }
 
-    public Set<Place> getPre(Event event) {
+    public Set<Place> getPre(PetriEvent event) {
         Set<Place> set = new HashSet<Place>();
         for (Place p : places) {
             if (p.getPost().contains(event)) {
@@ -60,13 +60,13 @@ public class Net {
         return set;
     }
 
-    public Set<Place> getPost(Event e) {
+    public Set<Place> getPost(PetriEvent e) {
         return e.getPost();
     }
 
-    public Set<Event> getPre(Place place) {
-        Set<Event> set = new HashSet<Event>();
-        for (Event e : events) {
+    public Set<PetriEvent> getPre(Place place) {
+        Set<PetriEvent> set = new HashSet<PetriEvent>();
+        for (PetriEvent e : events) {
             if (e.getPost().contains(place)) {
                 set.add(e);
             }
@@ -74,11 +74,11 @@ public class Net {
         return set;
     }
 
-    public Set<Event> getPost(Place p) {
+    public Set<PetriEvent> getPost(Place p) {
         return p.getPost();
     }
 
-    public Set<Event> getEvents() {
+    public Set<PetriEvent> getEvents() {
         return events;
     }
 
@@ -86,7 +86,7 @@ public class Net {
         return places;
     }
 
-    public void makeExclusive(Event e1, Event e2) {
+    public void makeExclusive(PetriEvent e1, PetriEvent e2) {
         for (Place p : getPre(e1)) {
             p.add(e2);
         }
@@ -95,7 +95,7 @@ public class Net {
         }
     }
 
-    public void makeExclusive(Event e1, Event e2, Event e3) {
+    public void makeExclusive(PetriEvent e1, PetriEvent e2, PetriEvent e3) {
         for (Place p : getPre(e1)) {
             if (e3.getPost().contains(p)) {
                 p.add(e2);
@@ -110,7 +110,7 @@ public class Net {
         }
     }
 
-    public void addNF(Event e1, Event e2) {
+    public void addNF(PetriEvent e1, PetriEvent e2) {
         for (Place p : getPre(e1)) {
             p.add(e2);
         }
@@ -118,7 +118,7 @@ public class Net {
 
     public void removePlace(Place p) {
         places.remove(p);
-        for (Event e : events) {
+        for (PetriEvent e : events) {
             e.remove(p);
         }
     }
@@ -126,7 +126,7 @@ public class Net {
     public Set<Place> getInitalPlaces() {
         Set<Place> initialPlaces = new HashSet<Place>();
         out: for (Place p : places) {
-            for (Event e : events) {
+            for (PetriEvent e : events) {
                 if (e.getPost().contains(p)) {
                     continue out;
                 }
@@ -142,19 +142,19 @@ public class Net {
         return p;
     }
 
-    public void connect(Event key, Place finalPlace) {
+    public void connect(PetriEvent key, Place finalPlace) {
         key.add(finalPlace);
     }
 
-    public Set<Event> getPreEvents(Event first) {
-        Set<Event> pre = new HashSet<Event>();
+    public Set<PetriEvent> getPreEvents(PetriEvent first) {
+        Set<PetriEvent> pre = new HashSet<PetriEvent>();
         for (Place p : getPre(first)) {
             pre.addAll(getPre(p));
         }
         return pre;
     }
 
-    public void replace(ArrayList<Event> seq, String string) {
+    public void replace(ArrayList<PetriEvent> seq, String string) {
         Place initial = null;
         Place end = null;
         for (int i = 0; i < seq.size(); ++i) {
@@ -170,14 +170,14 @@ public class Net {
             events.remove(seq.get(i));
             places.remove(getPre(seq.get(i)).iterator().next());
         }
-        Event e = new Event(string, null);
+        PetriEvent e = new PetriEvent(string, null);
         initial.add(e);
         e.add(end);
         events.add(e);
     }
 
-    public Set<Event> getInitalEvents() {
-        Set<Event> set = new HashSet<Event>();
+    public Set<PetriEvent> getInitalEvents() {
+        Set<PetriEvent> set = new HashSet<PetriEvent>();
         for (Place p : getInitalPlaces()) {
             set.addAll(p.getPost());
         }
@@ -194,9 +194,9 @@ public class Net {
         return set;
     }
 
-    public Set<Event> getTerminalEvents() {
-        Set<Event> set = new HashSet<Event>();
-        for (Event p : events) {
+    public Set<PetriEvent> getTerminalEvents() {
+        Set<PetriEvent> set = new HashSet<PetriEvent>();
+        for (PetriEvent p : events) {
             if (p.getPost().size() == 0) {
                 set.add(p);
             }
@@ -212,7 +212,7 @@ public class Net {
                 continue;
             }
             places.remove(p);
-            for (Event e : getPre(p)) {
+            for (PetriEvent e : getPre(p)) {
                 e.add(survivor);
                 e.remove(p);
             }
@@ -221,13 +221,13 @@ public class Net {
     }
 
     public void contract(Place p, Place next) {
-        for (Event e : getPre(next)) {
+        for (PetriEvent e : getPre(next)) {
             e.remove(next);
         }
-        for (Event e : getPre(p)) {
+        for (PetriEvent e : getPre(p)) {
             e.add(next);
         }
-        for (Event e : p.getPost()) {
+        for (PetriEvent e : p.getPost()) {
             for (Place p2 : next.getPostPlaces()) {
                 e.add(p2);
                 // if (next.getPost().size() == 0)

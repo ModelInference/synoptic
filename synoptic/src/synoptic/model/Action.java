@@ -101,8 +101,14 @@ public class Action {
             return false;
         }
         if (useDatafields) {
-            if (vectorTime == null && other.vectorTime == null
-                    || !vectorTime.equals(other.vectorTime)) {
+            if (vectorTime == null && other.vectorTime == null) {
+                return false;
+            }
+            if (vectorTime != null && !vectorTime.equals(other.vectorTime)) {
+                return false;
+            }
+            // Otherwise other.vectorTime != null
+            if (!other.vectorTime.equals(vectorTime)) {
                 return false;
             }
             if (!stringArguments.equals(other.stringArguments)) {
@@ -163,7 +169,7 @@ public class Action {
 
     /**
      * Intern this object. Depending on whether {@code useDatafields} is set,
-     * the action's time and arguments will be taken into acount.
+     * the action's time and arguments will be taken into account.
      * 
      * @return the interned action
      */

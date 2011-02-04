@@ -20,7 +20,7 @@ import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.Main;
 import synoptic.model.Action;
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
 import synoptic.model.interfaces.IGraph;
@@ -453,13 +453,13 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         return set;
     }
 
-    public Graph<MessageEvent> getInvariantGraph(String shortName) {
-        HashMap<String, MessageEvent> messageMap = new HashMap<String, MessageEvent>();
+    public Graph<LogEvent> getInvariantGraph(String shortName) {
+        HashMap<String, LogEvent> messageMap = new HashMap<String, LogEvent>();
         for (ITemporalInvariant i : invariants) {
             for (String label : i.getPredicates()) {
                 if (!messageMap.containsKey(label)) {
                     messageMap.put(label,
-                            new MessageEvent(new Action(label), 0));
+                            new LogEvent(new Action(label)));
                 }
             }
         }
@@ -473,22 +473,22 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             }
         }
 
-        return new Graph<MessageEvent>(messageMap.values());
+        return new Graph<LogEvent>(messageMap.values());
     }
 
     public static TemporalInvariantSet computeInvariantsSplt(
-            Graph<MessageEvent> g, String label) throws Exception {
-        Graph<MessageEvent> g2 = splitAndDuplicate(g, label);
+            Graph<LogEvent> g, String label) throws Exception {
+        Graph<LogEvent> g2 = splitAndDuplicate(g, label);
         GraphVizExporter.quickExport("output/traceCondenser/test.dot", g2);
         return computeInvariants(g2);
     }
 
-    private static Graph<MessageEvent> splitAndDuplicate(Graph<MessageEvent> g,
+    private static Graph<LogEvent> splitAndDuplicate(Graph<LogEvent> g,
             String label) {
         GraphBuilder b = new GraphBuilder();
-        for (MessageEvent m : g.getInitialNodes()) {
+        for (LogEvent m : g.getInitialNodes()) {
             b.split();
-            MessageEvent cur = m;
+            LogEvent cur = m;
             while (cur != null) {
                 if (cur.getAction().getLabel().equals(label)) {
                     b.split();
@@ -501,6 +501,6 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
                 }
             }
         }
-        return b.getRawGraph();
+        return b.getGraph();
     }
 }

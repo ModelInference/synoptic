@@ -22,20 +22,6 @@ public interface IBuilder<T> {
     T append(Action act);
 
     /**
-     * Insert a new node with payload act after node (i.e.. creating an edge
-     * from node to the newly created one). If split was called immediatelly
-     * before, this will behave like insert, e.g. no edge will be created.
-     * 
-     * @param node
-     *            The event after which this node should be inserted.
-     * @param relation
-     *            the relation (edge labeling) for the edge from event to the
-     *            new .
-     * @return the newly created event
-     */
-    T insertAfter(T node, Action act);
-
-    /**
      * Suppress edge creation for the next call to append or insertAfter.
      */
     void split();
@@ -52,12 +38,12 @@ public interface IBuilder<T> {
     /**
      * Tag a node as initial.
      * 
-     * @param curMessage
+     * @param initialNode
      *            the node to tag as initial
      * @param relation
      *            the relation for which it should be considered initial
      */
-    void addInitial(T curMessage, String relation);
+    void tagInitial(T initialNode, String relation);
 
     /**
      * Add a new edge between first and second.
@@ -77,5 +63,5 @@ public interface IBuilder<T> {
      * @param terminalNode
      *            the node to tag as terminal.
      */
-    void setTerminal(T terminalNode);
+    void tagTerminal(T terminalNode);
 }

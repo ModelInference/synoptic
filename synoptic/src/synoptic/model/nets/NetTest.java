@@ -11,7 +11,7 @@ import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.graph.GraphUtil;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
@@ -21,7 +21,7 @@ import synoptic.model.input.PetersonReader;
 public class NetTest {
     static public void main(String[] args) throws Exception {
         GraphBuilder graphBuilder = new GraphBuilder();
-        PetersonReader<MessageEvent> r = new PetersonReader<MessageEvent>(
+        PetersonReader<LogEvent> r = new PetersonReader<LogEvent>(
                 graphBuilder);
         GraphVizExporter e = new GraphVizExporter();
         r
@@ -29,12 +29,12 @@ public class NetTest {
                         "traces/PetersonLeaderElection/generated_traces/5process_trace-5-?.txt",
                         5);
         /* peterson_trace-n5-s? */
-        Graph<MessageEvent> g = graphBuilder.getRawGraph();
+        Graph<LogEvent> g = graphBuilder.getGraph();
         e.exportAsDotAndPng("output/petri/raw.dot", g);
         TemporalInvariantSet s = TemporalInvariantSet.computeInvariants(g);
-        Graph<MessageEvent> igAP = s.getInvariantGraph("AP");
-        Graph<MessageEvent> igNFby = s.getInvariantGraph("NFby");
-        Graph<MessageEvent> igAFby = s.getInvariantGraph("AFby");
+        Graph<LogEvent> igAP = s.getInvariantGraph("AP");
+        Graph<LogEvent> igNFby = s.getInvariantGraph("NFby");
+        Graph<LogEvent> igAFby = s.getInvariantGraph("AFby");
         e.exportAsDotAndPng("output/petri/synoptic.invariants-AP.dot", igAP);
         e
                 .exportAsDotAndPng("output/petri/synoptic.invariants-NFby.dot",
@@ -49,13 +49,13 @@ public class NetTest {
         e.exportAsDotAndPng("output/petri/initial-wo-end.dot", n);
 
         /*
-         * Place finalPlace = n.createPlace(); for (Event evt :
+         * Place finalPlace = n.createPlace(); for (PetriEvent evt :
          * n.getTerminalEvents()) { n.connect(evt, finalPlace); }
          */
         n.mergeTerminalPlaces();
 
-        HashMap<String, Event> eventMap = new HashMap<String, Event>();
-        for (Event evt : n.getEvents()) {
+        HashMap<String, PetriEvent> eventMap = new HashMap<String, PetriEvent>();
+        for (PetriEvent evt : n.getEvents()) {
             eventMap.put(evt.getName(), evt);
         }
 
@@ -67,7 +67,7 @@ public class NetTest {
         // for (Message m2 : igNFby.getNodes()) {
         // if (m1 != m2 && m1.getTransition(m2, NFbyRelation) != null
         // && m2.getTransition(m1, NFbyRelation) != null) {
-        // Event lub = getLUB(eventMap.get(m1.getLabel()),
+        // PetriEvent lub = getLUB(eventMap.get(m1.getLabel()),
         // eventMap.get(m2.getLabel()), n);
         //
         // System.out.println("exclusive " + m1 + " " + m2 + " at "
@@ -97,12 +97,12 @@ public class NetTest {
         GraphUtil.copyTo(g, netBuilder);
         Net net = netBuilder.getNet();
         e.exportAsDotAndPng("output/petri/net-init.dot", net);
-        for (Event initialEvent : net.getInitalEvents()) {
-            Event work = initialEvent;
+        for (PetriEvent initialEvent : net.getInitalEvents()) {
+            PetriEvent work = initialEvent;
             while (work != null) {
-                ArrayList<Event> seq = new ArrayList<Event>();
-                Event myWork = work;
-                Iterator<Event> iter2 = myWork.getPostEvents().iterator();
+                ArrayList<PetriEvent> seq = new ArrayList<PetriEvent>();
+                PetriEvent myWork = work;
+                Iterator<PetriEvent> iter2 = myWork.getPostEvents().iterator();
                 if (iter2.hasNext()) {
                     work = iter2.next();
                 } else {
@@ -114,8 +114,8 @@ public class NetTest {
                     continue;
                 }
                 seq.add(myWork);
-                Iterator<Event> iter = myWork.getPostEvents().iterator();
-                Event next = null;
+                Iterator<PetriEvent> iter = myWork.getPostEvents().iterator();
+                PetriEvent next = null;
                 while (iter.hasNext()) {
                     next = iter.next();
                     if (!sc.tryPerform(next.getName())) {
@@ -146,7 +146,7 @@ public class NetTest {
         e.exportAsDotAndPng("output/petri/net-final.dot", net);
         GraphBuilder gBuilder = new GraphBuilder();
         GraphUtil.copyNetTo(net, gBuilder);
-        Graph<MessageEvent> condensedGraph = gBuilder.getRawGraph();
+        Graph<LogEvent> condensedGraph = gBuilder.getGraph();
         e.exportAsDotAndPng("output/petri/condensed-input.dot", condensedGraph);
         PartitionGraph pgCondensed = new PartitionGraph(condensedGraph, true);
         e.exportAsDotAndPng("output/petri/condensed-merged.dot", pgCondensed);
@@ -154,38 +154,38 @@ public class NetTest {
         e.exportAsDotAndPng("output/petri/condensed-refined.dot", pgCondensed);
     }
 
-    static public Event getLUB(Event e1, Event e2, Net n) {
-        Set<Event> preM1 = new HashSet<Event>();
+    static public PetriEvent getLUB(PetriEvent e1, PetriEvent e2, Net n) {
+        Set<PetriEvent> preM1 = new HashSet<PetriEvent>();
         preM1.add(e1);
-        Set<Event> preM2 = new HashSet<Event>();
+        Set<PetriEvent> preM2 = new HashSet<PetriEvent>();
         preM2.add(e2);
         for (;;) {
-            for (Event ev1 : preM1) {
-                for (Event ev2 : preM2) {
+            for (PetriEvent ev1 : preM1) {
+                for (PetriEvent ev2 : preM2) {
                     if (ev1 == ev2) {
                         return ev1;
                     }
                 }
             }
 
-            Set<Event> add1 = new HashSet<Event>();
-            for (Event ev1 : preM1) {
+            Set<PetriEvent> add1 = new HashSet<PetriEvent>();
+            for (PetriEvent ev1 : preM1) {
                 add1.addAll(n.getPreEvents(ev1));
             }
-            for (Event ev1 : add1) {
-                for (Event ev2 : preM2) {
+            for (PetriEvent ev1 : add1) {
+                for (PetriEvent ev2 : preM2) {
                     if (ev1 == ev2) {
                         return ev1;
                     }
                 }
             }
 
-            Set<Event> add2 = new HashSet<Event>();
-            for (Event ev1 : preM2) {
+            Set<PetriEvent> add2 = new HashSet<PetriEvent>();
+            for (PetriEvent ev1 : preM2) {
                 add2.addAll(n.getPreEvents(ev1));
             }
-            for (Event ev1 : preM1) {
-                for (Event ev2 : add2) {
+            for (PetriEvent ev1 : preM1) {
+                for (PetriEvent ev2 : add2) {
                     if (ev1 == ev2) {
                         return ev1;
                     }

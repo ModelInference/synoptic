@@ -1,9 +1,8 @@
 package synoptic.algorithms.graph;
 
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.interfaces.IModifiableGraph;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -34,19 +33,18 @@ public class PartitionMerge implements IOperation {
     }
 
     @Override
-    public IOperation commit(PartitionGraph g,
-            IModifiableGraph<Partition> partitionGraph) {
+    public IOperation commit(PartitionGraph g) {
         int retainedSize = retained.size();
         int removedSize = removed.size();
         PartitionSplit split = new PartitionSplit(retained, removed);
-        for (MessageEvent m : removed.getMessages()) {
+        for (LogEvent m : removed.getMessages()) {
             split.addEventToSplit(m);
         }
         retained.addAllMessages(removed.getMessages());
         // TODO: do we have to call removed.removeMessages() prior to calling
         // partitionGraph.remove() ?
         removed.removeMessages(removed.getMessages());
-        partitionGraph.remove(removed);
+        g.remove(removed);
         if (removedSize + retainedSize != retained.size()) {
             throw new InternalSynopticException("lost messages!: "
                     + removedSize + "+" + retainedSize + "!= "

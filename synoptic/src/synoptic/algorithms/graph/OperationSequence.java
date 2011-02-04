@@ -2,9 +2,7 @@ package synoptic.algorithms.graph;
 
 import java.util.LinkedList;
 
-import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.interfaces.IModifiableGraph;
 
 /**
  * Links a couple of operation as a sequence together.
@@ -15,8 +13,7 @@ public class OperationSequence implements IOperation {
     LinkedList<IOperation> sequence = new LinkedList<IOperation>();
 
     @Override
-    public IOperation commit(PartitionGraph g,
-            IModifiableGraph<Partition> partitionGraph) {
+    public IOperation commit(PartitionGraph g) {
         OperationSequence rewindOperation = new OperationSequence();
         for (IOperation op : sequence) {
             rewindOperation.addFirst(g.apply(op));

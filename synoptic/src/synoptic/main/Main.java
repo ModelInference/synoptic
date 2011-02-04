@@ -30,10 +30,9 @@ import plume.Options;
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
-import synoptic.model.input.GraphBuilder;
 import synoptic.util.BriefLogFormatter;
 import synoptic.util.InternalSynopticException;
 
@@ -631,7 +630,7 @@ public class Main implements Callable<Integer> {
         }
 
         // Parses all the log filenames, constructing the parsedEvents List.
-        List<TraceParser.Occurrence> parsedEvents = new ArrayList<TraceParser.Occurrence>();
+        List<LogEvent> parsedEvents = new ArrayList<LogEvent>();
 
         logger.info("Parsing input files..");
 
@@ -662,9 +661,8 @@ public class Main implements Callable<Integer> {
 
         // If we parsed any events, then run Synoptic.
         logger.info("Mining invariants..");
-        parser.generateDirectTemporalRelation(parsedEvents, true);
-        Graph<MessageEvent> inputGraph = ((GraphBuilder) parser.builder)
-                .getRawGraph();
+        Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
+                parsedEvents, true);
 
         if (dumpInitialGraph) {
             // If we were given an output filename then export the resulting

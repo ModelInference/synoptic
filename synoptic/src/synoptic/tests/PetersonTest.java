@@ -14,23 +14,23 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
 import synoptic.model.input.PetersonReader;
-import synoptic.model.nets.Event;
+import synoptic.model.nets.PetriEvent;
 import synoptic.model.nets.Net;
 
-public class PettersonTest {
+public class PetersonTest {
     static final String prefix = "/Users/ivan/synoptic/trunk/";
 
     public static void main(String[] args) throws Exception {
         TimedTask load = new TimedTask("load files");
         TimedTask total = new TimedTask("total");
         GraphBuilder gBuilder = new GraphBuilder();
-        PetersonReader<MessageEvent> petersonReader = new PetersonReader<MessageEvent>(
+        PetersonReader<LogEvent> petersonReader = new PetersonReader<LogEvent>(
                 gBuilder);
         GraphVizExporter e = new GraphVizExporter();
 
@@ -52,7 +52,7 @@ public class PettersonTest {
         Main.logLvlVerbose = true;
         Main.SetUpLogging();
 
-        Graph<MessageEvent> g = gBuilder.getRawGraph();
+        Graph<LogEvent> g = gBuilder.getGraph();
         int nodes = g.getNodes().size();
         System.out.println("Nodes: " + g.getNodes().size());
         load.stop();
@@ -100,9 +100,9 @@ public class PettersonTest {
         // GraphUtil.copyTo(pg, netBuilder);
         // Net net = netBuilder.getNet();
 
-        // HashMap<Event, ArrayList<Event>> entries = getEventSequences(net);
+        // HashMap<PetriEvent, ArrayList<PetriEvent>> entries = getEventSequences(net);
         // e.exportAsDotAndPng("output/peterson/output-net.dot", net);
-        // for (ArrayList<Event> seq : entries.values()) {
+        // for (ArrayList<PetriEvent> seq : entries.values()) {
         // if (seq.size() > 1) {
         // System.out.println(seq);
         // net.replace(seq, conciseName(seq));
@@ -126,10 +126,10 @@ public class PettersonTest {
         int partN = 0;
         for (Set<Partition> scc : sccs) {
             Graph<Partition> graph = new Graph<Partition>();
-            Graph<MessageEvent> messageGraph = new Graph<MessageEvent>();
+            Graph<LogEvent> messageGraph = new Graph<LogEvent>();
             for (Partition p : scc) {
                 graph.add(p);
-                for (MessageEvent m : p.getMessages()) {
+                for (LogEvent m : p.getMessages()) {
                     messageGraph.add(m);
                 }
             }
@@ -149,28 +149,28 @@ public class PettersonTest {
         }
     }
 
-    private static void mineSplitInvariants(Graph<MessageEvent> g,
+    private static void mineSplitInvariants(Graph<LogEvent> g,
             GraphVizExporter exporter) throws Exception {
-        HashMap<String, HashMap<String, Set<MessageEvent>>> buckets = new HashMap<String, HashMap<String, Set<MessageEvent>>>();
-        for (MessageEvent e : g.getNodes()) {
+        HashMap<String, HashMap<String, Set<LogEvent>>> buckets = new HashMap<String, HashMap<String, Set<LogEvent>>>();
+        for (LogEvent e : g.getNodes()) {
             if (!buckets.containsKey(e.getStringArgument("nodeName"))) {
                 buckets.put(e.getStringArgument("nodeName"),
-                        new HashMap<String, Set<MessageEvent>>());
+                        new HashMap<String, Set<LogEvent>>());
             }
             if (!buckets.get(e.getStringArgument("nodeName")).containsKey(
                     e.getStringArgument("localRoundId"))) {
                 buckets.get(e.getStringArgument("nodeName")).put(
                         e.getStringArgument("localRoundId"),
-                        new HashSet<MessageEvent>());
+                        new HashSet<LogEvent>());
             }
             buckets.get(e.getStringArgument("nodeName")).get(
                     e.getStringArgument("localRoundId")).add(e);
         }
         for (String key : buckets.keySet()) {
-            for (Entry<String, Set<MessageEvent>> e : buckets.get(key)
+            for (Entry<String, Set<LogEvent>> e : buckets.get(key)
                     .entrySet()) {
-                Graph<MessageEvent> sg = new Graph<MessageEvent>();
-                for (MessageEvent ev : e.getValue()) {
+                Graph<LogEvent> sg = new Graph<LogEvent>();
+                for (LogEvent ev : e.getValue()) {
                     sg.add(ev);
                 }
                 TemporalInvariantSet inv = TemporalInvariantSet
@@ -184,25 +184,25 @@ public class PettersonTest {
         }
     }
 
-    private static HashMap<Event, ArrayList<Event>> getEventSequences(Net net) {
-        HashMap<Event, ArrayList<Event>> entries = new HashMap<Event, ArrayList<Event>>();
-        HashSet<Event> seen = new HashSet<Event>();
-        for (Event event : net.getEvents()) {
+    private static HashMap<PetriEvent, ArrayList<PetriEvent>> getEventSequences(Net net) {
+        HashMap<PetriEvent, ArrayList<PetriEvent>> entries = new HashMap<PetriEvent, ArrayList<PetriEvent>>();
+        HashSet<PetriEvent> seen = new HashSet<PetriEvent>();
+        for (PetriEvent event : net.getEvents()) {
             if (!seen.add(event)) {
                 continue;
             }
-            Set<Event> post = event.getPostEvents();
+            Set<PetriEvent> post = event.getPostEvents();
             if (post.size() != 1) {
                 continue;
             }
             if (net.getPreEvents(event).size() > 1) {
                 continue;
             }
-            entries.put(event, new ArrayList<Event>(Collections
+            entries.put(event, new ArrayList<PetriEvent>(Collections
                     .singleton(event)));
-            Iterator<Event> iter = post.iterator();
+            Iterator<PetriEvent> iter = post.iterator();
             while (iter.hasNext()) {
-                Event next = iter.next();
+                PetriEvent next = iter.next();
                 seen.add(next);
                 if (entries.get(event).contains(next)) {
                     break;
@@ -210,12 +210,12 @@ public class PettersonTest {
                 if (net.getPreEvents(next).size() > 1) {
                     break;
                 }
-                Set<Event> post2 = next.getPostEvents();
+                Set<PetriEvent> post2 = next.getPostEvents();
                 if (post2.size() > 1) {
                     break;
                 }
                 if (entries.containsKey(next)) {
-                    for (Event old : entries.get(next)) {
+                    for (PetriEvent old : entries.get(next)) {
                         if (entries.get(event).contains(old)) {
                             break;
                         }
@@ -235,9 +235,9 @@ public class PettersonTest {
         return entries;
     }
 
-    private static String conciseName(ArrayList<Event> seq) {
+    private static String conciseName(ArrayList<PetriEvent> seq) {
         ArrayList<String> names = new ArrayList<String>();
-        for (Event e : seq) {
+        for (PetriEvent e : seq) {
             names.add(e.getName().charAt(0) + ""
                     + e.getName().charAt(e.getName().length() - 1));
         }

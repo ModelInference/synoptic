@@ -3,10 +3,9 @@ package synoptic.algorithms.graph;
 import java.util.HashSet;
 import java.util.Set;
 
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.interfaces.IModifiableGraph;
 
 /**
  * A operation for a partition split.
@@ -22,7 +21,7 @@ public class PartitionSplit implements IOperation {
     /**
      * The messages that will be split out into a separate node.
      */
-    private Set<MessageEvent> eventsToSplitOut = null;
+    private Set<LogEvent> eventsToSplitOut = null;
 
     /**
      * Partition that will be used for storing eventsToSplitOut once this
@@ -39,7 +38,7 @@ public class PartitionSplit implements IOperation {
      */
     public PartitionSplit(Partition partitionToSplit) {
         this.partitionToSplit = partitionToSplit;
-        eventsToSplitOut = new HashSet<MessageEvent>(partitionToSplit.size());
+        eventsToSplitOut = new HashSet<LogEvent>(partitionToSplit.size());
         newPartition = null;
     }
 
@@ -61,8 +60,7 @@ public class PartitionSplit implements IOperation {
     }
 
     @Override
-    public IOperation commit(PartitionGraph g,
-            IModifiableGraph<Partition> partitionGraph) {
+    public IOperation commit(PartitionGraph g) {
         assert isValid();
 
         if (newPartition == null) {
@@ -72,7 +70,7 @@ public class PartitionSplit implements IOperation {
         newPartition.addAllMessages(getSplitEvents());
         partitionToSplit.removeMessages(getSplitEvents());
 
-        partitionGraph.add(newPartition);
+        g.add(newPartition);
         PartitionMerge m = new PartitionMerge(getPartition(), newPartition);
         return m;
     }
@@ -109,7 +107,7 @@ public class PartitionSplit implements IOperation {
      * @param node
      *            the node to mark
      */
-    public void addEventToSplit(MessageEvent event) {
+    public void addEventToSplit(LogEvent event) {
         eventsToSplitOut.add(event);
     }
 
@@ -118,7 +116,7 @@ public class PartitionSplit implements IOperation {
      * 
      * @return the set of marked nodes
      */
-    public Set<MessageEvent> getSplitEvents() {
+    public Set<LogEvent> getSplitEvents() {
         return eventsToSplitOut;
     }
 
