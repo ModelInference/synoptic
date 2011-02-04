@@ -15,15 +15,15 @@ import synoptic.util.IIterableIterator;
  */
 public class MessageToPartitionIterator implements IIterableIterator<Partition> {
     private final Set<Partition> seen = new LinkedHashSet<Partition>();
-    private final Iterator<MessageEvent> messageIterator;
+    private final Iterator<LogEvent> messageIterator;
     private Partition next = null;
     private String relation = null;
 
-    public MessageToPartitionIterator(Iterator<MessageEvent> messageIterator) {
+    public MessageToPartitionIterator(Iterator<LogEvent> messageIterator) {
         this.messageIterator = messageIterator;
     }
 
-    public MessageToPartitionIterator(Iterator<MessageEvent> messageIterator,
+    public MessageToPartitionIterator(Iterator<LogEvent> messageIterator,
             String relation) {
         this.messageIterator = messageIterator;
         this.relation = relation;

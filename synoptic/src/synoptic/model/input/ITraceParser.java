@@ -1,12 +1,12 @@
 package synoptic.model.input;
 
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 
 public interface ITraceParser {
-    public Graph<MessageEvent> parseTraceFile(String fileName, int linesToRead,
+    public Graph<LogEvent> parseTraceFile(String fileName, int linesToRead,
             int options);
 
-    public Graph<MessageEvent> parseTraceFileLarge(String fileName,
+    public Graph<LogEvent> parseTraceFileLarge(String fileName,
             int linesToRead, int maxStatesPerGraph, int options);
 }

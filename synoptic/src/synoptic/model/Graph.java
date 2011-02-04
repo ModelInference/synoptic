@@ -10,9 +10,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import synoptic.model.interfaces.IModifiableGraph;
+import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.InternalSynopticException;
 import synoptic.util.Pair;
 import synoptic.util.Predicate.BinaryTrue;
 import synoptic.util.Predicate.IBinary;
@@ -27,16 +28,21 @@ import synoptic.util.Predicate.IBinary;
  *            the class of a node in the graph
  */
 public class Graph<NodeType extends INode<NodeType>> implements
-        IModifiableGraph<NodeType> {
+        IGraph<NodeType> {
     /**
-     * The nodes of the graph. The edges are managed by the nodes.
+     * The nodes of the graph. The edges between nodes are managed by the nodes.
      */
     private final Set<NodeType> nodes = new HashSet<NodeType>();
 
     /**
-     * The initial nodes of the graph, with respect to which they are initial.
+     * Maps a relation to the set of initial nodes in this relation.
      */
     private final Map<String, Set<NodeType>> initialNodes = new HashMap<String, Set<NodeType>>();
+
+    /**
+     * Maps a relation to the set of terminal nodes in this relation.
+     */
+    private final Map<String, Set<NodeType>> terminalNodes = new HashMap<String, Set<NodeType>>();
 
     private Set<String> cachedRelations = null;
 
@@ -56,15 +62,50 @@ public class Graph<NodeType extends INode<NodeType>> implements
     public Graph() {
     }
 
-    @Override
-    public Set<NodeType> getInitialNodes() {
-        Set<NodeType> nodes = new HashSet<NodeType>();
-        for (Set<NodeType> v : initialNodes.values()) {
-            nodes.addAll(v);
+    /**
+     * Helper function that returns a copy of the set of elements that all
+     * strings in the toCopy map passed as argument map to.
+     * 
+     * @param toCopy
+     *            A map whose values should be merged and returned
+     * @return A set of values from the toCopy map.
+     */
+    private Set<NodeType> getNodeSetcopy(Map<String, Set<NodeType>> toCopy) {
+        Set<NodeType> copy = new HashSet<NodeType>();
+        for (Set<NodeType> v : toCopy.values()) {
+            copy.addAll(v);
         }
+        return copy;
+    }
+
+    /**
+     * Returns all the nodes in this graph.
+     */
+    @Override
+    public Set<NodeType> getNodes() {
         return nodes;
     }
 
+    /**
+     * Returns all the initial nodes in this graph.
+     */
+    @Override
+    public Set<NodeType> getInitialNodes() {
+        return getNodeSetcopy(initialNodes);
+    }
+
+    /**
+     * Returns all the terminal nodes in this graph.
+     */
+    @Override
+    public Set<NodeType> getTerminalNodes() {
+        return getNodeSetcopy(terminalNodes);
+    }
+
+    /**
+     * Returns all the initial nodes in this graph that are initial in the given
+     * relation.
+     */
     @Override
     public Set<NodeType> getInitialNodes(String relation) {
         if (!initialNodes.containsKey(relation)) {
@@ -73,11 +114,21 @@ public class Graph<NodeType extends INode<NodeType>> implements
         return initialNodes.get(relation);
     }
 
+    /**
+     * Returns all the initial nodes in this graph that are initial in the given
+     * relation.
+     */
     @Override
-    public Set<NodeType> getNodes() {
-        return nodes;
+    public Set<NodeType> getTerminalNodes(String relation) {
+        if (!terminalNodes.containsKey(relation)) {
+            return Collections.emptySet();
+        }
+        return terminalNodes.get(relation);
     }
 
+    /**
+     * Returns the set of relations that are present in this graph.
+     */
     @Override
     public Set<String> getRelations() {
         if (cachedRelations != null) {
@@ -93,28 +144,65 @@ public class Graph<NodeType extends INode<NodeType>> implements
         return cachedRelations;
     }
 
+    /**
+     * Adds a node to this graph.
+     */
     @Override
     public void add(NodeType node) {
         nodes.add(node);
+        // Invalidate the relations cache.
         cachedRelations = null;
     }
 
+    /**
+     * Removes a node from this graph.
+     */
     @Override
     public void remove(NodeType node) {
         nodes.remove(node);
+        // Invalidate the relations cache.
         cachedRelations = null;
     }
 
-    @Override
-    public void addInitial(NodeType initialNode, String relation) {
-        if (initialNode == null) {
-            throw new IllegalArgumentException("argument was null");
+    /**
+     * Helped function for tagging initial\final nodes.
+     * 
+     * @param node
+     *            node to tag
+     * @param relation
+     *            the relation to which the node belongs
+     * @param tagMap
+     *            the tagMap to use
+     */
+    private void tagNode(NodeType node, String relation,
+            Map<String, Set<NodeType>> tagMap) {
+        if (node == null) {
+            throw new InternalSynopticException(new IllegalArgumentException(
+                    "Null node argument"));
         }
-        if (!initialNodes.containsKey(relation)) {
-            initialNodes.put(relation, new HashSet<NodeType>());
+        if (!tagMap.containsKey(relation)) {
+            tagMap.put(relation, new HashSet<NodeType>());
         }
-        initialNodes.get(relation).add(initialNode);
+        tagMap.get(relation).add(node);
         cachedRelations = null;
+    }
+
+    /**
+     * Tags a node as initial.
+     */
+    @Override
+    public void tagInitial(NodeType initialNode, String relation) {
+        tagNode(initialNode, relation, initialNodes);
+    }
+
+    /**
+     * Tags a node as terminal.
+     */
+    @Override
+    public void tagTerminal(NodeType terminalNode, String relation) {
+        tagNode(terminalNode, relation, terminalNodes);
+        // NOTE: this graph does not maintain the TERMINAL node. See
+        // PartionGraph instead.
     }
 
     /**
@@ -134,8 +222,9 @@ public class Graph<NodeType extends INode<NodeType>> implements
         cachedRelations = null;
     }
 
-    // generic graph equality
-
+    /**
+     * Tests for generic graph equality.
+     */
     public boolean equalsWith(Graph<NodeType> other,
             IBinary<NodeType, NodeType> np) {
         return equalsWith(other, np, new BinaryTrue<String, String>());
@@ -160,7 +249,9 @@ public class Graph<NodeType extends INode<NodeType>> implements
         return true;
     }
 
-    // Helper for equalsWith.
+    /**
+     * Helper for equalsWith.
+     */
     private boolean transitionEquality(NodeType a, NodeType b,
             IBinary<NodeType, NodeType> np, IBinary<String, String> rp) {
         Set<NodeType> visited = new HashSet<NodeType>();

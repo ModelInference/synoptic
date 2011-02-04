@@ -11,7 +11,7 @@ import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMerge;
 import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.model.Action;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
@@ -59,20 +59,21 @@ public class PartitionGraphTest {
         gb.append(new Action("C"));
         gb.append(new Action("D"));
 
-        return gb.getGraph(true);
+        return gb.getPartitionGraph(true);
     }
 
     private PartitionGraph createSingleGraph() {
         GraphBuilder gb = new GraphBuilder();
-        MessageEvent m = gb.append(new Action("A"));
+        LogEvent m = gb.append(new Action("A"));
         gb.append(new Action("B"));
         gb.split();
         gb.append(new Action("C"));
         gb.append(new Action("D"));
 
-        gb.insertAfter(m, new Action("D"));
+        // TODO: this method is deprecated, try to test without it.
+        // gb.insertAfter(m, new Action("D"));
 
-        return gb.getGraph(false);
+        return gb.getPartitionGraph(false);
     }
 
     @Test
@@ -102,7 +103,7 @@ public class PartitionGraphTest {
     public void testSplitPartitionTop() {
         Partition splitNode = pg.getInitialNodes().iterator().next();
         PartitionSplit split = new PartitionSplit(splitNode);
-        Iterator<MessageEvent> m = splitNode.getMessages().iterator();
+        Iterator<LogEvent> m = splitNode.getMessages().iterator();
         split.addEventToSplit(m.next());
         // split.addFulfillsNot(m.next());
         IOperation rewind = pg.apply(split);
@@ -117,7 +118,7 @@ public class PartitionGraphTest {
         set.addAll(pg.getNodes());
         set.removeAll(pg.getInitialNodes());
         Partition splitNode = set.iterator().next();
-        Iterator<MessageEvent> m = splitNode.getMessages().iterator();
+        Iterator<LogEvent> m = splitNode.getMessages().iterator();
         PartitionSplit split = new PartitionSplit(splitNode);
         split.addEventToSplit(m.next());
         // split.addFulfillsNot(m.next());

@@ -21,24 +21,24 @@ import synoptic.util.IterableAdapter;
  * 
  * @author Sigurd Schneider
  */
-public class MessageEvent implements INode<MessageEvent>, IEvent,
-        Comparable<MessageEvent> {
-    private int count;
+public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
+
+    /**
+     * The partition that contains this message event.
+     */
     private Partition parent;
     private final Action action;
 
-    List<Relation<MessageEvent>> transitions = new ArrayList<Relation<MessageEvent>>();
-    LinkedHashMap<String, List<Relation<MessageEvent>>> transitionsByAction = new LinkedHashMap<String, List<Relation<MessageEvent>>>();
-    LinkedHashMap<String, LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>> transitionsByActionAndTarget = new LinkedHashMap<String, LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>>();
+    List<Relation<LogEvent>> transitions = new ArrayList<Relation<LogEvent>>();
+    LinkedHashMap<String, List<Relation<LogEvent>>> transitionsByAction = new LinkedHashMap<String, List<Relation<LogEvent>>>();
+    LinkedHashMap<String, LinkedHashMap<LogEvent, List<Relation<LogEvent>>>> transitionsByActionAndTarget = new LinkedHashMap<String, LinkedHashMap<LogEvent, List<Relation<LogEvent>>>>();
 
-    public MessageEvent(MessageEvent copyFrom) {
-        count = copyFrom.count;
+    public LogEvent(LogEvent copyFrom) {
         parent = copyFrom.parent;
         action = copyFrom.action;
     }
 
-    public MessageEvent(Action signature, int count) {
-        this.count = count;
+    public LogEvent(Action signature) {
         action = signature;
         parent = null;
     }
@@ -60,50 +60,48 @@ public class MessageEvent implements INode<MessageEvent>, IEvent,
         return "[" + getAction() + " (" + hashCode() + ")" + "]";
     }
 
-    public void addTransition(MessageEvent dest, String relation) {
+    public void addTransition(LogEvent dest, String relation) {
         if (dest == null) {
             throw new InternalSynopticException("Dest was null");
         }
-        addTransition(new Relation<MessageEvent>(this, dest, relation));
+        addTransition(new Relation<LogEvent>(this, dest, relation));
     }
 
-    public void addTransition(MessageEvent dest, String relation,
-            double probability) {
+    public void addTransition(LogEvent dest, String relation, double probability) {
         if (dest == null) {
             throw new InternalSynopticException("Dest was null");
         }
-        addTransition(new Relation<MessageEvent>(this, dest, relation,
-                probability));
+        addTransition(new Relation<LogEvent>(this, dest, relation, probability));
     }
 
-    public void addTransition(Relation<MessageEvent> transition) {
+    public void addTransition(Relation<LogEvent> transition) {
         transitions.add(transition);
         String action = transition.getRelation();
-        MessageEvent target = transition.getTarget();
-        List<Relation<MessageEvent>> ref = transitionsByAction.get(action);
+        LogEvent target = transition.getTarget();
+        List<Relation<LogEvent>> ref = transitionsByAction.get(action);
         if (ref == null) {
-            ref = new ArrayList<Relation<MessageEvent>>();
+            ref = new ArrayList<Relation<LogEvent>>();
             transitionsByAction.put(action, ref);
         }
         ref.add(transition);
 
-        LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>> ref1 = transitionsByActionAndTarget
+        LinkedHashMap<LogEvent, List<Relation<LogEvent>>> ref1 = transitionsByActionAndTarget
                 .get(action);
         if (ref1 == null) {
-            ref1 = new LinkedHashMap<MessageEvent, List<Relation<MessageEvent>>>();
+            ref1 = new LinkedHashMap<LogEvent, List<Relation<LogEvent>>>();
             transitionsByActionAndTarget.put(action, ref1);
         }
-        List<Relation<MessageEvent>> ref2 = ref1.get(target);
+        List<Relation<LogEvent>> ref2 = ref1.get(target);
         if (ref2 == null) {
-            ref2 = new ArrayList<Relation<MessageEvent>>();
+            ref2 = new ArrayList<Relation<LogEvent>>();
             ref1.put(target, ref2);
         }
         ref2.add(transition);
     }
 
-    public void removeTransitions(List<Relation<MessageEvent>> transitions) {
+    public void removeTransitions(List<Relation<LogEvent>> transitions) {
         this.transitions.removeAll(transitions);
-        for (Relation<MessageEvent> transition : transitions) {
+        for (Relation<LogEvent> transition : transitions) {
 
             if (transitionsByAction.containsKey(transition.getRelation())) {
                 transitionsByAction.get(transition.getRelation()).remove(
@@ -122,16 +120,16 @@ public class MessageEvent implements INode<MessageEvent>, IEvent,
 
     }
 
-    public final List<Relation<MessageEvent>> getTransitions() {
-        // Set<Relation<MessageEvent>> set = new
-        // LinkedHashSet<Relation<MessageEvent>>();
+    public final List<Relation<LogEvent>> getTransitions() {
+        // Set<Relation<LogEvent>> set = new
+        // LinkedHashSet<Relation<LogEvent>>();
         // set.addAll(transitions);
         return transitions;
     }
 
-    public List<Relation<MessageEvent>> getTransitions(String relation) {
+    public List<Relation<LogEvent>> getTransitions(String relation) {
         // checkConsistency();
-        List<Relation<MessageEvent>> res = transitionsByAction.get(relation);
+        List<Relation<LogEvent>> res = transitionsByAction.get(relation);
         if (res == null) {
             return Collections.emptyList();
         }
@@ -142,7 +140,7 @@ public class MessageEvent implements INode<MessageEvent>, IEvent,
      * Check that all transitions are in local cache.
      */
     public void checkConsistency() {
-        for (ITransition<MessageEvent> t : transitions) {
+        for (ITransition<LogEvent> t : transitions) {
             if (!transitionsByAction.get(t.getRelation()).contains(t)) {
                 throw new InternalSynopticException(
                         "inconsistent transitions in message");
@@ -150,16 +148,15 @@ public class MessageEvent implements INode<MessageEvent>, IEvent,
         }
     }
 
-    public List<Relation<MessageEvent>> getTransitions(Partition target,
+    public List<Relation<LogEvent>> getTransitions(Partition target,
             String relation) {
-        List<Relation<MessageEvent>> forAction = transitionsByAction
-                .get(relation);
+        List<Relation<LogEvent>> forAction = transitionsByAction.get(relation);
         if (forAction == null) {
             return Collections.emptyList();
         }
 
-        List<Relation<MessageEvent>> res = new ArrayList<Relation<MessageEvent>>();
-        for (Relation<MessageEvent> t : forAction) {
+        List<Relation<LogEvent>> res = new ArrayList<Relation<LogEvent>>();
+        for (Relation<LogEvent> t : forAction) {
             if (t.getTarget().getParent() == target) {
                 res.add(t);
             }
@@ -167,61 +164,51 @@ public class MessageEvent implements INode<MessageEvent>, IEvent,
         return res;
     }
 
-    public List<Relation<MessageEvent>> getTransitions(MessageEvent target,
+    public List<Relation<LogEvent>> getTransitions(LogEvent target,
             String relation) {
-        HashMap<MessageEvent, List<Relation<MessageEvent>>> forAction = transitionsByActionAndTarget
+        HashMap<LogEvent, List<Relation<LogEvent>>> forAction = transitionsByActionAndTarget
                 .get(relation);
         if (forAction == null) {
             return Collections.emptyList();
         }
-        List<Relation<MessageEvent>> res = forAction.get(target);
+        List<Relation<LogEvent>> res = forAction.get(target);
         if (res == null) {
             return Collections.emptyList();
         }
         return res;
     }
 
-    public void addTransitions(Collection<Relation<MessageEvent>> transitions) {
-        for (Relation<MessageEvent> t : transitions) {
+    public void addTransitions(Collection<Relation<LogEvent>> transitions) {
+        for (Relation<LogEvent> t : transitions) {
             this.addTransition(t);
         }
     }
 
-    public void setTransitions(ArrayList<Relation<MessageEvent>> t) {
+    public void setTransitions(ArrayList<Relation<LogEvent>> t) {
         transitions.clear();
         transitions.addAll(t);
     }
 
     public String toStringFull() {
-        return "[MessageEvent A: " + getAction() + " (" + hashCode() + ")"
-                + "]";
+        return "[LogEvent A: " + getAction() + " (" + hashCode() + ")" + "]";
     }
 
     // INode
     @Override
-    public IIterableIterator<Relation<MessageEvent>> getTransitionsIterator() {
+    public IIterableIterator<Relation<LogEvent>> getTransitionsIterator() {
         return IterableAdapter.make(getTransitions().iterator());
     }
 
     @Override
-    public IIterableIterator<Relation<MessageEvent>> getTransitionsIterator(
+    public IIterableIterator<Relation<LogEvent>> getTransitionsIterator(
             String relation) {
         return IterableAdapter.make(getTransitions(relation).iterator());
     }
 
     @Override
-    public ITransition<MessageEvent> getTransition(MessageEvent target,
-            String relation) {
-        List<Relation<MessageEvent>> list = getTransitions(target, relation);
+    public ITransition<LogEvent> getTransition(LogEvent target, String relation) {
+        List<Relation<LogEvent>> list = getTransitions(target, relation);
         return list.size() == 0 ? null : list.get(0);
-    }
-
-    public int getWeight() {
-        return count;
-    }
-
-    public void addWeight(int count) {
-        this.count += count;
     }
 
     @Override
@@ -262,9 +249,9 @@ public class MessageEvent implements INode<MessageEvent>, IEvent,
         return action.getStringArgumentNames();
     }
 
-    public Set<MessageEvent> getSuccessors(String relation) {
-        Set<MessageEvent> successors = new LinkedHashSet<MessageEvent>();
-        for (Relation<MessageEvent> e : getTransitionsIterator(relation)) {
+    public Set<LogEvent> getSuccessors(String relation) {
+        Set<LogEvent> successors = new LinkedHashSet<LogEvent>();
+        for (Relation<LogEvent> e : getTransitionsIterator(relation)) {
             successors.add(e.getTarget());
         }
         return successors;
@@ -276,7 +263,7 @@ public class MessageEvent implements INode<MessageEvent>, IEvent,
     }
 
     @Override
-    public int compareTo(MessageEvent other) {
+    public int compareTo(LogEvent other) {
         if (this == other) {
             return 0;
         }
@@ -295,9 +282,9 @@ public class MessageEvent implements INode<MessageEvent>, IEvent,
         }
 
         // compare children labels
-        ArrayList<Relation<MessageEvent>> thisSortedTrans = new ArrayList<Relation<MessageEvent>>(
+        ArrayList<Relation<LogEvent>> thisSortedTrans = new ArrayList<Relation<LogEvent>>(
                 transitions);
-        ArrayList<Relation<MessageEvent>> otherSortedTrans = new ArrayList<Relation<MessageEvent>>(
+        ArrayList<Relation<LogEvent>> otherSortedTrans = new ArrayList<Relation<LogEvent>>(
                 other.transitions);
         Collections.sort(thisSortedTrans);
         Collections.sort(otherSortedTrans);

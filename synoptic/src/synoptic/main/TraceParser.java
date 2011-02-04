@@ -19,9 +19,7 @@ import java.util.regex.Pattern;
 
 import synoptic.model.Action;
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
-import synoptic.model.input.GraphBuilder;
-import synoptic.model.input.IBuilder;
+import synoptic.model.LogEvent;
 import synoptic.model.input.VectorTime;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.NamedMatcher;
@@ -29,8 +27,8 @@ import synoptic.util.NamedPattern;
 import synoptic.util.NamedSubstitution;
 
 /**
- * ITraceParser is a generic trace parser, configured in terms of Java 7 style
- * named capture regexes.
+ * A generic trace parser, configured in terms of Java 7 style named capture
+ * regular expressions.
  * 
  * @author mgsloan
  */
@@ -39,26 +37,20 @@ public class TraceParser {
     private final List<HashMap<String, NamedSubstitution>> constantFields;
     private final List<HashMap<String, Boolean>> incrementors;
 
-    public IBuilder<MessageEvent> builder;
     private NamedSubstitution filter;
     private final boolean internActions = true;
     private static Logger logger = Logger.getLogger("Parser Logger");
 
     // TODO: figure out how we deal with constraints which involve the multiple
     // parsers.
-    // Eg, how do we verify that either none of the parsers have time fields, or
-    // all do.
+    // e.g., how do we verify that either none of the parsers have time fields,
+    // or all do.
 
-    public TraceParser(IBuilder<MessageEvent> builder) {
-        this.builder = builder;
+    public TraceParser() {
         parsers = new ArrayList<NamedPattern>();
         constantFields = new ArrayList<HashMap<String, NamedSubstitution>>();
         incrementors = new ArrayList<HashMap<String, Boolean>>();
         filter = new NamedSubstitution("");
-    }
-
-    public TraceParser() {
-        this(new GraphBuilder());
     }
 
     // Patterns used to pre-process regular expressions
@@ -73,11 +65,11 @@ public class TraceParser {
      * Adds an individual trace line type, which consists of a regex with
      * additional syntax. This additional syntax is as follows: (?<name>)
      * Matches the default field regex, (?:\s*(?<name>\S+)\s*) (?<name=>value)
-     * This specifies a value for a field, potentially with backreferences which
-     * get filled. (?<name++>) These specify context fields which are included
-     * with (?<++name>) every type of trace \;\; becomes ;; (this is to support
-     * the parsing of multiple regexes, described above). The regex must match
-     * the entire line.
+     * This specifies a value for a field, potentially with back-references
+     * which get filled. (?<name++>) These specify context fields which are
+     * included with (?<++name>) every type of trace \;\; becomes ;; (this is to
+     * support the parsing of multiple regexes, described above). The regex must
+     * match the entire line.
      * 
      * @param input_regex
      *            Regular expression of the form described.
@@ -171,6 +163,12 @@ public class TraceParser {
 
     }
 
+    /**
+     * ??
+     * 
+     * @param <T>
+     * @param l
+     */
     private static <T> void cycle(List<T> l) {
         l.add(0, l.remove(l.size() - 1));
     }
@@ -204,45 +202,20 @@ public class TraceParser {
     }
 
     /**
-     * Occurrence class, used to track different occurrences of identical
-     * actions. This allows actions to be interned. This makes equality more
-     * efficient, and uses less memory.
-     */
-    public class Occurrence {
-        public MessageEvent message;
-        private final VectorTime time;
-        public String nodeName;
-
-        public Occurrence(MessageEvent message, VectorTime time, String nodeName) {
-            this.message = message;
-            this.time = time;
-            this.nodeName = nodeName;
-        }
-
-        public VectorTime getTime() {
-            return time;
-        }
-
-        public boolean isHidden() {
-            return message.getStringArgument("HIDE") != null;
-        }
-    }
-
-    /**
-     * Parses a trace file into a list of occurrences.
+     * Parses a trace file into a list of log events.
      * 
      * @param file
      *            File to read and then parse.
      * @param linesToRead
      *            Bound on the number of lines to read. Negatives indicate
      *            unbounded.
-     * @return The parsed occurrences.
+     * @return The parsed log events.
      * @throws ParseException
      *             when user supplied expressions are the problem
      * @throws InternalSynopticException
      *             when Synoptic code is the problem
      */
-    public List<Occurrence> parseTraceFile(File file, int linesToRead)
+    public List<LogEvent> parseTraceFile(File file, int linesToRead)
             throws ParseException, InternalSynopticException {
         String fileName = "";
         try {
@@ -258,7 +231,7 @@ public class TraceParser {
     }
 
     /**
-     * Parses a string containing a log into a list of occurrences.
+     * Parses a string containing a log into a list of log events.
      * 
      * @param trace
      *            The trace, with lines separated by newlines.
@@ -267,13 +240,13 @@ public class TraceParser {
      * @param linesToRead
      *            Bound on the number of lines to read. Negatives indicate
      *            unbounded.
-     * @return The parsed occurrences.
+     * @return The parsed log events.
      * @throws ParseException
      *             when user supplied expressions are the problem
      * @throws InternalSynopticException
      *             when Synoptic code is the problem
      */
-    public List<Occurrence> parseTraceString(String trace, String traceName,
+    public List<LogEvent> parseTraceString(String trace, String traceName,
             int linesToRead) throws ParseException, InternalSynopticException {
         StringReader stringReader = new StringReader(trace);
         try {
@@ -293,7 +266,7 @@ public class TraceParser {
      * @param linesToRead
      *            Bound on the number of lines to read. Negatives indicate
      *            unbounded.
-     * @return The parsed occurrences.
+     * @return The parsed log events.
      * @throws IOException
      *             when the reader we're using is the problem
      * @throws ParseException
@@ -301,7 +274,7 @@ public class TraceParser {
      * @throws InternalSynopticException
      *             when Synoptic code is the problem
      */
-    public List<Occurrence> parseTrace(Reader traceReader, String traceName,
+    public List<LogEvent> parseTrace(Reader traceReader, String traceName,
             int linesToRead) throws ParseException, IOException,
             InternalSynopticException {
         BufferedReader br = new BufferedReader(traceReader);
@@ -314,7 +287,7 @@ public class TraceParser {
             }
         }
 
-        ArrayList<Occurrence> results = new ArrayList<Occurrence>();
+        ArrayList<LogEvent> results = new ArrayList<LogEvent>();
         String strLine = null;
         VectorTime prevTime = new VectorTime("0");
 
@@ -323,12 +296,12 @@ public class TraceParser {
             if (results.size() == linesToRead) {
                 break;
             }
-            Occurrence occ = parseLine(prevTime, strLine, traceName, context);
-            if (occ == null) {
+            LogEvent event = parseLine(prevTime, strLine, traceName, context);
+            if (event == null) {
                 continue;
             }
-            prevTime = occ.getTime();
-            results.add(occ);
+            prevTime = event.getTime();
+            results.add(event);
         }
         br.close();
         logger.info("Successfully parsed " + results.size() + " events from "
@@ -351,7 +324,7 @@ public class TraceParser {
      * Parse an individual line. If it contains no time field, prevTime is
      * incremented and used instead.
      */
-    private Occurrence parseLine(VectorTime prevTime, String line,
+    private LogEvent parseLine(VectorTime prevTime, String line,
             String filename, Map<String, Integer> context)
             throws ParseException, InternalSynopticException {
         Action action = null;
@@ -382,7 +355,7 @@ public class TraceParser {
 
                 for (Map.Entry<String, NamedSubstitution> entry : cs.entrySet()) {
                     // Process the constant field by substituting
-                    // backreferences.
+                    // back-references.
                     String key = entry.getKey();
                     String val = entry.getValue().substitute(matched);
 
@@ -393,7 +366,8 @@ public class TraceParser {
                         context.put(key, parsed);
                     }
 
-                    // TODO: Determine policy of constfields vs extracted have
+                    // TODO: Determine policy of constant fields vs extracted
+                    // have
                     // overlay priority
                     if (!matched.containsKey(key)) {
                         matched.put(key, val);
@@ -413,9 +387,15 @@ public class TraceParser {
                 }
 
                 String eventType = matched.get("TYPE");
+
                 // TODO: determine if this is desired + print warning
-                // In the absence of a type, use the entire line
-                action = new Action(eventType == null ? line : eventType);
+
+                if (eventType == null) {
+                    // In the absence of a type, use the entire log line.
+                    action = new Action(line);
+                } else {
+                    action = new Action(eventType);
+                }
 
                 action.setStringArgument("FILE", filename);
 
@@ -482,7 +462,7 @@ public class TraceParser {
                 if (internActions) {
                     action = action.intern();
                 }
-                String nodeName = getNodeName(action);
+
                 if (Main.debugParse) {
                     // TODO: include partition name in the list of field values
                     logger.warning("input: " + line);
@@ -499,8 +479,8 @@ public class TraceParser {
                     msg.append("}");
                     logger.info(msg.toString());
                 }
-                return new Occurrence(builder.insert(action), nextTime,
-                        nodeName);
+                action.setTime(nextTime);
+                return new LogEvent(action);
             }
         }
 
@@ -511,8 +491,8 @@ public class TraceParser {
             if (internActions) {
                 action = action.intern();
             }
-            return new Occurrence(builder.insert(action), incTime(prevTime),
-                    null);
+            action.setTime(incTime(prevTime));
+            return new LogEvent(action);
         } else if (Main.ignoreNonMatchingLines) {
             logger.fine("Failed to parse trace line: \n" + line + "\n"
                     + "Ignoring line and continuing.");
@@ -535,71 +515,60 @@ public class TraceParser {
      * @param linesToRead
      *            Maximum number of tracelines to read. Negative if unlimited.
      * @param partition
-     *            True indicates partitioning the occurrences on the nodeName
+     *            True indicates partitioning the log events on the nodeName
      *            field.
      * @return The resulting graph.
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    public Graph<MessageEvent> readGraph(String file, int linesToRead,
+    public Graph<LogEvent> readGraph(String file, int linesToRead,
             boolean partition) throws ParseException, InternalSynopticException {
-        List<Occurrence> set = parseTraceFile(new File(file), linesToRead);
-        generateDirectTemporalRelation(set, partition);
-        return ((GraphBuilder) builder).getRawGraph();
+        List<LogEvent> set = parseTraceFile(new File(file), linesToRead);
+        return generateDirectTemporalRelation(set, partition);
     }
 
     /**
-     * Given a list of occurrences, manipulates the builder to construct the
+     * Given a list of log events, manipulates the builder to construct the
      * corresponding graph.
      * 
-     * @param set
-     *            The list of occurrences to process.
+     * @param allEvents
+     *            The list of events to process.
      * @param partition
-     *            True indicates partitioning the occurrences on the nodeName
-     *            field.
+     *            True indicates partitioning the events on the nodeName field.
      */
-    public void generateDirectTemporalRelation(List<Occurrence> set,
-            boolean partition) {
+    public Graph<LogEvent> generateDirectTemporalRelation(
+            List<LogEvent> allEvents, boolean partition) {
+
+        Graph<LogEvent> graph = new Graph<LogEvent>();
 
         // Partition by nodeName.
-        HashMap<String, List<Occurrence>> groups = new HashMap<String, List<Occurrence>>();
+        HashMap<String, List<LogEvent>> groups = new HashMap<String, List<LogEvent>>();
         if (partition) {
-            for (Occurrence m : set) {
-                List<Occurrence> occs = groups.get(m.nodeName);
-                if (occs == null) {
-                    occs = new ArrayList<Occurrence>();
-                    groups.put(m.nodeName, occs);
+            for (LogEvent e : allEvents) {
+                String nodeName = getNodeName(e.getAction());
+                List<LogEvent> events = groups.get(nodeName);
+                if (events == null) {
+                    events = new ArrayList<LogEvent>();
+                    groups.put(nodeName, events);
                 }
-                occs.add(m);
+                events.add(e);
             }
         } else {
-            groups.put(null, set);
+            groups.put(null, allEvents);
         }
 
-        /*
-         * sweepline transitive reduction (WIP) for (List<Occurrence> group :
-         * groups.values()) { sortTrace(group); Occurrence prev = null;
-         * List<Occurrence> prevSet = new ArrayList<Occurrence>(), curSet = new
-         * ArrayList<Occurrence>(); for (Occurrence a : group) { if
-         * (prevSet.isEmpty()) { this.builder.addInitial(a.message, "i"); } else
-         * { for (Occurrence b : prevSet) { this.builder.connect(a.message,
-         * b.message, "t"); } } if (prev != null &&
-         * prev.getTime().lessThan(a.getTime())) { prevSet = curSet; curSet =
-         * new ArrayList<Occurrence>(); } curSet.add(a); prev = a; } }
-         */
+        HashMap<LogEvent, HashSet<LogEvent>> directSuccessors = new HashMap<LogEvent, HashSet<LogEvent>>();
+        Set<LogEvent> noPredecessor = new HashSet<LogEvent>(allEvents);
+        Set<LogEvent> noSuccessor = new HashSet<LogEvent>();
 
-        HashMap<Occurrence, HashSet<Occurrence>> directSuccessors = new HashMap<Occurrence, HashSet<Occurrence>>();
-        Set<Occurrence> noPredecessor = new HashSet<Occurrence>(set);
-        Set<Occurrence> noSuccessor = new HashSet<Occurrence>();
-
-        for (List<Occurrence> group : groups.values()) {
-            for (Occurrence m1 : group) {
-                directSuccessors.put(m1, new HashSet<Occurrence>());
-                for (Occurrence m2 : group) {
+        for (List<LogEvent> group : groups.values()) {
+            for (LogEvent m1 : group) {
+                directSuccessors.put(m1, new HashSet<LogEvent>());
+                for (LogEvent m2 : group) {
                     if (m1.getTime().lessThan(m2.getTime())) {
                         boolean add = true;
-                        List<Occurrence> removeSet = new ArrayList<Occurrence>();
-                        for (Occurrence m : directSuccessors.get(m1)) {
+                        List<LogEvent> removeSet = new ArrayList<LogEvent>();
+                        for (LogEvent m : directSuccessors.get(m1)) {
                             if (m2.getTime().lessThan(m.getTime())) {
                                 add = true;
                                 removeSet.add(m);
@@ -617,39 +586,35 @@ public class TraceParser {
                 }
             }
         }
-        /*
-         * for (Occurrence m : directSuccessors.keySet()) { for (Occurrence s :
-         * directSuccessors.get(m)) { noPredecessor.remove(s); } }
-         */
-        for (Occurrence m : directSuccessors.keySet()) {
-            for (Occurrence s : directSuccessors.get(m)) {
-                builder.connect(m.message, s.message, "t");
-                noPredecessor.remove(s);
+
+        // Add all the log events to the graph.
+        for (LogEvent e : allEvents) {
+            graph.add(e);
+        }
+
+        String defaultRelation = "t";
+
+        // Connect the events.
+        for (LogEvent e1 : directSuccessors.keySet()) {
+            for (LogEvent e2 : directSuccessors.get(e1)) {
+                e1.addTransition(e2, defaultRelation);
+                noPredecessor.remove(e2);
             }
-            if (directSuccessors.get(m).size() == 0) {
-                noSuccessor.add(m);
+            if (directSuccessors.get(e1).size() == 0) {
+                noSuccessor.add(e1);
             }
         }
 
         // Mark messages without a predecessor as initial.
-        for (Occurrence m : noPredecessor) {
-            builder.addInitial(m.message, "t");
+        for (LogEvent e : noPredecessor) {
+            graph.tagInitial(e, defaultRelation);
         }
 
         // Mark messages without a predecessor as terminal.
-        for (Occurrence m : noSuccessor) {
-            builder.setTerminal(m.message);
+        for (LogEvent e : noSuccessor) {
+            graph.tagTerminal(e, defaultRelation);
         }
 
+        return graph;
     }
-
-    /*
-     * TODO: reinstate if sweepline transitive reduction is used. class
-     * TemporalComparator implements Comparator<Occurrence> { public int
-     * compare(Occurrence a, Occurrence b) { if (a == b) return 0; VectorTime x
-     * = a.getTime(); VectorTime y = b.getTime(); if (x.lessThan(y)) return -1;
-     * if (y.lessThan(x)) return 1; return 0; } } private TemporalComparator
-     * comparator = new TemporalComparator(); private void
-     * sortTrace(List<Occurrence> acts) { Collections.sort(acts, comparator); }
-     */
 }

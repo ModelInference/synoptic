@@ -19,11 +19,9 @@ import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
-import synoptic.main.TraceParser.Occurrence;
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.PartitionGraph;
-import synoptic.model.input.GraphBuilder;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -90,7 +88,7 @@ public class TemporalInvariantSetTests {
      */
     private TemporalInvariantSet genInvariants(String[] events)
             throws ParseException, InternalSynopticException {
-        Graph<MessageEvent> inputGraph = genInitialGraph(events);
+        Graph<LogEvent> inputGraph = genInitialGraph(events);
         PartitionGraph result = new PartitionGraph(inputGraph, true);
         return result.getInvariants();
     }
@@ -104,13 +102,12 @@ public class TemporalInvariantSetTests {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    private Graph<MessageEvent> genInitialGraph(String[] events)
+    private Graph<LogEvent> genInitialGraph(String[] events)
             throws ParseException, InternalSynopticException {
         String traceStr = joinString(events);
-        List<Occurrence> parsedEvents = parser.parseTraceString(traceStr,
-                "test", -1);
-        parser.generateDirectTemporalRelation(parsedEvents, true);
-        return ((GraphBuilder) parser.builder).getRawGraph();
+        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr, "test",
+                -1);
+        return parser.generateDirectTemporalRelation(parsedEvents, true);
     }
 
     /**
@@ -285,14 +282,14 @@ public class TemporalInvariantSetTests {
             }
         }
 
-        Graph<MessageEvent> inputGraph = genInitialGraph(log
-                .toArray(new String[log.size()]));
+        Graph<LogEvent> inputGraph = genInitialGraph(log.toArray(new String[log
+                .size()]));
         PartitionGraph graph = new PartitionGraph(inputGraph, true);
         TemporalInvariantSet minedInvs = graph.getInvariants();
 
         // Test with FSM checker.
         Main.useFSMChecker = true;
-        List<RelationPath<MessageEvent>> cExamples = minedInvs
+        List<RelationPath<LogEvent>> cExamples = minedInvs
                 .getAllCounterExamples(inputGraph);
         if (cExamples != null) {
             System.out.println("log: " + log);

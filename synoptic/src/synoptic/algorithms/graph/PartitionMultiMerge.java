@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.interfaces.IModifiableGraph;
 
 /**
  * An operation that provides a multi merge, i.e. merging multiple partitions
@@ -31,12 +30,11 @@ public class PartitionMultiMerge implements IOperation {
     }
 
     @Override
-    public IOperation commit(PartitionGraph g,
-            IModifiableGraph<Partition> partitionGraph) {
+    public IOperation commit(PartitionGraph g) {
         for (Partition removed : partitionsToMerge) {
             retainedPartition.addAllMessages(removed.getMessages());
             removed.removeMessages(removed.getMessages());
-            partitionGraph.remove(removed);
+            g.remove(removed);
         }
         // TODO: Provide undo
         return null;

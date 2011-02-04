@@ -22,7 +22,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
@@ -358,7 +358,7 @@ public abstract class Bisimulation {
          * The messages (i.e. nodes in the original graph) that are on the
          * counterexampleTrace
          */
-        Set<MessageEvent> hot = new HashSet<MessageEvent>();
+        Set<LogEvent> hot = new HashSet<LogEvent>();
         hot.addAll(counterexampleTrace.path.get(0).getMessages());
         Partition prevPartition = null;
         Partition nextPartition = null;
@@ -379,8 +379,8 @@ public abstract class Bisimulation {
                 break;
             }
             // Compute the valid successor messages in the original trace
-            Set<MessageEvent> successorMessages = new HashSet<MessageEvent>();
-            for (MessageEvent m : hot) {
+            Set<LogEvent> successorMessages = new HashSet<LogEvent>();
+            for (LogEvent m : hot) {
                 successorMessages.addAll(m
                         .getSuccessors(counterexampleTrace.invariant
                                 .getRelation()));
@@ -422,7 +422,7 @@ public abstract class Bisimulation {
      * @return the refined graph
      * @throws InterruptedException
      */
-    public static PartitionGraph getSplitGraph(IGraph<MessageEvent> graph)
+    public static PartitionGraph getSplitGraph(IGraph<LogEvent> graph)
             throws InterruptedException {
         PartitionGraph g = new PartitionGraph(graph, true);
         splitPartitions(g);
@@ -438,7 +438,7 @@ public abstract class Bisimulation {
      * @return the merged graph
      * @throws InterruptedException
      */
-    public static PartitionGraph getMergedGraph(IGraph<MessageEvent> graph) {
+    public static PartitionGraph getMergedGraph(IGraph<LogEvent> graph) {
         PartitionGraph g = new PartitionGraph(graph);
         mergePartitions(g);
         return null;
@@ -498,7 +498,7 @@ public abstract class Bisimulation {
             outerItters++;
 
             ArrayList<Partition> partitions = new ArrayList<Partition>();
-            partitions.addAll(partitionGraph.getPartitions());
+            partitions.addAll(partitionGraph.getNodes());
 
             // Attempt to merge all pairs of partitions in the current graph.
             for (Partition p : partitions) {

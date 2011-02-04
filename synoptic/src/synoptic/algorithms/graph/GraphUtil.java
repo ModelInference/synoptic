@@ -7,7 +7,7 @@ import synoptic.model.input.IBuilder;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.model.nets.Event;
+import synoptic.model.nets.PetriEvent;
 import synoptic.model.nets.Net;
 
 /**
@@ -42,7 +42,7 @@ public class GraphUtil {
                         t.getRelation());
             }
             if (!foundTransition) {
-                builder.setTerminal(map.get(node));
+                builder.tagTerminal(map.get(node));
             }
         }
     }
@@ -73,7 +73,7 @@ public class GraphUtil {
                         t.getRelation());
             }
             if (!foundTransition) {
-                builder.setTerminal(map.get(node));
+                builder.tagTerminal(map.get(node));
             }
         }
     }
@@ -89,20 +89,20 @@ public class GraphUtil {
      *            the builder to write to
      */
     public static <T> void copyNetTo(Net net, IBuilder<T> gBuilder) {
-        HashMap<Event, T> map = new HashMap<Event, T>();
+        HashMap<PetriEvent, T> map = new HashMap<PetriEvent, T>();
         String relation = "";
-        for (Event e : net.getEvents()) {
+        for (PetriEvent e : net.getEvents()) {
             T t = gBuilder.insert(new Action(e.getName()));
             map.put(e, t);
             if (e.getPostEvents().size() == 0) {
-                gBuilder.setTerminal(t);
+                gBuilder.tagTerminal(t);
             }
             if (net.getPreEvents(e).size() == 0) {
-                gBuilder.addInitial(t, relation);
+                gBuilder.tagInitial(t, relation);
             }
         }
-        for (Event e : net.getEvents()) {
-            for (Event f : e.getPostEvents()) {
+        for (PetriEvent e : net.getEvents()) {
+            for (PetriEvent f : e.getPostEvents()) {
                 gBuilder.connect(map.get(e), map.get(f), relation);
             }
         }

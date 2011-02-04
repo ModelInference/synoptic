@@ -8,13 +8,13 @@ import synoptic.model.IEvent;
 import synoptic.model.input.VectorTime;
 import synoptic.util.IIterableIterator;
 
-public class Event implements IEvent {
+public class PetriEvent implements IEvent {
     private final String name;
     private final Set<Place> successors = new HashSet<Place>();
     private final VectorTime time;
     private final HashMap<String, String> stringArguments = new HashMap<String, String>();
 
-    public Event(String name, VectorTime vectorTime) {
+    public PetriEvent(String name, VectorTime vectorTime) {
         this.name = name;
         time = vectorTime;
     }
@@ -24,8 +24,8 @@ public class Event implements IEvent {
         return name;
     }
 
-    public IIterableIterator<Edge<Event, Place>> getEdgeIterator() {
-        return new SuccessorToEdgeIterator<Event, Place>(this, successors
+    public IIterableIterator<Edge<PetriEvent, Place>> getEdgeIterator() {
+        return new SuccessorToEdgeIterator<PetriEvent, Place>(this, successors
                 .iterator(), 1);
     }
 
@@ -41,8 +41,8 @@ public class Event implements IEvent {
         successors.add(p);
     }
 
-    public Set<Event> getPostEvents() {
-        Set<Event> postEvents = new HashSet<Event>();
+    public Set<PetriEvent> getPostEvents() {
+        Set<PetriEvent> postEvents = new HashSet<PetriEvent>();
         for (Place p : getPost()) {
             postEvents.addAll(p.getPost());
         }

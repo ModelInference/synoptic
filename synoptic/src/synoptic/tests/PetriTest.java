@@ -3,13 +3,13 @@ package synoptic.tests;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.NetBuilder;
 import synoptic.model.input.PetersonReader;
-import synoptic.model.nets.Event;
+import synoptic.model.nets.PetriEvent;
 import synoptic.model.nets.Net;
 
 public class PetriTest {
     public static void main(String[] args) throws Exception {
         NetBuilder b = new NetBuilder();
-        PetersonReader<Event> r = new PetersonReader<Event>(b);
+        PetersonReader<PetriEvent> r = new PetersonReader<PetriEvent>(b);
         GraphVizExporter e = new GraphVizExporter();
         r
                 .readGraphSet(

@@ -44,12 +44,4 @@ public class LTLFormula {
     public static String prepare(String formula) {
         return prepare(prepare(formula, "did"), "can");
     }
-
-    // public static void synoptic.main(String args[]) {
-    // for(String str : args) {
-    // System.out.println(str);
-    // System.out.println(prepare(str));
-    // System.out.println();
-    // }
-    // }
 }

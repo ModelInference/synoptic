@@ -67,7 +67,7 @@ import edu.uci.ics.jung.visualization.transform.MutableTransformerDecorator;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 
 import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
@@ -413,12 +413,12 @@ public class Launcher extends JApplet implements Printable {
 
     public void loadGraph() throws Exception {
         GraphBuilder b = new GraphBuilder();
-        PetersonReader<MessageEvent> r = new PetersonReader<MessageEvent>(b);
+        PetersonReader<LogEvent> r = new PetersonReader<LogEvent>(b);
         r
                 .readGraphSet(
                         "traces/PetersonLeaderElection/generated_traces/peterson_trace-n5-1-s?.txt",
                         1);
-        synoptic.model.Graph<MessageEvent> g = b.getRawGraph();
+        synoptic.model.Graph<LogEvent> g = b.getGraph();
         PartitionGraph pg = new PartitionGraph(g, true);
         Bisimulation.splitPartitions(pg);
         // Bisimulation.mergePartitions(pg);

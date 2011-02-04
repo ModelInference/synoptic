@@ -1,8 +1,6 @@
 package synoptic.algorithms.graph;
 
-import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.interfaces.IModifiableGraph;
 
 /**
  * Interface for operations on PartitionGraphs
@@ -18,6 +16,5 @@ public interface IOperation {
      *            the partition graph to apply to
      * @return an operation that will undo the changes
      */
-    IOperation commit(PartitionGraph g,
-            IModifiableGraph<Partition> partitionGraph);
+    IOperation commit(PartitionGraph g);
 }

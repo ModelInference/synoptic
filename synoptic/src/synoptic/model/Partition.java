@@ -30,27 +30,40 @@ import synoptic.util.IIterableIterator;
  * @author sigurd
  */
 public class Partition implements INode<Partition>, Comparable<Partition> {
-    protected final Set<MessageEvent> messages;
+    protected final Set<LogEvent> messages;
     private String label;
+
+    /**
+     * Whether or not this partition is final (contains a terminal message
+     * event).
+     */
     private boolean isFinal;
 
-    public Partition(Set<MessageEvent> messages) {
-        this.messages = new LinkedHashSet<MessageEvent>(messages);
-        for (final MessageEvent m : messages) {
+    public Partition(Set<LogEvent> messages) {
+        this.messages = new LinkedHashSet<LogEvent>(messages);
+        for (final LogEvent m : messages) {
             m.setParent(this);
         }
-        updateIsFinal();
+
+        // A partition is final if it contains a message event that is a
+        // terminal node in some input trace.
+        isFinal = false;
+        for (LogEvent e : messages) {
+            if (e.isFinal()) {
+                isFinal = true;
+            }
+        }
     }
 
-    public void addMessage(MessageEvent message) {
+    public void addMessage(LogEvent message) {
         messages.add(message);
         message.setParent(this);
         isFinal |= message.isFinal();
     }
 
-    public void addAllMessages(Collection<MessageEvent> messages) {
+    public void addAllMessages(Collection<LogEvent> messages) {
         this.messages.addAll(messages);
-        for (final MessageEvent m : messages) {
+        for (final LogEvent m : messages) {
             m.setParent(this);
             isFinal |= m.isFinal();
         }
@@ -64,7 +77,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
         return getTransitionsIterator(null);
     }
 
-    public Set<MessageEvent> getMessages() {
+    public Set<LogEvent> getMessages() {
         return messages;
     }
 
@@ -92,7 +105,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
     public PartitionSplit getCandidateDivisionBasedOnOutgoing(
             ITransition<Partition> trans) {
         PartitionSplit ret = null;
-        for (final MessageEvent otherExpr : messages) {
+        for (final LogEvent otherExpr : messages) {
             if (fulfillsStrong(otherExpr, trans)) {
                 if (ret != null) {
                     ret.addEventToSplit(otherExpr);
@@ -100,7 +113,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
             } else {
                 if (ret == null) {
                     ret = new PartitionSplit(this);
-                    for (final MessageEvent e2 : messages) {
+                    for (final LogEvent e2 : messages) {
                         if (e2.equals(otherExpr)) {
                             break;
                         }
@@ -125,13 +138,13 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
     public PartitionSplit getCandidateDivisionBasedOnIncoming(
             Partition previous, String relation) {
         PartitionSplit candidateSplit = new PartitionSplit(this);
-        Set<MessageEvent> messagesReachableFromPrevious = new HashSet<MessageEvent>();
-        for (final MessageEvent otherExpr : previous.messages) {
+        Set<LogEvent> messagesReachableFromPrevious = new HashSet<LogEvent>();
+        for (final LogEvent otherExpr : previous.messages) {
             messagesReachableFromPrevious.addAll(otherExpr
                     .getSuccessors(relation));
             messagesReachableFromPrevious.retainAll(messages);
         }
-        for (MessageEvent m : messages) {
+        for (LogEvent m : messages) {
             if (messagesReachableFromPrevious.contains(m)) {
                 candidateSplit.addEventToSplit(m);
             }
@@ -141,9 +154,9 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
         return candidateSplit;
     }
 
-    private static boolean fulfillsStrong(MessageEvent otherExpr,
+    private static boolean fulfillsStrong(LogEvent otherExpr,
             ITransition<Partition> trans) {
-        for (final ITransition<MessageEvent> t : otherExpr.getTransitions()) {
+        for (final ITransition<LogEvent> t : otherExpr.getTransitions()) {
             if (t.getRelation().equals(trans.getRelation())
                     && t.getTarget().getParent().equals(trans.getTarget())) {
                 return true;
@@ -212,8 +225,8 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
             final String act) {
         return new IIterableIterator<Relation<Partition>>() {
             private final Set<ITransition<Partition>> seen = new HashSet<ITransition<Partition>>();
-            private final Iterator<MessageEvent> msgItr = messages.iterator();
-            private Iterator<? extends ITransition<MessageEvent>> transItr = act == null ? msgItr
+            private final Iterator<LogEvent> msgItr = messages.iterator();
+            private Iterator<? extends ITransition<LogEvent>> transItr = act == null ? msgItr
                     .next().getTransitions().iterator()
                     : msgItr.next().getTransitions(act).iterator();
             private Relation<Partition> next = null;
@@ -221,7 +234,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
             private Relation<Partition> getNext() {
                 while (transItr.hasNext() || msgItr.hasNext()) {
                     if (transItr.hasNext()) {
-                        final ITransition<MessageEvent> found = transItr.next();
+                        final ITransition<LogEvent> found = transItr.next();
                         final Relation<Partition> transToPart = new Relation<Partition>(
                                 found.getSource().getParent(), found
                                         .getTarget().getParent(), found
@@ -289,7 +302,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
         throw new NotImplementedException();
     }
 
-    public void removeMessages(Set<MessageEvent> messageList) {
+    public void removeMessages(Set<LogEvent> messageList) {
         messages.removeAll(messageList);
     }
 
@@ -303,15 +316,10 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
         label = str;
     }
 
-    protected boolean updateIsFinal() {
-        for (MessageEvent e : messages) {
-            if (e.isFinal()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+    /**
+     * Whether or not this partition is final (contains a terminal message
+     * event).
+     */
     public boolean isFinal() {
         return isFinal;
     }

@@ -6,7 +6,7 @@ import java.util.Random;
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.model.Action;
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
@@ -21,7 +21,7 @@ import synoptic.model.input.GraphBuilder;
 
 public class PingPongTest {
     static public void main(String[] args) throws Exception {
-        Graph<MessageEvent> t = pingExample();
+        Graph<LogEvent> t = pingExample();
         GraphVizExporter exporter = new GraphVizExporter();
         exporter.exportAsDotAndPng("output/ping-pong/ping.dot", t);
         System.out.println("Wrote ping.dot.");
@@ -31,7 +31,7 @@ public class PingPongTest {
         System.out.println("done.");
     }
 
-    public static Graph<MessageEvent> pingExample() throws Exception {
+    public static Graph<LogEvent> pingExample() throws Exception {
         GraphBuilder gb = new GraphBuilder();
         Random r = new Random(1001);
         for (int i = 0; i < 10; i++) {
@@ -47,7 +47,7 @@ public class PingPongTest {
             }
             // gb.split();
         }
-        return gb.getRawGraph();
+        return gb.getGraph();
     }
 
     public static PartitionGraph fragExample() throws Exception {
@@ -69,6 +69,6 @@ public class PingPongTest {
 
             gb.append(new Action("ack"));
         }
-        return gb.getGraph(true);
+        return gb.getPartitionGraph(true);
     }
 }

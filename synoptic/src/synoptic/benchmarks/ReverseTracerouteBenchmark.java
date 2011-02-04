@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.benchmarks.Benchmark.ConfigureableBenchmark;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.IGraph;
 
@@ -19,7 +19,7 @@ public class ReverseTracerouteBenchmark {
 
         @Override
         protected void run(Integer val) {
-            IGraph<MessageEvent> raw = ReverseTraceroute.readOverkill(val);
+            IGraph<LogEvent> raw = ReverseTraceroute.readOverkill(val);
             PartitionGraph g = new PartitionGraph(raw, true);
             Bisimulation.splitPartitions(g);
             // Bisimulation.mergePartitions(g);

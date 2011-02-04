@@ -22,7 +22,7 @@ public class KTailsTest {
         // the graph will contain each trace as separate component
         gb.buildGraphLocal(new String[][] { trace1, trace2, trace3, trace4 });
 
-        PartitionGraph pg = new PartitionGraph(gb.getRawGraph(), true);
+        PartitionGraph pg = new PartitionGraph(gb.getGraph(), true);
 
         // int k = 0;
         // Set<Partition> allPartitions = pg.getInitialNodes();

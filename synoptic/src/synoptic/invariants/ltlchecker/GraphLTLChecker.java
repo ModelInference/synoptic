@@ -191,6 +191,7 @@ public class GraphLTLChecker<T extends INode<T>> {
                 Edge e = new Edge(prev, nextState.get(m), "-", m.getLabel(),
                         null);
                 e.setAttribute("inode", m);
+
             }
         }
         // System.out.println(targetGraph.getEdgeCount());

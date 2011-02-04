@@ -10,14 +10,14 @@ import java.util.StringTokenizer;
 
 import synoptic.model.Action;
 import synoptic.model.Graph;
-import synoptic.model.MessageEvent;
+import synoptic.model.LogEvent;
 
 public class NfsTraceParser extends DefaultScalableTraceParser {
 
     public final static int SPLIT_NONE = 0;
     public final static int SPLIT_BY_FILE = 1;
 
-    public Graph<MessageEvent> parseTraceFile(String fileName, int linesToRead,
+    public Graph<LogEvent> parseTraceFile(String fileName, int linesToRead,
             int splitStrategy) {
         try {
             FileInputStream fstream = new FileInputStream(fileName);
@@ -49,7 +49,7 @@ public class NfsTraceParser extends DefaultScalableTraceParser {
         }
     }
 
-    public Graph<MessageEvent> parseTrace(String[] traceLines) {
+    public Graph<LogEvent> parseTrace(String[] traceLines) {
         GraphBuilder gb = new GraphBuilder();
         // int ctr = 0;
         for (String line : traceLines) {
@@ -58,10 +58,10 @@ public class NfsTraceParser extends DefaultScalableTraceParser {
             // if (++ctr % splitInterval == 0)
             // gb.split();
         }
-        return gb.getRawGraph();
+        return gb.getGraph();
     }
 
-    public Graph<MessageEvent> parseTraceByFile(String[] traceLines) {
+    public Graph<LogEvent> parseTraceByFile(String[] traceLines) {
         GraphBuilder gb = new GraphBuilder();
         HashMap<String, ArrayList<Action>> sets = new HashMap<String, ArrayList<Action>>();
         for (String line : traceLines) {
@@ -81,7 +81,7 @@ public class NfsTraceParser extends DefaultScalableTraceParser {
             }
             gb.split();
         }
-        return gb.getRawGraph();
+        return gb.getGraph();
     }
 
     private Action parseTraceEntry(String entry) {
