@@ -79,7 +79,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 
         // Target is not cached, have to convert.
         if (targetGraph == null) {
-            logger.fine("Building CCS Graph...");
+            logger.finest("Building CCS Graph...");
             targetGraph = convertGraph(sourceGraph, relation);
 
             lastSourceGraph.put(relation, sourceGraph);
@@ -248,8 +248,8 @@ public class GraphLTLChecker<T extends INode<T>> {
             }
             ArrayList<T> trace = this.convertCounterexample(ce);
 
-            logger.fine("raw-counter-example: " + ce.toString());
-            logger.fine("converted-counter-example: " + trace.toString());
+            logger.finest("raw-counter-example: " + ce.toString());
+            logger.finest("converted-counter-example: " + trace.toString());
 
             if (trace != null) {
                 r = new RelationPath<T>(inv, inv.shorten(trace));

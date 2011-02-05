@@ -21,8 +21,8 @@ import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.model.nets.Edge;
-import synoptic.model.nets.PetriEvent;
 import synoptic.model.nets.Net;
+import synoptic.model.nets.PetriEvent;
 import synoptic.model.nets.Place;
 import synoptic.util.InternalSynopticException;
 
@@ -139,7 +139,7 @@ public class GraphVizExporter {
         writer.write("digraph {\n");
 
         if (Main.exportCanonically) {
-            exportGraphCanonically(writer, graph, fast);
+            exportGraphCanonically(writer, graph);
         } else {
             exportGraphNonCanonically(writer, graph, fast);
         }
@@ -176,6 +176,35 @@ public class GraphVizExporter {
         return attributes;
     }
 
+    /**
+     * Exports all the nodes in the graph for a particular relation, using
+     * output stream writer. This function only exports the nodes, but it also
+     * builds up a list of allTransitions that these nodes include, maintains a
+     * nodeCnt (which is then returned), and also maintains the nodeToInt map.
+     * All of these are also passed as arguments.
+     * 
+     * @param <T>
+     *            The node type in the graph being exported
+     * @param writer
+     *            The writer to use for writing out node records
+     * @param graph
+     *            The graph whose nodes will be exported
+     * @param relation
+     *            The relation to export (must be present in graph)
+     * @param allTransitions
+     *            A list of transitions that will be modified to include
+     *            transitions in graph.
+     * @param nodeToInt
+     *            A mapping between nodes in the graph and the node's id in the
+     *            dot output file. This is used to consistently output
+     *            transitions between nodes.
+     * @param nodeCnt
+     *            The node count -- used to generate unique node ids in
+     *            nodeToInt map
+     * @return the updated node count
+     * @throws IOException
+     *             in case there is a problem using the writer
+     */
     private <T extends INode<T>> int exportRelationNodes(final Writer writer,
             IGraph<T> graph, String relation,
             LinkedList<ITransition<T>> allTransitions,
@@ -183,90 +212,107 @@ public class GraphVizExporter {
 
         LinkedList<T> rootNodes = new LinkedList<T>(graph
                 .getInitialNodes(relation));
-        LinkedList<T> parentNodes = new LinkedList<T>(rootNodes);
-        boolean isTerminal, isInitial;
 
-        // logger.finest("<exportRelationNodes>, nodeCnt is " + nodeCnt);
-        LinkedList<T> childrenNodes = null;
+        if (!Main.showInitialNode) {
+            // Follow each node in rootNodes one transition forward and mark the
+            // destination as the new root. This will
+            // ignore the dummy initial node.
+            LinkedList<T> newRootNodes = new LinkedList<T>();
+            for (T root : rootNodes) {
+                for (ITransition<T> trans : root.getTransitions()) {
+                    newRootNodes.add(trans.getTarget());
+                }
+            }
+            rootNodes = newRootNodes;
+        }
+
+        // Start walking the graph from the rootNodes.
+        LinkedList<T> parentNodes = new LinkedList<T>(rootNodes);
+
+        // A breadth first exploration of the graph to touch all nodes.
         while (parentNodes.size() != 0) {
-            // logger.finest("Main loop with parentNodes: " +
-            // parentNodes.toString());
-            childrenNodes = new LinkedList<T>();
+            LinkedList<T> childNodes = new LinkedList<T>();
+            // For canonical output sort the parents.
             Collections.sort(parentNodes);
 
             for (T node : parentNodes) {
-                // logger.finest("Consider parent: " + node.toStringConcise());
+                boolean isTerminal, isInitial;
 
                 if (nodeToInt.containsKey(node)) {
-                    // Skip nodes that have been processed previously.
-                    // logger.finest("Skipping previously seen node: " +
-                    // node.toStringConcise());
+                    // Skip nodes that have already been processed.
                     continue;
                 }
 
-                isTerminal = false;
-                if ((INode<?>) node instanceof Partition) {
-                    Partition p = (Partition) (INode<?>) node;
-                    for (LogEvent m : p.getMessages()) {
-                        if (m.getTransitions().size() == 0) {
-                            isTerminal = true;
-                        }
-                    }
-                } else if ((INode<?>) node instanceof LogEvent) {
-                    LogEvent e = (LogEvent) (INode<?>) node;
-                    if (e.getTransitions().size() == 0) {
-                        isTerminal = true;
-                    }
+                if (!Main.showTerminalNode && node.isTerminal()) {
+                    // Skip the terminal node.
+                    continue;
                 }
+                // A node is not terminal unless shown to be otherwise.
+                isTerminal = false;
 
-                isInitial = rootNodes.contains(node);
-
-                String attrs = nodeDotAttributes(node, isInitial, isTerminal,
-                        relationColors.get(relation));
-                writer.write("  " + nodeCnt + " [" + attrs + "];\n");
-                nodeToInt.put(node, nodeCnt);
                 List<? extends ITransition<T>> transitions = node
                         .getTransitions();
                 for (ITransition<T> trans : transitions) {
                     T child = trans.getTarget();
-                    // logger.finest("Considering child: " +
-                    // child.toStringConcise() + ", and its class is: " +
-                    // child.getClass().toString());
-                    childrenNodes.add(child);
-
-                    // logger.finest("ChildrenNodes is now: " +
-                    // childrenNodes.toString());
+                    childNodes.add(child);
+                    if (!Main.showTerminalNode && child.isTerminal()) {
+                        // Mark nodes preceding the terminal node as terminal.
+                        isTerminal = true;
+                    } else {
+                        // Include all transitions, except when
+                        // (!showTerminalNode && the transition is to the
+                        // terminal node) -- the if branch above.
+                        allTransitions.add(trans);
+                    }
                 }
-                allTransitions.addAll(transitions);
+
+                isInitial = rootNodes.contains(node);
+                String attrs = nodeDotAttributes(node, isInitial, isTerminal,
+                        relationColors.get(relation));
+                // Output the node record -- its id along with its attributes.
+                writer.write("  " + nodeCnt + " [" + attrs + "];\n");
+                // Remember the identifier assigned to this node.
+                nodeToInt.put(node, nodeCnt);
                 nodeCnt += 1;
-                // logger.finest("Main loop end, new nodeCnt is " + nodeCnt);
             }
-            parentNodes = childrenNodes;
+            parentNodes = childNodes;
         }
         writer.flush();
         return nodeCnt;
     }
 
+    /**
+     * Exports a graph in a dot format using the writer. It does so canonically
+     * -- two isomorphic graphs will have equivalent dot outputs.
+     * 
+     * @param <T>
+     *            Graph node type
+     * @param writer
+     *            The writer to use for dot output
+     * @param graph
+     *            The graph to export
+     * @throws IOException
+     *             In case there is a problem using the writer
+     */
     private <T extends INode<T>> void exportGraphCanonically(
-            final Writer writer, IGraph<T> graph, boolean fast)
-            throws IOException {
-
-        // logger.finest("Performing canonical export..");
+            final Writer writer, IGraph<T> graph) throws IOException {
+        // A mapping between nodes in the graph and the their integer
+        // identifiers in the dot output.
         HashMap<T, Integer> nodeToInt = new HashMap<T, Integer>();
+        // Collects all transitions between nodes of different relations.
         LinkedList<ITransition<T>> allTransitions = new LinkedList<ITransition<T>>();
+        // Node identifier generator, updated in exportRelationNodes
         int nodeCnt = 0;
 
+        // Export nodes in the 't' relation.
         nodeCnt = exportRelationNodes(writer, graph, "t", allTransitions,
                 nodeToInt, nodeCnt);
-        // logger.finest("</exportRelationNodes relation(t)>, nodeCnt is " +
-        // nodeCnt);
 
+        // Export nodes in the 'i' relation.
         exportRelationNodes(writer, graph, "i", allTransitions, nodeToInt,
                 nodeCnt);
-        // logger.finest("</exportRelationNodes relation(i)>, nodeCnt is " +
-        // nodeCnt);
 
-        // Output edges:
+        // Output all the edges:
         for (ITransition<T> trans : allTransitions) {
             int sourceInt = nodeToInt.get(trans.getSource());
             int targetInt = nodeToInt.get(trans.getTarget());

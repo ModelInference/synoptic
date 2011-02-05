@@ -8,7 +8,7 @@ import synoptic.util.IIterableIterator;
 /**
  * The interface all nodes must implement. The interface does not contain
  * methods that allow modification of the node (with the exception of {@code
- * setParent}.
+ * setParent} and {@code addTransition}).
  * 
  * @author sigurd
  * @param <NodeType>
@@ -75,6 +75,16 @@ public interface INode<NodeType> extends Comparable<NodeType> {
     void setParent(Partition parent);
 
     /**
+     * Add a transition from this node to node dest.
+     * 
+     * @param dest
+     *            The destination of the transition.
+     * @param relation
+     *            The relation for which this transition is valid
+     */
+    void addTransition(NodeType dest, String relation);
+
+    /**
      * Get the parent partition of this node.
      * 
      * @return the parent partition
@@ -89,7 +99,7 @@ public interface INode<NodeType> extends Comparable<NodeType> {
     String toStringConcise();
 
     /**
-     * Gets whether this node is the last in some sample traces.
+     * Whether or not this node is a 'terminal' node in some sample traces.
      */
-    boolean isFinal();
+    boolean isTerminal();
 }

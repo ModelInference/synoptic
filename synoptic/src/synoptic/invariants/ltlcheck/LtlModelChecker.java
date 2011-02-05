@@ -33,10 +33,10 @@ public class LtlModelChecker {
                 .createTask("didCanTranslation");
         if (ITemporalInvariant.useDIDCAN) {
             if (translationCache.containsKey(transitionSystem)) {
-                logger.fine("Adding did/can attributes... (cached)");
+                logger.finest("Adding did/can attributes... (cached)");
                 didCanTransitionSystem = translationCache.get(transitionSystem);
             } else {
-                logger.fine("Adding did/can attributes...");
+                logger.finest("Adding did/can attributes...");
                 didCanTransitionSystem = DidCanTranslator
                         .translate(transitionSystem);
                 translationCache.put(transitionSystem, didCanTransitionSystem);
@@ -53,18 +53,18 @@ public class LtlModelChecker {
 
         // Generate Buchi Automata for negated LTL formula
         TimedTask buchiTrans = PerformanceMetrics.createTask("buchiTrans");
-        logger.fine("Generate Buchi automaton...");
+        logger.finest("Generate Buchi automaton...");
         Graph ba = invariant.getAutomaton();
         buchiTrans.stop();
 
-        logger.fine("Parsing transition labels...");
+        logger.finest("Parsing transition labels...");
         GraphActionParser.parseTransitions(ba);
 
         // Generate Product Automata of Did/Can Expanded Graph and Buchi
         // Automata of LTL formula
         TimedTask productAutomaton = PerformanceMetrics
                 .createTask("productAutomaton");
-        logger.fine("Generate product automaton...");
+        logger.finest("Generate product automaton...");
         final GeneralGraph pa = ProductTranslator.translate(
                 didCanTransitionSystem, ba);
         productAutomaton.stop();
@@ -72,7 +72,7 @@ public class LtlModelChecker {
         // Check Property via reachable cycle detection
         TimedTask cycleChecking = PerformanceMetrics
                 .createTask("cycleChecking");
-        logger.fine("Checking property...");
+        logger.finest("Checking property...");
         final PersistenceChecker pc = new PersistenceChecker(pa);
         pc.run();
         cycleChecking.stop();

@@ -92,21 +92,21 @@ public class FsmModelChecker {
                 temp.transition(target);
                 boolean isSubset = temp.isSubset(other);
                 other.mergeWith(temp);
-                if (earlyExit && other.isFail() && target.isFinal()) {
+                if (earlyExit && other.isFail() && target.isTerminal()) {
                     return states;
                 }
                 if (!isSubset && !onWorkList.contains(target)) {
                     /*
                      * System.out.println("propogated to " + target.getLabel() +
-                     * " " + target.toString() + (target.isFinal() ? "final" :
-                     * "")); System.out.println(other);
+                     * " " + target.toString() + (target.isTerminal() ? "final"
+                     * : "")); System.out.println(other);
                      */
                     workList.add(target);
                     onWorkList.add(target);
                 } /*
                    * else { System.out.println("subset found on " +
                    * target.getLabel() + " " + target.toString() +
-                   * (target.isFinal() ? "final" : ""));
+                   * (target.isTerminal() ? "final" : ""));
                    * System.out.println(other); }
                    */
             }
@@ -122,7 +122,7 @@ public class FsmModelChecker {
         Map<T, FsmStateSet<T>> states = runChecker(initial, graph, false);
         BitSet result = new BitSet();
         for (Entry<T, FsmStateSet<T>> entry : states.entrySet()) {
-            if (entry.getKey().isFinal()) {
+            if (entry.getKey().isTerminal()) {
                 result.or(entry.getValue().whichFail());
             }
         }
@@ -211,12 +211,13 @@ public class FsmModelChecker {
         // Return the shortest path, ending on a final node, which causes the
         // invariant to fail.
         TracingStateSet<T>.HistoryNode shortestPath = null;
-        for (Entry<T, TracingStateSet<T>> e : runChecker(stateset, graph, true)
-                .entrySet()) {
+        Set<Entry<T, TracingStateSet<T>>> entrySet = runChecker(stateset,
+                graph, true).entrySet();
+        for (Entry<T, TracingStateSet<T>> e : entrySet) {
             // if (!invClass.equals(AlwaysFollowedInvariant.class) ||
-            // e.getKey().isFinal()) {
+            // e.getKey().isTerminal()) {
             TracingStateSet<T>.HistoryNode path = e.getValue().failpath();
-            boolean fin = e.getKey().isFinal();
+            boolean fin = e.getKey().isTerminal();
             if (fin
                     && path != null
                     && (shortestPath == null || shortestPath.count > path.count)) {

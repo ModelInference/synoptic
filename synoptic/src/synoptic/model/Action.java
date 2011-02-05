@@ -4,11 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import synoptic.main.Main;
 import synoptic.model.input.VectorTime;
 
 /**
  * The action class abstracts an event. Each event needs at least a name, called
- * a label. Optionally, a vector time and data fields can set. If datafields
+ * a label. Optionally, a vector time and data fields can set. If data fields
  * will be used, {@code useDatafields} must be set before compilation.
  * 
  * @author Sigurd Schneider
@@ -23,7 +24,7 @@ public class Action {
      */
     private Integer cachedHashCode = null;
     /**
-     * The time this action occured.
+     * The time this action occurred.
      */
     private VectorTime vectorTime;
     /**
@@ -31,7 +32,7 @@ public class Action {
      */
     private static HashMap<Action, Action> internMap = new HashMap<Action, Action>();
     /**
-     * Set this to true if you want equals and hashcode to respect the contents
+     * Set this to true if you want equals and hash-code to respect the contents
      * of stringArgumens.
      */
     private final static boolean useDatafields = true;
@@ -43,14 +44,49 @@ public class Action {
     Map<String, String> stringArguments = new HashMap<String, String>();
 
     /**
+     * Create an action with a label. Do not check for collisions with
+     * internally used labels.
+     * 
+     * @param label
+     *            the label for the action
+     * @param dummy
+     *            unused
+     */
+    public Action(String label, boolean dummy) {
+        this.label = label;
+        computeHashCode();
+    }
+
+    /**
      * Create an action with a label.
      * 
      * @param label
      *            the label for the action
      */
     public Action(String label) {
-        this.label = label;
-        computeHashCode();
+        this(label, true);
+        // TODO: translate labels so that collisions such as this do not occur.
+        if (label.equals(Main.initialNodeLabel)
+                || label.equals(Main.terminalNodeLabel)) {
+            throw new IllegalArgumentException(
+                    "Cannot create a node with label '"
+                            + label
+                            + "' because it conflicts with internal INITIAL/TERMINAL Synoptic labels.");
+        }
+    }
+
+    /**
+     * Returns the special initial action.
+     */
+    public static Action NewInitialAction() {
+        return new Action(Main.initialNodeLabel, true);
+    }
+
+    /**
+     * Returns the special terminal action.
+     */
+    public static Action NewTerminalAction() {
+        return new Action(Main.terminalNodeLabel, true);
     }
 
     @Override
@@ -142,7 +178,7 @@ public class Action {
     /**
      * Get the vector time of this action.
      * 
-     * @return the vector time when this action occured.
+     * @return the vector time when this action occurred.
      */
     public VectorTime getTime() {
         return vectorTime;

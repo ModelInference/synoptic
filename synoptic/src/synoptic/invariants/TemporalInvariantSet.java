@@ -261,6 +261,64 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     }
 
     /**
+     * Removes the following types of tautological invariants (for all event
+     * types X) from the set:
+     * 
+     * <pre>
+     * - INITIAL AFby X
+     * - INITIAL AP X
+     * - X AP TERMINAL
+     * - X AFby TERMINAL
+     * - TERMINAL NFby INITIAL
+     * </pre>
+     * 
+     * This filtering is useful because it relieves us from checking invariants
+     * which are true for all graphs produced with typical construction.
+     * 
+     * <pre>
+     * TODO: (1) Create a unit test to test that these are always mined.
+     * TODO: (2) Final graphs should always satisfy all these invariants.
+     *           Convert this observation into an extra sanity check.
+     * </pre>
+     */
+    public void filterOutTautologicalInvariants() {
+        LinkedHashSet<ITemporalInvariant> invsToRemove = new LinkedHashSet<ITemporalInvariant>();
+        for (ITemporalInvariant inv : invariants) {
+            if (!(inv instanceof BinaryInvariant)) {
+                continue;
+            }
+            String first = ((BinaryInvariant) inv).getFirst();
+            String second = ((BinaryInvariant) inv).getSecond();
+
+            boolean remove = false;
+            if (inv instanceof AlwaysFollowedInvariant) {
+                if (first == Main.initialNodeLabel) {
+                    remove = true;
+                } else if (second == Main.terminalNodeLabel) {
+                    remove = true;
+                }
+            } else if (inv instanceof AlwaysPrecedesInvariant) {
+                if (first == Main.initialNodeLabel) {
+                    remove = true;
+                } else if (second == Main.terminalNodeLabel) {
+                    remove = true;
+                }
+            } else if (inv instanceof NeverFollowedInvariant) {
+                if (first == Main.terminalNodeLabel
+                        && second == Main.initialNodeLabel) {
+                    remove = true;
+                }
+            }
+            if (remove) {
+                invsToRemove.add(inv);
+            }
+        }
+        logger.fine("Filtered out " + invsToRemove.size()
+                + " tautological invariants.");
+        invariants.removeAll(invsToRemove);
+    }
+
+    /**
      * Compute invariants of a graph g. Enumerating all possibly invariants
      * syntactically, and then checking them was considered too costly (although
      * we never benchmarked it!). So we are mining synoptic.invariants from the
@@ -286,7 +344,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             AllRelationsTransitiveClosure<T> transitiveClosure = new AllRelationsTransitiveClosure<T>(
                     g);
 
-            // get over-approximation
+            // Get the over-approximation.
             itc.stop();
             if (Main.doBenchmarking) {
                 logger.info("BENCHM: " + itc);
@@ -366,7 +424,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     }
 
     /**
-     * Extract an overapproximated set of synoptic.invariants from the
+     * Extract an over-approximated set of synoptic.invariants from the
      * transitive closure {@code tc} of the graph {@code g}.
      * 
      * @param <T>
@@ -378,7 +436,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
      *            synoptic.invariants from
      * @param relation
      *            the relation to consider for the synoptic.invariants
-     * @return the overapproximated set of synoptic.invariants
+     * @return the over-approximated set of synoptic.invariants
      * @throws Exception
      */
     private static <T extends INode<T>> TemporalInvariantSet extractInvariants(
@@ -458,8 +516,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         for (ITemporalInvariant i : invariants) {
             for (String label : i.getPredicates()) {
                 if (!messageMap.containsKey(label)) {
-                    messageMap.put(label,
-                            new LogEvent(new Action(label)));
+                    messageMap.put(label, new LogEvent(new Action(label)));
                 }
             }
         }
@@ -476,8 +533,8 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         return new Graph<LogEvent>(messageMap.values());
     }
 
-    public static TemporalInvariantSet computeInvariantsSplt(
-            Graph<LogEvent> g, String label) throws Exception {
+    public static TemporalInvariantSet computeInvariantsSplt(Graph<LogEvent> g,
+            String label) throws Exception {
         Graph<LogEvent> g2 = splitAndDuplicate(g, label);
         GraphVizExporter.quickExport("output/traceCondenser/test.dot", g2);
         return computeInvariants(g2);

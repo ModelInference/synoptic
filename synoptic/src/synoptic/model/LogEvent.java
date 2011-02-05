@@ -18,7 +18,7 @@ import synoptic.util.IterableAdapter;
 
 /**
  * The event class. This class may need some work.
- * 
+ *
  * @author Sigurd Schneider
  */
 public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
@@ -60,6 +60,7 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
         return "[" + getAction() + " (" + hashCode() + ")" + "]";
     }
 
+    @Override
     public void addTransition(LogEvent dest, String relation) {
         if (dest == null) {
             throw new InternalSynopticException("Dest was null");
@@ -258,7 +259,7 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
     }
 
     @Override
-    public boolean isFinal() {
+    public boolean isTerminal() {
         return transitions.isEmpty();
     }
 

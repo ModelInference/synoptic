@@ -45,22 +45,6 @@ public interface IGraph<NodeType extends INode<NodeType>> {
      */
     Set<NodeType> getInitialNodes(String relation);
 
-    /**
-     * Get the union over all relations of the terminal nodes
-     * 
-     * @return the set of terminal nodes in the graph
-     */
-    Set<NodeType> getTerminalNodes();
-
-    /**
-     * The nodes in the graph that are terminal with respect to the relation
-     * 
-     * @param relation
-     *            the relation
-     * @return the set of terminal nodes w.r.t. the relation
-     */
-    Set<NodeType> getTerminalNodes(String relation);
-
     // ///////////////////////////////////////////////////////////////////////
     // Methods to modify the graph:
     // ///////////////////////////////////////////////////////////////////////

@@ -53,8 +53,8 @@ public abstract class TracingStateSet<T> implements
         public RelationPath<T> toCounterexample(ITemporalInvariant inv) {
             ArrayList<T> path = new ArrayList<T>();
             HistoryNode cur = this;
-            // TODO: why do we require isFinal here?
-            assert ((Partition) cur.node).isFinal();
+            // TODO: why do we require isTerminal here?
+            assert ((Partition) cur.node).isTerminal();
             while (cur != null) {
                 path.add(cur.node);
                 if (checkPath && cur.previous != null) {

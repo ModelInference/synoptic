@@ -40,9 +40,17 @@ public class Graph<NodeType extends INode<NodeType>> implements
     private final Map<String, Set<NodeType>> initialNodes = new HashMap<String, Set<NodeType>>();
 
     /**
-     * Maps a relation to the set of terminal nodes in this relation.
+     * Every terminal node maintains a transition to this special node to
+     * indicate that the source node is a terminal. We must have this node in
+     * this graph, and not just in partition graph because invariants are mined
+     * over this graph.
      */
-    private final Map<String, Set<NodeType>> terminalNodes = new HashMap<String, Set<NodeType>>();
+    private NodeType dummyTerminalNode = null;
+
+    /**
+     * The node which has transitions to all the initial nodes in the graph.
+     */
+    private NodeType dummyInitialNode = null;
 
     private Set<String> cachedRelations = null;
 
@@ -63,23 +71,8 @@ public class Graph<NodeType extends INode<NodeType>> implements
     }
 
     /**
-     * Helper function that returns a copy of the set of elements that all
-     * strings in the toCopy map passed as argument map to.
-     * 
-     * @param toCopy
-     *            A map whose values should be merged and returned
-     * @return A set of values from the toCopy map.
-     */
-    private Set<NodeType> getNodeSetcopy(Map<String, Set<NodeType>> toCopy) {
-        Set<NodeType> copy = new HashSet<NodeType>();
-        for (Set<NodeType> v : toCopy.values()) {
-            copy.addAll(v);
-        }
-        return copy;
-    }
-
-    /**
-     * Returns all the nodes in this graph.
+     * Returns all the nodes in this graph. This does NOT include the
+     * dummyTerminalNode.
      */
     @Override
     public Set<NodeType> getNodes() {
@@ -91,15 +84,9 @@ public class Graph<NodeType extends INode<NodeType>> implements
      */
     @Override
     public Set<NodeType> getInitialNodes() {
-        return getNodeSetcopy(initialNodes);
-    }
-
-    /**
-     * Returns all the terminal nodes in this graph.
-     */
-    @Override
-    public Set<NodeType> getTerminalNodes() {
-        return getNodeSetcopy(terminalNodes);
+        Set<NodeType> copy = new HashSet<NodeType>();
+        copy.add(dummyInitialNode);
+        return copy;
     }
 
     /**
@@ -112,18 +99,6 @@ public class Graph<NodeType extends INode<NodeType>> implements
             return Collections.emptySet();
         }
         return initialNodes.get(relation);
-    }
-
-    /**
-     * Returns all the initial nodes in this graph that are initial in the given
-     * relation.
-     */
-    @Override
-    public Set<NodeType> getTerminalNodes(String relation) {
-        if (!terminalNodes.containsKey(relation)) {
-            return Collections.emptySet();
-        }
-        return terminalNodes.get(relation);
     }
 
     /**
@@ -165,34 +140,34 @@ public class Graph<NodeType extends INode<NodeType>> implements
     }
 
     /**
-     * Helped function for tagging initial\final nodes.
+     * Sets the dummy terminal node to which all terminal nodes in the graph
+     * have a transition.
      * 
-     * @param node
-     *            node to tag
-     * @param relation
-     *            the relation to which the node belongs
-     * @param tagMap
-     *            the tagMap to use
+     * @param dummyTerminal
+     *            the dummy terminal node to use for this graph
      */
-    private void tagNode(NodeType node, String relation,
-            Map<String, Set<NodeType>> tagMap) {
-        if (node == null) {
-            throw new InternalSynopticException(new IllegalArgumentException(
-                    "Null node argument"));
-        }
-        if (!tagMap.containsKey(relation)) {
-            tagMap.put(relation, new HashSet<NodeType>());
-        }
-        tagMap.get(relation).add(node);
-        cachedRelations = null;
+    public void setDummyTerminal(NodeType dummyTerminal) {
+        this.dummyTerminalNode = dummyTerminal;
+        this.nodes.add(dummyTerminal);
     }
 
     /**
-     * Tags a node as initial.
+     * Sets the dummy initial node to which all the initial nodes in the trace
+     * transition.
+     * 
+     * @param dummyInitial
+     *            the dummy initial node to use for this graph
+     * @param relation
+     *            the relation with which this initial node is associated
      */
-    @Override
-    public void tagInitial(NodeType initialNode, String relation) {
-        tagNode(initialNode, relation, initialNodes);
+    public void setDummyInitial(NodeType dummyInitial, String relation) {
+        this.dummyInitialNode = dummyInitial;
+        this.nodes.add(dummyInitial);
+        if (!initialNodes.containsKey(relation)) {
+            initialNodes.put(relation, new HashSet<NodeType>());
+        }
+        initialNodes.get(relation).add(dummyInitial);
+        cachedRelations = null;
     }
 
     /**
@@ -200,9 +175,23 @@ public class Graph<NodeType extends INode<NodeType>> implements
      */
     @Override
     public void tagTerminal(NodeType terminalNode, String relation) {
-        tagNode(terminalNode, relation, terminalNodes);
-        // NOTE: this graph does not maintain the TERMINAL node. See
-        // PartionGraph instead.
+        if (dummyTerminalNode == null) {
+            throw new InternalSynopticException(
+                    "Must call setDummyTerminal() prior to tagTerminal().");
+        }
+        terminalNode.addTransition(dummyTerminalNode, relation);
+    }
+
+    /**
+     * Tags a node as initial.
+     */
+    @Override
+    public void tagInitial(NodeType initialNode, String relation) {
+        if (dummyInitialNode == null) {
+            throw new InternalSynopticException(
+                    "Must call setDummyInitial() prior to tagInitial().");
+        }
+        dummyInitialNode.addTransition(initialNode, relation);
     }
 
     /**

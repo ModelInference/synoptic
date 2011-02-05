@@ -2,6 +2,7 @@ package synoptic.invariants;
 
 import java.util.List;
 
+import synoptic.main.Main;
 import synoptic.model.interfaces.INode;
 
 /**
@@ -39,12 +40,14 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
              * For more information see: http://mitpress.
              * mit.edu/catalog/item/default.asp?ttype=2&tid=11481
              */
-            // Using Version 1.
-            return "[](did(" + first + ") -> <> did(" + second + ")))";
+            // Using Version 2:
+            return "<> " + Main.terminalNodeLabel + " -> [](did(" + first
+                    + ") -> <> did(" + second + ")))";
         } else {
             // Version 1: return "[](" + first + " -> (<>" + second + "))";
-            // Using Version 1.
-            return "[](" + first + " -> (<>" + second + "))";
+            // Using Version 2:
+            return "<> " + Main.terminalNodeLabel + " -> [](" + first
+                    + " -> (<>" + second + "))";
         }
     }
 

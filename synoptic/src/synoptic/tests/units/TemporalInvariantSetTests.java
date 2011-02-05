@@ -250,7 +250,7 @@ public class TemporalInvariantSetTests {
         trueInvs3.add(new NeverFollowedInvariant("x", "a", defRelation));
         trueInvs3.add(new NeverFollowedInvariant("y", "b", defRelation));
 
-        // System.out.println("mined: " + minedInvs3);
+        System.out.println("mined: " + minedInvs3);
         assertTrue(trueInvs3.sameInvariants(minedInvs3));
     }
 
