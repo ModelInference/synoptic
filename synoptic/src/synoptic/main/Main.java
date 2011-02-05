@@ -425,9 +425,9 @@ public class Main implements Callable<Integer> {
         try {
             field = Main.class.getField(optName);
         } catch (SecurityException e) {
-            throw new InternalSynopticException(e);
+            throw InternalSynopticException.Wrap(e);
         } catch (NoSuchFieldException e) {
-            throw new InternalSynopticException(e);
+            throw InternalSynopticException.Wrap(e);
         }
         Option opt = field.getAnnotation(Option.class);
         String desc = opt.value();
@@ -495,8 +495,7 @@ public class Main implements Callable<Integer> {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return;
+            throw InternalSynopticException.Wrap(e);
         }
 
         System.out.println("Running tests: " + testClasses);

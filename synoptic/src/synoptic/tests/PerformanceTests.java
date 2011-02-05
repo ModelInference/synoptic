@@ -32,8 +32,8 @@ public class PerformanceTests extends TestCase {
         for (int M = 100; M < 1000; M += 100) {
             try {
                 runTestBisim(1, M, n, r, false);
-            } catch (Exception exn) {
-                throw new InternalSynopticException(exn);
+            } catch (Exception e) {
+                throw InternalSynopticException.Wrap(e);
             }
         }
     }
@@ -49,9 +49,8 @@ public class PerformanceTests extends TestCase {
         for (int i = 0; i < n_values.length; i++) {
             try {
                 runTestBisim(1, M, n_values[i], r, false);
-            } catch (Exception exn) {
-                exn.printStackTrace();
-                throw new InternalSynopticException(exn);
+            } catch (Exception e) {
+                throw InternalSynopticException.Wrap(e);
             }
         }
     }

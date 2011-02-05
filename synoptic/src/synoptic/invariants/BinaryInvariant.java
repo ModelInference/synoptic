@@ -95,7 +95,7 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
             }
             return automaton;
         } catch (ParseErrorException e) {
-            throw new InternalSynopticException(e);
+            throw InternalSynopticException.Wrap(e);
         }
     }
 

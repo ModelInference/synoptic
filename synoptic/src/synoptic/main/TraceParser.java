@@ -185,7 +185,7 @@ public class TraceParser {
         try {
             addRegex(regex + "(?<SEPCOUNT++>)(?<HIDE=>true)");
         } catch (ParseException e) {
-            throw new InternalSynopticException(e);
+            throw InternalSynopticException.Wrap(e);
         }
         cycle(parsers);
         cycle(incrementors);

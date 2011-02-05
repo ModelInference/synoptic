@@ -1,6 +1,7 @@
 package synoptic.invariants.fsmcheck;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 import synoptic.invariants.BinaryInvariant;
 import synoptic.model.interfaces.INode;
+import synoptic.util.InternalSynopticException;
 
 /**
  * <p>
@@ -165,19 +167,26 @@ public abstract class FsmStateSet<T extends INode<T>> implements
     @SuppressWarnings("unchecked")
     public FsmStateSet<T> copy() {
         FsmStateSet<T> result;
-        try {
-            Constructor cons = null;
-            for (Constructor c : this.getClass().getConstructors()) {
-                Class[] params = c.getParameterTypes();
-                if (params.length == 1 && params[0].toString().equals("int")) {
-                    cons = c;
-                }
+
+        Constructor cons = null;
+        for (Constructor c : this.getClass().getConstructors()) {
+            Class[] params = c.getParameterTypes();
+            if (params.length == 1 && params[0].toString().equals("int")) {
+                cons = c;
             }
-            result = (FsmStateSet<T>) cons.newInstance(sets.size());
-        } catch (Exception e) {
-            System.out.println("ERROR: Failed to clone stateset.");
-            return null;
         }
+        try {
+            result = (FsmStateSet<T>) cons.newInstance(sets.size());
+        } catch (IllegalArgumentException e) {
+            throw InternalSynopticException.Wrap(e);
+        } catch (InstantiationException e) {
+            throw InternalSynopticException.Wrap(e);
+        } catch (IllegalAccessException e) {
+            throw InternalSynopticException.Wrap(e);
+        } catch (InvocationTargetException e) {
+            throw InternalSynopticException.Wrap(e);
+        }
+
         result.count = count;
         ArrayList<BitSet> newSets = new ArrayList<BitSet>();
         for (int i = 0; i < sets.size(); i++) {
