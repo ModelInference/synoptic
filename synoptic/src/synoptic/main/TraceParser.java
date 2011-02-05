@@ -605,11 +605,25 @@ public class TraceParser {
             }
         }
 
+        // TODO: make sure that initialNodeLabel does not conflict with any of
+        // the event labels in the trace.
+        Action dummyAct = Action.NewInitialAction();
+        if (internActions) {
+            dummyAct.intern();
+        }
+        graph.setDummyInitial(new LogEvent(dummyAct), defaultRelation);
         // Mark messages without a predecessor as initial.
         for (LogEvent e : noPredecessor) {
             graph.tagInitial(e, defaultRelation);
         }
 
+        // TODO: make sure that terminalNodeLabel does not conflict with any of
+        // the event labels in the trace.
+        dummyAct = Action.NewTerminalAction();
+        if (internActions) {
+            dummyAct.intern();
+        }
+        graph.setDummyTerminal(new LogEvent(dummyAct));
         // Mark messages without a predecessor as terminal.
         for (LogEvent e : noSuccessor) {
             graph.tagTerminal(e, defaultRelation);

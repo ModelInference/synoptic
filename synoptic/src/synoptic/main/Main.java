@@ -45,6 +45,18 @@ public class Main implements Callable<Integer> {
     public static final String versionString = "0.0.3";
 
     /**
+     * The label used to distinguish the dummy initial node -- constructed to
+     * transition to all initial trace log events.
+     */
+    public static final String initialNodeLabel = "INITIAL";
+
+    /**
+     * The label used to distinguish the dummy terminal node -- constructed so
+     * that all terminal trace log events transition to it.
+     */
+    public static final String terminalNodeLabel = "TERMINAL";
+
+    /**
      * Global source of pseudo-random numbers.
      */
     public static Random random;
@@ -81,10 +93,9 @@ public class Main implements Callable<Integer> {
     public static boolean logLvlQuiet = false;
 
     /**
-     * Be verbose, print extra detailed information. Sets the log level to
-     * FINEST.
+     * Be verbose, print extra detailed information. Sets the log level to FINE.
      */
-    @Option(value = "-v Print extra detailed information", aliases = { "-verbose" })
+    @Option(value = "-v Print detailed information during execution", aliases = { "-verbose" })
     public static boolean logLvlVerbose = false;
 
     /**
@@ -197,6 +208,20 @@ public class Main implements Callable<Integer> {
      */
     @Option(value = "Output edge labels on graphs to indicate transition probabilities", aliases = { "-outputEdgeLabels" })
     public static boolean outputEdgeLabels = true;
+
+    /**
+     * Whether or not the output graphs include the common TERMINAL state, to
+     * which all final trace nodes have an edge.
+     */
+    @Option(value = "Show TERMINAL node in generated graphs.")
+    public static boolean showTerminalNode = true;
+
+    /**
+     * Whether or not the output graphs include the common INITIAL state, which
+     * has an edge to all the start trace nodes.
+     */
+    @Option(value = "Show INITIAL node in generated graphs.")
+    public static boolean showInitialNode = true;
     // end option group "Output Options"
 
     // //////////////////////////////////////////////////
@@ -232,12 +257,19 @@ public class Main implements Callable<Integer> {
     // end option group "Verbosity Options"
 
     // //////////////////////////////////////////////////
+    @OptionGroup(value = "Debugging Options", unpublicized = true)
+    /**
+     * Be extra verbose, print extra detailed information. Sets the log level to
+     * FINEST.
+     */
+    @Option(value = "Print extra detailed information during execution")
+    public static boolean logLvlExtraVerbose = false;
+
     /**
      * Do not perform the coarsening stage in Synoptic, and as final output use
      * the most refined representation. This option is <i>unpublicized</i>; it
      * will not appear in the default usage message
      */
-    @OptionGroup(value = "Debugging Options", unpublicized = true)
     @Option("Do not perform the coarsening stage")
     public static boolean noCoarsening = false;
 
@@ -508,6 +540,8 @@ public class Main implements Callable<Integer> {
         if (logLvlQuiet) {
             logger.setLevel(Level.WARNING);
         } else if (logLvlVerbose) {
+            logger.setLevel(Level.FINE);
+        } else if (logLvlExtraVerbose) {
             logger.setLevel(Level.FINEST);
         } else {
             logger.setLevel(Level.INFO);
@@ -683,7 +717,8 @@ public class Main implements Callable<Integer> {
 
         logger.info("Running Synoptic...");
 
-        // Create the partition graph and mine the invariants.
+        // Create the initial partitioning graph and mine the invariants from
+        // the initial graph.
         PartitionGraph result = new PartitionGraph(inputGraph, true);
         TemporalInvariantSet minedInvs = result.getInvariants();
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");

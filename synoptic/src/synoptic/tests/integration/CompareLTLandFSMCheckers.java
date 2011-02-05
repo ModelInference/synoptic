@@ -80,7 +80,7 @@ public class CompareLTLandFSMCheckers {
                 // logger.info("fsm_path.size = " + fsm_path.path.size());
                 // logger.info("path.size = " + path.path.size());
                 assertTrue(fsm_path.path.size() == path.path.size());
-                assertTrue(path.path.get(path.path.size() - 1).isFinal());
+                assertTrue(path.path.get(path.path.size() - 1).isTerminal());
             }
             assertTrue(path != null == violated.contains(inv));
         }

@@ -10,22 +10,27 @@ public class InternalSynopticException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     /**
-     * The java exception that this is wrapping.
-     */
-    Exception javaException = null;
-
-    /**
      * The human readable message to display, in the case that we are not
      * wrapping a java exception.
      */
     String errMessage = null;
 
+    /**
+     * The stack trace for this exception -- initialized in the constructors.
+     */
+    String stackTrace = "";
+
     public InternalSynopticException(Exception e) {
-        javaException = e;
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        stackTrace = sw.toString();
     }
 
     public InternalSynopticException(String errMsg) {
         errMessage = errMsg;
+        StringWriter sw = new StringWriter();
+        super.printStackTrace(new PrintWriter(sw));
+        stackTrace = sw.toString();
     }
 
     @Override
@@ -33,18 +38,10 @@ public class InternalSynopticException extends RuntimeException {
         String ret = new String("Internal error, notify developers.\n");
 
         if (errMessage != null) {
-            ret += "Error: " + errMessage;
+            ret += "Error: " + errMessage + "\n";
         }
-
         ret += "Error traceback:\n";
-        Exception exceptToPrint = this;
-        if (javaException != null) {
-            exceptToPrint = javaException;
-        }
-        StringWriter sw = new StringWriter();
-        exceptToPrint.printStackTrace(new PrintWriter(sw));
-        ret += sw.toString();
-
+        ret += stackTrace;
         return ret;
     }
 

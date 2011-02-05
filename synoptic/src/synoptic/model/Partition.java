@@ -16,6 +16,7 @@ import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.IIterableIterator;
+import synoptic.util.InternalSynopticException;
 
 /**
  * Implements a partition in a partition graph. Partitions are nodes, but they
@@ -34,10 +35,10 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
     private String label;
 
     /**
-     * Whether or not this partition is final (contains a terminal message
-     * event).
+     * Whether or not this partition is a terminal partition (whether or not it
+     * contains a terminal message event).
      */
-    private boolean isFinal;
+    private boolean isTerminal;
 
     public Partition(Set<LogEvent> messages) {
         this.messages = new LinkedHashSet<LogEvent>(messages);
@@ -47,10 +48,10 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 
         // A partition is final if it contains a message event that is a
         // terminal node in some input trace.
-        isFinal = false;
+        isTerminal = false;
         for (LogEvent e : messages) {
-            if (e.isFinal()) {
-                isFinal = true;
+            if (e.isTerminal()) {
+                isTerminal = true;
             }
         }
     }
@@ -58,14 +59,14 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
     public void addMessage(LogEvent message) {
         messages.add(message);
         message.setParent(this);
-        isFinal |= message.isFinal();
+        isTerminal |= message.isTerminal();
     }
 
     public void addAllMessages(Collection<LogEvent> messages) {
         this.messages.addAll(messages);
         for (final LogEvent m : messages) {
             m.setParent(this);
-            isFinal |= m.isFinal();
+            isTerminal |= m.isTerminal();
         }
     }
 
@@ -320,8 +321,9 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
      * Whether or not this partition is final (contains a terminal message
      * event).
      */
-    public boolean isFinal() {
-        return isFinal;
+    @Override
+    public boolean isTerminal() {
+        return isTerminal;
     }
 
     @Override
@@ -359,5 +361,11 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
             }
         }
         return 0;
+    }
+
+    @Override
+    public void addTransition(Partition dest, String relation) {
+        throw new InternalSynopticException(
+                "Partitions manipulate edges implicitly through LogEvent instances they maintain. Cannot modify Partition transition directly.");
     }
 }
