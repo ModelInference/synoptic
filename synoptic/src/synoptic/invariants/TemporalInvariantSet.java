@@ -25,7 +25,6 @@ import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
-import synoptic.util.InternalSynopticException;
 
 // import daikonizer.Daikonizer;
 
@@ -187,9 +186,6 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             });
 
             return paths;
-        } catch (Exception e) {
-            logger.info(new InternalSynopticException(e).toString());
-            return null;
         } finally {
             violations.stop();
             if (Main.doBenchmarking) {

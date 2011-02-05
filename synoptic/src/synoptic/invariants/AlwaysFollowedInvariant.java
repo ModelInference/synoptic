@@ -24,29 +24,40 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
     public String getLTLString() {
         if (useDIDCAN) {
             /**
-             * Version 1: "[](did(" + first + ") -> <> did(" + second + ")))";
+             * Version 1:
+             * 
+             * <pre>
+             * [] ( did(first) -> <> did(second) )
+             * </pre>
+             * 
              * Can loop infinitely in a loop that does not reach a terminal
              * node. In a sense it is completely unfair -- it has no fairness
              * constraints.
              */
             /**
-             * Version 2: "<> TERMINAL -> [](did(" + first + ") -> <> did(" +
-             * second + ")))"; Only considers paths that can reach the TERMINAL
-             * node, and only then checks the AFby invariant along those paths.
-             * WARNING: this version does not work (at all) for non-terminating
-             * traces!
+             * Version 2:
+             * 
+             * <pre>
+             * (<>(did(TERMINAL))) -> [] ( did(first) -> <> did(second) )
+             * </pre>
+             * 
+             * Only considers paths that can reach the TERMINAL node, and only
+             * then checks the AFby invariant along those paths. WARNING: this
+             * version does not work (at all) for non-terminating traces!
              */
             /**
              * For more information see: http://mitpress.
              * mit.edu/catalog/item/default.asp?ttype=2&tid=11481
              */
             // Using Version 2:
-            return "<> " + Main.terminalNodeLabel + " -> [](did(" + first
-                    + ") -> <> did(" + second + ")))";
+            return "(<> (did(" + Main.terminalNodeLabel + "))) -> [](did("
+                    + first + ") -> (<> (did(" + second + "))))";
+
+            // return "[](did(" + first + ") -> <> did(" + second + ")))";
         } else {
             // Version 1: return "[](" + first + " -> (<>" + second + "))";
             // Using Version 2:
-            return "<> " + Main.terminalNodeLabel + " -> [](" + first
+            return "(<> (" + Main.terminalNodeLabel + ")) -> [](" + first
                     + " -> (<>" + second + "))";
         }
     }

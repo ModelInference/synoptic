@@ -255,12 +255,12 @@ public class GraphLTLChecker<T extends INode<T>> {
                 r = new RelationPath<T>(inv, inv.shorten(trace));
                 if (r.path == null) {
                     throw new InternalSynopticException(
-                            "shortening returned null for " + inv
-                                    + " and trace " + trace);
+                            "counter-example shortening returned null for "
+                                    + inv + " and c-example trace " + trace);
                 }
             }
         } catch (ParseErrorException e) {
-            e.printStackTrace();
+            throw InternalSynopticException.Wrap(e);
         }
         return r;
     }

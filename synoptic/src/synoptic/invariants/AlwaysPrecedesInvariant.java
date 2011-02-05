@@ -19,9 +19,12 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
     @Override
     public String getLTLString() {
         if (useDIDCAN) {
-            return "(<>(did(second)))->((!did(first)) U did(second))";
+            // Weak-until version:
+            // return "!(did(" + second + ")) W (did(" + first + "))";
+            return "(<>(did(" + second + ")))->((!did(" + second + ")) U did("
+                    + first + "))";
         } else {
-            return "(<>(second))->((!first) U second)";
+            return "(<>(" + second + "))->((!" + second + ") U " + first + ")";
         }
     }
 
@@ -32,33 +35,33 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
      * includes the entire trace up to the first appearance of 'second'. If the
      * trace has a 'first' before a 'second' then it returns null.
      * 
+     * <pre>
+     * NOTE: x AP x cannot be true, so we will never have a counter-example
+     * in which 'first' == 'second'.
+     * </pre>
+     * 
      * @param <T>
-     * @param first_seen
-     *            whether or not we've seen' first' in the trace so far
-     * @param trace_pos
-     *            the position of where we are in the trace so far
+     *            The node type of the trace
      * @param trace
      *            the trace we are operating on
      * @return the sub-trace described above
      */
-    private <T extends INode<T>> List<T> shortenImp(boolean first_seen,
-            int trace_pos, List<T> trace) {
-        if (trace.size() <= trace_pos) {
-            return null;
-        }
-        T message = trace.get(trace_pos);
-        if (message.getLabel().equals(first)) {
-            first_seen = true;
-        }
-        if (message.getLabel().equals(second) && !first_seen) {
-            return trace.subList(0, trace_pos + 1);
-        }
-        return shortenImp(first_seen, trace_pos + 1, trace);
-    }
-
     @Override
     public <T extends INode<T>> List<T> shorten(List<T> trace) {
-        return shortenImp(false, 0, trace);
+        for (int trace_pos = 0; trace_pos < trace.size(); trace_pos++) {
+            T message = trace.get(trace_pos);
+            if (message.getLabel().equals(first)) {
+                // We found a 'first' before a 'second' (we are assuming that
+                // 'second' does exist later on in the trace).
+                return null;
+            }
+            if (message.getLabel().equals(second)) {
+                // We found a 'second' before a 'first'.
+                return trace.subList(0, trace_pos + 1);
+            }
+        }
+        // We found neither a 'first' nor a 'second'.
+        return null;
     }
 
     @Override

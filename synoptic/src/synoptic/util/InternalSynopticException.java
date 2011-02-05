@@ -20,17 +20,44 @@ public class InternalSynopticException extends RuntimeException {
      */
     String stackTrace = "";
 
-    public InternalSynopticException(Exception e) {
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw));
-        stackTrace = sw.toString();
-    }
-
+    /**
+     * Create an exception based on some internal error.
+     * 
+     * @param errMsg
+     *            Error message to display to the user
+     */
     public InternalSynopticException(String errMsg) {
         errMessage = errMsg;
         StringWriter sw = new StringWriter();
         super.printStackTrace(new PrintWriter(sw));
         stackTrace = sw.toString();
+    }
+
+    /**
+     * Create an internal exception based on a Java exception
+     * 
+     * @param e
+     *            Some Java exception
+     */
+    private InternalSynopticException(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        stackTrace = sw.toString();
+    }
+
+    /**
+     * Create an internal exception wrapper around a Java exception. Unless the
+     * exception itself is an internal exception.
+     * 
+     * @param e
+     *            Some Java exception
+     * @return a InternalSynopticException wrapper for the Java exception
+     */
+    public static InternalSynopticException Wrap(Exception e) {
+        if (e instanceof InternalSynopticException) {
+            return (InternalSynopticException) e;
+        }
+        return new InternalSynopticException(e);
     }
 
     @Override
