@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,11 +31,14 @@ import synoptic.util.InternalSynopticException;
  * @author ivan
  */
 public class TemporalInvariantSetTests {
+    private static Logger logger = Logger
+            .getLogger("TemporalInvSetTests Logger");
+
     /**
      * We test invariants by parsing a string representing a log, and mining
      * invariants from the resulting graph.
      */
-    TraceParser parser;
+    static TraceParser parser;
 
     /**
      * Default relation used in invariant mining.
@@ -52,9 +56,38 @@ public class TemporalInvariantSetTests {
         Main.recoverFromParseErrors = false;
         Main.ignoreNonMatchingLines = false;
         Main.debugParse = false;
+        Main.logLvlExtraVerbose = true;
+        Main.SetUpLogging();
         parser = new TraceParser();
         parser.addRegex("^(?<TYPE>)$");
         parser.addSeparator("^--$");
+    }
+
+    /**
+     * Generates a random log composed of three types of events, and includes
+     * random partitions.
+     * 
+     * @return The randomly generated log.
+     */
+    public String[] genRandomLog() {
+        ArrayList<String> log = new ArrayList<String>();
+        Random generator = new Random();
+
+        // Arbitrary partition limit.
+        int numPartitions = 5;
+
+        // Event types allowed in the log, with partition string at index 0.
+        String[] eventTypes = new String[] { "--", "a", "b", "c" };
+
+        // Generate a random log.
+        while (numPartitions != 0) {
+            int rndIndex = generator.nextInt(eventTypes.length);
+            log.add(eventTypes[rndIndex]);
+            if (rndIndex == 0) {
+                numPartitions -= 1;
+            }
+        }
+        return log.toArray(new String[log.size()]);
     }
 
     /**
@@ -65,7 +98,7 @@ public class TemporalInvariantSetTests {
      *            array of strings to join
      * @return the joined string
      */
-    private String joinString(String[] strAr) {
+    private static String joinString(String[] strAr) {
         StringBuilder sb = new StringBuilder();
         for (String s : strAr) {
             sb.append(s);
@@ -73,6 +106,23 @@ public class TemporalInvariantSetTests {
         }
         sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
+    }
+
+    /**
+     * Generates an initial graph based on a sequence of log events.
+     * 
+     * @param a
+     *            log of events, each one in the format: (?<TYPE>)
+     * @return an initial graph corresponding to the log of events
+     * @throws ParseException
+     * @throws InternalSynopticException
+     */
+    public static Graph<LogEvent> genInitialGraph(String[] events)
+            throws ParseException, InternalSynopticException {
+        String traceStr = joinString(events);
+        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr, "test",
+                -1);
+        return parser.generateDirectTemporalRelation(parsedEvents, true);
     }
 
     /**
@@ -86,7 +136,7 @@ public class TemporalInvariantSetTests {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    private TemporalInvariantSet genInvariants(String[] events)
+    public static TemporalInvariantSet genInvariants(String[] events)
             throws ParseException, InternalSynopticException {
         Graph<LogEvent> inputGraph = genInitialGraph(events);
         PartitionGraph result = new PartitionGraph(inputGraph, true);
@@ -94,20 +144,106 @@ public class TemporalInvariantSetTests {
     }
 
     /**
-     * Generates an initial graph based on a sequence of log events.
+     * Generates a TemporalInvariantSet based on a sequence of log events -- a
+     * set of invariants that are mined from the log, and hold true for the
+     * initial graph of the log. This set includes all Tautological invariants
+     * as well. So these are the "raw" invariants which are mined.
      * 
      * @param a
      *            log of events, each one in the format: (?<TYPE>)
-     * @return an initial graph corresponding to the log of events
+     * @return an invariant set for the input log
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    private Graph<LogEvent> genInitialGraph(String[] events)
-            throws ParseException, InternalSynopticException {
-        String traceStr = joinString(events);
-        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr, "test",
-                -1);
-        return parser.generateDirectTemporalRelation(parsedEvents, true);
+    public static TemporalInvariantSet genInvariantsIncludingTautological(
+            String[] events) throws ParseException, InternalSynopticException {
+        Graph<LogEvent> inputGraph = genInitialGraph(events);
+        return TemporalInvariantSet.computeInvariants(inputGraph);
+    }
+
+    /**
+     * Generates a list of tautological invariants for a trace. Currently these
+     * only involve INITIAL and TERMINAL trace nodes.
+     * 
+     * @param allEvents
+     *            The list of all events in the trace for which to generate the
+     *            tautological invariants
+     * @return A list of tautological temporal invariants for the input trace
+     */
+    public List<ITemporalInvariant> genTautologicalInvariants(
+            List<String> allEvents) {
+        ArrayList<ITemporalInvariant> invs = new ArrayList<ITemporalInvariant>();
+        for (String e : allEvents) {
+            // x AFby TERMINAL
+            invs.add(new AlwaysFollowedInvariant(e, Main.terminalNodeLabel,
+                    defRelation));
+            // INITIAL AFby x
+            invs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, e,
+                    defRelation));
+            // x NFby INITIAL
+            invs.add(new NeverFollowedInvariant(e, Main.initialNodeLabel,
+                    defRelation));
+            // TERMINAL NFby x
+            invs.add(new NeverFollowedInvariant(Main.terminalNodeLabel, e,
+                    defRelation));
+            // INITIAL AP x
+            invs.add(new AlwaysPrecedesInvariant(Main.initialNodeLabel, e,
+                    defRelation));
+            // x AP TERMINAL
+            invs.add(new AlwaysPrecedesInvariant(e, Main.terminalNodeLabel,
+                    defRelation));
+        }
+        // INITIAL AFby TERMINAL
+        invs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel,
+                Main.terminalNodeLabel, defRelation));
+        // TERMINAL NFby INITIAL
+        invs.add(new NeverFollowedInvariant(Main.terminalNodeLabel,
+                Main.initialNodeLabel, defRelation));
+        // TERMINAL NFby TERMINAL
+        invs.add(new NeverFollowedInvariant(Main.terminalNodeLabel,
+                Main.terminalNodeLabel, defRelation));
+        // INITIAL NFby INITIAL
+        invs.add(new NeverFollowedInvariant(Main.initialNodeLabel,
+                Main.initialNodeLabel, defRelation));
+        // INITIAL AP TERMINAL
+        invs.add(new AlwaysPrecedesInvariant(Main.initialNodeLabel,
+                Main.terminalNodeLabel, defRelation));
+        logger.fine("Returning tautological invariants: " + invs.toString());
+        return invs;
+    }
+
+    /**
+     * Tests whether the invariants involving INITIAL\TERMINAL nodes are mined
+     * correctly.
+     * 
+     * @throws InternalSynopticException
+     * @throws ParseException
+     */
+    @Test
+    public void testTautologicalInvariantMining()
+            throws InternalSynopticException, ParseException {
+
+        String[] log = genRandomLog();
+        ArrayList<String> allEvents = new ArrayList<String>();
+        for (String e : log) {
+            if (!e.equals("--")) {
+                allEvents.add(e);
+            }
+        }
+
+        // Generate set including tautological invariants.
+        TemporalInvariantSet s1 = genInvariantsIncludingTautological(log);
+
+        // Generate set without tautological invariants.
+        TemporalInvariantSet s2 = genInvariants(log);
+
+        logger.fine("set including tautological: " + s1);
+        logger.fine("set without tautological: " + s2);
+
+        s2.addAll(genTautologicalInvariants(allEvents));
+        logger.fine("set without tautological + true tautological: " + s2);
+
+        assertTrue(s1.sameInvariants(s2));
     }
 
     /**
@@ -246,11 +382,11 @@ public class TemporalInvariantSetTests {
         trueInvs3.add(new NeverFollowedInvariant("b", "y", defRelation));
 
         trueInvs3.add(new NeverFollowedInvariant("x", "a", defRelation));
-        trueInvs3.add(new NeverFollowedInvariant("y", "b", defRelation));
-        trueInvs3.add(new NeverFollowedInvariant("x", "a", defRelation));
+        trueInvs3.add(new NeverFollowedInvariant("x", "b", defRelation));
+        trueInvs3.add(new NeverFollowedInvariant("y", "a", defRelation));
         trueInvs3.add(new NeverFollowedInvariant("y", "b", defRelation));
 
-        System.out.println("mined: " + minedInvs3);
+        logger.fine("mined: " + minedInvs3);
         assertTrue(trueInvs3.sameInvariants(minedInvs3));
     }
 
@@ -258,32 +394,21 @@ public class TemporalInvariantSetTests {
      * Mines invariants from a randomly generated log and then uses the model
      * checker to check that every mined invariant actually holds.
      * 
+     * <pre>
+     * TODO: this checks only one side of the approximation. We need a test to
+     * check the other side.
+     * </pre>
+     * 
      * @throws InternalSynopticException
      * @throws ParseException
      */
     @Test
     public void testApproximationExactnessTest() throws ParseException,
             InternalSynopticException {
-        ArrayList<String> log = new ArrayList<String>();
-        Random generator = new Random();
 
-        // Arbitrary partition limit.
-        int numPartitions = 5;
+        String[] log = genRandomLog();
 
-        // Event types allowed in the log, with partition string at index 0.
-        String[] eventTypes = new String[] { "--", "a", "b", "c" };
-
-        // Generate a random log.
-        while (numPartitions != 0) {
-            int rndIndex = generator.nextInt(eventTypes.length);
-            log.add(eventTypes[rndIndex]);
-            if (rndIndex == 0) {
-                numPartitions -= 1;
-            }
-        }
-
-        Graph<LogEvent> inputGraph = genInitialGraph(log.toArray(new String[log
-                .size()]));
+        Graph<LogEvent> inputGraph = genInitialGraph(log);
         PartitionGraph graph = new PartitionGraph(inputGraph, true);
         TemporalInvariantSet minedInvs = graph.getInvariants();
 
@@ -292,9 +417,9 @@ public class TemporalInvariantSetTests {
         List<RelationPath<LogEvent>> cExamples = minedInvs
                 .getAllCounterExamples(inputGraph);
         if (cExamples != null) {
-            System.out.println("log: " + log);
-            System.out.println("minedInvs: " + minedInvs);
-            System.out.println("[FSM] cExamples: " + cExamples);
+            logger.fine("log: " + log);
+            logger.fine("minedInvs: " + minedInvs);
+            logger.fine("[FSM] cExamples: " + cExamples);
         }
         assertTrue(cExamples == null);
 
@@ -302,9 +427,9 @@ public class TemporalInvariantSetTests {
         Main.useFSMChecker = false;
         cExamples = minedInvs.getAllCounterExamples(inputGraph);
         if (cExamples != null) {
-            System.out.println("log: " + log);
-            System.out.println("minedInvs: " + minedInvs);
-            System.out.println("[LTL] cExamples: " + cExamples);
+            logger.fine("log: " + log);
+            logger.fine("minedInvs: " + minedInvs);
+            logger.fine("[LTL] cExamples: " + cExamples);
         }
         assertTrue(cExamples == null);
     }

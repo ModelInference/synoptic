@@ -247,18 +247,18 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             ArrayList<ITemporalInvariant> foo = new ArrayList<ITemporalInvariant>();
             foo.addAll(invariants);
             foo.removeAll(set2.invariants);
-            logger.info("Not remotely contained: " + foo);
+            logger.fine("Not remotely contained: " + foo);
             foo = new ArrayList<ITemporalInvariant>();
             foo.addAll(set2.invariants);
             foo.removeAll(invariants);
-            logger.info("Not locally contained: " + foo);
+            logger.fine("Not locally contained: " + foo);
         }
         return ret && ret2;
     }
 
     /**
-     * Removes the following types of tautological invariants (for all event
-     * types X) from the set:
+     * The inclusion of INITIAL and TERMINAL states in the graphs generates the
+     * following types of tautological invariants (for all event types X):
      * 
      * <pre>
      * - INITIAL AFby X
@@ -268,17 +268,27 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
      * - TERMINAL NFby INITIAL
      * </pre>
      * 
-     * This filtering is useful because it relieves us from checking invariants
-     * which are true for all graphs produced with typical construction.
+     * We filter these out by simply ignoring any temporal invariants of the
+     * form x INV y where x or y in {INITIAL, TERMINAL}. This filtering is
+     * useful because it relieves us from checking invariants which are true for
+     * all graphs produced with typical construction.<br />
+     * <br />
+     * Note that this filtering, however, could filter out more invariants then
+     * the ones above. We rely on unit tests to make sure that the two sets are
+     * equivalent.
      * 
      * <pre>
-     * TODO: (1) Create a unit test to test that these are always mined.
-     * TODO: (2) Final graphs should always satisfy all these invariants.
-     *           Convert this observation into an extra sanity check.
+     * TODO: Final graphs should always satisfy all these invariants.
+     *       Convert this observation into an extra sanity check.
      * </pre>
      */
     public void filterOutTautologicalInvariants() {
         LinkedHashSet<ITemporalInvariant> invsToRemove = new LinkedHashSet<ITemporalInvariant>();
+
+        LinkedHashSet<String> specialNodes = new LinkedHashSet<String>();
+        specialNodes.add(Main.terminalNodeLabel);
+        specialNodes.add(Main.initialNodeLabel);
+
         for (ITemporalInvariant inv : invariants) {
             if (!(inv instanceof BinaryInvariant)) {
                 continue;
@@ -286,26 +296,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             String first = ((BinaryInvariant) inv).getFirst();
             String second = ((BinaryInvariant) inv).getSecond();
 
-            boolean remove = false;
-            if (inv instanceof AlwaysFollowedInvariant) {
-                if (first == Main.initialNodeLabel) {
-                    remove = true;
-                } else if (second == Main.terminalNodeLabel) {
-                    remove = true;
-                }
-            } else if (inv instanceof AlwaysPrecedesInvariant) {
-                if (first == Main.initialNodeLabel) {
-                    remove = true;
-                } else if (second == Main.terminalNodeLabel) {
-                    remove = true;
-                }
-            } else if (inv instanceof NeverFollowedInvariant) {
-                if (first == Main.terminalNodeLabel
-                        && second == Main.initialNodeLabel) {
-                    remove = true;
-                }
-            }
-            if (remove) {
+            if (specialNodes.contains(first) || specialNodes.contains(second)) {
                 invsToRemove.add(inv);
             }
         }
