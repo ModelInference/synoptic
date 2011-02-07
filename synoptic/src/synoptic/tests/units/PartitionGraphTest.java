@@ -4,12 +4,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMerge;
 import synoptic.algorithms.graph.PartitionSplit;
+import synoptic.main.ParseException;
 import synoptic.model.Action;
 import synoptic.model.LogEvent;
 import synoptic.model.Partition;
@@ -19,7 +19,7 @@ import synoptic.model.input.GraphBuilder;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
-public class PartitionGraphTest {
+public class PartitionGraphTest extends SynopticUnitTest {
     private GraphVizExporter exporter;
     private PartitionGraph pg;
     private PartitionGraph pgSingle;
@@ -35,8 +35,9 @@ public class PartitionGraphTest {
         }
     }
 
-    @Before
-    public void setUp() throws Exception {
+    @Override
+    public void setUp() throws ParseException {
+        super.setUp();
         exporter = new GraphVizExporter();
         pg = createGraph();
         print("1-PartitionGraphTestInitial", pg);

@@ -3,12 +3,17 @@ package synoptic.invariants;
 import java.util.List;
 
 import synoptic.model.interfaces.INode;
+import synoptic.util.InternalSynopticException;
 
 public class AlwaysPrecedesInvariant extends BinaryInvariant {
 
-    public AlwaysPrecedesInvariant(String typeFrist, String typeSecond,
+    public AlwaysPrecedesInvariant(String typeFirst, String typeSecond,
             String relation) {
-        super(typeFrist, typeSecond, relation);
+        super(typeFirst, typeSecond, relation);
+        if (typeFirst == typeSecond) {
+            throw new InternalSynopticException(
+                    "x AlwaysPrecedes x can never be true");
+        }
     }
 
     @Override

@@ -17,7 +17,7 @@ import synoptic.main.ListedProperties;
  * 
  * @author ivan
  */
-public class ListedPropertiesTests {
+public class ListedPropertiesTests extends SynopticUnitTest {
 
     /**
      * Uses ListedProperties to convert an options string to a cmd args array

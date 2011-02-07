@@ -5,10 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.logging.Logger;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
@@ -30,10 +27,7 @@ import synoptic.util.InternalSynopticException;
  * 
  * @author ivan
  */
-public class TemporalInvariantSetTests {
-    private static Logger logger = Logger
-            .getLogger("TemporalInvSetTests Logger");
-
+public class TemporalInvariantSetTests extends SynopticUnitTest {
     /**
      * We test invariants by parsing a string representing a log, and mining
      * invariants from the resulting graph.
@@ -49,15 +43,10 @@ public class TemporalInvariantSetTests {
      * Sets up the parser state and Main static variables
      * 
      * @throws ParseException
-     * @throws InternalSynopticException
      */
-    @Before
-    public void setUp() throws ParseException, InternalSynopticException {
-        Main.recoverFromParseErrors = false;
-        Main.ignoreNonMatchingLines = false;
-        Main.debugParse = false;
-        Main.logLvlExtraVerbose = true;
-        Main.SetUpLogging();
+    @Override
+    public void setUp() throws ParseException {
+        super.setUp();
         parser = new TraceParser();
         parser.addRegex("^(?<TYPE>)$");
         parser.addSeparator("^--$");
@@ -71,8 +60,6 @@ public class TemporalInvariantSetTests {
      */
     public String[] genRandomLog() {
         ArrayList<String> log = new ArrayList<String>();
-        Random generator = new Random();
-
         // Arbitrary partition limit.
         int numPartitions = 5;
 
@@ -81,7 +68,7 @@ public class TemporalInvariantSetTests {
 
         // Generate a random log.
         while (numPartitions != 0) {
-            int rndIndex = generator.nextInt(eventTypes.length);
+            int rndIndex = Main.random.nextInt(eventTypes.length);
             log.add(eventTypes[rndIndex]);
             if (rndIndex == 0) {
                 numPartitions -= 1;

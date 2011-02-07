@@ -6,10 +6,8 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.LogEvent;
@@ -21,18 +19,16 @@ import synoptic.util.InternalSynopticException;
  * 
  * @author ivan
  */
-public class TraceParserTests {
+public class TraceParserTests extends SynopticUnitTest {
     /**
      * The parser instance we use for testing.
      */
     TraceParser parser = null;
 
-    @Before
-    public void setUp() {
+    @Override
+    public void setUp() throws ParseException {
+        super.setUp();
         parser = new TraceParser();
-        Main.recoverFromParseErrors = false;
-        Main.ignoreNonMatchingLines = false;
-        Main.debugParse = false;
     }
 
     // //////////////////////////////////////////////////////////////////////////
