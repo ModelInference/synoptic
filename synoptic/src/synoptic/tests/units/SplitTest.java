@@ -2,25 +2,15 @@ package synoptic.tests.units;
 
 import static org.junit.Assert.fail;
 
-import java.util.Random;
-
-import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.main.Main;
 import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.PartitionGraph;
 
-public class SplitTest {
-
-    @Before
-    public void setUp() {
-        int randomSeed = 0;
-        Main.random = new Random(randomSeed);
-    }
+public class SplitTest extends SynopticUnitTest {
 
     @Test
     public void test() throws Exception {

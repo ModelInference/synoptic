@@ -9,7 +9,7 @@ import org.junit.Test;
  * 
  * @author ivan
  */
-public class TimedTaskTests {
+public class TimedTaskTests extends SynopticUnitTest {
     /**
      * Make sure we can run a task.
      */

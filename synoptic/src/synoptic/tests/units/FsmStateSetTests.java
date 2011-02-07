@@ -16,7 +16,7 @@ import synoptic.invariants.fsmcheck.NFbyInvFsms;
 import synoptic.model.Action;
 import synoptic.model.LogEvent;
 
-public class FsmStateSetTests {
+public class FsmStateSetTests extends SynopticUnitTest {
 
     public static LogEvent msg = new LogEvent(new Action("x"));
 
@@ -51,8 +51,8 @@ public class FsmStateSetTests {
         FsmStateSet<LogEvent> before = a.copy();
 
         transfer(a, "0000 0000");
-        System.out.println(a.mappings);
-        System.out.println(before.mappings);
+        logger.fine(a.mappings.toString());
+        logger.fine(before.mappings.toString());
         assertTrue(a.equals(before));
         transfer(a, "0000 0101");
         assertTrue(a.equals(before));

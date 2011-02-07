@@ -15,7 +15,7 @@ import synoptic.model.input.VectorTime;
  * 
  * @author ivan
  */
-public class VectorTimeTests {
+public class VectorTimeTests extends SynopticUnitTest {
 
     /**
      * Make sure we can create vector time objects without errors.

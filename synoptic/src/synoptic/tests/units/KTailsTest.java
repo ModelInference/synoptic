@@ -7,7 +7,7 @@ import org.junit.Test;
 import synoptic.model.PartitionGraph;
 import synoptic.model.input.GraphBuilder;
 
-public class KTailsTest {
+public class KTailsTest extends SynopticUnitTest {
 
     @Test
     public void Test() {
