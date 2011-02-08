@@ -4,7 +4,10 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-public class TransitiveClosureTests extends SynopticUnitTest {
+import synoptic.tests.SynopticTest;
+
+
+public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void somethingTest() {

@@ -15,8 +15,9 @@ import synoptic.invariants.fsmcheck.FsmStateSet;
 import synoptic.invariants.fsmcheck.NFbyInvFsms;
 import synoptic.model.Action;
 import synoptic.model.LogEvent;
+import synoptic.tests.SynopticTest;
 
-public class FsmStateSetTests extends SynopticUnitTest {
+public class FsmStateSetTests extends SynopticTest {
 
     public static LogEvent msg = new LogEvent(new Action("x"));
 

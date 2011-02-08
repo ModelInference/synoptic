@@ -12,6 +12,7 @@ import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.LogEvent;
 import synoptic.model.input.VectorTime;
+import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -19,7 +20,7 @@ import synoptic.util.InternalSynopticException;
  * 
  * @author ivan
  */
-public class TraceParserTests extends SynopticUnitTest {
+public class TraceParserTests extends SynopticTest {
     /**
      * The parser instance we use for testing.
      */

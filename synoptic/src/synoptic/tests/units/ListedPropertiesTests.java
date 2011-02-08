@@ -11,13 +11,14 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import synoptic.main.ListedProperties;
+import synoptic.tests.SynopticTest;
 
 /**
  * Tests for synoptic.main.ListedProperties class
  * 
  * @author ivan
  */
-public class ListedPropertiesTests extends SynopticUnitTest {
+public class ListedPropertiesTests extends SynopticTest {
 
     /**
      * Uses ListedProperties to convert an options string to a cmd args array

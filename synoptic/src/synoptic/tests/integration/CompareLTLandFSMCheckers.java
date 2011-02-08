@@ -6,7 +6,6 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.invariants.BinaryInvariant;
@@ -14,19 +13,18 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
-import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
-import synoptic.util.InternalSynopticException;
+import synoptic.tests.SynopticTest;
 
 /**
  * Tests to compare the LTL checker against the FSM checker.
  * 
  * @author ivan
  */
-public class CompareLTLandFSMCheckers {
+public class CompareLTLandFSMCheckers extends SynopticTest {
 
     /**
      * We compare the two model checkers by parsing events from the same log
@@ -35,11 +33,8 @@ public class CompareLTLandFSMCheckers {
      */
     TraceParser parser;
 
-    @Before
-    public void setUp() throws ParseException, InternalSynopticException {
-        Main.recoverFromParseErrors = false;
-        Main.ignoreNonMatchingLines = false;
-        Main.debugParse = false;
+    @Override
+    public void setUp() throws ParseException {
         parser = new TraceParser();
         parser.addRegex("^(?<TYPE>)$");
         parser.addSeparator("^--$");
@@ -76,9 +71,9 @@ public class CompareLTLandFSMCheckers {
             assertTrue(fsm_path == null == (path == null));
 
             if (fsm_path != null) {
-                // logger.info("both found " + inv);
-                // logger.info("fsm_path.size = " + fsm_path.path.size());
-                // logger.info("path.size = " + path.path.size());
+                logger.fine("both found " + inv);
+                logger.fine("fsm_path.size = " + fsm_path.path.size());
+                logger.fine("path.size = " + path.path.size());
                 assertTrue(fsm_path.path.size() == path.path.size());
                 assertTrue(path.path.get(path.path.size() - 1).isTerminal());
             }
