@@ -9,13 +9,14 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import synoptic.model.input.VectorTime;
+import synoptic.tests.SynopticTest;
 
 /**
  * Tests for synoptic.model.input.VectorTime class.
  * 
  * @author ivan
  */
-public class VectorTimeTests extends SynopticUnitTest {
+public class VectorTimeTests extends SynopticTest {
 
     /**
      * Make sure we can create vector time objects without errors.

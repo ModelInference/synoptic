@@ -213,6 +213,11 @@ public class GraphVizExporter {
         LinkedList<T> rootNodes = new LinkedList<T>(graph
                 .getInitialNodes(relation));
 
+        if (rootNodes.size() == 0) {
+            logger
+                    .warning("Exporting a graph with no initial nodes: will result in empty graph output.");
+        }
+
         if (!Main.showInitialNode) {
             // Follow each node in rootNodes one transition forward and mark the
             // destination as the new root. This will

@@ -6,8 +6,9 @@ import org.junit.Test;
 
 import synoptic.model.PartitionGraph;
 import synoptic.model.input.GraphBuilder;
+import synoptic.tests.SynopticTest;
 
-public class KTailsTest extends SynopticUnitTest {
+public class KTailsTest extends SynopticTest {
 
     @Test
     public void Test() {

@@ -9,8 +9,9 @@ import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.PartitionGraph;
+import synoptic.tests.SynopticTest;
 
-public class SplitTest extends SynopticUnitTest {
+public class SplitTest extends SynopticTest {
 
     @Test
     public void test() throws Exception {

@@ -21,16 +21,16 @@ public class TimedTask {
     /**
      * PerformanceMetrics instance to record things at.
      */
-    private PerformanceMetrics recordAt;
+    private PerformanceMetrics recordAt = null;
     /**
      * The timed task this task is a subcomputation of.
      */
-    private TimedTask parent;
+    private TimedTask parent = null;
     /**
      * Accumulativity is true, if the recorded number shall not be averaged by
      * PerformanceMetrics.
      */
-    boolean accumulativity;
+    boolean accumulativity = false;
 
     /**
      * Construct a timed task. Construction also records the starting time.
@@ -95,6 +95,7 @@ public class TimedTask {
      * be recorded there.
      */
     public void stop() {
+        // TODO: should we assert(timeEnd == null) ?
         if (timeEnd == null) {
             timeEnd = System.currentTimeMillis();
             if (recordAt != null) {

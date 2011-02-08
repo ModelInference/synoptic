@@ -18,8 +18,9 @@ import synoptic.model.export.GraphVizExporter;
 import synoptic.model.input.GraphBuilder;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
+import synoptic.tests.SynopticTest;
 
-public class PartitionGraphTest extends SynopticUnitTest {
+public class PartitionGraphTest extends SynopticTest {
     private GraphVizExporter exporter;
     private PartitionGraph pg;
     private PartitionGraph pgSingle;
