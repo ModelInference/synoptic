@@ -45,8 +45,6 @@ public class GraphVizExporter {
             "C:\\Programme\\Graphviz2.26\\bin\\dot.exe",
             "C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe" };
 
-    private boolean isInitialGraph = false;
-
     /**
      * @return Returns the dot command executable or null on error
      * @throws InternalSynopticException
@@ -73,11 +71,6 @@ public class GraphVizExporter {
 
     public GraphVizExporter() {
         super();
-    }
-
-    public GraphVizExporter(boolean initial) {
-        this();
-        isInitialGraph = initial;
     }
 
     public <T extends INode<T>> void export(File dotFile, IGraph<T> newHead)
@@ -135,13 +128,18 @@ public class GraphVizExporter {
 
     private <T extends INode<T>> void export(final Writer writer,
             IGraph<T> graph, boolean fast) throws IOException {
+    	export(writer, graph, fast, false);
+    }
+    
+    private <T extends INode<T>> void export(final Writer writer,
+            IGraph<T> graph, boolean fast, boolean isInitialGraph) throws IOException {
         // begin graph
         writer.write("digraph {\n");
 
         if (Main.exportCanonically) {
-            exportGraphCanonically(writer, graph);
+            exportGraphCanonically(writer, graph, isInitialGraph);
         } else {
-            exportGraphNonCanonically(writer, graph, fast);
+            exportGraphNonCanonically(writer, graph, fast, isInitialGraph);
         }
 
         writer.write("} // digraph\n");
@@ -300,7 +298,7 @@ public class GraphVizExporter {
      *             In case there is a problem using the writer
      */
     private <T extends INode<T>> void exportGraphCanonically(
-            final Writer writer, IGraph<T> graph) throws IOException {
+            final Writer writer, IGraph<T> graph, boolean isInitialGraph) throws IOException {
         // A mapping between nodes in the graph and the their integer
         // identifiers in the dot output.
         HashMap<T, Integer> nodeToInt = new HashMap<T, Integer>();
@@ -335,7 +333,7 @@ public class GraphVizExporter {
     }
 
     private <T extends INode<T>> void exportGraphNonCanonically(
-            final Writer writer, IGraph<T> graph, boolean fast)
+            final Writer writer, IGraph<T> graph, boolean fast, boolean isInitialGraph)
             throws IOException {
 
         logger.finest("Performing standard export..");
@@ -502,18 +500,20 @@ public class GraphVizExporter {
 
     public <T extends INode<T>> void exportAsDotAndPngFast(String fileName,
             IGraph<T> pg) throws Exception {
-        File f = new File(fileName);
-        logger.info("Exporting dot file to: " + fileName);
-        final PrintWriter writer;
-        try {
-            writer = new PrintWriter(f);
-        } catch (final IOException e) {
-            throw new Exception("Error opening .dot-File: " + e.getMessage(), e);
-        }
-
-        export(writer, pg, true);
-        writer.close();
-        exportPng(f);
+    	exportAsDotAndPngFast(fileName, pg, false);
     }
+    public <T extends INode<T>> void exportAsDotAndPngFast(String fileName, IGraph<T> pg, boolean isInitialGraph) throws Exception {
+		File f = new File(fileName);
+		logger.info("Exporting dot file to: " + fileName);
+		final PrintWriter writer;
+		try {
+			writer = new PrintWriter(f);
+		} catch (final IOException e) {
+			throw new Exception("Error opening .dot-File: " + e.getMessage(), e);
+		}
 
+		export(writer, pg, true, isInitialGraph);
+		writer.close();
+		exportPng(f);
+	}
 }
