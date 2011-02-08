@@ -697,6 +697,9 @@ public class Main implements Callable<Integer> {
         Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
                 parsedEvents, true);
 
+        GraphVizExporter exporter = new GraphVizExporter();
+        
+        
         if (dumpInitialGraph) {
             // If we were given an output filename then export the resulting
             // graph
@@ -704,9 +707,8 @@ public class Main implements Callable<Integer> {
             if (Main.outputPathPrefix != null) {
                 logger.info("Exporting initial graph ["
                         + inputGraph.getNodes().size() + " nodes]..");
-                GraphVizExporter exporter = new GraphVizExporter(true);
                 exporter.exportAsDotAndPngFast(Main.outputPathPrefix
-                        + ".initial.dot", inputGraph);
+                        + ".initial.dot", inputGraph, true);
             } else {
                 logger
                         .warning("Cannot output initial graph. Specify output path prefix using:\n\t"
@@ -746,7 +748,6 @@ public class Main implements Callable<Integer> {
         if (Main.outputPathPrefix != null) {
             logger.info("Exporting final graph [" + result.getNodes().size()
                     + " nodes]..");
-            GraphVizExporter exporter = new GraphVizExporter(false);
             exporter.exportAsDotAndPngFast(Main.outputPathPrefix + ".dot",
                     result);
         } else {
