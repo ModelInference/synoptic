@@ -107,5 +107,12 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
         }
         return true;
     }
-
+    
+    /**
+     * 
+     * @return tc
+     */
+    public  HashMap<NodeType, HashMap<NodeType, Boolean>> getTC(){
+    	return tc;
+    }
 }
