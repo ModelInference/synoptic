@@ -24,7 +24,7 @@ public class AllRelationsTransitiveClosure<NodeType extends INode<NodeType>> {
         }
     }
 
-    public boolean isReachable(NodeType m, NodeType n, Action relation) {
+    public boolean isReachable(NodeType m, NodeType n, String relation) {
         if (!tcs.containsKey(relation)) {
             return false;
         }
