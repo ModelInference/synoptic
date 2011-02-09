@@ -23,7 +23,7 @@ public class GraphVizExporterTests extends SynopticTest {
     public void setUp() throws ParseException {
         super.setUp();
         Main.exportCanonically = true;
-        exporter = new GraphVizExporter(true);
+        exporter = new GraphVizExporter();
     }
 
     /**
