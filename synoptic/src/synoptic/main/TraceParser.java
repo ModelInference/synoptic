@@ -20,11 +20,11 @@ import java.util.regex.Pattern;
 import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
-import synoptic.model.input.VectorTime;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.NamedMatcher;
 import synoptic.util.NamedPattern;
 import synoptic.util.NamedSubstitution;
+import synoptic.util.VectorTime;
 
 /**
  * A generic trace parser, configured in terms of Java 7 style named capture
@@ -510,6 +510,19 @@ public class TraceParser {
             boolean partition) throws ParseException, InternalSynopticException {
         List<LogEvent> set = parseTraceFile(new File(file), linesToRead);
         return generateDirectTemporalRelation(set, partition);
+    }
+
+    /**
+     * Wrapper for calling generateDirectTemporalRelation statically.
+     * 
+     * @param allEvents
+     * @param partition
+     * @return
+     */
+    public static Graph<LogEvent> generateDirectTemporalRelationWithoutParser(
+            List<LogEvent> allEvents, boolean partition) {
+        TraceParser parser = new TraceParser();
+        return parser.generateDirectTemporalRelation(allEvents, partition);
     }
 
     /**

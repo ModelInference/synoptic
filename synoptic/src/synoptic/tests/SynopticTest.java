@@ -9,8 +9,10 @@ import org.junit.Before;
 
 import synoptic.main.Main;
 import synoptic.main.ParseException;
+import synoptic.main.TraceParser;
 import synoptic.model.Action;
 import synoptic.model.LogEvent;
+import synoptic.util.InternalSynopticException;
 
 /**
  * Base class for all Synoptic unit tests. Performs common set-up and tear-down
@@ -19,6 +21,22 @@ import synoptic.model.LogEvent;
  * @author ivan
  */
 public abstract class SynopticTest {
+    /**
+     * The default parser used by tests.
+     */
+    protected static TraceParser defParser;
+
+    // Set up the parser state.
+    static {
+        defParser = new TraceParser();
+        try {
+            defParser.addRegex("^(?<TYPE>)$");
+        } catch (ParseException e) {
+            throw new InternalSynopticException(e);
+        }
+        defParser.addSeparator("^--$");
+    }
+
     /**
      * The logger instance to use across all tests.
      */

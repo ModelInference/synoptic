@@ -1,4 +1,4 @@
-package synoptic.model.input;
+package synoptic.util;
 
 import java.util.ArrayList;
 import java.util.List;

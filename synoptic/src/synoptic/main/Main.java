@@ -755,6 +755,16 @@ public class Main implements Callable<Integer> {
         // Create the initial partitioning graph and mine the invariants from
         // the initial graph.
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true);
+
+        if (showGui) {
+            JungGui gui = new JungGui(pGraph);
+            gui.init();
+            synchronized (gui) {
+                gui.wait();
+            }
+            return new Integer(0);
+        }
+
         TemporalInvariantSet minedInvs = pGraph.getInvariants();
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
         if (dumpInvariants) {
@@ -787,14 +797,6 @@ public class Main implements Callable<Integer> {
         } else {
             logger.warning("Cannot output final graph. Specify output path prefix using:\n\t"
                     + Main.getCmdLineOptDesc("outputPathPrefix"));
-        }
-
-        if (showGui) {
-            JungGui gui = new JungGui(pGraph);
-            gui.init();
-            synchronized (gui) {
-                gui.wait();
-            }
         }
 
         return new Integer(0);

@@ -2,7 +2,7 @@ package synoptic.model;
 
 import java.util.Set;
 
-import synoptic.model.input.VectorTime;
+import synoptic.util.VectorTime;
 
 /**
  * An interface all events should implement. Currently this is somewhat inane.

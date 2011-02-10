@@ -21,8 +21,6 @@ import synoptic.main.Main;
 import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
-import synoptic.model.export.GraphVizExporter;
-import synoptic.model.input.GraphBuilder;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
@@ -92,6 +90,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         invariants.addAll(set.invariants);
     }
 
+    @Override
     public Iterator<ITemporalInvariant> iterator() {
         return invariants.iterator();
     }
@@ -117,7 +116,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
      *            the graph within which the violating path must be found
      * @return a path in g that violates inv or null if one doesn't exist
      */
-    public <T extends INode<T>> RelationPath<T> getCounterExample(
+    public static <T extends INode<T>> RelationPath<T> getCounterExample(
             ITemporalInvariant inv, IGraph<T> g) {
         TimedTask refinement = PerformanceMetrics.createTask(
                 "getCounterExample", true);
@@ -180,8 +179,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             Collections.sort(paths, new Comparator<RelationPath<T>>() {
                 @Override
                 public int compare(RelationPath<T> o1, RelationPath<T> o2) {
-                    return new Integer(o1.path.size())
-                            .compareTo(o2.path.size());
+                    return new Integer(o1.path.size()).compareTo(o2.path.size());
                 }
             });
 
@@ -470,9 +468,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
                     }
                 }
                 if (neverFollowed) {
-                    set
-                            .add(new NeverFollowedInvariant(label1, label2,
-                                    relation));
+                    set.add(new NeverFollowedInvariant(label1, label2, relation));
                 }
                 if (alwaysFollowedBy) {
                     set.add(new AlwaysFollowedInvariant(label1, label2,
@@ -518,33 +514,5 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         }
 
         return new Graph<LogEvent>(messageMap.values());
-    }
-
-    public static TemporalInvariantSet computeInvariantsSplt(Graph<LogEvent> g,
-            String label) throws Exception {
-        Graph<LogEvent> g2 = splitAndDuplicate(g, label);
-        GraphVizExporter.quickExport("output/traceCondenser/test.dot", g2);
-        return computeInvariants(g2);
-    }
-
-    private static Graph<LogEvent> splitAndDuplicate(Graph<LogEvent> g,
-            String label) {
-        GraphBuilder b = new GraphBuilder();
-        for (LogEvent m : g.getInitialNodes()) {
-            b.split();
-            LogEvent cur = m;
-            while (cur != null) {
-                if (cur.getAction().getLabel().equals(label)) {
-                    b.split();
-                }
-                b.append(cur.getAction());
-                if (cur.getTransitions().size() == 1) {
-                    cur = cur.getTransitions().iterator().next().getTarget();
-                } else {
-                    cur = null;
-                }
-            }
-        }
-        return b.getGraph();
     }
 }

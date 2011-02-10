@@ -16,7 +16,6 @@ import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
-import synoptic.main.TraceParser;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.PartitionGraph;
@@ -24,27 +23,13 @@ import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 
 /**
- * Tests for synoptic.invariants.TemporalInvariantSet class.
+ * Tests for synoptic.invariants.TemporalInvariantSet class. We test invariants
+ * by parsing a string representing a log, and mining invariants from the
+ * resulting graph.
  * 
  * @author ivan
  */
 public class TemporalInvariantSetTests extends SynopticTest {
-    /**
-     * We test invariants by parsing a string representing a log, and mining
-     * invariants from the resulting graph.
-     */
-    static TraceParser parser;
-
-    // Set up the parser state.
-    static {
-        parser = new TraceParser();
-        try {
-            parser.addRegex("^(?<TYPE>)$");
-        } catch (ParseException e) {
-            throw new InternalSynopticException(e);
-        }
-        parser.addSeparator("^--$");
-    }
 
     /**
      * Generates a random log composed of three types of events ("a", "b", "c"),
@@ -72,24 +57,6 @@ public class TemporalInvariantSetTests extends SynopticTest {
     }
 
     /**
-     * Creates a single string out of an array of strings, joined together and
-     * delimited using a newline
-     * 
-     * @param strAr
-     *            array of strings to join
-     * @return the joined string
-     */
-    private static String joinString(String[] strAr) {
-        StringBuilder sb = new StringBuilder();
-        for (String s : strAr) {
-            sb.append(s);
-            sb.append('\n');
-        }
-        sb.deleteCharAt(sb.length() - 1);
-        return sb.toString();
-    }
-
-    /**
      * Generates an initial graph based on a sequence of log events.
      * 
      * @param a
@@ -100,10 +67,20 @@ public class TemporalInvariantSetTests extends SynopticTest {
      */
     public static Graph<LogEvent> genInitialGraph(String[] events)
             throws ParseException, InternalSynopticException {
-        String traceStr = joinString(events);
-        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr, "test",
-                -1);
-        return parser.generateDirectTemporalRelation(parsedEvents, true);
+
+        // Creates a single string out of an array of strings, joined together
+        // and delimited using a newline
+        StringBuilder sb = new StringBuilder();
+        for (String s : events) {
+            sb.append(s);
+            sb.append('\n');
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        String traceStr = sb.toString();
+
+        List<LogEvent> parsedEvents = defParser.parseTraceString(traceStr,
+                "test", -1);
+        return defParser.generateDirectTemporalRelation(parsedEvents, true);
     }
 
     /**

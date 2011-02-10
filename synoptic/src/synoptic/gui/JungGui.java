@@ -14,6 +14,8 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -45,6 +47,8 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
+import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.invariants.ITemporalInvariant;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.INode;
@@ -60,6 +64,11 @@ import synoptic.model.interfaces.ITransition;
 public class JungGui extends JApplet implements Printable {
 
     private static final long serialVersionUID = -2023243689258876709L;
+
+    /**
+     * Java frame used by the gui.
+     */
+    JFrame frame;
 
     /**
      * The partition graph maintained by Synoptic.
@@ -128,6 +137,10 @@ public class JungGui extends JApplet implements Printable {
             + "<li>a text annotation on the graph at the mouse location"
             + "</ul>" + "</html>";
 
+    Set<ITemporalInvariant> unsatisfiedInvariants;
+    Set<ITemporalInvariant> satisfiedInvariants;
+    int numSplitSteps = 0;
+
     /**
      * Creates a new JApplet based on a given PartitionGraph.
      * 
@@ -135,15 +148,21 @@ public class JungGui extends JApplet implements Printable {
      * @throws Exception
      */
     public JungGui(PartitionGraph pGraph) throws Exception {
+
+        unsatisfiedInvariants = new LinkedHashSet<ITemporalInvariant>();
+        unsatisfiedInvariants.addAll(pGraph.getInvariants().getSet());
+        satisfiedInvariants = new LinkedHashSet<ITemporalInvariant>();
+
         this.pGraph = pGraph;
-        loadGraph();
+        jGraph = getJGraph();
         setUpGui();
-        JFrame frame = new JFrame();
+        frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         addMenuBar(frame);
         frame.getContentPane().add(this);
         frame.pack();
         frame.setVisible(true);
+
     }
 
     class VertexFactory implements Factory<INode<Partition>> {
@@ -194,21 +213,23 @@ public class JungGui extends JApplet implements Printable {
         frame.setJMenuBar(menuBar);
     }
 
-    public void loadGraph() throws Exception {
-        jGraph = new DirectedSparseGraph<INode<Partition>, ITransition<Partition>>();
+    public DirectedGraph<INode<Partition>, ITransition<Partition>> getJGraph() {
+        DirectedSparseGraph<INode<Partition>, ITransition<Partition>> newGraph = new DirectedSparseGraph<INode<Partition>, ITransition<Partition>>();
 
         for (synoptic.model.interfaces.INode<Partition> node : pGraph
                 .getNodes()) {
-            jGraph.addVertex(node);
+            newGraph.addVertex(node);
         }
 
         for (synoptic.model.interfaces.INode<Partition> node : pGraph
                 .getNodes()) {
             for (ITransition<Partition> t : node.getTransitionsIterator()) {
-                jGraph.addEdge(t, t.getSource(), t.getTarget(),
+                newGraph.addEdge(t, t.getSource(), t.getTarget(),
                         EdgeType.DIRECTED);
             }
         }
+
+        return newGraph;
     }
 
     public void setUpGui() throws Exception {
@@ -292,24 +313,35 @@ public class JungGui extends JApplet implements Printable {
 
         graphMouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 
-        // final ScalingControl scaler = new CrossoverScalingControl();
-        JButton refineButton = new JButton("Refine");
+        final JButton refineButton = new JButton("Refine");
         refineButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: perform one step of refinement on pGraph
-                // scaler.scale(vizViewer, 1.1f, vizViewer.getCenter());
+                if (unsatisfiedInvariants.size() > 0) {
+                    // Perform a single refinement step.
+                    numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
+                            numSplitSteps, pGraph, unsatisfiedInvariants,
+                            satisfiedInvariants);
+                    vizViewer.getGraphLayout().setGraph(
+                            JungGui.this.getJGraph());
+                    // TODO: there must be a better way for the vizViewer to
+                    // refresh its state..
+                    vizViewer.setGraphLayout(vizViewer.getGraphLayout());
+                    JungGui.this.repaint();
+                } else {
+                    refineButton.setEnabled(false);
+                }
+            }
+        });
 
-            }
-        });
-        JButton coarsenButton = new JButton("Coarsen");
-        coarsenButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO: perform one step of coarsening on pGraph
-                // scaler.scale(vizViewer, 1 / 1.1f, vizViewer.getCenter());
-            }
-        });
+        /*
+         * JButton coarsenButton = new JButton("Coarsen");
+         * coarsenButton.addActionListener(new ActionListener() {
+         * 
+         * @Override public void actionPerformed(ActionEvent e) { // TODO:
+         * perform one step of coarsening on pGraph // scaler.scale(vizViewer, 1
+         * / 1.1f, vizViewer.getCenter()); } });
+         */
 
         JButton help = new JButton("Help");
         help.addActionListener(new ActionListener() {
@@ -321,7 +353,7 @@ public class JungGui extends JApplet implements Printable {
 
         JPanel controls = new JPanel();
         controls.add(refineButton);
-        controls.add(coarsenButton);
+        // controls.add(coarsenButton);
         JComboBox modeBox = graphMouse.getModeComboBox();
         controls.add(modeBox);
         LayoutChooser.addLayoutCombo(controls, jGraph, vizViewer);
