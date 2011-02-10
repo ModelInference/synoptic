@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -34,6 +33,9 @@ import synoptic.util.InternalSynopticException;
 public class GraphVizExporter {
     static Logger logger = Logger.getLogger("GraphVizExporter");
 
+    /**
+     * Maps commonly used relations to the edge colors used in dot output.
+     */
     static final HashMap<String, String> relationColors;
     static {
         relationColors = new HashMap<String, String>();
@@ -41,7 +43,10 @@ public class GraphVizExporter {
         relationColors.put("i", "blue");
     }
 
-    static final String[] dotCommands = { "/usr/bin/dot",
+    /**
+     * A list of common paths to try when searching for the dot executable.
+     */
+    static final String[] dotCommands = { "/usr/bin/dot", "/usr/local/bin/dot",
             "C:\\Programme\\Graphviz2.26\\bin\\dot.exe",
             "C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe" };
 
@@ -58,19 +63,10 @@ public class GraphVizExporter {
             }
         }
         if (Main.dotExecutablePath == null) {
-            try {
-                logger
-                        .severe("Unable to locate the dot command executable, use cmd line option:\n\t"
-                                + Main.getCmdLineOptDesc("dotExecutablePath"));
-            } catch (InternalSynopticException e) {
-                System.out.println(e);
-            }
+            logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
+                    + Main.getCmdLineOptDesc("dotExecutablePath"));
         }
         return Main.dotExecutablePath;
-    }
-
-    public GraphVizExporter() {
-        super();
     }
 
     public <T extends INode<T>> void export(File dotFile, IGraph<T> newHead)
@@ -97,11 +93,11 @@ public class GraphVizExporter {
     }
 
     /**
-     * Export .png file from given dotFile. The file will be created in the
-     * current working directory.
+     * Exports a dot file as a png image file. The png file will be created in
+     * the same place as the dot file.
      * 
      * @param dotFile
-     *            - filename of .dot file.
+     *            dot file filename
      */
     public void exportPng(File dotFile) {
         String dotCommand = getDotCommand();
@@ -128,11 +124,12 @@ public class GraphVizExporter {
 
     private <T extends INode<T>> void export(final Writer writer,
             IGraph<T> graph, boolean fast) throws IOException {
-    	export(writer, graph, fast, false);
+        export(writer, graph, fast, false);
     }
-    
+
     private <T extends INode<T>> void export(final Writer writer,
-            IGraph<T> graph, boolean fast, boolean isInitialGraph) throws IOException {
+            IGraph<T> graph, boolean fast, boolean isInitialGraph)
+            throws IOException {
         // begin graph
         writer.write("digraph {\n");
 
@@ -208,12 +205,11 @@ public class GraphVizExporter {
             LinkedList<ITransition<T>> allTransitions,
             HashMap<T, Integer> nodeToInt, int nodeCnt) throws IOException {
 
-        LinkedList<T> rootNodes = new LinkedList<T>(graph
-                .getInitialNodes(relation));
+        LinkedList<T> rootNodes = new LinkedList<T>(
+                graph.getInitialNodes(relation));
 
         if (rootNodes.size() == 0) {
-            logger
-                    .warning("Exporting a graph with no initial nodes: will result in empty graph output.");
+            logger.warning("Exporting a graph with no initial nodes: will result in empty graph output.");
         }
 
         if (!Main.showInitialNode) {
@@ -253,8 +249,8 @@ public class GraphVizExporter {
                 // A node is not terminal unless shown to be otherwise.
                 isTerminal = false;
 
-                List<? extends ITransition<T>> transitions = node
-                        .getTransitions();
+                Iterable<? extends ITransition<T>> transitions = node
+                        .getTransitionsIterator();
                 for (ITransition<T> trans : transitions) {
                     T child = trans.getTarget();
                     childNodes.add(child);
@@ -298,7 +294,8 @@ public class GraphVizExporter {
      *             In case there is a problem using the writer
      */
     private <T extends INode<T>> void exportGraphCanonically(
-            final Writer writer, IGraph<T> graph, boolean isInitialGraph) throws IOException {
+            final Writer writer, IGraph<T> graph, boolean isInitialGraph)
+            throws IOException {
         // A mapping between nodes in the graph and the their integer
         // identifiers in the dot output.
         HashMap<T, Integer> nodeToInt = new HashMap<T, Integer>();
@@ -333,8 +330,8 @@ public class GraphVizExporter {
     }
 
     private <T extends INode<T>> void exportGraphNonCanonically(
-            final Writer writer, IGraph<T> graph, boolean fast, boolean isInitialGraph)
-            throws IOException {
+            final Writer writer, IGraph<T> graph, boolean fast,
+            boolean isInitialGraph) throws IOException {
 
         logger.finest("Performing standard export..");
 
@@ -387,15 +384,12 @@ public class GraphVizExporter {
                 final int targetStateNo = targetExpr.hashCode();
                 writer.write(sourceStateNo + "->" + targetStateNo + " [");
                 if (Main.outputEdgeLabels && !isInitialGraph) {
-                    writer
-                            .write("label=\"" + quote(trans.toStringConcise())
-                                    + "\", weight=\"" + trans.toStringConcise()
-                                    + "\",");
+                    writer.write("label=\"" + quote(trans.toStringConcise())
+                            + "\", weight=\"" + trans.toStringConcise() + "\",");
                 }
-                writer
-                        .write((trans.toStringConcise().equals("i") ? ",color=blue"
-                                : "")
-                                + "];" + "\n");
+                writer.write((trans.toStringConcise().equals("i") ? ",color=blue"
+                        : "")
+                        + "];" + "\n");
                 if (statesSeen.add(targetExpr)) {
                     queue.add(targetExpr);
                 }
@@ -459,10 +453,6 @@ public class GraphVizExporter {
         return sb.toString();
     }
 
-    public String getIdentifier() {
-        return "dot File export";
-    }
-
     public <T extends INode<T>> void exportAsDotAndPng(String fileName,
             IGraph<T> g) throws Exception {
         File f = new File(fileName);
@@ -500,20 +490,22 @@ public class GraphVizExporter {
 
     public <T extends INode<T>> void exportAsDotAndPngFast(String fileName,
             IGraph<T> pg) throws Exception {
-    	exportAsDotAndPngFast(fileName, pg, false);
+        exportAsDotAndPngFast(fileName, pg, false);
     }
-    public <T extends INode<T>> void exportAsDotAndPngFast(String fileName, IGraph<T> pg, boolean isInitialGraph) throws Exception {
-		File f = new File(fileName);
-		logger.info("Exporting dot file to: " + fileName);
-		final PrintWriter writer;
-		try {
-			writer = new PrintWriter(f);
-		} catch (final IOException e) {
-			throw new Exception("Error opening .dot-File: " + e.getMessage(), e);
-		}
 
-		export(writer, pg, true, isInitialGraph);
-		writer.close();
-		exportPng(f);
-	}
+    public <T extends INode<T>> void exportAsDotAndPngFast(String fileName,
+            IGraph<T> pg, boolean isInitialGraph) throws Exception {
+        File f = new File(fileName);
+        logger.info("Exporting dot file to: " + fileName);
+        final PrintWriter writer;
+        try {
+            writer = new PrintWriter(f);
+        } catch (final IOException e) {
+            throw new Exception("Error opening .dot-File: " + e.getMessage(), e);
+        }
+
+        export(writer, pg, true, isInitialGraph);
+        writer.close();
+        exportPng(f);
+    }
 }

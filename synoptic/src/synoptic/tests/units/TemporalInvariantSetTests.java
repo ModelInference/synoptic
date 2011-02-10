@@ -35,16 +35,14 @@ public class TemporalInvariantSetTests extends SynopticTest {
      */
     static TraceParser parser;
 
-    /**
-     * Sets up the parser state and Main static variables
-     * 
-     * @throws ParseException
-     */
-    @Override
-    public void setUp() throws ParseException {
-        super.setUp();
+    // Set up the parser state.
+    static {
         parser = new TraceParser();
-        parser.addRegex("^(?<TYPE>)$");
+        try {
+            parser.addRegex("^(?<TYPE>)$");
+        } catch (ParseException e) {
+            throw new InternalSynopticException(e);
+        }
         parser.addSeparator("^--$");
     }
 

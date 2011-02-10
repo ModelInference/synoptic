@@ -20,50 +20,93 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 import synoptic.util.InternalSynopticException;
 
-class LayoutChooser implements ActionListener {
-    static final Class[] constructorArgsWanted = { Graph.class };
+/**
+ * Implements a combo-box control that displays a list of layouts. When a layout
+ * is selected, the actionPerformed() method below creates a new layout
+ * parameterized by the JUNG Graph and tells the VisualizationViewer to use it.
+ * 
+ * @author ivan
+ * @param <Node>
+ *            The Node type maintained by the JUNG Graph
+ * @param <Transition>
+ *            The Transition type maintained by the JUNG Graph
+ */
+class LayoutChooser<Node, Transition> implements ActionListener {
+    static final Class<?>[] constructorArgsWanted = { Graph.class };
 
-    private final JComboBox jcb;
-    private final Graph g;
-    private final VisualizationViewer vv;
+    private final JComboBox comboBox;
+    private final Graph<Node, Transition> jGraph;
+    private final VisualizationViewer<Node, Transition> vizViewer;
 
-    private LayoutChooser(JComboBox jcb, Graph g, VisualizationViewer gd) {
+    private LayoutChooser(JComboBox comboBox, Graph<Node, Transition> jGraph,
+            VisualizationViewer<Node, Transition> vizViewer) {
         super();
-        this.jcb = jcb;
-        this.g = g;
-        vv = gd;
+        this.comboBox = comboBox;
+        this.jGraph = jGraph;
+        this.vizViewer = vizViewer;
     }
 
+    /**
+     * This method is executed whenever a new item is selected in the combo-box.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
     public void actionPerformed(ActionEvent arg0) {
-        Object[] constructorArgs = { g };
+        Object[] constructorArgs = { jGraph };
 
-        Class layoutC = (Class) jcb.getSelectedItem();
-        Class lay = layoutC;
+        Class<?> layoutC = (Class<?>) comboBox.getSelectedItem();
         try {
-            Constructor constructor = lay.getConstructor(constructorArgsWanted);
+            Constructor<?> constructor = layoutC
+                    .getConstructor(constructorArgsWanted);
+            // Create a new layout instance.
             Object o = constructor.newInstance(constructorArgs);
-            Layout l = (Layout) o;
-            vv.setGraphLayout(l);
+            // Double check that the item in the combo-box is a valid Layout.
+            if (o instanceof Layout<?, ?>) {
+                // Tell the viewer to use the new layout.
+                vizViewer.setGraphLayout((Layout<Node, Transition>) o);
+            }
         } catch (Exception e) {
-            throw new InternalSynopticException("Could not load layout " + lay);
+            throw new InternalSynopticException("Could not load layout "
+                    + layoutC);
         }
     }
 
-    public static void addLayoutCombo(JPanel panel, Graph g,
-            VisualizationViewer vv) {
-        final JComboBox jcb = new JComboBox(getCombos());
-        jcb.setSelectedItem(FRLayout.class);
-        jcb.addActionListener(new LayoutChooser(jcb, g, vv));
-        panel.add(jcb, BorderLayout.NORTH);
-    }
+    /**
+     * Creates a combo-box of various layouts supported by JUNG and adds this
+     * box to the passed panel.
+     * 
+     * @param <Node>
+     *            The type of node maintained by the graph.
+     * @param <Transition>
+     *            The type of transition maintained by the graph.
+     * @param panel
+     *            the JPanel to add the box to.
+     * @param jGraph
+     *            The JUNG Graph maintaining a graph of Node,Transition type
+     * @param vizViewer
+     *            The viewer we are using to display jGraph.
+     */
+    public static <Node, Transition> void addLayoutCombo(JPanel panel,
+            Graph<Node, Transition> jGraph,
+            VisualizationViewer<Node, Transition> vizViewer) {
 
-    private static Vector<Class> getCombos() {
-        Vector<Class> layouts = new Vector<Class>();
+        Vector<Class<?>> layouts = new Vector<Class<?>>();
         layouts.add(KKLayout.class);
         layouts.add(FRLayout.class);
         layouts.add(CircleLayout.class);
         layouts.add(SpringLayout.class);
         layouts.add(ISOMLayout.class);
-        return layouts;
+
+        // Add items to the combo-box.
+        final JComboBox comboBox = new JComboBox(layouts);
+        // Select the FRLayout as the default layout.
+        comboBox.setSelectedItem(FRLayout.class);
+        // Add a listener so that whenever a new item is chosen it hits the
+        // LayoutChooser instance.
+        LayoutChooser<Node, Transition> chooser = new LayoutChooser<Node, Transition>(
+                comboBox, jGraph, vizViewer);
+        comboBox.addActionListener(chooser);
+        // Add the box to the panel.
+        panel.add(comboBox, BorderLayout.NORTH);
     }
 }

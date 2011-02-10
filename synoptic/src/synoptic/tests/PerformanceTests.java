@@ -64,8 +64,8 @@ public class PerformanceTests extends TestCase {
         for (int iter = 0; iter < iterations; iter++) {
 
             String[][] traces = traceType == 1 ? partitionTrace(
-                    structure1Trace(M, r), n) : partitionTrace(structure1Trace(
-                    M, r), n);
+                    structure1Trace(M, r), n) : partitionTrace(
+                    structure1Trace(M, r), n);
             PartitionGraph g = GraphBuilder.buildGraph(traces);
 
             long startTime = System.currentTimeMillis();
@@ -86,8 +86,8 @@ public class PerformanceTests extends TestCase {
         for (int iter = 0; iter < iterations; iter++) {
 
             String[][] traces = traceType == 1 ? partitionTrace(
-                    structure1Trace(M, r), n) : partitionTrace(structure1Trace(
-                    M, r), n);
+                    structure1Trace(M, r), n) : partitionTrace(
+                    structure1Trace(M, r), n);
             PartitionGraph g = GraphBuilder.buildGraph(traces);
 
             long startTime = System.currentTimeMillis();
@@ -109,8 +109,8 @@ public class PerformanceTests extends TestCase {
         for (int iter = 0; iter < iterations; iter++) {
 
             String[][] traces = traceType == 1 ? partitionTrace(
-                    structure1Trace(M, r), n) : partitionTrace(structure1Trace(
-                    M, r), n);
+                    structure1Trace(M, r), n) : partitionTrace(
+                    structure1Trace(M, r), n);
             ScalableGraph sg = new ScalableGraph();
             for (String[] trace : traces) {
                 sg.addGraph(GraphBuilder.buildGraph(trace));
