@@ -122,18 +122,6 @@ public class GraphBuilder implements IBuilder<LogEvent> {
     }
 
     @Override
-    public void tagTerminal(LogEvent terminalNode) {
-        for (String relation : terminalNode.getRelations()) {
-            graph.tagTerminal(terminalNode, relation);
-        }
-    }
-
-    @Override
-    public void tagInitial(LogEvent initialNode, String relation) {
-        graph.tagInitial(initialNode, relation);
-    }
-
-    @Override
     public LogEvent insert(Action act) {
         LogEvent nextMessage = new LogEvent(act);
         graph.add(nextMessage);
@@ -141,8 +129,21 @@ public class GraphBuilder implements IBuilder<LogEvent> {
     }
 
     @Override
+    public void tagInitial(LogEvent initialNode, String relation) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
     public void connect(LogEvent first, LogEvent second, String relation) {
-        first.addTransition(second, relation);
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void tagTerminal(LogEvent terminalNode) {
+        // TODO Auto-generated method stub
+
     }
 
     // This code is used to interface with ProtoBuf formatted messages

@@ -10,15 +10,15 @@ import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMerge;
 import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.main.ParseException;
-import synoptic.model.Action;
+import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
-import synoptic.model.input.GraphBuilder;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.tests.SynopticTest;
+import synoptic.util.InternalSynopticException;
 
 public class PartitionGraphTest extends SynopticTest {
     private GraphVizExporter exporter;
@@ -47,35 +47,22 @@ public class PartitionGraphTest extends SynopticTest {
         print("1-PartitionGraphTestInitialSingle", pgSingle);
     }
 
-    private PartitionGraph createGraph() {
-        GraphBuilder gb = new GraphBuilder();
-        gb.append(new Action("A"));
-        gb.append(new Action("B"));
-        gb.split();
-        gb.append(new Action("A"));
-        gb.append(new Action("B"));
-        gb.split();
-        gb.append(new Action("C"));
-        gb.append(new Action("D"));
-        gb.split();
-        gb.append(new Action("C"));
-        gb.append(new Action("D"));
-
-        return gb.getPartitionGraph(true);
+    private PartitionGraph createGraph() throws InternalSynopticException,
+            ParseException {
+        String[] events = new String[] { "A", "B", "--", "A", "B", "--", "C",
+                "D", "--", "C", "D" };
+        Graph<LogEvent> graph = TemporalInvariantSetTests
+                .genInitialGraph(events);
+        return new PartitionGraph(graph, true);
     }
 
-    private PartitionGraph createSingleGraph() {
-        GraphBuilder gb = new GraphBuilder();
-        LogEvent m = gb.append(new Action("A"));
-        gb.append(new Action("B"));
-        gb.split();
-        gb.append(new Action("C"));
-        gb.append(new Action("D"));
-
-        // TODO: this method is deprecated, try to test without it.
-        // gb.insertAfter(m, new Action("D"));
-
-        return gb.getPartitionGraph(false);
+    private PartitionGraph createSingleGraph()
+            throws InternalSynopticException, ParseException {
+        String[] events = new String[] { "A", "B", "--", "C", "D", };
+        // TODO: insertAfter("A", new Action("D"));
+        Graph<LogEvent> graph = TemporalInvariantSetTests
+                .genInitialGraph(events);
+        return new PartitionGraph(graph, false);
     }
 
     @Test

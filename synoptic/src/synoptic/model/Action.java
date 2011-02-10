@@ -189,7 +189,6 @@ public class Action {
      * 
      * @return the internal map
      */
-    @Deprecated
     public Map<String, String> getStringArguments() {
         return stringArguments;
     }

@@ -28,6 +28,7 @@ import plume.OptionGroup;
 import plume.Options;
 
 import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.gui.JungGui;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
@@ -89,33 +90,39 @@ public class Main implements Callable<Integer> {
      * Be quiet, do not print much information. Sets the log level to WARNING.
      */
     @OptionGroup("Execution Options")
-    @Option(value = "-q Be quiet, do not print much information", aliases = { "-quiet" })
+    @Option(value = "-q Be quiet, do not print much information",
+            aliases = { "-quiet" })
     public static boolean logLvlQuiet = false;
 
     /**
      * Be verbose, print extra detailed information. Sets the log level to FINE.
      */
-    @Option(value = "-v Print detailed information during execution", aliases = { "-verbose" })
+    @Option(value = "-v Print detailed information during execution",
+            aliases = { "-verbose" })
     public static boolean logLvlVerbose = false;
 
     /**
      * Use the new FSM checker instead of the LTL checker.
      */
-    @Option(value = "-f Use FSM checker instead of the default LTL checker", aliases = { "-use-fsm-checker" })
+    @Option(
+            value = "-f Use FSM checker instead of the default NAN LTL-based checker",
+            aliases = { "-use-fsm-checker" })
     public static boolean useFSMChecker = false;
 
     /**
      * Sets the random seed for Synoptic's source of pseudo-random numbers.
      */
-    @Option(value = "Use a specific random seed for pseudo-random number generator")
+    @Option(
+            value = "Use a specific random seed for pseudo-random number generator")
     public static Long randomSeed = null;
 
     /**
-     * Use vector time indexes to
+     * Use vector time indexes to partition the output graph into a set of
+     * graphs, one per distributed system node type.
      */
-    // @Option (value="Use FSM checker instead of the default LTL checker",
-    // aliases={"-use-fsm-checker"})
-    // public static boolean separateVTimeIndexSets = false;
+    @Option(
+            value = "Vector time index sets for partitioning the graph by system node type, e.g. '1,2;3,4'")
+    public static String separateVTimeIndexSets = null;
     // end option group "Execution Options"
 
     // //////////////////////////////////////////////////
@@ -128,7 +135,9 @@ public class Main implements Callable<Integer> {
      * to the partitioner.
      */
     @OptionGroup("Parser Options")
-    @Option(value = "-s Partitions separator reg-exp: log lines below and above the matching line are placed into different partitions", aliases = { "-partition-separator" })
+    @Option(
+            value = "-s Partitions separator reg-exp: log lines below and above the matching line are placed into different partitions",
+            aliases = { "-partition-separator" })
     public static String separator = null;
 
     /**
@@ -141,7 +150,9 @@ public class Main implements Callable<Integer> {
      * significant components of the log line. There are a few more variants on
      * this, detailed in the online documentation.
      */
-    @Option(value = "-r Parser reg-exp: extracts event type and event time from a log line", aliases = { "-regexp" })
+    @Option(
+            value = "-r Parser reg-exp: extracts event type and event time from a log line",
+            aliases = { "-regexp" })
     public static List<String> regExps = null;
 
     /**
@@ -149,7 +160,9 @@ public class Main implements Callable<Integer> {
      * into partition traces, to be considered as an individual sample of the
      * behavior of the system.
      */
-    @Option(value = "-m Partitions mapping reg-exp: maps a log line to a partition", aliases = { "-partition-mapping" })
+    @Option(
+            value = "-m Partitions mapping reg-exp: maps a log line to a partition",
+            aliases = { "-partition-mapping" })
     public static String partitionRegExp = "\\k<FILE>";
 
     /**
@@ -157,7 +170,8 @@ public class Main implements Callable<Integer> {
      * lines that they are not interested in. This also help to avoid parsing of
      * lines that are corrupted.
      */
-    @Option(value = "-i Ignore lines that do not match any of the passed regular expressions")
+    @Option(
+            value = "-i Ignore lines that do not match any of the passed regular expressions")
     public static boolean ignoreNonMatchingLines = false;
 
     /**
@@ -165,13 +179,17 @@ public class Main implements Callable<Integer> {
      * that might not fully cover the range of log lines appearing in the log
      * files.
      */
-    @Option(value = "Ignore parser warnings and attempt to recover from parse errors if possible", aliases = { "-ignore-parse-errors" })
+    @Option(
+            value = "Ignore parser warnings and attempt to recover from parse errors if possible",
+            aliases = { "-ignore-parse-errors" })
     public static boolean recoverFromParseErrors = false;
 
     /**
      * Output the fields extracted from each log line and terminate.
      */
-    @Option(value = "Debug the parser by printing field values extracted from the log and then terminate.", aliases = { "-debugParse" })
+    @Option(
+            value = "Debug the parser by printing field values extracted from the log and then terminate.",
+            aliases = { "-debugParse" })
     public static boolean debugParse = false;
     // end option group "Parser Options"
 
@@ -180,7 +198,8 @@ public class Main implements Callable<Integer> {
      * Command line arguments input filename to use.
      */
     @OptionGroup("Input Options")
-    @Option(value = "-c Command line arguments input filename", aliases = { "-argsfile" })
+    @Option(value = "-c Command line arguments input filename",
+            aliases = { "-argsfile" })
     public static String argsFilename = null;
     // end option group "Input Options"
 
@@ -193,20 +212,25 @@ public class Main implements Callable<Integer> {
      * --dumpIntermediateStages).
      */
     @OptionGroup("Output Options")
-    @Option(value = "-o Output path prefix for generating Graphviz dot files graphics", aliases = { "-output-prefix" })
+    @Option(
+            value = "-o Output path prefix for generating Graphviz dot files graphics",
+            aliases = { "-output-prefix" })
     public static String outputPathPrefix = null;
 
     /**
      * The absolute path to the dot command executable to use for outputting
      * graphical representations of Synoptic models
      */
-    @Option(value = "-d Path to the Graphviz dot command executable to use", aliases = { "-dot-executable" })
+    @Option(value = "-d Path to the Graphviz dot command executable to use",
+            aliases = { "-dot-executable" })
     public static String dotExecutablePath = null;
 
     /**
      * This sets the output edge labels on graphs that are exported.
      */
-    @Option(value = "Output edge labels on graphs to indicate transition probabilities", aliases = { "-outputEdgeLabels" })
+    @Option(
+            value = "Output edge labels on graphs to indicate transition probabilities",
+            aliases = { "-outputEdgeLabels" })
     public static boolean outputEdgeLabels = true;
 
     /**
@@ -222,6 +246,12 @@ public class Main implements Callable<Integer> {
      */
     @Option(value = "Show INITIAL node in generated graphs.")
     public static boolean showInitialNode = true;
+
+    /**
+     * Whether or not to show the Synoptic GUI.
+     */
+    @Option(value = "Show the GUI.")
+    public static boolean showGui = false;
     // end option group "Output Options"
 
     // //////////////////////////////////////////////////
@@ -387,9 +417,8 @@ public class Main implements Callable<Integer> {
         }
 
         if (logFilenames.size() == 0) {
-            logger
-                    .severe("No log filenames specified, exiting. Try cmd line option:\n\t"
-                            + Main.getCmdLineOptDesc("help"));
+            logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
+                    + Main.getCmdLineOptDesc("help"));
             return;
         }
 
@@ -405,7 +434,13 @@ public class Main implements Callable<Integer> {
         Main.random = new Random(randomSeed);
         logger.info("Using random seed: " + randomSeed);
 
-        Integer ret = mainInstance.call();
+        Integer ret;
+        try {
+            ret = mainInstance.call();
+        } catch (Exception e) {
+            throw new InternalSynopticException(e);
+        }
+
         logger.fine("Main.call() returned " + ret.toString());
         System.exit(ret);
     }
@@ -630,7 +665,7 @@ public class Main implements Callable<Integer> {
     }
 
     /**
-     * The workhorse method, which uses ITraceParser to parse the input files,
+     * The workhorse method, which uses TraceParser to parse the input files,
      * and calls the primary Synoptic functions to perform refinement\coarsening
      * and finally outputs the final graph to the output file (specified as a
      * command line option).
@@ -676,9 +711,8 @@ public class Main implements Callable<Integer> {
                 try {
                     parsedEvents.addAll(parser.parseTraceFile(file, -1));
                 } catch (ParseException e) {
-                    logger
-                            .severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
-                                    + Main.getCmdLineOptDesc("help"));
+                    logger.severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
+                            + Main.getCmdLineOptDesc("help"));
                     logger.severe(e.toString());
                     return new Integer(1);
                 }
@@ -687,8 +721,7 @@ public class Main implements Callable<Integer> {
 
         if (Main.debugParse) {
             // Terminate since the user is interested in debugging the parser.
-            logger
-                    .info("Terminating. To continue further, re-run without the debugParse option.");
+            logger.info("Terminating. To continue further, re-run without the debugParse option.");
             return new Integer(0);
         }
 
@@ -698,33 +731,34 @@ public class Main implements Callable<Integer> {
                 parsedEvents, true);
 
         GraphVizExporter exporter = new GraphVizExporter();
-        
-        
+
         if (dumpInitialGraph) {
             // If we were given an output filename then export the resulting
-            // graph
-            // into outputPathPrefix.initial.dot
+            // graph into outputPathPrefix.initial.dot
             if (Main.outputPathPrefix != null) {
                 logger.info("Exporting initial graph ["
                         + inputGraph.getNodes().size() + " nodes]..");
                 exporter.exportAsDotAndPngFast(Main.outputPathPrefix
                         + ".initial.dot", inputGraph, true);
             } else {
-                logger
-                        .warning("Cannot output initial graph. Specify output path prefix using:\n\t"
-                                + Main.getCmdLineOptDesc("outputPathPrefix"));
+                logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t"
+                        + Main.getCmdLineOptDesc("outputPathPrefix"));
             }
+        }
+
+        if (separateVTimeIndexSets != null) {
+
         }
 
         logger.info("Running Synoptic...");
 
         // Create the initial partitioning graph and mine the invariants from
         // the initial graph.
-        PartitionGraph result = new PartitionGraph(inputGraph, true);
-        TemporalInvariantSet minedInvs = result.getInvariants();
+        PartitionGraph pGraph = new PartitionGraph(inputGraph, true);
+        TemporalInvariantSet minedInvs = pGraph.getInvariants();
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
         if (dumpInvariants) {
-            logger.info("Mined invariants: " + result.getInvariants());
+            logger.info("Mined invariants: " + pGraph.getInvariants());
         }
 
         if (Main.logLvlVerbose) {
@@ -732,28 +766,35 @@ public class Main implements Callable<Integer> {
             System.out.println("");
         }
         logger.fine("Refining (Splitting)...");
-        Bisimulation.splitPartitions(result);
+        Bisimulation.splitPartitions(pGraph);
 
         if (Main.logLvlVerbose) {
             System.out.println("");
             System.out.println("");
         }
         logger.fine("Coarsening (Merging)..");
-        Bisimulation.mergePartitions(result);
+        Bisimulation.mergePartitions(pGraph);
 
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result
 
         // export the resulting graph
         if (Main.outputPathPrefix != null) {
-            logger.info("Exporting final graph [" + result.getNodes().size()
+            logger.info("Exporting final graph [" + pGraph.getNodes().size()
                     + " nodes]..");
             exporter.exportAsDotAndPngFast(Main.outputPathPrefix + ".dot",
-                    result);
+                    pGraph);
         } else {
-            logger
-                    .warning("Cannot output final graph. Specify output path prefix using:\n\t"
-                            + Main.getCmdLineOptDesc("outputPathPrefix"));
+            logger.warning("Cannot output final graph. Specify output path prefix using:\n\t"
+                    + Main.getCmdLineOptDesc("outputPathPrefix"));
+        }
+
+        if (showGui) {
+            JungGui gui = new JungGui(pGraph);
+            gui.init();
+            synchronized (gui) {
+                gui.wait();
+            }
         }
 
         return new Integer(0);

@@ -38,7 +38,6 @@ public class TraceParser {
     private final List<HashMap<String, Boolean>> incrementors;
 
     private NamedSubstitution filter;
-    private final boolean internActions = true;
     private static Logger logger = Logger.getLogger("Parser Logger");
 
     // TODO: figure out how we deal with constraints which involve the multiple
@@ -315,7 +314,6 @@ public class TraceParser {
     }
 
     /* If there's a filter, this helper yields that argument from an action. */
-    @SuppressWarnings("deprecation")
     private String getNodeName(Action a) {
         return filter.substitute(a.getStringArguments());
     }
@@ -342,9 +340,7 @@ public class TraceParser {
                 for (Map.Entry<String, Boolean> inc : incrementors.get(i)
                         .entrySet()) {
                     if (inc.getValue() == false) {
-                        context
-                                .put(inc.getKey(),
-                                        context.get(inc.getKey()) + 1);
+                        context.put(inc.getKey(), context.get(inc.getKey()) + 1);
                     }
                 }
 
@@ -396,6 +392,7 @@ public class TraceParser {
                 } else {
                     action = new Action(eventType);
                 }
+                action = action.intern();
 
                 action.setStringArgument("FILE", filename);
 
@@ -409,12 +406,11 @@ public class TraceParser {
                         nextTime = new VectorTime(timeField.trim());
                     } catch (Exception e) {
                         if (Main.recoverFromParseErrors) {
-                            logger
-                                    .warning("Failed to parse time field "
-                                            + e.toString()
-                                            + " for log line:\n"
-                                            + line
-                                            + "\nincrementing prior time value and continuing.");
+                            logger.warning("Failed to parse time field "
+                                    + e.toString()
+                                    + " for log line:\n"
+                                    + line
+                                    + "\nincrementing prior time value and continuing.");
                             // TODO: incTime makes little sense for vector time.
                             // In the vector time case, failing makes more sense
                             // here.
@@ -426,17 +422,14 @@ public class TraceParser {
                                         + line
                                         + "\nIgnoring line and continuing.");
                             } else {
-                                logger
-                                        .severe("Failed to parse time field "
-                                                + e.toString()
-                                                + " for log line:\n"
-                                                + line
-                                                + "\n\tTry cmd line options:\n\t"
-                                                + Main
-                                                        .getCmdLineOptDesc("ignoreNonMatchingLines")
-                                                + "\n\t"
-                                                + Main
-                                                        .getCmdLineOptDesc("debugParse"));
+                                logger.severe("Failed to parse time field "
+                                        + e.toString()
+                                        + " for log line:\n"
+                                        + line
+                                        + "\n\tTry cmd line options:\n\t"
+                                        + Main.getCmdLineOptDesc("ignoreNonMatchingLines")
+                                        + "\n\t"
+                                        + Main.getCmdLineOptDesc("debugParse"));
                                 throw new ParseException();
                             }
                         }
@@ -453,14 +446,8 @@ public class TraceParser {
                 for (Map.Entry<String, Boolean> inc : incrementors.get(i)
                         .entrySet()) {
                     if (inc.getValue() == true) {
-                        context
-                                .put(inc.getKey(),
-                                        context.get(inc.getKey()) + 1);
+                        context.put(inc.getKey(), context.get(inc.getKey()) + 1);
                     }
-                }
-
-                if (internActions) {
-                    action = action.intern();
                 }
 
                 if (Main.debugParse) {
@@ -488,9 +475,7 @@ public class TraceParser {
             logger.warning("Failed to parse trace line: \n" + line + "\n"
                     + "Using entire line as type.");
             action = new Action(line);
-            if (internActions) {
-                action = action.intern();
-            }
+            action = action.intern();
             action.setTime(incTime(prevTime));
             return new LogEvent(action);
         } else if (Main.ignoreNonMatchingLines) {
@@ -608,9 +593,7 @@ public class TraceParser {
         // TODO: make sure that initialNodeLabel does not conflict with any of
         // the event labels in the trace.
         Action dummyAct = Action.NewInitialAction();
-        if (internActions) {
-            dummyAct.intern();
-        }
+        dummyAct = dummyAct.intern();
         graph.setDummyInitial(new LogEvent(dummyAct), defaultRelation);
         // Mark messages without a predecessor as initial.
         for (LogEvent e : noPredecessor) {
@@ -620,9 +603,7 @@ public class TraceParser {
         // TODO: make sure that terminalNodeLabel does not conflict with any of
         // the event labels in the trace.
         dummyAct = Action.NewTerminalAction();
-        if (internActions) {
-            dummyAct.intern();
-        }
+        dummyAct = dummyAct.intern();
         graph.setDummyTerminal(new LogEvent(dummyAct));
         // Mark messages without a predecessor as terminal.
         for (LogEvent e : noSuccessor) {

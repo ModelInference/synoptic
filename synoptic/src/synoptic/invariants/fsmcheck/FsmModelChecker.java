@@ -7,9 +7,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
@@ -159,7 +159,7 @@ public class FsmModelChecker {
         List<BinaryInvariant> neverFollowed = new ArrayList<BinaryInvariant>();
         for (ITemporalInvariant inv : invariants) {
             @SuppressWarnings("unchecked")
-            Class<Object> invClass = (Class) inv.getClass();
+            Class<Object> invClass = (Class<Object>) inv.getClass();
             if (invClass.equals(AlwaysFollowedInvariant.class)) {
                 alwaysFollowed.add((BinaryInvariant) inv);
             } else if (invClass.equals(AlwaysPrecedesInvariant.class)) {

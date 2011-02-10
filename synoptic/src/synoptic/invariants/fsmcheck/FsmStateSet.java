@@ -123,6 +123,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
      * 
      * @param other
      */
+    @Override
     public void mergeWith(FsmStateSet<T> other) {
         assert other.mappings == mappings;
         for (int i = 0; i < sets.size(); i++) {
@@ -141,6 +142,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
      *            The other set.
      * @return Returns true if the otherset is a superset.
      */
+    @Override
     public boolean isSubset(FsmStateSet<T> other) {
         if (other == null) {
             return false;
@@ -164,13 +166,14 @@ public abstract class FsmStateSet<T extends INode<T>> implements
      * 
      * @see java.lang.Object#clone()
      */
+    @Override
     @SuppressWarnings("unchecked")
     public FsmStateSet<T> copy() {
         FsmStateSet<T> result;
 
-        Constructor cons = null;
-        for (Constructor c : this.getClass().getConstructors()) {
-            Class[] params = c.getParameterTypes();
+        Constructor<?> cons = null;
+        for (Constructor<?> c : this.getClass().getConstructors()) {
+            Class<?>[] params = c.getParameterTypes();
             if (params.length == 1 && params[0].toString().equals("int")) {
                 cons = c;
             }

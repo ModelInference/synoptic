@@ -39,7 +39,7 @@ public class InternalSynopticException extends RuntimeException {
      * @param e
      *            Some Java exception
      */
-    private InternalSynopticException(Exception e) {
+    public InternalSynopticException(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         stackTrace = sw.toString();
