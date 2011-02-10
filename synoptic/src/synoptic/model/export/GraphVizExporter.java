@@ -12,17 +12,17 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import synoptic.algorithms.graph.StronglyConnectedComponents;
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.model.Action;
+import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.Partition;
+import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.model.nets.Edge;
-import synoptic.model.nets.Net;
-import synoptic.model.nets.PetriEvent;
-import synoptic.model.nets.Place;
 import synoptic.util.InternalSynopticException;
 
 /*
@@ -81,17 +81,6 @@ public class GraphVizExporter {
         export(writer, newHead, false);
     }
 
-    public void export(File dotFile, Net net) throws Exception {
-        final PrintWriter writer;
-        try {
-            writer = new PrintWriter(dotFile);
-        } catch (final IOException e) {
-            throw new Exception("Error opening .dot-File: " + e.getMessage(), e);
-        }
-
-        export(writer, net);
-    }
-
     /**
      * Exports a dot file as a png image file. The png file will be created in
      * the same place as the dot file.
@@ -138,18 +127,6 @@ public class GraphVizExporter {
         } else {
             exportGraphNonCanonically(writer, graph, fast, isInitialGraph);
         }
-
-        writer.write("} // digraph\n");
-
-        // close the dot file
-        writer.close();
-    }
-
-    private void export(final Writer writer, Net net) throws IOException {
-        // begin graph
-        writer.write("digraph {\n");
-
-        exportNet(writer, net);
 
         writer.write("} // digraph\n");
 
@@ -397,43 +374,6 @@ public class GraphVizExporter {
         }
     }
 
-    private void exportNet(final Writer writer, Net net) throws IOException {
-        // write the transitions (nodes are generated implicitly by graphviz)
-        Set<Place> initialPlaces = net.getInitalPlaces();
-
-        for (PetriEvent e : net.getEvents()) {
-            final int eventNo = e.hashCode();
-            String attributes = "label=\"" + quote(e.toString() /*
-                                                                 * + " (" +
-                                                                 * e.hashCode()
-                                                                 * + ")"
-                                                                 */)
-                    + "\",shape=box";
-            writer.write(eventNo + " [" + attributes + "];" + "\n");
-        }
-        for (Place p : net.getPlaces()) {
-            final int placeNo = p.hashCode();
-            String attributes = "label=\""
-                    + (initialPlaces.contains(p) ? "0" : "") + "\"";
-            writer.write(placeNo + " [" + attributes + "];" + "\n");
-        }
-
-        for (PetriEvent e : net.getEvents()) {
-            for (Edge<PetriEvent, Place> edge : e.getEdgeIterator()) {
-                writer.write(edge.getSource().hashCode() + "->"
-                        + edge.getTarget().hashCode() + " [label=\""
-                        + edge.getWeight() + "\"];" + "\n");
-            }
-        }
-        for (Place p : net.getPlaces()) {
-            for (Edge<Place, PetriEvent> edge : p.getEdgeIterator(net)) {
-                writer.write(edge.getSource().hashCode() + "->"
-                        + edge.getTarget().hashCode() + " [label=\""
-                        + edge.getWeight() + "\"];" + "\n");
-            }
-        }
-    }
-
     private static String quote(String string) {
         final StringBuilder sb = new StringBuilder(string.length() + 2);
         for (int i = 0; i < string.length(); ++i) {
@@ -455,12 +395,6 @@ public class GraphVizExporter {
 
     public <T extends INode<T>> void exportAsDotAndPng(String fileName,
             IGraph<T> g) throws Exception {
-        File f = new File(fileName);
-        export(f, g);
-        exportPng(f);
-    }
-
-    public void exportAsDotAndPng(String fileName, Net g) throws Exception {
         File f = new File(fileName);
         export(f, g);
         exportPng(f);
@@ -507,5 +441,36 @@ public class GraphVizExporter {
         export(writer, pg, true, isInitialGraph);
         writer.close();
         exportPng(f);
+    }
+
+    private static void exportSCCsWithInvariants(GraphVizExporter e,
+            PartitionGraph pg) throws Exception {
+        StronglyConnectedComponents<Partition> sccs = new StronglyConnectedComponents<Partition>(
+                pg);
+        int partN = 0;
+        for (Set<Partition> scc : sccs) {
+            Graph<Partition> graph = new Graph<Partition>();
+            Graph<LogEvent> messageGraph = new Graph<LogEvent>();
+            for (Partition p : scc) {
+                graph.add(p);
+                for (LogEvent m : p.getMessages()) {
+                    messageGraph.add(m);
+                }
+            }
+            String prefix = "";
+            e.exportAsDotAndPngFast(
+                    prefix + "output/peterson/messageGraph.dot", messageGraph);
+            e.exportAsDotAndPngFast(prefix + "output/peterson/partition-"
+                    + partN + ".dot", graph);
+            System.out.println(scc);
+            TemporalInvariantSet.generateStructuralInvariants = true;
+            TemporalInvariantSet s2 = TemporalInvariantSet
+                    .computeInvariants(messageGraph);
+            e.exportAsDotAndPngFast(prefix + "output/peterson/partition-"
+                    + partN + "-synoptic.invariants.dot",
+                    s2.getInvariantGraph("AP"));
+            TemporalInvariantSet.generateStructuralInvariants = false;
+            partN++;
+        }
     }
 }

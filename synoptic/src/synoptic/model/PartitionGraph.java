@@ -15,10 +15,10 @@ import synoptic.util.InternalSynopticException;
 /**
  * This class implements a partition graph. Nodes are {@code Partition}
  * instances, which are sets of messages -- ( {@code LogEvent}) -- and edges are
- * not maintained explicitly, but generated on-the-fly by class {@code
- * Partition}. PartitionGraphs can only be modified via the method {@code apply}
- * which takes a object implementing {@code IOperation}. Operations must perform
- * changes on both representations.
+ * not maintained explicitly, but generated on-the-fly by class
+ * {@code Partition}. PartitionGraphs can only be modified via the method
+ * {@code apply} which takes a object implementing {@code IOperation}.
+ * Operations must perform changes on both representations.
  * 
  * @author sigurd
  */
@@ -174,6 +174,7 @@ public class PartitionGraph implements IGraph<Partition> {
         }
     }
 
+    @Override
     public Set<Partition> getNodes() {
         return partitions;
     }
@@ -200,6 +201,7 @@ public class PartitionGraph implements IGraph<Partition> {
         return ret;
     }
 
+    @Override
     public Set<Partition> getInitialNodes() {
         return getAllRelationsLogEventPartitions(initialMessages);
     }
@@ -212,14 +214,17 @@ public class PartitionGraph implements IGraph<Partition> {
         return getRelationLogEventPartitions(relation, terminalMessages);
     }
 
+    @Override
     public Set<Partition> getInitialNodes(String relation) {
         return getRelationLogEventPartitions(relation, initialMessages);
     }
 
+    @Override
     public Set<String> getRelations() {
         return relations;
     }
 
+    @Override
     public void add(Partition node) {
         for (LogEvent m : node.getMessages()) {
             relations.addAll(m.getRelations());
@@ -227,15 +232,18 @@ public class PartitionGraph implements IGraph<Partition> {
         partitions.add(node);
     }
 
+    @Override
     public void tagInitial(Partition initialNode, String relation) {
         partitions.add(initialNode);
         addInitialMessages(initialNode.getMessages(), relation);
     }
 
+    @Override
     public void remove(Partition node) {
         partitions.remove(node);
     }
 
+    @Override
     public void tagTerminal(Partition terminalNode, String relation) {
         throw new InternalSynopticException(
                 "PartitionGraph tags terminal partitions implicitly -- by considering the LogEvents the partition contains.");

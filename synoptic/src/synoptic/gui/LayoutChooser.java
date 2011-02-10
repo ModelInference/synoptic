@@ -62,8 +62,11 @@ class LayoutChooser<Node, Transition> implements ActionListener {
             Object o = constructor.newInstance(constructorArgs);
             // Double check that the item in the combo-box is a valid Layout.
             if (o instanceof Layout<?, ?>) {
+                // Initialize the layout with the current layout's graph.
+                Layout<Node, Transition> layout = (Layout<Node, Transition>) o;
+                layout.setGraph(vizViewer.getGraphLayout().getGraph());
                 // Tell the viewer to use the new layout.
-                vizViewer.setGraphLayout((Layout<Node, Transition>) o);
+                vizViewer.setGraphLayout(layout);
             }
         } catch (Exception e) {
             throw new InternalSynopticException("Could not load layout "

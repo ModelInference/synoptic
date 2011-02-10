@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import synoptic.main.Main;
-import synoptic.model.input.VectorTime;
+import synoptic.util.VectorTime;
 
 /**
  * The action class abstracts an event. Each event needs at least a name, called

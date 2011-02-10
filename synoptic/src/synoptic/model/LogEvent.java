@@ -9,16 +9,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import synoptic.model.input.VectorTime;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.IIterableIterator;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.IterableAdapter;
+import synoptic.util.VectorTime;
 
 /**
  * The event class. This class may need some work.
- *
+ * 
  * @author Sigurd Schneider
  */
 public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
@@ -43,14 +43,17 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
         parent = null;
     }
 
+    @Override
     public String getLabel() {
         return action.getLabel();
     }
 
+    @Override
     public Partition getParent() {
         return parent;
     }
 
+    @Override
     public void setParent(Partition parent) {
         this.parent = parent;
     }
@@ -114,13 +117,14 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
                     && transitionsByActionAndTarget.get(
                             transition.getRelation()).containsKey(
                             transition.getTarget())) {
-                transitionsByActionAndTarget.get(transition.getRelation()).get(
-                        transition.getTarget()).remove(transition);
+                transitionsByActionAndTarget.get(transition.getRelation())
+                        .get(transition.getTarget()).remove(transition);
             }
         }
 
     }
 
+    @Override
     public final List<Relation<LogEvent>> getTransitions() {
         // Set<Relation<LogEvent>> set = new
         // LinkedHashSet<Relation<LogEvent>>();
@@ -226,6 +230,7 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
         return transitionsByAction.keySet();
     }
 
+    @Override
     public VectorTime getTime() {
         return action.getTime();
     }

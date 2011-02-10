@@ -8,8 +8,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import synoptic.model.input.VectorTime;
 import synoptic.tests.SynopticTest;
+import synoptic.util.VectorTime;
 
 /**
  * Tests for synoptic.model.input.VectorTime class.

@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.model.PartitionGraph;
-import synoptic.model.input.GraphBuilder;
 import synoptic.model.scalability.ScalableGraph;
 import synoptic.util.InternalSynopticException;
 
@@ -55,6 +54,23 @@ public class PerformanceTests extends TestCase {
         }
     }
 
+    private PartitionGraph buildGraph(String[][] traces) {
+        // Graph<LogEvent> g = new Graph<LogEvent>();
+        // for (int i = 0; i < traces.length; ++i) {
+        // for (String t : traces[i]) {
+        // LogEvent e = new LogEvent(new Action(t));
+        // g.add(e);
+        // // TODO: have to connect these events together
+        // }
+        //
+        // if (i != traces.length - 1) {
+        // // TODO: split at these boundaries ..
+        // }
+        // }
+        PartitionGraph ret = null;
+        return ret;
+    }
+
     private void runTestBisim(int traceType, int M, int n, int r,
             boolean invariants) throws Exception {
         long total_delta = 0;
@@ -63,10 +79,8 @@ public class PerformanceTests extends TestCase {
                 + " synoptic.invariants=" + invariants + ")");
         for (int iter = 0; iter < iterations; iter++) {
 
-            String[][] traces = traceType == 1 ? partitionTrace(
-                    structure1Trace(M, r), n) : partitionTrace(
-                    structure1Trace(M, r), n);
-            PartitionGraph g = GraphBuilder.buildGraph(traces);
+            String[][] traces = partitionTrace(structure1Trace(M, r), n);
+            PartitionGraph g = buildGraph(traces);
 
             long startTime = System.currentTimeMillis();
             Bisimulation.splitPartitions(g);
@@ -85,10 +99,8 @@ public class PerformanceTests extends TestCase {
                 + " synoptic.invariants=" + invariants + ")");
         for (int iter = 0; iter < iterations; iter++) {
 
-            String[][] traces = traceType == 1 ? partitionTrace(
-                    structure1Trace(M, r), n) : partitionTrace(
-                    structure1Trace(M, r), n);
-            PartitionGraph g = GraphBuilder.buildGraph(traces);
+            String[][] traces = partitionTrace(structure1Trace(M, r), n);
+            PartitionGraph g = buildGraph(traces);
 
             long startTime = System.currentTimeMillis();
             // TODO: call our k-Tail
@@ -108,13 +120,12 @@ public class PerformanceTests extends TestCase {
                 + " synoptic.invariants=" + invariants + ")");
         for (int iter = 0; iter < iterations; iter++) {
 
-            String[][] traces = traceType == 1 ? partitionTrace(
-                    structure1Trace(M, r), n) : partitionTrace(
-                    structure1Trace(M, r), n);
+            String[][] traces = partitionTrace(structure1Trace(M, r), n);
             ScalableGraph sg = new ScalableGraph();
-            for (String[] trace : traces) {
-                sg.addGraph(GraphBuilder.buildGraph(trace));
-            }
+            // TODO
+            // for (String[] trace : traces) {
+            // sg.addGraph(buildGraph(trace));
+            // }
             long startTime = System.currentTimeMillis();
             PartitionGraph g = sg.kReduce(k, true, invariants);
             total_delta = System.currentTimeMillis() - startTime;
