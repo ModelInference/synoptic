@@ -6,11 +6,14 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.Action;
+import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.util.InternalSynopticException;
 
@@ -25,6 +28,13 @@ public abstract class SynopticTest {
      * The default parser used by tests.
      */
     protected static TraceParser defParser;
+
+    /**
+     * Can be used to derive the current test name (as of JUnit 4.7) via
+     * name.getMethodName(). NOTE: this doesn't work in @Before.
+     */
+    @Rule
+    public static TestName testName = new TestName();
 
     // Set up the parser state.
     static {
@@ -61,6 +71,37 @@ public abstract class SynopticTest {
         Main.SetUpLogging();
         Main.randomSeed = System.currentTimeMillis();
         Main.random = new Random(Main.randomSeed);
+    }
+
+    // //////////////////////////////////////////////
+    // Common routines to simplify testing.
+    // //////////////////////////////////////////////
+
+    /**
+     * Generates an initial graph based on a sequence of log events.
+     * 
+     * @param a
+     *            log of events, each one in the format: (?<TYPE>)
+     * @return an initial graph corresponding to the log of events
+     * @throws ParseException
+     * @throws InternalSynopticException
+     */
+    public static Graph<LogEvent> genInitialLinearGraph(String[] events)
+            throws ParseException, InternalSynopticException {
+
+        // Creates a single string out of an array of strings, joined together
+        // and delimited using a newline
+        StringBuilder sb = new StringBuilder();
+        for (String s : events) {
+            sb.append(s);
+            sb.append('\n');
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        String traceStr = sb.toString();
+
+        List<LogEvent> parsedEvents = defParser.parseTraceString(traceStr,
+                testName.getMethodName(), -1);
+        return defParser.generateDirectTemporalRelation(parsedEvents, true);
     }
 
     /**

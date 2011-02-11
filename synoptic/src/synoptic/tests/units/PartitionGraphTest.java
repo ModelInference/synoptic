@@ -51,8 +51,8 @@ public class PartitionGraphTest extends SynopticTest {
             ParseException {
         String[] events = new String[] { "A", "B", "--", "A", "B", "--", "C",
                 "D", "--", "C", "D" };
-        Graph<LogEvent> graph = TemporalInvariantSetTests
-                .genInitialGraph(events);
+        Graph<LogEvent> graph = SynopticTest
+                .genInitialLinearGraph(events);
         return new PartitionGraph(graph, true);
     }
 
@@ -60,8 +60,8 @@ public class PartitionGraphTest extends SynopticTest {
             throws InternalSynopticException, ParseException {
         String[] events = new String[] { "A", "B", "--", "C", "D", };
         // TODO: insertAfter("A", new Action("D"));
-        Graph<LogEvent> graph = TemporalInvariantSetTests
-                .genInitialGraph(events);
+        Graph<LogEvent> graph = SynopticTest
+                .genInitialLinearGraph(events);
         return new PartitionGraph(graph, false);
     }
 

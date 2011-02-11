@@ -57,33 +57,6 @@ public class TemporalInvariantSetTests extends SynopticTest {
     }
 
     /**
-     * Generates an initial graph based on a sequence of log events.
-     * 
-     * @param a
-     *            log of events, each one in the format: (?<TYPE>)
-     * @return an initial graph corresponding to the log of events
-     * @throws ParseException
-     * @throws InternalSynopticException
-     */
-    public static Graph<LogEvent> genInitialGraph(String[] events)
-            throws ParseException, InternalSynopticException {
-
-        // Creates a single string out of an array of strings, joined together
-        // and delimited using a newline
-        StringBuilder sb = new StringBuilder();
-        for (String s : events) {
-            sb.append(s);
-            sb.append('\n');
-        }
-        sb.deleteCharAt(sb.length() - 1);
-        String traceStr = sb.toString();
-
-        List<LogEvent> parsedEvents = defParser.parseTraceString(traceStr,
-                "test", -1);
-        return defParser.generateDirectTemporalRelation(parsedEvents, true);
-    }
-
-    /**
      * Generates a TemporalInvariantSet based on a sequence of log events -- a
      * set of invariants that are mined from the log, and hold true for the
      * initial graph of the log.
@@ -96,7 +69,7 @@ public class TemporalInvariantSetTests extends SynopticTest {
      */
     public static TemporalInvariantSet genInvariants(String[] events)
             throws ParseException, InternalSynopticException {
-        Graph<LogEvent> inputGraph = genInitialGraph(events);
+        Graph<LogEvent> inputGraph = SynopticTest.genInitialLinearGraph(events);
         PartitionGraph result = new PartitionGraph(inputGraph, true);
         return result.getInvariants();
     }
@@ -115,7 +88,7 @@ public class TemporalInvariantSetTests extends SynopticTest {
      */
     public static TemporalInvariantSet genInvariantsIncludingTautological(
             String[] events) throws ParseException, InternalSynopticException {
-        Graph<LogEvent> inputGraph = genInitialGraph(events);
+        Graph<LogEvent> inputGraph = SynopticTest.genInitialLinearGraph(events);
         return TemporalInvariantSet.computeInvariants(inputGraph);
     }
 
@@ -382,7 +355,7 @@ public class TemporalInvariantSetTests extends SynopticTest {
 
         String[] log = genRandomLog();
 
-        Graph<LogEvent> inputGraph = genInitialGraph(log);
+        Graph<LogEvent> inputGraph = SynopticTest.genInitialLinearGraph(log);
         PartitionGraph graph = new PartitionGraph(inputGraph, true);
         TemporalInvariantSet minedInvs = graph.getInvariants();
 

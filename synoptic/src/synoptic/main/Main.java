@@ -335,15 +335,6 @@ public class Main implements Callable<Integer> {
      */
     @Option("Do not perform refinement")
     public static boolean noRefinement = false;
-
-    /**
-     * Export graphs in a canonical format. Graphs that are identical will
-     * generated the same dot files. The generated Graphviz dot files may then
-     * be diff-ed to check if they represent the same graphs. This option is
-     * <i>unpublicized</i>; it will not appear in the default usage message
-     */
-    @Option("Export graphs in a canonical Graphviz format (can use diff to tell if two dot files are the same)")
-    public static boolean exportCanonically = true;
     // end option group "Debugging Options"
 
     /**
