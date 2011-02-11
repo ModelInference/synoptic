@@ -32,7 +32,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
     /**
      * The nodes of the graph. The edges between nodes are managed by the nodes.
      */
-    private final Set<NodeType> nodes = new HashSet<NodeType>();
+    private final Set<NodeType> nodes = new LinkedHashSet<NodeType>();
 
     /**
      * Maps a relation to the set of initial nodes in this relation.

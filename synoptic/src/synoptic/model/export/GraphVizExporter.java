@@ -7,7 +7,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -15,7 +14,6 @@ import java.util.logging.Logger;
 import synoptic.algorithms.graph.StronglyConnectedComponents;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
-import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.Partition;
@@ -119,15 +117,12 @@ public class GraphVizExporter {
     private <T extends INode<T>> void export(final Writer writer,
             IGraph<T> graph, boolean fast, boolean isInitialGraph)
             throws IOException {
-        // begin graph
+
+        // Begin graph.
         writer.write("digraph {\n");
-
-        if (Main.exportCanonically) {
-            exportGraphCanonically(writer, graph, isInitialGraph);
-        } else {
-            exportGraphNonCanonically(writer, graph, fast, isInitialGraph);
-        }
-
+        // Write out graph body.
+        exportGraphCanonically(writer, graph, isInitialGraph);
+        // End graph.
         writer.write("} // digraph\n");
 
         // close the dot file
@@ -259,7 +254,9 @@ public class GraphVizExporter {
 
     /**
      * Exports a graph in a dot format using the writer. It does so canonically
-     * -- two isomorphic graphs will have equivalent dot outputs.
+     * -- two isomorphic graphs will have equivalent dot outputs. The generated
+     * Graphviz dot files may then be diff-ed to check if they represent the
+     * same graphs.
      * 
      * @param <T>
      *            Graph node type
@@ -304,74 +301,6 @@ public class GraphVizExporter {
             writer.write("];" + "\n");
         }
         return;
-    }
-
-    private <T extends INode<T>> void exportGraphNonCanonically(
-            final Writer writer, IGraph<T> graph, boolean fast,
-            boolean isInitialGraph) throws IOException {
-
-        logger.finest("Performing standard export..");
-
-        final LinkedList<T> queue = new LinkedList<T>();
-        final Set<T> statesSeen = new HashSet<T>();
-        final HashSet<ITransition<T>> transSeen = new HashSet<ITransition<T>>();
-
-        for (T s : graph.getNodes()) {
-            queue.add(s);
-            statesSeen.add(s);
-        }
-
-        while (!queue.isEmpty()) {
-            final T e = queue.poll();
-            final int sourceStateNo = e.hashCode();
-
-            boolean isTerminal = false;
-            if ((INode<?>) e instanceof Partition) {
-                Partition p = (Partition) (INode<?>) e;
-                for (LogEvent m : p.getMessages()) {
-                    if (m.getTransitions().size() == 0) {
-                        isTerminal = true;
-                    }
-                }
-            }
-
-            // TODO: set this to the appropriate relation
-            String relation = "t";
-            boolean isInitial = graph.getRelations().contains(
-                    new Action(relation))
-                    && graph.getInitialNodes(relation).contains(e);
-            String attributes = nodeDotAttributes(e, isInitial, isTerminal,
-                    relationColors.get(relation));
-
-            writer.write("  " + sourceStateNo + " [" + attributes + "];\n");
-
-            Iterable<? extends ITransition<T>> foo = null;
-            if (fast) {
-                foo = e.getTransitionsIterator();
-            } else {
-                foo = e.getTransitions();
-            }
-            for (ITransition<T> trans : foo) {
-                if (!transSeen.add(trans)
-                        || !graph.getNodes().contains(trans.getTarget())) {
-                    writer.write("/* skipping " + trans + " */" + "\n");
-                    continue;
-                }
-                final T targetExpr = trans.getTarget();
-                final int targetStateNo = targetExpr.hashCode();
-                writer.write(sourceStateNo + "->" + targetStateNo + " [");
-                if (Main.outputEdgeLabels && !isInitialGraph) {
-                    writer.write("label=\"" + quote(trans.toStringConcise())
-                            + "\", weight=\"" + trans.toStringConcise() + "\",");
-                }
-                writer.write((trans.toStringConcise().equals("i") ? ",color=blue"
-                        : "")
-                        + "];" + "\n");
-                if (statesSeen.add(targetExpr)) {
-                    queue.add(targetExpr);
-                }
-            }
-        }
     }
 
     private static String quote(String string) {
