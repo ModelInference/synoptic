@@ -181,7 +181,10 @@ public class GraphVizExporter {
                 graph.getInitialNodes(relation));
 
         if (rootNodes.size() == 0) {
-            logger.warning("Exporting a graph with no initial nodes: will result in empty graph output.");
+            logger.fine("Cannot export a graph[relation "
+                    + relation
+                    + "] with no initial nodes: will result in empty graph output.");
+            return nodeCnt;
         }
 
         if (!Main.showInitialNode) {
