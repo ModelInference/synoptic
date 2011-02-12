@@ -22,14 +22,15 @@ public class KTails {
      */
 
     static public <NodeType extends INode<NodeType>> boolean kEquals(
-            INode<NodeType> n1, INode<NodeType> n2, int k, boolean subsumption) {
+            NodeType n1, NodeType n2, int k, boolean subsumption) {
         if (k == 0) {
             return n1.getLabel().equals(n2.getLabel());
         }
         if (subsumption) {
             return kEqualsWithSubsumption(n1, n2, k);
         }
-        return kEqualsWithoutSubsumption(n1, n2, k);
+        LinkedHashMap<NodeType, NodeType> allVisitedMatches = new LinkedHashMap<NodeType, NodeType>();
+        return kEqualsWithoutSubsumption(n1, n2, k, allVisitedMatches);
     }
 
     /**
@@ -38,7 +39,7 @@ public class KTails {
      * transition in n1.
      */
     static private <NodeType extends INode<NodeType>> boolean kEqualsWithSubsumption(
-            INode<NodeType> n1, INode<NodeType> n2, int k) {
+            NodeType n1, NodeType n2, int k) {
 
         // The labels must match.
         if (!n1.getLabel().equals(n2.getLabel())) {
@@ -69,15 +70,28 @@ public class KTails {
     }
 
     /**
-     * For subsumption == false both sets must match each other exactly -- there
-     * needs to be a 1-1 correspondence.
+     * Without subsumption the children sets of both nodes must match each other
+     * exactly -- there needs to be a 1-1 correspondence that holds recursively.
      */
     static private <NodeType extends INode<NodeType>> boolean kEqualsWithoutSubsumption(
-            INode<NodeType> n1, INode<NodeType> n2, int k) {
+            NodeType n1, NodeType n2, int k,
+            LinkedHashMap<NodeType, NodeType> allVisitedMatches) {
 
         // The labels must match.
         if (!n1.getLabel().equals(n2.getLabel())) {
             return false;
+        }
+
+        if (allVisitedMatches.containsKey(n1)) {
+            if (allVisitedMatches.get(n1) != n2) {
+                // n1 has been visited previously, but it doesn't map to n2
+                return false;
+            }
+        } else {
+            if (allVisitedMatches.containsValue(n2)) {
+                // n1 has not been visited previously, but n2 has been.
+                return false;
+            }
         }
 
         // Base case.
@@ -100,37 +114,102 @@ public class KTails {
         // these matched children of n2 since we can't re-use matches for
         // children of n1.
 
+        // If any of the children of n1 have been previously visited, then check
+        // that each visited child of n1 corresponds to some visited child of
+        // n2. And that no visited child of n2 is visited otherwise.
+        Iterator<? extends ITransition<NodeType>> i1, i2;
+        LinkedHashSet<NodeType> visitedN1Children = new LinkedHashSet<NodeType>();
+        LinkedHashSet<NodeType> visitedN2Children = new LinkedHashSet<NodeType>();
+        i1 = n1.getTransitionsIterator();
+        while (i1.hasNext()) {
+            NodeType c1 = i1.next().getTarget();
+            if (allVisitedMatches.containsKey(c1)) {
+                visitedN1Children.add(c1);
+                visitedN2Children.add(allVisitedMatches.get(c1));
+            }
+        }
+        i2 = n2.getTransitionsIterator();
+        int numVisitedN2ChildrenFound = 0;
+        while (i2.hasNext()) {
+            NodeType c2 = i2.next().getTarget();
+            if (allVisitedMatches.containsValue(c2)) {
+                if (!visitedN2Children.contains(c2)) {
+                    // c2 has been visited but doesn't map to a visited child of
+                    // n1.
+                    return false;
+                } else {
+                    numVisitedN2ChildrenFound++;
+                }
+            } else {
+                if (visitedN2Children.contains(c2)) {
+                    // c2 has not been visited but _does_ map to a visited child
+                    // of n1 -- visitedMatches hash is therefore inconsistent.
+                    throw new InternalSynopticException(
+                            "Inconsistent kTails exploration.");
+                } else {
+
+                }
+            }
+        }
+        // We were not able to find all visitedN2Children as children of n2.
+        if (numVisitedN2ChildrenFound != visitedN2Children.size()) {
+            return false;
+        }
+
+        // Below, we are going to skip nodes that have been previously visited
+        // -- those in visitedN1Children and visitedN2Children.
+
         // This set contains a child of n2 if that child has been
-        // mapped in some earlier iteration of the outer loop.
+        // mapped in some earlier iteration of the outer loop (through children
+        // of n2) below.
         LinkedHashSet<NodeType> childKEquivMatches = new LinkedHashSet<NodeType>();
 
-        Iterator<? extends ITransition<NodeType>> i1, i2;
+        // Record that we're _currently_ visiting n1 and n2 -- this is
+        // necessary for cycles (for DAGs it is sufficient to mark n1
+        // and n2 as visited after determining that they are kEqual).
+        allVisitedMatches.put(n1, n2);
+
         i1 = n1.getTransitionsIterator();
         while (i1.hasNext()) {
             ITransition<NodeType> t1 = i1.next();
             NodeType c1 = t1.getTarget();
+            // Skip c1 if it was visited by this method earlier.
+            if (visitedN1Children.contains(c1)) {
+                continue;
+            }
 
             boolean kEqual = false;
             // Make sure to get transitions of the same relation.
             i2 = n2.getTransitionsIterator(t1.getRelation());
             while (i2.hasNext()) {
                 NodeType c2 = i2.next().getTarget();
-                // Skip c2 if its already been mapped to a c1 previously
+                // Skip c2 if it was visited by this method earlier.
+                if (visitedN2Children.contains(c2)) {
+                    continue;
+                }
+
+                // Skip c2 if its already been mapped to a c1 previously in the
+                // outer loop.
                 if (childKEquivMatches.contains(c2)) {
                     continue;
                 }
 
-                if (kEqualsWithoutSubsumption(c1, c2, k - 1)) {
+                if (kEqualsWithoutSubsumption(c1, c2, k - 1, allVisitedMatches)) {
                     kEqual = true;
                     childKEquivMatches.add(c2);
                     break;
+                } else {
+
                 }
             }
             // Could not find any kEqual c2 to match with c1.
             if (!kEqual) {
+                // Remove the record of visiting n1 and n2.
+                allVisitedMatches.remove(n1);
                 return false;
             }
         }
+        // TODO: update this description for loops
         // We are k-equivalent at this point because:
         // 0. Labels of n1 and n2 match
         // 1. The child sets have the same size

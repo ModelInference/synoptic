@@ -9,10 +9,10 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -163,13 +163,16 @@ public class TraceParser {
     }
 
     /**
-     * ??
+     * Moves the last element in the list to the front of the list.
      * 
      * @param <T>
+     *            list element type
      * @param l
+     *            list
      */
     private static <T> void cycle(List<T> l) {
-        l.add(0, l.remove(l.size() - 1));
+        T removed = l.remove(l.size() - 1);
+        l.add(0, removed);
     }
 
     /**
@@ -539,50 +542,50 @@ public class TraceParser {
 
         Graph<LogEvent> graph = new Graph<LogEvent>();
 
-        // Partition by nodeName.
-        HashMap<String, List<LogEvent>> groups = new HashMap<String, List<LogEvent>>();
-        if (partition) {
-            for (LogEvent e : allEvents) {
-                String nodeName = getNodeName(e.getAction());
-                List<LogEvent> events = groups.get(nodeName);
-                if (events == null) {
-                    events = new ArrayList<LogEvent>();
-                    groups.put(nodeName, events);
+        // Find all direct successors of all events. For an event e1, direct
+        // successors are successors (in terms of vector-clock) that are not
+        // preceded by any other successors of e1. That is, if e1 < x then x
+        // is a direct successor if there is no other successor of e1 y such
+        // that y < x.
+        LinkedHashMap<LogEvent, LinkedHashSet<LogEvent>> directSuccessors = new LinkedHashMap<LogEvent, LinkedHashSet<LogEvent>>();
+        for (LogEvent e1 : allEvents) {
+            // First find all all events that succeed e1, store this set in
+            // e1AllSuccessors.
+            LinkedHashSet<LogEvent> e1AllSuccessors = new LinkedHashSet<LogEvent>();
+            for (LogEvent e2 : allEvents) {
+                if (e1 == e2) {
+                    continue;
                 }
-                events.add(e);
+
+                if (e1.getTime().lessThan(e2.getTime())) {
+                    e1AllSuccessors.add(e2);
+                } else if (e1.getTime().equals(e2.getTime())) {
+                    throw new IllegalArgumentException(
+                            "Found two events with identical timestamps: (1) "
+                                    + e1.toStringFull() + " (2) "
+                                    + e2.toStringFull());
+                }
             }
-        } else {
-            groups.put(null, allEvents);
-        }
 
-        HashMap<LogEvent, HashSet<LogEvent>> directSuccessors = new HashMap<LogEvent, HashSet<LogEvent>>();
-        Set<LogEvent> noPredecessor = new HashSet<LogEvent>(allEvents);
-        Set<LogEvent> noSuccessor = new HashSet<LogEvent>();
+            // Now out of all successors find all direct successors of e1.
+            LinkedHashSet<LogEvent> e1DirectSuccessors = new LinkedHashSet<LogEvent>();
+            for (LogEvent e1Succ1 : e1AllSuccessors) {
+                boolean directSuccessor = true; // whether or not e1Succ1 is a
+                                                // direct successor
+                for (LogEvent e1Succ2 : e1AllSuccessors) {
+                    if (e1Succ1 == e1Succ2) {
+                        continue;
+                    }
 
-        for (List<LogEvent> group : groups.values()) {
-            for (LogEvent m1 : group) {
-                directSuccessors.put(m1, new HashSet<LogEvent>());
-                for (LogEvent m2 : group) {
-                    if (m1.getTime().lessThan(m2.getTime())) {
-                        boolean add = true;
-                        List<LogEvent> removeSet = new ArrayList<LogEvent>();
-                        for (LogEvent m : directSuccessors.get(m1)) {
-                            if (m2.getTime().lessThan(m.getTime())) {
-                                add = true;
-                                removeSet.add(m);
-                            }
-                            if (m.getTime().lessThan(m2.getTime())) {
-                                add = false;
-                                break;
-                            }
-                        }
-                        directSuccessors.get(m1).removeAll(removeSet);
-                        if (add) {
-                            directSuccessors.get(m1).add(m2);
-                        }
+                    if (e1Succ2.getTime().lessThan(e1Succ1.getTime())) {
+                        directSuccessor = false;
                     }
                 }
+                if (directSuccessor) {
+                    e1DirectSuccessors.add(e1Succ1);
+                }
             }
+            directSuccessors.put(e1, e1DirectSuccessors);
         }
 
         // Add all the log events to the graph.
@@ -592,7 +595,11 @@ public class TraceParser {
 
         String defaultRelation = "t";
 
-        // Connect the events.
+        // Connect the events in the graph, and also build up noPredecessor and
+        // noSuccessor event sets.
+        LinkedHashSet<LogEvent> noPredecessor = new LinkedHashSet<LogEvent>(
+                allEvents);
+        LinkedHashSet<LogEvent> noSuccessor = new LinkedHashSet<LogEvent>();
         for (LogEvent e1 : directSuccessors.keySet()) {
             for (LogEvent e2 : directSuccessors.get(e1)) {
                 e1.addTransition(e2, defaultRelation);
