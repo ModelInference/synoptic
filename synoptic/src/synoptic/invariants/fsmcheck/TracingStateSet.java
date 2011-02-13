@@ -6,6 +6,7 @@ import java.util.Collections;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.model.Partition;
+import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 
 /**
@@ -17,7 +18,7 @@ import synoptic.model.interfaces.ITransition;
  * @param <T>
  *            The node type, used as an input, and stored in path-history.
  */
-public abstract class TracingStateSet<T> implements
+public abstract class TracingStateSet<T extends INode<T>> implements
         IStateSet<T, TracingStateSet<T>> {
     public static boolean checkPath = false;
 
@@ -37,6 +38,7 @@ public abstract class TracingStateSet<T> implements
             this.count = count;
         }
 
+        @Override
         public int compareTo(HistoryNode other) {
             if (this == other) {
                 return 0;
@@ -54,7 +56,7 @@ public abstract class TracingStateSet<T> implements
             ArrayList<T> path = new ArrayList<T>();
             HistoryNode cur = this;
             // TODO: why do we require isTerminal here?
-            assert ((Partition) cur.node).isTerminal();
+            assert (cur.node).isTerminal();
             while (cur != null) {
                 path.add(cur.node);
                 if (checkPath && cur.previous != null) {
