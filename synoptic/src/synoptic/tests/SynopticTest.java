@@ -6,8 +6,6 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
 
 import synoptic.main.Main;
 import synoptic.main.ParseException;
@@ -16,6 +14,12 @@ import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.util.InternalSynopticException;
+
+/**
+ * Does not work with JUnit version < 4.8.1 <br />
+ * import org.junit.Rule; <br/>
+ * import org.junit.rules.TestName;
+ */
 
 /**
  * Base class for all Synoptic unit tests. Performs common set-up and tear-down
@@ -32,9 +36,21 @@ public abstract class SynopticTest {
     /**
      * Can be used to derive the current test name (as of JUnit 4.7) via
      * name.getMethodName(). NOTE: this doesn't work in @Before.
+     * 
+     * @Rule <br />
+     *       public static TestName testName = new TestName();
      */
-    @Rule
-    public static TestName testName = new TestName();
+    public interface JUnitTestName {
+        String getMethodName();
+    }
+
+    public static JUnitTestName testName = new JUnitTestName() {
+        @Override
+        public String getMethodName() {
+            return "Test";
+        }
+    };
+    // /////////////////////////
 
     // Set up the parser state.
     static {
