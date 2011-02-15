@@ -8,6 +8,7 @@ import synoptic.invariants.RelationPath;
 import synoptic.model.Partition;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.InternalSynopticException;
 
 /**
  * Abstract NFA state set which keeps the shortest path justifying a given state
@@ -73,7 +74,14 @@ public abstract class TracingStateSet<T extends INode<T>> implements
                 cur = cur.previous;
             }
             Collections.reverse(path);
-            return new RelationPath<T>(inv, path);
+
+            RelationPath<T> rpath = new RelationPath<T>(inv, inv.shorten(path));
+            if (rpath.path == null) {
+                throw new InternalSynopticException(
+                        "counter-example shortening returned null for " + inv
+                                + " and c-example trace " + path);
+            }
+            return rpath;
         }
 
         @Override

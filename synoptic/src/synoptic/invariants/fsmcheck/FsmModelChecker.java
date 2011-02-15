@@ -230,6 +230,7 @@ public class FsmModelChecker {
         if (shortestPath == null) {
             return null;
         }
+
         return shortestPath.toCounterexample(invariant);
     }
 }

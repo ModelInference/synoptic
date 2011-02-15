@@ -542,50 +542,69 @@ public class TraceParser {
 
         Graph<LogEvent> graph = new Graph<LogEvent>();
 
+        // Partition by nodeName.
+        HashMap<String, List<LogEvent>> groups = new HashMap<String, List<LogEvent>>();
+        if (partition) {
+            for (LogEvent e : allEvents) {
+                String nodeName = getNodeName(e.getAction());
+                List<LogEvent> events = groups.get(nodeName);
+                if (events == null) {
+                    events = new ArrayList<LogEvent>();
+                    groups.put(nodeName, events);
+                }
+                events.add(e);
+            }
+        } else {
+            groups.put(null, allEvents);
+        }
+
         // Find all direct successors of all events. For an event e1, direct
         // successors are successors (in terms of vector-clock) that are not
         // preceded by any other successors of e1. That is, if e1 < x then x
         // is a direct successor if there is no other successor of e1 y such
         // that y < x.
         LinkedHashMap<LogEvent, LinkedHashSet<LogEvent>> directSuccessors = new LinkedHashMap<LogEvent, LinkedHashSet<LogEvent>>();
-        for (LogEvent e1 : allEvents) {
-            // First find all all events that succeed e1, store this set in
-            // e1AllSuccessors.
-            LinkedHashSet<LogEvent> e1AllSuccessors = new LinkedHashSet<LogEvent>();
-            for (LogEvent e2 : allEvents) {
-                if (e1 == e2) {
-                    continue;
-                }
-
-                if (e1.getTime().lessThan(e2.getTime())) {
-                    e1AllSuccessors.add(e2);
-                } else if (e1.getTime().equals(e2.getTime())) {
-                    throw new IllegalArgumentException(
-                            "Found two events with identical timestamps: (1) "
-                                    + e1.toStringFull() + " (2) "
-                                    + e2.toStringFull());
-                }
-            }
-
-            // Now out of all successors find all direct successors of e1.
-            LinkedHashSet<LogEvent> e1DirectSuccessors = new LinkedHashSet<LogEvent>();
-            for (LogEvent e1Succ1 : e1AllSuccessors) {
-                boolean directSuccessor = true; // whether or not e1Succ1 is a
-                                                // direct successor
-                for (LogEvent e1Succ2 : e1AllSuccessors) {
-                    if (e1Succ1 == e1Succ2) {
+        for (List<LogEvent> group : groups.values()) {
+            for (LogEvent e1 : group) {
+                // First find all all events that succeed e1, store this set in
+                // e1AllSuccessors.
+                LinkedHashSet<LogEvent> e1AllSuccessors = new LinkedHashSet<LogEvent>();
+                for (LogEvent e2 : group) {
+                    if (e1 == e2) {
                         continue;
                     }
 
-                    if (e1Succ2.getTime().lessThan(e1Succ1.getTime())) {
-                        directSuccessor = false;
+                    if (e1.getTime().lessThan(e2.getTime())) {
+                        e1AllSuccessors.add(e2);
+                    } else if (e1.getTime().equals(e2.getTime())) {
+                        throw new IllegalArgumentException(
+                                "Found two events with identical timestamps: (1) "
+                                        + e1.toStringFull() + " (2) "
+                                        + e2.toStringFull());
                     }
                 }
-                if (directSuccessor) {
-                    e1DirectSuccessors.add(e1Succ1);
+
+                // Now out of all successors find all direct successors of e1.
+                LinkedHashSet<LogEvent> e1DirectSuccessors = new LinkedHashSet<LogEvent>();
+                for (LogEvent e1Succ1 : e1AllSuccessors) {
+                    boolean directSuccessor = true; // whether or not e1Succ1 is
+                                                    // a
+                                                    // direct successor
+                    for (LogEvent e1Succ2 : e1AllSuccessors) {
+                        if (e1Succ1 == e1Succ2) {
+                            continue;
+                        }
+
+                        if (e1Succ2.getTime().lessThan(e1Succ1.getTime())) {
+                            directSuccessor = false;
+                        }
+                    }
+                    if (directSuccessor) {
+                        e1DirectSuccessors.add(e1Succ1);
+                    }
                 }
+                directSuccessors.put(e1, e1DirectSuccessors);
             }
-            directSuccessors.put(e1, e1DirectSuccessors);
         }
 
         // Add all the log events to the graph.

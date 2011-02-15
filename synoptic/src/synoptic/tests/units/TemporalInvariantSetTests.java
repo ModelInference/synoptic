@@ -37,13 +37,10 @@ public class TemporalInvariantSetTests extends SynopticTest {
      * 
      * @return The randomly generated log.
      */
-    public static String[] genRandomLog() {
+    public static String[] genRandomLog(String[] eventTypes) {
         ArrayList<String> log = new ArrayList<String>();
         // Arbitrary partition limit.
         int numPartitions = 5;
-
-        // Event types allowed in the log, with partition string at index 0.
-        String[] eventTypes = new String[] { "--", "a", "b", "c" };
 
         // Generate a random log.
         while (numPartitions != 0) {
@@ -64,13 +61,16 @@ public class TemporalInvariantSetTests extends SynopticTest {
      * @param a
      *            log of events, each one in the format: (?<TYPE>)
      * @return an invariant set for the input log
-     * @throws ParseException
-     * @throws InternalSynopticException
+     * @throws Exception
      */
     public static TemporalInvariantSet genInvariants(String[] events)
-            throws ParseException, InternalSynopticException {
+            throws Exception {
         Graph<LogEvent> inputGraph = SynopticTest.genInitialLinearGraph(events);
+        exportTestGraph(inputGraph, 0);
+
         PartitionGraph result = new PartitionGraph(inputGraph, true);
+        exportTestGraph(result, 1);
+
         return result.getInvariants();
     }
 
@@ -147,14 +147,14 @@ public class TemporalInvariantSetTests extends SynopticTest {
      * Tests whether the invariants involving INITIAL\TERMINAL nodes are mined
      * correctly.
      * 
-     * @throws InternalSynopticException
-     * @throws ParseException
+     * @throws Exception
      */
     @Test
-    public void testTautologicalInvariantMining()
-            throws InternalSynopticException, ParseException {
+    public void testTautologicalInvariantMining() throws Exception {
 
-        String[] log = genRandomLog();
+        String[] eventTypes = new String[] { "--", "a", "b", "c", "d", "e" };
+        String[] log = genRandomLog(eventTypes);
+
         ArrayList<String> allEvents = new ArrayList<String>();
         for (String e : log) {
             if (!e.equals("--")) {
@@ -209,12 +209,10 @@ public class TemporalInvariantSetTests extends SynopticTest {
     /**
      * Checks the mined invariants from a log with just two events types.
      * 
-     * @throws ParseException
-     * @throws InternalSynopticException
+     * @throws Exception
      */
     @Test
-    public void mineBasicTest() throws ParseException,
-            InternalSynopticException {
+    public void mineBasicTest() throws Exception {
         String[] log = new String[] { "a", "b", "--" };
         TemporalInvariantSet minedInvs = genInvariants(log);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
@@ -236,11 +234,10 @@ public class TemporalInvariantSetTests extends SynopticTest {
     /**
      * Compose a log in which "a AFby b" is the only true invariant.
      * 
-     * @throws ParseException
-     * @throws InternalSynopticException
+     * @throws Exception
      */
     @Test
-    public void mineAFbyTest() throws ParseException, InternalSynopticException {
+    public void mineAFbyTest() throws Exception {
         String[] log = new String[] { "a", "a", "b", "--", "b", "a", "b", "--" };
         TemporalInvariantSet minedInvs = genInvariants(log);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
@@ -253,11 +250,10 @@ public class TemporalInvariantSetTests extends SynopticTest {
     /**
      * Compose a log in which "a NFby b" is the only true invariant.
      * 
-     * @throws InternalSynopticException
-     * @throws ParseException
+     * @throws Exception
      */
     @Test
-    public void mineNFbyTest() throws ParseException, InternalSynopticException {
+    public void mineNFbyTest() throws Exception {
         String[] log = new String[] { "a", "a", "--", "a", "--", "b", "a",
                 "--", "b", "b", "--", "b", "--" };
         TemporalInvariantSet minedInvs = genInvariants(log);
@@ -271,11 +267,10 @@ public class TemporalInvariantSetTests extends SynopticTest {
     /**
      * Compose a log in which "a AP b" is the only true invariant.
      * 
-     * @throws InternalSynopticException
-     * @throws ParseException
+     * @throws Exception
      */
     @Test
-    public void mineAPbyTest() throws ParseException, InternalSynopticException {
+    public void mineAPbyTest() throws Exception {
         String[] log = new String[] { "a", "a", "b", "--", "a", "--", "a", "b",
                 "a", "b", "--" };
         TemporalInvariantSet minedInvs = genInvariants(log);
@@ -290,12 +285,10 @@ public class TemporalInvariantSetTests extends SynopticTest {
      * Tests the correctness of the invariants mined between two partitions,
      * which have no event types in common.
      * 
-     * @throws ParseException
-     * @throws InternalSynopticException
+     * @throws Exception
      */
     @Test
-    public void mineAcrossMultiplePartitionsTest() throws ParseException,
-            InternalSynopticException {
+    public void mineAcrossMultiplePartitionsTest() throws Exception {
         String[] log1 = new String[] { "a", "b", "--" };
         String[] log2 = new String[] { "x", "y", "--" };
         String[] log3 = new String[] { "a", "b", "--", "x", "y", "--" };
@@ -338,12 +331,14 @@ public class TemporalInvariantSetTests extends SynopticTest {
     }
 
     /**
-     * Mines invariants from a randomly generated log and then uses the model
-     * checker to check that every mined invariant actually holds.
+     * Mines invariants from a randomly generated log and then uses both model
+     * checkers to check that every mined invariant actually holds.
      * 
      * <pre>
      * TODO: this checks only one side of the approximation. We need a test to
-     * check the other side.
+     * check the other side -- that the mined set is the complete set of satisfied
+     * invariants. This could be done by doing a check on the complete set of
+     * invariants expected in the log (i.e. 3 x number-of-events-types^2).
      * </pre>
      * 
      * @throws InternalSynopticException
@@ -353,7 +348,9 @@ public class TemporalInvariantSetTests extends SynopticTest {
     public void testApproximationExactnessTest() throws ParseException,
             InternalSynopticException {
 
-        String[] log = genRandomLog();
+        // Event types allowed in the log, with partition string at index 0.
+        String[] eventTypes = new String[] { "--", "a", "b", "c", "d", "e" };
+        String[] log = genRandomLog(eventTypes);
 
         Graph<LogEvent> inputGraph = SynopticTest.genInitialLinearGraph(log);
         PartitionGraph graph = new PartitionGraph(inputGraph, true);

@@ -15,9 +15,18 @@ import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.Relation;
-import synoptic.model.export.GraphVizExporter;
 import synoptic.tests.SynopticTest;
 
+/**
+ * Tests the KTails algorithm in synoptic.algorithms.bisim.KTails <br />
+ * <br />
+ * TODO: A good way of testing subsumption (once its implemented) is to create a
+ * random graph g, and then to create a new graph g' that is identical to g
+ * except some of the nodes\edges are missing. The test is then g subsumes g' at
+ * all corresponding vertices that were not removed, for all k > diameter of g.
+ * 
+ * @author ivan
+ */
 public class KTailsTest extends SynopticTest {
 
     /**
@@ -43,21 +52,6 @@ public class KTailsTest extends SynopticTest {
         // Without subsumption e1 !=k= e2 should imply e2 !=k= e1
         assertFalse(KTails.kEquals(e1, e2, k, false));
         assertFalse(KTails.kEquals(e2, e1, k, false));
-    }
-
-    /**
-     * Exports a graph to a png file.
-     * 
-     * @param g
-     *            Graph to export
-     * @throws Exception
-     */
-    private static void exportTestGraph(Graph<LogEvent> g, int index)
-            throws Exception {
-        GraphVizExporter exporter = new GraphVizExporter();
-        logger.fine(exporter.export(g));
-        exporter.exportAsDotAndPngFast("../" + testName.getMethodName() + index
-                + ".dot", g, true);
     }
 
     @Override

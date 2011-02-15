@@ -13,6 +13,10 @@ import synoptic.main.TraceParser;
 import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
+import synoptic.model.PartitionGraph;
+import synoptic.model.export.GraphVizExporter;
+import synoptic.model.interfaces.IGraph;
+import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -32,6 +36,11 @@ public abstract class SynopticTest {
      * The default parser used by tests.
      */
     protected static TraceParser defParser;
+
+    /**
+     * The default exporter used by tests.
+     */
+    protected static GraphVizExporter defExporter = new GraphVizExporter();
 
     /**
      * Can be used to derive the current test name (as of JUnit 4.7) via
@@ -94,7 +103,40 @@ public abstract class SynopticTest {
     // //////////////////////////////////////////////
 
     /**
-     * Generates an initial graph based on a sequence of log events.
+     * Creates a single string out of an array of strings, joined together and
+     * delimited using a newline.
+     */
+    public static String concatinateWithNewlines(String[] events) {
+        StringBuilder sb = new StringBuilder();
+        for (String s : events) {
+            sb.append(s);
+            sb.append('\n');
+        }
+        // Delete the trailing \n.
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
+
+    /**
+     * Parsers events using the supplied parser, generates the initial
+     * _partitioning_ graph and returns it to the caller.
+     * 
+     * @throws Exception
+     */
+    public static PartitionGraph genInitialPartitionGraph(String[] events,
+            TraceParser parser) throws Exception {
+        String traceStr = concatinateWithNewlines(events);
+        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+                testName.getMethodName(), -1);
+        Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
+                parsedEvents, true);
+        exportTestGraph(inputGraph, 0);
+        return new PartitionGraph(inputGraph, true);
+    }
+
+    /**
+     * Generates an initial graph based on a sequence of log events. Uses the
+     * defParser parser for parsing the log of events.
      * 
      * @param a
      *            log of events, each one in the format: (?<TYPE>)
@@ -104,19 +146,12 @@ public abstract class SynopticTest {
      */
     public static Graph<LogEvent> genInitialLinearGraph(String[] events)
             throws ParseException, InternalSynopticException {
-
-        // Creates a single string out of an array of strings, joined together
-        // and delimited using a newline
-        StringBuilder sb = new StringBuilder();
-        for (String s : events) {
-            sb.append(s);
-            sb.append('\n');
-        }
-        sb.deleteCharAt(sb.length() - 1);
-        String traceStr = sb.toString();
-
+        String traceStr = concatinateWithNewlines(events);
         List<LogEvent> parsedEvents = defParser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
+        // for (LogEvent event : parsedEvents) {
+        // logger.fine("Parsed event: " + event.toStringFull());
+        // }
         return defParser.generateDirectTemporalRelation(parsedEvents, true);
     }
 
@@ -141,4 +176,19 @@ public abstract class SynopticTest {
         }
         return ret;
     }
+
+    /**
+     * Exports a graph to a png file.
+     * 
+     * @param g
+     *            Graph to export
+     * @throws Exception
+     */
+    protected static <T extends INode<T>> void exportTestGraph(IGraph<T> g,
+            int index) throws Exception {
+        logger.fine(defExporter.export(g));
+        defExporter.exportAsDotAndPngFast("../" + testName.getMethodName()
+                + index + ".dot", g, true);
+    }
+
 }

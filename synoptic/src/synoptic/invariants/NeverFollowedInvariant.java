@@ -51,7 +51,8 @@ public class NeverFollowedInvariant extends BinaryInvariant {
             if (message.getLabel().equals(first) && !first_seen) {
                 first_seen = true;
             } else if (message.getLabel().equals(second) && first_seen) {
-                return trace.subList(0, trace_pos + 1);
+                return BinaryInvariant.removeLoops(trace.subList(0,
+                        trace_pos + 1));
             }
         }
         return null;
