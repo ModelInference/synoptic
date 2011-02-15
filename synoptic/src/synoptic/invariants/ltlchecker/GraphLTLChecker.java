@@ -118,11 +118,9 @@ public class GraphLTLChecker<T extends INode<T>> {
 
             for (Node n : g.getNodes()) {
                 for (Edge e : n.getOutgoingEdges()) {
-                    p
-                            .println(e.getSource().hashCode() + " -> "
-                                    + e.getNext().hashCode() + " [label=\""
-                                    + ((T) e.getAttribute("inode")).getLabel()
-                                    + "\"];");
+                    p.println(e.getSource().hashCode() + " -> "
+                            + e.getNext().hashCode() + " [label=\""
+                            + ((T) e.getAttribute("inode")).getLabel() + "\"];");
                 }
             }
 

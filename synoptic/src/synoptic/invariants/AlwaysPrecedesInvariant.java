@@ -62,7 +62,8 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
             }
             if (message.getLabel().equals(second)) {
                 // We found a 'second' before a 'first'.
-                return trace.subList(0, trace_pos + 1);
+                return BinaryInvariant.removeLoops(trace.subList(0,
+                        trace_pos + 1));
             }
         }
         // We found neither a 'first' nor a 'second'.

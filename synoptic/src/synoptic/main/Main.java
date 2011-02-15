@@ -738,7 +738,7 @@ public class Main implements Callable<Integer> {
         }
 
         if (separateVTimeIndexSets != null) {
-
+            // TODO
         }
 
         logger.info("Running Synoptic...");

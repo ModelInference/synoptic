@@ -1,6 +1,9 @@
 package synoptic.invariants;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import gov.nasa.ltl.graph.Graph;
@@ -8,6 +11,7 @@ import gov.nasa.ltl.trans.LTL2Buchi;
 import gov.nasa.ltl.trans.ParseErrorException;
 
 import synoptic.invariants.ltlchecker.LTLFormula;
+import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -33,8 +37,44 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
         return getLTLString();
     }
 
+    @Override
     public String getRelation() {
         return relation;
+    }
+
+    /**
+     * Removes loops from a trace path in 2n time.
+     * 
+     * @param <T>
+     *            The type of node in the trace.
+     * @param trace
+     *            The trace from which to remove all loops.
+     * @return A new trace that contains no loops.
+     */
+    public static <T extends INode<T>> List<T> removeLoops(List<T> trace) {
+        LinkedList<T> traceWithoutLoops = new LinkedList<T>();
+        HashMap<T, Integer> visitedAndNextHop = new HashMap<T, Integer>();
+        // First iteration through trace -- keep track of what next node should
+        // be added to the traceWithoutLoops in the visitedAndNextHop map.
+        int i = 0;
+        for (T node : trace) {
+            visitedAndNextHop.put(node, i + 1);
+            i = i + 1;
+        }
+        // Second iteration through trace -- add just the non-looped nodes to
+        // the traceWithoutLoops.
+        i = 0;
+        int addAtVal = 0; // Always add the INITIAL node.
+        // Could be made faster by iterating just through
+        // visitedAndNextHop map starting from the trace[0] node.
+        for (T node : trace) {
+            if (addAtVal == i) {
+                traceWithoutLoops.add(node);
+                addAtVal = visitedAndNextHop.get(node);
+            }
+            i = i + 1;
+        }
+        return traceWithoutLoops;
     }
 
     @Override

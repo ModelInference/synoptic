@@ -63,12 +63,13 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
     }
 
     /**
-     * TODO: why does this invariant type not need violating trace shortening
-     * like the other types?
+     * Unlike the other types of invariants' counter-example paths, an AFby
+     * counter-example path cannot be trivially shortened because it must
+     * include the entire path to the TERMINAL node.
      */
     @Override
     public <T extends INode<T>> List<T> shorten(List<T> trace) {
-        return trace;
+        return BinaryInvariant.removeLoops(trace);
     }
 
     @Override
