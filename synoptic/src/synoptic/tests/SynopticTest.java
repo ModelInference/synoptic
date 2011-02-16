@@ -6,6 +6,8 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 import synoptic.main.Main;
 import synoptic.main.ParseException;
@@ -18,12 +20,6 @@ import synoptic.model.export.GraphVizExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
-
-/**
- * Does not work with JUnit version < 4.8.1 <br />
- * import org.junit.Rule; <br/>
- * import org.junit.rules.TestName;
- */
 
 /**
  * Base class for all Synoptic unit tests. Performs common set-up and tear-down
@@ -44,22 +40,10 @@ public abstract class SynopticTest {
 
     /**
      * Can be used to derive the current test name (as of JUnit 4.7) via
-     * name.getMethodName(). NOTE: this doesn't work in @Before.
-     * 
-     * @Rule <br />
-     *       public static TestName testName = new TestName();
-     */
-    public interface JUnitTestName {
-        String getMethodName();
-    }
-
-    public static JUnitTestName testName = new JUnitTestName() {
-        @Override
-        public String getMethodName() {
-            return "Test";
-        }
-    };
-    // /////////////////////////
+     * name.getMethodName().
+     **/
+    @Rule
+    public static TestName testName = new TestName();
 
     // Set up the parser state.
     static {
@@ -186,7 +170,8 @@ public abstract class SynopticTest {
      */
     protected static <T extends INode<T>> void exportTestGraph(IGraph<T> g,
             int index) throws Exception {
-        logger.fine(defExporter.export(g));
+        String eGraph = defExporter.export(g);
+        // logger.fine(eGraph);
         defExporter.exportAsDotAndPngFast("../" + testName.getMethodName()
                 + index + ".dot", g, true);
     }
