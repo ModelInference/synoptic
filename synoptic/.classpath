@@ -4,10 +4,26 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/.svn"/>
-	<classpathentry kind="var" path="SYNOPTIC_LIB/jung"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/commons-io-2.0.1.jar"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/daikon.jar"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/plume.jar"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/stixar-0.0.1-alpha.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/collections-generic-4.01.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/colt-1.2.0.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/concurrent-1.3.4.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/j3d-core-1.3.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-3d-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-3d-demos-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-algorithms-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-api-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-graph-impl-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-io-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-jai-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-jai-samples-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-samples-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/jung-visualization-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/stax-api-1.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/vecmath-1.3.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/jung/wstx-asl-3.2.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

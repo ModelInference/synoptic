@@ -5,7 +5,6 @@ import java.util.Collections;
 
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.RelationPath;
-import synoptic.model.Partition;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
@@ -14,7 +13,7 @@ import synoptic.util.InternalSynopticException;
  * Abstract NFA state set which keeps the shortest path justifying a given state
  * being inhabited. This allows for synoptic.model checking which yields short
  * counterexample paths for failing synoptic.invariants.
- * 
+ *
  * @author Michael Sloan (mgsloan@gmail.com)
  * @param <T>
  *            The node type, used as an input, and stored in path-history.
@@ -49,7 +48,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
 
         /**
          * Converts this chain into a RelationPath list.
-         * 
+         *
          * @param inv
          * @return
          */
@@ -61,9 +60,9 @@ public abstract class TracingStateSet<T extends INode<T>> implements
             while (cur != null) {
                 path.add(cur.node);
                 if (checkPath && cur.previous != null) {
-                    Partition prev = (Partition) cur.previous.node;
+                    T prev = cur.previous.node;
                     boolean found = false;
-                    for (ITransition<Partition> trans : prev.getTransitions()) {
+                    for (ITransition<T> trans : prev.getTransitions()) {
                         if (trans.getTarget().equals(cur.node)) {
                             found = true;
                             break;
@@ -89,8 +88,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
             StringBuilder sb = new StringBuilder();
             HistoryNode cur = this;
             while (cur != null) {
-                Partition p = (Partition) cur.node;
-                sb.append(p.getLabel());
+                sb.append(cur.node.getLabel());
                 sb.append(" <- ");
                 cur = cur.previous;
             }
@@ -127,7 +125,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
 
     /**
      * Queries the state for the shortest path which leads to a failing state.
-     * 
+     *
      * @return The HistoryNode at the head of the linked list of nodes within
      *         the synoptic.model.
      */
