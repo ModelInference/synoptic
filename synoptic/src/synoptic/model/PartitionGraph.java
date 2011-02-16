@@ -3,6 +3,7 @@ package synoptic.model;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -78,6 +79,20 @@ public class PartitionGraph implements IGraph<Partition> {
         invariants.filterOutTautologicalInvariants();
     }
 
+    public PartitionGraph(IGraph<LogEvent> g,
+            LinkedList<LinkedHashSet<Integer>> partitioningIndexSets) {
+        for (String relation : g.getRelations()) {
+            addInitialMessages(g.getInitialNodes(relation), relation);
+            relations.add(relation);
+        }
+
+        partitionByIndexSetsAndLabels(g.getNodes(), partitioningIndexSets);
+
+        // Compute the invariants of the input graph.
+        invariants = TemporalInvariantSet.computeInvariants(g);
+        invariants.filterOutTautologicalInvariants();
+    }
+
     private void addInitialMessages(Set<LogEvent> initialMessages,
             String relation) {
         if (!this.initialMessages.containsKey(relation)) {
@@ -119,6 +134,65 @@ public class PartitionGraph implements IGraph<Partition> {
             }
             prepartitions.get(message.getLabel()).addMessage(message);
         }
+    }
+
+    private void partitionByIndexSetsAndLabels(Collection<LogEvent> messages,
+            LinkedList<LinkedHashSet<Integer>> partitioningIndexSets) {
+        // 1. partition by labels.
+        partitionByLabels(messages);
+        // 2. Map each message to a node in the system.
+
+        // TODO: do this using the new algorithm.
+        LinkedHashMap<LogEvent, Integer> messageIndexMap = new LinkedHashMap<LogEvent, Integer>();
+
+        LinkedHashSet<Partition> newPartitions = new LinkedHashSet<Partition>();
+
+        // 3. consider each of the label-partitions and divide these up
+        // according to each set of indices.
+        for (Partition p : partitions) {
+
+            Partition[] subPartitions = new Partition[partitioningIndexSets
+                    .size()];
+
+            for (LogEvent m : p.messages) {
+                Integer index = messageIndexMap.get(m);
+                if (index == null) {
+                    throw new InternalSynopticException(
+                            "Failed to map LogEvent [" + m.toString()
+                                    + "] to a node index.");
+                }
+                int i = 0;
+                boolean added = false;
+                for (LinkedHashSet<Integer> indexPartition : partitioningIndexSets) {
+                    if (indexPartition.contains(index)) {
+                        if (subPartitions[i] == null) {
+                            subPartitions[i] = new Partition(null);
+                        }
+                        subPartitions[i].addMessage(m);
+                        added = true;
+                        break;
+                    }
+                    i++;
+                }
+
+                if (!added) {
+                    throw new InternalSynopticException(
+                            "Unable to find index in the partitioning -- they must be complete!");
+                }
+
+                // TODO: consider the case where all the messages remain in the
+                // same partition -- just keep it then?
+                //
+
+                // Add the newly created partitions, if any.
+                for (Partition subPartition : subPartitions) {
+                    if (subPartition != null) {
+                        newPartitions.add(subPartition);
+                    }
+                }
+            }
+        }
+
     }
 
     private void partitionByLabelsAndInitial(Collection<LogEvent> messages,

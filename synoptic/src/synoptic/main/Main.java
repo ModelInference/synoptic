@@ -8,6 +8,8 @@ import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -272,12 +274,12 @@ public class Main implements Callable<Integer> {
      */
     @Option("Dump the initial graph to file <outputPathPrefix>.initial.dot")
     public static boolean dumpInitialGraph = true;
-    
+
     /**
-     * Dump png of graph to file. The file will
-     * have the name <outputPathPrefix>.initial.dot, where 'outputPathPrefix' is
-     * the filename of the final Synoptic output. This option is
-     * <i>unpublicized</i>; it will not appear in the default usage message
+     * Dump png of graph to file. The file will have the name
+     * <outputPathPrefix>.initial.dot, where 'outputPathPrefix' is the filename
+     * of the final Synoptic output. This option is <i>unpublicized</i>; it will
+     * not appear in the default usage message
      */
     @Option("Dump the initial graph to file <outputPathPrefix>.initial.dot")
     public static boolean dumpPNG = true;
@@ -747,7 +749,16 @@ public class Main implements Callable<Integer> {
         }
 
         if (separateVTimeIndexSets != null) {
-            // TODO
+            // separateVTimeIndexSets is assumed to be in a format like:
+            // "1,2;3;4,5,6" where the sets are {1,2}, {3}, {4,5,6}.
+            LinkedList<LinkedHashSet<Integer>> indexSets = new LinkedList<LinkedHashSet<Integer>>();
+            for (String strSet : separateVTimeIndexSets.split(";")) {
+                LinkedHashSet<Integer> iSet = new LinkedHashSet<Integer>();
+                indexSets.add(iSet);
+                for (String index : strSet.split(",")) {
+                    iSet.add(Integer.parseInt(index));
+                }
+            }
         }
 
         logger.info("Running Synoptic...");
