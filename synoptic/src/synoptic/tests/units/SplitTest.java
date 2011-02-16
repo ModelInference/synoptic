@@ -31,7 +31,13 @@ public class SplitTest extends SynopticTest {
         B1.addTransition(a3, t);
         a4.addTransition(B1, t);
         Graph<LogEvent> g = new Graph<LogEvent>();
+
+        Action dummyAct = Action.NewInitialAction();
+        dummyAct = dummyAct.intern();
+        g.setDummyInitial(new LogEvent(dummyAct), defRelation);
+
         g.add(a1);
+
         g.tagInitial(a1, t);
         g.add(a2);
         g.tagInitial(a2, t);
