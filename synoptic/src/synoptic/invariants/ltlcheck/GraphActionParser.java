@@ -1,6 +1,6 @@
 package synoptic.invariants.ltlcheck;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -11,8 +11,8 @@ import gov.nasa.ltl.graph.Node;
 public final class GraphActionParser {
 
     private static boolean incomingOutgoingInvariant(Graph g) {
-        Set<Edge> outgoing = new HashSet<Edge>();
-        Set<Edge> incoming = new HashSet<Edge>();
+        Set<Edge> outgoing = new LinkedHashSet<Edge>();
+        Set<Edge> incoming = new LinkedHashSet<Edge>();
         int outgoingCount = 0;
         int incomingCount = 0;
 

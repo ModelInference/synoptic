@@ -1,7 +1,7 @@
 package synoptic.invariants.ltlcheck;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import gov.nasa.ltl.graph.Edge;
@@ -13,7 +13,7 @@ public class ProductTranslator {
 
     public static GeneralGraph translate(Graph dcts, Graph ba) {
         GeneralGraph p = new GeneralGraph();
-        HashMap<Pair<Node, Node>, Node> p_states = new HashMap<Pair<Node, Node>, Node>();
+        LinkedHashMap<Pair<Node, Node>, Node> p_states = new LinkedHashMap<Pair<Node, Node>, Node>();
 
         // GENERATE NODES AND EDGES:
         // iterate over all did/can-expanded graph nodes

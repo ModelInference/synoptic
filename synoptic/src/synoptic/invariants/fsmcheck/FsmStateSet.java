@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -83,7 +83,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
         this(invariants.size(), numStates);
 
         mappings = new ArrayList<Map<String, BitSet>>(2);
-        Map<String, BitSet> amap = new HashMap<String, BitSet>(), bmap = new HashMap<String, BitSet>();
+        Map<String, BitSet> amap = new LinkedHashMap<String, BitSet>(), bmap = new LinkedHashMap<String, BitSet>();
         mappings.add(amap);
         mappings.add(bmap);
         for (int i = 0; i < invariants.size(); i++) {

@@ -1,6 +1,6 @@
 package synoptic.invariants.ltlcheck;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.logging.Logger;
 
 import gov.nasa.ltl.graph.Graph;
@@ -18,7 +18,7 @@ public class LtlModelChecker {
      * the only caller is GraphLTLChecker.check, and it guarantees that whenever
      * the graph changes, a new graph object is passed to this method.
      */
-    private static HashMap<Graph, Graph> translationCache = new HashMap<Graph, Graph>();
+    private static LinkedHashMap<Graph, Graph> translationCache = new LinkedHashMap<Graph, Graph>();
 
     // CACHE: cache translated graphs
 

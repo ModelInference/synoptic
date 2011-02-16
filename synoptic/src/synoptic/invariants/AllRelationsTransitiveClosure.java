@@ -1,6 +1,6 @@
 package synoptic.invariants;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import synoptic.algorithms.graph.TransitiveClosure;
@@ -16,7 +16,7 @@ import synoptic.model.interfaces.INode;
  * @author Sigurd
  */
 public class AllRelationsTransitiveClosure<NodeType extends INode<NodeType>> {
-    private final HashMap<String, TransitiveClosure<NodeType>> tcs = new HashMap<String, TransitiveClosure<NodeType>>();
+    private final LinkedHashMap<String, TransitiveClosure<NodeType>> tcs = new LinkedHashMap<String, TransitiveClosure<NodeType>>();
 
     public AllRelationsTransitiveClosure(IGraph<NodeType> g) {
         for (String relation : g.getRelations()) {

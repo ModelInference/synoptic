@@ -2,7 +2,7 @@ package synoptic.benchmarks;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.logging.Logger;
 
 import synoptic.main.Main;
@@ -30,19 +30,19 @@ public class PerformanceMetrics {
      * Holds the values measured for each metric. Consecutive measurements will
      * be accumulated by addition here.
      */
-    HashMap<String, Long> values = new HashMap<String, Long>();
+    LinkedHashMap<String, Long> values = new LinkedHashMap<String, Long>();
     /**
      * For each metric, this holds the number of different measurements that
      * contributed to the measurement. E.g., if add("task", _) has been called
      * three times, this will hold 3.
      */
-    HashMap<String, Long> numberOfMesurements = new HashMap<String, Long>();
+    LinkedHashMap<String, Long> numberOfMesurements = new LinkedHashMap<String, Long>();
 
     /**
      * Record whether the task should be accumulative or not. If a task is
      * accumulative, it will not be divided by the number of measurements.
      */
-    HashMap<String, Boolean> accumulativity = new HashMap<String, Boolean>();
+    LinkedHashMap<String, Boolean> accumulativity = new LinkedHashMap<String, Boolean>();
 
     /**
      * Record the task t. This will increment the number of measurements for

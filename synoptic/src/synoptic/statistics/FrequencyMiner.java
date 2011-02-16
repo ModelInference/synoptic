@@ -1,12 +1,12 @@
 package synoptic.statistics;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import synoptic.model.IEvent;
 
 public class FrequencyMiner<T extends IEvent> {
-    HashMap<String, Integer> frequencies = new HashMap<String, Integer>();
+    LinkedHashMap<String, Integer> frequencies = new LinkedHashMap<String, Integer>();
 
     public FrequencyMiner(Set<T> events) {
         for (T e : events) {
@@ -17,7 +17,7 @@ public class FrequencyMiner<T extends IEvent> {
         }
     }
 
-    public HashMap<String, Integer> getFrequencies() {
+    public LinkedHashMap<String, Integer> getFrequencies() {
         return frequencies;
     }
 

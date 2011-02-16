@@ -1,7 +1,7 @@
 package synoptic.benchmarks;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * A class to facilitate synoptic.benchmarks. Just set your benchmark up as a
@@ -35,7 +35,7 @@ public class Benchmark<ArgumentType> {
         /**
          * A hash map to store the results of the runs.
          */
-        private final HashMap<ArgumentType, PerformanceMetrics> results = new HashMap<ArgumentType, PerformanceMetrics>();
+        private final LinkedHashMap<ArgumentType, PerformanceMetrics> results = new LinkedHashMap<ArgumentType, PerformanceMetrics>();
 
         /**
          * Records the results of a benchmark run (identified by the arguments).

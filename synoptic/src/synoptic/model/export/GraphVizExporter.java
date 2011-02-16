@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -30,13 +30,14 @@ import synoptic.util.InternalSynopticException;
 
 public class GraphVizExporter {
     static Logger logger = Logger.getLogger("GraphVizExporter");
-
+    
     /**
      * Maps commonly used relations to the edge colors used in dot output.
      */
-    static final HashMap<String, String> relationColors;
+    static final LinkedHashMap<String, String> relationColors;
+
     static {
-        relationColors = new HashMap<String, String>();
+        relationColors = new LinkedHashMap<String, String>();
         relationColors.put("t", "");
         relationColors.put("i", "blue");
     }
@@ -175,7 +176,7 @@ public class GraphVizExporter {
     private <T extends INode<T>> int exportRelationNodes(final Writer writer,
             IGraph<T> graph, String relation,
             LinkedList<ITransition<T>> allTransitions,
-            HashMap<T, Integer> nodeToInt, int nodeCnt) throws IOException {
+            LinkedHashMap<T, Integer> nodeToInt, int nodeCnt) throws IOException {
 
         LinkedList<T> rootNodes = new LinkedList<T>(
                 graph.getInitialNodes(relation));
@@ -275,7 +276,7 @@ public class GraphVizExporter {
             throws IOException {
         // A mapping between nodes in the graph and the their integer
         // identifiers in the dot output.
-        HashMap<T, Integer> nodeToInt = new HashMap<T, Integer>();
+        LinkedHashMap<T, Integer> nodeToInt = new LinkedHashMap<T, Integer>();
         // Collects all transitions between nodes of different relations.
         LinkedList<ITransition<T>> allTransitions = new LinkedList<ITransition<T>>();
         // Node identifier generator, updated in exportRelationNodes
@@ -306,6 +307,7 @@ public class GraphVizExporter {
         return;
     }
 
+
     private static String quote(String string) {
         final StringBuilder sb = new StringBuilder(string.length() + 2);
         for (int i = 0; i < string.length(); ++i) {
@@ -329,8 +331,10 @@ public class GraphVizExporter {
             IGraph<T> g) throws Exception {
         File f = new File(fileName);
         export(f, g);
-        exportPng(f);
+        if(Main.dumpPNG)
+        	exportPng(f);
     }
+
 
     public static <T extends INode<T>> void quickExport(String fileName,
             IGraph<T> g) {
@@ -372,7 +376,8 @@ public class GraphVizExporter {
 
         export(writer, pg, true, isInitialGraph);
         writer.close();
-        exportPng(f);
+        if(Main.dumpPNG)
+        	exportPng(f);
     }
 
     private static void exportSCCsWithInvariants(GraphVizExporter e,

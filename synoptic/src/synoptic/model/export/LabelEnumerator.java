@@ -1,6 +1,8 @@
 package synoptic.model.export;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+
+
 
 /**
  * A class to generate unique names for objects.
@@ -10,7 +12,7 @@ import java.util.HashMap;
  *            the type of the objects
  */
 public class LabelEnumerator<T> {
-    HashMap<T, String> displayNames = new HashMap<T, String>();
+    LinkedHashMap<T, String> displayNames = new LinkedHashMap<T, String>();
     int state_ctr = 0;
 
     /**

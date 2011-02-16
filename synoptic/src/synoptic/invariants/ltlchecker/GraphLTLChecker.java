@@ -5,9 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -35,12 +35,12 @@ public class GraphLTLChecker<T extends INode<T>> {
     /**
      * Cache for that last target graphs.
      */
-    private final HashMap<String, Graph> lastTargetGraph = new HashMap<String, Graph>();
+    private final LinkedHashMap<String, Graph> lastTargetGraph = new LinkedHashMap<String, Graph>();
     // CACHE:
     /**
      * Cache for the last source graphs.
      */
-    private final HashMap<String, IGraph<T>> lastSourceGraph = new HashMap<String, IGraph<T>>();
+    private final LinkedHashMap<String, IGraph<T>> lastSourceGraph = new LinkedHashMap<String, IGraph<T>>();
 
     // CACHE:
 
@@ -151,12 +151,12 @@ public class GraphLTLChecker<T extends INode<T>> {
         Set<T> allNodes = sourceGraph.getNodes();
         Node initialState = new Node(targetGraph);
         initialState.setAttribute("post", "P:initial");
-        HashMap<T, Node> nextState = new HashMap<T, Node>();
-        HashMap<T, Set<Node>> prevStates = new HashMap<T, Set<Node>>();
+        LinkedHashMap<T, Node> nextState = new LinkedHashMap<T, Node>();
+        LinkedHashMap<T, Set<Node>> prevStates = new LinkedHashMap<T, Set<Node>>();
 
         for (T initialMessage : initialMessages) {
             if (!prevStates.containsKey(initialMessage)) {
-                prevStates.put(initialMessage, new HashSet<Node>());
+                prevStates.put(initialMessage, new LinkedHashSet<Node>());
             }
             prevStates.get(initialMessage).add(initialState);
         }
@@ -173,7 +173,7 @@ public class GraphLTLChecker<T extends INode<T>> {
                 ITransition<T> t = i.next();
                 T n = t.getTarget();
                 if (!prevStates.containsKey(n)) {
-                    prevStates.put(n, new HashSet<Node>());
+                    prevStates.put(n, new LinkedHashSet<Node>());
                 }
                 prevStates.get(n).add(nextState.get(t.getSource()));
             }

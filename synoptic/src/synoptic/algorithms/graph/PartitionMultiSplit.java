@@ -1,8 +1,8 @@
 package synoptic.algorithms.graph;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import synoptic.model.LogEvent;
@@ -29,7 +29,7 @@ public class PartitionMultiSplit implements IOperation {
     public PartitionMultiSplit(PartitionSplit split) {
         partition = split.getPartition();
         partitioning.add(split.getSplitEvents());
-        Set<LogEvent> otherMessages = new HashSet<LogEvent>(partition
+        Set<LogEvent> otherMessages = new LinkedHashSet<LogEvent>(partition
                 .getMessages());
         otherMessages.removeAll(split.getSplitEvents());
         partitioning.add(otherMessages);
@@ -83,7 +83,7 @@ public class PartitionMultiSplit implements IOperation {
 
         ArrayList<Set<LogEvent>> newSets = new ArrayList<Set<LogEvent>>();
         for (Set<LogEvent> set : partitioning) {
-            Set<LogEvent> newSet = new HashSet<LogEvent>(set);
+            Set<LogEvent> newSet = new LinkedHashSet<LogEvent>(set);
             set.removeAll(split.getSplitEvents());
             newSet.retainAll(split.getSplitEvents());
             newSets.add(newSet);
@@ -122,7 +122,7 @@ public class PartitionMultiSplit implements IOperation {
         ArrayList<Set<LogEvent>> newSets = new ArrayList<Set<LogEvent>>();
         for (Set<LogEvent> set : partitioning) {
             for (Set<LogEvent> otherSet : split.partitioning) {
-                Set<LogEvent> newSet = new HashSet<LogEvent>(set);
+                Set<LogEvent> newSet = new LinkedHashSet<LogEvent>(set);
                 set.removeAll(otherSet);
                 newSet.retainAll(otherSet);
                 newSets.add(newSet);

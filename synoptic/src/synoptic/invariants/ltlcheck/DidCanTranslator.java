@@ -1,8 +1,8 @@
 package synoptic.invariants.ltlcheck;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import gov.nasa.ltl.graph.Edge;
@@ -22,7 +22,7 @@ public class DidCanTranslator {
      */
     public static Graph translate(Graph lts) {
         Graph g = new Graph();
-        HashMap<Pair<String, Node>, Node> states_o2n = new HashMap<Pair<String, Node>, Node>();
+        LinkedHashMap<Pair<String, Node>, Node> states_o2n = new LinkedHashMap<Pair<String, Node>, Node>();
 
         // for each node n in lts
         for (Node current : lts.getNodes()) {

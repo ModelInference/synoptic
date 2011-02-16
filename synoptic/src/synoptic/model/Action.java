@@ -1,6 +1,6 @@
 package synoptic.model;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +30,7 @@ public class Action {
     /**
      * A map to ensure each Action object is unique.
      */
-    private static HashMap<Action, Action> internMap = new HashMap<Action, Action>();
+    private static LinkedHashMap<Action, Action> internMap = new LinkedHashMap<Action, Action>();
     /**
      * Set this to true if you want equals and hash-code to respect the contents
      * of stringArgumens.
@@ -41,7 +41,7 @@ public class Action {
      * The map that stores the arguments and their values. Arguments are named
      * properties.
      */
-    Map<String, String> stringArguments = new HashMap<String, String>();
+    Map<String, String> stringArguments = new LinkedHashMap<String, String>();
 
     /**
      * Create an action with a label. Do not check for collisions with

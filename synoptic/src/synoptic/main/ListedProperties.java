@@ -1,8 +1,8 @@
 package synoptic.main;
 
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -24,11 +24,11 @@ public class ListedProperties extends Properties {
     /**
      * Maintains lists of values per property key
      */
-    private final HashMap<String, Vector<String>> propertyVectors;
+    private final LinkedHashMap<String, Vector<String>> propertyVectors;
 
     public ListedProperties() {
         super();
-        propertyVectors = new HashMap<String, Vector<String>>();
+        propertyVectors = new LinkedHashMap<String, Vector<String>>();
     }
 
     /**
