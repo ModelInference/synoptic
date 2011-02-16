@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 import synoptic.algorithms.graph.TransitiveClosure;
-import synoptic.model.Action;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
