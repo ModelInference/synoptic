@@ -272,6 +272,15 @@ public class Main implements Callable<Integer> {
      */
     @Option("Dump the initial graph to file <outputPathPrefix>.initial.dot")
     public static boolean dumpInitialGraph = true;
+    
+    /**
+     * Dump png of graph to file. The file will
+     * have the name <outputPathPrefix>.initial.dot, where 'outputPathPrefix' is
+     * the filename of the final Synoptic output. This option is
+     * <i>unpublicized</i>; it will not appear in the default usage message
+     */
+    @Option("Dump the initial graph to file <outputPathPrefix>.initial.dot")
+    public static boolean dumpPNG = true;
 
     /**
      * Dump the dot representations for intermediate Synoptic steps to file.

@@ -3,7 +3,6 @@ package synoptic.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -139,7 +138,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
     public PartitionSplit getCandidateDivisionBasedOnIncoming(
             Partition previous, String relation) {
         PartitionSplit candidateSplit = new PartitionSplit(this);
-        Set<LogEvent> messagesReachableFromPrevious = new HashSet<LogEvent>();
+        Set<LogEvent> messagesReachableFromPrevious = new LinkedHashSet<LogEvent>();
         for (final LogEvent otherExpr : previous.messages) {
             messagesReachableFromPrevious.addAll(otherExpr
                     .getSuccessors(relation));
@@ -225,7 +224,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
     public IIterableIterator<Relation<Partition>> getTransitionsIterator(
             final String act) {
         return new IIterableIterator<Relation<Partition>>() {
-            private final Set<ITransition<Partition>> seen = new HashSet<ITransition<Partition>>();
+            private final Set<ITransition<Partition>> seen = new LinkedHashSet<ITransition<Partition>>();
             private final Iterator<LogEvent> msgItr = messages.iterator();
             private Iterator<? extends ITransition<LogEvent>> transItr = act == null ? msgItr
                     .next().getTransitions().iterator()

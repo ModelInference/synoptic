@@ -2,8 +2,8 @@ package synoptic.invariants.fsmcheck;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -51,9 +51,9 @@ public class FsmModelChecker {
     public static <T extends INode<T>, S extends IStateSet<T, S>> Map<T, S> runChecker(
             IStateSet<T, S> initial, IGraph<T> graph, boolean earlyExit) {
 
-        Set<T> onWorkList = new HashSet<T>();
+        Set<T> onWorkList = new LinkedHashSet<T>();
         Queue<T> workList = new LinkedList<T>();
-        Map<T, S> states = new HashMap<T, S>();
+        Map<T, S> states = new LinkedHashMap<T, S>();
 
         // Populate the state map with initial states.s
         for (T node : graph.getNodes()) {

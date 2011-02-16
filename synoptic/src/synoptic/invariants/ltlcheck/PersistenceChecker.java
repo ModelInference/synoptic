@@ -1,7 +1,7 @@
 package synoptic.invariants.ltlcheck;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -13,7 +13,7 @@ import gov.nasa.ltl.graph.Node;
 public class PersistenceChecker {
     private Counterexample counterexample = null;
 
-    private final Set<Node> visitedOuter = new HashSet<Node>(); // set of
+    private final Set<Node> visitedOuter = new LinkedHashSet<Node>(); // set of
                                                                 // visited
     // states in the outer
     // DFS
@@ -21,7 +21,7 @@ public class PersistenceChecker {
                                                // states
     private final Stack<Node> outerDFS = new Stack<Node>(); // stack for the
                                                             // outer DFS
-    private final Set<Node> visitedInner = new HashSet<Node>(); // set of
+    private final Set<Node> visitedInner = new LinkedHashSet<Node>(); // set of
                                                                 // visited
     // states in the inner
     // DFS
@@ -34,7 +34,7 @@ public class PersistenceChecker {
     }
 
     public PersistenceChecker(Graph g) {
-        unvisitedInitials = new HashSet<Node>();
+        unvisitedInitials = new LinkedHashSet<Node>();
         unvisitedInitials.add(g.getInit());
     }
 

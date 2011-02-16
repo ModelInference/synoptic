@@ -2,9 +2,8 @@ package synoptic.model;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +36,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
     /**
      * Maps a relation to the set of initial nodes in this relation.
      */
-    private final Map<String, Set<NodeType>> initialNodes = new HashMap<String, Set<NodeType>>();
+    private final Map<String, Set<NodeType>> initialNodes = new LinkedHashMap<String, Set<NodeType>>();
 
     /**
      * Every terminal node maintains a transition to this special node to
@@ -84,7 +83,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
      */
     @Override
     public Set<NodeType> getInitialNodes() {
-        Set<NodeType> copy = new HashSet<NodeType>();
+        Set<NodeType> copy = new LinkedHashSet<NodeType>();
         copy.add(dummyInitialNode);
         return copy;
     }
@@ -164,7 +163,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
         this.dummyInitialNode = dummyInitial;
         this.nodes.add(dummyInitial);
         if (!initialNodes.containsKey(relation)) {
-            initialNodes.put(relation, new HashSet<NodeType>());
+            initialNodes.put(relation, new LinkedHashSet<NodeType>());
         }
         initialNodes.get(relation).add(dummyInitial);
         cachedRelations = null;
@@ -204,7 +203,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
         nodes.addAll(graph.getNodes());
         for (String key : graph.initialNodes.keySet()) {
             if (!initialNodes.containsKey(key)) {
-                initialNodes.put(key, new HashSet<NodeType>());
+                initialNodes.put(key, new LinkedHashSet<NodeType>());
             }
             initialNodes.get(key).addAll(graph.initialNodes.get(key));
         }
@@ -243,7 +242,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
      */
     private boolean transitionEquality(NodeType a, NodeType b,
             IBinary<NodeType, NodeType> np, IBinary<String, String> rp) {
-        Set<NodeType> visited = new HashSet<NodeType>();
+        Set<NodeType> visited = new LinkedHashSet<NodeType>();
         Stack<synoptic.util.Pair<NodeType, NodeType>> toVisit = new Stack<synoptic.util.Pair<NodeType, NodeType>>();
         toVisit.push(new Pair<NodeType, NodeType>(a, b));
         while (!toVisit.isEmpty()) {

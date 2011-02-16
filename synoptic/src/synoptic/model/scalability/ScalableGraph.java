@@ -1,13 +1,13 @@
 package synoptic.model.scalability;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import synoptic.algorithms.graph.GraphMerge;
 import synoptic.model.PartitionGraph;
 
 public class ScalableGraph {
-    Set<PartitionGraph> graphs = new HashSet<PartitionGraph>();
+    Set<PartitionGraph> graphs = new LinkedHashSet<PartitionGraph>();
 
     public void addGraph(PartitionGraph graph) {
         graphs.add(graph);

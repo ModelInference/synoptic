@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,8 +33,8 @@ import synoptic.util.VectorTime;
  */
 public class TraceParser {
     private final List<NamedPattern> parsers;
-    private final List<HashMap<String, NamedSubstitution>> constantFields;
-    private final List<HashMap<String, Boolean>> incrementors;
+    private final List<LinkedHashMap<String, NamedSubstitution>> constantFields;
+    private final List<LinkedHashMap<String, Boolean>> incrementors;
 
     private NamedSubstitution filter;
     private static Logger logger = Logger.getLogger("Parser Logger");
@@ -47,8 +46,8 @@ public class TraceParser {
 
     public TraceParser() {
         parsers = new ArrayList<NamedPattern>();
-        constantFields = new ArrayList<HashMap<String, NamedSubstitution>>();
-        incrementors = new ArrayList<HashMap<String, Boolean>>();
+        constantFields = new ArrayList<LinkedHashMap<String, NamedSubstitution>>();
+        incrementors = new ArrayList<LinkedHashMap<String, Boolean>>();
         filter = new NamedSubstitution("");
     }
 
@@ -85,7 +84,7 @@ public class TraceParser {
         // Parse out all of the constants.
         Matcher matcher = matchAssign.matcher(regex);
 
-        HashMap<String, NamedSubstitution> cmap = new HashMap<String, NamedSubstitution>();
+        LinkedHashMap<String, NamedSubstitution> cmap = new LinkedHashMap<String, NamedSubstitution>();
         while (matcher.find()) {
             cmap.put(matcher.group(1), new NamedSubstitution(matcher.group(2)));
         }
@@ -96,7 +95,7 @@ public class TraceParser {
 
         // Parse out all of the incrementors.
         matcher = matchPreIncrement.matcher(regex);
-        HashMap<String, Boolean> incMap = new HashMap<String, Boolean>();
+        LinkedHashMap<String, Boolean> incMap = new LinkedHashMap<String, Boolean>();
         while (matcher.find()) {
             incMap.put(matcher.group(1), false);
         }
@@ -282,7 +281,7 @@ public class TraceParser {
         BufferedReader br = new BufferedReader(traceReader);
 
         // Initialize incrementor context.
-        Map<String, Integer> context = new HashMap<String, Integer>();
+        Map<String, Integer> context = new LinkedHashMap<String, Integer>();
         for (Map<String, Boolean> incs : incrementors) {
             for (String incField : incs.keySet()) {
                 context.put(incField, 0);
@@ -543,7 +542,7 @@ public class TraceParser {
         Graph<LogEvent> graph = new Graph<LogEvent>();
 
         // Partition by nodeName.
-        HashMap<String, List<LogEvent>> groups = new HashMap<String, List<LogEvent>>();
+        LinkedHashMap<String, List<LogEvent>> groups = new LinkedHashMap<String, List<LogEvent>>();
         if (partition) {
             for (LogEvent e : allEvents) {
                 String nodeName = getNodeName(e.getAction());

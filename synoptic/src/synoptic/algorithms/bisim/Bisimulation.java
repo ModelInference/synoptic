@@ -4,8 +4,6 @@ package synoptic.algorithms.bisim;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -365,7 +363,7 @@ public abstract class Bisimulation {
          * The messages (i.e. nodes in the original graph) that are on the
          * counterexampleTrace
          */
-        Set<LogEvent> hot = new HashSet<LogEvent>();
+        LinkedHashSet<LogEvent> hot = new LinkedHashSet<LogEvent>();
         hot.addAll(counterexampleTrace.path.get(0).getMessages());
         Partition prevPartition = null;
         Partition nextPartition = null;
@@ -386,7 +384,7 @@ public abstract class Bisimulation {
                 break;
             }
             // Compute the valid successor messages in the original trace
-            Set<LogEvent> successorMessages = new HashSet<LogEvent>();
+            LinkedHashSet<LogEvent> successorMessages = new LinkedHashSet<LogEvent>();
             for (LogEvent m : hot) {
                 successorMessages.addAll(m
                         .getSuccessors(counterexampleTrace.invariant
@@ -495,7 +493,7 @@ public abstract class Bisimulation {
         // The blacklist keeps a history of partitions we've attempted to merge
         // and
         // which did not work out because they resulted in invariant violations.
-        HashMap<Partition, HashSet<Partition>> blacklist = new HashMap<Partition, HashSet<Partition>>();
+        LinkedHashMap<Partition, LinkedHashSet<Partition>> blacklist = new LinkedHashMap<Partition, LinkedHashSet<Partition>>();
         outerWhile:
         while (true) {
 
@@ -533,7 +531,7 @@ public abstract class Bisimulation {
 
                     logger.fine("Attempting merge: " + p + " + " + q);
 
-                    Set<Partition> parts = new HashSet<Partition>();
+                    Set<Partition> parts = new LinkedHashSet<Partition>();
                     parts.addAll(partitionGraph.getNodes());
                     IOperation rewindOperation = partitionGraph
                             .apply(new PartitionMerge(p, q));
@@ -549,7 +547,7 @@ public abstract class Bisimulation {
                         // The merge created a violation. Remember this pair of
                         // partitions so that we don't try it again.
                         if (!blacklist.containsKey(p)) {
-                            blacklist.put(p, new HashSet<Partition>());
+                            blacklist.put(p, new LinkedHashSet<Partition>());
                         }
                         blacklist.get(p).add(q);
                         // Undo the merge.

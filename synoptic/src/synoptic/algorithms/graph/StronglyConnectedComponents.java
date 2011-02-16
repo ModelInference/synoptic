@@ -1,9 +1,9 @@
 package synoptic.algorithms.graph;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -23,8 +23,8 @@ import synoptic.model.interfaces.ITransition;
  */
 public class StronglyConnectedComponents<NodeType extends INode<NodeType>>
         implements Iterable<Set<NodeType>> {
-    private final HashMap<NodeType, Integer> index = new HashMap<NodeType, Integer>();
-    private final HashMap<NodeType, Integer> lowlink = new HashMap<NodeType, Integer>();
+    private final LinkedHashMap<NodeType, Integer> index = new LinkedHashMap<NodeType, Integer>();
+    private final LinkedHashMap<NodeType, Integer> lowlink = new LinkedHashMap<NodeType, Integer>();
     private final Stack<NodeType> stack = new Stack<NodeType>();
     private int currentIndex = 0;
     private final List<Set<NodeType>> sccs = new ArrayList<Set<NodeType>>();
@@ -65,7 +65,7 @@ public class StronglyConnectedComponents<NodeType extends INode<NodeType>>
             }
         }
         if (lowlink.get(n) == index.get(n)) {
-            HashSet<NodeType> scc = new HashSet<NodeType>();
+            LinkedHashSet<NodeType> scc = new LinkedHashSet<NodeType>();
             for (NodeType m = stack.pop(); !m.equals(n); m = stack.pop()) {
                 scc.add(m);
             }

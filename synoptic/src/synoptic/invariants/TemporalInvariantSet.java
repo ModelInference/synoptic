@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -352,7 +351,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     private static <T extends INode<T>> void printStats(IGraph<T> g,
             TemporalInvariantSet overapproximatedInvariantsSet,
             int overapproximatedInvariantsSetSize) {
-        Set<String> labels = new HashSet<String>();
+        Set<String> labels = new LinkedHashSet<String>();
         for (T n : g.getNodes()) {
             labels.add(n.getLabel());
         }
@@ -426,7 +425,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
      */
     private static <T extends INode<T>> TemporalInvariantSet extractInvariants(
             IGraph<T> g, TransitiveClosure<T> tc, String relation) {
-        HashMap<String, ArrayList<T>> partitions = new HashMap<String, ArrayList<T>>();
+        LinkedHashMap<String, ArrayList<T>> partitions = new LinkedHashMap<String, ArrayList<T>>();
         for (T m : g.getNodes()) {
             if (!partitions.containsKey(m.getLabel())) {
                 partitions.put(m.getLabel(), new ArrayList<T>());
@@ -436,10 +435,10 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         TemporalInvariantSet set = new TemporalInvariantSet();
         for (String label1 : partitions.keySet()) {
             for (String label2 : partitions.keySet()) {
-                Set<T> hasPredecessor = new HashSet<T>();
-                Set<T> hasNoPredecessor = new HashSet<T>();
-                Set<T> isPredecessor = new HashSet<T>();
-                Set<T> isNoPredecessor = new HashSet<T>();
+                Set<T> hasPredecessor = new LinkedHashSet<T>();
+                Set<T> hasNoPredecessor = new LinkedHashSet<T>();
+                Set<T> isPredecessor = new LinkedHashSet<T>();
+                Set<T> isNoPredecessor = new LinkedHashSet<T>();
                 boolean neverFollowed = true;
                 boolean alwaysFollowedBy = true;
                 boolean alwaysPreceded = true;
@@ -495,7 +494,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     }
 
     public Graph<LogEvent> getInvariantGraph(String shortName) {
-        HashMap<String, LogEvent> messageMap = new HashMap<String, LogEvent>();
+        LinkedHashMap<String, LogEvent> messageMap = new LinkedHashMap<String, LogEvent>();
         for (ITemporalInvariant i : invariants) {
             for (String label : i.getPredicates()) {
                 if (!messageMap.containsKey(label)) {

@@ -2,8 +2,8 @@ package synoptic.algorithms.graph;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -19,7 +19,7 @@ import synoptic.util.Pair;
  * @param <NodeType>
  */
 public class TopologicalSort<NodeType extends INode<NodeType>> {
-    HashMap<Integer, Set<NodeType>> lattice = new HashMap<Integer, Set<NodeType>>();
+    LinkedHashMap<Integer, Set<NodeType>> lattice = new LinkedHashMap<Integer, Set<NodeType>>();
     ArrayList<NodeType> sort = new ArrayList<NodeType>();
 
     public TopologicalSort(IGraph<NodeType> graph) {
@@ -30,7 +30,7 @@ public class TopologicalSort<NodeType extends INode<NodeType>> {
         return sort;
     }
 
-    public HashMap<Integer, Set<NodeType>> getLattice() {
+    public LinkedHashMap<Integer, Set<NodeType>> getLattice() {
         return lattice;
     }
 
@@ -40,7 +40,7 @@ public class TopologicalSort<NodeType extends INode<NodeType>> {
         }
 
         if (!lattice.containsKey(level)) {
-            lattice.put(level, new HashSet<NodeType>());
+            lattice.put(level, new LinkedHashSet<NodeType>());
         }
         lattice.get(level).add(n);
 
@@ -64,12 +64,12 @@ public class TopologicalSort<NodeType extends INode<NodeType>> {
         for (NodeType n : getSourceNodes(graph)) {
             active.add(new Pair<Integer, NodeType>(0, n));
         }
-        HashSet<ITransition<NodeType>> seen = new HashSet<ITransition<NodeType>>();
+        LinkedHashSet<ITransition<NodeType>> seen = new LinkedHashSet<ITransition<NodeType>>();
         while (!active.isEmpty()) {
             Pair<Integer, NodeType> pair = active.poll();
             sort.add(pair.getRight());
             if (!lattice.containsKey(pair.getLeft())) {
-                lattice.put(pair.getLeft(), new HashSet<NodeType>());
+                lattice.put(pair.getLeft(), new LinkedHashSet<NodeType>());
             }
             lattice.get(pair.getLeft()).add(pair.getRight());
             for (ITransition<NodeType> t : pair.getRight()
@@ -86,7 +86,7 @@ public class TopologicalSort<NodeType extends INode<NodeType>> {
     }
 
     private boolean containsAllIncommingTransitions(IGraph<NodeType> graph,
-            HashSet<ITransition<NodeType>> seen, NodeType target) {
+            LinkedHashSet<ITransition<NodeType>> seen, NodeType target) {
         for (NodeType node : graph.getNodes()) {
             for (ITransition<NodeType> t : node.getTransitionsIterator()) {
                 if (!seen.contains(t) && t.getTarget() == target) {
@@ -98,7 +98,7 @@ public class TopologicalSort<NodeType extends INode<NodeType>> {
     }
 
     public static <T extends INode<T>> Set<T> getSourceNodes(IGraph<T> graph) {
-        Set<T> sources = new HashSet<T>(graph.getNodes());
+        Set<T> sources = new LinkedHashSet<T>(graph.getNodes());
         for (T node : graph.getNodes()) {
             for (ITransition<T> t : node.getTransitionsIterator()) {
                 sources.remove(t.getTarget());

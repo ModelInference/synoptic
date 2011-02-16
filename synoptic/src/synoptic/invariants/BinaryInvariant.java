@@ -1,7 +1,7 @@
 package synoptic.invariants;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +53,7 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
      */
     public static <T extends INode<T>> List<T> removeLoops(List<T> trace) {
         LinkedList<T> traceWithoutLoops = new LinkedList<T>();
-        HashMap<T, Integer> visitedAndNextHop = new HashMap<T, Integer>();
+        LinkedHashMap<T, Integer> visitedAndNextHop = new LinkedHashMap<T, Integer>();
         // First iteration through trace -- keep track of what next node should
         // be added to the traceWithoutLoops in the visitedAndNextHop map.
         int i = 0;
@@ -141,7 +141,7 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
 
     @Override
     public Set<String> getPredicates() {
-        Set<String> set = new HashSet<String>();
+        Set<String> set = new LinkedHashSet<String>();
         set.add(first);
         set.add(second);
         return set;

@@ -3,7 +3,6 @@ package synoptic.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -171,7 +170,7 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
 
     public List<Relation<LogEvent>> getTransitions(LogEvent target,
             String relation) {
-        HashMap<LogEvent, List<Relation<LogEvent>>> forAction = transitionsByActionAndTarget
+        LinkedHashMap<LogEvent, List<Relation<LogEvent>>> forAction = transitionsByActionAndTarget
                 .get(relation);
         if (forAction == null) {
             return Collections.emptyList();

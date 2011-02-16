@@ -1,6 +1,7 @@
 package synoptic.algorithms.graph;
 
-import java.util.HashSet;
+
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import synoptic.model.LogEvent;
@@ -38,7 +39,7 @@ public class PartitionSplit implements IOperation {
      */
     public PartitionSplit(Partition partitionToSplit) {
         this.partitionToSplit = partitionToSplit;
-        eventsToSplitOut = new HashSet<LogEvent>(partitionToSplit.size());
+        eventsToSplitOut = new LinkedHashSet<LogEvent>(partitionToSplit.size());
         newPartition = null;
     }
 
