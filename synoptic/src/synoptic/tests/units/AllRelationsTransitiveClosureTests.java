@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,8 +15,6 @@ import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.Relation;
-import synoptic.model.interfaces.IGraph;
-import synoptic.model.interfaces.INode;
 
 public class AllRelationsTransitiveClosureTests {
 	

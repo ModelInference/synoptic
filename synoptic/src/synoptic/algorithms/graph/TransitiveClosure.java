@@ -98,6 +98,17 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      * @return if {@code o} describes the same relation is {@code this}
      */
     public boolean isEqual(TransitiveClosure<NodeType> o) {
+    	if(!this.relation.equals(o.relation))
+    		return false;
+    	
+    	for (NodeType u : o.tc.keySet()) {
+            for (NodeType v : o.tc.get(u).keySet()) {
+                if (isReachable(u, v) != o.isReachable(u, v)) {
+                    return false;
+                }
+            }
+        }
+    	
         for (NodeType u : tc.keySet()) {
             for (NodeType v : tc.get(u).keySet()) {
                 if (isReachable(u, v) != o.isReachable(u, v)) {
