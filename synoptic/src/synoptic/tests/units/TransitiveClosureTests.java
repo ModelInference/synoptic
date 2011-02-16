@@ -100,17 +100,6 @@ public class TransitiveClosureTests {
 		assertTrue(tc.getTC().isEmpty());
 	}
 	
-	/*
-	 * 
-	 * FAILS: TC cannot be passed null graph
-	@Test
-	public void constructorNullGraphTest(){
-		TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent> (null, null);
-		assertTrue(tc.getTC().isEmpty());
-	}
-	*
-	*/
-	
 	@Test
 	public void constructorTCCase(){
 		Graph <LogEvent> g = new Graph<LogEvent>();
@@ -383,10 +372,8 @@ public class TransitiveClosureTests {
 		
 		assertTrue(tc2.isReachable(e, b));
 		
-		// PASSES
 		assertFalse(tc2.isEqual(tc));
 		
-		// FAILS (isEqual only checks if other has the same relations as this, and not if this has the same relations as other)
 		assertFalse(tc.isEqual(tc2));
 		
 	}
@@ -419,7 +406,6 @@ public class TransitiveClosureTests {
 		g2.add(d);
 		TransitiveClosure<LogEvent> tc2 = new TransitiveClosure<LogEvent> (g2, "after");
 		
-		// FAILS (For two TransitiveClosures to be considered equal, this test assumes they should have the same relation) 
 		assertFalse(tc2.isEqual(tc));
 		
 		
