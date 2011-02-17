@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="SYNOPTIC_LIB/.svn"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/junit-4.9b2.jar"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/commons-io-2.0.1.jar"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/plume.jar"/>
