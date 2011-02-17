@@ -160,7 +160,7 @@ public class KTailsTest extends SynopticTest {
         String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "--\n"
                 + "1,0,4 a\n" + "1,0,5 b\n" + "2,0,4 c\n";
         List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
-                testName.getMethodName(), -1);
+                SynopticTest.testName.getMethodName(), -1);
         Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
                 parsedEvents, true);
         exportTestGraph(inputGraph, 0);
@@ -182,7 +182,7 @@ public class KTailsTest extends SynopticTest {
         traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "--\n"
                 + "1,0,4 a\n" + "1,0,5 b\n" + "2,0,4 d\n";
         parsedEvents = parser.parseTraceString(traceStr,
-                testName.getMethodName(), -1);
+                SynopticTest.testName.getMethodName(), -1);
         inputGraph = parser.generateDirectTemporalRelation(parsedEvents, true);
         exportTestGraph(inputGraph, 1);
 
