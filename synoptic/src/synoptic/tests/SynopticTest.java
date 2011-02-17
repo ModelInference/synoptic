@@ -36,17 +36,19 @@ public abstract class SynopticTest {
     /**
      * The default exporter used by tests.
      */
-    protected static GraphVizExporter defExporter = new GraphVizExporter();
+    protected static GraphVizExporter defExporter;
 
     /**
      * Can be used to derive the current test name (as of JUnit 4.7) via
      * name.getMethodName().
      **/
     @Rule
-    protected static TestName testName = new TestName();
+    public static TestName testName;
 
-    // Set up the parser state.
+    // Set up the state statically.
     static {
+        defExporter = new GraphVizExporter();
+        testName = new TestName();
         defParser = new TraceParser();
         try {
             defParser.addRegex("^(?<TYPE>)$");
