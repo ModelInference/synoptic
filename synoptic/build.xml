@@ -4,23 +4,18 @@
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
               as the first entry and export the buildfile again. -->
-<project basedir="." default="build" name="synoptic">
+<project basedir="." default="build" name="Synoptic">
     <property environment="env"/>
-    <property name="SYNOPTIC_LIB" value="../lib"/>
-    <property name="ECLIPSE_HOME" value="../../../../../usr/lib/eclipse"/>
+    <property name="SYNOPTIC_LIB" value="../lib/"/>
+    <property name="project_loc" value="."/>
+    <property name="junit.output.dir" value="junit"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-    <path id="JUnit 4.libraryclasspath">
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.junit4_4.5.0.v20090824/junit.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.hamcrest.core_1.1.0.jar"/>
-    </path>
-    <path id="synoptic.classpath">
+    <path id="Synoptic.classpath">
         <pathelement location="bin"/>
-        <path refid="JUnit 4.libraryclasspath"/>
-        <pathelement location="${SYNOPTIC_LIB}"/>
+        <pathelement location="${SYNOPTIC_LIB}/junit-4.9b2.jar"/>
         <pathelement location="${SYNOPTIC_LIB}/commons-io-2.0.1.jar"/>
-        <pathelement location="${SYNOPTIC_LIB}/daikon.jar"/>
         <pathelement location="${SYNOPTIC_LIB}/plume.jar"/>
         <pathelement location="${SYNOPTIC_LIB}/stixar-0.0.1-alpha.jar"/>
         <pathelement location="${SYNOPTIC_LIB}/jung/collections-generic-4.01.jar"/>
@@ -58,24 +53,280 @@
     <target name="build-subprojects"/>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}" includeantruntime="false">
-	    <compilerarg value="-version"/>
+        <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
             <src path="src"/>
-            <classpath refid="synoptic.classpath"/>
+            <classpath refid="Synoptic.classpath"/>
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
-        <copy todir="${ant.library.dir}">
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </copy>
-        <unzip dest="${ant.library.dir}">
-            <patternset includes="jdtCompilerAdapter.jar"/>
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </unzip>
+    <target name="CounterExampleShorteningTests">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.CounterExampleShorteningTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
     </target>
-    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
-        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-        <antcall target="build"/>
+    <target name="CounterExampleShorteningTests.ShortenNFbyCExamplesTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.CounterExampleShorteningTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="GraphVizExporterTests">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.GraphVizExporterTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="KTailsTest">
+        <java classname="synoptic.tests.units.KTailsTest" failonerror="true" fork="yes">
+            <classpath refid="Synoptic.classpath"/>
+        </java>
+    </target>
+    <target name="mid_branching">
+        <java classname="synoptic.main.Main" dir="${project_loc}/../" failonerror="true" fork="yes">
+            <arg line="-c traces/abstract/mid_branching/args.txt traces/abstract/mid_branching/trace.txt"/>
+            <classpath refid="Synoptic.classpath"/>
+        </java>
+    </target>
+    <target name="PartitionGraphTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.PartitionGraphTest" todir="${junit.output.dir}"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="SplitTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.SplitTest" todir="${junit.output.dir}"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="Synoptic">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.PerformanceTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.integration.CompareLTLandFSMCheckers" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.AllRelationsTransitiveClosureTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.CounterExampleShorteningTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.FsmStateSetTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.GraphVizExporterTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.KTailsTest" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.ListedPropertiesTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.ModelCheckersTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.PartitionGraphTest" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.SplitTest" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.TemporalInvariantSetTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.TimedTaskTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.TraceParserTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.TransitiveClosureTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.VectorTimeTests" todir="${junit.output.dir}"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="synoptic.tests.units">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.AllRelationsTransitiveClosureTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.CounterExampleShorteningTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.FsmStateSetTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.GraphVizExporterTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.KTailsTest" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.ListedPropertiesTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.ModelCheckersTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.PartitionGraphTest" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.SplitTest" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.TemporalInvariantSetTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.TimedTaskTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.TraceParserTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.TransitiveClosureTests" todir="${junit.output.dir}"/>
+            <test name="synoptic.tests.units.VectorTimeTests" todir="${junit.output.dir}"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="TemporalInvariantSetTests">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.TemporalInvariantSetTests" todir="${junit.output.dir}"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="TimedTaskTests">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.TimedTaskTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="TraceParserTests">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.TraceParserTests" todir="${junit.output.dir}"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="VectorTimeTests">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.VectorTimeTests" todir="${junit.output.dir}"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="JungGui">
+        <java classname="synoptic.gui.JungGui" failonerror="true" fork="yes">
+            <classpath refid="Synoptic.classpath"/>
+        </java>
+    </target>
+    <target name="CompareLTLandFSMCheckers">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.integration.CompareLTLandFSMCheckers" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="KTailsTest (1)">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.KTailsTest" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="KTailsTest.linearGraphsTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.KTailsTest" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="KTailsTest.dagGraphsTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.KTailsTest" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="ModelCheckersTests">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.ModelCheckersTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="ModelCheckersTests.AFbySimple2Test">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.ModelCheckersTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="TemporalInvariantSetTests.testTautologicalInvariantMining">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.TemporalInvariantSetTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="TemporalInvariantSetTests.mineAFbyTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.TemporalInvariantSetTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="TemporalInvariantSetTests.mineNFbyTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.TemporalInvariantSetTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="ModelCheckersTests.NoAFbyLinearGraphTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.ModelCheckersTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="ModelCheckersTests.NoAFbyLinearGraphWithCycleTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.ModelCheckersTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="ModelCheckersTests.AFbyLinearGraphWithCycleTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.ModelCheckersTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="ModelCheckersTests.NoAPLinearGraphWithCycleTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.units.ModelCheckersTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="synoptic.tests">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="synoptic.tests.PerformanceTests" todir="${junit.output.dir}"/>
+            <jvmarg line="-ea"/>
+            <classpath refid="Synoptic.classpath"/>
+        </junit>
+    </target>
+    <target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
     </target>
 </project>
