@@ -13,7 +13,7 @@ import synoptic.util.InternalSynopticException;
  * Abstract NFA state set which keeps the shortest path justifying a given state
  * being inhabited. This allows for synoptic.model checking which yields short
  * counterexample paths for failing synoptic.invariants.
- *
+ * 
  * @author Michael Sloan (mgsloan@gmail.com)
  * @param <T>
  *            The node type, used as an input, and stored in path-history.
@@ -32,7 +32,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
         HistoryNode previous;
         int count;
 
-        HistoryNode(T node, HistoryNode previous, int count) {
+        public HistoryNode(T node, HistoryNode previous, int count) {
             this.node = node;
             this.previous = previous;
             this.count = count;
@@ -48,7 +48,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
 
         /**
          * Converts this chain into a RelationPath list.
-         *
+         * 
          * @param inv
          * @return
          */
@@ -125,7 +125,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
 
     /**
      * Queries the state for the shortest path which leads to a failing state.
-     *
+     * 
      * @return The HistoryNode at the head of the linked list of nodes within
      *         the synoptic.model.
      */

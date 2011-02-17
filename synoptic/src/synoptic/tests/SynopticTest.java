@@ -43,7 +43,7 @@ public abstract class SynopticTest {
      * name.getMethodName().
      **/
     @Rule
-    public static TestName testName = new TestName();
+    protected static TestName testName = new TestName();
 
     // Set up the parser state.
     static {
