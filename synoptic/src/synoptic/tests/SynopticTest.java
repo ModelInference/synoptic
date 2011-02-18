@@ -116,7 +116,9 @@ public abstract class SynopticTest {
                 testName.getMethodName(), -1);
         Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
                 parsedEvents, true);
+
         exportTestGraph(inputGraph, 0);
+
         return new PartitionGraph(inputGraph, true);
     }
 

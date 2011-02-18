@@ -15,6 +15,7 @@ import java.awt.print.PrinterJob;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -49,6 +50,8 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.RelationPath;
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.INode;
@@ -138,7 +141,6 @@ public class JungGui extends JApplet implements Printable {
             + "</ul>" + "</html>";
 
     Set<ITemporalInvariant> unsatisfiedInvariants;
-    Set<ITemporalInvariant> satisfiedInvariants;
     int numSplitSteps = 0;
 
     /**
@@ -151,7 +153,6 @@ public class JungGui extends JApplet implements Printable {
 
         unsatisfiedInvariants = new LinkedHashSet<ITemporalInvariant>();
         unsatisfiedInvariants.addAll(pGraph.getInvariants().getSet());
-        satisfiedInvariants = new LinkedHashSet<ITemporalInvariant>();
 
         this.pGraph = pGraph;
         jGraph = getJGraph();
@@ -317,17 +318,27 @@ public class JungGui extends JApplet implements Printable {
         refineButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (unsatisfiedInvariants.size() > 0) {
+                List<RelationPath<Partition>> counterExampleTraces = null;
+                // Retrieve the counter-examples for the unsatisfied invariants.
+                counterExampleTraces = new TemporalInvariantSet(
+                        unsatisfiedInvariants).getAllCounterExamples(pGraph);
+                unsatisfiedInvariants.clear();
+                if (counterExampleTraces != null
+                        && counterExampleTraces.size() > 0) {
                     // Perform a single refinement step.
                     numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
-                            numSplitSteps, pGraph, unsatisfiedInvariants,
-                            satisfiedInvariants);
+                            numSplitSteps, pGraph, counterExampleTraces);
+
                     vizViewer.getGraphLayout().setGraph(
                             JungGui.this.getJGraph());
                     // TODO: there must be a better way for the vizViewer to
                     // refresh its state..
                     vizViewer.setGraphLayout(vizViewer.getGraphLayout());
                     JungGui.this.repaint();
+
+                    for (RelationPath<Partition> relPath : counterExampleTraces) {
+                        unsatisfiedInvariants.add(relPath.invariant);
+                    }
                 } else {
                     refineButton.setEnabled(false);
                 }

@@ -26,8 +26,17 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
         if (useDIDCAN) {
             // Weak-until version:
             // return "!(did(" + second + ")) W (did(" + first + "))";
-            return "(<>(did(" + second + ")))->((!did(" + second + ")) U did("
-                    + first + "))";
+
+            /**
+             * Note that we do not need a "<> TERMINAL ->" prefix in front of
+             * the AP LTL formula. This is because infinite loops can never be
+             * counter-examples for AP -- an AP counter example must merely be a
+             * path to 'second' without a 'first' on the path.Therefore we do
+             * not have to worry about creating a fairness constraint as with
+             * AFby.
+             */
+            return "((<>(did(" + second + ")))->((!did(" + second + ")) U did("
+                    + first + ")))";
         } else {
             return "(<>(" + second + "))->((!" + second + ") U " + first + ")";
         }
@@ -62,8 +71,8 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
             }
             if (message.getLabel().equals(second)) {
                 // We found a 'second' before a 'first'.
-                return BinaryInvariant.removeLoops(trace.subList(0,
-                        trace_pos + 1));
+                return trace.subList(0, trace_pos + 1);
+                // return BinaryInvariant.removeLoops(..);
             }
         }
         // We found neither a 'first' nor a 'second'.

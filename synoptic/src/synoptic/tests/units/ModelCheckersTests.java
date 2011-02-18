@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -72,6 +73,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         TemporalInvariantSet invs = new TemporalInvariantSet();
         invs.add(inv);
+
         List<RelationPath<T>> cexamples = invs.getAllCounterExamples(g);
 
         if (cexamples != null) {
@@ -85,6 +87,7 @@ public class ModelCheckersTests extends SynopticTest {
         }
 
         // Else, there should be just one counter-example
+        assertTrue(cexamples != null);
         assertTrue(cexamples.size() == 1);
         List<T> cexamplePath = cexamples.get(0).path;
 
@@ -165,8 +168,7 @@ public class ModelCheckersTests extends SynopticTest {
         exportTestGraph(pGraph, 1);
 
         if (!cExampleExists) {
-            // If there no cExample is expected then there's no reason to build
-            // a path.
+            // If there no cExample then there's no reason to build a path.
             testCExamplePath(pGraph, inv, cExampleExists, null);
             return;
         }
@@ -180,11 +182,10 @@ public class ModelCheckersTests extends SynopticTest {
 
         // Build the expectedPath by traversing the graph, starting from the
         // initial node by finding the appropriate partition at each hop by
-        // matching on TIME of each cExampleEvents elements.
+        // matching on the label of each partition.
         expectedPath.add(nextNode);
         nextCExampleHop:
         for (int i = 0; i < cExampleLabels.length; i++) {
-            // VectorTime nextTime = new VectorTime(cExampleLabels[i]);
             String nextLabel = cExampleLabels[i];
             for (Relation<Partition> transition : nextNode.getTransitions()) {
                 for (LogEvent event : transition.getTarget().getMessages()) {
@@ -195,7 +196,7 @@ public class ModelCheckersTests extends SynopticTest {
                     }
                 }
             }
-            org.junit.Assert.fail("Unable to locate transition from "
+            Assert.fail("Unable to locate transition from "
                     + nextNode.toString() + " to a partition with label"
                     + nextLabel);
         }
@@ -206,7 +207,8 @@ public class ModelCheckersTests extends SynopticTest {
 
     /**
      * Tests that a linear graph with a cycle does not generate an AFby
-     * c-example.
+     * c-example. This demonstrates why we need "<> TERMINAL ->" as the prefix
+     * in the AFby LTL formula -- without this prefix this tests fails.
      * 
      * @throws Exception
      */
@@ -229,13 +231,14 @@ public class ModelCheckersTests extends SynopticTest {
      */
     @Test
     public void AFbyLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "1,1,0 a", "1,2,0 x", "1,3,0 y",
-                "1,4,0 z", "1,5,0 a", "1,3,1 w", "1,6,0 x", "1,7,0 y",
+        String[] events = new String[] { "1,1,0 x", "1,2,0 a", "1,3,1 y",
+                "1,4,0 b", "1,5,0 x", "1,3,2 w", "1,6,0 a", "1,7,0 y",
                 "1,7,1 w" };
 
         ITemporalInvariant inv = new AlwaysFollowedInvariant("a", "b",
                 SynopticTest.defRelation);
-        String[] cExampleLabels = new String[] { "a", "x", "y", "w",
+
+        String[] cExampleLabels = new String[] { "x", "a", "y", "w",
                 Main.terminalNodeLabel };
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
@@ -299,13 +302,13 @@ public class ModelCheckersTests extends SynopticTest {
      */
     @Test
     public void NFbyLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "1,1,0 a", "1,2,0 x", "1,3,0 y",
-                "1,4,0 z", "1,5,0 a", "1,3,1 b", "1,6,0 x", "1,7,0 y",
-                "1,7,1 b" };
+        String[] events = new String[] { "0,0,0 f", "1,1,0 a", "1,3,0 y",
+                "1,4,0 z", "1,5,0 f", "1,7,0 a", "1,3,1 b", "1,9,0 y",
+                "1,9,1 b" };
 
         ITemporalInvariant inv = new NeverFollowedInvariant("a", "b",
                 SynopticTest.defRelation);
-        String[] cExampleLabels = new String[] { "a", "x", "y", "b" };
+        String[] cExampleLabels = new String[] { "f", "a", "y", "b" };
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
 
@@ -368,8 +371,8 @@ public class ModelCheckersTests extends SynopticTest {
     @Test
     public void APLinearGraphWithCycleTest() throws Exception {
         String[] events = new String[] { "1,1,0 z", "1,2,0 x", "1,3,0 y",
-                "1,4,0 b", "1,5,0 z", "1,3,1 w", "1,6,0 x", "1,7,0 y",
-                "1,7,1 w" };
+                "1,4,0 w", "1,5,0 z", "1,3,1 b", "1,6,0 x", "1,7,0 y",
+                "1,7,1 b" };
 
         ITemporalInvariant inv = new AlwaysPrecedesInvariant("a", "b",
                 SynopticTest.defRelation);
