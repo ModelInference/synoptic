@@ -1,17 +1,14 @@
 package synoptic.invariants;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import gov.nasa.ltl.graph.Graph;
 import gov.nasa.ltl.trans.LTL2Buchi;
 import gov.nasa.ltl.trans.ParseErrorException;
 
 import synoptic.invariants.ltlchecker.LTLFormula;
-import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -20,6 +17,8 @@ import synoptic.util.InternalSynopticException;
  * @author Sigurd Schneider
  */
 public abstract class BinaryInvariant implements ITemporalInvariant {
+    public static Logger logger = Logger.getLogger("Bisimulation");
+
     protected String first;
     protected String second;
     protected String relation;
@@ -45,37 +44,51 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     /**
      * Removes loops from a trace path in 2n time.
      * 
+     * <pre>
+     * TODO: the current code cannot be used for counter-example traces because
+     * not all loops can be removed without loosing the counter-example semantics.
+     * For example, paths that include either the 'first' or 'second' event type of
+     * the BinaryInvariant should not be removed. I'm not sure if this is sufficient
+     * to guarantee that the counter-example retains correctness. Check and implement.
+     * Note that loop removal is necessary for the NASA model checker counter-example
+     * paths. The fsm-checker (i think) already returns the shortest possible counter-
+     * example.
+     * </pre>
+     * 
      * @param <T>
      *            The type of node in the trace.
      * @param trace
      *            The trace from which to remove all loops.
      * @return A new trace that contains no loops.
      */
-    public static <T extends INode<T>> List<T> removeLoops(List<T> trace) {
-        LinkedList<T> traceWithoutLoops = new LinkedList<T>();
-        LinkedHashMap<T, Integer> visitedAndNextHop = new LinkedHashMap<T, Integer>();
-        // First iteration through trace -- keep track of what next node should
-        // be added to the traceWithoutLoops in the visitedAndNextHop map.
-        int i = 0;
-        for (T node : trace) {
-            visitedAndNextHop.put(node, i + 1);
-            i = i + 1;
-        }
-        // Second iteration through trace -- add just the non-looped nodes to
-        // the traceWithoutLoops.
-        i = 0;
-        int addAtVal = 0; // Always add the INITIAL node.
-        // Could be made faster by iterating just through
-        // visitedAndNextHop map starting from the trace[0] node.
-        for (T node : trace) {
-            if (addAtVal == i) {
-                traceWithoutLoops.add(node);
-                addAtVal = visitedAndNextHop.get(node);
-            }
-            i = i + 1;
-        }
-        return traceWithoutLoops;
-    }
+    // public static <T extends INode<T>> List<T> removeLoops(List<T> trace) {
+    // LinkedList<T> traceWithoutLoops = new LinkedList<T>();
+    // LinkedHashMap<T, Integer> visitedAndNextHop = new LinkedHashMap<T,
+    // Integer>();
+    // logger.fine("Removing loops from trace: " + trace.toString());
+    // // First iteration through trace -- keep track of what next node should
+    // // be added to the traceWithoutLoops in the visitedAndNextHop map.
+    // int i = 0;
+    // for (T node : trace) {
+    // visitedAndNextHop.put(node, i + 1);
+    // i = i + 1;
+    // }
+    // // Second iteration through trace -- add just the non-looped nodes to
+    // // the traceWithoutLoops.
+    // i = 0;
+    // int addAtVal = 0; // Always add the INITIAL node.
+    // // Could be made faster by iterating just through
+    // // visitedAndNextHop map starting from the trace[0] node.
+    // for (T node : trace) {
+    // if (addAtVal == i) {
+    // traceWithoutLoops.add(node);
+    // addAtVal = visitedAndNextHop.get(node);
+    // }
+    // i = i + 1;
+    // }
+    // logger.fine("Trace without loops: " + traceWithoutLoops.toString());
+    // return traceWithoutLoops;
+    // }
 
     @Override
     public int hashCode() {
@@ -131,7 +144,9 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
                 if (useDIDCAN) {
                     formula = LTLFormula.prepare(getLTLString());
                 }
+                logger.fine("Prepared formula: " + formula);
                 automaton = LTL2Buchi.translate("! (" + formula + ")");
+                logger.fine("Translated formula: " + automaton);
             }
             return automaton;
         } catch (ParseErrorException e) {

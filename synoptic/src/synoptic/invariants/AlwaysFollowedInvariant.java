@@ -17,7 +17,7 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
 
     @Override
     public String toString() {
-        return first + " alwaysFollowedBy(" + relation + ") " + second;
+        return first + " AlwaysFollowedBy(" + relation + ") " + second;
     }
 
     @Override
@@ -50,10 +50,11 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
              * mit.edu/catalog/item/default.asp?ttype=2&tid=11481
              */
             // Using Version 2:
-            return "(<> (did(" + Main.terminalNodeLabel + "))) -> [](did("
-                    + first + ") -> (<> (did(" + second + "))))";
+            return "(<> (did(" + Main.terminalNodeLabel + "))) -> ([](did("
+                    + first + ") -> (<> (did(" + second + ")))))";
 
             // return "[](did(" + first + ") -> <> did(" + second + ")))";
+            // return "<> did(" + second + ")";
         } else {
             // Version 1: return "[](" + first + " -> (<>" + second + "))";
             // Using Version 2:
@@ -69,7 +70,8 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
      */
     @Override
     public <T extends INode<T>> List<T> shorten(List<T> trace) {
-        return BinaryInvariant.removeLoops(trace);
+        return trace;
+        // return BinaryInvariant.removeLoops(trace);
     }
 
     @Override

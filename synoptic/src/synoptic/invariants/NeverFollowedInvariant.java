@@ -19,6 +19,12 @@ public class NeverFollowedInvariant extends BinaryInvariant {
     @Override
     public String getLTLString() {
         if (useDIDCAN) {
+            /**
+             * Note that we do not need a "<> TERMINAL ->" prefix in front of
+             * the NFby LTL formula. This is because counter examples of this
+             * formula cannot get stuck in an infinite loop, unless the loop
+             * itself contains a 'second'.
+             */
             return "[](did(" + first + ") -> X([] !(did(" + second + "))))";
         } else {
             return "[](\"" + first + "\" -> X([] !(\"" + second + "\")))";
@@ -51,8 +57,8 @@ public class NeverFollowedInvariant extends BinaryInvariant {
             if (message.getLabel().equals(first) && !first_seen) {
                 first_seen = true;
             } else if (message.getLabel().equals(second) && first_seen) {
-                return BinaryInvariant.removeLoops(trace.subList(0,
-                        trace_pos + 1));
+                return trace.subList(0, trace_pos + 1);
+                // return BinaryInvariant.removeLoops(..);
             }
         }
         return null;

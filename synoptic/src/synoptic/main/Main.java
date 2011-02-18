@@ -440,7 +440,7 @@ public class Main implements Callable<Integer> {
         try {
             ret = mainInstance.call();
         } catch (Exception e) {
-            throw new InternalSynopticException(e);
+            throw InternalSynopticException.Wrap(e);
         }
 
         logger.fine("Main.call() returned " + ret.toString());
