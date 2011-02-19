@@ -91,7 +91,8 @@ public class Action {
 
     @Override
     public String toString() {
-        return label;
+        return label + "-" + vectorTime.toString() + "-"
+                + stringArguments.toString();
     }
 
     /**
@@ -137,14 +138,10 @@ public class Action {
             return false;
         }
         if (useDatafields) {
-            if (vectorTime == null && other.vectorTime == null) {
+            if (vectorTime == null && other.vectorTime != null) {
                 return false;
             }
             if (vectorTime != null && !vectorTime.equals(other.vectorTime)) {
-                return false;
-            }
-            // Otherwise other.vectorTime != null
-            if (!other.vectorTime.equals(vectorTime)) {
                 return false;
             }
             if (!stringArguments.equals(other.stringArguments)) {

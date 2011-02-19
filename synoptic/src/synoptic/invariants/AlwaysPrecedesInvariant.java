@@ -29,11 +29,12 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
 
             /**
              * Note that we do not need a "<> TERMINAL ->" prefix in front of
-             * the AP LTL formula. This is because infinite loops can never be
-             * counter-examples for AP -- an AP counter example must merely be a
-             * path to 'second' without a 'first' on the path.Therefore we do
-             * not have to worry about creating a fairness constraint as with
-             * AFby.
+             * the AP LTL formula. This is because an infinite (unfair) loop can
+             * only be a part of the counter-example if it contains a 'second'
+             * without ever going through a 'first'. And if this is the case
+             * then its a valid counter-example, which will be shortened.
+             * Therefore we do not need to worry about creating a fairness
+             * constraint as with AFby.
              */
             return "((<>(did(" + second + ")))->((!did(" + second + ")) U did("
                     + first + ")))";

@@ -60,8 +60,8 @@ public class KTailsTest extends SynopticTest {
         parser = new TraceParser();
         // TODO: change this to VTIME once this feature is implemented in the
         // parser.
-        parser.addRegex("^(?<TIME>)(?<TYPE>)$");
-        parser.addSeparator("^--$");
+        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+        parser.addPartitionsSeparator("^--$");
     }
 
     /**

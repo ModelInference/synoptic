@@ -161,8 +161,8 @@ public class ModelCheckersTests extends SynopticTest {
             String[] cExampleLabels) throws Exception {
 
         TraceParser parser = new TraceParser();
-        parser.addRegex("^(?<TIME>)(?<TYPE>)$");
-        parser.addSeparator("^--$");
+        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+        parser.addPartitionsSeparator("^--$");
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser);
 
         exportTestGraph(pGraph, 1);

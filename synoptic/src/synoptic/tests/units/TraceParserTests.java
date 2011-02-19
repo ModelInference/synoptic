@@ -8,11 +8,17 @@ import java.util.List;
 
 import org.junit.Test;
 
+import junit.framework.Assert;
+
+import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
+import synoptic.model.Action;
+import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
+import synoptic.util.Predicate.IBinary;
 import synoptic.util.VectorTime;
 
 /**
@@ -30,6 +36,7 @@ public class TraceParserTests extends SynopticTest {
     public void setUp() throws ParseException {
         super.setUp();
         parser = new TraceParser();
+        Main.debugParse = true;
     }
 
     // //////////////////////////////////////////////////////////////////////////
@@ -37,7 +44,47 @@ public class TraceParserTests extends SynopticTest {
     // //////////////////////////////////////////////////////////////////////////
 
     /**
-     * Parse a log using a non-default TIME -- expect a ParseException.
+     * Add a regex without the required TYPE named group -- expect a
+     * ParseException
+     * 
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void addRegexWithoutTYPERegExpExceptionTest() throws ParseException {
+        // This should throw a ParseException because custom TIME fields are not
+        // allowed
+        parser.addRegex("^(?<TIME>)$");
+    }
+
+    /**
+     * Add a regex without the required TYPE named group, BUT with a HIDE flag.
+     * The HIDE flag should make this a valid regexp (since it won't be
+     * generating a LogEvent, we don't need any required fields with it).
+     * 
+     * @throws ParseException
+     */
+    @Test
+    public void addRegexHiddenWithoutRequiredRegExpExceptionTest()
+            throws ParseException {
+        // This should throw a ParseException because custom TIME fields are not
+        // allowed
+        parser.addRegex("^\\d+(?<HIDE=>true)$");
+    }
+
+    /**
+     * Add a regex with a custom HIDE field value. This throws a ParseException
+     * as HIDE can only be assigned to 'true'.
+     * 
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void addRegexCustomHIDERegExpExceptionTest() throws ParseException {
+        // Non-true HIDE values are not allowed.
+        parser.addRegex("^\\d+(?<HIDE=>blahblah)$");
+    }
+
+    /**
+     * Add a regex with a non-default TIME -- expect a ParseException.
      * 
      * @throws ParseException
      */
@@ -45,7 +92,7 @@ public class TraceParserTests extends SynopticTest {
     public void addRegexCustomTimeRegExpExceptionTest() throws ParseException {
         // This should throw a ParseException because custom TIME fields are not
         // allowed
-        parser.addRegex("^(?<TIME>.+)\\s(?<TYPE>)$");
+        parser.addRegex("^(?<TIME=>.+)\\s(?<TYPE>)$");
     }
 
     /**
@@ -57,7 +104,59 @@ public class TraceParserTests extends SynopticTest {
     public void addRegexCustomVTimeRegExpExceptionTest() throws ParseException {
         // This should throw a ParseException because custom VTIME fields are
         // not allowed
-        parser.addRegex("^(?<VTIME>\\d|\\d|\\d)\\s(?<TYPE>)$");
+        parser.addRegex("^(?<VTIME=>\\d|\\d|\\d)\\s(?<TYPE>)$");
+    }
+
+    /**
+     * Add a regex with multiple named groups of the same name that are
+     * assigned.
+     * 
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void addRegexMultipleIdenticalGroupsAssignedRegExpExceptionTest()
+            throws ParseException {
+        parser.addRegex("^(?<TIME>)\\s(?<BAM=>.+)\\s(?<BAM=>.+)$");
+    }
+
+    /**
+     * Add a regex with multiple named groups of the same name that are not
+     * assigned (they use the default values).
+     * 
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void addRegexMultipleIdenticalGroupsUnassignedRegExpExceptionTest()
+            throws ParseException {
+        parser.addRegex("^(?<TIME>)\\s(?<TYPE>)\\s(?<TYPE>)\\s(?<TYPE>)$");
+    }
+
+    /**
+     * Add a regex with an assignment to a required field.
+     * 
+     * @throws ParseException
+     */
+    @Test
+    public void addRegexAssignRequiredFieldRegExpExceptionTest()
+            throws ParseException {
+        parser.addRegex("^(?<TIME>)\\s(?<TYPE=>.+)$");
+    }
+
+    /**
+     * Add a two regexes that mix time types -- will result in a ParseException.
+     * 
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void addRegexDiffTimeTypesRegExpExceptionTest()
+            throws ParseException {
+        try {
+            parser.addRegex("^(?<TIME>)\\s(?<TYPE>)$");
+        } catch (Exception e) {
+            Assert.fail("First addRegex should not have failed.");
+        }
+        // Second addRegex should throw the expected exception.
+        parser.addRegex("^(?<VTIME>)\\s(?<TYPE>)\\s$");
     }
 
     // //////////////////////////////////////////////////////////////////////////
@@ -134,58 +233,49 @@ public class TraceParserTests extends SynopticTest {
     }
 
     /**
-     * Parse a log with two records with the same integer time -- expect a
-     * ParseException.
+     * Parse a log with two records with the same integer time in the same
+     * partition -- expect a ParseException.
      */
     @Test(expected = ParseException.class)
     public void parseSameTimeExceptionTest() throws ParseException,
             InternalSynopticException {
         String traceStr = "1 a\n2 b\n2 c\n";
+        List<LogEvent> events = null;
         try {
             parser.addRegex("^(?<TIME>)(?<TYPE>)$");
+            events = parser.parseTraceString(traceStr, "test", -1);
         } catch (Exception e) {
-            fail("addRegex should not have raised an exception");
+            fail("addRegex and parseTraceString should not have raised an exception");
         }
-        // This should throw a ParseException because two events have the same
-        // time
-        parser.parseTraceString(traceStr, "test", -1);
+        // The exception should be thrown by generateDirectTemporalRelation
+        parser.generateDirectTemporalRelation(events, true);
     }
 
     /**
-     * Parse a log with two records with the same vector time -- expect a
-     * ParseException.
+     * Parse a log with two records with the same vector time in the same
+     * partition -- expect a ParseException.
      */
     @Test(expected = ParseException.class)
     public void parseSameVTimeExceptionTest() throws ParseException,
             InternalSynopticException {
         String traceStr = "1,1,2 a\n1,1,2 b\n2,2,2 c\n";
+        List<LogEvent> events = null;
         try {
             parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+            events = parser.parseTraceString(traceStr, "test", -1);
         } catch (Exception e) {
-            fail("addRegex should not have raised an exception");
+            fail("addRegex and parseTraceString should not have raised an exception");
         }
-        // This should throw a ParseException because two events have the same
-        // vector time
-        parser.parseTraceString(traceStr, "test", -1);
+        // The exception should be thrown by generateDirectTemporalRelation
+        parser.generateDirectTemporalRelation(events, true);
     }
 
-    /**
-     * Parse a log using wrong time named group (should be TIME) -- expect a
-     * ParseException.
-     */
-    @Test(expected = ParseException.class)
-    public void parseNonVTimeExceptionTest() throws ParseException,
-            InternalSynopticException {
-        String traceStr = "1 a\n2 b\n3 c\n";
-        try {
-            parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
-        } catch (Exception e) {
-            fail("addRegex should not have raised an exception");
-        }
-        // This should throw a ParseException because VTIME expects a vector
-        // time
-        parser.parseTraceString(traceStr, "test", -1);
-    }
+    // ////////
+    // TODO: do the above two tests for same time in different partitions. In
+    // both cases no exception should be generated.
+    // /////////
+
+    // TODO: Check setting of constants -- e.g. (?<NODETYPE=>master)
 
     /**
      * Parse a log using wrong time named group (should be VTIME) -- expect a
@@ -213,14 +303,15 @@ public class TraceParserTests extends SynopticTest {
     public void parseDiffLengthVTimesExceptionTest() throws ParseException,
             InternalSynopticException {
         String traceStr = "1,1,2 a\n1,1,2,3 b\n2,2,2 c\n";
+        List<LogEvent> events = null;
         try {
             parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+            events = parser.parseTraceString(traceStr, "test", -1);
         } catch (Exception e) {
-            fail("addRegex should not have raised an exception");
+            fail("addRegex and parseTraceString should not have raised an exception");
         }
-        // This should throw a ParseException because of different length vector
-        // times in the log
-        parser.parseTraceString(traceStr, "test", -1);
+        // The exception should be thrown by generateDirectTemporalRelation
+        parser.generateDirectTemporalRelation(events, true);
     }
 
     /**
@@ -248,19 +339,90 @@ public class TraceParserTests extends SynopticTest {
                 new String[] { "1", "2" }, new String[] { "a", "b" });
     }
 
+    // ////////////////////////////
+    // Multiple partitions parsing
+
+    /**
+     * Generates the expected graph for the two cases below.
+     */
+    private static Graph<LogEvent> genExpectedGraphForTotalOrder(
+            List<LogEvent> events) {
+        // Generate the expected Graph.
+        Graph<LogEvent> expectedGraph = new Graph<LogEvent>();
+
+        assertTrue(events.size() == 6);
+        Action dummyAct = Action.NewInitialAction();
+        expectedGraph.setDummyInitial(new LogEvent(dummyAct), defRelation);
+        dummyAct = Action.NewTerminalAction();
+        expectedGraph.setDummyTerminal(new LogEvent(dummyAct));
+
+        expectedGraph.tagInitial(events.get(0), defRelation);
+        expectedGraph.tagInitial(events.get(3), defRelation);
+        expectedGraph.tagTerminal(events.get(2), defRelation);
+        expectedGraph.tagTerminal(events.get(5), defRelation);
+
+        LogEvent prevEvent = events.get(0);
+        expectedGraph.add(prevEvent);
+        for (LogEvent event : events.subList(1, 2)) {
+            expectedGraph.add(event);
+            prevEvent.addTransition(event, defRelation);
+        }
+
+        prevEvent = events.get(3);
+        expectedGraph.add(prevEvent);
+        for (LogEvent event : events.subList(4, 5)) {
+            expectedGraph.add(event);
+            prevEvent.addTransition(event, defRelation);
+        }
+
+        return expectedGraph;
+    }
+
     /**
      * Check that we can parse a log by splitting its lines into partitions.
+     * 
+     * @throws ParseException
      */
     @Test
-    public void parseWithSplitPartitionsTest() {
-        fail("TODO");
+    public void parseWithSplitPartitionsTotalOrderTest() throws ParseException {
+        String traceStr = "a\nb\nc\n--\nc\nb\na\n";
+        parser.addRegex("^(?<TYPE>)$");
+        parser.addPartitionsSeparator("^--$");
+        List<LogEvent> events = parser.parseTraceString(traceStr, "test", -1);
+        Graph<LogEvent> graph = parser.generateDirectTemporalRelation(events,
+                true);
+        Graph<LogEvent> expectedGraph = genExpectedGraphForTotalOrder(events);
+        // Test graph equality.
+        assertTrue(expectedGraph.equalsWith(graph,
+                new IBinary<LogEvent, LogEvent>() {
+                    @Override
+                    public boolean eval(LogEvent a, LogEvent b) {
+                        return (a.getAction().equals(b.getAction()));
+                    }
+                }));
     }
 
     /**
      * Check that we can parse a log by mapping log lines to partitions.
+     * 
+     * @throws ParseException
      */
     @Test
-    public void parseWithMappedPartitionsTest() {
-        fail("TODO");
+    public void parseWithMappedPartitionsTotalOrderTest() throws ParseException {
+        String traceStr = "1 a\n1 b\n1 c\n2 c\n2 b\n2 a\n";
+        parser.addRegex("^(?<PARTITION>)(?<TYPE>)$");
+        parser.setPartitionsMap("\\k<PARTITION>");
+        List<LogEvent> events = parser.parseTraceString(traceStr, "test", -1);
+        Graph<LogEvent> graph = parser.generateDirectTemporalRelation(events,
+                true);
+        Graph<LogEvent> expectedGraph = genExpectedGraphForTotalOrder(events);
+        // Test graph equality.
+        assertTrue(expectedGraph.equalsWith(graph,
+                new IBinary<LogEvent, LogEvent>() {
+                    @Override
+                    public boolean eval(LogEvent a, LogEvent b) {
+                        return (a.getAction().equals(b.getAction()));
+                    }
+                }));
     }
 }

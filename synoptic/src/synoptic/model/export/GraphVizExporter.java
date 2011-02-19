@@ -30,7 +30,7 @@ import synoptic.util.InternalSynopticException;
 
 public class GraphVizExporter {
     static Logger logger = Logger.getLogger("GraphVizExporter");
-    
+
     /**
      * Maps commonly used relations to the edge colors used in dot output.
      */
@@ -176,7 +176,8 @@ public class GraphVizExporter {
     private <T extends INode<T>> int exportRelationNodes(final Writer writer,
             IGraph<T> graph, String relation,
             LinkedList<ITransition<T>> allTransitions,
-            LinkedHashMap<T, Integer> nodeToInt, int nodeCnt) throws IOException {
+            LinkedHashMap<T, Integer> nodeToInt, int nodeCnt)
+            throws IOException {
 
         LinkedList<T> rootNodes = new LinkedList<T>(
                 graph.getInitialNodes(relation));
@@ -307,7 +308,6 @@ public class GraphVizExporter {
         return;
     }
 
-
     private static String quote(String string) {
         final StringBuilder sb = new StringBuilder(string.length() + 2);
         for (int i = 0; i < string.length(); ++i) {
@@ -331,10 +331,10 @@ public class GraphVizExporter {
             IGraph<T> g) throws Exception {
         File f = new File(fileName);
         export(f, g);
-        if(Main.dumpPNG)
-        	exportPng(f);
+        if (Main.dumpPNG) {
+            exportPng(f);
+        }
     }
-
 
     public static <T extends INode<T>> void quickExport(String fileName,
             IGraph<T> g) {
@@ -376,8 +376,9 @@ public class GraphVizExporter {
 
         export(writer, pg, true, isInitialGraph);
         writer.close();
-        if(Main.dumpPNG)
-        	exportPng(f);
+        if (Main.dumpPNG) {
+            exportPng(f);
+        }
     }
 
     private static void exportSCCsWithInvariants(GraphVizExporter e,

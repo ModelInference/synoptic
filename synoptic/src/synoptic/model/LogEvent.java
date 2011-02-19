@@ -59,7 +59,7 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
 
     @Override
     public String toString() {
-        return "[" + getAction() + " (" + hashCode() + ")" + "]";
+        return "[" + getAction().getLabel() + "]";
     }
 
     @Override
@@ -194,7 +194,7 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
     }
 
     public String toStringFull() {
-        return "[LogEvent A: " + getAction() + " (" + hashCode() + ")" + "]";
+        return "[LogEvent: " + getAction() + " (" + hashCode() + ")" + "]";
     }
 
     // INode

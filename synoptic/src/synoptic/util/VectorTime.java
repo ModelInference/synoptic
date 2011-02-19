@@ -43,6 +43,20 @@ public class VectorTime {
     }
 
     /**
+     * Builds a VectorTime from a single Integer.
+     * 
+     * @param i
+     * @throws IllegalArgumentException
+     *             when i is negative
+     */
+    public VectorTime(Integer i) {
+        if (i < 0) {
+            throw new IllegalArgumentException();
+        }
+        vector.add(i);
+    }
+
+    /**
      * Returns true if (this < t), otherwise returns false
      * 
      * @param t
@@ -54,7 +68,7 @@ public class VectorTime {
 
         if (vector.size() != t.vector.size()) {
             // Two vectors are only comparable if they have the same length.
-            return false;
+            throw new NotComparableVectorsException();
         }
 
         for (int i = 0; i < vector.size(); ++i) {
@@ -135,7 +149,8 @@ public class VectorTime {
             }
         } else {
             if (vector.size() != other.vector.size()) {
-                return false;
+                // Two vectors are only comparable if they have the same length.
+                throw new NotComparableVectorsException();
             }
             for (int i = 0; i < vector.size(); ++i) {
                 if (vector.get(i) != other.vector.get(i)) {
