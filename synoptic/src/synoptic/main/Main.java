@@ -162,10 +162,11 @@ public class Main implements Callable<Integer> {
      * into partition traces, to be considered as an individual sample of the
      * behavior of the system.
      */
+    public static final String partitionRegExpDefault = "\\k<FILE>";
     @Option(
             value = "-m Partitions mapping reg-exp: maps a log line to a partition",
             aliases = { "-partition-mapping" })
-    public static String partitionRegExp = "\\k<FILE>";
+    public static String partitionRegExp = partitionRegExpDefault;
 
     /**
      * This option relieves the user from writing regular expressions to parse
@@ -290,8 +291,9 @@ public class Main implements Callable<Integer> {
      * outputPathPrefix.stage-S.round-R.dot where 'outputPathPrefix' is the
      * filename of the final Synoptic output, 'S' is the name of the stage (e.g.
      * r for refinement, and c for coarsening), and 'R' is the round number
-     * within the stage. This option is <i>unpublicized</i>; it will not appear
-     * in the default usage message
+     * within the stage. This option requires that the outputPathPrefix is set
+     * with the -o option (see above). This option is <i>unpublicized</i>; it
+     * will not appear in the default usage message
      */
     @Option("Dump dot files from intermediate Synoptic stages to files of form outputPathPrefix.stage-S.round-R.dot")
     public static boolean dumpIntermediateStages = false;
@@ -424,6 +426,12 @@ public class Main implements Callable<Integer> {
             return;
         }
 
+        if (dumpIntermediateStages && outputPathPrefix == null) {
+            logger.severe("Cannot dump intermediate stages without an output path prefix. Set this prefix with:\n\t"
+                    + Main.getCmdLineOptDesc("outputPathPrefix"));
+            return;
+        }
+
         Main mainInstance = new Main();
 
         if (logLvlVerbose) {
@@ -439,6 +447,8 @@ public class Main implements Callable<Integer> {
         Integer ret;
         try {
             ret = mainInstance.call();
+        } catch (ParseException e) {
+            throw e;
         } catch (Exception e) {
             throw InternalSynopticException.Wrap(e);
         }
@@ -584,7 +594,6 @@ public class Main implements Callable<Integer> {
         }
 
         consoleHandler.setFormatter(new BriefLogFormatter());
-
         return;
     }
 
@@ -680,23 +689,36 @@ public class Main implements Callable<Integer> {
 
         logger.fine("Setting up the log file parser.");
 
+        if (Main.partitionRegExp == Main.partitionRegExpDefault) {
+            logger.info("Using the default partitions mapping regex: "
+                    + Main.partitionRegExpDefault);
+        }
+
         if (!Main.regExps.isEmpty()) {
-            // User provided regular expressions - parse them!
+            // The user provided custom regular expressions.
             for (String exp : Main.regExps) {
                 logger.fine("\taddRegex with exp:" + exp);
                 parser.addRegex(exp);
             }
 
-            parser.setPartitioner(Main.partitionRegExp);
+            parser.setPartitionsMap(Main.partitionRegExp);
         } else {
-            // No expressions provided - use the default regex.
-            parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
+            // No custom regular expressions provided - warn and use defaults.
+            logger.warning("Using a default regular expression to parse log-lines: "
+                    + "will map the entire log line to an event type."
+                    + "\nTo use a custom regular expressions use the option:\n\t"
+                    + Main.getCmdLineOptDesc("regExps") + "\n\t");
+            // TODO: is this next statement necessary?
+            // parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
             parser.addRegex("(?<TYPE>.*)");
-            parser.setPartitioner(Main.partitionRegExp);
+            parser.setPartitionsMap(Main.partitionRegExp);
         }
 
         if (Main.separator != null) {
-            parser.addSeparator(Main.separator);
+            parser.addPartitionsSeparator(Main.separator);
+            if (Main.partitionRegExp != Main.partitionRegExpDefault) {
+                logger.warning("Partition separator and partition mapping regex are both specified. This may result in difficult to understand parsing behavior.");
+            }
         }
 
         // Parses all the log filenames, constructing the parsedEvents List.

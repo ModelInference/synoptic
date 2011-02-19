@@ -43,4 +43,9 @@ public class NamedSubstitution {
         result.append(contents.get(contents.size() - 1));
         return result.toString();
     }
+
+    @Override
+    public String toString() {
+        return contents.toString();
+    }
 }

@@ -9,6 +9,7 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import synoptic.tests.SynopticTest;
+import synoptic.util.NotComparableVectorsException;
 import synoptic.util.VectorTime;
 
 /**
@@ -50,7 +51,7 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test
     public void equalityTest() {
-        VectorTime v1, v2, v3, v4;
+        VectorTime v1, v2, v3;
 
         v1 = new VectorTime("1,2,3");
         v2 = new VectorTime(Arrays.asList(new Integer[] { 1, 2, 3 }));
@@ -63,10 +64,20 @@ public class VectorTimeTests extends SynopticTest {
         v3 = new VectorTime(Arrays.asList(new Integer[] { 1, 2, 4 }));
         assertFalse(v1.equals(v3));
         assertFalse(v3.equals(v1));
+    }
 
-        v4 = new VectorTime(Arrays.asList(new Integer[] { 1, 2, 3, 5 }));
-        assertFalse(v1.equals(v4));
-        assertFalse(v4.equals(v1));
+    /**
+     * Vectors of different length cannot be compared -- this throws an
+     * exception.
+     */
+    @Test(expected = NotComparableVectorsException.class)
+    public void equalityDiffLengthVectorsTest() {
+        VectorTime v1, v2;
+
+        v1 = new VectorTime("1,2,3");
+
+        v2 = new VectorTime(Arrays.asList(new Integer[] { 1, 2, 3, 5 }));
+        v1.equals(v2);
     }
 
     /**
@@ -132,17 +143,18 @@ public class VectorTimeTests extends SynopticTest {
         v2 = new VectorTime("1,2,3");
         assertFalse(v1.lessThan(v2));
         assertFalse(v2.lessThan(v1));
+    }
 
-        // Vectors of different lengths -- should never be comparable.
+    /**
+     * Vectors of different length cannot be compared -- this throws an
+     * exception.
+     */
+    @Test(expected = NotComparableVectorsException.class)
+    public void lessThanDiffLengthVectorsTest() {
+        VectorTime v1, v2;
         v1 = new VectorTime("1,2,3,0");
         v2 = new VectorTime("1,2,4");
-        assertFalse(v1.lessThan(v2));
-        assertFalse(v2.lessThan(v1));
-
-        v1 = new VectorTime("1,2,3,1");
-        v2 = new VectorTime("1,2,4");
-        assertFalse(v1.lessThan(v2));
-        assertFalse(v2.lessThan(v1));
+        v1.lessThan(v2);
     }
 
     /**

@@ -8,8 +8,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -23,6 +25,7 @@ import synoptic.util.InternalSynopticException;
 import synoptic.util.NamedMatcher;
 import synoptic.util.NamedPattern;
 import synoptic.util.NamedSubstitution;
+import synoptic.util.NotComparableVectorsException;
 import synoptic.util.VectorTime;
 
 /**
@@ -32,12 +35,44 @@ import synoptic.util.VectorTime;
  * @author mgsloan
  */
 public class TraceParser {
+    private static Logger logger = Logger.getLogger("Parser Logger");
+
     private final List<NamedPattern> parsers;
     private final List<LinkedHashMap<String, NamedSubstitution>> constantFields;
     private final List<LinkedHashMap<String, Boolean>> incrementors;
 
     private NamedSubstitution filter;
-    private static Logger logger = Logger.getLogger("Parser Logger");
+
+    // Patterns used to pre-process regular expressions
+    private static final Pattern matchEscapedSeparator = Pattern
+            .compile("\\\\;\\\\;");
+    private static final Pattern matchAssign = Pattern
+            .compile("\\(\\?<(\\w*)=>([^\\)]*)\\)");
+    private static final Pattern matchPreIncrement = Pattern
+            .compile("\\(\\?<\\+\\+(\\w*)>\\)");
+    private static final Pattern matchPostIncrement = Pattern
+            .compile("\\(\\?<(\\w*)\\+\\+>\\)");
+    private static final Pattern matchDefault = Pattern
+            .compile("\\(\\?<(\\w*)>\\)");
+
+    // All line-matching regexps will be checked to include the following set of
+    // required regexp groups.
+    private static final List<String> requiredGroups = Arrays.asList("TYPE");
+
+    // Regexp groups that represent valid time in a log line:
+    // TIME: integer time parsed from the log line
+    // VTIME: vector clock time parsed from the log line
+    private static final List<String> validTimeGroups = Arrays.asList("TIME",
+            "VTIME");
+
+    // The time we use implicitly. LTIME is log-line-number time. Which exists
+    // implicitly for every log-line.
+    private static final String implicitTimeGroup = "LTIME";
+
+    // The time group regexp selected (implicitly) for use by this parser via
+    // passed reg exps to match lines. The parser allows only one type of time
+    // to be used.
+    private String selectedTimeGroup = null;
 
     // TODO: figure out how we deal with constraints which involve the multiple
     // parsers.
@@ -51,23 +86,50 @@ public class TraceParser {
         filter = new NamedSubstitution("");
     }
 
-    // Patterns used to pre-process regular expressions
-    private static Pattern matchEscapedSeparator = Pattern
-            .compile("\\\\;\\\\;"), matchAssign = Pattern
-            .compile("\\(\\?<(\\w*)=>([^\\)]*)\\)"),
-            matchPreIncrement = Pattern.compile("\\(\\?<\\+\\+(\\w*)>\\)"),
-            matchPostIncrement = Pattern.compile("\\(\\?<(\\w*)\\+\\+>\\)"),
-            matchDefault = Pattern.compile("\\(\\?<(\\w*)>\\)");
+    /**
+     * Checks whether lst contains duplicates. If so, it logs an error using
+     * regex for information and throws a ParseException.
+     * 
+     * @param lst
+     *            the list to check for duplicates
+     * @param regex
+     *            the associated regex string to use when printing out an error
+     * @throws ParseException
+     */
+    public static void detectListDuplicates(List<String> lst, String regex)
+            throws ParseException {
+        // Check for group duplicates.
+        LinkedHashSet<String> lstSet = new LinkedHashSet<String>(lst);
+        if (lstSet.size() == lst.size()) {
+            return;
+        }
+
+        // We have duplicates in list, which means some fields are
+        // defined multiple times. We find these by removing each set
+        // element from the list, then converting the list to a set (to remove
+        // groups that have more than 3+ occurrences) and throw an exception.
+        for (String e : lstSet) {
+            lst.remove(e);
+        }
+
+        logger.severe("The fields: " + new LinkedHashSet<String>(lst)
+                + " appear more than once in regex: " + regex);
+        throw new ParseException();
+    }
 
     /**
      * Adds an individual trace line type, which consists of a regex with
-     * additional syntax. This additional syntax is as follows: (?<name>)
-     * Matches the default field regex, (?:\s*(?<name>\S+)\s*) (?<name=>value)
-     * This specifies a value for a field, potentially with back-references
-     * which get filled. (?<name++>) These specify context fields which are
-     * included with (?<++name>) every type of trace \;\; becomes ;; (this is to
-     * support the parsing of multiple regexes, described above). The regex must
-     * match the entire line.
+     * additional syntax. <b>The regex must match the entire line.</b> The
+     * additional syntax is as follows:
+     * <ul>
+     * <li>(?<name>) -- Matches the default field regex (?:\s*(?<name>\S+)\s*)</li>
+     * <li>(?<name=>value) -- Specifies a value for a field, potentially with
+     * back-references which get filled.</li>
+     * <li>(?<name++>) and (?<++name>) -- Specify context fields which are
+     * included with every type of trace.
+     * </ul>
+     * Note that \;\; becomes ;; (this is to support the parsing of multiple
+     * regexes, described above).
      * 
      * @param input_regex
      *            Regular expression of the form described.
@@ -78,16 +140,50 @@ public class TraceParser {
         // TODO: this method for splitting is ugly, but it works for now
         // In order to use ";;" in a regex, escape as \;\;
         // TODO: document this on the wiki
+        logger.fine("entering addRegex with: " + input_regex);
         String regex = matchEscapedSeparator.matcher(input_regex).replaceAll(
                 ";;");
 
         // Parse out all of the constants.
         Matcher matcher = matchAssign.matcher(regex);
 
+        // Maintains a map between fields and their values in the regex.
         LinkedHashMap<String, NamedSubstitution> cmap = new LinkedHashMap<String, NamedSubstitution>();
+
+        // A list of all the fields that were assigned in the regex.
+        LinkedList<String> fields = new LinkedList<String>();
+
+        // Indicates whether this regexp sets the HIDE field to true or not.
+        boolean isHidden = false;
         while (matcher.find()) {
-            cmap.put(matcher.group(1), new NamedSubstitution(matcher.group(2)));
+            String field = matcher.group(1);
+            String value = matcher.group(2);
+            fields.add(field);
+
+            cmap.put(field, new NamedSubstitution(value));
+            logger.fine("matchAssign: " + field + " -> " + matcher.group(2));
+            // Prevent the user from adding regexes that modify the parsing of
+            // special time fields.
+            if (validTimeGroups.contains(field)) {
+                logger.severe("Cannot assign custom regex expressions to parse time field "
+                        + field + " in regex: " + regex);
+                throw new ParseException();
+            }
+
+            // HIDE groups can only be assigned to 'true'
+            if (field.equals("HIDE")) {
+                if (!value.equals("true")) {
+                    logger.severe("HIDE field cannot be assigned to: " + value
+                            + ", it can only be assigned to 'true' in regex: "
+                            + regex);
+                    throw new ParseException();
+                }
+                isHidden = true;
+            }
         }
+        // Check for field duplicates.
+        detectListDuplicates(fields, regex);
+
         constantFields.add(parsers.size(), cmap);
 
         // Remove the constant fields from the regex.
@@ -107,7 +203,8 @@ public class TraceParser {
         regex = matcher.replaceAll("");
         incrementors.add(incMap);
 
-        // Replace fields which lack regex content with default.
+        // Replace fields which lack regex content with default matching
+        // pattern.
         // TODO: Different defaults for some special fields.
         // TODO: document defaults on the wiki
         matcher = matchDefault.matcher(regex);
@@ -135,8 +232,61 @@ public class TraceParser {
             throw new ParseException();
         }
         parsers.add(parser);
-
         List<String> groups = parser.groupNames();
+
+        // Check for group duplicates.
+        detectListDuplicates(groups, regex);
+
+        // Check that line-matching regexes contain the required named groups.
+        // But only if they are not HIDDEN.
+        if (!isHidden) {
+            for (String reqGroup : requiredGroups) {
+                if (!groups.contains(reqGroup) && !fields.contains(reqGroup)) {
+                    logger.severe("Regular expression: " + regex
+                            + " is missing the required named group: "
+                            + reqGroup);
+                    throw new ParseException();
+                }
+            }
+        }
+
+        if (!isHidden) {
+            // We have two cases for specifying time types:
+            // (1) Implicit: type is not specified and we use implicitTimeGroup.
+            // (2) Explicit: exactly one kind of type is specified in the regex.
+            String regexTimeUsed = null;
+            for (String group : groups) {
+                if (validTimeGroups.contains(group)) {
+                    if (regexTimeUsed != null) {
+                        logger.severe("The regex: " + regex
+                                + " contains multiple time field definitions: "
+                                + group + ", " + regexTimeUsed);
+                        throw new ParseException();
+                    }
+                    regexTimeUsed = group;
+                }
+            }
+            if (regexTimeUsed == null) {
+                regexTimeUsed = implicitTimeGroup;
+            }
+
+            if (selectedTimeGroup == null) {
+                // No prior time type was specified. So we use regex's type as
+                // the time type.
+                selectedTimeGroup = regexTimeUsed;
+            } else {
+                // Prior time type was used, make sure that it matches regex's.
+                if (!selectedTimeGroup.equals(regexTimeUsed)) {
+                    logger.severe("Time type cannot vary. A prior regex used the type "
+                            + selectedTimeGroup
+                            + ", while regex "
+                            + regex
+                            + " uses the type " + regexTimeUsed);
+                    throw new ParseException();
+                }
+            }
+
+        }
 
         if (Main.debugParse) {
             logger.info("input: " + input_regex);
@@ -152,13 +302,6 @@ public class TraceParser {
                 logger.info("\tincs: " + incMap.toString());
             }
         }
-
-        /*
-         * TODO: warn about missing time / type fields. eg (old code):
-         * System.err.println("Error: 'type' named group required in regex.");
-         * System.out.println("No provided time field; Using integer time.");
-         */
-
     }
 
     /**
@@ -182,7 +325,8 @@ public class TraceParser {
      * @throws InternalSynopticException
      *             On internal error: wrong internal separator reg-exp
      */
-    public void addSeparator(String regex) throws InternalSynopticException {
+    public void addPartitionsSeparator(String regex)
+            throws InternalSynopticException {
         try {
             addRegex(regex + "(?<SEPCOUNT++>)(?<HIDE=>true)");
         } catch (ParseException e) {
@@ -198,7 +342,7 @@ public class TraceParser {
      * Sets the partitioning filter, to the passed, back-reference containing
      * string.
      */
-    public void setPartitioner(String filter) {
+    public void setPartitionsMap(String filter) {
         this.filter = new NamedSubstitution(filter);
     }
 
@@ -316,7 +460,7 @@ public class TraceParser {
     }
 
     /* If there's a filter, this helper yields that argument from an action. */
-    private String getNodeName(Action a) {
+    private String getPartitionName(Action a) {
         return filter.substitute(a.getStringArguments());
     }
 
@@ -327,150 +471,182 @@ public class TraceParser {
     private LogEvent parseLine(VectorTime prevTime, String line,
             String filename, Map<String, Integer> context)
             throws ParseException, InternalSynopticException {
+
         Action action = null;
         VectorTime nextTime = null;
+
         for (int i = 0; i < parsers.size(); i++) {
             NamedMatcher matcher = parsers.get(i).matcher(line);
-            if (matcher.matches()) {
-                @SuppressWarnings("unchecked")
-                Map<String, NamedSubstitution> cs = (Map<String, NamedSubstitution>) constantFields
-                        .get(i).clone();
-                Map<String, String> matched = matcher.toMatchResult()
-                        .namedGroups();
+            if (!matcher.matches()) {
+                continue;
+            }
 
-                // Perform pre-increments.
-                for (Map.Entry<String, Boolean> inc : incrementors.get(i)
-                        .entrySet()) {
-                    if (inc.getValue() == false) {
-                        context.put(inc.getKey(), context.get(inc.getKey()) + 1);
-                    }
+            @SuppressWarnings("unchecked")
+            Map<String, NamedSubstitution> cs = (Map<String, NamedSubstitution>) constantFields
+                    .get(i).clone();
+            Map<String, String> matched = matcher.toMatchResult().namedGroups();
+
+            // Perform pre-increments.
+            for (Map.Entry<String, Boolean> inc : incrementors.get(i)
+                    .entrySet()) {
+                if (inc.getValue() == false) {
+                    context.put(inc.getKey(), context.get(inc.getKey()) + 1);
+                }
+            }
+
+            // Overlay increment context.
+            for (Map.Entry<String, Integer> entry : context.entrySet()) {
+                matched.put(entry.getKey(), entry.getValue().toString());
+            }
+
+            for (Map.Entry<String, NamedSubstitution> entry : cs.entrySet()) {
+                // Process the constant field by substituting
+                // back-references.
+                String key = entry.getKey();
+                String val = entry.getValue().substitute(matched);
+
+                // Special case for integers, to allow for setting
+                // incrementors.
+                Integer parsed = Integer.getInteger(val, Integer.MIN_VALUE);
+                if (context.containsKey(key)) {
+                    context.put(key, parsed);
                 }
 
-                // Overlay increment context.
-                for (Map.Entry<String, Integer> entry : context.entrySet()) {
-                    matched.put(entry.getKey(), entry.getValue().toString());
+                // TODO: Determine policy of constant fields vs. extracted have
+                // overlay priority
+                if (!matched.containsKey(key)) {
+                    matched.put(key, val);
                 }
+            }
 
-                for (Map.Entry<String, NamedSubstitution> entry : cs.entrySet()) {
-                    // Process the constant field by substituting
-                    // back-references.
-                    String key = entry.getKey();
-                    String val = entry.getValue().substitute(matched);
-
-                    // Special case for integers, to allow for setting
-                    // incrementors.
-                    Integer parsed = Integer.getInteger(val, Integer.MIN_VALUE);
-                    if (context.containsKey(key)) {
-                        context.put(key, parsed);
-                    }
-
-                    // TODO: Determine policy of constant fields vs extracted
-                    // have
-                    // overlay priority
-                    if (!matched.containsKey(key)) {
-                        matched.put(key, val);
-                    }
-                }
-
-                if (matched.get("HIDE") != null) {
-                    // Perform post-increments and exit.
-                    for (Map.Entry<String, Boolean> inc : incrementors.get(i)
-                            .entrySet()) {
-                        if (inc.getValue() == true) {
-                            context.put(inc.getKey(),
-                                    context.get(inc.getKey()) + 1);
-                        }
-                    }
-                    return null;
-                }
-
-                String eventType = matched.get("TYPE");
-
-                // TODO: determine if this is desired + print warning
-
-                if (eventType == null) {
-                    // In the absence of a type, use the entire log line.
-                    action = new Action(line);
-                } else {
-                    action = new Action(eventType);
-                }
-                action = action.intern();
-
-                action.setStringArgument("FILE", filename);
-
-                String timeField = matched.get("TIME");
-                if (timeField == null) {
-                    // TODO: warning when appropriate.
-                    nextTime = incTime(prevTime);
-                } else {
-                    // TODO: more types of time
-                    try {
-                        nextTime = new VectorTime(timeField.trim());
-                    } catch (Exception e) {
-                        if (Main.recoverFromParseErrors) {
-                            logger.warning("Failed to parse time field "
-                                    + e.toString()
-                                    + " for log line:\n"
-                                    + line
-                                    + "\nincrementing prior time value and continuing.");
-                            // TODO: incTime makes little sense for vector time.
-                            // In the vector time case, failing makes more sense
-                            // here.
-                            nextTime = incTime(prevTime);
-                        } else {
-                            if (Main.ignoreNonMatchingLines) {
-                                logger.fine("Failed to parse time field "
-                                        + e.toString() + " for log line:\n"
-                                        + line
-                                        + "\nIgnoring line and continuing.");
-                            } else {
-                                logger.severe("Failed to parse time field "
-                                        + e.toString()
-                                        + " for log line:\n"
-                                        + line
-                                        + "\n\tTry cmd line options:\n\t"
-                                        + Main.getCmdLineOptDesc("ignoreNonMatchingLines")
-                                        + "\n\t"
-                                        + Main.getCmdLineOptDesc("debugParse"));
-                                throw new ParseException();
-                            }
-                        }
-                    }
-                }
-                for (Map.Entry<String, String> group : matched.entrySet()) {
-                    String name = group.getKey();
-                    if (!name.equals("TYPE") && !name.equals("TIME")) {
-                        action.setStringArgument(name, group.getValue());
-                    }
-                }
-
-                // Perform post-increments.
+            if (matched.get("HIDE") != null) {
+                // Perform post-increments and exit.
                 for (Map.Entry<String, Boolean> inc : incrementors.get(i)
                         .entrySet()) {
                     if (inc.getValue() == true) {
                         context.put(inc.getKey(), context.get(inc.getKey()) + 1);
                     }
                 }
+                return null;
+            }
 
-                if (Main.debugParse) {
-                    // TODO: include partition name in the list of field values
-                    logger.warning("input: " + line);
-                    StringBuilder msg = new StringBuilder("{");
-                    for (Map.Entry<String, String> entry : action
-                            .getStringArguments().entrySet()) {
-                        if (entry.getKey().equals("FILE")) {
+            // ////////////
+            // Only non-hidden regexes from this point on.
+
+            String eventType = matched.get("TYPE");
+
+            // TODO: determine if this is desired + print warning
+
+            if (eventType == null) {
+                // In the absence of a type, use the entire log line.
+                action = new Action(line);
+            } else {
+                action = new Action(eventType);
+            }
+            action = action.intern();
+
+            action.setStringArgument("FILE", filename);
+
+            // We have two cases for processing time on log lines:
+            // (1) Implicitly: no matched field is a time field because it is
+            // set to implicitTimeGroup. For this case we simply use the prior
+            // time + 1 (log-line counting time).
+            // (2) Explicitly: one of the matched fields must be a time type
+            // field (set in addRegex). If no such match is found then we throw
+            // an exception.
+            if (selectedTimeGroup == implicitTimeGroup) {
+                // Implicit case.
+                nextTime = incTime(prevTime);
+            } else {
+                // Explicit case.
+                String timeField = matched.get(selectedTimeGroup);
+                if (timeField == null) {
+                    logger.severe("Unable to parse time type "
+                            + selectedTimeGroup + " from line " + line);
+                    throw new ParseException();
+                }
+
+                // Attempt to parse the time type field as a vector time -- we
+                // use this for both integer and vector time types (all current
+                // types).
+                if (selectedTimeGroup.equals("TIME")) {
+                    try {
+                        Integer.parseInt(timeField.trim());
+                    } catch (Exception e) {
+                        String errMsg = "Unable to parse time field on log line:\n"
+                                + line;
+                        if (Main.ignoreNonMatchingLines) {
+                            logger.warning(errMsg
+                                    + "\nIgnoring line and continuing.");
                             continue;
                         }
-                        msg.append(entry.getKey() + " = " + entry.getValue()
-                                + ", ");
+                        logger.severe(errMsg
+                                + "\n\tTry cmd line options:\n\t"
+                                + Main.getCmdLineOptDesc("ignoreNonMatchingLines")
+                                + "\n\t" + Main.getCmdLineOptDesc("debugParse"));
+
+                        logger.severe(e.toString());
+                        throw new ParseException();
                     }
-                    msg.append("TYPE = " + eventType);
-                    msg.append("}");
-                    logger.info(msg.toString());
                 }
-                action.setTime(nextTime);
-                return new LogEvent(action);
+
+                try {
+                    if (selectedTimeGroup.equals("TIME")) {
+                        Integer timeFieldInt = Integer.parseInt(timeField
+                                .trim());
+                        nextTime = new VectorTime(timeFieldInt);
+                    } else {
+                        nextTime = new VectorTime(timeField.trim());
+                    }
+                } catch (Exception e) {
+                    String errMsg = "Unable to parse time field on log line:\n"
+                            + line;
+                    if (Main.ignoreNonMatchingLines) {
+                        logger.warning(errMsg
+                                + "\nIgnoring line and continuing.");
+                        continue;
+                    }
+                    logger.severe(errMsg + "\n\tTry cmd line options:\n\t"
+                            + Main.getCmdLineOptDesc("ignoreNonMatchingLines")
+                            + "\n\t" + Main.getCmdLineOptDesc("debugParse"));
+
+                    logger.severe(e.toString());
+                    throw new ParseException();
+                }
             }
+
+            for (Map.Entry<String, String> group : matched.entrySet()) {
+                String name = group.getKey();
+                if (!name.equals("TYPE") && !name.equals("TIME")) {
+                    action.setStringArgument(name, group.getValue());
+                }
+            }
+
+            // Perform post-increments.
+            for (Map.Entry<String, Boolean> inc : incrementors.get(i)
+                    .entrySet()) {
+                if (inc.getValue() == true) {
+                    context.put(inc.getKey(), context.get(inc.getKey()) + 1);
+                }
+            }
+
+            if (Main.debugParse) {
+                // TODO: include partition name in the list of field values
+                logger.info("input: " + line);
+                StringBuilder msg = new StringBuilder("{");
+                for (Map.Entry<String, String> entry : action
+                        .getStringArguments().entrySet()) {
+                    if (entry.getKey().equals("FILE")) {
+                        continue;
+                    }
+                    msg.append(entry.getKey() + " = " + entry.getValue() + ", ");
+                }
+                msg.append("TYPE = " + eventType);
+                msg.append("}");
+                logger.info(msg.toString());
+            }
+            action.setTime(nextTime);
+            return new LogEvent(action);
         }
 
         if (Main.recoverFromParseErrors) {
@@ -478,7 +654,15 @@ public class TraceParser {
                     + "Using entire line as type.");
             action = new Action(line);
             action = action.intern();
-            action.setTime(incTime(prevTime));
+            if (selectedTimeGroup.equals(implicitTimeGroup)) {
+                // We can recover OK with log-line counting time.
+                action.setTime(incTime(prevTime));
+            } else {
+                // We can't recover with vector time -- incrementing it simply
+                // doesn't make sense.
+                logger.severe("Unable to recover from parse error with vector-time type.");
+                throw new ParseException();
+            }
             return new LogEvent(action);
         } else if (Main.ignoreNonMatchingLines) {
             logger.fine("Failed to parse trace line: \n" + line + "\n"
@@ -520,9 +704,10 @@ public class TraceParser {
      * @param allEvents
      * @param partition
      * @return
+     * @throws ParseException
      */
     public static Graph<LogEvent> generateDirectTemporalRelationWithoutParser(
-            List<LogEvent> allEvents, boolean partition) {
+            List<LogEvent> allEvents, boolean partition) throws ParseException {
         TraceParser parser = new TraceParser();
         return parser.generateDirectTemporalRelation(allEvents, partition);
     }
@@ -535,25 +720,27 @@ public class TraceParser {
      *            The list of events to process.
      * @param partition
      *            True indicates partitioning the events on the nodeName field.
+     * @throws ParseException
      */
     public Graph<LogEvent> generateDirectTemporalRelation(
-            List<LogEvent> allEvents, boolean partition) {
+            List<LogEvent> allEvents, boolean partition) throws ParseException {
 
         Graph<LogEvent> graph = new Graph<LogEvent>();
-
-        // Partition by nodeName.
         LinkedHashMap<String, List<LogEvent>> groups = new LinkedHashMap<String, List<LogEvent>>();
         if (partition) {
+            // Partition based on filter expression.
             for (LogEvent e : allEvents) {
-                String nodeName = getNodeName(e.getAction());
-                List<LogEvent> events = groups.get(nodeName);
+                String pName = getPartitionName(e.getAction());
+                List<LogEvent> events = groups.get(pName);
                 if (events == null) {
                     events = new ArrayList<LogEvent>();
-                    groups.put(nodeName, events);
+                    groups.put(pName, events);
+                    logger.fine("Created partition '" + pName + "'");
                 }
                 events.add(e);
             }
         } else {
+            // Otherwise, place all events into a single partition.
             groups.put(null, allEvents);
         }
 
@@ -573,13 +760,22 @@ public class TraceParser {
                         continue;
                     }
 
-                    if (e1.getTime().lessThan(e2.getTime())) {
-                        e1AllSuccessors.add(e2);
-                    } else if (e1.getTime().equals(e2.getTime())) {
-                        throw new IllegalArgumentException(
-                                "Found two events with identical timestamps: (1) "
-                                        + e1.toStringFull() + " (2) "
-                                        + e2.toStringFull());
+                    try {
+                        if (e1.getTime().lessThan(e2.getTime())) {
+                            e1AllSuccessors.add(e2);
+                        } else if (e1.getTime().equals(e2.getTime())) {
+                            logger.severe("Found two events with identical timestamps: (1) "
+                                    + e1.toStringFull()
+                                    + " (2) "
+                                    + e2.toStringFull());
+                            throw new ParseException();
+                        }
+                    } catch (NotComparableVectorsException e) {
+                        logger.severe("Found two events with different length vector timestamps: (1) "
+                                + e1.toStringFull()
+                                + " (2) "
+                                + e2.toStringFull());
+                        throw new ParseException();
                     }
                 }
 

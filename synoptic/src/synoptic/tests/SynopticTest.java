@@ -55,7 +55,7 @@ public abstract class SynopticTest {
         } catch (ParseException e) {
             throw new InternalSynopticException(e);
         }
-        defParser.addSeparator("^--$");
+        defParser.addPartitionsSeparator("^--$");
     }
 
     /**

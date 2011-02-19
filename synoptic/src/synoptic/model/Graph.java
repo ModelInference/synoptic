@@ -53,6 +53,8 @@ public class Graph<NodeType extends INode<NodeType>> implements
 
     private Set<String> cachedRelations = null;
 
+    // private static Logger logger = Logger.getLogger("Graph");
+
     /**
      * Create a graph from nodes.
      * 
@@ -224,6 +226,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
         for (NodeType n1 : this.getInitialNodes()) {
             boolean foundMatch = false;
             for (NodeType n2 : unusedOther) {
+                // logger.fine("Comparing " + n1 + " against " + n2);
                 if (np.eval(n1, n2) && transitionEquality(n1, n2, np, rp)) {
                     foundMatch = true;
                     unusedOther.remove(n2);
@@ -231,6 +234,8 @@ public class Graph<NodeType extends INode<NodeType>> implements
                 }
             }
             if (!foundMatch) {
+                // logger.fine("Could not find a match for node " +
+                // n1.toString());
                 return false;
             }
         }
@@ -252,9 +257,6 @@ public class Graph<NodeType extends INode<NodeType>> implements
                 boolean foundMatch = false;
                 for (ITransition<NodeType> trans2 : tv.getRight()
                         .getTransitions()) {
-                    // System.out.println("comparing " + trans1.getRelation() +
-                    // " with " +
-                    // trans2.getRelation());
                     if (rp.eval(trans1.getRelation(), trans2.getRelation())
                             && np.eval(trans1.getTarget(), trans2.getTarget())) {
                         if (!visited.contains(trans1.getTarget())) {
@@ -266,6 +268,8 @@ public class Graph<NodeType extends INode<NodeType>> implements
                     }
                 }
                 if (!foundMatch) {
+                    // logger.fine("Could not find a match for transition: " +
+                    // trans1.toString());
                     return false;
                 }
             }
