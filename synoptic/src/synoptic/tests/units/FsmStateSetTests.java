@@ -2,13 +2,16 @@ package synoptic.tests.units;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.junit.Test;
 
+import synoptic.invariants.AlwaysFollowedInvariant;
+import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.BinaryInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.fsmcheck.AFbyInvFsms;
 import synoptic.invariants.fsmcheck.APInvFsms;
 import synoptic.invariants.fsmcheck.FsmStateSet;
@@ -18,90 +21,443 @@ import synoptic.model.LogEvent;
 import synoptic.tests.SynopticTest;
 
 public class FsmStateSetTests extends SynopticTest {
+    public static LogEvent msgA = new LogEvent(new Action("a"));
+    public static LogEvent msgB = new LogEvent(new Action("b"));
+    public static LogEvent msgZ = new LogEvent(new Action("z"));
 
-    public static LogEvent msg = new LogEvent(new Action("x"));
-
+    /**
+     * Converts a string representation of a bit set to a BitSet instance.
+     */
     private static BitSet parseBitSet(String str) {
         BitSet result = new BitSet();
-        for (int i = str.length() - 1; i >= 0; i--) {
-            result.set(i, str.charAt(str.length() - i - 1) == '1');
+        boolean b;
+        for (int i = 0; i < str.length(); i++) {
+            b = (str.charAt(i) == '1');
+            result.set(i, b);
         }
         return result;
     }
 
-    private static void transfer(FsmStateSet<LogEvent> s, String input) {
-        String[] inputs = input.split(" ");
-        for (int i = 0; i < inputs.length; i++) {
-            s.mappings.get(i).put("x", parseBitSet(inputs[i]));
-        }
-        s.transition(msg);
+    /**
+     * Makes sure that we implemented parseBitSet correctly.
+     */
+    @Test
+    public void helpersTest() {
+        BitSet b1 = parseBitSet("0000");
+        BitSet b2 = new BitSet();
+        assertTrue(b1.equals(b2));
+
+        b1 = parseBitSet("1010");
+        b2 = new BitSet();
+        b2.set(0);
+        b2.set(2);
+        assertTrue(b1.equals(b2));
     }
 
-    public static void setMapping(FsmStateSet<LogEvent> s) {
-        s.mappings = new ArrayList<Map<String, BitSet>>();
-        s.mappings.clear();
-        s.mappings.add(new HashMap<String, BitSet>());
-        s.mappings.add(new HashMap<String, BitSet>());
+    /**
+     * Tests equality between two FsmStateSets.
+     */
+    @Test
+    public void equalityTest() {
+        List<BinaryInvariant> invs1, invs2;
+        FsmStateSet<LogEvent> f1, f2;
+        BinaryInvariant inv1, inv2;
+
+        // AFby with AFby.
+        inv1 = new AlwaysFollowedInvariant("a", "b", defRelation);
+        inv2 = new AlwaysFollowedInvariant("a", "c", defRelation);
+        invs1 = new LinkedList<BinaryInvariant>();
+        invs1.add(inv1);
+
+        f1 = new AFbyInvFsms<LogEvent>(invs1);
+        f2 = new AFbyInvFsms<LogEvent>(invs1);
+        assertTrue(f1.equals(f2));
+        assertTrue(!f1.equals(null));
+        assertTrue(!f1.equals("some non-FsmStateSet type"));
+
+        invs2 = new LinkedList<BinaryInvariant>();
+        invs2.add(inv2);
+        f2 = new AFbyInvFsms<LogEvent>(invs2);
+        assertTrue(!f1.equals(f2)); // differ in invariantsMap
+
+        invs2.add(inv1);
+        assertTrue(!f1.equals(f2)); // differ in count
+
+        // AFby with NFby.
+        inv1 = new AlwaysFollowedInvariant("a", "b", defRelation);
+        inv2 = new NeverFollowedInvariant("a", "b", defRelation);
+        invs1 = new LinkedList<BinaryInvariant>();
+        invs1.add(inv1);
+        invs2 = new LinkedList<BinaryInvariant>();
+        invs2.add(inv2);
+
+        f1 = new AFbyInvFsms<LogEvent>(invs1);
+        f2 = new NFbyInvFsms<LogEvent>(invs2);
+        assertTrue(!f1.equals(f2)); // differ in getClass() values
+    }
+
+    /**
+     * Helper interface for testing different invariant types.
+     */
+    private interface iInvSpecificGenerator {
+        BinaryInvariant genInv(String a, String b, String relation);
+
+        FsmStateSet<LogEvent> genFsmStateSet(List<BinaryInvariant> invs);
+    }
+
+    private static FsmStateSet<LogEvent> initStateSet(String input,
+            iInvSpecificGenerator generator) {
+        String[] inputs = input.split(" ");
+        assertTrue(inputs.length == 2);
+
+        List<BinaryInvariant> invs = new LinkedList<BinaryInvariant>();
+        BinaryInvariant inv;
+        String s1, s2;
+        for (int i = 0; i < inputs[0].length(); i++) {
+            if (inputs[0].charAt(i) == '1') {
+                s1 = msgA.getLabel();
+            } else {
+                s1 = "x";
+            }
+            if (inputs[1].charAt(i) == '1') {
+                s2 = msgB.getLabel();
+            } else {
+                s2 = "y";
+            }
+
+            inv = generator.genInv(s1, s2, defRelation);
+            invs.add(inv);
+        }
+        return generator.genFsmStateSet(invs);
     }
 
     @Test
     public void AFbyInvFsmsTest() {
-        FsmStateSet<LogEvent> a = new AFbyInvFsms<LogEvent>(4);
-        setMapping(a);
-        a.setInitial(msg);
-        FsmStateSet<LogEvent> before = a.copy();
+        iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
+            @Override
+            public BinaryInvariant genInv(String a, String b, String relation) {
+                return new AlwaysFollowedInvariant(a, b, relation);
+            }
 
-        transfer(a, "0000 0000");
-        logger.fine(a.mappings.toString());
-        logger.fine(before.mappings.toString());
-        assertTrue(a.equals(before));
-        transfer(a, "0000 0101");
-        assertTrue(a.equals(before));
-        assertTrue(a.whichFail().equals(new BitSet()));
-        transfer(a, "1010 0000");
-        assertTrue(a.whichFail().equals(parseBitSet("1010")));
-        assertTrue(!a.equals(before));
-        transfer(a, "0000 1000");
-        assertTrue(!a.equals(before));
-        transfer(a, "0000 0010");
-        assertTrue(a.equals(before));
+            @Override
+            public FsmStateSet<LogEvent> genFsmStateSet(
+                    List<BinaryInvariant> invs) {
+                return new AFbyInvFsms<LogEvent>(invs);
+            }
+        };
+
+        FsmStateSet<LogEvent> f1, f2;
+
+        // ////////
+        // Simulate a single "a AFby b" invariant.
+
+        // z (initial) != a (initial)
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(!f1.equals(f2));
+        // z is not fail
+        assertTrue(!f1.isFail());
+        // a is fail
+        assertTrue(f2.isFail());
+
+        // z (initial) == b (initial)
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgB);
+        assertTrue(f1.equals(f2));
+
+        // z->a (initial z and then transition by a) == a (initial
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f1.transition(msgA);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // z->z == z
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f1.transition(msgZ);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgZ);
+        assertTrue(f1.equals(f2));
+
+        // a->a == a
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f1.transition(msgA);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // a->b != a
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(!f1.equals(f2));
+        // a->b is not fail
+        assertTrue(!f1.isFail());
+
+        // a->b->a == a
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f1.transition(msgA);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // a->b->a->b == a->b
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f1.transition(msgA);
+        f1.transition(msgB);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        f2.transition(msgB);
+        assertTrue(f1.equals(f2));
+
+        // TODO: test multiple simultaneous AFby machines
     }
 
     @Test
     public void NFbyInvFsmsTest() {
-        // FsmStateSet a = new AFbyInvFsms(4);
-        FsmStateSet<LogEvent> b = new APInvFsms<LogEvent>(4);
-        setMapping(b);
-        b.setInitial(msg);
-        FsmStateSet<LogEvent> before;
+        iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
+            @Override
+            public BinaryInvariant genInv(String a, String b, String relation) {
+                return new NeverFollowedInvariant(a, b, relation);
+            }
 
-        // assertTrue(a.isFail().equals(new BitSet()));
-        transfer(b, "0111 1000");
-        assertTrue(b.whichFail().equals(parseBitSet("1000")));
+            @Override
+            public FsmStateSet<LogEvent> genFsmStateSet(
+                    List<BinaryInvariant> invs) {
+                return new NFbyInvFsms<LogEvent>(invs);
+            }
+        };
 
-        before = b.copy();
-        transfer(b, "0101 0000");
-        transfer(b, "0010 0000");
-        assertTrue(b.equals(before));
-        transfer(b, "0000 0110");
-        assertTrue(!b.equals(before));
-        transfer(b, "0100 0000");
-        assertTrue(b.whichFail().equals(parseBitSet("1100")));
+        FsmStateSet<LogEvent> f1, f2;
+
+        // ////////
+        // Simulate a single "a NFby b" invariant.
+
+        // z != a
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(!f1.equals(f2));
+        // z is not fail
+        assertTrue(!f1.isFail());
+        // a is not fail
+        assertTrue(!f2.isFail());
+
+        // z == b
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgB);
+        assertTrue(f1.equals(f2));
+
+        // z->a == a
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f1.transition(msgA);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // z->b == z
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f1.transition(msgB);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgB);
+        assertTrue(f1.equals(f2));
+
+        // z->z == z
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f1.transition(msgZ);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgZ);
+        assertTrue(f1.equals(f2));
+
+        // a->a == a
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f1.transition(msgA);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // a->b != a
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(!f1.equals(f2));
+        // a->b is fail
+        assertTrue(f1.isFail());
+
+        // a->b->a == a->b
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f1.transition(msgA);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        f2.transition(msgB);
+        assertTrue(f1.equals(f2));
+
+        // a->b->b == a->b
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f1.transition(msgB);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        f2.transition(msgB);
+        assertTrue(f1.equals(f2));
+
+        // a->b->z == a->b
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f1.transition(msgZ);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        f2.transition(msgB);
+        assertTrue(f1.equals(f2));
+
+        // TODO: test multiple simultaneous NFby machines
     }
 
     @Test
     public void APInvFsmsTest() {
-        FsmStateSet<LogEvent> c = new NFbyInvFsms<LogEvent>(4);
-        setMapping(c);
-        c.setInitial(msg);
+        iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
+            @Override
+            public BinaryInvariant genInv(String a, String b, String relation) {
+                return new AlwaysPrecedesInvariant(a, b, relation);
+            }
 
-        transfer(c, "0000 0101");
-        // assertTrue(b.equals(before));
-        transfer(c, "1010 0101");
-        // assertTrue(!b.equals(before));
-        // assertTrue(a.isFail().equals(new BitSet()));
-        transfer(c, "0010 1000");
-        // assertTrue(a.isFail().equals(parseBitSet("1000")));
+            @Override
+            public FsmStateSet<LogEvent> genFsmStateSet(
+                    List<BinaryInvariant> invs) {
+                return new APInvFsms<LogEvent>(invs);
+            }
+        };
+
+        FsmStateSet<LogEvent> f1, f2;
+
+        // ////////
+        // Simulate a single "a AP b" invariant.
+
+        // z != a
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(!f1.equals(f2));
+        // z is not fail
+        assertTrue(!f1.isFail());
+        // a is not fail
+        assertTrue(!f2.isFail());
+
+        // z != b
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgB);
+        assertTrue(!f1.equals(f2));
+        // b is fail
+        assertTrue(f2.isFail());
+
+        // a != b
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgB);
+        assertTrue(!f1.equals(f2));
+
+        // z->b == b
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f1.transition(msgB);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgB);
+        assertTrue(f1.equals(f2));
+
+        // z->a == a
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f1.transition(msgA);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // z->z == z
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgZ);
+        f1.transition(msgZ);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgZ);
+        assertTrue(f1.equals(f2));
+
+        // a->a == a
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f1.transition(msgA);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // a->b == a
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f1.transition(msgB);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // a->z == a
+        f1 = initStateSet("1 1", invGen);
+        f1.setInitial(msgA);
+        f1.transition(msgZ);
+        f2 = initStateSet("1 1", invGen);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // b->a == b
+        f1 = initStateSet("1 1", invGen);
+        f1.transition(msgB);
+        f1.transition(msgA);
+        f2 = initStateSet("1 1", invGen);
+        f2.transition(msgB);
+        assertTrue(f1.equals(f2));
+
+        // b->b == b
+        f1 = initStateSet("1 1", invGen);
+        f1.transition(msgB);
+        f1.transition(msgB);
+        f2 = initStateSet("1 1", invGen);
+        f2.transition(msgB);
+        assertTrue(f1.equals(f2));
+
+        // b->z == b
+        f1 = initStateSet("1 1", invGen);
+        f1.transition(msgB);
+        f1.transition(msgZ);
+        f2 = initStateSet("1 1", invGen);
+        f2.transition(msgB);
+        assertTrue(f1.equals(f2));
+
+        // TODO: test multiple simultaneous AP machines
     }
-
 }

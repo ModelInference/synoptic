@@ -57,22 +57,29 @@ public abstract class FsmStateSet<T extends INode<T>> implements
         IStateSet<T, FsmStateSet<T>> {
     protected List<BitSet> sets;
     protected int count;
-    public List<Map<String, BitSet>> mappings; // public for testing.
 
     /**
-     * Initializes the bitsets, taking the number of instances of the machines
-     * to simulate in parallel. TODO: necessary?
+     * A bitset encoding of invariants between event types. This list has
+     * exactly two elements (because we only consider binary invariants). Its
+     * stores information that an event type "x" appears as a 'first' or a
+     * 'second' element in a binary invariant with some other event type "y".
+     * Since FsmStateSet corresponds to just one type of invariant, the
+     * invariant is known implicitly. Example: for invariants a AFby b, a AFby
+     * c, b AFby c the mapping is:
      * 
-     * @param numSimulators
-     *            Number of machines to simulate in parallel.
+     * <pre>
+     * mapping[0] = {
+     *   "a" -> 110
+     *   "b" -> 001
+     * }
+     * 
+     * mapping[1] = {
+     *   "b" -> 100
+     *   "c" -> 011
+     * }
+     * </pre>
      */
-    protected FsmStateSet(int numSimulators, int numStates) {
-        this.count = numSimulators;
-        sets = new ArrayList<BitSet>(numStates);
-        for (int i = 0; i < numStates; i++) {
-            sets.add(new BitSet());
-        }
-    }
+    protected List<Map<String, BitSet>> invariantsMap;
 
     /**
      * Initializes the bitsets, and assigns the input mapping, based on the
@@ -80,12 +87,16 @@ public abstract class FsmStateSet<T extends INode<T>> implements
      * synoptic.invariants are of the appropriate type.
      */
     protected FsmStateSet(List<BinaryInvariant> invariants, int numStates) {
-        this(invariants.size(), numStates);
+        this.count = invariants.size();
+        sets = new ArrayList<BitSet>(numStates);
+        for (int i = 0; i < numStates; i++) {
+            sets.add(new BitSet());
+        }
 
-        mappings = new ArrayList<Map<String, BitSet>>(2);
+        invariantsMap = new ArrayList<Map<String, BitSet>>(2);
         Map<String, BitSet> amap = new LinkedHashMap<String, BitSet>(), bmap = new LinkedHashMap<String, BitSet>();
-        mappings.add(amap);
-        mappings.add(bmap);
+        invariantsMap.add(amap);
+        invariantsMap.add(bmap);
         for (int i = 0; i < invariants.size(); i++) {
             String first = invariants.get(i).getFirst();
             String second = invariants.get(i).getSecond();
@@ -125,7 +136,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
      */
     @Override
     public void mergeWith(FsmStateSet<T> other) {
-        assert other.mappings == mappings;
+        assert other.invariantsMap == invariantsMap;
         for (int i = 0; i < sets.size(); i++) {
             sets.get(i).or(other.sets.get(i));
         }
@@ -147,7 +158,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
         if (other == null) {
             return false;
         }
-        assert other.mappings == mappings;
+        assert other.invariantsMap == invariantsMap;
         for (int j = 0; j < sets.size(); j++) {
             BitSet thisSet = sets.get(j);
             BitSet s = (BitSet) thisSet.clone();
@@ -196,12 +207,53 @@ public abstract class FsmStateSet<T extends INode<T>> implements
             newSets.add((BitSet) sets.get(i).clone());
         }
         result.sets = newSets;
-        result.mappings = mappings;
+        result.invariantsMap = invariantsMap;
         return result;
     }
 
-    public BitSet getInput(int ix, T input) {
-        BitSet result = mappings.get(ix).get(input.getLabel());
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean equals(Object otherObj) {
+        if (otherObj == null) {
+            return false;
+        }
+        if (this == otherObj) {
+            return true;
+        }
+        if (!(otherObj.getClass() == this.getClass())) {
+            return false;
+        }
+
+        FsmStateSet<T> other = (FsmStateSet<T>) otherObj;
+
+        if (this.invariantsMap == null) {
+            if (other.invariantsMap != null) {
+                return false;
+            }
+        } else {
+            if (!this.invariantsMap.equals(other.invariantsMap)) {
+                return false;
+            }
+        }
+
+        if (this.count != other.count) {
+            return false;
+        }
+
+        if (this.sets == null) {
+            if (other.sets != null) {
+                return false;
+            }
+        } else {
+            if (!this.sets.equals(other.sets)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public BitSet getInputInvariantsDependencies(int mappingIndex, T input) {
+        BitSet result = invariantsMap.get(mappingIndex).get(input.getLabel());
         if (result == null) {
             return new BitSet();
         }
@@ -210,7 +262,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
 
     public BitSet getInputCopy(int ix, T input) {
         String label = input.getLabel();
-        BitSet result = mappings.get(ix).get(label);
+        BitSet result = invariantsMap.get(ix).get(label);
         if (result == null) {
             return new BitSet();
         }
@@ -235,4 +287,10 @@ public abstract class FsmStateSet<T extends INode<T>> implements
      */
 
     public static final BitSet zero = new BitSet();
+
+    @Override
+    public String toString() {
+        return "Invariants: " + invariantsMap.toString() + ", states: "
+                + sets.toString();
+    }
 }

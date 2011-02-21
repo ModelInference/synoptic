@@ -73,6 +73,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
      * Transitions between partitions are not stored but generated on demand
      * using this iterator
      */
+    @Override
     public IIterableIterator<Relation<Partition>> getTransitionsIterator() {
         return getTransitionsIterator(null);
     }
@@ -126,8 +127,8 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
     }
 
     /**
-     * Split the partition according to an incoming transition from {@code
-     * previous} labeled with {@code relation}.
+     * Split the partition according to an incoming transition from
+     * {@code previous} labeled with {@code relation}.
      * 
      * @param previous
      *            the partition the transition should be incoming from
@@ -165,6 +166,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
         return false;
     }
 
+    @Override
     public String getLabel() {
         if (label != null) {
             return label;
@@ -180,6 +182,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
      * This method returns the set of transitions. It augments the edges with
      * information about frequency and number of observation.
      */
+    @Override
     public List<Relation<Partition>> getTransitions() {
         List<Relation<Partition>> result = new ArrayList<Relation<Partition>>();
         for (Relation<Partition> tr : getTransitionsIterator()) {
@@ -237,8 +240,8 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
                         final ITransition<LogEvent> found = transItr.next();
                         final Relation<Partition> transToPart = new Relation<Partition>(
                                 found.getSource().getParent(), found
-                                        .getTarget().getParent(), found
-                                        .getRelation());
+                                        .getTarget().getParent(),
+                                found.getRelation());
                         if (seen.add(transToPart)) {
                             return transToPart;
                         }
@@ -252,10 +255,12 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
                 return null;
             }
 
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException();
             }
 
+            @Override
             public Relation<Partition> next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
@@ -265,6 +270,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
                 return oldNext;
             }
 
+            @Override
             public boolean hasNext() {
                 if (next == null) {
                     next = getNext();

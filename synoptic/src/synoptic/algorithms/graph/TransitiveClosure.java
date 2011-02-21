@@ -8,20 +8,24 @@ import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 
 /**
- * Code taken from
+ * Computes the transitive closure. Code based on
  * http://www.cs.princeton.edu/courses/archive/fall05/cos226/lectures
- * /digraph.pdf Computes the transitive closure.
+ * /digraph.pdf
  * 
  * @author Sigurd
  */
 public class TransitiveClosure<NodeType extends INode<NodeType>> {
+    // Reachability map. Maps a node x to a map Mx which maintains reachability
+    // information for x:
+    // If y is reachable from x then Mx[y] == true,
+    // otherwise Mx[y] == false or Mx.contains(y) == false
     private final HashMap<NodeType, HashMap<NodeType, Boolean>> tc = new HashMap<NodeType, HashMap<NodeType, Boolean>>();
     private final String relation;
     private final IGraph<NodeType> graph;
 
     /**
-     * Create the transitive closure of {@code graph} for the Relation {@code
-     * relation}.
+     * Create the transitive closure of {@code graph} for the Relation
+     * {@code relation}.
      * 
      * @param graph
      *            the graph
@@ -32,8 +36,9 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
         this.relation = relation;
         this.graph = graph;
         for (NodeType m : graph.getNodes()) {
-            for (Iterator<? extends ITransition<NodeType>> i = m
-                    .getTransitionsIterator(relation); i.hasNext();) {
+            Iterator<? extends ITransition<NodeType>> i = m
+                    .getTransitionsIterator(relation);
+            while (i.hasNext()) {
                 ITransition<NodeType> t = i.next();
                 if (!graph.getNodes().contains(t.getTarget())) {
                     continue;
@@ -70,8 +75,8 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
     }
 
     /**
-     * Check whether there is an edge in the transitive closure between {@code
-     * m} and {@code n}.
+     * Check whether there is an edge in the transitive closure between
+     * {@code m} and {@code n}.
      * 
      * @param m
      *            a node
@@ -84,7 +89,7 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
         if (i == null) {
             return false;
         }
-        Boolean r = tc.get(m).get(n);
+        Boolean r = i.get(n);
         if (r == null) {
             return false;
         }
@@ -98,17 +103,18 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      * @return if {@code o} describes the same relation is {@code this}
      */
     public boolean isEqual(TransitiveClosure<NodeType> o) {
-    	if(!this.relation.equals(o.relation))
-    		return false;
-    	
-    	for (NodeType u : o.tc.keySet()) {
+        if (!this.relation.equals(o.relation)) {
+            return false;
+        }
+
+        for (NodeType u : o.tc.keySet()) {
             for (NodeType v : o.tc.get(u).keySet()) {
                 if (isReachable(u, v) != o.isReachable(u, v)) {
                     return false;
                 }
             }
         }
-    	
+
         for (NodeType u : tc.keySet()) {
             for (NodeType v : tc.get(u).keySet()) {
                 if (isReachable(u, v) != o.isReachable(u, v)) {
@@ -118,12 +124,11 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
         }
         return true;
     }
-    
+
     /**
-     * 
      * @return tc
      */
-    public  HashMap<NodeType, HashMap<NodeType, Boolean>> getTC(){
-    	return tc;
+    public HashMap<NodeType, HashMap<NodeType, Boolean>> getTC() {
+        return tc;
     }
 }

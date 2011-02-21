@@ -33,8 +33,8 @@ public class TimedTaskTests extends SynopticTest {
         Thread.sleep(10);
         t.stop();
         logger.fine(t.toString());
-        // Assumption: the sleep(10ms) statement took 10-11ms to run
+        // Assumption: the sleep(10ms) statement took 10-12ms to run
         assertTrue(t.getTime() >= 10);
-        assertTrue(t.getTime() <= 11);
+        assertTrue(t.getTime() <= 12);
     }
 }

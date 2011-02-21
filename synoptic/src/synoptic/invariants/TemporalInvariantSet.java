@@ -32,7 +32,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     private static Logger logger = Logger.getLogger("TemporalInvSet Logger");
 
     /**
-     * Enable Daikon support to extract structural synoptic.invariants (alpha)
+     * Enable Daikon support to extract structural invariants (alpha)
      */
     public static boolean generateStructuralInvariants = false;
     LinkedHashSet<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
@@ -305,17 +305,17 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     /**
      * Compute invariants of a graph g. Enumerating all possibly invariants
      * syntactically, and then checking them was considered too costly (although
-     * we never benchmarked it!). So we are mining synoptic.invariants from the
+     * we never benchmarked it!). So we are mining invariants from the
      * transitive closure using {@code extractInvariantsForAllRelations}, which
-     * is supposed to return an over-approximation of the synoptic.invariants
-     * that hold (i.e. it may return synoptic.invariants that do not hold, but
-     * may not fail to return an invariant that does not hold)
+     * is supposed to return an over-approximation of the invariants that hold
+     * (i.e. it may return invariants that do not hold, but may not fail to
+     * return an invariant that does not hold)
      * 
      * @param <T>
      *            The node type of the graph
      * @param g
      *            the graph of nodes of type T
-     * @return the set of temporal synoptic.invariants the graph satisfies
+     * @return the set of temporal invariants the graph satisfies
      */
     static public <T extends INode<T>> TemporalInvariantSet computeInvariants(
             IGraph<T> g) {
@@ -357,8 +357,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         }
         int possibleInvariants = 3 /* invariant types */
                 * labels.size() * labels.size(); /*
-                                                  * reflexive
-                                                  * synoptic.invariants are
+                                                  * reflexive invariants are
                                                   * allowed
                                                   */
 
@@ -368,11 +367,10 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         if (Main.doBenchmarking) {
             logger.info("BENCHM: "
                     + overapproximatedInvariantsSet.numInvariants()
-                    + " true synoptic.invariants, approximation guessed "
+                    + " true invariants, approximation guessed "
                     + overapproximatedInvariantsSetSize
-                    + ", max possible synoptic.invariants "
-                    + possibleInvariants + " (" + percentReduction
-                    + "% reduction through approximation).");
+                    + ", max possible invariants " + possibleInvariants + " ("
+                    + percentReduction + "% reduction through approximation).");
         }
 
         PerformanceMetrics.get().record("true_invariants",
@@ -385,17 +383,16 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     }
 
     /**
-     * Extract synoptic.invariants for all relations, iteratively. Since we are
-     * not considering synoptic.invariants over multiple relations, this is
-     * sufficient.
+     * Extract invariants for all relations, iteratively. Since we are not
+     * considering invariants over multiple relations, this is sufficient.
      * 
      * @param <T>
      *            the node type of the graph
      * @param g
      *            the graph
      * @param tcs
-     *            the transitive closure to mine synoptic.invariants from
-     * @return the mined synoptic.invariants
+     *            the transitive closure to mine invariants from
+     * @return the mined invariants
      * @throws Exception
      */
     private static <T extends INode<T>> TemporalInvariantSet extractInvariantsForAllRelations(
@@ -408,30 +405,33 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     }
 
     /**
-     * Extract an over-approximated set of synoptic.invariants from the
-     * transitive closure {@code tc} of the graph {@code g}.
+     * Extract an over-approximated set of invariants from the transitive
+     * closure {@code tc} of the graph {@code g}.
      * 
      * @param <T>
      *            the node type of the graph
      * @param g
      *            the graph
      * @param tc
-     *            the transitive closure (of {@code g}) to mine
-     *            synoptic.invariants from
+     *            the transitive closure (of {@code g}) to mine invariants from
      * @param relation
-     *            the relation to consider for the synoptic.invariants
-     * @return the over-approximated set of synoptic.invariants
+     *            the relation to consider for the invariants
+     * @return the over-approximated set of invariants
      * @throws Exception
      */
     private static <T extends INode<T>> TemporalInvariantSet extractInvariants(
             IGraph<T> g, TransitiveClosure<T> tc, String relation) {
         LinkedHashMap<String, ArrayList<T>> partitions = new LinkedHashMap<String, ArrayList<T>>();
+
+        // Initialize the partitions map: each unique label maps to a list of
+        // nodes with that label.
         for (T m : g.getNodes()) {
             if (!partitions.containsKey(m.getLabel())) {
                 partitions.put(m.getLabel(), new ArrayList<T>());
             }
             partitions.get(m.getLabel()).add(m);
         }
+
         TemporalInvariantSet set = new TemporalInvariantSet();
         for (String label1 : partitions.keySet()) {
             for (String label2 : partitions.keySet()) {

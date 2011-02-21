@@ -27,12 +27,17 @@ import synoptic.tests.SynopticTest;
  * 
  * @author ivan
  */
-public class KTailsTest extends SynopticTest {
-
-    /**
-     * Simplifies graph generation from string expressions.
-     */
+public class KTailsTests extends SynopticTest {
+    // Simplifies graph generation from string expressions.
     TraceParser parser;
+
+    @Override
+    public void setUp() throws ParseException {
+        super.setUp();
+        parser = new TraceParser();
+        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+        parser.addPartitionsSeparator("^--$");
+    }
 
     private static void testTrueBothSubsumingAndNotSubsuming(LogEvent e1,
             LogEvent e2, int k) {
@@ -52,16 +57,6 @@ public class KTailsTest extends SynopticTest {
         // Without subsumption e1 !=k= e2 should imply e2 !=k= e1
         assertFalse(KTails.kEquals(e1, e2, k, false));
         assertFalse(KTails.kEquals(e2, e1, k, false));
-    }
-
-    @Override
-    public void setUp() throws ParseException {
-        super.setUp();
-        parser = new TraceParser();
-        // TODO: change this to VTIME once this feature is implemented in the
-        // parser.
-        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
-        parser.addPartitionsSeparator("^--$");
     }
 
     /**
