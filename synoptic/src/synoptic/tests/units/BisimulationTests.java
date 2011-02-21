@@ -27,7 +27,7 @@ public class BisimulationTests extends SynopticTest {
         parser = new TraceParser();
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
-        Main.dumpIntermediateStages = true;
+        // Main.dumpIntermediateStages = true;
         Main.useFSMChecker = true;
     }
 
