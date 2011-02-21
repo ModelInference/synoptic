@@ -24,6 +24,7 @@ public class PartitionMerge implements IOperation {
      *            partition {@code retained}
      */
     public PartitionMerge(Partition retained, Partition removed) {
+        // TODO: check that retained label is the same as removed label?
         this.retained = retained;
         this.removed = removed;
         if (retained.size() == 0 || removed.size() == 0) {

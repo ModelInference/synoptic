@@ -16,6 +16,7 @@ import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
+import synoptic.main.TraceParser;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.PartitionGraph;
@@ -328,6 +329,58 @@ public class TemporalInvariantSetTests extends SynopticTest {
 
         logger.fine("mined: " + minedInvs3);
         assertTrue(trueInvs3.sameInvariants(minedInvs3));
+    }
+
+    /**
+     * Tests the correctness of the invariants mined from a partially ordered
+     * log.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void minePartiallyOrderedTraceTest() throws Exception {
+        TraceParser parser = new TraceParser();
+        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+        parser.addPartitionsSeparator("^--$");
+
+        String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n";
+        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+                testName.getMethodName(), -1);
+
+        Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
+                parsedEvents, true);
+
+        PartitionGraph result = new PartitionGraph(inputGraph, true);
+        TemporalInvariantSet minedInvs = result.getInvariants();
+        logger.fine("mined: " + minedInvs.toString());
+
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+        trueInvs.add(new AlwaysFollowedInvariant("a", "b",
+                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("a", "c",
+                SynopticTest.defRelation));
+
+        trueInvs.add(new NeverFollowedInvariant("a", "a",
+                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant("b", "b",
+                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant("c", "c",
+                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant("b", "c",
+                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant("c", "b",
+                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant("b", "a",
+                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant("c", "a",
+                SynopticTest.defRelation));
+
+        trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
+                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("a", "c",
+                SynopticTest.defRelation));
+
+        assertTrue(trueInvs.sameInvariants(minedInvs));
     }
 
     /**

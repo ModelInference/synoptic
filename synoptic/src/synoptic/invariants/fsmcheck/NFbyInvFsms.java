@@ -7,19 +7,25 @@ import synoptic.invariants.BinaryInvariant;
 import synoptic.model.interfaces.INode;
 
 /**
- * Represents a set of "A never followed by B" synoptic.invariants to simulate.
- * This finite state machine enters a particular state (s2) when A is provided.
- * If we are in this state when a B is provided, then we enter into a failure
- * state.
+ * FSM for a set of invariants of the form "A never followed by B". The FSM
+ * enters a new state when A is encountered. If we are in this state when a B is
+ * encountered any time after, then we enter into a permanent failure state.
+ * NOTE: ensure this documentation stays consistent with NFbyTracingSet.
  * 
  * @author Michael Sloan (mgsloan@gmail.com)
  * @see NFbyTracingSet
  * @see FsmStateSet
  */
 public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
-    public NFbyInvFsms(int size) {
-        super(size, 3);
-    }
+    /**
+     * <pre>
+     * State 1: Accept state (no A seen, maybe some Bs seen)
+     * State 2: Accept state (A seen)
+     * State 3: Permanent failed state (B after A seen)
+     * 
+     * (non-a/b preserves state) 1 -a-> 2, 1 -b-> 1, 2 -a-> 2, 2 -b-> 3
+     * </pre>
+     */
 
     public NFbyInvFsms(List<BinaryInvariant> invs) {
         super(invs, 3);
@@ -40,12 +46,7 @@ public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
         return (BitSet) sets.get(2).clone();
     }
 
-    /*
-     * state 1 (no A seen, maybe some B seen) : accepting state state 2 (A seen)
-     * : accepting states state 3 (B after A seen) : failing state (non-a/b
-     * preserves state) 1 -a-> 2 1 -b-> 1 2 -a-> 2 2 -b-> 3
-     */
-
+    @Override
     public void setInitial(T input) {
         BitSet isA = getInputCopy(0, input);
         sets.set(1, (BitSet) isA.clone());
@@ -55,7 +56,6 @@ public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
 
     @Override
     public void transition(T input) {
-
         /*
          * NOTE: unlike the other synoptic.invariants, isA and isB can be
          * simultaneously 1 (simultaneous assignment - order not significant) s1
@@ -63,8 +63,11 @@ public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
          */
 
         // isA is cloned so that it can be mutated.
-        BitSet isA = getInput(0, input), isB = getInput(1, input), s1 = sets
-                .get(0), s2 = sets.get(1), s3 = sets.get(2);
+        BitSet isA = getInputInvariantsDependencies(0, input);
+        BitSet isB = getInputInvariantsDependencies(1, input);
+        BitSet s1 = sets.get(0);
+        BitSet s2 = sets.get(1);
+        BitSet s3 = sets.get(2);
 
         // var = expression in terms of original values
 

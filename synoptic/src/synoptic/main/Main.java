@@ -414,10 +414,13 @@ public class Main implements Callable<Integer> {
         }
 
         if (runAllTests) {
-            runTestsInPackage("synoptic.tests.units.");
-            runTestsInPackage("synoptic.tests.integration.");
+            List<String> testClasses = getTestsInPackage("synoptic.tests.units.");
+            testClasses
+                    .addAll(getTestsInPackage("synoptic.tests.integration."));
+            runTests(testClasses);
         } else if (runTests) {
-            runTestsInPackage("synoptic.tests.units.");
+            List<String> testClassesUnits = getTestsInPackage("synoptic.tests.units.");
+            runTests(testClassesUnits);
         }
 
         if (logFilenames.size() == 0) {
@@ -492,7 +495,7 @@ public class Main implements Callable<Integer> {
      * @throws URISyntaxException
      *             if Main.class can't be located
      */
-    public static void runTestsInPackage(String packageName)
+    public static List<String> getTestsInPackage(String packageName)
             throws URISyntaxException {
         // If we are running from within a jar then jarName contains the path to
         // the jar
@@ -545,11 +548,30 @@ public class Main implements Callable<Integer> {
             throw InternalSynopticException.Wrap(e);
         }
 
+        // Remove anonymous inner classes from the list, these look
+        // 'TraceParserTests$1.class'
+        ArrayList<String> anonClasses = new ArrayList<String>();
+        for (String testClass : testClasses) {
+            if (testClass.contains("$")) {
+                anonClasses.add(testClass);
+            }
+        }
+        testClasses.removeAll(anonClasses);
+
+        return testClasses;
+    }
+
+    /**
+     * Takes a list of paths that point to JUnit test classes and executes them
+     * using JUnitCore runner.
+     * 
+     * @param testClasses
+     */
+    public static void runTests(List<String> testClasses) {
         System.out.println("Running tests: " + testClasses);
         String[] testClassesAr = new String[testClasses.size()];
         testClassesAr = testClasses.toArray(testClassesAr);
         JUnitCore.main(testClassesAr);
-        return;
     }
 
     /**

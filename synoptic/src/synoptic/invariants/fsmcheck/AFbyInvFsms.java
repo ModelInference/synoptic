@@ -7,21 +7,26 @@ import synoptic.invariants.BinaryInvariant;
 import synoptic.model.interfaces.INode;
 
 /**
- * Represents a set of "A always followed by B" synoptic.invariants to simulate.
- * This finite state machine enters a failure state when A is encountered, and
- * enters a success state when B is encountered. This means that the failure
- * state upon encountering a final node indicates which, of A and B, was last
- * encountered. NOTE: ensure this documentation stays consistent with
- * AFbyTracingSet.
+ * FSM for a set of invariants of the form "A always followed by B". The FSM
+ * enters a failure state when A is encountered, and then enters a success state
+ * when B is encountered. This means that the current state upon encountering a
+ * final node indicates which, of A and B, was last encountered. NOTE: ensure
+ * this documentation stays consistent with AFbyTracingSet.
  * 
  * @author Michael Sloan (mgsloan@gmail.com)
  * @see AFbyTracingSet
  * @see FsmStateSet
  */
 public class AFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
-    public AFbyInvFsms(int size) {
-        super(size, 2);
-    }
+    /**
+     * <pre>
+     * State 1: Accept state (no A or B seen)
+     * State 2: Failed state (saw A before any B)
+     * State 3: Accept state (saw B after an A)
+     * 
+     * (non-a/b preserves state) 1 -a-> 2, 1 -b-> 1, 2 -a-> 2, 2 -b-> 1
+     * </pre>
+     */
 
     public AFbyInvFsms(List<BinaryInvariant> invs) {
         super(invs, 2);
@@ -42,22 +47,23 @@ public class AFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
         return new BitSet();
     }
 
-    /*
-     * State 1: (non-a/b preserves state) 1 -a-> 2 1 -b-> 1 2 -a-> 2 2 -b-> 1
-     */
-
     @Override
     public void setInitial(T input) {
         BitSet isA = getInputCopy(0, input);
+
         sets.set(1, (BitSet) isA.clone());
+        // Modify isA to be the complement of itself.
         isA.flip(0, count);
         sets.set(0, isA);
     }
 
     @Override
     public void transition(T input) {
-        BitSet isA = getInput(0, input), isB = getInput(1, input), neither = nor(
-                isA, isB, count), s1 = sets.get(0), s2 = sets.get(1);
+        BitSet isA = getInputInvariantsDependencies(0, input);
+        BitSet isB = getInputInvariantsDependencies(1, input);
+        BitSet neither = nor(isA, isB, count);
+        BitSet s1 = sets.get(0);
+        BitSet s2 = sets.get(1);
 
         /*
          * neither = !(isA | isB) (simultaneous assignment - order not
@@ -69,10 +75,5 @@ public class AFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
 
         s2.and(neither);
         s2.or(isA);
-    }
-
-    @Override
-    public String toString() {
-        return "bam";
     }
 }

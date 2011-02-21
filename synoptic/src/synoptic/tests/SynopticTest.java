@@ -170,14 +170,28 @@ public abstract class SynopticTest {
      * 
      * @param g
      *            Graph to export
-     * @throws Exception
      */
     protected static <T extends INode<T>> void exportTestGraph(IGraph<T> g,
-            int index) throws Exception {
-        String eGraph = defExporter.export(g);
+            int index) {
+        exportTestGraph(g, Integer.toString(index));
+    }
+
+    /**
+     * Exports a graph to a png file.
+     * 
+     * @param g
+     *            Graph to export
+     */
+    protected static <T extends INode<T>> void exportTestGraph(IGraph<T> g,
+            String title) {
+        // String eGraph = defExporter.export(g);
         // logger.fine(eGraph);
-        defExporter.exportAsDotAndPngFast("../" + testName.getMethodName()
-                + index + ".dot", g, true);
+        String path = "../" + testName.getMethodName() + title + ".dot";
+        try {
+            defExporter.exportAsDotAndPngFast(path, g, true);
+        } catch (Exception e) {
+            logger.fine("Unable to export test graph to " + path);
+        }
     }
 
 }
