@@ -16,6 +16,7 @@ import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.tests.SynopticTest;
+import synoptic.util.InternalSynopticException;
 
 public class BisimulationTests extends SynopticTest {
     // Simplifies graph generation from string expressions.
@@ -35,18 +36,21 @@ public class BisimulationTests extends SynopticTest {
      * Test splitting on a graph whose nodes cannot be split in any way to
      * satisfy the (correctly) mined invariants.
      * 
-     * @throws Exception
+     * @throws ParseException
+     * @throws InternalSynopticException
      */
     @Test
-    public void splitPartitionsTest() throws Exception {
+    public void unsplittablePartitionsTest() throws InternalSynopticException,
+            ParseException {
         // Simpler trace:
-        // String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "--\n"
-        // + "1,0,4 a\n" + "1,0,5 b\n" + "2,0,4 c\n";
+        // String[] traceStrArray = new String[] { "1,1,1 a", "2,2,2 b",
+        // "1,2,3 c", "--", "1,0,4 a", "1,0,5 b", "2,0,4 c" };
 
         // More complex trace:
-        String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "2,2,4 d\n"
-                + "2,2,5 d\n" + "--\n" + "1,0,4 a\n" + "1,0,5 b\n"
-                + "2,0,4 c\n" + "2,1,5 d\n" + "2,1,6 d\n";
+        String[] traceStrArray = new String[] { "1,1,1 a", "2,2,2 b",
+                "1,2,3 c", "2,2,4 d", "2,2,5 d", "--", "1,0,4 a", "1,0,5 b",
+                "2,0,4 c", "2,1,5 d", "2,1,6 d" };
+        String traceStr = concatinateWithNewlines(traceStrArray);
 
         List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
@@ -64,7 +68,54 @@ public class BisimulationTests extends SynopticTest {
         assertTrue(KTails.kEquals(initial1, initial2, 4, false));
     }
 
-    // TODO: test getSplitGraph on a graph where splitting is possible.
+    /**
+     * Test splitting on a graph that requires the splitting of all partitions
+     * to satisfy the mined invariants. The final graph will therefore look just
+     * like the initial graph.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void splittablePartitionsTest() throws Exception {
+        String[] traceStrArray = new String[] { "a", "x", "y", "z", "b", "--",
+                "c", "x", "y", "z", "d" };
+        String traceStr = concatinateWithNewlines(traceStrArray);
+        List<LogEvent> parsedEvents = defParser.parseTraceString(traceStr,
+                SynopticTest.testName.getMethodName(), -1);
+        Graph<LogEvent> inputGraph = defParser.generateDirectTemporalRelation(
+                parsedEvents, true);
+
+        exportTestGraph(inputGraph, 0);
+
+        PartitionGraph pGraph = Bisimulation.getSplitGraph(inputGraph);
+        exportTestGraph(pGraph, 1);
+
+        boolean hasInitial = false;
+        boolean hasTerminal = false;
+        for (Partition p : pGraph.getNodes()) {
+            // Check that each partition contains exactly one LogEvent, and that
+            // the set of all LogEvents is exactly the set of the input
+            // LogEvents.
+            if (p.getLabel() == Main.initialNodeLabel) {
+                hasInitial = true;
+                continue;
+            }
+            if (p.isTerminal()) {
+                hasTerminal = true;
+                continue;
+            }
+
+            assertTrue(p.getMessages().size() == 1);
+            LogEvent e = p.getMessages().iterator().next();
+            logger.fine("Check partition: " + p.toString() + " and e: "
+                    + e.toString());
+            assertTrue(parsedEvents.contains(e));
+            parsedEvents.remove(e);
+        }
+        assertTrue(hasInitial);
+        assertTrue(hasTerminal);
+        assertTrue(parsedEvents.size() == 0);
+    }
 
     // TODO: test the single step splitPartitions version.
 
@@ -72,7 +123,9 @@ public class BisimulationTests extends SynopticTest {
     public void mergePartitionsTest() throws Exception {
 
         // A trace that cannot be reduced with any k.
-        String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "2,2,4 d\n";
+        String[] traceStrArray = new String[] { "1,1,1 a", "2,2,2 b",
+                "1,2,3 c", "2,2,4 d" };
+        String traceStr = concatinateWithNewlines(traceStrArray);
 
         List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
