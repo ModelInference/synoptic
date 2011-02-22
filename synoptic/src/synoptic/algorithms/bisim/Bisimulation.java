@@ -470,10 +470,8 @@ public abstract class Bisimulation {
      * @param graph
      *            the graph from which should be used as initial graph
      * @return the refined graph
-     * @throws InterruptedException
      */
-    public static PartitionGraph getSplitGraph(IGraph<LogEvent> graph)
-            throws InterruptedException {
+    public static PartitionGraph getSplitGraph(IGraph<LogEvent> graph) {
         PartitionGraph g = new PartitionGraph(graph, true);
         splitPartitions(g);
         return g;
@@ -486,7 +484,6 @@ public abstract class Bisimulation {
      * @param graph
      *            the graph from which should be used as initial graph
      * @return the merged graph
-     * @throws InterruptedException
      */
     public static PartitionGraph getMergedGraph(IGraph<LogEvent> graph) {
         PartitionGraph g = new PartitionGraph(graph);
