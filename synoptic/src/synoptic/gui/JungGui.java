@@ -14,6 +14,7 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +32,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
-import org.apache.commons.collections15.Factory;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.functors.MapTransformer;
 import org.apache.commons.collections15.map.LazyMap;
@@ -49,13 +49,16 @@ import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.main.Main;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.InternalSynopticException;
 
 /**
  * Shows how to create a graph editor with JUNG. Mouse modes and actions are
@@ -94,23 +97,29 @@ public class JungGui extends JApplet implements Printable {
     VisualizationViewer<INode<Partition>, ITransition<Partition>> vizViewer;
 
     static String instructions = "<html>"
+            + "<h3>Edges:</h3>"
+            + "<ul>"
+            + "<li>Labels denote the number of log events that were observed to make the transition along the edge</li>"
+            + "</ul>"
+            + "<h3>Node Colors:</h3>"
+            + "<ul>"
+            + "<li>Grey: initial and terminal nodes</li>"
+            + "<li>Yellow: nodes that did not change in the last refinement step</li>"
+            + "<li>Dark Green: nodes that <b>changed</b> in the last refinement step</li>"
+            + "<li>Light Green: nodes that <b>created</b> by the last refinement step</li>"
+            + "</ul>"
             + "<h3>All Modes:</h3>"
             + "<ul>"
-            + "<li>Right-click an empty area for <b>Create Vertex</b> popup"
-            + "<li>Right-click on a Vertex for <b>Delete Vertex</b> popup"
-            + "<li>Right-click on a Vertex for <b>Add Edge</b> menus <br>(if there are selected Vertices)"
-            + "<li>Right-click on an Edge for <b>Delete Edge</b> popup"
             + "<li>Mousewheel scales with a crossover value of 1.0.<p>"
             + "     - scales the graph layout when the combined scale is greater than 1<p>"
             + "     - scales the graph view when the combined scale is less than 1"
-            +
-
-            "</ul>"
-            + "<h3>Editing Mode:</h3>"
+            + "</ul>"
+            + "<h3>Transforming Mode:</h3>"
             + "<ul>"
-            + "<li>Left-click an empty area to create a new Vertex"
-            + "<li>Left-click on a Vertex and drag to another Vertex to create an Undirected Edge"
-            + "<li>Shift+Left-click on a Vertex and drag to another Vertex to create a Directed Edge"
+            + "<li>Mouse1+drag pans the graph"
+            + "<li>Mouse1+Shift+drag rotates the graph"
+            + "<li>Mouse1+CTRL(or Command)+drag shears the graph"
+            + "<li>Mouse1 double-click on a vertex or edge allows you to edit the label"
             + "</ul>"
             + "<h3>Picking Mode:</h3>"
             + "<ul>"
@@ -122,26 +131,27 @@ public class JungGui extends JApplet implements Printable {
             + "<li>Mouse1+Shift+drag adds selection of Vertices in a new region"
             + "<li>Mouse1+CTRL on a Vertex selects the vertex and centers the display on it"
             + "<li>Mouse1 double-click on a vertex or edge allows you to edit the label"
-            + "</ul>"
-            + "<h3>Transforming Mode:</h3>"
-            + "<ul>"
-            + "<li>Mouse1+drag pans the graph"
-            + "<li>Mouse1+Shift+drag rotates the graph"
-            + "<li>Mouse1+CTRL(or Command)+drag shears the graph"
-            + "<li>Mouse1 double-click on a vertex or edge allows you to edit the label"
-            + "</ul>" + "<h3>Annotation Mode:</h3>" + "<ul>"
-            + "<li>Mouse1 begins drawing of a Rectangle"
-            + "<li>Mouse1+drag defines the Rectangle shape"
-            + "<li>Mouse1 release adds the Rectangle as an annotation"
-            + "<li>Mouse1+Shift begins drawing of an Ellipse"
-            + "<li>Mouse1+Shift+drag defines the Ellipse shape"
-            + "<li>Mouse1+Shift release adds the Ellipse as an annotation"
-            + "<li>Mouse3 shows a popup to input text, which will become"
-            + "<li>a text annotation on the graph at the mouse location"
             + "</ul>" + "</html>";
 
     Set<ITemporalInvariant> unsatisfiedInvariants;
     int numSplitSteps = 0;
+
+    /**
+     * Partitions that are known from the prior refinement step are mapped to
+     * the number of LogEvents they contain.
+     */
+    LinkedHashMap<Partition, Integer> oldPartitions;
+    /**
+     * Partitions that were created in the latest refinement step are mapped to
+     * the number of LogEvents they contain.
+     */
+    LinkedHashMap<Partition, Integer> newPartitions;
+
+    static final Color lightGreenColor;
+    static {
+        float[] hsb = Color.RGBtoHSB(50, 190, 50, null);
+        lightGreenColor = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
+    }
 
     /**
      * Creates a new JApplet based on a given PartitionGraph.
@@ -155,6 +165,13 @@ public class JungGui extends JApplet implements Printable {
         unsatisfiedInvariants.addAll(pGraph.getInvariants().getSet());
 
         this.pGraph = pGraph;
+
+        newPartitions = new LinkedHashMap<Partition, Integer>();
+        for (Partition p : pGraph.getNodes()) {
+            newPartitions.put(p, p.getMessages().size());
+        }
+        oldPartitions = newPartitions;
+
         jGraph = getJGraph();
         setUpGui();
         frame = new JFrame();
@@ -163,21 +180,6 @@ public class JungGui extends JApplet implements Printable {
         frame.getContentPane().add(this);
         frame.pack();
         frame.setVisible(true);
-
-    }
-
-    class VertexFactory implements Factory<INode<Partition>> {
-        @Override
-        public INode<Partition> create() {
-            return null;
-        }
-    }
-
-    class EdgeFactory implements Factory<ITransition<Partition>> {
-        @Override
-        public ITransition<Partition> create() {
-            return null;
-        }
     }
 
     @SuppressWarnings("serial")
@@ -217,13 +219,11 @@ public class JungGui extends JApplet implements Printable {
     public DirectedGraph<INode<Partition>, ITransition<Partition>> getJGraph() {
         DirectedSparseGraph<INode<Partition>, ITransition<Partition>> newGraph = new DirectedSparseGraph<INode<Partition>, ITransition<Partition>>();
 
-        for (synoptic.model.interfaces.INode<Partition> node : pGraph
-                .getNodes()) {
+        for (INode<Partition> node : pGraph.getNodes()) {
             newGraph.addVertex(node);
         }
 
-        for (synoptic.model.interfaces.INode<Partition> node : pGraph
-                .getNodes()) {
+        for (INode<Partition> node : pGraph.getNodes()) {
             for (ITransition<Partition> t : node.getTransitionsIterator()) {
                 newGraph.addEdge(t, t.getSource(), t.getTarget(),
                         EdgeType.DIRECTED);
@@ -238,10 +238,10 @@ public class JungGui extends JApplet implements Printable {
         vizViewer = new VisualizationViewer<INode<Partition>, ITransition<Partition>>(
                 layout);
         vizViewer.setBackground(Color.white);
-        Transformer<INode<Partition>, String> labeller2 = new Transformer<INode<Partition>, String>() {
+        Transformer<INode<Partition>, String> nodeLabeller = new Transformer<INode<Partition>, String>() {
             @Override
-            public String transform(INode<Partition> arg0) {
-                return arg0.toStringConcise();
+            public String transform(INode<Partition> node) {
+                return node.toStringConcise();
             }
         };
 
@@ -249,13 +249,24 @@ public class JungGui extends JApplet implements Printable {
                 MapTransformer.<INode<Partition>, String> getInstance(LazyMap
                         .<INode<Partition>, String> decorate(
                                 new HashMap<INode<Partition>, String>(),
-                                labeller2)));
+                                nodeLabeller)));
 
-        Transformer<ITransition<Partition>, String> labeller = new Transformer<ITransition<Partition>, String>() {
-
+        Transformer<ITransition<Partition>, String> transitionLabeller = new Transformer<ITransition<Partition>, String>() {
             @Override
-            public String transform(ITransition<Partition> arg0) {
-                return arg0.toStringConcise();
+            public String transform(ITransition<Partition> trans) {
+                // Compute the label for trans as the number of log events
+                // that were observed along the transition edge.
+                PartitionSplit s = trans.getSource()
+                        .getCandidateDivisionBasedOnOutgoing(trans);
+                if (s == null) {
+                    s = PartitionSplit.newSplitWithAllEvents(trans.getSource());
+                }
+                int numOutgoing = s.getSplitEvents().size();
+                return String.valueOf(numOutgoing);
+
+                // toSTringConcise() returns 0.00 because transition
+                // weight\frequencies are not updated during Bisimulation.
+                // return trans.toStringConcise();
             }
         };
 
@@ -266,14 +277,14 @@ public class JungGui extends JApplet implements Printable {
                                 .<ITransition<Partition>, String> getInstance(LazyMap
                                         .<ITransition<Partition>, String> decorate(
                                                 new HashMap<ITransition<Partition>, String>(),
-                                                labeller)));
+                                                transitionLabeller)));
 
         vizViewer.setVertexToolTipTransformer(vizViewer.getRenderContext()
                 .getVertexLabelTransformer());
         vizViewer.getRenderContext().setVertexShapeTransformer(
                 new Transformer<INode<Partition>, Shape>() {
                     @Override
-                    public Shape transform(INode<Partition> arg0) {
+                    public Shape transform(INode<Partition> node) {
                         return new Ellipse2D.Float(-10, -10, 70, 35);
                     }
                 });
@@ -281,8 +292,39 @@ public class JungGui extends JApplet implements Printable {
         vizViewer.getRenderContext().setVertexFillPaintTransformer(
                 new Transformer<INode<Partition>, Paint>() {
                     @Override
-                    public Paint transform(INode<Partition> arg0) {
-                        return Color.WHITE;
+                    public Paint transform(INode<Partition> node) {
+                        // Specially color TERMINAL and INITIAL nodes.
+                        if (node.getLabel().equals(Main.initialNodeLabel)
+                                || node.getLabel().equals(
+                                        Main.terminalNodeLabel)) {
+                            return Color.lightGray;
+                        }
+                        // Discriminate between:
+                        // 1. new nodes that have been created
+                        // 2. old nodes that have changed (shrunk in their
+                        // message set because of a split)
+                        // 3. old nodes that have not changed
+                        boolean inOld = oldPartitions.containsKey(node);
+                        boolean inNew = newPartitions.containsKey(node);
+
+                        if (inOld && inNew) {
+                            if (oldPartitions.get(node) != newPartitions
+                                    .get(node)) {
+                                // An old node that changed.
+                                return lightGreenColor;
+                            }
+                            // An old node that hasn't changed (but was also not
+                            // deleted).
+                            return Color.YELLOW;
+                        }
+
+                        if (inNew) {
+                            // A newly created node.
+                            return Color.GREEN;
+                        }
+
+                        throw new InternalSynopticException(
+                                "Found a node that is neither old nor new OR has been deleted but is being shown.");
                     }
                 });
 
@@ -298,17 +340,9 @@ public class JungGui extends JApplet implements Printable {
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vizViewer);
         content.add(panel);
 
-        // Factory<INode<Partition>> vertexFactory = new VertexFactory();
-        // Factory<ITransition<Partition>> edgeFactory = new EdgeFactory();
-
         final EditingModalGraphMouse<INode<Partition>, ITransition<Partition>> graphMouse = new EditingModalGraphMouse<INode<Partition>, ITransition<Partition>>(
                 vizViewer.getRenderContext(), null, null);
-        // vizViewer.getRenderContext(), vertexFactory, edgeFactory);
 
-        // the EditingGraphMouse will pass mouse event coordinates to the
-        // vertexLocations function to set the locations of the vertices as
-        // they are created
-        // graphMouse.setVertexLocations(vertexLocations);
         vizViewer.setGraphMouse(graphMouse);
         vizViewer.addKeyListener(graphMouse.getModeKeyListener());
 
@@ -329,6 +363,13 @@ public class JungGui extends JApplet implements Printable {
                     numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
                             numSplitSteps, pGraph, counterExampleTraces);
 
+                    // Update the old\new partition maps.
+                    oldPartitions = newPartitions;
+                    newPartitions = new LinkedHashMap<Partition, Integer>();
+                    for (Partition p : pGraph.getNodes()) {
+                        newPartitions.put(p, p.getMessages().size());
+                    }
+
                     vizViewer.getGraphLayout().setGraph(
                             JungGui.this.getJGraph());
                     // TODO: there must be a better way for the vizViewer to
@@ -339,20 +380,16 @@ public class JungGui extends JApplet implements Printable {
                     for (RelationPath<Partition> relPath : counterExampleTraces) {
                         unsatisfiedInvariants.add(relPath.invariant);
                     }
+
                 } else {
+                    // Set all partitions to 'old'.
+                    oldPartitions = newPartitions;
                     refineButton.setEnabled(false);
+                    // Refresh the graphics state.
+                    JungGui.this.repaint();
                 }
             }
         });
-
-        /*
-         * JButton coarsenButton = new JButton("Coarsen");
-         * coarsenButton.addActionListener(new ActionListener() {
-         * 
-         * @Override public void actionPerformed(ActionEvent e) { // TODO:
-         * perform one step of coarsening on pGraph // scaler.scale(vizViewer, 1
-         * / 1.1f, vizViewer.getCenter()); } });
-         */
 
         JButton help = new JButton("Help");
         help.addActionListener(new ActionListener() {
@@ -364,11 +401,18 @@ public class JungGui extends JApplet implements Printable {
 
         JPanel controls = new JPanel();
         controls.add(refineButton);
-        // controls.add(coarsenButton);
         JComboBox modeBox = graphMouse.getModeComboBox();
         controls.add(modeBox);
-        LayoutChooser.addLayoutCombo(controls, jGraph, vizViewer);
+
+        // Remove ANNOTATING and EDITING modeBox items:
+        modeBox.removeItemAt(2);
+        modeBox.removeItemAt(2);
+
+        // Temporarily hide the layout chooser combo box
+        // LayoutChooser.addLayoutCombo(controls, jGraph, vizViewer);
+
         controls.add(help);
+
         content.add(controls, BorderLayout.SOUTH);
     }
 

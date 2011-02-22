@@ -8,10 +8,10 @@ import org.apache.commons.lang.NotImplementedException;
  * A relation that supports storing frequencies and synoptic.invariants.
  * 
  * @author Sigurd Schneider
- * @param <StateType>
+ * @param <NodeType>
  */
-public class Relation<StateType> extends Transition<StateType> implements
-        Comparable<Relation<StateType>> {
+public class Relation<NodeType> extends Transition<NodeType> implements
+        Comparable<Relation<NodeType>> {
     double frequency = 0.0;
 
     // private List<Invariant> inv = new ArrayList<Invariant>();
@@ -26,7 +26,7 @@ public class Relation<StateType> extends Transition<StateType> implements
      * @param relation
      *            relation name
      */
-    public Relation(StateType source, StateType target, String relation) {
+    public Relation(NodeType source, NodeType target, String relation) {
         super(source, target, relation);
     }
 
@@ -42,7 +42,7 @@ public class Relation<StateType> extends Transition<StateType> implements
      * @param frequency
      *            frequency of the transition
      */
-    public Relation(StateType source, StateType target, String relation,
+    public Relation(NodeType source, NodeType target, String relation,
             double frequency) {
         super(source, target, relation);
         this.frequency = frequency;
@@ -81,17 +81,17 @@ public class Relation<StateType> extends Transition<StateType> implements
     // }
 
     @Override
-    public void setSource(StateType target) {
+    public void setSource(NodeType target) {
         throw new NotImplementedException();
     }
 
     @Override
-    public void setTarget(StateType target) {
+    public void setTarget(NodeType target) {
         throw new NotImplementedException();
     }
 
     @Override
-    public int compareTo(Relation<StateType> other) {
+    public int compareTo(Relation<NodeType> other) {
         // compare references
         if (this == other) {
             return 0;
