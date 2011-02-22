@@ -270,11 +270,6 @@ public class TraceParserTests extends SynopticTest {
         parser.generateDirectTemporalRelation(events, true);
     }
 
-    // ////////
-    // TODO: do the above two tests for same time in different partitions. In
-    // both cases no exception should be generated.
-    // /////////
-
     // TODO: Check setting of constants -- e.g. (?<NODETYPE=>master)
 
     /**
@@ -380,13 +375,16 @@ public class TraceParserTests extends SynopticTest {
 
     /**
      * Check that we can parse a log by splitting its lines into partitions.
+     * This test also checks that two different partitions may have events that
+     * have the same timestamp (this is not allowed if the events are in the
+     * same partition -- see test above).
      * 
      * @throws ParseException
      */
     @Test
     public void parseWithSplitPartitionsTotalOrderTest() throws ParseException {
-        String traceStr = "a\nb\nc\n--\nc\nb\na\n";
-        parser.addRegex("^(?<TYPE>)$");
+        String traceStr = "1 a\n2 b\n3 c\n--\n1 c\n2 b\n3 a\n";
+        parser.addRegex("^(?<TIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
         List<LogEvent> events = parser.parseTraceString(traceStr, "test", -1);
         Graph<LogEvent> graph = parser.generateDirectTemporalRelation(events,

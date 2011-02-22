@@ -6,11 +6,11 @@ import synoptic.model.interfaces.ITransition;
  * An implementation of a transition.
  * 
  * @author Sigurd Schneider
- * @param <StateType>
+ * @param <NodeType>
  */
-public class Transition<StateType> implements ITransition<StateType> {
-    protected StateType source;
-    protected StateType target;
+public class Transition<NodeType> implements ITransition<NodeType> {
+    protected NodeType source;
+    protected NodeType target;
     protected final String action;
     private int count = 0;
 
@@ -24,19 +24,19 @@ public class Transition<StateType> implements ITransition<StateType> {
      * @param action
      *            the label of the transition (will be interned)
      */
-    public Transition(StateType source, StateType target, String action) {
+    public Transition(NodeType source, NodeType target, String action) {
         this.source = source;
         this.target = target;
         this.action = action.intern();
     }
 
     @Override
-    public StateType getTarget() {
+    public NodeType getTarget() {
         return target;
     }
 
     @Override
-    public StateType getSource() {
+    public NodeType getSource() {
         return source;
     }
 
@@ -68,7 +68,7 @@ public class Transition<StateType> implements ITransition<StateType> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Transition<StateType> other = (Transition<StateType>) obj;
+        Transition<NodeType> other = (Transition<NodeType>) obj;
         if (action == null) {
             if (other.action != null) {
                 return false;
@@ -94,12 +94,12 @@ public class Transition<StateType> implements ITransition<StateType> {
     }
 
     @Override
-    public void setSource(StateType source) {
+    public void setSource(NodeType source) {
         this.source = source;
     }
 
     @Override
-    public void setTarget(StateType target) {
+    public void setTarget(NodeType target) {
         this.target = target;
     }
 
