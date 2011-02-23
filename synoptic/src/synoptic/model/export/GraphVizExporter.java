@@ -283,6 +283,9 @@ public class GraphVizExporter {
         // Node identifier generator, updated in exportRelationNodes
         int nodeCnt = 0;
 
+        // TODO: determine which relations exist in graph and only export these
+        // relations.
+
         // Export nodes in the 't' relation.
         nodeCnt = exportRelationNodes(writer, graph, "t", allTransitions,
                 nodeToInt, nodeCnt);

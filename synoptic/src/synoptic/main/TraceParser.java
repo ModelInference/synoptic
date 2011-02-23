@@ -35,6 +35,8 @@ import synoptic.util.VectorTime;
  * @author mgsloan
  */
 public class TraceParser {
+    public final static String defaultRelation = "t";
+
     private static Logger logger = Logger.getLogger("Parser Logger");
 
     private final List<NamedPattern> parsers;
@@ -726,22 +728,24 @@ public class TraceParser {
             List<LogEvent> allEvents, boolean partition) throws ParseException {
 
         Graph<LogEvent> graph = new Graph<LogEvent>();
-        LinkedHashMap<String, List<LogEvent>> groups = new LinkedHashMap<String, List<LogEvent>>();
+        LinkedHashMap<String, List<LogEvent>> partitions = new LinkedHashMap<String, List<LogEvent>>();
         if (partition) {
             // Partition based on filter expression.
             for (LogEvent e : allEvents) {
                 String pName = getPartitionName(e.getAction());
-                List<LogEvent> events = groups.get(pName);
+                List<LogEvent> events = partitions.get(pName);
                 if (events == null) {
                     events = new ArrayList<LogEvent>();
-                    groups.put(pName, events);
+                    partitions.put(pName, events);
                     logger.fine("Created partition '" + pName + "'");
                 }
                 events.add(e);
             }
+            graph.setPartitions(partitions);
         } else {
             // Otherwise, place all events into a single partition.
-            groups.put(null, allEvents);
+            partitions.put(null, allEvents);
+            graph.setPartitions(null);
         }
 
         // Find all direct successors of all events. For an event e1, direct
@@ -750,7 +754,7 @@ public class TraceParser {
         // is a direct successor if there is no other successor of e1 y such
         // that y < x.
         LinkedHashMap<LogEvent, LinkedHashSet<LogEvent>> directSuccessors = new LinkedHashMap<LogEvent, LinkedHashSet<LogEvent>>();
-        for (List<LogEvent> group : groups.values()) {
+        for (List<LogEvent> group : partitions.values()) {
             for (LogEvent e1 : group) {
                 // First find all all events that succeed e1, store this set in
                 // e1AllSuccessors.
@@ -806,8 +810,6 @@ public class TraceParser {
         for (LogEvent e : allEvents) {
             graph.add(e);
         }
-
-        String defaultRelation = "t";
 
         // Connect the events in the graph, and also build up noPredecessor and
         // noSuccessor event sets.

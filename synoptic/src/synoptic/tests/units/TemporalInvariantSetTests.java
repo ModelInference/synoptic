@@ -109,9 +109,11 @@ public class TemporalInvariantSetTests extends SynopticTest {
             // x AFby TERMINAL
             invs.add(new AlwaysFollowedInvariant(e, Main.terminalNodeLabel,
                     SynopticTest.defRelation));
+
             // INITIAL AFby x
             invs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, e,
                     SynopticTest.defRelation));
+
             // x NFby INITIAL
             invs.add(new NeverFollowedInvariant(e, Main.initialNodeLabel,
                     SynopticTest.defRelation));
@@ -121,6 +123,7 @@ public class TemporalInvariantSetTests extends SynopticTest {
             // INITIAL AP x
             invs.add(new AlwaysPrecedesInvariant(Main.initialNodeLabel, e,
                     SynopticTest.defRelation));
+
             // x AP TERMINAL
             invs.add(new AlwaysPrecedesInvariant(e, Main.terminalNodeLabel,
                     SynopticTest.defRelation));
@@ -218,6 +221,10 @@ public class TemporalInvariantSetTests extends SynopticTest {
         TemporalInvariantSet minedInvs = genInvariants(log);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
+        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "b",
+                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "a",
+                SynopticTest.defRelation));
         trueInvs.add(new AlwaysFollowedInvariant("a", "b",
                 SynopticTest.defRelation));
         trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
@@ -243,6 +250,10 @@ public class TemporalInvariantSetTests extends SynopticTest {
         TemporalInvariantSet minedInvs = genInvariants(log);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
+        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "b",
+                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "a",
+                SynopticTest.defRelation));
         trueInvs.add(new AlwaysFollowedInvariant("a", "b",
                 SynopticTest.defRelation));
         assertTrue(trueInvs.sameInvariants(minedInvs));
@@ -266,7 +277,9 @@ public class TemporalInvariantSetTests extends SynopticTest {
     }
 
     /**
-     * Compose a log in which "a AP b" is the only true invariant.
+     * Compose a log in which "a AP b" is the only true invariant. Except that
+     * we making it the only invariant complicates the trace too much so we
+     * settle for also including the INITIAL AFby a invariant.
      * 
      * @throws Exception
      */
@@ -277,6 +290,8 @@ public class TemporalInvariantSetTests extends SynopticTest {
         TemporalInvariantSet minedInvs = genInvariants(log);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
+        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "a",
+                SynopticTest.defRelation));
         trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
                 SynopticTest.defRelation));
         assertTrue(trueInvs.sameInvariants(minedInvs));
@@ -298,14 +313,26 @@ public class TemporalInvariantSetTests extends SynopticTest {
         TemporalInvariantSet minedInvs2 = genInvariants(log2);
         TemporalInvariantSet minedInvs3 = genInvariants(log3);
 
-        // Mined log3 invariants should be a union of invariants mined form log1
-        // and log2, as well as a few invariants that relate events between the
-        // two partitions.
+        // Mined log3 invariants should be the UNION of invariants mined form
+        // log1 and log2, as well as a few invariants that relate events between
+        // the two partitions, MINUS the "eventually x" invariants mined for
+        // log1 and log2 which no longer hold in log3.
+
         TemporalInvariantSet trueInvs3 = new TemporalInvariantSet();
         for (ITemporalInvariant inv : minedInvs1) {
+            if (inv instanceof AlwaysFollowedInvariant
+                    && ((AlwaysFollowedInvariant) inv).getFirst().equals(
+                            Main.initialNodeLabel)) {
+                continue;
+            }
             trueInvs3.add(inv);
         }
         for (ITemporalInvariant inv : minedInvs2) {
+            if (inv instanceof AlwaysFollowedInvariant
+                    && ((AlwaysFollowedInvariant) inv).getFirst().equals(
+                            Main.initialNodeLabel)) {
+                continue;
+            }
             trueInvs3.add(inv);
         }
 
@@ -355,6 +382,15 @@ public class TemporalInvariantSetTests extends SynopticTest {
         logger.fine("mined: " + minedInvs.toString());
 
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        // Add the "eventually x" invariants.
+        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "a",
+                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "b",
+                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "c",
+                SynopticTest.defRelation));
+
         trueInvs.add(new AlwaysFollowedInvariant("a", "b",
                 SynopticTest.defRelation));
         trueInvs.add(new AlwaysFollowedInvariant("a", "c",
