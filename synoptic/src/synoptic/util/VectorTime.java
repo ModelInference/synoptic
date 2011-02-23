@@ -1,10 +1,80 @@
 package synoptic.util;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+
+import synoptic.model.LogEvent;
 
 public class VectorTime {
     ArrayList<Integer> vector = new ArrayList<Integer>();
+
+    /**
+     * Determines and returns the ith event for node identified by nodeIndex in
+     * a sequence of events. Precondition: nodeIndex must be valid.
+     */
+    public static LogEvent determineIthEvent(int nodeIndex,
+            List<LogEvent> events, int i) {
+        // The earliest found ith event at node nodeIndex so far.
+        LogEvent earliestEvent = null;
+
+        for (LogEvent e : events) {
+            if (e.getAction().getTime().vector.get(nodeIndex) != i) {
+                continue;
+            }
+            if (earliestEvent == null) {
+                earliestEvent = e;
+                continue;
+            }
+            if (e.getTime().lessThan(earliestEvent.getTime())) {
+                earliestEvent = e;
+            }
+        }
+        return earliestEvent;
+    }
+
+    /**
+     * Determines the totally ordered sequence of local events for each node in
+     * a distributed system given the set of all events in the system
+     * time-stamped with vector clocks.
+     * 
+     * <pre>
+     * The ith event for node n is the event e such that:
+     * for all e' in events, e'.time[n] == i, e < e'
+     * </pre>
+     * 
+     * @param events
+     * @return A list in which an item a index j is a (totally ordered) list of
+     *         events that occurred locally at node j.
+     */
+    public static List<List<LogEvent>> mapLogEventsToNodes(List<LogEvent> events) {
+        if (events == null || events.size() == 0) {
+            return null;
+        }
+        LinkedList<List<LogEvent>> map = new LinkedList<List<LogEvent>>();
+        // The number of nodes is indicated by the length of the vector time.
+        int numNodes = events.get(0).getAction().getTime().vector.size();
+
+        // For each node, for all i determine the ith local event at the node.
+        int i;
+        LogEvent e;
+        LinkedList<LogEvent> eventList;
+        for (int nodeIndex = 0; nodeIndex < numNodes; nodeIndex++) {
+            i = 0;
+            eventList = new LinkedList<LogEvent>();
+            while (true) {
+                e = determineIthEvent(nodeIndex, events, i);
+                if (e == null) {
+                    // No ith event exists for nodeIndex.
+                    break;
+                }
+                eventList.add(e);
+                i += 1;
+            }
+            map.add(eventList);
+        }
+        return map;
+    }
 
     /**
      * Builds a VectorTime from a string that looks like "1,2,3"

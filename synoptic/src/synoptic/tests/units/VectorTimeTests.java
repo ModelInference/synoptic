@@ -5,9 +5,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
+import synoptic.main.ParseException;
+import synoptic.main.TraceParser;
+import synoptic.model.LogEvent;
 import synoptic.tests.SynopticTest;
 import synoptic.util.NotComparableVectorsException;
 import synoptic.util.VectorTime;
@@ -18,6 +22,16 @@ import synoptic.util.VectorTime;
  * @author ivan
  */
 public class VectorTimeTests extends SynopticTest {
+
+    TraceParser parser;
+
+    @Override
+    public void setUp() throws ParseException {
+        super.setUp();
+        parser = new TraceParser();
+        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+        parser.addPartitionsSeparator("^--$");
+    }
 
     /**
      * Make sure we can create vector time objects without errors.
@@ -179,5 +193,51 @@ public class VectorTimeTests extends SynopticTest {
 
         assertTrue(v1.hashCode() == v1.hashCode());
         assertTrue(v1.hashCode() != v2.hashCode());
+    }
+
+    /**
+     * Test the determineIthEvent() method.
+     * 
+     * @throws ParseException
+     */
+    @Test
+    public void determineIthEventTest() throws ParseException {
+        String[] events = new String[] { "1,0 a1", "2,0 b1", "3,0 c1",
+                "0,1 a2", "0,2 b2", "0,3 c3" };
+        List<LogEvent> parsedEvents = parseLogEvents(events, parser);
+
+        for (int i = 0; i < 3; i++) {
+            assertTrue(VectorTime.determineIthEvent(0, parsedEvents, i + 1) == parsedEvents
+                    .get(i));
+        }
+        for (int i = 0; i < 3; i++) {
+            assertTrue(VectorTime.determineIthEvent(1, parsedEvents, i + 1) == parsedEvents
+                    .get(3 + i));
+        }
+    }
+
+    /**
+     * Test the mapLogEventsToNodes() method with two nodes that communicate
+     * their clocks every once in a while.
+     * 
+     * @throws ParseException
+     */
+    @Test
+    public void mapLogEventsToNodesTest() throws ParseException {
+        String[] events = new String[] { "1,0 a", "2,0 b", "3,0 c", "4,3 d",
+                "5,3 e", "0,1 a'", "2,2 b'", "2,3 c'", "2,4 d'" };
+
+        List<LogEvent> parsedEvents = parseLogEvents(events, parser);
+        List<List<LogEvent>> map = VectorTime.mapLogEventsToNodes(parsedEvents);
+
+        assertTrue(map.size() == 2);
+        for (int i = 0; i < 5; i++) {
+            assertTrue(VectorTime.determineIthEvent(0, parsedEvents, i + 1) == parsedEvents
+                    .get(i));
+        }
+        for (int i = 0; i < 4; i++) {
+            assertTrue(VectorTime.determineIthEvent(1, parsedEvents, i + 1) == parsedEvents
+                    .get(5 + i));
+        }
     }
 }
