@@ -13,21 +13,23 @@ import java.awt.image.BufferedImage;
 import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.JApplet;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -36,10 +38,15 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.functors.MapTransformer;
 import org.apache.commons.collections15.map.LazyMap;
 
+import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
+import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -68,7 +75,9 @@ import synoptic.util.InternalSynopticException;
  * @author Tom Nelson Edits to display our graphs.
  */
 public class JungGui extends JApplet implements Printable {
-
+	
+	static final Class<?>[] constructorArgsWanted = { Graph.class };
+	
     private static final long serialVersionUID = -2023243689258876709L;
 
     /**
@@ -176,16 +185,23 @@ public class JungGui extends JApplet implements Printable {
         setUpGui();
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JPopupMenu.setDefaultLightWeightPopupEnabled(false);
         addMenuBar(frame);
         frame.getContentPane().add(this);
         frame.pack();
         frame.setVisible(true);
     }
 
+    /**
+     * Makes File menu
+     * @param frame
+     */
     @SuppressWarnings("serial")
     public void addMenuBar(JFrame frame) {
-        JMenu menu = new JMenu("File");
-        menu.add(new AbstractAction("Make Image") {
+    	JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+        
+        fileMenu.add(new AbstractAction("Make Image") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
@@ -196,7 +212,7 @@ public class JungGui extends JApplet implements Printable {
                 }
             }
         });
-        menu.add(new AbstractAction("Print") {
+        fileMenu.add(new AbstractAction("Print") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 PrinterJob printJob = PrinterJob.getPrinterJob();
@@ -210,10 +226,109 @@ public class JungGui extends JApplet implements Printable {
                 }
             }
         });
-        JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.add(menu);
+        
+        JMenuItem help = new JMenuItem("Help");
+        help.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(vizViewer, instructions);
+            }
+        });
+        fileMenu.add(help);
+        menuBar.add(fileMenu);
+        
+        JMenu actionsMenu = new JMenu("Synoptic Actions");
+
+        final JMenuItem refineOption = new JMenuItem("Refine");
+        refineOption.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                List<RelationPath<Partition>> counterExampleTraces = null;
+                // Retrieve the counter-examples for the unsatisfied invariants.
+                counterExampleTraces = new TemporalInvariantSet(
+                        unsatisfiedInvariants).getAllCounterExamples(pGraph);
+                unsatisfiedInvariants.clear();
+                if (counterExampleTraces != null
+                        && counterExampleTraces.size() > 0) {
+                    // Perform a single refinement step.
+                    numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
+                            numSplitSteps, pGraph, counterExampleTraces);
+
+                    // Update the old\new partition maps.
+                    oldPartitions = newPartitions;
+                    newPartitions = new LinkedHashMap<Partition, Integer>();
+                    for (Partition p : pGraph.getNodes()) {
+                        newPartitions.put(p, p.getMessages().size());
+                    }
+
+                    vizViewer.getGraphLayout().setGraph(
+                            JungGui.this.getJGraph());
+                    // TODO: there must be a better way for the vizViewer to
+                    // refresh its state..
+                    vizViewer.setGraphLayout(vizViewer.getGraphLayout());
+                    JungGui.this.repaint();
+
+                    for (RelationPath<Partition> relPath : counterExampleTraces) {
+                        unsatisfiedInvariants.add(relPath.invariant);
+                    }
+
+                } else {
+                    // Set all partitions to 'old'.
+                    oldPartitions = newPartitions;
+                    refineOption.setEnabled(false);
+                    // Refresh the graphics state.
+                    JungGui.this.repaint();
+                }
+            }
+        });
+        actionsMenu.add(refineOption);
+        menuBar.add(actionsMenu);
+        
+        JMenu graphLayouts = new JMenu("Graph Layouts");
+        final Map<String, Class<?>> labels = new HashMap <String, Class<?>>();
+        labels.put("Kamada-Kawai", KKLayout.class);
+        labels.put("Force-Directed", FRLayout.class);
+        labels.put("Circle", CircleLayout.class);
+        labels.put("Spring", SpringLayout.class);
+        labels.put("ISOM", ISOMLayout.class);
+        
+        for(final String layout : labels.keySet()){
+        	JMenuItem temp = new JMenuItem(layout);
+        	temp.addActionListener(new ActionListener() {
+        		@Override
+                public void actionPerformed(ActionEvent e) {
+                    selectLayout(labels.get(layout));
+                }
+        	});;
+        	graphLayouts.add(temp);
+        }
+        
+        menuBar.add(graphLayouts);
+
         frame.setJMenuBar(menuBar);
+        
+    }
+    
+    public void selectLayout(Class<?> choice){
+    	Object[] constructorArgs = { jGraph };
+    	Class<?> layoutC = choice;
+    	try {
+    		Constructor<?> constructor = layoutC.getConstructor(constructorArgsWanted);
+    		// Create a new layout instance.
+    		Object o = constructor.newInstance(constructorArgs);
+    		// Double check that the item in the combo-box is a valid Layout.
+    		if (o instanceof Layout<?, ?>) {
+    			// Initialize the layout with the current layout's graph.
+    			//Layout<INode<Partition>, ITransition<Partition>> layout;
+    			Layout<INode<Partition>, ITransition<Partition>> layout = (Layout<INode<Partition>, ITransition<Partition>>) o;
+    			layout.setGraph(vizViewer.getGraphLayout().getGraph());
+    			// Tell the viewer to use the new layout.
+    			vizViewer.setGraphLayout(layout);
+    		}
+    	} catch (Exception e) {
+    		throw new InternalSynopticException("Could not load layout "
+    				+ layoutC);
+    	}
     }
 
     public DirectedGraph<INode<Partition>, ITransition<Partition>> getJGraph() {
@@ -348,59 +463,8 @@ public class JungGui extends JApplet implements Printable {
 
         graphMouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 
-        final JButton refineButton = new JButton("Refine");
-        refineButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                List<RelationPath<Partition>> counterExampleTraces = null;
-                // Retrieve the counter-examples for the unsatisfied invariants.
-                counterExampleTraces = new TemporalInvariantSet(
-                        unsatisfiedInvariants).getAllCounterExamples(pGraph);
-                unsatisfiedInvariants.clear();
-                if (counterExampleTraces != null
-                        && counterExampleTraces.size() > 0) {
-                    // Perform a single refinement step.
-                    numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
-                            numSplitSteps, pGraph, counterExampleTraces);
-
-                    // Update the old\new partition maps.
-                    oldPartitions = newPartitions;
-                    newPartitions = new LinkedHashMap<Partition, Integer>();
-                    for (Partition p : pGraph.getNodes()) {
-                        newPartitions.put(p, p.getMessages().size());
-                    }
-
-                    vizViewer.getGraphLayout().setGraph(
-                            JungGui.this.getJGraph());
-                    // TODO: there must be a better way for the vizViewer to
-                    // refresh its state..
-                    vizViewer.setGraphLayout(vizViewer.getGraphLayout());
-                    JungGui.this.repaint();
-
-                    for (RelationPath<Partition> relPath : counterExampleTraces) {
-                        unsatisfiedInvariants.add(relPath.invariant);
-                    }
-
-                } else {
-                    // Set all partitions to 'old'.
-                    oldPartitions = newPartitions;
-                    refineButton.setEnabled(false);
-                    // Refresh the graphics state.
-                    JungGui.this.repaint();
-                }
-            }
-        });
-
-        JButton help = new JButton("Help");
-        help.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(vizViewer, instructions);
-            }
-        });
 
         JPanel controls = new JPanel();
-        controls.add(refineButton);
         JComboBox modeBox = graphMouse.getModeComboBox();
         controls.add(modeBox);
 
@@ -411,9 +475,8 @@ public class JungGui extends JApplet implements Printable {
         // Temporarily hide the layout chooser combo box
         // LayoutChooser.addLayoutCombo(controls, jGraph, vizViewer);
 
-        controls.add(help);
 
-        content.add(controls, BorderLayout.SOUTH);
+        content.add(controls, BorderLayout.NORTH);
     }
 
     /**
