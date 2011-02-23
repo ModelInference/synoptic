@@ -17,6 +17,7 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.Main;
+import synoptic.main.TraceParser;
 import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
@@ -255,21 +256,25 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 
     /**
      * The inclusion of INITIAL and TERMINAL states in the graphs generates the
-     * following types of tautological invariants (for all event types X):
+     * following types of invariants (for all event types X):
      * 
      * <pre>
-     * - INITIAL AFby X
-     * - INITIAL AP X
-     * - X AP TERMINAL
-     * - X AFby TERMINAL
+     * - x AP TERMINAL
+     * - INITIAL AP x
+     * - x AP TERMINAL
+     * - x AFby TERMINAL
      * - TERMINAL NFby INITIAL
      * </pre>
-     * 
+     * <p>
+     * NOTE: x AP TERMINAL is not considered a tautological invariant, but we
+     * filter it out anyway because we reconstruct it later.
+     * </p>
+     * <p>
      * We filter these out by simply ignoring any temporal invariants of the
      * form x INV y where x or y in {INITIAL, TERMINAL}. This filtering is
      * useful because it relieves us from checking invariants which are true for
-     * all graphs produced with typical construction.<br />
-     * <br />
+     * all graphs produced with typical construction.
+     * </p>
      * Note that this filtering, however, could filter out more invariants then
      * the ones above. We rely on unit tests to make sure that the two sets are
      * equivalent.
@@ -300,6 +305,72 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         logger.fine("Filtered out " + invsToRemove.size()
                 + " tautological invariants.");
         invariants.removeAll(invsToRemove);
+    }
+
+    /**
+     * Computes the 'INITIAL AFby x' invariants = 'eventually x' invariants. We
+     * do this by considering the set of events in one partition, and then
+     * removing the events from this set when we do not find them in other
+     * partitions. <br/>
+     * TODO: this code only works for a single relation
+     * (TraceParser.defaultRelation)
+     * 
+     * @param <T>
+     * @param g
+     * @return
+     */
+    static public <T extends INode<T>> TemporalInvariantSet computeINITIALAFbyXInvariants(
+            IGraph<T> g) {
+        TemporalInvariantSet invariants = new TemporalInvariantSet();
+
+        if (!g.getInitialNodes().isEmpty()) {
+            T initNode = g.getInitialNodes().iterator().next();
+            if (initNode.getLabel().equals(Main.initialNodeLabel)) {
+                if (g instanceof Graph<?>) {
+                    LinkedHashMap<String, List<LogEvent>> partitions = ((Graph<?>) g)
+                            .getPartitions();
+                    // NOTE: this would be more efficient if the values in
+                    // the map
+                    // were sets.
+                    LinkedHashSet<String> eventuallySet = null;
+                    Iterator<List<LogEvent>> pIter = partitions.values()
+                            .iterator();
+                    if (pIter.hasNext()) {
+                        // Initialize the set with events from the first
+                        // partition.
+                        eventuallySet = new LinkedHashSet<String>();
+                        for (LogEvent e : pIter.next()) {
+                            if (!eventuallySet.contains(e.getLabel())) {
+                                eventuallySet.add(e.getLabel());
+                            }
+                        }
+                    }
+
+                    // Now eliminate events from the set that do not appear
+                    // in all other partitions.
+                    LinkedHashSet<String> eventuallySetNew = null;
+                    while (pIter.hasNext()) {
+                        eventuallySetNew = new LinkedHashSet<String>();
+                        List<LogEvent> partition = pIter.next();
+
+                        for (LogEvent e : partition) {
+                            if (eventuallySet.contains(e.getLabel())) {
+                                eventuallySetNew.add(e.getLabel());
+                            }
+                        }
+                        eventuallySet = eventuallySetNew;
+                    }
+                    // Based on eventuallySet generate INITIAL AFby x
+                    // invariants.
+                    for (String eLabel : eventuallySet) {
+                        invariants.add(new AlwaysFollowedInvariant(
+                                Main.initialNodeLabel, eLabel,
+                                TraceParser.defaultRelation));
+                    }
+                }
+            }
+        }
+        return invariants;
     }
 
     /**
@@ -337,6 +408,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
                     "invariants_approximation", false);
             TemporalInvariantSet overapproximatedInvariantsSet = extractInvariantsForAllRelations(
                     g, transitiveClosure);
+
             io.stop();
             if (Main.doBenchmarking) {
                 logger.info("BENCHM: " + io);

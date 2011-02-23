@@ -18,29 +18,33 @@ import synoptic.tests.SynopticTest;
 
 @RunWith(value = Parameterized.class)
 public class PerformanceTests extends SynopticTest {
-    int iterations = 3;
-
     TraceParser parser = null;
 
+    int numIterations;
     int traceType;
-    int M;
-    int n;
-    int r;
-    boolean invariants;
+    int totalEvents;
+    int numPartitions;
+    int numEventTypes;
+    boolean withInvariants;
 
     @Parameters
     public static Collection<Object[]> data() {
-        Object[][] data = new Object[][] { { 1, 1000, 10, 50, false } };
+        Object[][] data = new Object[][] { { true, 3, 1, 1000, 10, 50, true },
+                { false, 3, 1, 1000, 10, 50, true } };
         return Arrays.asList(data);
     }
 
-    public PerformanceTests(int traceType, int M, int n, int r,
-            boolean invariants) {
+    public PerformanceTests(boolean useFSMChecker, int numIterations,
+            int traceType, int totalEvents, int numPartitions,
+            int numEventTypes, boolean withInvariants) {
+        Main.useFSMChecker = useFSMChecker;
+        this.numIterations = numIterations;
         this.traceType = traceType;
-        this.M = M;
-        this.n = n;
-        this.r = r;
-        this.invariants = invariants;
+        this.totalEvents = totalEvents;
+        this.numPartitions = numPartitions;
+        this.numEventTypes = numEventTypes;
+        this.withInvariants = withInvariants;
+
         Main.logLvlExtraVerbose = false;
         Main.logLvlQuiet = true;
     }
@@ -51,6 +55,16 @@ public class PerformanceTests extends SynopticTest {
         parser = new TraceParser();
         parser.addRegex("^(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
+    }
+
+    public void reportTime(long msTime) {
+        System.out.println(testName.getMethodName() + ":"
+                + "\n\tuseFSMChecker " + Main.useFSMChecker + "\n\tType "
+                + traceType + "\n\ttotalEvents " + totalEvents
+                + "\n\tnumPartitions " + numPartitions + "\n\tnumEventTypes "
+                + numEventTypes + "\n\twithInvariants " + withInvariants
+                + "\n\t==> TIME: " + msTime + "ms (averaged over "
+                + numIterations + " iterations)\n");
     }
 
     // public void testPerf() {
@@ -108,34 +122,28 @@ public class PerformanceTests extends SynopticTest {
     }
 
     @Test
-    public void runTestBisim() throws Exception {
+    public void Bisim() throws Exception {
         long total_delta = 0;
-        System.out.print("Bisimulation Test Parameters ( Trace Type="
-                + traceType + " M=" + M + " n=" + n + " r=" + r
-                + " synoptic.invariants=" + invariants + ")");
-        for (int iter = 0; iter < iterations; iter++) {
+        for (int iter = 0; iter < numIterations; iter++) {
 
-            String[] traces = partitionTrace(structure1Trace(M, r), n);
+            String[] traces = partitionTrace(structure1Trace());
             PartitionGraph g = buildGraph(traces);
 
             long startTime = System.currentTimeMillis();
             Bisimulation.splitPartitions(g);
             total_delta += System.currentTimeMillis() - startTime;
+            exportTestGraph(g, 1);
         }
-        long delta = total_delta / iterations;
-        System.out.println("\n\n==> TIME: " + delta + " ms (average over "
-                + iterations + " iterations)");
+        long delta = total_delta / numIterations;
+        reportTime(delta);
     }
 
-    public void runTestTrivialGkTail(int traceType, int M, int n, int r, int k,
-            boolean invariants) throws Exception {
+    public void TrivialGkTail() throws Exception {
         long total_delta = 0;
-        System.out.print("Trivial GK Tail Test Parameters ( Trace Type="
-                + traceType + " M=" + M + " n=" + n + " r=" + r + " k=" + k
-                + " synoptic.invariants=" + invariants + ")");
-        for (int iter = 0; iter < iterations; iter++) {
+        System.out.print("Trivial GK Tail Test");
+        for (int iter = 0; iter < numIterations; iter++) {
 
-            String[] traces = partitionTrace(structure1Trace(M, r), n);
+            String[] traces = partitionTrace(structure1Trace());
             PartitionGraph g = buildGraph(traces);
 
             long startTime = System.currentTimeMillis();
@@ -143,50 +151,46 @@ public class PerformanceTests extends SynopticTest {
             // KTail.kReduce(g, k, true, synoptic.invariants);
             total_delta += System.currentTimeMillis() - startTime;
         }
-        long delta = total_delta / iterations;
-        System.out.println(" ==> TIME: " + delta + " ms (average over "
-                + iterations + " iterations)");
+        long delta = total_delta / numIterations;
+        reportTime(delta);
     }
 
-    public void runTestScalableGkTail(int traceType, int M, int n, int r,
-            int k, boolean invariants) {
+    public void ScalableGkTail() {
         long total_delta = 0;
-        System.out.print("Scalable GK Tail Test Parameters ( Trace Type="
-                + traceType + " M=" + M + " n=" + n + " r=" + r + " k=" + k
-                + " synoptic.invariants=" + invariants + ")");
-        for (int iter = 0; iter < iterations; iter++) {
-
-            String[] traces = partitionTrace(structure1Trace(M, r), n);
+        System.out.print("Scalable GK Tail Test");
+        // TODO: vary k
+        int k = 0;
+        for (int iter = 0; iter < numIterations; iter++) {
+            String[] traces = partitionTrace(structure1Trace());
             ScalableGraph sg = new ScalableGraph();
             // TODO
             // for (String[] trace : traces) {
             // sg.addGraph(buildGraph(trace));
             // }
             long startTime = System.currentTimeMillis();
-            PartitionGraph g = sg.kReduce(k, true, invariants);
+            PartitionGraph g = sg.kReduce(k, true, withInvariants);
             total_delta = System.currentTimeMillis() - startTime;
         }
-        long delta = total_delta / iterations;
-        System.out.println(" ==> TIME: " + delta + " ms (average over "
-                + iterations + " iterations)");
+        long delta = total_delta / numIterations;
+        reportTime(delta);
     }
 
-    private String[] structure1Trace(int M, int r) {
-        String[] trace = new String[M];
-        for (int i = 0; i < M; i++) {
-            trace[i] = "" + i % r;
+    private String[] structure1Trace() {
+        String[] trace = new String[totalEvents];
+        for (int i = 0; i < totalEvents; i++) {
+            trace[i] = "" + i % numEventTypes;
         }
         return trace;
     }
 
-    private String[] partitionTrace(String[] trace, int n) {
-        if (trace.length % n != 0) {
+    private String[] partitionTrace(String[] trace) {
+        if (trace.length % numPartitions != 0) {
             throw new IllegalArgumentException(
                     "Cannot evenly divide trace into partitions");
         }
 
-        int perPartition = trace.length / n;
-        String[] partitioned = new String[trace.length + n - 1];
+        int perPartition = trace.length / numPartitions;
+        String[] partitioned = new String[trace.length + numPartitions - 1];
 
         int inPartCnt = 0;
         int j = 0;

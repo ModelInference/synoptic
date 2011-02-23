@@ -73,10 +73,7 @@ public class PartitionGraph implements IGraph<Partition> {
         } else {
             partitionSeparately(g.getNodes());
         }
-
-        // Compute the invariants of the input graph.
-        invariants = TemporalInvariantSet.computeInvariants(g);
-        invariants.filterOutTautologicalInvariants();
+        computeInvariants(g);
     }
 
     public PartitionGraph(IGraph<LogEvent> g,
@@ -87,10 +84,14 @@ public class PartitionGraph implements IGraph<Partition> {
         }
 
         partitionByIndexSetsAndLabels(g.getNodes(), partitioningIndexSets);
+        computeInvariants(g);
+    }
 
+    private void computeInvariants(IGraph<LogEvent> g) {
         // Compute the invariants of the input graph.
         invariants = TemporalInvariantSet.computeInvariants(g);
         invariants.filterOutTautologicalInvariants();
+        invariants.add(TemporalInvariantSet.computeINITIALAFbyXInvariants(g));
     }
 
     private void addInitialMessages(Set<LogEvent> initialMessages,

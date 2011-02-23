@@ -49,7 +49,8 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
     }
 
     /**
-     * Mark that {@code m} can reach {@code n}, and start a DFS at {@code m}.
+     * Mark that {@code m} can reach {@code n}, and start a DFS between
+     * {@code m} and nodes immediately reachable from {@code n}.
      * 
      * @param m
      *            the node to start DFS at

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -52,6 +53,12 @@ public class Graph<NodeType extends INode<NodeType>> implements
     private NodeType dummyInitialNode = null;
 
     private Set<String> cachedRelations = null;
+
+    /**
+     * A map that records which LogEvents are in which partitions together. This
+     * mapping is generated in TraceParser.generateDirectTemporalRelation
+     */
+    private LinkedHashMap<String, List<LogEvent>> partitions = null;
 
     // private static Logger logger = Logger.getLogger("Graph");
 
@@ -275,5 +282,21 @@ public class Graph<NodeType extends INode<NodeType>> implements
             }
         }
         return true;
+    }
+
+    /**
+     * Stores the partitions map.
+     * 
+     * @param partitions
+     */
+    public void setPartitions(LinkedHashMap<String, List<LogEvent>> partitions) {
+        this.partitions = partitions;
+    }
+
+    /**
+     * Returns the stored partitions map.
+     */
+    public LinkedHashMap<String, List<LogEvent>> getPartitions() {
+        return this.partitions;
     }
 }
