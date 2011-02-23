@@ -103,6 +103,15 @@ public abstract class SynopticTest {
         return sb.toString();
     }
 
+    public static List<LogEvent> parseLogEvents(String[] events,
+            TraceParser parser) throws InternalSynopticException,
+            ParseException {
+        String traceStr = concatinateWithNewlines(events);
+        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+                testName.getMethodName(), -1);
+        return parsedEvents;
+    }
+
     /**
      * Parsers events using the supplied parser, generates the initial
      * _partitioning_ graph and returns it to the caller.
@@ -111,9 +120,7 @@ public abstract class SynopticTest {
      */
     public static PartitionGraph genInitialPartitionGraph(String[] events,
             TraceParser parser) throws Exception {
-        String traceStr = concatinateWithNewlines(events);
-        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
-                testName.getMethodName(), -1);
+        List<LogEvent> parsedEvents = parseLogEvents(events, parser);
         Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
                 parsedEvents, true);
 
@@ -134,9 +141,7 @@ public abstract class SynopticTest {
      */
     public static Graph<LogEvent> genInitialLinearGraph(String[] events)
             throws ParseException, InternalSynopticException {
-        String traceStr = concatinateWithNewlines(events);
-        List<LogEvent> parsedEvents = defParser.parseTraceString(traceStr,
-                testName.getMethodName(), -1);
+        List<LogEvent> parsedEvents = parseLogEvents(events, defParser);
         // for (LogEvent event : parsedEvents) {
         // logger.fine("Parsed event: " + event.toStringFull());
         // }
