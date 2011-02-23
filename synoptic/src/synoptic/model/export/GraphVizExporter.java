@@ -8,6 +8,7 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -226,8 +227,9 @@ public class GraphVizExporter {
                 // A node is not terminal unless shown to be otherwise.
                 isTerminal = false;
 
-                Iterable<? extends ITransition<T>> transitions = node
-                        .getTransitionsIterator();
+                List<? extends ITransition<T>> transitions = node
+                        .getTransitions();
+
                 for (ITransition<T> trans : transitions) {
                     T child = trans.getTarget();
                     childNodes.add(child);
