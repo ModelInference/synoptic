@@ -78,7 +78,8 @@ public abstract class SynopticTest {
         Main.recoverFromParseErrors = false;
         Main.ignoreNonMatchingLines = false;
         Main.debugParse = false;
-        Main.logLvlExtraVerbose = true;
+        Main.logLvlVerbose = false;
+        Main.logLvlExtraVerbose = false;
         Main.SetUpLogging();
         Main.randomSeed = System.currentTimeMillis();
         Main.random = new Random(Main.randomSeed);
@@ -189,6 +190,10 @@ public abstract class SynopticTest {
      */
     protected static <T extends INode<T>> void exportTestGraph(IGraph<T> g,
             String title) {
+        // Only export test graphs we were told to be verbose.
+        if (!Main.logLvlVerbose && !Main.logLvlExtraVerbose) {
+            return;
+        }
         // String eGraph = defExporter.export(g);
         // logger.fine(eGraph);
         String path = "../" + testName.getMethodName() + title + ".dot";
