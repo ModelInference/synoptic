@@ -45,7 +45,7 @@ public class Main implements Callable<Integer> {
     /**
      * The current Synoptic version.
      */
-    public static final String versionString = "0.0.3";
+    public static final String versionString = "0.0.4";
 
     /**
      * The label used to distinguish the dummy initial node -- constructed to
@@ -437,7 +437,7 @@ public class Main implements Callable<Integer> {
 
         Main mainInstance = new Main();
 
-        if (logLvlVerbose) {
+        if (logLvlVerbose || logLvlExtraVerbose) {
             mainInstance.printOptions();
         }
 
@@ -826,14 +826,14 @@ public class Main implements Callable<Integer> {
             logger.info("Mined invariants: " + pGraph.getInvariants());
         }
 
-        if (Main.logLvlVerbose) {
+        if (logLvlVerbose || logLvlExtraVerbose) {
             System.out.println("");
             System.out.println("");
         }
         logger.fine("Refining (Splitting)...");
         Bisimulation.splitPartitions(pGraph);
 
-        if (Main.logLvlVerbose) {
+        if (logLvlVerbose || logLvlExtraVerbose) {
             System.out.println("");
             System.out.println("");
         }
