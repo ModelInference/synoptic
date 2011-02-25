@@ -132,7 +132,7 @@ public class PerformanceTests extends SynopticTest {
             long startTime = System.currentTimeMillis();
             Bisimulation.splitPartitions(g);
             total_delta += System.currentTimeMillis() - startTime;
-            exportTestGraph(g, 1);
+            // exportTestGraph(g, 1);
         }
         long delta = total_delta / numIterations;
         reportTime(delta);

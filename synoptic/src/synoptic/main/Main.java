@@ -340,6 +340,13 @@ public class Main implements Callable<Integer> {
     public static boolean runAllTests = false;
 
     /**
+     * Turns on correctness checks that are disabled by default due to their
+     * expensive cpu\memory usage profiles.
+     */
+    @Option("Perform extra correctness checks at the expense of cpu and memory usage.")
+    public static boolean performExtraChecks = false;
+
+    /**
      * Do not perform the refinement (and therefore do not perform coarsening)
      * and do not produce any representation as output. This is useful for just
      * printing the list of mined synoptic.invariants (using the option

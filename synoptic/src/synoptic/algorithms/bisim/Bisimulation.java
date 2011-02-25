@@ -52,11 +52,6 @@ public abstract class Bisimulation {
      */
     private static final boolean combineCandidates = false;
     /**
-     * Perform extra correctness checks. TODO: expose this via command line
-     * options, and make it false by default (?)
-     */
-    private static boolean EXTRA_CHECKS = true;
-    /**
      * Consider incoming transitions for splitting TODO: expose this as a
      * command line option
      */
@@ -607,7 +602,7 @@ public abstract class Bisimulation {
                         // Undo the merge.
                         pGraph.apply(rewindOperation);
 
-                        if (EXTRA_CHECKS) {
+                        if (Main.performExtraChecks) {
                             pGraph.checkSanity();
                         }
 
