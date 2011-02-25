@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import synoptic.main.Main;
 import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -20,8 +21,8 @@ public class PartitionMultiSplit implements IOperation {
 
     /**
      * Creates a partition multi split. At first it will just behave like the
-     * {@code split} passed here. Afterwards other splits may be {@code
-     * incorporate}d.
+     * {@code split} passed here. Afterwards other splits may be
+     * {@code incorporate}d.
      * 
      * @param split
      *            the split that this multi split is based on.
@@ -29,8 +30,8 @@ public class PartitionMultiSplit implements IOperation {
     public PartitionMultiSplit(PartitionSplit split) {
         partition = split.getPartition();
         partitioning.add(split.getSplitEvents());
-        Set<LogEvent> otherMessages = new LinkedHashSet<LogEvent>(partition
-                .getMessages());
+        Set<LogEvent> otherMessages = new LinkedHashSet<LogEvent>(
+                partition.getMessages());
         otherMessages.removeAll(split.getSplitEvents());
         partitioning.add(otherMessages);
     }
@@ -52,7 +53,9 @@ public class PartitionMultiSplit implements IOperation {
             newPartition.addAllMessages(set);
             g.add(newPartition);
         }
-        g.checkSanity();
+        if (Main.performExtraChecks) {
+            g.checkSanity();
+        }
         return new PartitionMultiMerge(partition, newPartitions);
     }
 
