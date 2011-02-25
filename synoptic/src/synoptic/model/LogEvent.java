@@ -27,7 +27,7 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
      */
     private Partition parent;
     private final Action action;
-
+    
     List<Relation<LogEvent>> transitions = new ArrayList<Relation<LogEvent>>();
     LinkedHashMap<String, List<Relation<LogEvent>>> transitionsByAction = new LinkedHashMap<String, List<Relation<LogEvent>>>();
     LinkedHashMap<String, LinkedHashMap<LogEvent, List<Relation<LogEvent>>>> transitionsByActionAndTarget = new LinkedHashMap<String, LinkedHashMap<LogEvent, List<Relation<LogEvent>>>>();
@@ -302,5 +302,13 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
         }
 
         return 0;
+    }
+    
+    public String getLine(){
+    	return action.getLine();
+    }
+    
+    public String getFile(){
+    	return action.getFile();
     }
 }
