@@ -3,11 +3,14 @@ package synoptic.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.awt.print.Printable;
@@ -21,8 +24,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/*Mine*/
+import java.awt.geom.Point2D; 
+import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
+
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.ButtonGroup;
 import javax.swing.JApplet;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -33,10 +41,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.functors.MapTransformer;
 import org.apache.commons.collections15.map.LazyMap;
+
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
@@ -50,6 +61,7 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.AbstractPopupGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
@@ -61,6 +73,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
+import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.INode;
@@ -85,6 +98,8 @@ public class JungGui extends JApplet implements Printable {
      */
     JFrame frame;
 
+    PopupGraphMousePlugin mplug;
+    
     /**
      * The partition graph maintained by Synoptic.
      */
@@ -119,6 +134,7 @@ public class JungGui extends JApplet implements Printable {
             + "</ul>"
             + "<h3>All Modes:</h3>"
             + "<ul>"
+            + "<li>Right-clicking on a node allows you to view the log lines represented by that node"
             + "<li>Mousewheel scales with a crossover value of 1.0.<p>"
             + "     - scales the graph layout when the combined scale is greater than 1<p>"
             + "     - scales the graph view when the combined scale is less than 1"
@@ -181,6 +197,8 @@ public class JungGui extends JApplet implements Printable {
         }
         oldPartitions = newPartitions;
 
+        mplug = new PopupGraphMousePlugin();
+        
         jGraph = getJGraph();
         setUpGui();
         frame = new JFrame();
@@ -190,19 +208,41 @@ public class JungGui extends JApplet implements Printable {
         frame.getContentPane().add(this);
         frame.pack();
         frame.setVisible(true);
+        /*
+        for(Partition p : pGraph.getNodes()){
+        	System.out.println("Partition: " + p);
+        	for(LogEvent e : p.getMessages()){
+        		System.out.println("  Event line: " + e.getLine());
+        	}
+        }*/
     }
 
     /**
      * Makes File menu
      * @param frame
      */
-    @SuppressWarnings("serial")
     public void addMenuBar(JFrame frame) {
     	JMenuBar menuBar = new JMenuBar();
+    	
         JMenu fileMenu = new JMenu("File");
+        createFileMenu(fileMenu);
+        menuBar.add(fileMenu);
         
+        JMenu actionsMenu = new JMenu("Synoptic Actions");
+        createRefineButton(actionsMenu);
+        menuBar.add(actionsMenu);
+        
+        JMenu graphLayouts = new JMenu("Graph Layouts");
+        createLayoutsMenu(graphLayouts);
+        menuBar.add(graphLayouts);
+        
+        frame.setJMenuBar(menuBar);
+        
+    }
+    
+    public void createFileMenu(JMenu fileMenu){
         fileMenu.add(new AbstractAction("Make Image") {
-            @Override
+			@Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
                 int option = chooser.showSaveDialog(JungGui.this);
@@ -235,10 +275,9 @@ public class JungGui extends JApplet implements Printable {
             }
         });
         fileMenu.add(help);
-        menuBar.add(fileMenu);
-        
-        JMenu actionsMenu = new JMenu("Synoptic Actions");
-
+    }
+    
+    public void createRefineButton(JMenu actionsMenu){
         final JMenuItem refineOption = new JMenuItem("Refine");
         refineOption.addActionListener(new ActionListener() {
             @Override
@@ -282,30 +321,32 @@ public class JungGui extends JApplet implements Printable {
             }
         });
         actionsMenu.add(refineOption);
-        menuBar.add(actionsMenu);
+    }
+    
+    public void createLayoutsMenu(JMenu graphLayouts){
         
-        JMenu graphLayouts = new JMenu("Graph Layouts");
+        // Map names to layout classes
         final Map<String, Class<?>> labels = new HashMap <String, Class<?>>();
         labels.put("Kamada-Kawai", KKLayout.class);
         labels.put("Force-Directed", FRLayout.class);
         labels.put("Circle", CircleLayout.class);
         labels.put("Spring", SpringLayout.class);
         labels.put("ISOM", ISOMLayout.class);
-        
+
+        ButtonGroup layoutButtonGroup = new ButtonGroup();
         for(final String layout : labels.keySet()){
-        	JMenuItem temp = new JMenuItem(layout);
+        	JRadioButton temp = new JRadioButton(layout);
         	temp.addActionListener(new ActionListener() {
         		@Override
                 public void actionPerformed(ActionEvent e) {
                     selectLayout(labels.get(layout));
                 }
         	});;
+        	if(layout.equals("Force-Directed"))
+        		temp.setSelected(true);
         	graphLayouts.add(temp);
+        	layoutButtonGroup.add(temp);
         }
-        
-        menuBar.add(graphLayouts);
-
-        frame.setJMenuBar(menuBar);
         
     }
     
@@ -319,8 +360,7 @@ public class JungGui extends JApplet implements Printable {
     		// Double check that the item in the combo-box is a valid Layout.
     		if (o instanceof Layout<?, ?>) {
     			// Initialize the layout with the current layout's graph.
-    			//Layout<INode<Partition>, ITransition<Partition>> layout;
-    			Layout<INode<Partition>, ITransition<Partition>> layout = (Layout<INode<Partition>, ITransition<Partition>>) o;
+    			layout = (Layout<INode<Partition>, ITransition<Partition>>) o;
     			layout.setGraph(vizViewer.getGraphLayout().getGraph());
     			// Tell the viewer to use the new layout.
     			vizViewer.setGraphLayout(layout);
@@ -433,6 +473,7 @@ public class JungGui extends JApplet implements Printable {
                             return Color.YELLOW;
                         }
 
+                        
                         if (inNew) {
                             // A newly created node.
                             return Color.GREEN;
@@ -454,16 +495,21 @@ public class JungGui extends JApplet implements Printable {
         Container content = getContentPane();
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vizViewer);
         content.add(panel);
-
+        
+        // PopupGraphMousePlugin pr = new PopupGraphMousePlugin();
+        
         final EditingModalGraphMouse<INode<Partition>, ITransition<Partition>> graphMouse = new EditingModalGraphMouse<INode<Partition>, ITransition<Partition>>(
                 vizViewer.getRenderContext(), null, null);
-
+        
+        
+       
         vizViewer.setGraphMouse(graphMouse);
         vizViewer.addKeyListener(graphMouse.getModeKeyListener());
 
         graphMouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
-
-
+        
+        vizViewer.addMouseListener(mplug);
+        
         JPanel controls = new JPanel();
         JComboBox modeBox = graphMouse.getModeComboBox();
         controls.add(modeBox);
@@ -471,10 +517,6 @@ public class JungGui extends JApplet implements Printable {
         // Remove ANNOTATING and EDITING modeBox items:
         modeBox.removeItemAt(2);
         modeBox.removeItemAt(2);
-
-        // Temporarily hide the layout chooser combo box
-        // LayoutChooser.addLayoutCombo(controls, jGraph, vizViewer);
-
 
         content.add(controls, BorderLayout.NORTH);
     }
@@ -519,4 +561,72 @@ public class JungGui extends JApplet implements Printable {
             return Printable.PAGE_EXISTS;
         }
     }
+
+    /**
+     * a GraphMousePlugin that offers popup
+     * menu support
+     */
+    protected class PopupGraphMousePlugin extends AbstractPopupGraphMousePlugin implements MouseListener {
+    	
+    	public PopupGraphMousePlugin() {
+    		this(MouseEvent.BUTTON3_MASK);
+    	}
+    	public PopupGraphMousePlugin(int modifiers) {
+    		super(modifiers);
+    	}
+
+    	/**
+    	 * If this event is over a Vertex, pop up a menu to
+    	 * allow the user to increase/decrease the voltage
+    	 * attribute of this Vertex
+    	 * @param e
+    	 */
+    	protected void handlePopup(MouseEvent e) {
+    		final Point2D p = e.getPoint();
+    		GraphElementAccessor <INode<Partition>, ITransition<Partition>> pickSupport = vizViewer.getPickSupport();
+    		if(pickSupport != null) {
+    			final Partition v = (Partition) pickSupport.getVertex(layout, p.getX(), p.getY());
+    			if(v != null) {
+    				JPopupMenu popup = new JPopupMenu();
+    				popup.add(new AbstractAction("View log lines") {
+    					public void actionPerformed(ActionEvent e) {
+    						String [] columnNames = {"Line", "File"};
+    						Object [][] data = new Object [v.getMessages().size()][2];
+    						int i = 0;
+    						// Change to show log lines in a new window
+    						for(LogEvent event : v.getMessages()){
+    							data[i] = new String [] {event.getLine(), event.getFile()};
+    							i++;
+    						}
+    						final JTable table = new JTable(data, columnNames);
+    						table.setPreferredScrollableViewportSize(new Dimension(500, 70));
+    						table.setFillsViewportHeight(true);
+    						//Create the scroll pane and add the table to it.
+    						JScrollPane scrollPane = new JScrollPane(table);
+
+    						//Add the scroll pane to new frame
+    						JFrame lineFrame = new JFrame();
+    						lineFrame.add(scrollPane);
+    						lineFrame.pack();
+    			            lineFrame.setVisible(true);
+    					}
+    				});
+    				popup.show(vizViewer, e.getX(), e.getY());
+    			}else{
+    				JPopupMenu popup = new JPopupMenu();
+    				popup.add(new AbstractAction("Help") {
+    					public void actionPerformed(ActionEvent e) {
+    						JOptionPane.showMessageDialog(vizViewer, instructions);
+    					}
+    				});
+    				popup.show(vizViewer, e.getX(), e.getY());
+    			}
+    		}
+    		
+    	}
+    }
 }
+
+
+
+

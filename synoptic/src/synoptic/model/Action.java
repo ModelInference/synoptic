@@ -43,6 +43,12 @@ public class Action {
      */
     Map<String, String> stringArguments = new LinkedHashMap<String, String>();
 
+    /*
+     * Log line
+     */
+    String logLine;
+    
+    String file;
     /**
      * Create an action with a label. Do not check for collisions with
      * internally used labels.
@@ -52,8 +58,10 @@ public class Action {
      * @param dummy
      *            unused
      */
-    public Action(String label, boolean dummy) {
+    public Action(String label, boolean dummy, String logLine, String file) {
         this.label = label;
+        this.logLine = logLine;
+        this.file = file;
         computeHashCode();
     }
 
@@ -63,8 +71,8 @@ public class Action {
      * @param label
      *            the label for the action
      */
-    public Action(String label) {
-        this(label, true);
+    public Action(String label, String logLine, String file) {
+        this(label, true, logLine, file);
         // TODO: translate labels so that collisions such as this do not occur.
         if (label.equals(Main.initialNodeLabel)
                 || label.equals(Main.terminalNodeLabel)) {
@@ -74,19 +82,23 @@ public class Action {
                             + "' because it conflicts with internal INITIAL/TERMINAL Synoptic labels.");
         }
     }
-
+    
+    public Action(String label){
+    	this(label, null, null);
+    }
+    
     /**
      * Returns the special initial action.
      */
     public static Action NewInitialAction() {
-        return new Action(Main.initialNodeLabel, true);
+        return new Action(Main.initialNodeLabel, true, null, null);
     }
 
     /**
      * Returns the special terminal action.
      */
     public static Action NewTerminalAction() {
-        return new Action(Main.terminalNodeLabel, true);
+        return new Action(Main.terminalNodeLabel, true, null, null);
     }
 
     @Override
@@ -248,5 +260,12 @@ public class Action {
         stringArguments.putAll(action.stringArguments);
         computeHashCode();
     }
+    
+    public String getLine(){
+    	return logLine;
+    }
 
+    public String getFile(){
+    	return file;
+    }
 }

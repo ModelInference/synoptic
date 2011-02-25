@@ -541,9 +541,9 @@ public class TraceParser {
 
             if (eventType == null) {
                 // In the absence of a type, use the entire log line.
-                action = new Action(line);
+                action = new Action(line, line, filename);
             } else {
-                action = new Action(eventType);
+                action = new Action(eventType, line, filename);
             }
             action = action.intern();
 
@@ -654,7 +654,7 @@ public class TraceParser {
         if (Main.recoverFromParseErrors) {
             logger.warning("Failed to parse trace line: \n" + line + "\n"
                     + "Using entire line as type.");
-            action = new Action(line);
+            action = new Action(line, line, filename);
             action = action.intern();
             if (selectedTimeGroup.equals(implicitTimeGroup)) {
                 // We can recover OK with log-line counting time.
