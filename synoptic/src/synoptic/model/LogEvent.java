@@ -309,6 +309,6 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
     }
     
     public String getFile(){
-    	return action.getFile();
+    	return action.getFileName();
     }
 }

@@ -107,7 +107,7 @@ public class Main implements Callable<Integer> {
      * Use the new FSM checker instead of the LTL checker.
      */
     @Option(
-            value = "-f Use FSM checker instead of the default NAN LTL-based checker",
+            value = "-f Use FSM checker instead of the default NASA LTL-based checker",
             aliases = { "-use-fsm-checker" })
     public static boolean useFSMChecker = false;
 

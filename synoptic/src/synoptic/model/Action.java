@@ -43,12 +43,16 @@ public class Action {
      */
     Map<String, String> stringArguments = new LinkedHashMap<String, String>();
 
-    /*
-     * Log line
+    /**
+     * The complete log line corresponding to this action.
      */
     String logLine;
-    
-    String file;
+
+    /**
+     * The filename from where the label for this action was parsed.
+     */
+    String fileName;
+
     /**
      * Create an action with a label. Do not check for collisions with
      * internally used labels.
@@ -58,11 +62,24 @@ public class Action {
      * @param dummy
      *            unused
      */
-    public Action(String label, boolean dummy, String logLine, String file) {
+    public Action(String label, boolean isSpecialLabel, String logLine,
+            String fileName) {
         this.label = label;
         this.logLine = logLine;
-        this.file = file;
+        this.fileName = fileName;
         computeHashCode();
+        if (!isSpecialLabel) {
+            // TODO: translate labels so that collisions such as this do not
+            // occur.
+            if (label.equals(Main.initialNodeLabel)
+                    || label.equals(Main.terminalNodeLabel)) {
+                throw new IllegalArgumentException(
+                        "Cannot create a node with label '"
+                                + label
+                                + "' because it conflicts with internal INITIAL/TERMINAL Synoptic labels.");
+            }
+        }
+
     }
 
     /**
@@ -71,22 +88,15 @@ public class Action {
      * @param label
      *            the label for the action
      */
-    public Action(String label, String logLine, String file) {
-        this(label, true, logLine, file);
-        // TODO: translate labels so that collisions such as this do not occur.
-        if (label.equals(Main.initialNodeLabel)
-                || label.equals(Main.terminalNodeLabel)) {
-            throw new IllegalArgumentException(
-                    "Cannot create a node with label '"
-                            + label
-                            + "' because it conflicts with internal INITIAL/TERMINAL Synoptic labels.");
-        }
+    public Action(String label, String logLine, String fileName) {
+        this(label, false, logLine, fileName);
+
     }
-    
-    public Action(String label){
-    	this(label, null, null);
+
+    public Action(String label) {
+        this(label, null, null);
     }
-    
+
     /**
      * Returns the special initial action.
      */
@@ -260,12 +270,12 @@ public class Action {
         stringArguments.putAll(action.stringArguments);
         computeHashCode();
     }
-    
-    public String getLine(){
-    	return logLine;
+
+    public String getLine() {
+        return logLine;
     }
 
-    public String getFile(){
-    	return file;
+    public String getFileName() {
+        return fileName;
     }
 }

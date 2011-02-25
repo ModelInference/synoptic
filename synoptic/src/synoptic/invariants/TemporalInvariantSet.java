@@ -507,10 +507,6 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         TemporalInvariantSet set = new TemporalInvariantSet();
         for (String label1 : partitions.keySet()) {
             for (String label2 : partitions.keySet()) {
-                Set<T> hasPredecessor = new LinkedHashSet<T>();
-                Set<T> hasNoPredecessor = new LinkedHashSet<T>();
-                Set<T> isPredecessor = new LinkedHashSet<T>();
-                Set<T> isNoPredecessor = new LinkedHashSet<T>();
                 boolean neverFollowed = true;
                 boolean alwaysFollowedBy = true;
                 boolean alwaysPreceded = true;
@@ -524,18 +520,19 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
                         }
                         if (tc.isReachable(node2, node1)) {
                             predecessorFound = true;
-                            hasPredecessor.add(node1);
-                            isPredecessor.add(node2);
-                        } else {
-                            isNoPredecessor.add(node2);
                         }
                     }
+                    // Every node instance with label1 must be followed by a
+                    // node instance with label2 for label1 AFby label2 to be
+                    // true.
                     if (!followerFound) {
                         alwaysFollowedBy = false;
                     }
+                    // Every node instance with label1 must be preceded by a
+                    // node instance with label2 for label2 AP label1 to be
+                    // true.
                     if (!predecessorFound) {
                         alwaysPreceded = false;
-                        hasNoPredecessor.add(node1);
                     }
                 }
                 if (neverFollowed) {
@@ -548,18 +545,19 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
                 if (alwaysPreceded) {
                     set.add(new AlwaysPrecedesInvariant(label2, label1,
                             relation));
-                } else if (generateStructuralInvariants) {
-                    try {
-                        // TODO
-                        // Daikonizer.generateStructuralInvaraints(hasPredecessor,
-                        // hasNoPredecessor,
-                        // isPredecessor, isNoPredecessor, partitions, label1,
-                        // label2);
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
                 }
+                // else if (generateStructuralInvariants) {
+                // try {
+                // TODO
+                // Daikonizer.generateStructuralInvaraints(hasPredecessor,
+                // hasNoPredecessor,
+                // isPredecessor, isNoPredecessor, partitions, label1,
+                // label2);
+                // } catch (Exception e) {
+                // TODO Auto-generated catch block
+                // e.printStackTrace();
+                // }
+                // }
             }
         }
         return set;
