@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D; 
 import java.awt.image.BufferedImage;
 import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
@@ -24,15 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/*Mine*/
-import java.awt.geom.Point2D; 
-import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
-
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.JApplet;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -44,13 +40,14 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.functors.MapTransformer;
 import org.apache.commons.collections15.map.LazyMap;
 
-
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -61,9 +58,6 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.AbstractPopupGraphMousePlugin;
-import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
@@ -97,8 +91,6 @@ public class JungGui extends JApplet implements Printable {
      * Java frame used by the gui.
      */
     JFrame frame;
-
-    PopupGraphMousePlugin mplug;
     
     /**
      * The partition graph maintained by Synoptic.
@@ -134,19 +126,18 @@ public class JungGui extends JApplet implements Printable {
             + "</ul>"
             + "<h3>All Modes:</h3>"
             + "<ul>"
-            + "<li>Right-clicking on a node allows you to view the log lines represented by that node"
             + "<li>Mousewheel scales with a crossover value of 1.0.<p>"
             + "     - scales the graph layout when the combined scale is greater than 1<p>"
             + "     - scales the graph view when the combined scale is less than 1"
             + "</ul>"
-            + "<h3>Transforming Mode:</h3>"
+            + "<h3>Transforming Mode: (right mouse clicks)</h3>"
             + "<ul>"
-            + "<li>Mouse1+drag pans the graph"
-            + "<li>Mouse1+Shift+drag rotates the graph"
-            + "<li>Mouse1+CTRL(or Command)+drag shears the graph"
-            + "<li>Mouse1 double-click on a vertex or edge allows you to edit the label"
+            + "<li>Mouse3+drag pans the graph"
+            + "<li>Mouse3+Shift+drag rotates the graph"
+            + "<li>Mouse3+CTRL(or Command)+drag shears the graph"
+            //+ "<li>Mouse3 double-click on a vertex or edge allows you to edit the label"
             + "</ul>"
-            + "<h3>Picking Mode:</h3>"
+            + "<h3>Picking Mode: (left mouse clicks)</h3>"
             + "<ul>"
             + "<li>Mouse1 on a Vertex selects the vertex"
             + "<li>Mouse1 elsewhere unselects all Vertices"
@@ -155,7 +146,8 @@ public class JungGui extends JApplet implements Printable {
             + "<li>Mouse1+drag elsewhere selects Vertices in a region"
             + "<li>Mouse1+Shift+drag adds selection of Vertices in a new region"
             + "<li>Mouse1+CTRL on a Vertex selects the vertex and centers the display on it"
-            + "<li>Mouse1 double-click on a vertex or edge allows you to edit the label"
+            + "<li>Mouse1 double-click on a vertex allows you to view the log lines represented by that node"
+            //+ "<li>Mouse1 double-click on a vertex or edge allows you to edit the label"
             + "</ul>" + "</html>";
 
     Set<ITemporalInvariant> unsatisfiedInvariants;
@@ -196,25 +188,19 @@ public class JungGui extends JApplet implements Printable {
             newPartitions.put(p, p.getMessages().size());
         }
         oldPartitions = newPartitions;
-
-        mplug = new PopupGraphMousePlugin();
         
         jGraph = getJGraph();
-        setUpGui();
+        
         frame = new JFrame();
+        setUpGui();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
+        
         addMenuBar(frame);
+        
         frame.getContentPane().add(this);
         frame.pack();
         frame.setVisible(true);
-        /*
-        for(Partition p : pGraph.getNodes()){
-        	System.out.println("Partition: " + p);
-        	for(LogEvent e : p.getMessages()){
-        		System.out.println("  Event line: " + e.getLine());
-        	}
-        }*/
     }
 
     /**
@@ -240,7 +226,8 @@ public class JungGui extends JApplet implements Printable {
         
     }
     
-    public void createFileMenu(JMenu fileMenu){
+    @SuppressWarnings("serial")
+	public void createFileMenu(JMenu fileMenu){
         fileMenu.add(new AbstractAction("Make Image") {
 			@Override
             public void actionPerformed(ActionEvent e) {
@@ -350,7 +337,8 @@ public class JungGui extends JApplet implements Printable {
         
     }
     
-    public void selectLayout(Class<?> choice){
+    @SuppressWarnings("unchecked")
+	public void selectLayout(Class<?> choice){
     	Object[] constructorArgs = { jGraph };
     	Class<?> layoutC = choice;
     	try {
@@ -390,8 +378,7 @@ public class JungGui extends JApplet implements Printable {
 
     public void setUpGui() throws Exception {
         layout = new FRLayout<INode<Partition>, ITransition<Partition>>(jGraph);
-        vizViewer = new VisualizationViewer<INode<Partition>, ITransition<Partition>>(
-                layout);
+        vizViewer = new VisualizationViewer<INode<Partition>, ITransition<Partition>>(layout);
         vizViewer.setBackground(Color.white);
         Transformer<INode<Partition>, String> nodeLabeller = new Transformer<INode<Partition>, String>() {
             @Override
@@ -496,29 +483,16 @@ public class JungGui extends JApplet implements Printable {
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vizViewer);
         content.add(panel);
         
-        // PopupGraphMousePlugin pr = new PopupGraphMousePlugin();
-        
-        final EditingModalGraphMouse<INode<Partition>, ITransition<Partition>> graphMouse = new EditingModalGraphMouse<INode<Partition>, ITransition<Partition>>(
-                vizViewer.getRenderContext(), null, null);
-        
-        
-       
+        final ModalMousePlugin graphMouse = new ModalMousePlugin(
+                vizViewer.getRenderContext());
+ 
         vizViewer.setGraphMouse(graphMouse);
         vizViewer.addKeyListener(graphMouse.getModeKeyListener());
-
-        graphMouse.setMode(ModalGraphMouse.Mode.TRANSFORMING);
         
-        vizViewer.addMouseListener(mplug);
-        
-        JPanel controls = new JPanel();
-        JComboBox modeBox = graphMouse.getModeComboBox();
-        controls.add(modeBox);
-
-        // Remove ANNOTATING and EDITING modeBox items:
-        modeBox.removeItemAt(2);
-        modeBox.removeItemAt(2);
-
-        content.add(controls, BorderLayout.NORTH);
+        JPanel logLineWindow = new JPanel();
+        CustomMousePlugin mousePlugIn = new CustomMousePlugin(logLineWindow);
+        vizViewer.addMouseListener(mousePlugIn);
+        content.add(logLineWindow, BorderLayout.SOUTH);
     }
 
     /**
@@ -562,71 +536,54 @@ public class JungGui extends JApplet implements Printable {
         }
     }
 
-    /**
-     * a GraphMousePlugin that offers popup
-     * menu support
-     */
-    protected class PopupGraphMousePlugin extends AbstractPopupGraphMousePlugin implements MouseListener {
+    protected class CustomMousePlugin implements MouseListener {
+		
+    	LogLineTableModel dataModel;
     	
-    	public PopupGraphMousePlugin() {
-    		this(MouseEvent.BUTTON3_MASK);
-    	}
-    	public PopupGraphMousePlugin(int modifiers) {
-    		super(modifiers);
+    	public CustomMousePlugin(JPanel logLineWindow) {
+    		dataModel = new LogLineTableModel(new Object[0][0]);
+    		JTable table = new JTable(dataModel);
+    		table.getColumnModel().getColumn(0).setHeaderValue("Line");
+    		table.getColumnModel().getColumn(1).setHeaderValue("File");
+    		table.setPreferredScrollableViewportSize(new Dimension(500, 70));
+			table.setFillsViewportHeight(true);
+			JScrollPane scrollPane = new JScrollPane(table);
+			logLineWindow.add(scrollPane);
     	}
 
-    	/**
-    	 * If this event is over a Vertex, pop up a menu to
-    	 * allow the user to increase/decrease the voltage
-    	 * attribute of this Vertex
-    	 * @param e
-    	 */
-    	protected void handlePopup(MouseEvent e) {
-    		final Point2D p = e.getPoint();
-    		GraphElementAccessor <INode<Partition>, ITransition<Partition>> pickSupport = vizViewer.getPickSupport();
-    		if(pickSupport != null) {
-    			final Partition v = (Partition) pickSupport.getVertex(layout, p.getX(), p.getY());
-    			if(v != null) {
-    				JPopupMenu popup = new JPopupMenu();
-    				popup.add(new AbstractAction("View log lines") {
-    					public void actionPerformed(ActionEvent e) {
-    						String [] columnNames = {"Line", "File"};
-    						Object [][] data = new Object [v.getMessages().size()][2];
-    						int i = 0;
-    						// Change to show log lines in a new window
-    						for(LogEvent event : v.getMessages()){
-    							data[i] = new String [] {event.getLine(), event.getFile()};
-    							i++;
-    						}
-    						final JTable table = new JTable(data, columnNames);
-    						table.setPreferredScrollableViewportSize(new Dimension(500, 70));
-    						table.setFillsViewportHeight(true);
-    						//Create the scroll pane and add the table to it.
-    						JScrollPane scrollPane = new JScrollPane(table);
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1){
+				final Point2D p = e.getPoint();
+	    		GraphElementAccessor <INode<Partition>, ITransition<Partition>> location = vizViewer.getPickSupport();
+	    		if(location != null) {
+	    			final Partition vertex = (Partition) location.getVertex(layout, p.getX(), p.getY());
+	    			if(vertex != null) {
 
-    						//Add the scroll pane to new frame
-    						JFrame lineFrame = new JFrame();
-    						lineFrame.add(scrollPane);
-    						lineFrame.pack();
-    			            lineFrame.setVisible(true);
-    					}
-    				});
-    				popup.show(vizViewer, e.getX(), e.getY());
-    			}else{
-    				JPopupMenu popup = new JPopupMenu();
-    				popup.add(new AbstractAction("Help") {
-    					public void actionPerformed(ActionEvent e) {
-    						JOptionPane.showMessageDialog(vizViewer, instructions);
-    					}
-    				});
-    				popup.show(vizViewer, e.getX(), e.getY());
-    			}
-    		}
-    		
-    	}
+	    				Object [][] data = new Object [vertex.getMessages().size()][2];
+	    				int i = 0;
+	    				for(LogEvent event : vertex.getMessages()){
+	    					data[i] = new String [] {event.getLine(), event.getFile()};
+	    					i++;
+	    				}
+	    				dataModel.setData(data);
+	    			}
+	    		}
+			}
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {}
+
+		@Override
+		public void mouseExited(MouseEvent e) {}
     }
 }
-
-
 
 
