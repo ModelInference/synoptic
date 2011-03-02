@@ -367,9 +367,10 @@ public class TraceParser {
         String fileName = "";
         try {
             fileName = file.getAbsolutePath();
+            String localFileName = file.getName();
             FileInputStream fstream = new FileInputStream(file);
             InputStreamReader fileReader = new InputStreamReader(fstream);
-            return parseTrace(fileReader, fileName, linesToRead);
+            return parseTrace(fileReader, fileName, linesToRead, localFileName);
         } catch (IOException e) {
             logger.severe("Error while attempting to read log file ["
                     + fileName + "]: " + e.getMessage());
@@ -397,7 +398,7 @@ public class TraceParser {
             int linesToRead) throws ParseException, InternalSynopticException {
         StringReader stringReader = new StringReader(trace);
         try {
-            return parseTrace(stringReader, traceName, linesToRead);
+            return parseTrace(stringReader, traceName, linesToRead, null);
         } catch (IOException e) {
             logger.severe("Error while reading string [" + traceName + "]: "
                     + e.getMessage());
@@ -422,7 +423,7 @@ public class TraceParser {
      *             when Synoptic code is the problem
      */
     public List<LogEvent> parseTrace(Reader traceReader, String traceName,
-            int linesToRead) throws ParseException, IOException,
+            int linesToRead, String localFileName) throws ParseException, IOException,
             InternalSynopticException {
         BufferedReader br = new BufferedReader(traceReader);
 
@@ -437,13 +438,14 @@ public class TraceParser {
         ArrayList<LogEvent> results = new ArrayList<LogEvent>();
         String strLine = null;
         VectorTime prevTime = new VectorTime("0");
-
+        int lineNum = 0;
         // Process each line in sequence.
         while ((strLine = br.readLine()) != null) {
             if (results.size() == linesToRead) {
                 break;
             }
-            LogEvent event = parseLine(prevTime, strLine, traceName, context);
+            lineNum++;
+            LogEvent event = parseLine(prevTime, strLine, traceName, context, localFileName, lineNum);
             if (event == null) {
                 continue;
             }
@@ -471,7 +473,7 @@ public class TraceParser {
      * incremented and used instead.
      */
     private LogEvent parseLine(VectorTime prevTime, String line,
-            String filename, Map<String, Integer> context)
+            String filename, Map<String, Integer> context, String localFileName, int lineNum)
             throws ParseException, InternalSynopticException {
 
         Action action = null;
@@ -541,9 +543,9 @@ public class TraceParser {
 
             if (eventType == null) {
                 // In the absence of a type, use the entire log line.
-                action = new Action(line, line, filename);
+                action = new Action(line, line, localFileName, lineNum);
             } else {
-                action = new Action(eventType, line, filename);
+                action = new Action(eventType, line, localFileName, lineNum);
             }
             action = action.intern();
 
@@ -654,7 +656,7 @@ public class TraceParser {
         if (Main.recoverFromParseErrors) {
             logger.warning("Failed to parse trace line: \n" + line + "\n"
                     + "Using entire line as type.");
-            action = new Action(line, line, filename);
+            action = new Action(line, line, localFileName, lineNum);
             action = action.intern();
             if (selectedTimeGroup.equals(implicitTimeGroup)) {
                 // We can recover OK with log-line counting time.

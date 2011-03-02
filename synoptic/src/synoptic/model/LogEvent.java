@@ -311,4 +311,9 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
     public String getFile(){
     	return action.getFileName();
     }
+    
+    public String getLineNum(){
+    	int lineNum = action.getLineNum();
+    	return lineNum == 0 ? "" : "" + action.getLineNum();
+    }
 }
