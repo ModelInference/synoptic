@@ -8,10 +8,10 @@ import javax.swing.table.AbstractTableModel;
  */
 @SuppressWarnings("serial")
 public class LogLineTableModel extends AbstractTableModel {
-	private final String [] columnNames = new String [] {"Line", "File"};
+	private final String [] columnNames = new String [] {"Line #", "Line", "File"};
 	private Object[][] data;
 
-	public LogLineTableModel(Object[][]data) {
+	public LogLineTableModel(Object[][] data) {
 		this.data = data;
 	}
 

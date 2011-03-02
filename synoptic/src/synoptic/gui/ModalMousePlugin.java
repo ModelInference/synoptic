@@ -7,7 +7,6 @@ import synoptic.model.Partition;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 
-
 import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.control.AnimatedPickingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;

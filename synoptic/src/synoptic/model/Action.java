@@ -54,6 +54,11 @@ public class Action {
     String fileName;
 
     /**
+     * The line number from where the label for this action was parsed.
+     */
+    int lineNum;
+    
+    /**
      * Create an action with a label. Do not check for collisions with
      * internally used labels.
      * 
@@ -63,10 +68,11 @@ public class Action {
      *            unused
      */
     public Action(String label, boolean isSpecialLabel, String logLine,
-            String fileName) {
+            String fileName, int lineNum) {
         this.label = label;
         this.logLine = logLine;
         this.fileName = fileName;
+        this.lineNum = lineNum;
         computeHashCode();
         if (!isSpecialLabel) {
             // TODO: translate labels so that collisions such as this do not
@@ -88,27 +94,27 @@ public class Action {
      * @param label
      *            the label for the action
      */
-    public Action(String label, String logLine, String fileName) {
-        this(label, false, logLine, fileName);
+    public Action(String label, String logLine, String fileName, int lineNum) {
+        this(label, false, logLine, fileName, lineNum);
 
     }
 
     public Action(String label) {
-        this(label, null, null);
+        this(label, null, null, 0);
     }
 
     /**
      * Returns the special initial action.
      */
     public static Action NewInitialAction() {
-        return new Action(Main.initialNodeLabel, true, null, null);
+        return new Action(Main.initialNodeLabel, true, null, null, 0);
     }
 
     /**
      * Returns the special terminal action.
      */
     public static Action NewTerminalAction() {
-        return new Action(Main.terminalNodeLabel, true, null, null);
+        return new Action(Main.terminalNodeLabel, true, null, null, 0);
     }
 
     @Override
@@ -277,5 +283,9 @@ public class Action {
 
     public String getFileName() {
         return fileName;
+    }
+    
+    public int getLineNum(){
+    	return lineNum;
     }
 }

@@ -543,9 +543,10 @@ public class JungGui extends JApplet implements Printable {
     	public CustomMousePlugin(JPanel logLineWindow) {
     		dataModel = new LogLineTableModel(new Object[0][0]);
     		JTable table = new JTable(dataModel);
-    		table.getColumnModel().getColumn(0).setHeaderValue("Line");
-    		table.getColumnModel().getColumn(1).setHeaderValue("File");
-    		table.setPreferredScrollableViewportSize(new Dimension(500, 70));
+    		table.getColumnModel().getColumn(0).setHeaderValue("Line #");
+    		table.getColumnModel().getColumn(1).setHeaderValue("Line");
+    		table.getColumnModel().getColumn(2).setHeaderValue("File");
+    		table.setPreferredScrollableViewportSize(new Dimension(600, 70));
 			table.setFillsViewportHeight(true);
 			JScrollPane scrollPane = new JScrollPane(table);
 			logLineWindow.add(scrollPane);
@@ -560,10 +561,10 @@ public class JungGui extends JApplet implements Printable {
 	    			final Partition vertex = (Partition) location.getVertex(layout, p.getX(), p.getY());
 	    			if(vertex != null) {
 
-	    				Object [][] data = new Object [vertex.getMessages().size()][2];
+	    				Object [][] data = new Object [vertex.getMessages().size()][3];
 	    				int i = 0;
 	    				for(LogEvent event : vertex.getMessages()){
-	    					data[i] = new String [] {event.getLine(), event.getFile()};
+	    					data[i] = new String [] {event.getLineNum(), event.getLine(), event.getFile()};
 	    					i++;
 	    				}
 	    				dataModel.setData(data);
