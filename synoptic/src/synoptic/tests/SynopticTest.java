@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
+import synoptic.invariants.InvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
@@ -80,6 +81,7 @@ public abstract class SynopticTest {
         Main.debugParse = false;
         Main.logLvlVerbose = false;
         Main.logLvlExtraVerbose = false;
+        // Main.logLvlExtraVerbose = true;
         Main.SetUpLogging();
         Main.randomSeed = System.currentTimeMillis();
         Main.random = new Random(Main.randomSeed);
@@ -104,11 +106,11 @@ public abstract class SynopticTest {
         return sb.toString();
     }
 
-    public static List<LogEvent> parseLogEvents(String[] events,
+    public static ArrayList<LogEvent> parseLogEvents(String[] events,
             TraceParser parser) throws InternalSynopticException,
             ParseException {
         String traceStr = concatinateWithNewlines(events);
-        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+        ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
         return parsedEvents;
     }
@@ -117,17 +119,20 @@ public abstract class SynopticTest {
      * Parsers events using the supplied parser, generates the initial
      * _partitioning_ graph and returns it to the caller.
      * 
+     * @param miner
+     *            TODO
      * @throws Exception
      */
     public static PartitionGraph genInitialPartitionGraph(String[] events,
-            TraceParser parser) throws Exception {
-        List<LogEvent> parsedEvents = parseLogEvents(events, parser);
+            TraceParser parser, InvariantMiner miner) throws Exception {
+        ArrayList<LogEvent> parsedEvents = parseLogEvents(events, parser);
         Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
                 parsedEvents, true);
 
         exportTestGraph(inputGraph, 0);
 
-        return new PartitionGraph(inputGraph, true);
+        return new PartitionGraph(inputGraph, true,
+                miner.computeInvariants(inputGraph));
     }
 
     /**
@@ -142,7 +147,7 @@ public abstract class SynopticTest {
      */
     public static Graph<LogEvent> genInitialLinearGraph(String[] events)
             throws ParseException, InternalSynopticException {
-        List<LogEvent> parsedEvents = parseLogEvents(events, defParser);
+        ArrayList<LogEvent> parsedEvents = parseLogEvents(events, defParser);
         // for (LogEvent event : parsedEvents) {
         // logger.fine("Parsed event: " + event.toStringFull());
         // }

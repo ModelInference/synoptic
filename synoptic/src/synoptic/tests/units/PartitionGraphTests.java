@@ -2,12 +2,15 @@ package synoptic.tests.units;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.junit.Test;
 
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionSplit;
+import synoptic.invariants.InvariantMiner;
+import synoptic.invariants.SpecializedInvariantMiner;
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.main.TraceParser;
 import synoptic.model.Graph;
@@ -28,11 +31,14 @@ public class PartitionGraphTests extends SynopticTest {
         parser.addPartitionsSeparator("^--$");
 
         String traceStr = concatinateWithNewlines(events);
-        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+        ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
         Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
                 parsedEvents, true);
-        PartitionGraph pGraph = new PartitionGraph(inputGraph, true);
+
+        InvariantMiner miner = new SpecializedInvariantMiner();
+        TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
+        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
 
         // The set of nodes should be: INITIAL, a, TERMINAL
         assertTrue(pGraph.getNodes().size() == 3);

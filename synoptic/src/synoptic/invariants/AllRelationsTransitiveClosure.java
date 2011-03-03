@@ -17,10 +17,15 @@ import synoptic.model.interfaces.INode;
 public class AllRelationsTransitiveClosure<NodeType extends INode<NodeType>> {
     private final LinkedHashMap<String, TransitiveClosure<NodeType>> tcs = new LinkedHashMap<String, TransitiveClosure<NodeType>>();
 
-    public AllRelationsTransitiveClosure(IGraph<NodeType> g) {
+    public AllRelationsTransitiveClosure(IGraph<NodeType> g, boolean useWarshall) {
         for (String relation : g.getRelations()) {
-            tcs.put(relation, new TransitiveClosure<NodeType>(g, relation));
+            tcs.put(relation, new TransitiveClosure<NodeType>(g, relation,
+                    useWarshall));
         }
+    }
+
+    public AllRelationsTransitiveClosure(IGraph<NodeType> g) {
+        this(g, true);
     }
 
     public boolean isReachable(NodeType m, NodeType n, String relation) {

@@ -138,7 +138,7 @@ public class VectorTime {
 
         if (vector.size() != t.vector.size()) {
             // Two vectors are only comparable if they have the same length.
-            throw new NotComparableVectorsException();
+            throw new NotComparableVectorsException(this, t);
         }
 
         for (int i = 0; i < vector.size(); ++i) {
@@ -220,7 +220,7 @@ public class VectorTime {
         } else {
             if (vector.size() != other.vector.size()) {
                 // Two vectors are only comparable if they have the same length.
-                throw new NotComparableVectorsException();
+                throw new NotComparableVectorsException(this, other);
             }
             for (int i = 0; i < vector.size(); ++i) {
                 if (vector.get(i) != other.vector.get(i)) {

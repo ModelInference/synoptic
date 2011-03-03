@@ -11,20 +11,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.Main;
-import synoptic.main.TraceParser;
 import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
-
-// import daikonizer.Daikonizer;
 
 /**
  * Maintains a set of temporal invariants.
@@ -32,10 +28,6 @@ import synoptic.model.interfaces.INode;
 public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     private static Logger logger = Logger.getLogger("TemporalInvSet Logger");
 
-    /**
-     * Enable Daikon support to extract structural invariants (alpha)
-     */
-    public static boolean generateStructuralInvariants = false;
     LinkedHashSet<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
     public TemporalInvariantSet() {
@@ -62,24 +54,6 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
      */
     public int numInvariants() {
         return invariants.size();
-    }
-
-    public <T extends INode<T>> boolean check(IGraph<T> g) throws Exception {
-        TemporalInvariantSet set = computeInvariants(g);
-        boolean result = set.invariants.containsAll(invariants);
-        if (!result) {
-            logger.info(getUnsatisfiedInvariants(g).toString());
-        }
-        return result;
-    }
-
-    public <T extends INode<T>> TemporalInvariantSet getUnsatisfiedInvariants(
-            IGraph<T> g) throws Exception {
-        TemporalInvariantSet set = computeInvariants(g);
-        TemporalInvariantSet res = new TemporalInvariantSet();
-        res.invariants.addAll(invariants);
-        res.invariants.removeAll(set.invariants);
-        return res;
     }
 
     public void addAll(Collection<ITemporalInvariant> invariants) {
@@ -254,172 +228,6 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         return ret && ret2;
     }
 
-    /**
-     * The inclusion of INITIAL and TERMINAL states in the graphs generates the
-     * following types of invariants (for all event types X):
-     * 
-     * <pre>
-     * - x AP TERMINAL
-     * - INITIAL AP x
-     * - x AP TERMINAL
-     * - x AFby TERMINAL
-     * - TERMINAL NFby INITIAL
-     * </pre>
-     * <p>
-     * NOTE: x AP TERMINAL is not considered a tautological invariant, but we
-     * filter it out anyway because we reconstruct it later.
-     * </p>
-     * <p>
-     * We filter these out by simply ignoring any temporal invariants of the
-     * form x INV y where x or y in {INITIAL, TERMINAL}. This filtering is
-     * useful because it relieves us from checking invariants which are true for
-     * all graphs produced with typical construction.
-     * </p>
-     * Note that this filtering, however, could filter out more invariants then
-     * the ones above. We rely on unit tests to make sure that the two sets are
-     * equivalent.
-     * 
-     * <pre>
-     * TODO: Final graphs should always satisfy all these invariants.
-     *       Convert this observation into an extra sanity check.
-     * </pre>
-     */
-    public void filterOutTautologicalInvariants() {
-        LinkedHashSet<ITemporalInvariant> invsToRemove = new LinkedHashSet<ITemporalInvariant>();
-
-        LinkedHashSet<String> specialNodes = new LinkedHashSet<String>();
-        specialNodes.add(Main.terminalNodeLabel);
-        specialNodes.add(Main.initialNodeLabel);
-
-        for (ITemporalInvariant inv : invariants) {
-            if (!(inv instanceof BinaryInvariant)) {
-                continue;
-            }
-            String first = ((BinaryInvariant) inv).getFirst();
-            String second = ((BinaryInvariant) inv).getSecond();
-
-            if (specialNodes.contains(first) || specialNodes.contains(second)) {
-                invsToRemove.add(inv);
-            }
-        }
-        logger.fine("Filtered out " + invsToRemove.size()
-                + " tautological invariants.");
-        invariants.removeAll(invsToRemove);
-    }
-
-    /**
-     * Computes the 'INITIAL AFby x' invariants = 'eventually x' invariants. We
-     * do this by considering the set of events in one partition, and then
-     * removing the events from this set when we do not find them in other
-     * partitions. <br/>
-     * TODO: this code only works for a single relation
-     * (TraceParser.defaultRelation)
-     * 
-     * @param <T>
-     * @param g
-     * @return
-     */
-    static public <T extends INode<T>> TemporalInvariantSet computeINITIALAFbyXInvariants(
-            IGraph<T> g) {
-        TemporalInvariantSet invariants = new TemporalInvariantSet();
-
-        if (!g.getInitialNodes().isEmpty()) {
-            T initNode = g.getInitialNodes().iterator().next();
-            if (initNode.getLabel().equals(Main.initialNodeLabel)) {
-                if (g instanceof Graph<?>) {
-                    LinkedHashMap<String, List<LogEvent>> partitions = ((Graph<?>) g)
-                            .getPartitions();
-                    // NOTE: this would be more efficient if the values in
-                    // the map
-                    // were sets.
-                    LinkedHashSet<String> eventuallySet = null;
-                    Iterator<List<LogEvent>> pIter = partitions.values()
-                            .iterator();
-                    if (pIter.hasNext()) {
-                        // Initialize the set with events from the first
-                        // partition.
-                        eventuallySet = new LinkedHashSet<String>();
-                        for (LogEvent e : pIter.next()) {
-                            if (!eventuallySet.contains(e.getLabel())) {
-                                eventuallySet.add(e.getLabel());
-                            }
-                        }
-                    }
-
-                    // Now eliminate events from the set that do not appear
-                    // in all other partitions.
-                    LinkedHashSet<String> eventuallySetNew = null;
-                    while (pIter.hasNext()) {
-                        eventuallySetNew = new LinkedHashSet<String>();
-                        List<LogEvent> partition = pIter.next();
-
-                        for (LogEvent e : partition) {
-                            if (eventuallySet.contains(e.getLabel())) {
-                                eventuallySetNew.add(e.getLabel());
-                            }
-                        }
-                        eventuallySet = eventuallySetNew;
-                    }
-                    // Based on eventuallySet generate INITIAL AFby x
-                    // invariants.
-                    for (String eLabel : eventuallySet) {
-                        invariants.add(new AlwaysFollowedInvariant(
-                                Main.initialNodeLabel, eLabel,
-                                TraceParser.defaultRelation));
-                    }
-                }
-            }
-        }
-        return invariants;
-    }
-
-    /**
-     * Compute invariants of a graph g. Enumerating all possibly invariants
-     * syntactically, and then checking them was considered too costly (although
-     * we never benchmarked it!). So we are mining invariants from the
-     * transitive closure using {@code extractInvariantsForAllRelations}, which
-     * is supposed to return an over-approximation of the invariants that hold
-     * (i.e. it may return invariants that do not hold, but may not fail to
-     * return an invariant that does not hold)
-     * 
-     * @param <T>
-     *            The node type of the graph
-     * @param g
-     *            the graph of nodes of type T
-     * @return the set of temporal invariants the graph satisfies
-     */
-    static public <T extends INode<T>> TemporalInvariantSet computeInvariants(
-            IGraph<T> g) {
-        TimedTask mineInvariants = PerformanceMetrics.createTask(
-                "mineInvariants", false);
-        try {
-
-            TimedTask itc = PerformanceMetrics.createTask(
-                    "invariants_transitive_closure", false);
-            AllRelationsTransitiveClosure<T> transitiveClosure = new AllRelationsTransitiveClosure<T>(
-                    g);
-
-            // Get the over-approximation.
-            itc.stop();
-            if (Main.doBenchmarking) {
-                logger.info("BENCHM: " + itc);
-            }
-            TimedTask io = PerformanceMetrics.createTask(
-                    "invariants_approximation", false);
-            TemporalInvariantSet overapproximatedInvariantsSet = extractInvariantsForAllRelations(
-                    g, transitiveClosure);
-
-            io.stop();
-            if (Main.doBenchmarking) {
-                logger.info("BENCHM: " + io);
-            }
-
-            return overapproximatedInvariantsSet;
-        } finally {
-            mineInvariants.stop();
-        }
-    }
-
     private static <T extends INode<T>> void printStats(IGraph<T> g,
             TemporalInvariantSet overapproximatedInvariantsSet,
             int overapproximatedInvariantsSetSize) {
@@ -452,115 +260,6 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         PerformanceMetrics.get().record("max_possible_invariants",
                 possibleInvariants);
         PerformanceMetrics.get().record("percentReduction", percentReduction);
-    }
-
-    /**
-     * Extract invariants for all relations, iteratively. Since we are not
-     * considering invariants over multiple relations, this is sufficient.
-     * 
-     * @param <T>
-     *            the node type of the graph
-     * @param g
-     *            the graph
-     * @param tcs
-     *            the transitive closure to mine invariants from
-     * @return the mined invariants
-     * @throws Exception
-     */
-    private static <T extends INode<T>> TemporalInvariantSet extractInvariantsForAllRelations(
-            IGraph<T> g, AllRelationsTransitiveClosure<T> tcs) {
-        TemporalInvariantSet invariants = new TemporalInvariantSet();
-        for (String relation : g.getRelations()) {
-            invariants.add(extractInvariants(g, tcs.get(relation), relation));
-        }
-        return invariants;
-    }
-
-    /**
-     * Extract an over-approximated set of invariants from the transitive
-     * closure {@code tc} of the graph {@code g}.
-     * 
-     * @param <T>
-     *            the node type of the graph
-     * @param g
-     *            the graph
-     * @param tc
-     *            the transitive closure (of {@code g}) to mine invariants from
-     * @param relation
-     *            the relation to consider for the invariants
-     * @return the over-approximated set of invariants
-     * @throws Exception
-     */
-    private static <T extends INode<T>> TemporalInvariantSet extractInvariants(
-            IGraph<T> g, TransitiveClosure<T> tc, String relation) {
-        LinkedHashMap<String, ArrayList<T>> partitions = new LinkedHashMap<String, ArrayList<T>>();
-
-        // Initialize the partitions map: each unique label maps to a list of
-        // nodes with that label.
-        for (T m : g.getNodes()) {
-            if (!partitions.containsKey(m.getLabel())) {
-                partitions.put(m.getLabel(), new ArrayList<T>());
-            }
-            partitions.get(m.getLabel()).add(m);
-        }
-
-        TemporalInvariantSet set = new TemporalInvariantSet();
-        for (String label1 : partitions.keySet()) {
-            for (String label2 : partitions.keySet()) {
-                boolean neverFollowed = true;
-                boolean alwaysFollowedBy = true;
-                boolean alwaysPreceded = true;
-                for (T node1 : partitions.get(label1)) {
-                    boolean followerFound = false;
-                    boolean predecessorFound = false;
-                    for (T node2 : partitions.get(label2)) {
-                        if (tc.isReachable(node1, node2)) {
-                            neverFollowed = false;
-                            followerFound = true;
-                        }
-                        if (tc.isReachable(node2, node1)) {
-                            predecessorFound = true;
-                        }
-                    }
-                    // Every node instance with label1 must be followed by a
-                    // node instance with label2 for label1 AFby label2 to be
-                    // true.
-                    if (!followerFound) {
-                        alwaysFollowedBy = false;
-                    }
-                    // Every node instance with label1 must be preceded by a
-                    // node instance with label2 for label2 AP label1 to be
-                    // true.
-                    if (!predecessorFound) {
-                        alwaysPreceded = false;
-                    }
-                }
-                if (neverFollowed) {
-                    set.add(new NeverFollowedInvariant(label1, label2, relation));
-                }
-                if (alwaysFollowedBy) {
-                    set.add(new AlwaysFollowedInvariant(label1, label2,
-                            relation));
-                }
-                if (alwaysPreceded) {
-                    set.add(new AlwaysPrecedesInvariant(label2, label1,
-                            relation));
-                }
-                // else if (generateStructuralInvariants) {
-                // try {
-                // TODO
-                // Daikonizer.generateStructuralInvaraints(hasPredecessor,
-                // hasNoPredecessor,
-                // isPredecessor, isNoPredecessor, partitions, label1,
-                // label2);
-                // } catch (Exception e) {
-                // TODO Auto-generated catch block
-                // e.printStackTrace();
-                // }
-                // }
-            }
-        }
-        return set;
     }
 
     public Graph<LogEvent> getInvariantGraph(String shortName) {

@@ -47,10 +47,6 @@ public class PartitionGraph implements IGraph<Partition> {
     /** holds all relations known to exist in this graph */
     private final Set<String> relations = new LinkedHashSet<String>();
 
-    public PartitionGraph(IGraph<LogEvent> g) {
-        this(g, false);
-    }
-
     /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
      * and stored. If partitionByLabel is true, all messages with identical
@@ -62,7 +58,8 @@ public class PartitionGraph implements IGraph<Partition> {
      * @param partitionByLabel
      *            Whether initial partitioning by label should be done
      */
-    public PartitionGraph(IGraph<LogEvent> g, boolean partitionByLabel) {
+    public PartitionGraph(IGraph<LogEvent> g, boolean partitionByLabel,
+            TemporalInvariantSet invariants) {
         for (String relation : g.getRelations()) {
             addInitialMessages(g.getInitialNodes(relation), relation);
             relations.add(relation);
@@ -73,25 +70,19 @@ public class PartitionGraph implements IGraph<Partition> {
         } else {
             partitionSeparately(g.getNodes());
         }
-        computeInvariants(g);
+        this.invariants = invariants;
     }
 
     public PartitionGraph(IGraph<LogEvent> g,
-            LinkedList<LinkedHashSet<Integer>> partitioningIndexSets) {
+            LinkedList<LinkedHashSet<Integer>> partitioningIndexSets,
+            TemporalInvariantSet invariants) {
         for (String relation : g.getRelations()) {
             addInitialMessages(g.getInitialNodes(relation), relation);
             relations.add(relation);
         }
 
         partitionByIndexSetsAndLabels(g.getNodes(), partitioningIndexSets);
-        computeInvariants(g);
-    }
-
-    private void computeInvariants(IGraph<LogEvent> g) {
-        // Compute the invariants of the input graph.
-        invariants = TemporalInvariantSet.computeInvariants(g);
-        invariants.filterOutTautologicalInvariants();
-        invariants.add(TemporalInvariantSet.computeINITIALAFbyXInvariants(g));
+        this.invariants = invariants;
     }
 
     private void addInitialMessages(Set<LogEvent> initialMessages,

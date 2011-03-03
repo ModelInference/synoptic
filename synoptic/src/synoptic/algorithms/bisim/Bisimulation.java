@@ -460,30 +460,18 @@ public abstract class Bisimulation {
 
     /**
      * Construct a partition graph from {@code graph} (by partitioning by
-     * label), call {@code splitPartitions} on it, and return the refined graph.
+     * label), calls {@code splitPartitions} on it, and returns the refined
+     * graph.
      * 
      * @param graph
      *            the graph from which should be used as initial graph
      * @return the refined graph
      */
-    public static PartitionGraph getSplitGraph(IGraph<LogEvent> graph) {
-        PartitionGraph g = new PartitionGraph(graph, true);
+    public static PartitionGraph getSplitGraph(IGraph<LogEvent> graph,
+            TemporalInvariantSet invariants) {
+        PartitionGraph g = new PartitionGraph(graph, true, invariants);
         splitPartitions(g);
         return g;
-    }
-
-    /**
-     * Construct a partition graph from {@code graph} (by partitioning by
-     * label), call {@code mergePartitions} on it, and return the merged graph.
-     * 
-     * @param graph
-     *            the graph from which should be used as initial graph
-     * @return the merged graph
-     */
-    public static PartitionGraph getMergedGraph(IGraph<LogEvent> graph) {
-        PartitionGraph g = new PartitionGraph(graph);
-        mergePartitions(g);
-        return null;
     }
 
     /**

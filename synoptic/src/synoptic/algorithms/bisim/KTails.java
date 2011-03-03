@@ -41,32 +41,39 @@ public class KTails {
     static private <NodeType extends INode<NodeType>> boolean kEqualsWithSubsumption(
             NodeType n1, NodeType n2, int k) {
 
-        // The labels must match.
-        if (!n1.getLabel().equals(n2.getLabel())) {
-            return false;
-        }
-
-        // Base case.
-        if (k == 0) {
-            return true;
-        }
-
-        // Short circuit: even with subsumption all of n2 transitions must map
-        // to exactly one n1 transition. Therefore number of n2 transition must
-        // be less than number of n1 transitions.
-        if (n1.getTransitions().size() < n2.getTransitions().size()) {
-            return false;
-        }
-
-        // Here we will match up transition destinations between n1 and n2 based
-        // on whether or not they are kEqual with k=k-1. Because of subsumption
-        // we have to keep track of all possible matches, since we don't know
-        // a-priori which ones to match to exactly (another node might need to
-        // match to the one we've matched to previously).
-        LinkedHashMap<NodeType, NodeType> childKEquivMatches = new LinkedHashMap<NodeType, NodeType>();
-
         throw new InternalSynopticException(
                 "kTails with Subsumption unimplemented.");
+
+        // // The labels must match.
+        // if (!n1.getLabel().equals(n2.getLabel())) {
+        // return false;
+        // }
+        //
+        // // Base case.
+        // if (k == 0) {
+        // return true;
+        // }
+        //
+        // // Short circuit: even with subsumption all of n2 transitions must
+        // map
+        // // to exactly one n1 transition. Therefore number of n2 transition
+        // must
+        // // be less than number of n1 transitions.
+        // if (n1.getTransitions().size() < n2.getTransitions().size()) {
+        // return false;
+        // }
+        //
+        // // Here we will match up transition destinations between n1 and n2
+        // based
+        // // on whether or not they are kEqual with k=k-1. Because of
+        // subsumption
+        // // we have to keep track of all possible matches, since we don't know
+        // // a-priori which ones to match to exactly (another node might need
+        // to
+        // // match to the one we've matched to previously).
+        // LinkedHashMap<NodeType, NodeType> childKEquivMatches = new
+        // LinkedHashMap<NodeType, NodeType>();
+
     }
 
     /**

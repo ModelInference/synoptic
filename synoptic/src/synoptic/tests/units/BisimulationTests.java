@@ -2,12 +2,16 @@ package synoptic.tests.units;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.junit.Test;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.bisim.KTails;
+import synoptic.invariants.InvariantMiner;
+import synoptic.invariants.SpecializedInvariantMiner;
+import synoptic.invariants.TCInvariantMiner;
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
@@ -52,13 +56,18 @@ public class BisimulationTests extends SynopticTest {
                 "2,0,4 c", "2,1,5 d", "2,1,6 d" };
         String traceStr = concatinateWithNewlines(traceStrArray);
 
-        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+        ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
         Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
                 parsedEvents, true);
 
-        PartitionGraph pGraph = Bisimulation.getSplitGraph(inputGraph);
-        PartitionGraph expectedPGraph = new PartitionGraph(inputGraph, true);
+        InvariantMiner miner = new TCInvariantMiner();
+        TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
+
+        PartitionGraph pGraph = Bisimulation.getSplitGraph(inputGraph,
+                invariants);
+        PartitionGraph expectedPGraph = new PartitionGraph(inputGraph, true,
+                invariants);
 
         // Check that the resulting pGraph is identical to the initial
         // partitioning using kTails from INITIAL nodes with k > diameter of
@@ -80,14 +89,18 @@ public class BisimulationTests extends SynopticTest {
         String[] traceStrArray = new String[] { "a", "x", "y", "z", "b", "--",
                 "c", "x", "y", "z", "d" };
         String traceStr = concatinateWithNewlines(traceStrArray);
-        List<LogEvent> parsedEvents = defParser.parseTraceString(traceStr,
+        ArrayList<LogEvent> parsedEvents = defParser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
         Graph<LogEvent> inputGraph = defParser.generateDirectTemporalRelation(
                 parsedEvents, true);
 
         exportTestGraph(inputGraph, 0);
 
-        PartitionGraph pGraph = Bisimulation.getSplitGraph(inputGraph);
+        InvariantMiner miner = new SpecializedInvariantMiner();
+        TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
+
+        PartitionGraph pGraph = Bisimulation.getSplitGraph(inputGraph,
+                invariants);
         exportTestGraph(pGraph, 1);
 
         boolean hasInitial = false;
@@ -127,14 +140,15 @@ public class BisimulationTests extends SynopticTest {
                 "1,2,3 c", "2,2,4 d" };
         String traceStr = concatinateWithNewlines(traceStrArray);
 
-        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+        ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
         Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
                 parsedEvents, true);
 
-        PartitionGraph pGraph = new PartitionGraph(inputGraph);
+        PartitionGraph pGraph = new PartitionGraph(inputGraph, false, null);
         Bisimulation.kReduce(pGraph, 0);
-        PartitionGraph expectedPGraph = new PartitionGraph(inputGraph);
+        PartitionGraph expectedPGraph = new PartitionGraph(inputGraph, false,
+                null);
 
         Partition initial1 = pGraph.getInitialNodes().iterator().next();
         Partition initial2 = expectedPGraph.getInitialNodes().iterator().next();

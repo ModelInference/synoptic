@@ -9,6 +9,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.invariants.SpecializedInvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
@@ -117,17 +118,14 @@ public class PerformanceTests extends SynopticTest {
     // }
     // }
 
-    private PartitionGraph buildGraph(String[] traces) throws Exception {
-        return genInitialPartitionGraph(traces, parser);
-    }
-
     @Test
     public void Bisim() throws Exception {
         long total_delta = 0;
         for (int iter = 0; iter < numIterations; iter++) {
 
             String[] traces = partitionTrace(structure1Trace());
-            PartitionGraph g = buildGraph(traces);
+            PartitionGraph g = genInitialPartitionGraph(traces, parser,
+                    new SpecializedInvariantMiner());
 
             long startTime = System.currentTimeMillis();
             Bisimulation.splitPartitions(g);
@@ -144,7 +142,8 @@ public class PerformanceTests extends SynopticTest {
         for (int iter = 0; iter < numIterations; iter++) {
 
             String[] traces = partitionTrace(structure1Trace());
-            PartitionGraph g = buildGraph(traces);
+            PartitionGraph g = genInitialPartitionGraph(traces, parser,
+                    new SpecializedInvariantMiner());
 
             long startTime = System.currentTimeMillis();
             // TODO: call our k-Tail

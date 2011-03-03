@@ -31,6 +31,8 @@ import plume.Options;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.gui.JungGui;
+import synoptic.invariants.InvariantMiner;
+import synoptic.invariants.TCInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
@@ -751,7 +753,7 @@ public class Main implements Callable<Integer> {
         }
 
         // Parses all the log filenames, constructing the parsedEvents List.
-        List<LogEvent> parsedEvents = new ArrayList<LogEvent>();
+        ArrayList<LogEvent> parsedEvents = new ArrayList<LogEvent>();
 
         logger.info("Parsing input files..");
 
@@ -814,9 +816,15 @@ public class Main implements Callable<Integer> {
 
         logger.info("Running Synoptic...");
 
+        // TODO: determine if the trace is composed of totally ordered events
+        // and then use the faster SpecializedInvariantMiner:
+        // InvariantMiner miner = new SpecializedInvariantMiner();
+        InvariantMiner miner = new TCInvariantMiner();
+        TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
+
         // Create the initial partitioning graph and mine the invariants from
         // the initial graph.
-        PartitionGraph pGraph = new PartitionGraph(inputGraph, true);
+        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
 
         if (showGui) {
             JungGui gui = new JungGui(pGraph);

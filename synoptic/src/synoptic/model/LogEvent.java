@@ -7,9 +7,12 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
+import synoptic.main.ParseException;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.EqualVectorTimestampsException;
 import synoptic.util.IIterableIterator;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.IterableAdapter;
@@ -21,13 +24,14 @@ import synoptic.util.VectorTime;
  * @author Sigurd Schneider
  */
 public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
+    private static Logger logger = Logger.getLogger("LogEvent Logger");
 
     /**
      * The partition that contains this message event.
      */
     private Partition parent;
     private final Action action;
-    
+
     List<Relation<LogEvent>> transitions = new ArrayList<Relation<LogEvent>>();
     LinkedHashMap<String, List<Relation<LogEvent>>> transitionsByAction = new LinkedHashMap<String, List<Relation<LogEvent>>>();
     LinkedHashMap<String, LinkedHashMap<LogEvent, List<Relation<LogEvent>>>> transitionsByActionAndTarget = new LinkedHashMap<String, LinkedHashMap<LogEvent, List<Relation<LogEvent>>>>();
@@ -68,6 +72,102 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
             throw new InternalSynopticException("Dest was null");
         }
         addTransition(new Relation<LogEvent>(this, dest, relation));
+    }
+
+    /**
+     * Computes the set of direct successors of event e1 from a list of events.
+     * For totally ordered traces this set will contain at most a single event.
+     * In partially ordered traces this set may be larger than 1.
+     * 
+     * @param e1
+     *            the event for which to find direct successors in group
+     * @param group
+     *            the group of events of potentially direct successors of e1,
+     *            this may contain the LogEvent e1.
+     * @return
+     * @throws ParseException
+     *             when we detect that some two events in group have the same
+     *             timestamp or if they have different length vector timestamps
+     *             (comparison error).
+     */
+    public static Set<LogEvent> getDirectSuccessors(LogEvent e1,
+            List<LogEvent> group) {
+        LinkedHashSet<LogEvent> e1DirectSuccessors = new LinkedHashSet<LogEvent>();
+
+        if (e1.getTime().isSingular()) {
+            // All events in group are totally ordered. Therefore,
+            // the problem of finding direct successors has been reduced
+            // to finding _one_ element in group with the smallest
+            // time-stamp that exceeds e1's timestamp. We can do this with a
+            // single scan = O(n) time.
+
+            LogEvent directSuccessor = null;
+            for (LogEvent e2 : group) {
+                if (e1 == e2) {
+                    continue;
+                }
+                if (e1.getTime().equals(e2.getTime())) {
+                    throw new EqualVectorTimestampsException(e1.getTime(),
+                            e2.getTime());
+                }
+
+                if (e1.getTime().lessThan(e2.getTime())) {
+                    if (directSuccessor == null) {
+                        directSuccessor = e2;
+                    } else if (e2.getTime().lessThan(directSuccessor.getTime())) {
+                        directSuccessor = e2;
+                    }
+                }
+            }
+            if (directSuccessor != null) {
+                e1DirectSuccessors.add(directSuccessor);
+            }
+
+        } else {
+            // Events in group are partially ordered. We have to do more
+            // work in this case.
+
+            // The first loop runs in O(n) and the two loops below have a
+            // worst cast behavior O(m^2) where m is the length of
+            // e1AllSuccessors list. So the worst case run time is:
+            // O(n) + O(n^2) = O(n^2)
+
+            // First find all all events that succeed e1, store this set in
+            // e1AllSuccessors.
+            LinkedHashSet<LogEvent> e1AllSuccessors = new LinkedHashSet<LogEvent>();
+            for (LogEvent e2 : group) {
+                if (e1 == e2) {
+                    continue;
+                }
+
+                if (e1.getTime().lessThan(e2.getTime())) {
+                    e1AllSuccessors.add(e2);
+                } else if (e1.getTime().equals(e2.getTime())) {
+                    throw new EqualVectorTimestampsException(e1.getTime(),
+                            e2.getTime());
+                }
+            }
+
+            // Now out of all successors find all direct successors of e1.
+            for (LogEvent e1Succ1 : e1AllSuccessors) {
+                boolean directSuccessor = true; // whether or not e1Succ1 is
+                                                // a direct successor of e2
+                for (LogEvent e1Succ2 : e1AllSuccessors) {
+                    if (e1Succ1 == e1Succ2) {
+                        continue;
+                    }
+
+                    if (e1Succ2.getTime().lessThan(e1Succ1.getTime())) {
+                        directSuccessor = false;
+                        break;
+                    }
+                }
+                if (directSuccessor) {
+                    e1DirectSuccessors.add(e1Succ1);
+                }
+            }
+        }
+        return e1DirectSuccessors;
     }
 
     public void addTransition(LogEvent dest, String relation, double probability) {
@@ -303,17 +403,17 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
 
         return 0;
     }
-    
-    public String getLine(){
-    	return action.getLine();
+
+    public String getLine() {
+        return action.getLine();
     }
-    
-    public String getFile(){
-    	return action.getFileName();
+
+    public String getFile() {
+        return action.getFileName();
     }
-    
-    public String getLineNum(){
-    	int lineNum = action.getLineNum();
-    	return lineNum == 0 ? "" : "" + action.getLineNum();
+
+    public String getLineNum() {
+        int lineNum = action.getLineNum();
+        return lineNum == 0 ? "" : "" + action.getLineNum();
     }
 }
