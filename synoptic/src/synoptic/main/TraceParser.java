@@ -26,6 +26,7 @@ import synoptic.util.InternalSynopticException;
 import synoptic.util.NamedMatcher;
 import synoptic.util.NamedPattern;
 import synoptic.util.NamedSubstitution;
+import synoptic.util.time.DTotalTime;
 import synoptic.util.time.EqualVectorTimestampsException;
 import synoptic.util.time.FTotalTime;
 import synoptic.util.time.ITime;
@@ -69,9 +70,10 @@ public class TraceParser {
     // Regexp groups that represent valid time in a log line:
     // TIME: integer time (e.g. 123)
     // VTIME: vector clock time (e.g. 12.23.34, and 12.234)
-    // FTIME: float time (e.g. 123.456)
+    // FTIME: float time (e.g. 123.456) -- 32 bits
+    // DTIME: double time (e.g. 1234.56) -- 64 bits
     private static final List<String> validTimeGroups = Arrays.asList("TIME",
-            "VTIME", "FTIME");
+            "VTIME", "FTIME", "DTIME");
 
     // The time we use implicitly. LTIME is log-line-number time. Which exists
     // implicitly for every log-line.
@@ -575,13 +577,14 @@ public class TraceParser {
                 // use this type for all the current types of time.
                 try {
                     if (selectedTimeGroup.equals("TIME")) {
-                        Integer timeFieldInt = Integer.parseInt(timeField
-                                .trim());
-                        nextTime = new ITotalTime(timeFieldInt);
+                        int t = Integer.parseInt(timeField.trim());
+                        nextTime = new ITotalTime(t);
                     } else if (selectedTimeGroup.equals("FTIME")) {
-                        float timeFieldFloat = Float.parseFloat(timeField
-                                .trim());
-                        nextTime = new FTotalTime(timeFieldFloat);
+                        float t = Float.parseFloat(timeField.trim());
+                        nextTime = new FTotalTime(t);
+                    } else if (selectedTimeGroup.equals("DTIME")) {
+                        double t = Double.parseDouble(timeField.trim());
+                        nextTime = new DTotalTime(t);
                     } else {
                         nextTime = new VectorTime(timeField.trim());
                     }

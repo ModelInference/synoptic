@@ -20,6 +20,7 @@ import synoptic.model.LogEvent;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBinary;
+import synoptic.util.time.DTotalTime;
 import synoptic.util.time.FTotalTime;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
@@ -242,6 +243,31 @@ public class TraceParserTests extends SynopticTest {
     }
 
     /**
+     * Checks that the type and the DOUBLE time of each log event in a list is
+     * correct.
+     * 
+     * @param events
+     *            List of occurrences to check
+     * @param vtimeStrs
+     *            Array of corresponding occurrence vector times
+     * @param types
+     *            Array of corresponding occurrence types
+     */
+    public void checkLogEventTypesDTimes(List<LogEvent> events,
+            String[] vtimeStrs, String[] types) {
+        assertSame(events.size(), vtimeStrs.length);
+        assertSame(vtimeStrs.length, types.length);
+        for (int i = 0; i < events.size(); i++) {
+            LogEvent e = events.get(i);
+            ITime eventTime = e.getTime();
+            // Check that the type and the time of the occurrence are correct
+            assertTrue(e.getLabel().equals(types[i]));
+            assertTrue(new DTotalTime(Double.parseDouble(vtimeStrs[i]))
+                    .equals(eventTime));
+        }
+    }
+
+    /**
      * Parse a log with implicit time that increments on each log line.
      * (Purposefully doesn't handle the ParseException and
      * InternalSynopticException as these exceptions imply that the parse has a
@@ -288,6 +314,19 @@ public class TraceParserTests extends SynopticTest {
     }
 
     /**
+     * Parse a log with explicit double time values.
+     */
+    @Test
+    public void parseExplicitDoubleTimeTest() throws ParseException,
+            InternalSynopticException {
+        String traceStr = "129892544112.89345 a\n129892544112.89346 b\n129892544112.89347 c\n";
+        parser.addRegex("^(?<DTIME>)(?<TYPE>)$");
+        checkLogEventTypesDTimes(parser.parseTraceString(traceStr, "test", -1),
+                new String[] { "129892544112.89345", "129892544112.89346",
+                        "129892544112.89347" }, new String[] { "a", "b", "c" });
+    }
+
+    /**
      * Parse a log with explicit vector time values.
      */
     @Test
@@ -301,7 +340,7 @@ public class TraceParserTests extends SynopticTest {
     }
 
     /**
-     * Parse a log with two records with the same integer time in the same
+     * Parse a log with two records with the same INTEGER time in the same
      * partition -- expect a ParseException.
      */
     @Test(expected = ParseException.class)
@@ -320,7 +359,7 @@ public class TraceParserTests extends SynopticTest {
     }
 
     /**
-     * Parse a log with two records with the same integer time in the same
+     * Parse a log with two records with the same FLOAT time in the same
      * partition -- expect a ParseException.
      */
     @Test(expected = ParseException.class)
@@ -339,7 +378,26 @@ public class TraceParserTests extends SynopticTest {
     }
 
     /**
-     * Parse a log with two records with the same vector time in the same
+     * Parse a log with two records with the same DOUBLE time in the same
+     * partition -- expect a ParseException.
+     */
+    @Test(expected = ParseException.class)
+    public void parseSameDTimeExceptionTest() throws ParseException,
+            InternalSynopticException {
+        String traceStr = "1.1 a\n2.2 b\n2.2 c\n";
+        ArrayList<LogEvent> events = null;
+        try {
+            parser.addRegex("^(?<DTIME>)(?<TYPE>)$");
+            events = parser.parseTraceString(traceStr, "test", -1);
+        } catch (Exception e) {
+            fail("addRegex and parseTraceString should not have raised an exception");
+        }
+        // The exception should be thrown by generateDirectTemporalRelation
+        parser.generateDirectTemporalRelation(events, true);
+    }
+
+    /**
+     * Parse a log with two records with the same VECTOR TIME in the same
      * partition -- expect a ParseException.
      */
     @Test(expected = ParseException.class)
@@ -390,7 +448,25 @@ public class TraceParserTests extends SynopticTest {
         } catch (Exception e) {
             fail("addRegex should not have raised an exception");
         }
-        // This should throw a ParseException because TIME cannot process a
+        // This should throw a ParseException because FTIME cannot process a
+        // VTIME field
+        parser.parseTraceString(traceStr, "test", -1);
+    }
+
+    /**
+     * Parse a log using wrong time named group (should be VTIME) -- expect a
+     * ParseException.
+     */
+    @Test(expected = ParseException.class)
+    public void parseNonDTimeExceptionTest() throws ParseException,
+            InternalSynopticException {
+        String traceStr = "1,1 a\n2,2 b\n3,3 c\n";
+        try {
+            parser.addRegex("^(?<DTIME>)(?<TYPE>)$");
+        } catch (Exception e) {
+            fail("addRegex should not have raised an exception");
+        }
+        // This should throw a ParseException because DTIME cannot process a
         // VTIME field
         parser.parseTraceString(traceStr, "test", -1);
     }
