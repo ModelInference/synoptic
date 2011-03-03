@@ -9,16 +9,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
-import synoptic.algorithms.graph.StronglyConnectedComponents;
-import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
-import synoptic.model.Graph;
-import synoptic.model.LogEvent;
-import synoptic.model.Partition;
-import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -386,34 +379,35 @@ public class GraphVizExporter {
         }
     }
 
-    private static void exportSCCsWithInvariants(GraphVizExporter e,
-            PartitionGraph pg) throws Exception {
-        StronglyConnectedComponents<Partition> sccs = new StronglyConnectedComponents<Partition>(
-                pg);
-        int partN = 0;
-        for (Set<Partition> scc : sccs) {
-            Graph<Partition> graph = new Graph<Partition>();
-            Graph<LogEvent> messageGraph = new Graph<LogEvent>();
-            for (Partition p : scc) {
-                graph.add(p);
-                for (LogEvent m : p.getMessages()) {
-                    messageGraph.add(m);
-                }
-            }
-            String prefix = "";
-            e.exportAsDotAndPngFast(
-                    prefix + "output/peterson/messageGraph.dot", messageGraph);
-            e.exportAsDotAndPngFast(prefix + "output/peterson/partition-"
-                    + partN + ".dot", graph);
-            System.out.println(scc);
-            TemporalInvariantSet.generateStructuralInvariants = true;
-            TemporalInvariantSet s2 = TemporalInvariantSet
-                    .computeInvariants(messageGraph);
-            e.exportAsDotAndPngFast(prefix + "output/peterson/partition-"
-                    + partN + "-synoptic.invariants.dot",
-                    s2.getInvariantGraph("AP"));
-            TemporalInvariantSet.generateStructuralInvariants = false;
-            partN++;
-        }
-    }
+    // private static void exportSCCsWithInvariants(GraphVizExporter e,
+    // PartitionGraph pg) throws Exception {
+    // StronglyConnectedComponents<Partition> sccs = new
+    // StronglyConnectedComponents<Partition>(
+    // pg);
+    // int partN = 0;
+    // for (Set<Partition> scc : sccs) {
+    // Graph<Partition> graph = new Graph<Partition>();
+    // Graph<LogEvent> messageGraph = new Graph<LogEvent>();
+    // for (Partition p : scc) {
+    // graph.add(p);
+    // for (LogEvent m : p.getMessages()) {
+    // messageGraph.add(m);
+    // }
+    // }
+    // String prefix = "";
+    // e.exportAsDotAndPngFast(
+    // prefix + "output/peterson/messageGraph.dot", messageGraph);
+    // e.exportAsDotAndPngFast(prefix + "output/peterson/partition-"
+    // + partN + ".dot", graph);
+    // System.out.println(scc);
+    // TemporalInvariantSet.generateStructuralInvariants = true;
+    // TemporalInvariantSet s2 = TemporalInvariantSet
+    // .computeInvariantsUsingTC(messageGraph);
+    // e.exportAsDotAndPngFast(prefix + "output/peterson/partition-"
+    // + partN + "-synoptic.invariants.dot",
+    // s2.getInvariantGraph("AP"));
+    // TemporalInvariantSet.generateStructuralInvariants = false;
+    // partN++;
+    // }
+    // }
 }

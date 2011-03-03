@@ -3,6 +3,7 @@ package synoptic.tests.units;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -154,7 +155,7 @@ public class KTailsTests extends SynopticTest {
         // which have different b and c children.
         String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "--\n"
                 + "1,0,4 a\n" + "1,0,5 b\n" + "2,0,4 c\n";
-        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+        ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
         Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
                 parsedEvents, true);
@@ -199,7 +200,7 @@ public class KTailsTests extends SynopticTest {
     public void dagGraphsTest() throws Exception {
         String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "0,1,2 a\n";
 
-        List<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+        ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
         Graph<LogEvent> g1 = parser.generateDirectTemporalRelation(
                 parsedEvents, true);

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -240,7 +241,7 @@ public class TraceParserTests extends SynopticTest {
     public void parseSameTimeExceptionTest() throws ParseException,
             InternalSynopticException {
         String traceStr = "1 a\n2 b\n2 c\n";
-        List<LogEvent> events = null;
+        ArrayList<LogEvent> events = null;
         try {
             parser.addRegex("^(?<TIME>)(?<TYPE>)$");
             events = parser.parseTraceString(traceStr, "test", -1);
@@ -259,7 +260,7 @@ public class TraceParserTests extends SynopticTest {
     public void parseSameVTimeExceptionTest() throws ParseException,
             InternalSynopticException {
         String traceStr = "1,1,2 a\n1,1,2 b\n2,2,2 c\n";
-        List<LogEvent> events = null;
+        ArrayList<LogEvent> events = null;
         try {
             parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
             events = parser.parseTraceString(traceStr, "test", -1);
@@ -298,7 +299,7 @@ public class TraceParserTests extends SynopticTest {
     public void parseDiffLengthVTimesExceptionTest() throws ParseException,
             InternalSynopticException {
         String traceStr = "1,1,2 a\n1,1,2,3 b\n2,2,2 c\n";
-        List<LogEvent> events = null;
+        ArrayList<LogEvent> events = null;
         try {
             parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
             events = parser.parseTraceString(traceStr, "test", -1);
@@ -386,7 +387,8 @@ public class TraceParserTests extends SynopticTest {
         String traceStr = "1 a\n2 b\n3 c\n--\n1 c\n2 b\n3 a\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
-        List<LogEvent> events = parser.parseTraceString(traceStr, "test", -1);
+        ArrayList<LogEvent> events = parser.parseTraceString(traceStr, "test",
+                -1);
         Graph<LogEvent> graph = parser.generateDirectTemporalRelation(events,
                 true);
         Graph<LogEvent> expectedGraph = genExpectedGraphForTotalOrder(events);
@@ -410,7 +412,8 @@ public class TraceParserTests extends SynopticTest {
         String traceStr = "1 a\n1 b\n1 c\n2 c\n2 b\n2 a\n";
         parser.addRegex("^(?<PARTITION>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<PARTITION>");
-        List<LogEvent> events = parser.parseTraceString(traceStr, "test", -1);
+        ArrayList<LogEvent> events = parser.parseTraceString(traceStr, "test",
+                -1);
         Graph<LogEvent> graph = parser.generateDirectTemporalRelation(events,
                 true);
         Graph<LogEvent> expectedGraph = genExpectedGraphForTotalOrder(events);

@@ -19,6 +19,7 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.RelationPath;
+import synoptic.invariants.SpecializedInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
@@ -163,7 +164,8 @@ public class ModelCheckersTests extends SynopticTest {
         TraceParser parser = new TraceParser();
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
-        PartitionGraph pGraph = genInitialPartitionGraph(events, parser);
+        PartitionGraph pGraph = genInitialPartitionGraph(events, parser,
+                new SpecializedInvariantMiner());
 
         exportTestGraph(pGraph, 1);
 

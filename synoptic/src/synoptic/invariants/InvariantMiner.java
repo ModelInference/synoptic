@@ -1,0 +1,16 @@
+package synoptic.invariants;
+
+import java.util.logging.Logger;
+
+import synoptic.model.LogEvent;
+import synoptic.model.interfaces.IGraph;
+import synoptic.util.InternalSynopticException;
+
+public abstract class InvariantMiner {
+    protected static Logger logger = Logger.getLogger("TemporalInvSet Logger");
+
+    public TemporalInvariantSet computeInvariants(IGraph<LogEvent> g) {
+        throw new InternalSynopticException(
+                "computeInvariants must be overridden in a derived class.");
+    }
+}

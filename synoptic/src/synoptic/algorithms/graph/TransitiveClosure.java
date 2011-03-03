@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -74,7 +73,7 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
         // transitive closure.
         HashMap<NodeType, HashSet<NodeType>> tcParents = new HashMap<NodeType, HashSet<NodeType>>();
 
-        Logger logger = Logger.getLogger("TransitiveClosure Logger");
+        // Logger logger = Logger.getLogger("TransitiveClosure Logger");
         for (NodeType m : allNodes) {
             // logger.fine("tc map is: " + tc.toString());
             // logger.fine("Handling node " + m.toString());

@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +22,7 @@ import java.util.regex.Pattern;
 import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
+import synoptic.util.EqualVectorTimestampsException;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.NamedMatcher;
 import synoptic.util.NamedPattern;
@@ -362,7 +364,7 @@ public class TraceParser {
      * @throws InternalSynopticException
      *             when Synoptic code is the problem
      */
-    public List<LogEvent> parseTraceFile(File file, int linesToRead)
+    public ArrayList<LogEvent> parseTraceFile(File file, int linesToRead)
             throws ParseException, InternalSynopticException {
         String fileName = "";
         try {
@@ -394,7 +396,7 @@ public class TraceParser {
      * @throws InternalSynopticException
      *             when Synoptic code is the problem
      */
-    public List<LogEvent> parseTraceString(String trace, String traceName,
+    public ArrayList<LogEvent> parseTraceString(String trace, String traceName,
             int linesToRead) throws ParseException, InternalSynopticException {
         StringReader stringReader = new StringReader(trace);
         try {
@@ -422,9 +424,9 @@ public class TraceParser {
      * @throws InternalSynopticException
      *             when Synoptic code is the problem
      */
-    public List<LogEvent> parseTrace(Reader traceReader, String traceName,
-            int linesToRead, String localFileName) throws ParseException, IOException,
-            InternalSynopticException {
+    public ArrayList<LogEvent> parseTrace(Reader traceReader, String traceName,
+            int linesToRead, String localFileName) throws ParseException,
+            IOException, InternalSynopticException {
         BufferedReader br = new BufferedReader(traceReader);
 
         // Initialize incrementor context.
@@ -445,7 +447,8 @@ public class TraceParser {
                 break;
             }
             lineNum++;
-            LogEvent event = parseLine(prevTime, strLine, traceName, context, localFileName, lineNum);
+            LogEvent event = parseLine(prevTime, strLine, traceName, context,
+                    localFileName, lineNum);
             if (event == null) {
                 continue;
             }
@@ -473,8 +476,9 @@ public class TraceParser {
      * incremented and used instead.
      */
     private LogEvent parseLine(VectorTime prevTime, String line,
-            String filename, Map<String, Integer> context, String localFileName, int lineNum)
-            throws ParseException, InternalSynopticException {
+            String filename, Map<String, Integer> context,
+            String localFileName, int lineNum) throws ParseException,
+            InternalSynopticException {
 
         Action action = null;
         VectorTime nextTime = null;
@@ -698,7 +702,7 @@ public class TraceParser {
      */
     public Graph<LogEvent> readGraph(String file, int linesToRead,
             boolean partition) throws ParseException, InternalSynopticException {
-        List<LogEvent> set = parseTraceFile(new File(file), linesToRead);
+        ArrayList<LogEvent> set = parseTraceFile(new File(file), linesToRead);
         return generateDirectTemporalRelation(set, partition);
     }
 
@@ -711,7 +715,8 @@ public class TraceParser {
      * @throws ParseException
      */
     public static Graph<LogEvent> generateDirectTemporalRelationWithoutParser(
-            List<LogEvent> allEvents, boolean partition) throws ParseException {
+            ArrayList<LogEvent> allEvents, boolean partition)
+            throws ParseException {
         TraceParser parser = new TraceParser();
         return parser.generateDirectTemporalRelation(allEvents, partition);
     }
@@ -723,19 +728,22 @@ public class TraceParser {
      * @param allEvents
      *            The list of events to process.
      * @param partition
-     *            True indicates partitioning the events on the nodeName field.
+     *            True indicates partitioning the events on the partition name
+     *            field.
      * @throws ParseException
      */
     public Graph<LogEvent> generateDirectTemporalRelation(
-            List<LogEvent> allEvents, boolean partition) throws ParseException {
+            ArrayList<LogEvent> allEvents, boolean partition)
+            throws ParseException {
 
         Graph<LogEvent> graph = new Graph<LogEvent>();
-        LinkedHashMap<String, List<LogEvent>> partitions = new LinkedHashMap<String, List<LogEvent>>();
+
+        LinkedHashMap<String, ArrayList<LogEvent>> partitions = new LinkedHashMap<String, ArrayList<LogEvent>>();
         if (partition) {
             // Partition based on filter expression.
             for (LogEvent e : allEvents) {
                 String pName = getPartitionName(e.getAction());
-                List<LogEvent> events = partitions.get(pName);
+                ArrayList<LogEvent> events = partitions.get(pName);
                 if (events == null) {
                     events = new ArrayList<LogEvent>();
                     partitions.put(pName, events);
@@ -755,56 +763,25 @@ public class TraceParser {
         // preceded by any other successors of e1. That is, if e1 < x then x
         // is a direct successor if there is no other successor of e1 y such
         // that y < x.
-        LinkedHashMap<LogEvent, LinkedHashSet<LogEvent>> directSuccessors = new LinkedHashMap<LogEvent, LinkedHashSet<LogEvent>>();
+        LinkedHashMap<LogEvent, Set<LogEvent>> directSuccessors = new LinkedHashMap<LogEvent, Set<LogEvent>>();
         for (List<LogEvent> group : partitions.values()) {
             for (LogEvent e1 : group) {
-                // First find all all events that succeed e1, store this set in
-                // e1AllSuccessors.
-                LinkedHashSet<LogEvent> e1AllSuccessors = new LinkedHashSet<LogEvent>();
-                for (LogEvent e2 : group) {
-                    if (e1 == e2) {
-                        continue;
-                    }
+                // Find and set all direct successors of e1. In totally ordered
+                // case there is at most one direct successor, in partially
+                // ordered case there may be multiple direct successors.
+                try {
+                    directSuccessors.put(e1,
+                            LogEvent.getDirectSuccessors(e1, group));
+                } catch (EqualVectorTimestampsException e) {
+                    logger.severe("Found two events with identical timestamps: (1) "
+                            + e.e1.toString() + " (2) " + e.e2.toString());
+                    throw new ParseException();
 
-                    try {
-                        if (e1.getTime().lessThan(e2.getTime())) {
-                            e1AllSuccessors.add(e2);
-                        } else if (e1.getTime().equals(e2.getTime())) {
-                            logger.severe("Found two events with identical timestamps: (1) "
-                                    + e1.toStringFull()
-                                    + " (2) "
-                                    + e2.toStringFull());
-                            throw new ParseException();
-                        }
-                    } catch (NotComparableVectorsException e) {
-                        logger.severe("Found two events with different length vector timestamps: (1) "
-                                + e1.toStringFull()
-                                + " (2) "
-                                + e2.toStringFull());
-                        throw new ParseException();
-                    }
+                } catch (NotComparableVectorsException e) {
+                    logger.severe("Found two events with different length vector timestamps: (1) "
+                            + e.e1.toString() + " (2) " + e.e2.toString());
+                    throw new ParseException();
                 }
-
-                // Now out of all successors find all direct successors of e1.
-                LinkedHashSet<LogEvent> e1DirectSuccessors = new LinkedHashSet<LogEvent>();
-                for (LogEvent e1Succ1 : e1AllSuccessors) {
-                    boolean directSuccessor = true; // whether or not e1Succ1 is
-                                                    // a
-                                                    // direct successor
-                    for (LogEvent e1Succ2 : e1AllSuccessors) {
-                        if (e1Succ1 == e1Succ2) {
-                            continue;
-                        }
-
-                        if (e1Succ2.getTime().lessThan(e1Succ1.getTime())) {
-                            directSuccessor = false;
-                        }
-                    }
-                    if (directSuccessor) {
-                        e1DirectSuccessors.add(e1Succ1);
-                    }
-                }
-                directSuccessors.put(e1, e1DirectSuccessors);
             }
         }
 

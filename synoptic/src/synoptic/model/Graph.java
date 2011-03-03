@@ -1,11 +1,11 @@
 package synoptic.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -58,7 +58,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * A map that records which LogEvents are in which partitions together. This
      * mapping is generated in TraceParser.generateDirectTemporalRelation
      */
-    private LinkedHashMap<String, List<LogEvent>> partitions = null;
+    private LinkedHashMap<String, ArrayList<LogEvent>> partitions = null;
 
     // private static Logger logger = Logger.getLogger("Graph");
 
@@ -289,14 +289,15 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * 
      * @param partitions
      */
-    public void setPartitions(LinkedHashMap<String, List<LogEvent>> partitions) {
+    public void setPartitions(
+            LinkedHashMap<String, ArrayList<LogEvent>> partitions) {
         this.partitions = partitions;
     }
 
     /**
      * Returns the stored partitions map.
      */
-    public LinkedHashMap<String, List<LogEvent>> getPartitions() {
+    public LinkedHashMap<String, ArrayList<LogEvent>> getPartitions() {
         return this.partitions;
     }
 }

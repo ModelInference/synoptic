@@ -1,0 +1,128 @@
+package synoptic.tests.integration;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
+import synoptic.invariants.InvariantMiner;
+import synoptic.invariants.SpecializedInvariantMiner;
+import synoptic.invariants.TCInvariantMiner;
+import synoptic.main.Main;
+import synoptic.main.ParseException;
+import synoptic.main.TraceParser;
+import synoptic.model.Graph;
+import synoptic.model.LogEvent;
+import synoptic.tests.SynopticTest;
+
+@RunWith(value = Parameterized.class)
+public class MiningPerformanceTests extends SynopticTest {
+    TraceParser parser = null;
+
+    InvariantMiner miner = null;
+    int numIterations;
+    int totalEvents;
+    int numPartitions;
+    int numEventTypes;
+
+    /**
+     * Generates parameters for this unit test.
+     * 
+     * @return The set of parameters to pass to the constructor the unit test.
+     */
+    @Parameters
+    public static Collection<Object[]> data() {
+        Object[][] data = new Object[][] {
+                { new TCInvariantMiner(false), 3, 1000, 10, 50 },
+                { new TCInvariantMiner(true), 3, 1000, 10, 50 },
+                { new SpecializedInvariantMiner(), 3, 1000, 10, 50 } };
+        return Arrays.asList(data);
+    }
+
+    public MiningPerformanceTests(InvariantMiner minerToUse, int numIterations,
+            int totalEvents, int numPartitions, int numEventTypes) {
+        miner = minerToUse;
+        this.numIterations = numIterations;
+        this.totalEvents = totalEvents;
+        this.numPartitions = numPartitions;
+        this.numEventTypes = numEventTypes;
+
+        Main.logLvlExtraVerbose = false;
+        Main.logLvlQuiet = true;
+    }
+
+    @Override
+    public void setUp() throws ParseException {
+        super.setUp();
+        parser = new TraceParser();
+        parser.addRegex("^(?<TYPE>)$");
+        parser.addPartitionsSeparator("^--$");
+    }
+
+    public void reportTime(long msTime) {
+        System.out.println(testName.getMethodName() + ":" + "\n\ttotalEvents "
+                + totalEvents + "\n\tnumPartitions " + numPartitions
+                + "\n\tnumEventTypes " + numEventTypes + "\n\t==> TIME: "
+                + msTime + "ms (averaged over " + numIterations
+                + " iterations)\n");
+    }
+
+    @Test
+    public void testPerformance() throws Exception {
+        long total_delta = 0;
+        for (int iter = 0; iter < numIterations; iter++) {
+
+            String[] traces = partitionTrace(structure1Trace());
+
+            ArrayList<LogEvent> parsedEvents = parseLogEvents(traces, parser);
+            Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
+                    parsedEvents, true);
+
+            // /////////////
+            long startTime = System.currentTimeMillis();
+            miner.computeInvariants(inputGraph);
+            total_delta += System.currentTimeMillis() - startTime;
+            // /////////////
+        }
+        long delta = total_delta / numIterations;
+        reportTime(delta);
+    }
+
+    private String[] structure1Trace() {
+        String[] trace = new String[totalEvents];
+        for (int i = 0; i < totalEvents; i++) {
+            trace[i] = "" + i % numEventTypes;
+        }
+        return trace;
+    }
+
+    private String[] partitionTrace(String[] trace) {
+        if (trace.length % numPartitions != 0) {
+            throw new IllegalArgumentException(
+                    "Cannot evenly divide trace into partitions");
+        }
+
+        int perPartition = trace.length / numPartitions;
+        String[] partitioned = new String[trace.length + numPartitions - 1];
+
+        int inPartCnt = 0;
+        int j = 0;
+        for (int i = 0; i < trace.length; i++) {
+            partitioned[j] = trace[i];
+            if (inPartCnt == perPartition) {
+                partitioned[j + 1] = "--";
+                j += 2;
+                inPartCnt = 0;
+                continue;
+            }
+            j++;
+            inPartCnt += 1;
+        }
+        return partitioned;
+    }
+
+}
