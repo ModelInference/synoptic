@@ -13,8 +13,9 @@ import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.LogEvent;
 import synoptic.tests.SynopticTest;
-import synoptic.util.NotComparableVectorsException;
-import synoptic.util.VectorTime;
+import synoptic.util.time.ITime;
+import synoptic.util.time.NotComparableVectorsException;
+import synoptic.util.time.VectorTime;
 
 /**
  * Tests for synoptic.model.input.VectorTime class.
@@ -65,7 +66,7 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test
     public void equalityTest() {
-        VectorTime v1, v2, v3;
+        ITime v1, v2, v3;
 
         v1 = new VectorTime("1,2,3");
         v2 = new VectorTime(Arrays.asList(new Integer[] { 1, 2, 3 }));
@@ -86,7 +87,7 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test(expected = NotComparableVectorsException.class)
     public void equalityDiffLengthVectorsTest() {
-        VectorTime v1, v2;
+        ITime v1, v2;
 
         v1 = new VectorTime("1,2,3");
 
@@ -176,7 +177,7 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test
     public void toStringTest() {
-        VectorTime v1;
+        ITime v1;
         v1 = new VectorTime("1,2,3,1");
         String s = v1.toString();
         assertEquals("[1, 2, 3, 1]", s);
@@ -187,7 +188,7 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test
     public void hashCodeTest() {
-        VectorTime v1, v2;
+        ITime v1, v2;
         v1 = new VectorTime("1,2,3");
         v2 = new VectorTime("1,2,4");
 

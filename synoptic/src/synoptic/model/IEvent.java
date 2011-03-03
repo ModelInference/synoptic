@@ -2,7 +2,7 @@ package synoptic.model;
 
 import java.util.Set;
 
-import synoptic.util.VectorTime;
+import synoptic.util.time.ITime;
 
 /**
  * An interface all events should implement. Currently this is somewhat inane.
@@ -15,7 +15,7 @@ public interface IEvent {
      * 
      * @return vector time the event occured
      */
-    VectorTime getTime();
+    ITime getTime();
 
     /**
      * Get the string argument with name {@code name}.

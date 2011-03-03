@@ -119,7 +119,7 @@ public class PerformanceTests extends SynopticTest {
     // }
 
     @Test
-    public void Bisim() throws Exception {
+    public void bisimPerfTest() throws Exception {
         long total_delta = 0;
         for (int iter = 0; iter < numIterations; iter++) {
 
@@ -136,7 +136,7 @@ public class PerformanceTests extends SynopticTest {
         reportTime(delta);
     }
 
-    public void TrivialGkTail() throws Exception {
+    public void trivialGkTailPerfTest() throws Exception {
         long total_delta = 0;
         System.out.print("Trivial GK Tail Test");
         for (int iter = 0; iter < numIterations; iter++) {
@@ -154,7 +154,7 @@ public class PerformanceTests extends SynopticTest {
         reportTime(delta);
     }
 
-    public void ScalableGkTail() {
+    public void scalableGkTailPerfTest() {
         long total_delta = 0;
         System.out.print("Scalable GK Tail Test");
         // TODO: vary k

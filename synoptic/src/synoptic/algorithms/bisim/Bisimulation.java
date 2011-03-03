@@ -28,6 +28,7 @@ import synoptic.model.export.GraphVizExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
+import synoptic.util.time.VectorTime;
 
 /**
  * This class implements the algorithm BisimH (
@@ -355,8 +356,7 @@ public abstract class Bisimulation {
                 // length. A length of 1 indicates the traces are totally
                 // ordered, which means this should be thrown as an error.
                 Partition p = pGraph.getNodes().iterator().next();
-                if (p.getMessages().iterator().next().getAction().getTime()
-                        .isSingular()) {
+                if (!(p.getMessages().iterator().next().getAction().getTime() instanceof VectorTime)) {
                     throw new InternalSynopticException(
                             "Could not satisfy invariants: "
                                     + unsatisfiedInvariants);

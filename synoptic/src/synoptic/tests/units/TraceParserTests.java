@@ -20,7 +20,10 @@ import synoptic.model.LogEvent;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBinary;
-import synoptic.util.VectorTime;
+import synoptic.util.time.FTotalTime;
+import synoptic.util.time.ITime;
+import synoptic.util.time.ITotalTime;
+import synoptic.util.time.VectorTime;
 
 /**
  * Tests for the synoptic.main.TraceParser class.
@@ -165,7 +168,8 @@ public class TraceParserTests extends SynopticTest {
     // //////////////////////////////////////////////////////////////////////////
 
     /**
-     * Checks that the type and the time of each log event in a list is correct.
+     * Checks that the type and the VECTOR time of each log event in a list is
+     * correct.
      * 
      * @param events
      *            List of occurrences to check
@@ -174,16 +178,66 @@ public class TraceParserTests extends SynopticTest {
      * @param types
      *            Array of corresponding occurrence types
      */
-    public void checkLogEventTypesTimes(List<LogEvent> events,
+    public void checkLogEventTypesVTimes(List<LogEvent> events,
             String[] vtimeStrs, String[] types) {
         assertSame(events.size(), vtimeStrs.length);
         assertSame(vtimeStrs.length, types.length);
         for (int i = 0; i < events.size(); i++) {
             LogEvent e = events.get(i);
-            VectorTime eventTime = e.getTime();
+            ITime eventTime = e.getTime();
             // Check that the type and the time of the occurrence are correct
             assertTrue(e.getLabel().equals(types[i]));
             assertTrue(new VectorTime(vtimeStrs[i]).equals(eventTime));
+        }
+    }
+
+    /**
+     * Checks that the type and the INTEGER time of each log event in a list is
+     * correct.
+     * 
+     * @param events
+     *            List of occurrences to check
+     * @param vtimeStrs
+     *            Array of corresponding occurrence vector times
+     * @param types
+     *            Array of corresponding occurrence types
+     */
+    public void checkLogEventTypesITimes(List<LogEvent> events,
+            String[] vtimeStrs, String[] types) {
+        assertSame(events.size(), vtimeStrs.length);
+        assertSame(vtimeStrs.length, types.length);
+        for (int i = 0; i < events.size(); i++) {
+            LogEvent e = events.get(i);
+            ITime eventTime = e.getTime();
+            // Check that the type and the time of the occurrence are correct
+            assertTrue(e.getLabel().equals(types[i]));
+            int itime = Integer.parseInt(vtimeStrs[i]);
+            assertTrue(new ITotalTime(itime).equals(eventTime));
+        }
+    }
+
+    /**
+     * Checks that the type and the FLOAT time of each log event in a list is
+     * correct.
+     * 
+     * @param events
+     *            List of occurrences to check
+     * @param vtimeStrs
+     *            Array of corresponding occurrence vector times
+     * @param types
+     *            Array of corresponding occurrence types
+     */
+    public void checkLogEventTypesFTimes(List<LogEvent> events,
+            String[] vtimeStrs, String[] types) {
+        assertSame(events.size(), vtimeStrs.length);
+        assertSame(vtimeStrs.length, types.length);
+        for (int i = 0; i < events.size(); i++) {
+            LogEvent e = events.get(i);
+            ITime eventTime = e.getTime();
+            // Check that the type and the time of the occurrence are correct
+            assertTrue(e.getLabel().equals(types[i]));
+            assertTrue(new FTotalTime(Float.parseFloat(vtimeStrs[i]))
+                    .equals(eventTime));
         }
     }
 
@@ -201,7 +255,7 @@ public class TraceParserTests extends SynopticTest {
             InternalSynopticException {
         String traceStr = "a\nb\nc\n";
         parser.addRegex("^(?<TYPE>)$");
-        checkLogEventTypesTimes(parser.parseTraceString(traceStr, "test", -1),
+        checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1", "2", "3" }, // NOTE: implicit time starts
                 // with 1
                 new String[] { "a", "b", "c" });
@@ -216,8 +270,21 @@ public class TraceParserTests extends SynopticTest {
             InternalSynopticException {
         String traceStr = "2 a\n3 b\n4 c\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
-        checkLogEventTypesTimes(parser.parseTraceString(traceStr, "test", -1),
+        checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "2", "3", "4" }, new String[] { "a", "b", "c" });
+    }
+
+    /**
+     * Parse a log with explicit float time values.
+     */
+    @Test
+    public void parseExplicitFloatTimeTest() throws ParseException,
+            InternalSynopticException {
+        String traceStr = "2.1 a\n2.2 b\n3.0 c\n";
+        parser.addRegex("^(?<FTIME>)(?<TYPE>)$");
+        checkLogEventTypesFTimes(parser.parseTraceString(traceStr, "test", -1),
+                new String[] { "2.1", "2.2", "3.0" }, new String[] { "a", "b",
+                        "c" });
     }
 
     /**
@@ -228,7 +295,7 @@ public class TraceParserTests extends SynopticTest {
             InternalSynopticException {
         String traceStr = "1,1,1 a\n2,2,2 b\n3,3,4 c\n";
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
-        checkLogEventTypesTimes(parser.parseTraceString(traceStr, "test", -1),
+        checkLogEventTypesVTimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1,1,1", "2,2,2", "3,3,4" }, new String[] { "a",
                         "b", "c" });
     }
@@ -244,6 +311,25 @@ public class TraceParserTests extends SynopticTest {
         ArrayList<LogEvent> events = null;
         try {
             parser.addRegex("^(?<TIME>)(?<TYPE>)$");
+            events = parser.parseTraceString(traceStr, "test", -1);
+        } catch (Exception e) {
+            fail("addRegex and parseTraceString should not have raised an exception");
+        }
+        // The exception should be thrown by generateDirectTemporalRelation
+        parser.generateDirectTemporalRelation(events, true);
+    }
+
+    /**
+     * Parse a log with two records with the same integer time in the same
+     * partition -- expect a ParseException.
+     */
+    @Test(expected = ParseException.class)
+    public void parseSameFTimeExceptionTest() throws ParseException,
+            InternalSynopticException {
+        String traceStr = "1.1 a\n2.2 b\n2.2 c\n";
+        ArrayList<LogEvent> events = null;
+        try {
+            parser.addRegex("^(?<FTIME>)(?<TYPE>)$");
             events = parser.parseTraceString(traceStr, "test", -1);
         } catch (Exception e) {
             fail("addRegex and parseTraceString should not have raised an exception");
@@ -292,6 +378,24 @@ public class TraceParserTests extends SynopticTest {
     }
 
     /**
+     * Parse a log using wrong time named group (should be VTIME) -- expect a
+     * ParseException.
+     */
+    @Test(expected = ParseException.class)
+    public void parseNonFTimeExceptionTest() throws ParseException,
+            InternalSynopticException {
+        String traceStr = "1,1 a\n2,2 b\n3,3 c\n";
+        try {
+            parser.addRegex("^(?<FTIME>)(?<TYPE>)$");
+        } catch (Exception e) {
+            fail("addRegex should not have raised an exception");
+        }
+        // This should throw a ParseException because TIME cannot process a
+        // VTIME field
+        parser.parseTraceString(traceStr, "test", -1);
+    }
+
+    /**
      * Parse a log with records that have different length vector times --
      * expect a ParseException.
      */
@@ -318,7 +422,7 @@ public class TraceParserTests extends SynopticTest {
             InternalSynopticException {
         String traceStr = "1 a a\n2 b b\n3 c c\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>.+)$");
-        checkLogEventTypesTimes(parser.parseTraceString(traceStr, "test", -1),
+        checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1", "2", "3" }, new String[] { "a a", "b b",
                         "c c" });
     }
@@ -331,7 +435,7 @@ public class TraceParserTests extends SynopticTest {
             InternalSynopticException {
         String traceStr = "1 a\n2 b\n3 c\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
-        checkLogEventTypesTimes(parser.parseTraceString(traceStr, "test", 2),
+        checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", 2),
                 new String[] { "1", "2" }, new String[] { "a", "b" });
     }
 

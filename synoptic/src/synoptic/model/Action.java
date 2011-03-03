@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import synoptic.main.Main;
-import synoptic.util.VectorTime;
+import synoptic.util.time.ITime;
 
 /**
  * The action class abstracts an event. Each event needs at least a name, called
@@ -26,7 +26,7 @@ public class Action {
     /**
      * The time this action occurred.
      */
-    private VectorTime vectorTime;
+    private ITime time;
     /**
      * A map to ensure each Action object is unique.
      */
@@ -57,7 +57,7 @@ public class Action {
      * The line number from where the label for this action was parsed.
      */
     int lineNum;
-    
+
     /**
      * Create an action with a label. Do not check for collisions with
      * internally used labels.
@@ -119,8 +119,7 @@ public class Action {
 
     @Override
     public String toString() {
-        return label + "-" + vectorTime.toString() + "-"
-                + stringArguments.toString();
+        return label + "-" + time.toString() + "-" + stringArguments.toString();
     }
 
     /**
@@ -133,8 +132,8 @@ public class Action {
         final int prime = 31;
         cachedHashCode = prime + (label == null ? 0 : label.hashCode());
         if (useDatafields) {
-            if (vectorTime != null) {
-                cachedHashCode += prime * vectorTime.hashCode();
+            if (time != null) {
+                cachedHashCode += prime * time.hashCode();
             }
             cachedHashCode += 7 * prime * stringArguments.hashCode();
         }
@@ -166,10 +165,10 @@ public class Action {
             return false;
         }
         if (useDatafields) {
-            if (vectorTime == null && other.vectorTime != null) {
+            if (time == null && other.time != null) {
                 return false;
             }
-            if (vectorTime != null && !vectorTime.equals(other.vectorTime)) {
+            if (time != null && !time.equals(other.time)) {
                 return false;
             }
             if (!stringArguments.equals(other.stringArguments)) {
@@ -195,8 +194,8 @@ public class Action {
      *            the time
      */
 
-    public void setTime(VectorTime vectorTime) {
-        this.vectorTime = vectorTime;
+    public void setTime(ITime vectorTime) {
+        time = vectorTime;
         computeHashCode();
     }
 
@@ -205,8 +204,8 @@ public class Action {
      * 
      * @return the vector time when this action occurred.
      */
-    public VectorTime getTime() {
-        return vectorTime;
+    public ITime getTime() {
+        return time;
     }
 
     /**
@@ -284,8 +283,8 @@ public class Action {
     public String getFileName() {
         return fileName;
     }
-    
-    public int getLineNum(){
-    	return lineNum;
+
+    public int getLineNum() {
+        return lineNum;
     }
 }

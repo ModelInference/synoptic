@@ -22,13 +22,16 @@ import java.util.regex.Pattern;
 import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
-import synoptic.util.EqualVectorTimestampsException;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.NamedMatcher;
 import synoptic.util.NamedPattern;
 import synoptic.util.NamedSubstitution;
-import synoptic.util.NotComparableVectorsException;
-import synoptic.util.VectorTime;
+import synoptic.util.time.EqualVectorTimestampsException;
+import synoptic.util.time.FTotalTime;
+import synoptic.util.time.ITime;
+import synoptic.util.time.ITotalTime;
+import synoptic.util.time.NotComparableVectorsException;
+import synoptic.util.time.VectorTime;
 
 /**
  * A generic trace parser, configured in terms of Java 7 style named capture
@@ -64,10 +67,11 @@ public class TraceParser {
     private static final List<String> requiredGroups = Arrays.asList("TYPE");
 
     // Regexp groups that represent valid time in a log line:
-    // TIME: integer time parsed from the log line
-    // VTIME: vector clock time parsed from the log line
+    // TIME: integer time (e.g. 123)
+    // VTIME: vector clock time (e.g. 12.23.34, and 12.234)
+    // FTIME: float time (e.g. 123.456)
     private static final List<String> validTimeGroups = Arrays.asList("TIME",
-            "VTIME");
+            "VTIME", "FTIME");
 
     // The time we use implicitly. LTIME is log-line-number time. Which exists
     // implicitly for every log-line.
@@ -439,7 +443,7 @@ public class TraceParser {
 
         ArrayList<LogEvent> results = new ArrayList<LogEvent>();
         String strLine = null;
-        VectorTime prevTime = new VectorTime("0");
+
         int lineNum = 0;
         // Process each line in sequence.
         while ((strLine = br.readLine()) != null) {
@@ -447,23 +451,17 @@ public class TraceParser {
                 break;
             }
             lineNum++;
-            LogEvent event = parseLine(prevTime, strLine, traceName, context,
+            LogEvent event = parseLine(strLine, traceName, context,
                     localFileName, lineNum);
             if (event == null) {
                 continue;
             }
-            prevTime = event.getTime();
             results.add(event);
         }
         br.close();
         logger.info("Successfully parsed " + results.size() + " events from "
                 + traceName);
         return results;
-    }
-
-    /* Increment time if it's a singleton. */
-    private static VectorTime incTime(VectorTime t) {
-        return t.isSingular() ? t.step(0) : t;
     }
 
     /* If there's a filter, this helper yields that argument from an action. */
@@ -475,13 +473,12 @@ public class TraceParser {
      * Parse an individual line. If it contains no time field, prevTime is
      * incremented and used instead.
      */
-    private LogEvent parseLine(VectorTime prevTime, String line,
-            String filename, Map<String, Integer> context,
-            String localFileName, int lineNum) throws ParseException,
-            InternalSynopticException {
+    private LogEvent parseLine(String line, String filename,
+            Map<String, Integer> context, String localFileName, int lineNum)
+            throws ParseException, InternalSynopticException {
 
         Action action = null;
-        VectorTime nextTime = null;
+        ITime nextTime = null;
 
         for (int i = 0; i < parsers.size(); i++) {
             NamedMatcher matcher = parsers.get(i).matcher(line);
@@ -564,7 +561,7 @@ public class TraceParser {
             // an exception.
             if (selectedTimeGroup == implicitTimeGroup) {
                 // Implicit case.
-                nextTime = incTime(prevTime);
+                nextTime = new ITotalTime(lineNum);
             } else {
                 // Explicit case.
                 String timeField = matched.get(selectedTimeGroup);
@@ -574,35 +571,17 @@ public class TraceParser {
                     throw new ParseException();
                 }
 
-                // Attempt to parse the time type field as a vector time -- we
-                // use this for both integer and vector time types (all current
-                // types).
-                if (selectedTimeGroup.equals("TIME")) {
-                    try {
-                        Integer.parseInt(timeField.trim());
-                    } catch (Exception e) {
-                        String errMsg = "Unable to parse time field on log line:\n"
-                                + line;
-                        if (Main.ignoreNonMatchingLines) {
-                            logger.warning(errMsg
-                                    + "\nIgnoring line and continuing.");
-                            continue;
-                        }
-                        logger.severe(errMsg
-                                + "\n\tTry cmd line options:\n\t"
-                                + Main.getCmdLineOptDesc("ignoreNonMatchingLines")
-                                + "\n\t" + Main.getCmdLineOptDesc("debugParse"));
-
-                        logger.severe(e.toString());
-                        throw new ParseException();
-                    }
-                }
-
+                // Attempt to parse the time type field as a VectorTime -- we
+                // use this type for all the current types of time.
                 try {
                     if (selectedTimeGroup.equals("TIME")) {
                         Integer timeFieldInt = Integer.parseInt(timeField
                                 .trim());
-                        nextTime = new VectorTime(timeFieldInt);
+                        nextTime = new ITotalTime(timeFieldInt);
+                    } else if (selectedTimeGroup.equals("FTIME")) {
+                        float timeFieldFloat = Float.parseFloat(timeField
+                                .trim());
+                        nextTime = new FTotalTime(timeFieldFloat);
                     } else {
                         nextTime = new VectorTime(timeField.trim());
                     }
@@ -664,7 +643,7 @@ public class TraceParser {
             action = action.intern();
             if (selectedTimeGroup.equals(implicitTimeGroup)) {
                 // We can recover OK with log-line counting time.
-                action.setTime(incTime(prevTime));
+                action.setTime(new ITotalTime(lineNum));
             } else {
                 // We can't recover with vector time -- incrementing it simply
                 // doesn't make sense.

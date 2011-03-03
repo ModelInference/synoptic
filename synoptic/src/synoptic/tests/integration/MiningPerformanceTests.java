@@ -72,23 +72,44 @@ public class MiningPerformanceTests extends SynopticTest {
     }
 
     @Test
-    public void testPerformance() throws Exception {
+    public void mineInvariantsPerfTest() throws Exception {
         long total_delta = 0;
+        long delta = 0;
         for (int iter = 0; iter < numIterations; iter++) {
 
+            // //////
+            long startTime = System.currentTimeMillis();
             String[] traces = partitionTrace(structure1Trace());
+            delta = System.currentTimeMillis() - startTime;
+            // ////////
+            System.out
+                    .println("Done with generating trace in: " + delta + "ms");
 
+            // //////
+            startTime = System.currentTimeMillis();
             ArrayList<LogEvent> parsedEvents = parseLogEvents(traces, parser);
+            delta = System.currentTimeMillis() - startTime;
+            // ////////
+            System.out.println("Done with parsing trace in: " + delta + "ms");
+
+            // //////
+            startTime = System.currentTimeMillis();
             Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
                     parsedEvents, true);
+            delta = System.currentTimeMillis() - startTime;
+            // ////////
+            System.out.println("Done with generateDirectTemporalRelation in: "
+                    + delta + "ms");
+
+            System.out.println("Starting mining..");
 
             // /////////////
-            long startTime = System.currentTimeMillis();
+            startTime = System.currentTimeMillis();
             miner.computeInvariants(inputGraph);
             total_delta += System.currentTimeMillis() - startTime;
             // /////////////
         }
-        long delta = total_delta / numIterations;
+        delta = total_delta / numIterations;
         reportTime(delta);
     }
 
