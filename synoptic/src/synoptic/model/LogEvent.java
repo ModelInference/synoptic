@@ -12,11 +12,12 @@ import java.util.logging.Logger;
 import synoptic.main.ParseException;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.EqualVectorTimestampsException;
 import synoptic.util.IIterableIterator;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.IterableAdapter;
-import synoptic.util.VectorTime;
+import synoptic.util.time.EqualVectorTimestampsException;
+import synoptic.util.time.ITime;
+import synoptic.util.time.VectorTime;
 
 /**
  * The event class. This class may need some work.
@@ -94,7 +95,7 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
             List<LogEvent> group) {
         LinkedHashSet<LogEvent> e1DirectSuccessors = new LinkedHashSet<LogEvent>();
 
-        if (e1.getTime().isSingular()) {
+        if (!(e1.getTime() instanceof VectorTime)) {
             // All events in group are totally ordered. Therefore,
             // the problem of finding direct successors has been reduced
             // to finding _one_ element in group with the smallest
@@ -330,7 +331,7 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
     }
 
     @Override
-    public VectorTime getTime() {
+    public ITime getTime() {
         return action.getTime();
     }
 

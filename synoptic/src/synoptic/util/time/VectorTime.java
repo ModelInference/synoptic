@@ -1,4 +1,4 @@
-package synoptic.util;
+package synoptic.util.time;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -6,7 +6,7 @@ import java.util.List;
 
 import synoptic.model.LogEvent;
 
-public class VectorTime {
+public class VectorTime implements ITime {
     ArrayList<Integer> vector = new ArrayList<Integer>();
 
     /**
@@ -19,7 +19,11 @@ public class VectorTime {
         LogEvent earliestEvent = null;
 
         for (LogEvent e : events) {
-            if (e.getAction().getTime().vector.get(nodeIndex) != i) {
+            ITime etime = e.getAction().getTime();
+            if (!(etime instanceof VectorTime)) {
+                throw new WrongTimeTypeException();
+            }
+            if (((VectorTime) etime).vector.get(nodeIndex) != i) {
                 continue;
             }
             if (earliestEvent == null) {
@@ -52,8 +56,14 @@ public class VectorTime {
             return null;
         }
         LinkedList<List<LogEvent>> map = new LinkedList<List<LogEvent>>();
+
+        ITime e0time = events.get(0).getAction().getTime();
+        if (!(e0time instanceof VectorTime)) {
+            throw new WrongTimeTypeException();
+        }
+
         // The number of nodes is indicated by the length of the vector time.
-        int numNodes = events.get(0).getAction().getTime().vector.size();
+        int numNodes = ((VectorTime) e0time).vector.size();
 
         // For each node, for all i determine the ith local event at the node.
         int i;
@@ -126,25 +136,28 @@ public class VectorTime {
         vector.add(i);
     }
 
-    /**
-     * Returns true if (this < t), otherwise returns false
+    /*
+     * (non-Javadoc)
      * 
-     * @param t
-     *            the other vtime
-     * @return
+     * @see synoptic.util.ITime#lessThan(synoptic.util.VectorTime)
      */
-    public boolean lessThan(VectorTime t) {
+    @Override
+    public boolean lessThan(ITime t) {
+        if (!(t instanceof VectorTime)) {
+            throw new NonComparableTimesException(this, t);
+        }
+
         boolean foundStrictlyLess = false;
 
-        if (vector.size() != t.vector.size()) {
+        if (vector.size() != ((VectorTime) t).vector.size()) {
             // Two vectors are only comparable if they have the same length.
             throw new NotComparableVectorsException(this, t);
         }
 
         for (int i = 0; i < vector.size(); ++i) {
-            if (vector.get(i) < t.vector.get(i)) {
+            if (vector.get(i) < ((VectorTime) t).vector.get(i)) {
                 foundStrictlyLess = true;
-            } else if (vector.get(i) > t.vector.get(i)) {
+            } else if (vector.get(i) > ((VectorTime) t).vector.get(i)) {
                 return false;
             }
         }
@@ -190,6 +203,11 @@ public class VectorTime {
         return new VectorTime(vector);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see synoptic.util.ITime#hashCode()
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -201,6 +219,11 @@ public class VectorTime {
         return result;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see synoptic.util.ITime#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -231,6 +254,11 @@ public class VectorTime {
         return true;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see synoptic.util.ITime#toString()
+     */
     @Override
     public String toString() {
         return vector.toString();
