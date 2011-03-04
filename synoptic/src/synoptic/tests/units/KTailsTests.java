@@ -258,7 +258,6 @@ public class KTailsTests extends SynopticTest {
         }
 
         Action dummyAct = Action.NewInitialAction();
-        dummyAct = dummyAct.intern();
         g.setDummyInitial(new LogEvent(dummyAct), defRelation);
         g.tagInitial(list.get(0), defRelation);
         return list;

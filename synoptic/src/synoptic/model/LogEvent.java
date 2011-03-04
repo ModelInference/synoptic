@@ -1,5 +1,6 @@
 package synoptic.model;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -298,7 +299,6 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
         return "[LogEvent: " + getAction() + " (" + hashCode() + ")" + "]";
     }
 
-    // INode
     @Override
     public IIterableIterator<Relation<LogEvent>> getTransitionsIterator() {
         return IterableAdapter.make(getTransitions().iterator());
@@ -336,23 +336,8 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
     }
 
     @Override
-    public String getStringArgument(String name) {
-        return action.getStringArgument(name);
-    }
-
-    @Override
-    public void setStringArgument(String name, String value) {
-        action.setStringArgument(name, value);
-    }
-
-    @Override
     public String getName() {
         return action.getLabel();
-    }
-
-    @Override
-    public Set<String> getStringArguments() {
-        return action.getStringArgumentNames();
     }
 
     public Set<LogEvent> getSuccessors(String relation) {
@@ -409,8 +394,13 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
         return action.getLine();
     }
 
-    public String getFile() {
+    public String getFullFileName() {
         return action.getFileName();
+    }
+
+    public String getShortFileName() {
+        // Extract and return just the filename from the path.
+        return new File(getFullFileName()).getName();
     }
 
     public String getLineNum() {

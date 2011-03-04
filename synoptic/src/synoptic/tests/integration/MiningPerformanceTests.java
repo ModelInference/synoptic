@@ -11,7 +11,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.invariants.InvariantMiner;
 import synoptic.invariants.SpecializedInvariantMiner;
-import synoptic.invariants.TCInvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
@@ -37,9 +36,9 @@ public class MiningPerformanceTests extends SynopticTest {
     @Parameters
     public static Collection<Object[]> data() {
         Object[][] data = new Object[][] {
-                { new TCInvariantMiner(false), 3, 1000, 10, 50 },
-                { new TCInvariantMiner(true), 3, 1000, 10, 50 },
-                { new SpecializedInvariantMiner(), 3, 1000, 10, 50 } };
+        // { new TCInvariantMiner(false), 3, 1000, 10, 50 },
+        // { new TCInvariantMiner(true), 3, 1000, 10, 50 },
+        { new SpecializedInvariantMiner(), 3, 10000, 10, 50 } };
         return Arrays.asList(data);
     }
 

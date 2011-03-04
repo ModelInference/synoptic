@@ -1,7 +1,5 @@
 package synoptic.model;
 
-import java.util.Set;
-
 import synoptic.util.time.ITime;
 
 /**
@@ -18,37 +16,9 @@ public interface IEvent {
     ITime getTime();
 
     /**
-     * Get the string argument with name {@code name}.
-     * 
-     * @param name
-     *            name of the property
-     * @return value of the property
-     */
-    String getStringArgument(String name);
-
-    /**
-     * Set the string argument with name {@code name}
-     * 
-     * @param name
-     *            the name of the propery
-     * @param value
-     *            the value of the propery
-     */
-    void setStringArgument(String name, String value);
-
-    /**
      * Return the name (i.e. label) of the event.
      * 
      * @return the name of the event
      */
     String getName();
-
-    /**
-     * Return the set of strings that are valid string arguments (i.e. have a
-     * value set).
-     * 
-     * @return set of strings s.th. getStringArgument returns no-null value each
-     *         of them
-     */
-    Set<String> getStringArguments();
 }

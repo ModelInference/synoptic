@@ -389,10 +389,9 @@ public class TraceParser {
         String fileName = "";
         try {
             fileName = file.getAbsolutePath();
-            String localFileName = file.getName();
             FileInputStream fstream = new FileInputStream(file);
             InputStreamReader fileReader = new InputStreamReader(fstream);
-            return parseTrace(fileReader, fileName, linesToRead, localFileName);
+            return parseTrace(fileReader, fileName, linesToRead);
         } catch (IOException e) {
             logger.severe("Error while attempting to read log file ["
                     + fileName + "]: " + e.getMessage());
@@ -420,7 +419,7 @@ public class TraceParser {
             int linesToRead) throws ParseException, InternalSynopticException {
         StringReader stringReader = new StringReader(trace);
         try {
-            return parseTrace(stringReader, traceName, linesToRead, null);
+            return parseTrace(stringReader, traceName, linesToRead);
         } catch (IOException e) {
             logger.severe("Error while reading string [" + traceName + "]: "
                     + e.getMessage());
@@ -445,8 +444,8 @@ public class TraceParser {
      *             when Synoptic code is the problem
      */
     public ArrayList<LogEvent> parseTrace(Reader traceReader, String traceName,
-            int linesToRead, String localFileName) throws ParseException,
-            IOException, InternalSynopticException {
+            int linesToRead) throws ParseException, IOException,
+            InternalSynopticException {
         BufferedReader br = new BufferedReader(traceReader);
 
         // Initialize incrementor context.
@@ -467,8 +466,7 @@ public class TraceParser {
                 break;
             }
             lineNum++;
-            LogEvent event = parseLine(strLine, traceName, context,
-                    localFileName, lineNum);
+            LogEvent event = parseLine(strLine, traceName, context, lineNum);
             if (event == null) {
                 continue;
             }
@@ -482,15 +480,15 @@ public class TraceParser {
 
     /* If there's a filter, this helper yields that argument from an action. */
     private String getPartitionName(Action a) {
-        return filter.substitute(a.getStringArguments());
+        return a.getPartitionName();
     }
 
     /**
      * Parse an individual line.
      */
-    private LogEvent parseLine(String line, String filename,
-            Map<String, Integer> context, String localFileName, int lineNum)
-            throws ParseException, InternalSynopticException {
+    private LogEvent parseLine(String line, String fileName,
+            Map<String, Integer> context, int lineNum) throws ParseException,
+            InternalSynopticException {
 
         Action action = null;
         ITime nextTime = null;
@@ -559,13 +557,10 @@ public class TraceParser {
 
             if (eventType == null) {
                 // In the absence of a type, use the entire log line.
-                action = new Action(line, line, localFileName, lineNum);
+                action = new Action(line, line, fileName, lineNum);
             } else {
-                action = new Action(eventType, line, localFileName, lineNum);
+                action = new Action(eventType, line, fileName, lineNum);
             }
-            action = action.intern();
-
-            action.setStringArgument("FILE", filename);
 
             // We have two cases for processing time on log lines:
             // (1) Implicitly: no matched field is a time field because it is
@@ -618,10 +613,12 @@ public class TraceParser {
                 }
             }
 
+            Map<String, String> actStringArgs = new LinkedHashMap<String, String>();
+
             for (Map.Entry<String, String> group : matched.entrySet()) {
                 String name = group.getKey();
                 if (!name.equals("TYPE") && !name.equals("TIME")) {
-                    action.setStringArgument(name, group.getValue());
+                    actStringArgs.put(name, group.getValue());
                 }
             }
 
@@ -637,8 +634,7 @@ public class TraceParser {
                 // TODO: include partition name in the list of field values
                 logger.info("input: " + line);
                 StringBuilder msg = new StringBuilder("{");
-                for (Map.Entry<String, String> entry : action
-                        .getStringArguments().entrySet()) {
+                for (Map.Entry<String, String> entry : actStringArgs.entrySet()) {
                     if (entry.getKey().equals("FILE")) {
                         continue;
                     }
@@ -649,14 +645,15 @@ public class TraceParser {
                 logger.info(msg.toString());
             }
             action.setTime(nextTime);
+
+            action.setPartitionName(filter.substitute(actStringArgs));
             return new LogEvent(action);
         }
 
         if (Main.recoverFromParseErrors) {
             logger.warning("Failed to parse trace line: \n" + line + "\n"
                     + "Using entire line as type.");
-            action = new Action(line, line, localFileName, lineNum);
-            action = action.intern();
+            action = new Action(line, line, fileName, lineNum);
             if (selectedTimeGroup.equals(implicitTimeGroup)) {
                 // We can recover OK with log-line counting time.
                 action.setTime(new ITotalTime(lineNum));
@@ -666,14 +663,19 @@ public class TraceParser {
                 logger.severe("Unable to recover from parse error with vector-time type.");
                 throw new ParseException();
             }
+
+            Map<String, String> actStringArgs = new LinkedHashMap<String, String>();
+
+            action.setPartitionName(filter.substitute(actStringArgs));
             return new LogEvent(action);
+
         } else if (Main.ignoreNonMatchingLines) {
             logger.fine("Failed to parse trace line: \n" + line + "\n"
                     + "Ignoring line and continuing.");
             return null;
         }
 
-        logger.severe("Line from file [" + filename
+        logger.severe("Line from file [" + fileName
                 + "] does not match any of the provided regular exceptions:\n"
                 + line + "\nTry cmd line options:\n\t"
                 + Main.getCmdLineOptDesc("ignoreNonMatchingLines") + "\n\t"
@@ -803,7 +805,6 @@ public class TraceParser {
         // TODO: make sure that initialNodeLabel does not conflict with any of
         // the event labels in the trace.
         Action dummyAct = Action.NewInitialAction();
-        dummyAct = dummyAct.intern();
         graph.setDummyInitial(new LogEvent(dummyAct), defaultRelation);
         // Mark messages without a predecessor as initial.
         for (LogEvent e : noPredecessor) {
@@ -813,7 +814,6 @@ public class TraceParser {
         // TODO: make sure that terminalNodeLabel does not conflict with any of
         // the event labels in the trace.
         dummyAct = Action.NewTerminalAction();
-        dummyAct = dummyAct.intern();
         graph.setDummyTerminal(new LogEvent(dummyAct));
         // Mark messages without a predecessor as terminal.
         for (LogEvent e : noSuccessor) {
