@@ -128,6 +128,20 @@ public class TraceParser {
     }
 
     /**
+     * Returns whether or not the time type used to parse the log(s) has a
+     * canonical total order or not.
+     * 
+     * @return
+     */
+    public boolean logTimeTypeIsTotallyOrdered() {
+        Set<String> toTimes = new LinkedHashSet<String>();
+        toTimes.add("TIME");
+        toTimes.add("FTIME");
+        toTimes.add("DTIME");
+        return toTimes.contains(selectedTimeGroup);
+    }
+
+    /**
      * Adds an individual trace line type, which consists of a regex with
      * additional syntax. <b>The regex must match the entire line.</b> The
      * additional syntax is as follows:
@@ -472,8 +486,7 @@ public class TraceParser {
     }
 
     /**
-     * Parse an individual line. If it contains no time field, prevTime is
-     * incremented and used instead.
+     * Parse an individual line.
      */
     private LogEvent parseLine(String line, String filename,
             Map<String, Integer> context, String localFileName, int lineNum)

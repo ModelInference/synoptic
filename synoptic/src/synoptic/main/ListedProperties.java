@@ -77,10 +77,17 @@ public class ListedProperties extends Properties {
             keyVals = propertyVectors.get(key);
             Iterator<String> itr = keyVals.iterator();
             while (itr.hasNext()) {
-                // key = command line option
-                argsVector.add(key);
-                // each value = command line option value
-                argsVector.add(itr.next());
+                if (key.startsWith("--")) {
+                    // long options of the form --option=value are maintained as
+                    // such, without breaking out the value (to conform to
+                    // plumelib's format)
+                    argsVector.add(key + "=" + itr.next());
+                } else {
+                    // key = command line option
+                    argsVector.add(key);
+                    // value = command line option value
+                    argsVector.add(itr.next());
+                }
             }
         }
         String[] argsArray = new String[argsVector.size()];

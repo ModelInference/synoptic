@@ -12,7 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Point2D; 
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
@@ -82,16 +82,16 @@ import synoptic.util.InternalSynopticException;
  * @author Tom Nelson Edits to display our graphs.
  */
 public class JungGui extends JApplet implements Printable {
-	
-	static final Class<?>[] constructorArgsWanted = { Graph.class };
-	
+
+    static final Class<?>[] constructorArgsWanted = { Graph.class };
+
     private static final long serialVersionUID = -2023243689258876709L;
 
     /**
      * Java frame used by the gui.
      */
     JFrame frame;
-    
+
     /**
      * The partition graph maintained by Synoptic.
      */
@@ -135,7 +135,8 @@ public class JungGui extends JApplet implements Printable {
             + "<li>Mouse3+drag pans the graph"
             + "<li>Mouse3+Shift+drag rotates the graph"
             + "<li>Mouse3+CTRL(or Command)+drag shears the graph"
-            //+ "<li>Mouse3 double-click on a vertex or edge allows you to edit the label"
+            // +
+            // "<li>Mouse3 double-click on a vertex or edge allows you to edit the label"
             + "</ul>"
             + "<h3>Picking Mode: (left mouse clicks)</h3>"
             + "<ul>"
@@ -147,7 +148,8 @@ public class JungGui extends JApplet implements Printable {
             + "<li>Mouse1+Shift+drag adds selection of Vertices in a new region"
             + "<li>Mouse1+CTRL on a Vertex selects the vertex and centers the display on it"
             + "<li>Mouse1 double-click on a vertex allows you to view the log lines represented by that node"
-            //+ "<li>Mouse1 double-click on a vertex or edge allows you to edit the label"
+            // +
+            // "<li>Mouse1 double-click on a vertex or edge allows you to edit the label"
             + "</ul>" + "</html>";
 
     Set<ITemporalInvariant> unsatisfiedInvariants;
@@ -188,16 +190,16 @@ public class JungGui extends JApplet implements Printable {
             newPartitions.put(p, p.getMessages().size());
         }
         oldPartitions = newPartitions;
-        
+
         jGraph = getJGraph();
-        
+
         frame = new JFrame();
         setUpGui();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-        
+
         addMenuBar(frame);
-        
+
         frame.getContentPane().add(this);
         frame.pack();
         frame.setVisible(true);
@@ -205,31 +207,32 @@ public class JungGui extends JApplet implements Printable {
 
     /**
      * Makes File menu
+     * 
      * @param frame
      */
     public void addMenuBar(JFrame frame) {
-    	JMenuBar menuBar = new JMenuBar();
-    	
+        JMenuBar menuBar = new JMenuBar();
+
         JMenu fileMenu = new JMenu("File");
         createFileMenu(fileMenu);
         menuBar.add(fileMenu);
-        
+
         JMenu actionsMenu = new JMenu("Synoptic Actions");
         createRefineButton(actionsMenu);
         menuBar.add(actionsMenu);
-        
+
         JMenu graphLayouts = new JMenu("Graph Layouts");
         createLayoutsMenu(graphLayouts);
         menuBar.add(graphLayouts);
-        
+
         frame.setJMenuBar(menuBar);
-        
+
     }
-    
+
     @SuppressWarnings("serial")
-	public void createFileMenu(JMenu fileMenu){
+    public void createFileMenu(JMenu fileMenu) {
         fileMenu.add(new AbstractAction("Make Image") {
-			@Override
+            @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
                 int option = chooser.showSaveDialog(JungGui.this);
@@ -253,7 +256,7 @@ public class JungGui extends JApplet implements Printable {
                 }
             }
         });
-        
+
         JMenuItem help = new JMenuItem("Help");
         help.addActionListener(new ActionListener() {
             @Override
@@ -263,8 +266,8 @@ public class JungGui extends JApplet implements Printable {
         });
         fileMenu.add(help);
     }
-    
-    public void createRefineButton(JMenu actionsMenu){
+
+    public void createRefineButton(JMenu actionsMenu) {
         final JMenuItem refineOption = new JMenuItem("Refine");
         refineOption.addActionListener(new ActionListener() {
             @Override
@@ -309,11 +312,11 @@ public class JungGui extends JApplet implements Printable {
         });
         actionsMenu.add(refineOption);
     }
-    
-    public void createLayoutsMenu(JMenu graphLayouts){
-        
+
+    public void createLayoutsMenu(JMenu graphLayouts) {
+
         // Map names to layout classes
-        final Map<String, Class<?>> labels = new HashMap <String, Class<?>>();
+        final Map<String, Class<?>> labels = new HashMap<String, Class<?>>();
         labels.put("Kamada-Kawai", KKLayout.class);
         labels.put("Force-Directed", FRLayout.class);
         labels.put("Circle", CircleLayout.class);
@@ -321,42 +324,45 @@ public class JungGui extends JApplet implements Printable {
         labels.put("ISOM", ISOMLayout.class);
 
         ButtonGroup layoutButtonGroup = new ButtonGroup();
-        for(final String layout : labels.keySet()){
-        	JRadioButton temp = new JRadioButton(layout);
-        	temp.addActionListener(new ActionListener() {
-        		@Override
+        for (final String layout : labels.keySet()) {
+            JRadioButton temp = new JRadioButton(layout);
+            temp.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     selectLayout(labels.get(layout));
                 }
-        	});;
-        	if(layout.equals("Force-Directed"))
-        		temp.setSelected(true);
-        	graphLayouts.add(temp);
-        	layoutButtonGroup.add(temp);
+            });
+            ;
+            if (layout.equals("Force-Directed")) {
+                temp.setSelected(true);
+            }
+            graphLayouts.add(temp);
+            layoutButtonGroup.add(temp);
         }
-        
+
     }
-    
+
     @SuppressWarnings("unchecked")
-	public void selectLayout(Class<?> choice){
-    	Object[] constructorArgs = { jGraph };
-    	Class<?> layoutC = choice;
-    	try {
-    		Constructor<?> constructor = layoutC.getConstructor(constructorArgsWanted);
-    		// Create a new layout instance.
-    		Object o = constructor.newInstance(constructorArgs);
-    		// Double check that the item in the combo-box is a valid Layout.
-    		if (o instanceof Layout<?, ?>) {
-    			// Initialize the layout with the current layout's graph.
-    			layout = (Layout<INode<Partition>, ITransition<Partition>>) o;
-    			layout.setGraph(vizViewer.getGraphLayout().getGraph());
-    			// Tell the viewer to use the new layout.
-    			vizViewer.setGraphLayout(layout);
-    		}
-    	} catch (Exception e) {
-    		throw new InternalSynopticException("Could not load layout "
-    				+ layoutC);
-    	}
+    public void selectLayout(Class<?> choice) {
+        Object[] constructorArgs = { jGraph };
+        Class<?> layoutC = choice;
+        try {
+            Constructor<?> constructor = layoutC
+                    .getConstructor(constructorArgsWanted);
+            // Create a new layout instance.
+            Object o = constructor.newInstance(constructorArgs);
+            // Double check that the item in the combo-box is a valid Layout.
+            if (o instanceof Layout<?, ?>) {
+                // Initialize the layout with the current layout's graph.
+                layout = (Layout<INode<Partition>, ITransition<Partition>>) o;
+                layout.setGraph(vizViewer.getGraphLayout().getGraph());
+                // Tell the viewer to use the new layout.
+                vizViewer.setGraphLayout(layout);
+            }
+        } catch (Exception e) {
+            throw new InternalSynopticException("Could not load layout "
+                    + layoutC);
+        }
     }
 
     public DirectedGraph<INode<Partition>, ITransition<Partition>> getJGraph() {
@@ -378,7 +384,8 @@ public class JungGui extends JApplet implements Printable {
 
     public void setUpGui() throws Exception {
         layout = new FRLayout<INode<Partition>, ITransition<Partition>>(jGraph);
-        vizViewer = new VisualizationViewer<INode<Partition>, ITransition<Partition>>(layout);
+        vizViewer = new VisualizationViewer<INode<Partition>, ITransition<Partition>>(
+                layout);
         vizViewer.setBackground(Color.white);
         Transformer<INode<Partition>, String> nodeLabeller = new Transformer<INode<Partition>, String>() {
             @Override
@@ -460,7 +467,6 @@ public class JungGui extends JApplet implements Printable {
                             return Color.YELLOW;
                         }
 
-                        
                         if (inNew) {
                             // A newly created node.
                             return Color.GREEN;
@@ -482,13 +488,13 @@ public class JungGui extends JApplet implements Printable {
         Container content = getContentPane();
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vizViewer);
         content.add(panel);
-        
+
         final ModalMousePlugin graphMouse = new ModalMousePlugin(
                 vizViewer.getRenderContext());
- 
+
         vizViewer.setGraphMouse(graphMouse);
         vizViewer.addKeyListener(graphMouse.getModeKeyListener());
-        
+
         JPanel logLineWindow = new JPanel();
         CustomMousePlugin mousePlugIn = new CustomMousePlugin(logLineWindow);
         vizViewer.addMouseListener(mousePlugIn);
@@ -537,54 +543,60 @@ public class JungGui extends JApplet implements Printable {
     }
 
     protected class CustomMousePlugin implements MouseListener {
-		
-    	LogLineTableModel dataModel;
-    	
-    	public CustomMousePlugin(JPanel logLineWindow) {
-    		dataModel = new LogLineTableModel(new Object[0][0]);
-    		JTable table = new JTable(dataModel);
-    		table.getColumnModel().getColumn(0).setHeaderValue("Line #");
-    		table.getColumnModel().getColumn(1).setHeaderValue("Line");
-    		table.getColumnModel().getColumn(2).setHeaderValue("File");
-    		table.setPreferredScrollableViewportSize(new Dimension(600, 70));
-			table.setFillsViewportHeight(true);
-			JScrollPane scrollPane = new JScrollPane(table);
-			logLineWindow.add(scrollPane);
-    	}
 
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1){
-				final Point2D p = e.getPoint();
-	    		GraphElementAccessor <INode<Partition>, ITransition<Partition>> location = vizViewer.getPickSupport();
-	    		if(location != null) {
-	    			final Partition vertex = (Partition) location.getVertex(layout, p.getX(), p.getY());
-	    			if(vertex != null) {
+        LogLineTableModel dataModel;
 
-	    				Object [][] data = new Object [vertex.getMessages().size()][3];
-	    				int i = 0;
-	    				for(LogEvent event : vertex.getMessages()){
-	    					data[i] = new String [] {event.getLineNum(), event.getLine(), event.getFile()};
-	    					i++;
-	    				}
-	    				dataModel.setData(data);
-	    			}
-	    		}
-			}
-		}
+        public CustomMousePlugin(JPanel logLineWindow) {
+            dataModel = new LogLineTableModel(new Object[0][0]);
+            JTable table = new JTable(dataModel);
+            table.getColumnModel().getColumn(0).setHeaderValue("Line #");
+            table.getColumnModel().getColumn(1).setHeaderValue("Line");
+            table.getColumnModel().getColumn(2).setHeaderValue("File");
+            table.setPreferredScrollableViewportSize(new Dimension(600, 70));
+            table.setFillsViewportHeight(true);
+            JScrollPane scrollPane = new JScrollPane(table);
+            logLineWindow.add(scrollPane);
+        }
 
-		@Override
-		public void mousePressed(MouseEvent e) {}
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1) {
+                final Point2D p = e.getPoint();
+                GraphElementAccessor<INode<Partition>, ITransition<Partition>> location = vizViewer
+                        .getPickSupport();
+                if (location != null) {
+                    final Partition vertex = (Partition) location.getVertex(
+                            layout, p.getX(), p.getY());
+                    if (vertex != null) {
 
-		@Override
-		public void mouseReleased(MouseEvent e) {}
+                        Object[][] data = new Object[vertex.getMessages()
+                                .size()][3];
+                        int i = 0;
+                        for (LogEvent event : vertex.getMessages()) {
+                            data[i] = new String[] { event.getLineNum(),
+                                    event.getLine(), event.getFile() };
+                            i++;
+                        }
+                        dataModel.setData(data);
+                    }
+                }
+            }
+        }
 
-		@Override
-		public void mouseEntered(MouseEvent e) {}
+        @Override
+        public void mousePressed(MouseEvent e) {
+        }
 
-		@Override
-		public void mouseExited(MouseEvent e) {}
+        @Override
+        public void mouseReleased(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+        }
     }
 }
-
-
