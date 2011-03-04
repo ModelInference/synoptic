@@ -574,7 +574,7 @@ public class JungGui extends JApplet implements Printable {
                         int i = 0;
                         for (LogEvent event : vertex.getMessages()) {
                             data[i] = new String[] { event.getLineNum(),
-                                    event.getLine(), event.getFile() };
+                                    event.getLine(), event.getShortFileName() };
                             i++;
                         }
                         dataModel.setData(data);

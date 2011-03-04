@@ -1,9 +1,5 @@
 package synoptic.model;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
 import synoptic.main.Main;
 import synoptic.util.time.ITime;
 
@@ -19,29 +15,11 @@ public class Action {
      * The action's label.
      */
     String label;
-    /**
-     * Cache for the hash code of this object.
-     */
-    private Integer cachedHashCode = null;
+
     /**
      * The time this action occurred.
      */
     private ITime time;
-    /**
-     * A map to ensure each Action object is unique.
-     */
-    private static LinkedHashMap<Action, Action> internMap = new LinkedHashMap<Action, Action>();
-    /**
-     * Set this to true if you want equals and hash-code to respect the contents
-     * of stringArgumens.
-     */
-    private final static boolean useDatafields = true;
-
-    /**
-     * The map that stores the arguments and their values. Arguments are named
-     * properties.
-     */
-    Map<String, String> stringArguments = new LinkedHashMap<String, String>();
 
     /**
      * The complete log line corresponding to this action.
@@ -58,6 +36,16 @@ public class Action {
      */
     int lineNum;
 
+    String partitionName;
+
+    public void setPartitionName(String pName) {
+        partitionName = pName;
+    }
+
+    public String getPartitionName() {
+        return partitionName;
+    }
+
     /**
      * Create an action with a label. Do not check for collisions with
      * internally used labels.
@@ -73,7 +61,6 @@ public class Action {
         this.logLine = logLine;
         this.fileName = fileName;
         this.lineNum = lineNum;
-        computeHashCode();
         if (!isSpecialLabel) {
             // TODO: translate labels so that collisions such as this do not
             // occur.
@@ -85,7 +72,6 @@ public class Action {
                                 + "' because it conflicts with internal INITIAL/TERMINAL Synoptic labels.");
             }
         }
-
     }
 
     /**
@@ -119,30 +105,29 @@ public class Action {
 
     @Override
     public String toString() {
-        return label + "-" + time.toString() + "-" + stringArguments.toString();
+        return label + "-" + time.toString();
     }
 
     /**
-     * Compute the hash code. This method should be called whenever the internal
-     * representation changes.
+     * Get the label of the action.
      * 
-     * @return the new hash code.
+     * @return the label
      */
-    private int computeHashCode() {
-        final int prime = 31;
-        cachedHashCode = prime + (label == null ? 0 : label.hashCode());
-        if (useDatafields) {
-            if (time != null) {
-                cachedHashCode += prime * time.hashCode();
-            }
-            cachedHashCode += 7 * prime * stringArguments.hashCode();
-        }
-        return cachedHashCode;
+    public String getLabel() {
+        return label;
     }
 
     @Override
     public int hashCode() {
-        return cachedHashCode;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((fileName == null) ? 0 : fileName.hashCode());
+        result = prime * result + ((label == null) ? 0 : label.hashCode());
+        result = prime * result + lineNum;
+        result = prime * result + ((logLine == null) ? 0 : logLine.hashCode());
+        result = prime * result + ((time == null) ? 0 : time.hashCode());
+        return result;
     }
 
     @Override
@@ -157,6 +142,13 @@ public class Action {
             return false;
         }
         Action other = (Action) obj;
+        if (fileName == null) {
+            if (other.fileName != null) {
+                return false;
+            }
+        } else if (!fileName.equals(other.fileName)) {
+            return false;
+        }
         if (label == null) {
             if (other.label != null) {
                 return false;
@@ -164,27 +156,24 @@ public class Action {
         } else if (!label.equals(other.label)) {
             return false;
         }
-        if (useDatafields) {
-            if (time == null && other.time != null) {
+        if (lineNum != other.lineNum) {
+            return false;
+        }
+        if (logLine == null) {
+            if (other.logLine != null) {
                 return false;
             }
-            if (time != null && !time.equals(other.time)) {
+        } else if (!logLine.equals(other.logLine)) {
+            return false;
+        }
+        if (time == null) {
+            if (other.time != null) {
                 return false;
             }
-            if (!stringArguments.equals(other.stringArguments)) {
-                return false;
-            }
+        } else if (!time.equals(other.time)) {
+            return false;
         }
         return true;
-    }
-
-    /**
-     * Get the label of the action.
-     * 
-     * @return the label
-     */
-    public String getLabel() {
-        return label;
     }
 
     /**
@@ -193,10 +182,8 @@ public class Action {
      * @param vectorTime
      *            the time
      */
-
     public void setTime(ITime vectorTime) {
         time = vectorTime;
-        computeHashCode();
     }
 
     /**
@@ -206,74 +193,6 @@ public class Action {
      */
     public ITime getTime() {
         return time;
-    }
-
-    /**
-     * Return the internal map that stores the arguments.
-     * 
-     * @return the internal map
-     */
-    public Map<String, String> getStringArguments() {
-        return stringArguments;
-    }
-
-    /**
-     * Get all names for which we have argument values set.
-     * 
-     * @return the names
-     */
-    public Set<String> getStringArgumentNames() {
-        return stringArguments.keySet();
-    }
-
-    /**
-     * Intern this object. Depending on whether {@code useDatafields} is set,
-     * the action's time and arguments will be taken into account.
-     * 
-     * @return the interned action
-     */
-    public Action intern() {
-        if (internMap.containsKey(this)) {
-            return internMap.get(this);
-        }
-        internMap.put(this, this);
-        return this;
-    }
-
-    /**
-     * Set a string argument.
-     * 
-     * @param name
-     *            name of the argument
-     * @param value
-     *            value of the argument
-     */
-    public void setStringArgument(String name, String value) {
-        stringArguments.put(name, value);
-        computeHashCode();
-    }
-
-    /**
-     * Retrieve an argument value.
-     * 
-     * @param name
-     *            the name of the argument
-     * @return its value
-     */
-    public String getStringArgument(String name) {
-        return stringArguments.get(name);
-    }
-
-    /**
-     * Add all arguments from {@code action} to this action's arguments,
-     * possibly overwriting arguments of this action.
-     * 
-     * @param action
-     *            the action to read the additional arguments form.
-     */
-    public void mergeFromAction(Action action) {
-        stringArguments.putAll(action.stringArguments);
-        computeHashCode();
     }
 
     public String getLine() {
