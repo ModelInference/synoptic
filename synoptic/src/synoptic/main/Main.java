@@ -32,6 +32,7 @@ import plume.Options;
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.gui.JungGui;
 import synoptic.invariants.InvariantMiner;
+import synoptic.invariants.SpecializedInvariantMiner;
 import synoptic.invariants.TCInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.Graph;
@@ -781,7 +782,9 @@ public class Main implements Callable<Integer> {
         }
 
         // If we parsed any events, then run Synoptic.
-        logger.info("Mining invariants..");
+        logger.info("Running Synoptic...");
+
+        logger.info("Generating inter-event temporal relation...");
         Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
                 parsedEvents, true);
 
@@ -814,12 +817,15 @@ public class Main implements Callable<Integer> {
             }
         }
 
-        logger.info("Running Synoptic...");
+        // Totally ordered traces can use the faster miner.
+        InvariantMiner miner;
+        if (parser.logTimeTypeIsTotallyOrdered()) {
+            miner = new SpecializedInvariantMiner();
+        } else {
+            miner = new TCInvariantMiner();
+        }
 
-        // TODO: determine if the trace is composed of totally ordered events
-        // and then use the faster SpecializedInvariantMiner:
-        // InvariantMiner miner = new SpecializedInvariantMiner();
-        InvariantMiner miner = new TCInvariantMiner();
+        logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
 
         // Create the initial partitioning graph and mine the invariants from

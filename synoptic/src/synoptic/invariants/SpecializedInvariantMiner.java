@@ -97,7 +97,6 @@ public class SpecializedInvariantMiner extends InvariantMiner {
 
         boolean firstPartition = true;
         for (List<LogEvent> partition : partitions.values()) {
-
             LinkedHashSet<String> inPartitionPrecedesSet = new LinkedHashSet<String>();
 
             // Forward pass: for each event compute the precedes set, and update
@@ -143,7 +142,6 @@ public class SpecializedInvariantMiner extends InvariantMiner {
             // this set.
             for (int i = partition.size() - 1; i >= 0; i--) {
                 String label = partition.get(i).getLabel();
-
                 // For each followedByLabel we update the label ->
                 // followedByLabel label count in
                 // globalEventFollwedByEventCounts
@@ -165,8 +163,6 @@ public class SpecializedInvariantMiner extends InvariantMiner {
             }
             // Update the set of events e such that INITIAL AFby e by taking the
             // intersection with the set of all events in this partition.
-            logger.fine("inPartitionFollowedBySet: "
-                    + inPartitionFollowedBySet.toString());
             if (firstPartition) {
                 firstPartition = false;
                 AlwaysFollowsINITIALSet = new LinkedHashSet<String>(
@@ -189,9 +185,10 @@ public class SpecializedInvariantMiner extends InvariantMiner {
 
         for (String label1 : globalEventOccurrenceCounts.keySet()) {
             for (String label2 : globalEventOccurrenceCounts.keySet()) {
+
                 if (!globalEventFollowedByEventCounts.containsKey(label1)) {
                     // label1 appeared only as the last event, therefore
-                    // nothing could follow it, therefore label1 NFby label2
+                    // nothing can follow it, therefore label1 NFby label2
 
                     invariants.add(new NeverFollowedInvariant(label1, label2,
                             relation));
@@ -205,9 +202,10 @@ public class SpecializedInvariantMiner extends InvariantMiner {
                                 label2, relation));
                     } else {
                         // label1 was sometimes followed by label2
-                        if (globalEventFollowedByEventCounts.get(label1).get(
-                                label2) == globalEventOccurrenceCounts
-                                .get(label1)) {
+                        if (globalEventFollowedByEventCounts
+                                .get(label1)
+                                .get(label2)
+                                .equals(globalEventOccurrenceCounts.get(label1))) {
                             // #_F(label1->label2) == #label1 therefore label1
                             // AFby label2
                             invariants.add(new AlwaysFollowedInvariant(label1,
@@ -217,15 +215,17 @@ public class SpecializedInvariantMiner extends InvariantMiner {
                 }
 
                 if (!globalEventPrecedesEventCounts.containsKey(label1)) {
-                    // label1 only appeared as the first event, therefore
-                    // nothing could precede it.
+                    // label1 only appeared as the last event, therefore
+                    // it cannot precede any other event
                 } else {
                     if (globalEventPrecedesEventCounts.get(label1).containsKey(
                             label2)) {
-                        // label1 was sometimes preceded by label2
-                        if (globalEventPrecedesEventCounts.get(label1).get(
-                                label2) == globalEventOccurrenceCounts
-                                .get(label2)) {
+
+                        // label1 sometimes preceded label2
+                        if (globalEventPrecedesEventCounts
+                                .get(label1)
+                                .get(label2)
+                                .equals(globalEventOccurrenceCounts.get(label2))) {
                             // #_P(label1->label2) == #label2 therefore label1
                             // AP label2
                             invariants.add(new AlwaysPrecedesInvariant(label1,

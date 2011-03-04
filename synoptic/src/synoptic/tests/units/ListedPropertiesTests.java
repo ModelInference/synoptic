@@ -51,6 +51,10 @@ public class ListedPropertiesTests extends SynopticTest {
         // -option=some-value
         cmdArgs = optionsStringToCmdArgs("-option=some-value");
         assertArrayEquals(cmdArgs, new String[] { "-option", "some-value" });
+
+        // --option=some-value
+        cmdArgs = optionsStringToCmdArgs("--option=some-value");
+        assertArrayEquals(cmdArgs, new String[] { "--option=some-value" });
     }
 
     /**
