@@ -355,7 +355,7 @@ public class TraceParserTests extends SynopticTest {
             fail("addRegex and parseTraceString should not have raised an exception");
         }
         // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTemporalRelation(events, true);
+        parser.generateDirectTemporalRelation(events);
     }
 
     /**
@@ -374,7 +374,7 @@ public class TraceParserTests extends SynopticTest {
             fail("addRegex and parseTraceString should not have raised an exception");
         }
         // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTemporalRelation(events, true);
+        parser.generateDirectTemporalRelation(events);
     }
 
     /**
@@ -393,7 +393,7 @@ public class TraceParserTests extends SynopticTest {
             fail("addRegex and parseTraceString should not have raised an exception");
         }
         // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTemporalRelation(events, true);
+        parser.generateDirectTemporalRelation(events);
     }
 
     /**
@@ -412,7 +412,7 @@ public class TraceParserTests extends SynopticTest {
             fail("addRegex and parseTraceString should not have raised an exception");
         }
         // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTemporalRelation(events, true);
+        parser.generateDirectTemporalRelation(events);
     }
 
     // TODO: Check setting of constants -- e.g. (?<NODETYPE=>master)
@@ -487,7 +487,7 @@ public class TraceParserTests extends SynopticTest {
             fail("addRegex and parseTraceString should not have raised an exception");
         }
         // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTemporalRelation(events, true);
+        parser.generateDirectTemporalRelation(events);
     }
 
     /**
@@ -569,8 +569,7 @@ public class TraceParserTests extends SynopticTest {
         parser.addPartitionsSeparator("^--$");
         ArrayList<LogEvent> events = parser.parseTraceString(traceStr, "test",
                 -1);
-        Graph<LogEvent> graph = parser.generateDirectTemporalRelation(events,
-                true);
+        Graph<LogEvent> graph = parser.generateDirectTemporalRelation(events);
         Graph<LogEvent> expectedGraph = genExpectedGraphForTotalOrder(events);
         // Test graph equality.
         assertTrue(expectedGraph.equalsWith(graph,
@@ -594,8 +593,7 @@ public class TraceParserTests extends SynopticTest {
         parser.setPartitionsMap("\\k<PARTITION>");
         ArrayList<LogEvent> events = parser.parseTraceString(traceStr, "test",
                 -1);
-        Graph<LogEvent> graph = parser.generateDirectTemporalRelation(events,
-                true);
+        Graph<LogEvent> graph = parser.generateDirectTemporalRelation(events);
         Graph<LogEvent> expectedGraph = genExpectedGraphForTotalOrder(events);
         // Test graph equality.
         assertTrue(expectedGraph.equalsWith(graph,

@@ -320,11 +320,19 @@ public class Main implements Callable<Integer> {
     public static boolean noCoarsening = false;
 
     /**
-     * Perform benchmarking and output benchmark information This option is
+     * Perform benchmarking and output benchmark information. This option is
      * <i>unpublicized</i>; it will not appear in the default usage message
      */
     @Option("Perform benchmarking and output benchmark information")
     public static boolean doBenchmarking = false;
+
+    /**
+     * Intern commonly occurring strings, such as event types, as a memory-usage
+     * optimization. This option is <i>unpublicized</i>; it will not appear in
+     * the default usage message
+     */
+    @Option("Intern commonly occurring strings, such as event types, as a memory-usage optimization")
+    public static boolean internCommonStrings = false;
 
     /**
      * Run all tests in synoptic.tests.units -- all the unit tests, and then
@@ -785,8 +793,8 @@ public class Main implements Callable<Integer> {
         logger.info("Running Synoptic...");
 
         logger.info("Generating inter-event temporal relation...");
-        Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
-                parsedEvents, true);
+        Graph<LogEvent> inputGraph = parser
+                .generateDirectTemporalRelation(parsedEvents);
 
         GraphVizExporter exporter = new GraphVizExporter();
 
@@ -825,12 +833,21 @@ public class Main implements Callable<Integer> {
             miner = new TCInvariantMiner();
         }
 
+        // logger.info("sleeping..");
+        // Thread.sleep(10000);
+        // logger.info("waking up..");
+
+        parser = null;
+
         logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
+        miner = null;
 
         // Create the initial partitioning graph and mine the invariants from
         // the initial graph.
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
+
+        inputGraph = null;
 
         if (showGui) {
             JungGui gui = new JungGui(pGraph);
@@ -851,14 +868,14 @@ public class Main implements Callable<Integer> {
             System.out.println("");
             System.out.println("");
         }
-        logger.fine("Refining (Splitting)...");
+        logger.info("Refining (Splitting)...");
         Bisimulation.splitPartitions(pGraph);
 
         if (logLvlVerbose || logLvlExtraVerbose) {
             System.out.println("");
             System.out.println("");
         }
-        logger.fine("Coarsening (Merging)..");
+        logger.info("Coarsening (Merging)..");
         Bisimulation.mergePartitions(pGraph);
 
         // TODO: check that none of the initially mined synoptic.invariants are

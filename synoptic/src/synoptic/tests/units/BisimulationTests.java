@@ -58,8 +58,8 @@ public class BisimulationTests extends SynopticTest {
 
         ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
-        Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
-                parsedEvents, true);
+        Graph<LogEvent> inputGraph = parser
+                .generateDirectTemporalRelation(parsedEvents);
 
         InvariantMiner miner = new TCInvariantMiner();
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
@@ -89,10 +89,12 @@ public class BisimulationTests extends SynopticTest {
         String[] traceStrArray = new String[] { "a", "x", "y", "z", "b", "--",
                 "c", "x", "y", "z", "d" };
         String traceStr = concatinateWithNewlines(traceStrArray);
+
+        TraceParser defParser = genDefParser();
         ArrayList<LogEvent> parsedEvents = defParser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
-        Graph<LogEvent> inputGraph = defParser.generateDirectTemporalRelation(
-                parsedEvents, true);
+        Graph<LogEvent> inputGraph = defParser
+                .generateDirectTemporalRelation(parsedEvents);
 
         exportTestGraph(inputGraph, 0);
 
@@ -142,8 +144,8 @@ public class BisimulationTests extends SynopticTest {
 
         ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
-        Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
-                parsedEvents, true);
+        Graph<LogEvent> inputGraph = parser
+                .generateDirectTemporalRelation(parsedEvents);
 
         PartitionGraph pGraph = new PartitionGraph(inputGraph, false, null);
         Bisimulation.kReduce(pGraph, 0);

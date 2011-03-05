@@ -18,7 +18,6 @@ import synoptic.util.InternalSynopticException;
 import synoptic.util.IterableAdapter;
 import synoptic.util.time.EqualVectorTimestampsException;
 import synoptic.util.time.ITime;
-import synoptic.util.time.VectorTime;
 
 /**
  * The event class. This class may need some work.
@@ -86,10 +85,10 @@ public class LogEvent implements INode<LogEvent> {
      *             (comparison error).
      */
     public static Set<LogEvent> getDirectSuccessors(LogEvent e1,
-            List<LogEvent> group) {
+            List<LogEvent> group, boolean totallyOrderedTrace) {
         LinkedHashSet<LogEvent> e1DirectSuccessors = new LinkedHashSet<LogEvent>();
 
-        if (!(e1.getTime() instanceof VectorTime)) {
+        if (totallyOrderedTrace) {
             // All events in group are totally ordered. Therefore,
             // the problem of finding direct successors has been reduced
             // to finding _one_ element in group with the smallest

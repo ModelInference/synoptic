@@ -36,16 +36,6 @@ public class Action {
      */
     int lineNum;
 
-    String partitionName;
-
-    public void setPartitionName(String pName) {
-        partitionName = pName;
-    }
-
-    public String getPartitionName() {
-        return partitionName;
-    }
-
     /**
      * Create an action with a label. Do not check for collisions with
      * internally used labels.

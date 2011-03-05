@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import synoptic.algorithms.graph.TransitiveClosure;
@@ -12,9 +11,10 @@ import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
 import synoptic.main.Main;
 import synoptic.main.TraceParser;
-import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.interfaces.IGraph;
+import synoptic.model.interfaces.ITransition;
+import synoptic.util.InternalSynopticException;
 
 public class TCInvariantMiner extends InvariantMiner {
 
@@ -234,6 +234,15 @@ public class TCInvariantMiner extends InvariantMiner {
         invariants.removeAll(invsToRemove);
     }
 
+    private void addToPartition(Set<String> partition,
+            ITransition<LogEvent> trans) {
+        LogEvent curNode = trans.getTarget();
+        partition.add(curNode.getLabel());
+        for (ITransition<LogEvent> childTrans : curNode.getTransitions()) {
+            addToPartition(partition, childTrans);
+        }
+    }
+
     /**
      * Computes the 'INITIAL AFby x' invariants = 'eventually x' invariants. We
      * do this by considering the set of events in one partition, and then
@@ -250,53 +259,52 @@ public class TCInvariantMiner extends InvariantMiner {
             IGraph<LogEvent> g) {
         LinkedHashSet<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
-        if (!g.getInitialNodes().isEmpty()) {
-            LogEvent initNode = g.getInitialNodes().iterator().next();
-            if (initNode.getLabel().equals(Main.initialNodeLabel)) {
-                if (g instanceof Graph) {
-                    LinkedHashMap<String, ArrayList<LogEvent>> partitions = ((Graph<LogEvent>) g)
-                            .getPartitions();
-                    // NOTE: this would be more efficient if the values in
-                    // the map
-                    // were sets.
-                    LinkedHashSet<String> eventuallySet = null;
-                    Iterator<ArrayList<LogEvent>> pIter = partitions.values()
-                            .iterator();
-                    if (pIter.hasNext()) {
-                        // Initialize the set with events from the first
-                        // partition.
-                        eventuallySet = new LinkedHashSet<String>();
-                        for (LogEvent e : pIter.next()) {
-                            if (!eventuallySet.contains(e.getLabel())) {
-                                eventuallySet.add(e.getLabel());
-                            }
-                        }
-                    }
+        if (g.getInitialNodes().isEmpty()) {
+            throw new InternalSynopticException(
+                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
+        }
 
-                    // Now eliminate events from the set that do not appear
-                    // in all other partitions.
-                    LinkedHashSet<String> eventuallySetNew = null;
-                    while (pIter.hasNext()) {
-                        eventuallySetNew = new LinkedHashSet<String>();
-                        List<LogEvent> partition = pIter.next();
+        LogEvent initNode = g.getInitialNodes().iterator().next();
+        if (!initNode.getLabel().equals(Main.initialNodeLabel)) {
+            throw new InternalSynopticException(
+                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
+        }
 
-                        for (LogEvent e : partition) {
-                            if (eventuallySet.contains(e.getLabel())) {
-                                eventuallySetNew.add(e.getLabel());
-                            }
-                        }
-                        eventuallySet = eventuallySetNew;
-                    }
-                    // Based on eventuallySet generate INITIAL AFby x
-                    // invariants.
-                    for (String eLabel : eventuallySet) {
-                        invariants.add(new AlwaysFollowedInvariant(
-                                Main.initialNodeLabel, eLabel,
-                                TraceParser.defaultRelation));
-                    }
+        LinkedHashSet<String> eventuallySet = null;
+
+        boolean firstPartition = true;
+        // Iterate through all the partitions.
+        for (ITransition<LogEvent> initTrans : initNode.getTransitions()) {
+            LinkedHashSet<String> partition = new LinkedHashSet<String>();
+            addToPartition(partition, initTrans);
+
+            // Initialize the set with events from the first partition.
+            if (firstPartition) {
+                eventuallySet = new LinkedHashSet<String>(partition);
+                if (eventuallySet.contains(Main.terminalNodeLabel)) {
+                    eventuallySet.remove(Main.terminalNodeLabel);
+                }
+                firstPartition = false;
+                continue;
+            }
+
+            // Now eliminate events from the eventuallySet that do not
+            // appear in the partitions that follow the first partition.
+            // LinkedHashSet<String> eventuallySetNew = null;
+            for (Iterator<String> it = eventuallySet.iterator(); it.hasNext();) {
+                String e = it.next();
+                if (!partition.contains(e)) {
+                    it.remove();
                 }
             }
         }
+
+        // Based on eventuallySet generate INITIAL AFby x invariants.
+        for (String eLabel : eventuallySet) {
+            invariants.add(new AlwaysFollowedInvariant(Main.initialNodeLabel,
+                    eLabel, TraceParser.defaultRelation));
+        }
+
         return invariants;
     }
 }

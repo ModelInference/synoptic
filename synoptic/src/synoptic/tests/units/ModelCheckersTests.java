@@ -19,7 +19,7 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.RelationPath;
-import synoptic.invariants.SpecializedInvariantMiner;
+import synoptic.invariants.TCInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
@@ -112,12 +112,12 @@ public class ModelCheckersTests extends SynopticTest {
      * cExampleIndex (which starts counting at 0 = INITIAL, and may index
      * TERMINAL).
      */
-    private static void testLinearGraphCExample(String[] events,
+    private void testLinearGraphCExample(String[] events,
             ITemporalInvariant inv, boolean cExampleExists,
             int lastCExampleIndex) throws InternalSynopticException,
             ParseException {
         // Create the graph.
-        Graph<LogEvent> g = SynopticTest.genInitialLinearGraph(events);
+        Graph<LogEvent> g = genInitialLinearGraph(events);
         Set<LogEvent> initNodes = g.getInitialNodes();
 
         if (!cExampleExists) {
@@ -165,7 +165,7 @@ public class ModelCheckersTests extends SynopticTest {
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser,
-                new SpecializedInvariantMiner());
+                new TCInvariantMiner());
 
         exportTestGraph(pGraph, 1);
 

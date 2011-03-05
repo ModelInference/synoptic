@@ -51,6 +51,10 @@ public class TraceParser {
 
     private NamedSubstitution filter;
 
+    // Partitioning based on filter expressions -- maps a unique partition
+    // string to a set of parsed events corresponding to that partition.
+    LinkedHashMap<String, ArrayList<LogEvent>> partitions = new LinkedHashMap<String, ArrayList<LogEvent>>();
+
     // Patterns used to pre-process regular expressions
     private static final Pattern matchEscapedSeparator = Pattern
             .compile("\\\\;\\\\;");
@@ -459,6 +463,10 @@ public class TraceParser {
         ArrayList<LogEvent> results = new ArrayList<LogEvent>();
         String strLine = null;
 
+        if (Main.internCommonStrings) {
+            traceName = traceName.intern();
+        }
+
         int lineNum = 0;
         // Process each line in sequence.
         while ((strLine = br.readLine()) != null) {
@@ -476,11 +484,6 @@ public class TraceParser {
         logger.info("Successfully parsed " + results.size() + " events from "
                 + traceName);
         return results;
-    }
-
-    /* If there's a filter, this helper yields that argument from an action. */
-    private String getPartitionName(Action a) {
-        return a.getPartitionName();
     }
 
     /**
@@ -551,7 +554,12 @@ public class TraceParser {
             // ////////////
             // Only non-hidden regexes from this point on.
 
-            String eventType = matched.get("TYPE");
+            String eventType;
+            if (Main.internCommonStrings) {
+                eventType = matched.get("TYPE").intern();
+            } else {
+                eventType = matched.get("TYPE");
+            }
 
             // TODO: determine if this is desired + print warning
 
@@ -646,8 +654,9 @@ public class TraceParser {
             }
             action.setTime(nextTime);
 
-            action.setPartitionName(filter.substitute(actStringArgs));
-            return new LogEvent(action);
+            LogEvent event = new LogEvent(action);
+            addEventToPartition(event, filter.substitute(actStringArgs));
+            return event;
         }
 
         if (Main.recoverFromParseErrors) {
@@ -664,10 +673,10 @@ public class TraceParser {
                 throw new ParseException();
             }
 
-            Map<String, String> actStringArgs = new LinkedHashMap<String, String>();
-
-            action.setPartitionName(filter.substitute(actStringArgs));
-            return new LogEvent(action);
+            LogEvent event = new LogEvent(action);
+            addEventToPartition(event,
+                    filter.substitute(new LinkedHashMap<String, String>()));
+            return event;
 
         } else if (Main.ignoreNonMatchingLines) {
             logger.fine("Failed to parse trace line: \n" + line + "\n"
@@ -684,38 +693,19 @@ public class TraceParser {
     }
 
     /**
-     * Convenience function, yielding a graph for the specified file.
+     * Adds an event to an internal map of partitions.
      * 
-     * @param file
-     *            The trace file to read
-     * @param linesToRead
-     *            Maximum number of tracelines to read. Negative if unlimited.
-     * @param partition
-     *            True indicates partitioning the log events on the nodeName
-     *            field.
-     * @return The resulting graph.
-     * @throws ParseException
-     * @throws InternalSynopticException
+     * @param event
+     * @param pName
      */
-    public Graph<LogEvent> readGraph(String file, int linesToRead,
-            boolean partition) throws ParseException, InternalSynopticException {
-        ArrayList<LogEvent> set = parseTraceFile(new File(file), linesToRead);
-        return generateDirectTemporalRelation(set, partition);
-    }
-
-    /**
-     * Wrapper for calling generateDirectTemporalRelation statically.
-     * 
-     * @param allEvents
-     * @param partition
-     * @return
-     * @throws ParseException
-     */
-    public static Graph<LogEvent> generateDirectTemporalRelationWithoutParser(
-            ArrayList<LogEvent> allEvents, boolean partition)
-            throws ParseException {
-        TraceParser parser = new TraceParser();
-        return parser.generateDirectTemporalRelation(allEvents, partition);
+    private void addEventToPartition(LogEvent event, String pName) {
+        ArrayList<LogEvent> events = partitions.get(pName);
+        if (events == null) {
+            events = new ArrayList<LogEvent>();
+            partitions.put(pName, events);
+            logger.fine("Created partition '" + pName + "'");
+        }
+        events.add(event);
     }
 
     /**
@@ -724,36 +714,14 @@ public class TraceParser {
      * 
      * @param allEvents
      *            The list of events to process.
-     * @param partition
-     *            True indicates partitioning the events on the partition name
-     *            field.
      * @throws ParseException
      */
     public Graph<LogEvent> generateDirectTemporalRelation(
-            ArrayList<LogEvent> allEvents, boolean partition)
-            throws ParseException {
+            ArrayList<LogEvent> allEvents) throws ParseException {
 
         Graph<LogEvent> graph = new Graph<LogEvent>();
 
-        LinkedHashMap<String, ArrayList<LogEvent>> partitions = new LinkedHashMap<String, ArrayList<LogEvent>>();
-        if (partition) {
-            // Partition based on filter expression.
-            for (LogEvent e : allEvents) {
-                String pName = getPartitionName(e.getAction());
-                ArrayList<LogEvent> events = partitions.get(pName);
-                if (events == null) {
-                    events = new ArrayList<LogEvent>();
-                    partitions.put(pName, events);
-                    logger.fine("Created partition '" + pName + "'");
-                }
-                events.add(e);
-            }
-            graph.setPartitions(partitions);
-        } else {
-            // Otherwise, place all events into a single partition.
-            partitions.put(null, allEvents);
-            graph.setPartitions(null);
-        }
+        boolean totallyOrderedTrace = logTimeTypeIsTotallyOrdered();
 
         // Find all direct successors of all events. For an event e1, direct
         // successors are successors (in terms of vector-clock) that are not
@@ -767,8 +735,8 @@ public class TraceParser {
                 // case there is at most one direct successor, in partially
                 // ordered case there may be multiple direct successors.
                 try {
-                    directSuccessors.put(e1,
-                            LogEvent.getDirectSuccessors(e1, group));
+                    directSuccessors.put(e1, LogEvent.getDirectSuccessors(e1,
+                            group, totallyOrderedTrace));
                 } catch (EqualVectorTimestampsException e) {
                     logger.severe("Found two events with identical timestamps: (1) "
                             + e.e1.toString() + " (2) " + e.e2.toString());

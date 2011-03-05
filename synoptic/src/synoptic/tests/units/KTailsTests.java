@@ -29,16 +29,6 @@ import synoptic.tests.SynopticTest;
  * @author ivan
  */
 public class KTailsTests extends SynopticTest {
-    // Simplifies graph generation from string expressions.
-    TraceParser parser;
-
-    @Override
-    public void setUp() throws ParseException {
-        super.setUp();
-        parser = new TraceParser();
-        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
-        parser.addPartitionsSeparator("^--$");
-    }
 
     private static void testTrueBothSubsumingAndNotSubsuming(LogEvent e1,
             LogEvent e2, int k) {
@@ -58,6 +48,14 @@ public class KTailsTests extends SynopticTest {
         // Without subsumption e1 !=k= e2 should imply e2 !=k= e1
         assertFalse(KTails.kEquals(e1, e2, k, false));
         assertFalse(KTails.kEquals(e2, e1, k, false));
+    }
+
+    // Returns a parser to simplify graph generation from string expressions.
+    private TraceParser genParser() throws ParseException {
+        TraceParser parser = new TraceParser();
+        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+        parser.addPartitionsSeparator("^--$");
+        return parser;
     }
 
     /**
@@ -99,8 +97,8 @@ public class KTailsTests extends SynopticTest {
         testTrueBothSubsumingAndNotSubsuming(e1, e1, 100);
 
         String[] events = new String[] { "a", "b", "c", "d" };
-        Graph<LogEvent> g1 = SynopticTest.genInitialLinearGraph(events);
-        Graph<LogEvent> g2 = SynopticTest.genInitialLinearGraph(events);
+        Graph<LogEvent> g1 = genInitialLinearGraph(events);
+        Graph<LogEvent> g2 = genInitialLinearGraph(events);
         exportTestGraph(g1, 0);
         exportTestGraph(g2, 1);
         LogEvent[] g1Nodes = new LogEvent[g1.getNodes().size()];
@@ -122,7 +120,7 @@ public class KTailsTests extends SynopticTest {
         }
 
         events = new String[] { "a", "b", "c", "e" };
-        g2 = SynopticTest.genInitialLinearGraph(events);
+        g2 = genInitialLinearGraph(events);
         exportTestGraph(g2, 2);
         g2.getNodes().toArray(g2Nodes);
         // g1 and g2 are k-equivalent at first three nodes for k=3,2,1
@@ -137,7 +135,7 @@ public class KTailsTests extends SynopticTest {
         testFalseBothSubsumingAndNotSubsuming(g1Nodes[2], g2Nodes[2], 1);
 
         events = new String[] { "a", "a", "a" };
-        g2 = SynopticTest.genInitialLinearGraph(events);
+        g2 = genInitialLinearGraph(events);
         exportTestGraph(g2, 3);
         g2.getNodes().toArray(g2Nodes);
         // The last node in g2 should not be 1-equivalent to first node.
@@ -155,10 +153,11 @@ public class KTailsTests extends SynopticTest {
         // which have different b and c children.
         String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "--\n"
                 + "1,0,4 a\n" + "1,0,5 b\n" + "2,0,4 c\n";
+        TraceParser parser = genParser();
         ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
-        Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
-                parsedEvents, true);
+        Graph<LogEvent> inputGraph = parser
+                .generateDirectTemporalRelation(parsedEvents);
         exportTestGraph(inputGraph, 0);
 
         // This returns a set with one node -- INITIAL. It will have two
@@ -177,9 +176,10 @@ public class KTailsTests extends SynopticTest {
         // they are still 0-equivalent.
         traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "--\n"
                 + "1,0,4 a\n" + "1,0,5 b\n" + "2,0,4 d\n";
+        parser = genParser();
         parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
-        inputGraph = parser.generateDirectTemporalRelation(parsedEvents, true);
+        inputGraph = parser.generateDirectTemporalRelation(parsedEvents);
         exportTestGraph(inputGraph, 1);
 
         initNodeTransitions = inputGraph.getInitialNodes().iterator().next()
@@ -200,10 +200,11 @@ public class KTailsTests extends SynopticTest {
     public void dagGraphsTest() throws Exception {
         String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "0,1,2 a\n";
 
+        TraceParser parser = genParser();
         ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
-        Graph<LogEvent> g1 = parser.generateDirectTemporalRelation(
-                parsedEvents, true);
+        Graph<LogEvent> g1 = parser
+                .generateDirectTemporalRelation(parsedEvents);
         exportTestGraph(g1, 0);
 
         List<Transition<LogEvent>> initNodeTransitions = g1.getInitialNodes()
@@ -219,10 +220,11 @@ public class KTailsTests extends SynopticTest {
         // temporal order of b and c nodes (non-topological change).
         traceStr = "1,1,1 a\n" + "1,2,3 b\n" + "2,2,2 c\n" + "0,1,2 a\n"
                 + "3,3,3 d\n";
+        parser = genParser();
         parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
-        Graph<LogEvent> g2 = parser.generateDirectTemporalRelation(
-                parsedEvents, true);
+        Graph<LogEvent> g2 = parser
+                .generateDirectTemporalRelation(parsedEvents);
         exportTestGraph(g2, 1);
 
         LogEvent initG1 = g1.getInitialNodes().iterator().next();
