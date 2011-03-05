@@ -19,7 +19,6 @@ import synoptic.tests.SynopticTest;
 
 @RunWith(value = Parameterized.class)
 public class PerformanceTests extends SynopticTest {
-    TraceParser parser = null;
 
     int numIterations;
     int traceType;
@@ -48,14 +47,6 @@ public class PerformanceTests extends SynopticTest {
 
         Main.logLvlExtraVerbose = false;
         Main.logLvlQuiet = true;
-    }
-
-    @Override
-    public void setUp() throws ParseException {
-        super.setUp();
-        parser = new TraceParser();
-        parser.addRegex("^(?<TYPE>)$");
-        parser.addPartitionsSeparator("^--$");
     }
 
     public void reportTime(long msTime) {
@@ -118,10 +109,18 @@ public class PerformanceTests extends SynopticTest {
     // }
     // }
 
+    public TraceParser genParser() throws ParseException {
+        TraceParser parser = new TraceParser();
+        parser.addRegex("^(?<TYPE>)$");
+        parser.addPartitionsSeparator("^--$");
+        return parser;
+    }
+
     @Test
     public void bisimPerfTest() throws Exception {
         long total_delta = 0;
         for (int iter = 0; iter < numIterations; iter++) {
+            TraceParser parser = genParser();
 
             String[] traces = partitionTrace(structure1Trace());
             PartitionGraph g = genInitialPartitionGraph(traces, parser,
@@ -140,6 +139,7 @@ public class PerformanceTests extends SynopticTest {
         long total_delta = 0;
         System.out.print("Trivial GK Tail Test");
         for (int iter = 0; iter < numIterations; iter++) {
+            TraceParser parser = genParser();
 
             String[] traces = partitionTrace(structure1Trace());
             PartitionGraph g = genInitialPartitionGraph(traces, parser,
