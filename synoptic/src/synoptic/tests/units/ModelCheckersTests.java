@@ -28,7 +28,7 @@ import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.Relation;
+import synoptic.model.Transition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.tests.SynopticTest;
@@ -189,7 +189,7 @@ public class ModelCheckersTests extends SynopticTest {
         nextCExampleHop:
         for (int i = 0; i < cExampleLabels.length; i++) {
             String nextLabel = cExampleLabels[i];
-            for (Relation<Partition> transition : nextNode.getTransitions()) {
+            for (Transition<Partition> transition : nextNode.getTransitions()) {
                 for (LogEvent event : transition.getTarget().getMessages()) {
                     if (event.getLabel().equals(nextLabel)) {
                         nextNode = transition.getTarget();

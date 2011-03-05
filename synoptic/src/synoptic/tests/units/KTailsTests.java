@@ -15,7 +15,7 @@ import synoptic.main.TraceParser;
 import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
-import synoptic.model.Relation;
+import synoptic.model.Transition;
 import synoptic.tests.SynopticTest;
 
 /**
@@ -165,7 +165,7 @@ public class KTailsTests extends SynopticTest {
         // children -- the two "a" nodes, which should be k-equivalent for all
         // k.
         assertFalse(inputGraph.getInitialNodes().isEmpty());
-        List<Relation<LogEvent>> initNodeTransitions = inputGraph
+        List<Transition<LogEvent>> initNodeTransitions = inputGraph
                 .getInitialNodes().iterator().next().getTransitions();
         LogEvent firstA = initNodeTransitions.get(0).getTarget();
         LogEvent secondA = initNodeTransitions.get(1).getTarget();
@@ -206,7 +206,7 @@ public class KTailsTests extends SynopticTest {
                 parsedEvents, true);
         exportTestGraph(g1, 0);
 
-        List<Relation<LogEvent>> initNodeTransitions = g1.getInitialNodes()
+        List<Transition<LogEvent>> initNodeTransitions = g1.getInitialNodes()
                 .iterator().next().getTransitions();
         LogEvent firstA, secondA;
         firstA = initNodeTransitions.get(0).getTarget();

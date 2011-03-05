@@ -19,7 +19,6 @@ import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
 
 /**
  * Implements two different finite-state-machine based synoptic.model checkers.
@@ -68,8 +67,7 @@ public class FsmModelChecker {
             states.get(node).setInitial(node);
         }
 
-        // Actual synoptic.model checking step - takes an item off the worklist,
-        // and
+        // Actual model checking step - takes an item off the worklist, and
         // transitions the state found at that node, using the labels of all
         // of the adjacent nodes as input. The resulting state is then checked
         // for subset with the stateset cached at the destination node. If it is
@@ -85,8 +83,7 @@ public class FsmModelChecker {
              * System.out.println(); System.out.println(node.getLabel() + " " +
              * node.toString()); System.out.println(current.toString());
              */
-            for (ITransition<T> adjacent : node.getTransitionsIterator()) {
-                T target = adjacent.getTarget();
+            for (T target : graph.getAdjacentNodes(node)) {
                 S other = states.get(target);
                 S temp = current.copy();
                 temp.transition(target);

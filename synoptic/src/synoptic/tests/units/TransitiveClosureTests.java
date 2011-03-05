@@ -13,7 +13,7 @@ import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
-import synoptic.model.Relation;
+import synoptic.model.Transition;
 import synoptic.tests.SynopticTest;
 
 /**
@@ -34,9 +34,9 @@ public class TransitiveClosureTests extends SynopticTest {
         LogEvent c = new LogEvent(new Action("c"));
         LogEvent d = new LogEvent(new Action("d"));
 
-        a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Relation<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Relation<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
+        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
 
         g.add(a);
         g.add(b);
@@ -79,9 +79,9 @@ public class TransitiveClosureTests extends SynopticTest {
         LogEvent c = new LogEvent(new Action("c"));
         LogEvent d = new LogEvent(new Action("d"));
 
-        a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Relation<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Relation<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
+        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
 
         g.add(a);
         g.add(b);
@@ -100,9 +100,9 @@ public class TransitiveClosureTests extends SynopticTest {
         LogEvent c = new LogEvent(new Action("c"));
         LogEvent d = new LogEvent(new Action("d"));
 
-        a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Relation<LogEvent>(b, c, "after"));
-        c.addTransition(new Relation<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+        b.addTransition(new Transition<LogEvent>(b, c, "after"));
+        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
 
         g.add(a);
         g.add(b);
@@ -134,9 +134,9 @@ public class TransitiveClosureTests extends SynopticTest {
         LogEvent c = new LogEvent(new Action("c"));
         LogEvent d = new LogEvent(new Action("d"));
 
-        a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Relation<LogEvent>(b, c, "after"));
-        c.addTransition(new Relation<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+        b.addTransition(new Transition<LogEvent>(b, c, "after"));
+        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
 
         g.add(a);
         g.add(b);
@@ -173,10 +173,10 @@ public class TransitiveClosureTests extends SynopticTest {
         LogEvent c = new LogEvent(new Action("c"));
         LogEvent d = new LogEvent(new Action("d"));
 
-        a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Relation<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Relation<LogEvent>(c, d, "followed by"));
-        d.addTransition(new Relation<LogEvent>(d, a, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
+        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
+        d.addTransition(new Transition<LogEvent>(d, a, "followed by"));
 
         g.add(a);
         g.add(b);
@@ -211,9 +211,9 @@ public class TransitiveClosureTests extends SynopticTest {
         LogEvent b = new LogEvent(new Action("b"));
         LogEvent c = new LogEvent(new Action("c"));
         LogEvent d = new LogEvent(new Action("d"));
-        a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-        a.addTransition(new Relation<LogEvent>(a, c, "followed by"));
-        b.addTransition(new Relation<LogEvent>(b, d, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, c, "followed by"));
+        b.addTransition(new Transition<LogEvent>(b, d, "followed by"));
         g.add(a);
         g.add(b);
         g.add(c);
@@ -250,8 +250,8 @@ public class TransitiveClosureTests extends SynopticTest {
                 "followed by");
         assertEquals(0, tc.getTC().size());
 
-        a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-        a.addTransition(new Relation<LogEvent>(a, c, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, c, "followed by"));
         TransitiveClosure<LogEvent> tc2 = new TransitiveClosure<LogEvent>(g,
                 "after");
         assertEquals(0, tc2.getTC().size());
@@ -263,7 +263,7 @@ public class TransitiveClosureTests extends SynopticTest {
         Graph<LogEvent> g = new Graph<LogEvent>();
         LogEvent a = new LogEvent(new Action("a"));
 
-        a.addTransition(new Relation<LogEvent>(a, a, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, a, "followed by"));
 
         g.add(a);
 
@@ -282,9 +282,9 @@ public class TransitiveClosureTests extends SynopticTest {
         LogEvent c = new LogEvent(new Action("c"));
         LogEvent d = new LogEvent(new Action("d"));
 
-        a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Relation<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Relation<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
+        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
 
         g.add(a);
         g.add(b);
@@ -315,7 +315,7 @@ public class TransitiveClosureTests extends SynopticTest {
     public void isReachableSelfTest() {
         Graph<LogEvent> g = new Graph<LogEvent>();
         LogEvent a = new LogEvent(new Action("a"));
-        a.addTransition(new Relation<LogEvent>(a, a, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, a, "followed by"));
 
         g.add(a);
 
@@ -331,9 +331,9 @@ public class TransitiveClosureTests extends SynopticTest {
         LogEvent c = new LogEvent(new Action("c"));
         LogEvent d = new LogEvent(new Action("d"));
 
-        a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Relation<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Relation<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
+        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
 
         Graph<LogEvent> g = new Graph<LogEvent>();
         g.add(a);
@@ -360,9 +360,9 @@ public class TransitiveClosureTests extends SynopticTest {
         LogEvent c = new LogEvent(new Action("c"));
         LogEvent d = new LogEvent(new Action("d"));
 
-        a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Relation<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Relation<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
+        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
 
         Graph<LogEvent> g = new Graph<LogEvent>();
         g.add(a);
@@ -378,7 +378,7 @@ public class TransitiveClosureTests extends SynopticTest {
         g2.add(c);
         g2.add(d);
         LogEvent e = new LogEvent(new Action("e"));
-        e.addTransition(new Relation<LogEvent>(e, a, "followed by"));
+        e.addTransition(new Transition<LogEvent>(e, a, "followed by"));
         g2.add(e);
         TransitiveClosure<LogEvent> tc2 = new TransitiveClosure<LogEvent>(g2,
                 "followed by");
@@ -398,12 +398,12 @@ public class TransitiveClosureTests extends SynopticTest {
         LogEvent c = new LogEvent(new Action("c"));
         LogEvent d = new LogEvent(new Action("d"));
 
-        a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Relation<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Relation<LogEvent>(c, d, "followed by"));
-        a.addTransition(new Relation<LogEvent>(a, b, "after"));
-        b.addTransition(new Relation<LogEvent>(b, c, "after"));
-        c.addTransition(new Relation<LogEvent>(c, d, "after"));
+        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
+        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<LogEvent>(a, b, "after"));
+        b.addTransition(new Transition<LogEvent>(b, c, "after"));
+        c.addTransition(new Transition<LogEvent>(c, d, "after"));
 
         Graph<LogEvent> g = new Graph<LogEvent>();
         g.add(a);

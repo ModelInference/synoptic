@@ -13,7 +13,7 @@ public class GraphMerge implements IOperation {
 
     /**
      * Construct a graph merge.
-     *
+     * 
      * @param graph
      *            the graph to merge with the graph the operation is later
      *            applied to.

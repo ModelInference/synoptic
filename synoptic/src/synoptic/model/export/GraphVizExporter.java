@@ -6,12 +6,14 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import synoptic.main.Main;
+import synoptic.model.WeightedTransition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -126,7 +128,7 @@ public class GraphVizExporter {
 
     private <T extends INode<T>> String nodeDotAttributes(T node,
             boolean initial, boolean terminal, String color) {
-        String attributes = "label=\"" + quote(node.toStringConcise()) + "\"";
+        String attributes = "label=\"" + quote(node.getLabel()) + "\"";
         if (initial) {
             attributes = attributes + ",shape=box";
         } else if (terminal) {
@@ -169,7 +171,7 @@ public class GraphVizExporter {
      */
     private <T extends INode<T>> int exportRelationNodes(final Writer writer,
             IGraph<T> graph, String relation,
-            LinkedList<ITransition<T>> allTransitions,
+            LinkedList<WeightedTransition<T>> allTransitions,
             LinkedHashMap<T, Integer> nodeToInt, int nodeCnt)
             throws IOException {
 
@@ -199,11 +201,16 @@ public class GraphVizExporter {
         // Start walking the graph from the rootNodes.
         LinkedList<T> parentNodes = new LinkedList<T>(rootNodes);
 
+        Comparator<T> comparator = null;
+        if (parentNodes.size() != 0) {
+            comparator = rootNodes.get(0).getComparator();
+        }
+
         // A breadth first exploration of the graph to touch all nodes.
         while (parentNodes.size() != 0) {
             LinkedList<T> childNodes = new LinkedList<T>();
             // For canonical output sort the parents.
-            Collections.sort(parentNodes);
+            Collections.sort(parentNodes, comparator);
 
             for (T node : parentNodes) {
                 boolean isTerminal, isInitial;
@@ -220,10 +227,10 @@ public class GraphVizExporter {
                 // A node is not terminal unless shown to be otherwise.
                 isTerminal = false;
 
-                List<? extends ITransition<T>> transitions = node
-                        .getTransitions();
+                List<WeightedTransition<T>> transitions = node
+                        .getWeightedTransitions();
 
-                for (ITransition<T> trans : transitions) {
+                for (WeightedTransition<T> trans : transitions) {
                     T child = trans.getTarget();
                     childNodes.add(child);
                     if (!Main.showTerminalNode && child.isTerminal()) {
@@ -274,7 +281,7 @@ public class GraphVizExporter {
         // identifiers in the dot output.
         LinkedHashMap<T, Integer> nodeToInt = new LinkedHashMap<T, Integer>();
         // Collects all transitions between nodes of different relations.
-        LinkedList<ITransition<T>> allTransitions = new LinkedList<ITransition<T>>();
+        LinkedList<WeightedTransition<T>> allTransitions = new LinkedList<WeightedTransition<T>>();
         // Node identifier generator, updated in exportRelationNodes
         int nodeCnt = 0;
 
@@ -290,15 +297,15 @@ public class GraphVizExporter {
                 nodeCnt);
 
         // Output all the edges:
-        for (ITransition<T> trans : allTransitions) {
+        for (WeightedTransition<T> trans : allTransitions) {
             int sourceInt = nodeToInt.get(trans.getSource());
             int targetInt = nodeToInt.get(trans.getTarget());
             writer.write(sourceInt + "->" + targetInt + " [");
             if (Main.outputEdgeLabels && !isInitialGraph) {
-                writer.write("label=\"" + quote(trans.toStringConcise())
-                        + "\", weight=\"" + trans.toStringConcise() + "\",");
+                String freq = quote(String.format("%.2f", trans.getFraction()));
+                writer.write("label=\"" + freq + "\", weight=\"" + freq + "\",");
             }
-            if (trans.toStringConcise().equals("i")) {
+            if (trans.getRelation().equals("i")) {
                 writer.write(",color=blue");
             }
             writer.write("];" + "\n");

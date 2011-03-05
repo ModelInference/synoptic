@@ -1,6 +1,5 @@
 package synoptic.model.interfaces;
 
-
 /**
  * A generic interface for a transition. This interface provides method to
  * modify the transition.
@@ -46,21 +45,6 @@ public interface ITransition<NodeType> {
      *            the new source node
      */
     public void setSource(NodeType source);
-
-    /**
-     * Get the weight of this transition
-     * 
-     * @return the weight
-     */
-    public int getWeight();
-
-    /**
-     * Add a number to the weight of the transition.
-     * 
-     * @param weightToAdd
-     *            the number to add to the weight
-     */
-    public void addWeight(int weightToAdd);
 
     /**
      * Get a short description of the transition

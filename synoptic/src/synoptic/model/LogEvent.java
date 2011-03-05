@@ -4,11 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import synoptic.main.ParseException;
 import synoptic.model.interfaces.INode;
@@ -25,18 +25,16 @@ import synoptic.util.time.VectorTime;
  * 
  * @author Sigurd Schneider
  */
-public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
-    private static Logger logger = Logger.getLogger("LogEvent Logger");
-
+public class LogEvent implements INode<LogEvent> {
     /**
-     * The partition that contains this message event.
+     * The partition that contains this log event.
      */
     private Partition parent;
     private final Action action;
 
-    List<Relation<LogEvent>> transitions = new ArrayList<Relation<LogEvent>>();
-    LinkedHashMap<String, List<Relation<LogEvent>>> transitionsByAction = new LinkedHashMap<String, List<Relation<LogEvent>>>();
-    LinkedHashMap<String, LinkedHashMap<LogEvent, List<Relation<LogEvent>>>> transitionsByActionAndTarget = new LinkedHashMap<String, LinkedHashMap<LogEvent, List<Relation<LogEvent>>>>();
+    List<Transition<LogEvent>> transitions = new ArrayList<Transition<LogEvent>>();
+    LinkedHashMap<String, List<Transition<LogEvent>>> transitionsByAction = new LinkedHashMap<String, List<Transition<LogEvent>>>();
+    LinkedHashMap<String, LinkedHashMap<LogEvent, List<Transition<LogEvent>>>> transitionsByActionAndTarget = new LinkedHashMap<String, LinkedHashMap<LogEvent, List<Transition<LogEvent>>>>();
 
     public LogEvent(LogEvent copyFrom) {
         parent = copyFrom.parent;
@@ -46,11 +44,6 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
     public LogEvent(Action signature) {
         action = signature;
         parent = null;
-    }
-
-    @Override
-    public String getLabel() {
-        return action.getLabel();
     }
 
     @Override
@@ -73,7 +66,7 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
         if (dest == null) {
             throw new InternalSynopticException("Dest was null");
         }
-        addTransition(new Relation<LogEvent>(this, dest, relation));
+        addTransition(new Transition<LogEvent>(this, dest, relation));
     }
 
     /**
@@ -172,41 +165,43 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
         return e1DirectSuccessors;
     }
 
-    public void addTransition(LogEvent dest, String relation, double probability) {
-        if (dest == null) {
-            throw new InternalSynopticException("Dest was null");
-        }
-        addTransition(new Relation<LogEvent>(this, dest, relation, probability));
-    }
+    // public void addTransition(LogEvent dest, String relation, double
+    // probability) {
+    // if (dest == null) {
+    // throw new InternalSynopticException("Dest was null");
+    // }
+    // addTransition(new Transition<LogEvent>(this, dest, relation,
+    // probability));
+    // }
 
-    public void addTransition(Relation<LogEvent> transition) {
+    public void addTransition(Transition<LogEvent> transition) {
         transitions.add(transition);
         String action = transition.getRelation();
         LogEvent target = transition.getTarget();
-        List<Relation<LogEvent>> ref = transitionsByAction.get(action);
+        List<Transition<LogEvent>> ref = transitionsByAction.get(action);
         if (ref == null) {
-            ref = new ArrayList<Relation<LogEvent>>();
+            ref = new ArrayList<Transition<LogEvent>>();
             transitionsByAction.put(action, ref);
         }
         ref.add(transition);
 
-        LinkedHashMap<LogEvent, List<Relation<LogEvent>>> ref1 = transitionsByActionAndTarget
+        LinkedHashMap<LogEvent, List<Transition<LogEvent>>> ref1 = transitionsByActionAndTarget
                 .get(action);
         if (ref1 == null) {
-            ref1 = new LinkedHashMap<LogEvent, List<Relation<LogEvent>>>();
+            ref1 = new LinkedHashMap<LogEvent, List<Transition<LogEvent>>>();
             transitionsByActionAndTarget.put(action, ref1);
         }
-        List<Relation<LogEvent>> ref2 = ref1.get(target);
+        List<Transition<LogEvent>> ref2 = ref1.get(target);
         if (ref2 == null) {
-            ref2 = new ArrayList<Relation<LogEvent>>();
+            ref2 = new ArrayList<Transition<LogEvent>>();
             ref1.put(target, ref2);
         }
         ref2.add(transition);
     }
 
-    public void removeTransitions(List<Relation<LogEvent>> transitions) {
+    public void removeTransitions(List<Transition<LogEvent>> transitions) {
         this.transitions.removeAll(transitions);
-        for (Relation<LogEvent> transition : transitions) {
+        for (Transition<LogEvent> transition : transitions) {
 
             if (transitionsByAction.containsKey(transition.getRelation())) {
                 transitionsByAction.get(transition.getRelation()).remove(
@@ -226,16 +221,16 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
     }
 
     @Override
-    public final List<Relation<LogEvent>> getTransitions() {
+    public final List<Transition<LogEvent>> getTransitions() {
         // Set<Relation<LogEvent>> set = new
         // LinkedHashSet<Relation<LogEvent>>();
         // set.addAll(transitions);
         return transitions;
     }
 
-    public List<Relation<LogEvent>> getTransitions(String relation) {
+    public List<Transition<LogEvent>> getTransitions(String relation) {
         // checkConsistency();
-        List<Relation<LogEvent>> res = transitionsByAction.get(relation);
+        List<Transition<LogEvent>> res = transitionsByAction.get(relation);
         if (res == null) {
             return Collections.emptyList();
         }
@@ -254,15 +249,16 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
         }
     }
 
-    public List<Relation<LogEvent>> getTransitions(Partition target,
+    public List<Transition<LogEvent>> getTransitions(Partition target,
             String relation) {
-        List<Relation<LogEvent>> forAction = transitionsByAction.get(relation);
+        List<Transition<LogEvent>> forAction = transitionsByAction
+                .get(relation);
         if (forAction == null) {
             return Collections.emptyList();
         }
 
-        List<Relation<LogEvent>> res = new ArrayList<Relation<LogEvent>>();
-        for (Relation<LogEvent> t : forAction) {
+        List<Transition<LogEvent>> res = new ArrayList<Transition<LogEvent>>();
+        for (Transition<LogEvent> t : forAction) {
             if (t.getTarget().getParent() == target) {
                 res.add(t);
             }
@@ -270,27 +266,27 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
         return res;
     }
 
-    public List<Relation<LogEvent>> getTransitions(LogEvent target,
+    public List<Transition<LogEvent>> getTransitions(LogEvent target,
             String relation) {
-        LinkedHashMap<LogEvent, List<Relation<LogEvent>>> forAction = transitionsByActionAndTarget
+        LinkedHashMap<LogEvent, List<Transition<LogEvent>>> forAction = transitionsByActionAndTarget
                 .get(relation);
         if (forAction == null) {
             return Collections.emptyList();
         }
-        List<Relation<LogEvent>> res = forAction.get(target);
+        List<Transition<LogEvent>> res = forAction.get(target);
         if (res == null) {
             return Collections.emptyList();
         }
         return res;
     }
 
-    public void addTransitions(Collection<Relation<LogEvent>> transitions) {
-        for (Relation<LogEvent> t : transitions) {
+    public void addTransitions(Collection<Transition<LogEvent>> transitions) {
+        for (Transition<LogEvent> t : transitions) {
             this.addTransition(t);
         }
     }
 
-    public void setTransitions(ArrayList<Relation<LogEvent>> t) {
+    public void setTransitions(ArrayList<Transition<LogEvent>> t) {
         transitions.clear();
         transitions.addAll(t);
     }
@@ -300,25 +296,20 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
     }
 
     @Override
-    public IIterableIterator<Relation<LogEvent>> getTransitionsIterator() {
+    public IIterableIterator<Transition<LogEvent>> getTransitionsIterator() {
         return IterableAdapter.make(getTransitions().iterator());
     }
 
     @Override
-    public IIterableIterator<Relation<LogEvent>> getTransitionsIterator(
+    public IIterableIterator<Transition<LogEvent>> getTransitionsIterator(
             String relation) {
         return IterableAdapter.make(getTransitions(relation).iterator());
     }
 
     @Override
     public ITransition<LogEvent> getTransition(LogEvent target, String relation) {
-        List<Relation<LogEvent>> list = getTransitions(target, relation);
+        List<Transition<LogEvent>> list = getTransitions(target, relation);
         return list.size() == 0 ? null : list.get(0);
-    }
-
-    @Override
-    public String toStringConcise() {
-        return getAction().getLabel();
     }
 
     public Action getAction() {
@@ -330,19 +321,25 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
         return transitionsByAction.keySet();
     }
 
-    @Override
+    /**
+     * Get the timestamp associated with the event.
+     */
     public ITime getTime() {
         return action.getTime();
     }
 
+    /**
+     * Return the label associated with the event.
+     */
     @Override
-    public String getName() {
+    public String getLabel() {
         return action.getLabel();
     }
 
     public Set<LogEvent> getSuccessors(String relation) {
+        // TODO: avoid creating a new LinkedHashSet here
         Set<LogEvent> successors = new LinkedHashSet<LogEvent>();
-        for (Relation<LogEvent> e : getTransitionsIterator(relation)) {
+        for (Transition<LogEvent> e : getTransitionsIterator(relation)) {
             successors.add(e.getTarget());
         }
         return successors;
@@ -354,40 +351,47 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
     }
 
     @Override
-    public int compareTo(LogEvent other) {
-        if (this == other) {
-            return 0;
-        }
+    public Comparator<LogEvent> getComparator() {
+        class PartitionComparator implements Comparator<LogEvent> {
+            @Override
+            public int compare(LogEvent arg0, LogEvent arg1) {
+                if (arg0 == arg1) {
+                    return 0;
+                }
 
-        // compare labels of the two message events
-        int labelCmp = getLabel().compareTo(other.getLabel());
-        if (labelCmp != 0) {
-            return labelCmp;
-        }
+                // compare labels of the two message events
+                int labelCmp = arg0.getLabel().compareTo(arg1.getLabel());
+                if (labelCmp != 0) {
+                    return labelCmp;
+                }
 
-        // compare number of children
-        int transitionCntCmp = new Integer(transitions.size())
-                .compareTo(other.transitions.size());
-        if (transitionCntCmp != 0) {
-            return transitionCntCmp;
-        }
+                // compare number of children
+                int transitionCntCmp = new Integer(arg0.transitions.size())
+                        .compareTo(arg1.transitions.size());
+                if (transitionCntCmp != 0) {
+                    return transitionCntCmp;
+                }
 
-        // compare children labels
-        ArrayList<Relation<LogEvent>> thisSortedTrans = new ArrayList<Relation<LogEvent>>(
-                transitions);
-        ArrayList<Relation<LogEvent>> otherSortedTrans = new ArrayList<Relation<LogEvent>>(
-                other.transitions);
-        Collections.sort(thisSortedTrans);
-        Collections.sort(otherSortedTrans);
-        for (int i = 0; i < thisSortedTrans.size(); i++) {
-            int childCmp = thisSortedTrans.get(i).compareTo(
-                    otherSortedTrans.get(i));
-            if (childCmp != 0) {
-                return childCmp;
+                // compare transitions to children
+                ArrayList<WeightedTransition<LogEvent>> arg0SortedTrans = new ArrayList<WeightedTransition<LogEvent>>(
+                        arg0.getWeightedTransitions());
+                ArrayList<WeightedTransition<LogEvent>> arg1SortedTrans = new ArrayList<WeightedTransition<LogEvent>>(
+                        arg1.getWeightedTransitions());
+
+                Collections.sort(arg0SortedTrans);
+                Collections.sort(arg1SortedTrans);
+                for (int i = 0; i < arg0SortedTrans.size(); i++) {
+                    int childCmp = arg0SortedTrans.get(i).compareTo(
+                            arg1SortedTrans.get(i));
+                    if (childCmp != 0) {
+                        return childCmp;
+                    }
+                }
+
+                return 0;
             }
         }
-
-        return 0;
+        return new PartitionComparator();
     }
 
     public String getLine() {
@@ -406,5 +410,19 @@ public class LogEvent implements INode<LogEvent>, IEvent, Comparable<LogEvent> {
     public String getLineNum() {
         int lineNum = action.getLineNum();
         return lineNum == 0 ? "" : "" + action.getLineNum();
+    }
+
+    @Override
+    public List<WeightedTransition<LogEvent>> getWeightedTransitions() {
+        List<WeightedTransition<LogEvent>> result = new ArrayList<WeightedTransition<LogEvent>>();
+        List<Transition<LogEvent>> allTrans = getTransitions();
+        int totalTrans = allTrans.size();
+        for (Transition<LogEvent> tr : allTrans) {
+            double freq = (double) 1 / (double) totalTrans;
+            WeightedTransition<LogEvent> trWeighted = new WeightedTransition<LogEvent>(
+                    tr.getSource(), tr.getTarget(), tr.getRelation(), freq, 1);
+            result.add(trWeighted);
+        }
+        return result;
     }
 }
