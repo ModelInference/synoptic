@@ -11,6 +11,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.invariants.InvariantMiner;
 import synoptic.invariants.SpecializedInvariantMiner;
+import synoptic.invariants.TCInvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
@@ -20,7 +21,6 @@ import synoptic.tests.SynopticTest;
 
 @RunWith(value = Parameterized.class)
 public class MiningPerformanceTests extends SynopticTest {
-    TraceParser parser = null;
 
     InvariantMiner miner = null;
     int numIterations;
@@ -36,9 +36,9 @@ public class MiningPerformanceTests extends SynopticTest {
     @Parameters
     public static Collection<Object[]> data() {
         Object[][] data = new Object[][] {
-        // { new TCInvariantMiner(false), 3, 1000, 10, 50 },
-        // { new TCInvariantMiner(true), 3, 1000, 10, 50 },
-        { new SpecializedInvariantMiner(), 3, 10000, 10, 50 } };
+                { new TCInvariantMiner(false), 3, 1000, 10, 50 },
+                { new TCInvariantMiner(true), 3, 1000, 10, 50 },
+                { new SpecializedInvariantMiner(), 3, 10000, 10, 50 } };
         return Arrays.asList(data);
     }
 
@@ -57,9 +57,7 @@ public class MiningPerformanceTests extends SynopticTest {
     @Override
     public void setUp() throws ParseException {
         super.setUp();
-        parser = new TraceParser();
-        parser.addRegex("^(?<TYPE>)$");
-        parser.addPartitionsSeparator("^--$");
+
     }
 
     public void reportTime(long msTime) {
@@ -74,7 +72,11 @@ public class MiningPerformanceTests extends SynopticTest {
     public void mineInvariantsPerfTest() throws Exception {
         long total_delta = 0;
         long delta = 0;
+
         for (int iter = 0; iter < numIterations; iter++) {
+            TraceParser parser = new TraceParser();
+            parser.addRegex("^(?<TYPE>)$");
+            parser.addPartitionsSeparator("^--$");
 
             // //////
             long startTime = System.currentTimeMillis();
@@ -93,8 +95,8 @@ public class MiningPerformanceTests extends SynopticTest {
 
             // //////
             startTime = System.currentTimeMillis();
-            Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
-                    parsedEvents, true);
+            Graph<LogEvent> inputGraph = parser
+                    .generateDirectTemporalRelation(parsedEvents);
             delta = System.currentTimeMillis() - startTime;
             // ////////
             System.out.println("Done with generateDirectTemporalRelation in: "

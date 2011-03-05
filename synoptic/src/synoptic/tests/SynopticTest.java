@@ -30,11 +30,6 @@ import synoptic.util.InternalSynopticException;
  */
 public abstract class SynopticTest {
     /**
-     * The default parser used by tests.
-     */
-    protected static TraceParser defParser;
-
-    /**
      * The default exporter used by tests.
      */
     protected static GraphVizExporter defExporter;
@@ -50,13 +45,6 @@ public abstract class SynopticTest {
     static {
         defExporter = new GraphVizExporter();
         testName = new TestName();
-        defParser = new TraceParser();
-        try {
-            defParser.addRegex("^(?<TYPE>)$");
-        } catch (ParseException e) {
-            throw new InternalSynopticException(e);
-        }
-        defParser.addPartitionsSeparator("^--$");
     }
 
     /**
@@ -90,6 +78,21 @@ public abstract class SynopticTest {
     // //////////////////////////////////////////////
     // Common routines to simplify testing.
     // //////////////////////////////////////////////
+
+    /**
+     * Constructs the default parser used by tests. Note: the parser may not be
+     * re-used for parsing different traces (it is stateful).
+     */
+    public TraceParser genDefParser() {
+        TraceParser parser = new TraceParser();
+        try {
+            parser.addRegex("^(?<TYPE>)$");
+        } catch (ParseException e) {
+            throw new InternalSynopticException(e);
+        }
+        parser.addPartitionsSeparator("^--$");
+        return parser;
+    }
 
     /**
      * Creates a single string out of an array of strings, joined together and
@@ -126,8 +129,8 @@ public abstract class SynopticTest {
     public static PartitionGraph genInitialPartitionGraph(String[] events,
             TraceParser parser, InvariantMiner miner) throws Exception {
         ArrayList<LogEvent> parsedEvents = parseLogEvents(events, parser);
-        Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
-                parsedEvents, true);
+        Graph<LogEvent> inputGraph = parser
+                .generateDirectTemporalRelation(parsedEvents);
 
         exportTestGraph(inputGraph, 0);
 
@@ -145,13 +148,14 @@ public abstract class SynopticTest {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    public static Graph<LogEvent> genInitialLinearGraph(String[] events)
+    public Graph<LogEvent> genInitialLinearGraph(String[] events)
             throws ParseException, InternalSynopticException {
+        TraceParser defParser = genDefParser();
         ArrayList<LogEvent> parsedEvents = parseLogEvents(events, defParser);
         // for (LogEvent event : parsedEvents) {
         // logger.fine("Parsed event: " + event.toStringFull());
         // }
-        return defParser.generateDirectTemporalRelation(parsedEvents, true);
+        return defParser.generateDirectTemporalRelation(parsedEvents);
     }
 
     /**

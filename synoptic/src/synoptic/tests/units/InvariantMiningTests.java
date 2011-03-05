@@ -92,7 +92,7 @@ public class InvariantMiningTests extends SynopticTest {
      * @throws Exception
      */
     public TemporalInvariantSet genInvariants(String[] events) throws Exception {
-        Graph<LogEvent> inputGraph = SynopticTest.genInitialLinearGraph(events);
+        Graph<LogEvent> inputGraph = genInitialLinearGraph(events);
         return miner.computeInvariants(inputGraph);
     }
 
@@ -175,7 +175,7 @@ public class InvariantMiningTests extends SynopticTest {
         }
 
         // Generate set including tautological invariants.
-        Graph<LogEvent> inputGraph = SynopticTest.genInitialLinearGraph(log);
+        Graph<LogEvent> inputGraph = genInitialLinearGraph(log);
         TemporalInvariantSet s1 = null;
         if (miner instanceof TCInvariantMiner) {
             // Generates a TemporalInvariantSet based on a sequence of log
@@ -434,7 +434,7 @@ public class InvariantMiningTests extends SynopticTest {
         String[] eventTypes = new String[] { "--", "a", "b", "c", "d", "e" };
         String[] log = genRandomLog(eventTypes);
 
-        Graph<LogEvent> inputGraph = SynopticTest.genInitialLinearGraph(log);
+        Graph<LogEvent> inputGraph = genInitialLinearGraph(log);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         // Test with FSM checker.

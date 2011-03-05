@@ -56,12 +56,6 @@ public class Graph<NodeType extends INode<NodeType>> implements
     private Set<String> cachedRelations = null;
 
     /**
-     * A map that records which LogEvents are in which partitions together. This
-     * mapping is generated in TraceParser.generateDirectTemporalRelation
-     */
-    private LinkedHashMap<String, ArrayList<LogEvent>> partitions = null;
-
-    /**
      * Create a graph from nodes.
      * 
      * @param nodes
@@ -281,23 +275,6 @@ public class Graph<NodeType extends INode<NodeType>> implements
             }
         }
         return true;
-    }
-
-    /**
-     * Stores the partitions map.
-     * 
-     * @param partitions
-     */
-    public void setPartitions(
-            LinkedHashMap<String, ArrayList<LogEvent>> partitions) {
-        this.partitions = partitions;
-    }
-
-    /**
-     * Returns the stored partitions map.
-     */
-    public LinkedHashMap<String, ArrayList<LogEvent>> getPartitions() {
-        return this.partitions;
     }
 
     @Override

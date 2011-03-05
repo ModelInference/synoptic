@@ -3,14 +3,14 @@ package synoptic.invariants;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import synoptic.main.Main;
 import synoptic.main.TraceParser;
-import synoptic.model.Graph;
 import synoptic.model.LogEvent;
 import synoptic.model.interfaces.IGraph;
+import synoptic.model.interfaces.ITransition;
+import synoptic.util.InternalSynopticException;
 
 /**
  * Implements a temporal invariant mining algorithm whose running time is linear
@@ -27,22 +27,7 @@ public class SpecializedInvariantMiner extends InvariantMiner {
 
     /**
      * Compute invariants of a graph g by mining invariants directly from the
-     * partitions associated with the graph.
-     * 
-     * @param g
-     *            the graph of nodes of type LogEvent
-     * @return the set of temporal invariants that g satisfies
-     */
-    @Override
-    public TemporalInvariantSet computeInvariants(IGraph<LogEvent> g) {
-        if (g instanceof Graph) {
-            return computeInvariants(((Graph<LogEvent>) g).getPartitions(),
-                    TraceParser.defaultRelation);
-        }
-        return new TemporalInvariantSet();
-    }
-
-    /**
+     * partitions associated with the graph. /**
      * <p>
      * Mines AFby, AP, NFby invariants from a list of partitions -- each of
      * which is a list of LogEvents. It does this by leveraging the following
@@ -78,10 +63,14 @@ public class SpecializedInvariantMiner extends InvariantMiner {
      * TODO: Extend this algorithm to partially ordered events -- we would need
      * to consider
      * </p>
+     * 
+     * @param g
+     *            the graph of nodes of type LogEvent
+     * @return the set of temporal invariants that g satisfies
      */
-    private TemporalInvariantSet computeInvariants(
-            LinkedHashMap<String, ArrayList<LogEvent>> partitions,
-            String relation) {
+    @Override
+    public TemporalInvariantSet computeInvariants(IGraph<LogEvent> g) {
+        String relation = TraceParser.defaultRelation;
 
         // TODO: we can set the initial capacity of the following HashMaps more
         // optimally, e.g. (N / 0.75) + 1 where N is the total number of event
@@ -95,8 +84,36 @@ public class SpecializedInvariantMiner extends InvariantMiner {
 
         LinkedHashSet<String> AlwaysFollowsINITIALSet = null;
 
+        if (g.getInitialNodes().isEmpty()) {
+            throw new InternalSynopticException(
+                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
+        }
+
+        LogEvent initNode = g.getInitialNodes().iterator().next();
+        if (!initNode.getLabel().equals(Main.initialNodeLabel)) {
+            throw new InternalSynopticException(
+                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
+        }
+
         boolean firstPartition = true;
-        for (List<LogEvent> partition : partitions.values()) {
+
+        // Iterate through all the partitions.
+        for (ITransition<LogEvent> initTrans : initNode.getTransitions()) {
+            LogEvent curNode = initTrans.getTarget();
+            // First, extract the events in the partition from the graph.
+            ArrayList<LogEvent> partition = new ArrayList<LogEvent>();
+            while (curNode.getTransitions().size() != 0) {
+                partition.add(curNode);
+                // ! NOTE: this invariant miner code currently only works for
+                // totally ordered traces, so the pre-requisite for use is for
+                // each node to have no more than 1 out-going transition.
+                if (curNode.getTransitions().size() != 1) {
+                    throw new InternalSynopticException(
+                            "SpecializedInvariantMiner does not work on partially ordered traces.");
+                }
+                curNode = curNode.getTransitions().get(0).getTarget();
+            }
+
             LinkedHashSet<String> inPartitionPrecedesSet = new LinkedHashSet<String>();
 
             // Forward pass: for each event compute the precedes set, and update
