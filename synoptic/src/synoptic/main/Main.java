@@ -840,12 +840,17 @@ public class Main implements Callable<Integer> {
         parser = null;
 
         logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
-        TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
         miner = null;
+
+        logger.info("Mined " + minedInvs.numInvariants() + " invariants");
+        if (dumpInvariants) {
+            logger.info("Mined invariants: " + minedInvs);
+        }
 
         // Create the initial partitioning graph and mine the invariants from
         // the initial graph.
-        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
+        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, minedInvs);
 
         inputGraph = null;
 
@@ -856,12 +861,6 @@ public class Main implements Callable<Integer> {
                 gui.wait();
             }
             return new Integer(0);
-        }
-
-        TemporalInvariantSet minedInvs = pGraph.getInvariants();
-        logger.info("Mined " + minedInvs.numInvariants() + " invariants");
-        if (dumpInvariants) {
-            logger.info("Mined invariants: " + pGraph.getInvariants());
         }
 
         if (logLvlVerbose || logLvlExtraVerbose) {
