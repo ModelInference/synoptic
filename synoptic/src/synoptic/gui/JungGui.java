@@ -390,7 +390,7 @@ public class JungGui extends JApplet implements Printable {
         Transformer<INode<Partition>, String> nodeLabeller = new Transformer<INode<Partition>, String>() {
             @Override
             public String transform(INode<Partition> node) {
-                return node.toStringConcise();
+                return node.getLabel();
             }
         };
 
@@ -412,10 +412,6 @@ public class JungGui extends JApplet implements Printable {
                 }
                 int numOutgoing = s.getSplitEvents().size();
                 return String.valueOf(numOutgoing);
-
-                // toSTringConcise() returns 0.00 because transition
-                // weight\frequencies are not updated during Bisimulation.
-                // return trans.toStringConcise();
             }
         };
 

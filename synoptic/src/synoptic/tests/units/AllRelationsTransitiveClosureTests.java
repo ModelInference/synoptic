@@ -14,7 +14,7 @@ import synoptic.invariants.AllRelationsTransitiveClosure;
 import synoptic.model.Action;
 import synoptic.model.Graph;
 import synoptic.model.LogEvent;
-import synoptic.model.Relation;
+import synoptic.model.Transition;
 
 public class AllRelationsTransitiveClosureTests {
 	
@@ -27,9 +27,9 @@ public class AllRelationsTransitiveClosureTests {
 		LogEvent c = new LogEvent(new Action("c"));
 		LogEvent d = new LogEvent(new Action("d"));
 		
-		a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-		a.addTransition(new Relation<LogEvent>(a, c, "after"));
-		b.addTransition(new Relation<LogEvent>(b, d, "followed by"));
+		a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+		a.addTransition(new Transition<LogEvent>(a, c, "after"));
+		b.addTransition(new Transition<LogEvent>(b, d, "followed by"));
 		
 		g.add(a);
 		g.add(b);
@@ -49,9 +49,9 @@ public class AllRelationsTransitiveClosureTests {
 		LogEvent c = new LogEvent(new Action("c"));
 		LogEvent d = new LogEvent(new Action("d"));
 		
-		a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-		a.addTransition(new Relation<LogEvent>(a, c, "after"));
-		b.addTransition(new Relation<LogEvent>(b, d, "followed by"));
+		a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+		a.addTransition(new Transition<LogEvent>(a, c, "after"));
+		b.addTransition(new Transition<LogEvent>(b, d, "followed by"));
 		
 		g.add(a);
 		g.add(b);
@@ -76,11 +76,11 @@ public class AllRelationsTransitiveClosureTests {
 		LogEvent c = new LogEvent(new Action("c"));
 		LogEvent d = new LogEvent(new Action("d"));
 		
-		a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-		b.addTransition(new Relation<LogEvent>(b, c, "followed by"));
-		c.addTransition(new Relation<LogEvent>(c, d, "followed by"));
-		c.addTransition(new Relation<LogEvent>(c, a, "pow"));
-		d.addTransition(new Relation<LogEvent>(d, c, "pow"));
+		a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+		b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
+		c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
+		c.addTransition(new Transition<LogEvent>(c, a, "pow"));
+		d.addTransition(new Transition<LogEvent>(d, c, "pow"));
 		
 		g.add(a);
 		g.add(b);
@@ -108,9 +108,9 @@ public class AllRelationsTransitiveClosureTests {
 		LogEvent c = new LogEvent(new Action("c"));
 		LogEvent d = new LogEvent(new Action("d"));
 		
-		a.addTransition(new Relation<LogEvent>(a, b, "followed by"));
-		a.addTransition(new Relation<LogEvent>(a, c, "after"));
-		b.addTransition(new Relation<LogEvent>(b, d, "followed by"));
+		a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
+		a.addTransition(new Transition<LogEvent>(a, c, "after"));
+		b.addTransition(new Transition<LogEvent>(b, d, "followed by"));
 		
 		g.add(a);
 		g.add(b);

@@ -12,7 +12,6 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     protected NodeType source;
     protected NodeType target;
     protected final String action;
-    private int count = 0;
 
     /**
      * Create a new transition. The action will be interned.
@@ -55,7 +54,6 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         return result;
     }
 
-    // TODO make use of the fact that action is interned.
     @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object obj) {
@@ -101,16 +99,6 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     @Override
     public void setTarget(NodeType target) {
         this.target = target;
-    }
-
-    @Override
-    public void addWeight(int count) {
-        this.count += count;
-    }
-
-    @Override
-    public int getWeight() {
-        return count;
     }
 
     @Override

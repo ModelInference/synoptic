@@ -3,6 +3,7 @@ package synoptic.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,7 +30,7 @@ import synoptic.util.InternalSynopticException;
  * 
  * @author sigurd
  */
-public class Partition implements INode<Partition>, Comparable<Partition> {
+public class Partition implements INode<Partition> {
     protected final Set<LogEvent> messages;
     private String label;
 
@@ -74,7 +75,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
      * using this iterator
      */
     @Override
-    public IIterableIterator<Relation<Partition>> getTransitionsIterator() {
+    public IIterableIterator<Transition<Partition>> getTransitionsIterator() {
         return getTransitionsIterator(null);
     }
 
@@ -183,36 +184,30 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
      * information about frequency and number of observation.
      */
     @Override
-    public List<Relation<Partition>> getTransitions() {
-        List<Relation<Partition>> result = new ArrayList<Relation<Partition>>();
-        for (Relation<Partition> tr : getTransitionsIterator()) {
+    public List<Transition<Partition>> getTransitions() {
+        List<Transition<Partition>> result = new ArrayList<Transition<Partition>>();
+        for (Transition<Partition> tr : getTransitionsIterator()) {
             result.add(tr);
+        }
+        return result;
+    }
+
+    @Override
+    public List<WeightedTransition<Partition>> getWeightedTransitions() {
+        List<WeightedTransition<Partition>> result = new ArrayList<WeightedTransition<Partition>>();
+        for (Transition<Partition> tr : getTransitionsIterator()) {
             // Use splitting to compute the transition probabilities\labels.
             PartitionSplit s = getCandidateDivisionBasedOnOutgoing(tr);
             if (s == null) {
                 s = PartitionSplit.newSplitWithAllEvents(this);
             }
-            // List<Invariant> all = TemporalInvariantSet.generateInvariants(tr
-            // .getSource().getMessages());
-            // List<Invariant> sInv = TemporalInvariantSet.generateInvariants(s
-            // .getFulfills());
-            // List<Invariant> sInvNot =
-            // TemporalInvariantSet.generateInvariants(s
-            // .getFulfillsNot());
-            // List<Invariant> rel = TemporalInvariantSet.getRelevantInvariants(
-            // sInv, sInvNot, all);
-            // List<Invariant> flow =
-            // TemporalInvariantSet.generateFlowInvariants(
-            // tr.getSource().getMessages(), tr.getAction(), tr
-            // .getTarget().getAction().getLabel());
-            // tr.setInvariants(rel);
-            // System.out.println(s.getFulfills().size() + " "
-            // + s.getFulfillsNot().size());
             int numOutgoing = s.getSplitEvents().size();
             int totalAtSource = tr.getSource().getMessages().size();
-            tr.setFrequency((double) numOutgoing / (double) totalAtSource);
-            tr.addWeight(numOutgoing);
-            // System.out.println(flow);
+            double freq = (double) numOutgoing / (double) totalAtSource;
+            WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
+                    tr.getSource(), tr.getTarget(), tr.getRelation(), freq,
+                    numOutgoing);
+            result.add(trWeighted);
         }
         return result;
     }
@@ -224,21 +219,21 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
      * Duplicates are eliminated.
      */
     @Override
-    public IIterableIterator<Relation<Partition>> getTransitionsIterator(
+    public IIterableIterator<Transition<Partition>> getTransitionsIterator(
             final String act) {
-        return new IIterableIterator<Relation<Partition>>() {
+        return new IIterableIterator<Transition<Partition>>() {
             private final Set<ITransition<Partition>> seen = new LinkedHashSet<ITransition<Partition>>();
             private final Iterator<LogEvent> msgItr = messages.iterator();
             private Iterator<? extends ITransition<LogEvent>> transItr = act == null ? msgItr
                     .next().getTransitions().iterator()
                     : msgItr.next().getTransitions(act).iterator();
-            private Relation<Partition> next = null;
+            private Transition<Partition> next = null;
 
-            private Relation<Partition> getNext() {
+            private Transition<Partition> getNext() {
                 while (transItr.hasNext() || msgItr.hasNext()) {
                     if (transItr.hasNext()) {
                         final ITransition<LogEvent> found = transItr.next();
-                        final Relation<Partition> transToPart = new Relation<Partition>(
+                        final Transition<Partition> transToPart = new Transition<Partition>(
                                 found.getSource().getParent(), found
                                         .getTarget().getParent(),
                                 found.getRelation());
@@ -261,11 +256,11 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
             }
 
             @Override
-            public Relation<Partition> next() {
+            public Transition<Partition> next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                final Relation<Partition> oldNext = next;
+                final Transition<Partition> oldNext = next;
                 next = null;
                 return oldNext;
             }
@@ -279,7 +274,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
             }
 
             @Override
-            public Iterator<Relation<Partition>> iterator() {
+            public Iterator<Transition<Partition>> iterator() {
                 return this;
             }
 
@@ -288,7 +283,7 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
 
     @Override
     public ITransition<Partition> getTransition(Partition iNode, String action) {
-        for (Iterator<Relation<Partition>> iter = getTransitionsIterator(action); iter
+        for (Iterator<Transition<Partition>> iter = getTransitionsIterator(action); iter
                 .hasNext();) {
             ITransition<Partition> t = iter.next();
             if (t.getTarget().equals(iNode)) {
@@ -312,12 +307,6 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
         messages.removeAll(messageList);
     }
 
-    @Override
-    public String toStringConcise() {
-        return getLabel();
-        // return toString();
-    }
-
     public void setLabel(String str) {
         label = str;
     }
@@ -332,40 +321,50 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
     }
 
     @Override
-    public int compareTo(Partition other) {
-        // compare references
-        if (this == other) {
-            return 0;
-        }
+    public Comparator<Partition> getComparator() {
+        class PartitionComparator implements Comparator<Partition> {
+            @Override
+            public int compare(Partition arg0, Partition arg1) {
+                // compare references
+                if (arg0 == arg1) {
+                    return 0;
+                }
 
-        // 1. compare label strings
-        int labelCmp = getLabel().compareTo(other.getLabel());
-        if (labelCmp != 0) {
-            return labelCmp;
-        }
+                // 1. compare label strings
+                int labelCmp = getLabel().compareTo(arg1.getLabel());
+                if (labelCmp != 0) {
+                    return labelCmp;
+                }
 
-        // 2. compare number of children
-        List<Relation<Partition>> tnsThis = getTransitions();
-        List<Relation<Partition>> tnsOther = getTransitions();
-        int childrenCmp = ((Integer) tnsThis.size()).compareTo(tnsOther.size());
-        if (childrenCmp != 0) {
-            return childrenCmp;
-        }
+                // 2. compare number of children
+                List<WeightedTransition<Partition>> tnsArg0 = arg0
+                        .getWeightedTransitions();
+                List<WeightedTransition<Partition>> tnsArg1 = arg1
+                        .getWeightedTransitions();
+                int childrenCmp = ((Integer) tnsArg0.size()).compareTo(tnsArg1
+                        .size());
+                if (childrenCmp != 0) {
+                    return childrenCmp;
+                }
 
-        // 3. compare labels of children
-        Collections.sort(tnsThis);
-        Collections.sort(tnsOther);
-        int index = 0;
-        int childCmp;
-        for (Relation<Partition> p : tnsThis) {
-            // sizes of tnsThis and tnsOther were checked to be equal above
-            Relation<Partition> p2 = tnsOther.get(index);
-            childCmp = p.compareTo(p2);
-            if (childCmp != 0) {
-                return childCmp;
+                // 3. compare transitions to children
+                Collections.sort(tnsArg0);
+                Collections.sort(tnsArg1);
+                int index = 0;
+                int childCmp;
+                for (WeightedTransition<Partition> p : tnsArg0) {
+                    // sizes of tnsArg0 and tnsArg1 were checked to be equal
+                    // above
+                    WeightedTransition<Partition> p2 = tnsArg1.get(index);
+                    childCmp = p.compareTo(p2);
+                    if (childCmp != 0) {
+                        return childCmp;
+                    }
+                }
+                return 0;
             }
         }
-        return 0;
+        return new PartitionComparator();
     }
 
     @Override
@@ -373,4 +372,5 @@ public class Partition implements INode<Partition>, Comparable<Partition> {
         throw new InternalSynopticException(
                 "Partitions manipulate edges implicitly through LogEvent instances they maintain. Cannot modify Partition transition directly.");
     }
+
 }

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -59,8 +60,6 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * mapping is generated in TraceParser.generateDirectTemporalRelation
      */
     private LinkedHashMap<String, ArrayList<LogEvent>> partitions = null;
-
-    // private static Logger logger = Logger.getLogger("Graph");
 
     /**
      * Create a graph from nodes.
@@ -299,5 +298,14 @@ public class Graph<NodeType extends INode<NodeType>> implements
      */
     public LinkedHashMap<String, ArrayList<LogEvent>> getPartitions() {
         return this.partitions;
+    }
+
+    @Override
+    public List<NodeType> getAdjacentNodes(NodeType node) {
+        List<NodeType> result = new ArrayList<NodeType>();
+        for (ITransition<NodeType> trans : node.getTransitions()) {
+            result.add(trans.getTarget());
+        }
+        return result;
     }
 }

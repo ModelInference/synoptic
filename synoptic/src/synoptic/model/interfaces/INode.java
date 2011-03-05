@@ -1,27 +1,37 @@
 package synoptic.model.interfaces;
 
+import java.util.Comparator;
 import java.util.List;
 
 import synoptic.model.Partition;
+import synoptic.model.WeightedTransition;
 import synoptic.util.IIterableIterator;
 
 /**
  * The interface all nodes must implement. The interface does not contain
- * methods that allow modification of the node (with the exception of {@code
- * setParent} and {@code addTransition}).
+ * methods that allow modification of the node (with the exception of
+ * {@code setParent} and {@code addTransition}).
  * 
  * @author sigurd
  * @param <NodeType>
  *            the interface is parametrized with the type of the implementing
  *            class to allow more specific types
  */
-public interface INode<NodeType> extends Comparable<NodeType> {
+public interface INode<NodeType> {
     /**
      * Returns the label of the node.
      * 
-     * @return the node label
+     * @return the node's label
      */
     String getLabel();
+
+    /**
+     * Returns a comparator object that can be used to compare NodeType
+     * instances.
+     * 
+     * @return comparator for NodeType
+     */
+    Comparator<NodeType> getComparator();
 
     /**
      * Returns an {@code IIterableIterator} over all outgoing transitions of
@@ -67,6 +77,15 @@ public interface INode<NodeType> extends Comparable<NodeType> {
     List<? extends ITransition<NodeType>> getTransitions();
 
     /**
+     * Returns the set of all outgoing transitions of this node, each of which
+     * is "weighted." That is, the transition is annotated with the number of
+     * events that take the transition.
+     * 
+     * @return list of weighted outgoing transition corresponding to this node
+     */
+    List<WeightedTransition<NodeType>> getWeightedTransitions();
+
+    /**
      * Set the parent partition of this node.
      * 
      * @param parent
@@ -90,13 +109,6 @@ public interface INode<NodeType> extends Comparable<NodeType> {
      * @return the parent partition
      */
     Partition getParent();
-
-    /**
-     * Get a short string describing this node.
-     * 
-     * @return a short description
-     */
-    String toStringConcise();
 
     /**
      * Whether or not this node is a 'terminal' node in some sample traces.

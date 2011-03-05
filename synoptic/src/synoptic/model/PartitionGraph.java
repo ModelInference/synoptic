@@ -1,9 +1,11 @@
 package synoptic.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,6 +48,9 @@ public class PartitionGraph implements IGraph<Partition> {
 
     /** holds all relations known to exist in this graph */
     private final Set<String> relations = new LinkedHashSet<String>();
+
+    /** a cache of inter-partition transitions */
+    public final LinkedHashMap<Partition, List<Partition>> transitionCache = new LinkedHashMap<Partition, List<Partition>>();
 
     /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
@@ -102,7 +107,29 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     public IOperation apply(IOperation op) {
+        transitionCache.clear();
         return op.commit(this);
+    }
+
+    /**
+     * Returns a list of partitions that are adjacent to pNode. Uses the
+     * internal transitionCache for speed.
+     * 
+     * @param pNode
+     * @return
+     */
+    @Override
+    public List<Partition> getAdjacentNodes(Partition pNode) {
+        List<Partition> result = transitionCache.get(pNode);
+        if (result == null) {
+            result = new ArrayList<Partition>();
+            List<Transition<Partition>> relations = pNode.getTransitions();
+            for (int i = 0; i < relations.size(); i++) {
+                result.add(relations.get(i).getTarget());
+            }
+            transitionCache.put(pNode, result);
+        }
+        return result;
     }
 
     /**
@@ -296,6 +323,7 @@ public class PartitionGraph implements IGraph<Partition> {
             relations.addAll(m.getRelations());
         }
         partitions.add(node);
+        transitionCache.clear();
     }
 
     @Override
