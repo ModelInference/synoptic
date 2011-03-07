@@ -52,10 +52,23 @@ public class PartitionMultiSplit implements IOperation {
             partition.removeMessages(set);
             newPartition.addAllMessages(set);
             g.add(newPartition);
+
+            g.clearNodeAdjacentsCache(newPartition);
         }
+
+        // //////////////
+        // Invalidate the appropriate elements in the graph's transitionCache
+
+        g.clearNodeAdjacentsCache(partition);
+
+        // //////////////
+
         if (Main.performExtraChecks) {
             g.checkSanity();
         }
+
+        // g.transitionCache.clear();
+
         return new PartitionMultiMerge(partition, newPartitions);
     }
 

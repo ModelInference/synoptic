@@ -14,19 +14,19 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     protected final String action;
 
     /**
-     * Create a new transition. The action will be interned.
+     * Create a new transition.
      * 
      * @param source
      *            source node
      * @param target
      *            target node
-     * @param action
-     *            the label of the transition (will be interned)
+     * @param relation
+     *            the label of the transition
      */
-    public Transition(NodeType source, NodeType target, String action) {
+    public Transition(NodeType source, NodeType target, String relation) {
         this.source = source;
         this.target = target;
-        this.action = action.intern();
+        this.action = relation;
     }
 
     @Override

@@ -31,11 +31,42 @@ public class PartitionMultiMerge implements IOperation {
 
     @Override
     public IOperation commit(PartitionGraph g) {
+        // boolean invalidateRetained = false;
+        // if (g.transitionCache.get(retainedPartition) == null) {
+        // invalidateRetained = true;
+        // }
+
         for (Partition removed : partitionsToMerge) {
             retainedPartition.addAllMessages(removed.getMessages());
             removed.removeMessages(removed.getMessages());
             g.remove(removed);
+
+            // //////////////
+            // Invalidate the appropriate elements in the graph's
+            // transitionCache
+
+            // g.clearNodeAdjacentsCache(removed);
+            // g.mergeAdjacentsCache(removed, retainedPartition);
+            // if (!invalidateRetained) {
+            // if (g.transitionCache.get(removed) == null) {
+            // invalidateRetained = true;
+            // } else {
+            // g.transitionCache.get(retainedPartition).addAll(
+            // g.transitionCache.get(removed));
+            // }
+            // }
+            // g.transitionCache.remove(removed);
+            g.clearNodeAdjacentsCache(removed);
+            // //////////////
         }
+
+        // if (invalidateRetained) {
+        g.transitionCache.remove(retainedPartition);
+        // }
+        // g.transitionCache.remove(removed);
+
+        // g.clearNodeAdjacentsCache(retainedPartition);
+
         // TODO: Provide undo
         return null;
     }

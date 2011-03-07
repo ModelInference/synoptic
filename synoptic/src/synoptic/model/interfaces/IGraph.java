@@ -1,6 +1,5 @@
 package synoptic.model.interfaces;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,7 +25,7 @@ public interface IGraph<NodeType extends INode<NodeType>> {
     /**
      * Get all relations that appear in this graph.
      * 
-     * @return the set of nodes in the graph
+     * @return the set of relations in the graph
      */
     Set<String> getRelations();
 
@@ -49,7 +48,7 @@ public interface IGraph<NodeType extends INode<NodeType>> {
     /**
      * Returns a list of nodes that are adjacent to node.
      */
-    List<NodeType> getAdjacentNodes(NodeType node);
+    Set<NodeType> getAdjacentNodes(NodeType node);
 
     // ///////////////////////////////////////////////////////////////////////
     // Methods to modify the graph:
