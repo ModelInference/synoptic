@@ -112,7 +112,7 @@ public class Main implements Callable<Integer> {
     @Option(
             value = "-f Use FSM checker instead of the default NASA LTL-based checker",
             aliases = { "-use-fsm-checker" })
-    public static boolean useFSMChecker = false;
+    public static boolean useFSMChecker = true;
 
     /**
      * Sets the random seed for Synoptic's source of pseudo-random numbers.
@@ -224,6 +224,13 @@ public class Main implements Callable<Integer> {
     public static String outputPathPrefix = null;
 
     /**
+     * Whether or not to output the list of invariants to a file, with one
+     * invariant per line.
+     */
+    @Option(value = "Output invariants to a file")
+    public static boolean outputInvariantsToFile = false;
+
+    /**
      * The absolute path to the dot command executable to use for outputting
      * graphical representations of Synoptic models
      */
@@ -332,7 +339,7 @@ public class Main implements Callable<Integer> {
      * the default usage message
      */
     @Option("Intern commonly occurring strings, such as event types, as a memory-usage optimization")
-    public static boolean internCommonStrings = false;
+    public static boolean internCommonStrings = true;
 
     /**
      * Run all tests in synoptic.tests.units -- all the unit tests, and then
@@ -683,8 +690,8 @@ public class Main implements Callable<Integer> {
      */
     public static String getIntermediateDumpFilename(String stageName,
             int roundNum) {
-        return new String(outputPathPrefix + ".stage-" + stageName + ".round-"
-                + roundNum + ".dot");
+        return outputPathPrefix + ".stage-" + stageName + ".round-" + roundNum
+                + ".dot";
     }
 
     /***********************************************************/
@@ -846,6 +853,12 @@ public class Main implements Callable<Integer> {
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
         if (dumpInvariants) {
             logger.info("Mined invariants: " + minedInvs);
+        }
+
+        if (outputInvariantsToFile) {
+            String invariantsFilename = outputPathPrefix + ".invariants.txt";
+            logger.info("Outputting invarians to file: " + invariantsFilename);
+            minedInvs.outputToFile(invariantsFilename);
         }
 
         // Create the initial partitioning graph and mine the invariants from

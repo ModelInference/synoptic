@@ -1,5 +1,8 @@
 package synoptic.invariants;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -7,6 +10,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -282,5 +286,29 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         }
 
         return new Graph<LogEvent>(messageMap.values());
+    }
+
+    /**
+     * Outputs the set of invariants to a file -- one invariant per line, and
+     * the set of invariants is canonically sorted.
+     * 
+     * @param filename
+     *            The filename to use for outputting the invariants.
+     * @throws FileNotFoundException
+     */
+    public void outputToFile(String fileName) throws FileNotFoundException {
+        LinkedList<String> invariantsStr = new LinkedList<String>();
+        // Construct a list of invariants' String representations
+        for (ITemporalInvariant inv : invariants) {
+            invariantsStr.add(inv.toString());
+        }
+        // Sort the list of string invariants and output it to the file.
+        Collections.sort(invariantsStr);
+        File f = new File(fileName);
+        PrintWriter writer = new PrintWriter(f);
+        for (String s : invariantsStr) {
+            writer.write(s + "\n");
+        }
+        writer.close();
     }
 }
