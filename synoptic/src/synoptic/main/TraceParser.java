@@ -656,6 +656,7 @@ public class TraceParser {
 
             LogEvent event = new LogEvent(action);
             addEventToPartition(event, filter.substitute(actStringArgs));
+            actStringArgs = null;
             return event;
         }
 

@@ -1,6 +1,5 @@
 package synoptic.algorithms.graph;
 
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -70,10 +69,19 @@ public class PartitionSplit implements IOperation {
 
         newPartition.addAllMessages(getSplitEvents());
         partitionToSplit.removeMessages(getSplitEvents());
-
         g.add(newPartition);
-        PartitionMerge m = new PartitionMerge(getPartition(), newPartition);
-        return m;
+
+        // //////////////
+        // Invalidate the appropriate elements in the graph's transitionCache
+
+        g.clearNodeAdjacentsCache(partitionToSplit);
+        g.clearNodeAdjacentsCache(newPartition);
+
+        // //////////////
+
+        // g.transitionCache.clear();
+
+        return new PartitionMerge(partitionToSplit, newPartition);
     }
 
     /**
@@ -131,8 +139,8 @@ public class PartitionSplit implements IOperation {
     }
 
     /**
-     * Create a partition split that would split all messages of {@code
-     * partition} into a separate node.
+     * Create a partition split that would split all messages of
+     * {@code partition} into a separate node.
      * 
      * @param partition
      * @return the newly created partition split

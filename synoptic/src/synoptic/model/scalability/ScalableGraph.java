@@ -3,8 +3,8 @@ package synoptic.model.scalability;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import synoptic.algorithms.graph.GraphMerge;
 import synoptic.model.PartitionGraph;
+import synoptic.util.InternalSynopticException;
 
 public class ScalableGraph {
     Set<PartitionGraph> graphs = new LinkedHashSet<PartitionGraph>();
@@ -20,7 +20,9 @@ public class ScalableGraph {
                 mergedGraph = graph;
                 continue;
             }
-            mergedGraph.apply(new GraphMerge(graph));
+            throw new InternalSynopticException(
+                    "Caching for graph.Apply(GraphMerge) not implemented.");
+            // mergedGraph.apply(new GraphMerge(graph));
         }
         return mergedGraph;
     }

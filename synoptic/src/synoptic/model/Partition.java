@@ -31,7 +31,8 @@ import synoptic.util.InternalSynopticException;
  * @author sigurd
  */
 public class Partition implements INode<Partition> {
-    protected final Set<LogEvent> messages;
+    /** All the events this partition contains */
+    protected final Set<LogEvent> events;
     private String label;
 
     /**
@@ -41,7 +42,7 @@ public class Partition implements INode<Partition> {
     private boolean isTerminal;
 
     public Partition(Set<LogEvent> messages) {
-        this.messages = new LinkedHashSet<LogEvent>(messages);
+        events = new LinkedHashSet<LogEvent>(messages);
         for (final LogEvent m : messages) {
             m.setParent(this);
         }
@@ -57,13 +58,13 @@ public class Partition implements INode<Partition> {
     }
 
     public void addMessage(LogEvent message) {
-        messages.add(message);
+        events.add(message);
         message.setParent(this);
         isTerminal |= message.isTerminal();
     }
 
     public void addAllMessages(Collection<LogEvent> messages) {
-        this.messages.addAll(messages);
+        events.addAll(messages);
         for (final LogEvent m : messages) {
             m.setParent(this);
             isTerminal |= m.isTerminal();
@@ -80,7 +81,7 @@ public class Partition implements INode<Partition> {
     }
 
     public Set<LogEvent> getMessages() {
-        return messages;
+        return events;
     }
 
     @Override
@@ -88,7 +89,7 @@ public class Partition implements INode<Partition> {
         StringBuilder str = new StringBuilder();
         // str.append("Partition " + hashCode());
         str.append("P." + getLabel());
-        str.append("." + messages.size());
+        str.append("." + events.size());
         return str.toString();
     }
 
@@ -107,7 +108,7 @@ public class Partition implements INode<Partition> {
     public PartitionSplit getCandidateDivisionBasedOnOutgoing(
             ITransition<Partition> trans) {
         PartitionSplit ret = null;
-        for (final LogEvent otherExpr : messages) {
+        for (final LogEvent otherExpr : events) {
             if (fulfillsStrong(otherExpr, trans)) {
                 if (ret != null) {
                     ret.addEventToSplit(otherExpr);
@@ -115,7 +116,7 @@ public class Partition implements INode<Partition> {
             } else {
                 if (ret == null) {
                     ret = new PartitionSplit(this);
-                    for (final LogEvent e2 : messages) {
+                    for (final LogEvent e2 : events) {
                         if (e2.equals(otherExpr)) {
                             break;
                         }
@@ -141,16 +142,21 @@ public class Partition implements INode<Partition> {
             Partition previous, String relation) {
         PartitionSplit candidateSplit = new PartitionSplit(this);
         Set<LogEvent> messagesReachableFromPrevious = new LinkedHashSet<LogEvent>();
-        for (final LogEvent otherExpr : previous.messages) {
-            messagesReachableFromPrevious.addAll(otherExpr
+        for (final LogEvent prevEvent : previous.events) {
+            messagesReachableFromPrevious.addAll(prevEvent
                     .getSuccessors(relation));
-            messagesReachableFromPrevious.retainAll(messages);
         }
-        for (LogEvent m : messages) {
+
+        messagesReachableFromPrevious.retainAll(events);
+
+        // TODO: if this split is complete (i.e. all messages from prev end up
+        // in this partition) then we should return Null?
+        for (LogEvent m : events) {
             if (messagesReachableFromPrevious.contains(m)) {
                 candidateSplit.addEventToSplit(m);
             }
         }
+
         // TODO: is it possible for candidateSplit.isValid() to be false?
         // if so, should we check and return null in this case?
         return candidateSplit;
@@ -172,11 +178,11 @@ public class Partition implements INode<Partition> {
         if (label != null) {
             return label;
         }
-        return messages.iterator().next().getLabel();
+        return events.iterator().next().getLabel();
     }
 
     public int size() {
-        return messages.size();
+        return events.size();
     }
 
     /**
@@ -223,10 +229,12 @@ public class Partition implements INode<Partition> {
             final String act) {
         return new IIterableIterator<Transition<Partition>>() {
             private final Set<ITransition<Partition>> seen = new LinkedHashSet<ITransition<Partition>>();
-            private final Iterator<LogEvent> msgItr = messages.iterator();
-            private Iterator<? extends ITransition<LogEvent>> transItr = act == null ? msgItr
+            private final Iterator<LogEvent> msgItr = events.iterator();
+
+            private Iterator<? extends ITransition<LogEvent>> transItr = (act == null) ? msgItr
                     .next().getTransitions().iterator()
                     : msgItr.next().getTransitions(act).iterator();
+
             private Transition<Partition> next = null;
 
             private Transition<Partition> getNext() {
@@ -241,9 +249,13 @@ public class Partition implements INode<Partition> {
                             return transToPart;
                         }
                     } else {
-                        transItr = act == null ? msgItr.next().getTransitions()
-                                .iterator() : msgItr.next().getTransitions(act)
-                                .iterator();
+                        if (act == null) {
+                            transItr = msgItr.next().getTransitions()
+                                    .iterator();
+                        } else {
+                            transItr = msgItr.next().getTransitions(act)
+                                    .iterator();
+                        }
                     }
                 }
 
@@ -277,7 +289,6 @@ public class Partition implements INode<Partition> {
             public Iterator<Transition<Partition>> iterator() {
                 return this;
             }
-
         };
     }
 
@@ -304,7 +315,7 @@ public class Partition implements INode<Partition> {
     }
 
     public void removeMessages(Set<LogEvent> messageList) {
-        messages.removeAll(messageList);
+        events.removeAll(messageList);
     }
 
     public void setLabel(String str) {

@@ -1,7 +1,7 @@
 package synoptic.algorithms.graph;
 
-import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
+import synoptic.util.InternalSynopticException;
 
 // TODO: Implement Graph merging
 
@@ -24,9 +24,11 @@ public class GraphMerge implements IOperation {
 
     @Override
     public IOperation commit(PartitionGraph g) {
-        for (Partition p : graph.getNodes()) {
-            g.add(p);
-        }
-        return null;
+        throw new InternalSynopticException(
+                "Commit of GraphMerge does not update pGraph transition cache.");
+        // for (Partition p : graph.getNodes()) {
+        // g.add(p);
+        // }
+        // return null;
     }
 }

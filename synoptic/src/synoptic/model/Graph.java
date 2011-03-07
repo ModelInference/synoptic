@@ -1,12 +1,10 @@
 package synoptic.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -278,8 +276,8 @@ public class Graph<NodeType extends INode<NodeType>> implements
     }
 
     @Override
-    public List<NodeType> getAdjacentNodes(NodeType node) {
-        List<NodeType> result = new ArrayList<NodeType>();
+    public Set<NodeType> getAdjacentNodes(NodeType node) {
+        Set<NodeType> result = new LinkedHashSet<NodeType>();
         for (ITransition<NodeType> trans : node.getTransitions()) {
             result.add(trans.getTarget());
         }

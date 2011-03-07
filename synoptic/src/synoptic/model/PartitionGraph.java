@@ -1,13 +1,15 @@
 package synoptic.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import synoptic.algorithms.graph.IOperation;
 import synoptic.invariants.TemporalInvariantSet;
@@ -26,6 +28,9 @@ import synoptic.util.InternalSynopticException;
  * @author sigurd
  */
 public class PartitionGraph implements IGraph<Partition> {
+
+    private static Logger logger = Logger.getLogger("PartitionGraph Logger");
+
     /** holds all partitions in this graph */
     private LinkedHashSet<Partition> partitions = null;
 
@@ -50,7 +55,7 @@ public class PartitionGraph implements IGraph<Partition> {
     private final Set<String> relations = new LinkedHashSet<String>();
 
     /** a cache of inter-partition transitions */
-    public final LinkedHashMap<Partition, List<Partition>> transitionCache = new LinkedHashMap<Partition, List<Partition>>();
+    public final LinkedHashMap<Partition, Set<Partition>> transitionCache = new LinkedHashMap<Partition, Set<Partition>>();
 
     /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
@@ -107,7 +112,6 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     public IOperation apply(IOperation op) {
-        transitionCache.clear();
         return op.commit(this);
     }
 
@@ -119,10 +123,10 @@ public class PartitionGraph implements IGraph<Partition> {
      * @return
      */
     @Override
-    public List<Partition> getAdjacentNodes(Partition pNode) {
-        List<Partition> result = transitionCache.get(pNode);
+    public Set<Partition> getAdjacentNodes(Partition pNode) {
+        Set<Partition> result = transitionCache.get(pNode);
         if (result == null) {
-            result = new ArrayList<Partition>();
+            result = new LinkedHashSet<Partition>();
             List<Transition<Partition>> relations = pNode.getTransitions();
             for (int i = 0; i < relations.size(); i++) {
                 result.add(relations.get(i).getTarget());
@@ -153,6 +157,7 @@ public class PartitionGraph implements IGraph<Partition> {
             }
             prepartitions.get(message.getLabel()).addMessage(message);
         }
+        transitionCache.clear();
     }
 
     private void partitionByIndexSetsAndLabels(Collection<LogEvent> events,
@@ -173,7 +178,7 @@ public class PartitionGraph implements IGraph<Partition> {
             Partition[] subPartitions = new Partition[partitioningIndexSets
                     .size()];
 
-            for (LogEvent m : p.messages) {
+            for (LogEvent m : p.events) {
                 Integer index = messageIndexMap.get(m);
                 if (index == null) {
                     throw new InternalSynopticException(
@@ -323,13 +328,40 @@ public class PartitionGraph implements IGraph<Partition> {
             relations.addAll(m.getRelations());
         }
         partitions.add(node);
-        transitionCache.clear();
+
+        clearNodeAdjacentsCache(node);
+    }
+
+    public void mergeAdjacentsCache(Partition from, Partition to) {
+        for (Iterator<Entry<Partition, Set<Partition>>> pIter = transitionCache
+                .entrySet().iterator(); pIter.hasNext();) {
+            Set<Partition> partitions = pIter.next().getValue();
+            if (partitions.contains(from)) {
+                partitions.remove(from);
+                partitions.add(to);
+            }
+        }
+    }
+
+    public void clearNodeAdjacentsCache(Partition node) {
+        transitionCache.remove(node);
+        // System.out.println("Cache size: " + transitionCache.size());
+        for (Iterator<Entry<Partition, Set<Partition>>> pIter = transitionCache
+                .entrySet().iterator(); pIter.hasNext();) {
+            Set<Partition> partitions = pIter.next().getValue();
+            if (partitions.contains(node)) {
+                // System.out.println("cache rm");
+                pIter.remove();
+            }
+        }
+        // System.out.println("Cache' size: " + transitionCache.size());
     }
 
     @Override
     public void tagInitial(Partition initialNode, String relation) {
         partitions.add(initialNode);
         addInitialMessages(initialNode.getMessages(), relation);
+        transitionCache.clear();
     }
 
     @Override
@@ -370,4 +402,5 @@ public class PartitionGraph implements IGraph<Partition> {
                     "partitions are not partitioning messages (overlap)!");
         }
     }
+
 }
