@@ -80,7 +80,7 @@ public class Partition implements INode<Partition> {
         return getTransitionsIterator(null);
     }
 
-    public Set<LogEvent> getMessages() {
+    public Set<LogEvent> getEvents() {
         return events;
     }
 
@@ -94,7 +94,7 @@ public class Partition implements INode<Partition> {
     }
 
     /**
-     * Split the messages according to the presence of an outgoing transition
+     * Split the events according to the presence of an outgoing transition
      * trans (the source in trans is ignored here). Note that the returned
      * candidate must be a valid split, therefore we cannot split on a
      * transition that is the sole transition between two partitions -- a split
@@ -108,19 +108,24 @@ public class Partition implements INode<Partition> {
     public PartitionSplit getCandidateDivisionBasedOnOutgoing(
             ITransition<Partition> trans) {
         PartitionSplit ret = null;
-        for (final LogEvent otherExpr : events) {
-            if (fulfillsStrong(otherExpr, trans)) {
+        for (final LogEvent event : events) {
+            if (fulfillsStrong(event, trans)) {
                 if (ret != null) {
-                    ret.addEventToSplit(otherExpr);
+                    ret.addEventToSplit(event);
                 }
             } else {
+                // We only create the split once we find an event that would
+                // not be placed in the split.
                 if (ret == null) {
+                    // Add all events before event to the split (because ret is
+                    // null, each of these events is guaranteed to fulfill the
+                    // splitting criteria).
                     ret = new PartitionSplit(this);
-                    for (final LogEvent e2 : events) {
-                        if (e2.equals(otherExpr)) {
+                    for (final LogEvent event2 : events) {
+                        if (event2.equals(event)) {
                             break;
                         }
-                        ret.addEventToSplit(e2);
+                        ret.addEventToSplit(event2);
                     }
                 }
             }
@@ -140,31 +145,46 @@ public class Partition implements INode<Partition> {
      */
     public PartitionSplit getCandidateDivisionBasedOnIncoming(
             Partition previous, String relation) {
-        PartitionSplit candidateSplit = new PartitionSplit(this);
-        Set<LogEvent> messagesReachableFromPrevious = new LinkedHashSet<LogEvent>();
+        Set<LogEvent> eventsReachableFromPrevious = new LinkedHashSet<LogEvent>();
         for (final LogEvent prevEvent : previous.events) {
-            messagesReachableFromPrevious.addAll(prevEvent
+            eventsReachableFromPrevious.addAll(prevEvent
                     .getSuccessors(relation));
         }
 
-        messagesReachableFromPrevious.retainAll(events);
+        // Intersect the set of events that follows events from previous
+        // Partition with events in this partition.
+        eventsReachableFromPrevious.retainAll(events);
 
-        // TODO: if this split is complete (i.e. all messages from prev end up
-        // in this partition) then we should return Null?
+        // If all events from the previous Partition end up
+        // in this partition then we return Null to indicate that no _valid_
+        // split is possible.
+        if (eventsReachableFromPrevious.size() == 0
+                || eventsReachableFromPrevious.size() == events.size()) {
+            return null;
+        }
+
+        PartitionSplit candidateSplit = new PartitionSplit(this);
         for (LogEvent m : events) {
-            if (messagesReachableFromPrevious.contains(m)) {
+            if (eventsReachableFromPrevious.contains(m)) {
+                // TODO: allow to add a collection instead of iterating.
                 candidateSplit.addEventToSplit(m);
             }
         }
-
-        // TODO: is it possible for candidateSplit.isValid() to be false?
-        // if so, should we check and return null in this case?
         return candidateSplit;
     }
 
-    private static boolean fulfillsStrong(LogEvent otherExpr,
+    /**
+     * Whether or not there exists a transition t' emanating from an event that
+     * (1) matches the relation of another (inter-partition) transition t, and
+     * (2) matches the destination partition of t
+     * 
+     * @param event
+     * @param trans
+     * @return
+     */
+    private static boolean fulfillsStrong(LogEvent event,
             ITransition<Partition> trans) {
-        for (final ITransition<LogEvent> t : otherExpr.getTransitions()) {
+        for (final ITransition<LogEvent> t : event.getTransitions()) {
             if (t.getRelation().equals(trans.getRelation())
                     && t.getTarget().getParent().equals(trans.getTarget())) {
                 return true;
@@ -208,7 +228,7 @@ public class Partition implements INode<Partition> {
                 s = PartitionSplit.newSplitWithAllEvents(this);
             }
             int numOutgoing = s.getSplitEvents().size();
-            int totalAtSource = tr.getSource().getMessages().size();
+            int totalAtSource = tr.getSource().getEvents().size();
             double freq = (double) numOutgoing / (double) totalAtSource;
             WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
                     tr.getSource(), tr.getTarget(), tr.getRelation(), freq,
