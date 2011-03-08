@@ -46,7 +46,7 @@ public abstract class Bisimulation {
      * both splits resolve the invariant (when considered separately). TODO:
      * implement this
      */
-    private static final boolean fourWaySplit = true;
+    // private static final boolean fourWaySplit = true;
     /**
      * Set to combine all candidate splits for each partition into a multi
      * split.
@@ -137,7 +137,7 @@ public abstract class Bisimulation {
             List<PartitionSplit> candidateSplits = getSplits(
                     counterexampleTrace, pGraph);
 
-            // Permute the list of candidates
+            // Permute the list of candidates.
             Collections.shuffle(candidateSplits, Main.random);
 
             if (combineCandidates) {
@@ -179,9 +179,12 @@ public abstract class Bisimulation {
 
             } else {
                 for (PartitionSplit candidateSplit : candidateSplits) {
-                    // Only consider valid splits.
-                    if (candidateSplit == null || !candidateSplit.isValid()) {
-                        continue;
+                    if (Main.performExtraChecks) {
+                        // getSplits() should never generate invalid splits.
+                        if (!candidateSplit.isValid()) {
+                            throw new InternalSynopticException(
+                                    "getSplits() generated an invalid split.");
+                        }
                     }
 
                     if (arbitrarySplit == null) {
@@ -356,7 +359,7 @@ public abstract class Bisimulation {
                 // length. A length of 1 indicates the traces are totally
                 // ordered, which means this should be thrown as an error.
                 Partition p = pGraph.getNodes().iterator().next();
-                if (!(p.getMessages().iterator().next().getAction().getTime() instanceof VectorTime)) {
+                if (!(p.getEvents().iterator().next().getAction().getTime() instanceof VectorTime)) {
                     throw new InternalSynopticException(
                             "Could not satisfy invariants: "
                                     + unsatisfiedInvariants);
@@ -380,10 +383,10 @@ public abstract class Bisimulation {
     }
 
     /**
-     * Compute possible splits to remove the path relPath from pGraph. This is
-     * done by following relPath in the original graph and determining the point
-     * where pGraph allows a transition it should not allow. The original graph
-     * is accessed via the Messages (which are nodes in the original graph) in
+     * Compute possible splits to remove the path counterexampleTrace from
+     * pGraph. This is done by following the path in the original (event) graph
+     * and determining the point where the partition graph allows a transition
+     * it should not allow. The event graph is accessed via the events stored by
      * the partitions.
      * 
      * @param counterexampleTrace
@@ -400,10 +403,10 @@ public abstract class Bisimulation {
         List<PartitionSplit> candidateSplits = new ArrayList<PartitionSplit>();
         /**
          * The messages (i.e. nodes in the original graph) that are on the
-         * counterexampleTrace
+         * counterexampleTrace.
          */
         LinkedHashSet<LogEvent> hot = new LinkedHashSet<LogEvent>();
-        hot.addAll(counterexampleTrace.path.get(0).getMessages());
+        hot.addAll(counterexampleTrace.path.get(0).getEvents());
         Partition prevPartition = null;
         Partition nextPartition = null;
         Partition curPartition = null;
@@ -412,25 +415,24 @@ public abstract class Bisimulation {
         for (Partition part : counterexampleTrace.path) {
             if (part == null) {
                 throw new InternalSynopticException(
-                        "relation path contained null");
+                        "Relation path with a null Partition");
             }
             prevPartition = curPartition;
             curPartition = nextPartition;
             nextPartition = part;
-            hot.retainAll(part.getMessages());
+            hot.retainAll(part.getEvents());
             // If we cannot follow further, then we found the partition we need
             // to split.
             if (hot.size() == 0) {
                 break;
             }
             // Compute the valid successor messages in the original trace.
-            LinkedHashSet<LogEvent> successorMessages = new LinkedHashSet<LogEvent>();
+            LinkedHashSet<LogEvent> successorEvents = new LinkedHashSet<LogEvent>();
+            String relation = counterexampleTrace.invariant.getRelation();
             for (LogEvent m : hot) {
-                successorMessages.addAll(m
-                        .getSuccessors(counterexampleTrace.invariant
-                                .getRelation()));
+                successorEvents.addAll(m.getSuccessors(relation));
             }
-            hot = successorMessages;
+            hot = successorEvents;
         }
         ITransition<Partition> outgoingTransition = curPartition.getTransition(
                 nextPartition, counterexampleTrace.invariant.getRelation());
@@ -444,7 +446,9 @@ public abstract class Bisimulation {
             PartitionSplit newSplit = curPartition
                     .getCandidateDivisionBasedOnOutgoing(outgoingTransition);
             // logger.fine("outgoingSplit:" + newSplit);
-            candidateSplits.add(newSplit);
+            if (newSplit != null) {
+                candidateSplits.add(newSplit);
+            }
 
         }
         if (incomingTransition != null && incomingTransitionSplit) {
@@ -453,7 +457,9 @@ public abstract class Bisimulation {
                     .getCandidateDivisionBasedOnIncoming(prevPartition,
                             incomingTransition.getRelation());
             // logger.fine("incomingSplit:" + newSplit);
-            candidateSplits.add(newSplit);
+            if (newSplit != null) {
+                candidateSplits.add(newSplit);
+            }
         }
         return candidateSplits;
     }

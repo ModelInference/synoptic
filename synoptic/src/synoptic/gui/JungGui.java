@@ -187,7 +187,7 @@ public class JungGui extends JApplet implements Printable {
 
         newPartitions = new LinkedHashMap<Partition, Integer>();
         for (Partition p : pGraph.getNodes()) {
-            newPartitions.put(p, p.getMessages().size());
+            newPartitions.put(p, p.getEvents().size());
         }
         oldPartitions = newPartitions;
 
@@ -287,7 +287,7 @@ public class JungGui extends JApplet implements Printable {
                     oldPartitions = newPartitions;
                     newPartitions = new LinkedHashMap<Partition, Integer>();
                     for (Partition p : pGraph.getNodes()) {
-                        newPartitions.put(p, p.getMessages().size());
+                        newPartitions.put(p, p.getEvents().size());
                     }
 
                     vizViewer.getGraphLayout().setGraph(
@@ -565,10 +565,10 @@ public class JungGui extends JApplet implements Printable {
                             layout, p.getX(), p.getY());
                     if (vertex != null) {
 
-                        Object[][] data = new Object[vertex.getMessages()
+                        Object[][] data = new Object[vertex.getEvents()
                                 .size()][3];
                         int i = 0;
-                        for (LogEvent event : vertex.getMessages()) {
+                        for (LogEvent event : vertex.getEvents()) {
                             data[i] = new String[] { event.getLineNum(),
                                     event.getLine(), event.getShortFileName() };
                             i++;

@@ -190,7 +190,7 @@ public class ModelCheckersTests extends SynopticTest {
         for (int i = 0; i < cExampleLabels.length; i++) {
             String nextLabel = cExampleLabels[i];
             for (Transition<Partition> transition : nextNode.getTransitions()) {
-                for (LogEvent event : transition.getTarget().getMessages()) {
+                for (LogEvent event : transition.getTarget().getEvents()) {
                     if (event.getLabel().equals(nextLabel)) {
                         nextNode = transition.getTarget();
                         expectedPath.add(nextNode);

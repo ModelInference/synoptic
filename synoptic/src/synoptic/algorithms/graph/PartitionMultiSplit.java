@@ -31,7 +31,7 @@ public class PartitionMultiSplit implements IOperation {
         partition = split.getPartition();
         partitioning.add(split.getSplitEvents());
         Set<LogEvent> otherMessages = new LinkedHashSet<LogEvent>(
-                partition.getMessages());
+                partition.getEvents());
         otherMessages.removeAll(split.getSplitEvents());
         partitioning.add(otherMessages);
     }

@@ -183,7 +183,6 @@ public class LogEvent implements INode<LogEvent> {
     public void addTransition(Transition<LogEvent> transition) {
         transitions.add(transition);
         String action = transition.getRelation();
-        LogEvent target = transition.getTarget();
         List<Transition<LogEvent>> ref = transitionsByAction.get(action);
         if (ref == null) {
             ref = new ArrayList<Transition<LogEvent>>();
@@ -191,6 +190,7 @@ public class LogEvent implements INode<LogEvent> {
         }
         ref.add(transition);
 
+        // LogEvent target = transition.getTarget();
         // LinkedHashMap<LogEvent, List<Transition<LogEvent>>> ref1 =
         // transitionsByActionAndTarget
         // .get(action);

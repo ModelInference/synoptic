@@ -236,7 +236,7 @@ public class PartitionGraph implements IGraph<Partition> {
         }
         for (Partition t : prepartitions.values()) {
             LinkedHashSet<LogEvent> iSet = new LinkedHashSet<LogEvent>();
-            for (LogEvent e : t.getMessages()) {
+            for (LogEvent e : t.getEvents()) {
                 if (initial.contains(e)) {
                     iSet.add(e);
                 }
@@ -324,7 +324,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
     @Override
     public void add(Partition node) {
-        for (LogEvent m : node.getMessages()) {
+        for (LogEvent m : node.getEvents()) {
             relations.addAll(m.getRelations());
         }
         partitions.add(node);
@@ -360,7 +360,7 @@ public class PartitionGraph implements IGraph<Partition> {
     @Override
     public void tagInitial(Partition initialNode, String relation) {
         partitions.add(initialNode);
-        addInitialMessages(initialNode.getMessages(), relation);
+        addInitialMessages(initialNode.getEvents(), relation);
         transitionCache.clear();
     }
 
@@ -394,7 +394,7 @@ public class PartitionGraph implements IGraph<Partition> {
                 throw new InternalSynopticException(
                         "bisim produced empty partition!");
             }
-            all.addAll(p.getMessages());
+            all.addAll(p.getEvents());
             totalCount += p.size();
         }
         if (totalCount != all.size()) {

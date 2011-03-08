@@ -91,9 +91,12 @@ public class PartitionSplit implements IOperation {
      * @return true if valid
      */
     public boolean isValid() {
+        // A split is valid if:
+        // 1. it splits out at least one message
+        // 2. it does not split out all messages
         return partitionToSplit != null
                 && eventsToSplitOut.size() > 0
-                && partitionToSplit.getMessages().size() > eventsToSplitOut
+                && partitionToSplit.getEvents().size() > eventsToSplitOut
                         .size();
     }
 
@@ -106,7 +109,7 @@ public class PartitionSplit implements IOperation {
                 + "."
                 + eventsToSplitOut.size()
                 + "/"
-                + (partitionToSplit.getMessages().size() - eventsToSplitOut
+                + (partitionToSplit.getEvents().size() - eventsToSplitOut
                         .size());
     }
 
@@ -147,7 +150,7 @@ public class PartitionSplit implements IOperation {
      */
     public static PartitionSplit newSplitWithAllEvents(Partition partition) {
         PartitionSplit s = new PartitionSplit(partition);
-        s.eventsToSplitOut = partition.getMessages();
+        s.eventsToSplitOut = partition.getEvents();
         return s;
     }
 

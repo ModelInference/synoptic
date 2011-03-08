@@ -37,8 +37,8 @@ public class PartitionMultiMerge implements IOperation {
         // }
 
         for (Partition removed : partitionsToMerge) {
-            retainedPartition.addAllMessages(removed.getMessages());
-            removed.removeMessages(removed.getMessages());
+            retainedPartition.addAllMessages(removed.getEvents());
+            removed.removeMessages(removed.getEvents());
             g.remove(removed);
 
             // //////////////
