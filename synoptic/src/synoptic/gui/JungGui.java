@@ -70,6 +70,7 @@ import synoptic.main.Main;
 import synoptic.model.LogEvent;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
+import synoptic.model.export.GraphVizExporter;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
@@ -265,6 +266,28 @@ public class JungGui extends JApplet implements Printable {
             }
         });
         fileMenu.add(help);
+        
+        fileMenu.add(new AbstractAction("Export as Graphviz dot file and PNG"){
+        	@Override
+        	public void actionPerformed(ActionEvent e){
+        		String filename = JOptionPane.showInputDialog("Enter name for this export:");
+        		if(filename != null && filename.length() > 0){
+        			GraphVizExporter exporter = new GraphVizExporter();
+        			if (Main.outputPathPrefix != null) {
+        				try {
+        					exporter.exportAsDotAndPngFast(Main.outputPathPrefix
+        							+ "." + filename, pGraph, false);
+        				} catch (Exception e1) {
+        					e1.printStackTrace();
+        				}
+        			} else {
+        				JOptionPane.showMessageDialog(frame, "Cannot output " + filename + "graph. Specify output path prefix using:\n\t"
+        						+ Main.getCmdLineOptDesc("outputPathPrefix"));
+        			}
+        		}
+        	}
+        });
+        
     }
 
     public void createRefineButton(JMenu actionsMenu) {
