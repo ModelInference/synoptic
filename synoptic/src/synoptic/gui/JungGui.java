@@ -29,6 +29,7 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.JApplet;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -97,6 +98,12 @@ public class JungGui extends JApplet implements Printable {
      * The partition graph maintained by Synoptic.
      */
     PartitionGraph pGraph;
+    
+    /**
+     * Buttons for refinement options
+     */
+    JButton refineOption;
+    JButton totalRefine;
 
     /**
      * The visual representation of pGraph, displayed by the Applet.
@@ -218,14 +225,15 @@ public class JungGui extends JApplet implements Printable {
         createFileMenu(fileMenu);
         menuBar.add(fileMenu);
 
-        JMenu actionsMenu = new JMenu("Synoptic Actions");
-        createRefineButton(actionsMenu);
-        menuBar.add(actionsMenu);
-
+        //JMenu actionsMenu = new JMenu("Synoptic Actions");
+        
         JMenu graphLayouts = new JMenu("Graph Layouts");
         createLayoutsMenu(graphLayouts);
         menuBar.add(graphLayouts);
 
+        menuBar.add(createRefineButton());
+        menuBar.add(createTotalRefineButton());
+        
         frame.setJMenuBar(menuBar);
 
     }
@@ -276,22 +284,45 @@ public class JungGui extends JApplet implements Printable {
         			if (Main.outputPathPrefix != null) {
         				try {
         					exporter.exportAsDotAndPngFast(Main.outputPathPrefix
-        							+ "." + filename, pGraph, false);
+        							+ "." + filename + ".dot", pGraph, false);
         				} catch (Exception e1) {
         					e1.printStackTrace();
         				}
         			} else {
-        				JOptionPane.showMessageDialog(frame, "Cannot output " + filename + "graph. Specify output path prefix using:\n\t"
+        				JOptionPane.showMessageDialog(frame, "Cannot output " + filename + 
+        						"graph. Specify output path prefix using:\n\t"
         						+ Main.getCmdLineOptDesc("outputPathPrefix"));
         			}
         		}
         	}
-        });
-        
+        });    
     }
-
-    public void createRefineButton(JMenu actionsMenu) {
-        final JMenuItem refineOption = new JMenuItem("Refine");
+    
+    public JButton createTotalRefineButton(){
+    	totalRefine = new JButton("Completely refine");
+    	totalRefine.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	List<RelationPath<Partition>> counterExampleTraces = null;
+                // Retrieve the counter-examples for the unsatisfied invariants.
+                counterExampleTraces = new TemporalInvariantSet(
+                        unsatisfiedInvariants).getAllCounterExamples(pGraph);
+                unsatisfiedInvariants.clear();
+                while(counterExampleTraces != null
+                        && counterExampleTraces.size() > 0){
+                	
+                	refine(counterExampleTraces);
+                	counterExampleTraces = new TemporalInvariantSet(
+                            unsatisfiedInvariants).getAllCounterExamples(pGraph);
+                }
+                disableRefinement();
+            }
+    	});
+    	return totalRefine;
+    }
+    	
+    public JButton createRefineButton() {
+        refineOption = new JButton("Refine once");
         refineOption.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -302,38 +333,47 @@ public class JungGui extends JApplet implements Printable {
                 unsatisfiedInvariants.clear();
                 if (counterExampleTraces != null
                         && counterExampleTraces.size() > 0) {
-                    // Perform a single refinement step.
-                    numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
-                            numSplitSteps, pGraph, counterExampleTraces);
-
-                    // Update the old\new partition maps.
-                    oldPartitions = newPartitions;
-                    newPartitions = new LinkedHashMap<Partition, Integer>();
-                    for (Partition p : pGraph.getNodes()) {
-                        newPartitions.put(p, p.getEvents().size());
-                    }
-
-                    vizViewer.getGraphLayout().setGraph(
-                            JungGui.this.getJGraph());
-                    // TODO: there must be a better way for the vizViewer to
-                    // refresh its state..
-                    vizViewer.setGraphLayout(vizViewer.getGraphLayout());
-                    JungGui.this.repaint();
-
-                    for (RelationPath<Partition> relPath : counterExampleTraces) {
-                        unsatisfiedInvariants.add(relPath.invariant);
-                    }
+                  refine(counterExampleTraces);
 
                 } else {
-                    // Set all partitions to 'old'.
-                    oldPartitions = newPartitions;
-                    refineOption.setEnabled(false);
-                    // Refresh the graphics state.
-                    JungGui.this.repaint();
+                	disableRefinement();
                 }
             }
         });
-        actionsMenu.add(refineOption);
+        return refineOption;
+    }
+    
+    private void disableRefinement(){
+    	 // Set all partitions to 'old'.
+        oldPartitions = newPartitions;
+        refineOption.setEnabled(false);
+        totalRefine.setEnabled(false);
+        // Refresh the graphics state.
+        JungGui.this.repaint();
+    }
+    
+    private void refine(List<RelationPath<Partition>> counterExampleTraces){
+        // Perform a single refinement step.
+        numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
+                numSplitSteps, pGraph, counterExampleTraces);
+
+        // Update the old\new partition maps.
+        oldPartitions = newPartitions;
+        newPartitions = new LinkedHashMap<Partition, Integer>();
+        for (Partition p : pGraph.getNodes()) {
+            newPartitions.put(p, p.getEvents().size());
+        }
+
+        vizViewer.getGraphLayout().setGraph(
+                JungGui.this.getJGraph());
+        // TODO: there must be a better way for the vizViewer to
+        // refresh its state..
+        vizViewer.setGraphLayout(vizViewer.getGraphLayout());
+        JungGui.this.repaint();
+
+        for (RelationPath<Partition> relPath : counterExampleTraces) {
+            unsatisfiedInvariants.add(relPath.invariant);
+        }
     }
 
     public void createLayoutsMenu(JMenu graphLayouts) {
@@ -355,7 +395,7 @@ public class JungGui extends JApplet implements Printable {
                     selectLayout(labels.get(layout));
                 }
             });
-            ;
+            
             if (layout.equals("Force-Directed")) {
                 temp.setSelected(true);
             }
