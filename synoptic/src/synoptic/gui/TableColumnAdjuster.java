@@ -8,11 +8,6 @@ import javax.swing.table.*;
 /*
  *	Class to manage the widths of columns in a table.
  *
- *  Various properties control how the width of the column is calculated.
- *  Another property controls whether column width calculation should be dynamic.
- *  Finally, various Actions will be added to the table to allow the user
- *  to customize the functionality.
- *
  */
 public class TableColumnAdjuster // implements PropertyChangeListener//, TableModelListener
 {

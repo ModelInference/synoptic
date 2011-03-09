@@ -367,6 +367,7 @@ public class GraphVizExporter {
             IGraph<T> pg) throws Exception {
         exportAsDotAndPngFast(fileName, pg, false);
     }
+    
 
     public <T extends INode<T>> void exportAsDotAndPngFast(String fileName,
             IGraph<T> pg, boolean isInitialGraph) throws Exception {
@@ -385,6 +386,8 @@ public class GraphVizExporter {
             exportPng(f);
         }
     }
+    
+
 
     // private static void exportSCCsWithInvariants(GraphVizExporter e,
     // PartitionGraph pg) throws Exception {
