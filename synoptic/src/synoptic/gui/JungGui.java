@@ -541,16 +541,29 @@ public class JungGui extends JApplet implements Printable {
     protected class CustomMousePlugin implements MouseListener {
 
         LogLineTableModel dataModel;
-
+        TableColumnAdjuster adjuster;
+        JTable table;
+        int minWidth;
+        
         public CustomMousePlugin(JPanel logLineWindow) {
-            dataModel = new LogLineTableModel(new Object[0][0]);
-            JTable table = new JTable(dataModel);
+            
+        	dataModel = new LogLineTableModel(new Object[0][0]);
+            table = new JTable(dataModel);
             table.getColumnModel().getColumn(0).setHeaderValue("Line #");
             table.getColumnModel().getColumn(1).setHeaderValue("Line");
             table.getColumnModel().getColumn(2).setHeaderValue("File");
-            table.setPreferredScrollableViewportSize(new Dimension(600, 70));
+            
+            minWidth = 600;
+        	Dimension defaultSize = new Dimension(minWidth, 70);
+            table.setPreferredSize(defaultSize);
+            table.setPreferredScrollableViewportSize(defaultSize);
+            
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             table.setFillsViewportHeight(true);
             JScrollPane scrollPane = new JScrollPane(table);
+            scrollPane.setViewportView(table);
+            
+            adjuster = new TableColumnAdjuster(table);
             logLineWindow.add(scrollPane);
         }
 
@@ -560,11 +573,14 @@ public class JungGui extends JApplet implements Printable {
                 final Point2D p = e.getPoint();
                 GraphElementAccessor<INode<Partition>, ITransition<Partition>> location = vizViewer
                         .getPickSupport();
+                
                 if (location != null) {
-                    final Partition vertex = (Partition) location.getVertex(
+                    
+                	final Partition vertex = (Partition) location.getVertex(
                             layout, p.getX(), p.getY());
-                    if (vertex != null) {
-
+                    
+                	if (vertex != null) {
+                    
                         Object[][] data = new Object[vertex.getEvents()
                                 .size()][3];
                         int i = 0;
@@ -573,7 +589,14 @@ public class JungGui extends JApplet implements Printable {
                                     event.getLine(), event.getShortFileName() };
                             i++;
                         }
+                    	
                         dataModel.setData(data);
+                        adjuster.adjustColumns();
+                        
+                        int width = table.getColumnModel().getTotalColumnWidth();
+                        
+                        if (width > minWidth)
+                        	table.setPreferredSize(new Dimension(width, 70));
                     }
                 }
             }
