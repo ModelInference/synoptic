@@ -207,7 +207,7 @@ public class JungGui extends JApplet implements Printable {
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 
         addMenuBar(frame);
-
+        
         frame.getContentPane().add(this);
         frame.pack();
         frame.setVisible(true);
@@ -557,7 +557,7 @@ public class JungGui extends JApplet implements Printable {
         JPanel logLineWindow = new JPanel();
         CustomMousePlugin mousePlugIn = new CustomMousePlugin(logLineWindow);
         vizViewer.addMouseListener(mousePlugIn);
-        content.add(logLineWindow, BorderLayout.SOUTH);
+        frame.add(logLineWindow, BorderLayout.SOUTH);
     }
 
     /**
@@ -607,6 +607,7 @@ public class JungGui extends JApplet implements Printable {
         TableColumnAdjuster adjuster;
         JTable table;
         int minWidth;
+        int minHeight;
         
         public CustomMousePlugin(JPanel logLineWindow) {
             
@@ -617,7 +618,9 @@ public class JungGui extends JApplet implements Printable {
             table.getColumnModel().getColumn(2).setHeaderValue("File");
             
             minWidth = 600;
-        	Dimension defaultSize = new Dimension(minWidth, 70);
+            minHeight = 100;
+        	Dimension defaultSize = new Dimension(minWidth, minHeight);
+            table.setMinimumSize(defaultSize);
             table.setPreferredSize(defaultSize);
             table.setPreferredScrollableViewportSize(defaultSize);
             
@@ -625,9 +628,11 @@ public class JungGui extends JApplet implements Printable {
             table.setFillsViewportHeight(true);
             JScrollPane scrollPane = new JScrollPane(table);
             scrollPane.setViewportView(table);
-            
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             adjuster = new TableColumnAdjuster(table);
             logLineWindow.add(scrollPane);
+
+            
         }
 
         @Override
@@ -648,18 +653,21 @@ public class JungGui extends JApplet implements Printable {
                                 .size()][3];
                         int i = 0;
                         for (LogEvent event : vertex.getEvents()) {
-                            data[i] = new String[] { event.getLineNum(),
+                            if(event.getLine() != null){
+                            	data[i] = new String[] { event.getLineNum(),
                                     event.getLine(), event.getShortFileName() };
-                            i++;
+                            	i++;
+                            }
                         }
                     	
                         dataModel.setData(data);
                         adjuster.adjustColumns();
                         
-                        int width = table.getColumnModel().getTotalColumnWidth();
+                        int width = Math.max(minWidth, table.getColumnModel().getTotalColumnWidth());
+                        int height = Math.max(minHeight, (table.getRowHeight() + table.getRowMargin()) * table.getRowCount());
                         
-                        if (width > minWidth)
-                        	table.setPreferredSize(new Dimension(width, 70));
+                        table.setPreferredSize(new Dimension(width, height));
+                        
                     }
                 }
             }
