@@ -86,7 +86,7 @@ public class InvariantMiningTests extends SynopticTest {
      * set of invariants that are mined from the log, and hold true for the
      * initial graph of the log.
      * 
-     * @param a
+     * @param events
      *            log of events, each one in the format: (?<TYPE>)
      * @return an invariant set for the input log
      * @throws Exception

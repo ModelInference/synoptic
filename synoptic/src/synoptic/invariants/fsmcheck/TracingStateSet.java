@@ -48,9 +48,6 @@ public abstract class TracingStateSet<T extends INode<T>> implements
 
         /**
          * Converts this chain into a RelationPath list.
-         * 
-         * @param inv
-         * @return
          */
         public RelationPath<T> toCounterexample(ITemporalInvariant inv) {
             ArrayList<T> path = new ArrayList<T>();

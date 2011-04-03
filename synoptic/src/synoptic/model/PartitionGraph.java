@@ -116,11 +116,11 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     /**
-     * Returns a list of partitions that are adjacent to pNode. Uses the
-     * internal transitionCache for speed.
+     * Returns a set of partitions that are adjacent to pNode. Uses the internal
+     * transitionCache for speed.
      * 
      * @param pNode
-     * @return
+     * @return set of adjacent partitions to pNode
      */
     @Override
     public Set<Partition> getAdjacentNodes(Partition pNode) {

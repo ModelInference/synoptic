@@ -180,7 +180,7 @@ public class Partition implements INode<Partition> {
      * 
      * @param event
      * @param trans
-     * @return
+     * @return whether or not event satisfies the conditions above.
      */
     private static boolean fulfillsStrong(LogEvent event,
             ITransition<Partition> trans) {

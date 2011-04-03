@@ -135,7 +135,7 @@ public class TraceParser {
      * Returns whether or not the time type used to parse the log(s) has a
      * canonical total order or not.
      * 
-     * @return
+     * @return time type is ordered or not
      */
     public boolean logTimeTypeIsTotallyOrdered() {
         Set<String> toTimes = new LinkedHashSet<String>();

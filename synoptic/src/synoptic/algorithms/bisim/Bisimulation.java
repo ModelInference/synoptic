@@ -493,10 +493,6 @@ public abstract class Bisimulation {
 
     /**
      * Works as {@code mergePartitions} but fixes k to 0.
-     * 
-     * @param pGraph
-     * @param synoptic
-     *            .invariants
      */
     public static void mergePartitions(PartitionGraph pGraph,
             TemporalInvariantSet invariants) {

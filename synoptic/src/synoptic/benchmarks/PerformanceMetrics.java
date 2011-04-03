@@ -97,9 +97,7 @@ public class PerformanceMetrics {
     }
 
     /**
-     * retrieve the global performance metrics object
-     * 
-     * @return
+     * Returns the global performance metrics object
      */
     static public PerformanceMetrics get() {
         return globalPerformanceMetrics;

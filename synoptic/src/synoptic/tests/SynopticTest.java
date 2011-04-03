@@ -142,7 +142,7 @@ public abstract class SynopticTest {
      * Generates an initial graph based on a sequence of log events. Uses the
      * defParser parser for parsing the log of events.
      * 
-     * @param a
+     * @param events
      *            log of events, each one in the format: (?<TYPE>)
      * @return an initial graph corresponding to the log of events
      * @throws ParseException

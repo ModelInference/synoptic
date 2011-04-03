@@ -8,7 +8,7 @@ public class LTLFormula {
      * 
      * @param formula
      * @param toPrep
-     * @return
+     * @return encoded formula in a toPrep string
      */
     private static String prepare(String formula, String toPrep) {
         StringBuilder strB = new StringBuilder();

@@ -43,10 +43,8 @@ public class TCInvariantMiner extends InvariantMiner {
      * invariants that do not hold, but may not fail to return an invariant that
      * does not hold)
      * 
-     * @param <T>
-     *            The node type of the graph
      * @param g
-     *            the graph of nodes of type T
+     *            the graph of nodes of type LogEvent
      * @param filterTautological
      *            whether or not tautological invariants should be filtered out
      * @return the set of temporal invariants the graph satisfies
@@ -109,10 +107,8 @@ public class TCInvariantMiner extends InvariantMiner {
      * Extract an over-approximated set of invariants from the transitive
      * closure {@code tc} of the graph {@code g}.
      * 
-     * @param <T>
-     *            the node type of the graph
      * @param g
-     *            the graph
+     *            the graph over LogEvent
      * @param tc
      *            the transitive closure (of {@code g}) to mine invariants from
      * @param relation
@@ -251,9 +247,9 @@ public class TCInvariantMiner extends InvariantMiner {
      * TODO: this code only works for a single relation
      * (TraceParser.defaultRelation)
      * 
-     * @param <T>
      * @param g
-     * @return
+     *            graph over LogEvent
+     * @return set of InitialAFbyX invariants
      */
     private Set<ITemporalInvariant> computeINITIALAFbyXInvariants(
             IGraph<LogEvent> g) {

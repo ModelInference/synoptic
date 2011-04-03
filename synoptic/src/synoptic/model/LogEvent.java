@@ -85,7 +85,7 @@ public class LogEvent implements INode<LogEvent> {
      * @param group
      *            the group of events of potentially direct successors of e1,
      *            this may contain the LogEvent e1.
-     * @return
+     * @return set of direct successors of e1
      * @throws ParseException
      *             when we detect that some two events in group have the same
      *             timestamp or if they have different length vector timestamps

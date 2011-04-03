@@ -12,7 +12,7 @@ public interface IOperation {
      * Commit the changes to graphs partitionGraph and stateGraph, and return an
      * operation that will rewind them.
      * 
-     * @param partitionGraph
+     * @param g
      *            the partition graph to apply to
      * @return an operation that will undo the changes
      */

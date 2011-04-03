@@ -114,10 +114,10 @@ public class PartitionSplit implements IOperation {
     }
 
     /**
-     * Mark a message for splitting into a separate node.
+     * Mark an event for splitting into a separate node.
      * 
-     * @param node
-     *            the node to mark
+     * @param event
+     *            the event to mark
      */
     public void addEventToSplit(LogEvent event) {
         eventsToSplitOut.add(event);

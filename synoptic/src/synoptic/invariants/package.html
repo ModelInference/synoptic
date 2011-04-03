@@ -1,22 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <html>
 <head>
-<!--
-
-  @(#)package.html	1.60 98/01/27
-
-  Copyright 1998 Sun Microsystems, Inc. 901 San Antonio Road, 
-  Palo Alto, California, 94303, U.S.A.  All Rights Reserved.
-
-  This software is the confidential and proprietary information of Sun
-  Microsystems, Inc. ("Confidential Information").  You shall not
-  disclose such Confidential Information and shall use it only in
-  accordance with the terms of the license agreement you entered into
-  with Sun.
-
-  CopyrightVersion 1.2
-
--->
 </head>
 <body bgcolor="white">
 
@@ -24,17 +8,17 @@ Provides implementation of invariants, and a specialized invariant set (<code>Te
 
 <h3>Temporal Invariants</h3>
 
-<p>Classes representing temporal invariants implement the interface <tt>TemporalInvariant</tt>. 
-The key class is <tt>TemporalInvariantSet</tt>, which represents a set of temporal invariants. <tt>TemporalInvariantSet.computeInvariants</tt> mines 
-temporal invariants from a graph. <tt>TemporalInvariantSet</tt> also provides members for checking invariants on a graph and, 
-if necessary, obtaining counter-examples. A description of the mining process can be found in <a href="/p/synoptic/wiki/TemporalInvariantMining">TemporalInvariantMining</a>. 
+<p>Classes representing temporal invariants implement the interface <tt>TemporalInvariant</tt>.
+The key class is <tt>TemporalInvariantSet</tt>, which represents a set of temporal invariants. <tt>TemporalInvariantSet.computeInvariants</tt> mines
+temporal invariants from a graph. <tt>TemporalInvariantSet</tt> also provides members for checking invariants on a graph and,
+if necessary, obtaining counter-examples. A description of the mining process can be found in <a href="/p/synoptic/wiki/TemporalInvariantMining">TemporalInvariantMining</a>.
 </p>
 
-<p>Temporal invariants are checked using an off-the-shelf model checker, with some preprocessing of the input graph. 
-The preprocessing is necessary because the model checker will find violating traces, such that a trace is a sequence of transition labels 
+<p>Temporal invariants are checked using an off-the-shelf model checker, with some preprocessing of the input graph.
+The preprocessing is necessary because the model checker will find violating traces, such that a trace is a sequence of transition labels
 and the traces that need to be obtained in the partition graph setting are sequences of state labels. Thus the partition graph must be
- transformed into a graph that contains, as transition label sequences, exactly the set of state label sequences of the partition graph. 
- We need to prove the soundness of this process. The entry point to the model checking logic is <tt>TemporalInvariantSet.getViolations</tt>, 
+ transformed into a graph that contains, as transition label sequences, exactly the set of state label sequences of the partition graph.
+ We need to prove the soundness of this process. The entry point to the model checking logic is <tt>TemporalInvariantSet.getViolations</tt>,
  which utilizes <tt>GraphLTLChecker</tt> </p>
 
 <h2>Package Specification</h2>

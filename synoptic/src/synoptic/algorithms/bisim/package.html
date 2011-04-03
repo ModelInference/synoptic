@@ -1,35 +1,19 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <html>
 <head>
-<!--
-
-  @(#)package.html	1.60 98/01/27
-
-  Copyright 1998 Sun Microsystems, Inc. 901 San Antonio Road, 
-  Palo Alto, California, 94303, U.S.A.  All Rights Reserved.
-
-  This software is the confidential and proprietary information of Sun
-  Microsystems, Inc. ("Confidential Information").  You shall not
-  disclose such Confidential Information and shall use it only in
-  accordance with the terms of the license agreement you entered into
-  with Sun.
-
-  CopyrightVersion 1.2
-
--->
 </head>
 <body bgcolor="white">
 
-Provides for implementations of a coarsening and an refinement algorithm. 
+Provides for implementations of a coarsening and an refinement algorithm.
 
 <h3>Coarsening and Refinement</h3>
 
-<p>Graphs can be transformed using two algorithms -- coarsening and refinement. Coarsening is implemented by 
+<p>Graphs can be transformed using two algorithms -- coarsening and refinement. Coarsening is implemented by
 <code>Bisimulation.mergePartitions</code>, which is an invariant-preserving
- version of k-Tail. It can only be run on <code>PartitionGraphs</code>, because <code>Partition</code>s can be merged 
+ version of k-Tail. It can only be run on <code>PartitionGraphs</code>, because <code>Partition</code>s can be merged
  and <code>MessageEvent</code>s cannot be merged. </p><p>Refinement is provided by <code>Bisimulation.refinePartitions</code>
-  which implements the BisimH algorithm. The class <code>Bisimulation</code> provides options via static member variables to enable 
-  experimental features: <code>incommingEdgeSplit</code> enables splits according to incoming edges, and <code>interleavedMerging</code> 
+  which implements the BisimH algorithm. The class <code>Bisimulation</code> provides options via static member variables to enable
+  experimental features: <code>incommingEdgeSplit</code> enables splits according to incoming edges, and <code>interleavedMerging</code>
   adds a frequent coarsening phases to <code>Bisimulation.refinePartitions</code>. Again, the argument must be of type <code>PartitionGraph</code>
    because <code>Partition</code>s can be split, but <code>MessageEvent</code>s cannot.   </p>
 

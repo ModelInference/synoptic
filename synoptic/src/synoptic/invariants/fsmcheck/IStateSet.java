@@ -11,7 +11,7 @@ public interface IStateSet<T, StateSetType> {
      * Mutates the StateSet, according to which states could be inhabited after
      * the given input is provided.
      * 
-     * @param inputs
+     * @param input
      *            The input event to transition the FSM.
      */
     public abstract void transition(T input);
@@ -41,8 +41,6 @@ public interface IStateSet<T, StateSetType> {
 
     /**
      * Version of clone which doesn't require unsafe casting.
-     * 
-     * @see Object.clone
      */
     public StateSetType copy();
 }

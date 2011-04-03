@@ -3,11 +3,9 @@ package synoptic.util.time;
 public interface ITime {
 
     /**
-     * Returns true if (this < t), otherwise returns false
-     * 
      * @param t
      *            the other vtime
-     * @return
+     * @return true if (this < t), otherwise returns false
      */
     public abstract boolean lessThan(ITime t);
 
