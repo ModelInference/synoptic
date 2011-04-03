@@ -292,7 +292,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
      * Outputs the set of invariants to a file -- one invariant per line, and
      * the set of invariants is canonically sorted.
      * 
-     * @param filename
+     * @param fileName
      *            The filename to use for outputting the invariants.
      * @throws FileNotFoundException
      */

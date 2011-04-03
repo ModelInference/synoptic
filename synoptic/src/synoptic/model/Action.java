@@ -42,8 +42,10 @@ public class Action {
      * 
      * @param label
      *            the label for the action
-     * @param dummy
-     *            unused
+     * @param isSpecialLabel
+     * @param logLine
+     * @param fileName
+     * @param lineNum
      */
     public Action(String label, boolean isSpecialLabel, String logLine,
             String fileName, int lineNum) {

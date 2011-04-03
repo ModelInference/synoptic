@@ -229,10 +229,8 @@ public class GraphLTLChecker<T extends INode<T>> {
      * Returns a counter-example path that violates a specific invariant in a
      * graph.
      * 
-     * @param <T>
-     *            the type of nodes in graph g
      * @param inv
-     *            invariant for which we are to find a violating path
+     *            invariant for which we are to find a violating path * @param
      * @param g
      *            the graph within which the violating path must be found
      * @return a path in g that violates inv or null if one doesn't exist

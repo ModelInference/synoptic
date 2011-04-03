@@ -686,7 +686,7 @@ public class Main implements Callable<Integer> {
      *            Stage name string, e.g. "r" for refinement
      * @param roundNum
      *            Round number within the stage
-     * @return
+     * @return string filename for an intermediate dot file
      */
     public static String getIntermediateDumpFilename(String stageName,
             int roundNum) {
@@ -731,6 +731,7 @@ public class Main implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         TraceParser parser = new TraceParser();
+        long startTime;
 
         Locale.setDefault(Locale.US);
 
@@ -772,6 +773,7 @@ public class Main implements Callable<Integer> {
         ArrayList<LogEvent> parsedEvents = new ArrayList<LogEvent>();
 
         logger.info("Parsing input files..");
+        startTime = System.currentTimeMillis();
 
         for (String fileArg : Main.logFilenames) {
             logger.fine("\tprocessing fileArg: " + fileArg);
@@ -789,6 +791,8 @@ public class Main implements Callable<Integer> {
                 }
             }
         }
+        logger.info("Parsing took " + (System.currentTimeMillis() - startTime)
+                + "ms");
 
         if (Main.debugParse) {
             // Terminate since the user is interested in debugging the parser.
@@ -800,8 +804,11 @@ public class Main implements Callable<Integer> {
         logger.info("Running Synoptic...");
 
         logger.info("Generating inter-event temporal relation...");
+        startTime = System.currentTimeMillis();
         Graph<LogEvent> inputGraph = parser
                 .generateDirectTemporalRelation(parsedEvents);
+        logger.info("Generating temporal relation took "
+                + (System.currentTimeMillis() - startTime) + "ms");
 
         GraphVizExporter exporter = new GraphVizExporter();
 
@@ -847,7 +854,10 @@ public class Main implements Callable<Integer> {
         parser = null;
 
         logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
+        startTime = System.currentTimeMillis();
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+        logger.info("Mining took " + (System.currentTimeMillis() - startTime)
+                + "ms");
         miner = null;
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
@@ -863,7 +873,10 @@ public class Main implements Callable<Integer> {
 
         // Create the initial partitioning graph and mine the invariants from
         // the initial graph.
+        startTime = System.currentTimeMillis();
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, minedInvs);
+        logger.info("Creating partition graph took "
+                + (System.currentTimeMillis() - startTime) + "ms");
 
         inputGraph = null;
 
@@ -881,14 +894,20 @@ public class Main implements Callable<Integer> {
             System.out.println("");
         }
         logger.info("Refining (Splitting)...");
+        startTime = System.currentTimeMillis();
         Bisimulation.splitPartitions(pGraph);
+        logger.info("Splitting took "
+                + (System.currentTimeMillis() - startTime) + "ms");
 
         if (logLvlVerbose || logLvlExtraVerbose) {
             System.out.println("");
             System.out.println("");
         }
         logger.info("Coarsening (Merging)..");
+        startTime = System.currentTimeMillis();
         Bisimulation.mergePartitions(pGraph);
+        logger.info("Merging took " + (System.currentTimeMillis() - startTime)
+                + "ms");
 
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result
@@ -897,8 +916,11 @@ public class Main implements Callable<Integer> {
         if (Main.outputPathPrefix != null) {
             logger.info("Exporting final graph [" + pGraph.getNodes().size()
                     + " nodes]..");
+            startTime = System.currentTimeMillis();
             exporter.exportAsDotAndPngFast(Main.outputPathPrefix + ".dot",
                     pGraph);
+            logger.info("Exporting took "
+                    + (System.currentTimeMillis() - startTime) + "ms");
         } else {
             logger.warning("Cannot output final graph. Specify output path prefix using:\n\t"
                     + Main.getCmdLineOptDesc("outputPathPrefix"));

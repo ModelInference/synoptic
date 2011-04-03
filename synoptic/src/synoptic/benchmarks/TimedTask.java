@@ -65,8 +65,6 @@ public class TimedTask {
 
     /**
      * Set the accumulativity of this task.
-     * 
-     * @param accumulative
      */
     public void setAccumulativity(boolean accumulativity) {
         this.accumulativity = accumulativity;
@@ -118,8 +116,6 @@ public class TimedTask {
 
     /**
      * Get the name of the task.
-     * 
-     * @return
      */
     public String getTask() {
         return task;
@@ -128,8 +124,6 @@ public class TimedTask {
     /**
      * Get the duration of the task. Will return null of it has not been stopped
      * yet.
-     * 
-     * @return
      */
     public Long getTime() {
         if (timeEnd == null) {

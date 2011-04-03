@@ -28,8 +28,6 @@ import synoptic.model.interfaces.INode;
  * path required to end up in the failing state.
  * 
  * @author Michael Sloan (mgsloan@gmail.com)
- * @param <T>
- *            The nodetype of the graphs used for synoptic.model checking.
  */
 public class FsmModelChecker {
     /**
@@ -141,9 +139,6 @@ public class FsmModelChecker {
     /**
      * Use the BitSet checker to evaluate, and return which synoptic.invariants
      * failed.
-     * 
-     * @param synoptic
-     *            .invariants
      */
     @SuppressWarnings("rawtypes")
     public static <T extends INode<T>> List<BinaryInvariant> runBitSetChecker(

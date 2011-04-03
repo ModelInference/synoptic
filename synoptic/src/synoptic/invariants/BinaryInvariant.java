@@ -41,26 +41,33 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
         return relation;
     }
 
-    /**
-     * Removes loops from a trace path in 2n time.
-     * 
-     * <pre>
-     * TODO: the current code cannot be used for counter-example traces because
-     * not all loops can be removed without loosing the counter-example semantics.
-     * For example, paths that include either the 'first' or 'second' event type of
-     * the BinaryInvariant should not be removed. I'm not sure if this is sufficient
-     * to guarantee that the counter-example retains correctness. Check and implement.
-     * Note that loop removal is necessary for the NASA model checker counter-example
-     * paths. The fsm-checker (i think) already returns the shortest possible counter-
-     * example.
-     * </pre>
-     * 
-     * @param <T>
-     *            The type of node in the trace.
-     * @param trace
-     *            The trace from which to remove all loops.
-     * @return A new trace that contains no loops.
-     */
+    // /**
+    // * Removes loops from a trace path in 2n time.
+    // *
+    // * <pre>
+    // * TODO: the current code cannot be used for counter-example traces
+    // because
+    // * not all loops can be removed without loosing the counter-example
+    // semantics.
+    // * For example, paths that include either the 'first' or 'second' event
+    // type of
+    // * the BinaryInvariant should not be removed. I'm not sure if this is
+    // sufficient
+    // * to guarantee that the counter-example retains correctness. Check and
+    // implement.
+    // * Note that loop removal is necessary for the NASA model checker
+    // counter-example
+    // * paths. The fsm-checker (i think) already returns the shortest possible
+    // counter-
+    // * example.
+    // * </pre>
+    // *
+    // * @param <T>
+    // * The type of node in the trace.
+    // * @param trace
+    // * The trace from which to remove all loops.
+    // * @return A new trace that contains no loops.
+    // */
     // public static <T extends INode<T>> List<T> removeLoops(List<T> trace) {
     // LinkedList<T> traceWithoutLoops = new LinkedList<T>();
     // LinkedHashMap<T, Integer> visitedAndNextHop = new LinkedHashMap<T,
