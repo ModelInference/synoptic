@@ -554,8 +554,10 @@ public class JungGui extends JApplet implements Printable {
 
         vizViewer.setGraphMouse(graphMouse);
         vizViewer.addKeyListener(graphMouse.getModeKeyListener());
-
-        JPanel logLineWindow = new JPanel();
+        
+        JPanel logLineWindow = new JPanel(new BorderLayout());
+      
+       
         CustomMousePlugin mousePlugIn = new CustomMousePlugin(logLineWindow);
         vizViewer.addMouseListener(mousePlugIn);
         frame.add(logLineWindow, BorderLayout.SOUTH);
@@ -603,32 +605,35 @@ public class JungGui extends JApplet implements Printable {
     }
 
     protected class CustomMousePlugin implements MouseListener {
-
+    	
+    	final int scrollBarWidth = 18;
+    	final Dimension defaultSize = new Dimension(600, 100);
+    	
         LogLineTableModel dataModel;
         TableColumnAdjuster adjuster;
         JTable table;
-        int minWidth;
-        int minHeight;
+        JScrollPane scrollPane;
         
         
         public CustomMousePlugin(JPanel logLineWindow) {
         	dataModel = new LogLineTableModel(new Object[0][0]);
             table = new JTable(dataModel);
+     
             table.getColumnModel().getColumn(0).setHeaderValue("Line #");
             table.getColumnModel().getColumn(1).setHeaderValue("Line");
             table.getColumnModel().getColumn(2).setHeaderValue("File");
             
-            minWidth = 600;
-            minHeight = 100;
-        	Dimension defaultSize = new Dimension(minWidth, minHeight);
             table.setMinimumSize(defaultSize);
             table.setPreferredSize(defaultSize);
             table.setPreferredScrollableViewportSize(defaultSize);
             
+
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             table.setFillsViewportHeight(true);
             
-            JScrollPane scrollPane = new JScrollPane(table);
+
+            scrollPane = new JScrollPane(table);
+            
             scrollPane.setViewportView(table);
             scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
             scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -636,6 +641,8 @@ public class JungGui extends JApplet implements Printable {
             
             adjuster = new TableColumnAdjuster(table);
             logLineWindow.add(scrollPane);
+            
+            
         }
 
         @Override
@@ -665,7 +672,8 @@ public class JungGui extends JApplet implements Printable {
 
                         dataModel.setData(data);
                         adjuster.adjustColumns();
-                        int width = Math.max(minWidth, table.getColumnModel().getTotalColumnWidth());
+                        
+                        int width = Math.max(scrollPane.getWidth() - scrollBarWidth, table.getColumnModel().getTotalColumnWidth());
                         table.setPreferredSize(new Dimension(width, (table.getRowHeight() + table.getRowMargin()) * table.getRowCount()));
                      }
                 }
