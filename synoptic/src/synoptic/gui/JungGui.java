@@ -18,6 +18,7 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -609,8 +610,8 @@ public class JungGui extends JApplet implements Printable {
         int minWidth;
         int minHeight;
         
+        
         public CustomMousePlugin(JPanel logLineWindow) {
-            
         	dataModel = new LogLineTableModel(new Object[0][0]);
             table = new JTable(dataModel);
             table.getColumnModel().getColumn(0).setHeaderValue("Line #");
@@ -626,13 +627,15 @@ public class JungGui extends JApplet implements Printable {
             
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             table.setFillsViewportHeight(true);
+            
             JScrollPane scrollPane = new JScrollPane(table);
             scrollPane.setViewportView(table);
-            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+            
+            
             adjuster = new TableColumnAdjuster(table);
             logLineWindow.add(scrollPane);
-
-            
         }
 
         @Override
@@ -648,27 +651,23 @@ public class JungGui extends JApplet implements Printable {
                             layout, p.getX(), p.getY());
                     
                 	if (vertex != null) {
-                    
-                        Object[][] data = new Object[vertex.getEvents()
-                                .size()][3];
-                        int i = 0;
-                        for (LogEvent event : vertex.getEvents()) {
-                            if(event.getLine() != null){
-                            	data[i] = new String[] { event.getLineNum(),
-                                    event.getLine(), event.getShortFileName() };
-                            	i++;
+
+                        ArrayList <String[]> validLines = new ArrayList <String[]>();
+                        
+                        for ( LogEvent event : vertex.getEvents() ) {
+                        	if ( event.getLine() != null ) {
+                        		validLines.add(new String[] { event.getLineNum(),
+                                        event.getLine(), event.getShortFileName() });
                             }
                         }
-                    	
+                        
+                        Object [][] data = validLines.toArray(new Object[validLines.size()][3]);
+
                         dataModel.setData(data);
                         adjuster.adjustColumns();
-                        
                         int width = Math.max(minWidth, table.getColumnModel().getTotalColumnWidth());
-                        int height = Math.max(minHeight, (table.getRowHeight() + table.getRowMargin()) * table.getRowCount());
-                        
-                        table.setPreferredSize(new Dimension(width, height));
-                        
-                    }
+                        table.setPreferredSize(new Dimension(width, (table.getRowHeight() + table.getRowMargin()) * table.getRowCount()));
+                     }
                 }
             }
         }

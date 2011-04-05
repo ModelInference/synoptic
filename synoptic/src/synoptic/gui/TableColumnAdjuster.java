@@ -1,35 +1,28 @@
 package synoptic.gui;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.table.*;
+import java.awt.Component;
+
+
+import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 /*
  *	Class to manage the widths of columns in a table.
  *
  */
-public class TableColumnAdjuster // implements PropertyChangeListener//, TableModelListener
-{
+public class TableColumnAdjuster {
+	
+	private static final int SPACING = 10;
+	
 	private JTable table;
-	private int spacing;
-	private boolean isOnlyAdjustLarger;
-	private Map<TableColumn, Integer> columnSizes = new HashMap<TableColumn, Integer>();
 
 	/*
-	 *  Specify the table and use default spacing
+	 *  Specify the table
 	 */
 	public TableColumnAdjuster(JTable table) {
-		this(table, 6);
-	}
-
-	/*
-	 *  Specify the table and spacing
-	 */
-	public TableColumnAdjuster(JTable table, int spacing) {
 		this.table = table;
-		this.spacing = spacing;
-		setOnlyAdjustLarger( true );
 	}
 
 	/*
@@ -37,10 +30,8 @@ public class TableColumnAdjuster // implements PropertyChangeListener//, TableMo
 	 */
 	public void adjustColumns() {
 		TableColumnModel tcm = table.getColumnModel();
-		
-		for (int i = 0; i < tcm.getColumnCount(); i++)
+		for (int i = 0; i < tcm.getColumnCount(); i++) 
 			adjustColumn(i);
-		
 	}
 	
 	/*
@@ -79,17 +70,10 @@ public class TableColumnAdjuster // implements PropertyChangeListener//, TableMo
 	 *  given column.
 	 */
 	private int getColumnDataWidth(int column) {
-
 		int preferredWidth = 0;
-		int maxWidth = table.getColumnModel().getColumn(column).getMaxWidth();
 
-		for (int row = 0; row < table.getRowCount(); row++) {
+		for (int row = 0; row < table.getRowCount(); row++) 
     		preferredWidth = Math.max(preferredWidth, getCellDataWidth(row, column));
-
-			//  We've exceeded the maximum width, no need to check other rows
-			if (preferredWidth >= maxWidth)
-			    break;
-		}
 
 		return preferredWidth;
 	}
@@ -99,7 +83,7 @@ public class TableColumnAdjuster // implements PropertyChangeListener//, TableMo
 	 */
 	private int getCellDataWidth(int row, int column) {
 		
-		//  Inovke the renderer for the cell to calculate the preferred width
+		//  Invoke the renderer for the cell to calculate the preferred width
 		TableCellRenderer cellRenderer = table.getCellRenderer(row, column);
 		Object value = table.getValueAt(row, column);
 		Component c = cellRenderer.getTableCellRendererComponent(table, value, false, false, row, column);
@@ -115,24 +99,10 @@ public class TableColumnAdjuster // implements PropertyChangeListener//, TableMo
 		final TableColumn tableColumn = table.getColumnModel().getColumn(column);
 
 		if (! tableColumn.getResizable()) return;
-
-		width += spacing;
-
-		//  Don't shrink the column width
-		if (isOnlyAdjustLarger)
-			width = Math.max(width, tableColumn.getPreferredWidth());
-
-		columnSizes.put(tableColumn, new Integer(tableColumn.getWidth()));
+		
+		width += SPACING;
+		
 		table.getTableHeader().setResizingColumn(tableColumn);
 		tableColumn.setWidth(width);
 	}
-
-
-	/*
-	 *	Indicates whether columns can only be increased in size
-	 */
-	public void setOnlyAdjustLarger(boolean isOnlyAdjustLarger) {
-		this.isOnlyAdjustLarger = isOnlyAdjustLarger;
-	}
-
 }
