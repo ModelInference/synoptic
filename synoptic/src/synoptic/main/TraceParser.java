@@ -47,13 +47,16 @@ public class TraceParser {
 
     private final List<NamedPattern> parsers;
     private final List<LinkedHashMap<String, NamedSubstitution>> constantFields;
-    private final List<LinkedHashMap<String, Boolean>> incrementors;
+    private final List<Map<String, Boolean>> incrementors;
 
+    private static int currentTraceID;
+    private Map<String, Integer> traceID;
+    
     private NamedSubstitution filter;
 
     // Partitioning based on filter expressions -- maps a unique partition
     // string to a set of parsed events corresponding to that partition.
-    LinkedHashMap<String, ArrayList<LogEvent>> partitions = new LinkedHashMap<String, ArrayList<LogEvent>>();
+    Map<String, ArrayList<LogEvent>> partitions = new LinkedHashMap<String, ArrayList<LogEvent>>();
 
     // Patterns used to pre-process regular expressions
     private static final Pattern matchEscapedSeparator = Pattern
@@ -96,8 +99,10 @@ public class TraceParser {
     public TraceParser() {
         parsers = new ArrayList<NamedPattern>();
         constantFields = new ArrayList<LinkedHashMap<String, NamedSubstitution>>();
-        incrementors = new ArrayList<LinkedHashMap<String, Boolean>>();
+        incrementors = new ArrayList<Map<String, Boolean>>();
         filter = new NamedSubstitution("");
+        currentTraceID = 0;
+        traceID = new LinkedHashMap<String, Integer>();
     }
 
     /**
@@ -113,7 +118,7 @@ public class TraceParser {
     public static void detectListDuplicates(List<String> lst, String regex)
             throws ParseException {
         // Check for group duplicates.
-        LinkedHashSet<String> lstSet = new LinkedHashSet<String>(lst);
+        Set<String> lstSet = new LinkedHashSet<String>(lst);
         if (lstSet.size() == lst.size()) {
             return;
         }
@@ -179,7 +184,7 @@ public class TraceParser {
         LinkedHashMap<String, NamedSubstitution> cmap = new LinkedHashMap<String, NamedSubstitution>();
 
         // A list of all the fields that were assigned in the regex.
-        LinkedList<String> fields = new LinkedList<String>();
+        List<String> fields = new LinkedList<String>();
 
         // Indicates whether this regexp sets the HIDE field to true or not.
         boolean isHidden = false;
@@ -219,7 +224,7 @@ public class TraceParser {
 
         // Parse out all of the incrementors.
         matcher = matchPreIncrement.matcher(regex);
-        LinkedHashMap<String, Boolean> incMap = new LinkedHashMap<String, Boolean>();
+        Map<String, Boolean> incMap = new LinkedHashMap<String, Boolean>();
         while (matcher.find()) {
             incMap.put(matcher.group(1), false);
         }
@@ -452,6 +457,13 @@ public class TraceParser {
             InternalSynopticException {
         BufferedReader br = new BufferedReader(traceReader);
 
+        if ( !traceID.containsKey(traceName) ) {
+        	// This is the first time this trace has been observed, 
+        	// assign an ID and add it to the map of traceIDs
+        	currentTraceID++;
+        	traceID.put(traceName, currentTraceID);        	
+        }
+        
         // Initialize incrementor context.
         Map<String, Integer> context = new LinkedHashMap<String, Integer>();
         for (Map<String, Boolean> incs : incrementors) {
@@ -629,6 +641,11 @@ public class TraceParser {
                     actStringArgs.put(name, group.getValue());
                 }
             }
+            
+            if ( Main.partitionRegExp.equals("\\k<FILE>") ) {
+            	// These logs are to be partitioned via file
+            	actStringArgs.put("FILE", "" + traceID.get(fileName));
+            }
 
             // Perform post-increments.
             for (Map.Entry<String, Boolean> inc : incrementors.get(i)
@@ -706,6 +723,7 @@ public class TraceParser {
             partitions.put(pName, events);
             logger.fine("Created partition '" + pName + "'");
         }
+        event.setTraceID(pName);
         events.add(event);
     }
 
@@ -729,7 +747,7 @@ public class TraceParser {
         // preceded by any other successors of e1. That is, if e1 < x then x
         // is a direct successor if there is no other successor of e1 y such
         // that y < x.
-        LinkedHashMap<LogEvent, Set<LogEvent>> directSuccessors = new LinkedHashMap<LogEvent, Set<LogEvent>>();
+        Map<LogEvent, Set<LogEvent>> directSuccessors = new LinkedHashMap<LogEvent, Set<LogEvent>>();
         for (List<LogEvent> group : partitions.values()) {
             for (LogEvent e1 : group) {
                 // Find and set all direct successors of e1. In totally ordered
@@ -758,9 +776,9 @@ public class TraceParser {
 
         // Connect the events in the graph, and also build up noPredecessor and
         // noSuccessor event sets.
-        LinkedHashSet<LogEvent> noPredecessor = new LinkedHashSet<LogEvent>(
+        Set<LogEvent> noPredecessor = new LinkedHashSet<LogEvent>(
                 allEvents);
-        LinkedHashSet<LogEvent> noSuccessor = new LinkedHashSet<LogEvent>();
+        Set<LogEvent> noSuccessor = new LinkedHashSet<LogEvent>();
         for (LogEvent e1 : directSuccessors.keySet()) {
             for (LogEvent e2 : directSuccessors.get(e1)) {
                 e1.addTransition(e2, defaultRelation);

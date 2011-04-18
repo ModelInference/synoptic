@@ -170,6 +170,11 @@ public class Main implements Callable<Integer> {
             value = "-m Partitions mapping reg-exp: maps a log line to a partition",
             aliases = { "-partition-mapping" })
     public static String partitionRegExp = partitionRegExpDefault;
+    
+    /**
+     * This flag indicates whether Synoptic should partition traces by file
+     */
+    public static boolean partitionViaFile = true;
 
     /**
      * This option relieves the user from writing regular expressions to parse
@@ -791,6 +796,7 @@ public class Main implements Callable<Integer> {
                 }
             }
         }
+        
         logger.info("Parsing took " + (System.currentTimeMillis() - startTime)
                 + "ms");
 

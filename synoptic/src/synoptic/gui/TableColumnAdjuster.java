@@ -8,25 +8,33 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-/*
- *	Class to manage the widths of columns in a table.
- *
+/**
+ * Class to manage the widths of columns in a table.
+ * 
+ * @author Rob Camick, http://tips4java.wordpress.com/2008/11/10/table-column-adjuster/
+ * 
  */
+
 public class TableColumnAdjuster {
 	
+	// the amount of padding to add to each column after determining the width of its data
 	private static final int SPACING = 10;
 	
-	private JTable table;
+	// this TableColumnAdjuster's JTable
+	private final JTable table;
 
-	/*
-	 *  Specify the table
+	/**
+	 *  Constructs a new TableColumnnAdjuster, which specifies this Adjuster's table
+	 *  
+	 *  @param table - this Adjuster's JTable
 	 */
 	public TableColumnAdjuster(JTable table) {
 		this.table = table;
 	}
 
-	/*
-	 *  Adjust the widths of all the columns in the table
+	/**
+	 *  Adjusts the widths of all the columns in the table based off the length of the 
+	 *  longest String of data in each column
 	 */
 	public void adjustColumns() {
 		TableColumnModel tcm = table.getColumnModel();
@@ -34,10 +42,8 @@ public class TableColumnAdjuster {
 			adjustColumn(i);
 	}
 	
-	/*
-	 *  Adjust the width of the specified column in the table
-	 */
-	public void adjustColumn(final int column) {
+	//Adjust the width of the specified column in the table
+	private void adjustColumn(final int column) {
 		TableColumn tableColumn = table.getColumnModel().getColumn(column);
 
 		if (! tableColumn.getResizable()) return;
@@ -49,9 +55,8 @@ public class TableColumnAdjuster {
 		updateTableColumn(column, preferredWidth);
 	}
 
-	/*
-	 *  Calculated the width based on the column name
-	 */
+
+	// Calculates the given column's width based on header name
 	private int getColumnHeaderWidth(int column) {
 
 		TableColumn tableColumn = table.getColumnModel().getColumn(column);
@@ -65,10 +70,7 @@ public class TableColumnAdjuster {
 		return c.getPreferredSize().width;
 	}
 
-	/*
-	 *  Calculate the width based on the widest cell renderer for the
-	 *  given column.
-	 */
+	// Calculates the width based on the widest cell renderer for the given column.
 	private int getColumnDataWidth(int column) {
 		int preferredWidth = 0;
 
@@ -78,11 +80,8 @@ public class TableColumnAdjuster {
 		return preferredWidth;
 	}
 
-	/*
-	 *  Get the preferred width for the specified cell
-	 */
+	// Gets the preferred width for the specified cell
 	private int getCellDataWidth(int row, int column) {
-		
 		//  Invoke the renderer for the cell to calculate the preferred width
 		TableCellRenderer cellRenderer = table.getCellRenderer(row, column);
 		Object value = table.getValueAt(row, column);
@@ -92,9 +91,7 @@ public class TableColumnAdjuster {
 		return width;
 	}
 
-	/*
-	 *  Update the TableColumn with the newly calculated width
-	 */
+	// Updates the TableColumn with the newly calculated width
 	private void updateTableColumn(int column, int width) {
 		final TableColumn tableColumn = table.getColumnModel().getColumn(column);
 
