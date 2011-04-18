@@ -30,6 +30,7 @@ public class LogEvent implements INode<LogEvent> {
      */
     private Partition parent;
     private final Action action;
+    private String traceID;
 
     // TODO: For totally ordered traces, the transitions becomes a single
     // element, and transitionsByActions becomes superfluous.
@@ -405,6 +406,14 @@ public class LogEvent implements INode<LogEvent> {
 
     public String getLine() {
         return action.getLine();
+    }
+    
+    public void setTraceID( String traceID ) {
+    	this.traceID = traceID;
+    }
+    
+    public String getTraceID() {
+    	return traceID;
     }
 
     public String getFullFileName() {

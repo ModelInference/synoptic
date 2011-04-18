@@ -21,20 +21,32 @@ import edu.uci.ics.jung.visualization.control.TranslatingGraphMousePlugin;
  * Extension of EditingModalGraphMouse which maps transforming mode to right mouse clicks, picking
  * mode to left mouse clicks, and removes editing mode functionality
  * 
+ * @author jenny
  */
 public class ModalMousePlugin extends EditingModalGraphMouse<INode<Partition>, ITransition<Partition>> {
 
+	/**
+	 * Constructs a new ModalMousePlugin with the given RenderContext
+	 * 
+	 * @param rc the RenderContext for this MousePlugin
+	 */
 	public ModalMousePlugin(RenderContext <INode<Partition>, ITransition<Partition>> rc) {
 		super(rc, null, null);
 	}
 
-   protected void loadPlugins() {
-	   add(new PickingGraphMousePlugin<INode<Partition>, ITransition<Partition>>());
-       add(new AnimatedPickingGraphMousePlugin<INode<Partition>, ITransition<Partition>>());
-       add(new TranslatingGraphMousePlugin(InputEvent.BUTTON3_MASK));
-       add(new ScalingGraphMousePlugin(new CrossoverScalingControl(), 0));
-       add(new RotatingGraphMousePlugin(MouseEvent.BUTTON3_MASK | MouseEvent.SHIFT_MASK));
-       add(new ShearingGraphMousePlugin(MouseEvent.BUTTON3_MASK | MouseEvent.CTRL_MASK));
-   }
-
+	/*
+	 * Provides the following unique functionality to this extension of the EditingModalGraphMouse:
+	 * -Transforming mode corresponds to right mouse clicks
+	 * -Picking mode corresponds to left mouse clicks
+	 * -Editing mode is not supported
+	 */
+	@Override 
+	protected void loadPlugins() {
+		add(new PickingGraphMousePlugin<INode<Partition>, ITransition<Partition>>());
+		add(new AnimatedPickingGraphMousePlugin<INode<Partition>, ITransition<Partition>>());
+		add(new TranslatingGraphMousePlugin(InputEvent.BUTTON3_MASK));
+		add(new ScalingGraphMousePlugin(new CrossoverScalingControl(), 0));
+		add(new RotatingGraphMousePlugin(MouseEvent.BUTTON3_MASK | MouseEvent.SHIFT_MASK));
+		add(new ShearingGraphMousePlugin(MouseEvent.BUTTON3_MASK | MouseEvent.CTRL_MASK));
+	}
 }
