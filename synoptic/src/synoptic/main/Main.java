@@ -48,7 +48,7 @@ public class Main implements Callable<Integer> {
     /**
      * The current Synoptic version.
      */
-    public static final String versionString = "0.0.4";
+    public static final String versionString = "0.0.5";
 
     /**
      * The label used to distinguish the dummy initial node -- constructed to
@@ -170,7 +170,7 @@ public class Main implements Callable<Integer> {
             value = "-m Partitions mapping reg-exp: maps a log line to a partition",
             aliases = { "-partition-mapping" })
     public static String partitionRegExp = partitionRegExpDefault;
-    
+
     /**
      * This flag indicates whether Synoptic should partition traces by file
      */
@@ -796,7 +796,7 @@ public class Main implements Callable<Integer> {
                 }
             }
         }
-        
+
         logger.info("Parsing took " + (System.currentTimeMillis() - startTime)
                 + "ms");
 

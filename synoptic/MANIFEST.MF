@@ -1,8 +1,9 @@
 Manifest-Version: 1.0
 Implementation-Title: synoptic
-Implementation-Version: 0.0.4
+Implementation-Version: 0.0.5
 Main-Class: synoptic.main.Main
-Class-Path: lib/plume.jar lib/junit-4.9b2.jar \
+Class-Path: 
+ lib/junit-4.9b2.jar lib/plume.jar \ 
  lib/jung/collections-generic-4.01.jar lib/jung/colt-1.2.0.jar lib/jung/concurrent-1.3.4.jar \
  lib/jung/j3d-core-1.3.1.jar lib/jung/jung-3d-2.0.1.jar lib/jung/jung-3d-demos-2.0.1.jar \
  lib/jung/jung-algorithms-2.0.1.jar lib/jung/jung-api-2.0.1.jar lib/jung/jung-graph-impl-2.0.1.jar \

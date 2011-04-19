@@ -50,8 +50,8 @@ public class TraceParser {
     private final List<Map<String, Boolean>> incrementors;
 
     private static int currentTraceID;
-    private Map<String, Integer> traceID;
-    
+    private final Map<String, Integer> traceID;
+
     private NamedSubstitution filter;
 
     // Partitioning based on filter expressions -- maps a unique partition
@@ -457,13 +457,13 @@ public class TraceParser {
             InternalSynopticException {
         BufferedReader br = new BufferedReader(traceReader);
 
-        if ( !traceID.containsKey(traceName) ) {
-        	// This is the first time this trace has been observed, 
-        	// assign an ID and add it to the map of traceIDs
-        	currentTraceID++;
-        	traceID.put(traceName, currentTraceID);        	
+        if (!traceID.containsKey(traceName)) {
+            // This is the first time this trace has been observed,
+            // assign an ID and add it to the map of traceIDs
+            currentTraceID++;
+            traceID.put(traceName, currentTraceID);
         }
-        
+
         // Initialize incrementor context.
         Map<String, Integer> context = new LinkedHashMap<String, Integer>();
         for (Map<String, Boolean> incs : incrementors) {
@@ -641,10 +641,10 @@ public class TraceParser {
                     actStringArgs.put(name, group.getValue());
                 }
             }
-            
-            if ( Main.partitionRegExp.equals("\\k<FILE>") ) {
-            	// These logs are to be partitioned via file
-            	actStringArgs.put("FILE", "" + traceID.get(fileName));
+
+            if (Main.partitionRegExp.equals("\\k<FILE>")) {
+                // These logs are to be partitioned via file
+                actStringArgs.put("FILE", "" + traceID.get(fileName));
             }
 
             // Perform post-increments.
@@ -776,8 +776,7 @@ public class TraceParser {
 
         // Connect the events in the graph, and also build up noPredecessor and
         // noSuccessor event sets.
-        Set<LogEvent> noPredecessor = new LinkedHashSet<LogEvent>(
-                allEvents);
+        Set<LogEvent> noPredecessor = new LinkedHashSet<LogEvent>(allEvents);
         Set<LogEvent> noSuccessor = new LinkedHashSet<LogEvent>();
         for (LogEvent e1 : directSuccessors.keySet()) {
             for (LogEvent e2 : directSuccessors.get(e1)) {

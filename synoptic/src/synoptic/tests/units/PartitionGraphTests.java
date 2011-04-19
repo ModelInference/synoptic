@@ -33,8 +33,8 @@ public class PartitionGraphTests extends SynopticTest {
         String traceStr = concatinateWithNewlines(events);
         ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
-        Graph<LogEvent> inputGraph = parser.generateDirectTemporalRelation(
-                parsedEvents);
+        Graph<LogEvent> inputGraph = parser
+                .generateDirectTemporalRelation(parsedEvents);
 
         InvariantMiner miner = new SpecializedInvariantMiner();
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
