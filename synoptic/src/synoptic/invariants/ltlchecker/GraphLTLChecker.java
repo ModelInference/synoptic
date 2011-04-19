@@ -137,6 +137,33 @@ public class GraphLTLChecker<T extends INode<T>> {
     /**
      * Converts an event-based sourceGraph into a transition-based targetGraph
      * 
+     * <pre>
+     * A path is a sequence of state and transition labels. For example, a graph
+     * with two nodes A,B that are connected by an edge labeled with t, the
+     * sequence "A t B" is a path. The corresponding transition trace is "t",
+     * i.e. the path without states. The corresponding state trace is "A B",
+     * i.e. the path without transitions.
+     * 
+     * The model checker we employ checks that a in a given transition system
+     * (graph) the each transition trace satisfies a set of LTL-formulas. For
+     * our purpose, we have to check that each state trace of satisfies a set
+     * of LTL-formulas.
+     * 
+     * The translation with respect to a fixed relation r is defined
+     * as follows:
+     * 
+     * Let (V,E) be the input graph, and I be fresh states. Then we
+     * define V':={I} \cup V
+     * 
+     * E':={(I,i,i) | i initial state in (V,E)} \cup {(s,t,t) | (s,r,t)
+     *      is edge in (V,E)}
+     * 
+     * Claim: \sigma is a state trace in (E,V) if and only if \sigma is a
+     * transition trace in (V', E')
+     * 
+     * Proof: TODO.
+     * </pre>
+     * 
      * @param sourceGraph
      *            The sourceGraph to convert
      * @param relation

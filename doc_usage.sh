@@ -17,6 +17,7 @@ usagef=../wiki/DocsUsageScreen.wiki
 echo > $usagef
 
 # Generate the new wiki page.
+echo "#summary Lists the command line usage screen" >> $usagef
 echo "= Command Line Options =" >> $usagef
 echo "{{{" >> $usagef
 ./synoptic.sh -H >> $usagef
