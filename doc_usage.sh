@@ -14,10 +14,11 @@
 usagef=../wiki/DocsUsageScreen.wiki
 
 # Wipe out the old wiki page content.
-echo > $usagef
+rm $usagef
 
 # Generate the new wiki page.
 echo "#summary Lists the command line usage screen" >> $usagef
+echo "" >> $usagef
 echo "= Command Line Options =" >> $usagef
 echo "{{{" >> $usagef
 ./synoptic.sh -H >> $usagef
