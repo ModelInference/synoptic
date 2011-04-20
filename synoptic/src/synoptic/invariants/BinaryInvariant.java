@@ -17,10 +17,19 @@ import synoptic.util.InternalSynopticException;
  * @author Sigurd Schneider
  */
 public abstract class BinaryInvariant implements ITemporalInvariant {
-    public static Logger logger = Logger.getLogger("Bisimulation");
+    public static Logger logger = Logger.getLogger("BinaryInvariant");
 
     protected String first;
     protected String second;
+
+    /**
+     * Role identifiers for each predicate. If the per-host model is used then
+     * role identifiers are simply host identifiers corresponding to the input
+     * vector clock indices.
+     */
+    protected int firstRoleId = 0;
+    protected int secondRoleId = 0;
+
     protected String relation;
     // CACHE:
     private Graph automaton;
@@ -169,11 +178,47 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
         return set;
     }
 
+    /**
+     * Returns the first invariant predicate.
+     * 
+     * @return
+     */
     public String getFirst() {
         return first;
     }
 
+    /**
+     * Returns the second invariant predicate.
+     * 
+     * @return
+     */
     public String getSecond() {
         return second;
+    }
+
+    /**
+     * Returns the role identifier corresponding to the first predicates.
+     * 
+     * @return integer role
+     */
+    public int getFirstRoleId() {
+        return firstRoleId;
+    }
+
+    /**
+     * Returns the role identifier corresponding to the second predicates.
+     * 
+     * @return integer role
+     */
+    public int getSecondRoleId() {
+        return secondRoleId;
+    }
+
+    public void setFirstRoleId(int roleId) {
+        firstRoleId = roleId;
+    }
+
+    public void setSecondRoleId(int roleId) {
+        secondRoleId = roleId;
     }
 }

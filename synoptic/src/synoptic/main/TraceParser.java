@@ -86,6 +86,10 @@ public class TraceParser {
     // implicitly for every log-line.
     private static final String implicitTimeGroup = "LTIME";
 
+    // Regexp groups that represent totally ordered time.
+    private static final List<String> totallyOrderedTimeGroups = Arrays.asList(
+            "LTIME", "TIME", "FTIME", "DTIME");
+
     // The time group regexp selected (implicitly) for use by this parser via
     // passed reg exps to match lines. The parser allows only one type of time
     // to be used.
@@ -143,11 +147,7 @@ public class TraceParser {
      * @return time type is ordered or not
      */
     public boolean logTimeTypeIsTotallyOrdered() {
-        Set<String> toTimes = new LinkedHashSet<String>();
-        toTimes.add("TIME");
-        toTimes.add("FTIME");
-        toTimes.add("DTIME");
-        return toTimes.contains(selectedTimeGroup);
+        return totallyOrderedTimeGroups.contains(selectedTimeGroup);
     }
 
     /**

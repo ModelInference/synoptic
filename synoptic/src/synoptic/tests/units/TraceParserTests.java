@@ -1,5 +1,6 @@
 package synoptic.tests.units;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -285,7 +286,7 @@ public class TraceParserTests extends SynopticTest {
                 new String[] { "1", "2", "3" }, // NOTE: implicit time starts
                 // with 1
                 new String[] { "a", "b", "c" });
-
+        assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
     /**
@@ -298,6 +299,7 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
         checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "2", "3", "4" }, new String[] { "a", "b", "c" });
+        assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
     /**
@@ -311,6 +313,7 @@ public class TraceParserTests extends SynopticTest {
         checkLogEventTypesFTimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "2.1", "2.2", "3.0" }, new String[] { "a", "b",
                         "c" });
+        assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
     /**
@@ -324,6 +327,7 @@ public class TraceParserTests extends SynopticTest {
         checkLogEventTypesDTimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "129892544112.89345", "129892544112.89346",
                         "129892544112.89347" }, new String[] { "a", "b", "c" });
+        assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
     /**
@@ -337,6 +341,7 @@ public class TraceParserTests extends SynopticTest {
         checkLogEventTypesVTimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1,1,1", "2,2,2", "3,3,4" }, new String[] { "a",
                         "b", "c" });
+        assertFalse(parser.logTimeTypeIsTotallyOrdered());
     }
 
     /**
