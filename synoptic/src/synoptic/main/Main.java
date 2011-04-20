@@ -852,11 +852,7 @@ public class Main implements Callable<Integer> {
         } else {
             miner = new TCInvariantMiner();
         }
-
-        // logger.info("sleeping..");
-        // Thread.sleep(10000);
-        // logger.info("waking up..");
-
+        // parser can be garbage-collected.
         parser = null;
 
         logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
@@ -864,6 +860,7 @@ public class Main implements Callable<Integer> {
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
         logger.info("Mining took " + (System.currentTimeMillis() - startTime)
                 + "ms");
+        // miner can be garbage-collected.
         miner = null;
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
@@ -883,7 +880,7 @@ public class Main implements Callable<Integer> {
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, minedInvs);
         logger.info("Creating partition graph took "
                 + (System.currentTimeMillis() - startTime) + "ms");
-
+        // inputGraph can be garbage-collected.
         inputGraph = null;
 
         if (showGui) {

@@ -6,6 +6,11 @@ import synoptic.model.LogEvent;
 import synoptic.model.interfaces.IGraph;
 import synoptic.util.InternalSynopticException;
 
+/**
+ * Base class for all invariant miners.
+ * 
+ * @author ivan
+ */
 public abstract class InvariantMiner {
     protected static Logger logger = Logger.getLogger("TemporalInvSet Logger");
 
