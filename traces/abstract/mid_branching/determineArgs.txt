@@ -1,2 +1,0 @@
--r ^(?<TIME>)(?<nodename>)(?<TYPE>)$
--m \\k<nodename>

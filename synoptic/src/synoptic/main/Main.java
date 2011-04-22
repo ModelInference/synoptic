@@ -706,7 +706,7 @@ public class Main implements Callable<Integer> {
     }
 
     /**
-     * Prints the values of all the options for this -- instance of Main class
+     * Prints the values of all the options for this instance of Main class
      * 
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
