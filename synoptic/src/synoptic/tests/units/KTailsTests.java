@@ -12,9 +12,9 @@ import org.junit.Test;
 import synoptic.algorithms.bisim.KTails;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
-import synoptic.model.Action;
+import synoptic.model.Event;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.Transition;
 import synoptic.tests.SynopticTest;
 
@@ -30,8 +30,8 @@ import synoptic.tests.SynopticTest;
  */
 public class KTailsTests extends SynopticTest {
 
-    private static void testTrueBothSubsumingAndNotSubsuming(LogEvent e1,
-            LogEvent e2, int k) {
+    private static void testTrueBothSubsumingAndNotSubsuming(EventNode e1,
+            EventNode e2, int k) {
         // TODO: implement subsumption
         // assertTrue(KTails.kEquals(e1, e2, k, true));
 
@@ -40,8 +40,8 @@ public class KTailsTests extends SynopticTest {
         assertTrue(KTails.kEquals(e2, e1, k, false));
     }
 
-    private static void testFalseBothSubsumingAndNotSubsuming(LogEvent e1,
-            LogEvent e2, int k) {
+    private static void testFalseBothSubsumingAndNotSubsuming(EventNode e1,
+            EventNode e2, int k) {
         // TODO: implement subsumption
         // assertFalse(KTails.kEquals(e1, e2, k, true));
 
@@ -63,17 +63,17 @@ public class KTailsTests extends SynopticTest {
      */
     @Test
     public void baseCaseTest() {
-        Action a1 = new Action("label1");
-        Action a2 = new Action("label1");
+        Event a1 = new Event("label1");
+        Event a2 = new Event("label1");
 
-        LogEvent e1 = new LogEvent(a1);
-        LogEvent e2 = new LogEvent(a2);
+        EventNode e1 = new EventNode(a1);
+        EventNode e2 = new EventNode(a2);
 
         // Subsumption or not should not matter for k = 0.
         testTrueBothSubsumingAndNotSubsuming(e1, e2, 0);
 
-        a2 = new Action("label2");
-        e2 = new LogEvent(a2);
+        a2 = new Event("label2");
+        e2 = new EventNode(a2);
         // Subsumption or not should not matter for k = 0.
         testFalseBothSubsumingAndNotSubsuming(e1, e2, 0);
     }
@@ -85,11 +85,11 @@ public class KTailsTests extends SynopticTest {
      */
     @Test
     public void linearGraphsTest() throws Exception {
-        Action a1 = new Action("label1");
-        Action a2 = new Action("label1");
+        Event a1 = new Event("label1");
+        Event a2 = new Event("label1");
 
-        LogEvent e1 = new LogEvent(a1);
-        LogEvent e2 = new LogEvent(a2);
+        EventNode e1 = new EventNode(a1);
+        EventNode e2 = new EventNode(a2);
         // If k exceeds the depth of the graph, if they are equivalent to max
         // existing depth then they are equal. Regardless of subsumption.
         testTrueBothSubsumingAndNotSubsuming(e1, e2, 100);
@@ -97,13 +97,13 @@ public class KTailsTests extends SynopticTest {
         testTrueBothSubsumingAndNotSubsuming(e1, e1, 100);
 
         String[] events = new String[] { "a", "b", "c", "d" };
-        Graph<LogEvent> g1 = genInitialLinearGraph(events);
-        Graph<LogEvent> g2 = genInitialLinearGraph(events);
+        Graph<EventNode> g1 = genInitialLinearGraph(events);
+        Graph<EventNode> g2 = genInitialLinearGraph(events);
         exportTestGraph(g1, 0);
         exportTestGraph(g2, 1);
-        LogEvent[] g1Nodes = new LogEvent[g1.getNodes().size()];
+        EventNode[] g1Nodes = new EventNode[g1.getNodes().size()];
         g1.getNodes().toArray(g1Nodes);
-        LogEvent[] g2Nodes = new LogEvent[g2.getNodes().size()];
+        EventNode[] g2Nodes = new EventNode[g2.getNodes().size()];
         g2.getNodes().toArray(g2Nodes);
         // g1 and g2 should be equivalent for all k at every corresponding node,
         // regardless of subsumption.
@@ -154,9 +154,9 @@ public class KTailsTests extends SynopticTest {
         String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "--\n"
                 + "1,0,4 a\n" + "1,0,5 b\n" + "2,0,4 c\n";
         TraceParser parser = genParser();
-        ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+        ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
-        Graph<LogEvent> inputGraph = parser
+        Graph<EventNode> inputGraph = parser
                 .generateDirectTemporalRelation(parsedEvents);
         exportTestGraph(inputGraph, 0);
 
@@ -164,10 +164,10 @@ public class KTailsTests extends SynopticTest {
         // children -- the two "a" nodes, which should be k-equivalent for all
         // k.
         assertFalse(inputGraph.getInitialNodes().isEmpty());
-        List<Transition<LogEvent>> initNodeTransitions = inputGraph
+        List<Transition<EventNode>> initNodeTransitions = inputGraph
                 .getInitialNodes().iterator().next().getTransitions();
-        LogEvent firstA = initNodeTransitions.get(0).getTarget();
-        LogEvent secondA = initNodeTransitions.get(1).getTarget();
+        EventNode firstA = initNodeTransitions.get(0).getTarget();
+        EventNode secondA = initNodeTransitions.get(1).getTarget();
         for (int k = 0; k < 3; k++) {
             testTrueBothSubsumingAndNotSubsuming(firstA, secondA, k);
         }
@@ -201,15 +201,15 @@ public class KTailsTests extends SynopticTest {
         String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "0,1,2 a\n";
 
         TraceParser parser = genParser();
-        ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+        ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
-        Graph<LogEvent> g1 = parser
+        Graph<EventNode> g1 = parser
                 .generateDirectTemporalRelation(parsedEvents);
         exportTestGraph(g1, 0);
 
-        List<Transition<LogEvent>> initNodeTransitions = g1.getInitialNodes()
+        List<Transition<EventNode>> initNodeTransitions = g1.getInitialNodes()
                 .iterator().next().getTransitions();
-        LogEvent firstA, secondA;
+        EventNode firstA, secondA;
         firstA = initNodeTransitions.get(0).getTarget();
         secondA = initNodeTransitions.get(1).getTarget();
         for (int k = 0; k < 3; k++) {
@@ -223,12 +223,12 @@ public class KTailsTests extends SynopticTest {
         parser = genParser();
         parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
-        Graph<LogEvent> g2 = parser
+        Graph<EventNode> g2 = parser
                 .generateDirectTemporalRelation(parsedEvents);
         exportTestGraph(g2, 1);
 
-        LogEvent initG1 = g1.getInitialNodes().iterator().next();
-        LogEvent initG2 = g2.getInitialNodes().iterator().next();
+        EventNode initG1 = g1.getInitialNodes().iterator().next();
+        EventNode initG2 = g2.getInitialNodes().iterator().next();
         for (int k = 0; k < 3; k++) {
             testTrueBothSubsumingAndNotSubsuming(initG1, initG2, k);
         }
@@ -249,18 +249,18 @@ public class KTailsTests extends SynopticTest {
      *            Array of labels for new nodes to add to the graph
      * @return The list of generated nodes
      */
-    private static List<LogEvent> addNodesToGraph(Graph<LogEvent> g,
+    private static List<EventNode> addNodesToGraph(Graph<EventNode> g,
             String[] labels) {
-        LinkedList<LogEvent> list = new LinkedList<LogEvent>();
+        LinkedList<EventNode> list = new LinkedList<EventNode>();
         for (String label : labels) {
-            Action act = new Action(label);
-            LogEvent e = new LogEvent(act);
+            Event act = new Event(label);
+            EventNode e = new EventNode(act);
             g.add(e);
             list.add(e);
         }
 
-        Action dummyAct = Action.NewInitialAction();
-        g.setDummyInitial(new LogEvent(dummyAct), defRelation);
+        Event dummyAct = Event.newInitialEvent();
+        g.setDummyInitial(new EventNode(dummyAct), defRelation);
         g.tagInitial(list.get(0), defRelation);
         return list;
     }
@@ -275,8 +275,8 @@ public class KTailsTests extends SynopticTest {
         // NOTE: we can't use the parser to create a circular graph because
         // vector clocks are partially ordered and do not admit cycles. So we
         // have to create circular graphs manually.
-        Graph<LogEvent> g1 = new Graph<LogEvent>();
-        List<LogEvent> g1Nodes = addNodesToGraph(g1, new String[] { "a", "a",
+        Graph<EventNode> g1 = new Graph<EventNode>();
+        List<EventNode> g1Nodes = addNodesToGraph(g1, new String[] { "a", "a",
                 "a" });
         // Create a loop in g1, with 3 nodes
         g1Nodes.get(0).addTransition(g1Nodes.get(1), defRelation);
@@ -284,8 +284,8 @@ public class KTailsTests extends SynopticTest {
         g1Nodes.get(2).addTransition(g1Nodes.get(0), defRelation);
         exportTestGraph(g1, 0);
 
-        Graph<LogEvent> g2 = new Graph<LogEvent>();
-        List<LogEvent> g2Nodes = addNodesToGraph(g2, new String[] { "a", "a" });
+        Graph<EventNode> g2 = new Graph<EventNode>();
+        List<EventNode> g2Nodes = addNodesToGraph(g2, new String[] { "a", "a" });
         // Create a loop in g2, with 2 nodes
         g2Nodes.get(0).addTransition(g2Nodes.get(1), defRelation);
         g2Nodes.get(1).addTransition(g2Nodes.get(0), defRelation);
@@ -296,8 +296,8 @@ public class KTailsTests extends SynopticTest {
         testFalseBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 2);
         testFalseBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 3);
 
-        Graph<LogEvent> g3 = new Graph<LogEvent>();
-        List<LogEvent> g3Nodes = addNodesToGraph(g2, new String[] { "a" });
+        Graph<EventNode> g3 = new Graph<EventNode>();
+        List<EventNode> g3Nodes = addNodesToGraph(g2, new String[] { "a" });
         // Create a loop in g3, from a to itself
         g3Nodes.get(0).addTransition(g3Nodes.get(0), defRelation);
         exportTestGraph(g3, 2);
@@ -319,8 +319,8 @@ public class KTailsTests extends SynopticTest {
         // different kinds of nodes topologically. At k=4 this becomes apparent
         // with kTails, if we start at the first 'a'.
 
-        Graph<LogEvent> g1 = new Graph<LogEvent>();
-        List<LogEvent> g1Nodes = addNodesToGraph(g1, new String[] { "a", "b",
+        Graph<EventNode> g1 = new Graph<EventNode>();
+        List<EventNode> g1Nodes = addNodesToGraph(g1, new String[] { "a", "b",
                 "c", "d" });
         // Create a loop in g1, with 4 nodes
         g1Nodes.get(0).addTransition(g1Nodes.get(1), defRelation);
@@ -335,8 +335,8 @@ public class KTailsTests extends SynopticTest {
                     g1Nodes.get(0), k);
         }
 
-        Graph<LogEvent> g2 = new Graph<LogEvent>();
-        List<LogEvent> g2Nodes = addNodesToGraph(g2, new String[] { "a", "b",
+        Graph<EventNode> g2 = new Graph<EventNode>();
+        List<EventNode> g2Nodes = addNodesToGraph(g2, new String[] { "a", "b",
                 "c", "d", "a" });
         // Create a chain from a to a'.
         g2Nodes.get(0).addTransition(g2Nodes.get(1), defRelation);
@@ -363,8 +363,8 @@ public class KTailsTests extends SynopticTest {
         // have to be correctly matched to g2 -- which is build in a different
         // order but is topologically identical to g1.
 
-        Graph<LogEvent> g1 = new Graph<LogEvent>();
-        List<LogEvent> g1Nodes = addNodesToGraph(g1, new String[] { "a", "b",
+        Graph<EventNode> g1 = new Graph<EventNode>();
+        List<EventNode> g1Nodes = addNodesToGraph(g1, new String[] { "a", "b",
                 "c", "d", "b", "c" });
 
         // Create loop1 in g1, with the first 4 nodes.
@@ -384,8 +384,8 @@ public class KTailsTests extends SynopticTest {
         // Now create g2, by generating the two identical loops in the reverse
         // order.
 
-        Graph<LogEvent> g2 = new Graph<LogEvent>();
-        List<LogEvent> g2Nodes = addNodesToGraph(g2, new String[] { "a", "b",
+        Graph<EventNode> g2 = new Graph<EventNode>();
+        List<EventNode> g2Nodes = addNodesToGraph(g2, new String[] { "a", "b",
                 "c", "d", "b", "c" });
 
         // Create loop2 in g2, with the last 2 nodes, plus the initial node.

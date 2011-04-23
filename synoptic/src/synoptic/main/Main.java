@@ -36,7 +36,7 @@ import synoptic.invariants.SpecializedInvariantMiner;
 import synoptic.invariants.TCInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.util.BriefLogFormatter;
@@ -775,7 +775,7 @@ public class Main implements Callable<Integer> {
         }
 
         // Parses all the log filenames, constructing the parsedEvents List.
-        ArrayList<LogEvent> parsedEvents = new ArrayList<LogEvent>();
+        ArrayList<EventNode> parsedEvents = new ArrayList<EventNode>();
 
         logger.info("Parsing input files..");
         startTime = System.currentTimeMillis();
@@ -811,7 +811,7 @@ public class Main implements Callable<Integer> {
 
         logger.info("Generating inter-event temporal relation...");
         startTime = System.currentTimeMillis();
-        Graph<LogEvent> inputGraph = parser
+        Graph<EventNode> inputGraph = parser
                 .generateDirectTemporalRelation(parsedEvents);
         logger.info("Generating temporal relation took "
                 + (System.currentTimeMillis() - startTime) + "ms");

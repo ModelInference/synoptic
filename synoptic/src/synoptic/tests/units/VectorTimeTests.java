@@ -5,17 +5,22 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Test;
 
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
-import synoptic.model.LogEvent;
+import synoptic.model.Event;
+import synoptic.model.EventNode;
 import synoptic.tests.SynopticTest;
+import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;
+import synoptic.util.time.NonComparableTimesException;
 import synoptic.util.time.NotComparableVectorsException;
 import synoptic.util.time.VectorTime;
+import synoptic.util.time.WrongTimeTypeException;
 
 /**
  * Tests for synoptic.model.input.VectorTime class.
@@ -173,6 +178,19 @@ public class VectorTimeTests extends SynopticTest {
     }
 
     /**
+     * Times of different types cannot be compared -- this throws an exception.
+     */
+    @Test(expected = NonComparableTimesException.class)
+    public void lessThanDiffTimeTypes() {
+        ITime v1, v2;
+
+        v1 = new VectorTime("1,2,3");
+
+        v2 = new DTotalTime(1);
+        v1.lessThan(v2);
+    }
+
+    /**
      * Test the toString() method.
      */
     @Test
@@ -205,7 +223,7 @@ public class VectorTimeTests extends SynopticTest {
     public void determineIthEventTest() throws ParseException {
         String[] events = new String[] { "1,0 a1", "2,0 b1", "3,0 c1",
                 "0,1 a2", "0,2 b2", "0,3 c3" };
-        List<LogEvent> parsedEvents = parseLogEvents(events, parser);
+        List<EventNode> parsedEvents = parseLogEvents(events, parser);
 
         for (int i = 0; i < 3; i++) {
             assertTrue(VectorTime.determineIthEvent(0, parsedEvents, i + 1) == parsedEvents
@@ -215,6 +233,24 @@ public class VectorTimeTests extends SynopticTest {
             assertTrue(VectorTime.determineIthEvent(1, parsedEvents, i + 1) == parsedEvents
                     .get(3 + i));
         }
+    }
+
+    /**
+     * Test that determineIthEvent() generates an exception when the list of
+     * events has an event that has a non-vector time.
+     */
+    @Test(expected = WrongTimeTypeException.class)
+    public void determineIthEventNonVTimeTest() throws ParseException {
+        ITime vtime, dtime;
+        vtime = new VectorTime("1,2,3");
+        dtime = new DTotalTime(1);
+        List<EventNode> eventNodes = new LinkedList<EventNode>();
+        eventNodes.add(new EventNode(new Event("a")));
+        eventNodes.add(new EventNode(new Event("b")));
+        eventNodes.get(0).getEvent().setTime(vtime);
+        eventNodes.get(1).getEvent().setTime(dtime);
+
+        VectorTime.determineIthEvent(0, eventNodes, 0);
     }
 
     /**
@@ -228,8 +264,9 @@ public class VectorTimeTests extends SynopticTest {
         String[] events = new String[] { "1,0 a", "2,0 b", "3,0 c", "4,3 d",
                 "5,3 e", "0,1 a'", "2,2 b'", "2,3 c'", "2,4 d'" };
 
-        List<LogEvent> parsedEvents = parseLogEvents(events, parser);
-        List<List<LogEvent>> map = VectorTime.mapLogEventsToNodes(parsedEvents);
+        List<EventNode> parsedEvents = parseLogEvents(events, parser);
+        List<List<EventNode>> map = VectorTime
+                .mapLogEventsToNodes(parsedEvents);
 
         assertTrue(map.size() == 2);
         for (int i = 0; i < 5; i++) {

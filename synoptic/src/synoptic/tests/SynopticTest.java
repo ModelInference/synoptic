@@ -13,9 +13,9 @@ import synoptic.invariants.InvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
-import synoptic.model.Action;
+import synoptic.model.Event;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.interfaces.IGraph;
@@ -109,11 +109,11 @@ public abstract class SynopticTest {
         return sb.toString();
     }
 
-    public static ArrayList<LogEvent> parseLogEvents(String[] events,
+    public static ArrayList<EventNode> parseLogEvents(String[] events,
             TraceParser parser) throws InternalSynopticException,
             ParseException {
         String traceStr = concatinateWithNewlines(events);
-        ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+        ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
         return parsedEvents;
     }
@@ -128,8 +128,8 @@ public abstract class SynopticTest {
      */
     public static PartitionGraph genInitialPartitionGraph(String[] events,
             TraceParser parser, InvariantMiner miner) throws Exception {
-        ArrayList<LogEvent> parsedEvents = parseLogEvents(events, parser);
-        Graph<LogEvent> inputGraph = parser
+        ArrayList<EventNode> parsedEvents = parseLogEvents(events, parser);
+        Graph<EventNode> inputGraph = parser
                 .generateDirectTemporalRelation(parsedEvents);
 
         exportTestGraph(inputGraph, 0);
@@ -148,10 +148,10 @@ public abstract class SynopticTest {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    public Graph<LogEvent> genInitialLinearGraph(String[] events)
+    public Graph<EventNode> genInitialLinearGraph(String[] events)
             throws ParseException, InternalSynopticException {
         TraceParser defParser = genDefParser();
-        ArrayList<LogEvent> parsedEvents = parseLogEvents(events, defParser);
+        ArrayList<EventNode> parsedEvents = parseLogEvents(events, defParser);
         // for (LogEvent event : parsedEvents) {
         // logger.fine("Parsed event: " + event.toStringFull());
         // }
@@ -166,12 +166,12 @@ public abstract class SynopticTest {
      *            A string sequence of events.
      * @return A LogEvent sequence of events.
      */
-    public static List<LogEvent> getLogEventPath(String[] strEvents) {
-        ArrayList<LogEvent> ret = new ArrayList<LogEvent>();
-        LogEvent prevEvent = null;
+    public static List<EventNode> getLogEventPath(String[] strEvents) {
+        ArrayList<EventNode> ret = new ArrayList<EventNode>();
+        EventNode prevEvent = null;
         for (String strEvent : strEvents) {
-            Action act = new Action(strEvent);
-            LogEvent logEvent = new LogEvent(act);
+            Event act = new Event(strEvent);
+            EventNode logEvent = new EventNode(act);
             ret.add(logEvent);
             if (prevEvent != null) {
                 prevEvent.addTransition(logEvent, defRelation);

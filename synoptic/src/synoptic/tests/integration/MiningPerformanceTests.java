@@ -16,7 +16,7 @@ import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.tests.SynopticTest;
 
 @RunWith(value = Parameterized.class)
@@ -88,14 +88,14 @@ public class MiningPerformanceTests extends SynopticTest {
 
             // //////
             startTime = System.currentTimeMillis();
-            ArrayList<LogEvent> parsedEvents = parseLogEvents(traces, parser);
+            ArrayList<EventNode> parsedEvents = parseLogEvents(traces, parser);
             delta = System.currentTimeMillis() - startTime;
             // ////////
             System.out.println("Done with parsing trace in: " + delta + "ms");
 
             // //////
             startTime = System.currentTimeMillis();
-            Graph<LogEvent> inputGraph = parser
+            Graph<EventNode> inputGraph = parser
                     .generateDirectTemporalRelation(parsedEvents);
             delta = System.currentTimeMillis() - startTime;
             // ////////

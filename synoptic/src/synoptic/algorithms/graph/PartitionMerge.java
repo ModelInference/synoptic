@@ -1,6 +1,6 @@
 package synoptic.algorithms.graph;
 
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.util.InternalSynopticException;
@@ -38,7 +38,7 @@ public class PartitionMerge implements IOperation {
         int retainedSize = retained.size();
         int removedSize = removed.size();
         PartitionSplit split = new PartitionSplit(retained, removed);
-        for (LogEvent m : removed.getEvents()) {
+        for (EventNode m : removed.getEvents()) {
             split.addEventToSplit(m);
         }
         retained.addAllMessages(removed.getEvents());

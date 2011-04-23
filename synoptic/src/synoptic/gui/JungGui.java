@@ -45,6 +45,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants;
 
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.functors.MapTransformer;
@@ -73,7 +74,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
@@ -97,13 +98,13 @@ public class JungGui extends JApplet implements Printable {
     /**
      * Java frame used by the gui.
      */
-    private JFrame frame;
+    private final JFrame frame;
 
     /**
      * The partition graph maintained by Synoptic.
      */
-    private PartitionGraph pGraph;
-    
+    private final PartitionGraph pGraph;
+
     /**
      * Buttons for refinement options
      */
@@ -207,33 +208,32 @@ public class JungGui extends JApplet implements Printable {
         jGraph = getJGraph();
 
         frame = new JFrame();
-        
-        
-        frame.addComponentListener(new ComponentListener () 
-        {
+
+        frame.addComponentListener(new ComponentListener() {
+            @Override
             public void componentResized(ComponentEvent e) {
                 resizePanel();
             }
 
-			@Override
-			public void componentMoved(ComponentEvent e) {
-			}
+            @Override
+            public void componentMoved(ComponentEvent e) {
+            }
 
-			@Override
-			public void componentShown(ComponentEvent e) {
-			}
+            @Override
+            public void componentShown(ComponentEvent e) {
+            }
 
-			@Override
-			public void componentHidden(ComponentEvent e) {
-			}
+            @Override
+            public void componentHidden(ComponentEvent e) {
+            }
         });
-        
+
         setUpGui();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 
         addMenuBar(frame);
-        
+
         frame.getContentPane().add(this);
         frame.pack();
         frame.setVisible(true);
@@ -251,8 +251,8 @@ public class JungGui extends JApplet implements Printable {
         createFileMenu(fileMenu);
         menuBar.add(fileMenu);
 
-        //JMenu actionsMenu = new JMenu("Synoptic Actions");
-        
+        // JMenu actionsMenu = new JMenu("Synoptic Actions");
+
         JMenu graphLayouts = new JMenu("Graph Layouts");
         createLayoutsMenu(graphLayouts);
         menuBar.add(graphLayouts);
@@ -260,7 +260,7 @@ public class JungGui extends JApplet implements Printable {
         menuBar.add(createRefineButton());
         menuBar.add(createTotalRefineButton());
         menuBar.add(createViewPathsButton());
-        
+
         frame.setJMenuBar(menuBar);
 
     }
@@ -278,7 +278,7 @@ public class JungGui extends JApplet implements Printable {
                 }
             }
         });
-        
+
         fileMenu.add(new AbstractAction("Print") {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -302,109 +302,125 @@ public class JungGui extends JApplet implements Printable {
             }
         });
         fileMenu.add(help);
-        
-        fileMenu.add(new AbstractAction("Export as Graphviz dot file and PNG"){
-        	@Override
-        	public void actionPerformed(ActionEvent e){
-        		String filename = JOptionPane.showInputDialog("Enter name for this export:");
-        		if(filename != null && filename.length() > 0){
-        			GraphVizExporter exporter = new GraphVizExporter();
-        			if (Main.outputPathPrefix != null) {
-        				try {
-        					exporter.exportAsDotAndPngFast(Main.outputPathPrefix
-        							+ "." + filename + ".dot", pGraph, false);
-        				} catch (Exception e1) {
-        					e1.printStackTrace();
-        				}
-        			} else {
-        				JOptionPane.showMessageDialog(frame, "Cannot output " + filename + 
-        						"graph. Specify output path prefix using:\n\t"
-        						+ Main.getCmdLineOptDesc("outputPathPrefix"));
-        			}
-        		}
-        	}
-        });    
-    }
-    
-    public JButton createViewPathsButton() {
-    	JButton viewPaths = new JButton("View trace paths through selected vertices");
-    	viewPaths.addActionListener(new ActionListener() {
-    		@Override
-    		public void actionPerformed(ActionEvent e) {
-    			PickedState<INode<Partition>> pState = vizViewer.getPickedVertexState();
-    			Set<INode<Partition>> pickedVertices = pState.getPicked();
-    			if ( !pickedVertices.isEmpty() ) {
-    				List<Set<String>> partitionIDs = new ArrayList<Set<String>>();
-    				Set<String> temp;
-     				for ( INode<Partition> v : pickedVertices ) {
-     					temp = new HashSet<String>();
-     					for ( LogEvent event : ((Partition) v).getEvents() ) {
-                        	if ( event.getTraceID() != null ) {
-                        		temp.add(event.getTraceID());
-                            }
-                        }
-     					if ( !temp.isEmpty() ){
-     						partitionIDs.add(temp);
-     					}
-     				}
-     				if ( !partitionIDs.isEmpty() ) {
-     					Set<String> intersectionOfIDs = partitionIDs.get(0);
-     					for ( int i = 1; i < partitionIDs.size(); i++ ){
-     						intersectionOfIDs.retainAll(partitionIDs.get(i));
-     					}
-     					// Now intersectionOfIDs is a set intersection of the traceIDs for the current selected vertices
-     					
-     					if ( !intersectionOfIDs.isEmpty() ){
-     						// walk the partition graph starting from the INITIAL 
-     	    				//		node as many times as there are trace ids in the intersection.
-     						for (String trace : intersectionOfIDs ) {
-     							// walk the graph starting from INITIAL following LogEvents with trace id
-     						}
-     						System.out.println(intersectionOfIDs);
-     					}
-     				}
-     				
-     				
-     				
-     				
-    				/*1. Enumerate all traces (i.e. initial trace parser partitions) so that each trace has a unique id
-    				2. Associate a trace's trace id with all LogEvent instances that make up the trace
-    				3. When the user selects a set of partitions, determine which LogEvents belong to those 
-    				partitions and compute the set intersection of all the corresponding trace ids
-    				4. If the intersection is non-empty then walk the partition graph starting from the INITIAL 
-    				node as many times as there are trace ids in the intersection.
-    				5. On each walk, follow the LogEvents with the trace id (using inter-LogEvent transitions)
-    				 and highlight those partitions that contain each of the corresponding LogEvents
-    				*/
-    			}
-    		}
-    	});
-    	return viewPaths;
-    }
-    
-    public JButton createTotalRefineButton(){
-    	totalRefine = new JButton("Completely refine");
-    	totalRefine.addActionListener(new ActionListener() {
+
+        fileMenu.add(new AbstractAction("Export as Graphviz dot file and PNG") {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	List<RelationPath<Partition>> counterExampleTraces = null;
+                String filename = JOptionPane
+                        .showInputDialog("Enter name for this export:");
+                if (filename != null && filename.length() > 0) {
+                    GraphVizExporter exporter = new GraphVizExporter();
+                    if (Main.outputPathPrefix != null) {
+                        try {
+                            exporter.exportAsDotAndPngFast(
+                                    Main.outputPathPrefix + "." + filename
+                                            + ".dot", pGraph, false);
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+                    } else {
+                        JOptionPane
+                                .showMessageDialog(
+                                        frame,
+                                        "Cannot output "
+                                                + filename
+                                                + "graph. Specify output path prefix using:\n\t"
+                                                + Main.getCmdLineOptDesc("outputPathPrefix"));
+                    }
+                }
+            }
+        });
+    }
+
+    public JButton createViewPathsButton() {
+        JButton viewPaths = new JButton(
+                "View trace paths through selected vertices");
+        viewPaths.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PickedState<INode<Partition>> pState = vizViewer
+                        .getPickedVertexState();
+                Set<INode<Partition>> pickedVertices = pState.getPicked();
+                if (!pickedVertices.isEmpty()) {
+                    List<Set<Integer>> partitionIDs = new ArrayList<Set<Integer>>();
+                    Set<Integer> temp;
+                    for (INode<Partition> v : pickedVertices) {
+                        temp = new HashSet<Integer>();
+                        for (EventNode event : ((Partition) v).getEvents()) {
+                            if (event.getTraceID() != 0) {
+                                temp.add(event.getTraceID());
+                            }
+                        }
+                        if (!temp.isEmpty()) {
+                            partitionIDs.add(temp);
+                        }
+                    }
+                    if (!partitionIDs.isEmpty()) {
+                        Set<Integer> intersectionOfIDs = partitionIDs.get(0);
+                        for (int i = 1; i < partitionIDs.size(); i++) {
+                            intersectionOfIDs.retainAll(partitionIDs.get(i));
+                        }
+                        // Now intersectionOfIDs is a set intersection of the
+                        // traceIDs for the current selected vertices
+
+                        if (!intersectionOfIDs.isEmpty()) {
+                            // walk the partition graph starting from the
+                            // INITIAL
+                            // node as many times as there are trace ids in the
+                            // intersection.
+                            for (Integer trace : intersectionOfIDs) {
+                                // TODO: walk the graph starting from INITIAL
+                                // following LogEvents with trace id
+                            }
+                            System.out.println(intersectionOfIDs);
+                        }
+                    }
+
+                    /*
+                     * 1. Enumerate all traces (i.e. initial trace parser
+                     * partitions) so that each trace has a unique id 2.
+                     * Associate a trace's trace id with all LogEvent instances
+                     * that make up the trace 3. When the user selects a set of
+                     * partitions, determine which LogEvents belong to those
+                     * partitions and compute the set intersection of all the
+                     * corresponding trace ids 4. If the intersection is
+                     * non-empty then walk the partition graph starting from the
+                     * INITIAL node as many times as there are trace ids in the
+                     * intersection. 5. On each walk, follow the LogEvents with
+                     * the trace id (using inter-LogEvent transitions) and
+                     * highlight those partitions that contain each of the
+                     * corresponding LogEvents
+                     */
+                }
+            }
+        });
+        return viewPaths;
+    }
+
+    public JButton createTotalRefineButton() {
+        totalRefine = new JButton("Completely refine");
+        totalRefine.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                List<RelationPath<Partition>> counterExampleTraces = null;
                 // Retrieve the counter-examples for the unsatisfied invariants.
                 counterExampleTraces = new TemporalInvariantSet(
                         unsatisfiedInvariants).getAllCounterExamples(pGraph);
                 unsatisfiedInvariants.clear();
-                while(counterExampleTraces != null
-                        && counterExampleTraces.size() > 0){
-                	
-                	refine(counterExampleTraces);
-                	counterExampleTraces = new TemporalInvariantSet(
-                            unsatisfiedInvariants).getAllCounterExamples(pGraph);
+                while (counterExampleTraces != null
+                        && counterExampleTraces.size() > 0) {
+
+                    refine(counterExampleTraces);
+                    counterExampleTraces = new TemporalInvariantSet(
+                            unsatisfiedInvariants)
+                            .getAllCounterExamples(pGraph);
                 }
                 disableRefinement();
             }
-    	});
-    	return totalRefine;
+        });
+        return totalRefine;
     }
-    	
+
     public JButton createRefineButton() {
         refineOption = new JButton("Refine once");
         refineOption.addActionListener(new ActionListener() {
@@ -417,26 +433,26 @@ public class JungGui extends JApplet implements Printable {
                 unsatisfiedInvariants.clear();
                 if (counterExampleTraces != null
                         && counterExampleTraces.size() > 0) {
-                  refine(counterExampleTraces);
+                    refine(counterExampleTraces);
 
                 } else {
-                	disableRefinement();
+                    disableRefinement();
                 }
             }
         });
         return refineOption;
     }
-    
-    private void disableRefinement(){
-    	 // Set all partitions to 'old'.
+
+    private void disableRefinement() {
+        // Set all partitions to 'old'.
         oldPartitions = newPartitions;
         refineOption.setEnabled(false);
         totalRefine.setEnabled(false);
         // Refresh the graphics state.
         JungGui.this.repaint();
     }
-    
-    private void refine(List<RelationPath<Partition>> counterExampleTraces){
+
+    private void refine(List<RelationPath<Partition>> counterExampleTraces) {
         // Perform a single refinement step.
         numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
                 numSplitSteps, pGraph, counterExampleTraces);
@@ -448,8 +464,7 @@ public class JungGui extends JApplet implements Printable {
             newPartitions.put(p, p.getEvents().size());
         }
 
-        vizViewer.getGraphLayout().setGraph(
-                JungGui.this.getJGraph());
+        vizViewer.getGraphLayout().setGraph(JungGui.this.getJGraph());
         // TODO: there must be a better way for the vizViewer to
         // refresh its state..
         vizViewer.setGraphLayout(vizViewer.getGraphLayout());
@@ -479,7 +494,7 @@ public class JungGui extends JApplet implements Printable {
                     selectLayout(labels.get(layout));
                 }
             });
-            
+
             if (layout.equals("Force-Directed")) {
                 temp.setSelected(true);
             }
@@ -637,10 +652,9 @@ public class JungGui extends JApplet implements Printable {
 
         vizViewer.setGraphMouse(graphMouse);
         vizViewer.addKeyListener(graphMouse.getModeKeyListener());
-        
+
         JPanel logLineWindow = new JPanel(new BorderLayout());
-      
-       
+
         CustomMousePlugin mousePlugIn = new CustomMousePlugin(logLineWindow);
         vizViewer.addMouseListener(mousePlugIn);
         frame.add(logLineWindow, BorderLayout.SOUTH);
@@ -686,44 +700,45 @@ public class JungGui extends JApplet implements Printable {
             return Printable.PAGE_EXISTS;
         }
     }
+
     // questionable
     private JTable table;
     private final int scrollBarWidth = 28;
-    private  TableColumnAdjuster adjuster;
-    
+    private TableColumnAdjuster adjuster;
+
     protected class CustomMousePlugin implements MouseListener {
-    	private final Dimension defaultSize = new Dimension(600, 100);
-        private LogLineTableModel dataModel;
-        //private TableColumnAdjuster adjuster;
-        //private Table table;
-        
+        private final Dimension defaultSize = new Dimension(600, 100);
+        private final LogLineTableModel dataModel;
+
+        // private TableColumnAdjuster adjuster;
+        // private Table table;
+
         public CustomMousePlugin(JPanel logLineWindow) {
-        	dataModel = new LogLineTableModel(new Object[0][0]);
+            dataModel = new LogLineTableModel(new Object[0][0]);
             table = new JTable(dataModel);
-     
+
             table.getColumnModel().getColumn(0).setHeaderValue("Line #");
             table.getColumnModel().getColumn(1).setHeaderValue("Line");
             table.getColumnModel().getColumn(2).setHeaderValue("File");
-            
+
             table.setMinimumSize(defaultSize);
             table.setPreferredSize(defaultSize);
             table.setPreferredScrollableViewportSize(defaultSize);
-            
 
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             table.setFillsViewportHeight(true);
-            
 
             JScrollPane scrollPane = new JScrollPane(table);
-            
+
             scrollPane.setViewportView(table);
-            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-            
+            scrollPane
+                    .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            scrollPane
+                    .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+
             adjuster = new TableColumnAdjuster(table);
             logLineWindow.add(scrollPane);
-            
-            
+
         }
 
         @Override
@@ -732,24 +747,26 @@ public class JungGui extends JApplet implements Printable {
                 final Point2D p = e.getPoint();
                 GraphElementAccessor<INode<Partition>, ITransition<Partition>> location = vizViewer
                         .getPickSupport();
-                
+
                 if (location != null) {
-                	final Partition vertex = (Partition) location.getVertex(
+                    final Partition vertex = (Partition) location.getVertex(
                             layout, p.getX(), p.getY());
-                    
-                	if (vertex != null) {
-                		
-                        ArrayList <String[]> validLines = new ArrayList <String[]>();
-                        for ( LogEvent event : vertex.getEvents() ) {
-                        	if ( event.getLine() != null ) {
-                        		validLines.add(new String[] { event.getLineNum(), 
-                                        event.getLine(), event.getShortFileName() });
+
+                    if (vertex != null) {
+
+                        ArrayList<String[]> validLines = new ArrayList<String[]>();
+                        for (EventNode event : vertex.getEvents()) {
+                            if (event.getLine() != null) {
+                                validLines.add(new String[] {
+                                        event.getLineNum(), event.getLine(),
+                                        event.getShortFileName() });
                             }
                         }
-                        Object [][] data = validLines.toArray(new Object[validLines.size()][3]);
+                        Object[][] data = validLines
+                                .toArray(new Object[validLines.size()][3]);
                         dataModel.setData(data);
                         resizePanel();
-                     }
+                    }
                 }
             }
         }
@@ -770,10 +787,13 @@ public class JungGui extends JApplet implements Printable {
         public void mouseExited(MouseEvent e) {
         }
     }
-    
-    private void resizePanel(){
-    	adjuster.adjustColumns();
-        int width = Math.max(frame.getWidth() - scrollBarWidth, table.getColumnModel().getTotalColumnWidth());
-    	table.setPreferredSize(new Dimension(width, (table.getRowHeight() + table.getRowMargin()) * table.getRowCount()));
+
+    private void resizePanel() {
+        adjuster.adjustColumns();
+        int width = Math.max(frame.getWidth() - scrollBarWidth, table
+                .getColumnModel().getTotalColumnWidth());
+        table.setPreferredSize(new Dimension(width,
+                (table.getRowHeight() + table.getRowMargin())
+                        * table.getRowCount()));
     }
 }

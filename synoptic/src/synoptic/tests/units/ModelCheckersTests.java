@@ -25,7 +25,7 @@ import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.Transition;
@@ -117,8 +117,8 @@ public class ModelCheckersTests extends SynopticTest {
             int lastCExampleIndex) throws InternalSynopticException,
             ParseException {
         // Create the graph.
-        Graph<LogEvent> g = genInitialLinearGraph(events);
-        Set<LogEvent> initNodes = g.getInitialNodes();
+        Graph<EventNode> g = genInitialLinearGraph(events);
+        Set<EventNode> initNodes = g.getInitialNodes();
 
         if (!cExampleExists) {
             // Don't bother constructing the counter-example path.
@@ -130,8 +130,8 @@ public class ModelCheckersTests extends SynopticTest {
         assertTrue(initNodes.size() == 1);
 
         // Build the expectedPath by traversing the entire graph.
-        LinkedList<LogEvent> expectedPath = new LinkedList<LogEvent>();
-        LogEvent nextNode = initNodes.iterator().next();
+        LinkedList<EventNode> expectedPath = new LinkedList<EventNode>();
+        EventNode nextNode = initNodes.iterator().next();
         expectedPath.add(nextNode);
         for (int i = 1; i <= lastCExampleIndex; i++) {
             nextNode = nextNode.getTransitions().get(0).getTarget();
@@ -190,7 +190,7 @@ public class ModelCheckersTests extends SynopticTest {
         for (int i = 0; i < cExampleLabels.length; i++) {
             String nextLabel = cExampleLabels[i];
             for (Transition<Partition> transition : nextNode.getTransitions()) {
-                for (LogEvent event : transition.getTarget().getEvents()) {
+                for (EventNode event : transition.getTarget().getEvents()) {
                     if (event.getLabel().equals(nextLabel)) {
                         nextNode = transition.getTarget();
                         expectedPath.add(nextNode);

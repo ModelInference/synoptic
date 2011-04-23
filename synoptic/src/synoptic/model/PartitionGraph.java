@@ -40,13 +40,13 @@ public class PartitionGraph implements IGraph<Partition> {
      * track of the initial messages but we need to do this for every relation,
      * which is specified by the first argument to the hash-map.
      */
-    private final LinkedHashMap<String, Set<LogEvent>> initialEvents = new LinkedHashMap<String, Set<LogEvent>>();
+    private final LinkedHashMap<String, Set<EventNode>> initialEvents = new LinkedHashMap<String, Set<EventNode>>();
 
     /**
      * Holds the terminal messages in this graph. Like the initialMessages
      * above, this hash-map maintains them w.r.t the relations.
      */
-    private final LinkedHashMap<String, Set<LogEvent>> terminalEvents = new LinkedHashMap<String, Set<LogEvent>>();
+    private final LinkedHashMap<String, Set<EventNode>> terminalEvents = new LinkedHashMap<String, Set<EventNode>>();
 
     /** holds synoptic.invariants that were mined when the graph was created */
     private TemporalInvariantSet invariants = null;
@@ -68,7 +68,7 @@ public class PartitionGraph implements IGraph<Partition> {
      * @param partitionByLabel
      *            Whether initial partitioning by label should be done
      */
-    public PartitionGraph(IGraph<LogEvent> g, boolean partitionByLabel,
+    public PartitionGraph(IGraph<EventNode> g, boolean partitionByLabel,
             TemporalInvariantSet invariants) {
         for (String relation : g.getRelations()) {
             addInitialMessages(g.getInitialNodes(relation), relation);
@@ -83,7 +83,7 @@ public class PartitionGraph implements IGraph<Partition> {
         this.invariants = invariants;
     }
 
-    public PartitionGraph(IGraph<LogEvent> g,
+    public PartitionGraph(IGraph<EventNode> g,
             LinkedList<LinkedHashSet<Integer>> partitioningIndexSets,
             TemporalInvariantSet invariants) {
         for (String relation : g.getRelations()) {
@@ -95,10 +95,10 @@ public class PartitionGraph implements IGraph<Partition> {
         this.invariants = invariants;
     }
 
-    private void addInitialMessages(Set<LogEvent> initialMessages,
+    private void addInitialMessages(Set<EventNode> initialMessages,
             String relation) {
         if (!initialEvents.containsKey(relation)) {
-            initialEvents.put(relation, new LinkedHashSet<LogEvent>());
+            initialEvents.put(relation, new LinkedHashSet<EventNode>());
         }
         initialEvents.get(relation).addAll(initialMessages);
     }
@@ -107,7 +107,7 @@ public class PartitionGraph implements IGraph<Partition> {
         return invariants;
     }
 
-    public Partition partitionFromMessage(LogEvent message) {
+    public Partition partitionFromMessage(EventNode message) {
         return message.getParent();
     }
 
@@ -142,16 +142,16 @@ public class PartitionGraph implements IGraph<Partition> {
      * @param events
      *            Set of message which to be partitioned
      */
-    private void partitionByLabels(Collection<LogEvent> events) {
+    private void partitionByLabels(Collection<EventNode> events) {
         partitions = new LinkedHashSet<Partition>();
         final Map<String, Partition> prepartitions = new LinkedHashMap<String, Partition>();
-        for (LogEvent message : events) {
-            for (ITransition<LogEvent> t : message.getTransitions()) {
+        for (EventNode message : events) {
+            for (ITransition<EventNode> t : message.getTransitions()) {
                 relations.add(t.getRelation());
             }
             if (!prepartitions.containsKey(message.getLabel())) {
                 final Partition partition = new Partition(
-                        new LinkedHashSet<LogEvent>());
+                        new LinkedHashSet<EventNode>());
                 partitions.add(partition);
                 prepartitions.put(message.getLabel(), partition);
             }
@@ -160,14 +160,14 @@ public class PartitionGraph implements IGraph<Partition> {
         transitionCache.clear();
     }
 
-    private void partitionByIndexSetsAndLabels(Collection<LogEvent> events,
+    private void partitionByIndexSetsAndLabels(Collection<EventNode> events,
             LinkedList<LinkedHashSet<Integer>> partitioningIndexSets) {
         // 1. partition by labels.
         partitionByLabels(events);
         // 2. Map each message to a node in the system.
 
         // TODO: do this using the new algorithm.
-        LinkedHashMap<LogEvent, Integer> messageIndexMap = new LinkedHashMap<LogEvent, Integer>();
+        LinkedHashMap<EventNode, Integer> messageIndexMap = new LinkedHashMap<EventNode, Integer>();
 
         LinkedHashSet<Partition> newPartitions = new LinkedHashSet<Partition>();
 
@@ -178,7 +178,7 @@ public class PartitionGraph implements IGraph<Partition> {
             Partition[] subPartitions = new Partition[partitioningIndexSets
                     .size()];
 
-            for (LogEvent m : p.events) {
+            for (EventNode m : p.events) {
                 Integer index = messageIndexMap.get(m);
                 if (index == null) {
                     throw new InternalSynopticException(
@@ -219,24 +219,24 @@ public class PartitionGraph implements IGraph<Partition> {
 
     }
 
-    private void partitionByLabelsAndInitial(Collection<LogEvent> events,
-            Set<LogEvent> initial) {
+    private void partitionByLabelsAndInitial(Collection<EventNode> events,
+            Set<EventNode> initial) {
         partitions = new LinkedHashSet<Partition>();
         final Map<String, Partition> prepartitions = new LinkedHashMap<String, Partition>();
-        for (LogEvent message : events) {
-            for (ITransition<LogEvent> t : message.getTransitions()) {
+        for (EventNode message : events) {
+            for (ITransition<EventNode> t : message.getTransitions()) {
                 relations.add(t.getRelation());
             }
             if (!prepartitions.containsKey(message.getLabel())) {
                 final Partition partition = new Partition(
-                        new LinkedHashSet<LogEvent>());
+                        new LinkedHashSet<EventNode>());
                 prepartitions.put(message.getLabel(), partition);
             }
             prepartitions.get(message.getLabel()).addMessage(message);
         }
         for (Partition t : prepartitions.values()) {
-            LinkedHashSet<LogEvent> iSet = new LinkedHashSet<LogEvent>();
-            for (LogEvent e : t.getEvents()) {
+            LinkedHashSet<EventNode> iSet = new LinkedHashSet<EventNode>();
+            for (EventNode e : t.getEvents()) {
                 if (initial.contains(e)) {
                     iSet.add(e);
                 }
@@ -258,13 +258,13 @@ public class PartitionGraph implements IGraph<Partition> {
      * @param events
      *            Set of message to map
      */
-    private void partitionSeparately(Collection<LogEvent> events) {
+    private void partitionSeparately(Collection<EventNode> events) {
         partitions = new LinkedHashSet<Partition>();
-        final Map<LogEvent, Partition> prepartitions = new LinkedHashMap<LogEvent, Partition>();
-        for (LogEvent message : events) {
+        final Map<EventNode, Partition> prepartitions = new LinkedHashMap<EventNode, Partition>();
+        for (EventNode message : events) {
             if (!prepartitions.containsKey(message)) {
                 final Partition partition = new Partition(
-                        new LinkedHashSet<LogEvent>());
+                        new LinkedHashSet<EventNode>());
                 partitions.add(partition);
                 prepartitions.put(message, partition);
             }
@@ -278,7 +278,7 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     private Set<Partition> getAllRelationsLogEventPartitions(
-            LinkedHashMap<String, Set<LogEvent>> map) {
+            LinkedHashMap<String, Set<EventNode>> map) {
         Set<Partition> ret = new LinkedHashSet<Partition>();
         for (String relation : getRelations()) {
             ret.addAll(getRelationLogEventPartitions(relation, map));
@@ -287,13 +287,13 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     private Set<Partition> getRelationLogEventPartitions(String relation,
-            LinkedHashMap<String, Set<LogEvent>> map) {
+            LinkedHashMap<String, Set<EventNode>> map) {
         Set<Partition> ret = new LinkedHashSet<Partition>();
-        Set<LogEvent> events = map.get(relation);
+        Set<EventNode> events = map.get(relation);
         if (events == null) {
             return ret;
         }
-        for (LogEvent m : events) {
+        for (EventNode m : events) {
             ret.add(m.getParent());
         }
         return ret;
@@ -324,7 +324,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
     @Override
     public void add(Partition node) {
-        for (LogEvent m : node.getEvents()) {
+        for (EventNode m : node.getEvents()) {
             relations.addAll(m.getRelations());
         }
         partitions.add(node);
@@ -375,9 +375,9 @@ public class PartitionGraph implements IGraph<Partition> {
                 "PartitionGraph tags terminal partitions implicitly -- by considering the LogEvents the partition contains.");
     }
 
-    public Set<LogEvent> getInitialMessages() {
-        Set<LogEvent> initial = new LinkedHashSet<LogEvent>();
-        for (Set<LogEvent> set : initialEvents.values()) {
+    public Set<EventNode> getInitialMessages() {
+        Set<EventNode> initial = new LinkedHashSet<EventNode>();
+        for (Set<EventNode> set : initialEvents.values()) {
             initial.addAll(set);
         }
         return initial;
@@ -388,7 +388,7 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     public void checkSanity() {
         int totalCount = 0;
-        Set<LogEvent> all = new LinkedHashSet<LogEvent>();
+        Set<EventNode> all = new LinkedHashSet<EventNode>();
         for (Partition p : getNodes()) {
             if (p.size() == 0) {
                 throw new InternalSynopticException(

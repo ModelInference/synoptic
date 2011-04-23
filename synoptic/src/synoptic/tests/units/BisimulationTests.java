@@ -16,7 +16,7 @@ import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.tests.SynopticTest;
@@ -56,9 +56,9 @@ public class BisimulationTests extends SynopticTest {
                 "2,0,4 c", "2,1,5 d", "2,1,6 d" };
         String traceStr = concatinateWithNewlines(traceStrArray);
 
-        ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+        ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
-        Graph<LogEvent> inputGraph = parser
+        Graph<EventNode> inputGraph = parser
                 .generateDirectTemporalRelation(parsedEvents);
 
         InvariantMiner miner = new TCInvariantMiner();
@@ -91,9 +91,9 @@ public class BisimulationTests extends SynopticTest {
         String traceStr = concatinateWithNewlines(traceStrArray);
 
         TraceParser defParser = genDefParser();
-        ArrayList<LogEvent> parsedEvents = defParser.parseTraceString(traceStr,
+        ArrayList<EventNode> parsedEvents = defParser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
-        Graph<LogEvent> inputGraph = defParser
+        Graph<EventNode> inputGraph = defParser
                 .generateDirectTemporalRelation(parsedEvents);
 
         exportTestGraph(inputGraph, 0);
@@ -121,7 +121,7 @@ public class BisimulationTests extends SynopticTest {
             }
 
             assertTrue(p.getEvents().size() == 1);
-            LogEvent e = p.getEvents().iterator().next();
+            EventNode e = p.getEvents().iterator().next();
             logger.fine("Check partition: " + p.toString() + " and e: "
                     + e.toString());
             assertTrue(parsedEvents.contains(e));
@@ -142,9 +142,9 @@ public class BisimulationTests extends SynopticTest {
                 "1,2,3 c", "2,2,4 d" };
         String traceStr = concatinateWithNewlines(traceStrArray);
 
-        ArrayList<LogEvent> parsedEvents = parser.parseTraceString(traceStr,
+        ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
-        Graph<LogEvent> inputGraph = parser
+        Graph<EventNode> inputGraph = parser
                 .generateDirectTemporalRelation(parsedEvents);
 
         PartitionGraph pGraph = new PartitionGraph(inputGraph, false, null);

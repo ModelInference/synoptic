@@ -24,26 +24,25 @@ import synoptic.invariants.TCInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
-import synoptic.main.TraceParser;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
-import synoptic.model.PartitionGraph;
+import synoptic.model.EventNode;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 
 /**
- * Tests for mining invariants using three different mining algorithms.
+ * Tests for mining invariants from totally ordered (TO) logs using three
+ * different mining algorithms.
  * 
  * @author ivan
  */
 @RunWith(value = Parameterized.class)
-public class InvariantMiningTests extends SynopticTest {
+public class TOLogInvariantMiningTests extends SynopticTest {
 
     InvariantMiner miner = null;
 
     /**
-     * Generates parameters for this unit test. The one and only parameter right
-     * now is the miner instance to use for mining invariants.
+     * Generates parameters for this unit test. The only parameter right now is
+     * the miner instance to use for mining invariants.
      * 
      * @return The set of parameters to pass to the constructor the unit test.
      */
@@ -55,7 +54,7 @@ public class InvariantMiningTests extends SynopticTest {
         return Arrays.asList(data);
     }
 
-    public InvariantMiningTests(InvariantMiner minerToUse) {
+    public TOLogInvariantMiningTests(InvariantMiner minerToUse) {
         miner = minerToUse;
     }
 
@@ -92,7 +91,7 @@ public class InvariantMiningTests extends SynopticTest {
      * @throws Exception
      */
     public TemporalInvariantSet genInvariants(String[] events) throws Exception {
-        Graph<LogEvent> inputGraph = genInitialLinearGraph(events);
+        Graph<EventNode> inputGraph = genInitialLinearGraph(events);
         return miner.computeInvariants(inputGraph);
     }
 
@@ -175,7 +174,7 @@ public class InvariantMiningTests extends SynopticTest {
         }
 
         // Generate set including tautological invariants.
-        Graph<LogEvent> inputGraph = genInitialLinearGraph(log);
+        Graph<EventNode> inputGraph = genInitialLinearGraph(log);
         TemporalInvariantSet s1 = null;
         if (miner instanceof TCInvariantMiner) {
             // Generates a TemporalInvariantSet based on a sequence of log
@@ -348,71 +347,6 @@ public class InvariantMiningTests extends SynopticTest {
     }
 
     /**
-     * Tests the correctness of the invariants mined from a partially ordered
-     * log.
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void minePartiallyOrderedTraceTest() throws Exception {
-
-        if (miner instanceof SpecializedInvariantMiner) {
-            // TODO: currently SpecializedInvariantMiner doesn't support
-            // partially ordered traces.
-            return;
-        }
-
-        TraceParser parser = new TraceParser();
-        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
-        parser.addPartitionsSeparator("^--$");
-
-        String[] events = new String[] { "1,1,1 a", "2,2,2 b", "1,2,3 c" };
-        PartitionGraph result = genInitialPartitionGraph(events, parser, miner);
-
-        // PartitionGraph result = new PartitionGraph(inputGraph, true);
-        TemporalInvariantSet minedInvs = result.getInvariants();
-
-        logger.fine("mined: " + minedInvs.toString());
-
-        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
-
-        // Add the "eventually x" invariants.
-        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "a",
-                SynopticTest.defRelation));
-        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "c",
-                SynopticTest.defRelation));
-
-        trueInvs.add(new AlwaysFollowedInvariant("a", "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new AlwaysFollowedInvariant("a", "c",
-                SynopticTest.defRelation));
-
-        trueInvs.add(new NeverFollowedInvariant("a", "a",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("b", "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("c", "c",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("b", "c",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("c", "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("b", "a",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("c", "a",
-                SynopticTest.defRelation));
-
-        trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new AlwaysPrecedesInvariant("a", "c",
-                SynopticTest.defRelation));
-
-        assertTrue(trueInvs.sameInvariants(minedInvs));
-    }
-
-    /**
      * Mines invariants from a randomly generated log and then uses both model
      * checkers to check that every mined invariant actually holds.
      * 
@@ -434,12 +368,12 @@ public class InvariantMiningTests extends SynopticTest {
         String[] eventTypes = new String[] { "--", "a", "b", "c", "d", "e" };
         String[] log = genRandomLog(eventTypes);
 
-        Graph<LogEvent> inputGraph = genInitialLinearGraph(log);
+        Graph<EventNode> inputGraph = genInitialLinearGraph(log);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         // Test with FSM checker.
         Main.useFSMChecker = true;
-        List<RelationPath<LogEvent>> cExamples = minedInvs
+        List<RelationPath<EventNode>> cExamples = minedInvs
                 .getAllCounterExamples(inputGraph);
         if (cExamples != null) {
             logger.fine("log: " + log);

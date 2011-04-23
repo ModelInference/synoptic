@@ -7,7 +7,7 @@ import java.util.Set;
 
 import synoptic.main.Main;
 import synoptic.main.TraceParser;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
@@ -69,7 +69,7 @@ public class SpecializedInvariantMiner extends InvariantMiner {
      * @return the set of temporal invariants that g satisfies
      */
     @Override
-    public TemporalInvariantSet computeInvariants(IGraph<LogEvent> g) {
+    public TemporalInvariantSet computeInvariants(IGraph<EventNode> g) {
         String relation = TraceParser.defaultRelation;
 
         // TODO: we can set the initial capacity of the following HashMaps more
@@ -89,7 +89,12 @@ public class SpecializedInvariantMiner extends InvariantMiner {
                     "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
         }
 
-        LogEvent initNode = g.getInitialNodes().iterator().next();
+        if (g.getInitialNodes().size() != 1) {
+            throw new InternalSynopticException(
+                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
+        }
+
+        EventNode initNode = g.getInitialNodes().iterator().next();
         if (!initNode.getLabel().equals(Main.initialNodeLabel)) {
             throw new InternalSynopticException(
                     "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
@@ -98,10 +103,10 @@ public class SpecializedInvariantMiner extends InvariantMiner {
         boolean firstPartition = true;
 
         // Iterate through all the partitions.
-        for (ITransition<LogEvent> initTrans : initNode.getTransitions()) {
-            LogEvent curNode = initTrans.getTarget();
+        for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
+            EventNode curNode = initTrans.getTarget();
             // First, extract the events in the partition from the graph.
-            ArrayList<LogEvent> partition = new ArrayList<LogEvent>();
+            ArrayList<EventNode> partition = new ArrayList<EventNode>();
             while (curNode.getTransitions().size() != 0) {
                 partition.add(curNode);
                 // ! NOTE: this invariant miner code currently only works for
@@ -118,7 +123,7 @@ public class SpecializedInvariantMiner extends InvariantMiner {
 
             // Forward pass: for each event compute the precedes set, and update
             // its globalEventPrecedesEventCounts map based on this precedes set
-            for (LogEvent e : partition) {
+            for (EventNode e : partition) {
                 String label = e.getLabel();
 
                 // For each preceding label we update the precedingLabel ->

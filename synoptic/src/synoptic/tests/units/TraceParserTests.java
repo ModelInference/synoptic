@@ -15,9 +15,9 @@ import junit.framework.Assert;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
-import synoptic.model.Action;
+import synoptic.model.Event;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBinary;
@@ -180,12 +180,12 @@ public class TraceParserTests extends SynopticTest {
      * @param types
      *            Array of corresponding occurrence types
      */
-    public void checkLogEventTypesVTimes(List<LogEvent> events,
+    public void checkLogEventTypesVTimes(List<EventNode> events,
             String[] vtimeStrs, String[] types) {
         assertSame(events.size(), vtimeStrs.length);
         assertSame(vtimeStrs.length, types.length);
         for (int i = 0; i < events.size(); i++) {
-            LogEvent e = events.get(i);
+            EventNode e = events.get(i);
             ITime eventTime = e.getTime();
             // Check that the type and the time of the occurrence are correct
             assertTrue(e.getLabel().equals(types[i]));
@@ -204,12 +204,12 @@ public class TraceParserTests extends SynopticTest {
      * @param types
      *            Array of corresponding occurrence types
      */
-    public void checkLogEventTypesITimes(List<LogEvent> events,
+    public void checkLogEventTypesITimes(List<EventNode> events,
             String[] vtimeStrs, String[] types) {
         assertSame(events.size(), vtimeStrs.length);
         assertSame(vtimeStrs.length, types.length);
         for (int i = 0; i < events.size(); i++) {
-            LogEvent e = events.get(i);
+            EventNode e = events.get(i);
             ITime eventTime = e.getTime();
             // Check that the type and the time of the occurrence are correct
             assertTrue(e.getLabel().equals(types[i]));
@@ -229,12 +229,12 @@ public class TraceParserTests extends SynopticTest {
      * @param types
      *            Array of corresponding occurrence types
      */
-    public void checkLogEventTypesFTimes(List<LogEvent> events,
+    public void checkLogEventTypesFTimes(List<EventNode> events,
             String[] vtimeStrs, String[] types) {
         assertSame(events.size(), vtimeStrs.length);
         assertSame(vtimeStrs.length, types.length);
         for (int i = 0; i < events.size(); i++) {
-            LogEvent e = events.get(i);
+            EventNode e = events.get(i);
             ITime eventTime = e.getTime();
             // Check that the type and the time of the occurrence are correct
             assertTrue(e.getLabel().equals(types[i]));
@@ -254,12 +254,12 @@ public class TraceParserTests extends SynopticTest {
      * @param types
      *            Array of corresponding occurrence types
      */
-    public void checkLogEventTypesDTimes(List<LogEvent> events,
+    public void checkLogEventTypesDTimes(List<EventNode> events,
             String[] vtimeStrs, String[] types) {
         assertSame(events.size(), vtimeStrs.length);
         assertSame(vtimeStrs.length, types.length);
         for (int i = 0; i < events.size(); i++) {
-            LogEvent e = events.get(i);
+            EventNode e = events.get(i);
             ITime eventTime = e.getTime();
             // Check that the type and the time of the occurrence are correct
             assertTrue(e.getLabel().equals(types[i]));
@@ -352,7 +352,7 @@ public class TraceParserTests extends SynopticTest {
     public void parseSameTimeExceptionTest() throws ParseException,
             InternalSynopticException {
         String traceStr = "1 a\n2 b\n2 c\n";
-        ArrayList<LogEvent> events = null;
+        ArrayList<EventNode> events = null;
         try {
             parser.addRegex("^(?<TIME>)(?<TYPE>)$");
             events = parser.parseTraceString(traceStr, "test", -1);
@@ -371,7 +371,7 @@ public class TraceParserTests extends SynopticTest {
     public void parseSameFTimeExceptionTest() throws ParseException,
             InternalSynopticException {
         String traceStr = "1.1 a\n2.2 b\n2.2 c\n";
-        ArrayList<LogEvent> events = null;
+        ArrayList<EventNode> events = null;
         try {
             parser.addRegex("^(?<FTIME>)(?<TYPE>)$");
             events = parser.parseTraceString(traceStr, "test", -1);
@@ -390,7 +390,7 @@ public class TraceParserTests extends SynopticTest {
     public void parseSameDTimeExceptionTest() throws ParseException,
             InternalSynopticException {
         String traceStr = "1.1 a\n2.2 b\n2.2 c\n";
-        ArrayList<LogEvent> events = null;
+        ArrayList<EventNode> events = null;
         try {
             parser.addRegex("^(?<DTIME>)(?<TYPE>)$");
             events = parser.parseTraceString(traceStr, "test", -1);
@@ -409,7 +409,7 @@ public class TraceParserTests extends SynopticTest {
     public void parseSameVTimeExceptionTest() throws ParseException,
             InternalSynopticException {
         String traceStr = "1,1,2 a\n1,1,2 b\n2,2,2 c\n";
-        ArrayList<LogEvent> events = null;
+        ArrayList<EventNode> events = null;
         try {
             parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
             events = parser.parseTraceString(traceStr, "test", -1);
@@ -484,7 +484,7 @@ public class TraceParserTests extends SynopticTest {
     public void parseDiffLengthVTimesExceptionTest() throws ParseException,
             InternalSynopticException {
         String traceStr = "1,1,2 a\n1,1,2,3 b\n2,2,2 c\n";
-        ArrayList<LogEvent> events = null;
+        ArrayList<EventNode> events = null;
         try {
             parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
             events = parser.parseTraceString(traceStr, "test", -1);
@@ -526,32 +526,32 @@ public class TraceParserTests extends SynopticTest {
     /**
      * Generates the expected graph for the two cases below.
      */
-    private static Graph<LogEvent> genExpectedGraphForTotalOrder(
-            List<LogEvent> events) {
+    private static Graph<EventNode> genExpectedGraphForTotalOrder(
+            List<EventNode> events) {
         // Generate the expected Graph.
-        Graph<LogEvent> expectedGraph = new Graph<LogEvent>();
+        Graph<EventNode> expectedGraph = new Graph<EventNode>();
 
         assertTrue(events.size() == 6);
-        Action dummyAct = Action.NewInitialAction();
-        expectedGraph.setDummyInitial(new LogEvent(dummyAct), defRelation);
-        dummyAct = Action.NewTerminalAction();
-        expectedGraph.setDummyTerminal(new LogEvent(dummyAct));
+        Event dummyAct = Event.newInitialEvent();
+        expectedGraph.setDummyInitial(new EventNode(dummyAct), defRelation);
+        dummyAct = Event.newTerminalEvent();
+        expectedGraph.setDummyTerminal(new EventNode(dummyAct));
 
         expectedGraph.tagInitial(events.get(0), defRelation);
         expectedGraph.tagInitial(events.get(3), defRelation);
         expectedGraph.tagTerminal(events.get(2), defRelation);
         expectedGraph.tagTerminal(events.get(5), defRelation);
 
-        LogEvent prevEvent = events.get(0);
+        EventNode prevEvent = events.get(0);
         expectedGraph.add(prevEvent);
-        for (LogEvent event : events.subList(1, 2)) {
+        for (EventNode event : events.subList(1, 2)) {
             expectedGraph.add(event);
             prevEvent.addTransition(event, defRelation);
         }
 
         prevEvent = events.get(3);
         expectedGraph.add(prevEvent);
-        for (LogEvent event : events.subList(4, 5)) {
+        for (EventNode event : events.subList(4, 5)) {
             expectedGraph.add(event);
             prevEvent.addTransition(event, defRelation);
         }
@@ -572,16 +572,16 @@ public class TraceParserTests extends SynopticTest {
         String traceStr = "1 a\n2 b\n3 c\n--\n1 c\n2 b\n3 a\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
-        ArrayList<LogEvent> events = parser.parseTraceString(traceStr, "test",
+        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
-        Graph<LogEvent> graph = parser.generateDirectTemporalRelation(events);
-        Graph<LogEvent> expectedGraph = genExpectedGraphForTotalOrder(events);
+        Graph<EventNode> graph = parser.generateDirectTemporalRelation(events);
+        Graph<EventNode> expectedGraph = genExpectedGraphForTotalOrder(events);
         // Test graph equality.
         assertTrue(expectedGraph.equalsWith(graph,
-                new IBinary<LogEvent, LogEvent>() {
+                new IBinary<EventNode, EventNode>() {
                     @Override
-                    public boolean eval(LogEvent a, LogEvent b) {
-                        return (a.getAction().equals(b.getAction()));
+                    public boolean eval(EventNode a, EventNode b) {
+                        return (a.getEvent().equals(b.getEvent()));
                     }
                 }));
     }
@@ -596,16 +596,16 @@ public class TraceParserTests extends SynopticTest {
         String traceStr = "1 a\n1 b\n1 c\n2 c\n2 b\n2 a\n";
         parser.addRegex("^(?<PARTITION>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<PARTITION>");
-        ArrayList<LogEvent> events = parser.parseTraceString(traceStr, "test",
+        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
-        Graph<LogEvent> graph = parser.generateDirectTemporalRelation(events);
-        Graph<LogEvent> expectedGraph = genExpectedGraphForTotalOrder(events);
+        Graph<EventNode> graph = parser.generateDirectTemporalRelation(events);
+        Graph<EventNode> expectedGraph = genExpectedGraphForTotalOrder(events);
         // Test graph equality.
         assertTrue(expectedGraph.equalsWith(graph,
-                new IBinary<LogEvent, LogEvent>() {
+                new IBinary<EventNode, EventNode>() {
                     @Override
-                    public boolean eval(LogEvent a, LogEvent b) {
-                        return (a.getAction().equals(b.getAction()));
+                    public boolean eval(EventNode a, EventNode b) {
+                        return (a.getEvent().equals(b.getEvent()));
                     }
                 }));
     }
