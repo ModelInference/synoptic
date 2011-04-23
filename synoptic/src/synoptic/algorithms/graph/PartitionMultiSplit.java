@@ -6,7 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import synoptic.main.Main;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 
@@ -16,7 +16,7 @@ import synoptic.model.PartitionGraph;
  * @author Sigurd Schneider
  */
 public class PartitionMultiSplit implements IOperation {
-    private final ArrayList<Set<LogEvent>> partitioning = new ArrayList<Set<LogEvent>>();
+    private final ArrayList<Set<EventNode>> partitioning = new ArrayList<Set<EventNode>>();
     private final Partition partition;
 
     /**
@@ -30,7 +30,7 @@ public class PartitionMultiSplit implements IOperation {
     public PartitionMultiSplit(PartitionSplit split) {
         partition = split.getPartition();
         partitioning.add(split.getSplitEvents());
-        Set<LogEvent> otherMessages = new LinkedHashSet<LogEvent>(
+        Set<EventNode> otherMessages = new LinkedHashSet<EventNode>(
                 partition.getEvents());
         otherMessages.removeAll(split.getSplitEvents());
         partitioning.add(otherMessages);
@@ -42,7 +42,7 @@ public class PartitionMultiSplit implements IOperation {
         // the graph will hold exactly that set of message events.
         boolean skippedFirst = false;
         ArrayList<Partition> newPartitions = new ArrayList<Partition>();
-        for (Set<LogEvent> set : partitioning) {
+        for (Set<EventNode> set : partitioning) {
             if (!skippedFirst) {
                 skippedFirst = true;
                 continue;
@@ -77,7 +77,7 @@ public class PartitionMultiSplit implements IOperation {
         // NOTE: this string only makes sense before the operation is committed,
         // after a commit() the partition may have a different # of messages!
         StringBuilder sb = new StringBuilder("S." + partition.getLabel() + ".");
-        for (Set<LogEvent> m : partitioning) {
+        for (Set<EventNode> m : partitioning) {
             sb.append(m.size() + "/");
         }
         return sb.toString().substring(0, sb.length() - 1);
@@ -97,9 +97,9 @@ public class PartitionMultiSplit implements IOperation {
             throw new IllegalArgumentException();
         }
 
-        ArrayList<Set<LogEvent>> newSets = new ArrayList<Set<LogEvent>>();
-        for (Set<LogEvent> set : partitioning) {
-            Set<LogEvent> newSet = new LinkedHashSet<LogEvent>(set);
+        ArrayList<Set<EventNode>> newSets = new ArrayList<Set<EventNode>>();
+        for (Set<EventNode> set : partitioning) {
+            Set<EventNode> newSet = new LinkedHashSet<EventNode>(set);
             set.removeAll(split.getSplitEvents());
             newSet.retainAll(split.getSplitEvents());
             newSets.add(newSet);
@@ -108,7 +108,7 @@ public class PartitionMultiSplit implements IOperation {
 
         // Remove all the partitions that are empty as a result of the
         // incorporation.
-        for (Iterator<Set<LogEvent>> iter = partitioning.iterator(); iter
+        for (Iterator<Set<EventNode>> iter = partitioning.iterator(); iter
                 .hasNext();) {
             if (iter.next().size() == 0) {
                 iter.remove();
@@ -135,10 +135,10 @@ public class PartitionMultiSplit implements IOperation {
         if (split.getPartition() != partition) {
             throw new IllegalArgumentException();
         }
-        ArrayList<Set<LogEvent>> newSets = new ArrayList<Set<LogEvent>>();
-        for (Set<LogEvent> set : partitioning) {
-            for (Set<LogEvent> otherSet : split.partitioning) {
-                Set<LogEvent> newSet = new LinkedHashSet<LogEvent>(set);
+        ArrayList<Set<EventNode>> newSets = new ArrayList<Set<EventNode>>();
+        for (Set<EventNode> set : partitioning) {
+            for (Set<EventNode> otherSet : split.partitioning) {
+                Set<EventNode> newSet = new LinkedHashSet<EventNode>(set);
                 set.removeAll(otherSet);
                 newSet.retainAll(otherSet);
                 newSets.add(newSet);
@@ -148,7 +148,7 @@ public class PartitionMultiSplit implements IOperation {
 
         // Remove all the partitions that are empty as a result of the
         // incorporation.
-        for (Iterator<Set<LogEvent>> iter = partitioning.iterator(); iter
+        for (Iterator<Set<EventNode>> iter = partitioning.iterator(); iter
                 .hasNext();) {
             if (iter.next().size() == 0) {
                 iter.remove();

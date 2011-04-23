@@ -4,7 +4,7 @@ public interface ITime {
 
     /**
      * @param t
-     *            the other vtime
+     *            the other itime
      * @return true if (this < t), otherwise returns false
      */
     public abstract boolean lessThan(ITime t);

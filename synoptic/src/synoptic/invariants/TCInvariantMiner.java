@@ -11,7 +11,7 @@ import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
 import synoptic.main.Main;
 import synoptic.main.TraceParser;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
@@ -32,7 +32,7 @@ public class TCInvariantMiner extends InvariantMiner {
     }
 
     @Override
-    public TemporalInvariantSet computeInvariants(IGraph<LogEvent> g) {
+    public TemporalInvariantSet computeInvariants(IGraph<EventNode> g) {
         return computeInvariants(g, true);
     }
 
@@ -49,7 +49,7 @@ public class TCInvariantMiner extends InvariantMiner {
      *            whether or not tautological invariants should be filtered out
      * @return the set of temporal invariants the graph satisfies
      */
-    public TemporalInvariantSet computeInvariants(IGraph<LogEvent> g,
+    public TemporalInvariantSet computeInvariants(IGraph<EventNode> g,
             boolean filterTautological) {
         // Compute the invariants of the input graph.
         Set<ITemporalInvariant> invariants = computeInvariantsFromTC(g);
@@ -63,14 +63,14 @@ public class TCInvariantMiner extends InvariantMiner {
 
     }
 
-    private Set<ITemporalInvariant> computeInvariantsFromTC(IGraph<LogEvent> g) {
+    private Set<ITemporalInvariant> computeInvariantsFromTC(IGraph<EventNode> g) {
         TimedTask mineInvariants = PerformanceMetrics.createTask(
                 "mineInvariants", false);
         try {
 
             TimedTask itc = PerformanceMetrics.createTask(
                     "invariants_transitive_closure", false);
-            AllRelationsTransitiveClosure<LogEvent> transitiveClosure = new AllRelationsTransitiveClosure<LogEvent>(
+            AllRelationsTransitiveClosure<EventNode> transitiveClosure = new AllRelationsTransitiveClosure<EventNode>(
                     g, useWarshall);
 
             // Get the over-approximation.
@@ -117,14 +117,14 @@ public class TCInvariantMiner extends InvariantMiner {
      * @throws Exception
      */
     private static Set<ITemporalInvariant> extractInvariantsFromTC(
-            IGraph<LogEvent> g, TransitiveClosure<LogEvent> tc, String relation) {
-        LinkedHashMap<String, ArrayList<LogEvent>> partitions = new LinkedHashMap<String, ArrayList<LogEvent>>();
+            IGraph<EventNode> g, TransitiveClosure<EventNode> tc, String relation) {
+        LinkedHashMap<String, ArrayList<EventNode>> partitions = new LinkedHashMap<String, ArrayList<EventNode>>();
 
         // Initialize the partitions map: each unique label maps to a list of
         // nodes with that label.
-        for (LogEvent m : g.getNodes()) {
+        for (EventNode m : g.getNodes()) {
             if (!partitions.containsKey(m.getLabel())) {
-                partitions.put(m.getLabel(), new ArrayList<LogEvent>());
+                partitions.put(m.getLabel(), new ArrayList<EventNode>());
             }
             partitions.get(m.getLabel()).add(m);
         }
@@ -135,10 +135,10 @@ public class TCInvariantMiner extends InvariantMiner {
                 boolean neverFollowed = true;
                 boolean alwaysFollowedBy = true;
                 boolean alwaysPreceded = true;
-                for (LogEvent node1 : partitions.get(label1)) {
+                for (EventNode node1 : partitions.get(label1)) {
                     boolean followerFound = false;
                     boolean predecessorFound = false;
-                    for (LogEvent node2 : partitions.get(label2)) {
+                    for (EventNode node2 : partitions.get(label2)) {
                         if (tc.isReachable(node1, node2)) {
                             neverFollowed = false;
                             followerFound = true;
@@ -231,10 +231,10 @@ public class TCInvariantMiner extends InvariantMiner {
     }
 
     private void addToPartition(Set<String> partition,
-            ITransition<LogEvent> trans) {
-        LogEvent curNode = trans.getTarget();
+            ITransition<EventNode> trans) {
+        EventNode curNode = trans.getTarget();
         partition.add(curNode.getLabel());
-        for (ITransition<LogEvent> childTrans : curNode.getTransitions()) {
+        for (ITransition<EventNode> childTrans : curNode.getTransitions()) {
             addToPartition(partition, childTrans);
         }
     }
@@ -252,7 +252,7 @@ public class TCInvariantMiner extends InvariantMiner {
      * @return set of InitialAFbyX invariants
      */
     private Set<ITemporalInvariant> computeINITIALAFbyXInvariants(
-            IGraph<LogEvent> g) {
+            IGraph<EventNode> g) {
         LinkedHashSet<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
         if (g.getInitialNodes().isEmpty()) {
@@ -260,7 +260,7 @@ public class TCInvariantMiner extends InvariantMiner {
                     "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
         }
 
-        LogEvent initNode = g.getInitialNodes().iterator().next();
+        EventNode initNode = g.getInitialNodes().iterator().next();
         if (!initNode.getLabel().equals(Main.initialNodeLabel)) {
             throw new InternalSynopticException(
                     "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
@@ -270,7 +270,7 @@ public class TCInvariantMiner extends InvariantMiner {
 
         boolean firstPartition = true;
         // Iterate through all the partitions.
-        for (ITransition<LogEvent> initTrans : initNode.getTransitions()) {
+        for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
             LinkedHashSet<String> partition = new LinkedHashSet<String>();
             addToPartition(partition, initTrans);
 

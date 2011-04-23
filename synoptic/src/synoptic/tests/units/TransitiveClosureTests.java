@@ -10,9 +10,9 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import synoptic.algorithms.graph.TransitiveClosure;
-import synoptic.model.Action;
+import synoptic.model.Event;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.Transition;
 import synoptic.tests.SynopticTest;
 
@@ -28,21 +28,21 @@ public class TransitiveClosureTests extends SynopticTest {
      */
     @Test
     public void constructorSimpleTest() {
-        Graph<LogEvent> g = new Graph<LogEvent>();
-        LogEvent a = new LogEvent(new Action("a"));
-        LogEvent b = new LogEvent(new Action("b"));
-        LogEvent c = new LogEvent(new Action("c"));
-        LogEvent d = new LogEvent(new Action("d"));
+        Graph<EventNode> g = new Graph<EventNode>();
+        EventNode a = new EventNode(new Event("a"));
+        EventNode b = new EventNode(new Event("b"));
+        EventNode c = new EventNode(new Event("c"));
+        EventNode d = new EventNode(new Event("d"));
 
-        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+        b.addTransition(new Transition<EventNode>(b, c, "followed by"));
+        c.addTransition(new Transition<EventNode>(c, d, "followed by"));
 
         g.add(a);
         g.add(b);
         g.add(c);
         g.add(d);
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
         assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).get(b)
@@ -65,61 +65,61 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void constructorEmptyGraphTest() {
-        Graph<LogEvent> g = new Graph<LogEvent>();
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        Graph<EventNode> g = new Graph<EventNode>();
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
         assertTrue(tc.getTC().isEmpty());
     }
 
     @Test
     public void constructorNullRelationTest() {
-        Graph<LogEvent> g = new Graph<LogEvent>();
-        LogEvent a = new LogEvent(new Action("a"));
-        LogEvent b = new LogEvent(new Action("b"));
-        LogEvent c = new LogEvent(new Action("c"));
-        LogEvent d = new LogEvent(new Action("d"));
+        Graph<EventNode> g = new Graph<EventNode>();
+        EventNode a = new EventNode(new Event("a"));
+        EventNode b = new EventNode(new Event("b"));
+        EventNode c = new EventNode(new Event("c"));
+        EventNode d = new EventNode(new Event("d"));
 
-        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+        b.addTransition(new Transition<EventNode>(b, c, "followed by"));
+        c.addTransition(new Transition<EventNode>(c, d, "followed by"));
 
         g.add(a);
         g.add(b);
         g.add(c);
         g.add(d);
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 null);
         assertTrue(tc.getTC().isEmpty());
     }
 
     @Test
     public void constructorTCCase() {
-        Graph<LogEvent> g = new Graph<LogEvent>();
-        LogEvent a = new LogEvent(new Action("a"));
-        LogEvent b = new LogEvent(new Action("b"));
-        LogEvent c = new LogEvent(new Action("c"));
-        LogEvent d = new LogEvent(new Action("d"));
+        Graph<EventNode> g = new Graph<EventNode>();
+        EventNode a = new EventNode(new Event("a"));
+        EventNode b = new EventNode(new Event("b"));
+        EventNode c = new EventNode(new Event("c"));
+        EventNode d = new EventNode(new Event("d"));
 
-        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Transition<LogEvent>(b, c, "after"));
-        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+        b.addTransition(new Transition<EventNode>(b, c, "after"));
+        c.addTransition(new Transition<EventNode>(c, d, "followed by"));
 
         g.add(a);
         g.add(b);
         g.add(c);
         g.add(d);
 
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        HashMap<LogEvent, HashMap<LogEvent, Boolean>> tc2 = new HashMap<LogEvent, HashMap<LogEvent, Boolean>>();
-        tc2.put(a, new HashMap<LogEvent, Boolean>());
+        HashMap<EventNode, HashMap<EventNode, Boolean>> tc2 = new HashMap<EventNode, HashMap<EventNode, Boolean>>();
+        tc2.put(a, new HashMap<EventNode, Boolean>());
         tc2.get(a).put(b, true);
-        tc2.put(c, new HashMap<LogEvent, Boolean>());
+        tc2.put(c, new HashMap<EventNode, Boolean>());
         tc2.get(c).put(d, true);
         assertTrue(tc2.equals(tc.getTC()));
 
-        tc2.put(d, new HashMap<LogEvent, Boolean>());
+        tc2.put(d, new HashMap<EventNode, Boolean>());
         assertFalse(tc2.equals(tc.getTC()));
     }
 
@@ -128,22 +128,22 @@ public class TransitiveClosureTests extends SynopticTest {
      */
     @Test
     public void constructorSimple2Test() {
-        Graph<LogEvent> g = new Graph<LogEvent>();
-        LogEvent a = new LogEvent(new Action("a"));
-        LogEvent b = new LogEvent(new Action("b"));
-        LogEvent c = new LogEvent(new Action("c"));
-        LogEvent d = new LogEvent(new Action("d"));
+        Graph<EventNode> g = new Graph<EventNode>();
+        EventNode a = new EventNode(new Event("a"));
+        EventNode b = new EventNode(new Event("b"));
+        EventNode c = new EventNode(new Event("c"));
+        EventNode d = new EventNode(new Event("d"));
 
-        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Transition<LogEvent>(b, c, "after"));
-        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+        b.addTransition(new Transition<EventNode>(b, c, "after"));
+        c.addTransition(new Transition<EventNode>(c, d, "followed by"));
 
         g.add(a);
         g.add(b);
         g.add(c);
         g.add(d);
 
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
         assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).get(b));
@@ -167,27 +167,27 @@ public class TransitiveClosureTests extends SynopticTest {
      */
     @Test
     public void constructorSimple3Test() {
-        Graph<LogEvent> g = new Graph<LogEvent>();
-        LogEvent a = new LogEvent(new Action("a"));
-        LogEvent b = new LogEvent(new Action("b"));
-        LogEvent c = new LogEvent(new Action("c"));
-        LogEvent d = new LogEvent(new Action("d"));
+        Graph<EventNode> g = new Graph<EventNode>();
+        EventNode a = new EventNode(new Event("a"));
+        EventNode b = new EventNode(new Event("b"));
+        EventNode c = new EventNode(new Event("c"));
+        EventNode d = new EventNode(new Event("d"));
 
-        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
-        d.addTransition(new Transition<LogEvent>(d, a, "followed by"));
+        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+        b.addTransition(new Transition<EventNode>(b, c, "followed by"));
+        c.addTransition(new Transition<EventNode>(c, d, "followed by"));
+        d.addTransition(new Transition<EventNode>(d, a, "followed by"));
 
         g.add(a);
         g.add(b);
         g.add(c);
         g.add(d);
 
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        for (LogEvent z : g.getNodes()) {
-            for (LogEvent y : g.getNodes()) {
+        for (EventNode z : g.getNodes()) {
+            for (EventNode y : g.getNodes()) {
                 assertTrue(tc.getTC().containsKey(z));
                 logger.fine("testing for key z=" + z.toString() + " and key y="
                         + y.toString());
@@ -206,53 +206,53 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void constructorSimple4Test() {
-        Graph<LogEvent> g = new Graph<LogEvent>();
-        LogEvent a = new LogEvent(new Action("a"));
-        LogEvent b = new LogEvent(new Action("b"));
-        LogEvent c = new LogEvent(new Action("c"));
-        LogEvent d = new LogEvent(new Action("d"));
-        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-        a.addTransition(new Transition<LogEvent>(a, c, "followed by"));
-        b.addTransition(new Transition<LogEvent>(b, d, "followed by"));
+        Graph<EventNode> g = new Graph<EventNode>();
+        EventNode a = new EventNode(new Event("a"));
+        EventNode b = new EventNode(new Event("b"));
+        EventNode c = new EventNode(new Event("c"));
+        EventNode d = new EventNode(new Event("d"));
+        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+        a.addTransition(new Transition<EventNode>(a, c, "followed by"));
+        b.addTransition(new Transition<EventNode>(b, d, "followed by"));
         g.add(a);
         g.add(b);
         g.add(c);
         g.add(d);
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        HashMap<LogEvent, HashMap<LogEvent, Boolean>> tc2 = new HashMap<LogEvent, HashMap<LogEvent, Boolean>>();
-        tc2.put(a, new HashMap<LogEvent, Boolean>());
+        HashMap<EventNode, HashMap<EventNode, Boolean>> tc2 = new HashMap<EventNode, HashMap<EventNode, Boolean>>();
+        tc2.put(a, new HashMap<EventNode, Boolean>());
         tc2.get(a).put(c, true);
         tc2.get(a).put(b, true);
         tc2.get(a).put(d, true);
 
-        tc2.put(b, new HashMap<LogEvent, Boolean>());
+        tc2.put(b, new HashMap<EventNode, Boolean>());
         tc2.get(b).put(d, true);
 
         assertTrue(tc2.equals(tc.getTC()));
 
-        tc2.put(d, new HashMap<LogEvent, Boolean>());
+        tc2.put(d, new HashMap<EventNode, Boolean>());
         assertFalse(tc2.equals(tc.getTC()));
     }
 
     @Test
     public void constructorSimple5Test() {
-        Graph<LogEvent> g = new Graph<LogEvent>();
-        LogEvent a = new LogEvent(new Action("a"));
-        LogEvent b = new LogEvent(new Action("b"));
-        LogEvent c = new LogEvent(new Action("c"));
+        Graph<EventNode> g = new Graph<EventNode>();
+        EventNode a = new EventNode(new Event("a"));
+        EventNode b = new EventNode(new Event("b"));
+        EventNode c = new EventNode(new Event("c"));
         g.add(a);
         g.add(b);
         g.add(c);
 
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
         assertEquals(0, tc.getTC().size());
 
-        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-        a.addTransition(new Transition<LogEvent>(a, c, "followed by"));
-        TransitiveClosure<LogEvent> tc2 = new TransitiveClosure<LogEvent>(g,
+        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+        a.addTransition(new Transition<EventNode>(a, c, "followed by"));
+        TransitiveClosure<EventNode> tc2 = new TransitiveClosure<EventNode>(g,
                 "after");
         assertEquals(0, tc2.getTC().size());
 
@@ -260,14 +260,14 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void constructorSelfTest() {
-        Graph<LogEvent> g = new Graph<LogEvent>();
-        LogEvent a = new LogEvent(new Action("a"));
+        Graph<EventNode> g = new Graph<EventNode>();
+        EventNode a = new EventNode(new Event("a"));
 
-        a.addTransition(new Transition<LogEvent>(a, a, "followed by"));
+        a.addTransition(new Transition<EventNode>(a, a, "followed by"));
 
         g.add(a);
 
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
         assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).get(a));
         assertEquals(1, tc.getTC().size());
@@ -276,32 +276,32 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void isReachableSimpleTest() {
-        Graph<LogEvent> g = new Graph<LogEvent>();
-        LogEvent a = new LogEvent(new Action("a"));
-        LogEvent b = new LogEvent(new Action("b"));
-        LogEvent c = new LogEvent(new Action("c"));
-        LogEvent d = new LogEvent(new Action("d"));
+        Graph<EventNode> g = new Graph<EventNode>();
+        EventNode a = new EventNode(new Event("a"));
+        EventNode b = new EventNode(new Event("b"));
+        EventNode c = new EventNode(new Event("c"));
+        EventNode d = new EventNode(new Event("d"));
 
-        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+        b.addTransition(new Transition<EventNode>(b, c, "followed by"));
+        c.addTransition(new Transition<EventNode>(c, d, "followed by"));
 
         g.add(a);
         g.add(b);
         g.add(c);
         g.add(d);
 
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        ArrayList<LogEvent> list = new ArrayList<LogEvent>();
+        ArrayList<EventNode> list = new ArrayList<EventNode>();
         list.add(a);
         list.add(b);
         list.add(c);
         list.add(d);
 
-        for (LogEvent z : list) {
-            for (LogEvent y : list) {
+        for (EventNode z : list) {
+            for (EventNode y : list) {
                 if (list.indexOf(z) < list.indexOf(y)) {
                     assertTrue(tc.isReachable(z, y));
                 } else {
@@ -313,74 +313,74 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void isReachableSelfTest() {
-        Graph<LogEvent> g = new Graph<LogEvent>();
-        LogEvent a = new LogEvent(new Action("a"));
-        a.addTransition(new Transition<LogEvent>(a, a, "followed by"));
+        Graph<EventNode> g = new Graph<EventNode>();
+        EventNode a = new EventNode(new Event("a"));
+        a.addTransition(new Transition<EventNode>(a, a, "followed by"));
 
         g.add(a);
 
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
         assertTrue(tc.isReachable(a, a));
     }
 
     @Test
     public void isEqualSimpleTest() {
-        LogEvent a = new LogEvent(new Action("a"));
-        LogEvent b = new LogEvent(new Action("b"));
-        LogEvent c = new LogEvent(new Action("c"));
-        LogEvent d = new LogEvent(new Action("d"));
+        EventNode a = new EventNode(new Event("a"));
+        EventNode b = new EventNode(new Event("b"));
+        EventNode c = new EventNode(new Event("c"));
+        EventNode d = new EventNode(new Event("d"));
 
-        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+        b.addTransition(new Transition<EventNode>(b, c, "followed by"));
+        c.addTransition(new Transition<EventNode>(c, d, "followed by"));
 
-        Graph<LogEvent> g = new Graph<LogEvent>();
+        Graph<EventNode> g = new Graph<EventNode>();
         g.add(a);
         g.add(b);
         g.add(c);
         g.add(d);
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        Graph<LogEvent> g2 = new Graph<LogEvent>();
+        Graph<EventNode> g2 = new Graph<EventNode>();
         g2.add(a);
         g2.add(b);
         g2.add(c);
         g2.add(d);
-        TransitiveClosure<LogEvent> tc2 = new TransitiveClosure<LogEvent>(g2,
+        TransitiveClosure<EventNode> tc2 = new TransitiveClosure<EventNode>(g2,
                 "followed by");
         assertTrue(tc.isEqual(tc2));
     }
 
     @Test
     public void isEqualTest() {
-        LogEvent a = new LogEvent(new Action("a"));
-        LogEvent b = new LogEvent(new Action("b"));
-        LogEvent c = new LogEvent(new Action("c"));
-        LogEvent d = new LogEvent(new Action("d"));
+        EventNode a = new EventNode(new Event("a"));
+        EventNode b = new EventNode(new Event("b"));
+        EventNode c = new EventNode(new Event("c"));
+        EventNode d = new EventNode(new Event("d"));
 
-        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
+        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+        b.addTransition(new Transition<EventNode>(b, c, "followed by"));
+        c.addTransition(new Transition<EventNode>(c, d, "followed by"));
 
-        Graph<LogEvent> g = new Graph<LogEvent>();
+        Graph<EventNode> g = new Graph<EventNode>();
         g.add(a);
         g.add(b);
         g.add(c);
         g.add(d);
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        Graph<LogEvent> g2 = new Graph<LogEvent>();
+        Graph<EventNode> g2 = new Graph<EventNode>();
         g2.add(a);
         g2.add(b);
         g2.add(c);
         g2.add(d);
-        LogEvent e = new LogEvent(new Action("e"));
-        e.addTransition(new Transition<LogEvent>(e, a, "followed by"));
+        EventNode e = new EventNode(new Event("e"));
+        e.addTransition(new Transition<EventNode>(e, a, "followed by"));
         g2.add(e);
-        TransitiveClosure<LogEvent> tc2 = new TransitiveClosure<LogEvent>(g2,
+        TransitiveClosure<EventNode> tc2 = new TransitiveClosure<EventNode>(g2,
                 "followed by");
 
         assertTrue(tc2.isReachable(e, b));
@@ -393,32 +393,32 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void isEqualDiffRelationsTest() {
-        LogEvent a = new LogEvent(new Action("a"));
-        LogEvent b = new LogEvent(new Action("b"));
-        LogEvent c = new LogEvent(new Action("c"));
-        LogEvent d = new LogEvent(new Action("d"));
+        EventNode a = new EventNode(new Event("a"));
+        EventNode b = new EventNode(new Event("b"));
+        EventNode c = new EventNode(new Event("c"));
+        EventNode d = new EventNode(new Event("d"));
 
-        a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-        b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
-        c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
-        a.addTransition(new Transition<LogEvent>(a, b, "after"));
-        b.addTransition(new Transition<LogEvent>(b, c, "after"));
-        c.addTransition(new Transition<LogEvent>(c, d, "after"));
+        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+        b.addTransition(new Transition<EventNode>(b, c, "followed by"));
+        c.addTransition(new Transition<EventNode>(c, d, "followed by"));
+        a.addTransition(new Transition<EventNode>(a, b, "after"));
+        b.addTransition(new Transition<EventNode>(b, c, "after"));
+        c.addTransition(new Transition<EventNode>(c, d, "after"));
 
-        Graph<LogEvent> g = new Graph<LogEvent>();
+        Graph<EventNode> g = new Graph<EventNode>();
         g.add(a);
         g.add(b);
         g.add(c);
         g.add(d);
-        TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent>(g,
+        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        Graph<LogEvent> g2 = new Graph<LogEvent>();
+        Graph<EventNode> g2 = new Graph<EventNode>();
         g2.add(a);
         g2.add(b);
         g2.add(c);
         g2.add(d);
-        TransitiveClosure<LogEvent> tc2 = new TransitiveClosure<LogEvent>(g2,
+        TransitiveClosure<EventNode> tc2 = new TransitiveClosure<EventNode>(g2,
                 "after");
 
         assertFalse(tc2.isEqual(tc));

@@ -3,7 +3,7 @@ package synoptic.algorithms.graph;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 
@@ -21,7 +21,7 @@ public class PartitionSplit implements IOperation {
     /**
      * The messages that will be split out into a separate node.
      */
-    private Set<LogEvent> eventsToSplitOut = null;
+    private Set<EventNode> eventsToSplitOut = null;
 
     /**
      * Partition that will be used for storing eventsToSplitOut once this
@@ -38,7 +38,7 @@ public class PartitionSplit implements IOperation {
      */
     public PartitionSplit(Partition partitionToSplit) {
         this.partitionToSplit = partitionToSplit;
-        eventsToSplitOut = new LinkedHashSet<LogEvent>(partitionToSplit.size());
+        eventsToSplitOut = new LinkedHashSet<EventNode>(partitionToSplit.size());
         newPartition = null;
     }
 
@@ -119,7 +119,7 @@ public class PartitionSplit implements IOperation {
      * @param event
      *            the event to mark
      */
-    public void addEventToSplit(LogEvent event) {
+    public void addEventToSplit(EventNode event) {
         eventsToSplitOut.add(event);
     }
 
@@ -128,7 +128,7 @@ public class PartitionSplit implements IOperation {
      * 
      * @return the set of marked nodes
      */
-    public Set<LogEvent> getSplitEvents() {
+    public Set<EventNode> getSplitEvents() {
         return eventsToSplitOut;
     }
 

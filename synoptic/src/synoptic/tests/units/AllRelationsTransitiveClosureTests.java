@@ -11,9 +11,9 @@ import org.junit.Test;
 
 import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.invariants.AllRelationsTransitiveClosure;
-import synoptic.model.Action;
+import synoptic.model.Event;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.Transition;
 
 public class AllRelationsTransitiveClosureTests {
@@ -21,44 +21,44 @@ public class AllRelationsTransitiveClosureTests {
 	@Test
 	public void constructorSimpleTest(){
 	
-		Graph <LogEvent> g = new Graph<LogEvent>();
-		LogEvent a = new LogEvent(new Action ("a"));
-		LogEvent b = new LogEvent(new Action("b"));
-		LogEvent c = new LogEvent(new Action("c"));
-		LogEvent d = new LogEvent(new Action("d"));
+		Graph <EventNode> g = new Graph<EventNode>();
+		EventNode a = new EventNode(new Event ("a"));
+		EventNode b = new EventNode(new Event("b"));
+		EventNode c = new EventNode(new Event("c"));
+		EventNode d = new EventNode(new Event("d"));
 		
-		a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-		a.addTransition(new Transition<LogEvent>(a, c, "after"));
-		b.addTransition(new Transition<LogEvent>(b, d, "followed by"));
+		a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+		a.addTransition(new Transition<EventNode>(a, c, "after"));
+		b.addTransition(new Transition<EventNode>(b, d, "followed by"));
 		
 		g.add(a);
 		g.add(b);
 		g.add(c);
 		g.add(d);
 		
-		AllRelationsTransitiveClosure <LogEvent> tcs = new AllRelationsTransitiveClosure<LogEvent>(g);
+		AllRelationsTransitiveClosure <EventNode> tcs = new AllRelationsTransitiveClosure<EventNode>(g);
 		
 		assertEquals(2, tcs.getRelations().size());
 	}
 	
 	@Test
 	public void isReachableTest(){
-		Graph <LogEvent> g = new Graph<LogEvent>();
-		LogEvent a = new LogEvent(new Action ("a"));
-		LogEvent b = new LogEvent(new Action("b"));
-		LogEvent c = new LogEvent(new Action("c"));
-		LogEvent d = new LogEvent(new Action("d"));
+		Graph <EventNode> g = new Graph<EventNode>();
+		EventNode a = new EventNode(new Event ("a"));
+		EventNode b = new EventNode(new Event("b"));
+		EventNode c = new EventNode(new Event("c"));
+		EventNode d = new EventNode(new Event("d"));
 		
-		a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-		a.addTransition(new Transition<LogEvent>(a, c, "after"));
-		b.addTransition(new Transition<LogEvent>(b, d, "followed by"));
+		a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+		a.addTransition(new Transition<EventNode>(a, c, "after"));
+		b.addTransition(new Transition<EventNode>(b, d, "followed by"));
 		
 		g.add(a);
 		g.add(b);
 		g.add(c);
 		g.add(d);
 		
-		AllRelationsTransitiveClosure <LogEvent> tcs = new AllRelationsTransitiveClosure<LogEvent>(g);
+		AllRelationsTransitiveClosure <EventNode> tcs = new AllRelationsTransitiveClosure<EventNode>(g);
 		
 		
 		// Initially failed - changed header of isReachable to accept a String rather than Action
@@ -70,29 +70,29 @@ public class AllRelationsTransitiveClosureTests {
 	
 	@Test
 	public void getTest(){
-		Graph <LogEvent> g = new Graph<LogEvent>();
-		LogEvent a = new LogEvent(new Action("a"));
-		LogEvent b = new LogEvent(new Action("b"));
-		LogEvent c = new LogEvent(new Action("c"));
-		LogEvent d = new LogEvent(new Action("d"));
+		Graph <EventNode> g = new Graph<EventNode>();
+		EventNode a = new EventNode(new Event("a"));
+		EventNode b = new EventNode(new Event("b"));
+		EventNode c = new EventNode(new Event("c"));
+		EventNode d = new EventNode(new Event("d"));
 		
-		a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-		b.addTransition(new Transition<LogEvent>(b, c, "followed by"));
-		c.addTransition(new Transition<LogEvent>(c, d, "followed by"));
-		c.addTransition(new Transition<LogEvent>(c, a, "pow"));
-		d.addTransition(new Transition<LogEvent>(d, c, "pow"));
+		a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+		b.addTransition(new Transition<EventNode>(b, c, "followed by"));
+		c.addTransition(new Transition<EventNode>(c, d, "followed by"));
+		c.addTransition(new Transition<EventNode>(c, a, "pow"));
+		d.addTransition(new Transition<EventNode>(d, c, "pow"));
 		
 		g.add(a);
 		g.add(b);
 		g.add(c);
 		g.add(d);
 		
-		AllRelationsTransitiveClosure <LogEvent> tcs = new AllRelationsTransitiveClosure<LogEvent>(g);
+		AllRelationsTransitiveClosure <EventNode> tcs = new AllRelationsTransitiveClosure<EventNode>(g);
 		
-		TransitiveClosure<LogEvent> tc = new TransitiveClosure<LogEvent> (g, "followed by");
+		TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode> (g, "followed by");
 		assertTrue(tc.isEqual(tcs.get("followed by")));
 		
-		TransitiveClosure<LogEvent> tc2 = new TransitiveClosure<LogEvent> (g, "pow");
+		TransitiveClosure<EventNode> tc2 = new TransitiveClosure<EventNode> (g, "pow");
 		assertTrue(tc2.isEqual(tcs.get("pow")));
 		
 		assertFalse(tc.isEqual(tcs.get("pow")));
@@ -102,22 +102,22 @@ public class AllRelationsTransitiveClosureTests {
 	
 	@Test
 	public void getRelationsTest(){
-		Graph <LogEvent> g = new Graph<LogEvent>();
-		LogEvent a = new LogEvent(new Action ("a"));
-		LogEvent b = new LogEvent(new Action("b"));
-		LogEvent c = new LogEvent(new Action("c"));
-		LogEvent d = new LogEvent(new Action("d"));
+		Graph <EventNode> g = new Graph<EventNode>();
+		EventNode a = new EventNode(new Event ("a"));
+		EventNode b = new EventNode(new Event("b"));
+		EventNode c = new EventNode(new Event("c"));
+		EventNode d = new EventNode(new Event("d"));
 		
-		a.addTransition(new Transition<LogEvent>(a, b, "followed by"));
-		a.addTransition(new Transition<LogEvent>(a, c, "after"));
-		b.addTransition(new Transition<LogEvent>(b, d, "followed by"));
+		a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+		a.addTransition(new Transition<EventNode>(a, c, "after"));
+		b.addTransition(new Transition<EventNode>(b, d, "followed by"));
 		
 		g.add(a);
 		g.add(b);
 		g.add(c);
 		g.add(d);
 		
-		AllRelationsTransitiveClosure <LogEvent> tcs = new AllRelationsTransitiveClosure<LogEvent>(g);
+		AllRelationsTransitiveClosure <EventNode> tcs = new AllRelationsTransitiveClosure<EventNode>(g);
 		
 		assertEquals(2, tcs.getRelations().size());
 		

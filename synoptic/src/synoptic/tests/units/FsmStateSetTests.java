@@ -16,14 +16,14 @@ import synoptic.invariants.fsmcheck.AFbyInvFsms;
 import synoptic.invariants.fsmcheck.APInvFsms;
 import synoptic.invariants.fsmcheck.FsmStateSet;
 import synoptic.invariants.fsmcheck.NFbyInvFsms;
-import synoptic.model.Action;
-import synoptic.model.LogEvent;
+import synoptic.model.Event;
+import synoptic.model.EventNode;
 import synoptic.tests.SynopticTest;
 
 public class FsmStateSetTests extends SynopticTest {
-    public static LogEvent msgA = new LogEvent(new Action("a"));
-    public static LogEvent msgB = new LogEvent(new Action("b"));
-    public static LogEvent msgZ = new LogEvent(new Action("z"));
+    public static EventNode msgA = new EventNode(new Event("a"));
+    public static EventNode msgB = new EventNode(new Event("b"));
+    public static EventNode msgZ = new EventNode(new Event("z"));
 
     /**
      * Converts a string representation of a bit set to a BitSet instance.
@@ -60,7 +60,7 @@ public class FsmStateSetTests extends SynopticTest {
     @Test
     public void equalityTest() {
         List<BinaryInvariant> invs1, invs2;
-        FsmStateSet<LogEvent> f1, f2;
+        FsmStateSet<EventNode> f1, f2;
         BinaryInvariant inv1, inv2;
 
         // AFby with AFby.
@@ -69,15 +69,15 @@ public class FsmStateSetTests extends SynopticTest {
         invs1 = new LinkedList<BinaryInvariant>();
         invs1.add(inv1);
 
-        f1 = new AFbyInvFsms<LogEvent>(invs1);
-        f2 = new AFbyInvFsms<LogEvent>(invs1);
+        f1 = new AFbyInvFsms<EventNode>(invs1);
+        f2 = new AFbyInvFsms<EventNode>(invs1);
         assertTrue(f1.equals(f2));
         assertTrue(!f1.equals(null));
         assertTrue(!f1.equals("some non-FsmStateSet type"));
 
         invs2 = new LinkedList<BinaryInvariant>();
         invs2.add(inv2);
-        f2 = new AFbyInvFsms<LogEvent>(invs2);
+        f2 = new AFbyInvFsms<EventNode>(invs2);
         assertTrue(!f1.equals(f2)); // differ in invariantsMap
 
         invs2.add(inv1);
@@ -91,8 +91,8 @@ public class FsmStateSetTests extends SynopticTest {
         invs2 = new LinkedList<BinaryInvariant>();
         invs2.add(inv2);
 
-        f1 = new AFbyInvFsms<LogEvent>(invs1);
-        f2 = new NFbyInvFsms<LogEvent>(invs2);
+        f1 = new AFbyInvFsms<EventNode>(invs1);
+        f2 = new NFbyInvFsms<EventNode>(invs2);
         assertTrue(!f1.equals(f2)); // differ in getClass() values
     }
 
@@ -102,10 +102,10 @@ public class FsmStateSetTests extends SynopticTest {
     private interface iInvSpecificGenerator {
         BinaryInvariant genInv(String a, String b, String relation);
 
-        FsmStateSet<LogEvent> genFsmStateSet(List<BinaryInvariant> invs);
+        FsmStateSet<EventNode> genFsmStateSet(List<BinaryInvariant> invs);
     }
 
-    private static FsmStateSet<LogEvent> initStateSet(String input,
+    private static FsmStateSet<EventNode> initStateSet(String input,
             iInvSpecificGenerator generator) {
         String[] inputs = input.split(" ");
         assertTrue(inputs.length == 2);
@@ -140,13 +140,13 @@ public class FsmStateSetTests extends SynopticTest {
             }
 
             @Override
-            public FsmStateSet<LogEvent> genFsmStateSet(
+            public FsmStateSet<EventNode> genFsmStateSet(
                     List<BinaryInvariant> invs) {
-                return new AFbyInvFsms<LogEvent>(invs);
+                return new AFbyInvFsms<EventNode>(invs);
             }
         };
 
-        FsmStateSet<LogEvent> f1, f2;
+        FsmStateSet<EventNode> f1, f2;
 
         // ////////
         // Simulate a single "a AFby b" invariant.
@@ -235,13 +235,13 @@ public class FsmStateSetTests extends SynopticTest {
             }
 
             @Override
-            public FsmStateSet<LogEvent> genFsmStateSet(
+            public FsmStateSet<EventNode> genFsmStateSet(
                     List<BinaryInvariant> invs) {
-                return new NFbyInvFsms<LogEvent>(invs);
+                return new NFbyInvFsms<EventNode>(invs);
             }
         };
 
-        FsmStateSet<LogEvent> f1, f2;
+        FsmStateSet<EventNode> f1, f2;
 
         // ////////
         // Simulate a single "a NFby b" invariant.
@@ -348,13 +348,13 @@ public class FsmStateSetTests extends SynopticTest {
             }
 
             @Override
-            public FsmStateSet<LogEvent> genFsmStateSet(
+            public FsmStateSet<EventNode> genFsmStateSet(
                     List<BinaryInvariant> invs) {
-                return new APInvFsms<LogEvent>(invs);
+                return new APInvFsms<EventNode>(invs);
             }
         };
 
-        FsmStateSet<LogEvent> f1, f2;
+        FsmStateSet<EventNode> f1, f2;
 
         // ////////
         // Simulate a single "a AP b" invariant.

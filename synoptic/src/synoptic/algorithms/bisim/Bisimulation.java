@@ -21,7 +21,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
@@ -359,7 +359,7 @@ public abstract class Bisimulation {
                 // length. A length of 1 indicates the traces are totally
                 // ordered, which means this should be thrown as an error.
                 Partition p = pGraph.getNodes().iterator().next();
-                if (!(p.getEvents().iterator().next().getAction().getTime() instanceof VectorTime)) {
+                if (!(p.getEvents().iterator().next().getEvent().getTime() instanceof VectorTime)) {
                     throw new InternalSynopticException(
                             "Could not satisfy invariants: "
                                     + unsatisfiedInvariants);
@@ -405,7 +405,7 @@ public abstract class Bisimulation {
          * The messages (i.e. nodes in the original graph) that are on the
          * counterexampleTrace.
          */
-        LinkedHashSet<LogEvent> hot = new LinkedHashSet<LogEvent>();
+        LinkedHashSet<EventNode> hot = new LinkedHashSet<EventNode>();
         hot.addAll(counterexampleTrace.path.get(0).getEvents());
         Partition prevPartition = null;
         Partition nextPartition = null;
@@ -427,9 +427,9 @@ public abstract class Bisimulation {
                 break;
             }
             // Compute the valid successor messages in the original trace.
-            LinkedHashSet<LogEvent> successorEvents = new LinkedHashSet<LogEvent>();
+            LinkedHashSet<EventNode> successorEvents = new LinkedHashSet<EventNode>();
             String relation = counterexampleTrace.invariant.getRelation();
-            for (LogEvent m : hot) {
+            for (EventNode m : hot) {
                 successorEvents.addAll(m.getSuccessors(relation));
             }
             hot = successorEvents;
@@ -473,7 +473,7 @@ public abstract class Bisimulation {
      *            the graph from which should be used as initial graph
      * @return the refined graph
      */
-    public static PartitionGraph getSplitGraph(IGraph<LogEvent> graph,
+    public static PartitionGraph getSplitGraph(IGraph<EventNode> graph,
             TemporalInvariantSet invariants) {
         PartitionGraph g = new PartitionGraph(graph, true, invariants);
         splitPartitions(g);

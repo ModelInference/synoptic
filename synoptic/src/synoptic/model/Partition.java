@@ -32,7 +32,7 @@ import synoptic.util.InternalSynopticException;
  */
 public class Partition implements INode<Partition> {
     /** All the events this partition contains */
-    protected final Set<LogEvent> events;
+    protected final Set<EventNode> events;
     private String label;
 
     /**
@@ -41,31 +41,31 @@ public class Partition implements INode<Partition> {
      */
     private boolean isTerminal;
 
-    public Partition(Set<LogEvent> messages) {
-        events = new LinkedHashSet<LogEvent>(messages);
-        for (final LogEvent m : messages) {
+    public Partition(Set<EventNode> messages) {
+        events = new LinkedHashSet<EventNode>(messages);
+        for (final EventNode m : messages) {
             m.setParent(this);
         }
 
         // A partition is final if it contains a message event that is a
         // terminal node in some input trace.
         isTerminal = false;
-        for (LogEvent e : messages) {
+        for (EventNode e : messages) {
             if (e.isTerminal()) {
                 isTerminal = true;
             }
         }
     }
 
-    public void addMessage(LogEvent message) {
+    public void addMessage(EventNode message) {
         events.add(message);
         message.setParent(this);
         isTerminal |= message.isTerminal();
     }
 
-    public void addAllMessages(Collection<LogEvent> messages) {
+    public void addAllMessages(Collection<EventNode> messages) {
         events.addAll(messages);
-        for (final LogEvent m : messages) {
+        for (final EventNode m : messages) {
             m.setParent(this);
             isTerminal |= m.isTerminal();
         }
@@ -80,7 +80,7 @@ public class Partition implements INode<Partition> {
         return getTransitionsIterator(null);
     }
 
-    public Set<LogEvent> getEvents() {
+    public Set<EventNode> getEvents() {
         return events;
     }
 
@@ -108,7 +108,7 @@ public class Partition implements INode<Partition> {
     public PartitionSplit getCandidateDivisionBasedOnOutgoing(
             ITransition<Partition> trans) {
         PartitionSplit ret = null;
-        for (final LogEvent event : events) {
+        for (final EventNode event : events) {
             if (fulfillsStrong(event, trans)) {
                 if (ret != null) {
                     ret.addEventToSplit(event);
@@ -121,7 +121,7 @@ public class Partition implements INode<Partition> {
                     // null, each of these events is guaranteed to fulfill the
                     // splitting criteria).
                     ret = new PartitionSplit(this);
-                    for (final LogEvent event2 : events) {
+                    for (final EventNode event2 : events) {
                         if (event2.equals(event)) {
                             break;
                         }
@@ -145,8 +145,8 @@ public class Partition implements INode<Partition> {
      */
     public PartitionSplit getCandidateDivisionBasedOnIncoming(
             Partition previous, String relation) {
-        Set<LogEvent> eventsReachableFromPrevious = new LinkedHashSet<LogEvent>();
-        for (final LogEvent prevEvent : previous.events) {
+        Set<EventNode> eventsReachableFromPrevious = new LinkedHashSet<EventNode>();
+        for (final EventNode prevEvent : previous.events) {
             eventsReachableFromPrevious.addAll(prevEvent
                     .getSuccessors(relation));
         }
@@ -164,7 +164,7 @@ public class Partition implements INode<Partition> {
         }
 
         PartitionSplit candidateSplit = new PartitionSplit(this);
-        for (LogEvent m : events) {
+        for (EventNode m : events) {
             if (eventsReachableFromPrevious.contains(m)) {
                 // TODO: allow to add a collection instead of iterating.
                 candidateSplit.addEventToSplit(m);
@@ -182,9 +182,9 @@ public class Partition implements INode<Partition> {
      * @param trans
      * @return whether or not event satisfies the conditions above.
      */
-    private static boolean fulfillsStrong(LogEvent event,
+    private static boolean fulfillsStrong(EventNode event,
             ITransition<Partition> trans) {
-        for (final ITransition<LogEvent> t : event.getTransitions()) {
+        for (final ITransition<EventNode> t : event.getTransitions()) {
             if (t.getRelation().equals(trans.getRelation())
                     && t.getTarget().getParent().equals(trans.getTarget())) {
                 return true;
@@ -249,9 +249,9 @@ public class Partition implements INode<Partition> {
             final String act) {
         return new IIterableIterator<Transition<Partition>>() {
             private final Set<ITransition<Partition>> seen = new LinkedHashSet<ITransition<Partition>>();
-            private final Iterator<LogEvent> msgItr = events.iterator();
+            private final Iterator<EventNode> msgItr = events.iterator();
 
-            private Iterator<? extends ITransition<LogEvent>> transItr = (act == null) ? msgItr
+            private Iterator<? extends ITransition<EventNode>> transItr = (act == null) ? msgItr
                     .next().getTransitions().iterator()
                     : msgItr.next().getTransitions(act).iterator();
 
@@ -260,7 +260,7 @@ public class Partition implements INode<Partition> {
             private Transition<Partition> getNext() {
                 while (transItr.hasNext() || msgItr.hasNext()) {
                     if (transItr.hasNext()) {
-                        final ITransition<LogEvent> found = transItr.next();
+                        final ITransition<EventNode> found = transItr.next();
                         final Transition<Partition> transToPart = new Transition<Partition>(
                                 found.getSource().getParent(), found
                                         .getTarget().getParent(),
@@ -334,7 +334,7 @@ public class Partition implements INode<Partition> {
         throw new NotImplementedException();
     }
 
-    public void removeMessages(Set<LogEvent> messageList) {
+    public void removeMessages(Set<EventNode> messageList) {
         events.removeAll(messageList);
     }
 

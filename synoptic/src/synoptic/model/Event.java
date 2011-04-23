@@ -4,50 +4,59 @@ import synoptic.main.Main;
 import synoptic.util.time.ITime;
 
 /**
- * The action class abstracts an event. Each event needs at least a name, called
- * a label. Optionally, a vector time and data fields can set. If data fields
+ * Represents an event parsed from a log file. Each event needs at least a name,
+ * called a label. Optionally, a time and data fields can set. If data fields
  * will be used, {@code useDatafields} must be set before compilation.
  * 
  * @author Sigurd Schneider
  */
-public class Action {
+public class Event {
     /**
-     * The action's label.
+     * The event's label.
      */
-    String label;
+    private final String label;
 
     /**
-     * The time this action occurred.
+     * The time this event occurred.
      */
     private ITime time;
 
     /**
-     * The complete log line corresponding to this action.
+     * The complete log line corresponding to this event.
      */
-    String logLine;
+    private final String logLine;
 
     /**
-     * The filename from where the label for this action was parsed.
+     * The filename from where the label for this event was parsed.
      */
-    String fileName;
+    private final String fileName;
 
     /**
-     * The line number from where the label for this action was parsed.
+     * The line number from where the label for this event was parsed.
      */
-    int lineNum;
+    private final int lineNum;
 
     /**
-     * Create an action with a label. Do not check for collisions with
-     * internally used labels.
+     * The host identifier -- set when vector time is used.
+     * 
+     * <pre>
+     * TODO: modify constructors to set this appropriately.
+     * </pre>
+     */
+    private final int hostId = 0;
+
+    /**
+     * Create an event with a label. Does _not_ check for collisions with
+     * internally used labels (e.g., INITIAL).
      * 
      * @param label
-     *            the label for the action
+     *            the label for the event
      * @param isSpecialLabel
      * @param logLine
      * @param fileName
      * @param lineNum
      */
-    public Action(String label, boolean isSpecialLabel, String logLine,
+    public Event(String label, boolean isSpecialLabel, String logLine,
             String fileName, int lineNum) {
         this.label = label;
         this.logLine = logLine;
@@ -67,32 +76,29 @@ public class Action {
     }
 
     /**
-     * Create an action with a label.
-     * 
-     * @param label
-     *            the label for the action
+     * Create an event with a label.
      */
-    public Action(String label, String logLine, String fileName, int lineNum) {
+    public Event(String label, String logLine, String fileName, int lineNum) {
         this(label, false, logLine, fileName, lineNum);
 
     }
 
-    public Action(String label) {
+    public Event(String label) {
         this(label, null, null, 0);
     }
 
     /**
-     * Returns the special initial action.
+     * Returns the special INITIAL event.
      */
-    public static Action NewInitialAction() {
-        return new Action(Main.initialNodeLabel, true, null, null, 0);
+    public static Event newInitialEvent() {
+        return new Event(Main.initialNodeLabel, true, null, null, 0);
     }
 
     /**
-     * Returns the special terminal action.
+     * Returns the special terminal event.
      */
-    public static Action NewTerminalAction() {
-        return new Action(Main.terminalNodeLabel, true, null, null, 0);
+    public static Event newTerminalEvent() {
+        return new Event(Main.terminalNodeLabel, true, null, null, 0);
     }
 
     @Override
@@ -101,7 +107,7 @@ public class Action {
     }
 
     /**
-     * Get the label of the action.
+     * Get the label of the event.
      * 
      * @return the label
      */
@@ -133,7 +139,7 @@ public class Action {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Action other = (Action) obj;
+        Event other = (Event) obj;
         if (fileName == null) {
             if (other.fileName != null) {
                 return false;
@@ -169,19 +175,19 @@ public class Action {
     }
 
     /**
-     * Set the time when this action occurred.
+     * Set the time when this event occurred.
      * 
-     * @param vectorTime
+     * @param t
      *            the time
      */
-    public void setTime(ITime vectorTime) {
-        time = vectorTime;
+    public void setTime(ITime t) {
+        time = t;
     }
 
     /**
-     * Get the vector time of this action.
+     * Get the time of this event.
      * 
-     * @return the vector time when this action occurred.
+     * @return the time when this event occurred.
      */
     public ITime getTime() {
         return time;

@@ -10,9 +10,9 @@ import org.junit.Test;
 
 import synoptic.main.Main;
 import synoptic.main.ParseException;
-import synoptic.model.Action;
+import synoptic.model.Event;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.tests.SynopticTest;
 
@@ -34,23 +34,23 @@ public class GraphVizExporterTests extends SynopticTest {
      * @return Dot-formatted representation of the event sequence graph.
      */
     public String getExportedPathGraph(String[] events) {
-        List<LogEvent> path = getLogEventPath(events);
-        Graph<LogEvent> g = new Graph<LogEvent>();
+        List<EventNode> path = getLogEventPath(events);
+        Graph<EventNode> g = new Graph<EventNode>();
 
         // Randomize the order in which we add events to the graph
-        List<LogEvent> pathCopy = new ArrayList<LogEvent>();
+        List<EventNode> pathCopy = new ArrayList<EventNode>();
         pathCopy.addAll(path);
         Collections.shuffle(pathCopy, Main.random);
-        for (LogEvent event : pathCopy) {
+        for (EventNode event : pathCopy) {
             g.add(event);
         }
 
-        Action dummyAct = Action.NewInitialAction();
-        g.setDummyInitial(new LogEvent(dummyAct), defRelation);
+        Event dummyAct = Event.newInitialEvent();
+        g.setDummyInitial(new EventNode(dummyAct), defRelation);
         g.tagInitial(path.get(0), defRelation);
 
         for (int i = 0; i < path.size() - 1; i++) {
-            LogEvent event = path.get(i);
+            EventNode event = path.get(i);
             event.addTransition(path.get(i + 1), defRelation);
         }
         return exporter.export(g);

@@ -19,9 +19,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import synoptic.model.Action;
+import synoptic.model.Event;
+import synoptic.model.EventNode;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.NamedMatcher;
 import synoptic.util.NamedPattern;
@@ -49,14 +49,14 @@ public class TraceParser {
     private final List<LinkedHashMap<String, NamedSubstitution>> constantFields;
     private final List<Map<String, Boolean>> incrementors;
 
-    private static int currentTraceID;
-    private final Map<String, Integer> traceID;
+    private static int nextTraceID;
+    private final Map<String, Integer> partitionNameToTraceID;
 
     private NamedSubstitution filter;
 
     // Partitioning based on filter expressions -- maps a unique partition
     // string to a set of parsed events corresponding to that partition.
-    Map<String, ArrayList<LogEvent>> partitions = new LinkedHashMap<String, ArrayList<LogEvent>>();
+    Map<String, ArrayList<EventNode>> partitions = new LinkedHashMap<String, ArrayList<EventNode>>();
 
     // Patterns used to pre-process regular expressions
     private static final Pattern matchEscapedSeparator = Pattern
@@ -105,8 +105,8 @@ public class TraceParser {
         constantFields = new ArrayList<LinkedHashMap<String, NamedSubstitution>>();
         incrementors = new ArrayList<Map<String, Boolean>>();
         filter = new NamedSubstitution("");
-        currentTraceID = 0;
-        traceID = new LinkedHashMap<String, Integer>();
+        nextTraceID = 0;
+        partitionNameToTraceID = new LinkedHashMap<String, Integer>();
     }
 
     /**
@@ -393,7 +393,7 @@ public class TraceParser {
      * @throws InternalSynopticException
      *             when Synoptic code is the problem
      */
-    public ArrayList<LogEvent> parseTraceFile(File file, int linesToRead)
+    public ArrayList<EventNode> parseTraceFile(File file, int linesToRead)
             throws ParseException, InternalSynopticException {
         String fileName = "";
         try {
@@ -424,8 +424,9 @@ public class TraceParser {
      * @throws InternalSynopticException
      *             when Synoptic code is the problem
      */
-    public ArrayList<LogEvent> parseTraceString(String trace, String traceName,
-            int linesToRead) throws ParseException, InternalSynopticException {
+    public ArrayList<EventNode> parseTraceString(String trace,
+            String traceName, int linesToRead) throws ParseException,
+            InternalSynopticException {
         StringReader stringReader = new StringReader(trace);
         try {
             return parseTrace(stringReader, traceName, linesToRead);
@@ -452,17 +453,10 @@ public class TraceParser {
      * @throws InternalSynopticException
      *             when Synoptic code is the problem
      */
-    public ArrayList<LogEvent> parseTrace(Reader traceReader, String traceName,
-            int linesToRead) throws ParseException, IOException,
-            InternalSynopticException {
+    public ArrayList<EventNode> parseTrace(Reader traceReader,
+            String traceName, int linesToRead) throws ParseException,
+            IOException, InternalSynopticException {
         BufferedReader br = new BufferedReader(traceReader);
-
-        if (!traceID.containsKey(traceName)) {
-            // This is the first time this trace has been observed,
-            // assign an ID and add it to the map of traceIDs
-            currentTraceID++;
-            traceID.put(traceName, currentTraceID);
-        }
 
         // Initialize incrementor context.
         Map<String, Integer> context = new LinkedHashMap<String, Integer>();
@@ -472,7 +466,7 @@ public class TraceParser {
             }
         }
 
-        ArrayList<LogEvent> results = new ArrayList<LogEvent>();
+        ArrayList<EventNode> results = new ArrayList<EventNode>();
         String strLine = null;
 
         if (Main.internCommonStrings) {
@@ -486,7 +480,7 @@ public class TraceParser {
                 break;
             }
             lineNum++;
-            LogEvent event = parseLine(strLine, traceName, context, lineNum);
+            EventNode event = parseLine(strLine, traceName, context, lineNum);
             if (event == null) {
                 continue;
             }
@@ -501,11 +495,11 @@ public class TraceParser {
     /**
      * Parse an individual line.
      */
-    private LogEvent parseLine(String line, String fileName,
+    private EventNode parseLine(String line, String fileName,
             Map<String, Integer> context, int lineNum) throws ParseException,
             InternalSynopticException {
 
-        Action action = null;
+        Event event = null;
         ITime nextTime = null;
 
         for (int i = 0; i < parsers.size(); i++) {
@@ -576,10 +570,11 @@ public class TraceParser {
             // TODO: determine if this is desired + print warning
 
             if (eventType == null) {
-                // In the absence of a type, use the entire log line.
-                action = new Action(line, line, fileName, lineNum);
+                // In the absence of an event type, use the entire log line as
+                // the type.
+                event = new Event(line, line, fileName, lineNum);
             } else {
-                action = new Action(eventType, line, fileName, lineNum);
+                event = new Event(eventType, line, fileName, lineNum);
             }
 
             // We have two cases for processing time on log lines:
@@ -633,18 +628,19 @@ public class TraceParser {
                 }
             }
 
-            Map<String, String> actStringArgs = new LinkedHashMap<String, String>();
+            Map<String, String> eventStringArgs = new LinkedHashMap<String, String>();
 
             for (Map.Entry<String, String> group : matched.entrySet()) {
                 String name = group.getKey();
                 if (!name.equals("TYPE") && !name.equals("TIME")) {
-                    actStringArgs.put(name, group.getValue());
+                    eventStringArgs.put(name, group.getValue());
                 }
             }
 
             if (Main.partitionRegExp.equals("\\k<FILE>")) {
                 // These logs are to be partitioned via file
-                actStringArgs.put("FILE", "" + traceID.get(fileName));
+                eventStringArgs.put("FILE", fileName);
+                // "" + traceNameToTraceID.get(fileName));
             }
 
             // Perform post-increments.
@@ -659,7 +655,8 @@ public class TraceParser {
                 // TODO: include partition name in the list of field values
                 logger.info("input: " + line);
                 StringBuilder msg = new StringBuilder("{");
-                for (Map.Entry<String, String> entry : actStringArgs.entrySet()) {
+                for (Map.Entry<String, String> entry : eventStringArgs
+                        .entrySet()) {
                     if (entry.getKey().equals("FILE")) {
                         continue;
                     }
@@ -669,21 +666,21 @@ public class TraceParser {
                 msg.append("}");
                 logger.info(msg.toString());
             }
-            action.setTime(nextTime);
+            event.setTime(nextTime);
 
-            LogEvent event = new LogEvent(action);
-            addEventToPartition(event, filter.substitute(actStringArgs));
-            actStringArgs = null;
-            return event;
+            EventNode eventNode = addEventNodeToPartition(event,
+                    filter.substitute(eventStringArgs));
+            eventStringArgs = null;
+            return eventNode;
         }
 
         if (Main.recoverFromParseErrors) {
             logger.warning("Failed to parse trace line: \n" + line + "\n"
                     + "Using entire line as type.");
-            action = new Action(line, line, fileName, lineNum);
+            event = new Event(line, line, fileName, lineNum);
             if (selectedTimeGroup.equals(implicitTimeGroup)) {
                 // We can recover OK with log-line counting time.
-                action.setTime(new ITotalTime(lineNum));
+                event.setTime(new ITotalTime(lineNum));
             } else {
                 // We can't recover with vector time -- incrementing it simply
                 // doesn't make sense.
@@ -691,10 +688,9 @@ public class TraceParser {
                 throw new ParseException();
             }
 
-            LogEvent event = new LogEvent(action);
-            addEventToPartition(event,
+            EventNode eventNode = addEventNodeToPartition(event,
                     filter.substitute(new LinkedHashMap<String, String>()));
-            return event;
+            return eventNode;
 
         } else if (Main.ignoreNonMatchingLines) {
             logger.fine("Failed to parse trace line: \n" + line + "\n"
@@ -713,18 +709,25 @@ public class TraceParser {
     /**
      * Adds an event to an internal map of partitions.
      * 
-     * @param event
+     * @param eventNode
      * @param pName
      */
-    private void addEventToPartition(LogEvent event, String pName) {
-        ArrayList<LogEvent> events = partitions.get(pName);
+    private EventNode addEventNodeToPartition(Event event, String pName) {
+        EventNode eventNode = new EventNode(event);
+        ArrayList<EventNode> events = partitions.get(pName);
         if (events == null) {
-            events = new ArrayList<LogEvent>();
+            events = new ArrayList<EventNode>();
             partitions.put(pName, events);
             logger.fine("Created partition '" + pName + "'");
+
+            // This is the first time this partition has been observed,
+            // assign it a trace ID and add it to the map of traceIDs
+            nextTraceID++;
+            partitionNameToTraceID.put(pName, nextTraceID);
         }
-        event.setTraceID(pName);
-        events.add(event);
+        eventNode.setTraceID(partitionNameToTraceID.get(pName));
+        events.add(eventNode);
+        return eventNode;
     }
 
     /**
@@ -735,10 +738,10 @@ public class TraceParser {
      *            The list of events to process.
      * @throws ParseException
      */
-    public Graph<LogEvent> generateDirectTemporalRelation(
-            ArrayList<LogEvent> allEvents) throws ParseException {
+    public Graph<EventNode> generateDirectTemporalRelation(
+            ArrayList<EventNode> allEvents) throws ParseException {
 
-        Graph<LogEvent> graph = new Graph<LogEvent>();
+        Graph<EventNode> graph = new Graph<EventNode>();
 
         boolean totallyOrderedTrace = logTimeTypeIsTotallyOrdered();
 
@@ -747,14 +750,14 @@ public class TraceParser {
         // preceded by any other successors of e1. That is, if e1 < x then x
         // is a direct successor if there is no other successor of e1 y such
         // that y < x.
-        Map<LogEvent, Set<LogEvent>> directSuccessors = new LinkedHashMap<LogEvent, Set<LogEvent>>();
-        for (List<LogEvent> group : partitions.values()) {
-            for (LogEvent e1 : group) {
+        Map<EventNode, Set<EventNode>> directSuccessors = new LinkedHashMap<EventNode, Set<EventNode>>();
+        for (List<EventNode> group : partitions.values()) {
+            for (EventNode e1 : group) {
                 // Find and set all direct successors of e1. In totally ordered
                 // case there is at most one direct successor, in partially
                 // ordered case there may be multiple direct successors.
                 try {
-                    directSuccessors.put(e1, LogEvent.getDirectSuccessors(e1,
+                    directSuccessors.put(e1, EventNode.getDirectSuccessors(e1,
                             group, totallyOrderedTrace));
                 } catch (EqualVectorTimestampsException e) {
                     logger.severe("Found two events with identical timestamps: (1) "
@@ -770,16 +773,16 @@ public class TraceParser {
         }
 
         // Add all the log events to the graph.
-        for (LogEvent e : allEvents) {
+        for (EventNode e : allEvents) {
             graph.add(e);
         }
 
         // Connect the events in the graph, and also build up noPredecessor and
         // noSuccessor event sets.
-        Set<LogEvent> noPredecessor = new LinkedHashSet<LogEvent>(allEvents);
-        Set<LogEvent> noSuccessor = new LinkedHashSet<LogEvent>();
-        for (LogEvent e1 : directSuccessors.keySet()) {
-            for (LogEvent e2 : directSuccessors.get(e1)) {
+        Set<EventNode> noPredecessor = new LinkedHashSet<EventNode>(allEvents);
+        Set<EventNode> noSuccessor = new LinkedHashSet<EventNode>();
+        for (EventNode e1 : directSuccessors.keySet()) {
+            for (EventNode e2 : directSuccessors.get(e1)) {
                 e1.addTransition(e2, defaultRelation);
                 noPredecessor.remove(e2);
             }
@@ -790,19 +793,19 @@ public class TraceParser {
 
         // TODO: make sure that initialNodeLabel does not conflict with any of
         // the event labels in the trace.
-        Action dummyAct = Action.NewInitialAction();
-        graph.setDummyInitial(new LogEvent(dummyAct), defaultRelation);
+        Event initEvent = Event.newInitialEvent();
+        graph.setDummyInitial(new EventNode(initEvent), defaultRelation);
         // Mark messages without a predecessor as initial.
-        for (LogEvent e : noPredecessor) {
+        for (EventNode e : noPredecessor) {
             graph.tagInitial(e, defaultRelation);
         }
 
         // TODO: make sure that terminalNodeLabel does not conflict with any of
         // the event labels in the trace.
-        dummyAct = Action.NewTerminalAction();
-        graph.setDummyTerminal(new LogEvent(dummyAct));
+        Event termEvent = Event.newTerminalEvent();
+        graph.setDummyTerminal(new EventNode(termEvent));
         // Mark messages without a predecessor as terminal.
-        for (LogEvent e : noSuccessor) {
+        for (EventNode e : noSuccessor) {
             graph.tagTerminal(e, defaultRelation);
         }
 

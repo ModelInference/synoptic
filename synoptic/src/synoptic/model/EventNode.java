@@ -20,36 +20,44 @@ import synoptic.util.time.EqualVectorTimestampsException;
 import synoptic.util.time.ITime;
 
 /**
- * The event class. This class may need some work.
+ * The event node class -- a node in a graph that contains an event.
  * 
  * @author Sigurd Schneider
  */
-public class LogEvent implements INode<LogEvent> {
+public class EventNode implements INode<EventNode> {
     /**
-     * The partition that contains this log event.
+     * The partition that contains the event node
      */
     private Partition parent;
-    private final Action action;
-    private String traceID;
+
+    /**
+     * The event this Node corresponds to
+     */
+    private final Event event;
+
+    /**
+     * A Unique trace identifier
+     */
+    private int traceID = 0;
 
     // TODO: For totally ordered traces, the transitions becomes a single
-    // element, and transitionsByActions becomes superfluous.
+    // element, and transitionsByEvents becomes superfluous.
 
-    List<Transition<LogEvent>> transitions = new ArrayList<Transition<LogEvent>>();
-    LinkedHashMap<String, List<Transition<LogEvent>>> transitionsByAction = new LinkedHashMap<String, List<Transition<LogEvent>>>();
+    List<Transition<EventNode>> transitions = new ArrayList<Transition<EventNode>>();
+    LinkedHashMap<String, List<Transition<EventNode>>> transitionsByEventLabel = new LinkedHashMap<String, List<Transition<EventNode>>>();
 
     // LinkedHashMap<String, LinkedHashMap<LogEvent,
-    // List<Transition<LogEvent>>>> transitionsByActionAndTarget = new
+    // List<Transition<LogEvent>>>> transitionsByEventAndTarget = new
     // LinkedHashMap<String, LinkedHashMap<LogEvent,
     // List<Transition<LogEvent>>>>();
 
-    public LogEvent(LogEvent copyFrom) {
+    public EventNode(EventNode copyFrom) {
         parent = copyFrom.parent;
-        action = copyFrom.action;
+        event = copyFrom.event;
     }
 
-    public LogEvent(Action signature) {
-        action = signature;
+    public EventNode(Event eventArg) {
+        event = eventArg;
         parent = null;
     }
 
@@ -65,15 +73,15 @@ public class LogEvent implements INode<LogEvent> {
 
     @Override
     public String toString() {
-        return "[" + getAction().getLabel() + "]";
+        return "[" + getEvent().getLabel() + "]";
     }
 
     @Override
-    public void addTransition(LogEvent dest, String relation) {
+    public void addTransition(EventNode dest, String relation) {
         if (dest == null) {
             throw new InternalSynopticException("Dest was null");
         }
-        addTransition(new Transition<LogEvent>(this, dest, relation));
+        addTransition(new Transition<EventNode>(this, dest, relation));
     }
 
     /**
@@ -85,16 +93,16 @@ public class LogEvent implements INode<LogEvent> {
      *            the event for which to find direct successors in group
      * @param group
      *            the group of events of potentially direct successors of e1,
-     *            this may contain the LogEvent e1.
+     *            this may contain the EventNode e1.
      * @return set of direct successors of e1
      * @throws ParseException
      *             when we detect that some two events in group have the same
      *             timestamp or if they have different length vector timestamps
      *             (comparison error).
      */
-    public static Set<LogEvent> getDirectSuccessors(LogEvent e1,
-            List<LogEvent> group, boolean totallyOrderedTrace) {
-        LinkedHashSet<LogEvent> e1DirectSuccessors = new LinkedHashSet<LogEvent>();
+    public static Set<EventNode> getDirectSuccessors(EventNode e1,
+            List<EventNode> group, boolean totallyOrderedTrace) {
+        LinkedHashSet<EventNode> e1DirectSuccessors = new LinkedHashSet<EventNode>();
 
         if (totallyOrderedTrace) {
             // All events in group are totally ordered. Therefore,
@@ -103,8 +111,8 @@ public class LogEvent implements INode<LogEvent> {
             // time-stamp that exceeds e1's timestamp. We can do this with a
             // single scan = O(n) time.
 
-            LogEvent directSuccessor = null;
-            for (LogEvent e2 : group) {
+            EventNode directSuccessor = null;
+            for (EventNode e2 : group) {
                 if (e1 == e2) {
                     continue;
                 }
@@ -136,8 +144,8 @@ public class LogEvent implements INode<LogEvent> {
 
             // First find all all events that succeed e1, store this set in
             // e1AllSuccessors.
-            LinkedHashSet<LogEvent> e1AllSuccessors = new LinkedHashSet<LogEvent>();
-            for (LogEvent e2 : group) {
+            LinkedHashSet<EventNode> e1AllSuccessors = new LinkedHashSet<EventNode>();
+            for (EventNode e2 : group) {
                 if (e1 == e2) {
                     continue;
                 }
@@ -151,10 +159,10 @@ public class LogEvent implements INode<LogEvent> {
             }
 
             // Now out of all successors find all direct successors of e1.
-            for (LogEvent e1Succ1 : e1AllSuccessors) {
+            for (EventNode e1Succ1 : e1AllSuccessors) {
                 boolean directSuccessor = true; // whether or not e1Succ1 is
                                                 // a direct successor of e2
-                for (LogEvent e1Succ2 : e1AllSuccessors) {
+                for (EventNode e1Succ2 : e1AllSuccessors) {
                     if (e1Succ1 == e1Succ2) {
                         continue;
                     }
@@ -181,23 +189,24 @@ public class LogEvent implements INode<LogEvent> {
     // probability));
     // }
 
-    public void addTransition(Transition<LogEvent> transition) {
+    public void addTransition(Transition<EventNode> transition) {
         transitions.add(transition);
-        String action = transition.getRelation();
-        List<Transition<LogEvent>> ref = transitionsByAction.get(action);
+        String eventLabel = transition.getRelation();
+        List<Transition<EventNode>> ref = transitionsByEventLabel
+                .get(eventLabel);
         if (ref == null) {
-            ref = new ArrayList<Transition<LogEvent>>();
-            transitionsByAction.put(action, ref);
+            ref = new ArrayList<Transition<EventNode>>();
+            transitionsByEventLabel.put(eventLabel, ref);
         }
         ref.add(transition);
 
         // LogEvent target = transition.getTarget();
         // LinkedHashMap<LogEvent, List<Transition<LogEvent>>> ref1 =
-        // transitionsByActionAndTarget
+        // transitionsByEventAndTarget
         // .get(action);
         // if (ref1 == null) {
         // ref1 = new LinkedHashMap<LogEvent, List<Transition<LogEvent>>>();
-        // transitionsByActionAndTarget.put(action, ref1);
+        // transitionsByEventAndTarget.put(action, ref1);
         // }
         // List<Transition<LogEvent>> ref2 = ref1.get(target);
         // if (ref2 == null) {
@@ -211,17 +220,17 @@ public class LogEvent implements INode<LogEvent> {
     // this.transitions.removeAll(transitions);
     // for (Transition<LogEvent> transition : transitions) {
     //
-    // if (transitionsByAction.containsKey(transition.getRelation())) {
-    // transitionsByAction.get(transition.getRelation()).remove(
+    // if (transitionsByEvent.containsKey(transition.getRelation())) {
+    // transitionsByEvent.get(transition.getRelation()).remove(
     // transition);
     // }
     //
-    // if (transitionsByActionAndTarget.containsKey(transition
+    // if (transitionsByEventAndTarget.containsKey(transition
     // .getRelation())
-    // && transitionsByActionAndTarget.get(
+    // && transitionsByEventAndTarget.get(
     // transition.getRelation()).containsKey(
     // transition.getTarget())) {
-    // transitionsByActionAndTarget.get(transition.getRelation())
+    // transitionsByEventAndTarget.get(transition.getRelation())
     // .get(transition.getTarget()).remove(transition);
     // }
     // }
@@ -229,16 +238,16 @@ public class LogEvent implements INode<LogEvent> {
     // }
 
     @Override
-    public final List<Transition<LogEvent>> getTransitions() {
+    public final List<Transition<EventNode>> getTransitions() {
         // Set<Relation<LogEvent>> set = new
         // LinkedHashSet<Relation<LogEvent>>();
         // set.addAll(transitions);
         return transitions;
     }
 
-    public List<Transition<LogEvent>> getTransitions(String relation) {
+    public List<Transition<EventNode>> getTransitions(String relation) {
         // checkConsistency();
-        List<Transition<LogEvent>> res = transitionsByAction.get(relation);
+        List<Transition<EventNode>> res = transitionsByEventLabel.get(relation);
         if (res == null) {
             return Collections.emptyList();
         }
@@ -249,8 +258,8 @@ public class LogEvent implements INode<LogEvent> {
      * Check that all transitions are in local cache.
      */
     public void checkConsistency() {
-        for (ITransition<LogEvent> t : transitions) {
-            if (!transitionsByAction.get(t.getRelation()).contains(t)) {
+        for (ITransition<EventNode> t : transitions) {
+            if (!transitionsByEventLabel.get(t.getRelation()).contains(t)) {
                 throw new InternalSynopticException(
                         "inconsistent transitions in message");
             }
@@ -259,14 +268,14 @@ public class LogEvent implements INode<LogEvent> {
 
     // public List<Transition<LogEvent>> getTransitions(Partition target,
     // String relation) {
-    // List<Transition<LogEvent>> forAction = transitionsByAction
+    // List<Transition<LogEvent>> forEvent = transitionsByEvent
     // .get(relation);
-    // if (forAction == null) {
+    // if (forEvent == null) {
     // return Collections.emptyList();
     // }
     //
     // List<Transition<LogEvent>> res = new ArrayList<Transition<LogEvent>>();
-    // for (Transition<LogEvent> t : forAction) {
+    // for (Transition<LogEvent> t : forEvent) {
     // if (t.getTarget().getParent() == target) {
     // res.add(t);
     // }
@@ -276,41 +285,41 @@ public class LogEvent implements INode<LogEvent> {
 
     // public List<Transition<LogEvent>> getTransitions(LogEvent target,
     // String relation) {
-    // LinkedHashMap<LogEvent, List<Transition<LogEvent>>> forAction =
-    // transitionsByActionAndTarget
+    // LinkedHashMap<LogEvent, List<Transition<LogEvent>>> forEvent =
+    // transitionsByEventAndTarget
     // .get(relation);
-    // if (forAction == null) {
+    // if (forEvent == null) {
     // return Collections.emptyList();
     // }
-    // List<Transition<LogEvent>> res = forAction.get(target);
+    // List<Transition<LogEvent>> res = forEvent.get(target);
     // if (res == null) {
     // return Collections.emptyList();
     // }
     // return res;
     // }
 
-    public void addTransitions(Collection<Transition<LogEvent>> transitions) {
-        for (Transition<LogEvent> t : transitions) {
+    public void addTransitions(Collection<Transition<EventNode>> transitions) {
+        for (Transition<EventNode> t : transitions) {
             this.addTransition(t);
         }
     }
 
-    public void setTransitions(ArrayList<Transition<LogEvent>> t) {
+    public void setTransitions(ArrayList<Transition<EventNode>> t) {
         transitions.clear();
         transitions.addAll(t);
     }
 
     public String toStringFull() {
-        return "[LogEvent: " + getAction() + " (" + hashCode() + ")" + "]";
+        return "[EventNode: " + getEvent() + " (" + hashCode() + ")" + "]";
     }
 
     @Override
-    public IIterableIterator<Transition<LogEvent>> getTransitionsIterator() {
+    public IIterableIterator<Transition<EventNode>> getTransitionsIterator() {
         return IterableAdapter.make(getTransitions().iterator());
     }
 
     @Override
-    public IIterableIterator<Transition<LogEvent>> getTransitionsIterator(
+    public IIterableIterator<Transition<EventNode>> getTransitionsIterator(
             String relation) {
         return IterableAdapter.make(getTransitions(relation).iterator());
     }
@@ -322,20 +331,20 @@ public class LogEvent implements INode<LogEvent> {
     // return list.size() == 0 ? null : list.get(0);
     // }
 
-    public Action getAction() {
-        return action;
+    public Event getEvent() {
+        return event;
     }
 
     // TODO: order
     public Set<String> getRelations() {
-        return transitionsByAction.keySet();
+        return transitionsByEventLabel.keySet();
     }
 
     /**
      * Get the timestamp associated with the event.
      */
     public ITime getTime() {
-        return action.getTime();
+        return event.getTime();
     }
 
     /**
@@ -343,13 +352,13 @@ public class LogEvent implements INode<LogEvent> {
      */
     @Override
     public String getLabel() {
-        return action.getLabel();
+        return event.getLabel();
     }
 
-    public Set<LogEvent> getSuccessors(String relation) {
+    public Set<EventNode> getSuccessors(String relation) {
         // TODO: avoid creating a new LinkedHashSet here
-        Set<LogEvent> successors = new LinkedHashSet<LogEvent>();
-        for (Transition<LogEvent> e : getTransitionsIterator(relation)) {
+        Set<EventNode> successors = new LinkedHashSet<EventNode>();
+        for (Transition<EventNode> e : getTransitionsIterator(relation)) {
             successors.add(e.getTarget());
         }
         return successors;
@@ -361,10 +370,10 @@ public class LogEvent implements INode<LogEvent> {
     }
 
     @Override
-    public Comparator<LogEvent> getComparator() {
-        class PartitionComparator implements Comparator<LogEvent> {
+    public Comparator<EventNode> getComparator() {
+        class PartitionComparator implements Comparator<EventNode> {
             @Override
-            public int compare(LogEvent arg0, LogEvent arg1) {
+            public int compare(EventNode arg0, EventNode arg1) {
                 if (arg0 == arg1) {
                     return 0;
                 }
@@ -383,9 +392,9 @@ public class LogEvent implements INode<LogEvent> {
                 }
 
                 // compare transitions to children
-                ArrayList<WeightedTransition<LogEvent>> arg0SortedTrans = new ArrayList<WeightedTransition<LogEvent>>(
+                ArrayList<WeightedTransition<EventNode>> arg0SortedTrans = new ArrayList<WeightedTransition<EventNode>>(
                         arg0.getWeightedTransitions());
-                ArrayList<WeightedTransition<LogEvent>> arg1SortedTrans = new ArrayList<WeightedTransition<LogEvent>>(
+                ArrayList<WeightedTransition<EventNode>> arg1SortedTrans = new ArrayList<WeightedTransition<EventNode>>(
                         arg1.getWeightedTransitions());
 
                 Collections.sort(arg0SortedTrans);
@@ -405,19 +414,19 @@ public class LogEvent implements INode<LogEvent> {
     }
 
     public String getLine() {
-        return action.getLine();
+        return event.getLine();
     }
-    
-    public void setTraceID( String traceID ) {
-    	this.traceID = traceID;
+
+    public void setTraceID(int traceID) {
+        this.traceID = traceID;
     }
-    
-    public String getTraceID() {
-    	return traceID;
+
+    public int getTraceID() {
+        return traceID;
     }
 
     public String getFullFileName() {
-        return action.getFileName();
+        return event.getFileName();
     }
 
     public String getShortFileName() {
@@ -426,18 +435,18 @@ public class LogEvent implements INode<LogEvent> {
     }
 
     public String getLineNum() {
-        int lineNum = action.getLineNum();
-        return lineNum == 0 ? "" : "" + action.getLineNum();
+        int lineNum = event.getLineNum();
+        return lineNum == 0 ? "" : "" + event.getLineNum();
     }
 
     @Override
-    public List<WeightedTransition<LogEvent>> getWeightedTransitions() {
-        List<WeightedTransition<LogEvent>> result = new ArrayList<WeightedTransition<LogEvent>>();
-        List<Transition<LogEvent>> allTrans = getTransitions();
+    public List<WeightedTransition<EventNode>> getWeightedTransitions() {
+        List<WeightedTransition<EventNode>> result = new ArrayList<WeightedTransition<EventNode>>();
+        List<Transition<EventNode>> allTrans = getTransitions();
         int totalTrans = allTrans.size();
-        for (Transition<LogEvent> tr : allTrans) {
+        for (Transition<EventNode> tr : allTrans) {
             double freq = (double) 1 / (double) totalTrans;
-            WeightedTransition<LogEvent> trWeighted = new WeightedTransition<LogEvent>(
+            WeightedTransition<EventNode> trWeighted = new WeightedTransition<EventNode>(
                     tr.getSource(), tr.getTarget(), tr.getRelation(), freq, 1);
             result.add(trWeighted);
         }
@@ -445,7 +454,7 @@ public class LogEvent implements INode<LogEvent> {
     }
 
     @Override
-    public ITransition<LogEvent> getTransition(LogEvent node, String relation) {
+    public ITransition<EventNode> getTransition(EventNode node, String relation) {
         throw new InternalSynopticException("Not implemented.");
     }
 }

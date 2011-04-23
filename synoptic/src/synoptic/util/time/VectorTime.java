@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 
 public class VectorTime implements ITime {
     ArrayList<Integer> vector = new ArrayList<Integer>();
@@ -13,13 +13,13 @@ public class VectorTime implements ITime {
      * Determines and returns the ith event for node identified by nodeIndex in
      * a sequence of events. Precondition: nodeIndex must be valid.
      */
-    public static LogEvent determineIthEvent(int nodeIndex,
-            List<LogEvent> events, int i) {
+    public static EventNode determineIthEvent(int nodeIndex,
+            List<EventNode> events, int i) {
         // The earliest found ith event at node nodeIndex so far.
-        LogEvent earliestEvent = null;
+        EventNode earliestEvent = null;
 
-        for (LogEvent e : events) {
-            ITime etime = e.getAction().getTime();
+        for (EventNode e : events) {
+            ITime etime = e.getEvent().getTime();
             if (!(etime instanceof VectorTime)) {
                 throw new WrongTimeTypeException();
             }
@@ -51,13 +51,14 @@ public class VectorTime implements ITime {
      * @return A list in which an item a index j is a (totally ordered) list of
      *         events that occurred locally at node j.
      */
-    public static List<List<LogEvent>> mapLogEventsToNodes(List<LogEvent> events) {
+    public static List<List<EventNode>> mapLogEventsToNodes(
+            List<EventNode> events) {
         if (events == null || events.size() == 0) {
             return null;
         }
-        LinkedList<List<LogEvent>> map = new LinkedList<List<LogEvent>>();
+        LinkedList<List<EventNode>> map = new LinkedList<List<EventNode>>();
 
-        ITime e0time = events.get(0).getAction().getTime();
+        ITime e0time = events.get(0).getEvent().getTime();
         if (!(e0time instanceof VectorTime)) {
             throw new WrongTimeTypeException();
         }
@@ -67,11 +68,11 @@ public class VectorTime implements ITime {
 
         // For each node, for all i determine the ith local event at the node.
         int i;
-        LogEvent e;
-        LinkedList<LogEvent> eventList;
+        EventNode e;
+        LinkedList<EventNode> eventList;
         for (int nodeIndex = 0; nodeIndex < numNodes; nodeIndex++) {
             i = 0;
-            eventList = new LinkedList<LogEvent>();
+            eventList = new LinkedList<EventNode>();
             while (true) {
                 e = determineIthEvent(nodeIndex, events, i);
                 if (e == null) {

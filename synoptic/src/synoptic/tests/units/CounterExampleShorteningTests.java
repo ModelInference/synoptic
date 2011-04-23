@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 
@@ -20,7 +20,7 @@ public class CounterExampleShorteningTests extends SynopticTest {
     public void ShortenNFbyCExamplesTest() {
         NeverFollowedInvariant inv = new NeverFollowedInvariant("x", "y",
                 defRelation);
-        List<LogEvent> fullPath, shortPath;
+        List<EventNode> fullPath, shortPath;
 
         // x,a -> null (because x,a is not a counter-example path)
         fullPath = SynopticTest.getLogEventPath(new String[] { "x", "a" });
@@ -55,7 +55,7 @@ public class CounterExampleShorteningTests extends SynopticTest {
     public void ShortenAPCExamplesTest() {
         AlwaysPrecedesInvariant inv = new AlwaysPrecedesInvariant("x", "y",
                 defRelation);
-        List<LogEvent> fullPath, shortPath;
+        List<EventNode> fullPath, shortPath;
 
         // x,y -> null (because x,y is not a counter-example path)
         fullPath = SynopticTest.getLogEventPath(new String[] { "x", "y" });

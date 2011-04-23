@@ -20,9 +20,9 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.Main;
-import synoptic.model.Action;
+import synoptic.model.Event;
 import synoptic.model.Graph;
-import synoptic.model.LogEvent;
+import synoptic.model.EventNode;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
@@ -266,12 +266,12 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         PerformanceMetrics.get().record("percentReduction", percentReduction);
     }
 
-    public Graph<LogEvent> getInvariantGraph(String shortName) {
-        LinkedHashMap<String, LogEvent> messageMap = new LinkedHashMap<String, LogEvent>();
+    public Graph<EventNode> getInvariantGraph(String shortName) {
+        LinkedHashMap<String, EventNode> messageMap = new LinkedHashMap<String, EventNode>();
         for (ITemporalInvariant i : invariants) {
             for (String label : i.getPredicates()) {
                 if (!messageMap.containsKey(label)) {
-                    messageMap.put(label, new LogEvent(new Action(label)));
+                    messageMap.put(label, new EventNode(new Event(label)));
                 }
             }
         }
@@ -285,7 +285,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             }
         }
 
-        return new Graph<LogEvent>(messageMap.values());
+        return new Graph<EventNode>(messageMap.values());
     }
 
     /**
