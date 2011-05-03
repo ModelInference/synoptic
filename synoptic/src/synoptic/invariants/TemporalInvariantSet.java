@@ -21,8 +21,8 @@ import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.Main;
 import synoptic.model.Event;
-import synoptic.model.Graph;
 import synoptic.model.EventNode;
+import synoptic.model.Graph;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 

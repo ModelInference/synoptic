@@ -14,8 +14,8 @@ import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.Event;
-import synoptic.model.Graph;
 import synoptic.model.EventNode;
+import synoptic.model.Graph;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.interfaces.IGraph;
@@ -70,7 +70,7 @@ public abstract class SynopticTest {
         Main.logLvlVerbose = false;
         Main.logLvlExtraVerbose = false;
         // Main.logLvlExtraVerbose = true;
-        Main.SetUpLogging();
+        Main.setUpLogging();
         Main.randomSeed = System.currentTimeMillis();
         Main.random = new Random(Main.randomSeed);
     }

@@ -34,8 +34,8 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     // CACHE:
     private Graph automaton;
 
-    public BinaryInvariant(String typeFrist, String typeSecond, String relation) {
-        first = typeFrist;
+    public BinaryInvariant(String typeFirst, String typeSecond, String relation) {
+        first = typeFirst;
         second = typeSecond;
         this.relation = relation;
     }
