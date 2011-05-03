@@ -10,13 +10,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.IIterableIterator;
 import synoptic.util.InternalSynopticException;
+import synoptic.util.NotImplementedException;
 
 /**
  * Implements a partition in a partition graph. Partitions are nodes, but they
@@ -325,12 +324,12 @@ public class Partition implements INode<Partition> {
     }
 
     @Override
-    public Partition getParent() {
+    public Partition getParent() throws NotImplementedException {
         throw new NotImplementedException();
     }
 
     @Override
-    public void setParent(Partition parent) {
+    public void setParent(Partition parent) throws NotImplementedException {
         throw new NotImplementedException();
     }
 

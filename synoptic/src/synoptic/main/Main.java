@@ -35,8 +35,8 @@ import synoptic.invariants.InvariantMiner;
 import synoptic.invariants.SpecializedInvariantMiner;
 import synoptic.invariants.TCInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.model.Graph;
 import synoptic.model.EventNode;
+import synoptic.model.Graph;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.util.BriefLogFormatter;
@@ -143,7 +143,7 @@ public class Main implements Callable<Integer> {
     @Option(
             value = "-s Partitions separator reg-exp: log lines below and above the matching line are placed into different partitions",
             aliases = { "-partition-separator" })
-    public static String separator = null;
+    public static String separatorRegExp = null;
 
     /**
      * Regular expressions used for parsing the trace file. This parameter may,
@@ -419,7 +419,7 @@ public class Main implements Callable<Integer> {
         // filenames to process
         logFilenames = Arrays.asList(cmdLineArgs);
 
-        SetUpLogging();
+        setUpLogging();
 
         // Display help for all option groups, including unpublicized ones
         if (allHelp) {
@@ -608,7 +608,7 @@ public class Main implements Callable<Integer> {
      * Sets up and configures the Main.logger object based on command line
      * arguments
      */
-    public static void SetUpLogging() {
+    public static void setUpLogging() {
         // Get the top Logger instance
         logger = Logger.getLogger("");
 
@@ -727,34 +727,25 @@ public class Main implements Callable<Integer> {
         System.out.println(optsString);
     }
 
-    /**
-     * The workhorse method, which uses TraceParser to parse the input files,
-     * and calls the primary Synoptic functions to perform refinement\coarsening
-     * and finally outputs the final graph to the output file (specified as a
-     * command line option).
-     */
-    @Override
-    public Integer call() throws Exception {
+    public static TraceParser newTraceParser(List<String> regExps,
+            String partitionRegExp, String separatorRegExp)
+            throws ParseException {
         TraceParser parser = new TraceParser();
-        long startTime;
-
-        Locale.setDefault(Locale.US);
 
         logger.fine("Setting up the log file parser.");
-
-        if (Main.partitionRegExp == Main.partitionRegExpDefault) {
+        if (partitionRegExp == Main.partitionRegExpDefault) {
             logger.info("Using the default partitions mapping regex: "
                     + Main.partitionRegExpDefault);
         }
 
-        if (!Main.regExps.isEmpty()) {
+        if (!regExps.isEmpty()) {
             // The user provided custom regular expressions.
-            for (String exp : Main.regExps) {
+            for (String exp : regExps) {
                 logger.fine("\taddRegex with exp:" + exp);
                 parser.addRegex(exp);
             }
 
-            parser.setPartitionsMap(Main.partitionRegExp);
+            parser.setPartitionsMap(partitionRegExp);
         } else {
             // No custom regular expressions provided - warn and use defaults.
             logger.warning("Using a default regular expression to parse log-lines: "
@@ -764,15 +755,30 @@ public class Main implements Callable<Integer> {
             // TODO: is this next statement necessary?
             // parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
             parser.addRegex("(?<TYPE>.*)");
-            parser.setPartitionsMap(Main.partitionRegExp);
+            parser.setPartitionsMap(partitionRegExp);
         }
 
-        if (Main.separator != null) {
-            parser.addPartitionsSeparator(Main.separator);
-            if (Main.partitionRegExp != Main.partitionRegExpDefault) {
+        if (separatorRegExp != null) {
+            parser.addPartitionsSeparator(separatorRegExp);
+            if (partitionRegExp != Main.partitionRegExpDefault) {
                 logger.warning("Partition separator and partition mapping regex are both specified. This may result in difficult to understand parsing behavior.");
             }
         }
+        return parser;
+    }
+
+    /**
+     * The workhorse method, which uses TraceParser to parse the input files,
+     * and calls the primary Synoptic functions to perform refinement\coarsening
+     * and finally outputs the final graph to the output file (specified as a
+     * command line option).
+     */
+    @Override
+    public Integer call() throws Exception {
+        Locale.setDefault(Locale.US);
+        TraceParser parser = newTraceParser(Main.regExps, Main.partitionRegExp,
+                Main.separatorRegExp);
+        long startTime;
 
         // Parses all the log filenames, constructing the parsedEvents List.
         ArrayList<EventNode> parsedEvents = new ArrayList<EventNode>();
