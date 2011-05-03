@@ -1,0 +1,13 @@
+<project name="SynopticGWT" basedir="." default="default">
+
+	<target name="default" depends="buildwar,deploy"></target>
+
+	<target name="buildwar">
+		<war basedir="war" destfile="synopticgwt.war" webxml="war/WEB-INF/web.xml" />
+	</target>
+
+	<target name="deploy">
+		<copy file="synopticgwt.war" todir="../embeddedgwt/apps/" />
+	</target>
+
+</project>
