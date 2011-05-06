@@ -31,10 +31,10 @@ import plume.Options;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.gui.JungGui;
-import synoptic.invariants.InvariantMiner;
-import synoptic.invariants.SpecializedInvariantMiner;
-import synoptic.invariants.TCInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.SpecializedInvariantMiner;
+import synoptic.invariants.miners.TCInvariantMiner;
 import synoptic.model.EventNode;
 import synoptic.model.Graph;
 import synoptic.model.PartitionGraph;

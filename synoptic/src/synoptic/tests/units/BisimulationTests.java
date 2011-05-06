@@ -8,10 +8,10 @@ import org.junit.Test;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.bisim.KTails;
-import synoptic.invariants.InvariantMiner;
-import synoptic.invariants.SpecializedInvariantMiner;
-import synoptic.invariants.TCInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.SpecializedInvariantMiner;
+import synoptic.invariants.miners.TCInvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;

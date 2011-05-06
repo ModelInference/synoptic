@@ -1,4 +1,4 @@
-package synoptic.invariants;
+package synoptic.invariants.miners;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,6 +9,12 @@ import java.util.Set;
 import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
+import synoptic.invariants.AlwaysFollowedInvariant;
+import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.BinaryInvariant;
+import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.main.TraceParser;
 import synoptic.model.EventNode;

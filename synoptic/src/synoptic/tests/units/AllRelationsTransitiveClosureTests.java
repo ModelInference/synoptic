@@ -10,7 +10,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import synoptic.algorithms.graph.TransitiveClosure;
-import synoptic.invariants.AllRelationsTransitiveClosure;
+import synoptic.invariants.miners.AllRelationsTransitiveClosure;
 import synoptic.model.Event;
 import synoptic.model.Graph;
 import synoptic.model.EventNode;

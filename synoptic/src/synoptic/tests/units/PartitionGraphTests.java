@@ -8,9 +8,9 @@ import org.junit.Test;
 
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionSplit;
-import synoptic.invariants.InvariantMiner;
-import synoptic.invariants.SpecializedInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.SpecializedInvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.TraceParser;
 import synoptic.model.Graph;

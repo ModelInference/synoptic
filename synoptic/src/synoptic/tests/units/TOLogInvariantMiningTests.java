@@ -16,16 +16,16 @@ import org.junit.runners.Parameterized.Parameters;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.InvariantMiner;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.RelationPath;
-import synoptic.invariants.SpecializedInvariantMiner;
-import synoptic.invariants.TCInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.SpecializedInvariantMiner;
+import synoptic.invariants.miners.TCInvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
-import synoptic.model.Graph;
 import synoptic.model.EventNode;
+import synoptic.model.Graph;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 
@@ -272,7 +272,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
      * @throws Exception
      */
     @Test
-    public void mineAPbyTest() throws Exception {
+    public void mineAPTest() throws Exception {
         String[] log = new String[] { "a", "a", "b", "--", "a", "--", "a", "b",
                 "a", "b", "--" };
         TemporalInvariantSet minedInvs = genInvariants(log);
@@ -282,6 +282,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
                 SynopticTest.defRelation));
         trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
                 SynopticTest.defRelation));
+        logger.info("minedInvs: " + minedInvs.toString());
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }
 

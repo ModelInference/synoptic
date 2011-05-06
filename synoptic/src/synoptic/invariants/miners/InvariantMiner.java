@@ -1,7 +1,8 @@
-package synoptic.invariants;
+package synoptic.invariants.miners;
 
 import java.util.logging.Logger;
 
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.EventNode;
 import synoptic.model.interfaces.IGraph;
 import synoptic.util.InternalSynopticException;

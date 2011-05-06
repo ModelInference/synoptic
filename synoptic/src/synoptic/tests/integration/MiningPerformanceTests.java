@@ -9,9 +9,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import synoptic.invariants.InvariantMiner;
-import synoptic.invariants.SpecializedInvariantMiner;
-import synoptic.invariants.TCInvariantMiner;
+import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.SpecializedInvariantMiner;
+import synoptic.invariants.miners.TCInvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;

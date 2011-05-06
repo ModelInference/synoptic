@@ -1,4 +1,4 @@
-package synoptic.invariants;
+package synoptic.invariants.miners;
 
 import java.util.LinkedHashMap;
 import java.util.Set;
