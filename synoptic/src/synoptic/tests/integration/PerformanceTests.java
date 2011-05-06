@@ -9,7 +9,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.invariants.SpecializedInvariantMiner;
+import synoptic.invariants.miners.SpecializedInvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;

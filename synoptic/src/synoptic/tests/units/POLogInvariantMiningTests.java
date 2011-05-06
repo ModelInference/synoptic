@@ -12,10 +12,10 @@ import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
-import synoptic.invariants.InvariantMiner;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.invariants.TCInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.TCInvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.TraceParser;
 import synoptic.model.PartitionGraph;
