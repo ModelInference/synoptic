@@ -28,13 +28,8 @@ h1 {
   color: red;
 }
 
-/** Set ids using widget.getElement().setId("idOfElement") */
-#closeButton {
-  margin: 15px 6px 6px;
-}
-
-
 ///////////
+
 .grid {
   width: 50%;
   height: 50px;
@@ -55,10 +50,32 @@ h1 {
   background: #E8EDFF;
 }
 
-.panel {
+.invariantsGrid {
   background-color: #C3D9FF;
   border: 1px solid #000000;
   padding: 3px;
   margin: 3px;
   font-weight: normal;
 }
+
+.inputForm {
+  background-color: #C3D9FF;
+  border: 1px solid #000000;
+  padding: 3px;
+  margin: 3px;
+  font-weight: normal;
+}
+
+.buttonPanel {
+  background-color: #C3D9FF;
+  border: 1px solid #000000;
+  padding: 3px;
+  margin: 3px;
+  font-weight: normal;
+}
+
+
+.modelCanvas {
+  border: 2px solid #C3D9FF;
+}
+

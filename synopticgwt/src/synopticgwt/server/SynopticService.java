@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.InvariantMiner;
 import synoptic.invariants.RelationPath;
@@ -95,9 +96,16 @@ public class SynopticService extends RemoteServiceServlet implements
             TemporalInvariantSet invs) {
         GWTInvariants GWTinvs = new GWTInvariants();
         for (ITemporalInvariant inv : invs) {
-            String predicates = inv.getPredicates().toString();
-            GWTinvs.addInv(inv.getShortName(),
-                    predicates.substring(1, predicates.length() - 1));
+            String invKey = inv.getShortName();
+            GWTPair<String, String> invVal;
+            if (inv instanceof BinaryInvariant) {
+                invVal = new GWTPair<String, String>(
+                        ((BinaryInvariant) inv).getFirst(),
+                        ((BinaryInvariant) inv).getSecond());
+                GWTinvs.addInv(invKey, invVal);
+            } else {
+                // TODO: throw an exception
+            }
         }
         return GWTinvs;
     }

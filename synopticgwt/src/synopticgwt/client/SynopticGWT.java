@@ -10,6 +10,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -27,7 +28,7 @@ import synopticgwt.shared.GWTInvariants;
 import synopticgwt.shared.GWTPair;
 
 /**
- * Entry point classes define <code>onModuleLoad()</code>.
+ * Implements the visual and interactive components of the SynopticGWT wep-app
  */
 public class SynopticGWT implements EntryPoint {
     /**
@@ -61,6 +62,11 @@ public class SynopticGWT implements EntryPoint {
     // Model tab widgets:
     private final VerticalPanel modelPanel = new VerticalPanel();
     private final Button modelRefineButton = new Button("Refine");
+    private final Button modelCoarsenButton = new Button("Coarsen");
+
+    // //////////////////////////////////////////////////////////////////////////
+    // JSNI methods -- JavaScript Native Interface methods. The method body of
+    // this calls is pure JavaScript.
 
     /**
      * A JSNI method to create and display a graph.
@@ -128,6 +134,14 @@ public class SynopticGWT implements EntryPoint {
 		array.push(s);
     }-*/;
 
+    // </JSNI methods>
+    // //////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Shows the GWTGraph object on the screen in the modelPanel
+     * 
+     * @param graph
+     */
     public void showGraph(GWTGraph graph) {
         // Clear the second (non-button ) widget model
         // panel
@@ -135,12 +149,14 @@ public class SynopticGWT implements EntryPoint {
             modelPanel.remove(modelPanel.getWidget(1));
             assert (modelPanel.getWidgetCount() == 1);
         }
-        String canvasId = "canvas";
+        String canvasId = "canvasId";
 
         FlowPanel f = new FlowPanel();
         f.getElement().setId(canvasId);
+        f.setStylePrimaryName("modelCanvas");
         modelPanel.add(f);
 
+        // Create the list of graph node labels and their Ids.
         HashMap<Integer, String> nodes = graph.getNodes();
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
         for (Integer key : nodes.keySet()) {
@@ -148,6 +164,7 @@ public class SynopticGWT implements EntryPoint {
             pushArray(jsNodes, nodes.get(key));
         }
 
+        // Create the list of edges, where two consecutive node Ids is an edge.
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
         List<GWTPair<Integer, Integer>> edges = graph.getEdges();
         for (GWTPair<Integer, Integer> edge : edges) {
@@ -155,8 +172,13 @@ public class SynopticGWT implements EntryPoint {
             pushArray(jsEdges, edge.getRight().toString());
         }
 
-        createGraph(jsNodes, jsEdges, f.getOffsetWidth(), f.getOffsetHeight(),
-                canvasId);
+        // Determine the size of the graphic -- make it depend on the current
+        // window size.
+        // TODO: make sizing more robust, and allow users to resize the graphic
+        int width = Math.max(Window.getClientWidth() - 300, 300);
+        int height = Math.max(Window.getClientHeight() - 300, 300);
+        f.setPixelSize(width, height);
+        createGraph(jsNodes, jsEdges, width, height, canvasId);
     }
 
     /**
@@ -186,7 +208,6 @@ public class SynopticGWT implements EntryPoint {
             }
 
             // TODO: validate the args to parseLog()
-
             synopticService.parseLog(logLines, regExps, partitionRegExp,
                     separatorRegExp, new ParseLogAsyncCallback());
         }
@@ -222,7 +243,7 @@ public class SynopticGWT implements EntryPoint {
             GWTInvariants gwtInvs = result.getLeft();
             Set<String> invTypes = gwtInvs.getInvTypes();
             for (String invType : invTypes) {
-                List<String> invs = gwtInvs.getInvs(invType);
+                List<GWTPair<String, String>> invs = gwtInvs.getInvs(invType);
                 Grid grid = new Grid(invs.size() + 1, 1);
                 vPanel.add(grid);
 
@@ -230,12 +251,13 @@ public class SynopticGWT implements EntryPoint {
                 grid.getCellFormatter().setStyleName(0, 0, "topTableCell");
 
                 int i = 1;
-                for (String inv : invs) {
-                    grid.setWidget(i, 0, new Label(inv));
+                for (GWTPair<String, String> inv : invs) {
+                    grid.setWidget(i, 0,
+                            new Label(inv.getLeft() + ", " + inv.getRight()));
                     i += 1;
                 }
 
-                grid.setStyleName("panel grid");
+                grid.setStyleName("invariantsGrid grid");
                 for (i = 1; i < grid.getRowCount(); i++) {
                     grid.getCellFormatter().setStyleName(i, 0, "tableCell");
                 }
@@ -243,6 +265,8 @@ public class SynopticGWT implements EntryPoint {
 
             parseLogButton.setEnabled(true);
             tabPanel.selectTab(2);
+            modelRefineButton.setEnabled(true);
+            modelCoarsenButton.setEnabled(false);
 
             GWTGraph graph = result.getRight();
             showGraph(graph);
@@ -282,6 +306,7 @@ public class SynopticGWT implements EntryPoint {
         @Override
         public void onSuccess(GWTGraph graph) {
             if (graph == null) {
+                modelCoarsenButton.setEnabled(true);
                 return;
             }
             modelRefineButton.setEnabled(true);
@@ -291,13 +316,28 @@ public class SynopticGWT implements EntryPoint {
     }
 
     /**
-     * This is the entry point method.
+     * Used for handling coarsen button clicks
+     */
+    class CoarsenModelHandler implements ClickHandler {
+        /**
+         * Fired when the user clicks on the coarsen.
+         */
+        @Override
+        public void onClick(ClickEvent event) {
+            modelCoarsenButton.setEnabled(false);
+            Window.alert("Error: coarsening not implemented");
+            modelCoarsenButton.setEnabled(true);
+        }
+    }
+
+    /**
+     * Entry point method.
      */
     @Override
     public void onModuleLoad() {
         // Build the page layout.
         RootPanel.get("mainDiv").add(tabPanel);
-        tabPanel.setWidth("80%");
+        tabPanel.setWidth("100%");
         tabPanel.add(inputsPanel, "Inputs");
         tabPanel.selectTab(0);
 
@@ -326,7 +366,7 @@ public class SynopticGWT implements EntryPoint {
 
         grid.setWidget(4, 1, parseLogButton);
 
-        grid.setStyleName("panel grid");
+        grid.setStyleName("inputForm grid");
         for (int i = 0; i < grid.getRowCount(); i++) {
             for (int j = 0; j < grid.getCellCount(i); j++) {
                 grid.getCellFormatter().setStyleName(i, j, "tableCell");
@@ -350,12 +390,19 @@ public class SynopticGWT implements EntryPoint {
         // Nothing to be done for now for the invariants panel.
 
         // Construct the Model panel.
-        modelPanel.add(modelRefineButton);
-        RefineModelHandler refineHandler = new RefineModelHandler();
-        modelRefineButton.addClickHandler(refineHandler);
+        VerticalPanel buttonsPanel = new VerticalPanel();
+        buttonsPanel.add(modelRefineButton);
+        buttonsPanel.add(modelCoarsenButton);
+        modelRefineButton.setWidth("80px");
+        modelCoarsenButton.setWidth("80px");
+        buttonsPanel.setStyleName("buttonPanel");
+        modelPanel.add(buttonsPanel);
+        // Coarsening is disabled until refinement is completed.
+        modelCoarsenButton.setEnabled(false);
+        modelRefineButton.addClickHandler(new RefineModelHandler());
+        modelCoarsenButton.addClickHandler(new CoarsenModelHandler());
 
         // Associate handler with the Parse Log button
-        ParseLogHandler parseLogHandler = new ParseLogHandler();
-        parseLogButton.addClickHandler(parseLogHandler);
+        parseLogButton.addClickHandler(new ParseLogHandler());
     }
 }
