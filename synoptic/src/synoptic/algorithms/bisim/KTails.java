@@ -24,7 +24,7 @@ public class KTails {
     static public <NodeType extends INode<NodeType>> boolean kEquals(
             NodeType n1, NodeType n2, int k, boolean subsumption) {
         if (k == 0) {
-            return n1.getLabel().equals(n2.getLabel());
+            return n1.getEType().equals(n2.getEType());
         }
         if (subsumption) {
             return kEqualsWithSubsumption(n1, n2, k);
@@ -85,7 +85,7 @@ public class KTails {
             LinkedHashMap<NodeType, NodeType> allVisitedMatches) {
 
         // The labels must match.
-        if (!n1.getLabel().equals(n2.getLabel())) {
+        if (!n1.getEType().equals(n2.getEType())) {
             return false;
         }
 

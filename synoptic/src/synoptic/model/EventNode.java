@@ -73,7 +73,7 @@ public class EventNode implements INode<EventNode> {
 
     @Override
     public String toString() {
-        return "[" + getEvent().getLabel() + "]";
+        return "[" + getEvent().getEType() + "]";
     }
 
     @Override
@@ -351,8 +351,8 @@ public class EventNode implements INode<EventNode> {
      * Return the label associated with the event.
      */
     @Override
-    public String getLabel() {
-        return event.getLabel();
+    public EventType getEType() {
+        return event.getEType();
     }
 
     public Set<EventNode> getSuccessors(String relation) {
@@ -379,7 +379,7 @@ public class EventNode implements INode<EventNode> {
                 }
 
                 // compare labels of the two message events
-                int labelCmp = arg0.getLabel().compareTo(arg1.getLabel());
+                int labelCmp = arg0.getEType().compareTo(arg1.getEType());
                 if (labelCmp != 0) {
                     return labelCmp;
                 }

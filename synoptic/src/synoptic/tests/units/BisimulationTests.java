@@ -9,14 +9,14 @@ import org.junit.Test;
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.bisim.KTails;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
-import synoptic.invariants.miners.SpecializedInvariantMiner;
-import synoptic.invariants.miners.TCInvariantMiner;
+import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
-import synoptic.model.Graph;
 import synoptic.model.EventNode;
+import synoptic.model.Graph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.tests.SynopticTest;
@@ -61,7 +61,7 @@ public class BisimulationTests extends SynopticTest {
         Graph<EventNode> inputGraph = parser
                 .generateDirectTemporalRelation(parsedEvents);
 
-        InvariantMiner miner = new TCInvariantMiner();
+        InvariantMiner miner = new TransitiveClosureTOInvMiner();
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
 
         PartitionGraph pGraph = Bisimulation.getSplitGraph(inputGraph,
@@ -91,14 +91,14 @@ public class BisimulationTests extends SynopticTest {
         String traceStr = concatinateWithNewlines(traceStrArray);
 
         TraceParser defParser = genDefParser();
-        ArrayList<EventNode> parsedEvents = defParser.parseTraceString(traceStr,
-                SynopticTest.testName.getMethodName(), -1);
+        ArrayList<EventNode> parsedEvents = defParser.parseTraceString(
+                traceStr, SynopticTest.testName.getMethodName(), -1);
         Graph<EventNode> inputGraph = defParser
                 .generateDirectTemporalRelation(parsedEvents);
 
         exportTestGraph(inputGraph, 0);
 
-        InvariantMiner miner = new SpecializedInvariantMiner();
+        InvariantMiner miner = new ChainWalkingTOInvMiner();
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
 
         PartitionGraph pGraph = Bisimulation.getSplitGraph(inputGraph,
@@ -111,7 +111,7 @@ public class BisimulationTests extends SynopticTest {
             // Check that each partition contains exactly one LogEvent, and that
             // the set of all LogEvents is exactly the set of the input
             // LogEvents.
-            if (p.getLabel() == Main.initialNodeLabel) {
+            if (p.getEType().isInitialEventType()) {
                 hasInitial = true;
                 continue;
             }

@@ -1,6 +1,7 @@
 package synoptic.invariants.fsmcheck;
 
 import synoptic.invariants.BinaryInvariant;
+import synoptic.model.EventType;
 import synoptic.model.interfaces.INode;
 
 /**
@@ -18,9 +19,9 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     HistoryNode aSeen; // A seen (and no Bs yet after it)
     HistoryNode bSeenAfter; // A seen, followed by B -- failure state
 
-    String a, b;
+    EventType a, b;
 
-    public NFbyTracingSet(String a, String b) {
+    public NFbyTracingSet(EventType a, EventType b) {
         this.a = a;
         this.b = b;
     }
@@ -31,7 +32,7 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void setInitial(T x) {
-        String name = x.getLabel();
+        EventType name = x.getEType();
         HistoryNode newHistory = new HistoryNode(x, null, 1);
         aNotSeen = aSeen = bSeenAfter = null;
         if (a.equals(name)) {
@@ -43,7 +44,7 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void transition(T x) {
-        String name = x.getLabel();
+        EventType name = x.getEType();
 
         if (b.equals(name)) {
             bSeenAfter = preferShorter(aSeen, bSeenAfter);

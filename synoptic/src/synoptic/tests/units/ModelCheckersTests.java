@@ -20,12 +20,13 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.invariants.miners.TCInvariantMiner;
+import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
-import synoptic.model.Graph;
 import synoptic.model.EventNode;
+import synoptic.model.EventType;
+import synoptic.model.Graph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.Transition;
@@ -159,13 +160,13 @@ public class ModelCheckersTests extends SynopticTest {
      */
     private static void testPartitionGraphCExample(String[] events,
             ITemporalInvariant inv, boolean cExampleExists,
-            String[] cExampleLabels) throws Exception {
+            EventType[] cExampleLabels) throws Exception {
 
         TraceParser parser = new TraceParser();
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser,
-                new TCInvariantMiner());
+                new TransitiveClosureTOInvMiner());
 
         exportTestGraph(pGraph, 1);
 
@@ -188,10 +189,10 @@ public class ModelCheckersTests extends SynopticTest {
         expectedPath.add(nextNode);
         nextCExampleHop:
         for (int i = 0; i < cExampleLabels.length; i++) {
-            String nextLabel = cExampleLabels[i];
+            EventType nextLabel = cExampleLabels[i];
             for (Transition<Partition> transition : nextNode.getTransitions()) {
                 for (EventNode event : transition.getTarget().getEvents()) {
-                    if (event.getLabel().equals(nextLabel)) {
+                    if (event.getEType().equals(nextLabel)) {
                         nextNode = transition.getTarget();
                         expectedPath.add(nextNode);
                         continue nextCExampleHop;
@@ -199,8 +200,8 @@ public class ModelCheckersTests extends SynopticTest {
                 }
             }
             Assert.fail("Unable to locate transition from "
-                    + nextNode.toString() + " to a partition with label"
-                    + nextLabel);
+                    + nextNode.toString() + " to a partition with label "
+                    + nextLabel.toString());
         }
         testCExamplePath(pGraph, inv, cExampleExists, expectedPath);
     }
@@ -240,8 +241,8 @@ public class ModelCheckersTests extends SynopticTest {
         ITemporalInvariant inv = new AlwaysFollowedInvariant("a", "b",
                 SynopticTest.defRelation);
 
-        String[] cExampleLabels = new String[] { "x", "a", "y", "w",
-                Main.terminalNodeLabel };
+        EventType[] cExampleLabels = stringToStringEventType(new String[] {
+                "x", "a", "y", "w", Main.terminalNodeLabel });
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
 
@@ -310,7 +311,8 @@ public class ModelCheckersTests extends SynopticTest {
 
         ITemporalInvariant inv = new NeverFollowedInvariant("a", "b",
                 SynopticTest.defRelation);
-        String[] cExampleLabels = new String[] { "f", "a", "y", "b" };
+        EventType[] cExampleLabels = stringToStringEventType(new String[] {
+                "f", "a", "y", "b" });
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
 
@@ -378,7 +380,8 @@ public class ModelCheckersTests extends SynopticTest {
 
         ITemporalInvariant inv = new AlwaysPrecedesInvariant("a", "b",
                 SynopticTest.defRelation);
-        String[] cExampleLabels = new String[] { "z", "x", "y", "b" };
+        EventType[] cExampleLabels = stringToStringEventType(new String[] {
+                "z", "x", "y", "b" });
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
 

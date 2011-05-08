@@ -2,18 +2,27 @@ package synoptic.invariants;
 
 import java.util.List;
 
+import synoptic.model.EventType;
+import synoptic.model.StringEventType;
 import synoptic.model.interfaces.INode;
 
 public class NeverFollowedInvariant extends BinaryInvariant {
 
-    public NeverFollowedInvariant(String typeFrist, String typeSecond,
+    public NeverFollowedInvariant(EventType typeFirst, EventType typeSecond,
             String relation) {
-        super(typeFrist, typeSecond, relation);
+        super(typeFirst, typeSecond, relation);
+    }
+
+    public NeverFollowedInvariant(String typeFirst, String typeSecond,
+            String relation) {
+        this(new StringEventType(typeFirst, false, false), new StringEventType(
+                typeSecond, false, false), relation);
     }
 
     @Override
     public String toString() {
-        return first + " neverFollowedBy(" + relation + ") " + second;
+        return first.toString() + " neverFollowedBy(" + relation + ") "
+                + second.toString();
     }
 
     @Override
@@ -26,9 +35,11 @@ public class NeverFollowedInvariant extends BinaryInvariant {
              * loop itself contains a 'second'. In which case, the infinite loop
              * is a valid counter-examples which will be shortened.
              */
-            return "[](did(" + first + ") -> X([] !(did(" + second + "))))";
+            return "[](did(" + first.toString() + ") -> X([] !(did("
+                    + second.toString() + "))))";
         } else {
-            return "[](\"" + first + "\" -> X([] !(\"" + second + "\")))";
+            return "[](\"" + first.toString() + "\" -> X([] !(\""
+                    + second.toString() + "\")))";
         }
     }
 
@@ -55,9 +66,9 @@ public class NeverFollowedInvariant extends BinaryInvariant {
         boolean first_seen = false;
         for (int trace_pos = 0; trace_pos < trace.size(); trace_pos++) {
             T message = trace.get(trace_pos);
-            if (message.getLabel().equals(first) && !first_seen) {
+            if (message.getEType().equals(first) && !first_seen) {
                 first_seen = true;
-            } else if (message.getLabel().equals(second) && first_seen) {
+            } else if (message.getEType().equals(second) && first_seen) {
                 return trace.subList(0, trace_pos + 1);
                 // return BinaryInvariant.removeLoops(..);
             }

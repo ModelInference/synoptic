@@ -32,7 +32,7 @@ import synoptic.util.NotImplementedException;
 public class Partition implements INode<Partition> {
     /** All the events this partition contains */
     protected final Set<EventNode> events;
-    private String label;
+    private EventType eType;
 
     /**
      * Whether or not this partition is a terminal partition (whether or not it
@@ -87,7 +87,7 @@ public class Partition implements INode<Partition> {
     public String toString() {
         StringBuilder str = new StringBuilder();
         // str.append("Partition " + hashCode());
-        str.append("P." + getLabel());
+        str.append("P." + getEType());
         str.append("." + events.size());
         return str.toString();
     }
@@ -193,11 +193,11 @@ public class Partition implements INode<Partition> {
     }
 
     @Override
-    public String getLabel() {
-        if (label != null) {
-            return label;
+    public EventType getEType() {
+        if (eType != null) {
+            return eType;
         }
-        return events.iterator().next().getLabel();
+        return events.iterator().next().getEType();
     }
 
     public int size() {
@@ -337,8 +337,8 @@ public class Partition implements INode<Partition> {
         events.removeAll(messageList);
     }
 
-    public void setLabel(String str) {
-        label = str;
+    public void setLabel(EventType eType) {
+        this.eType = eType;
     }
 
     /**
@@ -361,7 +361,7 @@ public class Partition implements INode<Partition> {
                 }
 
                 // 1. compare label strings
-                int labelCmp = getLabel().compareTo(arg1.getLabel());
+                int labelCmp = getEType().compareTo(arg1.getEType());
                 if (labelCmp != 0) {
                     return labelCmp;
                 }

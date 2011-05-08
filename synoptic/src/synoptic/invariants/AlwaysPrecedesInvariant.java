@@ -2,23 +2,32 @@ package synoptic.invariants;
 
 import java.util.List;
 
+import synoptic.model.EventType;
+import synoptic.model.StringEventType;
 import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
 
 public class AlwaysPrecedesInvariant extends BinaryInvariant {
 
-    public AlwaysPrecedesInvariant(String typeFirst, String typeSecond,
+    public AlwaysPrecedesInvariant(EventType typeFirst, EventType typeSecond,
             String relation) {
         super(typeFirst, typeSecond, relation);
-        if (typeFirst == typeSecond) {
+        if (typeFirst.equals(typeSecond)) {
             throw new InternalSynopticException(
                     "x AlwaysPrecedes x can never be true");
         }
     }
 
+    public AlwaysPrecedesInvariant(String typeFirst, String typeSecond,
+            String relation) {
+        this(new StringEventType(typeFirst, false, false), new StringEventType(
+                typeSecond, false, false), relation);
+    }
+
     @Override
     public String toString() {
-        return first + " AlwaysPrecedes(" + relation + ") " + second;
+        return first.toString() + " AlwaysPrecedes(" + relation + ") "
+                + second.toString();
     }
 
     @Override
@@ -36,10 +45,12 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
              * Therefore we do not need to worry about creating a fairness
              * constraint as with AFby.
              */
-            return "((<>(did(" + second + ")))->((!did(" + second + ")) U did("
-                    + first + ")))";
+            return "((<>(did(" + second.toString() + ")))->((!did("
+                    + second.toString() + ")) U did(" + first.toString()
+                    + ")))";
         } else {
-            return "(<>(" + second + "))->((!" + second + ") U " + first + ")";
+            return "(<>(" + second.toString() + "))->((!" + second.toString()
+                    + ") U " + first.toString() + ")";
         }
     }
 
@@ -65,12 +76,12 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
     public <T extends INode<T>> List<T> shorten(List<T> trace) {
         for (int trace_pos = 0; trace_pos < trace.size(); trace_pos++) {
             T message = trace.get(trace_pos);
-            if (message.getLabel().equals(first)) {
+            if (message.getEType().equals(first)) {
                 // We found a 'first' before a 'second' (we are assuming that
                 // 'second' does exist later on in the trace).
                 return null;
             }
-            if (message.getLabel().equals(second)) {
+            if (message.getEType().equals(second)) {
                 // We found a 'second' before a 'first'.
                 return trace.subList(0, trace_pos + 1);
                 // return BinaryInvariant.removeLoops(..);

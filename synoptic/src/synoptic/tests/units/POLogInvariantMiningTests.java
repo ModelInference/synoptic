@@ -15,7 +15,7 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.InvariantMiner;
-import synoptic.invariants.miners.TCInvariantMiner;
+import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
 import synoptic.main.Main;
 import synoptic.main.TraceParser;
 import synoptic.model.PartitionGraph;
@@ -40,8 +40,8 @@ public class POLogInvariantMiningTests extends SynopticTest {
      */
     @Parameters
     public static Collection<Object[]> data() {
-        Object[][] data = new Object[][] { { new TCInvariantMiner(false) },
-                { new TCInvariantMiner(true) } };
+        Object[][] data = new Object[][] { { new TransitiveClosureTOInvMiner(false) },
+                { new TransitiveClosureTOInvMiner(true) } };
         return Arrays.asList(data);
     }
 

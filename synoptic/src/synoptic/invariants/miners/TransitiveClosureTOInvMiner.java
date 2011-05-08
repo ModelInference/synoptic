@@ -18,11 +18,13 @@ import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.main.TraceParser;
 import synoptic.model.EventNode;
+import synoptic.model.EventType;
+import synoptic.model.StringEventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
-public class TCInvariantMiner extends InvariantMiner {
+public class TransitiveClosureTOInvMiner extends InvariantMiner {
 
     /**
      * Whether or not to use iterative version of warshall's algorithm for TC
@@ -30,10 +32,10 @@ public class TCInvariantMiner extends InvariantMiner {
      */
     public boolean useWarshall = true;
 
-    public TCInvariantMiner() {
+    public TransitiveClosureTOInvMiner() {
     }
 
-    public TCInvariantMiner(boolean useWarshall) {
+    public TransitiveClosureTOInvMiner(boolean useWarshall) {
         this.useWarshall = useWarshall;
     }
 
@@ -123,21 +125,22 @@ public class TCInvariantMiner extends InvariantMiner {
      * @throws Exception
      */
     private static Set<ITemporalInvariant> extractInvariantsFromTC(
-            IGraph<EventNode> g, TransitiveClosure<EventNode> tc, String relation) {
-        LinkedHashMap<String, ArrayList<EventNode>> partitions = new LinkedHashMap<String, ArrayList<EventNode>>();
+            IGraph<EventNode> g, TransitiveClosure<EventNode> tc,
+            String relation) {
+        LinkedHashMap<EventType, ArrayList<EventNode>> partitions = new LinkedHashMap<EventType, ArrayList<EventNode>>();
 
         // Initialize the partitions map: each unique label maps to a list of
         // nodes with that label.
         for (EventNode m : g.getNodes()) {
-            if (!partitions.containsKey(m.getLabel())) {
-                partitions.put(m.getLabel(), new ArrayList<EventNode>());
+            if (!partitions.containsKey(m.getEType())) {
+                partitions.put(m.getEType(), new ArrayList<EventNode>());
             }
-            partitions.get(m.getLabel()).add(m);
+            partitions.get(m.getEType()).add(m);
         }
 
         Set<ITemporalInvariant> set = new LinkedHashSet<ITemporalInvariant>();
-        for (String label1 : partitions.keySet()) {
-            for (String label2 : partitions.keySet()) {
+        for (EventType label1 : partitions.keySet()) {
+            for (EventType label2 : partitions.keySet()) {
                 boolean neverFollowed = true;
                 boolean alwaysFollowedBy = true;
                 boolean alwaysPreceded = true;
@@ -216,18 +219,14 @@ public class TCInvariantMiner extends InvariantMiner {
             Set<ITemporalInvariant> invariants) {
         LinkedHashSet<ITemporalInvariant> invsToRemove = new LinkedHashSet<ITemporalInvariant>();
 
-        LinkedHashSet<String> specialNodes = new LinkedHashSet<String>();
-        specialNodes.add(Main.terminalNodeLabel);
-        specialNodes.add(Main.initialNodeLabel);
-
         for (ITemporalInvariant inv : invariants) {
             if (!(inv instanceof BinaryInvariant)) {
                 continue;
             }
-            String first = ((BinaryInvariant) inv).getFirst();
-            String second = ((BinaryInvariant) inv).getSecond();
+            EventType first = ((BinaryInvariant) inv).getFirst();
+            EventType second = ((BinaryInvariant) inv).getSecond();
 
-            if (specialNodes.contains(first) || specialNodes.contains(second)) {
+            if (first.isSpecialEventType() || second.isSpecialEventType()) {
                 invsToRemove.add(inv);
             }
         }
@@ -236,10 +235,10 @@ public class TCInvariantMiner extends InvariantMiner {
         invariants.removeAll(invsToRemove);
     }
 
-    private void addToPartition(Set<String> partition,
+    private void addToPartition(Set<EventType> partition,
             ITransition<EventNode> trans) {
         EventNode curNode = trans.getTarget();
-        partition.add(curNode.getLabel());
+        partition.add(curNode.getEType());
         for (ITransition<EventNode> childTrans : curNode.getTransitions()) {
             addToPartition(partition, childTrans);
         }
@@ -267,34 +266,38 @@ public class TCInvariantMiner extends InvariantMiner {
         }
 
         EventNode initNode = g.getInitialNodes().iterator().next();
-        if (!initNode.getLabel().equals(Main.initialNodeLabel)) {
+        if (!initNode.getEType().isInitialEventType()) {
             throw new InternalSynopticException(
                     "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
         }
 
-        LinkedHashSet<String> eventuallySet = null;
+        LinkedHashSet<EventType> eventuallySet = null;
 
-        boolean firstPartition = true;
         // Iterate through all the partitions.
         for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
-            LinkedHashSet<String> partition = new LinkedHashSet<String>();
+            LinkedHashSet<EventType> partition = new LinkedHashSet<EventType>();
             addToPartition(partition, initTrans);
 
             // Initialize the set with events from the first partition.
-            if (firstPartition) {
-                eventuallySet = new LinkedHashSet<String>(partition);
-                if (eventuallySet.contains(Main.terminalNodeLabel)) {
-                    eventuallySet.remove(Main.terminalNodeLabel);
+            if (eventuallySet == null) {
+                eventuallySet = new LinkedHashSet<EventType>(partition);
+                for (EventType e : partition) {
+                    if (e.isTerminalEventType()) {
+                        eventuallySet.remove(e);
+                    }
                 }
-                firstPartition = false;
+                // if (eventuallySet.contains(Main.terminalNodeLabel)) {
+                // eventuallySet.remove(Main.terminalNodeLabel);
+                // }
                 continue;
             }
 
             // Now eliminate events from the eventuallySet that do not
             // appear in the partitions that follow the first partition.
             // LinkedHashSet<String> eventuallySetNew = null;
-            for (Iterator<String> it = eventuallySet.iterator(); it.hasNext();) {
-                String e = it.next();
+            for (Iterator<EventType> it = eventuallySet.iterator(); it
+                    .hasNext();) {
+                EventType e = it.next();
                 if (!partition.contains(e)) {
                     it.remove();
                 }
@@ -302,9 +305,10 @@ public class TCInvariantMiner extends InvariantMiner {
         }
 
         // Based on eventuallySet generate INITIAL AFby x invariants.
-        for (String eLabel : eventuallySet) {
-            invariants.add(new AlwaysFollowedInvariant(Main.initialNodeLabel,
-                    eLabel, TraceParser.defaultRelation));
+        for (EventType eLabel : eventuallySet) {
+            invariants.add(new AlwaysFollowedInvariant(new StringEventType(
+                    Main.initialNodeLabel, true, false), eLabel,
+                    TraceParser.defaultRelation));
         }
 
         return invariants;

@@ -33,7 +33,7 @@ public class MessageToPartitionIterator implements IIterableIterator<Partition> 
         while (messageIterator.hasNext()) {
             final Partition found = messageIterator.next().getParent();
             if (seen.add(found)
-                    && (relation == null || found.getLabel().equals(relation))) {
+                    && (relation == null || found.getEType().equals(relation))) {
                 return found;
             }
         }

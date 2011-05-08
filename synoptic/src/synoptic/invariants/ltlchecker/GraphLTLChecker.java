@@ -120,7 +120,7 @@ public class GraphLTLChecker<T extends INode<T>> {
                 for (Edge e : n.getOutgoingEdges()) {
                     p.println(e.getSource().hashCode() + " -> "
                             + e.getNext().hashCode() + " [label=\""
-                            + ((T) e.getAttribute("inode")).getLabel() + "\"];");
+                            + ((T) e.getAttribute("inode")).getEType() + "\"];");
                 }
             }
 
@@ -191,7 +191,7 @@ public class GraphLTLChecker<T extends INode<T>> {
         for (T m : allNodes) {
             Node n = new Node(targetGraph);
             nextState.put(m, n);
-            n.setAttribute("post", "P:" + m.getLabel());
+            n.setAttribute("post", "P:" + m.getEType());
         }
 
         for (T m : allNodes) {
@@ -213,8 +213,8 @@ public class GraphLTLChecker<T extends INode<T>> {
                 throw new InternalSynopticException("null in nextState");
             }
             for (Node prev : prevStates.get(m)) {
-                Edge e = new Edge(prev, nextState.get(m), "-", m.getLabel(),
-                        null);
+                Edge e = new Edge(prev, nextState.get(m), "-", m.getEType()
+                        .toString(), null);
                 e.setAttribute("inode", m);
 
             }

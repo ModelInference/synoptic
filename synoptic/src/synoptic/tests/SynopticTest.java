@@ -15,8 +15,10 @@ import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
+import synoptic.model.EventType;
 import synoptic.model.Graph;
 import synoptic.model.PartitionGraph;
+import synoptic.model.StringEventType;
 import synoptic.model.export.GraphVizExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -67,7 +69,7 @@ public abstract class SynopticTest {
         Main.recoverFromParseErrors = false;
         Main.ignoreNonMatchingLines = false;
         Main.debugParse = false;
-        Main.logLvlVerbose = false;
+        Main.logLvlVerbose = true;
         Main.logLvlExtraVerbose = false;
         // Main.logLvlExtraVerbose = true;
         Main.setUpLogging();
@@ -78,6 +80,18 @@ public abstract class SynopticTest {
     // //////////////////////////////////////////////
     // Common routines to simplify testing.
     // //////////////////////////////////////////////
+
+    public EventType[] stringToStringEventType(String[] types) {
+        EventType[] ret = new EventType[types.length];
+        for (int i = 0; i < types.length; i++) {
+            if (types[i].equals(Main.terminalNodeLabel)) {
+                ret[i] = new StringEventType(types[i], false, true);
+            } else {
+                ret[i] = new StringEventType(types[i], false, false);
+            }
+        }
+        return ret;
+    }
 
     /**
      * Constructs the default parser used by tests. Note: the parser may not be

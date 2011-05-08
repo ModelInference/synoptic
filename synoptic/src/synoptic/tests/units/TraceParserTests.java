@@ -16,8 +16,9 @@ import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.Event;
-import synoptic.model.Graph;
 import synoptic.model.EventNode;
+import synoptic.model.EventType;
+import synoptic.model.Graph;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBinary;
@@ -181,14 +182,14 @@ public class TraceParserTests extends SynopticTest {
      *            Array of corresponding occurrence types
      */
     public void checkLogEventTypesVTimes(List<EventNode> events,
-            String[] vtimeStrs, String[] types) {
+            String[] vtimeStrs, EventType[] types) {
         assertSame(events.size(), vtimeStrs.length);
         assertSame(vtimeStrs.length, types.length);
         for (int i = 0; i < events.size(); i++) {
             EventNode e = events.get(i);
             ITime eventTime = e.getTime();
             // Check that the type and the time of the occurrence are correct
-            assertTrue(e.getLabel().equals(types[i]));
+            assertTrue(e.getEType().equals(types[i]));
             assertTrue(new VectorTime(vtimeStrs[i]).equals(eventTime));
         }
     }
@@ -205,14 +206,14 @@ public class TraceParserTests extends SynopticTest {
      *            Array of corresponding occurrence types
      */
     public void checkLogEventTypesITimes(List<EventNode> events,
-            String[] vtimeStrs, String[] types) {
+            String[] vtimeStrs, EventType[] types) {
         assertSame(events.size(), vtimeStrs.length);
         assertSame(vtimeStrs.length, types.length);
         for (int i = 0; i < events.size(); i++) {
             EventNode e = events.get(i);
             ITime eventTime = e.getTime();
             // Check that the type and the time of the occurrence are correct
-            assertTrue(e.getLabel().equals(types[i]));
+            assertTrue(e.getEType().equals(types[i]));
             int itime = Integer.parseInt(vtimeStrs[i]);
             assertTrue(new ITotalTime(itime).equals(eventTime));
         }
@@ -230,14 +231,14 @@ public class TraceParserTests extends SynopticTest {
      *            Array of corresponding occurrence types
      */
     public void checkLogEventTypesFTimes(List<EventNode> events,
-            String[] vtimeStrs, String[] types) {
+            String[] vtimeStrs, EventType[] types) {
         assertSame(events.size(), vtimeStrs.length);
         assertSame(vtimeStrs.length, types.length);
         for (int i = 0; i < events.size(); i++) {
             EventNode e = events.get(i);
             ITime eventTime = e.getTime();
             // Check that the type and the time of the occurrence are correct
-            assertTrue(e.getLabel().equals(types[i]));
+            assertTrue(e.getEType().equals(types[i]));
             assertTrue(new FTotalTime(Float.parseFloat(vtimeStrs[i]))
                     .equals(eventTime));
         }
@@ -255,14 +256,14 @@ public class TraceParserTests extends SynopticTest {
      *            Array of corresponding occurrence types
      */
     public void checkLogEventTypesDTimes(List<EventNode> events,
-            String[] vtimeStrs, String[] types) {
+            String[] vtimeStrs, EventType[] types) {
         assertSame(events.size(), vtimeStrs.length);
         assertSame(vtimeStrs.length, types.length);
         for (int i = 0; i < events.size(); i++) {
             EventNode e = events.get(i);
             ITime eventTime = e.getTime();
             // Check that the type and the time of the occurrence are correct
-            assertTrue(e.getLabel().equals(types[i]));
+            assertTrue(e.getEType().equals(types[i]));
             assertTrue(new DTotalTime(Double.parseDouble(vtimeStrs[i]))
                     .equals(eventTime));
         }
@@ -285,7 +286,7 @@ public class TraceParserTests extends SynopticTest {
         checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1", "2", "3" }, // NOTE: implicit time starts
                 // with 1
-                new String[] { "a", "b", "c" });
+                stringToStringEventType(new String[] { "a", "b", "c" }));
         assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -298,7 +299,8 @@ public class TraceParserTests extends SynopticTest {
         String traceStr = "2 a\n3 b\n4 c\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
         checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
-                new String[] { "2", "3", "4" }, new String[] { "a", "b", "c" });
+                new String[] { "2", "3", "4" },
+                stringToStringEventType(new String[] { "a", "b", "c" }));
         assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -311,8 +313,8 @@ public class TraceParserTests extends SynopticTest {
         String traceStr = "2.1 a\n2.2 b\n3.0 c\n";
         parser.addRegex("^(?<FTIME>)(?<TYPE>)$");
         checkLogEventTypesFTimes(parser.parseTraceString(traceStr, "test", -1),
-                new String[] { "2.1", "2.2", "3.0" }, new String[] { "a", "b",
-                        "c" });
+                new String[] { "2.1", "2.2", "3.0" },
+                stringToStringEventType(new String[] { "a", "b", "c" }));
         assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -326,7 +328,8 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^(?<DTIME>)(?<TYPE>)$");
         checkLogEventTypesDTimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "129892544112.89345", "129892544112.89346",
-                        "129892544112.89347" }, new String[] { "a", "b", "c" });
+                        "129892544112.89347" },
+                stringToStringEventType(new String[] { "a", "b", "c" }));
         assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -339,8 +342,8 @@ public class TraceParserTests extends SynopticTest {
         String traceStr = "1,1,1 a\n2,2,2 b\n3,3,4 c\n";
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         checkLogEventTypesVTimes(parser.parseTraceString(traceStr, "test", -1),
-                new String[] { "1,1,1", "2,2,2", "3,3,4" }, new String[] { "a",
-                        "b", "c" });
+                new String[] { "1,1,1", "2,2,2", "3,3,4" },
+                stringToStringEventType(new String[] { "a", "b", "c" }));
         assertFalse(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -504,8 +507,8 @@ public class TraceParserTests extends SynopticTest {
         String traceStr = "1 a a\n2 b b\n3 c c\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>.+)$");
         checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
-                new String[] { "1", "2", "3" }, new String[] { "a a", "b b",
-                        "c c" });
+                new String[] { "1", "2", "3" },
+                stringToStringEventType(new String[] { "a a", "b b", "c c" }));
     }
 
     /**
@@ -517,7 +520,8 @@ public class TraceParserTests extends SynopticTest {
         String traceStr = "1 a\n2 b\n3 c\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
         checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", 2),
-                new String[] { "1", "2" }, new String[] { "a", "b" });
+                new String[] { "1", "2" },
+                stringToStringEventType(new String[] { "a", "b" }));
     }
 
     // ////////////////////////////
@@ -532,9 +536,9 @@ public class TraceParserTests extends SynopticTest {
         Graph<EventNode> expectedGraph = new Graph<EventNode>();
 
         assertTrue(events.size() == 6);
-        Event dummyAct = Event.newInitialEvent();
+        Event dummyAct = Event.newStringInitialEvent();
         expectedGraph.setDummyInitial(new EventNode(dummyAct), defRelation);
-        dummyAct = Event.newTerminalEvent();
+        dummyAct = Event.newStringTerminalEvent();
         expectedGraph.setDummyTerminal(new EventNode(dummyAct));
 
         expectedGraph.tagInitial(events.get(0), defRelation);
