@@ -18,6 +18,8 @@ import synoptic.invariants.fsmcheck.FsmStateSet;
 import synoptic.invariants.fsmcheck.NFbyInvFsms;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
+import synoptic.model.EventType;
+import synoptic.model.StringEventType;
 import synoptic.tests.SynopticTest;
 
 public class FsmStateSetTests extends SynopticTest {
@@ -100,7 +102,7 @@ public class FsmStateSetTests extends SynopticTest {
      * Helper interface for testing different invariant types.
      */
     private interface iInvSpecificGenerator {
-        BinaryInvariant genInv(String a, String b, String relation);
+        BinaryInvariant genInv(EventType a, EventType b, String relation);
 
         FsmStateSet<EventNode> genFsmStateSet(List<BinaryInvariant> invs);
     }
@@ -112,17 +114,17 @@ public class FsmStateSetTests extends SynopticTest {
 
         List<BinaryInvariant> invs = new LinkedList<BinaryInvariant>();
         BinaryInvariant inv;
-        String s1, s2;
+        EventType s1, s2;
         for (int i = 0; i < inputs[0].length(); i++) {
             if (inputs[0].charAt(i) == '1') {
-                s1 = msgA.getLabel();
+                s1 = msgA.getEType();
             } else {
-                s1 = "x";
+                s1 = new StringEventType("x", false, false);
             }
             if (inputs[1].charAt(i) == '1') {
-                s2 = msgB.getLabel();
+                s2 = msgB.getEType();
             } else {
-                s2 = "y";
+                s2 = new StringEventType("y", false, false);
             }
 
             inv = generator.genInv(s1, s2, defRelation);
@@ -135,7 +137,8 @@ public class FsmStateSetTests extends SynopticTest {
     public void AFbyInvFsmsTest() {
         iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
             @Override
-            public BinaryInvariant genInv(String a, String b, String relation) {
+            public BinaryInvariant genInv(EventType a, EventType b,
+                    String relation) {
                 return new AlwaysFollowedInvariant(a, b, relation);
             }
 
@@ -230,7 +233,8 @@ public class FsmStateSetTests extends SynopticTest {
     public void NFbyInvFsmsTest() {
         iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
             @Override
-            public BinaryInvariant genInv(String a, String b, String relation) {
+            public BinaryInvariant genInv(EventType a, EventType b,
+                    String relation) {
                 return new NeverFollowedInvariant(a, b, relation);
             }
 
@@ -343,7 +347,8 @@ public class FsmStateSetTests extends SynopticTest {
     public void APInvFsmsTest() {
         iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
             @Override
-            public BinaryInvariant genInv(String a, String b, String relation) {
+            public BinaryInvariant genInv(EventType a, EventType b,
+                    String relation) {
                 return new AlwaysPrecedesInvariant(a, b, relation);
             }
 

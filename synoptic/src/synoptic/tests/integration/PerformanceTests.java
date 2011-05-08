@@ -9,7 +9,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.invariants.miners.SpecializedInvariantMiner;
+import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
@@ -124,7 +124,7 @@ public class PerformanceTests extends SynopticTest {
 
             String[] traces = partitionTrace(structure1Trace());
             PartitionGraph g = genInitialPartitionGraph(traces, parser,
-                    new SpecializedInvariantMiner());
+                    new ChainWalkingTOInvMiner());
 
             long startTime = System.currentTimeMillis();
             Bisimulation.splitPartitions(g);
@@ -143,7 +143,7 @@ public class PerformanceTests extends SynopticTest {
 
             String[] traces = partitionTrace(structure1Trace());
             PartitionGraph g = genInitialPartitionGraph(traces, parser,
-                    new SpecializedInvariantMiner());
+                    new ChainWalkingTOInvMiner());
 
             long startTime = System.currentTimeMillis();
             // TODO: call our k-Tail

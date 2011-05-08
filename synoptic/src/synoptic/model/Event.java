@@ -14,7 +14,7 @@ public class Event {
     /**
      * The event's label.
      */
-    private final String label;
+    private final EventType eType;
 
     /**
      * The time this event occurred.
@@ -37,73 +37,85 @@ public class Event {
     private final int lineNum;
 
     /**
-     * The host identifier -- set when vector time is used.
-     * 
-     * <pre>
-     * TODO: modify constructors to set this appropriately.
-     * </pre>
-     */
-    private final int hostId = 0;
-
-    /**
      * Create an event with a label. Does _not_ check for collisions with
      * internally used labels (e.g., INITIAL).
      * 
-     * @param label
+     * @param eType
      *            the label for the event
      * @param isSpecialLabel
      * @param logLine
      * @param fileName
      * @param lineNum
      */
-    public Event(String label, boolean isSpecialLabel, String logLine,
-            String fileName, int lineNum) {
-        this.label = label;
+    public Event(EventType eType, String logLine, String fileName, int lineNum) {
+        this.eType = eType;
         this.logLine = logLine;
         this.fileName = fileName;
         this.lineNum = lineNum;
-        if (!isSpecialLabel) {
-            // TODO: translate labels so that collisions such as this do not
-            // occur.
-            if (label.equals(Main.initialNodeLabel)
-                    || label.equals(Main.terminalNodeLabel)) {
-                throw new IllegalArgumentException(
-                        "Cannot create a node with label '"
-                                + label
-                                + "' because it conflicts with internal INITIAL/TERMINAL Synoptic labels.");
-            }
-        }
+        // if (!isSpecialLabel) {
+        // TODO: translate labels so that collisions such as this do not
+        // occur.
+        /*
+         * if (label.equals(Main.initialNodeLabel) ||
+         * label.equals(Main.terminalNodeLabel)) { throw new
+         * IllegalArgumentException( "Cannot create a node with label '" + label
+         * +
+         * "' because it conflicts with internal INITIAL/TERMINAL Synoptic labels."
+         * ); }
+         */
     }
 
     /**
-     * Create an event with a label.
+     * Create an event with a string label.
      */
     public Event(String label, String logLine, String fileName, int lineNum) {
-        this(label, false, logLine, fileName, lineNum);
+        this(new StringEventType(label, false, false), logLine, fileName,
+                lineNum);
 
     }
 
+    /**
+     * Create an event with a string label.
+     */
     public Event(String label) {
+        this(new StringEventType(label, false, false), null, null, 0);
+
+    }
+
+    /**
+     * Create an event with a string\hostId label.
+     */
+    public Event(String label, int hostId, String logLine, String fileName,
+            int lineNum) {
+        this(new DistEventType(label, hostId, false, false), logLine, fileName,
+                lineNum);
+
+    }
+
+    public Event(EventType label) {
         this(label, null, null, 0);
     }
 
     /**
-     * Returns the special INITIAL event.
+     * Returns the special INITIAL event of String type.
      */
-    public static Event newInitialEvent() {
-        return new Event(Main.initialNodeLabel, true, null, null, 0);
+    public static Event newStringInitialEvent() {
+        return new Event(
+                new StringEventType(Main.initialNodeLabel, true, false), null,
+                null, 0);
     }
 
     /**
-     * Returns the special terminal event.
+     * Returns the special terminal event of String type.
      */
-    public static Event newTerminalEvent() {
-        return new Event(Main.terminalNodeLabel, true, null, null, 0);
+    public static Event newStringTerminalEvent() {
+        return new Event(new StringEventType(Main.terminalNodeLabel, false,
+                true), null, null, 0);
     }
 
     @Override
     public String toString() {
-        return label + "-" + time.toString();
+        return eType.toString() + "-" + time.toString();
     }
 
     /**
@@ -111,8 +123,8 @@ public class Event {
      * 
      * @return the label
      */
-    public String getLabel() {
-        return label;
+    public EventType getEType() {
+        return eType;
     }
 
     @Override
@@ -121,7 +133,7 @@ public class Event {
         int result = 1;
         result = prime * result
                 + ((fileName == null) ? 0 : fileName.hashCode());
-        result = prime * result + ((label == null) ? 0 : label.hashCode());
+        result = prime * result + ((eType == null) ? 0 : eType.hashCode());
         result = prime * result + lineNum;
         result = prime * result + ((logLine == null) ? 0 : logLine.hashCode());
         result = prime * result + ((time == null) ? 0 : time.hashCode());
@@ -147,11 +159,11 @@ public class Event {
         } else if (!fileName.equals(other.fileName)) {
             return false;
         }
-        if (label == null) {
-            if (other.label != null) {
+        if (eType == null) {
+            if (other.eType != null) {
                 return false;
             }
-        } else if (!label.equals(other.label)) {
+        } else if (!eType.equals(other.eType)) {
             return false;
         }
         if (lineNum != other.lineNum) {

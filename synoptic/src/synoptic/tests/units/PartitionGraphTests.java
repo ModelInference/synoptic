@@ -9,14 +9,15 @@ import org.junit.Test;
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
-import synoptic.invariants.miners.SpecializedInvariantMiner;
-import synoptic.main.Main;
 import synoptic.main.TraceParser;
-import synoptic.model.Graph;
 import synoptic.model.EventNode;
+import synoptic.model.EventType;
+import synoptic.model.Graph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
+import synoptic.model.StringEventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.tests.SynopticTest;
@@ -36,7 +37,7 @@ public class PartitionGraphTests extends SynopticTest {
         Graph<EventNode> inputGraph = parser
                 .generateDirectTemporalRelation(parsedEvents);
 
-        InvariantMiner miner = new SpecializedInvariantMiner();
+        InvariantMiner miner = new ChainWalkingTOInvMiner();
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
 
@@ -44,7 +45,7 @@ public class PartitionGraphTests extends SynopticTest {
         assertTrue(pGraph.getNodes().size() == 3);
 
         // Find the 'a' partition and assign it to splitP
-        Partition splitP = getNodeByName(pGraph, "a");
+        Partition splitP = getNodeByName(pGraph, new StringEventType("a"));
         assertTrue(splitP != null);
 
         PartitionSplit split = new PartitionSplit(splitP);
@@ -66,15 +67,15 @@ public class PartitionGraphTests extends SynopticTest {
         Partition pInitial = pGraph.getInitialNodes().iterator().next();
         assertTrue(pInitial.getTransitions().size() == 2);
         Partition pA1 = pInitial.getTransitions().get(0).getTarget();
-        assertTrue(pA1.getLabel().equals("a"));
+        assertTrue(pA1.getEType().equals(new StringEventType("a")));
         assertTrue(pA1.getTransitions().size() == 1);
-        assertTrue(pA1.getTransitions().get(0).getTarget().getLabel()
-                .equals(Main.terminalNodeLabel));
+        assertTrue(pA1.getTransitions().get(0).getTarget().getEType()
+                .isTerminalEventType());
         Partition pA2 = pInitial.getTransitions().get(1).getTarget();
-        assertTrue(pA2.getLabel().equals("a"));
+        assertTrue(pA2.getEType().equals(new StringEventType("a")));
         assertTrue(pA2.getTransitions().size() == 1);
-        assertTrue(pA2.getTransitions().get(0).getTarget().getLabel()
-                .equals(Main.terminalNodeLabel));
+        assertTrue(pA2.getTransitions().get(0).getTarget().getEType()
+                .isTerminalEventType());
 
         // Undo the split.
         pGraph.apply(rewind);
@@ -86,9 +87,9 @@ public class PartitionGraphTests extends SynopticTest {
 
     // TODO: Test merge operation as a primary operation (not as a rewind).
 
-    private <T extends INode<T>> T getNodeByName(IGraph<T> g, String nodeName) {
+    private <T extends INode<T>> T getNodeByName(IGraph<T> g, EventType nodeName) {
         for (T node : g.getNodes()) {
-            if (node.getLabel().equals(nodeName)) {
+            if (node.getEType().equals(nodeName)) {
                 return node;
             }
         }

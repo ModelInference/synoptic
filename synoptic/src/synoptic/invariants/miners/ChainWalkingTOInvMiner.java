@@ -2,16 +2,11 @@ package synoptic.invariants.miners;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
-import synoptic.invariants.AlwaysFollowedInvariant;
-import synoptic.invariants.AlwaysPrecedesInvariant;
-import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.Main;
 import synoptic.main.TraceParser;
 import synoptic.model.EventNode;
+import synoptic.model.EventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
@@ -27,7 +22,7 @@ import synoptic.util.InternalSynopticException;
  * 
  * @author ivan
  */
-public class SpecializedInvariantMiner extends InvariantMiner {
+public class ChainWalkingTOInvMiner extends InvariantMiner {
 
     /**
      * Compute invariants of a graph g by mining invariants directly from the
@@ -79,13 +74,13 @@ public class SpecializedInvariantMiner extends InvariantMiner {
         // http://stackoverflow.com/questions/434989/hashmap-intialization-parameters-load-initialcapacity
 
         // Tracks event counts globally -- across all traces.
-        LinkedHashMap<String, Integer> gEventCnts = new LinkedHashMap<String, Integer>();
+        LinkedHashMap<EventType, Integer> gEventCnts = new LinkedHashMap<EventType, Integer>();
         // Tracks followed-by counts.
-        LinkedHashMap<String, LinkedHashMap<String, Integer>> gFollowedByCnts = new LinkedHashMap<String, LinkedHashMap<String, Integer>>();
+        LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gFollowedByCnts = new LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>>();
         // Tracks precedence counts.
-        LinkedHashMap<String, LinkedHashMap<String, Integer>> gPrecedesCnts = new LinkedHashMap<String, LinkedHashMap<String, Integer>>();
+        LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gPrecedesCnts = new LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>>();
         // Tracks which events were observed across all traces.
-        LinkedHashSet<String> AlwaysFollowsINITIALSet = null;
+        LinkedHashSet<EventType> AlwaysFollowsINITIALSet = null;
 
         if (g.getInitialNodes().isEmpty() || g.getInitialNodes().size() != 1) {
             throw new InternalSynopticException(
@@ -93,20 +88,19 @@ public class SpecializedInvariantMiner extends InvariantMiner {
         }
 
         EventNode initNode = g.getInitialNodes().iterator().next();
-        if (!initNode.getLabel().equals(Main.initialNodeLabel)) {
+        if (!initNode.getEType().isInitialEventType()) {
             throw new InternalSynopticException(
                     "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
         }
 
         // The set of nodes seen prior to some point in the trace.
-        LinkedHashSet<String> tSeen = new LinkedHashSet<String>();
+        LinkedHashSet<EventType> tSeen = new LinkedHashSet<EventType>();
         // Maintains the current event count in the trace.
-        LinkedHashMap<String, Integer> tEventCnts = new LinkedHashMap<String, Integer>();
+        LinkedHashMap<EventType, Integer> tEventCnts = new LinkedHashMap<EventType, Integer>();
         // Maintains the current FollowedBy count for the trace.
         // tFollowedByCnts[a][b] = cnt iff the number of a's that appeared
-        // before
-        // this b is cnt.
-        LinkedHashMap<String, LinkedHashMap<String, Integer>> tFollowedByCnts = new LinkedHashMap<String, LinkedHashMap<String, Integer>>();
+        // before this b is cnt.
+        LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> tFollowedByCnts = new LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>>();
 
         // Iterate through all the traces -- each transition from the INITIAL
         // node connects\holds a single trace.
@@ -125,14 +119,14 @@ public class SpecializedInvariantMiner extends InvariantMiner {
                 // The current event is 'b', and all prior events are 'a' --
                 // this notation indicates that an 'a' always occur prior to a
                 // 'b' in the trace.
-                String b = curNode.getLabel();
+                EventType b = curNode.getEType();
 
                 // Update the global precedes counts based on the a events that
                 // preceded the current b event in this trace.
-                for (String a : tSeen) {
-                    LinkedHashMap<String, Integer> precedingLabelCnts;
+                for (EventType a : tSeen) {
+                    LinkedHashMap<EventType, Integer> precedingLabelCnts;
                     if (!gPrecedesCnts.containsKey(a)) {
-                        precedingLabelCnts = new LinkedHashMap<String, Integer>();
+                        precedingLabelCnts = new LinkedHashMap<EventType, Integer>();
                         gPrecedesCnts.put(a, precedingLabelCnts);
                     } else {
                         precedingLabelCnts = gPrecedesCnts.get(a);
@@ -148,10 +142,10 @@ public class SpecializedInvariantMiner extends InvariantMiner {
                 // Update the followed by counts for this trace: the number of a
                 // FollowedBy b at this point in this trace is exactly the
                 // number of a's that we've seen so far.
-                for (String a : tSeen) {
-                    LinkedHashMap<String, Integer> tmp;
+                for (EventType a : tSeen) {
+                    LinkedHashMap<EventType, Integer> tmp;
                     if (!tFollowedByCnts.containsKey(a)) {
-                        tmp = new LinkedHashMap<String, Integer>();
+                        tmp = new LinkedHashMap<EventType, Integer>();
                         tFollowedByCnts.put(a, tmp);
                     } else {
                         tmp = tFollowedByCnts.get(a);
@@ -182,11 +176,11 @@ public class SpecializedInvariantMiner extends InvariantMiner {
             // Update the global event followed by counts based on followed by
             // counts collected in this trace. We merge the counts with
             // addition.
-            for (String a : tFollowedByCnts.keySet()) {
+            for (EventType a : tFollowedByCnts.keySet()) {
                 if (!gFollowedByCnts.containsKey(a)) {
                     gFollowedByCnts.put(a, tFollowedByCnts.get(a));
                 } else {
-                    for (String b : tFollowedByCnts.get(a).keySet()) {
+                    for (EventType b : tFollowedByCnts.get(a).keySet()) {
                         if (!gFollowedByCnts.get(a).containsKey(b)) {
                             gFollowedByCnts.get(a).put(b,
                                     tFollowedByCnts.get(a).get(b));
@@ -204,7 +198,7 @@ public class SpecializedInvariantMiner extends InvariantMiner {
             // intersecting it with all events seen in this partition.
             if (AlwaysFollowsINITIALSet == null) {
                 // This is the first trace we've processed.
-                AlwaysFollowsINITIALSet = new LinkedHashSet<String>(tSeen);
+                AlwaysFollowsINITIALSet = new LinkedHashSet<EventType>(tSeen);
             } else {
                 AlwaysFollowsINITIALSet.retainAll(tSeen);
             }
@@ -218,71 +212,7 @@ public class SpecializedInvariantMiner extends InvariantMiner {
             // current trace.
         }
 
-        // Now build the invariants list based on the following observations:
-        // a AFby b <=> #_F(a->b) == #a
-        // a AP b <=> #_P(a->b) == #b
-        // a NFby b <=> #_F(a->b) == 0
-        // Where:
-        // #_F(a->b) means globalEventFollowedByEventCounts[a][b]
-        // #_P(a->b) means globalEventPrecedesEventCounts[b][a]
-        // #(x) means globalEventOccurrenceCounts[a]
-
-        Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
-
-        for (String label1 : gEventCnts.keySet()) {
-            for (String label2 : gEventCnts.keySet()) {
-
-                if (!gFollowedByCnts.containsKey(label1)) {
-                    // label1 appeared only as the last event, therefore
-                    // nothing can follow it, therefore label1 NFby label2
-
-                    invariants.add(new NeverFollowedInvariant(label1, label2,
-                            relation));
-
-                } else {
-                    if (!gFollowedByCnts.get(label1).containsKey(label2)) {
-                        // label1 was never followed by label2, therefore label1
-                        // NFby label2 (i.e. #_F(label1->label2) == 0)
-                        invariants.add(new NeverFollowedInvariant(label1,
-                                label2, relation));
-                    } else {
-                        // label1 was sometimes followed by label2
-                        if (gFollowedByCnts.get(label1).get(label2)
-                                .equals(gEventCnts.get(label1))) {
-                            // #_F(label1->label2) == #label1 therefore label1
-                            // AFby label2
-                            invariants.add(new AlwaysFollowedInvariant(label1,
-                                    label2, relation));
-                        }
-                    }
-                }
-
-                if (!gPrecedesCnts.containsKey(label1)) {
-                    // label1 only appeared as the last event, therefore
-                    // it cannot precede any other event
-                } else {
-                    if (gPrecedesCnts.get(label1).containsKey(label2)) {
-
-                        // label1 sometimes preceded label2
-                        if (gPrecedesCnts.get(label1).get(label2)
-                                .equals(gEventCnts.get(label2))) {
-                            // #_P(label1->label2) == #label2 therefore label1
-                            // AP label2
-                            invariants.add(new AlwaysPrecedesInvariant(label1,
-                                    label2, relation));
-                        }
-                    }
-                }
-            }
-        }
-
-        // Determine all the INITIAL AFby x invariants to represent
-        // "eventually x"
-        for (String label : AlwaysFollowsINITIALSet) {
-            invariants.add(new AlwaysFollowedInvariant(Main.initialNodeLabel,
-                    label, relation));
-        }
-
-        return new TemporalInvariantSet(invariants);
+        return extractInvariantsFromWalkCounts(relation, gEventCnts,
+                gFollowedByCnts, gPrecedesCnts, AlwaysFollowsINITIALSet);
     }
 }

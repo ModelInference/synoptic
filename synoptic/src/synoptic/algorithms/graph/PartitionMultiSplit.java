@@ -76,7 +76,7 @@ public class PartitionMultiSplit implements IOperation {
     public String toString() {
         // NOTE: this string only makes sense before the operation is committed,
         // after a commit() the partition may have a different # of messages!
-        StringBuilder sb = new StringBuilder("S." + partition.getLabel() + ".");
+        StringBuilder sb = new StringBuilder("S." + partition.getEType() + ".");
         for (Set<EventNode> m : partitioning) {
             sb.append(m.size() + "/");
         }

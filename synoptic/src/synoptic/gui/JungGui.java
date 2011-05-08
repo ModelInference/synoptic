@@ -619,7 +619,7 @@ public class JungGui extends JApplet implements Printable {
         Transformer<INode<Partition>, String> nodeLabeller = new Transformer<INode<Partition>, String>() {
             @Override
             public String transform(INode<Partition> node) {
-                return node.getLabel();
+                return node.getEType().toString();
             }
         };
 
@@ -668,8 +668,8 @@ public class JungGui extends JApplet implements Printable {
                     @Override
                     public Paint transform(INode<Partition> node) {
                         // Specially color TERMINAL and INITIAL nodes.
-                        if (node.getLabel().equals(Main.initialNodeLabel)
-                                || node.getLabel().equals(
+                        if (node.getEType().equals(Main.initialNodeLabel)
+                                || node.getEType().equals(
                                         Main.terminalNodeLabel)) {
                             return Color.lightGray;
                         }

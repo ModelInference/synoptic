@@ -3,6 +3,7 @@ package synoptic.model.interfaces;
 import java.util.Comparator;
 import java.util.List;
 
+import synoptic.model.EventType;
 import synoptic.model.Partition;
 import synoptic.model.WeightedTransition;
 import synoptic.util.IIterableIterator;
@@ -19,11 +20,12 @@ import synoptic.util.IIterableIterator;
  */
 public interface INode<NodeType> {
     /**
-     * Returns the label of the node.
+     * Returns the label of the node. NOTE: This call is used by the LTLChecker
+     * to retrieve the canonical representation of the event type.
      * 
      * @return the node's label
      */
-    String getLabel();
+    EventType getEType();
 
     /**
      * Returns a comparator object that can be used to compare NodeType

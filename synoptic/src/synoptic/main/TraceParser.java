@@ -793,7 +793,7 @@ public class TraceParser {
 
         // TODO: make sure that initialNodeLabel does not conflict with any of
         // the event labels in the trace.
-        Event initEvent = Event.newInitialEvent();
+        Event initEvent = Event.newStringInitialEvent();
         graph.setDummyInitial(new EventNode(initEvent), defaultRelation);
         // Mark messages without a predecessor as initial.
         for (EventNode e : noPredecessor) {
@@ -802,7 +802,7 @@ public class TraceParser {
 
         // TODO: make sure that terminalNodeLabel does not conflict with any of
         // the event labels in the trace.
-        Event termEvent = Event.newTerminalEvent();
+        Event termEvent = Event.newStringTerminalEvent();
         graph.setDummyTerminal(new EventNode(termEvent));
         // Mark messages without a predecessor as terminal.
         for (EventNode e : noSuccessor) {

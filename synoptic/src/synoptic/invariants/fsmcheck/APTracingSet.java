@@ -1,6 +1,7 @@
 package synoptic.invariants.fsmcheck;
 
 import synoptic.invariants.BinaryInvariant;
+import synoptic.model.EventType;
 import synoptic.model.interfaces.INode;
 
 /**
@@ -21,9 +22,9 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     HistoryNode neitherSeen; // Neither A or B yet seen
     HistoryNode firstA; // A seen before B (permanent success)
     HistoryNode firstB; // B seen before A (permanent failure)
-    String a, b;
+    EventType a, b;
 
-    public APTracingSet(String a, String b) {
+    public APTracingSet(EventType a, EventType b) {
         this.a = a;
         this.b = b;
     }
@@ -34,7 +35,7 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void setInitial(T x) {
-        String name = x.getLabel();
+        EventType name = x.getEType();
         HistoryNode newHistory = new HistoryNode(x, null, 1);
         neitherSeen = firstA = firstB = null;
         if (a.equals(name)) {
@@ -48,7 +49,7 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void transition(T x) {
-        String name = x.getLabel();
+        EventType name = x.getEType();
         if (a.equals(name)) {
             firstA = preferShorter(neitherSeen, firstA);
             neitherSeen = null;

@@ -19,9 +19,9 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
-import synoptic.invariants.miners.SpecializedInvariantMiner;
-import synoptic.invariants.miners.TCInvariantMiner;
+import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.model.EventNode;
@@ -48,9 +48,10 @@ public class TOLogInvariantMiningTests extends SynopticTest {
      */
     @Parameters
     public static Collection<Object[]> data() {
-        Object[][] data = new Object[][] { { new TCInvariantMiner(false) },
-                { new TCInvariantMiner(true) },
-                { new SpecializedInvariantMiner() } };
+        Object[][] data = new Object[][] {
+                { new TransitiveClosureTOInvMiner(false) },
+                { new TransitiveClosureTOInvMiner(true) },
+                { new ChainWalkingTOInvMiner() } };
         return Arrays.asList(data);
     }
 
@@ -157,7 +158,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
      */
     @Test
     public void testTautologicalInvariantMining() throws Exception {
-        if (miner instanceof SpecializedInvariantMiner) {
+        if (miner instanceof ChainWalkingTOInvMiner) {
             // SpecializedInvariantMiner does not explicitly mine tautological
             // invariants in the first place.
             return;
@@ -176,12 +177,12 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         // Generate set including tautological invariants.
         Graph<EventNode> inputGraph = genInitialLinearGraph(log);
         TemporalInvariantSet s1 = null;
-        if (miner instanceof TCInvariantMiner) {
+        if (miner instanceof TransitiveClosureTOInvMiner) {
             // Generates a TemporalInvariantSet based on a sequence of log
             // events. This set includes all Tautological invariants as well. So
             // these are the "raw" invariants which are mined.
-            s1 = ((TCInvariantMiner) miner)
-                    .computeInvariants(inputGraph, false);
+            s1 = ((TransitiveClosureTOInvMiner) miner).computeInvariants(
+                    inputGraph, false);
         } else {
             fail("Unrecognized invariant miner type.");
         }
@@ -310,16 +311,16 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs3 = new TemporalInvariantSet();
         for (ITemporalInvariant inv : minedInvs1) {
             if (inv instanceof AlwaysFollowedInvariant
-                    && ((AlwaysFollowedInvariant) inv).getFirst().equals(
-                            Main.initialNodeLabel)) {
+                    && ((AlwaysFollowedInvariant) inv).getFirst()
+                            .isInitialEventType()) {
                 continue;
             }
             trueInvs3.add(inv);
         }
         for (ITemporalInvariant inv : minedInvs2) {
             if (inv instanceof AlwaysFollowedInvariant
-                    && ((AlwaysFollowedInvariant) inv).getFirst().equals(
-                            Main.initialNodeLabel)) {
+                    && ((AlwaysFollowedInvariant) inv).getFirst()
+                            .isInitialEventType()) {
                 continue;
             }
             trueInvs3.add(inv);

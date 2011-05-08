@@ -3,6 +3,8 @@ package synoptic.invariants;
 import java.util.List;
 
 import synoptic.main.Main;
+import synoptic.model.EventType;
+import synoptic.model.StringEventType;
 import synoptic.model.interfaces.INode;
 
 /**
@@ -10,14 +12,21 @@ import synoptic.model.interfaces.INode;
  */
 public class AlwaysFollowedInvariant extends BinaryInvariant {
 
-    public AlwaysFollowedInvariant(String typeFrist, String typeSecond,
+    public AlwaysFollowedInvariant(EventType typeFirst, EventType typeSecond,
             String relation) {
-        super(typeFrist, typeSecond, relation);
+        super(typeFirst, typeSecond, relation);
+    }
+
+    public AlwaysFollowedInvariant(String typeFirst, String typeSecond,
+            String relation) {
+        this(new StringEventType(typeFirst, false, false), new StringEventType(
+                typeSecond, false, false), relation);
     }
 
     @Override
     public String toString() {
-        return first + " AlwaysFollowedBy(" + relation + ") " + second;
+        return first.toString() + " AlwaysFollowedBy(" + relation + ") "
+                + second.toString();
     }
 
     @Override
@@ -51,15 +60,16 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
              */
             // Using Version 2:
             return "(<> (did(" + Main.terminalNodeLabel + "))) -> ([](did("
-                    + first + ") -> (<> (did(" + second + ")))))";
+                    + first.toString() + ") -> (<> (did(" + second.toString()
+                    + ")))))";
 
             // return "[](did(" + first + ") -> <> did(" + second + ")))";
             // return "<> did(" + second + ")";
         } else {
             // Version 1: return "[](" + first + " -> (<>" + second + "))";
             // Using Version 2:
-            return "(<> (" + Main.terminalNodeLabel + ")) -> [](" + first
-                    + " -> (<>" + second + "))";
+            return "(<> (" + Main.terminalNodeLabel + ")) -> []("
+                    + first.toString() + " -> (<>" + second.toString() + "))";
         }
     }
 

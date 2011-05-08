@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import synoptic.invariants.BinaryInvariant;
+import synoptic.model.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
 
@@ -79,7 +80,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
      * }
      * </pre>
      */
-    protected List<Map<String, BitSet>> invariantsMap;
+    protected List<Map<EventType, BitSet>> invariantsMap;
 
     /**
      * Initializes the bitsets, and assigns the input mapping, based on the
@@ -93,13 +94,13 @@ public abstract class FsmStateSet<T extends INode<T>> implements
             sets.add(new BitSet());
         }
 
-        invariantsMap = new ArrayList<Map<String, BitSet>>(2);
-        Map<String, BitSet> amap = new LinkedHashMap<String, BitSet>(), bmap = new LinkedHashMap<String, BitSet>();
+        invariantsMap = new ArrayList<Map<EventType, BitSet>>(2);
+        Map<EventType, BitSet> amap = new LinkedHashMap<EventType, BitSet>(), bmap = new LinkedHashMap<EventType, BitSet>();
         invariantsMap.add(amap);
         invariantsMap.add(bmap);
         for (int i = 0; i < invariants.size(); i++) {
-            String first = invariants.get(i).getFirst();
-            String second = invariants.get(i).getSecond();
+            EventType first = invariants.get(i).getFirst();
+            EventType second = invariants.get(i).getSecond();
             BitSet aset = amap.get(first);
             BitSet bset = bmap.get(second);
             if (aset == null) {
@@ -253,7 +254,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
     }
 
     public BitSet getInputInvariantsDependencies(int mappingIndex, T input) {
-        BitSet result = invariantsMap.get(mappingIndex).get(input.getLabel());
+        BitSet result = invariantsMap.get(mappingIndex).get(input.getEType());
         if (result == null) {
             return new BitSet();
         }
@@ -261,7 +262,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
     }
 
     public BitSet getInputCopy(int ix, T input) {
-        String label = input.getLabel();
+        EventType label = input.getEType();
         BitSet result = invariantsMap.get(ix).get(label);
         if (result == null) {
             return new BitSet();

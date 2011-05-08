@@ -33,8 +33,8 @@ import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.gui.JungGui;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.InvariantMiner;
-import synoptic.invariants.miners.SpecializedInvariantMiner;
-import synoptic.invariants.miners.TCInvariantMiner;
+import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
 import synoptic.model.EventNode;
 import synoptic.model.Graph;
 import synoptic.model.PartitionGraph;
@@ -854,9 +854,9 @@ public class Main implements Callable<Integer> {
         // Totally ordered traces can use the faster miner.
         InvariantMiner miner;
         if (parser.logTimeTypeIsTotallyOrdered()) {
-            miner = new SpecializedInvariantMiner();
+            miner = new ChainWalkingTOInvMiner();
         } else {
-            miner = new TCInvariantMiner();
+            miner = new TransitiveClosureTOInvMiner();
         }
         // parser can be garbage-collected.
         parser = null;

@@ -20,7 +20,7 @@ public class RelationPath<T> {
         result.append(invariant.toString());
         result.append(": ");
         for (T n : path) {
-            result.append(((Partition) n).getLabel());
+            result.append(((Partition) n).getEType());
             result.append(" ");
         }
         return result.toString();

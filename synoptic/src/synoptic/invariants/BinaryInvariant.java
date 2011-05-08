@@ -9,6 +9,7 @@ import gov.nasa.ltl.trans.LTL2Buchi;
 import gov.nasa.ltl.trans.ParseErrorException;
 
 import synoptic.invariants.ltlchecker.LTLFormula;
+import synoptic.model.EventType;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -19,8 +20,8 @@ import synoptic.util.InternalSynopticException;
 public abstract class BinaryInvariant implements ITemporalInvariant {
     public static Logger logger = Logger.getLogger("BinaryInvariant");
 
-    protected String first;
-    protected String second;
+    protected EventType first;
+    protected EventType second;
 
     /**
      * Role identifiers for each predicate. If the per-host model is used then
@@ -34,7 +35,8 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     // CACHE:
     private Graph automaton;
 
-    public BinaryInvariant(String typeFirst, String typeSecond, String relation) {
+    public BinaryInvariant(EventType typeFirst, EventType typeSecond,
+            String relation) {
         first = typeFirst;
         second = typeSecond;
         this.relation = relation;
@@ -171,8 +173,8 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     }
 
     @Override
-    public Set<String> getPredicates() {
-        Set<String> set = new LinkedHashSet<String>();
+    public Set<EventType> getPredicates() {
+        Set<EventType> set = new LinkedHashSet<EventType>();
         set.add(first);
         set.add(second);
         return set;
@@ -183,7 +185,7 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
      * 
      * @return
      */
-    public String getFirst() {
+    public EventType getFirst() {
         return first;
     }
 
@@ -192,7 +194,7 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
      * 
      * @return
      */
-    public String getSecond() {
+    public EventType getSecond() {
         return second;
     }
 

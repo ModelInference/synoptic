@@ -1,6 +1,7 @@
 package synoptic.invariants.fsmcheck;
 
 import synoptic.invariants.BinaryInvariant;
+import synoptic.model.EventType;
 import synoptic.model.interfaces.INode;
 
 /**
@@ -21,9 +22,9 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     HistoryNode wasA; // Indicates that A was seen more recently than B (failing
     // state)
     HistoryNode wasB; // Indicates that B was seen more recently than A
-    String a, b;
+    EventType a, b;
 
-    public AFbyTracingSet(String a, String b) {
+    public AFbyTracingSet(EventType a, EventType b) {
         this.a = a;
         this.b = b;
     }
@@ -34,7 +35,7 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void setInitial(T x) {
-        String name = x.getLabel();
+        EventType name = x.getEType();
         HistoryNode newHistory = new HistoryNode(x, null, 1);
         if (name.equals(a)) {
             wasB = null;
@@ -47,7 +48,7 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     @Override
     public void transition(T x) {
-        String name = x.getLabel();
+        EventType name = x.getEType();
         if (a.equals(name)) {
             wasA = preferShorter(wasB, wasA);
             wasB = null;

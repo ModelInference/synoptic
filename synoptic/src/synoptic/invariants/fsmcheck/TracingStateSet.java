@@ -85,7 +85,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
             StringBuilder sb = new StringBuilder();
             HistoryNode cur = this;
             while (cur != null) {
-                sb.append(cur.node.getLabel());
+                sb.append(cur.node.getEType());
                 sb.append(" <- ");
                 cur = cur.previous;
             }

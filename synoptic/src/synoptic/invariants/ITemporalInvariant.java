@@ -3,6 +3,7 @@ package synoptic.invariants;
 import java.util.List;
 import java.util.Set;
 
+import synoptic.model.EventType;
 import synoptic.model.interfaces.INode;
 
 /**
@@ -56,7 +57,7 @@ public interface ITemporalInvariant {
      * 
      * @return a set of strings with the labels that occur in this invariant
      */
-    public Set<String> getPredicates();
+    public Set<EventType> getPredicates();
 
     /**
      * Get the short name of the invariant.

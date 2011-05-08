@@ -144,18 +144,18 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     private void partitionByLabels(Collection<EventNode> events) {
         partitions = new LinkedHashSet<Partition>();
-        final Map<String, Partition> prepartitions = new LinkedHashMap<String, Partition>();
+        final Map<EventType, Partition> prepartitions = new LinkedHashMap<EventType, Partition>();
         for (EventNode message : events) {
             for (ITransition<EventNode> t : message.getTransitions()) {
                 relations.add(t.getRelation());
             }
-            if (!prepartitions.containsKey(message.getLabel())) {
+            if (!prepartitions.containsKey(message.getEType())) {
                 final Partition partition = new Partition(
                         new LinkedHashSet<EventNode>());
                 partitions.add(partition);
-                prepartitions.put(message.getLabel(), partition);
+                prepartitions.put(message.getEType(), partition);
             }
-            prepartitions.get(message.getLabel()).addMessage(message);
+            prepartitions.get(message.getEType()).addMessage(message);
         }
         transitionCache.clear();
     }
@@ -222,17 +222,17 @@ public class PartitionGraph implements IGraph<Partition> {
     private void partitionByLabelsAndInitial(Collection<EventNode> events,
             Set<EventNode> initial) {
         partitions = new LinkedHashSet<Partition>();
-        final Map<String, Partition> prepartitions = new LinkedHashMap<String, Partition>();
+        final Map<EventType, Partition> prepartitions = new LinkedHashMap<EventType, Partition>();
         for (EventNode message : events) {
             for (ITransition<EventNode> t : message.getTransitions()) {
                 relations.add(t.getRelation());
             }
-            if (!prepartitions.containsKey(message.getLabel())) {
+            if (!prepartitions.containsKey(message.getEType())) {
                 final Partition partition = new Partition(
                         new LinkedHashSet<EventNode>());
-                prepartitions.put(message.getLabel(), partition);
+                prepartitions.put(message.getEType(), partition);
             }
-            prepartitions.get(message.getLabel()).addMessage(message);
+            prepartitions.get(message.getEType()).addMessage(message);
         }
         for (Partition t : prepartitions.values()) {
             LinkedHashSet<EventNode> iSet = new LinkedHashSet<EventNode>();

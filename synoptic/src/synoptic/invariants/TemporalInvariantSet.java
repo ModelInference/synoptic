@@ -22,6 +22,7 @@ import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.Main;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
+import synoptic.model.EventType;
 import synoptic.model.Graph;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -217,6 +218,8 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
      * @return true if the two sets are equal, false otherwise.
      */
     public boolean sameInvariants(TemporalInvariantSet set2) {
+        // TODO: is using containsAll correct? (it relies on HashCode)
+        // shouldn't we use equals() instead?
         boolean ret = invariants.containsAll(set2.invariants);
         boolean ret2 = set2.invariants.containsAll(invariants);
         if (!ret || !ret2) {
@@ -235,9 +238,9 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     private static <T extends INode<T>> void printStats(IGraph<T> g,
             TemporalInvariantSet overapproximatedInvariantsSet,
             int overapproximatedInvariantsSetSize) {
-        Set<String> labels = new LinkedHashSet<String>();
+        Set<EventType> labels = new LinkedHashSet<EventType>();
         for (T n : g.getNodes()) {
-            labels.add(n.getLabel());
+            labels.add(n.getEType());
         }
         int possibleInvariants = 3 /* invariant types */
                 * labels.size() * labels.size(); /*
@@ -267,9 +270,9 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     }
 
     public Graph<EventNode> getInvariantGraph(String shortName) {
-        LinkedHashMap<String, EventNode> messageMap = new LinkedHashMap<String, EventNode>();
+        LinkedHashMap<EventType, EventNode> messageMap = new LinkedHashMap<EventType, EventNode>();
         for (ITemporalInvariant i : invariants) {
-            for (String label : i.getPredicates()) {
+            for (EventType label : i.getPredicates()) {
                 if (!messageMap.containsKey(label)) {
                     messageMap.put(label, new EventNode(new Event(label)));
                 }
