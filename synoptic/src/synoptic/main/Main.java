@@ -32,8 +32,8 @@ import plume.Options;
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.gui.JungGui;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
 import synoptic.model.EventNode;
 import synoptic.model.Graph;
@@ -49,18 +49,6 @@ public class Main implements Callable<Integer> {
      * The current Synoptic version.
      */
     public static final String versionString = "0.0.5";
-
-    /**
-     * The label used to distinguish the dummy initial node -- constructed to
-     * transition to all initial trace log events.
-     */
-    public static final String initialNodeLabel = "INITIAL";
-
-    /**
-     * The label used to distinguish the dummy terminal node -- constructed so
-     * that all terminal trace log events transition to it.
-     */
-    public static final String terminalNodeLabel = "TERMINAL";
 
     /**
      * Global source of pseudo-random numbers.

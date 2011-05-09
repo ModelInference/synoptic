@@ -26,6 +26,7 @@ import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.model.EventNode;
 import synoptic.model.Graph;
+import synoptic.model.StringEventType;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 
@@ -110,42 +111,47 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         ArrayList<ITemporalInvariant> invs = new ArrayList<ITemporalInvariant>();
         for (String e : allEvents) {
             // x AFby TERMINAL
-            invs.add(new AlwaysFollowedInvariant(e, Main.terminalNodeLabel,
-                    SynopticTest.defRelation));
+            invs.add(new AlwaysFollowedInvariant(e, StringEventType
+                    .NewTerminalStringEventType(), SynopticTest.defRelation));
 
             // INITIAL AFby x
-            invs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, e,
-                    SynopticTest.defRelation));
+            invs.add(new AlwaysFollowedInvariant(StringEventType
+                    .NewInitialStringEventType(), e, SynopticTest.defRelation));
 
             // x NFby INITIAL
-            invs.add(new NeverFollowedInvariant(e, Main.initialNodeLabel,
-                    SynopticTest.defRelation));
+            invs.add(new NeverFollowedInvariant(e, StringEventType
+                    .NewInitialStringEventType(), SynopticTest.defRelation));
             // TERMINAL NFby x
-            invs.add(new NeverFollowedInvariant(Main.terminalNodeLabel, e,
-                    SynopticTest.defRelation));
+            invs.add(new NeverFollowedInvariant(StringEventType
+                    .NewTerminalStringEventType(), e, SynopticTest.defRelation));
             // INITIAL AP x
-            invs.add(new AlwaysPrecedesInvariant(Main.initialNodeLabel, e,
-                    SynopticTest.defRelation));
+            invs.add(new AlwaysPrecedesInvariant(StringEventType
+                    .NewInitialStringEventType(), e, SynopticTest.defRelation));
 
             // x AP TERMINAL
-            invs.add(new AlwaysPrecedesInvariant(e, Main.terminalNodeLabel,
-                    SynopticTest.defRelation));
+            invs.add(new AlwaysPrecedesInvariant(e, StringEventType
+                    .NewTerminalStringEventType(), SynopticTest.defRelation));
         }
         // INITIAL AFby TERMINAL
-        invs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel,
-                Main.terminalNodeLabel, SynopticTest.defRelation));
+        invs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), StringEventType
+                .NewTerminalStringEventType(), SynopticTest.defRelation));
         // TERMINAL NFby INITIAL
-        invs.add(new NeverFollowedInvariant(Main.terminalNodeLabel,
-                Main.initialNodeLabel, SynopticTest.defRelation));
+        invs.add(new NeverFollowedInvariant(StringEventType
+                .NewTerminalStringEventType(), StringEventType
+                .NewInitialStringEventType(), SynopticTest.defRelation));
         // TERMINAL NFby TERMINAL
-        invs.add(new NeverFollowedInvariant(Main.terminalNodeLabel,
-                Main.terminalNodeLabel, SynopticTest.defRelation));
+        invs.add(new NeverFollowedInvariant(StringEventType
+                .NewTerminalStringEventType(), StringEventType
+                .NewTerminalStringEventType(), SynopticTest.defRelation));
         // INITIAL NFby INITIAL
-        invs.add(new NeverFollowedInvariant(Main.initialNodeLabel,
-                Main.initialNodeLabel, SynopticTest.defRelation));
+        invs.add(new NeverFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), StringEventType
+                .NewInitialStringEventType(), SynopticTest.defRelation));
         // INITIAL AP TERMINAL
-        invs.add(new AlwaysPrecedesInvariant(Main.initialNodeLabel,
-                Main.terminalNodeLabel, SynopticTest.defRelation));
+        invs.add(new AlwaysPrecedesInvariant(StringEventType
+                .NewInitialStringEventType(), StringEventType
+                .NewTerminalStringEventType(), SynopticTest.defRelation));
         logger.fine("Returning tautological invariants: " + invs.toString());
         return invs;
     }
@@ -210,10 +216,10 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet minedInvs = genInvariants(log);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
-        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "a",
-                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), "b", SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), "a", SynopticTest.defRelation));
         trueInvs.add(new AlwaysFollowedInvariant("a", "b",
                 SynopticTest.defRelation));
         trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
@@ -239,10 +245,10 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet minedInvs = genInvariants(log);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
-        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "a",
-                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), "b", SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), "a", SynopticTest.defRelation));
         trueInvs.add(new AlwaysFollowedInvariant("a", "b",
                 SynopticTest.defRelation));
         assertTrue(trueInvs.sameInvariants(minedInvs));
@@ -279,8 +285,8 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet minedInvs = genInvariants(log);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
-        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "a",
-                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), "a", SynopticTest.defRelation));
         trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
                 SynopticTest.defRelation));
         logger.info("minedInvs: " + minedInvs.toString());
@@ -360,7 +366,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
      * </pre>
      * 
      * @throws InternalSynopticException
-     * @throws ParseException
+     * @throws ParseExceptionent
      */
     @Test
     public void testApproximationExactnessTest() throws ParseException,

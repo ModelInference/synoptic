@@ -13,11 +13,32 @@ public class NeverFollowedInvariant extends BinaryInvariant {
         super(typeFirst, typeSecond, relation);
     }
 
+    /**
+     * Assumes the invariant is between two StringEventTypes
+     */
     public NeverFollowedInvariant(String typeFirst, String typeSecond,
             String relation) {
-        this(new StringEventType(typeFirst, false, false), new StringEventType(
-                typeSecond, false, false), relation);
+        this(new StringEventType(typeFirst), new StringEventType(typeSecond),
+                relation);
     }
+
+    /**
+     * Assumes the invariant is between two StringEventTypes
+     */
+    public NeverFollowedInvariant(StringEventType typeFirst, String typeSecond,
+            String relation) {
+        this(typeFirst, new StringEventType(typeSecond), relation);
+    }
+
+    /**
+     * Assumes the invariant is between two StringEventTypes
+     */
+    public NeverFollowedInvariant(String typeFirst, StringEventType typeSecond,
+            String relation) {
+        this(new StringEventType(typeFirst), typeSecond, relation);
+    }
+
+    // ///////////////////////////////////////////////////////////////////////
 
     @Override
     public String toString() {
@@ -79,5 +100,10 @@ public class NeverFollowedInvariant extends BinaryInvariant {
     @Override
     public String getShortName() {
         return "NFby";
+    }
+
+    @Override
+    public String getLongName() {
+        return "NeverFollowedBy";
     }
 }

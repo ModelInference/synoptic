@@ -306,8 +306,8 @@ public class TransitiveClosureTOInvMiner extends InvariantMiner {
 
         // Based on eventuallySet generate INITIAL AFby x invariants.
         for (EventType eLabel : eventuallySet) {
-            invariants.add(new AlwaysFollowedInvariant(new StringEventType(
-                    Main.initialNodeLabel, true, false), eLabel,
+            invariants.add(new AlwaysFollowedInvariant(StringEventType
+                    .NewInitialStringEventType(), eLabel,
                     TraceParser.defaultRelation));
         }
 

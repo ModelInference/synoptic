@@ -10,7 +10,6 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.Main;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.StringEventType;
@@ -116,8 +115,8 @@ public abstract class InvariantMiner {
         // Determine all the INITIAL AFby x invariants to represent
         // "eventually x"
         for (EventType label : AlwaysFollowsINITIALSet) {
-            invariants.add(new AlwaysFollowedInvariant(new StringEventType(
-                    Main.initialNodeLabel, true, false), label, relation));
+            invariants.add(new AlwaysFollowedInvariant(StringEventType
+                    .NewInitialStringEventType(), label, relation));
         }
 
         return new TemporalInvariantSet(invariants);

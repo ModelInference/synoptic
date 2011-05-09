@@ -119,12 +119,12 @@ public class FsmStateSetTests extends SynopticTest {
             if (inputs[0].charAt(i) == '1') {
                 s1 = msgA.getEType();
             } else {
-                s1 = new StringEventType("x", false, false);
+                s1 = new StringEventType("x");
             }
             if (inputs[1].charAt(i) == '1') {
                 s2 = msgB.getEType();
             } else {
-                s2 = new StringEventType("y", false, false);
+                s2 = new StringEventType("y");
             }
 
             inv = generator.genInv(s1, s2, defRelation);
