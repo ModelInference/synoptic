@@ -81,14 +81,14 @@ public abstract class SynopticTest {
     // Common routines to simplify testing.
     // //////////////////////////////////////////////
 
-    public EventType[] stringToStringEventType(String[] types) {
-        EventType[] ret = new EventType[types.length];
+    /**
+     * Converts an array of strings into a list of EventType objects. Does not
+     * handle INITIAL or TERMINAL events types.
+     */
+    public List<EventType> stringToStringEventType(String[] types) {
+        ArrayList<EventType> ret = new ArrayList<EventType>(types.length);
         for (int i = 0; i < types.length; i++) {
-            if (types[i].equals(Main.terminalNodeLabel)) {
-                ret[i] = new StringEventType(types[i], false, true);
-            } else {
-                ret[i] = new StringEventType(types[i], false, false);
-            }
+            ret.add(new StringEventType(types[i]));
         }
         return ret;
     }

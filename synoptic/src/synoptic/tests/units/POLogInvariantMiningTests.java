@@ -16,9 +16,9 @@ import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
-import synoptic.main.Main;
 import synoptic.main.TraceParser;
 import synoptic.model.PartitionGraph;
+import synoptic.model.StringEventType;
 import synoptic.tests.SynopticTest;
 
 /**
@@ -40,7 +40,8 @@ public class POLogInvariantMiningTests extends SynopticTest {
      */
     @Parameters
     public static Collection<Object[]> data() {
-        Object[][] data = new Object[][] { { new TransitiveClosureTOInvMiner(false) },
+        Object[][] data = new Object[][] {
+                { new TransitiveClosureTOInvMiner(false) },
                 { new TransitiveClosureTOInvMiner(true) } };
         return Arrays.asList(data);
     }
@@ -72,12 +73,12 @@ public class POLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         // Add the "eventually x" invariants.
-        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "a",
-                SynopticTest.defRelation));
-        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new AlwaysFollowedInvariant(Main.initialNodeLabel, "c",
-                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), "a", SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), "b", SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), "c", SynopticTest.defRelation));
 
         trueInvs.add(new AlwaysFollowedInvariant("a", "b",
                 SynopticTest.defRelation));

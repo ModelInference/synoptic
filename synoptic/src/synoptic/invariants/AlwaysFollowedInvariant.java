@@ -2,7 +2,6 @@ package synoptic.invariants;
 
 import java.util.List;
 
-import synoptic.main.Main;
 import synoptic.model.EventType;
 import synoptic.model.StringEventType;
 import synoptic.model.interfaces.INode;
@@ -17,11 +16,32 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
         super(typeFirst, typeSecond, relation);
     }
 
+    /**
+     * Assumes the invariant is between two StringEventTypes
+     */
     public AlwaysFollowedInvariant(String typeFirst, String typeSecond,
             String relation) {
-        this(new StringEventType(typeFirst, false, false), new StringEventType(
-                typeSecond, false, false), relation);
+        this(new StringEventType(typeFirst), new StringEventType(typeSecond),
+                relation);
     }
+
+    /**
+     * Assumes the invariant is between two StringEventTypes
+     */
+    public AlwaysFollowedInvariant(StringEventType typeFirst,
+            String typeSecond, String relation) {
+        this(typeFirst, new StringEventType(typeSecond), relation);
+    }
+
+    /**
+     * Assumes the invariant is between two StringEventTypes
+     */
+    public AlwaysFollowedInvariant(String typeFirst,
+            StringEventType typeSecond, String relation) {
+        this(new StringEventType(typeFirst), typeSecond, relation);
+    }
+
+    // ///////////////////////////////////////////////////////////////////////
 
     @Override
     public String toString() {
@@ -59,17 +79,24 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
              * mit.edu/catalog/item/default.asp?ttype=2&tid=11481
              */
             // Using Version 2:
-            return "(<> (did(" + Main.terminalNodeLabel + "))) -> ([](did("
-                    + first.toString() + ") -> (<> (did(" + second.toString()
-                    + ")))))";
+
+            // NOTE: because our formulas are strings, we cannot compare
+            // EventType objects directly, so we compare the String
+            // representations of EventTypes, instead.
+            return "(<> (did("
+                    + StringEventType.NewTerminalStringEventType().toString()
+                    + "))) -> ([](did(" + first.toString() + ") -> (<> (did("
+                    + second.toString() + ")))))";
 
             // return "[](did(" + first + ") -> <> did(" + second + ")))";
             // return "<> did(" + second + ")";
         } else {
             // Version 1: return "[](" + first + " -> (<>" + second + "))";
             // Using Version 2:
-            return "(<> (" + Main.terminalNodeLabel + ")) -> []("
-                    + first.toString() + " -> (<>" + second.toString() + "))";
+            return "(<> ("
+                    + StringEventType.NewTerminalStringEventType().toString()
+                    + ")) -> [](" + first.toString() + " -> (<>"
+                    + second.toString() + "))";
         }
     }
 
@@ -89,4 +116,8 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
         return "AFby";
     }
 
+    @Override
+    public String getLongName() {
+        return "AlwaysFollowedBy";
+    }
 }

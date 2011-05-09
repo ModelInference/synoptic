@@ -668,9 +668,8 @@ public class JungGui extends JApplet implements Printable {
                     @Override
                     public Paint transform(INode<Partition> node) {
                         // Specially color TERMINAL and INITIAL nodes.
-                        if (node.getEType().equals(Main.initialNodeLabel)
-                                || node.getEType().equals(
-                                        Main.terminalNodeLabel)) {
+                        if (node.getEType().isInitialEventType()
+                                || node.getEType().isTerminalEventType()) {
                             return Color.lightGray;
                         }
                         // Discriminate between:

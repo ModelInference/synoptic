@@ -223,4 +223,5 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     public void setSecondRoleId(int roleId) {
         secondRoleId = roleId;
     }
+
 }

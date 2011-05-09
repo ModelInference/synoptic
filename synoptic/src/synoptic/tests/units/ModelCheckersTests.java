@@ -29,6 +29,7 @@ import synoptic.model.EventType;
 import synoptic.model.Graph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
+import synoptic.model.StringEventType;
 import synoptic.model.Transition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -160,7 +161,7 @@ public class ModelCheckersTests extends SynopticTest {
      */
     private static void testPartitionGraphCExample(String[] events,
             ITemporalInvariant inv, boolean cExampleExists,
-            EventType[] cExampleLabels) throws Exception {
+            List<EventType> cExampleLabels) throws Exception {
 
         TraceParser parser = new TraceParser();
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
@@ -188,8 +189,8 @@ public class ModelCheckersTests extends SynopticTest {
         // matching on the label of each partition.
         expectedPath.add(nextNode);
         nextCExampleHop:
-        for (int i = 0; i < cExampleLabels.length; i++) {
-            EventType nextLabel = cExampleLabels[i];
+        for (int i = 0; i < cExampleLabels.size(); i++) {
+            EventType nextLabel = cExampleLabels.get(i);
             for (Transition<Partition> transition : nextNode.getTransitions()) {
                 for (EventNode event : transition.getTarget().getEvents()) {
                     if (event.getEType().equals(nextLabel)) {
@@ -229,6 +230,8 @@ public class ModelCheckersTests extends SynopticTest {
 
     /**
      * Tests that a linear graph with a cycle does generate an AFby c-example.
+     * This tests the LTL formula that includes an "eventually TERMINAL" clause
+     * to permit only those counter-examples that reach the TERMINAL node.
      * 
      * @throws Exception
      */
@@ -241,8 +244,9 @@ public class ModelCheckersTests extends SynopticTest {
         ITemporalInvariant inv = new AlwaysFollowedInvariant("a", "b",
                 SynopticTest.defRelation);
 
-        EventType[] cExampleLabels = stringToStringEventType(new String[] {
-                "x", "a", "y", "w", Main.terminalNodeLabel });
+        List<EventType> cExampleLabels = stringToStringEventType(new String[] {
+                "x", "a", "y", "w" });
+        cExampleLabels.add(StringEventType.NewTerminalStringEventType());
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
 
@@ -311,7 +315,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         ITemporalInvariant inv = new NeverFollowedInvariant("a", "b",
                 SynopticTest.defRelation);
-        EventType[] cExampleLabels = stringToStringEventType(new String[] {
+        List<EventType> cExampleLabels = stringToStringEventType(new String[] {
                 "f", "a", "y", "b" });
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
@@ -380,7 +384,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         ITemporalInvariant inv = new AlwaysPrecedesInvariant("a", "b",
                 SynopticTest.defRelation);
-        EventType[] cExampleLabels = stringToStringEventType(new String[] {
+        List<EventType> cExampleLabels = stringToStringEventType(new String[] {
                 "z", "x", "y", "b" });
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }

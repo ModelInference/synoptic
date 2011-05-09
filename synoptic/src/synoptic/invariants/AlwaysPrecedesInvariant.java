@@ -18,11 +18,32 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
         }
     }
 
+    /**
+     * Assumes the invariant is between two StringEventTypes
+     */
     public AlwaysPrecedesInvariant(String typeFirst, String typeSecond,
             String relation) {
-        this(new StringEventType(typeFirst, false, false), new StringEventType(
-                typeSecond, false, false), relation);
+        this(new StringEventType(typeFirst), new StringEventType(typeSecond),
+                relation);
     }
+
+    /**
+     * Assumes the invariant is between two StringEventTypes
+     */
+    public AlwaysPrecedesInvariant(StringEventType typeFirst,
+            String typeSecond, String relation) {
+        this(typeFirst, new StringEventType(typeSecond), relation);
+    }
+
+    /**
+     * Assumes the invariant is between two StringEventTypes
+     */
+    public AlwaysPrecedesInvariant(String typeFirst,
+            StringEventType typeSecond, String relation) {
+        this(new StringEventType(typeFirst), typeSecond, relation);
+    }
+
+    // ///////////////////////////////////////////////////////////////////////
 
     @Override
     public String toString() {
@@ -94,5 +115,10 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
     @Override
     public String getShortName() {
         return "AP";
+    }
+
+    @Override
+    public String getLongName() {
+        return "AlwaysPrecedes";
     }
 }

@@ -60,9 +60,16 @@ public interface ITemporalInvariant {
     public Set<EventType> getPredicates();
 
     /**
-     * Get the short name of the invariant.
+     * Get the short name of the invariant (e.g. "AP" for "AlwaysPrecedes)
      * 
-     * @return a short invariant name
+     * @return a short invariant name string
      */
     public String getShortName();
+
+    /**
+     * Get the long name of the invariant (e.g. "AlwaysPrecedes")
+     * 
+     * @return a long invariant name string
+     */
+    public String getLongName();
 }

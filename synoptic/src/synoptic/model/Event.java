@@ -1,6 +1,5 @@
 package synoptic.model;
 
-import synoptic.main.Main;
 import synoptic.util.time.ITime;
 
 /**
@@ -69,8 +68,7 @@ public class Event {
      * Create an event with a string label.
      */
     public Event(String label, String logLine, String fileName, int lineNum) {
-        this(new StringEventType(label, false, false), logLine, fileName,
-                lineNum);
+        this(new StringEventType(label), logLine, fileName, lineNum);
 
     }
 
@@ -78,7 +76,7 @@ public class Event {
      * Create an event with a string label.
      */
     public Event(String label) {
-        this(new StringEventType(label, false, false), null, null, 0);
+        this(new StringEventType(label), null, null, 0);
 
     }
 
@@ -87,8 +85,7 @@ public class Event {
      */
     public Event(String label, int hostId, String logLine, String fileName,
             int lineNum) {
-        this(new DistEventType(label, hostId, false, false), logLine, fileName,
-                lineNum);
+        this(new DistEventType(label, hostId), logLine, fileName, lineNum);
 
     }
 
@@ -100,8 +97,7 @@ public class Event {
      * Returns the special INITIAL event of String type.
      */
     public static Event newStringInitialEvent() {
-        return new Event(
-                new StringEventType(Main.initialNodeLabel, true, false), null,
+        return new Event(StringEventType.NewInitialStringEventType(), null,
                 null, 0);
     }
 
@@ -109,8 +105,8 @@ public class Event {
      * Returns the special terminal event of String type.
      */
     public static Event newStringTerminalEvent() {
-        return new Event(new StringEventType(Main.terminalNodeLabel, false,
-                true), null, null, 0);
+        return new Event(StringEventType.NewTerminalStringEventType(), null,
+                null, 0);
     }
 
     @Override
