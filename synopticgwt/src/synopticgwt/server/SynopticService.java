@@ -14,11 +14,11 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.InvariantMiner;
 import synoptic.invariants.RelationPath;
-import synoptic.invariants.SpecializedInvariantMiner;
-import synoptic.invariants.TCInvariantMiner;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
 import synoptic.main.TraceParser;
 import synoptic.model.EventNode;
 import synoptic.model.Graph;
@@ -65,7 +65,7 @@ public class SynopticService extends RemoteServiceServlet implements
                 pNodeId = nextId;
                 nextId += 1;
                 nodeIds.put(pNode, pNodeId);
-                graph.addNode(pNodeId, pNode.getLabel());
+                graph.addNode(pNodeId, pNode.getEType().toString());
             }
 
             // Add all the edges corresponding to pNode to the GWTGraph
@@ -77,7 +77,7 @@ public class SynopticService extends RemoteServiceServlet implements
                     adjPNodeId = nextId;
                     nextId += 1;
                     nodeIds.put(adjPNode, adjPNodeId);
-                    graph.addNode(adjPNodeId, adjPNode.getLabel());
+                    graph.addNode(adjPNodeId, adjPNode.getEType().toString());
                 }
                 graph.addEdge(pNodeId, adjPNodeId);
             }
@@ -99,9 +99,9 @@ public class SynopticService extends RemoteServiceServlet implements
             String invKey = inv.getShortName();
             GWTPair<String, String> invVal;
             if (inv instanceof BinaryInvariant) {
-                invVal = new GWTPair<String, String>(
-                        ((BinaryInvariant) inv).getFirst(),
-                        ((BinaryInvariant) inv).getSecond());
+                invVal = new GWTPair<String, String>(((BinaryInvariant) inv)
+                        .getFirst().toString(), ((BinaryInvariant) inv)
+                        .getSecond().toString());
                 GWTinvs.addInv(invKey, invVal);
             } else {
                 // TODO: throw an exception
@@ -140,9 +140,9 @@ public class SynopticService extends RemoteServiceServlet implements
         // Mine invariants, and convert them to GWTInvariants.
         InvariantMiner miner;
         if (parser.logTimeTypeIsTotallyOrdered()) {
-            miner = new SpecializedInvariantMiner();
+            miner = new ChainWalkingTOInvMiner();
         } else {
-            miner = new TCInvariantMiner();
+            miner = new TransitiveClosureTOInvMiner();
         }
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
         GWTInvariants invs = TemporalInvariantSetToGWTInvariants(minedInvs);
