@@ -30,9 +30,9 @@ public class EmbeddedGwt {
         options.parse_or_usage(args);
 
         if (EmbeddedGwt.version) {
-            // TODO: we also need to print SynopticGWT version somehow
-            System.out.println("Synoptic version "
-                    + synoptic.main.Main.versionString);
+            // TODO: need to print Synoptic/SynopticGWT version somehow
+            // System.out.println("Synoptic version "
+            // + synoptic.main.Main.versionString);
             return;
         }
 
