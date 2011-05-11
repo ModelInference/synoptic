@@ -53,7 +53,8 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         Object[][] data = new Object[][] {
                 { new TransitiveClosureTOInvMiner(false) },
                 { new TransitiveClosureTOInvMiner(true) },
-                { new ChainWalkingTOInvMiner() } };
+                { new ChainWalkingTOInvMiner() },
+                { new DAGWalkingPOInvMiner() } };
         return Arrays.asList(data);
     }
 
@@ -167,8 +168,8 @@ public class TOLogInvariantMiningTests extends SynopticTest {
     public void testTautologicalInvariantMining() throws Exception {
         if (miner instanceof ChainWalkingTOInvMiner
                 || miner instanceof DAGWalkingPOInvMiner) {
-            // SpecializedInvariantMiner does not explicitly mine tautological
-            // invariants in the first place.
+            // Structure-walking invariant miners do not explicitly mine
+            // tautological invariants in the first place.
             return;
         }
 
