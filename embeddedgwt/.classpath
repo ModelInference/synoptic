@@ -11,7 +11,6 @@
 	<classpathentry kind="var" path="SYNOPTIC_LIB/jetty/jsp/jetty-jsp-2.1-7.4.0.v20110414.jar"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/jetty/jsp/org.apache.jasper.glassfish_2.1.0.v201007080150.jar"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/jetty/jsp/org.apache.taglibs.standard.glassfish_1.2.0.v201004190952.jar"/>
-	<classpathentry kind="var" path="SYNOPTIC_LIB/synoptic.jar"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/jetty/jetty-ajp-7.3.0.v20110203.jar"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/jetty/jetty-annotations-7.3.0.v20110203.jar"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/jetty/jetty-client-7.3.0.v20110203.jar"/>
