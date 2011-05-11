@@ -20,6 +20,7 @@ import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
 import synoptic.main.Main;
@@ -164,7 +165,8 @@ public class TOLogInvariantMiningTests extends SynopticTest {
      */
     @Test
     public void testTautologicalInvariantMining() throws Exception {
-        if (miner instanceof ChainWalkingTOInvMiner) {
+        if (miner instanceof ChainWalkingTOInvMiner
+                || miner instanceof DAGWalkingPOInvMiner) {
             // SpecializedInvariantMiner does not explicitly mine tautological
             // invariants in the first place.
             return;
