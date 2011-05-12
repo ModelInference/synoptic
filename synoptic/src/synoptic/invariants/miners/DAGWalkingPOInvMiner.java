@@ -81,30 +81,38 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         // children, and not their parents.
         LinkedHashMap<EventNode, LinkedHashSet<EventNode>> tNodeParentsMap = new LinkedHashMap<EventNode, LinkedHashSet<EventNode>>();
 
+        // Maintains a map of trace id to the set of initial nodes in the trace.
+        LinkedHashMap<Integer, LinkedHashSet<EventNode>> traceIdToInitNodes = buildTraceIdToInitNodesMap(initNode);
+
         // A couple of hash sets for containing parents of special nodes.
         LinkedHashSet<EventNode> initNodeHashSet = new LinkedHashSet<EventNode>();
         initNodeHashSet.add(initNode);
         LinkedHashSet<EventNode> emptyNodeHashSet = new LinkedHashSet<EventNode>();
 
-        // Iterate through all the traces -- each transition from the INITIAL
-        // node connects\holds a single trace.
-        for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
-            EventNode curNode = initTrans.getTarget();
+        // Iterate through all the traces.
+        for (LinkedHashSet<EventNode> initTraceNodes : traceIdToInitNodes
+                .values()) {
             tNodeParentsMap.put(initNode, emptyNodeHashSet);
-            tNodeParentsMap.put(curNode, initNodeHashSet);
-
-            // A pre-processing step: builds the parent\child counts maps, the
-            // parents map, the tSeenETypes set, and determines the terminal
-            // node in the trace.
-            EventNode termNode = preTraverseTrace(curNode,
-                    tNodeToNumParentsMap, tNodeToNumChildrenMap,
-                    tNodeParentsMap, tSeenETypes);
+            EventNode termNode = null, termNodeNew = null;
+            for (EventNode curNode : initTraceNodes) {
+                tNodeParentsMap.put(curNode, initNodeHashSet);
+                // A pre-processing step: builds the parent\child counts maps,
+                // the parents map, the tSeenETypes set, and determines the
+                // terminal node in the trace.
+                termNodeNew = preTraverseTrace(curNode, tNodeToNumParentsMap,
+                        tNodeToNumChildrenMap, tNodeParentsMap, tSeenETypes);
+                if (termNodeNew != null) {
+                    termNode = termNodeNew;
+                }
+            }
             assert (termNode != null);
 
-            // AP counts collection: traverse the trace rooted at curNode in the
-            // forward direction.
-            forwardTraverseTrace(curNode, tNodeToNumParentsMap,
-                    tNodePrecedesSetMap, null, gPrecedesCnts, gEventCnts);
+            // AP counts collection: traverse the trace rooted at each initial
+            // node in the forward direction.
+            for (EventNode curNode : initTraceNodes) {
+                forwardTraverseTrace(curNode, tNodeToNumParentsMap,
+                        tNodePrecedesSetMap, null, gPrecedesCnts, gEventCnts);
+            }
 
             // AFby\NFby counts collection: traverse the trace rooted at
             // termNode in the reverse direction (following the
@@ -259,13 +267,22 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
         if (!tNodeFollowsSetMap.containsKey(curNode)) {
             tNodeFollowsSetMap.put(curNode, new LinkedHashSet<EventType>());
+            if (tFollowingTypes == null) {
+                tFollowingTypes = tNodeFollowsSetMap.get(curNode);
+            }
         }
         if (tFollowingTypes != null) {
             tNodeFollowsSetMap.get(curNode).addAll(tFollowingTypes);
         }
-        tFollowingTypes = tNodeFollowsSetMap.get(curNode);
 
         while (true) {
+            // If we reach a node that has nodes we haven't seen followed before
+            // then we want to include them in the tFollowingTypes.
+            if (tNodeFollowsSetMap.containsKey(curNode)) {
+                tNodeFollowsSetMap.get(curNode).addAll(tFollowingTypes);
+                tFollowingTypes = tNodeFollowsSetMap.get(curNode);
+            }
+
             // This guarantees that we only process curNode once we have
             // traversed all of its children (while accumulating the preceding
             // types in the tFollowtNodeFollowsSetMapingTypes above).
@@ -279,6 +296,8 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                 tNodeFollowsSetMap.get(curNode).addAll(tFollowingTypes);
                 return;
             }
+            // NOTE: We don't need to decrement tNodeToNumChildrenMap[curNode]
+            // because we are guaranteed to never pass through this node again.
 
             // The current event is 'a', and all following events are 'b' --
             // this notation indicates that an 'a' always occurs prior to a
@@ -357,13 +376,22 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
         if (!tNodePrecedesSetMap.containsKey(curNode)) {
             tNodePrecedesSetMap.put(curNode, new LinkedHashSet<EventType>());
+            if (tPrecedingTypes == null) {
+                tPrecedingTypes = tNodePrecedesSetMap.get(curNode);
+            }
         }
         if (tPrecedingTypes != null) {
             tNodePrecedesSetMap.get(curNode).addAll(tPrecedingTypes);
         }
-        tPrecedingTypes = tNodePrecedesSetMap.get(curNode);
 
         while (true) {
+            // If we reach a node that has nodes we haven't seen preceded before
+            // then we want to include them in the tFollowingTypes.
+            if (tNodePrecedesSetMap.containsKey(curNode)) {
+                tNodePrecedesSetMap.get(curNode).addAll(tPrecedingTypes);
+                tPrecedingTypes = tNodePrecedesSetMap.get(curNode);
+            }
+
             // This guarantees that we only process curNode once we have
             // traversed all of its parents (while accumulating the preceding
             // types in the tNodePrecedesSetMap above).
@@ -377,8 +405,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                 tNodePrecedesSetMap.get(curNode).addAll(tPrecedingTypes);
                 return;
             }
-            // NOTE: We don't need to decrement
-            // tNodeToNumParentsMap.put(curNode)
+            // NOTE: We don't need to decrement tNodeToNumParentsMap[curNode]
             // because we are guaranteed to never pass through this node again.
 
             // The current event is 'b', and all prior events are 'a' --

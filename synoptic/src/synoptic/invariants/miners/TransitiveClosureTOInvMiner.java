@@ -235,20 +235,17 @@ public class TransitiveClosureTOInvMiner extends InvariantMiner {
         invariants.removeAll(invsToRemove);
     }
 
-    private void addToPartition(Set<EventType> partition,
-            ITransition<EventNode> trans) {
-        EventNode curNode = trans.getTarget();
+    private void addToPartition(Set<EventType> partition, EventNode curNode) {
         partition.add(curNode.getEType());
         for (ITransition<EventNode> childTrans : curNode.getTransitions()) {
-            addToPartition(partition, childTrans);
+            addToPartition(partition, childTrans.getTarget());
         }
     }
 
     /**
      * Computes the 'INITIAL AFby x' invariants = 'eventually x' invariants. We
-     * do this by considering the set of events in one partition, and then
-     * removing the events from this set when we do not find them in other
-     * partitions. <br/>
+     * do this by considering the set of events in one trace, and then removing
+     * the events from this set when we do not find them in other traces. <br/>
      * TODO: this code only works for a single relation
      * (TraceParser.defaultRelation)
      * 
@@ -273,32 +270,34 @@ public class TransitiveClosureTOInvMiner extends InvariantMiner {
 
         LinkedHashSet<EventType> eventuallySet = null;
 
-        // Iterate through all the partitions.
-        for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
-            LinkedHashSet<EventType> partition = new LinkedHashSet<EventType>();
-            addToPartition(partition, initTrans);
+        LinkedHashMap<Integer, LinkedHashSet<EventNode>> traceIdToInitNodes = buildTraceIdToInitNodesMap(initNode);
 
-            // Initialize the set with events from the first partition.
+        // Iterate through all the traces.
+        for (LinkedHashSet<EventNode> initTraceNodes : traceIdToInitNodes
+                .values()) {
+            LinkedHashSet<EventType> trace = new LinkedHashSet<EventType>();
+            // Iterate through the set of initial nodes in each of the traces.
+            for (EventNode curNode : initTraceNodes) {
+                addToPartition(trace, curNode);
+            }
+
+            // Initialize the set with events from the first trace.
             if (eventuallySet == null) {
-                eventuallySet = new LinkedHashSet<EventType>(partition);
-                for (EventType e : partition) {
+                eventuallySet = new LinkedHashSet<EventType>(trace);
+                for (EventType e : trace) {
                     if (e.isTerminalEventType()) {
                         eventuallySet.remove(e);
                     }
                 }
-                // if (eventuallySet.contains(Main.terminalNodeLabel)) {
-                // eventuallySet.remove(Main.terminalNodeLabel);
-                // }
                 continue;
             }
 
             // Now eliminate events from the eventuallySet that do not
-            // appear in the partitions that follow the first partition.
-            // LinkedHashSet<String> eventuallySetNew = null;
+            // appear in the traces that follow the first trace.
             for (Iterator<EventType> it = eventuallySet.iterator(); it
                     .hasNext();) {
                 EventType e = it.next();
-                if (!partition.contains(e)) {
+                if (!trace.contains(e)) {
                     it.remove();
                 }
             }

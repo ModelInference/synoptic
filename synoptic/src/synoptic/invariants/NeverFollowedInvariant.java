@@ -42,7 +42,7 @@ public class NeverFollowedInvariant extends BinaryInvariant {
 
     @Override
     public String toString() {
-        return first.toString() + " neverFollowedBy(" + relation + ") "
+        return first.toString() + " NeverFollowedBy(" + relation + ") "
                 + second.toString();
     }
 

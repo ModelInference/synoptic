@@ -45,7 +45,7 @@ public class GraphVizExporterTests extends SynopticTest {
             g.add(event);
         }
 
-        Event dummyAct = Event.newStringInitialEvent();
+        Event dummyAct = Event.newInitialStringEvent();
         g.setDummyInitial(new EventNode(dummyAct), defRelation);
         g.tagInitial(path.get(0), defRelation);
 

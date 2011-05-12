@@ -14,10 +14,12 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
 import synoptic.main.TraceParser;
-import synoptic.model.PartitionGraph;
+import synoptic.model.EventNode;
+import synoptic.model.Graph;
 import synoptic.model.StringEventType;
 import synoptic.tests.SynopticTest;
 
@@ -42,7 +44,8 @@ public class POLogInvariantMiningTests extends SynopticTest {
     public static Collection<Object[]> data() {
         Object[][] data = new Object[][] {
                 { new TransitiveClosureTOInvMiner(false) },
-                { new TransitiveClosureTOInvMiner(true) } };
+                { new TransitiveClosureTOInvMiner(true) },
+                { new DAGWalkingPOInvMiner() } };
         return Arrays.asList(data);
     }
 
@@ -51,22 +54,19 @@ public class POLogInvariantMiningTests extends SynopticTest {
     }
 
     /**
-     * Tests the correctness of the invariants mined from a partially ordered
-     * log.
+     * Tests a trace with one branch.
      * 
      * @throws Exception
      */
     @Test
-    public void minePartiallyOrderedTraceTest() throws Exception {
+    public void mineBranchTest() throws Exception {
         TraceParser parser = new TraceParser();
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
 
         String[] events = new String[] { "1,1,1 a", "2,2,2 b", "1,2,3 c" };
-        PartitionGraph result = genInitialPartitionGraph(events, parser, miner);
-
-        // PartitionGraph result = new PartitionGraph(inputGraph, true);
-        TemporalInvariantSet minedInvs = result.getInvariants();
+        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         logger.fine("mined: " + minedInvs.toString());
 
@@ -103,6 +103,61 @@ public class POLogInvariantMiningTests extends SynopticTest {
         trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
                 SynopticTest.defRelation));
         trueInvs.add(new AlwaysPrecedesInvariant("a", "c",
+                SynopticTest.defRelation));
+
+        assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * Tests a trace with a join.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineJoinTest() throws Exception {
+        TraceParser parser = new TraceParser();
+        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+        parser.addPartitionsSeparator("^--$");
+
+        String[] events = new String[] { "1,2 a", "2,1 b", "2,2 c" };
+        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        logger.fine("mined: " + minedInvs.toString());
+
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        // Add the "eventually x" invariants.
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), "a", SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), "b", SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), "c", SynopticTest.defRelation));
+
+        trueInvs.add(new AlwaysFollowedInvariant("a", "c",
+                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("b", "c",
+                SynopticTest.defRelation));
+
+        trueInvs.add(new NeverFollowedInvariant("a", "a",
+                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant("b", "b",
+                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant("c", "c",
+                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant("c", "b",
+                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant("c", "a",
+                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant("b", "a",
+                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant("a", "b",
+                SynopticTest.defRelation));
+
+        trueInvs.add(new AlwaysPrecedesInvariant("a", "c",
+                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("b", "c",
                 SynopticTest.defRelation));
 
         assertTrue(trueInvs.sameInvariants(minedInvs));
