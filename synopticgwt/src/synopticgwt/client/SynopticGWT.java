@@ -2,6 +2,7 @@ package synopticgwt.client;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -57,7 +58,7 @@ public class SynopticGWT implements EntryPoint {
     private final Button parseLogButton = new Button("Parse Log");
 
     // Invariants tab widgets:
-    private final VerticalPanel invariantsPanel = new VerticalPanel();
+    private final HorizontalPanel invariantsPanel = new HorizontalPanel();
 
     // Model tab widgets:
     private final VerticalPanel modelPanel = new VerticalPanel();
@@ -67,6 +68,177 @@ public class SynopticGWT implements EntryPoint {
     // //////////////////////////////////////////////////////////////////////////
     // JSNI methods -- JavaScript Native Interface methods. The method body of
     // this calls is pure JavaScript.
+
+    /**
+     * A JSNI method to create and display an invariants graphic.
+     * 
+     * @param AFby
+     *            associative array with AFby relations
+     * @param NFby
+     *            associative array with NFby relations
+     * @param AP
+     *            associative array with AP relations
+     * @param eTypes
+     *            array of all event types
+     * @param width
+     *            width of graphic
+     * @param height
+     *            height of graphic
+     * @param lX
+     *            the x value of the left most column
+     * @param mX
+     *            the x value of the middle column
+     * @param rX
+     *            the x value of the right most column
+     * @param canvasId
+     *            the div id where to draw the graphic
+     */
+    public static native void createInvariantsGraphic(JavaScriptObject AFby,
+            JavaScriptObject NFby, JavaScriptObject AP,
+            JavaScriptObject eTypes, int width, int height, int lX, int mX,
+            int rX, String canvasId) /*-{
+
+		var paper = $wnd.Raphael($doc.getElementById(canvasId), width, height);
+
+		// Attribute to track the target node pointed to from the middle text-element.
+		paper.customAttributes.dest = function(textElem) {
+			return {
+				dest : textElem
+			};
+		};
+
+		// Attribute to track the highlighted color of the lines connected to the selected middle text-element.
+		paper.customAttributes.highlight = function(color) {
+			return {
+				highlight : color
+			};
+		};
+
+		var topMargin = 20;
+		var dY = 50;
+
+		var lines = new Array();
+
+		var tMiddlesArr = [];
+		var tRightsArr = [];
+		var tLeftsArr = [];
+
+		var ypos = new Array();
+
+		// Create the three columns of text labels.
+		for ( var i = 0; i < eTypes.length; i++) {
+			var eType = eTypes[i]
+
+			var tLeft = paper.text(lX, dY * i + topMargin, eType);
+			tLeft.attr({
+				'font-size' : "30px",
+				fill : "grey"
+			});
+			tLeftsArr[eType] = tLeft;
+
+			var tRight = paper.text(rX, dY * i + topMargin, eType);
+			tRight.attr({
+				'font-size' : "30px",
+				fill : "grey"
+			});
+			tRightsArr[eType] = tRight;
+
+			var tMiddle = paper.text(mX, dY * i + topMargin, eType);
+			tMiddlesArr.push(tMiddle);
+			tMiddle.attr({
+				'font-size' : "30px",
+				fill : "grey"
+			});
+
+			// Remember the y position of every row of labels.
+			ypos[eType] = dY * i + 10;
+		}
+
+		// Create all the lines by iterating through labels in the middle column.
+		for ( var i = 0; i < eTypes.length; i++) {
+			var eType = eTypes[i]
+			var tMiddle = tMiddlesArr[i];
+			lines[eType] = []
+
+			// AP:
+			for ( var j in AP[eType]) {
+				var line = paper.path(("M" + mX + " " + ypos[eType] + "L" + lX
+						+ " " + ypos[AP[eType][j]]));
+				line.attr({
+					stroke : "grey",
+					highlight : "green",
+					dest : tLeftsArr[AP[eType][j]]
+				});
+				lines[eType].push(line);
+			}
+
+			// AFby:
+			for ( var j in AFby[eType]) {
+				var line = paper.path(("M" + mX + " " + ypos[eType] + "L" + rX
+						+ " " + ypos[AFby[eType][j]]));
+				line.attr({
+					stroke : "grey",
+					highlight : "green",
+					dest : tRightsArr[AFby[eType][j]]
+				});
+				lines[eType].push(line);
+			}
+
+			// NFby:
+			for ( var j in NFby[eType]) {
+				var line = paper.path(("M" + mX + " " + ypos[eType] + "L" + rX
+						+ " " + ypos[NFby[eType][j]]));
+				line.attr({
+					stroke : "grey",
+					highlight : "red",
+					dest : tRightsArr[NFby[eType][j]]
+				});
+				lines[eType].push(line);
+			}
+
+			// Function to execute when the tMiddle label is pointed-to.
+			tMiddle.mouseover(function(y) {
+				return function(e) {
+					for ( var line in lines[y.attr('text')]) {
+						lines[y.attr('text')][line].attr({
+							'stroke-width' : '3'
+						});
+						lines[y.attr('text')][line].attr({
+							stroke : lines[y.attr('text')][line]
+									.attr('highlight')
+						});
+						lines[y.attr('text')][line].attr('dest').attr({
+							fill : "black"
+						});
+					}
+					y.attr({
+						fill : "black"
+					});
+
+				};
+			}(tMiddle));
+
+			// Function to execute when the tMiddle label is not pointed-to.
+			tMiddle.mouseout(function(y) {
+				return function(e) {
+					for ( var line in lines[y.attr('text')]) {
+						lines[y.attr('text')][line].attr({
+							'stroke-width' : '1'
+						});
+						lines[y.attr('text')][line].attr({
+							stroke : "grey"
+						});
+						lines[y.attr('text')][line].attr('dest').attr({
+							fill : "grey"
+						});
+					}
+					y.attr({
+						fill : "grey"
+					});
+				};
+			}(tMiddle));
+		}
+    }-*/;
 
     /**
      * A JSNI method to create and display a graph.
@@ -134,6 +306,23 @@ public class SynopticGWT implements EntryPoint {
 		array.push(s);
     }-*/;
 
+    /**
+     * A JSNI method for associating a key in an array to a value. (Yes, this is
+     * rather painful.)
+     * 
+     * @param array
+     *            Array object to add to
+     * @param key
+     * @param val
+     */
+    private native static void addToKeyInArray(JavaScriptObject array,
+            String key, String val) /*-{
+		if (!(key in array)) {
+			array[key] = [];
+		}
+		array[key].push(val);
+    }-*/;
+
     // </JSNI methods>
     // //////////////////////////////////////////////////////////////////////////
 
@@ -182,6 +371,99 @@ public class SynopticGWT implements EntryPoint {
     }
 
     /**
+     * Shows the invariant graphic on the screen in the invariantsPanel
+     * 
+     * @param graph
+     */
+    public void showInvariants(GWTInvariants gwtInvs) {
+        // Clear the invariants panel if it has any
+        // widgets (it only has one)
+        while (invariantsPanel.getWidgetCount() != 0) {
+            invariantsPanel.remove(invariantsPanel.getWidget(0));
+        }
+
+        // Create and populate the panel with the invariants table.
+        HorizontalPanel hPanel = new HorizontalPanel();
+        invariantsPanel.add(hPanel);
+
+        Set<String> invTypes = gwtInvs.getInvTypes();
+        int eTypesCnt = 0;
+        JavaScriptObject eventTypesJS = JavaScriptObject.createArray();
+        JavaScriptObject AFbyJS = JavaScriptObject.createArray();
+        JavaScriptObject NFbyJS = JavaScriptObject.createArray();
+        JavaScriptObject APJS = JavaScriptObject.createArray();
+        Set<String> eventTypes = new LinkedHashSet<String>();
+        int longestEType = 0;
+
+        // Iterate through all invariants to (1) add them to the grid / table,
+        // and (2) to create the JS objects for drawing the invariants graphic.
+        for (String invType : invTypes) {
+            List<GWTPair<String, String>> invs = gwtInvs.getInvs(invType);
+
+            Grid grid = new Grid(invs.size() + 1, 1);
+            hPanel.add(grid);
+
+            grid.setWidget(0, 0, new Label(invType));
+            grid.getCellFormatter().setStyleName(0, 0, "topTableCell");
+
+            int i = 1;
+            for (GWTPair<String, String> inv : invs) {
+                if (!eventTypes.contains(inv.getLeft())) {
+                    pushArray(eventTypesJS, inv.getLeft());
+                    eventTypes.add(inv.getLeft());
+                    if (inv.getLeft().length() > longestEType) {
+                        longestEType = inv.getLeft().length();
+                    }
+                    eTypesCnt++;
+                }
+                if (!eventTypes.contains(inv.getRight())) {
+                    pushArray(eventTypesJS, inv.getRight());
+                    eventTypes.add(inv.getRight());
+                    if (inv.getRight().length() > longestEType) {
+                        longestEType = inv.getRight().length();
+                    }
+                    eTypesCnt++;
+                }
+
+                String x = inv.getLeft();
+                String y = inv.getRight();
+                if (invType.equals("AFby")) {
+                    addToKeyInArray(AFbyJS, x, y);
+                } else if (invType.equals("NFby")) {
+                    addToKeyInArray(NFbyJS, x, y);
+                } else if (invType.equals("AP")) {
+                    addToKeyInArray(APJS, x, y);
+                }
+
+                grid.setWidget(i, 0,
+                        new Label(inv.getLeft() + ", " + inv.getRight()));
+                i += 1;
+            }
+
+            grid.setStyleName("invariantsGrid grid");
+            for (i = 1; i < grid.getRowCount(); i++) {
+                grid.getCellFormatter().setStyleName(i, 0, "tableCell");
+            }
+        }
+
+        // Show the invariant graphic.
+        String invCanvasId = "invCanvasId";
+        HorizontalPanel invGraphicId = new HorizontalPanel();
+        invGraphicId.getElement().setId(invCanvasId);
+        invGraphicId.setStylePrimaryName("modelCanvas");
+        invariantsPanel.add(invGraphicId);
+
+        // A little magic to size things right.
+        int lX = (longestEType * 30) / 2 - 60;
+        int mX = lX + (longestEType * 30);
+        int rX = mX + (longestEType * 30);
+        int width = rX + 50;
+
+        createInvariantsGraphic(AFbyJS, NFbyJS, APJS, eventTypesJS, width,
+                (eTypesCnt + 1) * 50, lX, mX, rX, invCanvasId);
+    }
+
+    /**
      * Used for handling Parse Log button clicks
      */
     class ParseLogHandler implements ClickHandler {
@@ -226,51 +508,23 @@ public class SynopticGWT implements EntryPoint {
 
         @Override
         public void onSuccess(GWTPair<GWTInvariants, GWTGraph> result) {
-
+            // Create new tabs.
             tabPanel.add(invariantsPanel, "Invariants");
             tabPanel.add(modelPanel, "Model");
 
-            // Clear the invariants panel if it has any
-            // widgets (it only has one)
-            if (invariantsPanel.getWidgetCount() != 0) {
-                invariantsPanel.remove(invariantsPanel.getWidget(0));
-                assert (invariantsPanel.getWidgetCount() == 0);
-            }
-
-            HorizontalPanel vPanel = new HorizontalPanel();
-            invariantsPanel.add(vPanel);
-
-            GWTInvariants gwtInvs = result.getLeft();
-            Set<String> invTypes = gwtInvs.getInvTypes();
-            for (String invType : invTypes) {
-                List<GWTPair<String, String>> invs = gwtInvs.getInvs(invType);
-                Grid grid = new Grid(invs.size() + 1, 1);
-                vPanel.add(grid);
-
-                grid.setWidget(0, 0, new Label(invType));
-                grid.getCellFormatter().setStyleName(0, 0, "topTableCell");
-
-                int i = 1;
-                for (GWTPair<String, String> inv : invs) {
-                    grid.setWidget(i, 0,
-                            new Label(inv.getLeft() + ", " + inv.getRight()));
-                    i += 1;
-                }
-
-                grid.setStyleName("invariantsGrid grid");
-                for (i = 1; i < grid.getRowCount(); i++) {
-                    grid.getCellFormatter().setStyleName(i, 0, "tableCell");
-                }
-            }
-
+            // Create buttons on the Model tab.
             parseLogButton.setEnabled(true);
             tabPanel.selectTab(2);
             modelRefineButton.setEnabled(true);
             modelCoarsenButton.setEnabled(false);
 
+            // Show the model graph.
             GWTGraph graph = result.getRight();
             showGraph(graph);
 
+            // Show the invariants table and graphics.
+            GWTInvariants gwtInvs = result.getLeft();
+            showInvariants(gwtInvs);
         }
     }
 
