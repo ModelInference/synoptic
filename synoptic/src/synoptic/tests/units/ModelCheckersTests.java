@@ -24,12 +24,12 @@ import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
+import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.Graph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.StringEventType;
 import synoptic.model.Transition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -237,6 +237,14 @@ public class ModelCheckersTests extends SynopticTest {
      */
     @Test
     public void AFbyLinearGraphWithCycleTest() throws Exception {
+        if (!Main.useFSMChecker) {
+            // We cannot use the LTL checker on partially-ordered traces because
+            // the getLTLString() function returns an LTL string in terms of a
+            // StringEventType, whereas partially ordered traces use the
+            // DistEventType.
+            return;
+        }
+
         String[] events = new String[] { "1,1,0 x", "1,2,0 a", "1,3,1 y",
                 "1,4,0 b", "1,5,0 x", "1,3,2 w", "1,6,0 a", "1,7,0 y",
                 "1,7,1 w" };
@@ -246,7 +254,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         List<EventType> cExampleLabels = stringToStringEventType(new String[] {
                 "x", "a", "y", "w" });
-        cExampleLabels.add(StringEventType.NewTerminalStringEventType());
+        cExampleLabels.add(DistEventType.NewTerminalDistEventType());
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
 

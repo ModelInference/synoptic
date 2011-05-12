@@ -133,28 +133,24 @@ public abstract class SynopticTest {
     }
 
     /**
-     * Parsers events using the supplied parser, generates the initial
-     * _partitioning_ graph and returns it to the caller.
+     * Generates an initial graph using the supplied parser.
      * 
-     * @param miner
-     *            TODO
-     * @throws Exception
+     * @param events
+     *            log of events
+     * @return an initial graph corresponding to the log of events
+     * @throws ParseException
+     * @throws InternalSynopticException
      */
-    public static PartitionGraph genInitialPartitionGraph(String[] events,
-            TraceParser parser, InvariantMiner miner) throws Exception {
+    public static Graph<EventNode> genInitialGraph(String[] events,
+            TraceParser parser) throws ParseException,
+            InternalSynopticException {
         ArrayList<EventNode> parsedEvents = parseLogEvents(events, parser);
-        Graph<EventNode> inputGraph = parser
-                .generateDirectTemporalRelation(parsedEvents);
-
-        exportTestGraph(inputGraph, 0);
-
-        return new PartitionGraph(inputGraph, true,
-                miner.computeInvariants(inputGraph));
+        return parser.generateDirectTemporalRelation(parsedEvents);
     }
 
     /**
-     * Generates an initial graph based on a sequence of log events. Uses the
-     * defParser parser for parsing the log of events.
+     * Generates an initial linear graph based on a sequence of log events. Uses
+     * the defParser parser for parsing the log of events.
      * 
      * @param events
      *            log of events, each one in the format: (?<TYPE>)
@@ -164,12 +160,21 @@ public abstract class SynopticTest {
      */
     public Graph<EventNode> genInitialLinearGraph(String[] events)
             throws ParseException, InternalSynopticException {
-        TraceParser defParser = genDefParser();
-        ArrayList<EventNode> parsedEvents = parseLogEvents(events, defParser);
-        // for (LogEvent event : parsedEvents) {
-        // logger.fine("Parsed event: " + event.toStringFull());
-        // }
-        return defParser.generateDirectTemporalRelation(parsedEvents);
+        return genInitialGraph(events, genDefParser());
+    }
+
+    /**
+     * Parsers events using the supplied parser, generates the initial
+     * _partitioning_ graph and returns it to the caller.
+     * 
+     * @param miner
+     * @throws Exception
+     */
+    public static PartitionGraph genInitialPartitionGraph(String[] events,
+            TraceParser parser, InvariantMiner miner) throws Exception {
+        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        return new PartitionGraph(inputGraph, true,
+                miner.computeInvariants(inputGraph));
     }
 
     /**

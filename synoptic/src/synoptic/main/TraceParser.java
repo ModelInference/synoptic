@@ -144,7 +144,7 @@ public class TraceParser {
      * Returns whether or not the time type used to parse the log(s) has a
      * canonical total order or not.
      * 
-     * @return time type is ordered or not
+     * @return whether time type is totally ordered or not
      */
     public boolean logTimeTypeIsTotallyOrdered() {
         return totallyOrderedTimeGroups.contains(selectedTimeGroup);
@@ -791,19 +791,23 @@ public class TraceParser {
             }
         }
 
-        // TODO: make sure that initialNodeLabel does not conflict with any of
-        // the event labels in the trace.
-        Event initEvent = Event.newStringInitialEvent();
+        Event initEvent;
+        Event termEvent;
+        if (logTimeTypeIsTotallyOrdered()) {
+            initEvent = Event.newInitialStringEvent();
+            termEvent = Event.newTerminalStringEvent();
+        } else {
+            initEvent = Event.newInitialDistEvent();
+            termEvent = Event.newTerminalDistEvent();
+        }
         graph.setDummyInitial(new EventNode(initEvent), defaultRelation);
+        graph.setDummyTerminal(new EventNode(termEvent));
+
         // Mark messages without a predecessor as initial.
         for (EventNode e : noPredecessor) {
             graph.tagInitial(e, defaultRelation);
         }
 
-        // TODO: make sure that terminalNodeLabel does not conflict with any of
-        // the event labels in the trace.
-        Event termEvent = Event.newStringTerminalEvent();
-        graph.setDummyTerminal(new EventNode(termEvent));
         // Mark messages without a predecessor as terminal.
         for (EventNode e : noSuccessor) {
             graph.tagTerminal(e, defaultRelation);

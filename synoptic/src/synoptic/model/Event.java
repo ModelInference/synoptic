@@ -36,8 +36,8 @@ public class Event {
     private final int lineNum;
 
     /**
-     * Create an event with a label. Does _not_ check for collisions with
-     * internally used labels (e.g., INITIAL).
+     * Create an event of a particular type, with corresponding log line,
+     * filename and line number where the event originated.
      * 
      * @param eType
      *            the label for the event
@@ -51,17 +51,6 @@ public class Event {
         this.logLine = logLine;
         this.fileName = fileName;
         this.lineNum = lineNum;
-        // if (!isSpecialLabel) {
-        // TODO: translate labels so that collisions such as this do not
-        // occur.
-        /*
-         * if (label.equals(Main.initialNodeLabel) ||
-         * label.equals(Main.terminalNodeLabel)) { throw new
-         * IllegalArgumentException( "Cannot create a node with label '" + label
-         * +
-         * "' because it conflicts with internal INITIAL/TERMINAL Synoptic labels."
-         * ); }
-         */
     }
 
     /**
@@ -96,7 +85,7 @@ public class Event {
     /**
      * Returns the special INITIAL event of String type.
      */
-    public static Event newStringInitialEvent() {
+    public static Event newInitialStringEvent() {
         return new Event(StringEventType.NewInitialStringEventType(), null,
                 null, 0);
     }
@@ -104,9 +93,24 @@ public class Event {
     /**
      * Returns the special terminal event of String type.
      */
-    public static Event newStringTerminalEvent() {
+    public static Event newTerminalStringEvent() {
         return new Event(StringEventType.NewTerminalStringEventType(), null,
                 null, 0);
+    }
+
+    /**
+     * Returns the special INITIAL event of DistEvent type.
+     */
+    public static Event newInitialDistEvent() {
+        return new Event(DistEventType.NewInitialDistEventType(), null, null, 0);
+    }
+
+    /**
+     * Returns the special terminal event of DistEvent type.
+     */
+    public static Event newTerminalDistEvent() {
+        return new Event(DistEventType.NewTerminalDistEventType(), null, null,
+                0);
     }
 
     @Override

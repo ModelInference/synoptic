@@ -259,7 +259,7 @@ public class KTailsTests extends SynopticTest {
             list.add(e);
         }
 
-        Event dummyAct = Event.newStringInitialEvent();
+        Event dummyAct = Event.newInitialStringEvent();
         g.setDummyInitial(new EventNode(dummyAct), defRelation);
         g.tagInitial(list.get(0), defRelation);
         return list;

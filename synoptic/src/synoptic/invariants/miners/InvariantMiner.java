@@ -14,6 +14,7 @@ import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.StringEventType;
 import synoptic.model.interfaces.IGraph;
+import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -32,6 +33,35 @@ public abstract class InvariantMiner {
     public TemporalInvariantSet computeInvariants(IGraph<EventNode> g) {
         throw new InternalSynopticException(
                 "computeInvariants must be overridden in a derived class.");
+    }
+
+    /**
+     * Builds and returns a map of trace id to the set of initial nodes in the
+     * trace. This is used for partially ordered traces, where it is not
+     * possible to determine which initial nodes (pointed to from the synthetic
+     * INITIAL node) are in the same trace.
+     * 
+     * @param initNode
+     *            top level synthetic INITIAL node
+     * @return a map of trace id to the set of initial nodes in the trace
+     */
+    protected LinkedHashMap<Integer, LinkedHashSet<EventNode>> buildTraceIdToInitNodesMap(
+            EventNode initNode) {
+        LinkedHashMap<Integer, LinkedHashSet<EventNode>> traceIdToInitNodes = new LinkedHashMap<Integer, LinkedHashSet<EventNode>>();
+        // Build the trace id to initial nodes map by visiting all initial
+        // nodes that are pointed to from the synthetic INITIAL node.
+        for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
+            Integer tid = initTrans.getTarget().getTraceID();
+            LinkedHashSet<EventNode> initTraceNodes;
+            if (!traceIdToInitNodes.containsKey(tid)) {
+                initTraceNodes = new LinkedHashSet<EventNode>();
+                traceIdToInitNodes.put(tid, initTraceNodes);
+            } else {
+                initTraceNodes = traceIdToInitNodes.get(tid);
+            }
+            initTraceNodes.add(initTrans.getTarget());
+        }
+        return traceIdToInitNodes;
     }
 
     /**

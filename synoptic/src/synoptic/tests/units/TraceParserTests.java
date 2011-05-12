@@ -536,9 +536,9 @@ public class TraceParserTests extends SynopticTest {
         Graph<EventNode> expectedGraph = new Graph<EventNode>();
 
         assertTrue(events.size() == 6);
-        Event dummyAct = Event.newStringInitialEvent();
+        Event dummyAct = Event.newInitialStringEvent();
         expectedGraph.setDummyInitial(new EventNode(dummyAct), defRelation);
-        dummyAct = Event.newStringTerminalEvent();
+        dummyAct = Event.newTerminalStringEvent();
         expectedGraph.setDummyTerminal(new EventNode(dummyAct));
 
         expectedGraph.tagInitial(events.get(0), defRelation);
