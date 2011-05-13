@@ -323,6 +323,54 @@ public class SynopticGWT implements EntryPoint {
 		array[key].push(val);
     }-*/;
 
+    /**
+     * A JSNI method for adding a progress wheel to a div. (Yes, this is rather
+     * painful.)
+     * 
+     * @param radius
+     *            size of the svg graphic / 2
+     * @param r1
+     *            (smaller) inner radius of wheel
+     * @param r2
+     *            (larger) outter radius of wheel
+     */
+    private native static void addProgressWheel(String divHolder, int radius,
+            int r1, int r2) /*-{
+		var r = $wnd.Raphael($doc.getElementById(divHolder), radius * 2,
+				radius * 2);
+		var sectorsCount = 12;
+		var color = "#000";
+		var width = 1;
+		var cx = radius;
+		var cy = radius;
+		var sectors = [], opacity = [];
+		var beta = 2 * $wnd.Math.PI / sectorsCount,
+
+		pathParams = {
+			stroke : color,
+			"stroke-width" : width,
+			"stroke-linecap" : "round"
+		};
+
+		for ( var i = 0; i < sectorsCount; i++) {
+			var alpha = (beta * i);
+			var cos = $wnd.Math.cos(alpha);
+			var sin = $wnd.Math.sin(alpha);
+			opacity[i] = 1 / sectorsCount * i;
+
+			sectors[i] = r.path("M" + (cx + r1 * cos) + " " + (cy + r1 * sin)
+					+ "L" + (cx + r2 * cos) + " " + (cy + r2 * sin));
+			sectors[i].attr(pathParams);
+		}
+		(function ticker() {
+			opacity.unshift(opacity.pop());
+			for ( var i = 0; i < sectorsCount; i++) {
+				sectors[i].attr("opacity", opacity[i]);
+			}
+			$wnd.setTimeout(ticker, 1000 / sectorsCount);
+		})();
+    }-*/;
+
     // </JSNI methods>
     // //////////////////////////////////////////////////////////////////////////
 
@@ -525,6 +573,7 @@ public class SynopticGWT implements EntryPoint {
             // Show the invariants table and graphics.
             GWTInvariants gwtInvs = result.getLeft();
             showInvariants(gwtInvs);
+
         }
     }
 
@@ -537,6 +586,7 @@ public class SynopticGWT implements EntryPoint {
          */
         @Override
         public void onClick(ClickEvent event) {
+            // addProgressWheel("progressDiv", 10, 2, 7);
             modelRefineButton.setEnabled(false);
             try {
                 synopticService.refineOneStep(new RefineOneStepAsyncCallback());
@@ -591,6 +641,7 @@ public class SynopticGWT implements EntryPoint {
     public void onModuleLoad() {
         // Build the page layout.
         RootPanel.get("mainDiv").add(tabPanel);
+
         tabPanel.setWidth("100%");
         tabPanel.add(inputsPanel, "Inputs");
         tabPanel.selectTab(0);
