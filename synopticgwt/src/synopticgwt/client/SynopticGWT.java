@@ -1,7 +1,9 @@
 package synopticgwt.client;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +66,12 @@ public class SynopticGWT implements EntryPoint {
     private final VerticalPanel modelPanel = new VerticalPanel();
     private final Button modelRefineButton = new Button("Refine");
     private final Button modelCoarsenButton = new Button("Coarsen");
-
+    
+    
+    // Most recent GWTGraph for use in animation
+    private GWTGraph previous;
+    private FlowPanel f;
+    
     // //////////////////////////////////////////////////////////////////////////
     // JSNI methods -- JavaScript Native Interface methods. The method body of
     // this calls is pure JavaScript.
@@ -256,29 +263,16 @@ public class SynopticGWT implements EntryPoint {
      */
     public static native void createGraph(JavaScriptObject nodes,
             JavaScriptObject edges, int width, int height, String canvasId) /*-{
+            // put this in the method that intially creates the graph:
 
+   
 		var g = new $wnd.Graph();
 		g.edgeFactory.template.style.directed = true;
-
-		// First: Write a custom node render function.
-		var render = function(r, n) {
-			// the Raphael set is obligatory, containing all you want to display
-			var set = r.set().push(
-			// custom objects go here
-			r.rect(n.point[0] - 30, n.point[1] - 13, 62, 86).attr({
-				"fill" : "#fa8",
-				"stroke-width" : 1,
-				r : "9px"
-			})).push(r.text(n.point[0], n.point[1] + 30, n.label).attr({
-				"font-size" : "12px"
-			}));
-			return set;
-		};
 
 		for ( var i = 0; i < nodes.length; i += 2) {
 			g.addNode(nodes[i], {
 				label : nodes[i + 1],
-				render : render
+				render : $wnd.CUSTOM.render
 			});
 		}
 
@@ -290,9 +284,22 @@ public class SynopticGWT implements EntryPoint {
 				.topological_sort(g));
 		var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
 				height);
-
+	
+		$wnd.CUSTOM.initializeStableIDs(nodes, edges, renderer, g);
     }-*/;
 
+    public static native void createChangingGraph(JavaScriptObject allNodes, JavaScriptObject allEdges,
+    		JavaScriptObject newNodes, JavaScriptObject newEdges, 
+            int width, int height, String canvasId) /*-{
+	
+		$wnd.CUSTOM.updateGraph(allNodes, allEdges, newNodes, newEdges)
+		
+		var g = $wnd.CUSTOM.getGraph();
+		var layouter = new $wnd.Graph.Layout.Ordered(g, $wnd.topological_sort(g));
+		var renderer = $wnd.CUSTOM.getRenderer();
+		renderer.draw();
+    }-*/;
+    
     /**
      * A JSNI method for adding a String element to a java script array object.
      * (Yes, this is rather painful.)
@@ -370,10 +377,11 @@ public class SynopticGWT implements EntryPoint {
 			$wnd.setTimeout(ticker, 1000 / sectorsCount);
 		})();
     }-*/;
-
+    
     // </JSNI methods>
     // //////////////////////////////////////////////////////////////////////////
 
+    
     /**
      * Shows the GWTGraph object on the screen in the modelPanel
      * 
@@ -386,18 +394,18 @@ public class SynopticGWT implements EntryPoint {
             modelPanel.remove(modelPanel.getWidget(1));
             assert (modelPanel.getWidgetCount() == 1);
         }
+        
         String canvasId = "canvasId";
 
-        FlowPanel f = new FlowPanel();
+        f = new FlowPanel();
         f.getElement().setId(canvasId);
         f.setStylePrimaryName("modelCanvas");
         modelPanel.add(f);
-
         // Create the list of graph node labels and their Ids.
         HashMap<Integer, String> nodes = graph.getNodes();
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
         for (Integer key : nodes.keySet()) {
-            pushArray(jsNodes, key.toString());
+            pushArray(jsNodes, key.toString()); 
             pushArray(jsNodes, nodes.get(key));
         }
 
@@ -416,6 +424,61 @@ public class SynopticGWT implements EntryPoint {
         int height = Math.max(Window.getClientHeight() - 300, 300);
         f.setPixelSize(width, height);
         createGraph(jsNodes, jsEdges, width, height, canvasId);
+    }
+    
+    public void showChangingGraph(GWTGraph graph) {
+
+        String canvasId = "canvasId";
+        HashMap<Integer, String> nodes = graph.getNodes();
+        Collection<String> originalNodes = previous.getNodes().values();
+        String addedNode = "";
+        Set<Integer> addedIDs = new HashSet<Integer>();
+        for (int id : nodes.keySet()) {
+        	if (originalNodes.contains(nodes.get(id))) {
+        		originalNodes.remove(nodes.get(id));
+        	} else {
+        		addedNode = nodes.get(id);
+        		break;
+        	}
+        }
+
+        // Create the list of graph node labels and their Ids, track
+        // which are new
+        JavaScriptObject jsNodes = JavaScriptObject.createArray();
+        JavaScriptObject newNodes = JavaScriptObject.createArray();
+        for (Integer key : nodes.keySet()) {
+            if(nodes.get(key).equals(addedNode)) {
+            	addedIDs.add(key);
+            	pushArray(newNodes, key.toString());
+            	pushArray(newNodes, nodes.get(key));
+            }
+            pushArray(jsNodes, key.toString()); 
+            pushArray(jsNodes, nodes.get(key));
+        }
+
+        // Create the list of edges, where two consecutive node Ids is an edge.
+        JavaScriptObject newEdges = JavaScriptObject.createArray();
+        JavaScriptObject jsEdges = JavaScriptObject.createArray();
+        List<GWTPair<Integer, Integer>> edges = graph.getEdges();
+        for (GWTPair<Integer, Integer> edge : edges) {
+        	int left = edge.getLeft();
+        	int right = edge.getRight();
+        	if (addedIDs.contains(left) || addedIDs.contains(right)) {
+        		pushArray(newEdges, "" + left);
+        		pushArray(newEdges, "" + right);
+        	} 
+        	pushArray(jsEdges, "" + left);
+            pushArray(jsEdges, "" + right);
+        }
+
+        // Determine the size of the graphic -- make it depend on the current
+        // window size.
+        // TODO: make sizing more robust, and allow users to resize the graphic
+        int width = Math.max(Window.getClientWidth() - 300, 300);
+        int height = Math.max(Window.getClientHeight() - 300, 300);
+        f.setPixelSize(width, height);
+        
+        createChangingGraph(jsNodes, jsEdges, newNodes, newEdges, width, height, canvasId);
     }
 
     /**
@@ -569,7 +632,7 @@ public class SynopticGWT implements EntryPoint {
             // Show the model graph.
             GWTGraph graph = result.getRight();
             showGraph(graph);
-
+            previous = graph;
             // Show the invariants table and graphics.
             GWTInvariants gwtInvs = result.getLeft();
             showInvariants(gwtInvs);
@@ -615,7 +678,8 @@ public class SynopticGWT implements EntryPoint {
             }
             modelRefineButton.setEnabled(true);
             tabPanel.selectTab(2);
-            showGraph(graph);
+            showChangingGraph(graph);
+            previous = graph;
         }
     }
 

@@ -97,9 +97,13 @@ Graph.prototype = {
         */
     },
     removeNode: function(id) {
+    	var node = this.nodes[id];
+    	node.hidden = true;
+        node.shape && node.shape.hide(); /* FIXME this is representation specific code and should be elsewhere */
         delete this.nodes[id];
         for(var i = 0; i < this.edges.length; i++) {
             if (this.edges[i].source.id == id || this.edges[i].target.id == id) {
+            	this.edges[i].hide();
                 this.edges.splice(i, 1);
                 i--;
             }
@@ -195,7 +199,8 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
     this.draw();
 };
 Graph.Renderer.Raphael.prototype = {
-    translate: function(point) {
+    
+	translate: function(point) {
         return [
             (point[0] - this.graph.layoutMinX) * this.factorX + this.radius,
             (point[1] - this.graph.layoutMinY) * this.factorY + this.radius
@@ -218,20 +223,50 @@ Graph.Renderer.Raphael.prototype = {
             this.drawEdge(this.graph.edges[i]);
         }
     },
-
+    
     drawNode: function(node) {
+    	
         var point = this.translate([node.layoutPosX, node.layoutPosY]);
         node.point = point;
 
         /* if node has already been drawn, move the nodes */
         if(node.shape) {
-            var oBBox = node.shape.getBBox();
-            var opoint = { x: oBBox.x + oBBox.width / 2, y: oBBox.y + oBBox.height / 2};
-            node.shape.translate(Math.round(point[0] - opoint.x), Math.round(point[1] - opoint.y));
-            this.r.safari();
+        	
+        	// to move edges along with nodes
+        	var updateEdges = function (graph, count) {
+        		for (var i in graph.edges) {
+                    graph.edges[i].connection && graph.edges[i].connection.draw();
+                }
+        		if (count < 3000) {
+        			setTimeout(updateEdges, 10, graph, count + 50);
+        		}
+        	}
+        	// new destination
+        	var shape = node.render(this.r, node).hide();
+        	var box = shape.getBBox();
+        	shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)));
+        	
+        	// animate all items in this node's set
+        	for (var i = 0; i < node.shape.items.length; i++) {
+        		node.shape.items[i].animate({x :shape.items[i].attr("x")}, 3000, '<>');
+        		node.shape.items[i].animate({y :shape.items[i].attr("y")}, 3000, '<>');
+        	}
+        	
+        	// set timer to animate edges
+        	setTimeout(updateEdges, 10, this.graph, 0);
+        
             return node;
+        	/*
+        	 * original behavior:
+        	 * var oBBox = node.shape.getBBox();
+             * var opoint = { x: oBBox.x + oBBox.width / 2, y: oBBox.y + oBBox.height / 2};
+             * node.shape.translate(Math.round(point[0] - opoint.x), Math.round(point[1] - opoint.y));
+             * this.r.safari();
+             * return node;
+             */
+            
         }/* else, draw new nodes */
-
+        
         var shape;
 
         /* if a node renderer function is provided by the user, then use it 
@@ -264,6 +299,7 @@ Graph.Renderer.Raphael.prototype = {
         var box = shape.getBBox();
         shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)))
         //console.log(box,point);
+        
         node.hidden || shape.show();
         node.shape = shape;
     },
@@ -275,6 +311,7 @@ Graph.Renderer.Raphael.prototype = {
             edge.connection && edge.connection.fg.hide() | edge.connection.bg && edge.connection.bg.hide();
             return;
         }
+       
         /* if edge already has been drawn, only refresh the edge */
         if(!edge.connection) {
             edge.style && edge.style.callback && edge.style.callback(edge); // TODO move this somewhere else
@@ -285,6 +322,7 @@ Graph.Renderer.Raphael.prototype = {
         edge.connection.fg.show();
         edge.connection.bg && edge.connection.bg.show();
         edge.connection.draw();
+        
     }
 };
 Graph.Layout = {};
