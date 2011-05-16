@@ -14,4 +14,6 @@ public interface ISynopticServiceAsync {
             AsyncCallback<GWTPair<GWTInvariants, GWTGraph>> callback);
 
     void refineOneStep(AsyncCallback<GWTGraph> callback) throws Exception;
+
+    void coarsenOneStep(AsyncCallback<GWTGraph> callback) throws Exception;
 }

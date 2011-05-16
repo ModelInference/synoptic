@@ -33,14 +33,52 @@ import synopticgwt.shared.GWTPair;
  * Implements the Synoptic service which does:
  * 
  * <pre>
- * - Log parsing-
+ * - Log parsing
  * - Model refinement
+ * - Model coarsening
  * </pre>
  */
 public class SynopticService extends RemoteServiceServlet implements
         ISynopticService {
 
     private static final long serialVersionUID = 1L;
+
+    // Variables corresponding to session state.
+    private PartitionGraph pGraph;
+    private Integer numSplitSteps;
+    private Set<ITemporalInvariant> unsatisfiedInvariants;
+
+    // //////////////////////////////////////////////////////////////////////////////
+    // Helper methods.
+
+    /**
+     * Retrieves session state and sets/reconstructs the local variables.
+     */
+    @SuppressWarnings("unchecked")
+    private void retrieveSessionState() throws Exception {
+        // Retrieve HTTP session to access storage.
+        HttpServletRequest request = getThreadLocalRequest();
+        HttpSession session = request.getSession();
+        // Retrieve stuff from storage, and if we can't find something then we
+        // throw an error since we can't continue with refinement.
+        if (session.getAttribute("model") == null) {
+            // TODO: throw appropriate exception
+            throw new Exception();
+        }
+        pGraph = (PartitionGraph) session.getAttribute("model");
+        if (session.getAttribute("numSplitSteps") == null) {
+            // TODO: throw appropriate exception
+            throw new Exception();
+        }
+        numSplitSteps = (Integer) session.getAttribute("numSplitSteps");
+        if (session.getAttribute("unsatInvs") == null) {
+            // TODO: throw appropriate exception
+            throw new Exception();
+        }
+        unsatisfiedInvariants = (Set<ITemporalInvariant>) session
+                .getAttribute("unsatInvs");
+        return;
+    }
 
     /**
      * Converts a partition graph into a GWTGraph
@@ -110,6 +148,8 @@ public class SynopticService extends RemoteServiceServlet implements
         return GWTinvs;
     }
 
+    // //////////////////////////////////////////////////////////////////////////////
+
     @Override
     public GWTPair<GWTInvariants, GWTGraph> parseLog(String logLines,
             List<String> regExps, String partitionRegExp, String separatorRegExp)
@@ -170,30 +210,8 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     @Override
-    public GWTGraph refineOneStep() {
-        // Retrieve HTTP session to access storage.
-        HttpServletRequest request = getThreadLocalRequest();
-        HttpSession session = request.getSession();
-        // Retrieve stuff from storage, and if we can't find something then we
-        // throw an error since we can't continue with refinement.
-        if (session.getAttribute("model") == null) {
-            // TODO: throw appropriate exception
-            return null;
-        }
-        PartitionGraph pGraph = (PartitionGraph) session.getAttribute("model");
-        if (session.getAttribute("numSplitSteps") == null) {
-            // TODO: throw appropriate exception
-            return null;
-        }
-        Integer numSplitSteps = (Integer) session.getAttribute("numSplitSteps");
-        if (session.getAttribute("unsatInvs") == null) {
-            // TODO: throw appropriate exception
-            return null;
-        }
-        @SuppressWarnings("unchecked")
-        Set<ITemporalInvariant> unsatisfiedInvariants = (Set<ITemporalInvariant>) session
-                .getAttribute("unsatInvs");
-
+    public GWTGraph refineOneStep() throws Exception {
+        retrieveSessionState();
         // Retrieve the counter-examples for the unsatisfied invariants.
         List<RelationPath<Partition>> counterExampleTraces = new TemporalInvariantSet(
                 unsatisfiedInvariants).getAllCounterExamples(pGraph);
@@ -214,5 +232,12 @@ public class SynopticService extends RemoteServiceServlet implements
         }
         // We did not need to perform refinement (model is final).
         return null;
+    }
+
+    @Override
+    public GWTGraph coarsenOneStep() throws Exception {
+        retrieveSessionState();
+        Bisimulation.mergePartitions(pGraph);
+        return PGraphToGWTGraph(pGraph);
     }
 }
