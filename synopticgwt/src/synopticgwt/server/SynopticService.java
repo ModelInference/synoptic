@@ -150,6 +150,10 @@ public class SynopticService extends RemoteServiceServlet implements
 
     // //////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Parses the input log, and sets up and stores Synoptic session state for
+     * refinement\coarsening.
+     */
     @Override
     public GWTPair<GWTInvariants, GWTGraph> parseLog(String logLines,
             List<String> regExps, String partitionRegExp, String separatorRegExp)
@@ -209,14 +213,23 @@ public class SynopticService extends RemoteServiceServlet implements
         return new GWTPair<GWTInvariants, GWTGraph>(invs, graph);
     }
 
+    /**
+     * Performs a single step of refinement on the cached model.
+     */
     @Override
     public GWTGraph refineOneStep() throws Exception {
+        // Set up state.
         retrieveSessionState();
-        // Retrieve the counter-examples for the unsatisfied invariants.
-        List<RelationPath<Partition>> counterExampleTraces = new TemporalInvariantSet(
-                unsatisfiedInvariants).getAllCounterExamples(pGraph);
 
-        if (counterExampleTraces != null && counterExampleTraces.size() > 0) {
+        if (unsatisfiedInvariants.size() != 0) {
+            // Retrieve the counter-examples for the unsatisfied invariants.
+            List<RelationPath<Partition>> counterExampleTraces = new TemporalInvariantSet(
+                    unsatisfiedInvariants).getAllCounterExamples(pGraph);
+
+            // TODO: raise an appropriate Exception when the assert condition is
+            // violated.
+            assert (counterExampleTraces != null && counterExampleTraces.size() > 0);
+
             // Perform a single refinement step.
             numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
                     numSplitSteps, pGraph, counterExampleTraces);
@@ -230,13 +243,40 @@ public class SynopticService extends RemoteServiceServlet implements
             // Return the new model.
             return PGraphToGWTGraph(pGraph);
         }
-        // We did not need to perform refinement (model is final).
+        // We did not need to perform refinement.
         return null;
     }
 
+    /**
+     * Performs coarsening of the completely refined model in one single step.
+     */
     @Override
     public GWTGraph coarsenOneStep() throws Exception {
+        // Set up state.
         retrieveSessionState();
+
+        // TODO: raise an appropriate Exception when the assert condition is
+        // violated.
+        assert (unsatisfiedInvariants.size() == 0);
+
+        Bisimulation.mergePartitions(pGraph);
+        return PGraphToGWTGraph(pGraph);
+    }
+
+    /**
+     * Completes any refinement left to be done and then coarsens the graph into
+     * a final model.
+     */
+    @Override
+    public GWTGraph getFinalModel() throws Exception {
+        // Set up state.
+        retrieveSessionState();
+
+        // Refine.
+        Bisimulation.splitPartitions(pGraph);
+        unsatisfiedInvariants.clear();
+
+        // Coarsen.
         Bisimulation.mergePartitions(pGraph);
         return PGraphToGWTGraph(pGraph);
     }
