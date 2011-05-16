@@ -163,4 +163,16 @@ public class POLogInvariantMiningTests extends SynopticTest {
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }
 
+    /**
+     * Tests a randomly generated trace.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineRandomLogTest() throws Exception {
+        // TODO: generate a random trace over a finite alphabet, of random
+        // length. Run all the invariant miners on the trace, and verify that
+        // they are unanimous.
+    }
+
 }
