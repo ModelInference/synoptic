@@ -16,4 +16,6 @@ public interface ISynopticServiceAsync {
     void refineOneStep(AsyncCallback<GWTGraph> callback) throws Exception;
 
     void coarsenOneStep(AsyncCallback<GWTGraph> callback) throws Exception;
+
+    void getFinalModel(AsyncCallback<GWTGraph> callback) throws Exception;
 }

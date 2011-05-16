@@ -18,4 +18,6 @@ public interface ISynopticService extends RemoteService {
     GWTGraph refineOneStep() throws Exception;
 
     GWTGraph coarsenOneStep() throws Exception;
+
+    GWTGraph getFinalModel() throws Exception;
 }

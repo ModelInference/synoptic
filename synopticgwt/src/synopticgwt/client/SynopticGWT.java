@@ -66,6 +66,7 @@ public class SynopticGWT implements EntryPoint {
     private final VerticalPanel modelPanel = new VerticalPanel();
     private final Button modelRefineButton = new Button("Refine");
     private final Button modelCoarsenButton = new Button("Coarsen");
+    private final Button modelGetFinalButton = new Button("Final Model");
 
     // Most recent GWTGraph for use in animation
     private GWTGraph previousGraph;
@@ -627,6 +628,7 @@ public class SynopticGWT implements EntryPoint {
             tabPanel.selectTab(2);
             modelRefineButton.setEnabled(true);
             modelCoarsenButton.setEnabled(false);
+            modelGetFinalButton.setEnabled(true);
 
             // Show the model graph.
             GWTGraph graph = result.getRight();
@@ -691,9 +693,8 @@ public class SynopticGWT implements EntryPoint {
          */
         @Override
         public void onClick(ClickEvent event) {
+            // Coarsening is a one-shot step at the moment.
             modelCoarsenButton.setEnabled(false);
-            // Window.alert("Error: coarsening not implemented");
-            // modelCoarsenButton.setEnabled(true);
             try {
                 synopticService
                         .coarsenOneStep(new CoarsenOneStepAsyncCallback());
@@ -716,7 +717,45 @@ public class SynopticGWT implements EntryPoint {
         @Override
         public void onSuccess(GWTGraph graph) {
             tabPanel.selectTab(2);
-            showChangingGraph(graph);
+            showGraph(graph);
+        }
+    }
+
+    /**
+     * Used for handling Final Model button clicks
+     */
+    class GetFinalModelHandler implements ClickHandler {
+        /**
+         * Fired when the user clicks on the button.
+         */
+        @Override
+        public void onClick(ClickEvent event) {
+            modelRefineButton.setEnabled(false);
+            modelCoarsenButton.setEnabled(false);
+            modelGetFinalButton.setEnabled(false);
+
+            try {
+                synopticService.getFinalModel(new GetFinalModelAsyncCallback());
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * onSuccess\onFailure callback handler for coarsenOneStep()
+     **/
+    class GetFinalModelAsyncCallback implements AsyncCallback<GWTGraph> {
+        @Override
+        public void onFailure(Throwable caught) {
+            parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
+        }
+
+        @Override
+        public void onSuccess(GWTGraph graph) {
+            tabPanel.selectTab(2);
+            showGraph(graph);
             previousGraph = graph;
         }
     }
@@ -785,14 +824,17 @@ public class SynopticGWT implements EntryPoint {
         VerticalPanel buttonsPanel = new VerticalPanel();
         buttonsPanel.add(modelRefineButton);
         buttonsPanel.add(modelCoarsenButton);
-        modelRefineButton.setWidth("80px");
-        modelCoarsenButton.setWidth("80px");
+        buttonsPanel.add(modelGetFinalButton);
+        modelRefineButton.setWidth("100px");
+        modelCoarsenButton.setWidth("100px");
+        modelGetFinalButton.setWidth("100px");
         buttonsPanel.setStyleName("buttonPanel");
         modelPanel.add(buttonsPanel);
         // Coarsening is disabled until refinement is completed.
         modelCoarsenButton.setEnabled(false);
         modelRefineButton.addClickHandler(new RefineModelHandler());
         modelCoarsenButton.addClickHandler(new CoarsenModelHandler());
+        modelGetFinalButton.addClickHandler(new GetFinalModelHandler());
 
         // Associate handler with the Parse Log button
         parseLogButton.addClickHandler(new ParseLogHandler());
