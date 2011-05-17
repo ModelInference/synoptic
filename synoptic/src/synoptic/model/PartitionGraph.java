@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import synoptic.algorithms.graph.IOperation;
+import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
@@ -57,6 +58,8 @@ public class PartitionGraph implements IGraph<Partition> {
     /** a cache of inter-partition transitions */
     public final LinkedHashMap<Partition, Set<Partition>> transitionCache = new LinkedHashMap<Partition, Set<Partition>>();
 
+    public LinkedList<PartitionMultiSplit> applied = new LinkedList<PartitionMultiSplit>();
+    
     /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
      * and stored. If partitionByLabel is true, all messages with identical
@@ -112,6 +115,9 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     public IOperation apply(IOperation op) {
+    	if (op.getClass() == PartitionMultiSplit.class) {
+        	applied.push((PartitionMultiSplit) op);	
+    	}
         return op.commit(this);
     }
 
