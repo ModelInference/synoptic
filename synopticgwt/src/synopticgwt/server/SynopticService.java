@@ -12,6 +12,8 @@ import javax.servlet.http.HttpSession;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.algorithms.graph.IOperation;
+import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.RelationPath;
@@ -26,6 +28,7 @@ import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTGraph;
+import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariants;
 import synopticgwt.shared.GWTPair;
 
@@ -92,7 +95,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
         Set<Partition> nodes = pGraph.getNodes();
         HashMap<Partition, Integer> nodeIds = new HashMap<Partition, Integer>();
-        int pNodeId, adjPNodeId, nextId = 0;
+        int pNodeId, adjPNodeId = 0;
 
         // Iterate through all the nodes in the pGraph
         for (Partition pNode : nodes) {
@@ -100,8 +103,7 @@ public class SynopticService extends RemoteServiceServlet implements
             if (nodeIds.containsKey(pNode)) {
                 pNodeId = nodeIds.get(pNode);
             } else {
-                pNodeId = nextId;
-                nextId += 1;
+                pNodeId =  pNode.hashCode();
                 nodeIds.put(pNode, pNodeId);
                 graph.addNode(pNodeId, pNode.getEType().toString());
             }
@@ -112,8 +114,7 @@ public class SynopticService extends RemoteServiceServlet implements
                 if (nodeIds.containsKey(adjPNode)) {
                     adjPNodeId = nodeIds.get(adjPNode);
                 } else {
-                    adjPNodeId = nextId;
-                    nextId += 1;
+                    adjPNodeId = adjPNode.hashCode();
                     nodeIds.put(adjPNode, adjPNodeId);
                     graph.addNode(adjPNodeId, adjPNode.getEType().toString());
                 }
@@ -217,9 +218,32 @@ public class SynopticService extends RemoteServiceServlet implements
      * Performs a single step of refinement on the cached model.
      */
     @Override
-    public GWTGraph refineOneStep() throws Exception {
-        // Set up state.
-        retrieveSessionState();
+
+    public GWTGraphDelta refineOneStep() {
+        // Retrieve HTTP session to access storage.
+        HttpServletRequest request = getThreadLocalRequest();
+        HttpSession session = request.getSession();
+        // Retrieve stuff from storage, and if we can't find something then we
+        // throw an error since we can't continue with refinement.
+        if (session.getAttribute("model") == null) {
+            // TODO: throw appropriate exception
+            return null;
+        }
+        PartitionGraph pGraph = (PartitionGraph) session.getAttribute("model");
+        
+        if (session.getAttribute("numSplitSteps") == null) {
+            // TODO: throw appropriate exception
+            return null;
+        }
+        Integer numSplitSteps = (Integer) session.getAttribute("numSplitSteps");
+        if (session.getAttribute("unsatInvs") == null) {
+            // TODO: throw appropriate exception
+            return null;
+        }
+        @SuppressWarnings("unchecked")
+        Set<ITemporalInvariant> unsatisfiedInvariants = (Set<ITemporalInvariant>) session
+                .getAttribute("unsatInvs");
+
 
         if (unsatisfiedInvariants.size() != 0) {
             // Retrieve the counter-examples for the unsatisfied invariants.
@@ -240,8 +264,12 @@ public class SynopticService extends RemoteServiceServlet implements
             for (RelationPath<Partition> relPath : counterExampleTraces) {
                 unsatisfiedInvariants.add(relPath.invariant);
             }
+   
+            PartitionMultiSplit last = pGraph.applied.peek();
+           
+            int refinedNode = last.getPartition().hashCode(); // until determined
             // Return the new model.
-            return PGraphToGWTGraph(pGraph);
+            return new GWTGraphDelta(PGraphToGWTGraph(pGraph), refinedNode);
         }
         // We did not need to perform refinement.
         return null;

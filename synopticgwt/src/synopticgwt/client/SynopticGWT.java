@@ -1,9 +1,7 @@
 package synopticgwt.client;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +25,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.shared.GWTGraph;
+import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariants;
 import synopticgwt.shared.GWTPair;
 
@@ -69,7 +68,7 @@ public class SynopticGWT implements EntryPoint {
     private final Button modelGetFinalButton = new Button("Final Model");
 
     // Most recent GWTGraph for use in animation
-    private GWTGraph previousGraph;
+
     private FlowPanel graphPanel;
 
     // //////////////////////////////////////////////////////////////////////////
@@ -279,23 +278,24 @@ public class SynopticGWT implements EntryPoint {
 			g.addEdge(edges[i], edges[i + 1]);
 		}
 
-		var layouter = new $wnd.Graph.Layout.Ordered(g, $wnd
-				.topological_sort(g));
+		var layouter = new $wnd.Graph.Layout.Spring(g);
 		var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
 				height);
 
 		$wnd.CUSTOM.initializeStableIDs(nodes, edges, renderer, g);
     }-*/;
 
-    public static native void createChangingGraph(JavaScriptObject allNodes,
-            JavaScriptObject allEdges, JavaScriptObject newNodes,
-            JavaScriptObject newEdges, int width, int height, String canvasId) /*-{
 
-		$wnd.CUSTOM.updateGraph(allNodes, allEdges, newNodes, newEdges)
+    public static native void createChangingGraph(JavaScriptObject allNodes, JavaScriptObject allEdges,
+            int refinedNode, int width, int height, String canvasId) /*-{
+	
+
+		$wnd.CUSTOM.updateGraph(allNodes, allEdges, refinedNode);
 
 		var g = $wnd.CUSTOM.getGraph();
-		var layouter = new $wnd.Graph.Layout.Ordered(g, $wnd
-				.topological_sort(g));
+
+		var layouter = new $wnd.Graph.Layout.Spring(g);
+
 		var renderer = $wnd.CUSTOM.getRenderer();
 		renderer.draw();
     }-*/;
@@ -425,49 +425,25 @@ public class SynopticGWT implements EntryPoint {
         createGraph(jsNodes, jsEdges, width, height, canvasId);
     }
 
-    public void showChangingGraph(GWTGraph graph) {
+    public void showChangingGraph(GWTGraph graph, int refinedNode) {
 
         String canvasId = "canvasId";
+        
         HashMap<Integer, String> nodes = graph.getNodes();
-        Collection<String> originalNodes = previousGraph.getNodes().values();
-        String addedNode = "";
-        Set<Integer> addedIDs = new HashSet<Integer>();
-        for (int id : nodes.keySet()) {
-            if (originalNodes.contains(nodes.get(id))) {
-                originalNodes.remove(nodes.get(id));
-            } else {
-                addedNode = nodes.get(id);
-                break;
-            }
-        }
 
-        // Create the list of graph node labels and their Ids, track
-        // which are new
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
-        JavaScriptObject newNodes = JavaScriptObject.createArray();
         for (Integer key : nodes.keySet()) {
-            if (nodes.get(key).equals(addedNode)) {
-                addedIDs.add(key);
-                pushArray(newNodes, key.toString());
-                pushArray(newNodes, nodes.get(key));
-            }
             pushArray(jsNodes, key.toString());
             pushArray(jsNodes, nodes.get(key));
         }
 
         // Create the list of edges, where two consecutive node Ids is an edge.
-        JavaScriptObject newEdges = JavaScriptObject.createArray();
+        //JavaScriptObject newEdges = JavaScriptObject.createArray();
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
         List<GWTPair<Integer, Integer>> edges = graph.getEdges();
         for (GWTPair<Integer, Integer> edge : edges) {
-            int left = edge.getLeft();
-            int right = edge.getRight();
-            if (addedIDs.contains(left) || addedIDs.contains(right)) {
-                pushArray(newEdges, "" + left);
-                pushArray(newEdges, "" + right);
-            }
-            pushArray(jsEdges, "" + left);
-            pushArray(jsEdges, "" + right);
+            pushArray(jsEdges, edge.getLeft().toString());
+            pushArray(jsEdges, edge.getRight().toString());
         }
 
         // Determine the size of the graphic -- make it depend on the current
@@ -475,10 +451,10 @@ public class SynopticGWT implements EntryPoint {
         // TODO: make sizing more robust, and allow users to resize the graphic
         int width = Math.max(Window.getClientWidth() - 300, 300);
         int height = Math.max(Window.getClientHeight() - 300, 300);
-        graphPanel.setPixelSize(width, height);
 
-        createChangingGraph(jsNodes, jsEdges, newNodes, newEdges, width,
-                height, canvasId);
+        graphPanel.setPixelSize(width, height);        
+        createChangingGraph(jsNodes, jsEdges, refinedNode, width, height, canvasId);
+
     }
 
     /**
@@ -633,7 +609,7 @@ public class SynopticGWT implements EntryPoint {
             // Show the model graph.
             GWTGraph graph = result.getRight();
             showGraph(graph);
-            previousGraph = graph;
+            
             // Show the invariants table and graphics.
             GWTInvariants gwtInvs = result.getLeft();
             showInvariants(gwtInvs);
@@ -664,7 +640,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * onSuccess\onFailure callback handler for refineOneStep()
      **/
-    class RefineOneStepAsyncCallback implements AsyncCallback<GWTGraph> {
+    class RefineOneStepAsyncCallback implements AsyncCallback<GWTGraphDelta> {
         @Override
         public void onFailure(Throwable caught) {
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
@@ -672,15 +648,15 @@ public class SynopticGWT implements EntryPoint {
         }
 
         @Override
-        public void onSuccess(GWTGraph graph) {
+        public void onSuccess(GWTGraphDelta graph) {
             if (graph == null) {
                 modelCoarsenButton.setEnabled(true);
                 return;
             }
             modelRefineButton.setEnabled(true);
             tabPanel.selectTab(2);
-            showChangingGraph(graph);
-            previousGraph = graph;
+            showChangingGraph(graph.getGraph(), graph.getRefinedNode());
+
         }
     }
 
@@ -756,7 +732,6 @@ public class SynopticGWT implements EntryPoint {
         public void onSuccess(GWTGraph graph) {
             tabPanel.selectTab(2);
             showGraph(graph);
-            previousGraph = graph;
         }
     }
 

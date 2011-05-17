@@ -6,6 +6,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 import synopticgwt.shared.GWTGraph;
+import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariants;
 import synopticgwt.shared.GWTPair;
 
@@ -15,7 +16,7 @@ public interface ISynopticService extends RemoteService {
             List<String> regExps, String partitionRegExp, String separatorRegExp)
             throws Exception;
 
-    GWTGraph refineOneStep() throws Exception;
+    GWTGraphDelta refineOneStep() throws Exception;
 
     GWTGraph coarsenOneStep() throws Exception;
 

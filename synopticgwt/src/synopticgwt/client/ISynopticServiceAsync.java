@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import synopticgwt.shared.GWTGraph;
+import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariants;
 import synopticgwt.shared.GWTPair;
 
@@ -13,7 +14,7 @@ public interface ISynopticServiceAsync {
             String partitionRegExp, String separatorRegExp,
             AsyncCallback<GWTPair<GWTInvariants, GWTGraph>> callback);
 
-    void refineOneStep(AsyncCallback<GWTGraph> callback) throws Exception;
+    void refineOneStep(AsyncCallback<GWTGraphDelta> callback) throws Exception;
 
     void coarsenOneStep(AsyncCallback<GWTGraph> callback) throws Exception;
 
