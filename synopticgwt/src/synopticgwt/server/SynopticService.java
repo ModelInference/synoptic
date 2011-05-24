@@ -12,7 +12,6 @@ import javax.servlet.http.HttpSession;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
@@ -308,4 +307,31 @@ public class SynopticService extends RemoteServiceServlet implements
         Bisimulation.mergePartitions(pGraph);
         return PGraphToGWTGraph(pGraph);
     }
+
+    /**
+     * Find the requested partition and returns a list of log lines, each
+     * in the form [line #, line, filename]
+     */
+	@Override
+	public List<String[]> handleLogRequest(int nodeID) throws Exception {
+        // Set up state.
+        retrieveSessionState();
+        Partition requested = null;
+        for (Partition p : pGraph.getNodes()) {
+        	if (p.hashCode() == nodeID) {
+        		requested = p;
+        		break;
+        	}
+        }
+        List<String[]> validLines = new ArrayList<String[]>();
+        
+        if (requested != null) {
+        	for (EventNode event : requested.getEvents()) {
+        		validLines.add(new String[] {
+        				event.getLineNum(), event.getLine(), 
+        				event.getShortFileName() });
+        	}
+        }
+        return validLines;
+	}
 }

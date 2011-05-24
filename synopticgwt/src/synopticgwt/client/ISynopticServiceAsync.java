@@ -19,4 +19,7 @@ public interface ISynopticServiceAsync {
     void coarsenOneStep(AsyncCallback<GWTGraph> callback) throws Exception;
 
     void getFinalModel(AsyncCallback<GWTGraph> callback) throws Exception;
+    
+    void handleLogRequest(int nodeID, AsyncCallback<List<String[]>> callback) throws Exception;
+
 }

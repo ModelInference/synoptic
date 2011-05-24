@@ -260,9 +260,8 @@ public class SynopticGWT implements EntryPoint {
      * @param canvasId
      *            the div id with which to associate the resulting graph
      */
-    public static native void createGraph(JavaScriptObject nodes,
+    public native void createGraph(JavaScriptObject nodes,
             JavaScriptObject edges, int width, int height, String canvasId) /*-{
-
 		var g = new $wnd.Graph();
 		g.edgeFactory.template.style.directed = true;
 
@@ -277,18 +276,27 @@ public class SynopticGWT implements EntryPoint {
 			g.addEdge(edges[i], edges[i + 1]);
 		}
 
-
 		var layouter = new $wnd.Graph.Layout.Stable(g, "I.INITIAL", "T.TERMINAL");
 		var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
 				height);
-
-		$wnd.CUSTOM.initializeStableIDs(nodes, edges, renderer, layouter, g);
+		var _this = this;
+		$wnd.CUSTOM.initializeStableIDs(nodes, edges, renderer, layouter, g, _this);
     }-*/;
+    
+    /**
+     * Should enable export the LogLineRequestHandler globally
+     */
+  //  public native void exportGWTMethod() /*-{
+  //  	var _this = this;
+  //	$wnd.viewLogLines = $entry(_this.@synopticgwt.client.SynopticGWT::LogLineRequestHandler(I));
+  //}-*/;
 
 
+    /**
+     * Updates the current graph to display the new edges, animates transition to new graph layout
+     */
     public static native void createChangingGraph(JavaScriptObject allNodes, JavaScriptObject allEdges,
             int refinedNode, int width, int height, String canvasId) /*-{
-
 		var newNodes = $wnd.CUSTOM.updateGraph(allNodes, allEdges, refinedNode);
 
 		var layouter = $wnd.CUSTOM.getLayouter();
@@ -296,6 +304,17 @@ public class SynopticGWT implements EntryPoint {
 
 		var renderer = $wnd.CUSTOM.getRenderer();
 		renderer.draw();
+    }-*/;
+    
+    /**
+     * Displays the given array of log lines
+     */
+    public static native void displayLogLines(JavaScriptObject lines) /*-{
+    	var all = "Line#		Line				File";
+		for(var i = 0; i < lines.length; i+= 3) {
+			all += lines[i] + "		" + lines[i+1] + "				" + lines[i+2] + "\n";
+		}
+		alert(all);
     }-*/;
 
     /**
@@ -383,6 +402,7 @@ public class SynopticGWT implements EntryPoint {
      * Shows the GWTGraph object on the screen in the modelPanel
      * 
      * @param graph
+     * @throws Exception 
      */
     public void showGraph(GWTGraph graph) {
         // Clear the second (non-button ) widget model
@@ -420,15 +440,14 @@ public class SynopticGWT implements EntryPoint {
         int width = Math.max(Window.getClientWidth() - 300, 300);
         int height = Math.max(Window.getClientHeight() - 300, 300);
         graphPanel.setPixelSize(width, height);
+        //exportGWTMethod();
         createGraph(jsNodes, jsEdges, width, height, canvasId);
     }
 
     public void showChangingGraph(GWTGraph graph, int refinedNode) {
-
         String canvasId = "canvasId";
         
         HashMap<Integer, String> nodes = graph.getNodes();
-
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
         for (Integer key : nodes.keySet()) {
             pushArray(jsNodes, key.toString());
@@ -452,7 +471,6 @@ public class SynopticGWT implements EntryPoint {
 
         graphPanel.setPixelSize(width, height);        
         createChangingGraph(jsNodes, jsEdges, refinedNode, width, height, canvasId);
-
     }
 
     /**
@@ -549,6 +567,36 @@ public class SynopticGWT implements EntryPoint {
     }
 
     /**
+     * Requests the log lines for the Partition with the given nodeID
+     * 
+     */
+    public void LogLineRequestHandler (int nodeID) throws Exception {
+    	synopticService.handleLogRequest(nodeID, new ViewLogLineAsyncCallback());
+    }
+
+    /**
+     * Displays the returned log lines from a LogLineRequest
+     */
+    class ViewLogLineAsyncCallback implements AsyncCallback<List<String[]>> {
+
+		@Override
+		public void onFailure(Throwable caught) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onSuccess(List<String[]> result) {
+			JavaScriptObject jsLogLines = JavaScriptObject.createArray();
+			for (String[] line : result) {
+				for (String piece : line)
+					pushArray(jsLogLines, piece);
+	        }
+			displayLogLines(jsLogLines);
+		}
+    }
+    
+    /**
      * Used for handling Parse Log button clicks
      */
     class ParseLogHandler implements ClickHandler {
@@ -579,7 +627,7 @@ public class SynopticGWT implements EntryPoint {
                     separatorRegExp, new ParseLogAsyncCallback());
         }
     }
-
+    
     /**
      * onSuccess\onFailure callback handler for parseLog()
      */
@@ -658,6 +706,7 @@ public class SynopticGWT implements EntryPoint {
         }
     }
 
+    
     /**
      * Used for handling coarsen button clicks
      */
