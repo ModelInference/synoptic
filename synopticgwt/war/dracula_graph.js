@@ -375,41 +375,11 @@ Graph.Layout.Spring.prototype = {
     },
     
     layoutIteration: function() {
-        // Forces on nodes due to node-node repulsions
-
-        var prev = new Array();
-        for(var c in this.graph.nodes) {
-            var node1 = this.graph.nodes[c];
-            for (var d in prev) {
-                var node2 = this.graph.nodes[prev[d]];
-                this.layoutRepulsive(node1, node2);
-                
-            }
-            prev.push(c);
-        }
-        
-        // Forces on nodes due to edge attractions
-        for (var i = 0; i < this.graph.edges.length; i++) {
-            var edge = this.graph.edges[i];
-            this.layoutAttractive(edge);             
-        }
-        
+    	this.calculateForces();
         // Move by the given force
         for (i in this.graph.nodes) {
             var node = this.graph.nodes[i];
-            var xmove = this.c * node.layoutForceX;
-            var ymove = this.c * node.layoutForceY;
-
-            var max = this.maxVertexMovement;
-            if(xmove > max) xmove = max;
-            if(xmove < -max) xmove = -max;
-            if(ymove > max) ymove = max;
-            if(ymove < -max) ymove = -max;
-            
-            node.layoutPosX += xmove;
-            node.layoutPosY += ymove;
-            node.layoutForceX = 0;
-            node.layoutForceY = 0;
+            this.updateNode(node);
         }
     },
 
@@ -457,6 +427,116 @@ Graph.Layout.Spring.prototype = {
         node2.layoutForceY -= attractiveForce * dy / d;
         node1.layoutForceX += attractiveForce * dx / d;
         node1.layoutForceY += attractiveForce * dy / d;
+    },
+    
+    updateNode: function(node) {
+        var xmove = this.c * node.layoutForceX;
+        var ymove = this.c * node.layoutForceY;
+
+        var max = this.maxVertexMovement;
+        if(xmove > max) xmove = max;
+        if(xmove < -max) xmove = -max;
+        if(ymove > max) ymove = max;
+        if(ymove < -max) ymove = -max;
+        
+        node.layoutPosX += xmove;
+        node.layoutPosY += ymove;
+        node.layoutForceX = 0;
+        node.layoutForceY = 0;
+    },
+    
+    calculateForces: function() {
+        // Forces on nodes due to node-node repulsions
+        var prev = new Array();
+        for(var c in this.graph.nodes) {
+            var node1 = this.graph.nodes[c];
+            for (var d in prev) {
+                var node2 = this.graph.nodes[prev[d]];
+                this.layoutRepulsive(node1, node2);
+                
+            }
+            prev.push(c);
+        }
+        
+        // Forces on nodes due to edge attractions
+        for (var i = 0; i < this.graph.edges.length; i++) {
+            var edge = this.graph.edges[i];
+            this.layoutAttractive(edge);             
+        }
+    }
+};
+
+Graph.Layout.Stable = function (graph, initial, terminal) {
+	this.springLayout = new Graph.Layout.Spring(graph);
+    this.graph = graph;
+    this.initial = initial;
+    this.terminal = terminal;
+    this.iterations = 500;
+    this.updates = 50;
+    this.maxRepulsiveForceDistance = 6;
+    this.k = 2;
+    this.c = 0.01;
+    this.maxVertexMovement = 0.5;
+	this.layout();
+};
+
+Graph.Layout.Stable.prototype = {
+		
+	layout : function() {
+		this.layoutPrepare();
+		for (var i = 0; i < this.iterations; i++) {
+			this.layoutIteration();
+		}
+		
+        this.springLayout.layoutCalcBounds();
+	},
+	
+	updateLayout : function(g, newNodes) {
+        for (i in this.graph.nodes) {
+            var node = this.graph.nodes[i];
+            node.layoutForceX = 0;
+            node.layoutForceY = 0;
+        }
+		for (var i = 0; i < this.updates; i++) {
+			this.layoutUpdateIteration(newNodes);
+		}
+		this.springLayout.layoutCalcBounds();
+	},
+	
+    layoutPrepare: function() {
+        for (i in this.graph.nodes) {
+            var node = this.graph.nodes[i];
+            if (node.label !== this.terminal) {
+            	node.layoutPosX = 0;
+            } else {
+            	node.layoutPosX = 10;
+            }
+            node.layoutPosY = 0;
+            node.layoutForceX = 0;
+            node.layoutForceY = 0;
+        }
+    },
+    
+    layoutIteration: function() {
+        this.springLayout.calculateForces();
+        // Move by the given force
+        for (i in this.graph.nodes) {
+            var node = this.graph.nodes[i];
+            if (node.label !== this.initial && node.label !== this.terminal) {	
+            	this.springLayout.updateNode(node);
+            }
+        }
+    },
+
+    layoutUpdateIteration: function(newNodes) {
+    	this.springLayout.calculateForces();
+        // Move by the given force
+        for (i in this.graph.nodes) {
+            var node = this.graph.nodes[i];
+            if (newNodes[node.id]) {
+            	this.springLayout.updateNode(node);
+            }
+        }
     }
 };
 
@@ -476,6 +556,7 @@ Graph.Layout.Ordered.prototype = {
             var node = this.graph.nodes[i];
             node.layoutPosX = 0;
             node.layoutPosY = 0;
+            
         }
             var counter = 0;
             for (i in this.order) {
@@ -484,6 +565,7 @@ Graph.Layout.Ordered.prototype = {
                 node.layoutPosY = Math.random();
                 counter++;
             }
+            
     },
     
     layoutCalcBounds: function() {

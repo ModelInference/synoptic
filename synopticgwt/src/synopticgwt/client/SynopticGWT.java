@@ -262,7 +262,6 @@ public class SynopticGWT implements EntryPoint {
      */
     public static native void createGraph(JavaScriptObject nodes,
             JavaScriptObject edges, int width, int height, String canvasId) /*-{
-		// put this in the method that intially creates the graph:
 
 		var g = new $wnd.Graph();
 		g.edgeFactory.template.style.directed = true;
@@ -278,23 +277,22 @@ public class SynopticGWT implements EntryPoint {
 			g.addEdge(edges[i], edges[i + 1]);
 		}
 
-		var layouter = new $wnd.Graph.Layout.Spring(g);
+
+		var layouter = new $wnd.Graph.Layout.Stable(g, "I.INITIAL", "T.TERMINAL");
 		var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
 				height);
 
-		$wnd.CUSTOM.initializeStableIDs(nodes, edges, renderer, g);
+		$wnd.CUSTOM.initializeStableIDs(nodes, edges, renderer, layouter, g);
     }-*/;
 
 
     public static native void createChangingGraph(JavaScriptObject allNodes, JavaScriptObject allEdges,
             int refinedNode, int width, int height, String canvasId) /*-{
-	
 
-		$wnd.CUSTOM.updateGraph(allNodes, allEdges, refinedNode);
+		var newNodes = $wnd.CUSTOM.updateGraph(allNodes, allEdges, refinedNode);
 
-		var g = $wnd.CUSTOM.getGraph();
-
-		var layouter = new $wnd.Graph.Layout.Spring(g);
+		var layouter = $wnd.CUSTOM.getLayouter();
+		layouter.updateLayout($wnd.CUSTOM.getGraph(), newNodes);
 
 		var renderer = $wnd.CUSTOM.getRenderer();
 		renderer.draw();
