@@ -1,14 +1,18 @@
 var CUSTOM = {
 		"currentNodes" : [],
-		"initializeStableIDs"  : function  (nodes, edges, renderer, g)  {
+		"initializeStableIDs"  : function  (nodes, edges, renderer, layouter, g)  {
 		    	for (var i = 0; i < nodes.length; i+= 2) {
 		    		this.currentNodes[nodes[i]] = nodes[i+1];
 		    	}
 		    	this.graph = g;
 		    	this.rend = renderer;
+		    	this.layouter = layouter;
 			},
 		"getRenderer" : function () {
 				return this.rend;
+			},
+		"getLayouter" : function () {
+				return this.layouter;
 			},
 		"getGraph" : function () {
 				return this.graph;
@@ -32,6 +36,7 @@ var CUSTOM = {
 			delete this.currentNodes[splitNodeID];
 			
 			var newNodes = [];
+			
 			for ( var i = 0; i < nodes.length; i += 2) {
 				if (!this.currentNodes[nodes[i]]) {
 					this.currentNodes[nodes[i]] = nodes[i+1];
@@ -52,5 +57,6 @@ var CUSTOM = {
 					this.graph.addEdge(source, dest);
 				}
 			}
+			return newNodes;
 		}
 };
