@@ -1,12 +1,13 @@
 var CUSTOM = {
 		"currentNodes" : [],
-		"initializeStableIDs"  : function  (nodes, edges, renderer, layouter, g)  {
+		"initializeStableIDs"  : function  (nodes, edges, renderer, layouter, g, client)  {
 		    	for (var i = 0; i < nodes.length; i+= 2) {
 		    		this.currentNodes[nodes[i]] = nodes[i+1];
 		    	}
 		    	this.graph = g;
 		    	this.rend = renderer;
 		    	this.layouter = layouter;
+		    	this.client = client;
 			},
 		"getRenderer" : function () {
 				return this.rend;
@@ -17,15 +18,22 @@ var CUSTOM = {
 		"getGraph" : function () {
 				return this.graph;
 			},
+		"displayLogLines" : function(id) {
+			alert("double clicked with node ID: " + id);
+			var intID = parseInt(id);
+			//this.client.viewLogLines(intID);
+		},
 		"render" : function(r, n) {
-				// the Raphael set is obligatory, containing all you want to display
-				var set = r.set().push(
-				// custom objects go here
-				r.rect(n.point[0] - 30, n.point[1] - 13, 62, 86).attr({
+				var rect = r.rect(n.point[0] - 30, n.point[1] - 13, 62, 86).attr({
 					"fill" : "#fa8",
 					"stroke-width" : 2,
 					r : "9px"
-				})).push(r.text(n.point[0], n.point[1] + 30, n.label).attr({
+				});
+				rect.dblclick(function (event) {
+					CUSTOM.displayLogLines(n.id);
+				});
+				// the Raphael set is obligatory, containing all you want to display
+				var set = r.set().push(rect).push(r.text(n.point[0], n.point[1] + 30, n.label).attr({
 					"font-size" : "12px"
 				}));
 				return set;

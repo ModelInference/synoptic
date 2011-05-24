@@ -291,7 +291,7 @@ Graph.Renderer.Raphael.prototype = {
 
         shape = node.render(this.r, node).hide();
 
-        shape.attr({"fill-opacity": .6});
+        shape.attr({"fill-opacity": .6 });
         /* re-reference to the node an element belongs to, needed for dragging all elements of a node */
         shape.items.forEach(function(item){ item.set = shape; item.node.style.cursor = "move"; });
         shape.mousedown(this.dragger);
@@ -303,6 +303,7 @@ Graph.Renderer.Raphael.prototype = {
         node.hidden || shape.show();
         node.shape = shape;
     },
+
     drawEdge: function(edge) {
         /* if this edge already exists the other way around and is undirected */
         if(edge.backedge)
