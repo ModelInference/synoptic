@@ -619,9 +619,9 @@ public class SynopticGWT implements EntryPoint {
 			clearLogTable();
 			int row = 1;
 	    	for (LogLine log : result) {
-	    		logLineTable.setText(row, 0, log.lineNum + "");
-	    		logLineTable.setText(row, 1, log.line);
-	    		logLineTable.setText(row, 2, log.filename);
+	    		logLineTable.setText(row, 0, log.getLineNum() + "");
+	    		logLineTable.setText(row, 1, log.getLine());
+	    		logLineTable.setText(row, 2, log.getFilename());
 	    		row++;
 	    	}
 		}
