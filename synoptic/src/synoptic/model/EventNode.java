@@ -434,9 +434,8 @@ public class EventNode implements INode<EventNode> {
         return new File(getFullFileName()).getName();
     }
 
-    public String getLineNum() {
-        int lineNum = event.getLineNum();
-        return lineNum == 0 ? "" : "" + event.getLineNum();
+    public int getLineNum() {
+        return event.getLineNum();
     }
 
     @Override

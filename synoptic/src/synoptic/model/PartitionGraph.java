@@ -58,7 +58,8 @@ public class PartitionGraph implements IGraph<Partition> {
     /** a cache of inter-partition transitions */
     public final LinkedHashMap<Partition, Set<Partition>> transitionCache = new LinkedHashMap<Partition, Set<Partition>>();
 
-    public LinkedList<PartitionMultiSplit> applied = new LinkedList<PartitionMultiSplit>();
+    /* cache of partition splits */
+    private LinkedList<PartitionMultiSplit> appliedSplits = new LinkedList<PartitionMultiSplit>();
     
     /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
@@ -115,10 +116,18 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     public IOperation apply(IOperation op) {
-    	if (op.getClass() == PartitionMultiSplit.class) {
-        	applied.push((PartitionMultiSplit) op);	
-    	}
+    	if (op.getClass() == PartitionMultiSplit.class)
+    		// if a PartitionSplit, add to cache of splits
+        	appliedSplits.push((PartitionMultiSplit) op);	
         return op.commit(this);
+    }
+    
+    /**
+     * Returns the most recently applied PartitionMultiSplit, null
+     * if no splits have been made
+     */
+    public PartitionMultiSplit getMostRecentSplit() {
+    		return appliedSplits.peek();
     }
 
     /**
