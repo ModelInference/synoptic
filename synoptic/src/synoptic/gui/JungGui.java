@@ -836,7 +836,7 @@ public class JungGui extends JApplet implements Printable {
                         for (EventNode event : vertex.getEvents()) {
                             if (event.getLine() != null) {
                                 validLines.add(new String[] {
-                                        event.getLineNum(), event.getLine(),
+                                        event.getLineNum() + "", event.getLine(),
                                         event.getShortFileName() });
                             }
                         }
