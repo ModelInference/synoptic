@@ -79,3 +79,42 @@ h1 {
   border: 2px solid #C3D9FF;
 }
 
+#log-line-label {
+  border: 2px solid #C3D9FF;
+  font-weight: bold;
+  font-size: 1.25em;
+  text-align: center;
+}
+
+#log-line-instruct {
+	font-weight: normal;
+	font-size: 1em;
+}
+.tooltip {
+	background-color: #C3D9FF;
+	padding: 2px;
+	font-style:italic;
+}
+
+.TableHeader {
+	font-weight: bold;
+}
+
+.LineNumCol {
+	width: 50px;
+}
+
+.LineCol {
+	width: 175px;
+}
+
+.FlexTable {
+	table-layout: fixed;
+}
+
+.ErrorMessage {
+	text-align: center;
+	color: red;
+	font-style: italic;
+	font-size: 2em;
+}

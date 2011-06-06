@@ -11,23 +11,16 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.TabPanel;
-import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariants;
 import synopticgwt.shared.GWTPair;
+import synopticgwt.shared.LogLine;
 
 /**
  * Implements the visual and interactive components of the SynopticGWT wep-app
@@ -41,6 +34,12 @@ public class SynopticGWT implements EntryPoint {
             + "attempting to contact the server. Please check your network "
             + "connection and try again.";
 
+    /* Label of initial node, for layout purposes */
+    private static final String INITIAL_LABEL = "I.INITIAL";
+    
+    /* Label of terminal node, for layout purposes */
+    private static final String TERMINAL_LABEL = "T.TERMINAL";
+    
     /**
      * Create an RPC proxy to talk to the Synoptic service
      */
@@ -62,15 +61,13 @@ public class SynopticGWT implements EntryPoint {
     private final HorizontalPanel invariantsPanel = new HorizontalPanel();
 
     // Model tab widgets:
-    private final VerticalPanel modelPanel = new VerticalPanel();
+    private final DockPanel modelPanel = new DockPanel();
     private final Button modelRefineButton = new Button("Refine");
     private final Button modelCoarsenButton = new Button("Coarsen");
     private final Button modelGetFinalButton = new Button("Final Model");
-
-    // Most recent GWTGraph for use in animation
-
     private FlowPanel graphPanel;
-
+    private FlexTable logLineTable;
+    
     // //////////////////////////////////////////////////////////////////////////
     // JSNI methods -- JavaScript Native Interface methods. The method body of
     // this calls is pure JavaScript.
@@ -261,60 +258,75 @@ public class SynopticGWT implements EntryPoint {
      *            the div id with which to associate the resulting graph
      */
     public native void createGraph(JavaScriptObject nodes,
-            JavaScriptObject edges, int width, int height, String canvasId) /*-{
+            JavaScriptObject edges, int width, int height, String canvasId,
+            String initial, String terminal) /*-{
+        
+        // required to export this instance
+        var _this = this;
+  		
+  		// export the LogLineRequestHandler globally
+  		$wnd.viewLogLines = function(id) {
+  			_this.@synopticgwt.client.SynopticGWT::LogLineRequestHandler(I)(id);
+  		};
+  		
+  		// create the graph
 		var g = new $wnd.Graph();
 		g.edgeFactory.template.style.directed = true;
 
+		// add each node to graph
 		for ( var i = 0; i < nodes.length; i += 2) {
 			g.addNode(nodes[i], {
 				label : nodes[i + 1],
-				render : $wnd.CUSTOM.render
+				render : $wnd.GRAPH_HANDLER.render
 			});
 		}
 
+		// add each edge to graph
 		for ( var i = 0; i < edges.length; i += 2) {
 			g.addEdge(edges[i], edges[i + 1]);
 		}
 
-		var layouter = new $wnd.Graph.Layout.Stable(g, "I.INITIAL", "T.TERMINAL");
+		// give stable layout to graph elements
+		var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
+		//var layouter = new $wnd.Graph.Layout.Stable(g, "I.INITIAL", "T.TERMINAL");
+		
+		// render the graph
 		var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
 				height);
-		var _this = this;
-		$wnd.CUSTOM.initializeStableIDs(nodes, edges, renderer, layouter, g, _this);
+		
+		// store graph state
+		$wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer, layouter, g);
     }-*/;
     
     /**
-     * Should enable export the LogLineRequestHandler globally
+     * A JSNI method to update and display a refined graph, animating the transition to a new layout.
+     * 
+     * @param nodes
+     *            An array of nodes, each consecutive pair is a <id,label>
+     * @param edges
+     *            An array of edges, each consecutive pair is <node id, node id>
+     * @param refinedNode
+     * 			  the ID of the refined node
+     * @param canvasId
+     *            the div id with which to associate the resulting graph
      */
-  //  public native void exportGWTMethod() /*-{
-  //  	var _this = this;
-  //	$wnd.viewLogLines = $entry(_this.@synopticgwt.client.SynopticGWT::LogLineRequestHandler(I));
-  //}-*/;
+    public static native void createChangingGraph(JavaScriptObject nodes, JavaScriptObject edges,
+            int refinedNode, String canvasId) /*-{
+            	
+        // update graph and fetch array of new nodes
+		var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges, refinedNode);
+		
+		// fetch the current layouter
+		var layouter = $wnd.GRAPH_HANDLER.getLayouter();
+		
+		// update each graph element's position, re-assigning a position
+		layouter.updateLayout($wnd.GRAPH_HANDLER.getGraph(), newNodes);
 
-
-    /**
-     * Updates the current graph to display the new edges, animates transition to new graph layout
-     */
-    public static native void createChangingGraph(JavaScriptObject allNodes, JavaScriptObject allEdges,
-            int refinedNode, int width, int height, String canvasId) /*-{
-		var newNodes = $wnd.CUSTOM.updateGraph(allNodes, allEdges, refinedNode);
-
-		var layouter = $wnd.CUSTOM.getLayouter();
-		layouter.updateLayout($wnd.CUSTOM.getGraph(), newNodes);
-
-		var renderer = $wnd.CUSTOM.getRenderer();
+		// fetch the renderer
+		var renderer = $wnd.GRAPH_HANDLER.getRenderer();
+		
+		// re-draw the graph, animating transitions from old to new position
 		renderer.draw();
-    }-*/;
-    
-    /**
-     * Displays the given array of log lines
-     */
-    public static native void displayLogLines(JavaScriptObject lines) /*-{
-    	var all = "Line#		Line				File";
-		for(var i = 0; i < lines.length; i+= 3) {
-			all += lines[i] + "		" + lines[i+1] + "				" + lines[i+2] + "\n";
-		}
-		alert(all);
     }-*/;
 
     /**
@@ -411,13 +423,17 @@ public class SynopticGWT implements EntryPoint {
             modelPanel.remove(modelPanel.getWidget(1));
             assert (modelPanel.getWidgetCount() == 1);
         }
+        
+        // clear the log line table
+        clearLogTable();
 
         String canvasId = "canvasId";
 
         graphPanel = new FlowPanel();
         graphPanel.getElement().setId(canvasId);
         graphPanel.setStylePrimaryName("modelCanvas");
-        modelPanel.add(graphPanel);
+        //modelPanel.addEast(graphPanel, 70);
+        modelPanel.add(graphPanel, DockPanel.CENTER);
         // Create the list of graph node labels and their Ids.
         HashMap<Integer, String> nodes = graph.getNodes();
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
@@ -437,16 +453,21 @@ public class SynopticGWT implements EntryPoint {
         // Determine the size of the graphic -- make it depend on the current
         // window size.
         // TODO: make sizing more robust, and allow users to resize the graphic
-        int width = Math.max(Window.getClientWidth() - 300, 300);
+        int width = Math.max(Window.getClientWidth() - 600, 300);
         int height = Math.max(Window.getClientHeight() - 300, 300);
         graphPanel.setPixelSize(width, height);
-        //exportGWTMethod();
-        createGraph(jsNodes, jsEdges, width, height, canvasId);
+        createGraph(jsNodes, jsEdges, width, height, canvasId, INITIAL_LABEL, TERMINAL_LABEL);
     }
-
+    
+    /**
+     * Shows the refined GWTGraph object on the screen in the modelPanel, animating
+     * transition to new positions
+     * 
+     * @param graph the updated graph to display
+     * @param refinedNode the refined node's id
+     */
     public void showChangingGraph(GWTGraph graph, int refinedNode) {
         String canvasId = "canvasId";
-        
         HashMap<Integer, String> nodes = graph.getNodes();
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
         for (Integer key : nodes.keySet()) {
@@ -466,11 +487,11 @@ public class SynopticGWT implements EntryPoint {
         // Determine the size of the graphic -- make it depend on the current
         // window size.
         // TODO: make sizing more robust, and allow users to resize the graphic
-        int width = Math.max(Window.getClientWidth() - 300, 300);
+        int width = Math.max(Window.getClientWidth() - 600, 300);
         int height = Math.max(Window.getClientHeight() - 300, 300);
-
         graphPanel.setPixelSize(width, height);        
-        createChangingGraph(jsNodes, jsEdges, refinedNode, width, height, canvasId);
+        
+        createChangingGraph(jsNodes, jsEdges, refinedNode, canvasId);
     }
 
     /**
@@ -573,26 +594,36 @@ public class SynopticGWT implements EntryPoint {
     public void LogLineRequestHandler (int nodeID) throws Exception {
     	synopticService.handleLogRequest(nodeID, new ViewLogLineAsyncCallback());
     }
+    
+    
+    /* removes currently displayed log lines from the log line table */
+    private void clearLogTable() {
+    	for (int i = 1; i < logLineTable.getRowCount(); i++) 
+			logLineTable.removeRow(i);
+    }
 
     /**
      * Displays the returned log lines from a LogLineRequest
      */
-    class ViewLogLineAsyncCallback implements AsyncCallback<List<String[]>> {
+    class ViewLogLineAsyncCallback implements AsyncCallback<List<LogLine>> {
 
 		@Override
 		public void onFailure(Throwable caught) {
-			// TODO Auto-generated method stub
-			
+			// This is expected whenever the user double clicks on an initial or terminal
+			// node, so we'll ignore it
+			clearLogTable();
 		}
 
 		@Override
-		public void onSuccess(List<String[]> result) {
-			JavaScriptObject jsLogLines = JavaScriptObject.createArray();
-			for (String[] line : result) {
-				for (String piece : line)
-					pushArray(jsLogLines, piece);
-	        }
-			displayLogLines(jsLogLines);
+		public void onSuccess(List<LogLine> result) {
+			clearLogTable();
+			int row = 1;
+	    	for (LogLine log : result) {
+	    		logLineTable.setText(row, 0, log.lineNum + "");
+	    		logLineTable.setText(row, 1, log.line);
+	    		logLineTable.setText(row, 2, log.filename);
+	    		row++;
+	    	}
 		}
     }
     
@@ -635,6 +666,7 @@ public class SynopticGWT implements EntryPoint {
             AsyncCallback<GWTPair<GWTInvariants, GWTGraph>> {
         @Override
         public void onFailure(Throwable caught) {
+        	injectRPCError("Remote Procedure Call Failure while parsing log");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
             parseLogButton.setEnabled(true);
         }
@@ -689,6 +721,7 @@ public class SynopticGWT implements EntryPoint {
     class RefineOneStepAsyncCallback implements AsyncCallback<GWTGraphDelta> {
         @Override
         public void onFailure(Throwable caught) {
+        	injectRPCError("Remote Procedure Call Failure while refining");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
             modelRefineButton.setEnabled(true);
         }
@@ -734,6 +767,7 @@ public class SynopticGWT implements EntryPoint {
     class CoarsenOneStepAsyncCallback implements AsyncCallback<GWTGraph> {
         @Override
         public void onFailure(Throwable caught) {
+        	injectRPCError("Remote Procedure Call Failure while coarsening");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
         }
 
@@ -772,6 +806,7 @@ public class SynopticGWT implements EntryPoint {
     class GetFinalModelAsyncCallback implements AsyncCallback<GWTGraph> {
         @Override
         public void onFailure(Throwable caught) {
+        	injectRPCError("Remote Procedure Call Failure while fetching final model");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
         }
 
@@ -843,7 +878,9 @@ public class SynopticGWT implements EntryPoint {
         // Nothing to be done for now for the invariants panel.
 
         // Construct the Model panel.
-        VerticalPanel buttonsPanel = new VerticalPanel();
+
+        VerticalPanel controlsPanel = new VerticalPanel();
+        HorizontalPanel buttonsPanel = new HorizontalPanel();
         buttonsPanel.add(modelRefineButton);
         buttonsPanel.add(modelCoarsenButton);
         buttonsPanel.add(modelGetFinalButton);
@@ -851,14 +888,54 @@ public class SynopticGWT implements EntryPoint {
         modelCoarsenButton.setWidth("100px");
         modelGetFinalButton.setWidth("100px");
         buttonsPanel.setStyleName("buttonPanel");
-        modelPanel.add(buttonsPanel);
+        controlsPanel.add(buttonsPanel);
+        
+        VerticalPanel logPanel = new VerticalPanel();
+        logPanel.setWidth("300px");
+        
+        // Header
+        Label logLineLabel = new Label("Log Lines");
+        DOM.setElementAttribute(logLineLabel.getElement(), "id", "log-line-label");
+        
+        // Add tooltip to LogLineLabel
+        TooltipListener tooltip = new TooltipListener("Double-click on a node to view log lines", 5000, "tooltip");
+        logLineLabel.addMouseOverHandler(tooltip);
+        logLineLabel.addMouseOutHandler(tooltip);
+        logPanel.add(logLineLabel);
+        
+        // Add log lines display table
+        logLineTable = new FlexTable();
+        logLineTable.setText(0, 0, "Line #");
+        logLineTable.setText(0, 1, "Line");
+        logLineTable.setText(0, 2, "Filename");
+        logPanel.add(logLineTable);
+        
+        // Style table
+        logLineTable.addStyleName("FlexTable"); 
+        HTMLTable.RowFormatter rf = logLineTable.getRowFormatter();
+        rf.addStyleName(0, "TableHeader");
+        HTMLTable.ColumnFormatter cf = logLineTable.getColumnFormatter();
+        cf.addStyleName(0, "LineNumCol");
+        cf.addStyleName(1, "LineCol");
+        cf.addStyleName(2, "FilenameCol");
+        
+        controlsPanel.add(logPanel);
+        modelPanel.add(controlsPanel, DockPanel.WEST);
+        
         // Coarsening is disabled until refinement is completed.
         modelCoarsenButton.setEnabled(false);
         modelRefineButton.addClickHandler(new RefineModelHandler());
         modelCoarsenButton.addClickHandler(new CoarsenModelHandler());
         modelGetFinalButton.addClickHandler(new GetFinalModelHandler());
-
+        
         // Associate handler with the Parse Log button
         parseLogButton.addClickHandler(new ParseLogHandler());
+    }
+    
+    /* Injects an error message at the top of the page when an RPC call fails */
+    public void injectRPCError(String message) {
+    	Label error = new Label(message);
+    	error.setStyleName("ErrorMessage");
+    	RootPanel.get("progressDiv").add(error);
     }
 }

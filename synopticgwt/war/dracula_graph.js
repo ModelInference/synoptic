@@ -151,6 +151,7 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
     this.radius = 40; /* max dimension of a node */
     this.graph = graph;
     this.mouse_in = false;
+    this.animationDuration = 1500;
 
     /* TODO default node rendering function */
     if(!this.graph.render) {
@@ -233,12 +234,12 @@ Graph.Renderer.Raphael.prototype = {
         if(node.shape) {
         	
         	// to move edges along with nodes
-        	var updateEdges = function (graph, count) {
+        	var updateEdges = function (graph, count, animationDuration) {
         		for (var i in graph.edges) {
                     graph.edges[i].connection && graph.edges[i].connection.draw();
                 }
-        		if (count < 3000) {
-        			setTimeout(updateEdges, 10, graph, count + 50);
+        		if (count < animationDuration) {
+        			setTimeout(updateEdges, 10, graph, count + 50, animationDuration);
         		}
         	}
         	// new destination
@@ -248,12 +249,12 @@ Graph.Renderer.Raphael.prototype = {
         	
         	// animate all items in this node's set
         	for (var i = 0; i < node.shape.items.length; i++) {
-        		node.shape.items[i].animate({x :shape.items[i].attr("x")}, 3000, '<>');
-        		node.shape.items[i].animate({y :shape.items[i].attr("y")}, 3000, '<>');
+        		node.shape.items[i].animate({x :shape.items[i].attr("x")}, this.animationDuration, '<>');
+        		node.shape.items[i].animate({y :shape.items[i].attr("y")}, this.animationDuration, '<>');
         	}
         	
         	// set timer to animate edges
-        	setTimeout(updateEdges, 10, this.graph, 0);
+        	setTimeout(updateEdges, 10, this.graph, 0, this.animationDuration);
         
             return node;
         	/*
@@ -344,7 +345,7 @@ Graph.Layout.Spring.prototype = {
         }
         this.layoutCalcBounds();
     },
-    
+
     layoutPrepare: function() {
         for (i in this.graph.nodes) {
             var node = this.graph.nodes[i];
@@ -430,6 +431,7 @@ Graph.Layout.Spring.prototype = {
         node1.layoutForceY += attractiveForce * dy / d;
     },
     
+    // moves the given node using its current forces
     updateNode: function(node) {
         var xmove = this.c * node.layoutForceX;
         var ymove = this.c * node.layoutForceY;
@@ -446,6 +448,9 @@ Graph.Layout.Spring.prototype = {
         node.layoutForceY = 0;
     },
     
+    // calculates repulsive and attractive forces on each node in the graph.
+    // forces are stored in each node with layoutForceX and layoutForceY
+    // fields. the layoutRepulsive and layoutAttractive methods modify those fields.
     calculateForces: function() {
         // Forces on nodes due to node-node repulsions
         var prev = new Array();
@@ -467,43 +472,63 @@ Graph.Layout.Spring.prototype = {
     }
 };
 
+// Provides stable positions for nodes with the given initial or terminal labels
 Graph.Layout.Stable = function (graph, initial, terminal) {
+	
+	// internal springLayout used to calculate node positions
 	this.springLayout = new Graph.Layout.Spring(graph);
+	
     this.graph = graph;
-    this.initial = initial;
-    this.terminal = terminal;
-    this.iterations = 500;
-    this.updates = 50;
-    this.maxRepulsiveForceDistance = 6;
-    this.k = 2;
-    this.c = 0.01;
-    this.maxVertexMovement = 0.5;
-	this.layout();
+    this.initial = initial;		// label on initial nodes
+    this.terminal = terminal;	// label on terminal nodes
+
+    this.updates = 50;     // number of times to re-calculate node positions
+                           // by calculating forces when updateLayout is called    
+	
+    // do initial layout
+    this.layout();
 };
 
+// Stable Layout prototype that provides similar functionality to Spring Layout
+// aside from special treatment of initial/terminal nodes, and an additional
+// updateLayout() function for updating the positions of given new nodes
 Graph.Layout.Stable.prototype = {
-		
-	layout : function() {
-		this.layoutPrepare();
-		for (var i = 0; i < this.iterations; i++) {
-			this.layoutIteration();
-		}
-		
-        this.springLayout.layoutCalcBounds();
+
+	// initial layout: 
+	//    layoutPrepare() assigns initial positions to each node
+	//    layoutIteration() is call a set number of times (Spring Layout's iterations),
+	//          and updates positions by calculating forces on nodes
+	//    layoutCalcBounds() tells the graph the min and max positions of all nodes, used 
+	//          when rendering to ensure that the graph stretches to take all available space
+    layout: function() {
+        this.layoutPrepare();
+        for (var i = 0; i < this.springLayout.iterations; i++) {
+            this.layoutIteration();
+        }
+       this.springLayout.layoutCalcBounds();
 	},
-	
+	    
+	// called on graphs that have already been laid out - updates the position
+	// of nodes in the newNodes array by calculating forces against all other nodes
+	// in the graph
 	updateLayout : function(g, newNodes) {
+		// reset initial forces on all nodes to 0
         for (i in this.graph.nodes) {
             var node = this.graph.nodes[i];
             node.layoutForceX = 0;
             node.layoutForceY = 0;
         }
+        // updates the position of new nodes <updates> times
 		for (var i = 0; i < this.updates; i++) {
 			this.layoutUpdateIteration(newNodes);
 		}
+		// recalculates graph bounds
 		this.springLayout.layoutCalcBounds();
 	},
 	
+	// prepares nodes to be laid out by assigning default initial x, y positions
+	// and default x, y forces. terminal nodes are given x positions at the 
+	// right side of the graph, all others assigned x positions on the left
     layoutPrepare: function() {
         for (i in this.graph.nodes) {
             var node = this.graph.nodes[i];
@@ -518,6 +543,8 @@ Graph.Layout.Stable.prototype = {
         }
     },
     
+    // updates node positions of all nodes aside from the initial and terminal nodes
+    // by re-calculating forces on all nodes and updating node positions
     layoutIteration: function() {
         this.springLayout.calculateForces();
         // Move by the given force
@@ -529,6 +556,8 @@ Graph.Layout.Stable.prototype = {
         }
     },
 
+    // updates node positions of the given new nodes by re-calculating forces on all
+    // nodes and using those forces to update the positions of new nodes
     layoutUpdateIteration: function(newNodes) {
     	this.springLayout.calculateForces();
         // Move by the given force

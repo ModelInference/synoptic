@@ -9,6 +9,7 @@ import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariants;
 import synopticgwt.shared.GWTPair;
+import synopticgwt.shared.LogLine;
 
 @RemoteServiceRelativePath("synoptic")
 public interface ISynopticService extends RemoteService {
@@ -22,5 +23,5 @@ public interface ISynopticService extends RemoteService {
 
     GWTGraph getFinalModel() throws Exception;
     
-    List<String[]> handleLogRequest(int nodeID) throws Exception;
+    List<LogLine> handleLogRequest(int nodeID) throws Exception;
 }

@@ -8,6 +8,7 @@ import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariants;
 import synopticgwt.shared.GWTPair;
+import synopticgwt.shared.LogLine;
 
 public interface ISynopticServiceAsync {
     void parseLog(String logLines, List<String> regExps,
@@ -20,6 +21,6 @@ public interface ISynopticServiceAsync {
 
     void getFinalModel(AsyncCallback<GWTGraph> callback) throws Exception;
     
-    void handleLogRequest(int nodeID, AsyncCallback<List<String[]>> callback) throws Exception;
+    void handleLogRequest(int nodeID, AsyncCallback<List<LogLine>> callback) throws Exception;
 
 }
