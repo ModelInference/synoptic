@@ -4,8 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" output="test-classes" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="SYNOPTIC_LIB"/>
 	<classpathentry kind="lib" path="/homes/iws/jabrah/synoptic/lib/synoptic.jar"/>
-	<classpathentry kind="lib" path="/Synoptic/jar-export-settings-jenny.jardesc"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

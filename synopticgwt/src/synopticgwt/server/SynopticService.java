@@ -30,6 +30,7 @@ import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariants;
 import synopticgwt.shared.GWTPair;
+import synopticgwt.shared.LogLine;
 
 /**
  * Implements the Synoptic service which does:
@@ -264,7 +265,7 @@ public class SynopticService extends RemoteServiceServlet implements
                 unsatisfiedInvariants.add(relPath.invariant);
             }
    
-            PartitionMultiSplit last = pGraph.applied.peek();
+            PartitionMultiSplit last = pGraph.getMostRecentSplit();
            
             int refinedNode = last.getPartition().hashCode(); // until determined
             // Return the new model.
@@ -313,9 +314,12 @@ public class SynopticService extends RemoteServiceServlet implements
      * in the form [line #, line, filename]
      */
 	@Override
-	public List<String[]> handleLogRequest(int nodeID) throws Exception {
+	public List<LogLine> handleLogRequest(int nodeID) throws Exception {
+		
         // Set up state.
         retrieveSessionState();
+
+        // Find partition
         Partition requested = null;
         for (Partition p : pGraph.getNodes()) {
         	if (p.hashCode() == nodeID) {
@@ -323,15 +327,13 @@ public class SynopticService extends RemoteServiceServlet implements
         		break;
         	}
         }
-        List<String[]> validLines = new ArrayList<String[]>();
         
-        if (requested != null) {
-        	for (EventNode event : requested.getEvents()) {
-        		validLines.add(new String[] {
-        				event.getLineNum(), event.getLine(), 
-        				event.getShortFileName() });
-        	}
-        }
+        // Fetch log lines
+		List<LogLine> validLines = new ArrayList<LogLine>();
+        if (requested != null)
+        	for (EventNode event : requested.getEvents())
+        		validLines.add(new LogLine(event.getLineNum(), event.getLine(), event.getShortFileName()));
+
         return validLines;
 	}
 }

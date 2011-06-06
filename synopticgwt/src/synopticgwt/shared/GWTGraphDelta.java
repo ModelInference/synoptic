@@ -9,9 +9,7 @@ public class GWTGraphDelta implements Serializable {
 	private GWTGraph graph;
 	private int refinedNode;
 	
-	public GWTGraphDelta () {
-		
-	}
+	public GWTGraphDelta () {}
 	
 	public GWTGraphDelta (GWTGraph g, int refinedNode) {
 		this.graph = g;
