@@ -1,3 +1,11 @@
+/*
+ * This code is in part based on Clemens Hammacher's code.
+ * 
+ * Source: https://ccs.hammacher.name
+ * 
+ * License: Eclipse Public License v1.0.
+ */
+
 package synoptic.model.export;
 
 import java.io.File;
@@ -18,11 +26,6 @@ import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
-
-/*
- * This file is bases on the code from Clemens Hammacher. Source:
- * https://ccs.hammacher.name Licence: Eclipse Public License v1.0.
- */
 
 public class GraphVizExporter {
     static Logger logger = Logger.getLogger("GraphVizExporter");
