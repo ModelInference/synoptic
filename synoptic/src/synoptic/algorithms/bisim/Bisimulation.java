@@ -1,4 +1,12 @@
-/** Implementation of the synoptic.main algorithms */
+/*
+ * This code is in part based on the code from Clemens Hammacher's
+ * implementation of a partition refinement algorithm for Bisimulation
+ * minimization.
+ * 
+ * Source: https://ccs.hammacher.name
+ * 
+ * License: Eclipse Public License v1.0.
+ */
 
 package synoptic.algorithms.bisim;
 
@@ -34,10 +42,7 @@ import synoptic.util.time.VectorTime;
  * This class implements the algorithm BisimH (
  * {@code Bisimulation.splitPartitions}), and a modified version of the
  * algorithm kTail ({@code Bisimulation.mergePartitions}) that considers state
- * labels instead of state transitions. It is based on the code from Clemens
- * Hammacher's implementation of a partition refinement algorithm for
- * bisimulation minimization. Source: https://ccs.hammacher.name License:
- * Eclipse Public License v1.0.
+ * labels instead of state transitions.
  */
 public abstract class Bisimulation {
     public static Logger logger = Logger.getLogger("Bisimulation");
@@ -359,6 +364,8 @@ public abstract class Bisimulation {
                 // length. A length of 1 indicates the traces are totally
                 // ordered, which means this should be thrown as an error.
                 Partition p = pGraph.getNodes().iterator().next();
+                // TODO: use the parser to determine if the input log was
+                // partially ordered or not.
                 if (!(p.getEvents().iterator().next().getEvent().getTime() instanceof VectorTime)) {
                     throw new InternalSynopticException(
                             "Could not satisfy invariants: "
