@@ -112,10 +112,11 @@ public class JungGui extends JApplet implements Printable {
     private final PartitionGraph pGraph;
 
     /**
-     * Buttons for refinement options
+     * MenuItems for transformation options
      */
-    private JButton refineOption;
-    private JButton totalRefine;
+    private JMenuItem refineOption;
+    private JMenuItem totalRefine;
+    private JMenuItem coarsenOption;
     /**
      * The visual representation of pGraph, displayed by the Applet.
      */
@@ -269,8 +270,12 @@ public class JungGui extends JApplet implements Printable {
         createLayoutsMenu(graphLayouts);
         menuBar.add(graphLayouts);
 
-        menuBar.add(createRefineButton());
-        menuBar.add(createTotalRefineButton());
+        JMenu actions = new JMenu("Actions");
+        actions.add(createRefineMenuItem());
+        actions.add(createTotalRefineMenuItem());
+        actions.add(createCoarsenMenuItem());
+
+        menuBar.add(actions);
         menuBar.add(createPathsMenu());
 
         frame.setJMenuBar(menuBar);
@@ -458,8 +463,8 @@ public class JungGui extends JApplet implements Printable {
         }
     }
 
-    public JButton createTotalRefineButton() {
-        totalRefine = new JButton("Completely refine");
+    public JMenuItem createTotalRefineMenuItem() {
+        totalRefine = new JMenuItem("Completely refine");
         totalRefine.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -482,8 +487,8 @@ public class JungGui extends JApplet implements Printable {
         return totalRefine;
     }
 
-    public JButton createRefineButton() {
-        refineOption = new JButton("Refine once");
+    public JMenuItem createRefineMenuItem() {
+        refineOption = new JMenuItem("Refine once");
         refineOption.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -504,12 +509,40 @@ public class JungGui extends JApplet implements Printable {
         return refineOption;
     }
 
+    public JMenuItem createCoarsenMenuItem() {
+        coarsenOption = new JMenuItem("Completely coarsen");
+        coarsenOption.setEnabled(false);
+        coarsenOption.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                coarsen();
+            }
+        });
+        return coarsenOption;
+    }
+
     private void disableRefinement() {
         // Set all partitions to 'old'.
         oldPartitions = newPartitions;
         refineOption.setEnabled(false);
         totalRefine.setEnabled(false);
+        coarsenOption.setEnabled(true);
         // Refresh the graphics state.
+        JungGui.this.repaint();
+    }
+
+    private void coarsen() {
+        Bisimulation.mergePartitions(pGraph);
+
+        oldPartitions = newPartitions;
+        newPartitions = new LinkedHashMap<Partition, Integer>();
+
+        for (Partition p : pGraph.getNodes()) {
+            newPartitions.put(p, p.getEvents().size());
+        }
+
+        vizViewer.getGraphLayout().setGraph(JungGui.this.getJGraph());
+        vizViewer.setGraphLayout(vizViewer.getGraphLayout());
         JungGui.this.repaint();
     }
 
