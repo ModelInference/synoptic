@@ -1,0 +1,6 @@
+-r ^(?<VTIME>)(?<TYPE>)$
+-s ^--$
+-i
+--onlyMineInvariants=true
+--noRefinement=true
+--dumpInitialGraph=false
