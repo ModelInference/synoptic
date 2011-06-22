@@ -36,10 +36,10 @@ public class SynopticGWT implements EntryPoint {
 
     /* Label of initial node, for layout purposes */
     private static final String INITIAL_LABEL = "I.INITIAL";
-    
+
     /* Label of terminal node, for layout purposes */
     private static final String TERMINAL_LABEL = "T.TERMINAL";
-    
+
     /**
      * Create an RPC proxy to talk to the Synoptic service
      */
@@ -67,14 +67,14 @@ public class SynopticGWT implements EntryPoint {
     private final Button modelGetFinalButton = new Button("Final Model");
     private FlowPanel graphPanel;
     private FlexTable logLineTable;
-    
+
     // //////////////////////////////////////////////////////////////////////////
     // JSNI methods -- JavaScript Native Interface methods. The method body of
     // this calls is pure JavaScript.
 
     /**
      * A JSNI method to create and display an invariants graphic.
-     * 
+     *
      * @param AFby
      *            associative array with AFby relations
      * @param NFby
@@ -169,7 +169,7 @@ public class SynopticGWT implements EntryPoint {
 						+ " " + ypos[AP[eType][j]]));
 				line.attr({
 					stroke : "grey",
-					highlight : "green",
+					highlight : "blue",
 					dest : tLeftsArr[AP[eType][j]]
 				});
 				lines[eType].push(line);
@@ -181,7 +181,7 @@ public class SynopticGWT implements EntryPoint {
 						+ " " + ypos[AFby[eType][j]]));
 				line.attr({
 					stroke : "grey",
-					highlight : "green",
+					highlight : "blue",
 					dest : tRightsArr[AFby[eType][j]]
 				});
 				lines[eType].push(line);
@@ -245,7 +245,7 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * A JSNI method to create and display a graph.
-     * 
+     *
      * @param nodes
      *            An array of nodes, each consecutive pair is a <id,label>
      * @param edges
@@ -260,15 +260,15 @@ public class SynopticGWT implements EntryPoint {
     public native void createGraph(JavaScriptObject nodes,
             JavaScriptObject edges, int width, int height, String canvasId,
             String initial, String terminal) /*-{
-        
+
         // required to export this instance
         var _this = this;
-  		
+
   		// export the LogLineRequestHandler globally
   		$wnd.viewLogLines = function(id) {
   			_this.@synopticgwt.client.SynopticGWT::LogLineRequestHandler(I)(id);
   		};
-  		
+
   		// create the graph
 		var g = new $wnd.Graph();
 		g.edgeFactory.template.style.directed = true;
@@ -289,18 +289,18 @@ public class SynopticGWT implements EntryPoint {
 		// give stable layout to graph elements
 		var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
 		//var layouter = new $wnd.Graph.Layout.Stable(g, "I.INITIAL", "T.TERMINAL");
-		
+
 		// render the graph
 		var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
 				height);
-		
+
 		// store graph state
 		$wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer, layouter, g);
     }-*/;
-    
+
     /**
      * A JSNI method to update and display a refined graph, animating the transition to a new layout.
-     * 
+     *
      * @param nodes
      *            An array of nodes, each consecutive pair is a <id,label>
      * @param edges
@@ -312,19 +312,19 @@ public class SynopticGWT implements EntryPoint {
      */
     public static native void createChangingGraph(JavaScriptObject nodes, JavaScriptObject edges,
             int refinedNode, String canvasId) /*-{
-            	
+
         // update graph and fetch array of new nodes
 		var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges, refinedNode);
-		
+
 		// fetch the current layouter
 		var layouter = $wnd.GRAPH_HANDLER.getLayouter();
-		
+
 		// update each graph element's position, re-assigning a position
 		layouter.updateLayout($wnd.GRAPH_HANDLER.getGraph(), newNodes);
 
 		// fetch the renderer
 		var renderer = $wnd.GRAPH_HANDLER.getRenderer();
-		
+
 		// re-draw the graph, animating transitions from old to new position
 		renderer.draw();
     }-*/;
@@ -332,7 +332,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method for adding a String element to a java script array object.
      * (Yes, this is rather painful.)
-     * 
+     *
      * @param array
      *            Array object to add to
      * @param s
@@ -345,7 +345,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method for associating a key in an array to a value. (Yes, this is
      * rather painful.)
-     * 
+     *
      * @param array
      *            Array object to add to
      * @param key
@@ -362,7 +362,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method for adding a progress wheel to a div. (Yes, this is rather
      * painful.)
-     * 
+     *
      * @param radius
      *            size of the svg graphic / 2
      * @param r1
@@ -412,9 +412,9 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * Shows the GWTGraph object on the screen in the modelPanel
-     * 
+     *
      * @param graph
-     * @throws Exception 
+     * @throws Exception
      */
     public void showGraph(GWTGraph graph) {
         // Clear the second (non-button ) widget model
@@ -423,7 +423,7 @@ public class SynopticGWT implements EntryPoint {
             modelPanel.remove(modelPanel.getWidget(1));
             assert (modelPanel.getWidgetCount() == 1);
         }
-        
+
         // clear the log line table
         clearLogTable();
 
@@ -458,11 +458,11 @@ public class SynopticGWT implements EntryPoint {
         graphPanel.setPixelSize(width, height);
         createGraph(jsNodes, jsEdges, width, height, canvasId, INITIAL_LABEL, TERMINAL_LABEL);
     }
-    
+
     /**
      * Shows the refined GWTGraph object on the screen in the modelPanel, animating
      * transition to new positions
-     * 
+     *
      * @param graph the updated graph to display
      * @param refinedNode the refined node's id
      */
@@ -489,14 +489,14 @@ public class SynopticGWT implements EntryPoint {
         // TODO: make sizing more robust, and allow users to resize the graphic
         int width = Math.max(Window.getClientWidth() - 600, 300);
         int height = Math.max(Window.getClientHeight() - 300, 300);
-        graphPanel.setPixelSize(width, height);        
-        
+        graphPanel.setPixelSize(width, height);
+
         createChangingGraph(jsNodes, jsEdges, refinedNode, canvasId);
     }
 
     /**
      * Shows the invariant graphic on the screen in the invariantsPanel
-     * 
+     *
      * @param graph
      */
     public void showInvariants(GWTInvariants gwtInvs) {
@@ -589,16 +589,16 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * Requests the log lines for the Partition with the given nodeID
-     * 
+     *
      */
     public void LogLineRequestHandler (int nodeID) throws Exception {
     	synopticService.handleLogRequest(nodeID, new ViewLogLineAsyncCallback());
     }
-    
-    
+
+
     /* removes currently displayed log lines from the log line table */
     private void clearLogTable() {
-    	for (int i = 1; i < logLineTable.getRowCount(); i++) 
+    	for (int i = 1; i < logLineTable.getRowCount(); i++)
 			logLineTable.removeRow(i);
     }
 
@@ -626,7 +626,7 @@ public class SynopticGWT implements EntryPoint {
 	    	}
 		}
     }
-    
+
     /**
      * Used for handling Parse Log button clicks
      */
@@ -658,7 +658,7 @@ public class SynopticGWT implements EntryPoint {
                     separatorRegExp, new ParseLogAsyncCallback());
         }
     }
-    
+
     /**
      * onSuccess\onFailure callback handler for parseLog()
      */
@@ -687,7 +687,7 @@ public class SynopticGWT implements EntryPoint {
             // Show the model graph.
             GWTGraph graph = result.getRight();
             showGraph(graph);
-            
+
             // Show the invariants table and graphics.
             GWTInvariants gwtInvs = result.getLeft();
             showInvariants(gwtInvs);
@@ -739,7 +739,7 @@ public class SynopticGWT implements EntryPoint {
         }
     }
 
-    
+
     /**
      * Used for handling coarsen button clicks
      */
@@ -889,49 +889,49 @@ public class SynopticGWT implements EntryPoint {
         modelGetFinalButton.setWidth("100px");
         buttonsPanel.setStyleName("buttonPanel");
         controlsPanel.add(buttonsPanel);
-        
+
         VerticalPanel logPanel = new VerticalPanel();
         logPanel.setWidth("300px");
-        
+
         // Header
         Label logLineLabel = new Label("Log Lines");
         DOM.setElementAttribute(logLineLabel.getElement(), "id", "log-line-label");
-        
+
         // Add tooltip to LogLineLabel
         TooltipListener tooltip = new TooltipListener("Double-click on a node to view log lines", 5000, "tooltip");
         logLineLabel.addMouseOverHandler(tooltip);
         logLineLabel.addMouseOutHandler(tooltip);
         logPanel.add(logLineLabel);
-        
+
         // Add log lines display table
         logLineTable = new FlexTable();
         logLineTable.setText(0, 0, "Line #");
         logLineTable.setText(0, 1, "Line");
         logLineTable.setText(0, 2, "Filename");
         logPanel.add(logLineTable);
-        
+
         // Style table
-        logLineTable.addStyleName("FlexTable"); 
+        logLineTable.addStyleName("FlexTable");
         HTMLTable.RowFormatter rf = logLineTable.getRowFormatter();
         rf.addStyleName(0, "TableHeader");
         HTMLTable.ColumnFormatter cf = logLineTable.getColumnFormatter();
         cf.addStyleName(0, "LineNumCol");
         cf.addStyleName(1, "LineCol");
         cf.addStyleName(2, "FilenameCol");
-        
+
         controlsPanel.add(logPanel);
         modelPanel.add(controlsPanel, DockPanel.WEST);
-        
+
         // Coarsening is disabled until refinement is completed.
         modelCoarsenButton.setEnabled(false);
         modelRefineButton.addClickHandler(new RefineModelHandler());
         modelCoarsenButton.addClickHandler(new CoarsenModelHandler());
         modelGetFinalButton.addClickHandler(new GetFinalModelHandler());
-        
+
         // Associate handler with the Parse Log button
         parseLogButton.addClickHandler(new ParseLogHandler());
     }
-    
+
     /* Injects an error message at the top of the page when an RPC call fails */
     public void injectRPCError(String message) {
     	Label error = new Label(message);
