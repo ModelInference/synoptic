@@ -56,31 +56,37 @@ public class Event {
     /**
      * Create an event with a string label.
      */
-    public Event(String label, String logLine, String fileName, int lineNum) {
-        this(new StringEventType(label), logLine, fileName, lineNum);
-
-    }
+    // public Event(String label, String logLine, String fileName, int lineNum)
+    // {
+    // this(new StringEventType(label), logLine, fileName, lineNum);
+    // }
 
     /**
      * Create an event with a string label.
      */
     public Event(String label) {
         this(new StringEventType(label), null, null, 0);
-
     }
 
     /**
-     * Create an event with a string\hostId label.
+     * Create an event with DistEvent type, if the hostId is known.
      */
-    public Event(String label, int hostId, String logLine, String fileName,
-            int lineNum) {
-        this(new DistEventType(label, hostId), logLine, fileName, lineNum);
-
-    }
+    // public Event(String label, int hostId, String logLine, String fileName,
+    // int lineNum) {
+    // this(new DistEventType(label, hostId), logLine, fileName, lineNum);
+    // }
 
     public Event(EventType label) {
         this(label, null, null, 0);
     }
+
+    /**
+     * Create an event with DistEvent type, without needing to know the hostId.
+     */
+    // public static Event newDistEvent(String label, String logLine,
+    // String fileName, int lineNum) {
+    // return new Event(new DistEventType(label), logLine, fileName, lineNum);
+    // }
 
     /**
      * Returns the special INITIAL event of String type.

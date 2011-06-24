@@ -103,7 +103,7 @@ public class SynopticService extends RemoteServiceServlet implements
             if (nodeIds.containsKey(pNode)) {
                 pNodeId = nodeIds.get(pNode);
             } else {
-                pNodeId =  pNode.hashCode();
+                pNodeId = pNode.hashCode();
                 nodeIds.put(pNode, pNodeId);
                 graph.addNode(pNodeId, pNode.getEType().toString());
             }
@@ -218,7 +218,6 @@ public class SynopticService extends RemoteServiceServlet implements
      * Performs a single step of refinement on the cached model.
      */
     @Override
-
     public GWTGraphDelta refineOneStep() {
         // Retrieve HTTP session to access storage.
         HttpServletRequest request = getThreadLocalRequest();
@@ -230,7 +229,7 @@ public class SynopticService extends RemoteServiceServlet implements
             return null;
         }
         PartitionGraph pGraph = (PartitionGraph) session.getAttribute("model");
-        
+
         if (session.getAttribute("numSplitSteps") == null) {
             // TODO: throw appropriate exception
             return null;
@@ -243,7 +242,6 @@ public class SynopticService extends RemoteServiceServlet implements
         @SuppressWarnings("unchecked")
         Set<ITemporalInvariant> unsatisfiedInvariants = (Set<ITemporalInvariant>) session
                 .getAttribute("unsatInvs");
-
 
         if (unsatisfiedInvariants.size() != 0) {
             // Retrieve the counter-examples for the unsatisfied invariants.
@@ -264,10 +262,11 @@ public class SynopticService extends RemoteServiceServlet implements
             for (RelationPath<Partition> relPath : counterExampleTraces) {
                 unsatisfiedInvariants.add(relPath.invariant);
             }
-   
+
             PartitionMultiSplit last = pGraph.getMostRecentSplit();
-           
-            int refinedNode = last.getPartition().hashCode(); // until determined
+
+            int refinedNode = last.getPartition().hashCode(); // until
+                                                              // determined
             // Return the new model.
             return new GWTGraphDelta(PGraphToGWTGraph(pGraph), refinedNode);
         }
@@ -310,30 +309,33 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Find the requested partition and returns a list of log lines, each
-     * in the form [line #, line, filename]
+     * Find the requested partition and returns a list of log lines, each in the
+     * form [line #, line, filename]
      */
-	@Override
-	public List<LogLine> handleLogRequest(int nodeID) throws Exception {
-		
+    @Override
+    public List<LogLine> handleLogRequest(int nodeID) throws Exception {
+
         // Set up state.
         retrieveSessionState();
 
         // Find partition
         Partition requested = null;
         for (Partition p : pGraph.getNodes()) {
-        	if (p.hashCode() == nodeID) {
-        		requested = p;
-        		break;
-        	}
+            if (p.hashCode() == nodeID) {
+                requested = p;
+                break;
+            }
         }
-        
+
         // Fetch log lines
-		List<LogLine> validLines = new ArrayList<LogLine>();
-        if (requested != null)
-        	for (EventNode event : requested.getEvents())
-        		validLines.add(new LogLine(event.getLineNum(), event.getLine(), event.getShortFileName()));
+        List<LogLine> validLines = new ArrayList<LogLine>();
+        if (requested != null) {
+            for (EventNode event : requested.getEvents()) {
+                validLines.add(new LogLine(event.getLineNum(), event.getLine(),
+                        event.getShortFileName()));
+            }
+        }
 
         return validLines;
-	}
+    }
 }

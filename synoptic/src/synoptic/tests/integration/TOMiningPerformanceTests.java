@@ -11,7 +11,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
+import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
@@ -20,7 +20,7 @@ import synoptic.model.EventNode;
 import synoptic.tests.SynopticTest;
 
 @RunWith(value = Parameterized.class)
-public class MiningPerformanceTests extends SynopticTest {
+public class TOMiningPerformanceTests extends SynopticTest {
 
     InvariantMiner miner = null;
     int numIterations;
@@ -36,13 +36,13 @@ public class MiningPerformanceTests extends SynopticTest {
     @Parameters
     public static Collection<Object[]> data() {
         Object[][] data = new Object[][] {
-                { new TransitiveClosureTOInvMiner(false), 3, 1000, 10, 50 },
-                { new TransitiveClosureTOInvMiner(true), 3, 1000, 10, 50 },
+                { new TransitiveClosureInvMiner(false), 3, 1000, 10, 50 },
+                { new TransitiveClosureInvMiner(true), 3, 1000, 10, 50 },
                 { new ChainWalkingTOInvMiner(), 3, 10000, 10, 50 } };
         return Arrays.asList(data);
     }
 
-    public MiningPerformanceTests(InvariantMiner minerToUse, int numIterations,
+    public TOMiningPerformanceTests(InvariantMiner minerToUse, int numIterations,
             int totalEvents, int numPartitions, int numEventTypes) {
         miner = minerToUse;
         this.numIterations = numIterations;

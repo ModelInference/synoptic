@@ -22,7 +22,7 @@ import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
-import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
+import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.model.EventNode;
@@ -51,8 +51,8 @@ public class TOLogInvariantMiningTests extends SynopticTest {
     @Parameters
     public static Collection<Object[]> data() {
         Object[][] data = new Object[][] {
-                { new TransitiveClosureTOInvMiner(false) },
-                { new TransitiveClosureTOInvMiner(true) },
+                { new TransitiveClosureInvMiner(false) },
+                { new TransitiveClosureInvMiner(true) },
                 { new ChainWalkingTOInvMiner() },
                 { new DAGWalkingPOInvMiner() } };
         return Arrays.asList(data);
@@ -186,12 +186,12 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         // Generate set including tautological invariants.
         Graph<EventNode> inputGraph = genInitialLinearGraph(log);
         TemporalInvariantSet s1 = null;
-        if (miner instanceof TransitiveClosureTOInvMiner) {
+        if (miner instanceof TransitiveClosureInvMiner) {
             // Generates a TemporalInvariantSet based on a sequence of log
             // events. This set includes all Tautological invariants as well. So
             // these are the "raw" invariants which are mined.
-            s1 = ((TransitiveClosureTOInvMiner) miner).computeInvariants(
-                    inputGraph, false);
+            s1 = ((TransitiveClosureInvMiner) miner).computeInvariants(
+                    inputGraph, false, false);
         } else {
             fail("Unrecognized invariant miner type.");
         }

@@ -33,8 +33,9 @@ import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.gui.JungGui;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
-import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
+import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.model.EventNode;
 import synoptic.model.Graph;
 import synoptic.model.PartitionGraph;
@@ -312,6 +313,18 @@ public class Main implements Callable<Integer> {
     public static boolean logLvlExtraVerbose = false;
 
     /**
+     * Used to select the algorithm for mining invariants.
+     */
+    @Option("Use the transitive closure invariant mining algorithm (usually slower)")
+    public static boolean useTransitiveClosureMining = false;
+
+    /**
+     * Used to tell Synoptic to not go past mining invariants.
+     */
+    @Option("Mine invariants and then quit.")
+    public static boolean onlyMineInvariants = false;
+
+    /**
      * Do not perform the coarsening stage in Synoptic, and as final output use
      * the most refined representation. This option is <i>unpublicized</i>; it
      * will not appear in the default usage message
@@ -341,6 +354,14 @@ public class Main implements Callable<Integer> {
      */
     @Option("Run all tests in synoptic.tests.units, and then terminate.")
     public static boolean runTests = false;
+
+    /**
+     * Run a benchmark to evaluate PO log invariant mining algorithms on a
+     * hard-coded directory of input log files. This option is
+     * <i>unpublicized</i>; it will not appear in the default usage message
+     */
+    @Option("Benchmark the PO log mining.")
+    public static boolean benchPOMining = false;
 
     /**
      * Run all tests in synoptic.tests -- unit and integration tests, and then
@@ -439,6 +460,8 @@ public class Main implements Callable<Integer> {
         } else if (runTests) {
             List<String> testClassesUnits = getTestsInPackage("synoptic.tests.units.");
             runTests(testClassesUnits);
+        } else if (benchPOMining) {
+            runBenchPOMining("/Users/ivan/synoptic/trunk/traces/abstract/slaml11-benchmarking-po-traces/nodes-2_etypes-20_events-1000_execs-100.txt");
         }
 
         if (logFilenames.size() == 0) {
@@ -590,6 +613,22 @@ public class Main implements Callable<Integer> {
         String[] testClassesAr = new String[testClasses.size()];
         testClassesAr = testClasses.toArray(testClassesAr);
         JUnitCore.main(testClassesAr);
+    }
+
+    public static void runBenchPOMining(String fname) {
+        InvariantMiner miner;
+
+        miner = new TransitiveClosureInvMiner(false);
+        // new TransitiveClosureTOInvMiner(true)
+        // miner = new DAGWalkingPOInvMiner();
+
+        TraceParser parser = new TraceParser();
+        // parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+        // parser.addPartitionsSeparator("^--$");
+
+        // for (int iter = 0; iter < numIterations; iter++) {
+
+        // }
     }
 
     /**
@@ -839,14 +878,18 @@ public class Main implements Callable<Integer> {
             }
         }
 
-        // Totally ordered traces can use the faster miner.
+        // Invariant minders depend on total/partial ordering of the log.
         InvariantMiner miner;
         if (parser.logTimeTypeIsTotallyOrdered()) {
             miner = new ChainWalkingTOInvMiner();
         } else {
-            miner = new TransitiveClosureTOInvMiner();
+            if (useTransitiveClosureMining) {
+                miner = new TransitiveClosureInvMiner();
+            } else {
+                miner = new DAGWalkingPOInvMiner();
+            }
         }
-        // parser can be garbage-collected.
+        // Parser can be garbage-collected.
         parser = null;
 
         logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
@@ -854,12 +897,16 @@ public class Main implements Callable<Integer> {
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
         logger.info("Mining took " + (System.currentTimeMillis() - startTime)
                 + "ms");
-        // miner can be garbage-collected.
+        // Miner can be garbage-collected.
         miner = null;
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
         if (dumpInvariants) {
             logger.info("Mined invariants: " + minedInvs);
+        }
+
+        if (onlyMineInvariants) {
+            return new Integer(0);
         }
 
         if (outputInvariantsToFile) {
@@ -868,8 +915,7 @@ public class Main implements Callable<Integer> {
             minedInvs.outputToFile(invariantsFilename);
         }
 
-        // Create the initial partitioning graph and mine the invariants from
-        // the initial graph.
+        // Create the initial partitioning graph.
         startTime = System.currentTimeMillis();
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, minedInvs);
         logger.info("Creating partition graph took "

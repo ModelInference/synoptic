@@ -59,8 +59,8 @@ public class PartitionGraph implements IGraph<Partition> {
     public final LinkedHashMap<Partition, Set<Partition>> transitionCache = new LinkedHashMap<Partition, Set<Partition>>();
 
     /* cache of partition splits */
-    private LinkedList<PartitionMultiSplit> appliedSplits = new LinkedList<PartitionMultiSplit>();
-    
+    private final LinkedList<PartitionMultiSplit> appliedSplits = new LinkedList<PartitionMultiSplit>();
+
     /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
      * and stored. If partitionByLabel is true, all messages with identical
@@ -116,18 +116,19 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     public IOperation apply(IOperation op) {
-    	if (op.getClass() == PartitionMultiSplit.class)
-    		// if a PartitionSplit, add to cache of splits
-        	appliedSplits.push((PartitionMultiSplit) op);	
+        if (op.getClass() == PartitionMultiSplit.class) {
+            // if a PartitionSplit, add to cache of splits
+            appliedSplits.push((PartitionMultiSplit) op);
+        }
         return op.commit(this);
     }
-    
+
     /**
-     * Returns the most recently applied PartitionMultiSplit, null
-     * if no splits have been made
+     * Returns the most recently applied PartitionMultiSplit, null if no splits
+     * have been made
      */
     public PartitionMultiSplit getMostRecentSplit() {
-    		return appliedSplits.peek();
+        return appliedSplits.peek();
     }
 
     /**

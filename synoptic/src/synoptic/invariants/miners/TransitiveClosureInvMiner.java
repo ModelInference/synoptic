@@ -9,14 +9,17 @@ import java.util.Set;
 import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
+import synoptic.invariants.AlwaysConcurrentInvariant;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.main.TraceParser;
+import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.StringEventType;
@@ -24,7 +27,7 @@ import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
-public class TransitiveClosureTOInvMiner extends InvariantMiner {
+public class TransitiveClosureInvMiner extends InvariantMiner {
 
     /**
      * Whether or not to use iterative version of warshall's algorithm for TC
@@ -32,16 +35,23 @@ public class TransitiveClosureTOInvMiner extends InvariantMiner {
      */
     public boolean useWarshall = true;
 
-    public TransitiveClosureTOInvMiner() {
+    public TransitiveClosureInvMiner() {
     }
 
-    public TransitiveClosureTOInvMiner(boolean useWarshall) {
+    public TransitiveClosureInvMiner(boolean useWarshall) {
         this.useWarshall = useWarshall;
     }
 
     @Override
     public TemporalInvariantSet computeInvariants(IGraph<EventNode> g) {
-        return computeInvariants(g, true);
+        // Determine whether to mine concurrency invariants or not by testing
+        // the event type of _some_ node in g -- concurrency invariants are
+        // mined for nodes of DistEventType.
+        boolean mineConcurrencyInvariants = false;
+        if (g.getNodes().iterator().next().getEType() instanceof DistEventType) {
+            mineConcurrencyInvariants = true;
+        }
+        return computeInvariants(g, true, mineConcurrencyInvariants);
     }
 
     /**
@@ -58,26 +68,19 @@ public class TransitiveClosureTOInvMiner extends InvariantMiner {
      * @return the set of temporal invariants the graph satisfies
      */
     public TemporalInvariantSet computeInvariants(IGraph<EventNode> g,
-            boolean filterTautological) {
-        // Compute the invariants of the input graph.
-        Set<ITemporalInvariant> invariants = computeInvariantsFromTC(g);
-        if (filterTautological) {
-            filterOutTautologicalInvariants(invariants);
-            for (ITemporalInvariant inv : computeINITIALAFbyXInvariants(g)) {
-                invariants.add(inv);
-            }
-        }
-        return new TemporalInvariantSet(invariants);
+            boolean filterTautological, boolean mineConcurrencyInvariants) {
 
-    }
-
-    private Set<ITemporalInvariant> computeInvariantsFromTC(IGraph<EventNode> g) {
         TimedTask mineInvariants = PerformanceMetrics.createTask(
                 "mineInvariants", false);
+        Set<ITemporalInvariant> overapproximatedInvariantsSet;
+
+        // Compute the over-approximated set of invariants for the input graph.
         try {
 
             TimedTask itc = PerformanceMetrics.createTask(
                     "invariants_transitive_closure", false);
+
+            // Compute the transitive closure.
             AllRelationsTransitiveClosure<EventNode> transitiveClosure = new AllRelationsTransitiveClosure<EventNode>(
                     g, useWarshall);
 
@@ -92,10 +95,11 @@ public class TransitiveClosureTOInvMiner extends InvariantMiner {
             // Extract invariants for all relations, iteratively. Since we are
             // not considering invariants over multiple relations, this is
             // sufficient.
-            Set<ITemporalInvariant> overapproximatedInvariantsSet = new LinkedHashSet<ITemporalInvariant>();
+            overapproximatedInvariantsSet = new LinkedHashSet<ITemporalInvariant>();
             for (String relation : g.getRelations()) {
                 for (ITemporalInvariant inv : extractInvariantsFromTC(g,
-                        transitiveClosure.get(relation), relation)) {
+                        transitiveClosure.get(relation), relation,
+                        mineConcurrencyInvariants)) {
                     overapproximatedInvariantsSet.add(inv);
                 }
             }
@@ -104,11 +108,20 @@ public class TransitiveClosureTOInvMiner extends InvariantMiner {
             if (Main.doBenchmarking) {
                 logger.info("BENCHM: " + io);
             }
-
-            return overapproximatedInvariantsSet;
+            // logger.info("Over-approx set: "
+            // + overapproximatedInvariantsSet.toString());
         } finally {
             mineInvariants.stop();
         }
+
+        // Optionally filter out the tautological invariants.
+        if (filterTautological) {
+            filterOutTautologicalInvariants(overapproximatedInvariantsSet);
+            for (ITemporalInvariant inv : computeINITIALAFbyXInvariants(g)) {
+                overapproximatedInvariantsSet.add(inv);
+            }
+        }
+        return new TemporalInvariantSet(overapproximatedInvariantsSet);
     }
 
     /**
@@ -118,7 +131,8 @@ public class TransitiveClosureTOInvMiner extends InvariantMiner {
      * @param g
      *            the graph over LogEvent
      * @param tc
-     *            the transitive closure (of {@code g}) to mine invariants from
+     *            the transitive closure (of {@code g}) from which to mine
+     *            invariants
      * @param relation
      *            the relation to consider for the invariants
      * @return the over-approximated set of invariants
@@ -126,7 +140,7 @@ public class TransitiveClosureTOInvMiner extends InvariantMiner {
      */
     private static Set<ITemporalInvariant> extractInvariantsFromTC(
             IGraph<EventNode> g, TransitiveClosure<EventNode> tc,
-            String relation) {
+            String relation, boolean mineConcurrencyInvariants) {
         LinkedHashMap<EventType, ArrayList<EventNode>> partitions = new LinkedHashMap<EventType, ArrayList<EventNode>>();
 
         // Initialize the partitions map: each unique label maps to a list of
@@ -144,6 +158,8 @@ public class TransitiveClosureTOInvMiner extends InvariantMiner {
                 boolean neverFollowed = true;
                 boolean alwaysFollowedBy = true;
                 boolean alwaysPreceded = true;
+                boolean alwaysOrdered = true;
+                boolean neverOrdered = true;
                 for (EventNode node1 : partitions.get(label1)) {
                     boolean followerFound = false;
                     boolean predecessorFound = false;
@@ -168,6 +184,14 @@ public class TransitiveClosureTOInvMiner extends InvariantMiner {
                     if (!predecessorFound) {
                         alwaysPreceded = false;
                     }
+
+                    if (!followerFound && !predecessorFound) {
+                        alwaysOrdered = false;
+                    }
+                    if (followerFound || predecessorFound) {
+                        neverOrdered = false;
+                    }
+
                 }
                 if (neverFollowed) {
                     set.add(new NeverFollowedInvariant(label1, label2, relation));
@@ -179,6 +203,30 @@ public class TransitiveClosureTOInvMiner extends InvariantMiner {
                 if (alwaysPreceded) {
                     set.add(new AlwaysPrecedesInvariant(label2, label1,
                             relation));
+                }
+
+                // The two labels are always/never ordered across all the
+                // system traces.
+                if (mineConcurrencyInvariants
+                        && (alwaysOrdered || neverOrdered)) {
+
+                    // Ignore local versions of alwaysOrdered and
+                    // neverOrdered since they are trivially true and false
+                    // respectively.
+                    if (!((DistEventType) label1).getPID().equals(
+                            ((DistEventType) label2).getPID())) {
+
+                        if (alwaysOrdered) {
+                            set.add(new NeverConcurrentInvariant(
+                                    (DistEventType) label2,
+                                    (DistEventType) label1, relation));
+                        } else {
+                            // neverOrdered
+                            set.add(new AlwaysConcurrentInvariant(
+                                    (DistEventType) label2,
+                                    (DistEventType) label1, relation));
+                        }
+                    }
                 }
             }
         }

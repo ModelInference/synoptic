@@ -20,7 +20,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
+import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
@@ -147,7 +147,7 @@ public class ModelCheckersTests extends SynopticTest {
      * (the most compressed model). This graph is then checked for existence or
      * not (depending on value of cExampleExists) of a counter-example for
      * invariant inv specified by cExampleLabels. The format for each event
-     * string in the events array (?<TIME>) (?<TYPE>); the format for each
+     * string in the events array (?<VTIME>) (?<TYPE>); the format for each
      * element in the counter-example path is (?<TYPE>). We get away with just
      * TYPE for specifying the counter-example because we will deal with the
      * initial partition graph -- where there is exactly one node for each event
@@ -167,7 +167,7 @@ public class ModelCheckersTests extends SynopticTest {
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser,
-                new TransitiveClosureTOInvMiner());
+                new TransitiveClosureInvMiner());
 
         exportTestGraph(pGraph, 1);
 
@@ -210,7 +210,7 @@ public class ModelCheckersTests extends SynopticTest {
     // //////////////////////////// AFby:
 
     /**
-     * Tests that a linear graph with a cycle does not generate an AFby
+     * Tests that a linear graph with a cycle does _not_ generate an AFby
      * c-example. This demonstrates why we need "<> TERMINAL ->" as the prefix
      * in the AFby LTL formula -- without this prefix this tests fails.
      * 
@@ -218,11 +218,11 @@ public class ModelCheckersTests extends SynopticTest {
      */
     @Test
     public void NoAFbyLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "1,1,0 a", "1,2,0 x", "1,3,0 y",
-                "1,4,0 z", "1,5,0 a", "1,3,1 b", "1,6,0 x", "1,7,0 y",
-                "1,7,1 b" };
+        String[] events = new String[] { "1,0 x", "2,0 a", "3,0 c", "4,0 x",
+                "5,0 a", "6,0 y", "7,0 b", "8,0 w" };
 
-        ITemporalInvariant inv = new AlwaysFollowedInvariant("a", "b",
+        ITemporalInvariant inv = new AlwaysFollowedInvariant(new DistEventType(
+                "a", "0"), new DistEventType("b", "0"),
                 SynopticTest.defRelation);
 
         testPartitionGraphCExample(events, inv, false, null);
@@ -245,15 +245,16 @@ public class ModelCheckersTests extends SynopticTest {
             return;
         }
 
-        String[] events = new String[] { "1,1,0 x", "1,2,0 a", "1,3,1 y",
-                "1,4,0 b", "1,5,0 x", "1,3,2 w", "1,6,0 a", "1,7,0 y",
-                "1,7,1 w" };
+        String[] events = new String[] { "1,0 x", "2,0 a", "3,0 b", "4,0 x",
+                "5,0 a", "6,0 y", "7,0 w", "--", "1,0 x", "2,0 a", "3,0 y",
+                "4,0 w" };
 
-        ITemporalInvariant inv = new AlwaysFollowedInvariant("a", "b",
+        ITemporalInvariant inv = new AlwaysFollowedInvariant(new DistEventType(
+                "a", "0"), new DistEventType("b", "0"),
                 SynopticTest.defRelation);
 
-        List<EventType> cExampleLabels = stringToStringEventType(new String[] {
-                "x", "a", "y", "w" });
+        List<EventType> cExampleLabels = stringsToDistEventTypes(new String[] {
+                "x", "a", "y", "w" }, new String[] { "0", "0", "0", "0" });
         cExampleLabels.add(DistEventType.NewTerminalDistEventType());
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
@@ -300,11 +301,11 @@ public class ModelCheckersTests extends SynopticTest {
      */
     @Test
     public void NoNFbyLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "1,1,0 a", "1,2,0 x", "1,3,0 y",
-                "1,4,0 z", "1,5,0 a", "1,3,1 w", "1,6,0 x", "1,7,0 y",
-                "1,7,1 w" };
+        String[] events = new String[] { "1,0 a", "2,0 c", "3,0 a", "4,0 d",
+                "5,0 e" };
 
-        ITemporalInvariant inv = new NeverFollowedInvariant("a", "b",
+        ITemporalInvariant inv = new NeverFollowedInvariant(new DistEventType(
+                "a", "0"), new DistEventType("b", "0"),
                 SynopticTest.defRelation);
 
         testPartitionGraphCExample(events, inv, false, null);
@@ -317,14 +318,24 @@ public class ModelCheckersTests extends SynopticTest {
      */
     @Test
     public void NFbyLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "0,0,0 f", "1,1,0 a", "1,3,0 y",
-                "1,4,0 z", "1,5,0 f", "1,7,0 a", "1,3,1 b", "1,9,0 y",
-                "1,9,1 b" };
+        String[] events = new String[] { "1,0 a", "2,0 c", "3,0 d", "4,0 a",
+                "5,0 c", "6,0 d", "7,0 b" };
 
-        ITemporalInvariant inv = new NeverFollowedInvariant("a", "b",
+        ITemporalInvariant inv = new NeverFollowedInvariant(new DistEventType(
+                "a", "0"), new DistEventType("b", "0"),
                 SynopticTest.defRelation);
-        List<EventType> cExampleLabels = stringToStringEventType(new String[] {
-                "f", "a", "y", "b" });
+
+        List<EventType> cExampleLabels = null;
+
+        if (Main.useFSMChecker) {
+            cExampleLabels = stringsToDistEventTypes(new String[] { "a", "c",
+                    "d", "b" }, new String[] { "0", "0", "0", "0" });
+        } else {
+            cExampleLabels = stringsToDistEventTypes(new String[] { "a", "c",
+                    "d", "a", "c", "d", "b" }, new String[] { "0", "0", "0",
+                    "0", "0", "0", "0" });
+        }
+        // NOTE: NFby c-examples do not need to end with a TERMINAL node
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
 
@@ -369,11 +380,10 @@ public class ModelCheckersTests extends SynopticTest {
      */
     @Test
     public void NoAPLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "1,1,0 a", "1,2,0 x", "1,3,0 y",
-                "1,4,0 b", "1,5,0 a", "1,3,1 z", "1,6,0 x", "1,7,0 y",
-                "1,7,1 z" };
+        String[] events = new String[] { "1,0 a", "2,0 c", "3,0 a", "4,0 b" };
 
-        ITemporalInvariant inv = new AlwaysPrecedesInvariant("a", "b",
+        ITemporalInvariant inv = new AlwaysPrecedesInvariant(new DistEventType(
+                "a", "0"), new DistEventType("b", "0"),
                 SynopticTest.defRelation);
 
         testPartitionGraphCExample(events, inv, false, null);
@@ -386,14 +396,13 @@ public class ModelCheckersTests extends SynopticTest {
      */
     @Test
     public void APLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "1,1,0 z", "1,2,0 x", "1,3,0 y",
-                "1,4,0 w", "1,5,0 z", "1,3,1 b", "1,6,0 x", "1,7,0 y",
-                "1,7,1 b" };
+        String[] events = new String[] { "1,0 z", "2,0 x", "3,0 z", "4,0 b" };
 
-        ITemporalInvariant inv = new AlwaysPrecedesInvariant("a", "b",
+        ITemporalInvariant inv = new AlwaysPrecedesInvariant(new DistEventType(
+                "a", "0"), new DistEventType("b", "0"),
                 SynopticTest.defRelation);
-        List<EventType> cExampleLabels = stringToStringEventType(new String[] {
-                "z", "x", "y", "b" });
+        List<EventType> cExampleLabels = stringsToDistEventTypes(new String[] {
+                "z", "b" }, new String[] { "0", "0" });
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
 

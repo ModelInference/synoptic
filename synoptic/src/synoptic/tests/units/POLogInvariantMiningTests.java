@@ -10,14 +10,18 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import synoptic.invariants.AlwaysConcurrentInvariant;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
-import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
+import synoptic.invariants.miners.TransitiveClosureInvMiner;
+import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
+import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
 import synoptic.model.Graph;
 import synoptic.model.StringEventType;
@@ -43,14 +47,107 @@ public class POLogInvariantMiningTests extends SynopticTest {
     @Parameters
     public static Collection<Object[]> data() {
         Object[][] data = new Object[][] {
-                { new TransitiveClosureTOInvMiner(false) },
-                { new TransitiveClosureTOInvMiner(true) },
+                { new TransitiveClosureInvMiner(false) },
+                { new TransitiveClosureInvMiner(true) },
                 { new DAGWalkingPOInvMiner() } };
         return Arrays.asList(data);
     }
 
     public POLogInvariantMiningTests(InvariantMiner minerToUse) {
         miner = minerToUse;
+    }
+
+    public TraceParser newTraceParser() throws ParseException {
+        TraceParser parser = new TraceParser();
+        parser.addRegex("^(?<VTIME>)(?<PID>)(?<TYPE>)$");
+        parser.addPartitionsSeparator("^--$");
+        return parser;
+    }
+
+    /**
+     * Tests a trace with just two events at different processes.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineTwoConcurrentEventsTest() throws Exception {
+        TraceParser parser = newTraceParser();
+
+        String[] events = new String[] { "1,0 0 a", "0,1 1 b" };
+        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        logger.fine("mined: " + minedInvs.toString());
+
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        DistEventType a = new DistEventType("a", "0");
+        DistEventType b = new DistEventType("b", "1");
+        String R = SynopticTest.defRelation;
+
+        // Add the "eventually x" invariants.
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), a, R));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), b, R));
+
+        trueInvs.add(new NeverFollowedInvariant(a, b, R));
+        trueInvs.add(new NeverFollowedInvariant(a, a, R));
+        trueInvs.add(new NeverFollowedInvariant(b, b, R));
+        trueInvs.add(new NeverFollowedInvariant(b, a, R));
+        trueInvs.add(new AlwaysConcurrentInvariant(a, b, R));
+
+        assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * Tests a trace with one join.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineJoinTest() throws Exception {
+        TraceParser parser = newTraceParser();
+
+        String[] events = new String[] { "1,0 0 a", "0,1 1 b", "2,1 0 c" };
+        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        logger.fine("mined: " + minedInvs.toString());
+
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        DistEventType a = new DistEventType("a", "0");
+        DistEventType b = new DistEventType("b", "1");
+        DistEventType c = new DistEventType("c", "0");
+        String R = SynopticTest.defRelation;
+
+        // Add the "eventually x" invariants.
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), a, R));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), b, R));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), c, R));
+
+        trueInvs.add(new AlwaysFollowedInvariant(a, c, R));
+        trueInvs.add(new AlwaysFollowedInvariant(b, c, R));
+
+        trueInvs.add(new NeverFollowedInvariant(a, a, R));
+        trueInvs.add(new NeverFollowedInvariant(b, b, R));
+        trueInvs.add(new NeverFollowedInvariant(a, b, R));
+        trueInvs.add(new NeverFollowedInvariant(c, c, R));
+        trueInvs.add(new NeverFollowedInvariant(c, b, R));
+        trueInvs.add(new NeverFollowedInvariant(b, a, R));
+        trueInvs.add(new NeverFollowedInvariant(c, a, R));
+
+        trueInvs.add(new AlwaysPrecedesInvariant(b, c, R));
+        trueInvs.add(new AlwaysPrecedesInvariant(a, c, R));
+
+        trueInvs.add(new AlwaysConcurrentInvariant(a, b, R));
+        trueInvs.add(new NeverConcurrentInvariant(c, b, R));
+
+        assertTrue(trueInvs.sameInvariants(minedInvs));
     }
 
     /**
@@ -60,11 +157,9 @@ public class POLogInvariantMiningTests extends SynopticTest {
      */
     @Test
     public void mineBranchTest() throws Exception {
-        TraceParser parser = new TraceParser();
-        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
-        parser.addPartitionsSeparator("^--$");
+        TraceParser parser = newTraceParser();
 
-        String[] events = new String[] { "1,1,1 a", "2,2,2 b", "1,2,3 c" };
+        String[] events = new String[] { "1,0 0 a", "2,0 0 b", "1,1 1 c" };
         Graph<EventNode> inputGraph = genInitialGraph(events, parser);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
@@ -72,93 +167,35 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
-        // Add the "eventually x" invariants.
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), "a", SynopticTest.defRelation));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), "b", SynopticTest.defRelation));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), "c", SynopticTest.defRelation));
-
-        trueInvs.add(new AlwaysFollowedInvariant("a", "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new AlwaysFollowedInvariant("a", "c",
-                SynopticTest.defRelation));
-
-        trueInvs.add(new NeverFollowedInvariant("a", "a",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("b", "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("c", "c",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("b", "c",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("c", "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("b", "a",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("c", "a",
-                SynopticTest.defRelation));
-
-        trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new AlwaysPrecedesInvariant("a", "c",
-                SynopticTest.defRelation));
-
-        assertTrue(trueInvs.sameInvariants(minedInvs));
-    }
-
-    /**
-     * Tests a trace with a join.
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void mineJoinTest() throws Exception {
-        TraceParser parser = new TraceParser();
-        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
-        parser.addPartitionsSeparator("^--$");
-
-        String[] events = new String[] { "1,2 a", "2,1 b", "2,2 c" };
-        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
-        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
-
-        logger.fine("mined: " + minedInvs.toString());
-
-        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+        DistEventType a = new DistEventType("a", "0");
+        DistEventType b = new DistEventType("b", "0");
+        DistEventType c = new DistEventType("c", "1");
+        String R = SynopticTest.defRelation;
 
         // Add the "eventually x" invariants.
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), "a", SynopticTest.defRelation));
+                .NewInitialStringEventType(), a, R));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), "b", SynopticTest.defRelation));
+                .NewInitialStringEventType(), b, R));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), "c", SynopticTest.defRelation));
+                .NewInitialStringEventType(), c, R));
 
-        trueInvs.add(new AlwaysFollowedInvariant("a", "c",
-                SynopticTest.defRelation));
-        trueInvs.add(new AlwaysFollowedInvariant("b", "c",
-                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(a, c, R));
+        trueInvs.add(new AlwaysFollowedInvariant(a, b, R));
 
-        trueInvs.add(new NeverFollowedInvariant("a", "a",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("b", "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("c", "c",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("c", "b",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("c", "a",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("b", "a",
-                SynopticTest.defRelation));
-        trueInvs.add(new NeverFollowedInvariant("a", "b",
-                SynopticTest.defRelation));
+        trueInvs.add(new NeverFollowedInvariant(a, a, R));
+        trueInvs.add(new NeverFollowedInvariant(b, b, R));
+        trueInvs.add(new NeverFollowedInvariant(c, c, R));
+        trueInvs.add(new NeverFollowedInvariant(c, b, R));
+        trueInvs.add(new NeverFollowedInvariant(b, c, R));
+        trueInvs.add(new NeverFollowedInvariant(c, a, R));
+        trueInvs.add(new NeverFollowedInvariant(b, a, R));
 
-        trueInvs.add(new AlwaysPrecedesInvariant("a", "c",
-                SynopticTest.defRelation));
-        trueInvs.add(new AlwaysPrecedesInvariant("b", "c",
-                SynopticTest.defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant(a, c, R));
+        trueInvs.add(new AlwaysPrecedesInvariant(a, b, R));
+
+        trueInvs.add(new AlwaysConcurrentInvariant(b, c, R));
+        trueInvs.add(new NeverConcurrentInvariant(a, c, R));
 
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }

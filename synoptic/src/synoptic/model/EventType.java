@@ -61,12 +61,6 @@ public abstract class EventType implements Comparable<EventType> {
     // boolean base data members:
 
     @Override
-    public String toString() {
-        return (isInitialEventType ? "I." : "")
-                + (isTerminalEventType ? "T." : "");
-    }
-
-    @Override
     public int compareTo(EventType eother) {
         int initCmp = ((Boolean) isInitialEventType)
                 .compareTo(eother.isInitialEventType);

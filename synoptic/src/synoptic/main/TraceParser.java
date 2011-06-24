@@ -19,9 +19,12 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import synoptic.model.DistEventType;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
+import synoptic.model.EventType;
 import synoptic.model.Graph;
+import synoptic.model.StringEventType;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.NamedMatcher;
 import synoptic.util.NamedPattern;
@@ -81,6 +84,15 @@ public class TraceParser {
     // DTIME: double time (e.g. 1234.56) -- 64 bits
     private static final List<String> validTimeGroups = Arrays.asList("TIME",
             "VTIME", "FTIME", "DTIME");
+
+    // A group that is used to capture the process ID in a PO log -- can only be
+    // used in conjunction with VTIME, but is optional. However, if it used in
+    // any reg-exp with VTIME then all VTIME reg-exps must use/set it.
+    private static final String processIDGroup = "PID";
+
+    // If selectedTimeGroup is "VTIME" then whether or not processIDGroup is
+    // specified (true), or if process IDs will be implicitly mined (false)
+    private boolean parsePIDs = false;
 
     // The time we use implicitly. LTIME is log-line-number time. Which exists
     // implicitly for every log-line.
@@ -284,11 +296,17 @@ public class TraceParser {
         }
 
         if (!isHidden) {
+            boolean usingPID = false;
+
             // We have two cases for specifying time types:
             // (1) Implicit: type is not specified and we use implicitTimeGroup.
             // (2) Explicit: exactly one kind of type is specified in the regex.
             String regexTimeUsed = null;
             for (String group : groups) {
+                if (processIDGroup.equals(group)) {
+                    usingPID = true;
+                }
+
                 if (validTimeGroups.contains(group)) {
                     if (regexTimeUsed != null) {
                         logger.severe("The regex: " + regex
@@ -299,6 +317,7 @@ public class TraceParser {
                     regexTimeUsed = group;
                 }
             }
+
             if (regexTimeUsed == null) {
                 regexTimeUsed = implicitTimeGroup;
             }
@@ -307,6 +326,9 @@ public class TraceParser {
                 // No prior time type was specified. So we use regex's type as
                 // the time type.
                 selectedTimeGroup = regexTimeUsed;
+                if (selectedTimeGroup.equals("VTIME")) {
+                    parsePIDs = usingPID;
+                }
             } else {
                 // Prior time type was used, make sure that it matches regex's.
                 if (!selectedTimeGroup.equals(regexTimeUsed)) {
@@ -317,8 +339,12 @@ public class TraceParser {
                             + " uses the type " + regexTimeUsed);
                     throw new ParseException();
                 }
-            }
 
+                if (regexTimeUsed.equals("VTIME") && parsePIDs != usingPID) {
+                    logger.severe("Either all or none of the VTIME-parsing reg-exps must specify the PID group.");
+                    throw new ParseException();
+                }
+            }
         }
 
         if (Main.debugParse) {
@@ -487,6 +513,34 @@ public class TraceParser {
             results.add(event);
         }
         br.close();
+
+        // Infer the PID (process ID) corresponding to each of the parsed
+        // events, if PIDs were not parsed explicitly from the trace.
+        if (selectedTimeGroup.equals("VTIME") && !parsePIDs) {
+            for (List<EventNode> group : partitions.values()) {
+                int pid = 0;
+                List<List<EventNode>> listsNodeEvents;
+                try {
+                    listsNodeEvents = VectorTime.mapLogEventsToNodes(group);
+                } catch (Exception e) {
+                    logger.severe("Could not match vector times to host id.");
+                    throw new ParseException();
+                }
+
+                for (List<EventNode> nodeEvents : listsNodeEvents) {
+                    for (EventNode eNode : nodeEvents) {
+                        if (!(eNode.getEType() instanceof DistEventType)) {
+                            logger.severe("Parsed a non dist. event type for a trace with VTIME format.");
+                            throw new ParseException();
+                        }
+                        ((DistEventType) eNode.getEType()).setPID(Integer
+                                .toString(pid));
+                    }
+                    pid += 1;
+                }
+            }
+        }
+
         logger.info("Successfully parsed " + results.size() + " events from "
                 + traceName);
         return results;
@@ -560,21 +614,32 @@ public class TraceParser {
             // ////////////
             // Only non-hidden regexes from this point on.
 
-            String eventType;
+            String eTypeLabel;
+            EventType eType;
             if (Main.internCommonStrings) {
-                eventType = matched.get("TYPE").intern();
+                eTypeLabel = matched.get("TYPE").intern();
             } else {
-                eventType = matched.get("TYPE");
+                eTypeLabel = matched.get("TYPE");
             }
 
             // TODO: determine if this is desired + print warning
-
-            if (eventType == null) {
+            if (eTypeLabel == null) {
                 // In the absence of an event type, use the entire log line as
                 // the type.
-                event = new Event(line, line, fileName, lineNum);
+                eTypeLabel = line;
+            }
+
+            if (selectedTimeGroup.equals("VTIME")) {
+                if (parsePIDs) {
+                    eType = new DistEventType(eTypeLabel,
+                            matched.get(processIDGroup));
+                } else {
+                    eType = new DistEventType(eTypeLabel);
+                }
+                event = new Event(eType, line, fileName, lineNum);
             } else {
-                event = new Event(eventType, line, fileName, lineNum);
+                eType = new StringEventType(eTypeLabel);
+                event = new Event(eType, line, fileName, lineNum);
             }
 
             // We have two cases for processing time on log lines:
@@ -585,7 +650,7 @@ public class TraceParser {
             // field (set in addRegex). If no such match is found then we throw
             // an exception.
             if (selectedTimeGroup == implicitTimeGroup) {
-                // Implicit case.
+                // Implicit case: LTIME
                 nextTime = new ITotalTime(lineNum);
             } else {
                 // Explicit case.
@@ -608,8 +673,12 @@ public class TraceParser {
                     } else if (selectedTimeGroup.equals("DTIME")) {
                         double t = Double.parseDouble(timeField.trim());
                         nextTime = new DTotalTime(t);
-                    } else {
+                    } else if (selectedTimeGroup.equals("VTIME")) {
                         nextTime = new VectorTime(timeField.trim());
+                    } else {
+                        logger.severe("Unable to recognize time type "
+                                + selectedTimeGroup);
+                        throw new ParseException();
                     }
                 } catch (Exception e) {
                     String errMsg = "Unable to parse time field on log line:\n"
@@ -662,7 +731,7 @@ public class TraceParser {
                     }
                     msg.append(entry.getKey() + " = " + entry.getValue() + ", ");
                 }
-                msg.append("TYPE = " + eventType);
+                msg.append("TYPE = " + eType.toString());
                 msg.append("}");
                 logger.info(msg.toString());
             }
@@ -677,7 +746,8 @@ public class TraceParser {
         if (Main.recoverFromParseErrors) {
             logger.warning("Failed to parse trace line: \n" + line + "\n"
                     + "Using entire line as type.");
-            event = new Event(line, line, fileName, lineNum);
+            event = new Event(new StringEventType(line), line, fileName,
+                    lineNum);
             if (selectedTimeGroup.equals(implicitTimeGroup)) {
                 // We can recover OK with log-line counting time.
                 event.setTime(new ITotalTime(lineNum));
@@ -748,10 +818,12 @@ public class TraceParser {
         // Find all direct successors of all events. For an event e1, direct
         // successors are successors (in terms of vector-clock) that are not
         // preceded by any other successors of e1. That is, if e1 < x then x
-        // is a direct successor if there is no other successor of e1 y such
+        // is a direct successor if there is no other successor y to e1 such
         // that y < x.
         Map<EventNode, Set<EventNode>> directSuccessors = new LinkedHashMap<EventNode, Set<EventNode>>();
         for (List<EventNode> group : partitions.values()) {
+            logger.info("generating temp relation for partition: "
+                    + partitions.values().toString());
             for (EventNode e1 : group) {
                 // Find and set all direct successors of e1. In totally ordered
                 // case there is at most one direct successor, in partially

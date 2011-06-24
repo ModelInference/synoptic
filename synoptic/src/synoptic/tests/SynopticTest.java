@@ -9,10 +9,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
+import junit.framework.Assert;
+
 import synoptic.invariants.miners.InvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
+import synoptic.model.DistEventType;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
@@ -85,10 +88,24 @@ public abstract class SynopticTest {
      * Converts an array of strings into a list of EventType objects. Does not
      * handle INITIAL or TERMINAL events types.
      */
-    public List<EventType> stringToStringEventType(String[] types) {
+    public List<EventType> stringsToStringEventTypes(String[] types) {
         ArrayList<EventType> ret = new ArrayList<EventType>(types.length);
         for (int i = 0; i < types.length; i++) {
             ret.add(new StringEventType(types[i]));
+        }
+        return ret;
+    }
+
+    /**
+     * Converts an array of strings containing event types and an corresponding
+     * array of host ids into a list of DistEventType objects. Does not handle
+     * INITIAL or TERMINAL events types.
+     */
+    public List<EventType> stringsToDistEventTypes(String[] types, String[] pids) {
+        Assert.assertTrue(types.length == pids.length);
+        ArrayList<EventType> ret = new ArrayList<EventType>(types.length);
+        for (int i = 0; i < types.length; i++) {
+            ret.add(new DistEventType(types[i], pids[i]));
         }
         return ret;
     }
