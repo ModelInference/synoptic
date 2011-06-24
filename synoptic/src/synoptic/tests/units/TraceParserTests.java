@@ -286,7 +286,7 @@ public class TraceParserTests extends SynopticTest {
         checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1", "2", "3" }, // NOTE: implicit time starts
                 // with 1
-                stringToStringEventType(new String[] { "a", "b", "c" }));
+                stringsToStringEventTypes(new String[] { "a", "b", "c" }));
         assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -300,7 +300,7 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
         checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "2", "3", "4" },
-                stringToStringEventType(new String[] { "a", "b", "c" }));
+                stringsToStringEventTypes(new String[] { "a", "b", "c" }));
         assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -314,7 +314,7 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^(?<FTIME>)(?<TYPE>)$");
         checkLogEventTypesFTimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "2.1", "2.2", "3.0" },
-                stringToStringEventType(new String[] { "a", "b", "c" }));
+                stringsToStringEventTypes(new String[] { "a", "b", "c" }));
         assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -329,7 +329,7 @@ public class TraceParserTests extends SynopticTest {
         checkLogEventTypesDTimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "129892544112.89345", "129892544112.89346",
                         "129892544112.89347" },
-                stringToStringEventType(new String[] { "a", "b", "c" }));
+                stringsToStringEventTypes(new String[] { "a", "b", "c" }));
         assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -337,13 +337,31 @@ public class TraceParserTests extends SynopticTest {
      * Parse a log with explicit vector time values.
      */
     @Test
-    public void parseExplicitVTimeTest() throws ParseException,
+    public void parseVTimeExplicitPIDTest() throws ParseException,
             InternalSynopticException {
-        String traceStr = "1,1,1 a\n2,2,2 b\n3,3,4 c\n";
+        String traceStr = "1,0 0 a\n0,1 1 b\n2,1 0 c\n";
+        parser.addRegex("^(?<VTIME>)(?<PID>)(?<TYPE>)$");
+        checkLogEventTypesVTimes(
+                parser.parseTraceString(traceStr, "test", -1),
+                new String[] { "1,0", "0,1", "2,1" },
+                stringsToDistEventTypes(new String[] { "a", "b", "c" },
+                        new String[] { "0", "1", "0" }));
+        assertFalse(parser.logTimeTypeIsTotallyOrdered());
+    }
+
+    /**
+     * Parse a log with explicit vector time values.
+     */
+    @Test
+    public void parseVTimeImplicitPIDTest() throws ParseException,
+            InternalSynopticException {
+        String traceStr = "1,0 a\n0,1 b\n2,1 c\n";
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
-        checkLogEventTypesVTimes(parser.parseTraceString(traceStr, "test", -1),
-                new String[] { "1,1,1", "2,2,2", "3,3,4" },
-                stringToStringEventType(new String[] { "a", "b", "c" }));
+        checkLogEventTypesVTimes(
+                parser.parseTraceString(traceStr, "test", -1),
+                new String[] { "1,0", "0,1", "2,1" },
+                stringsToDistEventTypes(new String[] { "a", "b", "c" },
+                        new String[] { "0", "1", "0" }));
         assertFalse(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -487,15 +505,8 @@ public class TraceParserTests extends SynopticTest {
     public void parseDiffLengthVTimesExceptionTest() throws ParseException,
             InternalSynopticException {
         String traceStr = "1,1,2 a\n1,1,2,3 b\n2,2,2 c\n";
-        ArrayList<EventNode> events = null;
-        try {
-            parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
-            events = parser.parseTraceString(traceStr, "test", -1);
-        } catch (Exception e) {
-            fail("addRegex and parseTraceString should not have raised an exception");
-        }
-        // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTemporalRelation(events);
+        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+        parser.parseTraceString(traceStr, "test", -1);
     }
 
     /**
@@ -508,7 +519,7 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^(?<TIME>)(?<TYPE>.+)$");
         checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1", "2", "3" },
-                stringToStringEventType(new String[] { "a a", "b b", "c c" }));
+                stringsToStringEventTypes(new String[] { "a a", "b b", "c c" }));
     }
 
     /**
@@ -521,7 +532,7 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
         checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", 2),
                 new String[] { "1", "2" },
-                stringToStringEventType(new String[] { "a", "b" }));
+                stringsToStringEventTypes(new String[] { "a", "b" }));
     }
 
     // ////////////////////////////

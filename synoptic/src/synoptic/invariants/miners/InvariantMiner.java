@@ -5,11 +5,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import synoptic.invariants.AlwaysConcurrentInvariant;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.StringEventType;
@@ -147,6 +150,116 @@ public abstract class InvariantMiner {
         for (EventType label : AlwaysFollowsINITIALSet) {
             invariants.add(new AlwaysFollowedInvariant(StringEventType
                     .NewInitialStringEventType(), label, relation));
+        }
+
+        return new TemporalInvariantSet(invariants);
+    }
+
+    /**
+     * Used to extract concurrency invariants -- AlwaysConcurrentWith and
+     * NeverConcurrentWith. These invariants are only useful for events at
+     * different hosts (i.e., for x,y (totally ordered) events at the same host
+     * AlwaysConcurrentWith(x,y) is trivially false, and
+     * NeverConcurrentWith(x,y) is trivially true).
+     * 
+     * @param relation
+     * @param gEventCnts
+     * @param gFollowedByCnts
+     * @param gPrecedesCnts
+     * @return
+     */
+    protected TemporalInvariantSet extractConcurrencyInvariantsFromWalkCounts(
+            String relation,
+            LinkedHashMap<EventType, Integer> gEventCnts,
+            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gFollowedByCnts,
+            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gPrecedesCnts,
+            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> traceCoOccurrenceCnts) {
+
+        Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
+
+        LinkedHashSet<LinkedHashSet<EventType>> processedPairs = new LinkedHashSet<LinkedHashSet<EventType>>();
+
+        // TODO: concurrent invariants for (x,y) is the same as for (y,x) so we
+        // need to filter out the duplicates.
+        for (EventType e1 : gEventCnts.keySet()) {
+            for (EventType e2 : gEventCnts.keySet()) {
+                if (!(e1 instanceof DistEventType)
+                        || !(e2 instanceof DistEventType)) {
+                    // TODO: specialize the exception
+                    // TODO: print error message
+                    throw new InternalSynopticException(
+                            "Cannot compute concurrency invariants on non-distributed event types.");
+                }
+
+                if (((DistEventType) e1).getPID().equals(
+                        ((DistEventType) e2).getPID())) {
+                    // See comment at top of function about local versions of
+                    // concurrency invariants -- we ignore them.
+                    continue;
+                }
+
+                LinkedHashSet<EventType> s = new LinkedHashSet<EventType>();
+                s.add(e1);
+                s.add(e2);
+                if (processedPairs.contains(s)) {
+                    continue;
+                }
+                processedPairs.add(s);
+
+                int e1_fby_e2 = 0;
+                int e1_p_e2 = 0;
+                int e2_fby_e1 = 0;
+                int e2_p_e1 = 0;
+
+                if (gFollowedByCnts.containsKey(e1)
+                        && gFollowedByCnts.get(e1).containsKey(e2)) {
+                    e1_fby_e2 = gFollowedByCnts.get(e1).get(e2);
+                }
+                if (gFollowedByCnts.containsKey(e2)
+                        && gFollowedByCnts.get(e2).containsKey(e1)) {
+                    e2_fby_e1 = gFollowedByCnts.get(e2).get(e1);
+                }
+
+                if (gPrecedesCnts.containsKey(e1)
+                        && gPrecedesCnts.get(e1).containsKey(e2)) {
+                    e1_p_e2 = gPrecedesCnts.get(e1).get(e2);
+                }
+
+                if (gPrecedesCnts.containsKey(e2)
+                        && gPrecedesCnts.get(e2).containsKey(e1)) {
+                    e2_p_e1 = gPrecedesCnts.get(e2).get(e1);
+                }
+
+                if (e1_fby_e2 == 0 && e2_fby_e1 == 0) {
+                    // Potential concurrency if e1 and e2 _ever_ co-appeared in
+                    // the same trace.
+                    if ((traceCoOccurrenceCnts.containsKey(e1) && traceCoOccurrenceCnts
+                            .get(e1).containsKey(e2))
+                            || (traceCoOccurrenceCnts.containsKey(e2) && traceCoOccurrenceCnts
+                                    .get(e2).containsKey(e1))) {
+                        invariants.add(new AlwaysConcurrentInvariant(
+                                (DistEventType) e1, (DistEventType) e2,
+                                relation));
+                    }
+                } else if (e1_fby_e2 == e1_p_e2 && e2_fby_e1 == e2_p_e1) {
+                    // Potential lack of concurrency if e1 and e2 _always_
+                    // co-appeared in the same trace.
+                    int e1_cooccur_e2 = 0;
+                    if (traceCoOccurrenceCnts.containsKey(e1)
+                            && traceCoOccurrenceCnts.get(e1).containsKey(e2)) {
+                        e1_cooccur_e2 = traceCoOccurrenceCnts.get(e1).get(e2);
+                    } else if (traceCoOccurrenceCnts.containsKey(e2)
+                            && traceCoOccurrenceCnts.get(e2).containsKey(e1)) {
+                        e1_cooccur_e2 = traceCoOccurrenceCnts.get(e2).get(e1);
+                    }
+                    if (e1_cooccur_e2 == (e1_fby_e2 + e2_fby_e1)) {
+                        // Definite lack of concurrency.
+                        invariants.add(new NeverConcurrentInvariant(
+                                (DistEventType) e1, (DistEventType) e2,
+                                relation));
+                    }
+                }
+            }
         }
 
         return new TemporalInvariantSet(invariants);

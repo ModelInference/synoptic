@@ -67,11 +67,10 @@ public class VectorTime implements ITime {
         int numNodes = ((VectorTime) e0time).vector.size();
 
         // For each node, for all i determine the ith local event at the node.
-        int i;
         EventNode e;
         LinkedList<EventNode> eventList;
         for (int nodeIndex = 0; nodeIndex < numNodes; nodeIndex++) {
-            i = 0;
+            int i = 1;
             eventList = new LinkedList<EventNode>();
             while (true) {
                 e = determineIthEvent(nodeIndex, events, i);

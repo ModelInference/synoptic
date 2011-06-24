@@ -61,7 +61,7 @@ public class StringEventType extends EventType {
 
     @Override
     public String toString() {
-        return super.toString() + eType;
+        return eType;
     }
 
     @Override

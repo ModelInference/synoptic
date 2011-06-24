@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.TraceParser;
+import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.interfaces.IGraph;
@@ -28,6 +29,18 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
     @Override
     public TemporalInvariantSet computeInvariants(IGraph<EventNode> g) {
+        // Determine whether to mine concurrency invariants or not by testing
+        // the event type of _some_ node in g -- concurrency invariants are
+        // mined for nodes of DistEventType.
+        boolean mineConcurrencyInvariants = false;
+        if (g.getNodes().iterator().next().getEType() instanceof DistEventType) {
+            mineConcurrencyInvariants = true;
+        }
+        return computeInvariants(g, mineConcurrencyInvariants);
+    }
+
+    public TemporalInvariantSet computeInvariants(IGraph<EventNode> g,
+            boolean mineConcurrencyInvariants) {
         String relation = TraceParser.defaultRelation;
 
         if (g.getInitialNodes().isEmpty() || g.getInitialNodes().size() != 1) {
@@ -84,15 +97,29 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         // Maintains a map of trace id to the set of initial nodes in the trace.
         LinkedHashMap<Integer, LinkedHashSet<EventNode>> traceIdToInitNodes = buildTraceIdToInitNodesMap(initNode);
 
+        // logger.info("Computed traceIdToInitNodes map: %s"
+        // + traceIdToInitNodes.toString());
+
         // A couple of hash sets for containing parents of special nodes.
         LinkedHashSet<EventNode> initNodeHashSet = new LinkedHashSet<EventNode>();
         initNodeHashSet.add(initNode);
         LinkedHashSet<EventNode> emptyNodeHashSet = new LinkedHashSet<EventNode>();
 
+        // Keeps track of the number of times two events co-occurred across
+        // all traces.
+        LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> traceCoOccurrenceCnts = new LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>>();
+
         // Iterate through all the traces.
         for (LinkedHashSet<EventNode> initTraceNodes : traceIdToInitNodes
                 .values()) {
             tNodeParentsMap.put(initNode, emptyNodeHashSet);
+
+            // ///////////////////
+            // TODO: this assumes that we have a single terminal node. But a PO
+            // trace could have multiple terminals. We need to treat terminals
+            // as we do with initial nodes -- maintain a termTraceNodes list.
+            // ///////////////////
+
             EventNode termNode = null, termNodeNew = null;
             for (EventNode curNode : initTraceNodes) {
                 tNodeParentsMap.put(curNode, initNodeHashSet);
@@ -106,6 +133,43 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                 }
             }
             assert (termNode != null);
+
+            // Update the co-occurrence counts.
+            LinkedHashSet<EventType> toVisitETypes = new LinkedHashSet<EventType>();
+            toVisitETypes.addAll(tSeenETypes);
+            for (EventType e1 : tSeenETypes) {
+                toVisitETypes.remove(e1);
+                // We don't consider (e1, e1) as these would only generate local
+                // invariants, and we do not consider (e1,e2) if we've already
+                // considered (e2,e1).
+                for (EventType e2 : toVisitETypes) {
+                    if (e1 == e2) {
+                        continue;
+                    }
+                    if (traceCoOccurrenceCnts.containsKey(e1)) {
+                        if (traceCoOccurrenceCnts.get(e1).containsKey(e2)) {
+                            traceCoOccurrenceCnts.get(e1).put(e2,
+                                    traceCoOccurrenceCnts.get(e1).get(e2) + 1);
+                        } else {
+                            traceCoOccurrenceCnts.get(e1).put(e2, 1);
+                        }
+                    } else if (traceCoOccurrenceCnts.containsKey(e2)) {
+                        if (traceCoOccurrenceCnts.get(e2).containsKey(e1)) {
+                            traceCoOccurrenceCnts.get(e2).put(e1,
+                                    traceCoOccurrenceCnts.get(e2).get(e1) + 1);
+                        } else {
+                            traceCoOccurrenceCnts.get(e2).put(e1, 1);
+                        }
+                    } else {
+                        LinkedHashMap<EventType, Integer> map = new LinkedHashMap<EventType, Integer>();
+                        map.put(e2, 1);
+                        traceCoOccurrenceCnts.put(e1, map);
+                    }
+                }
+            }
+
+            // logger.info("co-occur-cnts: " +
+            // traceCoOccurrenceCnts.toString());
 
             // AP counts collection: traverse the trace rooted at each initial
             // node in the forward direction.
@@ -141,8 +205,18 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // At this point, we've completed all counts computation for the
             // trace rooted at curNode.
         }
-        return extractInvariantsFromWalkCounts(relation, gEventCnts,
-                gFollowedByCnts, gPrecedesCnts, gAlwaysFollowsINITIALSet);
+        // Extract the AFby, NFby, AP invariants based on counts.
+        TemporalInvariantSet invs = extractInvariantsFromWalkCounts(relation,
+                gEventCnts, gFollowedByCnts, gPrecedesCnts,
+                gAlwaysFollowsINITIALSet);
+
+        if (mineConcurrencyInvariants) {
+            // Extract the concurrency invariants based on counts.
+            invs.add(extractConcurrencyInvariantsFromWalkCounts(relation,
+                    gEventCnts, gFollowedByCnts, gPrecedesCnts,
+                    traceCoOccurrenceCnts));
+        }
+        return invs;
     }
 
     /**
@@ -385,8 +459,9 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         }
 
         while (true) {
-            // If we reach a node that has nodes we haven't seen preceded before
-            // then we want to include them in the tFollowingTypes.
+            // If we reach a node that has nodes preceding it
+            // then we want to include them in the tPrecedingTypes and we want
+            // to save the nodes that preceded us so far in the same map.
             if (tNodePrecedesSetMap.containsKey(curNode)) {
                 tNodePrecedesSetMap.get(curNode).addAll(tPrecedingTypes);
                 tPrecedingTypes = tNodePrecedesSetMap.get(curNode);

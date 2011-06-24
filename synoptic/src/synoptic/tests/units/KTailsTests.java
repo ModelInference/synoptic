@@ -13,8 +13,8 @@ import synoptic.algorithms.bisim.KTails;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.Event;
-import synoptic.model.Graph;
 import synoptic.model.EventNode;
+import synoptic.model.Graph;
 import synoptic.model.Transition;
 import synoptic.tests.SynopticTest;
 
@@ -149,10 +149,10 @@ public class KTailsTests extends SynopticTest {
      */
     @Test
     public void treeGraphsTest() throws Exception {
-        // Construct a tree, rooted at INITIAL, with two a children, both of
-        // which have different b and c children.
-        String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "--\n"
-                + "1,0,4 a\n" + "1,0,5 b\n" + "2,0,4 c\n";
+        // Construct a tree, rooted at INITIAL, with two "a" children, both of
+        // which have different "b" and "c" children.
+        String traceStr = "1,0 a\n" + "2,0 b\n" + "1,1 c\n" + "--\n"
+                + "1,0 a\n" + "2,0 b\n" + "1,1 c\n";
         TraceParser parser = genParser();
         ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
@@ -172,10 +172,11 @@ public class KTailsTests extends SynopticTest {
             testTrueBothSubsumingAndNotSubsuming(firstA, secondA, k);
         }
 
-        // In this tree the firstA and secondA should not be 1-equivalent, but
+        // In this tree the firstA and secondA should _not_ be 1-equivalent (one
+        // has children {b,c}, while the other has children {b,d}), but
         // they are still 0-equivalent.
-        traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "--\n"
-                + "1,0,4 a\n" + "1,0,5 b\n" + "2,0,4 d\n";
+        traceStr = "1,0 a\n" + "2,0 b\n" + "1,1 c\n" + "--\n" + "1,0 a\n"
+                + "2,0 b\n" + "1,1 d\n";
         parser = genParser();
         parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
@@ -198,7 +199,9 @@ public class KTailsTests extends SynopticTest {
      */
     @Test
     public void dagGraphsTest() throws Exception {
-        String traceStr = "1,1,1 a\n" + "2,2,2 b\n" + "1,2,3 c\n" + "0,1,2 a\n";
+        // Generate two identical DAGs
+        String traceStr = "1,0 a\n" + "2,1 b\n" + "1,2 c\n" + "2,3 d\n"
+                + "--\n" + "1,0 a\n" + "2,1 b\n" + "1,2 c\n" + "2,3 d\n";
 
         TraceParser parser = genParser();
         ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
@@ -216,10 +219,11 @@ public class KTailsTests extends SynopticTest {
             testTrueBothSubsumingAndNotSubsuming(firstA, secondA, k);
         }
 
-        // Adds a 'd' node to end of graph (topology change), and switches
-        // temporal order of b and c nodes (non-topological change).
-        traceStr = "1,1,1 a\n" + "1,2,3 b\n" + "2,2,2 c\n" + "0,1,2 a\n"
-                + "3,3,3 d\n";
+        // Switch temporal order of b and c nodes in one DAG (non-topological
+        // change).
+        traceStr = "1,0 a\n" + "2,1 c\n" + "1,2 b\n" + "2,3 d\n" + "--\n"
+                + "1,0 a\n" + "2,1 b\n" + "1,2 c\n";
+
         parser = genParser();
         parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);

@@ -110,23 +110,23 @@ public class EventTypeTests extends SynopticTest {
     @Test
     public void basicDistEventTypeTest() {
         // Different in at least one aspect
-        DistEventType e1 = new DistEventType("a", 1);
-        DistEventType e2 = new DistEventType("b", 1);
+        DistEventType e1 = new DistEventType("a", "1");
+        DistEventType e2 = new DistEventType("b", "1");
         assertFalse(e1.equals(e2));
         assertFalse(e2.equals(e1));
         assertTrue(e1.compareTo(e2) != 0);
         assertTrue(e2.compareTo(e1) != 0);
 
-        e1 = new DistEventType("a", 1);
-        e2 = new DistEventType("a", 2);
+        e1 = new DistEventType("a", "1");
+        e2 = new DistEventType("a", "2");
         assertFalse(e1.equals(e2));
         assertFalse(e2.equals(e1));
         assertTrue(e1.compareTo(e2) != 0);
         assertTrue(e2.compareTo(e1) != 0);
 
         // Identical
-        e1 = new DistEventType("a", 1);
-        e2 = new DistEventType("a", 1);
+        e1 = new DistEventType("a", "1");
+        e2 = new DistEventType("a", "1");
         assertTrue(e1.equals(e2));
         assertTrue(e2.equals(e1));
         assertTrue(e1.hashCode() == e2.hashCode());
@@ -135,7 +135,7 @@ public class EventTypeTests extends SynopticTest {
 
         // Initial and non-Initial
         e1 = DistEventType.NewInitialDistEventType();
-        e2 = new DistEventType("a", 1);
+        e2 = new DistEventType("a", "1");
         assertFalse(e1.equals(e2));
         assertFalse(e2.equals(e1));
         assertTrue(e1.compareTo(e2) != 0);
@@ -143,7 +143,7 @@ public class EventTypeTests extends SynopticTest {
 
         // Terminal and non-Terminal
         e1 = DistEventType.NewTerminalDistEventType();
-        e2 = new DistEventType("a", 1);
+        e2 = new DistEventType("a", "1");
         assertFalse(e1.equals(e2));
         assertFalse(e2.equals(e1));
         assertTrue(e1.compareTo(e2) != 0);

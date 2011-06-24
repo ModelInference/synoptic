@@ -26,9 +26,9 @@ public class PartitionGraphTests extends SynopticTest {
 
     @Test
     public void splitThenMergePartitionsTest() throws Exception {
-        String[] events = new String[] { "1,1 a", "0,2 a" };
+        String[] events = new String[] { "1 a", "--", "1 a" };
         TraceParser parser = new TraceParser();
-        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+        parser.addRegex("^(?<TIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
 
         String traceStr = concatinateWithNewlines(events);
