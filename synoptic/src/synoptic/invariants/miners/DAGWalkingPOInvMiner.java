@@ -138,10 +138,10 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             LinkedHashSet<EventType> toVisitETypes = new LinkedHashSet<EventType>();
             toVisitETypes.addAll(tSeenETypes);
             for (EventType e1 : tSeenETypes) {
-                toVisitETypes.remove(e1);
                 // We don't consider (e1, e1) as these would only generate local
                 // invariants, and we do not consider (e1,e2) if we've already
                 // considered (e2,e1).
+                toVisitETypes.remove(e1);
                 for (EventType e2 : toVisitETypes) {
                     if (e1 == e2) {
                         continue;

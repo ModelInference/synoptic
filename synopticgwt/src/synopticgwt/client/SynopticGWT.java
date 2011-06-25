@@ -14,7 +14,19 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTMLTable;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.TabPanel;
+import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
@@ -35,10 +47,10 @@ public class SynopticGWT implements EntryPoint {
             + "connection and try again.";
 
     /* Label of initial node, for layout purposes */
-    private static final String INITIAL_LABEL = "I.INITIAL";
+    private static final String INITIAL_LABEL = "INITIAL";
 
     /* Label of terminal node, for layout purposes */
-    private static final String TERMINAL_LABEL = "T.TERMINAL";
+    private static final String TERMINAL_LABEL = "TERMINAL";
 
     /**
      * Create an RPC proxy to talk to the Synoptic service
@@ -74,7 +86,7 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * A JSNI method to create and display an invariants graphic.
-     *
+     * 
      * @param AFby
      *            associative array with AFby relations
      * @param NFby
@@ -122,6 +134,7 @@ public class SynopticGWT implements EntryPoint {
 
 		var lines = new Array();
 
+		// These will contain text labels in the middle/right/left columns:
 		var tMiddlesArr = [];
 		var tRightsArr = [];
 		var tLeftsArr = [];
@@ -131,6 +144,21 @@ public class SynopticGWT implements EntryPoint {
 		// Create the three columns of text labels.
 		for ( var i = 0; i < eTypes.length; i++) {
 			var eType = eTypes[i]
+
+			var tMiddle = paper.text(mX, dY * i + topMargin, eType);
+			tMiddlesArr.push(tMiddle);
+			tMiddle.attr({
+				'font-size' : "30px",
+				fill : "grey"
+			});
+
+			// Remember the y position of every row of labels.
+			ypos[eType] = dY * i + 10;
+
+			// Do not create the INITIAL labels on the left/right
+			if (eType == "I.INITIAL") {
+				continue;
+			}
 
 			var tLeft = paper.text(lX, dY * i + topMargin, eType);
 			tLeft.attr({
@@ -145,34 +173,29 @@ public class SynopticGWT implements EntryPoint {
 				fill : "grey"
 			});
 			tRightsArr[eType] = tRight;
-
-			var tMiddle = paper.text(mX, dY * i + topMargin, eType);
-			tMiddlesArr.push(tMiddle);
-			tMiddle.attr({
-				'font-size' : "30px",
-				fill : "grey"
-			});
-
-			// Remember the y position of every row of labels.
-			ypos[eType] = dY * i + 10;
 		}
 
 		// Create all the lines by iterating through labels in the middle column.
 		for ( var i = 0; i < eTypes.length; i++) {
 			var eType = eTypes[i]
-			var tMiddle = tMiddlesArr[i];
 			lines[eType] = []
+		}
+
+		for ( var i = 0; i < eTypes.length; i++) {
+			var eType = eTypes[i]
+			var tMiddle = tMiddlesArr[i];
 
 			// AP:
 			for ( var j in AP[eType]) {
-				var line = paper.path(("M" + mX + " " + ypos[eType] + "L" + lX
-						+ " " + ypos[AP[eType][j]]));
+				var line = paper.path(("M" + mX + " " + ypos[AP[eType][j]]
+						+ "L" + lX + " " + ypos[eType]));
 				line.attr({
 					stroke : "grey",
 					highlight : "blue",
-					dest : tLeftsArr[AP[eType][j]]
+					dest : tLeftsArr[eType]
 				});
-				lines[eType].push(line);
+				// NOTE: we associate the middle label destination of the arrow, not the left label source.
+				lines[AP[eType][j]].push(line);
 			}
 
 			// AFby:
@@ -202,6 +225,7 @@ public class SynopticGWT implements EntryPoint {
 			// Function to execute when the tMiddle label is pointed-to.
 			tMiddle.mouseover(function(y) {
 				return function(e) {
+					// y is tMiddle
 					for ( var line in lines[y.attr('text')]) {
 						lines[y.attr('text')][line].attr({
 							'stroke-width' : '3'
@@ -245,7 +269,7 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * A JSNI method to create and display a graph.
-     *
+     * 
      * @param nodes
      *            An array of nodes, each consecutive pair is a <id,label>
      * @param edges
@@ -261,15 +285,15 @@ public class SynopticGWT implements EntryPoint {
             JavaScriptObject edges, int width, int height, String canvasId,
             String initial, String terminal) /*-{
 
-        // required to export this instance
-        var _this = this;
+		// required to export this instance
+		var _this = this;
 
-  		// export the LogLineRequestHandler globally
-  		$wnd.viewLogLines = function(id) {
-  			_this.@synopticgwt.client.SynopticGWT::LogLineRequestHandler(I)(id);
-  		};
+		// export the LogLineRequestHandler globally
+		$wnd.viewLogLines = function(id) {
+			_this.@synopticgwt.client.SynopticGWT::LogLineRequestHandler(I)(id);
+		};
 
-  		// create the graph
+		// create the graph
 		var g = new $wnd.Graph();
 		g.edgeFactory.template.style.directed = true;
 
@@ -288,33 +312,35 @@ public class SynopticGWT implements EntryPoint {
 
 		// give stable layout to graph elements
 		var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
-		//var layouter = new $wnd.Graph.Layout.Stable(g, "I.INITIAL", "T.TERMINAL");
 
 		// render the graph
 		var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
 				height);
 
 		// store graph state
-		$wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer, layouter, g);
+		$wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer,
+				layouter, g);
     }-*/;
 
     /**
-     * A JSNI method to update and display a refined graph, animating the transition to a new layout.
-     *
+     * A JSNI method to update and display a refined graph, animating the
+     * transition to a new layout.
+     * 
      * @param nodes
      *            An array of nodes, each consecutive pair is a <id,label>
      * @param edges
      *            An array of edges, each consecutive pair is <node id, node id>
      * @param refinedNode
-     * 			  the ID of the refined node
+     *            the ID of the refined node
      * @param canvasId
      *            the div id with which to associate the resulting graph
      */
-    public static native void createChangingGraph(JavaScriptObject nodes, JavaScriptObject edges,
-            int refinedNode, String canvasId) /*-{
+    public static native void createChangingGraph(JavaScriptObject nodes,
+            JavaScriptObject edges, int refinedNode, String canvasId) /*-{
 
-        // update graph and fetch array of new nodes
-		var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges, refinedNode);
+		// update graph and fetch array of new nodes
+		var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges,
+				refinedNode);
 
 		// fetch the current layouter
 		var layouter = $wnd.GRAPH_HANDLER.getLayouter();
@@ -332,7 +358,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method for adding a String element to a java script array object.
      * (Yes, this is rather painful.)
-     *
+     * 
      * @param array
      *            Array object to add to
      * @param s
@@ -345,7 +371,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method for associating a key in an array to a value. (Yes, this is
      * rather painful.)
-     *
+     * 
      * @param array
      *            Array object to add to
      * @param key
@@ -362,7 +388,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method for adding a progress wheel to a div. (Yes, this is rather
      * painful.)
-     *
+     * 
      * @param radius
      *            size of the svg graphic / 2
      * @param r1
@@ -412,7 +438,7 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * Shows the GWTGraph object on the screen in the modelPanel
-     *
+     * 
      * @param graph
      * @throws Exception
      */
@@ -432,7 +458,7 @@ public class SynopticGWT implements EntryPoint {
         graphPanel = new FlowPanel();
         graphPanel.getElement().setId(canvasId);
         graphPanel.setStylePrimaryName("modelCanvas");
-        //modelPanel.addEast(graphPanel, 70);
+        // modelPanel.addEast(graphPanel, 70);
         modelPanel.add(graphPanel, DockPanel.CENTER);
         // Create the list of graph node labels and their Ids.
         HashMap<Integer, String> nodes = graph.getNodes();
@@ -456,15 +482,18 @@ public class SynopticGWT implements EntryPoint {
         int width = Math.max(Window.getClientWidth() - 600, 300);
         int height = Math.max(Window.getClientHeight() - 300, 300);
         graphPanel.setPixelSize(width, height);
-        createGraph(jsNodes, jsEdges, width, height, canvasId, INITIAL_LABEL, TERMINAL_LABEL);
+        createGraph(jsNodes, jsEdges, width, height, canvasId, INITIAL_LABEL,
+                TERMINAL_LABEL);
     }
 
     /**
-     * Shows the refined GWTGraph object on the screen in the modelPanel, animating
-     * transition to new positions
-     *
-     * @param graph the updated graph to display
-     * @param refinedNode the refined node's id
+     * Shows the refined GWTGraph object on the screen in the modelPanel,
+     * animating transition to new positions
+     * 
+     * @param graph
+     *            the updated graph to display
+     * @param refinedNode
+     *            the refined node's id
      */
     public void showChangingGraph(GWTGraph graph, int refinedNode) {
         String canvasId = "canvasId";
@@ -476,7 +505,7 @@ public class SynopticGWT implements EntryPoint {
         }
 
         // Create the list of edges, where two consecutive node Ids is an edge.
-        //JavaScriptObject newEdges = JavaScriptObject.createArray();
+        // JavaScriptObject newEdges = JavaScriptObject.createArray();
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
         List<GWTPair<Integer, Integer>> edges = graph.getEdges();
         for (GWTPair<Integer, Integer> edge : edges) {
@@ -496,7 +525,7 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * Shows the invariant graphic on the screen in the invariantsPanel
-     *
+     * 
      * @param graph
      */
     public void showInvariants(GWTInvariants gwtInvs) {
@@ -589,17 +618,17 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * Requests the log lines for the Partition with the given nodeID
-     *
      */
-    public void LogLineRequestHandler (int nodeID) throws Exception {
-    	synopticService.handleLogRequest(nodeID, new ViewLogLineAsyncCallback());
+    public void LogLineRequestHandler(int nodeID) throws Exception {
+        synopticService
+                .handleLogRequest(nodeID, new ViewLogLineAsyncCallback());
     }
-
 
     /* removes currently displayed log lines from the log line table */
     private void clearLogTable() {
-    	for (int i = 1; i < logLineTable.getRowCount(); i++)
-			logLineTable.removeRow(i);
+        for (int i = 1; i < logLineTable.getRowCount(); i++) {
+            logLineTable.removeRow(i);
+        }
     }
 
     /**
@@ -607,24 +636,25 @@ public class SynopticGWT implements EntryPoint {
      */
     class ViewLogLineAsyncCallback implements AsyncCallback<List<LogLine>> {
 
-		@Override
-		public void onFailure(Throwable caught) {
-			// This is expected whenever the user double clicks on an initial or terminal
-			// node, so we'll ignore it
-			clearLogTable();
-		}
+        @Override
+        public void onFailure(Throwable caught) {
+            // This is expected whenever the user double clicks on an initial or
+            // terminal
+            // node, so we'll ignore it
+            clearLogTable();
+        }
 
-		@Override
-		public void onSuccess(List<LogLine> result) {
-			clearLogTable();
-			int row = 1;
-	    	for (LogLine log : result) {
-	    		logLineTable.setText(row, 0, log.getLineNum() + "");
-	    		logLineTable.setText(row, 1, log.getLine());
-	    		logLineTable.setText(row, 2, log.getFilename());
-	    		row++;
-	    	}
-		}
+        @Override
+        public void onSuccess(List<LogLine> result) {
+            clearLogTable();
+            int row = 1;
+            for (LogLine log : result) {
+                logLineTable.setText(row, 0, log.getLineNum() + "");
+                logLineTable.setText(row, 1, log.getLine());
+                logLineTable.setText(row, 2, log.getFilename());
+                row++;
+            }
+        }
     }
 
     /**
@@ -666,7 +696,7 @@ public class SynopticGWT implements EntryPoint {
             AsyncCallback<GWTPair<GWTInvariants, GWTGraph>> {
         @Override
         public void onFailure(Throwable caught) {
-        	injectRPCError("Remote Procedure Call Failure while parsing log");
+            injectRPCError("Remote Procedure Call Failure while parsing log");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
             parseLogButton.setEnabled(true);
         }
@@ -721,7 +751,7 @@ public class SynopticGWT implements EntryPoint {
     class RefineOneStepAsyncCallback implements AsyncCallback<GWTGraphDelta> {
         @Override
         public void onFailure(Throwable caught) {
-        	injectRPCError("Remote Procedure Call Failure while refining");
+            injectRPCError("Remote Procedure Call Failure while refining");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
             modelRefineButton.setEnabled(true);
         }
@@ -738,7 +768,6 @@ public class SynopticGWT implements EntryPoint {
 
         }
     }
-
 
     /**
      * Used for handling coarsen button clicks
@@ -767,7 +796,7 @@ public class SynopticGWT implements EntryPoint {
     class CoarsenOneStepAsyncCallback implements AsyncCallback<GWTGraph> {
         @Override
         public void onFailure(Throwable caught) {
-        	injectRPCError("Remote Procedure Call Failure while coarsening");
+            injectRPCError("Remote Procedure Call Failure while coarsening");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
         }
 
@@ -806,7 +835,7 @@ public class SynopticGWT implements EntryPoint {
     class GetFinalModelAsyncCallback implements AsyncCallback<GWTGraph> {
         @Override
         public void onFailure(Throwable caught) {
-        	injectRPCError("Remote Procedure Call Failure while fetching final model");
+            injectRPCError("Remote Procedure Call Failure while fetching final model");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
         }
 
@@ -895,10 +924,12 @@ public class SynopticGWT implements EntryPoint {
 
         // Header
         Label logLineLabel = new Label("Log Lines");
-        DOM.setElementAttribute(logLineLabel.getElement(), "id", "log-line-label");
+        DOM.setElementAttribute(logLineLabel.getElement(), "id",
+                "log-line-label");
 
         // Add tooltip to LogLineLabel
-        TooltipListener tooltip = new TooltipListener("Double-click on a node to view log lines", 5000, "tooltip");
+        TooltipListener tooltip = new TooltipListener(
+                "Double-click on a node to view log lines", 5000, "tooltip");
         logLineLabel.addMouseOverHandler(tooltip);
         logLineLabel.addMouseOutHandler(tooltip);
         logPanel.add(logLineLabel);
@@ -934,8 +965,8 @@ public class SynopticGWT implements EntryPoint {
 
     /* Injects an error message at the top of the page when an RPC call fails */
     public void injectRPCError(String message) {
-    	Label error = new Label(message);
-    	error.setStyleName("ErrorMessage");
-    	RootPanel.get("progressDiv").add(error);
+        Label error = new Label(message);
+        error.setStyleName("ErrorMessage");
+        RootPanel.get("progressDiv").add(error);
     }
 }
