@@ -177,12 +177,21 @@ public abstract class InvariantMiner {
 
         Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
-        LinkedHashSet<LinkedHashSet<EventType>> processedPairs = new LinkedHashSet<LinkedHashSet<EventType>>();
+        LinkedHashSet<EventType> toVisitETypes = new LinkedHashSet<EventType>();
+        toVisitETypes.addAll(gEventCnts.keySet());
 
-        // TODO: concurrent invariants for (x,y) is the same as for (y,x) so we
-        // need to filter out the duplicates.
+        logger.info("gFollowedByCnts: " + gFollowedByCnts.toString());
+        logger.info("gPrecedesCnts: " + gPrecedesCnts.toString());
+        logger.info("traceCoOccurrenceCnts: "
+                + traceCoOccurrenceCnts.toString());
+
         for (EventType e1 : gEventCnts.keySet()) {
-            for (EventType e2 : gEventCnts.keySet()) {
+            // We don't consider (e1, e1) as these would only generate local
+            // invariants, and we do not consider (e1,e2) if we've already
+            // considered (e2,e1).
+            toVisitETypes.remove(e1);
+
+            for (EventType e2 : toVisitETypes) {
                 if (!(e1 instanceof DistEventType)
                         || !(e2 instanceof DistEventType)) {
                     // TODO: specialize the exception
@@ -197,14 +206,6 @@ public abstract class InvariantMiner {
                     // concurrency invariants -- we ignore them.
                     continue;
                 }
-
-                LinkedHashSet<EventType> s = new LinkedHashSet<EventType>();
-                s.add(e1);
-                s.add(e2);
-                if (processedPairs.contains(s)) {
-                    continue;
-                }
-                processedPairs.add(s);
 
                 int e1_fby_e2 = 0;
                 int e1_p_e2 = 0;
@@ -229,6 +230,10 @@ public abstract class InvariantMiner {
                         && gPrecedesCnts.get(e2).containsKey(e1)) {
                     e2_p_e1 = gPrecedesCnts.get(e2).get(e1);
                 }
+
+                // logger.info("-- e1: " + e1.toString() + ", e2: " +
+                // e2.toString() + "\n   e1_fby_e2: "
+                // + Internae1_fby_e2 e1_p_e2, e2_fby_e1, e2_p_e1)
 
                 if (e1_fby_e2 == 0 && e2_fby_e1 == 0) {
                     // Potential concurrency if e1 and e2 _ever_ co-appeared in
