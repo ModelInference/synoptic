@@ -82,7 +82,7 @@ public class TraceParser {
     // VTIME: vector clock time (e.g. 12.23.34, and 12.234)
     // FTIME: float time (e.g. 123.456) -- 32 bits
     // DTIME: double time (e.g. 1234.56) -- 64 bits
-    private static final List<String> validTimeGroups = Arrays.asList("TIME",
+    public static final List<String> validTimeGroups = Arrays.asList("TIME",
             "VTIME", "FTIME", "DTIME");
 
     // A group that is used to capture the process ID in a PO log -- can only be
@@ -215,6 +215,12 @@ public class TraceParser {
                 throw new ParseException();
             }
 
+            if (implicitTimeGroup.equals(field)) {
+                logger.severe("The group " + implicitTimeGroup
+                        + " cannot be used explicitly as a capture group.");
+                throw new ParseException();
+            }
+
             // HIDE groups can only be assigned to 'true'
             if (field.equals("HIDE")) {
                 if (!value.equals("true")) {
@@ -282,9 +288,20 @@ public class TraceParser {
         // Check for group duplicates.
         detectListDuplicates(groups, regex);
 
-        // Check that line-matching regexes contain the required named groups.
-        // But only if they are not HIDDEN.
+        // Check that special/internal field names do not appear.
+        // Currently this is just LTIME.
+        for (String group : groups) {
+            if (implicitTimeGroup.equals(group)) {
+                logger.severe("The group " + implicitTimeGroup
+                        + " cannot be used explicitly as a capture group.");
+                throw new ParseException();
+            }
+        }
+
+        // Process non-hidden expression specially, since these expressions are
+        // supposed to generate event instances, while the hidden ones do not.
         if (!isHidden) {
+            // Check that the required groups are present.
             for (String reqGroup : requiredGroups) {
                 if (!groups.contains(reqGroup) && !fields.contains(reqGroup)) {
                     logger.severe("Regular expression: " + regex
@@ -293,9 +310,8 @@ public class TraceParser {
                     throw new ParseException();
                 }
             }
-        }
 
-        if (!isHidden) {
+            // Whether or not the PID group appears in this expressions.
             boolean usingPID = false;
 
             // We have two cases for specifying time types:
@@ -306,6 +322,8 @@ public class TraceParser {
                 if (processIDGroup.equals(group)) {
                     usingPID = true;
                 }
+
+                logger.info("group is : " + group);
 
                 if (validTimeGroups.contains(group)) {
                     if (regexTimeUsed != null) {
@@ -328,6 +346,11 @@ public class TraceParser {
                 selectedTimeGroup = regexTimeUsed;
                 if (selectedTimeGroup.equals("VTIME")) {
                     parsePIDs = usingPID;
+                } else {
+                    if (usingPID) {
+                        logger.severe("The PID group name can only be used with a VTIME time group.");
+                        throw new ParseException();
+                    }
                 }
             } else {
                 // Prior time type was used, make sure that it matches regex's.
@@ -514,19 +537,24 @@ public class TraceParser {
         }
         br.close();
 
-        // Infer the PID (process ID) corresponding to each of the parsed
-        // events, if PIDs were not parsed explicitly from the trace.
         if (selectedTimeGroup.equals("VTIME") && !parsePIDs) {
+            // Infer the PID (process ID) corresponding to each of the parsed
+            // events, if PIDs were not parsed explicitly from the trace.
+
             for (List<EventNode> group : partitions.values()) {
-                int pid = 0;
+                // A list in which the list at index j is a (totally ordered)
+                // list of events that occurred at node j.
                 List<List<EventNode>> listsNodeEvents;
                 try {
+                    // Perform the inference.
                     listsNodeEvents = VectorTime.mapLogEventsToNodes(group);
                 } catch (Exception e) {
                     logger.severe("Could not match vector times to host id.");
                     throw new ParseException();
                 }
 
+                int pid = 0;
+                // Assign a pid to each of the event nodes.
                 for (List<EventNode> nodeEvents : listsNodeEvents) {
                     for (EventNode eNode : nodeEvents) {
                         if (!(eNode.getEType() instanceof DistEventType)) {
@@ -537,6 +565,65 @@ public class TraceParser {
                                 .toString(pid));
                     }
                     pid += 1;
+                }
+            }
+        } else if (selectedTimeGroup.equals("VTIME") && parsePIDs) {
+            // Check that for each partition, the set of events corresponding to
+            // a PID can be totally ordered -- this is a critical property of a
+            // PID.
+
+            for (List<EventNode> group : partitions.values()) {
+                // Determine the set of unique PIDs in this partition.
+                LinkedHashSet<String> PIDs = new LinkedHashSet<String>();
+                for (EventNode node : group) {
+                    if (!(node.getEType() instanceof DistEventType)) {
+                        logger.severe("Parsed a non dist. event type for a trace with VTIME format.");
+                        throw new ParseException();
+                    }
+                    PIDs.add(((DistEventType) node.getEType()).getPID());
+                }
+
+                LinkedList<EventNode> pidEvents = new LinkedList<EventNode>();
+                for (String pid : PIDs) {
+                    // Select all events from the partition with the same PID
+                    for (EventNode node : group) {
+                        if (((DistEventType) node.getEType()).getPID().equals(
+                                pid)) {
+                            pidEvents.add(node);
+                        }
+                    }
+
+                    // Now walk through all pidEvents and remove the minimal
+                    // element -- all elements should be comparable, otherwise
+                    // we've violated the property we're checking.
+                    while (pidEvents.size() != 0) {
+                        EventNode minElement = pidEvents.get(0);
+                        for (EventNode node : pidEvents) {
+                            if (node == minElement) {
+                                continue;
+                            }
+                            if (node.getTime().lessThan(minElement.getTime())) {
+                                minElement = node;
+                            } else {
+                                if (!minElement.getTime().lessThan(
+                                        node.getTime())) {
+                                    logger.severe("Two events in the same partition with same PID["
+                                            + pid
+                                            + "] have incomparable VTIMEs: \n"
+                                            + "\t"
+                                            + minElement.toString()
+                                            + ": "
+                                            + minElement.getTime().toString()
+                                            + "\n\t"
+                                            + node.toString()
+                                            + ": "
+                                            + node.getTime().toString());
+                                    throw new ParseException();
+                                }
+                            }
+                        }
+                        pidEvents.remove(minElement);
+                    }
                 }
             }
         }

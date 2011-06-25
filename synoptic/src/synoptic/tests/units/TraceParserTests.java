@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -58,8 +59,6 @@ public class TraceParserTests extends SynopticTest {
      */
     @Test(expected = ParseException.class)
     public void addRegexWithoutTYPERegExpExceptionTest() throws ParseException {
-        // This should throw a ParseException because custom TIME fields are not
-        // allowed
         parser.addRegex("^(?<TIME>)$");
     }
 
@@ -73,8 +72,6 @@ public class TraceParserTests extends SynopticTest {
     @Test
     public void addRegexHiddenWithoutRequiredRegExpExceptionTest()
             throws ParseException {
-        // This should throw a ParseException because custom TIME fields are not
-        // allowed
         parser.addRegex("^\\d+(?<HIDE=>true)$");
     }
 
@@ -86,32 +83,88 @@ public class TraceParserTests extends SynopticTest {
      */
     @Test(expected = ParseException.class)
     public void addRegexCustomHIDERegExpExceptionTest() throws ParseException {
-        // Non-true HIDE values are not allowed.
         parser.addRegex("^\\d+(?<HIDE=>blahblah)$");
     }
 
     /**
-     * Add a regex with a non-default TIME -- expect a ParseException.
+     * Custom TIME/VTIME/FTIME/DTIME fields are not allowed. These tests add a
+     * regex with non-default values for these -- expect a ParseException.
      * 
      * @throws ParseException
      */
     @Test(expected = ParseException.class)
     public void addRegexCustomTimeRegExpExceptionTest() throws ParseException {
-        // This should throw a ParseException because custom TIME fields are not
-        // allowed
         parser.addRegex("^(?<TIME=>.+)\\s(?<TYPE>)$");
     }
 
+    @Test(expected = ParseException.class)
+    public void addRegexCustomVTimeRegExpExceptionTest() throws ParseException {
+        parser.addRegex("^(?<VTIME=>\\d|\\d|\\d)\\s(?<TYPE>)$");
+    }
+
+    @Test(expected = ParseException.class)
+    public void addRegexCustomFTimeRegExpExceptionTest() throws ParseException {
+        parser.addRegex("^(?<FTIME=>\\d.\\d\\d)\\s(?<TYPE>)$");
+    }
+
+    @Test(expected = ParseException.class)
+    public void addRegexCustomDTimeRegExpExceptionTest() throws ParseException {
+        parser.addRegex("^(?<DTIME=>\\d\\d\\d)\\s(?<TYPE>)$");
+    }
+
     /**
-     * Parse a log using a non-default VTIME -- expect a ParseException.
+     * The LTIME group is built-in and should not be used in any regular
+     * expressions. These tests attempt to use LTIME in various ways -- expect a
+     * ParseException.
      * 
      * @throws ParseException
      */
     @Test(expected = ParseException.class)
-    public void addRegexCustomVTimeRegExpExceptionTest() throws ParseException {
-        // This should throw a ParseException because custom VTIME fields are
-        // not allowed
-        parser.addRegex("^(?<VTIME=>\\d|\\d|\\d)\\s(?<TYPE>)$");
+    public void addRegexWithLTimeCustomRegExpExceptionTest()
+            throws ParseException {
+        parser.addRegex("^(?<LTIME=>\\d\\d)\\s(?<TYPE>)$");
+    }
+
+    @Test(expected = ParseException.class)
+    public void addRegexWithLTimeHiddenRegExpExceptionTest()
+            throws ParseException {
+        parser.addRegex("^(?<HIDE=>true)(?<LTIME>)\\s(?<TYPE=>hihi)$");
+    }
+
+    @Test(expected = ParseException.class)
+    public void addRegexWithLTimeRegExpExceptionTest() throws ParseException {
+        parser.addRegex("^(?<LTIME>)\\s(?<TYPE=>hihi)$");
+    }
+
+    /**
+     * The PID field can only be used in conjunction with VTIME. This test uses
+     * it without VTIME -- expect a ParseException.
+     * 
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void addRegexPIDWithoutVTIMERegExpExceptionTest()
+            throws ParseException {
+        parser.addRegex("^(?<PID>)\\s(?<TYPE>)$");
+    }
+
+    /**
+     * Once a PID field is used with VTIME once, it must be used with every
+     * future non-hidden reg-exp that uses VTIME. This test uses PID with VTIME
+     * once, but fails to use it in a second reg-exp -- expect a ParseException.
+     * 
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void addRegexPIDWithAndWithoutVTIMERegExpExceptionTest()
+            throws ParseException {
+        try {
+            parser.addRegex("^(?<PID>)\\s(?<VTIME>)\\s(?<TYPE>)$");
+        } catch (ParseException e) {
+            Assert.fail("First addRegex should not have failed.");
+        }
+        // Use VTIME without PID.
+        parser.addRegex("^(?<VTIME>)\\s(?<TYPE>)$");
     }
 
     /**
@@ -157,13 +210,23 @@ public class TraceParserTests extends SynopticTest {
     @Test(expected = ParseException.class)
     public void addRegexDiffTimeTypesRegExpExceptionTest()
             throws ParseException {
+        // Select two time groups at random:
+        Random r = new Random();
+        int t1Index = r.nextInt(TraceParser.validTimeGroups.size());
+        int t2Index;
+        do {
+            t2Index = r.nextInt(TraceParser.validTimeGroups.size());
+        } while (t2Index == t1Index);
+        String t1 = TraceParser.validTimeGroups.get(t1Index);
+        String t2 = TraceParser.validTimeGroups.get(t2Index);
+
         try {
-            parser.addRegex("^(?<TIME>)\\s(?<TYPE>)$");
+            parser.addRegex("^(?<" + t1 + ">)\\s(?<TYPE>)$");
         } catch (Exception e) {
             Assert.fail("First addRegex should not have failed.");
         }
         // Second addRegex should throw the expected exception.
-        parser.addRegex("^(?<VTIME>)\\s(?<TYPE>)\\s$");
+        parser.addRegex("^(?<" + t2 + ">)\\s(?<TYPE>)\\s$");
     }
 
     // //////////////////////////////////////////////////////////////////////////
@@ -171,101 +234,38 @@ public class TraceParserTests extends SynopticTest {
     // //////////////////////////////////////////////////////////////////////////
 
     /**
-     * Checks that the type and the VECTOR time of each log event in a list is
-     * correct.
+     * Checks that the type/time of each log event in a list is correct.
      * 
      * @param events
      *            List of occurrences to check
-     * @param vtimeStrs
-     *            Array of corresponding occurrence vector times
+     * @param timeStrs
+     *            Array of corresponding occurrence times
      * @param types
      *            Array of corresponding occurrence types
      */
-    public void checkLogEventTypesVTimes(List<EventNode> events,
-            String[] vtimeStrs, List<EventType> types) {
-        assertSame(events.size(), vtimeStrs.length);
-        assertSame(vtimeStrs.length, types.size());
+    public void checkLogEventTypesAndTimes(List<EventNode> events,
+            String[] timeStrs, List<EventType> types, String timeType) {
+        assertSame(events.size(), timeStrs.length);
+        assertSame(timeStrs.length, types.size());
         for (int i = 0; i < events.size(); i++) {
             EventNode e = events.get(i);
             ITime eventTime = e.getTime();
             // Check that the type and the time of the occurrence are correct
             assertTrue(e.getEType().equals(types.get(i)));
-            assertTrue(new VectorTime(vtimeStrs[i]).equals(eventTime));
-        }
-    }
 
-    /**
-     * Checks that the type and the INTEGER time of each log event in a list is
-     * correct.
-     * 
-     * @param events
-     *            List of occurrences to check
-     * @param vtimeStrs
-     *            Array of corresponding occurrence vector times
-     * @param types
-     *            Array of corresponding occurrence types
-     */
-    public void checkLogEventTypesITimes(List<EventNode> events,
-            String[] vtimeStrs, List<EventType> types) {
-        assertSame(events.size(), vtimeStrs.length);
-        assertSame(vtimeStrs.length, types.size());
-        for (int i = 0; i < events.size(); i++) {
-            EventNode e = events.get(i);
-            ITime eventTime = e.getTime();
-            // Check that the type and the time of the occurrence are correct
-            assertTrue(e.getEType().equals(types.get(i)));
-            int itime = Integer.parseInt(vtimeStrs[i]);
-            assertTrue(new ITotalTime(itime).equals(eventTime));
-        }
-    }
+            if (timeType.equals("VTIME")) {
+                assertTrue(new VectorTime(timeStrs[i]).equals(eventTime));
+            } else if (timeType.equals("TIME")) {
+                int itime = Integer.parseInt(timeStrs[i]);
+                assertTrue(new ITotalTime(itime).equals(eventTime));
+            } else if (timeType.equals("FTIME")) {
+                assertTrue(new FTotalTime(Float.parseFloat(timeStrs[i]))
+                        .equals(eventTime));
+            } else if (timeType.equals("DTIME")) {
+                assertTrue(new DTotalTime(Double.parseDouble(timeStrs[i]))
+                        .equals(eventTime));
+            }
 
-    /**
-     * Checks that the type and the FLOAT time of each log event in a list is
-     * correct.
-     * 
-     * @param events
-     *            List of occurrences to check
-     * @param vtimeStrs
-     *            Array of corresponding occurrence vector times
-     * @param types
-     *            Array of corresponding occurrence types
-     */
-    public void checkLogEventTypesFTimes(List<EventNode> events,
-            String[] vtimeStrs, List<EventType> types) {
-        assertSame(events.size(), vtimeStrs.length);
-        assertSame(vtimeStrs.length, types.size());
-        for (int i = 0; i < events.size(); i++) {
-            EventNode e = events.get(i);
-            ITime eventTime = e.getTime();
-            // Check that the type and the time of the occurrence are correct
-            assertTrue(e.getEType().equals(types.get(i)));
-            assertTrue(new FTotalTime(Float.parseFloat(vtimeStrs[i]))
-                    .equals(eventTime));
-        }
-    }
-
-    /**
-     * Checks that the type and the DOUBLE time of each log event in a list is
-     * correct.
-     * 
-     * @param events
-     *            List of occurrences to check
-     * @param vtimeStrs
-     *            Array of corresponding occurrence vector times
-     * @param types
-     *            Array of corresponding occurrence types
-     */
-    public void checkLogEventTypesDTimes(List<EventNode> events,
-            String[] vtimeStrs, List<EventType> types) {
-        assertSame(events.size(), vtimeStrs.length);
-        assertSame(vtimeStrs.length, types.size());
-        for (int i = 0; i < events.size(); i++) {
-            EventNode e = events.get(i);
-            ITime eventTime = e.getTime();
-            // Check that the type and the time of the occurrence are correct
-            assertTrue(e.getEType().equals(types.get(i)));
-            assertTrue(new DTotalTime(Double.parseDouble(vtimeStrs[i]))
-                    .equals(eventTime));
         }
     }
 
@@ -283,10 +283,12 @@ public class TraceParserTests extends SynopticTest {
             InternalSynopticException {
         String traceStr = "a\nb\nc\n";
         parser.addRegex("^(?<TYPE>)$");
-        checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
+        checkLogEventTypesAndTimes(
+                parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1", "2", "3" }, // NOTE: implicit time starts
                 // with 1
-                stringsToStringEventTypes(new String[] { "a", "b", "c" }));
+                stringsToStringEventTypes(new String[] { "a", "b", "c" }),
+                "TIME");
         assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -298,9 +300,11 @@ public class TraceParserTests extends SynopticTest {
             InternalSynopticException {
         String traceStr = "2 a\n3 b\n4 c\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
-        checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
-                new String[] { "2", "3", "4" },
-                stringsToStringEventTypes(new String[] { "a", "b", "c" }));
+        checkLogEventTypesAndTimes(
+                parser.parseTraceString(traceStr, "test", -1), new String[] {
+                        "2", "3", "4" },
+                stringsToStringEventTypes(new String[] { "a", "b", "c" }),
+                "TIME");
         assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -312,9 +316,11 @@ public class TraceParserTests extends SynopticTest {
             InternalSynopticException {
         String traceStr = "2.1 a\n2.2 b\n3.0 c\n";
         parser.addRegex("^(?<FTIME>)(?<TYPE>)$");
-        checkLogEventTypesFTimes(parser.parseTraceString(traceStr, "test", -1),
-                new String[] { "2.1", "2.2", "3.0" },
-                stringsToStringEventTypes(new String[] { "a", "b", "c" }));
+        checkLogEventTypesAndTimes(
+                parser.parseTraceString(traceStr, "test", -1), new String[] {
+                        "2.1", "2.2", "3.0" },
+                stringsToStringEventTypes(new String[] { "a", "b", "c" }),
+                "FTIME");
         assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -322,46 +328,64 @@ public class TraceParserTests extends SynopticTest {
      * Parse a log with explicit double time values.
      */
     @Test
-    public void parseExplicitDoubleTimeTest() throws ParseException,
-            InternalSynopticException {
+    public void parseExplicitDoubleTimeTest() throws ParseException {
         String traceStr = "129892544112.89345 a\n129892544112.89346 b\n129892544112.89347 c\n";
         parser.addRegex("^(?<DTIME>)(?<TYPE>)$");
-        checkLogEventTypesDTimes(parser.parseTraceString(traceStr, "test", -1),
-                new String[] { "129892544112.89345", "129892544112.89346",
+        checkLogEventTypesAndTimes(
+                parser.parseTraceString(traceStr, "test", -1), new String[] {
+                        "129892544112.89345", "129892544112.89346",
                         "129892544112.89347" },
-                stringsToStringEventTypes(new String[] { "a", "b", "c" }));
+                stringsToStringEventTypes(new String[] { "a", "b", "c" }),
+                "DTIME");
         assertTrue(parser.logTimeTypeIsTotallyOrdered());
     }
 
     /**
-     * Parse a log with explicit vector time values.
+     * Parse a log with explicit vector time values and a PID group.
      */
     @Test
-    public void parseVTimeExplicitPIDTest() throws ParseException,
-            InternalSynopticException {
-        String traceStr = "1,0 0 a\n0,1 1 b\n2,1 0 c\n";
+    public void parseVTimeExplicitPIDTest() throws ParseException {
+        String traceStr = "1,0 NODE-0 a\n0,1 NODE-1 b\n2,1 NODE-0 c\n";
         parser.addRegex("^(?<VTIME>)(?<PID>)(?<TYPE>)$");
-        checkLogEventTypesVTimes(
+        // This also checks that the PID is correctly parsed/assigned
+        checkLogEventTypesAndTimes(
                 parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1,0", "0,1", "2,1" },
                 stringsToDistEventTypes(new String[] { "a", "b", "c" },
-                        new String[] { "0", "1", "0" }));
+                        new String[] { "NODE-0", "NODE-1", "NODE-0" }), "VTIME");
         assertFalse(parser.logTimeTypeIsTotallyOrdered());
     }
 
     /**
-     * Parse a log with explicit vector time values.
+     * Parse a log with explicit vector time values and a PID group. But with
+     * vector times that are NOT totally ordered at the same PID -- expect a
+     * ParseException.
+     */
+    @Test(expected = ParseException.class)
+    public void parseVTimeExplicitPIDNotTotallyOrderedAtPIDExceptionTest()
+            throws ParseException {
+        String traceStr = "1,0 NODE-0 a\n1,2 NODE-1 b\n0,1 NODE-0 c\n";
+        try {
+            parser.addRegex("^(?<VTIME>)(?<PID>)(?<TYPE>)$");
+        } catch (Exception e) {
+            Assert.fail("addRegex should not have failed.");
+        }
+        parser.parseTraceString(traceStr, "test", -1);
+    }
+
+    /**
+     * Parse a log with explicit vector time values and implicit PIDs. That is,
+     * the PID value for each event instance is _inferred_.
      */
     @Test
-    public void parseVTimeImplicitPIDTest() throws ParseException,
-            InternalSynopticException {
+    public void parseVTimeImplicitPIDTest() throws ParseException {
         String traceStr = "1,0 a\n0,1 b\n2,1 c\n";
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
-        checkLogEventTypesVTimes(
+        checkLogEventTypesAndTimes(
                 parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1,0", "0,1", "2,1" },
                 stringsToDistEventTypes(new String[] { "a", "b", "c" },
-                        new String[] { "0", "1", "0" }));
+                        new String[] { "0", "1", "0" }), "VTIME");
         assertFalse(parser.logTimeTypeIsTotallyOrdered());
     }
 
@@ -517,9 +541,11 @@ public class TraceParserTests extends SynopticTest {
             InternalSynopticException {
         String traceStr = "1 a a\n2 b b\n3 c c\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>.+)$");
-        checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", -1),
+        checkLogEventTypesAndTimes(
+                parser.parseTraceString(traceStr, "test", -1),
                 new String[] { "1", "2", "3" },
-                stringsToStringEventTypes(new String[] { "a a", "b b", "c c" }));
+                stringsToStringEventTypes(new String[] { "a a", "b b", "c c" }),
+                "TIME");
     }
 
     /**
@@ -530,9 +556,10 @@ public class TraceParserTests extends SynopticTest {
             InternalSynopticException {
         String traceStr = "1 a\n2 b\n3 c\n";
         parser.addRegex("^(?<TIME>)(?<TYPE>)$");
-        checkLogEventTypesITimes(parser.parseTraceString(traceStr, "test", 2),
-                new String[] { "1", "2" },
-                stringsToStringEventTypes(new String[] { "a", "b" }));
+        checkLogEventTypesAndTimes(
+                parser.parseTraceString(traceStr, "test", 2), new String[] {
+                        "1", "2" }, stringsToStringEventTypes(new String[] {
+                        "a", "b" }), "TIME");
     }
 
     // ////////////////////////////
