@@ -19,7 +19,7 @@ import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
-import synoptic.invariants.miners.TransitiveClosureTOInvMiner;
+import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.TraceParser;
 import synoptic.model.EventNode;
 import synoptic.model.Graph;
@@ -187,7 +187,7 @@ public class SynopticService extends RemoteServiceServlet implements
         if (parser.logTimeTypeIsTotallyOrdered()) {
             miner = new ChainWalkingTOInvMiner();
         } else {
-            miner = new TransitiveClosureTOInvMiner();
+            miner = new TransitiveClosureInvMiner();
         }
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
         GWTInvariants invs = TemporalInvariantSetToGWTInvariants(minedInvs);
