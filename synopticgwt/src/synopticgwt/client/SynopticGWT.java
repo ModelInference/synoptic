@@ -2,6 +2,7 @@ package synopticgwt.client;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,7 @@ import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
@@ -70,7 +72,9 @@ public class SynopticGWT implements EntryPoint {
     private final Button parseLogButton = new Button("Parse Log");
 
     // Invariants tab widgets:
-    private final HorizontalPanel invariantsPanel = new HorizontalPanel();
+    private final VerticalPanel invariantsPanel = new VerticalPanel();
+    private final Set<Integer> invHashes = new HashSet<Integer>();
+    private final Button invRemoveButton = new Button("Remove Invariants");
 
     // Model tab widgets:
     private final DockPanel modelPanel = new DockPanel();
@@ -86,7 +90,7 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * A JSNI method to create and display an invariants graphic.
-     * 
+     *
      * @param AFby
      *            associative array with AFby relations
      * @param NFby
@@ -269,7 +273,7 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * A JSNI method to create and display a graph.
-     * 
+     *
      * @param nodes
      *            An array of nodes, each consecutive pair is a <id,label>
      * @param edges
@@ -325,7 +329,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method to update and display a refined graph, animating the
      * transition to a new layout.
-     * 
+     *
      * @param nodes
      *            An array of nodes, each consecutive pair is a <id,label>
      * @param edges
@@ -358,7 +362,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method for adding a String element to a java script array object.
      * (Yes, this is rather painful.)
-     * 
+     *
      * @param array
      *            Array object to add to
      * @param s
@@ -371,7 +375,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method for associating a key in an array to a value. (Yes, this is
      * rather painful.)
-     * 
+     *
      * @param array
      *            Array object to add to
      * @param key
@@ -388,7 +392,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method for adding a progress wheel to a div. (Yes, this is rather
      * painful.)
-     * 
+     *
      * @param radius
      *            size of the svg graphic / 2
      * @param r1
@@ -438,7 +442,7 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * Shows the GWTGraph object on the screen in the modelPanel
-     * 
+     *
      * @param graph
      * @throws Exception
      */
@@ -489,7 +493,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * Shows the refined GWTGraph object on the screen in the modelPanel,
      * animating transition to new positions
-     * 
+     *
      * @param graph
      *            the updated graph to display
      * @param refinedNode
@@ -525,7 +529,7 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * Shows the invariant graphic on the screen in the invariantsPanel
-     * 
+     *
      * @param graph
      */
     public void showInvariants(GWTInvariants gwtInvs) {
@@ -534,6 +538,12 @@ public class SynopticGWT implements EntryPoint {
         while (invariantsPanel.getWidgetCount() != 0) {
             invariantsPanel.remove(invariantsPanel.getWidget(0));
         }
+
+        HorizontalPanel buttonPanel = new HorizontalPanel();
+        invariantsPanel.add(buttonPanel);
+        buttonPanel.add(invRemoveButton);
+        buttonPanel.setStyleName("buttonPanel");
+        invRemoveButton.setWidth("188px");
 
         // Create and populate the panel with the invariants table.
         HorizontalPanel hPanel = new HorizontalPanel();
@@ -551,9 +561,9 @@ public class SynopticGWT implements EntryPoint {
         // Iterate through all invariants to (1) add them to the grid / table,
         // and (2) to create the JS objects for drawing the invariants graphic.
         for (String invType : invTypes) {
-            List<GWTPair<String, String>> invs = gwtInvs.getInvs(invType);
+            final List<GWTPair<String, String>> invs = gwtInvs.getInvs(invType);
 
-            Grid grid = new Grid(invs.size() + 1, 1);
+            final Grid grid = new Grid(invs.size() + 1, 1);
             hPanel.add(grid);
 
             grid.setWidget(0, 0, new Label(invType));
@@ -597,6 +607,39 @@ public class SynopticGWT implements EntryPoint {
             for (i = 1; i < grid.getRowCount(); i++) {
                 grid.getCellFormatter().setStyleName(i, 0, "tableCell");
             }
+
+            grid.addClickHandler(new ClickHandler() {
+            	@Override
+            	public void onClick(ClickEvent event) {
+            		HTMLTable.Cell cell = ((Grid)event.getSource()).getCellForEvent(event);
+            		int rowind = cell.getRowIndex();
+            		if (rowind > 0) {
+            			CellFormatter formatter = grid.getCellFormatter();
+            			String[] cellData = cell.getElement().getInnerText()
+            				.split(", ", 2);
+            			GWTPair<String, String> cellPair =
+            					new GWTPair<String, String>(cellData[0],
+            												cellData[1], 0);
+            			int pairIndex = invs.indexOf(cellPair);
+            			int hash = invs.get(pairIndex).hashCode();
+
+            			if (formatter.getStyleName(rowind, 0)
+            					.equals("tableCell")) {
+            				formatter.setStyleName(rowind, 0, "tableCellSelected");
+            				invHashes.add(hash);
+            				invRemoveButton.setEnabled(true);
+            			} else {
+            				formatter.setStyleName(rowind, 0, "tableCell");
+            				invHashes.remove(hash);
+
+            				if (invHashes.isEmpty()) {
+                				invRemoveButton.setEnabled(false);
+                			}
+            			}
+            		}
+            	}
+            });
+
         }
 
         // Show the invariant graphic.
@@ -604,7 +647,7 @@ public class SynopticGWT implements EntryPoint {
         HorizontalPanel invGraphicId = new HorizontalPanel();
         invGraphicId.getElement().setId(invCanvasId);
         invGraphicId.setStylePrimaryName("modelCanvas");
-        invariantsPanel.add(invGraphicId);
+        hPanel.add(invGraphicId);
 
         // A little magic to size things right.
         int lX = (longestEType * 30) / 2 - 60;
@@ -629,6 +672,17 @@ public class SynopticGWT implements EntryPoint {
         for (int i = 1; i < logLineTable.getRowCount(); i++) {
             logLineTable.removeRow(i);
         }
+    }
+
+    class RemoveInvariantsHandler implements ClickHandler {
+    	@Override
+    	public void onClick(ClickEvent event) {
+    		//keep the button from being click more than once
+    		invRemoveButton.setEnabled(false);
+
+    		synopticService.removeInvs(invHashes, new ParseLogAsyncCallback());
+    		invHashes.clear();
+    	}
     }
 
     /**
@@ -958,6 +1012,8 @@ public class SynopticGWT implements EntryPoint {
         modelRefineButton.addClickHandler(new RefineModelHandler());
         modelCoarsenButton.addClickHandler(new CoarsenModelHandler());
         modelGetFinalButton.addClickHandler(new GetFinalModelHandler());
+
+        invRemoveButton.addClickHandler(new RemoveInvariantsHandler());
 
         // Associate handler with the Parse Log button
         parseLogButton.addClickHandler(new ParseLogHandler());

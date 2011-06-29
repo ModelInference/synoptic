@@ -25,7 +25,7 @@ public class GWTGraph implements Serializable {
     }
 
     public void addEdge(Integer nodeID1, Integer nodeID2) {
-        edges.add(new GWTPair<Integer, Integer>(nodeID1, nodeID2));
+        edges.add(new GWTPair<Integer, Integer>(nodeID1, nodeID2, 0));
     }
 
     public HashMap<Integer, String> getNodes() {
