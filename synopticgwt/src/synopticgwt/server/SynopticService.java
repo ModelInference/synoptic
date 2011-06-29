@@ -1,6 +1,8 @@
 package synopticgwt.server;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -25,6 +27,7 @@ import synoptic.model.EventNode;
 import synoptic.model.Graph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
+import synoptic.model.export.GraphVizExporter;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
@@ -377,4 +380,23 @@ public class SynopticService extends RemoteServiceServlet implements
 
         return validLines;
     }
+
+    /**
+     * Exports the current model and downloads it as a .png
+     * and .dot file. Returns the filename/directory.
+     */
+    public String exportModel() throws Exception {
+    	retrieveSessionState();
+    	GraphVizExporter exporter = new GraphVizExporter();
+    	Calendar now = Calendar.getInstance();
+    	String filename = "userexport/"
+    		+ now.getTimeInMillis() + "exportmodel.dot";
+    	exporter.exportAsDotAndPngFast(filename, pGraph);
+    	File file = new File(filename + ".png");
+    	while (!file.exists()) {
+    		//file = new File(filename + ".png");
+    	}
+    	return filename;
+    }
+
 }

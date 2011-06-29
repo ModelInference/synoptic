@@ -30,4 +30,6 @@ public interface ISynopticService extends RemoteService {
     List<LogLine> handleLogRequest(int nodeID) throws Exception;
 
     GWTPair<GWTInvariants, GWTGraph> removeInvs(Set<Integer> hashes);
+
+    String exportModel() throws Exception;
 }

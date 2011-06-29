@@ -46,7 +46,8 @@ public class GraphVizExporter {
      */
     static final String[] dotCommands = { "/usr/bin/dot", "/usr/local/bin/dot",
             "C:\\Programme\\Graphviz2.26\\bin\\dot.exe",
-            "C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe" };
+            "C:\\Program Files (x86)\\Graphviz2.26.3\\bin\\dot.exe",
+            "C:\\Program Files\\Graphviz 2.28\\bin\\dot.exe" };
 
     /**
      * @return Returns the dot command executable or null on error
