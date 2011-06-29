@@ -1,9 +1,13 @@
 package synopticgwt.client;
 
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import synoptic.invariants.TemporalInvariantSet;
+import synoptic.model.EventNode;
+import synoptic.model.Graph;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariants;
@@ -24,4 +28,6 @@ public interface ISynopticServiceAsync {
     void handleLogRequest(int nodeID, AsyncCallback<List<LogLine>> callback)
             throws Exception;
 
+    void removeInvs(Set<Integer> hashes,
+    		AsyncCallback<GWTPair<GWTInvariants, GWTGraph>> callback);
 }

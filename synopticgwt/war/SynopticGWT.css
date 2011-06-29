@@ -44,6 +44,11 @@ h1 {
   background: #E8EDFF;
 }
 
+.tableCellSelected {
+  padding: 5px;
+  background: #FF1F1F;
+}
+
 .topTableCell {
   padding: 5px;
   border: 1px solid #000000;

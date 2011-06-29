@@ -34,7 +34,7 @@ import synopticgwt.shared.LogLine;
 
 /**
  * Implements the Synoptic service which does:
- * 
+ *
  * <pre>
  * - Log parsing
  * - Model refinement
@@ -85,7 +85,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
     /**
      * Converts a partition graph into a GWTGraph
-     * 
+     *
      * @param pGraph
      *            partition graph
      * @return Equivalent GWTGraph
@@ -126,7 +126,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
     /**
      * Converts a TemporalInvariantSet into GWTInvariants
-     * 
+     *
      * @param invs
      *            TemporalInvariantSet
      * @return Equivalent GWTInvariants
@@ -140,7 +140,8 @@ public class SynopticService extends RemoteServiceServlet implements
             if (inv instanceof BinaryInvariant) {
                 invVal = new GWTPair<String, String>(((BinaryInvariant) inv)
                         .getFirst().toString(), ((BinaryInvariant) inv)
-                        .getSecond().toString());
+                        .getSecond().toString(), ((BinaryInvariant) inv)
+                        .hashCode());
                 GWTinvs.addInv(invKey, invVal);
             } else {
                 // TODO: throw an exception
@@ -190,6 +191,42 @@ public class SynopticService extends RemoteServiceServlet implements
             miner = new TransitiveClosureInvMiner();
         }
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        return convertToGWT(minedInvs, inputGraph);
+    }
+
+    public GWTPair<GWTInvariants, GWTGraph> removeInvs(Set<Integer> hashes) {
+    	HttpServletRequest request = getThreadLocalRequest();
+        HttpSession session = request.getSession();
+
+        if (session.getAttribute("invariants") == null ||
+        		session.getAttribute("inputGraph") == null) {
+        	//TODO: Throw Appropriate Exception
+        }
+
+        TemporalInvariantSet invariants =
+        	(TemporalInvariantSet) session.getAttribute("invariants");
+        Graph<EventNode> inputGraph =
+        	(Graph<EventNode>) session.getAttribute("inputGraph");
+
+        //TODO: This is horribly inefficient.  Must fix.
+        for (int hash : hashes) {
+        	for (ITemporalInvariant inv : invariants) {
+        		if (((BinaryInvariant)inv).hashCode() == hash) {
+        			invariants.remove((BinaryInvariant)inv);
+        			break;
+        		}
+        	}
+        }
+
+        return convertToGWT(invariants, inputGraph);
+    }
+
+    /**
+     * Helper method for parseLog and removInvs methods
+     */
+    private GWTPair<GWTInvariants, GWTGraph> convertToGWT(TemporalInvariantSet minedInvs,
+    														Graph<EventNode> inputGraph) {
         GWTInvariants invs = TemporalInvariantSetToGWTInvariants(minedInvs);
 
         // Create a PartitionGraph and convert it into a GWTGraph.
@@ -207,11 +244,13 @@ public class SynopticService extends RemoteServiceServlet implements
         Set<ITemporalInvariant> unsatisfiedInvariants;
         unsatisfiedInvariants = new LinkedHashSet<ITemporalInvariant>();
         unsatisfiedInvariants.addAll(pGraph.getInvariants().getSet());
+        session.setAttribute("invariants", minedInvs);
+        session.setAttribute("inputGraph", inputGraph);
         session.setAttribute("unsatInvs", unsatisfiedInvariants);
         session.setAttribute("model", pGraph);
         session.setAttribute("numSplitSteps", 0);
 
-        return new GWTPair<GWTInvariants, GWTGraph>(invs, graph);
+        return new GWTPair<GWTInvariants, GWTGraph>(invs, graph, 0);
     }
 
     /**

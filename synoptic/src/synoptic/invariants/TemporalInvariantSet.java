@@ -40,7 +40,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 
     /**
      * Build an invariant set based on an existing invariant set.
-     * 
+     *
      * @param invariants
      */
     public TemporalInvariantSet(Set<ITemporalInvariant> invariants) {
@@ -59,6 +59,10 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
      */
     public int numInvariants() {
         return invariants.size();
+    }
+
+    public void remove(ITemporalInvariant invariant) {
+    	invariants.remove(invariant);
     }
 
     public void addAll(Collection<ITemporalInvariant> invariants) {
@@ -86,7 +90,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     /**
      * Returns a path that violates a specific invariant in a graph. Uses the
      * model checker designated by the Main.UseFSMChecker variable.
-     * 
+     *
      * @param <T>
      *            the type of nodes in graph g
      * @param inv
@@ -115,7 +119,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     /**
      * Returns a list of paths, each of which violates an invariant maintained
      * by this invariant set (i.e. each of which is a counter-example).
-     * 
+     *
      * @param <T>
      *            the type of nodes in graph g
      * @param graph
@@ -174,7 +178,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     /**
      * Returns the first counter-example encountered in the graph g. The order
      * of exploration is unspecified.
-     * 
+     *
      * @param <T>
      *            the node type
      * @param g
@@ -212,7 +216,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 
     /**
      * Tests whether two invariant sets are equivalent.
-     * 
+     *
      * @param set2
      *            the other set to test equality with.
      * @return true if the two sets are equal, false otherwise.
@@ -294,7 +298,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     /**
      * Outputs the set of invariants to a file -- one invariant per line, and
      * the set of invariants is canonically sorted.
-     * 
+     *
      * @param fileName
      *            The filename to use for outputting the invariants.
      * @throws FileNotFoundException
