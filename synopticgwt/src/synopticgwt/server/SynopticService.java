@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ import synoptic.model.EventNode;
 import synoptic.model.Graph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
+import synoptic.model.WeightedTransition;
 import synoptic.model.export.GraphVizExporter;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTGraph;

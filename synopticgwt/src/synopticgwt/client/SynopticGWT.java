@@ -73,7 +73,11 @@ public class SynopticGWT implements EntryPoint {
 
     // Invariants tab widgets:
     private final VerticalPanel invariantsPanel = new VerticalPanel();
-    private final Set<Integer> invHashes = new HashSet<Integer>();
+    private final HorizontalPanel invariantsButtonPanel = new HorizontalPanel();
+
+    // List of hash codes to be removed from the server's set of invariants.
+    // Each hash code represents a temporal invariant.
+    private final Set<Integer> invHashesForRemoval = new HashSet<Integer>();
     private final Button invRemoveButton = new Button("Remove Invariants");
 
     // Model tab widgets:
@@ -534,21 +538,18 @@ public class SynopticGWT implements EntryPoint {
      * @param graph
      */
     public void showInvariants(GWTInvariants gwtInvs) {
-        // Clear the invariants panel if it has any
-        // widgets (it only has one)
-        while (invariantsPanel.getWidgetCount() != 0) {
-            invariantsPanel.remove(invariantsPanel.getWidget(0));
+        // Clear the invariants panel if it has any non-button
+        // widgets (It has two.  One for buttons (zero), the other
+    	// for the grid and the invariants graphic (1)).
+    	if (invariantsPanel.getWidgetCount() > 1) {
+    		invariantsPanel.remove(invariantsPanel.getWidget(1));
+            assert (invariantsPanel.getWidgetCount() == 1);
         }
 
-        HorizontalPanel buttonPanel = new HorizontalPanel();
-        invariantsPanel.add(buttonPanel);
-        buttonPanel.add(invRemoveButton);
-        buttonPanel.setStyleName("buttonPanel");
-        invRemoveButton.setWidth("188px");
-
-        // Create and populate the panel with the invariants table.
-        HorizontalPanel hPanel = new HorizontalPanel();
-        invariantsPanel.add(hPanel);
+        // Create and populate the panel with the invariants grid and the
+        // invariants graphic.
+        HorizontalPanel gridAndGraphicPanel = new HorizontalPanel();
+        invariantsPanel.add(gridAndGraphicPanel);
 
         Set<String> invTypes = gwtInvs.getInvTypes();
         int eTypesCnt = 0;
@@ -565,7 +566,7 @@ public class SynopticGWT implements EntryPoint {
             final List<GWTPair<String, String>> invs = gwtInvs.getInvs(invType);
 
             final Grid grid = new Grid(invs.size() + 1, 1);
-            hPanel.add(grid);
+            gridAndGraphicPanel.add(grid);
 
             grid.setWidget(0, 0, new Label(invType));
             grid.getCellFormatter().setStyleName(0, 0, "topTableCell");
@@ -609,37 +610,8 @@ public class SynopticGWT implements EntryPoint {
                 grid.getCellFormatter().setStyleName(i, 0, "tableCell");
             }
 
-            grid.addClickHandler(new ClickHandler() {
-            	@Override
-            	public void onClick(ClickEvent event) {
-            		HTMLTable.Cell cell = ((Grid)event.getSource()).getCellForEvent(event);
-            		int rowind = cell.getRowIndex();
-            		if (rowind > 0) {
-            			CellFormatter formatter = grid.getCellFormatter();
-            			String[] cellData = cell.getElement().getInnerText()
-            				.split(", ", 2);
-            			GWTPair<String, String> cellPair =
-            					new GWTPair<String, String>(cellData[0],
-            												cellData[1], 0);
-            			int pairIndex = invs.indexOf(cellPair);
-            			int hash = invs.get(pairIndex).hashCode();
-
-            			if (formatter.getStyleName(rowind, 0)
-            					.equals("tableCell")) {
-            				formatter.setStyleName(rowind, 0, "tableCellSelected");
-            				invHashes.add(hash);
-            				invRemoveButton.setEnabled(true);
-            			} else {
-            				formatter.setStyleName(rowind, 0, "tableCell");
-            				invHashes.remove(hash);
-
-            				if (invHashes.isEmpty()) {
-                				invRemoveButton.setEnabled(false);
-                			}
-            			}
-            		}
-            	}
-            });
+            // Allow the user to toggle invariants on the grid.
+            addInvariantToggleHandler(grid, invs);
 
         }
 
@@ -648,7 +620,7 @@ public class SynopticGWT implements EntryPoint {
         HorizontalPanel invGraphicId = new HorizontalPanel();
         invGraphicId.getElement().setId(invCanvasId);
         invGraphicId.setStylePrimaryName("modelCanvas");
-        hPanel.add(invGraphicId);
+        gridAndGraphicPanel.add(invGraphicId);
 
         // A little magic to size things right.
         int lX = (longestEType * 30) / 2 - 60;
@@ -675,14 +647,20 @@ public class SynopticGWT implements EntryPoint {
         }
     }
 
+    /**
+     * Accesses the list of copies of server-side invariant hash codes and
+     * uses them to remove their corresponding server-side invariants.
+     * The client-side graph and invariants are then recalculated and redisplayed in
+     * the callback method.
+     */
     class RemoveInvariantsHandler implements ClickHandler {
     	@Override
     	public void onClick(ClickEvent event) {
-    		//keep the button from being click more than once
+    		// Keep the user from clicking the button multiple times.
     		invRemoveButton.setEnabled(false);
 
-    		synopticService.removeInvs(invHashes, new ParseLogAsyncCallback());
-    		invHashes.clear();
+    		synopticService.removeInvs(invHashesForRemoval, new ParseLogAsyncCallback());
+    		invHashesForRemoval.clear();
     	}
     }
 
@@ -888,6 +866,90 @@ public class SynopticGWT implements EntryPoint {
         }
     }
 
+
+    /**
+	 * This makes the grid clickable, so that, when clicked,
+	 * the grid's cell data will be looked up in the client-side set of invariants.
+	 * This client-side invariant then contains the server-side hashcode for the
+	 * corresponding server-side invariant.  This hash code is then queued up so that
+	 * each server-side hash code specifies a server-side invariant for removal.
+	 *
+	 * When a cell is "active" (highlighted in red), this means that it's corresponding
+	 * invariant is queued up to be removed at the click of the removal button.  When one
+	 * or more cells are active, then the removal button will also be activated.
+	 *
+	 * When a cell is deactivated (set back to the default blue color),
+	 * the corresponding invariant is removed from the queue.
+	 * If all cells are not active, the removal button will also be deactivated.
+	 *
+	 * @param invs
+	 * 	The set of client-side invariants
+	 * @param grid
+	 * 	The grid which will become clickable.
+	 */
+    private void addInvariantToggleHandler
+    	(final Grid grid, final List<GWTPair<String, String>> invs) {
+
+    	// Add the basic click handler to the graph.
+    	grid.addClickHandler(new ClickHandler() {
+
+    		// Add the aforementioned functionality to the click handler.
+    		@Override
+    		public void onClick(ClickEvent event) {
+
+    			// Specify which cell was clicked.
+        		HTMLTable.Cell cell = ((Grid)event.getSource()).getCellForEvent(event);
+
+        		// Check to see (from the row index), whether the cell clicked
+        		// is the top (zeroth) cell.  This shouldn't be activated, as it is the
+        		// column title.
+        		int cellRowIndex = cell.getRowIndex();
+        		if (cellRowIndex > 0) {
+        			// Extract the cell data from the grid's cell.
+        			// TODO: This is likely an ineffective way of doing this,
+        			// as the invariants on the left and right may not be separated by a
+        			// comma.
+        			String[] cellData = cell.getElement().getInnerText()
+        				.split(", ", 2);
+
+        			// Create an invariant to be looked up in the client-side list.
+        			GWTPair<String, String> pairFromCell =
+        					new GWTPair<String, String>(cellData[0],
+        												cellData[1], 0);
+        			int matchingIndex = invs.indexOf(pairFromCell);
+
+        			// Extract a copy of the server-side's invariant hash code.
+        			int serverHash = invs.get(matchingIndex).hashCode();
+
+        			// Check whether the cell is active (style of "tableCell")
+        			// or not (style of "tableCellSelected").
+        			CellFormatter formatter = grid.getCellFormatter();
+        			if (formatter.getStyleName(cellRowIndex, 0)
+        					.equals("tableCell")) {
+
+        				// Activate the cell and queue up the hash code.
+        				formatter.setStyleName(cellRowIndex, 0, "tableCellSelected");
+        				invHashesForRemoval.add(serverHash);
+
+        				// Activate the removal button
+        				invRemoveButton.setEnabled(true);
+        			} else {
+
+        				// Deactivate the cell and remove the hash code from the queue.
+        				formatter.setStyleName(cellRowIndex, 0, "tableCell");
+        				invHashesForRemoval.remove(serverHash);
+
+        				// Deactivate the removal button if there are no invariants
+        				// queued up.
+        				if (invHashesForRemoval.isEmpty()) {
+            				invRemoveButton.setEnabled(false);
+            			}
+        			}
+        		}
+        	}
+    	});
+    }
+
     /**
      * onSuccess\onFailure callback handler for coarsenOneStep()
      **/
@@ -1060,7 +1122,13 @@ public class SynopticGWT implements EntryPoint {
         modelGetFinalButton.addClickHandler(new GetFinalModelHandler());
         modelExportDownloadButton.addClickHandler(new ExportDownloadModelHandler());
 
+        // Set up invariants tab.
+        invariantsPanel.add(invariantsButtonPanel);
+        invariantsButtonPanel.add(invRemoveButton);
+        invariantsButtonPanel.setStyleName("buttonPanel");
         invRemoveButton.addClickHandler(new RemoveInvariantsHandler());
+        invRemoveButton.setWidth("188px");
+
 
         // Associate handler with the Parse Log button
         parseLogButton.addClickHandler(new ParseLogHandler());
