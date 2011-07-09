@@ -1,8 +1,8 @@
 /*
  * This code is in part based on Clemens Hammacher's code.
- * 
+ *
  * Source: https://ccs.hammacher.name
- * 
+ *
  * License: Eclipse Public License v1.0.
  */
 
@@ -83,7 +83,7 @@ public class GraphVizExporter {
     /**
      * Exports a dot file as a png image file. The png file will be created in
      * the same place as the dot file.
-     * 
+     *
      * @param dotFile
      *            dot file filename
      */
@@ -151,7 +151,7 @@ public class GraphVizExporter {
      * builds up a list of allTransitions that these nodes include, maintains a
      * nodeCnt (which is then returned), and also maintains the nodeToInt map.
      * All of these are also passed as arguments.
-     * 
+     *
      * @param <T>
      *            The node type in the graph being exported
      * @param writer
@@ -269,7 +269,7 @@ public class GraphVizExporter {
      * -- two isomorphic graphs will have equivalent dot outputs. The generated
      * Graphviz dot files may then be diff-ed to check if they represent the
      * same graphs.
-     * 
+     *
      * @param <T>
      *            Graph node type
      * @param writer

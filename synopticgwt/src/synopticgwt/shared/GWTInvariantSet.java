@@ -10,7 +10,7 @@ import java.util.Set;
  * An invariants object communicated between the Synoptic service and the GWT
  * client.
  */
-public class GWTInvariants implements Serializable {
+public class GWTInvariantSet implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -19,7 +19,7 @@ public class GWTInvariants implements Serializable {
      */
     public HashMap<String, List<GWTPair<String, String>>> invs;
 
-    public GWTInvariants() {
+    public GWTInvariantSet() {
         invs = new HashMap<String, List<GWTPair<String, String>>>();
     }
 

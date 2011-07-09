@@ -32,7 +32,7 @@ import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
-import synopticgwt.shared.GWTInvariants;
+import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.LogLine;
 
@@ -537,19 +537,18 @@ public class SynopticGWT implements EntryPoint {
      *
      * @param graph
      */
-    public void showInvariants(GWTInvariants gwtInvs) {
-        // Clear the invariants panel if it has any non-button
-        // widgets (It has two.  One for buttons (zero), the other
-    	// for the grid and the invariants graphic (1)).
+    public void showInvariants(GWTInvariantSet gwtInvs) {
+        // Clear the invariants panel of the non-button widget
+    	// (the horizontal panel for the table and graphics).
     	if (invariantsPanel.getWidgetCount() > 1) {
     		invariantsPanel.remove(invariantsPanel.getWidget(1));
             assert (invariantsPanel.getWidgetCount() == 1);
         }
 
-        // Create and populate the panel with the invariants grid and the
+        // Create and populate the panel with the invariants table and the
         // invariants graphic.
-        HorizontalPanel gridAndGraphicPanel = new HorizontalPanel();
-        invariantsPanel.add(gridAndGraphicPanel);
+        HorizontalPanel tableAndGraphicPanel = new HorizontalPanel();
+        invariantsPanel.add(tableAndGraphicPanel);
 
         Set<String> invTypes = gwtInvs.getInvTypes();
         int eTypesCnt = 0;
@@ -566,7 +565,7 @@ public class SynopticGWT implements EntryPoint {
             final List<GWTPair<String, String>> invs = gwtInvs.getInvs(invType);
 
             final Grid grid = new Grid(invs.size() + 1, 1);
-            gridAndGraphicPanel.add(grid);
+            tableAndGraphicPanel.add(grid);
 
             grid.setWidget(0, 0, new Label(invType));
             grid.getCellFormatter().setStyleName(0, 0, "topTableCell");
@@ -607,7 +606,7 @@ public class SynopticGWT implements EntryPoint {
 
             grid.setStyleName("invariantsGrid grid");
             for (i = 1; i < grid.getRowCount(); i++) {
-                grid.getCellFormatter().setStyleName(i, 0, "tableCell");
+                grid.getCellFormatter().setStyleName(i, 0, "tableButtonCell");
             }
 
             // Allow the user to toggle invariants on the grid.
@@ -620,7 +619,7 @@ public class SynopticGWT implements EntryPoint {
         HorizontalPanel invGraphicId = new HorizontalPanel();
         invGraphicId.getElement().setId(invCanvasId);
         invGraphicId.setStylePrimaryName("modelCanvas");
-        gridAndGraphicPanel.add(invGraphicId);
+        tableAndGraphicPanel.add(invGraphicId);
 
         // A little magic to size things right.
         int lX = (longestEType * 30) / 2 - 60;
@@ -650,17 +649,73 @@ public class SynopticGWT implements EntryPoint {
     /**
      * Accesses the list of copies of server-side invariant hash codes and
      * uses them to remove their corresponding server-side invariants.
-     * The client-side graph and invariants are then recalculated and redisplayed in
-     * the callback method.
+     * The client-side graph and invariants are then recalculated and redisplayed.
      */
     class RemoveInvariantsHandler implements ClickHandler {
     	@Override
     	public void onClick(ClickEvent event) {
+
     		// Keep the user from clicking the button multiple times.
     		invRemoveButton.setEnabled(false);
 
-    		synopticService.removeInvs(invHashesForRemoval, new ParseLogAsyncCallback());
+    		// Remove the invariants from the server based on
+    		// the hash code copies, then recalculate the graph
+    		// and invariants so they can be redrawn in their respective
+    		// panels.
+    		try {
+    			synopticService.removeInvs(invHashesForRemoval,
+    					new RemoveInvariantsAsyncCallback());
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
+    		// Since the invariants have been removed, the queue should be emptied.
     		invHashesForRemoval.clear();
+    	}
+    }
+
+    /**
+     * Callback method for removing user-specified invariants.
+     * Redraws the content in the model and invariants tab.
+     */
+    class RemoveInvariantsAsyncCallback
+    	implements AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
+
+    	/**
+    	 * Handles any general problems that may arise.
+    	 */
+    	@Override
+    	public void onFailure(Throwable caught) {
+            injectRPCError("Remote Procedure Call Failure while removing invariants");
+            parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
+    	}
+
+    	/**
+    	 * Redraws the model and invariants tabs.
+    	 */
+    	@Override
+    	public void onSuccess(GWTPair<GWTInvariantSet, GWTGraph> result) {
+
+            // Reset appropriate buttons.
+            parseLogButton.setEnabled(true);
+            tabPanel.selectTab(2);
+            modelRefineButton.setEnabled(true);
+            modelCoarsenButton.setEnabled(false);
+            modelGetFinalButton.setEnabled(true);
+            modelExportDownloadButton.setEnabled(true);
+
+            // Show the model graph.
+            GWTGraph graph = result.getRight();
+            showGraph(graph);
+
+            // Show the invariants table and graphics.
+            GWTInvariantSet gwtInvs = result.getLeft();
+            showInvariants(gwtInvs);
+
+            // An error occurs when the tabPanel stays
+            // in something other than the model tab when the graph is drawn,
+            // so the tab is switched to the graph for drawing, and then back to
+            // the invariants tab for now.
+            tabPanel.selectTab(1);
     	}
     }
 
@@ -726,7 +781,7 @@ public class SynopticGWT implements EntryPoint {
      * onSuccess\onFailure callback handler for parseLog()
      */
     class ParseLogAsyncCallback implements
-            AsyncCallback<GWTPair<GWTInvariants, GWTGraph>> {
+            AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
         @Override
         public void onFailure(Throwable caught) {
             injectRPCError("Remote Procedure Call Failure while parsing log");
@@ -735,7 +790,7 @@ public class SynopticGWT implements EntryPoint {
         }
 
         @Override
-        public void onSuccess(GWTPair<GWTInvariants, GWTGraph> result) {
+        public void onSuccess(GWTPair<GWTInvariantSet, GWTGraph> result) {
             // Create new tabs.
             tabPanel.add(invariantsPanel, "Invariants");
             tabPanel.add(modelPanel, "Model");
@@ -753,7 +808,7 @@ public class SynopticGWT implements EntryPoint {
             showGraph(graph);
 
             // Show the invariants table and graphics.
-            GWTInvariants gwtInvs = result.getLeft();
+            GWTInvariantSet gwtInvs = result.getLeft();
             showInvariants(gwtInvs);
 
         }
@@ -868,18 +923,17 @@ public class SynopticGWT implements EntryPoint {
 
 
     /**
-	 * This makes the grid clickable, so that, when clicked,
+	 * This makes the grid clickable, so that when clicked,
 	 * the grid's cell data will be looked up in the client-side set of invariants.
 	 * This client-side invariant then contains the server-side hashcode for the
 	 * corresponding server-side invariant.  This hash code is then queued up so that
 	 * each server-side hash code specifies a server-side invariant for removal.
 	 *
-	 * When a cell is "active" (highlighted in red), this means that it's corresponding
+	 * When a cell is "active," this means that it's corresponding
 	 * invariant is queued up to be removed at the click of the removal button.  When one
 	 * or more cells are active, then the removal button will also be activated.
 	 *
-	 * When a cell is deactivated (set back to the default blue color),
-	 * the corresponding invariant is removed from the queue.
+	 * When a cell is deactivated, the corresponding invariant is removed from the queue.
 	 * If all cells are not active, the removal button will also be deactivated.
 	 *
 	 * @param invs
@@ -921,11 +975,11 @@ public class SynopticGWT implements EntryPoint {
         			// Extract a copy of the server-side's invariant hash code.
         			int serverHash = invs.get(matchingIndex).hashCode();
 
-        			// Check whether the cell is active (style of "tableCell")
+        			// Check whether the cell is active (style of "tableButtonCell")
         			// or not (style of "tableCellSelected").
         			CellFormatter formatter = grid.getCellFormatter();
         			if (formatter.getStyleName(cellRowIndex, 0)
-        					.equals("tableCell")) {
+        					.equals("tableButtonCell")) {
 
         				// Activate the cell and queue up the hash code.
         				formatter.setStyleName(cellRowIndex, 0, "tableCellSelected");
@@ -936,7 +990,7 @@ public class SynopticGWT implements EntryPoint {
         			} else {
 
         				// Deactivate the cell and remove the hash code from the queue.
-        				formatter.setStyleName(cellRowIndex, 0, "tableCell");
+        				formatter.setStyleName(cellRowIndex, 0, "tableButtonCell");
         				invHashesForRemoval.remove(serverHash);
 
         				// Deactivate the removal button if there are no invariants
@@ -1128,7 +1182,7 @@ public class SynopticGWT implements EntryPoint {
         invariantsButtonPanel.setStyleName("buttonPanel");
         invRemoveButton.addClickHandler(new RemoveInvariantsHandler());
         invRemoveButton.setWidth("188px");
-
+        invRemoveButton.setEnabled(false);
 
         // Associate handler with the Parse Log button
         parseLogButton.addClickHandler(new ParseLogHandler());
