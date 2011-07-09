@@ -44,9 +44,24 @@ h1 {
   background: #E8EDFF;
 }
 
-.tableCellSelected {
+/* Shapes the cells of a grid to look like
+   buttons */
+.tableButtonCell {
+  border-style: outset;
+  border-width: 2px;
+  border-color: #CFD9FF;
   padding: 5px;
-  background: #FF1F1F;
+  background: #E8EDFF;
+}
+
+/* Changes the background color of a table cell to red to
+   indicate whether it has been selected. */
+.tableCellSelected {
+  border-style: inset;
+  border-width: 2px;
+  border-color: #CFD9FF;
+  padding: 5px;
+  background: #A1B5FF;
 }
 
 .topTableCell {

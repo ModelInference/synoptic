@@ -11,13 +11,13 @@ import synoptic.model.EventNode;
 import synoptic.model.Graph;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
-import synopticgwt.shared.GWTInvariants;
+import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.LogLine;
 
 @RemoteServiceRelativePath("synoptic")
 public interface ISynopticService extends RemoteService {
-    GWTPair<GWTInvariants, GWTGraph> parseLog(String logLines,
+    GWTPair<GWTInvariantSet, GWTGraph> parseLog(String logLines,
             List<String> regExps, String partitionRegExp, String separatorRegExp)
             throws Exception;
 
@@ -29,7 +29,7 @@ public interface ISynopticService extends RemoteService {
 
     List<LogLine> handleLogRequest(int nodeID) throws Exception;
 
-    GWTPair<GWTInvariants, GWTGraph> removeInvs(Set<Integer> hashes);
+    GWTPair<GWTInvariantSet, GWTGraph> removeInvs(Set<Integer> hashes) throws Exception;
 
     String exportModel() throws Exception;
 }
