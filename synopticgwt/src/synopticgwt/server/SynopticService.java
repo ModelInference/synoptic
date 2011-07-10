@@ -125,14 +125,14 @@ public class SynopticService extends RemoteServiceServlet implements
                 graph.addNode(pNodeId, pNode.getEType().toString());
             }
 
-            // Add all the edges corresponding to pNode to the GWTGraph
-            Set<Partition> adjacents = pGraph.getAdjacentNodes(pNode);
+            /* Get the list of adjacent nodes that have the current
+             * pNode as the source.
+             */
+            List<WeightedTransition<Partition>> adjacents =
+            		pNode.getWeightedTransitions();
 
-            //TODO: Remove this test code
-            List<WeightedTransition<Partition>> weightedTransitions =
-            	pNode.getWeightedTransitions();
-
-            for (Partition adjPNode : adjacents) {
+            for (WeightedTransition<Partition> wTransition : adjacents) {
+            	Partition adjPNode = wTransition.getTarget();
                 if (nodeIds.containsKey(adjPNode)) {
                     adjPNodeId = nodeIds.get(adjPNode);
                 } else {
@@ -141,6 +141,7 @@ public class SynopticService extends RemoteServiceServlet implements
                     graph.addNode(adjPNodeId, adjPNode.getEType().toString());
                 }
 
+                // Add the complete weighted edge
                 graph.addEdge(pNodeId, adjPNodeId);
             }
         }

@@ -8,18 +8,22 @@ public class GWTPair<L, R> implements Serializable {
 
     public L l;
     public R r;
-    private int hashCode;
+
+    // TODO: Move this to a separate datatype.
+    // Currently, this is a placeholder for something
+    // a separate GWTInvariant datatype should do.
+    private int iD;
 
     public GWTPair() {
         l = null;
         r = null;
-        this.hashCode = 0;
+        this.iD = 0;
     }
 
     public GWTPair(L left, R right, int hash) {
         l = left;
         r = right;
-        hashCode = hash;
+        iD = hash;
     }
 
     @Override
@@ -37,7 +41,7 @@ public class GWTPair<L, R> implements Serializable {
     }
 
     public int hashCode() {
-    	return hashCode;
+    	return iD;
     }
 
     public R getRight() {
