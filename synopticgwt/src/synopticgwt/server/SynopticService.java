@@ -33,8 +33,10 @@ import synoptic.model.export.GraphVizExporter;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
+import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
+import synopticgwt.shared.GWTTriplet;
 import synopticgwt.shared.LogLine;
 
 /**
@@ -133,7 +135,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
             for (WeightedTransition<Partition> wTransition : adjacents) {
             	Partition adjPNode = wTransition.getTarget();
-                if (nodeIds.containsKey(adjPNode)) {
+                if (nodeIds.containsKey(adjPNode.hashCode())) {
                     adjPNodeId = nodeIds.get(adjPNode);
                 } else {
                     adjPNodeId = adjPNode.hashCode();
@@ -142,7 +144,7 @@ public class SynopticService extends RemoteServiceServlet implements
                 }
 
                 // Add the complete weighted edge
-                graph.addEdge(pNodeId, adjPNodeId);
+                graph.addEdge(pNodeId, adjPNodeId, wTransition.getFraction());
             }
         }
         return graph;
@@ -160,12 +162,16 @@ public class SynopticService extends RemoteServiceServlet implements
         GWTInvariantSet GWTinvs = new GWTInvariantSet();
         for (ITemporalInvariant inv : invs) {
             String invKey = inv.getShortName();
-            GWTPair<String, String> invVal;
+            GWTInvariant<String, String> invVal;
             if (inv instanceof BinaryInvariant) {
-                invVal = new GWTPair<String, String>(((BinaryInvariant) inv)
+//                invVal = new GWTTriplet<String, String>(((BinaryInvariant) inv)
+//                        .getFirst().toString(), ((BinaryInvariant) inv)
+//                        .getSecond().toString(), ((BinaryInvariant) inv)
+//                        .hashCode());
+            	invVal = new GWTInvariant<String, String>(((BinaryInvariant) inv)
                         .getFirst().toString(), ((BinaryInvariant) inv)
                         .getSecond().toString(), ((BinaryInvariant) inv)
-                        .hashCode());
+                        .getShortName());
                 GWTinvs.addInv(invKey, invVal);
             } else {
                 // TODO: throw an exception
@@ -277,7 +283,7 @@ public class SynopticService extends RemoteServiceServlet implements
         session.setAttribute("model", pGraph);
         session.setAttribute("numSplitSteps", 0);
 
-        return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph, 0);
+        return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
     }
 
     /**

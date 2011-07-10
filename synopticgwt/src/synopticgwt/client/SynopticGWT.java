@@ -32,8 +32,10 @@ import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
+import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
+import synopticgwt.shared.GWTTriplet;
 import synopticgwt.shared.LogLine;
 
 /**
@@ -315,8 +317,9 @@ public class SynopticGWT implements EntryPoint {
 		}
 
 		// add each edge to graph
-		for ( var i = 0; i < edges.length; i += 2) {
-			g.addEdge(edges[i], edges[i + 1]);
+		for ( var i = 0; i < edges.length; i += 3) {
+			//first is source, second is target, third is weight for the label
+			g.addEdge(edges[i], edges[i + 1], {label : edges[i + 2]});
 		}
 
 		// give stable layout to graph elements
@@ -479,9 +482,12 @@ public class SynopticGWT implements EntryPoint {
 
         // Create the list of edges, where two consecutive node Ids is an edge.
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
-        List<GWTPair<Integer, Integer>> edges = graph.getEdges();
-        for (GWTPair<Integer, Integer> edge : edges) {
+        List<GWTTriplet<Integer, Integer, Double>> edges = graph.getEdges();
+        for (GWTTriplet<Integer, Integer, Double> edge : edges) {
             pushArray(jsEdges, edge.getLeft().toString());
+            pushArray(jsEdges, edge.getMiddle().toString());
+
+            //This contains the edge's weight
             pushArray(jsEdges, edge.getRight().toString());
         }
 
@@ -516,10 +522,10 @@ public class SynopticGWT implements EntryPoint {
         // Create the list of edges, where two consecutive node Ids is an edge.
         // JavaScriptObject newEdges = JavaScriptObject.createArray();
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
-        List<GWTPair<Integer, Integer>> edges = graph.getEdges();
-        for (GWTPair<Integer, Integer> edge : edges) {
+        List<GWTTriplet<Integer, Integer, Double>> edges = graph.getEdges();
+        for (GWTTriplet<Integer, Integer, Double> edge : edges) {
             pushArray(jsEdges, edge.getLeft().toString());
-            pushArray(jsEdges, edge.getRight().toString());
+            pushArray(jsEdges, edge.getMiddle().toString());
         }
 
         // Determine the size of the graphic -- make it depend on the current
@@ -562,7 +568,7 @@ public class SynopticGWT implements EntryPoint {
         // Iterate through all invariants to (1) add them to the grid / table,
         // and (2) to create the JS objects for drawing the invariants graphic.
         for (String invType : invTypes) {
-            final List<GWTPair<String, String>> invs = gwtInvs.getInvs(invType);
+            final List<GWTInvariant<String, String>> invs = gwtInvs.getInvs(invType);
 
             final Grid grid = new Grid(invs.size() + 1, 1);
             tableAndGraphicPanel.add(grid);
@@ -571,26 +577,26 @@ public class SynopticGWT implements EntryPoint {
             grid.getCellFormatter().setStyleName(0, 0, "topTableCell");
 
             int i = 1;
-            for (GWTPair<String, String> inv : invs) {
-                if (!eventTypes.contains(inv.getLeft())) {
-                    pushArray(eventTypesJS, inv.getLeft());
-                    eventTypes.add(inv.getLeft());
-                    if (inv.getLeft().length() > longestEType) {
-                        longestEType = inv.getLeft().length();
+            for (GWTInvariant<String, String> inv : invs) {
+                if (!eventTypes.contains(inv.getSource())) {
+                    pushArray(eventTypesJS, inv.getSource());
+                    eventTypes.add(inv.getSource());
+                    if (inv.getSource().length() > longestEType) {
+                        longestEType = inv.getSource().length();
                     }
                     eTypesCnt++;
                 }
-                if (!eventTypes.contains(inv.getRight())) {
-                    pushArray(eventTypesJS, inv.getRight());
-                    eventTypes.add(inv.getRight());
-                    if (inv.getRight().length() > longestEType) {
-                        longestEType = inv.getRight().length();
+                if (!eventTypes.contains(inv.getTarget())) {
+                    pushArray(eventTypesJS, inv.getTarget());
+                    eventTypes.add(inv.getTarget());
+                    if (inv.getTarget().length() > longestEType) {
+                        longestEType = inv.getTarget().length();
                     }
                     eTypesCnt++;
                 }
 
-                String x = inv.getLeft();
-                String y = inv.getRight();
+                String x = inv.getSource();
+                String y = inv.getTarget();
                 if (invType.equals("AFby")) {
                     addToKeyInArray(AFbyJS, x, y);
                 } else if (invType.equals("NFby")) {
@@ -600,7 +606,7 @@ public class SynopticGWT implements EntryPoint {
                 }
 
                 grid.setWidget(i, 0,
-                        new Label(inv.getLeft() + ", " + inv.getRight()));
+                        new Label(inv.getSource() + ", " + inv.getTarget()));
                 i += 1;
             }
 
@@ -942,7 +948,7 @@ public class SynopticGWT implements EntryPoint {
 	 * 	The grid which will become clickable.
 	 */
     private void addInvariantToggleHandler
-    	(final Grid grid, final List<GWTPair<String, String>> invs) {
+    	(final Grid grid, final List<GWTInvariant<String, String>> invs) {
 
     	// Add the basic click handler to the graph.
     	grid.addClickHandler(new ClickHandler() {
@@ -967,9 +973,9 @@ public class SynopticGWT implements EntryPoint {
         				.split(", ", 2);
 
         			// Create an invariant to be looked up in the client-side list.
-        			GWTPair<String, String> pairFromCell =
-        					new GWTPair<String, String>(cellData[0],
-        												cellData[1], 0);
+        			GWTInvariant<String, String> pairFromCell =
+        					new GWTInvariant<String, String>(cellData[0],
+        												cellData[1], "");
         			int matchingIndex = invs.indexOf(pairFromCell);
 
         			// Extract a copy of the server-side's invariant hash code.
