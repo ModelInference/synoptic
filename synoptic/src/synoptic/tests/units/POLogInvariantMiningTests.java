@@ -194,8 +194,82 @@ public class POLogInvariantMiningTests extends SynopticTest {
         trueInvs.add(new AlwaysPrecedesInvariant(a, c, R));
         trueInvs.add(new AlwaysPrecedesInvariant(a, b, R));
 
+        // NOTE: there are no concurrency invariants in this trace because all
+        // the concurrency invariants are subsumed... ??
+
         trueInvs.add(new AlwaysConcurrentInvariant(b, c, R));
         trueInvs.add(new NeverConcurrentInvariant(a, c, R));
+
+        assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * Tests a trace with a NeverConcurrentInvariant
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineNeverConcurrentTest() throws Exception {
+        TraceParser parser = newTraceParser();
+
+        String[] events = new String[] { "1,0 0 a", "0,1 1 b", "1,2 1 b",
+                "2,2 0 a", "1,3 1 b" };
+        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        logger.fine("mined: " + minedInvs.toString());
+
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        DistEventType a = new DistEventType("a", "0");
+        DistEventType b = new DistEventType("b", "1");
+        String R = SynopticTest.defRelation;
+
+        // Add the "eventually x" invariants.
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), a, R));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), b, R));
+
+        // NOTE: a AFby a and b AFby b are both false because we're dealing with
+        // finite traces.
+        trueInvs.add(new NeverConcurrentInvariant(a, b, R));
+
+        assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * Tests a trace with no NeverConcurrentInvariant
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineNoNeverConcurrentTest() throws Exception {
+        TraceParser parser = newTraceParser();
+        // Two b's before the two a's
+        // One b concurrent with the two a's
+        // Two b's after the two a's
+        String[] events = new String[] { "0,1 1 b", "0,2 1 b", "1,2 0 a",
+                "2,2 0 a", "0,3 1 b", "2,4 1 b", "2,5 1 b" };
+        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        logger.fine("mined: " + minedInvs.toString());
+
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        DistEventType a = new DistEventType("a", "0");
+        DistEventType b = new DistEventType("b", "1");
+        String R = SynopticTest.defRelation;
+
+        // Add the "eventually x" invariants.
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), a, R));
+        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
+                .NewInitialStringEventType(), b, R));
+
+        trueInvs.add(new AlwaysPrecedesInvariant(b, a, R));
+        trueInvs.add(new AlwaysFollowedInvariant(a, b, R));
 
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }

@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLTable;
+import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -28,7 +29,6 @@ import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
@@ -81,7 +81,8 @@ public class SynopticGWT implements EntryPoint {
     private final Button modelRefineButton = new Button("Refine");
     private final Button modelCoarsenButton = new Button("Coarsen");
     private final Button modelGetFinalButton = new Button("Final Model");
-    private final Button modelExportDownloadButton= new Button("Export/Download");
+    private final Button modelExportDownloadButton = new Button(
+            "Export/Download");
     private FlowPanel graphPanel;
     private FlexTable logLineTable;
 
@@ -91,7 +92,7 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * A JSNI method to create and display an invariants graphic.
-     *
+     * 
      * @param AFby
      *            associative array with AFby relations
      * @param NFby
@@ -274,7 +275,7 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * A JSNI method to create and display a graph.
-     *
+     * 
      * @param nodes
      *            An array of nodes, each consecutive pair is a <id,label>
      * @param edges
@@ -330,7 +331,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method to update and display a refined graph, animating the
      * transition to a new layout.
-     *
+     * 
      * @param nodes
      *            An array of nodes, each consecutive pair is a <id,label>
      * @param edges
@@ -363,7 +364,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method for adding a String element to a java script array object.
      * (Yes, this is rather painful.)
-     *
+     * 
      * @param array
      *            Array object to add to
      * @param s
@@ -376,7 +377,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * A JSNI method for associating a key in an array to a value. (Yes, this is
      * rather painful.)
-     *
+     * 
      * @param array
      *            Array object to add to
      * @param key
@@ -390,60 +391,12 @@ public class SynopticGWT implements EntryPoint {
 		array[key].push(val);
     }-*/;
 
-    /**
-     * A JSNI method for adding a progress wheel to a div. (Yes, this is rather
-     * painful.)
-     *
-     * @param radius
-     *            size of the svg graphic / 2
-     * @param r1
-     *            (smaller) inner radius of wheel
-     * @param r2
-     *            (larger) outter radius of wheel
-     */
-    private native static void addProgressWheel(String divHolder, int radius,
-            int r1, int r2) /*-{
-		var r = $wnd.Raphael($doc.getElementById(divHolder), radius * 2,
-				radius * 2);
-		var sectorsCount = 12;
-		var color = "#000";
-		var width = 1;
-		var cx = radius;
-		var cy = radius;
-		var sectors = [], opacity = [];
-		var beta = 2 * $wnd.Math.PI / sectorsCount,
-
-		pathParams = {
-			stroke : color,
-			"stroke-width" : width,
-			"stroke-linecap" : "round"
-		};
-
-		for ( var i = 0; i < sectorsCount; i++) {
-			var alpha = (beta * i);
-			var cos = $wnd.Math.cos(alpha);
-			var sin = $wnd.Math.sin(alpha);
-			opacity[i] = 1 / sectorsCount * i;
-
-			sectors[i] = r.path("M" + (cx + r1 * cos) + " " + (cy + r1 * sin)
-					+ "L" + (cx + r2 * cos) + " " + (cy + r2 * sin));
-			sectors[i].attr(pathParams);
-		}
-		(function ticker() {
-			opacity.unshift(opacity.pop());
-			for ( var i = 0; i < sectorsCount; i++) {
-				sectors[i].attr("opacity", opacity[i]);
-			}
-			$wnd.setTimeout(ticker, 1000 / sectorsCount);
-		})();
-    }-*/;
-
     // </JSNI methods>
     // //////////////////////////////////////////////////////////////////////////
 
     /**
      * Shows the GWTGraph object on the screen in the modelPanel
-     *
+     * 
      * @param graph
      * @throws Exception
      */
@@ -494,7 +447,7 @@ public class SynopticGWT implements EntryPoint {
     /**
      * Shows the refined GWTGraph object on the screen in the modelPanel,
      * animating transition to new positions
-     *
+     * 
      * @param graph
      *            the updated graph to display
      * @param refinedNode
@@ -530,7 +483,7 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * Shows the invariant graphic on the screen in the invariantsPanel
-     *
+     * 
      * @param graph
      */
     public void showInvariants(GWTInvariants gwtInvs) {
@@ -610,35 +563,36 @@ public class SynopticGWT implements EntryPoint {
             }
 
             grid.addClickHandler(new ClickHandler() {
-            	@Override
-            	public void onClick(ClickEvent event) {
-            		HTMLTable.Cell cell = ((Grid)event.getSource()).getCellForEvent(event);
-            		int rowind = cell.getRowIndex();
-            		if (rowind > 0) {
-            			CellFormatter formatter = grid.getCellFormatter();
-            			String[] cellData = cell.getElement().getInnerText()
-            				.split(", ", 2);
-            			GWTPair<String, String> cellPair =
-            					new GWTPair<String, String>(cellData[0],
-            												cellData[1], 0);
-            			int pairIndex = invs.indexOf(cellPair);
-            			int hash = invs.get(pairIndex).hashCode();
+                @Override
+                public void onClick(ClickEvent event) {
+                    HTMLTable.Cell cell = ((Grid) event.getSource())
+                            .getCellForEvent(event);
+                    int rowind = cell.getRowIndex();
+                    if (rowind > 0) {
+                        CellFormatter formatter = grid.getCellFormatter();
+                        String[] cellData = cell.getElement().getInnerText()
+                                .split(", ", 2);
+                        GWTPair<String, String> cellPair = new GWTPair<String, String>(
+                                cellData[0], cellData[1], 0);
+                        int pairIndex = invs.indexOf(cellPair);
+                        int hash = invs.get(pairIndex).hashCode();
 
-            			if (formatter.getStyleName(rowind, 0)
-            					.equals("tableCell")) {
-            				formatter.setStyleName(rowind, 0, "tableCellSelected");
-            				invHashes.add(hash);
-            				invRemoveButton.setEnabled(true);
-            			} else {
-            				formatter.setStyleName(rowind, 0, "tableCell");
-            				invHashes.remove(hash);
+                        if (formatter.getStyleName(rowind, 0).equals(
+                                "tableCell")) {
+                            formatter.setStyleName(rowind, 0,
+                                    "tableCellSelected");
+                            invHashes.add(hash);
+                            invRemoveButton.setEnabled(true);
+                        } else {
+                            formatter.setStyleName(rowind, 0, "tableCell");
+                            invHashes.remove(hash);
 
-            				if (invHashes.isEmpty()) {
-                				invRemoveButton.setEnabled(false);
-                			}
-            			}
-            		}
-            	}
+                            if (invHashes.isEmpty()) {
+                                invRemoveButton.setEnabled(false);
+                            }
+                        }
+                    }
+                }
             });
 
         }
@@ -676,14 +630,14 @@ public class SynopticGWT implements EntryPoint {
     }
 
     class RemoveInvariantsHandler implements ClickHandler {
-    	@Override
-    	public void onClick(ClickEvent event) {
-    		//keep the button from being click more than once
-    		invRemoveButton.setEnabled(false);
+        @Override
+        public void onClick(ClickEvent event) {
+            // keep the button from being click more than once
+            invRemoveButton.setEnabled(false);
 
-    		synopticService.removeInvs(invHashes, new ParseLogAsyncCallback());
-    		invHashes.clear();
-    	}
+            synopticService.removeInvs(invHashes, new ParseLogAsyncCallback());
+            invHashes.clear();
+        }
     }
 
     /**
@@ -790,7 +744,7 @@ public class SynopticGWT implements EntryPoint {
          */
         @Override
         public void onClick(ClickEvent event) {
-            // addProgressWheel("progressDiv", 10, 2, 7);
+
             modelRefineButton.setEnabled(false);
             modelExportDownloadButton.setEnabled(true);
             try {
@@ -808,6 +762,8 @@ public class SynopticGWT implements EntryPoint {
     class RefineOneStepAsyncCallback implements AsyncCallback<GWTGraphDelta> {
         @Override
         public void onFailure(Throwable caught) {
+            // timer.cancel();
+
             injectRPCError("Remote Procedure Call Failure while refining");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
             modelRefineButton.setEnabled(true);
@@ -815,6 +771,8 @@ public class SynopticGWT implements EntryPoint {
 
         @Override
         public void onSuccess(GWTGraphDelta graph) {
+            // timer.cancel();
+
             if (graph == null) {
                 modelCoarsenButton.setEnabled(true);
                 return;
@@ -907,42 +865,42 @@ public class SynopticGWT implements EntryPoint {
 
     /**
      * Used for handling Export/Download button clicks
+     * 
      * @author i3az0kimchi
-     *
      */
     class ExportDownloadModelHandler implements ClickHandler {
-    	@Override
-    	public void onClick(ClickEvent event) {
-    		try {
-    			synopticService.exportModel(new ExportDownloadModelAsyncCallback());
-    		} catch (Exception e) {
-    			// TODO Auto-generated catch block
-    			e.printStackTrace();
-    		}
-    	}
+        @Override
+        public void onClick(ClickEvent event) {
+            try {
+                synopticService
+                        .exportModel(new ExportDownloadModelAsyncCallback());
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
      * onSuccess/onFailure callback handler for exportModel()
-     * @author i3az0kimchi
-     * Opens new windows for the .dot and .png file of the current model
-     * if the operation was a success
+     * 
+     * @author i3az0kimchi Opens new windows for the .dot and .png file of the
+     *         current model if the operation was a success
      */
     class ExportDownloadModelAsyncCallback implements AsyncCallback<String> {
-    	@Override
-    	public void onFailure(Throwable caught) {
-    		injectRPCError("Remote Procedure Call Failure while exporting current model");
-    		parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
-    	}
+        @Override
+        public void onFailure(Throwable caught) {
+            injectRPCError("Remote Procedure Call Failure while exporting current model");
+            parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
+        }
 
-    	@Override
-    	public void onSuccess(String filename) {
-    		modelExportDownloadButton.setEnabled(false);
-    		Window.open("../" + filename, "DOT file", "");
-    		Window.open("../" + filename + ".png", "PNG file", "");
-    	}
+        @Override
+        public void onSuccess(String filename) {
+            modelExportDownloadButton.setEnabled(false);
+            Window.open("../" + filename, "DOT file", "");
+            Window.open("../" + filename + ".png", "PNG file", "");
+        }
     }
-
 
     /**
      * Entry point method.
@@ -1058,12 +1016,16 @@ public class SynopticGWT implements EntryPoint {
         modelRefineButton.addClickHandler(new RefineModelHandler());
         modelCoarsenButton.addClickHandler(new CoarsenModelHandler());
         modelGetFinalButton.addClickHandler(new GetFinalModelHandler());
-        modelExportDownloadButton.addClickHandler(new ExportDownloadModelHandler());
+        modelExportDownloadButton
+                .addClickHandler(new ExportDownloadModelHandler());
 
         invRemoveButton.addClickHandler(new RemoveInvariantsHandler());
 
         // Associate handler with the Parse Log button
         parseLogButton.addClickHandler(new ParseLogHandler());
+
+        // TODO
+        // addProgressWheel("progressDiv", 10, 2, 7);
     }
 
     /* Injects an error message at the top of the page when an RPC call fails */

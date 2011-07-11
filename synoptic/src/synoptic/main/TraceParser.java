@@ -323,7 +323,7 @@ public class TraceParser {
                     usingPID = true;
                 }
 
-                logger.info("group is : " + group);
+                // logger.info("group is : " + group);
 
                 if (validTimeGroups.contains(group)) {
                     if (regexTimeUsed != null) {
@@ -909,8 +909,8 @@ public class TraceParser {
         // that y < x.
         Map<EventNode, Set<EventNode>> directSuccessors = new LinkedHashMap<EventNode, Set<EventNode>>();
         for (List<EventNode> group : partitions.values()) {
-            logger.info("generating temp relation for partition: "
-                    + partitions.values().toString());
+            // logger.info("generating temp relation for partition: "
+            // + partitions.values().toString());
             for (EventNode e1 : group) {
                 // Find and set all direct successors of e1. In totally ordered
                 // case there is at most one direct successor, in partially

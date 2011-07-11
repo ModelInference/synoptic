@@ -37,7 +37,7 @@ import synopticgwt.shared.LogLine;
 
 /**
  * Implements the Synoptic service which does:
- *
+ * 
  * <pre>
  * - Log parsing
  * - Model refinement
@@ -88,7 +88,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
     /**
      * Converts a partition graph into a GWTGraph
-     *
+     * 
      * @param pGraph
      *            partition graph
      * @return Equivalent GWTGraph
@@ -129,7 +129,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
     /**
      * Converts a TemporalInvariantSet into GWTInvariants
-     *
+     * 
      * @param invs
      *            TemporalInvariantSet
      * @return Equivalent GWTInvariants
@@ -143,8 +143,8 @@ public class SynopticService extends RemoteServiceServlet implements
             if (inv instanceof BinaryInvariant) {
                 invVal = new GWTPair<String, String>(((BinaryInvariant) inv)
                         .getFirst().toString(), ((BinaryInvariant) inv)
-                        .getSecond().toString(), ((BinaryInvariant) inv)
-                        .hashCode());
+                        .getSecond().toString(),
+                        ((BinaryInvariant) inv).hashCode());
                 GWTinvs.addInv(invKey, invVal);
             } else {
                 // TODO: throw an exception
@@ -198,28 +198,29 @@ public class SynopticService extends RemoteServiceServlet implements
         return convertToGWT(minedInvs, inputGraph);
     }
 
+    @Override
     public GWTPair<GWTInvariants, GWTGraph> removeInvs(Set<Integer> hashes) {
-    	HttpServletRequest request = getThreadLocalRequest();
+        HttpServletRequest request = getThreadLocalRequest();
         HttpSession session = request.getSession();
 
-        if (session.getAttribute("invariants") == null ||
-        		session.getAttribute("inputGraph") == null) {
-        	//TODO: Throw Appropriate Exception
+        if (session.getAttribute("invariants") == null
+                || session.getAttribute("inputGraph") == null) {
+            // TODO: Throw Appropriate Exception
         }
 
-        TemporalInvariantSet invariants =
-        	(TemporalInvariantSet) session.getAttribute("invariants");
-        Graph<EventNode> inputGraph =
-        	(Graph<EventNode>) session.getAttribute("inputGraph");
+        TemporalInvariantSet invariants = (TemporalInvariantSet) session
+                .getAttribute("invariants");
+        Graph<EventNode> inputGraph = (Graph<EventNode>) session
+                .getAttribute("inputGraph");
 
-        //TODO: This is horribly inefficient.  Must fix.
+        // TODO: This is horribly inefficient. Must fix.
         for (int hash : hashes) {
-        	for (ITemporalInvariant inv : invariants) {
-        		if (((BinaryInvariant)inv).hashCode() == hash) {
-        			invariants.remove((BinaryInvariant)inv);
-        			break;
-        		}
-        	}
+            for (ITemporalInvariant inv : invariants) {
+                if (((BinaryInvariant) inv).hashCode() == hash) {
+                    invariants.remove(inv);
+                    break;
+                }
+            }
         }
 
         return convertToGWT(invariants, inputGraph);
@@ -228,8 +229,8 @@ public class SynopticService extends RemoteServiceServlet implements
     /**
      * Helper method for parseLog and removInvs methods
      */
-    private GWTPair<GWTInvariants, GWTGraph> convertToGWT(TemporalInvariantSet minedInvs,
-    														Graph<EventNode> inputGraph) {
+    private GWTPair<GWTInvariants, GWTGraph> convertToGWT(
+            TemporalInvariantSet minedInvs, Graph<EventNode> inputGraph) {
         GWTInvariants invs = TemporalInvariantSetToGWTInvariants(minedInvs);
 
         // Create a PartitionGraph and convert it into a GWTGraph.
@@ -382,21 +383,22 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Exports the current model and downloads it as a .png
-     * and .dot file. Returns the filename/directory.
+     * Exports the current model and downloads it as a .png and .dot file.
+     * Returns the filename/directory.
      */
+    @Override
     public String exportModel() throws Exception {
-    	retrieveSessionState();
-    	GraphVizExporter exporter = new GraphVizExporter();
-    	Calendar now = Calendar.getInstance();
-    	String filename = "userexport/"
-    		+ now.getTimeInMillis() + "exportmodel.dot";
-    	exporter.exportAsDotAndPngFast(filename, pGraph);
-    	File file = new File(filename + ".png");
-    	while (!file.exists()) {
-    		//file = new File(filename + ".png");
-    	}
-    	return filename;
+        retrieveSessionState();
+        GraphVizExporter exporter = new GraphVizExporter();
+        Calendar now = Calendar.getInstance();
+        String filename = "userexport/" + now.getTimeInMillis()
+                + "exportmodel.dot";
+        exporter.exportAsDotAndPngFast(filename, pGraph);
+        File file = new File(filename + ".png");
+        while (!file.exists()) {
+            // file = new File(filename + ".png");
+        }
+        return filename;
     }
 
 }
