@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -133,11 +132,17 @@ public class SynopticService extends RemoteServiceServlet implements
             List<WeightedTransition<Partition>> adjacents =
             		pNode.getWeightedTransitions();
 
+            // For every adjacent node, calculate the likelihood of the
+            // transition, and add that to the graph's edge.
             for (WeightedTransition<Partition> wTransition : adjacents) {
+            	// The current adjacent partition.
             	Partition adjPNode = wTransition.getTarget();
+
                 if (nodeIds.containsKey(adjPNode.hashCode())) {
-                    adjPNodeId = nodeIds.get(adjPNode);
+                	adjPNodeId = nodeIds.get(adjPNode);
                 } else {
+                	// Add the node to the graph so it can be connected
+                	// if it doesn't exist.
                     adjPNodeId = adjPNode.hashCode();
                     nodeIds.put(adjPNode, adjPNodeId);
                     graph.addNode(adjPNodeId, adjPNode.getEType().toString());
@@ -164,14 +169,13 @@ public class SynopticService extends RemoteServiceServlet implements
             String invKey = inv.getShortName();
             GWTInvariant<String, String> invVal;
             if (inv instanceof BinaryInvariant) {
-//                invVal = new GWTTriplet<String, String>(((BinaryInvariant) inv)
-//                        .getFirst().toString(), ((BinaryInvariant) inv)
-//                        .getSecond().toString(), ((BinaryInvariant) inv)
-//                        .hashCode());
             	invVal = new GWTInvariant<String, String>(((BinaryInvariant) inv)
                         .getFirst().toString(), ((BinaryInvariant) inv)
                         .getSecond().toString(), ((BinaryInvariant) inv)
                         .getShortName());
+
+            	// Set a unique identification id.
+            	invVal.setID(inv.hashCode());
                 GWTinvs.addInv(invKey, invVal);
             } else {
                 // TODO: throw an exception

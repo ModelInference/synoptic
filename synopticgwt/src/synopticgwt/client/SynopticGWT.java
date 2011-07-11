@@ -79,7 +79,7 @@ public class SynopticGWT implements EntryPoint {
 
     // List of hash codes to be removed from the server's set of invariants.
     // Each hash code represents a temporal invariant.
-    private final Set<Integer> invHashesForRemoval = new HashSet<Integer>();
+    private final Set<Integer> invariantRemovalIDs = new HashSet<Integer>();
     private final Button invRemoveButton = new Button("Remove Invariants");
 
     // Model tab widgets:
@@ -319,7 +319,11 @@ public class SynopticGWT implements EntryPoint {
 		// add each edge to graph
 		for ( var i = 0; i < edges.length; i += 3) {
 			//first is source, second is target, third is weight for the label
-			g.addEdge(edges[i], edges[i + 1], {label : edges[i + 2]});
+			g.addEdge(edges[i], edges[i + 1], {
+				label : edges[i + 2],
+//				stroke : "#bfa",
+//				fill : "#56f"
+			});
 		}
 
 		// give stable layout to graph elements
@@ -669,13 +673,13 @@ public class SynopticGWT implements EntryPoint {
     		// and invariants so they can be redrawn in their respective
     		// panels.
     		try {
-    			synopticService.removeInvs(invHashesForRemoval,
+    			synopticService.removeInvs(invariantRemovalIDs,
     					new RemoveInvariantsAsyncCallback());
     		} catch (Exception e) {
     			e.printStackTrace();
     		}
     		// Since the invariants have been removed, the queue should be emptied.
-    		invHashesForRemoval.clear();
+    		invariantRemovalIDs.clear();
     	}
     }
 
@@ -968,18 +972,20 @@ public class SynopticGWT implements EntryPoint {
         			// Extract the cell data from the grid's cell.
         			// TODO: This is likely an ineffective way of doing this,
         			// as the invariants on the left and right may not be separated by a
-        			// comma.
+        			// comma.  They also may have more than just a single comma in the
+        			// entire string.
         			String[] cellData = cell.getElement().getInnerText()
         				.split(", ", 2);
 
         			// Create an invariant to be looked up in the client-side list.
-        			GWTInvariant<String, String> pairFromCell =
+        			GWTInvariant<String, String> invFromCell =
         					new GWTInvariant<String, String>(cellData[0],
         												cellData[1], "");
-        			int matchingIndex = invs.indexOf(pairFromCell);
+        			int matchingIndex = invs.indexOf(invFromCell);
 
-        			// Extract a copy of the server-side's invariant hash code.
-        			int serverHash = invs.get(matchingIndex).hashCode();
+        			// Extract a copy of the server-side's invariant hash code
+        			// (the invariant's ID).
+        			int invID = invs.get(matchingIndex).getID();
 
         			// Check whether the cell is active (style of "tableButtonCell")
         			// or not (style of "tableCellSelected").
@@ -989,7 +995,7 @@ public class SynopticGWT implements EntryPoint {
 
         				// Activate the cell and queue up the hash code.
         				formatter.setStyleName(cellRowIndex, 0, "tableCellSelected");
-        				invHashesForRemoval.add(serverHash);
+        				invariantRemovalIDs.add(invID);
 
         				// Activate the removal button
         				invRemoveButton.setEnabled(true);
@@ -997,11 +1003,11 @@ public class SynopticGWT implements EntryPoint {
 
         				// Deactivate the cell and remove the hash code from the queue.
         				formatter.setStyleName(cellRowIndex, 0, "tableButtonCell");
-        				invHashesForRemoval.remove(serverHash);
+        				invariantRemovalIDs.remove(invID);
 
         				// Deactivate the removal button if there are no invariants
         				// queued up.
-        				if (invHashesForRemoval.isEmpty()) {
+        				if (invariantRemovalIDs.isEmpty()) {
             				invRemoveButton.setEnabled(false);
             			}
         			}
