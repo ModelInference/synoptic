@@ -388,17 +388,16 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     @Override
     public String exportModel() throws Exception {
-        retrieveSessionState();
-        GraphVizExporter exporter = new GraphVizExporter();
-        Calendar now = Calendar.getInstance();
-        String filename = "userexport/" + now.getTimeInMillis()
-                + "exportmodel.dot";
-        exporter.exportAsDotAndPngFast(filename, pGraph);
-        File file = new File(filename + ".png");
-        while (!file.exists()) {
-            // file = new File(filename + ".png");
-        }
-        return filename;
+    	retrieveSessionState();
+    	GraphVizExporter exporter = new GraphVizExporter();
+    	Calendar now = Calendar.getInstance();
+    	String filename = "userexport/"
+    		+ now.getTimeInMillis() + "exportmodel.dot";
+    	exporter.exportAsDotAndPngFast(filename, pGraph);
+    	File file = new File(filename + ".png");
+    	while (!file.exists()) {
+    	}
+    	return filename;
     }
 
 }
