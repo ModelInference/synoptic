@@ -31,5 +31,7 @@ public interface ISynopticService extends RemoteService {
 
     GWTPair<GWTInvariants, GWTGraph> removeInvs(Set<Integer> hashes);
 
-    String exportModel() throws Exception;
+    String exportDot() throws Exception;
+
+    String exportPng() throws Exception;
 }

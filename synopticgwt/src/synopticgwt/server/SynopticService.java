@@ -382,20 +382,30 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Exports the current model and downloads it as a .png
-     * and .dot file. Returns the filename/directory.
+     * Exports the current model as a .dot
+     * file. Returns the filename/directory.
      */
-    public String exportModel() throws Exception {
+    public String exportDot() throws Exception {
     	retrieveSessionState();
     	GraphVizExporter exporter = new GraphVizExporter();
     	Calendar now = Calendar.getInstance();
     	String filename = "userexport/"
     		+ now.getTimeInMillis() + "exportmodel.dot";
-    	exporter.exportAsDotAndPngFast(filename, pGraph);
-    	File file = new File(filename + ".png");
-    	while (!file.exists()) {
-    	}
+    	File filenamef = new File(filename);
+    	exporter.export(filenamef, pGraph);
     	return filename;
+    }
+
+    /**
+     * Exports the current model as a .png file.
+     * Returns the filename/directory.
+     */
+    public String exportPng() throws Exception {
+    	String filename = exportDot();
+    	File filenamef = new File(filename);
+    	GraphVizExporter exporter = new GraphVizExporter();
+    	exporter.exportPng(filenamef);
+    	return filename + ".png";
     }
 
 }

@@ -31,5 +31,7 @@ public interface ISynopticServiceAsync {
     void removeInvs(Set<Integer> hashes,
     		AsyncCallback<GWTPair<GWTInvariants, GWTGraph>> callback);
 
-    void exportModel(AsyncCallback<String> callback) throws Exception;
+    void exportDot(AsyncCallback<String> callback) throws Exception;
+
+    void exportPng(AsyncCallback<String> callback) throws Exception;
 }

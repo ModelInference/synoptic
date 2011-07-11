@@ -81,7 +81,9 @@ public class SynopticGWT implements EntryPoint {
     private final Button modelRefineButton = new Button("Refine");
     private final Button modelCoarsenButton = new Button("Coarsen");
     private final Button modelGetFinalButton = new Button("Final Model");
-    private final Button modelExportDownloadButton= new Button("Export/Download");
+    private final Button modelExportDotButton = new Button("Export DOT");
+    private final Button modelExportPngButton = new Button("Export PNG");
+    private final Button modelDownloadButton = new Button("Download");
     private FlowPanel graphPanel;
     private FlexTable logLineTable;
 
@@ -768,7 +770,6 @@ public class SynopticGWT implements EntryPoint {
             modelRefineButton.setEnabled(true);
             modelCoarsenButton.setEnabled(false);
             modelGetFinalButton.setEnabled(true);
-            modelExportDownloadButton.setEnabled(true);
 
             // Show the model graph.
             GWTGraph graph = result.getRight();
@@ -792,7 +793,6 @@ public class SynopticGWT implements EntryPoint {
         public void onClick(ClickEvent event) {
             // addProgressWheel("progressDiv", 10, 2, 7);
             modelRefineButton.setEnabled(false);
-            modelExportDownloadButton.setEnabled(true);
             try {
                 synopticService.refineOneStep(new RefineOneStepAsyncCallback());
             } catch (Exception e) {
@@ -837,7 +837,6 @@ public class SynopticGWT implements EntryPoint {
         public void onClick(ClickEvent event) {
             // Coarsening is a one-shot step at the moment.
             modelCoarsenButton.setEnabled(false);
-            modelExportDownloadButton.setEnabled(true);
             try {
                 synopticService
                         .coarsenOneStep(new CoarsenOneStepAsyncCallback());
@@ -877,7 +876,6 @@ public class SynopticGWT implements EntryPoint {
             modelRefineButton.setEnabled(false);
             modelCoarsenButton.setEnabled(false);
             modelGetFinalButton.setEnabled(false);
-            modelExportDownloadButton.setEnabled(true);
 
             try {
                 synopticService.getFinalModel(new GetFinalModelAsyncCallback());
@@ -905,16 +903,19 @@ public class SynopticGWT implements EntryPoint {
         }
     }
 
+    // String used for export/download of the model
+    private String currentfilename;
+
     /**
-     * Used for handling Export/Download button clicks
+     * Used for handling Export DOT button clicks
      * @author i3az0kimchi
      *
      */
-    class ExportDownloadModelHandler implements ClickHandler {
+    class ExportDotHandler implements ClickHandler {
     	@Override
     	public void onClick(ClickEvent event) {
     		try {
-    			synopticService.exportModel(new ExportDownloadModelAsyncCallback());
+    			synopticService.exportDot(new ExportDotAsyncCallback());
     		} catch (Exception e) {
     			// TODO Auto-generated catch block
     			e.printStackTrace();
@@ -923,12 +924,11 @@ public class SynopticGWT implements EntryPoint {
     }
 
     /**
-     * onSuccess/onFailure callback handler for exportModel()
+     * onSuccess/onFailure callback handler for exportDot()
      * @author i3az0kimchi
-     * Opens new windows for the .dot and .png file of the current model
-     * if the operation was a success
+     *
      */
-    class ExportDownloadModelAsyncCallback implements AsyncCallback<String> {
+    class ExportDotAsyncCallback implements AsyncCallback<String> {
     	@Override
     	public void onFailure(Throwable caught) {
     		injectRPCError("Remote Procedure Call Failure while exporting current model");
@@ -937,12 +937,62 @@ public class SynopticGWT implements EntryPoint {
 
     	@Override
     	public void onSuccess(String filename) {
-    		modelExportDownloadButton.setEnabled(false);
-    		Window.open("../" + filename, "DOT file", "");
-    		Window.open("../" + filename + ".png", "PNG file", "");
+    		currentfilename = filename;
+    		modelDownloadButton.setEnabled(true);
+    		//Window.open("../" + filename, "DOT file", "");
     	}
     }
 
+    /**
+     * Used for handling Export PNG button clicks
+     * @author i3az0kimchi
+     *
+     */
+    class ExportPngHandler implements ClickHandler {
+    	@Override
+    	public void onClick(ClickEvent event) {
+    		try {
+    			synopticService.exportPng(new ExportPngAsyncCallback());
+    		} catch (Exception e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    	}
+    }
+
+    /**
+     * onSuccess/onFailure callback handler for exportPng()
+     * @author i3az0kimchi
+     *
+     */
+    class ExportPngAsyncCallback implements AsyncCallback<String> {
+    	@Override
+    	public void onFailure(Throwable caught) {
+    		injectRPCError("Remote Procedure Call Failure while exporting current model");
+    		parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
+    	}
+
+    	@Override
+    	public void onSuccess(String filename) {
+    		currentfilename = filename;
+    		modelDownloadButton.setEnabled(true);
+    		//Window.open("../" + filename, "PNG file", "Enabled");
+    	}
+    }
+
+    /**
+     * Used for handling Download button clicks
+     * Opens a window containing the last export
+     * performed.
+     * @author i3az0kimchi
+     *
+     */
+    class DownloadModelHandler implements ClickHandler {
+    	@Override
+    	public void onClick(ClickEvent event) {
+    		Window.open("../" + currentfilename, "Current Model", "");
+    	}
+    }
 
     /**
      * Entry point method.
@@ -1007,17 +1057,26 @@ public class SynopticGWT implements EntryPoint {
         // Construct the Model panel.
 
         VerticalPanel controlsPanel = new VerticalPanel();
+
         HorizontalPanel buttonsPanel = new HorizontalPanel();
         buttonsPanel.add(modelRefineButton);
         buttonsPanel.add(modelCoarsenButton);
         buttonsPanel.add(modelGetFinalButton);
-        buttonsPanel.add(modelExportDownloadButton);
         modelRefineButton.setWidth("100px");
         modelCoarsenButton.setWidth("100px");
         modelGetFinalButton.setWidth("100px");
-        modelExportDownloadButton.setWidth("110px");
         buttonsPanel.setStyleName("buttonPanel");
         controlsPanel.add(buttonsPanel);
+
+        HorizontalPanel buttonsPanelTwo = new HorizontalPanel();
+        buttonsPanelTwo.add(modelExportDotButton);
+        buttonsPanelTwo.add(modelExportPngButton);
+        buttonsPanelTwo.add(modelDownloadButton);
+        modelExportDotButton.setWidth("100px");
+        modelExportPngButton.setWidth("100px");
+        modelDownloadButton.setWidth("100px");
+        buttonsPanelTwo.setStyleName("buttonPanel");
+        controlsPanel.add(buttonsPanelTwo);
 
         VerticalPanel logPanel = new VerticalPanel();
         logPanel.setWidth("300px");
@@ -1055,10 +1114,13 @@ public class SynopticGWT implements EntryPoint {
 
         // Coarsening is disabled until refinement is completed.
         modelCoarsenButton.setEnabled(false);
+        modelDownloadButton.setEnabled(false);
         modelRefineButton.addClickHandler(new RefineModelHandler());
         modelCoarsenButton.addClickHandler(new CoarsenModelHandler());
         modelGetFinalButton.addClickHandler(new GetFinalModelHandler());
-        modelExportDownloadButton.addClickHandler(new ExportDownloadModelHandler());
+        modelExportDotButton.addClickHandler(new ExportDotHandler());
+        modelExportPngButton.addClickHandler(new ExportPngHandler());
+        modelDownloadButton.addClickHandler(new DownloadModelHandler());
 
         invRemoveButton.addClickHandler(new RemoveInvariantsHandler());
 
