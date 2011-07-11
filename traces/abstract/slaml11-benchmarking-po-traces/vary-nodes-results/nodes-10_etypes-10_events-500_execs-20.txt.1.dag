@@ -1,0 +1,11 @@
+INFO: Using random seed: 1308359176913 
+INFO: Using the default partitions mapping regex: \k<FILE> 
+INFO: Parsing input files.. 
+INFO: Successfully parsed 10005 events from /Users/ivan/synoptic/trunk/traces/abstract/slaml11-benchmarking-po-traces/vary-nodes/nodes-10_etypes-10_events-500_execs-20.txt 
+INFO: Parsing took 790ms 
+INFO: Running Synoptic... 
+INFO: Generating inter-event temporal relation... 
+INFO: Generating temporal relation took 512ms 
+INFO: Mining invariants [synoptic.invariants.miners.DAGWalkingPOInvMiner].. 
+INFO: Mining took 917ms 
+INFO: Mined 95 invariants 
