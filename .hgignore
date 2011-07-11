@@ -1,0 +1,12 @@
+# Use the glob syntax:
+syntax: glob
+
+# Ignore directories with auto-generated files
+
+synoptic/bin/*
+synopticgwt/war/WEB-INF/*
+synopticgwt/www-test/*
+
+synopticgwt/war/synopticgwt.SynopticGWT.JUnit/*
+synopticgwt/war/synopticgwt/*
+synopticgwt/war/userexport/*
