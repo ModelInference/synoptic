@@ -13,6 +13,8 @@ public class GWTGraph implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public HashMap<Integer, String> nodeIdToLabel;
+
+    //The first int is the sourceID then the targetID, and then the edge weight.
     public List<GWTTriplet<Integer, Integer, Double>> edges;
 
     public GWTGraph() {
