@@ -394,7 +394,6 @@ public class SynopticService extends RemoteServiceServlet implements
     	exporter.exportAsDotAndPngFast(filename, pGraph);
     	File file = new File(filename + ".png");
     	while (!file.exists()) {
-    		//file = new File(filename + ".png");
     	}
     	return filename;
     }
