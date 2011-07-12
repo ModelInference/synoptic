@@ -103,12 +103,20 @@ public class GraphVizExporter {
         logger.info("Exporting graph to: " + dotFile.toString() + "."
                 + imageExt);
 
+        Process dotProcess;
         try {
-            Runtime.getRuntime().exec(execCommand);
+            dotProcess = Runtime.getRuntime().exec(execCommand);
         } catch (IOException e) {
             logger.severe("Could not run dotCommand '" + execCommand + "': "
                     + e.getMessage());
+            return;
         }
+        try {
+			dotProcess.waitFor();
+		} catch (InterruptedException e) {
+			logger.severe("Waiting for dot process interrupted '" + execCommand + "': "
+                    + e.getMessage());
+		}
     }
 
     private <T extends INode<T>> void export(final Writer writer,
