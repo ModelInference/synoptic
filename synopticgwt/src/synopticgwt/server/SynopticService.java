@@ -1,6 +1,7 @@
 package synopticgwt.server;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -148,8 +149,11 @@ public class SynopticService extends RemoteServiceServlet implements
                     graph.addNode(adjPNodeId, adjPNode.getEType().toString());
                 }
 
+                // Truncate the last three digits to make the weight more readable
+                Double transitionFrac = Math.ceil(wTransition.getFraction()*1000)/1000;
+
                 // Add the complete weighted edge
-                graph.addEdge(pNodeId, adjPNodeId, wTransition.getFraction());
+                graph.addEdge(pNodeId, adjPNodeId, transitionFrac);
             }
         }
         return graph;
