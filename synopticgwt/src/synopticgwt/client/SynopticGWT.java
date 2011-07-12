@@ -932,8 +932,8 @@ public class SynopticGWT implements EntryPoint {
     	}
 
     	@Override
-    	public void onSuccess(String filename) {
-    		Window.open("../" + filename, "DOT file", "");
+    	public void onSuccess(String fileString) {
+    		Window.open("../" + fileString, "DOT file", "Enabled");
     	}
     }
 
@@ -967,8 +967,8 @@ public class SynopticGWT implements EntryPoint {
     	}
 
     	@Override
-    	public void onSuccess(String filename) {
-    		Window.open("../" + filename, "PNG file", "Enabled");
+    	public void onSuccess(String fileString) {
+    		Window.open("../" + fileString, "PNG file", "Enabled");
     	}
     }
 
