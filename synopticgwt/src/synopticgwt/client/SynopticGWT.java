@@ -86,9 +86,11 @@ public class SynopticGWT implements EntryPoint {
     private FlowPanel graphPanel;
     private FlexTable logLineTable;
 
+    private ProgressWheel pWheel;
+
     // //////////////////////////////////////////////////////////////////////////
     // JSNI methods -- JavaScript Native Interface methods. The method body of
-    // this calls is pure JavaScript.
+    // these calls is pure JavaScript.
 
     /**
      * A JSNI method to create and display an invariants graphic.
@@ -744,7 +746,7 @@ public class SynopticGWT implements EntryPoint {
          */
         @Override
         public void onClick(ClickEvent event) {
-
+            pWheel.startAnimation();
             modelRefineButton.setEnabled(false);
             modelExportDownloadButton.setEnabled(true);
             try {
@@ -762,8 +764,7 @@ public class SynopticGWT implements EntryPoint {
     class RefineOneStepAsyncCallback implements AsyncCallback<GWTGraphDelta> {
         @Override
         public void onFailure(Throwable caught) {
-            // timer.cancel();
-
+            pWheel.stopAnimation();
             injectRPCError("Remote Procedure Call Failure while refining");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
             modelRefineButton.setEnabled(true);
@@ -771,8 +772,7 @@ public class SynopticGWT implements EntryPoint {
 
         @Override
         public void onSuccess(GWTGraphDelta graph) {
-            // timer.cancel();
-
+            pWheel.stopAnimation();
             if (graph == null) {
                 modelCoarsenButton.setEnabled(true);
                 return;
@@ -793,6 +793,7 @@ public class SynopticGWT implements EntryPoint {
          */
         @Override
         public void onClick(ClickEvent event) {
+            pWheel.startAnimation();
             // Coarsening is a one-shot step at the moment.
             modelCoarsenButton.setEnabled(false);
             modelExportDownloadButton.setEnabled(true);
@@ -812,12 +813,14 @@ public class SynopticGWT implements EntryPoint {
     class CoarsenOneStepAsyncCallback implements AsyncCallback<GWTGraph> {
         @Override
         public void onFailure(Throwable caught) {
+            pWheel.stopAnimation();
             injectRPCError("Remote Procedure Call Failure while coarsening");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
         }
 
         @Override
         public void onSuccess(GWTGraph graph) {
+            pWheel.stopAnimation();
             tabPanel.selectTab(2);
             showGraph(graph);
         }
@@ -832,6 +835,7 @@ public class SynopticGWT implements EntryPoint {
          */
         @Override
         public void onClick(ClickEvent event) {
+            pWheel.startAnimation();
             modelRefineButton.setEnabled(false);
             modelCoarsenButton.setEnabled(false);
             modelGetFinalButton.setEnabled(false);
@@ -852,12 +856,14 @@ public class SynopticGWT implements EntryPoint {
     class GetFinalModelAsyncCallback implements AsyncCallback<GWTGraph> {
         @Override
         public void onFailure(Throwable caught) {
+            pWheel.stopAnimation();
             injectRPCError("Remote Procedure Call Failure while fetching final model");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
         }
 
         @Override
         public void onSuccess(GWTGraph graph) {
+            pWheel.stopAnimation();
             tabPanel.selectTab(2);
             showGraph(graph);
         }
@@ -871,6 +877,7 @@ public class SynopticGWT implements EntryPoint {
     class ExportDownloadModelHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
+            pWheel.startAnimation();
             try {
                 synopticService
                         .exportModel(new ExportDownloadModelAsyncCallback());
@@ -890,12 +897,14 @@ public class SynopticGWT implements EntryPoint {
     class ExportDownloadModelAsyncCallback implements AsyncCallback<String> {
         @Override
         public void onFailure(Throwable caught) {
+            pWheel.stopAnimation();
             injectRPCError("Remote Procedure Call Failure while exporting current model");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
         }
 
         @Override
         public void onSuccess(String filename) {
+            pWheel.stopAnimation();
             modelExportDownloadButton.setEnabled(false);
             Window.open("../" + filename, "DOT file", "");
             Window.open("../" + filename + ".png", "PNG file", "");
@@ -1024,14 +1033,17 @@ public class SynopticGWT implements EntryPoint {
         // Associate handler with the Parse Log button
         parseLogButton.addClickHandler(new ParseLogHandler());
 
-        // TODO
-        // addProgressWheel("progressDiv", 10, 2, 7);
+        // Create a new progress wheel object, and associate it with the
+        // progressWheelDiv container.
+        pWheel = new ProgressWheel("progressWheelDiv",
+                RootPanel.get("progressWheelDiv"));
+
     }
 
     /* Injects an error message at the top of the page when an RPC call fails */
     public void injectRPCError(String message) {
         Label error = new Label(message);
         error.setStyleName("ErrorMessage");
-        RootPanel.get("progressDiv").add(error);
+        RootPanel.get("rpcErrorDiv").add(error);
     }
 }

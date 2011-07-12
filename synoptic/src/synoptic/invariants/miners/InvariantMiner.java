@@ -166,6 +166,7 @@ public abstract class InvariantMiner {
      * @param gEventCnts
      * @param gFollowedByCnts
      * @param gPrecedesCnts
+     * @param gEventConditionalCnts
      * @return
      */
     protected TemporalInvariantSet extractConcurrencyInvariantsFromWalkCounts(
@@ -173,7 +174,7 @@ public abstract class InvariantMiner {
             LinkedHashMap<EventType, Integer> gEventCnts,
             LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gFollowedByCnts,
             LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gPrecedesCnts,
-            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> traceCoOccurrenceCnts) {
+            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gEventConditionalCnts) {
 
         Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
@@ -182,13 +183,13 @@ public abstract class InvariantMiner {
 
         logger.info("gFollowedByCnts: " + gFollowedByCnts.toString());
         logger.info("gPrecedesCnts: " + gPrecedesCnts.toString());
-        logger.info("traceCoOccurrenceCnts: "
-                + traceCoOccurrenceCnts.toString());
+        logger.info("gEventConditionalCnts: "
+                + gEventConditionalCnts.toString());
 
         for (EventType e1 : gEventCnts.keySet()) {
             // We don't consider (e1, e1) as these would only generate local
             // invariants, and we do not consider (e1,e2) if we've already
-            // considered (e2,e1).
+            // considered (e2,e1) as distributed invariants are symmetric.
             toVisitETypes.remove(e1);
 
             for (EventType e2 : toVisitETypes) {
@@ -236,32 +237,38 @@ public abstract class InvariantMiner {
                 // + Internae1_fby_e2 e1_p_e2, e2_fby_e1, e2_p_e1)
 
                 if (e1_fby_e2 == 0 && e2_fby_e1 == 0) {
-                    // Potential concurrency if e1 and e2 _ever_ co-appeared in
-                    // the same trace.
-                    if ((traceCoOccurrenceCnts.containsKey(e1) && traceCoOccurrenceCnts
+                    // That is, e1 NFby e2 && e2 NFby e1 means that e1 and e2
+                    // are concurrent if they _ever_ co-appeared in the same
+                    // trace.
+                    if ((gEventConditionalCnts.containsKey(e1) && gEventConditionalCnts
                             .get(e1).containsKey(e2))
-                            || (traceCoOccurrenceCnts.containsKey(e2) && traceCoOccurrenceCnts
+                            || (gEventConditionalCnts.containsKey(e2) && gEventConditionalCnts
                                     .get(e2).containsKey(e1))) {
                         invariants.add(new AlwaysConcurrentInvariant(
                                 (DistEventType) e1, (DistEventType) e2,
                                 relation));
                     }
-                } else if (e1_fby_e2 == e1_p_e2 && e2_fby_e1 == e2_p_e1) {
-                    // Potential lack of concurrency if e1 and e2 _always_
-                    // co-appeared in the same trace.
-                    int e1_cooccur_e2 = 0;
-                    if (traceCoOccurrenceCnts.containsKey(e1)
-                            && traceCoOccurrenceCnts.get(e1).containsKey(e2)) {
-                        e1_cooccur_e2 = traceCoOccurrenceCnts.get(e1).get(e2);
-                    } else if (traceCoOccurrenceCnts.containsKey(e2)
-                            && traceCoOccurrenceCnts.get(e2).containsKey(e1)) {
-                        e1_cooccur_e2 = traceCoOccurrenceCnts.get(e2).get(e1);
-                    }
-                    if (e1_cooccur_e2 == (e1_fby_e2 + e2_fby_e1)) {
-                        // Definite lack of concurrency.
-                        invariants.add(new NeverConcurrentInvariant(
-                                (DistEventType) e1, (DistEventType) e2,
-                                relation));
+                } else if (e1_fby_e2 != 0 || e2_fby_e1 != 0) {
+                    // e1 was ordered with e2 or e2 was ordered with e1 at least
+                    // once. Now we need to check whether they were _always_
+                    // ordered w.r.t each other whenever they co-appeared in the
+                    // same trace.
+
+                    int e2_p_e1_fby_e2 = 0;
+                    int e1_p_e2_fby_e1 = 0;
+
+                    if (e1_fby_e2 + e2_p_e1 - e2_p_e1_fby_e2 == gEventConditionalCnts
+                            .get(e2).get(e1)) {
+                        // e1 was always ordered w.r.t e2
+                        if (e2_fby_e1 + e1_p_e2 - e1_p_e2_fby_e1 == gEventConditionalCnts
+                                .get(e1).get(e2)) {
+                            // e2 was always ordered w.r.t e1
+
+                            invariants.add(new NeverConcurrentInvariant(
+                                    (DistEventType) e1, (DistEventType) e2,
+                                    relation));
+                        }
+
                     }
                 }
             }

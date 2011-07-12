@@ -1,20 +1,43 @@
 package synopticgwt.client;
 
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.RootPanel;
 
+/**
+ * Animates a spinning wheel to indicate progress, or some kind of activity.
+ * 
+ * @author ivan
+ */
 public class ProgressWheel {
-    public void start() {
+    // Timer controling the pace of the animation.
+    private final Timer timer;
+    // The div containing the animation.
+    private final RootPanel divPanel;
+
+    public ProgressWheel(String divPanelId, RootPanel divPanel) {
+        this(divPanelId, divPanel, 10, 2, 7);
+    }
+
+    public ProgressWheel(String divPanelId, RootPanel divPanel, int radius,
+            int r1, int r2) {
+        // Add the progress wheel to the div.
+        addProgressWheel(divPanelId, radius, r1, r2);
+
+        this.divPanel = divPanel;
+
+        // Create the timer, but don't schedule it.
         timer = new Timer() {
             @Override
             public void run() {
                 animateProgressWheel();
             }
         };
-        timer.scheduleRepeating(100);
-
+        divPanel.setVisible(false);
     }
 
-    private Timer timer;
+    // //////////////////////////////////////////////////////////////////////////
+    // JSNI methods -- JavaScript Native Interface methods. The method body of
+    // these calls is pure JavaScript.
 
     private native static void animateProgressWheel() /*-{
 		$wnd.opacity.unshift($wnd.opacity.pop());
@@ -34,9 +57,9 @@ public class ProgressWheel {
      * @param r2
      *            (larger) outter radius of wheel
      */
-    private native static void addProgressWheel(String divHolder, int radius,
+    private native static void addProgressWheel(String divPanelId, int radius,
             int r1, int r2) /*-{
-		var r = $wnd.Raphael($doc.getElementById(divHolder), radius * 2,
+		var r = $wnd.Raphael($doc.getElementById(divPanelId), radius * 2,
 				radius * 2);
 		r.clear();
 		$wnd.sectorsCount = 12;
@@ -67,4 +90,22 @@ public class ProgressWheel {
 		}
     }-*/;
 
+    // </JSNI methods>
+    // //////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Starts the wheel animation.
+     */
+    public void startAnimation() {
+        divPanel.setVisible(true);
+        timer.scheduleRepeating(100);
+    }
+
+    /**
+     * Stops the wheel animation.
+     */
+    public void stopAnimation() {
+        timer.cancel();
+        divPanel.setVisible(false);
+    }
 }
