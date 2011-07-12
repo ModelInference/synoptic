@@ -5,19 +5,16 @@ import java.util.Set;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import synoptic.invariants.TemporalInvariantSet;
-import synoptic.model.EventNode;
-import synoptic.model.Graph;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
-import synopticgwt.shared.GWTInvariants;
+import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.LogLine;
 
 public interface ISynopticServiceAsync {
     void parseLog(String logLines, List<String> regExps,
             String partitionRegExp, String separatorRegExp,
-            AsyncCallback<GWTPair<GWTInvariants, GWTGraph>> callback);
+            AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> callback);
 
     void refineOneStep(AsyncCallback<GWTGraphDelta> callback) throws Exception;
 
@@ -29,7 +26,7 @@ public interface ISynopticServiceAsync {
             throws Exception;
 
     void removeInvs(Set<Integer> hashes,
-    		AsyncCallback<GWTPair<GWTInvariants, GWTGraph>> callback);
+    		AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> callback) throws Exception;
 
     void exportDot(AsyncCallback<String> callback) throws Exception;
 
