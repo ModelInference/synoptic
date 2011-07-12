@@ -8,7 +8,7 @@ public class GWTPair<L, R> implements Serializable {
 
     public L l;
     public R r;
-    private final int hashCode;
+    private int hashCode;
 
     public GWTPair() {
         l = null;
@@ -38,10 +38,7 @@ public class GWTPair<L, R> implements Serializable {
 
     @Override
     public int hashCode() {
-        // int result = AlwaysFollowedInvariant.class.hashCode();
-
         return hashCode;
-
     }
 
     public R getRight() {
