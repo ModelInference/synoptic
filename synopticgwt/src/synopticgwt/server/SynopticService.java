@@ -48,11 +48,15 @@ public class SynopticService extends RemoteServiceServlet implements
         ISynopticService {
 
     private static final long serialVersionUID = 1L;
+    // The directory in which files are currently exported to.
+    private static final String userExport = "userexport/";
 
     // Variables corresponding to session state.
     private PartitionGraph pGraph;
     private Integer numSplitSteps;
     private Set<ITemporalInvariant> unsatisfiedInvariants;
+    // Used for exporting files.
+    private GraphVizExporter exporter = new GraphVizExporter();
 
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods.
@@ -387,13 +391,13 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     public String exportDot() throws Exception {
     	retrieveSessionState();
-    	GraphVizExporter exporter = new GraphVizExporter();
     	Calendar now = Calendar.getInstance();
-    	String filename = "userexport/"
+    	// Naming convention for the file can be improved
+    	String fileString = userExport
     		+ now.getTimeInMillis() + "exportmodel.dot";
-    	File filenamef = new File(filename);
-    	exporter.export(filenamef, pGraph);
-    	return filename;
+    	File fileName = new File(fileString);
+    	exporter.export(fileName, pGraph);
+    	return fileString;
     }
 
     /**
@@ -401,11 +405,10 @@ public class SynopticService extends RemoteServiceServlet implements
      * Returns the filename/directory.
      */
     public String exportPng() throws Exception {
-    	String filename = exportDot();
-    	File filenamef = new File(filename);
-    	GraphVizExporter exporter = new GraphVizExporter();
-    	exporter.exportPng(filenamef);
-    	return filename + ".png";
+    	String fileString = exportDot();
+    	File fileName = new File(fileString);
+    	exporter.exportPng(fileName);
+    	return fileString + ".png";
     }
 
 }
