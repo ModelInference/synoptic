@@ -712,7 +712,6 @@ public class SynopticGWT implements EntryPoint {
             modelRefineButton.setEnabled(true);
             modelCoarsenButton.setEnabled(false);
             modelGetFinalButton.setEnabled(true);
-            modelExportDownloadButton.setEnabled(true);
 
             // Show the model graph.
             GWTGraph graph = result.getRight();
