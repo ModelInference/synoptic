@@ -57,6 +57,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
     /** a cache of inter-partition transitions */
     public final LinkedHashMap<Partition, Set<Partition>> transitionCache = new LinkedHashMap<Partition, Set<Partition>>();
+    // hello mercurial!
 
     /* cache of partition splits */
     private final LinkedList<PartitionMultiSplit> appliedSplits = new LinkedList<PartitionMultiSplit>();
