@@ -10,9 +10,10 @@ import synoptic.main.ParseException;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.shared.GWTGraph;
-import synopticgwt.shared.GWTInvariants;
+import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
 
+// TODO: this test class is incomplete. DO NOT USE.
 public class SynopticServiceTests extends GWTTestCase { // extends
                                                         // SynopticGWTTestCase {
     ISynopticServiceAsync service = null;
@@ -36,14 +37,14 @@ public class SynopticServiceTests extends GWTTestCase { // extends
      * onSuccess\onFailure callback handler for parseLog()
      */
     class ParseLogAsyncCallback implements
-            AsyncCallback<GWTPair<GWTInvariants, GWTGraph>> {
+            AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
         @Override
         public void onFailure(Throwable caught) {
 
         }
 
         @Override
-        public void onSuccess(GWTPair<GWTInvariants, GWTGraph> result) {
+        public void onSuccess(GWTPair<GWTInvariantSet, GWTGraph> result) {
 
         }
     }

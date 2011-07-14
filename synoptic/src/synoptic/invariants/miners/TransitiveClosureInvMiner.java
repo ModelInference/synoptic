@@ -158,7 +158,11 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                 boolean neverFollowed = true;
                 boolean alwaysFollowedBy = true;
                 boolean alwaysPreceded = true;
+
+                // Whether or not every instance of label1 is totally ordered
+                // with respect to every instance of label2.
                 boolean alwaysOrdered = true;
+
                 boolean neverOrdered = true;
                 for (EventNode node1 : partitions.get(label1)) {
                     boolean followerFound = false;
@@ -170,6 +174,11 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                         }
                         if (tc.isReachable(node2, node1)) {
                             predecessorFound = true;
+                        }
+
+                        if (!tc.isReachable(node1, node2)
+                                && !tc.isReachable(node2, node1)) {
+                            alwaysOrdered = false;
                         }
                     }
                     // Every node instance with label1 must be followed by a
@@ -185,13 +194,9 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                         alwaysPreceded = false;
                     }
 
-                    if (!followerFound && !predecessorFound) {
-                        alwaysOrdered = false;
-                    }
                     if (followerFound || predecessorFound) {
                         neverOrdered = false;
                     }
-
                 }
                 if (neverFollowed) {
                     set.add(new NeverFollowedInvariant(label1, label2, relation));
@@ -207,8 +212,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
 
                 // The two labels are always/never ordered across all the
                 // system traces.
-                if (mineConcurrencyInvariants
-                        && (alwaysOrdered || neverOrdered)) {
+                if (mineConcurrencyInvariants) {
 
                     // Ignore local versions of alwaysOrdered and
                     // neverOrdered since they are trivially true and false
@@ -220,8 +224,8 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                             set.add(new NeverConcurrentInvariant(
                                     (DistEventType) label2,
                                     (DistEventType) label1, relation));
-                        } else {
-                            // neverOrdered
+                        }
+                        if (neverOrdered) {
                             set.add(new AlwaysConcurrentInvariant(
                                     (DistEventType) label2,
                                     (DistEventType) label1, relation));

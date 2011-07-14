@@ -32,8 +32,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
-import synopticgwt.shared.GWTInvariants;
+import synopticgwt.shared.GWTInvariant;
+import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
+import synopticgwt.shared.GWTTriplet;
 import synopticgwt.shared.LogLine;
 
 /**
@@ -73,7 +75,11 @@ public class SynopticGWT implements EntryPoint {
 
     // Invariants tab widgets:
     private final VerticalPanel invariantsPanel = new VerticalPanel();
-    private final Set<Integer> invHashes = new HashSet<Integer>();
+    private final HorizontalPanel invariantsButtonPanel = new HorizontalPanel();
+
+    // List of hash codes to be removed from the server's set of invariants.
+    // Each hash code represents a temporal invariant.
+    private final Set<Integer> invariantRemovalIDs = new HashSet<Integer>();
     private final Button invRemoveButton = new Button("Remove Invariants");
 
     // Model tab widgets:
@@ -81,8 +87,8 @@ public class SynopticGWT implements EntryPoint {
     private final Button modelRefineButton = new Button("Refine");
     private final Button modelCoarsenButton = new Button("Coarsen");
     private final Button modelGetFinalButton = new Button("Final Model");
-    private final Button modelExportDownloadButton = new Button(
-            "Export/Download");
+    private final Button modelExportDotButton = new Button("Export DOT");
+    private final Button modelExportPngButton = new Button("Export PNG");
     private FlowPanel graphPanel;
     private FlexTable logLineTable;
 
@@ -121,159 +127,159 @@ public class SynopticGWT implements EntryPoint {
             JavaScriptObject eTypes, int width, int height, int lX, int mX,
             int rX, String canvasId) /*-{
 
-		var paper = $wnd.Raphael($doc.getElementById(canvasId), width, height);
+                                     var paper = $wnd.Raphael($doc.getElementById(canvasId), width, height);
 
-		// Attribute to track the target node pointed to from the middle text-element.
-		paper.customAttributes.dest = function(textElem) {
-			return {
-				dest : textElem
-			};
-		};
+                                     // Attribute to track the target node pointed to from the middle text-element.
+                                     paper.customAttributes.dest = function(textElem) {
+                                     return {
+                                     dest : textElem
+                                     };
+                                     };
 
-		// Attribute to track the highlighted color of the lines connected to the selected middle text-element.
-		paper.customAttributes.highlight = function(color) {
-			return {
-				highlight : color
-			};
-		};
+                                     // Attribute to track the highlighted color of the lines connected to the selected middle text-element.
+                                     paper.customAttributes.highlight = function(color) {
+                                     return {
+                                     highlight : color
+                                     };
+                                     };
 
-		var topMargin = 20;
-		var dY = 50;
+                                     var topMargin = 20;
+                                     var dY = 50;
 
-		var lines = new Array();
+                                     var lines = new Array();
 
-		// These will contain text labels in the middle/right/left columns:
-		var tMiddlesArr = [];
-		var tRightsArr = [];
-		var tLeftsArr = [];
+                                     // These will contain text labels in the middle/right/left columns:
+                                     var tMiddlesArr = [];
+                                     var tRightsArr = [];
+                                     var tLeftsArr = [];
 
-		var ypos = new Array();
+                                     var ypos = new Array();
 
-		// Create the three columns of text labels.
-		for ( var i = 0; i < eTypes.length; i++) {
-			var eType = eTypes[i]
+                                     // Create the three columns of text labels.
+                                     for ( var i = 0; i < eTypes.length; i++) {
+                                     var eType = eTypes[i]
 
-			var tMiddle = paper.text(mX, dY * i + topMargin, eType);
-			tMiddlesArr.push(tMiddle);
-			tMiddle.attr({
-				'font-size' : "30px",
-				fill : "grey"
-			});
+                                     var tMiddle = paper.text(mX, dY * i + topMargin, eType);
+                                     tMiddlesArr.push(tMiddle);
+                                     tMiddle.attr({
+                                     'font-size' : "30px",
+                                     fill : "grey"
+                                     });
 
-			// Remember the y position of every row of labels.
-			ypos[eType] = dY * i + 10;
+                                     // Remember the y position of every row of labels.
+                                     ypos[eType] = dY * i + 10;
 
-			// Do not create the INITIAL labels on the left/right
-			if (eType == "I.INITIAL") {
-				continue;
-			}
+                                     // Do not create the INITIAL labels on the left/right
+                                     if (eType == "I.INITIAL") {
+                                     continue;
+                                     }
 
-			var tLeft = paper.text(lX, dY * i + topMargin, eType);
-			tLeft.attr({
-				'font-size' : "30px",
-				fill : "grey"
-			});
-			tLeftsArr[eType] = tLeft;
+                                     var tLeft = paper.text(lX, dY * i + topMargin, eType);
+                                     tLeft.attr({
+                                     'font-size' : "30px",
+                                     fill : "grey"
+                                     });
+                                     tLeftsArr[eType] = tLeft;
 
-			var tRight = paper.text(rX, dY * i + topMargin, eType);
-			tRight.attr({
-				'font-size' : "30px",
-				fill : "grey"
-			});
-			tRightsArr[eType] = tRight;
-		}
+                                     var tRight = paper.text(rX, dY * i + topMargin, eType);
+                                     tRight.attr({
+                                     'font-size' : "30px",
+                                     fill : "grey"
+                                     });
+                                     tRightsArr[eType] = tRight;
+                                     }
 
-		// Create all the lines by iterating through labels in the middle column.
-		for ( var i = 0; i < eTypes.length; i++) {
-			var eType = eTypes[i]
-			lines[eType] = []
-		}
+                                     // Create all the lines by iterating through labels in the middle column.
+                                     for ( var i = 0; i < eTypes.length; i++) {
+                                     var eType = eTypes[i]
+                                     lines[eType] = []
+                                     }
 
-		for ( var i = 0; i < eTypes.length; i++) {
-			var eType = eTypes[i]
-			var tMiddle = tMiddlesArr[i];
+                                     for ( var i = 0; i < eTypes.length; i++) {
+                                     var eType = eTypes[i]
+                                     var tMiddle = tMiddlesArr[i];
 
-			// AP:
-			for ( var j in AP[eType]) {
-				var line = paper.path(("M" + mX + " " + ypos[AP[eType][j]]
-						+ "L" + lX + " " + ypos[eType]));
-				line.attr({
-					stroke : "grey",
-					highlight : "blue",
-					dest : tLeftsArr[eType]
-				});
-				// NOTE: we associate the middle label destination of the arrow, not the left label source.
-				lines[AP[eType][j]].push(line);
-			}
+                                     // AP:
+                                     for ( var j in AP[eType]) {
+                                     var line = paper.path(("M" + mX + " " + ypos[AP[eType][j]]
+                                     + "L" + lX + " " + ypos[eType]));
+                                     line.attr({
+                                     stroke : "grey",
+                                     highlight : "blue",
+                                     dest : tLeftsArr[eType]
+                                     });
+                                     // NOTE: we associate the middle label destination of the arrow, not the left label source.
+                                     lines[AP[eType][j]].push(line);
+                                     }
 
-			// AFby:
-			for ( var j in AFby[eType]) {
-				var line = paper.path(("M" + mX + " " + ypos[eType] + "L" + rX
-						+ " " + ypos[AFby[eType][j]]));
-				line.attr({
-					stroke : "grey",
-					highlight : "blue",
-					dest : tRightsArr[AFby[eType][j]]
-				});
-				lines[eType].push(line);
-			}
+                                     // AFby:
+                                     for ( var j in AFby[eType]) {
+                                     var line = paper.path(("M" + mX + " " + ypos[eType] + "L" + rX
+                                     + " " + ypos[AFby[eType][j]]));
+                                     line.attr({
+                                     stroke : "grey",
+                                     highlight : "blue",
+                                     dest : tRightsArr[AFby[eType][j]]
+                                     });
+                                     lines[eType].push(line);
+                                     }
 
-			// NFby:
-			for ( var j in NFby[eType]) {
-				var line = paper.path(("M" + mX + " " + ypos[eType] + "L" + rX
-						+ " " + ypos[NFby[eType][j]]));
-				line.attr({
-					stroke : "grey",
-					highlight : "red",
-					dest : tRightsArr[NFby[eType][j]]
-				});
-				lines[eType].push(line);
-			}
+                                     // NFby:
+                                     for ( var j in NFby[eType]) {
+                                     var line = paper.path(("M" + mX + " " + ypos[eType] + "L" + rX
+                                     + " " + ypos[NFby[eType][j]]));
+                                     line.attr({
+                                     stroke : "grey",
+                                     highlight : "red",
+                                     dest : tRightsArr[NFby[eType][j]]
+                                     });
+                                     lines[eType].push(line);
+                                     }
 
-			// Function to execute when the tMiddle label is pointed-to.
-			tMiddle.mouseover(function(y) {
-				return function(e) {
-					// y is tMiddle
-					for ( var line in lines[y.attr('text')]) {
-						lines[y.attr('text')][line].attr({
-							'stroke-width' : '3'
-						});
-						lines[y.attr('text')][line].attr({
-							stroke : lines[y.attr('text')][line]
-									.attr('highlight')
-						});
-						lines[y.attr('text')][line].attr('dest').attr({
-							fill : "black"
-						});
-					}
-					y.attr({
-						fill : "black"
-					});
+                                     // Function to execute when the tMiddle label is pointed-to.
+                                     tMiddle.mouseover(function(y) {
+                                     return function(e) {
+                                     // y is tMiddle
+                                     for ( var line in lines[y.attr('text')]) {
+                                     lines[y.attr('text')][line].attr({
+                                     'stroke-width' : '3'
+                                     });
+                                     lines[y.attr('text')][line].attr({
+                                     stroke : lines[y.attr('text')][line]
+                                     .attr('highlight')
+                                     });
+                                     lines[y.attr('text')][line].attr('dest').attr({
+                                     fill : "black"
+                                     });
+                                     }
+                                     y.attr({
+                                     fill : "black"
+                                     });
 
-				};
-			}(tMiddle));
+                                     };
+                                     }(tMiddle));
 
-			// Function to execute when the tMiddle label is not pointed-to.
-			tMiddle.mouseout(function(y) {
-				return function(e) {
-					for ( var line in lines[y.attr('text')]) {
-						lines[y.attr('text')][line].attr({
-							'stroke-width' : '1'
-						});
-						lines[y.attr('text')][line].attr({
-							stroke : "grey"
-						});
-						lines[y.attr('text')][line].attr('dest').attr({
-							fill : "grey"
-						});
-					}
-					y.attr({
-						fill : "grey"
-					});
-				};
-			}(tMiddle));
-		}
-    }-*/;
+                                     // Function to execute when the tMiddle label is not pointed-to.
+                                     tMiddle.mouseout(function(y) {
+                                     return function(e) {
+                                     for ( var line in lines[y.attr('text')]) {
+                                     lines[y.attr('text')][line].attr({
+                                     'stroke-width' : '1'
+                                     });
+                                     lines[y.attr('text')][line].attr({
+                                     stroke : "grey"
+                                     });
+                                     lines[y.attr('text')][line].attr('dest').attr({
+                                     fill : "grey"
+                                     });
+                                     }
+                                     y.attr({
+                                     fill : "grey"
+                                     });
+                                     };
+                                     }(tMiddle));
+                                     }
+                                     }-*/;
 
     /**
      * A JSNI method to create and display a graph.
@@ -293,42 +299,47 @@ public class SynopticGWT implements EntryPoint {
             JavaScriptObject edges, int width, int height, String canvasId,
             String initial, String terminal) /*-{
 
-		// required to export this instance
-		var _this = this;
+                                             // required to export this instance
+                                             var _this = this;
 
-		// export the LogLineRequestHandler globally
-		$wnd.viewLogLines = function(id) {
-			_this.@synopticgwt.client.SynopticGWT::LogLineRequestHandler(I)(id);
-		};
+                                             // export the LogLineRequestHandler globally
+                                             $wnd.viewLogLines = function(id) {
+                                             _this.@synopticgwt.client.SynopticGWT::LogLineRequestHandler(I)(id);
+                                             };
 
-		// create the graph
-		var g = new $wnd.Graph();
-		g.edgeFactory.template.style.directed = true;
+                                             // create the graph
+                                             var g = new $wnd.Graph();
+                                             g.edgeFactory.template.style.directed = true;
 
-		// add each node to graph
-		for ( var i = 0; i < nodes.length; i += 2) {
-			g.addNode(nodes[i], {
-				label : nodes[i + 1],
-				render : $wnd.GRAPH_HANDLER.render
-			});
-		}
+                                             // add each node to graph
+                                             for ( var i = 0; i < nodes.length; i += 2) {
+                                             g.addNode(nodes[i], {
+                                             label : nodes[i + 1],
+                                             render : $wnd.GRAPH_HANDLER.render
+                                             });
+                                             }
 
-		// add each edge to graph
-		for ( var i = 0; i < edges.length; i += 2) {
-			g.addEdge(edges[i], edges[i + 1]);
-		}
+                                             // add each edge to graph
+                                             for ( var i = 0; i < edges.length; i += 3) {
+                                             //first is source, second is target, third is weight for the label
+                                             g.addEdge(edges[i], edges[i + 1], {
+                                             label : edges[i + 2],
+                                             //				stroke : "#bfa",
+                                             //				fill : "#56f"
+                                             });
+                                             }
 
-		// give stable layout to graph elements
-		var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
+                                             // give stable layout to graph elements
+                                             var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
 
-		// render the graph
-		var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
-				height);
+                                             // render the graph
+                                             var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
+                                             height);
 
-		// store graph state
-		$wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer,
-				layouter, g);
-    }-*/;
+                                             // store graph state
+                                             $wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer,
+                                             layouter, g);
+                                             }-*/;
 
     /**
      * A JSNI method to update and display a refined graph, animating the
@@ -346,22 +357,22 @@ public class SynopticGWT implements EntryPoint {
     public static native void createChangingGraph(JavaScriptObject nodes,
             JavaScriptObject edges, int refinedNode, String canvasId) /*-{
 
-		// update graph and fetch array of new nodes
-		var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges,
-				refinedNode);
+                                                                      // update graph and fetch array of new nodes
+                                                                      var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges,
+                                                                      refinedNode);
 
-		// fetch the current layouter
-		var layouter = $wnd.GRAPH_HANDLER.getLayouter();
+                                                                      // fetch the current layouter
+                                                                      var layouter = $wnd.GRAPH_HANDLER.getLayouter();
 
-		// update each graph element's position, re-assigning a position
-		layouter.updateLayout($wnd.GRAPH_HANDLER.getGraph(), newNodes);
+                                                                      // update each graph element's position, re-assigning a position
+                                                                      layouter.updateLayout($wnd.GRAPH_HANDLER.getGraph(), newNodes);
 
-		// fetch the renderer
-		var renderer = $wnd.GRAPH_HANDLER.getRenderer();
+                                                                      // fetch the renderer
+                                                                      var renderer = $wnd.GRAPH_HANDLER.getRenderer();
 
-		// re-draw the graph, animating transitions from old to new position
-		renderer.draw();
-    }-*/;
+                                                                      // re-draw the graph, animating transitions from old to new position
+                                                                      renderer.draw();
+                                                                      }-*/;
 
     /**
      * A JSNI method for adding a String element to a java script array object.
@@ -373,8 +384,8 @@ public class SynopticGWT implements EntryPoint {
      *            element to add
      */
     private native static void pushArray(JavaScriptObject array, String s) /*-{
-		array.push(s);
-    }-*/;
+                                                                           array.push(s);
+                                                                           }-*/;
 
     /**
      * A JSNI method for associating a key in an array to a value. (Yes, this is
@@ -387,11 +398,11 @@ public class SynopticGWT implements EntryPoint {
      */
     private native static void addToKeyInArray(JavaScriptObject array,
             String key, String val) /*-{
-		if (!(key in array)) {
-			array[key] = [];
-		}
-		array[key].push(val);
-    }-*/;
+                                    if (!(key in array)) {
+                                    array[key] = [];
+                                    }
+                                    array[key].push(val);
+                                    }-*/;
 
     // </JSNI methods>
     // //////////////////////////////////////////////////////////////////////////
@@ -430,9 +441,12 @@ public class SynopticGWT implements EntryPoint {
 
         // Create the list of edges, where two consecutive node Ids is an edge.
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
-        List<GWTPair<Integer, Integer>> edges = graph.getEdges();
-        for (GWTPair<Integer, Integer> edge : edges) {
+        List<GWTTriplet<Integer, Integer, Double>> edges = graph.getEdges();
+        for (GWTTriplet<Integer, Integer, Double> edge : edges) {
             pushArray(jsEdges, edge.getLeft().toString());
+            pushArray(jsEdges, edge.getMiddle().toString());
+
+            // This contains the edge's weight
             pushArray(jsEdges, edge.getRight().toString());
         }
 
@@ -467,10 +481,10 @@ public class SynopticGWT implements EntryPoint {
         // Create the list of edges, where two consecutive node Ids is an edge.
         // JavaScriptObject newEdges = JavaScriptObject.createArray();
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
-        List<GWTPair<Integer, Integer>> edges = graph.getEdges();
-        for (GWTPair<Integer, Integer> edge : edges) {
+        List<GWTTriplet<Integer, Integer, Double>> edges = graph.getEdges();
+        for (GWTTriplet<Integer, Integer, Double> edge : edges) {
             pushArray(jsEdges, edge.getLeft().toString());
-            pushArray(jsEdges, edge.getRight().toString());
+            pushArray(jsEdges, edge.getMiddle().toString());
         }
 
         // Determine the size of the graphic -- make it depend on the current
@@ -488,22 +502,18 @@ public class SynopticGWT implements EntryPoint {
      * 
      * @param graph
      */
-    public void showInvariants(GWTInvariants gwtInvs) {
-        // Clear the invariants panel if it has any
-        // widgets (it only has one)
-        while (invariantsPanel.getWidgetCount() != 0) {
-            invariantsPanel.remove(invariantsPanel.getWidget(0));
+    public void showInvariants(GWTInvariantSet gwtInvs) {
+        // Clear the invariants panel of the non-button widget
+        // (the horizontal panel for the table and graphics).
+        if (invariantsPanel.getWidgetCount() > 1) {
+            invariantsPanel.remove(invariantsPanel.getWidget(1));
+            assert (invariantsPanel.getWidgetCount() == 1);
         }
 
-        HorizontalPanel buttonPanel = new HorizontalPanel();
-        invariantsPanel.add(buttonPanel);
-        buttonPanel.add(invRemoveButton);
-        buttonPanel.setStyleName("buttonPanel");
-        invRemoveButton.setWidth("188px");
-
-        // Create and populate the panel with the invariants table.
-        HorizontalPanel hPanel = new HorizontalPanel();
-        invariantsPanel.add(hPanel);
+        // Create and populate the panel with the invariants table and the
+        // invariants graphic.
+        HorizontalPanel tableAndGraphicPanel = new HorizontalPanel();
+        invariantsPanel.add(tableAndGraphicPanel);
 
         Set<String> invTypes = gwtInvs.getInvTypes();
         int eTypesCnt = 0;
@@ -517,35 +527,36 @@ public class SynopticGWT implements EntryPoint {
         // Iterate through all invariants to (1) add them to the grid / table,
         // and (2) to create the JS objects for drawing the invariants graphic.
         for (String invType : invTypes) {
-            final List<GWTPair<String, String>> invs = gwtInvs.getInvs(invType);
+            final List<GWTInvariant<String, String>> invs = gwtInvs
+                    .getInvs(invType);
 
             final Grid grid = new Grid(invs.size() + 1, 1);
-            hPanel.add(grid);
+            tableAndGraphicPanel.add(grid);
 
             grid.setWidget(0, 0, new Label(invType));
             grid.getCellFormatter().setStyleName(0, 0, "topTableCell");
 
             int i = 1;
-            for (GWTPair<String, String> inv : invs) {
-                if (!eventTypes.contains(inv.getLeft())) {
-                    pushArray(eventTypesJS, inv.getLeft());
-                    eventTypes.add(inv.getLeft());
-                    if (inv.getLeft().length() > longestEType) {
-                        longestEType = inv.getLeft().length();
+            for (GWTInvariant<String, String> inv : invs) {
+                if (!eventTypes.contains(inv.getSource())) {
+                    pushArray(eventTypesJS, inv.getSource());
+                    eventTypes.add(inv.getSource());
+                    if (inv.getSource().length() > longestEType) {
+                        longestEType = inv.getSource().length();
                     }
                     eTypesCnt++;
                 }
-                if (!eventTypes.contains(inv.getRight())) {
-                    pushArray(eventTypesJS, inv.getRight());
-                    eventTypes.add(inv.getRight());
-                    if (inv.getRight().length() > longestEType) {
-                        longestEType = inv.getRight().length();
+                if (!eventTypes.contains(inv.getTarget())) {
+                    pushArray(eventTypesJS, inv.getTarget());
+                    eventTypes.add(inv.getTarget());
+                    if (inv.getTarget().length() > longestEType) {
+                        longestEType = inv.getTarget().length();
                     }
                     eTypesCnt++;
                 }
 
-                String x = inv.getLeft();
-                String y = inv.getRight();
+                String x = inv.getSource();
+                String y = inv.getTarget();
                 if (invType.equals("AFby")) {
                     addToKeyInArray(AFbyJS, x, y);
                 } else if (invType.equals("NFby")) {
@@ -555,47 +566,17 @@ public class SynopticGWT implements EntryPoint {
                 }
 
                 grid.setWidget(i, 0,
-                        new Label(inv.getLeft() + ", " + inv.getRight()));
+                        new Label(inv.getSource() + ", " + inv.getTarget()));
                 i += 1;
             }
 
             grid.setStyleName("invariantsGrid grid");
             for (i = 1; i < grid.getRowCount(); i++) {
-                grid.getCellFormatter().setStyleName(i, 0, "tableCell");
+                grid.getCellFormatter().setStyleName(i, 0, "tableButtonCell");
             }
 
-            grid.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    HTMLTable.Cell cell = ((Grid) event.getSource())
-                            .getCellForEvent(event);
-                    int rowind = cell.getRowIndex();
-                    if (rowind > 0) {
-                        CellFormatter formatter = grid.getCellFormatter();
-                        String[] cellData = cell.getElement().getInnerText()
-                                .split(", ", 2);
-                        GWTPair<String, String> cellPair = new GWTPair<String, String>(
-                                cellData[0], cellData[1], 0);
-                        int pairIndex = invs.indexOf(cellPair);
-                        int hash = invs.get(pairIndex).hashCode();
-
-                        if (formatter.getStyleName(rowind, 0).equals(
-                                "tableCell")) {
-                            formatter.setStyleName(rowind, 0,
-                                    "tableCellSelected");
-                            invHashes.add(hash);
-                            invRemoveButton.setEnabled(true);
-                        } else {
-                            formatter.setStyleName(rowind, 0, "tableCell");
-                            invHashes.remove(hash);
-
-                            if (invHashes.isEmpty()) {
-                                invRemoveButton.setEnabled(false);
-                            }
-                        }
-                    }
-                }
-            });
+            // Allow the user to toggle invariants on the grid.
+            addInvariantToggleHandler(grid, invs);
 
         }
 
@@ -604,7 +585,7 @@ public class SynopticGWT implements EntryPoint {
         HorizontalPanel invGraphicId = new HorizontalPanel();
         invGraphicId.getElement().setId(invCanvasId);
         invGraphicId.setStylePrimaryName("modelCanvas");
-        hPanel.add(invGraphicId);
+        tableAndGraphicPanel.add(invGraphicId);
 
         // A little magic to size things right.
         int lX = (longestEType * 30) / 2 - 60;
@@ -631,15 +612,79 @@ public class SynopticGWT implements EntryPoint {
         }
     }
 
+    /**
+     * Accesses the list of copies of server-side invariant hash codes and uses
+     * them to remove their corresponding server-side invariants. The
+     * client-side graph and invariants are then recalculated and redisplayed.
+     */
     class RemoveInvariantsHandler implements ClickHandler {
+
         @Override
         public void onClick(ClickEvent event) {
-            // keep the button from being click more than once
+
+            // Keep the user from clicking the button multiple times.
             invRemoveButton.setEnabled(false);
 
-            synopticService.removeInvs(invHashes, new ParseLogAsyncCallback());
-            invHashes.clear();
+            // Remove the invariants from the server based on
+            // the hash code copies, then recalculate the graph
+            // and invariants so they can be redrawn in their respective
+            // panels.
+            try {
+                synopticService.removeInvs(invariantRemovalIDs,
+                        new RemoveInvariantsAsyncCallback());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            // Since the invariants have been removed, the queue should be
+            // emptied.
+            invariantRemovalIDs.clear();
         }
+    }
+
+    /**
+     * Callback method for removing user-specified invariants. Redraws the
+     * content in the model and invariants tab.
+     */
+    class RemoveInvariantsAsyncCallback implements
+            AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
+
+        /**
+         * Handles any general problems that may arise.
+         */
+        @Override
+        public void onFailure(Throwable caught) {
+            injectRPCError("Remote Procedure Call Failure while removing invariants");
+            parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
+        }
+
+        /**
+         * Redraws the model and invariants tabs.
+         */
+        @Override
+        public void onSuccess(GWTPair<GWTInvariantSet, GWTGraph> result) {
+
+            // Reset appropriate buttons.
+            parseLogButton.setEnabled(true);
+            tabPanel.selectTab(2);
+            modelRefineButton.setEnabled(true);
+            modelCoarsenButton.setEnabled(false);
+            modelGetFinalButton.setEnabled(true);
+
+            // Show the model graph.
+            GWTGraph graph = result.getRight();
+            showGraph(graph);
+
+            // Show the invariants table and graphics.
+            GWTInvariantSet gwtInvs = result.getLeft();
+            showInvariants(gwtInvs);
+
+            // An error occurs when the tabPanel stays
+            // in something other than the model tab when the graph is drawn,
+            // so the tab is switched to the graph for drawing, and then back to
+            // the invariants tab for now.
+            tabPanel.selectTab(1);
+        }
+
     }
 
     /**
@@ -704,7 +749,7 @@ public class SynopticGWT implements EntryPoint {
      * onSuccess\onFailure callback handler for parseLog()
      */
     class ParseLogAsyncCallback implements
-            AsyncCallback<GWTPair<GWTInvariants, GWTGraph>> {
+            AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
         @Override
         public void onFailure(Throwable caught) {
             injectRPCError("Remote Procedure Call Failure while parsing log");
@@ -713,7 +758,7 @@ public class SynopticGWT implements EntryPoint {
         }
 
         @Override
-        public void onSuccess(GWTPair<GWTInvariants, GWTGraph> result) {
+        public void onSuccess(GWTPair<GWTInvariantSet, GWTGraph> result) {
             // Create new tabs.
             tabPanel.add(invariantsPanel, "Invariants");
             tabPanel.add(modelPanel, "Model");
@@ -724,14 +769,13 @@ public class SynopticGWT implements EntryPoint {
             modelRefineButton.setEnabled(true);
             modelCoarsenButton.setEnabled(false);
             modelGetFinalButton.setEnabled(true);
-            modelExportDownloadButton.setEnabled(true);
 
             // Show the model graph.
             GWTGraph graph = result.getRight();
             showGraph(graph);
 
             // Show the invariants table and graphics.
-            GWTInvariants gwtInvs = result.getLeft();
+            GWTInvariantSet gwtInvs = result.getLeft();
             showInvariants(gwtInvs);
 
         }
@@ -748,7 +792,6 @@ public class SynopticGWT implements EntryPoint {
         public void onClick(ClickEvent event) {
             pWheel.startAnimation();
             modelRefineButton.setEnabled(false);
-            modelExportDownloadButton.setEnabled(true);
             try {
                 synopticService.refineOneStep(new RefineOneStepAsyncCallback());
             } catch (Exception e) {
@@ -796,7 +839,6 @@ public class SynopticGWT implements EntryPoint {
             pWheel.startAnimation();
             // Coarsening is a one-shot step at the moment.
             modelCoarsenButton.setEnabled(false);
-            modelExportDownloadButton.setEnabled(true);
             try {
                 synopticService
                         .coarsenOneStep(new CoarsenOneStepAsyncCallback());
@@ -839,7 +881,6 @@ public class SynopticGWT implements EntryPoint {
             modelRefineButton.setEnabled(false);
             modelCoarsenButton.setEnabled(false);
             modelGetFinalButton.setEnabled(false);
-            modelExportDownloadButton.setEnabled(true);
 
             try {
                 synopticService.getFinalModel(new GetFinalModelAsyncCallback());
@@ -848,6 +889,98 @@ public class SynopticGWT implements EntryPoint {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * This makes the grid clickable, so that when clicked, the grid's cell data
+     * will be looked up in the client-side set of invariants. This client-side
+     * invariant then contains the server-side hashcode for the corresponding
+     * server-side invariant. This hash code is then queued up so that each
+     * server-side hash code specifies a server-side invariant for removal. When
+     * a cell is "active," this means that it's corresponding invariant is
+     * queued up to be removed at the click of the removal button. When one or
+     * more cells are active, then the removal button will also be activated.
+     * When a cell is deactivated, the corresponding invariant is removed from
+     * the queue. If all cells are not active, the removal button will also be
+     * deactivated.
+     * 
+     * @param invs
+     *            The set of client-side invariants
+     * @param grid
+     *            The grid which will become clickable.
+     */
+    private void addInvariantToggleHandler(final Grid grid,
+            final List<GWTInvariant<String, String>> invs) {
+
+        // Add the basic click handler to the graph.
+        grid.addClickHandler(new ClickHandler() {
+
+            // Add the aforementioned functionality to the click handler.
+            @Override
+            public void onClick(ClickEvent event) {
+
+                // Specify which cell was clicked.
+                HTMLTable.Cell cell = ((Grid) event.getSource())
+                        .getCellForEvent(event);
+
+                // Check to see (from the row index), whether the cell clicked
+                // is the top (zeroth) cell. This shouldn't be activated, as it
+                // is the
+                // column title.
+                int cellRowIndex = cell.getRowIndex();
+                if (cellRowIndex > 0) {
+                    // Extract the cell data from the grid's cell.
+                    // TODO: This is likely an ineffective way of doing this,
+                    // as the invariants on the left and right may not be
+                    // separated by a
+                    // comma. They also may have more than just a single comma
+                    // in the
+                    // entire string.
+                    String[] cellData = cell.getElement().getInnerText()
+                            .split(", ", 2);
+
+                    // Create an invariant to be looked up in the client-side
+                    // list.
+                    GWTInvariant<String, String> invFromCell = new GWTInvariant<String, String>(
+                            cellData[0], cellData[1], "");
+                    int matchingIndex = invs.indexOf(invFromCell);
+
+                    // Extract a copy of the server-side's invariant hash code
+                    // (the invariant's ID).
+                    int invID = invs.get(matchingIndex).getID();
+
+                    // Check whether the cell is active (style of
+                    // "tableButtonCell")
+                    // or not (style of "tableCellSelected").
+                    CellFormatter formatter = grid.getCellFormatter();
+                    if (formatter.getStyleName(cellRowIndex, 0).equals(
+                            "tableButtonCell")) {
+
+                        // Activate the cell and queue up the hash code.
+                        formatter.setStyleName(cellRowIndex, 0,
+                                "tableCellSelected");
+                        invariantRemovalIDs.add(invID);
+
+                        // Activate the removal button
+                        invRemoveButton.setEnabled(true);
+                    } else {
+
+                        // Deactivate the cell and remove the hash code from the
+                        // queue.
+                        formatter.setStyleName(cellRowIndex, 0,
+                                "tableButtonCell");
+                        invariantRemovalIDs.remove(invID);
+
+                        // Deactivate the removal button if there are no
+                        // invariants
+                        // queued up.
+                        if (invariantRemovalIDs.isEmpty()) {
+                            invRemoveButton.setEnabled(false);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -870,17 +1003,53 @@ public class SynopticGWT implements EntryPoint {
     }
 
     /**
-     * Used for handling Export/Download button clicks
+     * Used for handling Export DOT button clicks
      * 
      * @author i3az0kimchi
      */
-    class ExportDownloadModelHandler implements ClickHandler {
+
+    class ExportDotHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
-            pWheel.startAnimation();
             try {
-                synopticService
-                        .exportModel(new ExportDownloadModelAsyncCallback());
+                synopticService.exportDot(new ExportDotAsyncCallback());
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    /**
+     * onSuccess/onFailure callback handler for exportDot()
+     * 
+     * @author i3az0kimchi
+     */
+    class ExportDotAsyncCallback implements AsyncCallback<String> {
+        @Override
+        public void onFailure(Throwable caught) {
+            injectRPCError("Remote Procedure Call Failure while exporting current model");
+            parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
+        }
+
+        @Override
+        public void onSuccess(String fileString) {
+            Window.open("../" + fileString, "DOT file", "Enabled");
+        }
+
+    }
+
+    /**
+     * Used for handling Export PNG button clicks
+     * 
+     * @author i3az0kimchi
+     */
+    class ExportPngHandler implements ClickHandler {
+        @Override
+        public void onClick(ClickEvent event) {
+            try {
+                synopticService.exportPng(new ExportPngAsyncCallback());
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -889,25 +1058,20 @@ public class SynopticGWT implements EntryPoint {
     }
 
     /**
-     * onSuccess/onFailure callback handler for exportModel()
+     * onSuccess/onFailure callback handler for exportPng()
      * 
-     * @author i3az0kimchi Opens new windows for the .dot and .png file of the
-     *         current model if the operation was a success
+     * @author i3az0kimchi
      */
-    class ExportDownloadModelAsyncCallback implements AsyncCallback<String> {
+    class ExportPngAsyncCallback implements AsyncCallback<String> {
         @Override
         public void onFailure(Throwable caught) {
-            pWheel.stopAnimation();
             injectRPCError("Remote Procedure Call Failure while exporting current model");
             parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
         }
 
         @Override
-        public void onSuccess(String filename) {
-            pWheel.stopAnimation();
-            modelExportDownloadButton.setEnabled(false);
-            Window.open("../" + filename, "DOT file", "");
-            Window.open("../" + filename + ".png", "PNG file", "");
+        public void onSuccess(String fileString) {
+            Window.open("../" + fileString, "PNG file", "Enabled");
         }
     }
 
@@ -974,17 +1138,24 @@ public class SynopticGWT implements EntryPoint {
         // Construct the Model panel.
 
         VerticalPanel controlsPanel = new VerticalPanel();
+
         HorizontalPanel buttonsPanel = new HorizontalPanel();
         buttonsPanel.add(modelRefineButton);
         buttonsPanel.add(modelCoarsenButton);
         buttonsPanel.add(modelGetFinalButton);
-        buttonsPanel.add(modelExportDownloadButton);
         modelRefineButton.setWidth("100px");
         modelCoarsenButton.setWidth("100px");
         modelGetFinalButton.setWidth("100px");
-        modelExportDownloadButton.setWidth("110px");
         buttonsPanel.setStyleName("buttonPanel");
         controlsPanel.add(buttonsPanel);
+
+        HorizontalPanel buttonsPanelTwo = new HorizontalPanel();
+        buttonsPanelTwo.add(modelExportDotButton);
+        buttonsPanelTwo.add(modelExportPngButton);
+        modelExportDotButton.setWidth("100px");
+        modelExportPngButton.setWidth("100px");
+        buttonsPanelTwo.setStyleName("buttonPanel");
+        controlsPanel.add(buttonsPanelTwo);
 
         VerticalPanel logPanel = new VerticalPanel();
         logPanel.setWidth("300px");
@@ -1025,10 +1196,16 @@ public class SynopticGWT implements EntryPoint {
         modelRefineButton.addClickHandler(new RefineModelHandler());
         modelCoarsenButton.addClickHandler(new CoarsenModelHandler());
         modelGetFinalButton.addClickHandler(new GetFinalModelHandler());
-        modelExportDownloadButton
-                .addClickHandler(new ExportDownloadModelHandler());
+        modelExportDotButton.addClickHandler(new ExportDotHandler());
+        modelExportPngButton.addClickHandler(new ExportPngHandler());
 
+        // Set up invariants tab.
+        invariantsPanel.add(invariantsButtonPanel);
+        invariantsButtonPanel.add(invRemoveButton);
+        invariantsButtonPanel.setStyleName("buttonPanel");
         invRemoveButton.addClickHandler(new RemoveInvariantsHandler());
+        invRemoveButton.setWidth("188px");
+        invRemoveButton.setEnabled(false);
 
         // Associate handler with the Parse Log button
         parseLogButton.addClickHandler(new ParseLogHandler());

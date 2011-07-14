@@ -204,12 +204,12 @@ public class POLogInvariantMiningTests extends SynopticTest {
     }
 
     /**
-     * Tests a trace with a NeverConcurrentInvariant
+     * Tests a trace with no non-trivial invariants.
      * 
      * @throws Exception
      */
     @Test
-    public void mineNeverConcurrentTest() throws Exception {
+    public void mineNoInvariantsTest() throws Exception {
         TraceParser parser = newTraceParser();
 
         String[] events = new String[] { "1,0 0 a", "0,1 1 b", "1,2 1 b",
@@ -232,8 +232,8 @@ public class POLogInvariantMiningTests extends SynopticTest {
                 .NewInitialStringEventType(), b, R));
 
         // NOTE: a AFby a and b AFby b are both false because we're dealing with
-        // finite traces.
-        trueInvs.add(new NeverConcurrentInvariant(a, b, R));
+        // finite traces. And a NCwith b is false because the first a is not
+        // ordered with the first b.
 
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }

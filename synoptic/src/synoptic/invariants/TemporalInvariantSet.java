@@ -69,6 +69,13 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         this.invariants.addAll(invariants);
     }
 
+    /**
+     * Removes all invariants from the set.
+     */
+    public void removeAll(Collection<ITemporalInvariant> invariants) {
+    	this.invariants.removeAll(invariants);
+    }
+
     public void add(TemporalInvariantSet set) {
         invariants.addAll(set.invariants);
     }
