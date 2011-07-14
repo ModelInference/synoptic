@@ -16,8 +16,13 @@ public class NeverConcurrentInvariant extends BinaryInvariant {
 
     @Override
     public String toString() {
-        return first.toString() + " NeverConcurrentWith(" + relation + ") "
-                + second.toString();
+        String f = first.toString();
+        String s = second.toString();
+        if (f.hashCode() <= s.hashCode()) {
+            return f + " NeverConcurrentWith(" + relation + ") " + s;
+        }
+        return s + " NeverConcurrentWith(" + relation + ") " + f;
+
     }
 
     // TODO: eliminate the copying of hashCode() and equals() below with a copy

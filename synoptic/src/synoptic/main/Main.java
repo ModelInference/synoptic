@@ -883,6 +883,8 @@ public class Main implements Callable<Integer> {
         if (parser.logTimeTypeIsTotallyOrdered()) {
             miner = new ChainWalkingTOInvMiner();
         } else {
+            logger.warning("Partially ordered log input detected. Only mining invariants since refinement/coarsening is not yet supported.");
+            onlyMineInvariants = true;
             if (useTransitiveClosureMining) {
                 miner = new TransitiveClosureInvMiner();
             } else {
@@ -905,14 +907,14 @@ public class Main implements Callable<Integer> {
             logger.info("Mined invariants: " + minedInvs);
         }
 
-        if (onlyMineInvariants) {
-            return new Integer(0);
-        }
-
         if (outputInvariantsToFile) {
             String invariantsFilename = outputPathPrefix + ".invariants.txt";
             logger.info("Outputting invarians to file: " + invariantsFilename);
             minedInvs.outputToFile(invariantsFilename);
+        }
+
+        if (onlyMineInvariants) {
+            return new Integer(0);
         }
 
         // Create the initial partitioning graph.

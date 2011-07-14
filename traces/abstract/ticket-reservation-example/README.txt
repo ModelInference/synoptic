@@ -1,3 +1,13 @@
+NOTE:
+=====
+
+The file trace.txt is used by a test in POLogInvariantMiningTests.java
+file. If this file is moved/renamed or if its format changes, the test
+file dependency must be updated.
+
+====
+
+
 This log is taken from a hypothetical distributed trace of an online
 ticket-purchase system.
 

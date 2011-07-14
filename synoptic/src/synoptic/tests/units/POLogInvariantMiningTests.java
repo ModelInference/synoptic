@@ -2,8 +2,11 @@ package synoptic.tests.units;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Set;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +16,8 @@ import org.junit.runners.Parameterized.Parameters;
 import synoptic.invariants.AlwaysConcurrentInvariant;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
@@ -200,7 +205,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
     }
 
     /**
-     * Tests a trace with no non-trivial invariants.
+     * Tests a trace with no invariants.
      * 
      * @throws Exception
      */
@@ -208,8 +213,8 @@ public class POLogInvariantMiningTests extends SynopticTest {
     public void mineNoInvariantsTest() throws Exception {
         TraceParser parser = newTraceParser();
 
-        String[] events = new String[] { "1,0 0 a", "0,1 1 b", "1,2 1 b",
-                "2,2 0 a", "1,3 1 b" };
+        String[] events = new String[] { "1,0 0 a", "--", "0,1 1 b", "--",
+                "1,0 0 a", "0,1 1 b", "1,2 1 b", "2,2 0 a", "1,3 1 b" };
         Graph<EventNode> inputGraph = genInitialGraph(events, parser);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
@@ -217,30 +222,19 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
-        DistEventType a = new DistEventType("a", "0");
-        DistEventType b = new DistEventType("b", "1");
-        String R = SynopticTest.defRelation;
-
-        // Add the "eventually x" invariants.
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), a, R));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), b, R));
-
-        // NOTE: a AFby a and b AFby b are both false because we're dealing with
-        // finite traces. And a NCwith b is false because the first a is not
-        // ordered with the first b.
+        // NOTE: a NCwith b is false because the a is concurrent
+        // with the first b.
 
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }
 
     /**
-     * Tests a trace with no NeverConcurrentInvariant
+     * Tests a trace with no concurrency invariants.
      * 
      * @throws Exception
      */
     @Test
-    public void mineNoNeverConcurrentTest() throws Exception {
+    public void mineNoConcurrentInvsTest() throws Exception {
         TraceParser parser = newTraceParser();
         // Two b's before the two a's
         // One b concurrent with the two a's
@@ -268,6 +262,120 @@ public class POLogInvariantMiningTests extends SynopticTest {
         trueInvs.add(new AlwaysFollowedInvariant(a, b, R));
 
         assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * Tests a trace with a single AlwaysConcurrent invariant.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineAlwaysConcurrentTest() throws Exception {
+        TraceParser parser = newTraceParser();
+
+        String[] events = new String[] { "1,0 0 a", "2,0 0 a", "--", "0,1 1 b",
+                "0,2 1 b", "--", "1,0 0 a", "0,1 1 b" };
+
+        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        logger.fine("mined: " + minedInvs.toString());
+
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        DistEventType a = new DistEventType("a", "0");
+        DistEventType b = new DistEventType("b", "1");
+        String R = SynopticTest.defRelation;
+
+        trueInvs.add(new AlwaysConcurrentInvariant(b, a, R));
+
+        assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * Tests a trace with a single NeverConcurrent invariant.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineNeverConcurrentTest() throws Exception {
+        TraceParser parser = newTraceParser();
+
+        String[] events = new String[] { "1,0 0 a", "2,0 0 a", "--", "0,1 1 b",
+                "0,2 1 b", "--", "1,0 0 a", "1,1 1 b", "--", "0,1 1 b",
+                "1,1 0 a", "--" };
+
+        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        logger.fine("mined: " + minedInvs.toString());
+
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        DistEventType a = new DistEventType("a", "0");
+        DistEventType b = new DistEventType("b", "1");
+        String R = SynopticTest.defRelation;
+
+        trueInvs.add(new NeverConcurrentInvariant(b, a, R));
+
+        assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * Tests the ticket-reservation partially ordered trace used in SLAML'11
+     * submission. Checks that all the example invariants reported in the paper
+     * are indeed mined from the log.
+     * 
+     * <pre>
+     * NOTE: This test depends on the trace file located here:
+     *       traces/abstract/ticket-reservation-example/trace.txt
+     * </pre>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineTicketReservationExampleTest() throws Exception {
+        String fname = new String(".." + File.separator + "traces"
+                + File.separator + "abstract" + File.separator
+                + "ticket-reservation-example" + File.separator + "trace.txt");
+        File file = new File(fname);
+        TraceParser parser = newTraceParser();
+
+        ArrayList<EventNode> parsedEvents = parser.parseTraceFile(file, -1);
+        Graph<EventNode> inputGraph = parser
+                .generateDirectTemporalRelation(parsedEvents);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+        logger.info("Mined invariants from TicketReservationExample: "
+                + minedInvs.toString());
+
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+
+        DistEventType available = new DistEventType("available", "server");
+        DistEventType sold = new DistEventType("sold", "server");
+        DistEventType sold_out = new DistEventType("sold-out", "server");
+        DistEventType search_c0 = new DistEventType("search", "client-0");
+        DistEventType search_c1 = new DistEventType("search", "client-1");
+        DistEventType buy_c0 = new DistEventType("buy", "client-0");
+        DistEventType buy_c1 = new DistEventType("buy", "client-1");
+
+        String R = SynopticTest.defRelation;
+
+        trueInvs.add(new NeverFollowedInvariant(sold_out, sold, R));
+        trueInvs.add(new AlwaysPrecedesInvariant(sold, sold_out, R));
+        trueInvs.add(new AlwaysConcurrentInvariant(buy_c0, buy_c1, R));
+        trueInvs.add(new AlwaysConcurrentInvariant(search_c0, search_c1, R));
+        trueInvs.add(new AlwaysPrecedesInvariant(available, buy_c0, R));
+        trueInvs.add(new AlwaysPrecedesInvariant(available, buy_c1, R));
+        trueInvs.add(new NeverFollowedInvariant(sold_out, buy_c0, R));
+        trueInvs.add(new NeverFollowedInvariant(sold_out, buy_c1, R));
+        trueInvs.add(new AlwaysFollowedInvariant(buy_c0, sold_out, R));
+        trueInvs.add(new AlwaysFollowedInvariant(buy_c1, sold_out, R));
+        trueInvs.add(new AlwaysPrecedesInvariant(buy_c0, sold_out, R));
+
+        Set<ITemporalInvariant> minedInvsSet = minedInvs.getSet();
+        for (ITemporalInvariant trueInv : trueInvs.getSet()) {
+            assertTrue(minedInvsSet.contains(trueInv));
+        }
     }
 
     /**

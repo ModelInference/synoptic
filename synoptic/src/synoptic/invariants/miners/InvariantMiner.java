@@ -182,11 +182,10 @@ public abstract class InvariantMiner {
         LinkedHashSet<EventType> toVisitETypes = new LinkedHashSet<EventType>();
         toVisitETypes.addAll(gEventCnts.keySet());
 
-        // logger.info("gFollowedByCnts: " + gFollowedByCnts.toString());
-        // logger.info("gEventConditionalCnts: " +
-        // gEventCoOccurrences.toString());
-        // logger.info("tTypeFollowingTypeCnts is "
-        // + tTypeFollowingTypeCnts.toString());
+        logger.info("gFollowedByCnts: " + gFollowedByCnts.toString());
+        logger.info("gEventCoOccurrences: " + gEventCoOccurrences.toString());
+        logger.info("gEventTypesOrderedBalances is "
+                + gEventTypesOrderedBalances.toString());
 
         for (EventType e1 : gEventCnts.keySet()) {
             // We don't consider (e1, e1) as these would only generate local
