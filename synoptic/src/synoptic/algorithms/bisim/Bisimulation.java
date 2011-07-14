@@ -118,9 +118,12 @@ public abstract class Bisimulation {
             // If we already have a split for that partition,
             // incorporate the new split into it.
             splitsToDoByPartition.get(partitionBeingSplit).incorporate(splitOp);
+            logger.info("Incorporating new split by partition: "
+                    + splitOp.toString());
         } else {
             // Otherwise, record this split as the only one for this partition
             splitsToDoByPartition.put(partitionBeingSplit, splitOp);
+            logger.info("New split by partition: " + splitOp.toString());
         }
         // The split has no other violations once the split is performed.
         return true;
@@ -138,12 +141,17 @@ public abstract class Bisimulation {
         // there's probably room for a heuristic here.
         for (RelationPath<Partition> counterexampleTrace : counterexampleTraces) {
 
+            logger.fine("Considering counterexample: "
+                    + counterexampleTrace.toString());
+
             // Get the possible splits that might resolve this counter-example.
             List<PartitionSplit> candidateSplits = getSplits(
                     counterexampleTrace, pGraph);
 
             // Permute the list of candidates.
             Collections.shuffle(candidateSplits, Main.random);
+
+            logger.fine("candidateSplits are: " + candidateSplits.toString());
 
             if (combineCandidates) {
                 PartitionMultiSplit combinedSplit = null;
@@ -180,9 +188,22 @@ public abstract class Bisimulation {
                         combinedSplit)) {
                     // Remember that we can resolve this invariant violation.
                     newlySatisfiedInvariants.add(counterexampleTrace.invariant);
+                    logger.fine("newlySatInvariants: "
+                            + newlySatisfiedInvariants.toString());
                 }
 
             } else {
+                // TODO: why is this a loop, and not just a single choice of
+                // candidate split?
+
+                // (mostly performance, but also sub-optimality) BUG: I think I
+                // understand -- this is
+                // used to try all
+                // potential
+                // splits in the case that one of them makes the invariant true.
+                // BUT, we don't need to incorporate multiple ones if they both
+                // result in making the invariant true!
+
                 for (PartitionSplit candidateSplit : candidateSplits) {
                     if (Main.performExtraChecks) {
                         // getSplits() should never generate invalid splits.

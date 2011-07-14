@@ -166,29 +166,31 @@ public abstract class InvariantMiner {
      * @param gEventCnts
      * @param gFollowedByCnts
      * @param gPrecedesCnts
+     * @param gEventCoOccurrences
      * @return
      */
     protected TemporalInvariantSet extractConcurrencyInvariantsFromWalkCounts(
             String relation,
             LinkedHashMap<EventType, Integer> gEventCnts,
             LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gFollowedByCnts,
-            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gPrecedesCnts,
-            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> traceCoOccurrenceCnts) {
+            LinkedHashMap<EventType, LinkedHashSet<EventType>> gEventCoOccurrences,
+            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gEventTypesOrderedBalances) {
 
         Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
         LinkedHashSet<EventType> toVisitETypes = new LinkedHashSet<EventType>();
         toVisitETypes.addAll(gEventCnts.keySet());
 
-        logger.info("gFollowedByCnts: " + gFollowedByCnts.toString());
-        logger.info("gPrecedesCnts: " + gPrecedesCnts.toString());
-        logger.info("traceCoOccurrenceCnts: "
-                + traceCoOccurrenceCnts.toString());
+        // logger.info("gFollowedByCnts: " + gFollowedByCnts.toString());
+        // logger.info("gEventConditionalCnts: " +
+        // gEventCoOccurrences.toString());
+        // logger.info("tTypeFollowingTypeCnts is "
+        // + tTypeFollowingTypeCnts.toString());
 
         for (EventType e1 : gEventCnts.keySet()) {
             // We don't consider (e1, e1) as these would only generate local
             // invariants, and we do not consider (e1,e2) if we've already
-            // considered (e2,e1).
+            // considered (e2,e1) as distributed invariants are symmetric.
             toVisitETypes.remove(e1);
 
             for (EventType e2 : toVisitETypes) {
@@ -208,9 +210,7 @@ public abstract class InvariantMiner {
                 }
 
                 int e1_fby_e2 = 0;
-                int e1_p_e2 = 0;
                 int e2_fby_e1 = 0;
-                int e2_p_e1 = 0;
 
                 if (gFollowedByCnts.containsKey(e1)
                         && gFollowedByCnts.get(e1).containsKey(e2)) {
@@ -221,44 +221,36 @@ public abstract class InvariantMiner {
                     e2_fby_e1 = gFollowedByCnts.get(e2).get(e1);
                 }
 
-                if (gPrecedesCnts.containsKey(e1)
-                        && gPrecedesCnts.get(e1).containsKey(e2)) {
-                    e1_p_e2 = gPrecedesCnts.get(e1).get(e2);
-                }
-
-                if (gPrecedesCnts.containsKey(e2)
-                        && gPrecedesCnts.get(e2).containsKey(e1)) {
-                    e2_p_e1 = gPrecedesCnts.get(e2).get(e1);
-                }
-
                 // logger.info("-- e1: " + e1.toString() + ", e2: " +
                 // e2.toString() + "\n   e1_fby_e2: "
                 // + Internae1_fby_e2 e1_p_e2, e2_fby_e1, e2_p_e1)
 
                 if (e1_fby_e2 == 0 && e2_fby_e1 == 0) {
-                    // Potential concurrency if e1 and e2 _ever_ co-appeared in
-                    // the same trace.
-                    if ((traceCoOccurrenceCnts.containsKey(e1) && traceCoOccurrenceCnts
-                            .get(e1).containsKey(e2))
-                            || (traceCoOccurrenceCnts.containsKey(e2) && traceCoOccurrenceCnts
-                                    .get(e2).containsKey(e1))) {
+                    // That is, e1 NFby e2 && e2 NFby e1 means that e1 and e2
+                    // are concurrent if they _ever_ co-appeared in the same
+                    // trace.
+                    if ((gEventCoOccurrences.containsKey(e1) && gEventCoOccurrences
+                            .get(e1).contains(e2))
+                            || (gEventCoOccurrences.containsKey(e2) && gEventCoOccurrences
+                                    .get(e2).contains(e1))) {
                         invariants.add(new AlwaysConcurrentInvariant(
                                 (DistEventType) e1, (DistEventType) e2,
                                 relation));
                     }
-                } else if (e1_fby_e2 == e1_p_e2 && e2_fby_e1 == e2_p_e1) {
-                    // Potential lack of concurrency if e1 and e2 _always_
-                    // co-appeared in the same trace.
-                    int e1_cooccur_e2 = 0;
-                    if (traceCoOccurrenceCnts.containsKey(e1)
-                            && traceCoOccurrenceCnts.get(e1).containsKey(e2)) {
-                        e1_cooccur_e2 = traceCoOccurrenceCnts.get(e1).get(e2);
-                    } else if (traceCoOccurrenceCnts.containsKey(e2)
-                            && traceCoOccurrenceCnts.get(e2).containsKey(e1)) {
-                        e1_cooccur_e2 = traceCoOccurrenceCnts.get(e2).get(e1);
-                    }
-                    if (e1_cooccur_e2 == (e1_fby_e2 + e2_fby_e1)) {
-                        // Definite lack of concurrency.
+                } else if (e1_fby_e2 != 0 || e2_fby_e1 != 0) {
+                    // e1 was ordered with e2 or e2 was ordered with e1 at least
+                    // once. Now we need to check whether they were _always_
+                    // ordered w.r.t each other whenever they co-appeared in the
+                    // same trace.
+
+                    // logger.info("Potentially NeverConcurrent between "
+                    // + e1.toString() + " and " + e2.toString());
+
+                    // Both [e1][e2] and [e2][e1] records must exist since the
+                    // two events co-appeared and therefore a record was created
+                    // for both pairs during the DAGWalkingPO traversal
+                    if (gEventTypesOrderedBalances.get(e1).get(e2) == 0
+                            && gEventTypesOrderedBalances.get(e2).get(e1) == 0) {
                         invariants.add(new NeverConcurrentInvariant(
                                 (DistEventType) e1, (DistEventType) e2,
                                 relation));

@@ -35,7 +35,6 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.JApplet;
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -117,6 +116,7 @@ public class JungGui extends JApplet implements Printable {
     private JMenuItem refineOption;
     private JMenuItem totalRefine;
     private JMenuItem coarsenOption;
+    private JMenuItem viewPathsOption;
     /**
      * The visual representation of pGraph, displayed by the Applet.
      */
@@ -274,9 +274,8 @@ public class JungGui extends JApplet implements Printable {
         actions.add(createRefineMenuItem());
         actions.add(createTotalRefineMenuItem());
         actions.add(createCoarsenMenuItem());
-
+        actions.add(createViewPathsMenuItem());
         menuBar.add(actions);
-        menuBar.add(createPathsMenu());
 
         frame.setJMenuBar(menuBar);
 
@@ -349,9 +348,10 @@ public class JungGui extends JApplet implements Printable {
         });
     }
 
-    public JButton createPathsMenu() {
-        JButton traces = new JButton("View paths through selected vertices");
-        traces.addActionListener(new ActionListener() {
+    public JMenuItem createViewPathsMenuItem() {
+        viewPathsOption = new JMenuItem("View paths through selected nodes");
+        viewPathsOption.setEnabled(true);
+        viewPathsOption.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 PickedState<INode<Partition>> pState = vizViewer
@@ -450,7 +450,7 @@ public class JungGui extends JApplet implements Printable {
                 }
             }
         });
-        return traces;
+        return viewPathsOption;
     }
 
     private void traverse(EventNode event, Set<ITransition<Partition>> path) {
@@ -869,7 +869,8 @@ public class JungGui extends JApplet implements Printable {
                         for (EventNode event : vertex.getEvents()) {
                             if (event.getLine() != null) {
                                 validLines.add(new String[] {
-                                        event.getLineNum() + "", event.getLine(),
+                                        event.getLineNum() + "",
+                                        event.getLine(),
                                         event.getShortFileName() });
                             }
                         }

@@ -29,8 +29,6 @@ public class GWTPair<L, R> implements Serializable {
 
     @Override
     public String toString() {
-        return new String("<" +
-        		l.toString() +
-        		"," + r.toString() + ">");
+        return new String("<" + l.toString() + "," + r.toString() + ">");
     }
 }

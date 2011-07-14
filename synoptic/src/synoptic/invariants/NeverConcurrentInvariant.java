@@ -23,7 +23,7 @@ public class NeverConcurrentInvariant extends BinaryInvariant {
     // TODO: eliminate the copying of hashCode() and equals() below with a copy
     // in AlwaysConcurrentInvariant
 
-    // NOTE: this invariant is symmetric -- ACwith(x,y) == ACwith(y,x)
+    // NOTE: this invariant is symmetric -- NCwith(x,y) == NCwith(y,x)
     @Override
     public int hashCode() {
         final int prime = 31;

@@ -27,7 +27,7 @@ public class GWTTriplet<L, M, R> implements Serializable {
     }
 
     public M getMiddle() {
-    	return m;
+        return m;
     }
 
     public R getRight() {
@@ -36,9 +36,7 @@ public class GWTTriplet<L, M, R> implements Serializable {
 
     @Override
     public String toString() {
-        return new String("<" +
-        		l.toString() +
-        		"," + m.toString() +
-        		"," + r.toString() + ">");
+        return new String("<" + l.toString() + "," + m.toString() + ","
+                + r.toString() + ">");
     }
 }

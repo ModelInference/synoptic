@@ -79,15 +79,6 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         // traversal).
         LinkedHashMap<EventNode, Integer> tNodeToNumChildrenMap = new LinkedHashMap<EventNode, Integer>();
 
-        // Maps a node to a set of event types that precede it. In practice,
-        // this only maps those nodes that are either (1) have a parent with
-        // multiple children, or (2) have multiple parents.
-        LinkedHashMap<EventNode, LinkedHashSet<EventType>> tNodePrecedesSetMap = new LinkedHashMap<EventNode, LinkedHashSet<EventType>>();
-        // Maps a node to a set of event types that follow it it. In practice,
-        // this only maps those nodes that are either (1) have multiple
-        // children, or (2) have a child with multiple parents.
-        LinkedHashMap<EventNode, LinkedHashSet<EventType>> tNodeFollowsSetMap = new LinkedHashMap<EventNode, LinkedHashSet<EventType>>();
-
         // Maps a node to a set of nodes that immediately precede this node (the
         // node's parents). Build during pre-traversal, and used for mining
         // FollowedBy counts. We do this because nodes only know about their
@@ -97,17 +88,54 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         // Maintains a map of trace id to the set of initial nodes in the trace.
         LinkedHashMap<Integer, LinkedHashSet<EventNode>> traceIdToInitNodes = buildTraceIdToInitNodesMap(initNode);
 
-        // logger.info("Computed traceIdToInitNodes map: %s"
-        // + traceIdToInitNodes.toString());
-
         // A couple of hash sets for containing parents of special nodes.
         LinkedHashSet<EventNode> initNodeHashSet = new LinkedHashSet<EventNode>();
         initNodeHashSet.add(initNode);
         LinkedHashSet<EventNode> emptyNodeHashSet = new LinkedHashSet<EventNode>();
 
-        // Keeps track of the number of times two events co-occurred across
-        // all traces.
-        LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> traceCoOccurrenceCnts = new LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>>();
+        // Given two event types e1, e2. if gEventCoOccurrences[e1] contains e2
+        // then there are instances of e1 and e2 that appeared in the same
+        // trace.
+        LinkedHashMap<EventType, LinkedHashSet<EventType>> gEventCoOccurrences = new LinkedHashMap<EventType, LinkedHashSet<EventType>>();
+
+        // Counts the number of times an event type appears in a trace.
+        LinkedHashMap<EventType, Integer> tEventCnts = new LinkedHashMap<EventType, Integer>();
+
+        // For an EventNode n, and an event type e, maintains the count of event
+        // instances of type e that followed n
+        LinkedHashMap<EventNode, LinkedHashMap<EventType, Integer>> tNodeFollowingTypeCnts = new LinkedHashMap<EventNode, LinkedHashMap<EventType, Integer>>();
+
+        // For an EventNode n, and an event type e, maintains the count of event
+        // instances of type e that preceded n
+        LinkedHashMap<EventNode, LinkedHashMap<EventType, Integer>> tNodePrecedingTypeCnts = new LinkedHashMap<EventNode, LinkedHashMap<EventType, Integer>>();
+
+        // For two event types e1, e2 in a trace; at the end of the trace
+        // traversal tTypeFollowingTypeCnts[e1][e2] will represent the total
+        // count of e2 event instances that followed all of the e1 event
+        // instances.
+        // For example, if the trace is linear: a,a,b,a,b
+        // Then tTypeFollowingTypeCnts[a][b] = 5
+        // 2 b's follow the first and second a, and 1 b follows the 3rd a, so
+        // 2+2+1 =5
+        LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> tTypeFollowingTypeCnts = new LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>>();
+
+        // For two event types e1, e2 in a trace; at the end of the trace
+        // traversal tTypePrecedingTypeCnts[e1][e2] will represent the total
+        // count of e2 event instances that preceded all of the e1 event
+        // instances.
+        // For example, if the trace is linear: a,a,b,a,b
+        // Then tTypePrecedingTypeCnts[b][a] = 5
+        // 2 a's precede the first b, and 3 a's precede the second b, so 2+3 =5
+        LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> tTypePrecedingTypeCnts = new LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>>();
+
+        // For two event types e1, e2 across all the traces,
+        // gEventTypesOrderedBalances[e1][e2] represents the ordering balance.
+        // That is, if gEventTypesOrderedBalances[e1][e2] = 0 then every
+        // instance of e1 and every instance of e2 that appear in the same trace
+        // were totally ordered. Otherwise, gEventTypesOrderedBalances[e1][e2]
+        // is negative, indicating that in some trace some instance of e1 and
+        // some instance of e2 were not ordered.
+        LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gEventTypesOrderedBalances = new LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>>();
 
         // Iterate through all the traces.
         for (LinkedHashSet<EventNode> initTraceNodes : traceIdToInitNodes
@@ -127,62 +155,119 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                 // the parents map, the tSeenETypes set, and determines the
                 // terminal node in the trace.
                 termNodeNew = preTraverseTrace(curNode, tNodeToNumParentsMap,
-                        tNodeToNumChildrenMap, tNodeParentsMap, tSeenETypes);
+                        tNodeToNumChildrenMap, tNodeParentsMap, tEventCnts,
+                        tNodeFollowingTypeCnts, tNodePrecedingTypeCnts,
+                        tSeenETypes);
                 if (termNodeNew != null) {
                     termNode = termNodeNew;
                 }
             }
             assert (termNode != null);
 
-            // Update the co-occurrence counts.
+            // For every pair of event types in the trace record that the two
+            // types have event instances that co-occur in some trace.
             LinkedHashSet<EventType> toVisitETypes = new LinkedHashSet<EventType>();
             toVisitETypes.addAll(tSeenETypes);
             for (EventType e1 : tSeenETypes) {
-                // We don't consider (e1, e1) as these would only generate local
-                // invariants, and we do not consider (e1,e2) if we've already
-                // considered (e2,e1).
+                // We don't consider (e1, e1) as these would be useful for local
+                // invariants and we don't use conditional counts for mining
+                // local invariants; and we do not consider (e1,e2) if we've
+                // already considered (e2,e1).
                 toVisitETypes.remove(e1);
                 for (EventType e2 : toVisitETypes) {
+                    // Optimization: We won't be using event co-occurrence
+                    // information for
+                    // events that are local.
                     if (e1 == e2) {
                         continue;
                     }
-                    if (traceCoOccurrenceCnts.containsKey(e1)) {
-                        if (traceCoOccurrenceCnts.get(e1).containsKey(e2)) {
-                            traceCoOccurrenceCnts.get(e1).put(e2,
-                                    traceCoOccurrenceCnts.get(e1).get(e2) + 1);
-                        } else {
-                            traceCoOccurrenceCnts.get(e1).put(e2, 1);
-                        }
-                    } else if (traceCoOccurrenceCnts.containsKey(e2)) {
-                        if (traceCoOccurrenceCnts.get(e2).containsKey(e1)) {
-                            traceCoOccurrenceCnts.get(e2).put(e1,
-                                    traceCoOccurrenceCnts.get(e2).get(e1) + 1);
-                        } else {
-                            traceCoOccurrenceCnts.get(e2).put(e1, 1);
-                        }
-                    } else {
-                        LinkedHashMap<EventType, Integer> map = new LinkedHashMap<EventType, Integer>();
-                        map.put(e2, 1);
-                        traceCoOccurrenceCnts.put(e1, map);
+                    if (!(e1 instanceof DistEventType)
+                            || !(e2 instanceof DistEventType)) {
+                        continue;
                     }
+                    if (((DistEventType) e1).getPID().equals(
+                            ((DistEventType) e2).getPID())) {
+
+                        continue;
+                    }
+                    // </Optimization>
+
+                    // Record that e1 and e2 co-occur
+                    if (!gEventCoOccurrences.containsKey(e1)) {
+                        gEventCoOccurrences.put(e1,
+                                new LinkedHashSet<EventType>());
+                    }
+                    gEventCoOccurrences.get(e1).add(e2);
                 }
             }
 
             // logger.info("co-occur-cnts: " +
             // traceCoOccurrenceCnts.toString());
 
-            // AP counts collection: traverse the trace rooted at each initial
-            // node in the forward direction.
+            // ////////////////////////////////////////////////////////////////////////
+            // Precedes relations recording: traverse the trace rooted at each
+            // initial node in the forward direction.
             for (EventNode curNode : initTraceNodes) {
-                forwardTraverseTrace(curNode, tNodeToNumParentsMap,
-                        tNodePrecedesSetMap, null, gPrecedesCnts, gEventCnts);
+                forwardTraverseTrace(curNode, tNodeToNumParentsMap, null,
+                        tNodePrecedingTypeCnts, tTypePrecedingTypeCnts,
+                        gPrecedesCnts, gEventCnts);
             }
 
-            // AFby\NFby counts collection: traverse the trace rooted at
+            // ////////////////////////////////////////////////////////////////////////
+            // FollowedBy relations recording: traverse the trace rooted at
             // termNode in the reverse direction (following the
             // tNodeParentsMap).
             reverseTraverseTrace(termNode, tNodeToNumChildrenMap,
-                    tNodeParentsMap, tNodeFollowsSetMap, null, gFollowedByCnts);
+                    tNodeParentsMap, null, tNodeFollowingTypeCnts,
+                    tTypeFollowingTypeCnts, gFollowedByCnts);
+
+            // Compute the gEventTypesOrderedBalances for the current trace.
+            for (EventType e1 : tSeenETypes) {
+                for (EventType e2 : tSeenETypes) {
+                    // Optimization: we won't be using ordering balance for
+                    // events that are local.
+                    if (e1 == e2) {
+                        continue;
+                    }
+                    if (!(e1 instanceof DistEventType)
+                            || !(e2 instanceof DistEventType)) {
+                        continue;
+                    }
+                    if (((DistEventType) e1).getPID().equals(
+                            ((DistEventType) e2).getPID())) {
+
+                        continue;
+                    }
+                    // </Optimization>
+
+                    int typeFtypeCnt = 0;
+                    if (tTypeFollowingTypeCnts.containsKey(e1)
+                            && tTypeFollowingTypeCnts.get(e1).containsKey(e2)) {
+                        typeFtypeCnt = tTypeFollowingTypeCnts.get(e1).get(e2);
+                    }
+
+                    int numE1 = tEventCnts.get(e1);
+                    int numE2 = tEventCnts.get(e2);
+
+                    int typePtypeCnt = 0;
+                    if (tTypePrecedingTypeCnts.containsKey(e1)
+                            && tTypePrecedingTypeCnts.get(e1).containsKey(e2)) {
+                        typePtypeCnt = tTypePrecedingTypeCnts.get(e1).get(e2);
+                    }
+
+                    if (!gEventTypesOrderedBalances.containsKey(e1)) {
+                        gEventTypesOrderedBalances.put(e1,
+                                new LinkedHashMap<EventType, Integer>());
+                    }
+                    // NOTE: since numE1 * numE2 is always >= typeFtypeCnt +
+                    // typePtypeCnt, the value is always <= 0. With 0 indicating
+                    // that \forall \hat{e1}, \forall \hat{e2} e1 \precedes e2
+                    // or e2 \precedes e1. We use this to deduce that e1 and e2
+                    // are never concurrent.
+                    gEventTypesOrderedBalances.get(e1).put(e2,
+                            typeFtypeCnt + typePtypeCnt - (numE1 * numE2));
+                }
+            }
 
             // Update the AlwaysFollowsINITIALSet set of events by
             // intersecting it with all events seen in this partition.
@@ -197,10 +282,12 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // Clear all the per-trace structures to prepare for the next trace.
             tNodeToNumParentsMap.clear();
             tNodeParentsMap.clear();
-            tNodeFollowsSetMap.clear();
-            tNodePrecedesSetMap.clear();
             tNodeToNumChildrenMap.clear();
+            tEventCnts.clear();
             tSeenETypes.clear();
+            tNodeFollowingTypeCnts.clear();
+            tNodePrecedingTypeCnts.clear();
+            tTypePrecedingTypeCnts.clear();
 
             // At this point, we've completed all counts computation for the
             // trace rooted at curNode.
@@ -213,8 +300,8 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         if (mineConcurrencyInvariants) {
             // Extract the concurrency invariants based on counts.
             invs.add(extractConcurrencyInvariantsFromWalkCounts(relation,
-                    gEventCnts, gFollowedByCnts, gPrecedesCnts,
-                    traceCoOccurrenceCnts));
+                    gEventCnts, gPrecedesCnts, gEventCoOccurrences,
+                    gEventTypesOrderedBalances));
         }
         return invs;
     }
@@ -231,21 +318,41 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      * @param tSeenETypes
      * @return the terminal node for this trace
      */
-    public EventNode preTraverseTrace(EventNode curNode,
+    public EventNode preTraverseTrace(
+            EventNode curNode,
             LinkedHashMap<EventNode, Integer> tNodeToNumParentsMap,
             LinkedHashMap<EventNode, Integer> tNodeToNumChildrenMap,
             LinkedHashMap<EventNode, LinkedHashSet<EventNode>> tNodeParentsMap,
+            LinkedHashMap<EventType, Integer> tEventCnts,
+            LinkedHashMap<EventNode, LinkedHashMap<EventType, Integer>> tNodeFollowingTypeCnts,
+            LinkedHashMap<EventNode, LinkedHashMap<EventType, Integer>> tNodePrecedingTypeCnts,
             LinkedHashSet<EventType> tSeenETypes) {
 
         LinkedHashSet<EventNode> parentNodes;
         EventNode childNode;
 
         while (true) {
+            EventType a = curNode.getEType();
+            if (!tNodeFollowingTypeCnts.containsKey(curNode)) {
+                tNodeFollowingTypeCnts.put(curNode,
+                        new LinkedHashMap<EventType, Integer>());
+            }
+            if (!tNodePrecedingTypeCnts.containsKey(curNode)) {
+                tNodePrecedingTypeCnts.put(curNode,
+                        new LinkedHashMap<EventType, Integer>());
+            }
 
             // Store the total number of children that this node has.
             if (!tNodeToNumChildrenMap.containsKey(curNode)) {
+                // If we haven't visited this node yet...
                 tNodeToNumChildrenMap.put(curNode, curNode.getTransitions()
                         .size());
+                // Also, increment the count of the corresponding event types.
+                if (tEventCnts.containsKey(a)) {
+                    tEventCnts.put(a, tEventCnts.get(a) + 1);
+                } else {
+                    tEventCnts.put(a, 1);
+                }
             }
 
             // Increment the number of parents for the current node.
@@ -270,8 +377,8 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             }
 
             // Record that we've seen the curNode eType. Note that this
-            // set will deliberately miss INITIAL\TERMINAL types.
-            tSeenETypes.add(curNode.getEType());
+            // set deliberately omits the INITIAL\TERMINAL types.
+            tSeenETypes.add(a);
 
             // curNode has multiple children -- handle them
             // outside of the while loop.
@@ -311,7 +418,8 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             parentNodes.add(curNode);
 
             EventNode ret = preTraverseTrace(childNode, tNodeToNumParentsMap,
-                    tNodeToNumChildrenMap, tNodeParentsMap, tSeenETypes);
+                    tNodeToNumChildrenMap, tNodeParentsMap, tEventCnts,
+                    tNodeFollowingTypeCnts, tNodePrecedingTypeCnts, tSeenETypes);
             if (ret != null) {
                 termNode = ret;
             }
@@ -328,46 +436,30 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      * @param tNodeToNumChildrenMap
      * @param tNodeParentsMap
      * @param tNodeFollowsSetMap
-     * @param tFollowingTypes
+     * @param tFollowingTypeCnts
      * @param gFollowedByCnts
      */
     public void reverseTraverseTrace(
             EventNode curNode,
             LinkedHashMap<EventNode, Integer> tNodeToNumChildrenMap,
             LinkedHashMap<EventNode, LinkedHashSet<EventNode>> tNodeParentsMap,
-            LinkedHashMap<EventNode, LinkedHashSet<EventType>> tNodeFollowsSetMap,
-            LinkedHashSet<EventType> tFollowingTypes,
+            LinkedHashMap<EventType, Integer> tFollowingTypeCnts,
+            LinkedHashMap<EventNode, LinkedHashMap<EventType, Integer>> tNodeFollowingTypeCnts,
+            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> tTypeFollowingTypeCnts,
             LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gFollowedByCnts) {
-
-        if (!tNodeFollowsSetMap.containsKey(curNode)) {
-            tNodeFollowsSetMap.put(curNode, new LinkedHashSet<EventType>());
-            if (tFollowingTypes == null) {
-                tFollowingTypes = tNodeFollowsSetMap.get(curNode);
-            }
-        }
-        if (tFollowingTypes != null) {
-            tNodeFollowsSetMap.get(curNode).addAll(tFollowingTypes);
-        }
 
         while (true) {
             // If we reach a node that has nodes we haven't seen followed before
             // then we want to include them in the tFollowingTypes.
-            if (tNodeFollowsSetMap.containsKey(curNode)) {
-                tNodeFollowsSetMap.get(curNode).addAll(tFollowingTypes);
-                tFollowingTypes = tNodeFollowsSetMap.get(curNode);
-            }
+            mergeMaps(tNodeFollowingTypeCnts.get(curNode), tFollowingTypeCnts);
+            tFollowingTypeCnts = tNodeFollowingTypeCnts.get(curNode);
 
             // This guarantees that we only process curNode once we have
             // traversed all of its children (while accumulating the preceding
-            // types in the tFollowtNodeFollowsSetMapingTypes above).
+            // types in the tFollowsNodeFollowsSetMapingTypes above).
             if (tNodeToNumChildrenMap.get(curNode) > 1) {
                 tNodeToNumChildrenMap.put(curNode,
                         tNodeToNumChildrenMap.get(curNode) - 1);
-                if (!tNodeFollowsSetMap.containsKey(curNode)) {
-                    tNodeFollowsSetMap.put(curNode,
-                            new LinkedHashSet<EventType>());
-                }
-                tNodeFollowsSetMap.get(curNode).addAll(tFollowingTypes);
                 return;
             }
             // NOTE: We don't need to decrement tNodeToNumChildrenMap[curNode]
@@ -380,21 +472,33 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
             // Update the global precedes counts based on the a events that
             // preceded the current b event in this trace.
-            for (EventType b : tFollowingTypes) {
-                LinkedHashMap<EventType, Integer> precedingLabelCnts;
+            for (EventType b : tFollowingTypeCnts.keySet()) {
+                LinkedHashMap<EventType, Integer> followingLabelCnts;
                 if (!gFollowedByCnts.containsKey(a)) {
-                    precedingLabelCnts = new LinkedHashMap<EventType, Integer>();
-                    gFollowedByCnts.put(a, precedingLabelCnts);
+                    followingLabelCnts = new LinkedHashMap<EventType, Integer>();
+                    gFollowedByCnts.put(a, followingLabelCnts);
                 } else {
-                    precedingLabelCnts = gFollowedByCnts.get(a);
+                    followingLabelCnts = gFollowedByCnts.get(a);
                 }
-                if (!precedingLabelCnts.containsKey(b)) {
-                    precedingLabelCnts.put(b, 1);
+                if (!followingLabelCnts.containsKey(b)) {
+                    followingLabelCnts.put(b, 1);
                 } else {
-                    precedingLabelCnts.put(b, precedingLabelCnts.get(b) + 1);
+                    followingLabelCnts.put(b, followingLabelCnts.get(b) + 1);
                 }
             }
-            tFollowingTypes.add(a);
+
+            if (!tTypeFollowingTypeCnts.containsKey(a)) {
+                tTypeFollowingTypeCnts.put(a,
+                        new LinkedHashMap<EventType, Integer>());
+            }
+
+            mergeMaps(tTypeFollowingTypeCnts.get(a), tFollowingTypeCnts);
+
+            if (!tFollowingTypeCnts.containsKey(a)) {
+                tFollowingTypeCnts.put(a, 1);
+            } else {
+                tFollowingTypeCnts.put(a, tFollowingTypeCnts.get(a) + 1);
+            }
 
             // Nodes with multiple parents are handled outside the loop.
             if (tNodeParentsMap.get(curNode).size() != 1) {
@@ -422,7 +526,8 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // Only process those parents that are not INITIAL nodes.
             if (tNodeParentsMap.get(parentNode).size() != 0) {
                 reverseTraverseTrace(parentNode, tNodeToNumChildrenMap,
-                        tNodeParentsMap, tNodeFollowsSetMap, tFollowingTypes,
+                        tNodeParentsMap, tFollowingTypeCnts,
+                        tNodeFollowingTypeCnts, tTypeFollowingTypeCnts,
                         gFollowedByCnts);
             }
         }
@@ -436,36 +541,25 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      * @param curNode
      * @param tNodeToNumParentsMap
      * @param tNodePrecedesSetMap
-     * @param tPrecedingTypes
+     * @param tPrecedingTypeCnts
      * @param gPrecedesCnts
      * @param gEventCnts
      */
     public void forwardTraverseTrace(
             EventNode curNode,
             LinkedHashMap<EventNode, Integer> tNodeToNumParentsMap,
-            LinkedHashMap<EventNode, LinkedHashSet<EventType>> tNodePrecedesSetMap,
-            LinkedHashSet<EventType> tPrecedingTypes,
+            LinkedHashMap<EventType, Integer> tPrecedingTypeCnts,
+            LinkedHashMap<EventNode, LinkedHashMap<EventType, Integer>> tNodePrecedingTypeCnts,
+            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> tTypePrecedingTypeCnts,
             LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gPrecedesCnts,
             LinkedHashMap<EventType, Integer> gEventCnts) {
-
-        if (!tNodePrecedesSetMap.containsKey(curNode)) {
-            tNodePrecedesSetMap.put(curNode, new LinkedHashSet<EventType>());
-            if (tPrecedingTypes == null) {
-                tPrecedingTypes = tNodePrecedesSetMap.get(curNode);
-            }
-        }
-        if (tPrecedingTypes != null) {
-            tNodePrecedesSetMap.get(curNode).addAll(tPrecedingTypes);
-        }
 
         while (true) {
             // If we reach a node that has nodes preceding it
             // then we want to include them in the tPrecedingTypes and we want
             // to save the nodes that preceded us so far in the same map.
-            if (tNodePrecedesSetMap.containsKey(curNode)) {
-                tNodePrecedesSetMap.get(curNode).addAll(tPrecedingTypes);
-                tPrecedingTypes = tNodePrecedesSetMap.get(curNode);
-            }
+            mergeMaps(tNodePrecedingTypeCnts.get(curNode), tPrecedingTypeCnts);
+            tPrecedingTypeCnts = tNodePrecedingTypeCnts.get(curNode);
 
             // This guarantees that we only process curNode once we have
             // traversed all of its parents (while accumulating the preceding
@@ -473,11 +567,6 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             if (tNodeToNumParentsMap.get(curNode) > 1) {
                 tNodeToNumParentsMap.put(curNode,
                         tNodeToNumParentsMap.get(curNode) - 1);
-                if (!tNodePrecedesSetMap.containsKey(curNode)) {
-                    tNodePrecedesSetMap.put(curNode,
-                            new LinkedHashSet<EventType>());
-                }
-                tNodePrecedesSetMap.get(curNode).addAll(tPrecedingTypes);
                 return;
             }
             // NOTE: We don't need to decrement tNodeToNumParentsMap[curNode]
@@ -490,7 +579,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
             // Update the global precedes counts based on the a events that
             // preceded the current b event in this trace.
-            for (EventType a : tPrecedingTypes) {
+            for (EventType a : tPrecedingTypeCnts.keySet()) {
                 LinkedHashMap<EventType, Integer> precedingLabelCnts;
                 if (!gPrecedesCnts.containsKey(a)) {
                     precedingLabelCnts = new LinkedHashMap<EventType, Integer>();
@@ -504,7 +593,18 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                     precedingLabelCnts.put(b, precedingLabelCnts.get(b) + 1);
                 }
             }
-            tPrecedingTypes.add(b);
+
+            if (!tTypePrecedingTypeCnts.containsKey(b)) {
+                tTypePrecedingTypeCnts.put(b,
+                        new LinkedHashMap<EventType, Integer>());
+            }
+            mergeMaps(tTypePrecedingTypeCnts.get(b), tPrecedingTypeCnts);
+
+            if (!tPrecedingTypeCnts.containsKey(b)) {
+                tPrecedingTypeCnts.put(b, 1);
+            } else {
+                tPrecedingTypeCnts.put(b, tPrecedingTypeCnts.get(b) + 1);
+            }
 
             // Update the global event counts.
             if (!gEventCnts.containsKey(b)) {
@@ -537,10 +637,33 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // Only process children that are not TERMINAL nodes.
             if (childNode.getTransitions().size() > 0) {
                 forwardTraverseTrace(childNode, tNodeToNumParentsMap,
-                        tNodePrecedesSetMap, tPrecedingTypes, gPrecedesCnts,
-                        gEventCnts);
+                        // tNodePrecedesSetMap,
+                        tPrecedingTypeCnts, tNodePrecedingTypeCnts,
+                        tTypePrecedingTypeCnts, gPrecedesCnts, gEventCnts);
             }
         }
         return;
     } // /forwardTraverseTrace
+
+    /**
+     * A helper function to merge the src map into the dst map, by adding the
+     * leaf values, or adding to an implicit 0 in the dst map if it doesn't
+     * contain the requistite keys.
+     * 
+     * @param dst
+     * @param src
+     */
+    private void mergeMaps(LinkedHashMap<EventType, Integer> dst,
+            LinkedHashMap<EventType, Integer> src) {
+        if (src == null) {
+            return;
+        }
+        for (EventType e : src.keySet()) {
+            if (!dst.containsKey(e)) {
+                dst.put(e, src.get(e));
+            } else {
+                dst.put(e, dst.get(e) + src.get(e));
+            }
+        }
+    }
 }

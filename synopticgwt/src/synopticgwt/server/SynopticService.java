@@ -1,7 +1,6 @@
 package synopticgwt.server;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -36,12 +35,11 @@ import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
-import synopticgwt.shared.GWTTriplet;
 import synopticgwt.shared.LogLine;
 
 /**
  * Implements the Synoptic service which does:
- *
+ * 
  * <pre>
  * - Log parsing
  * - Model refinement
@@ -63,7 +61,7 @@ public class SynopticService extends RemoteServiceServlet implements
     private Graph<EventNode> iGraph;
 
     // Used for exporting files.
-    private GraphVizExporter exporter = new GraphVizExporter();
+    private final GraphVizExporter exporter = new GraphVizExporter();
 
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods.
@@ -95,13 +93,13 @@ public class SynopticService extends RemoteServiceServlet implements
         unsatisfiedInvariants = (Set<ITemporalInvariant>) session
                 .getAttribute("unsatInvs");
         if (session.getAttribute("invariants") == null) {
-        	//TODO: throw appropriate exception
-        	throw new Exception();
+            // TODO: throw appropriate exception
+            throw new Exception();
         }
         minedInvs = (TemporalInvariantSet) session.getAttribute("invariants");
         if (session.getAttribute("inputGraph") == null) {
-        	//TODO: throw appropriate exception
-        	throw new Exception();
+            // TODO: throw appropriate exception
+            throw new Exception();
         }
         iGraph = (Graph<EventNode>) session.getAttribute("inputGraph");
         return;
@@ -109,7 +107,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
     /**
      * Converts a partition graph into a GWTGraph
-     *
+     * 
      * @param pGraph
      *            partition graph
      * @return Equivalent GWTGraph
@@ -132,30 +130,33 @@ public class SynopticService extends RemoteServiceServlet implements
                 graph.addNode(pNodeId, pNode.getEType().toString());
             }
 
-            /* Get the list of adjacent nodes that have the current
-             * pNode as the source.
+            /*
+             * Get the list of adjacent nodes that have the current pNode as the
+             * source.
              */
-            List<WeightedTransition<Partition>> adjacents =
-            		pNode.getWeightedTransitions();
+            List<WeightedTransition<Partition>> adjacents = pNode
+                    .getWeightedTransitions();
 
             // For every adjacent node, calculate the likelihood of the
             // transition, and add that to the graph's edge.
             for (WeightedTransition<Partition> wTransition : adjacents) {
-            	// The current adjacent partition.
-            	Partition adjPNode = wTransition.getTarget();
+                // The current adjacent partition.
+                Partition adjPNode = wTransition.getTarget();
 
                 if (nodeIds.containsKey(adjPNode.hashCode())) {
-                	adjPNodeId = nodeIds.get(adjPNode);
+                    adjPNodeId = nodeIds.get(adjPNode);
                 } else {
-                	// Add the node to the graph so it can be connected
-                	// if it doesn't exist.
+                    // Add the node to the graph so it can be connected
+                    // if it doesn't exist.
                     adjPNodeId = adjPNode.hashCode();
                     nodeIds.put(adjPNode, adjPNodeId);
                     graph.addNode(adjPNodeId, adjPNode.getEType().toString());
                 }
 
-                // Truncate the last three digits to make the weight more readable
-                Double transitionFrac = Math.ceil(wTransition.getFraction()*1000)/1000;
+                // Truncate the last three digits to make the weight more
+                // readable
+                Double transitionFrac = Math
+                        .ceil(wTransition.getFraction() * 1000) / 1000;
 
                 // Add the complete weighted edge
                 graph.addEdge(pNodeId, adjPNodeId, transitionFrac);
@@ -166,7 +167,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
     /**
      * Converts a TemporalInvariantSet into GWTInvariants
-     *
+     * 
      * @param invs
      *            TemporalInvariantSet
      * @return Equivalent GWTInvariants
@@ -178,13 +179,14 @@ public class SynopticService extends RemoteServiceServlet implements
             String invKey = inv.getShortName();
             GWTInvariant<String, String> invVal;
             if (inv instanceof BinaryInvariant) {
-            	invVal = new GWTInvariant<String, String>(((BinaryInvariant) inv)
-                        .getFirst().toString(), ((BinaryInvariant) inv)
-                        .getSecond().toString(), ((BinaryInvariant) inv)
-                        .getShortName());
+                invVal = new GWTInvariant<String, String>(
+                        ((BinaryInvariant) inv).getFirst().toString(),
+                        ((BinaryInvariant) inv).getSecond().toString(),
+                        ((BinaryInvariant) inv).getShortName());
 
-            	// Set a unique identification id.
-            	invVal.setID(inv.hashCode());
+                // Set a unique identification id.
+                invVal.setID(inv.hashCode());
+
                 GWTinvs.addInv(invKey, invVal);
             } else {
                 // TODO: throw an exception
@@ -239,27 +241,28 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Removes invariants from the server's collection.  Invariants are specified
-     * for removal based on whether their hash code matches any of the hashes passed
-     * to the method.
-     * The method requires that the input graph and invariant set fields have been initialized,
-     * and alters the
+     * Removes invariants from the server's collection. Invariants are specified
+     * for removal based on whether their hash code matches any of the hashes
+     * passed to the method. The method requires that the input graph and
+     * invariant set fields have been initialized, and alters the
+     * 
      * @param hashes
-     * 	The hash codes for the invariants to be removed.
+     *            The hash codes for the invariants to be removed.
      */
-    public GWTPair<GWTInvariantSet, GWTGraph> removeInvs
-    		(Set<Integer> hashes) throws Exception {
+    @Override
+    public GWTPair<GWTInvariantSet, GWTGraph> removeInvs(Set<Integer> hashes)
+            throws Exception {
 
-    	// Set up current state.
-    	retrieveSessionState();
+        // Set up current state.
+        retrieveSessionState();
 
-        LinkedHashSet<ITemporalInvariant> invariantsForRemoval =
-        	new LinkedHashSet<ITemporalInvariant>();
+        LinkedHashSet<ITemporalInvariant> invariantsForRemoval = new LinkedHashSet<ITemporalInvariant>();
         // Get the actual set of invariants to be removed.
         for (ITemporalInvariant inv : minedInvs) {
-        	if (hashes.contains(inv.hashCode())) {
-        		invariantsForRemoval.add(inv);
-        	}
+            if (hashes.contains(inv.hashCode())) {
+                invariantsForRemoval.add(inv);
+            }
+
         }
 
         // Remove all invariants.
@@ -271,8 +274,9 @@ public class SynopticService extends RemoteServiceServlet implements
     /**
      * Helper method for parseLog and removInvs methods
      */
-    private GWTPair<GWTInvariantSet, GWTGraph> convertToGWT(TemporalInvariantSet minedInvs,
-    														Graph<EventNode> inputGraph) {
+
+    private GWTPair<GWTInvariantSet, GWTGraph> convertToGWT(
+            TemporalInvariantSet minedInvs, Graph<EventNode> inputGraph) {
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(minedInvs);
 
         // Create a PartitionGraph and convert it into a GWTGraph.
@@ -425,29 +429,32 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Exports the current model as a .dot
-     * file. Returns the filename/directory.
+     * <<<<<<< local Exports the current model and downloads it as a .png and
+     * .dot file. Returns the filename/directory. ======= Exports the current
+     * model as a .dot file. Returns the filename/directory. >>>>>>> other
      */
+
+    @Override
     public String exportDot() throws Exception {
-    	retrieveSessionState();
-    	Calendar now = Calendar.getInstance();
-    	// Naming convention for the file can be improved
-    	String fileString = userExport
-    		+ now.getTimeInMillis() + "exportmodel.dot";
-    	File fileName = new File(fileString);
-    	exporter.export(fileName, pGraph);
-    	return fileString;
+        retrieveSessionState();
+        Calendar now = Calendar.getInstance();
+        // Naming convention for the file can be improved
+        String fileString = userExport + now.getTimeInMillis()
+                + "exportmodel.dot";
+        File fileName = new File(fileString);
+        exporter.export(fileName, pGraph);
+        return fileString;
     }
 
     /**
-     * Exports the current model as a .png file.
-     * Returns the filename/directory.
+     * Exports the current model as a .png file. Returns the filename/directory.
      */
+    @Override
     public String exportPng() throws Exception {
-    	String fileString = exportDot();
-    	File fileName = new File(fileString);
-    	exporter.exportPng(fileName);
-    	return fileString + ".png";
+        String fileString = exportDot();
+        File fileName = new File(fileString);
+        exporter.exportPng(fileName);
+        return fileString + ".png";
     }
 
 }
