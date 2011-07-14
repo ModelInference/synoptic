@@ -169,6 +169,11 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                 for (EventNode node1 : partitions.get(label1)) {
                     boolean followerFound = false;
                     boolean predecessorFound = false;
+
+                    // TODO: this could be greatly optimized by iterating
+                    // through just EventNodes node2s such that node2 is in the
+                    // same trace as node1.
+
                     for (EventNode node2 : partitions.get(label2)) {
                         if (tc.isReachable(node1, node2)) {
                             neverFollowed = false;
@@ -178,9 +183,15 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                             predecessorFound = true;
                         }
 
-                        if (!tc.isReachable(node1, node2)
-                                && !tc.isReachable(node2, node1)) {
-                            alwaysOrdered = false;
+                        // If node1 and node2 belong to same trace then for them
+                        // to be alwaysOrdered, there must be a path between
+                        // them either from node1 to node2 or from node2 to
+                        // node1.
+                        if (node1.getTraceID() == node2.getTraceID()) {
+                            if (!tc.isReachable(node1, node2)
+                                    && !tc.isReachable(node2, node1)) {
+                                alwaysOrdered = false;
+                            }
                         }
                     }
                     // Every node instance with label1 must be followed by a

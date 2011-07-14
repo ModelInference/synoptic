@@ -11,8 +11,8 @@
 1,0,0 client-0 search
 0,1,1 server available
 1,1,2 server available
-0,2,2 client-1 buy
-0,2,3 server sold
+0,2,1 client-1 buy
+1,2,3 server sold
 2,1,2 client-0 buy
 2,2,4 server sold-out
 --

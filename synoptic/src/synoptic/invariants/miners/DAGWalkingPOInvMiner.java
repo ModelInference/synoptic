@@ -148,10 +148,11 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         // For two event types e1, e2 across all the traces,
         // gEventTypesOrderedBalances[e1][e2] represents the ordering balance.
         // That is, if gEventTypesOrderedBalances[e1][e2] = 0 then every
-        // instance of e1 and every instance of e2 that appear in the same trace
-        // were totally ordered. Otherwise, gEventTypesOrderedBalances[e1][e2]
-        // is negative, indicating that in some trace some instance of e1 and
-        // some instance of e2 were not ordered.
+        // instance of e1 and every instance of e2 that appeared in the same
+        // trace were totally ordered. Otherwise,
+        // gEventTypesOrderedBalances[e1][e2] is negative, indicating that in
+        // some trace some instance of e1 and some instance of e2 were in the
+        // same trace but were not ordered.
         LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gEventTypesOrderedBalances = new LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>>();
 
         // Iterate through all the traces.
@@ -276,13 +277,22 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                         gEventTypesOrderedBalances.put(e1,
                                 new LinkedHashMap<EventType, Integer>());
                     }
+
+                    int prevBalance = 0;
+                    if (gEventTypesOrderedBalances.get(e1).containsKey(e2)) {
+                        prevBalance = gEventTypesOrderedBalances.get(e1)
+                                .get(e2);
+                    }
+
                     // NOTE: since numE1 * numE2 is always >= typeFtypeCnt +
                     // typePtypeCnt, the value is always <= 0. With 0 indicating
                     // that \forall \hat{e1}, \forall \hat{e2} e1 \precedes e2
                     // or e2 \precedes e1. We use this to deduce that e1 and e2
                     // are never concurrent.
-                    gEventTypesOrderedBalances.get(e1).put(e2,
-                            typeFtypeCnt + typePtypeCnt - (numE1 * numE2));
+                    gEventTypesOrderedBalances.get(e1).put(
+                            e2,
+                            prevBalance + typeFtypeCnt + typePtypeCnt
+                                    - (numE1 * numE2));
                 }
             }
 
@@ -304,6 +314,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             tSeenETypes.clear();
             tNodeFollowingTypeCnts.clear();
             tNodePrecedingTypeCnts.clear();
+            tTypeFollowingTypeCnts.clear();
             tTypePrecedingTypeCnts.clear();
 
             // At this point, we've completed all counts computation for the

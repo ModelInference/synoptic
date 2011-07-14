@@ -16,8 +16,12 @@ public class AlwaysConcurrentInvariant extends BinaryInvariant {
 
     @Override
     public String toString() {
-        return first.toString() + " AlwaysConcurrentWith(" + relation + ") "
-                + second.toString();
+        String f = first.toString();
+        String s = second.toString();
+        if (f.hashCode() <= s.hashCode()) {
+            return f + " AlwaysConcurrentWith(" + relation + ") " + s;
+        }
+        return s + " AlwaysConcurrentWith(" + relation + ") " + f;
     }
 
     // TODO: eliminate the copying of hashCode() and equals() below with a copy
