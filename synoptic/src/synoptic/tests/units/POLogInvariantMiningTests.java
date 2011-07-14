@@ -13,7 +13,6 @@ import org.junit.runners.Parameterized.Parameters;
 import synoptic.invariants.AlwaysConcurrentInvariant;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
-import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
@@ -91,11 +90,11 @@ public class POLogInvariantMiningTests extends SynopticTest {
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
                 .NewInitialStringEventType(), b, R));
 
-        trueInvs.add(new NeverFollowedInvariant(a, b, R));
         trueInvs.add(new NeverFollowedInvariant(a, a, R));
         trueInvs.add(new NeverFollowedInvariant(b, b, R));
-        trueInvs.add(new NeverFollowedInvariant(b, a, R));
         trueInvs.add(new AlwaysConcurrentInvariant(a, b, R));
+
+        // NOTE: a NFby b and b NFby b are redundant because a ACwith b
 
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }
@@ -135,17 +134,17 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         trueInvs.add(new NeverFollowedInvariant(a, a, R));
         trueInvs.add(new NeverFollowedInvariant(b, b, R));
-        trueInvs.add(new NeverFollowedInvariant(a, b, R));
         trueInvs.add(new NeverFollowedInvariant(c, c, R));
         trueInvs.add(new NeverFollowedInvariant(c, b, R));
-        trueInvs.add(new NeverFollowedInvariant(b, a, R));
         trueInvs.add(new NeverFollowedInvariant(c, a, R));
 
         trueInvs.add(new AlwaysPrecedesInvariant(b, c, R));
         trueInvs.add(new AlwaysPrecedesInvariant(a, c, R));
 
         trueInvs.add(new AlwaysConcurrentInvariant(a, b, R));
-        trueInvs.add(new NeverConcurrentInvariant(c, b, R));
+
+        // NOTE: a NFby b and b NFby b are redundant because a ACwith b
+        // and c NCwith b is redundant because b AP c
 
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }
@@ -186,19 +185,16 @@ public class POLogInvariantMiningTests extends SynopticTest {
         trueInvs.add(new NeverFollowedInvariant(a, a, R));
         trueInvs.add(new NeverFollowedInvariant(b, b, R));
         trueInvs.add(new NeverFollowedInvariant(c, c, R));
-        trueInvs.add(new NeverFollowedInvariant(c, b, R));
-        trueInvs.add(new NeverFollowedInvariant(b, c, R));
         trueInvs.add(new NeverFollowedInvariant(c, a, R));
         trueInvs.add(new NeverFollowedInvariant(b, a, R));
 
         trueInvs.add(new AlwaysPrecedesInvariant(a, c, R));
         trueInvs.add(new AlwaysPrecedesInvariant(a, b, R));
 
-        // NOTE: there are no concurrency invariants in this trace because all
-        // the concurrency invariants are subsumed... ??
-
         trueInvs.add(new AlwaysConcurrentInvariant(b, c, R));
-        trueInvs.add(new NeverConcurrentInvariant(a, c, R));
+
+        // NOTE: b NFby c and c NFby b are redundant because b ACwith c
+        // and a NCwith c is redundant because a AP c
 
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }

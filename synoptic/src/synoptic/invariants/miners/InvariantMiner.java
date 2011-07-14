@@ -68,7 +68,8 @@ public abstract class InvariantMiner {
     }
 
     /**
-     * Builds an invariants set based on the following observations:
+     * Builds a set of local invariants (those that hold between events at the
+     * same host/process) based on the following observations:
      * 
      * <pre>
      * a AFby b <=> #F(a->b) == #a
@@ -89,7 +90,7 @@ public abstract class InvariantMiner {
      * @param AlwaysFollowsINITIALSet
      * @return
      */
-    protected TemporalInvariantSet extractInvariantsFromWalkCounts(
+    protected TemporalInvariantSet extractPathInvariantsFromWalkCounts(
             String relation,
             LinkedHashMap<EventType, Integer> gEventCnts,
             LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gFollowedByCnts,
@@ -156,7 +157,7 @@ public abstract class InvariantMiner {
     }
 
     /**
-     * Used to extract concurrency invariants -- AlwaysConcurrentWith and
+     * Extracts concurrency/distributed invariants -- AlwaysConcurrentWith and
      * NeverConcurrentWith. These invariants are only useful for events at
      * different hosts (i.e., for x,y (totally ordered) events at the same host
      * AlwaysConcurrentWith(x,y) is trivially false, and

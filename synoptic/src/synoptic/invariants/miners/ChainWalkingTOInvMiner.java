@@ -212,7 +212,7 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
             // current trace.
         }
 
-        return extractInvariantsFromWalkCounts(relation, gEventCnts,
+        return extractPathInvariantsFromWalkCounts(relation, gEventCnts,
                 gFollowedByCnts, gPrecedesCnts, AlwaysFollowsINITIALSet);
     }
 }
