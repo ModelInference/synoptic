@@ -1,5 +1,6 @@
 package synoptic.tests;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -241,7 +242,8 @@ public abstract class SynopticTest {
         }
         // String eGraph = defExporter.export(g);
         // logger.fine(eGraph);
-        String path = "../" + testName.getMethodName() + title + ".dot";
+        String path = "test-output" + File.separator + testName.getMethodName()
+                + title + ".dot";
         try {
             defExporter.exportAsDotAndPngFast(path, g, true);
         } catch (Exception e) {

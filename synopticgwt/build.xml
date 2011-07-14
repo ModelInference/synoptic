@@ -22,6 +22,8 @@
     <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
     <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet-deps.jar" />
   	<copy todir="war/WEB-INF/lib" file="${SYNOPTIC_LIB}/synoptic.jar" />
+  	<copy todir="war/WEB-INF/lib" file="${SYNOPTIC_LIB}/junit-4.9b2.jar" />
+  	<copy todir="war/WEB-INF/lib" file="${SYNOPTIC_LIB}/plume.jar" />
     <!-- Add any additional server libs that need to be copied -->
   </target>
 

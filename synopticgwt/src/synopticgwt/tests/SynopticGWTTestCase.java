@@ -4,8 +4,4 @@ import com.google.gwt.junit.client.GWTTestCase;
 
 public abstract class SynopticGWTTestCase extends GWTTestCase {
 
-    @Override
-    public void gwtSetUp() {
-
-    }
 }
