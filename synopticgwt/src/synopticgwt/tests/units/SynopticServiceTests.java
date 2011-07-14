@@ -3,7 +3,6 @@ package synopticgwt.tests.units;
 import java.util.LinkedList;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import synoptic.main.ParseException;
@@ -12,10 +11,10 @@ import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
+import synopticgwt.tests.SynopticGWTTestCase;
 
 // TODO: this test class is incomplete. DO NOT USE.
-public class SynopticServiceTests extends GWTTestCase { // extends
-                                                        // SynopticGWTTestCase {
+public class SynopticServiceTests extends SynopticGWTTestCase {
     ISynopticServiceAsync service = null;
 
     @Override
