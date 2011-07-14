@@ -4,6 +4,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
+import synoptic.invariants.AlwaysConcurrentInvariant;
+import synoptic.invariants.AlwaysFollowedInvariant;
+import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverConcurrentInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.TraceParser;
 import synoptic.model.DistEventType;
@@ -39,6 +45,17 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         return computeInvariants(g, mineConcurrencyInvariants);
     }
 
+    /**
+     * Computes invariants for a graph g. mineConcurrencyInvariants determines
+     * whether distributed invariants of the form (a AlwaysConcurrentWith b, a
+     * NeverConcurrentWith b) will be mined and also returned.
+     * 
+     * @param g
+     *            input graph to mine invariants over
+     * @param mineConcurrencyInvariants
+     *            whether or not to mine distributed invariants
+     * @return the set of mined invariants
+     */
     public TemporalInvariantSet computeInvariants(IGraph<EventNode> g,
             boolean mineConcurrencyInvariants) {
         String relation = TraceParser.defaultRelation;
@@ -292,19 +309,68 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // At this point, we've completed all counts computation for the
             // trace rooted at curNode.
         }
+
         // Extract the AFby, NFby, AP invariants based on counts.
-        TemporalInvariantSet invs = extractInvariantsFromWalkCounts(relation,
-                gEventCnts, gFollowedByCnts, gPrecedesCnts,
+        TemporalInvariantSet pathInvs = extractPathInvariantsFromWalkCounts(
+                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts,
                 gAlwaysFollowsINITIALSet);
 
         if (mineConcurrencyInvariants) {
             // Extract the concurrency invariants based on counts.
-            invs.add(extractConcurrencyInvariantsFromWalkCounts(relation,
-                    gEventCnts, gPrecedesCnts, gEventCoOccurrences,
-                    gEventTypesOrderedBalances));
+            TemporalInvariantSet concurInvs = extractConcurrencyInvariantsFromWalkCounts(
+                    relation, gEventCnts, gPrecedesCnts, gEventCoOccurrences,
+                    gEventTypesOrderedBalances);
+
+            // Filter out redundant concurrency invariants that have stronger
+            // path invariant versions. For example, a_0 AFby b_1 is stronger
+            // than a_0 NCwith b_1, so the NCwith invariant can be removed as it
+            // is redundant.
+            Iterator<ITemporalInvariant> cInvIter = concurInvs.iterator();
+            while (cInvIter.hasNext()) {
+                ITemporalInvariant cInv = cInvIter.next();
+                if (cInv instanceof NeverConcurrentInvariant) {
+                    // 1. Filter out redundant NCwith invariant types by
+                    // checking if for an "a NCwith b" invariant there is a
+                    // corresponding "a AP b" or "a AFby b" invariant. If yes,
+                    // then NCwith is redundant.
+                    for (ITemporalInvariant pInv : pathInvs.getSet()) {
+                        if (pInv instanceof AlwaysFollowedInvariant
+                                || pInv instanceof AlwaysPrecedesInvariant) {
+                            if (pInv.getPredicates().equals(
+                                    cInv.getPredicates())) {
+                                cInvIter.remove();
+                                break;
+                            }
+                        }
+                    }
+                } else if (cInv instanceof AlwaysConcurrentInvariant) {
+                    // 2. Filter out redundant NFby invariant types by checking
+                    // if for an "a ACwith b" invariant there is a corresponding
+                    // "a NFby b" invariant. If yes, NFby is redundant.
+                    Iterator<ITemporalInvariant> pInvIter = pathInvs.iterator();
+                    while (pInvIter.hasNext()) {
+                        ITemporalInvariant pInv = pInvIter.next();
+                        if (pInv instanceof NeverFollowedInvariant) {
+                            if (pInv.getPredicates().equals(
+                                    cInv.getPredicates())) {
+                                pInvIter.remove();
+                            }
+                        }
+                    }
+                } else {
+                    throw new InternalSynopticException(
+                            "Detected an unknown concurrency invariant type: "
+                                    + cInv.toString());
+                }
+            }
+            // Merge concurrent filtered invariants into the filtered path
+            // invariants for the final set of mined invariants.
+            pathInvs.add(concurInvs);
         }
-        return invs;
-    }
+        // Return pathInvs, which at this point contains any non-redundant
+        // concurrency invariants (if these were also mined -- see above).
+        return pathInvs;
+    } // /computeInvariants
 
     /**
      * Recursively, depth-first traverses the trace forward to build the

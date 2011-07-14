@@ -65,6 +65,8 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
      *            the graph of nodes of type LogEvent
      * @param filterTautological
      *            whether or not tautological invariants should be filtered out
+     * @param mineConcurrencyInvariants
+     *            whether or not to also mine concurrency invariants
      * @return the set of temporal invariants the graph satisfies
      */
     public TemporalInvariantSet computeInvariants(IGraph<EventNode> g,
@@ -198,9 +200,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                         neverOrdered = false;
                     }
                 }
-                if (neverFollowed) {
-                    set.add(new NeverFollowedInvariant(label1, label2, relation));
-                }
+
                 if (alwaysFollowedBy) {
                     set.add(new AlwaysFollowedInvariant(label1, label2,
                             relation));
@@ -212,6 +212,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
 
                 // The two labels are always/never ordered across all the
                 // system traces.
+                boolean addedACInv = false;
                 if (mineConcurrencyInvariants) {
 
                     // Ignore local versions of alwaysOrdered and
@@ -220,7 +221,13 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                     if (!((DistEventType) label1).getPID().equals(
                             ((DistEventType) label2).getPID())) {
 
-                        if (alwaysOrdered) {
+                        // This filters out redundant NCwith
+                        // invariant types by checking if for an "a NCwith b"
+                        // invariant there is a corresponding "a AP b" or
+                        // "a AFby b" invariant. If yes, then NCwith is
+                        // redundant (excluded)
+                        if (!alwaysFollowedBy && !alwaysPreceded
+                                && alwaysOrdered) {
                             set.add(new NeverConcurrentInvariant(
                                     (DistEventType) label2,
                                     (DistEventType) label1, relation));
@@ -229,9 +236,18 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                             set.add(new AlwaysConcurrentInvariant(
                                     (DistEventType) label2,
                                     (DistEventType) label1, relation));
+                            addedACInv = true;
                         }
                     }
                 }
+
+                // This filters out redundant NFby invariant types by checking
+                // if for an "a ACwith b" invariant there is a corresponding
+                // "a NFby b" invariant. If yes, NFby is redundant (excluded)
+                if (!addedACInv && neverFollowed) {
+                    set.add(new NeverFollowedInvariant(label1, label2, relation));
+                }
+
             }
         }
         return set;
