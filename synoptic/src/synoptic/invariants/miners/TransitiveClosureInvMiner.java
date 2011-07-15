@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import synoptic.algorithms.graph.TransitiveClosure;
@@ -99,11 +100,9 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
             // sufficient.
             overapproximatedInvariantsSet = new LinkedHashSet<ITemporalInvariant>();
             for (String relation : g.getRelations()) {
-                for (ITemporalInvariant inv : extractInvariantsFromTC(g,
+                overapproximatedInvariantsSet.addAll(extractInvariantsFromTC(g,
                         transitiveClosure.get(relation), relation,
-                        mineConcurrencyInvariants)) {
-                    overapproximatedInvariantsSet.add(inv);
-                }
+                        mineConcurrencyInvariants));
             }
 
             io.stop();
@@ -140,10 +139,10 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
      * @return the over-approximated set of invariants
      * @throws Exception
      */
-    private static Set<ITemporalInvariant> extractInvariantsFromTC(
+    private Set<ITemporalInvariant> extractInvariantsFromTC(
             IGraph<EventNode> g, TransitiveClosure<EventNode> tc,
             String relation, boolean mineConcurrencyInvariants) {
-        LinkedHashMap<EventType, ArrayList<EventNode>> partitions = new LinkedHashMap<EventType, ArrayList<EventNode>>();
+        Map<EventType, ArrayList<EventNode>> partitions = new LinkedHashMap<EventType, ArrayList<EventNode>>();
 
         // Initialize the partitions map: each unique label maps to a list of
         // nodes with that label.
@@ -154,7 +153,9 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
             partitions.get(m.getEType()).add(m);
         }
 
-        Set<ITemporalInvariant> set = new LinkedHashSet<ITemporalInvariant>();
+        Set<ITemporalInvariant> pathInvs = new LinkedHashSet<ITemporalInvariant>();
+        Set<ITemporalInvariant> concurInvs = new LinkedHashSet<ITemporalInvariant>();
+
         for (EventType label1 : partitions.keySet()) {
             for (EventType label2 : partitions.keySet()) {
                 boolean neverFollowed = true;
@@ -172,13 +173,27 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
 
                     // TODO: this could be greatly optimized by iterating
                     // through just EventNodes node2s such that node2 is in the
-                    // same trace as node1.
+                    // same trace as node1 -- i.e., by partitioning nodes into
+                    // partitions by traceIDs.
 
                     for (EventNode node2 : partitions.get(label2)) {
+                        if (!node1.getEType().isSpecialEventType()
+                                && !node2.getEType().isSpecialEventType()
+                                && node1.getTraceID() != node2.getTraceID()) {
+                            // The last condition is an optimization. The first
+                            // two conditions make sure that the optimization is
+                            // backward-compatible with
+                            // testTautologicalInvariantMining() in
+                            // TOLogInvariantMiningTests (TODO: fix the test to
+                            // remove this constraint)
+                            continue;
+                        }
+
                         if (tc.isReachable(node1, node2)) {
                             neverFollowed = false;
                             followerFound = true;
                         }
+
                         if (tc.isReachable(node2, node1)) {
                             predecessorFound = true;
                         }
@@ -187,11 +202,9 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                         // to be alwaysOrdered, there must be a path between
                         // them either from node1 to node2 or from node2 to
                         // node1.
-                        if (node1.getTraceID() == node2.getTraceID()) {
-                            if (!tc.isReachable(node1, node2)
-                                    && !tc.isReachable(node2, node1)) {
-                                alwaysOrdered = false;
-                            }
+                        if (!tc.isReachable(node1, node2)
+                                && !tc.isReachable(node2, node1)) {
+                            alwaysOrdered = false;
                         }
                     }
                     // Every node instance with label1 must be followed by a
@@ -212,18 +225,23 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                     }
                 }
 
-                if (alwaysFollowedBy) {
-                    set.add(new AlwaysFollowedInvariant(label1, label2,
+                if (neverFollowed) {
+                    pathInvs.add(new NeverFollowedInvariant(label1, label2,
                             relation));
                 }
+
+                if (alwaysFollowedBy) {
+                    pathInvs.add(new AlwaysFollowedInvariant(label1, label2,
+                            relation));
+                }
+
                 if (alwaysPreceded) {
-                    set.add(new AlwaysPrecedesInvariant(label2, label1,
+                    pathInvs.add(new AlwaysPrecedesInvariant(label2, label1,
                             relation));
                 }
 
                 // The two labels are always/never ordered across all the
                 // system traces.
-                boolean addedACInv = false;
                 if (mineConcurrencyInvariants) {
 
                     // Ignore local versions of alwaysOrdered and
@@ -232,36 +250,25 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                     if (!((DistEventType) label1).getPID().equals(
                             ((DistEventType) label2).getPID())) {
 
-                        // This filters out redundant NCwith
-                        // invariant types by checking if for an "a NCwith b"
-                        // invariant there is a corresponding "a AP b" or
-                        // "a AFby b" invariant. If yes, then NCwith is
-                        // redundant (excluded)
-                        if (!alwaysFollowedBy && !alwaysPreceded
-                                && alwaysOrdered) {
-                            set.add(new NeverConcurrentInvariant(
+                        if (alwaysOrdered) {
+                            concurInvs.add(new NeverConcurrentInvariant(
                                     (DistEventType) label2,
                                     (DistEventType) label1, relation));
                         }
                         if (neverOrdered) {
-                            set.add(new AlwaysConcurrentInvariant(
+                            concurInvs.add(new AlwaysConcurrentInvariant(
                                     (DistEventType) label2,
                                     (DistEventType) label1, relation));
-                            addedACInv = true;
                         }
                     }
                 }
-
-                // This filters out redundant NFby invariant types by checking
-                // if for an "a ACwith b" invariant there is a corresponding
-                // "a NFby b" invariant. If yes, NFby is redundant (excluded)
-                if (!addedACInv && neverFollowed) {
-                    set.add(new NeverFollowedInvariant(label1, label2, relation));
-                }
-
             }
         }
-        return set;
+
+        // Merge the concurrency and path invariant sets.
+        mergePathAndConcurrencyInvariants(pathInvs, concurInvs);
+
+        return pathInvs;
     }
 
     /**
@@ -296,7 +303,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
      */
     private void filterOutTautologicalInvariants(
             Set<ITemporalInvariant> invariants) {
-        LinkedHashSet<ITemporalInvariant> invsToRemove = new LinkedHashSet<ITemporalInvariant>();
+        Set<ITemporalInvariant> invsToRemove = new LinkedHashSet<ITemporalInvariant>();
 
         for (ITemporalInvariant inv : invariants) {
             if (!(inv instanceof BinaryInvariant)) {
@@ -334,7 +341,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
      */
     private Set<ITemporalInvariant> computeINITIALAFbyXInvariants(
             IGraph<EventNode> g) {
-        LinkedHashSet<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
+        Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
         if (g.getInitialNodes().isEmpty()) {
             throw new InternalSynopticException(
@@ -347,14 +354,13 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                     "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
         }
 
-        LinkedHashSet<EventType> eventuallySet = null;
+        Set<EventType> eventuallySet = null;
 
-        LinkedHashMap<Integer, LinkedHashSet<EventNode>> traceIdToInitNodes = buildTraceIdToInitNodesMap(initNode);
+        Map<Integer, Set<EventNode>> traceIdToInitNodes = buildTraceIdToInitNodesMap(initNode);
 
         // Iterate through all the traces.
-        for (LinkedHashSet<EventNode> initTraceNodes : traceIdToInitNodes
-                .values()) {
-            LinkedHashSet<EventType> trace = new LinkedHashSet<EventType>();
+        for (Set<EventNode> initTraceNodes : traceIdToInitNodes.values()) {
+            Set<EventType> trace = new LinkedHashSet<EventType>();
             // Iterate through the set of initial nodes in each of the traces.
             for (EventNode curNode : initTraceNodes) {
                 addToPartition(trace, curNode);

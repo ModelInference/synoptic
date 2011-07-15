@@ -20,6 +20,8 @@ $ python mine_invs.py
 import os
 import sys
 
+syn_dir = "/Users/ivan/synoptic/"
+
 def run_exps(exps, args_path, trace_dir, results_dir, fnames):
     '''
     Runs syoptic on all files in which a particular simulator
@@ -34,7 +36,7 @@ def run_exps(exps, args_path, trace_dir, results_dir, fnames):
         # TransitiveClosure
         for fname in fnames:
             out_fname = fname + "." + str(exp) + ".tc"
-            os.system("cd /Users/ivan/synoptic/trunk/ && ./synoptic_bigheap.sh -c " + args_path + " " + trace_dir + fname + " --useTransitiveClosureMining=true &> " + results_dir + out_fname)
+            os.system("cd " + syn_dir + " && ./synoptic_bigheap.sh -c " + args_path + " " + trace_dir + fname + " --useTransitiveClosureMining=true &> " + results_dir + out_fname)
 
         print " done.. dag",
         sys.stdout.flush()
@@ -42,7 +44,7 @@ def run_exps(exps, args_path, trace_dir, results_dir, fnames):
         # DAGWalker
         for fname in fnames:
             out_fname = fname + "." + str(exp) + ".dag"
-            os.system("cd /Users/ivan/synoptic/trunk/ && ./synoptic_bigheap.sh -c " + args_path + " " + trace_dir + fname + " &> " + results_dir + out_fname)
+            os.system("cd " + syn_dir + " && ./synoptic_bigheap.sh -c " + args_path + " " + trace_dir + fname + " &> " + results_dir + out_fname)
         
         print " done"
         sys.stdout.flush()
@@ -53,8 +55,9 @@ def main():
     while answer != 'y':
         answer = raw_input("This will delete all the previously generated results, continue? (y/n) ")
 
-    base_dir = "/Users/ivan/synoptic/trunk/traces/abstract/slaml11-benchmarking-po-traces/"
+    base_dir = syn_dir + "/traces/abstract/slaml11-benchmarking-po-traces/"
     args_path = base_dir + "args.txt"
+
     exps = range(5)
 
     dirs = ["vary-nodes", 

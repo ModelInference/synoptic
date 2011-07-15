@@ -1,7 +1,6 @@
 package synoptic.tests.units;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -166,8 +165,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
      */
     @Test
     public void testTautologicalInvariantMining() throws Exception {
-        if (miner instanceof ChainWalkingTOInvMiner
-                || miner instanceof DAGWalkingPOInvMiner) {
+        if (!(miner instanceof TransitiveClosureInvMiner)) {
             // Structure-walking invariant miners do not explicitly mine
             // tautological invariants in the first place.
             return;
@@ -185,16 +183,11 @@ public class TOLogInvariantMiningTests extends SynopticTest {
 
         // Generate set including tautological invariants.
         Graph<EventNode> inputGraph = genInitialLinearGraph(log);
-        TemporalInvariantSet s1 = null;
-        if (miner instanceof TransitiveClosureInvMiner) {
-            // Generates a TemporalInvariantSet based on a sequence of log
-            // events. This set includes all Tautological invariants as well. So
-            // these are the "raw" invariants which are mined.
-            s1 = ((TransitiveClosureInvMiner) miner).computeInvariants(
-                    inputGraph, false, false);
-        } else {
-            fail("Unrecognized invariant miner type.");
-        }
+
+        // Generates an invariants set which includes all Tautological
+        // invariants. So these are the "raw" invariants which are mined.
+        TemporalInvariantSet s1 = ((TransitiveClosureInvMiner) miner)
+                .computeInvariants(inputGraph, false, false);
 
         // Generate set without tautological invariants.
         TemporalInvariantSet s2 = genInvariants(log);

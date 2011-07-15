@@ -322,6 +322,33 @@ public class POLogInvariantMiningTests extends SynopticTest {
     }
 
     /**
+     * A more complex test to mine the NeverConcurrent invariant from a log with
+     * a true partial order instead of a linear traces.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineComplexNeverConcurrentTest() throws Exception {
+        TraceParser parser = newTraceParser();
+
+        String[] events = new String[] { "1,0 0 a", "2,0 0 a", "--", "0,1 1 c",
+                "0,2 1 c", "--", "1,0 0 a", "2,0 0 b", "1,1 1 b", "2,2 1 c",
+                "--", "0,1 1 c", "1,1 0 a" };
+
+        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        logger.fine("mined: " + minedInvs.toString());
+
+        DistEventType a = new DistEventType("a", "0");
+        DistEventType c = new DistEventType("c", "1");
+        String R = SynopticTest.defRelation;
+
+        assertTrue(minedInvs.getSet().contains(
+                new NeverConcurrentInvariant(c, a, R)));
+    }
+
+    /**
      * Tests the ticket-reservation partially ordered trace used in SLAML'11
      * submission. Checks that all the example invariants reported in the paper
      * are indeed mined from the log.
