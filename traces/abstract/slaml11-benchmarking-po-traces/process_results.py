@@ -31,6 +31,9 @@ header_str = """
 
 """
 
+base_dir = "/Users/ivan/synoptic/traces/abstract/slaml11-benchmarking-po-traces/"
+output_dir = "/Users/ivan/papers/Synoptic/SLAML11/data/"
+
 def extract_var_cnts(fnames, index):
     '''
     Takes a set of filenames, and extracts the value of the simulator
@@ -60,8 +63,6 @@ def extract_var_cnts(fnames, index):
 
 
 def main():
-    base_dir = "/Users/ivan/synoptic/trunk/traces/abstract/slaml11-benchmarking-po-traces/"
-    output_dir = "/Users/ivan/papers/Synoptic/SLAML11/data/"
     dirs = [("vary-nodes", 0, 'nodes-%d_etypes-\d*_events-\d*_execs-\d*.txt.\d*'),
             ("vary-etypes", 1, 'nodes-\d*_etypes-%d_events-\d*_execs-\d*.txt.\d*'),
             ("vary-tracelen", 2, 'nodes-\d*_etypes-\d*_events-%d_execs-\d*.txt.\d*'),

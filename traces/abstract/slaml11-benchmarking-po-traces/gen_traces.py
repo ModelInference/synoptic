@@ -47,7 +47,7 @@ def main():
     '''
     Varies parameters, calling simulator for each parameter set.
     '''
-
+    answer = None
     while answer != 'y':
         answer = raw_input("This will delete all the previously generated input files, continue? (y/n) ")
 

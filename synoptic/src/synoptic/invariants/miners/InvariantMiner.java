@@ -1,7 +1,9 @@
 package synoptic.invariants.miners;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -48,14 +50,14 @@ public abstract class InvariantMiner {
      *            top level synthetic INITIAL node
      * @return a map of trace id to the set of initial nodes in the trace
      */
-    protected LinkedHashMap<Integer, LinkedHashSet<EventNode>> buildTraceIdToInitNodesMap(
+    protected Map<Integer, Set<EventNode>> buildTraceIdToInitNodesMap(
             EventNode initNode) {
-        LinkedHashMap<Integer, LinkedHashSet<EventNode>> traceIdToInitNodes = new LinkedHashMap<Integer, LinkedHashSet<EventNode>>();
+        Map<Integer, Set<EventNode>> traceIdToInitNodes = new LinkedHashMap<Integer, Set<EventNode>>();
         // Build the trace id to initial nodes map by visiting all initial
         // nodes that are pointed to from the synthetic INITIAL node.
         for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
             Integer tid = initTrans.getTarget().getTraceID();
-            LinkedHashSet<EventNode> initTraceNodes;
+            Set<EventNode> initTraceNodes;
             if (!traceIdToInitNodes.containsKey(tid)) {
                 initTraceNodes = new LinkedHashSet<EventNode>();
                 traceIdToInitNodes.put(tid, initTraceNodes);
@@ -90,12 +92,11 @@ public abstract class InvariantMiner {
      * @param AlwaysFollowsINITIALSet
      * @return
      */
-    protected TemporalInvariantSet extractPathInvariantsFromWalkCounts(
-            String relation,
-            LinkedHashMap<EventType, Integer> gEventCnts,
-            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gFollowedByCnts,
-            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gPrecedesCnts,
-            LinkedHashSet<EventType> AlwaysFollowsINITIALSet) {
+    protected Set<ITemporalInvariant> extractPathInvariantsFromWalkCounts(
+            String relation, Map<EventType, Integer> gEventCnts,
+            Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
+            Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
+            Set<EventType> AlwaysFollowsINITIALSet) {
 
         Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
@@ -127,20 +128,16 @@ public abstract class InvariantMiner {
                     }
                 }
 
-                if (!gPrecedesCnts.containsKey(label1)) {
-                    // label1 only appeared as the last event, therefore
-                    // it cannot precede any other event
-                } else {
-                    if (gPrecedesCnts.get(label1).containsKey(label2)) {
+                if (gPrecedesCnts.containsKey(label1)
+                        && gPrecedesCnts.get(label1).containsKey(label2)) {
 
-                        // label1 sometimes preceded label2
-                        if (gPrecedesCnts.get(label1).get(label2)
-                                .equals(gEventCnts.get(label2))) {
-                            // #_P(label1->label2) == #label2 therefore label1
-                            // AP label2
-                            invariants.add(new AlwaysPrecedesInvariant(label1,
-                                    label2, relation));
-                        }
+                    // label1 sometimes preceded label2
+                    if (gPrecedesCnts.get(label1).get(label2)
+                            .equals(gEventCnts.get(label2))) {
+                        // #_P(label1->label2) == #label2 therefore label1
+                        // AP label2
+                        invariants.add(new AlwaysPrecedesInvariant(label1,
+                                label2, relation));
                     }
                 }
             }
@@ -153,7 +150,7 @@ public abstract class InvariantMiner {
                     .NewInitialStringEventType(), label, relation));
         }
 
-        return new TemporalInvariantSet(invariants);
+        return invariants;
     }
 
     /**
@@ -170,22 +167,22 @@ public abstract class InvariantMiner {
      * @param gEventCoOccurrences
      * @return
      */
-    protected TemporalInvariantSet extractConcurrencyInvariantsFromWalkCounts(
-            String relation,
-            LinkedHashMap<EventType, Integer> gEventCnts,
-            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gFollowedByCnts,
-            LinkedHashMap<EventType, LinkedHashSet<EventType>> gEventCoOccurrences,
-            LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gEventTypesOrderedBalances) {
+    protected Set<ITemporalInvariant> extractConcurrencyInvariantsFromWalkCounts(
+            String relation, Map<EventType, Integer> gEventCnts,
+            Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
+            Map<EventType, Set<EventType>> gEventCoOccurrences,
+            Map<EventType, Map<EventType, Integer>> gEventTypesOrderedBalances) {
 
         Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
-        LinkedHashSet<EventType> toVisitETypes = new LinkedHashSet<EventType>();
+        Set<EventType> toVisitETypes = new LinkedHashSet<EventType>();
         toVisitETypes.addAll(gEventCnts.keySet());
 
-        logger.info("gFollowedByCnts: " + gFollowedByCnts.toString());
-        logger.info("gEventCoOccurrences: " + gEventCoOccurrences.toString());
-        logger.info("gEventTypesOrderedBalances is "
-                + gEventTypesOrderedBalances.toString());
+        // logger.info("gFollowedByCnts: " + gFollowedByCnts.toString());
+        // logger.info("gEventCoOccurrences: " +
+        // gEventCoOccurrences.toString());
+        // logger.info("gEventTypesOrderedBalances is "
+        // + gEventTypesOrderedBalances.toString());
 
         for (EventType e1 : gEventCnts.keySet()) {
             // We don't consider (e1, e1) as these would only generate local
@@ -259,6 +256,62 @@ public abstract class InvariantMiner {
             }
         }
 
-        return new TemporalInvariantSet(invariants);
+        return invariants;
+    }
+
+    /**
+     * Merges a path invariants set and a concurrency invariants set into the
+     * path invariants set. During the merge, redundant invariants are removed
+     * from both sets (always preferring to keep the stronger invariant). For
+     * example, a_0 AFby b_1 is stronger than a_0 NCwith b_1, so the NCwith
+     * invariant can be removed as it is redundant. This method does not return
+     * anything since the result is stored in pathInvs.
+     * 
+     * @param pathInvs
+     *            set of path invariants
+     * @param concurInvs
+     *            set of concurrency invariants
+     */
+    public void mergePathAndConcurrencyInvariants(
+            Set<ITemporalInvariant> pathInvs, Set<ITemporalInvariant> concurInvs) {
+        Iterator<ITemporalInvariant> cInvIter = concurInvs.iterator();
+        while (cInvIter.hasNext()) {
+            ITemporalInvariant cInv = cInvIter.next();
+            if (cInv instanceof NeverConcurrentInvariant) {
+                // 1. Filter out redundant NCwith invariant types by
+                // checking if for an "a NCwith b" invariant there is a
+                // corresponding "a AP b" or "a AFby b" invariant. If yes,
+                // then NCwith is redundant.
+                for (ITemporalInvariant pInv : pathInvs) {
+                    if (pInv instanceof AlwaysFollowedInvariant
+                            || pInv instanceof AlwaysPrecedesInvariant) {
+                        if (pInv.getPredicates().equals(cInv.getPredicates())) {
+                            cInvIter.remove();
+                            break;
+                        }
+                    }
+                }
+            } else if (cInv instanceof AlwaysConcurrentInvariant) {
+                // 2. Filter out redundant NFby invariant types by checking
+                // if for an "a ACwith b" invariant there is a corresponding
+                // "a NFby b" invariant. If yes, NFby is redundant.
+                Iterator<ITemporalInvariant> pInvIter = pathInvs.iterator();
+                while (pInvIter.hasNext()) {
+                    ITemporalInvariant pInv = pInvIter.next();
+                    if (pInv instanceof NeverFollowedInvariant) {
+                        if (pInv.getPredicates().equals(cInv.getPredicates())) {
+                            pInvIter.remove();
+                        }
+                    }
+                }
+            } else {
+                throw new InternalSynopticException(
+                        "Detected an unknown concurrency invariant type: "
+                                + cInv.toString());
+            }
+        }
+        // Merge concurrent filtered invariants into the filtered path
+        // invariants for the final set of mined invariants.
+        pathInvs.addAll(concurInvs);
     }
 }

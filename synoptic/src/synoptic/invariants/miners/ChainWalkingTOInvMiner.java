@@ -2,6 +2,8 @@ package synoptic.invariants.miners;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.TraceParser;
@@ -74,13 +76,13 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
         // http://stackoverflow.com/questions/434989/hashmap-intialization-parameters-load-initialcapacity
 
         // Tracks event counts globally -- across all traces.
-        LinkedHashMap<EventType, Integer> gEventCnts = new LinkedHashMap<EventType, Integer>();
+        Map<EventType, Integer> gEventCnts = new LinkedHashMap<EventType, Integer>();
         // Tracks followed-by counts.
-        LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gFollowedByCnts = new LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>>();
+        Map<EventType, Map<EventType, Integer>> gFollowedByCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         // Tracks precedence counts.
-        LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> gPrecedesCnts = new LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>>();
+        Map<EventType, Map<EventType, Integer>> gPrecedesCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         // Tracks which events were observed across all traces.
-        LinkedHashSet<EventType> AlwaysFollowsINITIALSet = null;
+        Set<EventType> AlwaysFollowsINITIALSet = null;
 
         if (g.getInitialNodes().isEmpty() || g.getInitialNodes().size() != 1) {
             throw new InternalSynopticException(
@@ -94,13 +96,13 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
         }
 
         // The set of nodes seen prior to some point in the trace.
-        LinkedHashSet<EventType> tSeen = new LinkedHashSet<EventType>();
+        Set<EventType> tSeen = new LinkedHashSet<EventType>();
         // Maintains the current event count in the trace.
-        LinkedHashMap<EventType, Integer> tEventCnts = new LinkedHashMap<EventType, Integer>();
+        Map<EventType, Integer> tEventCnts = new LinkedHashMap<EventType, Integer>();
         // Maintains the current FollowedBy count for the trace.
         // tFollowedByCnts[a][b] = cnt iff the number of a's that appeared
         // before this b is cnt.
-        LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>> tFollowedByCnts = new LinkedHashMap<EventType, LinkedHashMap<EventType, Integer>>();
+        Map<EventType, Map<EventType, Integer>> tFollowedByCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
 
         // Iterate through all the traces -- each transition from the INITIAL
         // node connects\holds a single trace.
@@ -124,7 +126,7 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
                 // Update the global precedes counts based on the a events that
                 // preceded the current b event in this trace.
                 for (EventType a : tSeen) {
-                    LinkedHashMap<EventType, Integer> precedingLabelCnts;
+                    Map<EventType, Integer> precedingLabelCnts;
                     if (!gPrecedesCnts.containsKey(a)) {
                         precedingLabelCnts = new LinkedHashMap<EventType, Integer>();
                         gPrecedesCnts.put(a, precedingLabelCnts);
@@ -143,7 +145,7 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
                 // FollowedBy b at this point in this trace is exactly the
                 // number of a's that we've seen so far.
                 for (EventType a : tSeen) {
-                    LinkedHashMap<EventType, Integer> tmp;
+                    Map<EventType, Integer> tmp;
                     if (!tFollowedByCnts.containsKey(a)) {
                         tmp = new LinkedHashMap<EventType, Integer>();
                         tFollowedByCnts.put(a, tmp);
@@ -212,7 +214,8 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
             // current trace.
         }
 
-        return extractPathInvariantsFromWalkCounts(relation, gEventCnts,
-                gFollowedByCnts, gPrecedesCnts, AlwaysFollowsINITIALSet);
+        return new TemporalInvariantSet(extractPathInvariantsFromWalkCounts(
+                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts,
+                AlwaysFollowsINITIALSet));
     }
 }

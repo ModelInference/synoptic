@@ -66,8 +66,8 @@ public class NeverConcurrentInvariant extends BinaryInvariant {
             }
         }
 
-        if (!(first.equals(other.first) && second.equals(other.second))
-                && !(second.equals(other.first) && first.equals(other.second))) {
+        // NCwith invariant is symmetric.
+        if (!getPredicates().equals(other.getPredicates())) {
             return false;
         }
 
