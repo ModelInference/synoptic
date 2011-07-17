@@ -1,11 +1,12 @@
-INFO: Using random seed: 1308368715710 
+INFO: Using random seed: 1310797157283 
 INFO: Using the default partitions mapping regex: \k<FILE> 
 INFO: Parsing input files.. 
-INFO: Successfully parsed 10007 events from /Users/ivan/synoptic/trunk/traces/abstract/slaml11-benchmarking-po-traces/vary-etypes/nodes-10_etypes-60_events-500_execs-20 
-INFO: Parsing took 770ms 
+INFO: Successfully parsed 10007 events from /homes/network/ivan/synoptic/traces/abstract/slaml11-benchmarking-po-traces/vary-etypes/nodes-10_etypes-60_events-500_execs-20.txt 
+INFO: Parsing took 967ms 
 INFO: Running Synoptic... 
 INFO: Generating inter-event temporal relation... 
-INFO: Generating temporal relation took 488ms 
-INFO: Mining invariants [synoptic.invariants.miners.TransitiveClosureTOInvMiner].. 
-INFO: Mining took 21453ms 
-INFO: Mined 31077 invariants 
+INFO: Generating temporal relation took 921ms 
+WARNING: Partially ordered log input detected. Only mining invariants since refinement/coarsening is not yet supported. 
+INFO: Mining invariants [synoptic.invariants.miners.TransitiveClosureInvMiner].. 
+INFO: Mining took 43536ms 
+INFO: Mined 29052 invariants 
