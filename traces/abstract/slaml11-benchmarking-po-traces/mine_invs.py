@@ -9,8 +9,6 @@ named directories.
 NOTE: All the paths to the various files/scripts are hardcoded (see
 below). Change these, for your environment.
 
-TODO: use command line args to specify where things are located.
-
 Usage:
 ------
 
@@ -20,7 +18,7 @@ $ python mine_invs.py
 import os
 import sys
 
-syn_dir = "/Users/ivan/synoptic/"
+syn_dir = None
 
 def run_exps(exps, args_path, trace_dir, results_dir, fnames):
     '''
@@ -79,5 +77,10 @@ def main():
         print
 
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print "ERROR: provide synoptic base dir as first argument"
+        sys.exit(1)
+    syn_dir = sys.argv[1]
+    print "Using synoptic binaries from " + syn_dir
     main()
     
