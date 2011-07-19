@@ -22,7 +22,8 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.RelationPath;
 import synoptic.invariants.ltlcheck.Counterexample;
 import synoptic.invariants.ltlcheck.LtlModelChecker;
-import synoptic.model.export.GraphVizExporter;
+import synoptic.main.Main;
+import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -87,14 +88,8 @@ public class GraphLTLChecker<T extends INode<T>> {
         }
         transToMC.stop();
         if (DEBUG) {
-            GraphVizExporter v = new GraphVizExporter();
-            try {
-                v.exportAsDotAndPng("output/sourceGraph-" + relation + ".dot",
-                        sourceGraph);
-            } catch (Exception e) {
-                // TODO: have this use InternalSynopticException
-                e.printStackTrace();
-            }
+            Main.exportNonInitialGraph("output/sourceGraph-" + relation,
+                    sourceGraph);
             writeDot(targetGraph, "output/targetGraph-" + relation + ".dot");
         }
         // Run the LTL model-checker on this graph structure.
@@ -126,8 +121,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 
             p.println("}");
             p.close();
-            GraphVizExporter v = new GraphVizExporter();
-            v.exportPng(f);
+            GraphExporter.generatePngFileFromDotFile(filename);
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

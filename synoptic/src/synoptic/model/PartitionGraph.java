@@ -30,6 +30,7 @@ import synoptic.util.InternalSynopticException;
  */
 public class PartitionGraph implements IGraph<Partition> {
 
+    @SuppressWarnings("unused")
     private static Logger logger = Logger.getLogger("PartitionGraph Logger");
 
     /** holds all partitions in this graph */

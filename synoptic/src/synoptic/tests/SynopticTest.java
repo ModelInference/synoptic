@@ -23,7 +23,7 @@ import synoptic.model.EventType;
 import synoptic.model.Graph;
 import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
-import synoptic.model.export.GraphVizExporter;
+import synoptic.model.export.DotExportFormatter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
@@ -36,11 +36,6 @@ import synoptic.util.InternalSynopticException;
  */
 public abstract class SynopticTest {
     /**
-     * The default exporter used by tests.
-     */
-    protected static GraphVizExporter defExporter;
-
-    /**
      * Can be used to derive the current test name (as of JUnit 4.7) via
      * name.getMethodName().
      **/
@@ -49,7 +44,6 @@ public abstract class SynopticTest {
 
     // Set up the state statically.
     static {
-        defExporter = new GraphVizExporter();
         testName = new TestName();
     }
 
@@ -79,6 +73,7 @@ public abstract class SynopticTest {
         Main.setUpLogging();
         Main.randomSeed = System.currentTimeMillis();
         Main.random = new Random(Main.randomSeed);
+        Main.graphExportFormatter = new DotExportFormatter();
     }
 
     // //////////////////////////////////////////////
@@ -244,11 +239,7 @@ public abstract class SynopticTest {
         // logger.fine(eGraph);
         String path = "test-output" + File.separator + testName.getMethodName()
                 + title + ".dot";
-        try {
-            defExporter.exportAsDotAndPngFast(path, g, true);
-        } catch (Exception e) {
-            logger.fine("Unable to export test graph to " + path);
-        }
+        Main.exportInitialGraph(path, g);
     }
 
 }

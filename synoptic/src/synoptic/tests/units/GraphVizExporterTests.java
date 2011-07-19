@@ -2,6 +2,8 @@ package synoptic.tests.units;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,18 +13,16 @@ import org.junit.Test;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.model.Event;
-import synoptic.model.Graph;
 import synoptic.model.EventNode;
-import synoptic.model.export.GraphVizExporter;
+import synoptic.model.Graph;
+import synoptic.model.export.GraphExporter;
 import synoptic.tests.SynopticTest;
 
 public class GraphVizExporterTests extends SynopticTest {
-    GraphVizExporter exporter = null;
 
     @Override
     public void setUp() throws ParseException {
         super.setUp();
-        exporter = new GraphVizExporter();
     }
 
     /**
@@ -53,7 +53,14 @@ public class GraphVizExporterTests extends SynopticTest {
             EventNode event = path.get(i);
             event.addTransition(path.get(i + 1), defRelation);
         }
-        return exporter.export(g);
+
+        StringWriter writer = new StringWriter();
+        try {
+            GraphExporter.serializeGraph(writer, g, false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return writer.toString();
     }
 
     /**

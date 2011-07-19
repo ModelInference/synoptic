@@ -270,6 +270,11 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                     tTypeFollowingTypeCnts, gFollowedByCnts);
 
             // Compute the gEventTypesOrderedBalances for the current trace.
+
+            // TODO: Because the NCwith invariant is symmetric, we only need to
+            // consider one of the permutations -- just (e1,e2) and not both
+            // (e1,e2) and (e2,e1).
+
             for (EventType e1 : tSeenETypes) {
                 for (EventType e2 : tSeenETypes) {
                     // Optimization: we won't be using ordering balance for
@@ -480,7 +485,14 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
     /**
      * Recursively, depth-first traverses the trace in the reverse direction to
-     * collect event followed-by count statistics.
+     * collect event followed-by count statistics. <br />
+     * <br />
+     * NOTE/TODO: The reverseTraverseTrace and forwardTraverseTrace methods are
+     * very similar -- they both traverse DAGs (the trace DAG itself, or the
+     * reverse version of the trace DAG), and collect the same kinds of
+     * information. Ideally these two methods would be merged into a single
+     * traverse method that would abstract the direction (reverse/forward) of
+     * the traversal.
      * 
      * @param curNode
      * @param tNodeToNumChildrenMap
@@ -533,6 +545,9 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
             // Update the global precedes counts based on the a events that
             // preceded the current b event in this trace.
+
+            // TODO: these counts are re-computed for each node in the DAG. They
+            // can be cached and efficiently maintained instead.
             Set<EventType> visitedTypes = new LinkedHashSet<EventType>();
             for (EventNode n : tFollowingNodeSetsNew) {
                 EventType b = n.getEType();
@@ -653,6 +668,8 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // Update the global precedes counts based on the a event types that
             // preceded the current b event in this trace.
             // i.e., gPrecedesCnts[a][b]++
+            // TODO: these counts are re-computed for each node in the DAG. They
+            // can be cached and efficiently maintained instead.
             Set<EventType> visitedTypes = new LinkedHashSet<EventType>();
             for (EventNode n : tPrecedingNodesNew) {
                 EventType a = n.getEType();

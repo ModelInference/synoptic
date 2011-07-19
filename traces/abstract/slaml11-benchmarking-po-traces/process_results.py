@@ -69,7 +69,6 @@ def main():
             ("vary-numtraces", 3, 'nodes-\d*_etypes-\d*_events-\d*_execs-%d.txt.\d*'),
             ]
 
-    dirs = [dirs[1]]
     for (d,index,base_format) in dirs:
         result_dir = base_dir + d + "-results/"
         

@@ -3,6 +3,7 @@ package synoptic.main;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
@@ -39,7 +40,12 @@ import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.model.EventNode;
 import synoptic.model.Graph;
 import synoptic.model.PartitionGraph;
-import synoptic.model.export.GraphVizExporter;
+import synoptic.model.export.DotExportFormatter;
+import synoptic.model.export.GmlExportFormatter;
+import synoptic.model.export.GraphExportFormatter;
+import synoptic.model.export.GraphExporter;
+import synoptic.model.interfaces.IGraph;
+import synoptic.model.interfaces.INode;
 import synoptic.util.BriefLogFormatter;
 import synoptic.util.InternalSynopticException;
 
@@ -225,6 +231,14 @@ public class Main implements Callable<Integer> {
     public static boolean outputInvariantsToFile = false;
 
     /**
+     * Whether or not models should be exported as GML (graph modeling language)
+     * files (the default format is DOT file format).
+     */
+    @Option(value = "Export models as GML and not DOT files",
+            aliases = { "-export-as-gml" })
+    public static boolean exportAsGML = false;
+
+    /**
      * The absolute path to the dot command executable to use for outputting
      * graphical representations of Synoptic models
      */
@@ -272,22 +286,22 @@ public class Main implements Callable<Integer> {
     public static boolean dumpInvariants = false;
 
     /**
-     * Dump the dot representation of the initial graph to file. The file will
+     * Dump the DOT representation of the initial graph to file. The file will
      * have the name <outputPathPrefix>.initial.dot, where 'outputPathPrefix' is
      * the filename of the final Synoptic output. This option is
      * <i>unpublicized</i>; it will not appear in the default usage message
      */
-    @Option("Dump the initial graph to file <outputPathPrefix>.initial.dot")
-    public static boolean dumpInitialGraph = true;
+    @Option("Dump the DOT file for the initial graph to file <outputPathPrefix>.initial.dot")
+    public static boolean dumpInitialGraphDotFile = true;
 
     /**
-     * Dump png of graph to file. The file will have the name
-     * <outputPathPrefix>.initial.dot, where 'outputPathPrefix' is the filename
-     * of the final Synoptic output. This option is <i>unpublicized</i>; it will
-     * not appear in the default usage message
+     * Dump PNG of graph to file. The file will have the name
+     * <outputPathPrefix>.initial.dot.png, where 'outputPathPrefix' is the
+     * filename of the final Synoptic output. This option is
+     * <i>unpublicized</i>; it will not appear in the default usage message
      */
-    @Option("Dump the initial graph to file <outputPathPrefix>.initial.dot")
-    public static boolean dumpPNG = true;
+    @Option("Dump the PNG for the initial graph to file <outputPathPrefix>.initial.dot.png")
+    public static boolean dumpInitialGraphPngFile = true;
 
     /**
      * Dump the dot representations for intermediate Synoptic steps to file.
@@ -356,14 +370,6 @@ public class Main implements Callable<Integer> {
     public static boolean runTests = false;
 
     /**
-     * Run a benchmark to evaluate PO log invariant mining algorithms on a
-     * hard-coded directory of input log files. This option is
-     * <i>unpublicized</i>; it will not appear in the default usage message
-     */
-    @Option("Benchmark the PO log mining.")
-    public static boolean benchPOMining = false;
-
-    /**
      * Run all tests in synoptic.tests -- unit and integration tests, and then
      * terminate. This option is <i>unpublicized</i>; it will not appear in the
      * default usage message
@@ -394,6 +400,11 @@ public class Main implements Callable<Integer> {
      * options as the final elements in the command line.
      */
     public static List<String> logFilenames = null;
+
+    /**
+     * Formatter to use for exporting graphs (DOT/GML formatter).
+     */
+    public static GraphExportFormatter graphExportFormatter = null;
 
     /** One line synopsis of usage */
     private static String usage_string = "synoptic [options] <logfiles-to-analyze>";
@@ -452,6 +463,13 @@ public class Main implements Callable<Integer> {
             return;
         }
 
+        // Setup the appropriate graph export formatter object.
+        if (exportAsGML) {
+            graphExportFormatter = new GmlExportFormatter();
+        } else {
+            graphExportFormatter = new DotExportFormatter();
+        }
+
         if (runAllTests) {
             List<String> testClasses = getTestsInPackage("synoptic.tests.units.");
             testClasses
@@ -460,8 +478,6 @@ public class Main implements Callable<Integer> {
         } else if (runTests) {
             List<String> testClassesUnits = getTestsInPackage("synoptic.tests.units.");
             runTests(testClassesUnits);
-        } else if (benchPOMining) {
-            runBenchPOMining("/Users/ivan/synoptic/trunk/traces/abstract/slaml11-benchmarking-po-traces/nodes-2_etypes-20_events-1000_execs-100.txt");
         }
 
         if (logFilenames.size() == 0) {
@@ -615,22 +631,6 @@ public class Main implements Callable<Integer> {
         JUnitCore.main(testClassesAr);
     }
 
-    public static void runBenchPOMining(String fname) {
-        InvariantMiner miner;
-
-        miner = new TransitiveClosureInvMiner(false);
-        // new TransitiveClosureTOInvMiner(true)
-        // miner = new DAGWalkingPOInvMiner();
-
-        TraceParser parser = new TraceParser();
-        // parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
-        // parser.addPartitionsSeparator("^--$");
-
-        // for (int iter = 0; iter < numIterations; iter++) {
-
-        // }
-    }
-
     /**
      * Sets up and configures the Main.logger object based on command line
      * arguments
@@ -722,8 +722,59 @@ public class Main implements Callable<Integer> {
      */
     public static String getIntermediateDumpFilename(String stageName,
             int roundNum) {
-        return outputPathPrefix + ".stage-" + stageName + ".round-" + roundNum
-                + ".dot";
+        return outputPathPrefix + ".stage-" + stageName + ".round-" + roundNum;
+    }
+
+    /**
+     * Serializes g using a dot/gml format and optionally outputs a png file
+     * corresponding to the serialized format (dot format export only).
+     * 
+     * @throws IOException
+     */
+    private static <T extends INode<T>> void exportGraph(String baseFilename,
+            IGraph<T> g, boolean outputEdgeLabelsCondition,
+            boolean imageGenCondition) {
+
+        if (Main.outputPathPrefix == null) {
+            logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t"
+                    + Main.getCmdLineOptDesc("outputPathPrefix"));
+            return;
+        }
+
+        String filename = null;
+        if (exportAsGML) {
+            filename = baseFilename + ".gml";
+        } else {
+            filename = baseFilename + ".dot";
+        }
+        try {
+            GraphExporter
+                    .serializeGraph(filename, g, outputEdgeLabelsCondition);
+        } catch (IOException e) {
+            logger.fine("Unable to export graph to " + filename);
+        }
+
+        if (imageGenCondition) {
+            // Currently we support only .dot -> .png generation
+            GraphExporter.generatePngFileFromDotFile(filename);
+        }
+    }
+
+    /**
+     * Export g as an initial graph.
+     */
+    public static <T extends INode<T>> void exportInitialGraph(
+            String baseFilename, IGraph<T> g) {
+        exportGraph(baseFilename, g, false, Main.dumpInitialGraphPngFile
+                && !exportAsGML);
+    }
+
+    /**
+     * Export g as a non-initial graph.
+     */
+    public static <T extends INode<T>> void exportNonInitialGraph(
+            String baseFilename, IGraph<T> g) {
+        exportGraph(baseFilename, g, Main.outputEdgeLabels, !exportAsGML);
     }
 
     /***********************************************************/
@@ -849,20 +900,11 @@ public class Main implements Callable<Integer> {
         logger.info("Generating temporal relation took "
                 + (System.currentTimeMillis() - startTime) + "ms");
 
-        GraphVizExporter exporter = new GraphVizExporter();
+        if (dumpInitialGraphDotFile) {
+            logger.info("Exporting initial graph ["
+                    + inputGraph.getNodes().size() + " nodes]..");
 
-        if (dumpInitialGraph) {
-            // If we were given an output filename then export the resulting
-            // graph into outputPathPrefix.initial.dot
-            if (Main.outputPathPrefix != null) {
-                logger.info("Exporting initial graph ["
-                        + inputGraph.getNodes().size() + " nodes]..");
-                exporter.exportAsDotAndPngFast(Main.outputPathPrefix
-                        + ".initial.dot", inputGraph, true);
-            } else {
-                logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t"
-                        + Main.getCmdLineOptDesc("outputPathPrefix"));
-            }
+            exportInitialGraph(Main.outputPathPrefix + ".initial", inputGraph);
         }
 
         if (separateVTimeIndexSets != null) {
@@ -962,8 +1004,9 @@ public class Main implements Callable<Integer> {
             logger.info("Exporting final graph [" + pGraph.getNodes().size()
                     + " nodes]..");
             startTime = System.currentTimeMillis();
-            exporter.exportAsDotAndPngFast(Main.outputPathPrefix + ".dot",
-                    pGraph);
+
+            exportNonInitialGraph(Main.outputPathPrefix, pGraph);
+
             logger.info("Exporting took "
                     + (System.currentTimeMillis() - startTime) + "ms");
         } else {
