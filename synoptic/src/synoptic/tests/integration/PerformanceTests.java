@@ -142,7 +142,7 @@ public class PerformanceTests extends SynopticTest {
             TraceParser parser = genParser();
 
             String[] traces = partitionTrace(structure1Trace());
-            PartitionGraph g = genInitialPartitionGraph(traces, parser,
+            genInitialPartitionGraph(traces, parser,
                     new ChainWalkingTOInvMiner());
 
             long startTime = System.currentTimeMillis();
@@ -167,7 +167,7 @@ public class PerformanceTests extends SynopticTest {
             // sg.addGraph(buildGraph(trace));
             // }
             long startTime = System.currentTimeMillis();
-            PartitionGraph g = sg.kReduce(k, true, withInvariants);
+            sg.kReduce(k, true, withInvariants);
             total_delta = System.currentTimeMillis() - startTime;
         }
         long delta = total_delta / numIterations;

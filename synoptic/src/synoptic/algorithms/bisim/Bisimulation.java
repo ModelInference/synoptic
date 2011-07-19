@@ -32,7 +32,6 @@ import synoptic.main.Main;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.export.GraphVizExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
@@ -302,7 +301,7 @@ public abstract class Bisimulation {
         logger.fine(logStr);
 
         if (Main.dumpIntermediateStages) {
-            GraphVizExporter.quickExport(
+            Main.exportNonInitialGraph(
                     Main.getIntermediateDumpFilename("r", numSplitSteps + 1),
                     pGraph);
         }
@@ -323,7 +322,7 @@ public abstract class Bisimulation {
                 false);
 
         if (Main.dumpIntermediateStages) {
-            GraphVizExporter.quickExport(
+            Main.exportNonInitialGraph(
                     Main.getIntermediateDumpFilename("r", 0), pGraph);
         }
 
@@ -401,7 +400,7 @@ public abstract class Bisimulation {
         }
 
         if (Main.dumpIntermediateStages) {
-            GraphVizExporter.quickExport(
+            Main.exportNonInitialGraph(
                     Main.getIntermediateDumpFilename("r", numSplitSteps),
                     pGraph);
         }
@@ -565,7 +564,7 @@ public abstract class Bisimulation {
         while (true) {
 
             if (Main.dumpIntermediateStages) {
-                GraphVizExporter.quickExport(
+                Main.exportNonInitialGraph(
                         Main.getIntermediateDumpFilename("c", outerItters),
                         pGraph);
             }
@@ -647,7 +646,7 @@ public abstract class Bisimulation {
         }
 
         if (Main.dumpIntermediateStages) {
-            GraphVizExporter.quickExport(
+            Main.exportNonInitialGraph(
                     Main.getIntermediateDumpFilename("c", outerItters), pGraph);
         }
 

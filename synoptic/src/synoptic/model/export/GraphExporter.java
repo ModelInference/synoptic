@@ -1,8 +1,8 @@
 /*
  * This code is in part based on Clemens Hammacher's code.
- *
+ * 
  * Source: https://ccs.hammacher.name
- *
+ * 
  * License: Eclipse Public License v1.0.
  */
 
@@ -11,7 +11,6 @@ package synoptic.model.export;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,19 +26,17 @@ import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
-public class GraphVizExporter {
-    static Logger logger = Logger.getLogger("GraphVizExporter");
-
-    /**
-     * Maps commonly used relations to the edge colors used in dot output.
-     */
-    static final LinkedHashMap<String, String> relationColors;
-
-    static {
-        relationColors = new LinkedHashMap<String, String>();
-        relationColors.put("t", "");
-        relationColors.put("i", "blue");
-    }
+/**
+ * Used to export a graph object to a file.
+ * 
+ * <pre>
+ * Currently supports:
+ * - GraphViz dot file format
+ * - GML file format
+ * </pre>
+ */
+public class GraphExporter {
+    static Logger logger = Logger.getLogger("GraphExporter");
 
     /**
      * A list of common paths to try when searching for the dot executable.
@@ -69,26 +66,16 @@ public class GraphVizExporter {
         return Main.dotExecutablePath;
     }
 
-    public <T extends INode<T>> void export(File dotFile, IGraph<T> newHead)
-            throws Exception {
-        final PrintWriter writer;
-        try {
-            writer = new PrintWriter(dotFile);
-        } catch (final IOException e) {
-            throw new Exception("Error opening .dot-File: " + e.getMessage(), e);
-        }
-
-        export(writer, newHead, false);
-    }
-
     /**
-     * Exports a dot file as a png image file. The png file will be created in
-     * the same place as the dot file.
-     *
+     * Converts a dot file as a png image file using dot. The png file will be
+     * created in the same place as the dot file.
+     * 
      * @param dotFile
      *            dot file filename
      */
-    public void exportPng(File dotFile) {
+    public static void generatePngFileFromDotFile(String fileName) {
+        File dotFile = new File(fileName);
+
         String dotCommand = getDotCommand();
         if (dotCommand == null) {
             // could not locate a dot executable
@@ -112,46 +99,99 @@ public class GraphVizExporter {
             return;
         }
         try {
-			dotProcess.waitFor();
-		} catch (InterruptedException e) {
-			logger.severe("Waiting for dot process interrupted '" + execCommand + "': "
-                    + e.getMessage());
-		}
+            dotProcess.waitFor();
+        } catch (InterruptedException e) {
+            logger.severe("Waiting for dot process interrupted '" + execCommand
+                    + "': " + e.getMessage());
+        }
     }
 
-    private <T extends INode<T>> void export(final Writer writer,
-            IGraph<T> graph, boolean fast) throws IOException {
-        export(writer, graph, fast, false);
-    }
-
-    private <T extends INode<T>> void export(final Writer writer,
-            IGraph<T> graph, boolean fast, boolean isInitialGraph)
-            throws IOException {
-
-        // Begin graph.
-        writer.write("digraph {\n");
-        // Write out graph body.
-        exportGraphCanonically(writer, graph, isInitialGraph);
-        // End graph.
-        writer.write("} // digraph\n");
-
-        // close the dot file
+    /**
+     * Exports the graph to a format determined by Main.graphExportFormatter,
+     * writing the resulting string to a file specified by fileName.
+     */
+    public static <T extends INode<T>> void serializeGraph(String fileName,
+            IGraph<T> graph, boolean outputEdgeLabels) throws IOException {
+        File f = new File(fileName);
+        logger.info("Exporting graph to: " + fileName);
+        final PrintWriter writer;
+        try {
+            writer = new PrintWriter(f);
+        } catch (final IOException e) {
+            throw new RuntimeException("Error opening file for graph export: "
+                    + e.getMessage(), e);
+        }
+        // /////////////
+        serializeGraph(writer, graph, outputEdgeLabels);
+        // /////////////
         writer.close();
     }
 
-    private <T extends INode<T>> String nodeDotAttributes(T node,
-            boolean initial, boolean terminal, String color) {
-        String attributes = "label=\"" + quote(node.getEType().toString())
-                + "\"";
-        if (initial) {
-            attributes = attributes + ",shape=box";
-        } else if (terminal) {
-            attributes = attributes + ",shape=diamond";
+    /**
+     * Exports the graph to a format determined by Main.graphExportFormatter,
+     * writing the resulting string to writer. The export is done canonically --
+     * two isomorphic graphs will have equivalent outputs. The generated dot/gml
+     * files may then be diff-ed to check if they represent the same graphs.
+     * 
+     * @param <T>
+     *            Graph node type
+     * @param writer
+     *            The writer to use for dot output
+     * @param graph
+     *            The graph to export
+     * @param isInitialGraph
+     *            Whether or not the graph is an initial graph
+     * @throws IOException
+     *             In case there is a problem using the writer
+     */
+    public static <T extends INode<T>> void serializeGraph(Writer writer,
+            IGraph<T> graph, boolean outputEdgeLabels) throws IOException {
+
+        try {
+            // Begin graph.
+            writer.write(Main.graphExportFormatter.beginGraphString());
+
+            // ////////////////////////// Write out graph body.
+
+            // A mapping between nodes in the graph and the their integer
+            // identifiers in the dot output.
+            LinkedHashMap<T, Integer> nodeToInt = new LinkedHashMap<T, Integer>();
+            // Collects all transitions between nodes of different relations.
+            LinkedList<WeightedTransition<T>> allTransitions = new LinkedList<WeightedTransition<T>>();
+            // Node identifier generator, updated in exportRelationNodes
+            int nodeCnt = 0;
+
+            // TODO: determine which relations exist in graph and only export
+            // these relations.
+
+            // Export nodes in the 't' relation.
+            nodeCnt = exportRelationNodes(writer, graph, "t", allTransitions,
+                    nodeToInt, nodeCnt);
+
+            // Export nodes in the 'i' relation.
+            exportRelationNodes(writer, graph, "i", allTransitions, nodeToInt,
+                    nodeCnt);
+
+            // Output the edges:
+            for (WeightedTransition<T> trans : allTransitions) {
+                int nodeSrc = nodeToInt.get(trans.getSource());
+                int nodeDst = nodeToInt.get(trans.getTarget());
+                writer.write(Main.graphExportFormatter.edgeToString(
+                        outputEdgeLabels, nodeSrc, nodeDst,
+                        trans.getFraction(), trans.getRelation()));
+            }
+
+            // //////////////////////////
+
+            // End graph.
+            writer.write(Main.graphExportFormatter.endGraphString());
+
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "Error writing to file during graph export: "
+                            + e.getMessage(), e);
         }
-        if (!color.equals("")) {
-            attributes = attributes + ",color=" + color;
-        }
-        return attributes;
+        return;
     }
 
     /**
@@ -160,7 +200,7 @@ public class GraphVizExporter {
      * builds up a list of allTransitions that these nodes include, maintains a
      * nodeCnt (which is then returned), and also maintains the nodeToInt map.
      * All of these are also passed as arguments.
-     *
+     * 
      * @param <T>
      *            The node type in the graph being exported
      * @param writer
@@ -174,8 +214,8 @@ public class GraphVizExporter {
      *            transitions in graph.
      * @param nodeToInt
      *            A mapping between nodes in the graph and the node's id in the
-     *            dot output file. This is used to consistently output
-     *            transitions between nodes.
+     *            output file. This is used to consistently output transitions
+     *            between nodes.
      * @param nodeCnt
      *            The node count -- used to generate unique node ids in
      *            nodeToInt map
@@ -183,8 +223,8 @@ public class GraphVizExporter {
      * @throws IOException
      *             in case there is a problem using the writer
      */
-    private <T extends INode<T>> int exportRelationNodes(final Writer writer,
-            IGraph<T> graph, String relation,
+    private static <T extends INode<T>> int exportRelationNodes(
+            final Writer writer, IGraph<T> graph, String relation,
             LinkedList<WeightedTransition<T>> allTransitions,
             LinkedHashMap<T, Integer> nodeToInt, int nodeCnt)
             throws IOException {
@@ -259,10 +299,10 @@ public class GraphVizExporter {
                 }
 
                 isInitial = rootNodes.contains(node);
-                String attrs = nodeDotAttributes(node, isInitial, isTerminal,
-                        relationColors.get(relation));
+
                 // Output the node record -- its id along with its attributes.
-                writer.write("  " + nodeCnt + " [" + attrs + "];\n");
+                writer.write(Main.graphExportFormatter.nodeToString(nodeCnt,
+                        node, isInitial, isTerminal, relation));
                 // Remember the identifier assigned to this node.
                 nodeToInt.put(node, nodeCnt);
                 nodeCnt += 1;
@@ -271,133 +311,6 @@ public class GraphVizExporter {
         }
         writer.flush();
         return nodeCnt;
-    }
-
-    /**
-     * Exports a graph in a dot format using the writer. It does so canonically
-     * -- two isomorphic graphs will have equivalent dot outputs. The generated
-     * Graphviz dot files may then be diff-ed to check if they represent the
-     * same graphs.
-     *
-     * @param <T>
-     *            Graph node type
-     * @param writer
-     *            The writer to use for dot output
-     * @param graph
-     *            The graph to export
-     * @throws IOException
-     *             In case there is a problem using the writer
-     */
-    private <T extends INode<T>> void exportGraphCanonically(
-            final Writer writer, IGraph<T> graph, boolean isInitialGraph)
-            throws IOException {
-        // A mapping between nodes in the graph and the their integer
-        // identifiers in the dot output.
-        LinkedHashMap<T, Integer> nodeToInt = new LinkedHashMap<T, Integer>();
-        // Collects all transitions between nodes of different relations.
-        LinkedList<WeightedTransition<T>> allTransitions = new LinkedList<WeightedTransition<T>>();
-        // Node identifier generator, updated in exportRelationNodes
-        int nodeCnt = 0;
-
-        // TODO: determine which relations exist in graph and only export these
-        // relations.
-
-        // Export nodes in the 't' relation.
-        nodeCnt = exportRelationNodes(writer, graph, "t", allTransitions,
-                nodeToInt, nodeCnt);
-
-        // Export nodes in the 'i' relation.
-        exportRelationNodes(writer, graph, "i", allTransitions, nodeToInt,
-                nodeCnt);
-
-        // Output all the edges:
-        for (WeightedTransition<T> trans : allTransitions) {
-            int sourceInt = nodeToInt.get(trans.getSource());
-            int targetInt = nodeToInt.get(trans.getTarget());
-            writer.write(sourceInt + "->" + targetInt + " [");
-            if (Main.outputEdgeLabels && !isInitialGraph) {
-                String freq = quote(String.format("%.2f", trans.getFraction()));
-                writer.write("label=\"" + freq + "\", weight=\"" + freq + "\",");
-            }
-            if (trans.getRelation().equals("i")) {
-                writer.write(",color=blue");
-            }
-            writer.write("];" + "\n");
-        }
-        return;
-    }
-
-    private static String quote(String string) {
-        final StringBuilder sb = new StringBuilder(string.length() + 2);
-        for (int i = 0; i < string.length(); ++i) {
-            final char c = string.charAt(i);
-            switch (c) {
-            case '\\':
-                sb.append("\\\\");
-                break;
-            case '"':
-                sb.append("\\\"");
-                break;
-            default:
-                sb.append(c);
-                break;
-            }
-        }
-        return sb.toString();
-    }
-
-    public <T extends INode<T>> void exportAsDotAndPng(String fileName,
-            IGraph<T> g) throws Exception {
-        File f = new File(fileName);
-        export(f, g);
-        if (Main.dumpPNG) {
-            exportPng(f);
-        }
-    }
-
-    public static <T extends INode<T>> void quickExport(String fileName,
-            IGraph<T> g) {
-        GraphVizExporter e = new GraphVizExporter();
-        try {
-            e.exportAsDotAndPng(fileName, g);
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
-    }
-
-    public <T extends INode<T>> String export(IGraph<T> g) {
-        StringWriter s = new StringWriter();
-
-        try {
-            export(s, g, false);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return s.toString();
-    }
-
-    public <T extends INode<T>> void exportAsDotAndPngFast(String fileName,
-            IGraph<T> pg) throws Exception {
-        exportAsDotAndPngFast(fileName, pg, false);
-    }
-
-    public <T extends INode<T>> void exportAsDotAndPngFast(String fileName,
-            IGraph<T> pg, boolean isInitialGraph) throws Exception {
-        File f = new File(fileName);
-        logger.info("Exporting dot file to: " + fileName);
-        final PrintWriter writer;
-        try {
-            writer = new PrintWriter(f);
-        } catch (final IOException e) {
-            throw new Exception("Error opening .dot-File: " + e.getMessage(), e);
-        }
-
-        export(writer, pg, true, isInitialGraph);
-        writer.close();
-        if (Main.dumpPNG) {
-            exportPng(f);
-        }
     }
 
     // private static void exportSCCsWithInvariants(GraphVizExporter e,

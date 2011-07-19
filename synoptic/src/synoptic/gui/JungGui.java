@@ -82,7 +82,6 @@ import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.Transition;
-import synoptic.model.export.GraphVizExporter;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
@@ -325,12 +324,10 @@ public class JungGui extends JApplet implements Printable {
                 String filename = JOptionPane
                         .showInputDialog("Enter name for this export:");
                 if (filename != null && filename.length() > 0) {
-                    GraphVizExporter exporter = new GraphVizExporter();
                     if (Main.outputPathPrefix != null) {
                         try {
-                            exporter.exportAsDotAndPngFast(
-                                    Main.outputPathPrefix + "." + filename
-                                            + ".dot", pGraph, false);
+                            Main.exportNonInitialGraph(Main.outputPathPrefix
+                                    + "." + filename, pGraph);
                         } catch (Exception e1) {
                             e1.printStackTrace();
                         }
