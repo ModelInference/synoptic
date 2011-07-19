@@ -38,13 +38,11 @@ public class PartitionMerge implements IOperation {
         int retainedSize = retained.size();
         int removedSize = removed.size();
         PartitionSplit split = new PartitionSplit(retained, removed);
-        for (EventNode m : removed.getEvents()) {
+        for (EventNode m : removed.getEventNodes()) {
             split.addEventToSplit(m);
         }
-        retained.addAllMessages(removed.getEvents());
-        // TODO: do we have to call removed.removeMessages() prior to calling
-        // partitionGraph.remove() ?
-        removed.removeMessages(removed.getEvents());
+        retained.addEventNodes(removed.getEventNodes());
+        removed.removeAllEventNodes();
         g.remove(removed);
         if (removedSize + retainedSize != retained.size()) {
             throw new InternalSynopticException("lost messages!: "

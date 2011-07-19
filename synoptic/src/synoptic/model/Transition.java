@@ -11,7 +11,7 @@ import synoptic.model.interfaces.ITransition;
 public class Transition<NodeType> implements ITransition<NodeType> {
     protected NodeType source;
     protected NodeType target;
-    protected final String action;
+    protected final String relation;
 
     /**
      * Create a new transition.
@@ -26,7 +26,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     public Transition(NodeType source, NodeType target, String relation) {
         this.source = source;
         this.target = target;
-        this.action = relation;
+        this.relation = relation;
     }
 
     @Override
@@ -41,14 +41,14 @@ public class Transition<NodeType> implements ITransition<NodeType> {
 
     @Override
     public String getRelation() {
-        return action;
+        return relation;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (action == null ? 0 : action.hashCode());
+        result = prime * result + (relation == null ? 0 : relation.hashCode());
         result = prime * result + (source == null ? 0 : source.hashCode());
         result = prime * result + (target == null ? 0 : target.hashCode());
         return result;
@@ -67,11 +67,11 @@ public class Transition<NodeType> implements ITransition<NodeType> {
             return false;
         }
         Transition<NodeType> other = (Transition<NodeType>) obj;
-        if (action == null) {
-            if (other.action != null) {
+        if (relation == null) {
+            if (other.relation != null) {
                 return false;
             }
-        } else if (!action.equals(other.action)) {
+        } else if (!relation.equals(other.relation)) {
             return false;
         }
         if (source == null) {

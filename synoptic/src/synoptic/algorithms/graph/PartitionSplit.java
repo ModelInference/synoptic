@@ -67,8 +67,8 @@ public class PartitionSplit implements IOperation {
             newPartition = new Partition(getSplitEvents());
         }
 
-        newPartition.addAllMessages(getSplitEvents());
-        partitionToSplit.removeMessages(getSplitEvents());
+        newPartition.addEventNodes(getSplitEvents());
+        partitionToSplit.removeEventNodes(getSplitEvents());
         g.add(newPartition);
 
         // //////////////
@@ -96,7 +96,7 @@ public class PartitionSplit implements IOperation {
         // 2. it does not split out all messages
         return partitionToSplit != null
                 && eventsToSplitOut.size() > 0
-                && partitionToSplit.getEvents().size() > eventsToSplitOut
+                && partitionToSplit.getEventNodes().size() > eventsToSplitOut
                         .size();
     }
 
@@ -109,7 +109,7 @@ public class PartitionSplit implements IOperation {
                 + "."
                 + eventsToSplitOut.size()
                 + "/"
-                + (partitionToSplit.getEvents().size() - eventsToSplitOut
+                + (partitionToSplit.getEventNodes().size() - eventsToSplitOut
                         .size());
     }
 
@@ -150,7 +150,7 @@ public class PartitionSplit implements IOperation {
      */
     public static PartitionSplit newSplitWithAllEvents(Partition partition) {
         PartitionSplit s = new PartitionSplit(partition);
-        s.eventsToSplitOut = partition.getEvents();
+        s.eventsToSplitOut = partition.getEventNodes();
         return s;
     }
 

@@ -211,7 +211,7 @@ public class JungGui extends JApplet implements Printable {
 
         newPartitions = new LinkedHashMap<Partition, Integer>();
         for (Partition p : pGraph.getNodes()) {
-            newPartitions.put(p, p.getEvents().size());
+            newPartitions.put(p, p.getEventNodes().size());
         }
         oldPartitions = newPartitions;
 
@@ -362,7 +362,7 @@ public class JungGui extends JApplet implements Printable {
                     Set<Integer> temp;
                     for (INode<Partition> v : pickedVertices) {
                         temp = new HashSet<Integer>();
-                        for (EventNode event : ((Partition) v).getEvents()) {
+                        for (EventNode event : ((Partition) v).getEventNodes()) {
                             if (event.getTraceID() != 0) {
                                 temp.add(event.getTraceID());
                             }
@@ -394,7 +394,7 @@ public class JungGui extends JApplet implements Printable {
                             final Map<Integer, Set<ITransition<Partition>>> paths = new HashMap<Integer, Set<ITransition<Partition>>>();
                             // System.out.println(intersectionOfIDs);
                             for (Partition p : pGraph.getInitialNodes()) {
-                                for (EventNode event : p.getEvents()) {
+                                for (EventNode event : p.getEventNodes()) {
                                     for (Transition<EventNode> t : event
                                             .getTransitions()) {
                                         int traceID = t.getTarget()
@@ -535,7 +535,7 @@ public class JungGui extends JApplet implements Printable {
         newPartitions = new LinkedHashMap<Partition, Integer>();
 
         for (Partition p : pGraph.getNodes()) {
-            newPartitions.put(p, p.getEvents().size());
+            newPartitions.put(p, p.getEventNodes().size());
         }
 
         vizViewer.getGraphLayout().setGraph(JungGui.this.getJGraph());
@@ -552,7 +552,7 @@ public class JungGui extends JApplet implements Printable {
         oldPartitions = newPartitions;
         newPartitions = new LinkedHashMap<Partition, Integer>();
         for (Partition p : pGraph.getNodes()) {
-            newPartitions.put(p, p.getEvents().size());
+            newPartitions.put(p, p.getEventNodes().size());
         }
 
         vizViewer.getGraphLayout().setGraph(JungGui.this.getJGraph());
@@ -665,7 +665,7 @@ public class JungGui extends JApplet implements Printable {
                 // Compute the label for trans as the number of log events
                 // that were observed along the transition edge.
                 PartitionSplit s = trans.getSource()
-                        .getCandidateDivisionBasedOnOutgoing(trans);
+                        .getCandidateSplitBasedOnOutgoing(trans);
                 if (s == null) {
                     s = PartitionSplit.newSplitWithAllEvents(trans.getSource());
                 }
@@ -863,7 +863,7 @@ public class JungGui extends JApplet implements Printable {
                     if (vertex != null) {
 
                         ArrayList<String[]> validLines = new ArrayList<String[]>();
-                        for (EventNode event : vertex.getEvents()) {
+                        for (EventNode event : vertex.getEventNodes()) {
                             if (event.getLine() != null) {
                                 validLines.add(new String[] {
                                         event.getLineNum() + "",

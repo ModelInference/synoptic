@@ -69,7 +69,7 @@ public class WeightedTransition<NodeType> extends Transition<NodeType>
         }
 
         // compare just the labels of the StateTypes
-        int actionCmp = action.compareTo(other.action);
+        int actionCmp = relation.compareTo(other.relation);
         return actionCmp;
     }
 }

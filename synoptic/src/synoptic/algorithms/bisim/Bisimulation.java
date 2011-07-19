@@ -386,7 +386,7 @@ public abstract class Bisimulation {
                 Partition p = pGraph.getNodes().iterator().next();
                 // TODO: use the parser to determine if the input log was
                 // partially ordered or not.
-                if (!(p.getEvents().iterator().next().getEvent().getTime() instanceof VectorTime)) {
+                if (!(p.getEventNodes().iterator().next().getEvent().getTime() instanceof VectorTime)) {
                     throw new InternalSynopticException(
                             "Could not satisfy invariants: "
                                     + unsatisfiedInvariants);
@@ -433,7 +433,7 @@ public abstract class Bisimulation {
          * counterexampleTrace.
          */
         LinkedHashSet<EventNode> hot = new LinkedHashSet<EventNode>();
-        hot.addAll(counterexampleTrace.path.get(0).getEvents());
+        hot.addAll(counterexampleTrace.path.get(0).getEventNodes());
         Partition prevPartition = null;
         Partition nextPartition = null;
         Partition curPartition = null;
@@ -447,7 +447,7 @@ public abstract class Bisimulation {
             prevPartition = curPartition;
             curPartition = nextPartition;
             nextPartition = part;
-            hot.retainAll(part.getEvents());
+            hot.retainAll(part.getEventNodes());
             // If we cannot follow further, then we found the partition we need
             // to split.
             if (hot.size() == 0) {
@@ -471,7 +471,7 @@ public abstract class Bisimulation {
         if (outgoingTransition != null) {
             // logger.fine("outgoingTrans:" + outgoingTransition);
             PartitionSplit newSplit = curPartition
-                    .getCandidateDivisionBasedOnOutgoing(outgoingTransition);
+                    .getCandidateSplitBasedOnOutgoing(outgoingTransition);
             // logger.fine("outgoingSplit:" + newSplit);
             if (newSplit != null) {
                 candidateSplits.add(newSplit);
@@ -481,7 +481,7 @@ public abstract class Bisimulation {
         if (incomingTransition != null && incomingTransitionSplit) {
             // logger.fine("incomingTrans:" + incomingTransition);
             PartitionSplit newSplit = curPartition
-                    .getCandidateDivisionBasedOnIncoming(prevPartition,
+                    .getCandidateSplitBasedOnIncoming(prevPartition,
                             incomingTransition.getRelation());
             // logger.fine("incomingSplit:" + newSplit);
             if (newSplit != null) {

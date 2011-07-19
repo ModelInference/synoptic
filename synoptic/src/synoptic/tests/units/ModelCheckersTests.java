@@ -192,7 +192,7 @@ public class ModelCheckersTests extends SynopticTest {
         for (int i = 0; i < cExampleLabels.size(); i++) {
             EventType nextLabel = cExampleLabels.get(i);
             for (Transition<Partition> transition : nextNode.getTransitions()) {
-                for (EventNode event : transition.getTarget().getEvents()) {
+                for (EventNode event : transition.getTarget().getEventNodes()) {
                     if (event.getEType().equals(nextLabel)) {
                         nextNode = transition.getTarget();
                         expectedPath.add(nextNode);
