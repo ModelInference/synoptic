@@ -123,8 +123,8 @@ public class BisimulationTests extends SynopticTest {
                 continue;
             }
 
-            assertTrue(p.getEvents().size() == 1);
-            EventNode e = p.getEvents().iterator().next();
+            assertTrue(p.getEventNodes().size() == 1);
+            EventNode e = p.getEventNodes().iterator().next();
             logger.fine("Check partition: " + p.toString() + " and e: "
                     + e.toString());
             assertTrue(parsedEvents.contains(e));

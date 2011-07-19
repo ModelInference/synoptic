@@ -37,8 +37,8 @@ public class PartitionMultiMerge implements IOperation {
         // }
 
         for (Partition removed : partitionsToMerge) {
-            retainedPartition.addAllMessages(removed.getEvents());
-            removed.removeMessages(removed.getEvents());
+            retainedPartition.addEventNodes(removed.getEventNodes());
+            removed.removeAllEventNodes();
             g.remove(removed);
 
             // //////////////
@@ -61,7 +61,7 @@ public class PartitionMultiMerge implements IOperation {
         }
 
         // if (invalidateRetained) {
-        g.transitionCache.remove(retainedPartition);
+        g.removeFromCache(retainedPartition);
         // }
         // g.transitionCache.remove(removed);
 

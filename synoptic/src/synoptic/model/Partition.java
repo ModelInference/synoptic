@@ -19,7 +19,7 @@ import synoptic.util.NotImplementedException;
 
 /**
  * Implements a partition in a partition graph. Partitions are nodes, but they
- * do not explicitly represent their edges. Instead, they know the MessageEvents
+ * do not explicitly represent their edges. Instead, they know the EventNodes
  * they contain, and generate the edges on the fly using existential
  * abstraction. The class is complicated by the fact that in the state based
  * view, each partition corresponds to possibly several transitions. The
@@ -30,70 +30,163 @@ import synoptic.util.NotImplementedException;
  * @author sigurd
  */
 public class Partition implements INode<Partition> {
-    /** All the events this partition contains */
+    /**
+     * All the events this partition contains. A partition is constrained to
+     * contain EventNodes that have Events of the same EventType.
+     */
     protected final Set<EventNode> events;
+
+    /**
+     * Partitions can be initialized (belong to a partition graph) or be
+     * uninitialized (do not belong to any partition graph, but possibly cached
+     * and re-used later). This variable inidicates whether or not this
+     * partition has been initialized.
+     */
+    private boolean initialized = false;
+
+    /** The EvenType of this partition -- all events MUST be of this type. */
     private EventType eType;
 
     /**
-     * Whether or not this partition is a terminal partition (whether or not it
-     * contains a terminal message event).
+     * Whether or not this partition is a terminal partition. That is, whether
+     * or not it contains a terminal message event.
      */
-    private boolean isTerminal;
+    private boolean isTerminal = false;
 
-    public Partition(Set<EventNode> messages) {
-        events = new LinkedHashSet<EventNode>(messages);
-        for (final EventNode m : messages) {
-            m.setParent(this);
-        }
-
-        // A partition is final if it contains a message event that is a
-        // terminal node in some input trace.
-        isTerminal = false;
-        for (EventNode e : messages) {
-            if (e.isTerminal()) {
-                isTerminal = true;
-            }
-        }
+    /**
+     * Creates a new partition that will contain a set of event nodes.
+     * 
+     * @param eNodes
+     */
+    public Partition(Set<EventNode> eNodes) {
+        assert eNodes.size() > 0;
+        events = new LinkedHashSet<EventNode>();
+        initialize(eNodes.iterator().next());
+        addEventNodes(eNodes);
     }
 
-    public void addMessage(EventNode message) {
-        events.add(message);
-        message.setParent(this);
-        isTerminal |= message.isTerminal();
+    /**
+     * Creates a new partition that will contain a single event node.
+     * 
+     * @param eNodes
+     */
+    public Partition(EventNode eNode) {
+        events = new LinkedHashSet<EventNode>();
+        initialize(eNode);
+        addOneEventNode(eNode);
     }
 
-    public void addAllMessages(Collection<EventNode> messages) {
-        events.addAll(messages);
-        for (final EventNode m : messages) {
-            m.setParent(this);
-            isTerminal |= m.isTerminal();
+    public void initialize(EventNode eNode) {
+        eType = eNode.getEType();
+        isTerminal = eNode.isTerminal();
+        initialized = true;
+    }
+
+    /**
+     * Adds a collection of event nodes to the existing partition. Updates the
+     * partition's isTerminal flag.
+     * 
+     * @param eNodes
+     *            event nodes to add
+     */
+    public void addEventNodes(Collection<EventNode> eNodes) {
+        if (!initialized) {
+            initialize(eNodes.iterator().next());
+        }
+
+        events.addAll(eNodes);
+        for (final EventNode e : eNodes) {
+            e.setParent(this);
+            // A partition is final if it contains a message event that is a
+            // terminal node in some input trace.
+            isTerminal |= e.isTerminal();
+            assert eType.equals(e.getEType());
         }
     }
 
     /**
-     * Transitions between partitions are not stored but generated on demand
-     * using this iterator
+     * Adds a single event node to the current partition.
+     * 
+     * @param eNode
+     *            event node to add
      */
-    @Override
-    public IIterableIterator<Transition<Partition>> getTransitionsIterator() {
-        return getTransitionsIterator(null);
+    public void addOneEventNode(EventNode eNode) {
+        if (!initialized) {
+            initialize(eNode);
+        } else {
+            assert eType.equals(eNode.getEType());
+            eNode.setParent(this);
+            isTerminal |= eNode.isTerminal();
+        }
+        events.add(eNode);
     }
 
-    public Set<EventNode> getEvents() {
+    /**
+     * Returns the set of event nodes contained in this partition.
+     */
+    public Set<EventNode> getEventNodes() {
         return events;
+    }
+
+    /**
+     * Removes a set of event nodes. NOTE: this method cannot be used to remove
+     * all the messages in the partition. For this, use the removeAllMessages()
+     * method.
+     * 
+     * @param eventNodes
+     */
+    public void removeEventNodes(Set<EventNode> eventNodes) {
+        events.removeAll(eventNodes);
+        assert events.size() > 0;
+    }
+
+    /**
+     * Removes all the event nodes from this partition.
+     */
+    public void removeAllEventNodes() {
+        events.clear();
+        initialized = false;
+    }
+
+    /**
+     * Whether or not this partition is final (contains a terminal message
+     * event).
+     */
+    @Override
+    public boolean isTerminal() {
+        assert initialized;
+        return isTerminal;
+    }
+
+    /**
+     * Returns the event type of this partition.
+     */
+    @Override
+    public EventType getEType() {
+        assert initialized;
+        return eType;
+    }
+
+    /**
+     * Returns the number of event nodes this partition contains.
+     */
+    public int size() {
+        assert initialized;
+        return events.size();
     }
 
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
         // str.append("Partition " + hashCode());
+        str.append(!initialized ? "UNINIT." : "");
         str.append("P." + getEType());
         str.append("." + events.size());
         return str.toString();
     }
 
     /**
-     * Split the events according to the presence of an outgoing transition
+     * Split the event nodes according to the presence of an outgoing transition
      * trans (the source in trans is ignored here). Note that the returned
      * candidate must be a valid split, therefore we cannot split on a
      * transition that is the sole transition between two partitions -- a split
@@ -104,32 +197,54 @@ public class Partition implements INode<Partition> {
      *            the transition that will be checked for
      * @return the resulting split
      */
-    public PartitionSplit getCandidateDivisionBasedOnOutgoing(
+    public PartitionSplit getCandidateSplitBasedOnOutgoing(
             ITransition<Partition> trans) {
-        PartitionSplit ret = null;
+        assert initialized;
+
+        PartitionSplit split = null;
         for (final EventNode event : events) {
             if (fulfillsStrong(event, trans)) {
-                if (ret != null) {
-                    ret.addEventToSplit(event);
+                if (split != null) {
+                    split.addEventToSplit(event);
                 }
             } else {
                 // We only create the split once we find an event that would
                 // not be placed in the split.
-                if (ret == null) {
+                if (split == null) {
                     // Add all events before event to the split (because ret is
                     // null, each of these events is guaranteed to fulfill the
                     // splitting criteria).
-                    ret = new PartitionSplit(this);
+                    split = new PartitionSplit(this);
                     for (final EventNode event2 : events) {
                         if (event2.equals(event)) {
                             break;
                         }
-                        ret.addEventToSplit(event2);
+                        split.addEventToSplit(event2);
                     }
                 }
             }
         }
-        return ret;
+        return split;
+    }
+
+    /**
+     * Whether or not there exists a transition t' emanating from an event that
+     * (1) matches the relation of another (inter-partition) transition t, and
+     * (2) matches the destination partition of t
+     * 
+     * @param event
+     * @param trans
+     * @return whether or not event satisfies the conditions above.
+     */
+    private static boolean fulfillsStrong(EventNode event,
+            ITransition<Partition> trans) {
+        for (final ITransition<EventNode> t : event.getTransitions()) {
+            if (t.getRelation().equals(trans.getRelation())
+                    && t.getTarget().getParent().equals(trans.getTarget())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -142,8 +257,10 @@ public class Partition implements INode<Partition> {
      *            provides the relation name to consider
      * @return returns the resulting split
      */
-    public PartitionSplit getCandidateDivisionBasedOnIncoming(
-            Partition previous, String relation) {
+    public PartitionSplit getCandidateSplitBasedOnIncoming(Partition previous,
+            String relation) {
+        assert initialized;
+
         Set<EventNode> eventsReachableFromPrevious = new LinkedHashSet<EventNode>();
         for (final EventNode prevEvent : previous.events) {
             eventsReachableFromPrevious.addAll(prevEvent
@@ -173,45 +290,15 @@ public class Partition implements INode<Partition> {
     }
 
     /**
-     * Whether or not there exists a transition t' emanating from an event that
-     * (1) matches the relation of another (inter-partition) transition t, and
-     * (2) matches the destination partition of t
-     * 
-     * @param event
-     * @param trans
-     * @return whether or not event satisfies the conditions above.
-     */
-    private static boolean fulfillsStrong(EventNode event,
-            ITransition<Partition> trans) {
-        for (final ITransition<EventNode> t : event.getTransitions()) {
-            if (t.getRelation().equals(trans.getRelation())
-                    && t.getTarget().getParent().equals(trans.getTarget())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public EventType getEType() {
-        if (eType != null) {
-            return eType;
-        }
-        return events.iterator().next().getEType();
-    }
-
-    public int size() {
-        return events.size();
-    }
-
-    /**
      * This method returns the set of transitions. It augments the edges with
      * information about frequency and number of observation.
      */
     @Override
     public List<Transition<Partition>> getTransitions() {
+        assert initialized;
+
         List<Transition<Partition>> result = new ArrayList<Transition<Partition>>();
-        for (Transition<Partition> tr : getTransitionsIterator()) {
+        for (Transition<Partition> tr : getTransitionsIterator(null)) {
             result.add(tr);
         }
         return result;
@@ -220,14 +307,16 @@ public class Partition implements INode<Partition> {
     @Override
     public List<WeightedTransition<Partition>> getWeightedTransitions() {
         List<WeightedTransition<Partition>> result = new ArrayList<WeightedTransition<Partition>>();
-        for (Transition<Partition> tr : getTransitionsIterator()) {
+        assert initialized;
+
+        for (Transition<Partition> tr : getTransitionsIterator(null)) {
             // Use splitting to compute the transition probabilities\labels.
-            PartitionSplit s = getCandidateDivisionBasedOnOutgoing(tr);
+            PartitionSplit s = getCandidateSplitBasedOnOutgoing(tr);
             if (s == null) {
                 s = PartitionSplit.newSplitWithAllEvents(this);
             }
             int numOutgoing = s.getSplitEvents().size();
-            int totalAtSource = tr.getSource().getEvents().size();
+            int totalAtSource = tr.getSource().getEventNodes().size();
             double freq = (double) numOutgoing / (double) totalAtSource;
             WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
                     tr.getSource(), tr.getTarget(), tr.getRelation(), freq,
@@ -238,6 +327,17 @@ public class Partition implements INode<Partition> {
     }
 
     /**
+     * Transitions between partitions are not stored but generated on demand
+     * using this iterator
+     */
+    @Override
+    public IIterableIterator<Transition<Partition>> getTransitionsIterator() {
+        assert initialized;
+
+        return getTransitionsIterator(null);
+    }
+
+    /**
      * Generate Edges on the fly. We examine all contained messages and find the
      * appropriate successor messages. We then check to which partition the
      * successor messages belong and create an edge between the partitions.
@@ -245,14 +345,16 @@ public class Partition implements INode<Partition> {
      */
     @Override
     public IIterableIterator<Transition<Partition>> getTransitionsIterator(
-            final String act) {
+            final String relation) {
+        assert initialized;
+
         return new IIterableIterator<Transition<Partition>>() {
             private final Set<ITransition<Partition>> seen = new LinkedHashSet<ITransition<Partition>>();
             private final Iterator<EventNode> msgItr = events.iterator();
 
-            private Iterator<? extends ITransition<EventNode>> transItr = (act == null) ? msgItr
+            private Iterator<? extends ITransition<EventNode>> transItr = (relation == null) ? msgItr
                     .next().getTransitions().iterator()
-                    : msgItr.next().getTransitions(act).iterator();
+                    : msgItr.next().getTransitions(relation).iterator();
 
             private Transition<Partition> next = null;
 
@@ -268,11 +370,11 @@ public class Partition implements INode<Partition> {
                             return transToPart;
                         }
                     } else {
-                        if (act == null) {
+                        if (relation == null) {
                             transItr = msgItr.next().getTransitions()
                                     .iterator();
                         } else {
-                            transItr = msgItr.next().getTransitions(act)
+                            transItr = msgItr.next().getTransitions(relation)
                                     .iterator();
                         }
                     }
@@ -313,6 +415,8 @@ public class Partition implements INode<Partition> {
 
     @Override
     public ITransition<Partition> getTransition(Partition iNode, String action) {
+        assert initialized;
+
         for (Iterator<Transition<Partition>> iter = getTransitionsIterator(action); iter
                 .hasNext();) {
             ITransition<Partition> t = iter.next();
@@ -324,34 +428,9 @@ public class Partition implements INode<Partition> {
     }
 
     @Override
-    public Partition getParent() throws NotImplementedException {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public void setParent(Partition parent) throws NotImplementedException {
-        throw new NotImplementedException();
-    }
-
-    public void removeMessages(Set<EventNode> messageList) {
-        events.removeAll(messageList);
-    }
-
-    public void setLabel(EventType eType) {
-        this.eType = eType;
-    }
-
-    /**
-     * Whether or not this partition is final (contains a terminal message
-     * event).
-     */
-    @Override
-    public boolean isTerminal() {
-        return isTerminal;
-    }
-
-    @Override
     public Comparator<Partition> getComparator() {
+        assert initialized;
+
         class PartitionComparator implements Comparator<Partition> {
             @Override
             public int compare(Partition arg0, Partition arg1) {
@@ -398,9 +477,18 @@ public class Partition implements INode<Partition> {
     }
 
     @Override
+    public Partition getParent() throws NotImplementedException {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public void setParent(Partition parent) throws NotImplementedException {
+        throw new NotImplementedException();
+    }
+
+    @Override
     public void addTransition(Partition dest, String relation) {
         throw new InternalSynopticException(
                 "Partitions manipulate edges implicitly through LogEvent instances they maintain. Cannot modify Partition transition directly.");
     }
-
 }

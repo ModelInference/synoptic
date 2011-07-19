@@ -920,7 +920,7 @@ public class Main implements Callable<Integer> {
             }
         }
 
-        // Invariant minders depend on total/partial ordering of the log.
+        // Invariant miners depend on total/partial ordering of the log.
         InvariantMiner miner;
         if (parser.logTimeTypeIsTotallyOrdered()) {
             miner = new ChainWalkingTOInvMiner();
@@ -995,6 +995,8 @@ public class Main implements Callable<Integer> {
         Bisimulation.mergePartitions(pGraph);
         logger.info("Merging took " + (System.currentTimeMillis() - startTime)
                 + "ms");
+
+        // At this point, we have the final model in the pGraph object.
 
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result

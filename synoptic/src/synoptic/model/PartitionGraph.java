@@ -33,7 +33,7 @@ public class PartitionGraph implements IGraph<Partition> {
     @SuppressWarnings("unused")
     private static Logger logger = Logger.getLogger("PartitionGraph Logger");
 
-    /** holds all partitions in this graph */
+    /** Holds all partitions in this graph. */
     private LinkedHashSet<Partition> partitions = null;
 
     /**
@@ -50,16 +50,16 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     private final LinkedHashMap<String, Set<EventNode>> terminalEvents = new LinkedHashMap<String, Set<EventNode>>();
 
-    /** holds synoptic.invariants that were mined when the graph was created */
+    /** Holds synoptic.invariants that were mined when the graph was created. */
     private TemporalInvariantSet invariants = null;
 
-    /** holds all relations known to exist in this graph */
+    /** Holds all relations known to exist in this graph. */
     private final Set<String> relations = new LinkedHashSet<String>();
 
-    /** a cache of inter-partition transitions */
-    public final LinkedHashMap<Partition, Set<Partition>> transitionCache = new LinkedHashMap<Partition, Set<Partition>>();
+    /** A cache of inter-partition transitions. */
+    private final LinkedHashMap<Partition, Set<Partition>> transitionCache = new LinkedHashMap<Partition, Set<Partition>>();
 
-    /* cache of partition splits */
+    /** An ordered list of all partition splits applied to the graph so far. */
     private final LinkedList<PartitionMultiSplit> appliedSplits = new LinkedList<PartitionMultiSplit>();
 
     /**
@@ -160,20 +160,29 @@ public class PartitionGraph implements IGraph<Partition> {
      *            Set of message which to be partitioned
      */
     private void partitionByLabels(Collection<EventNode> events) {
-        partitions = new LinkedHashSet<Partition>();
-        final Map<EventType, Partition> prepartitions = new LinkedHashMap<EventType, Partition>();
-        for (EventNode message : events) {
-            for (ITransition<EventNode> t : message.getTransitions()) {
+        Map<EventType, Set<EventNode>> prepartitions = new LinkedHashMap<EventType, Set<EventNode>>();
+        for (EventNode e : events) {
+            // Update the set of known relations based on transitions from the
+            // event node.
+            for (ITransition<EventNode> t : e.getTransitions()) {
                 relations.add(t.getRelation());
             }
-            if (!prepartitions.containsKey(message.getEType())) {
-                final Partition partition = new Partition(
-                        new LinkedHashSet<EventNode>());
-                partitions.add(partition);
-                prepartitions.put(message.getEType(), partition);
+            // Add the event node to a set corresponding to it's event type.
+            EventType eType = e.getEType();
+            if (!prepartitions.containsKey(eType)) {
+                Set<EventNode> eNodes = new LinkedHashSet<EventNode>();
+                prepartitions.put(eType, eNodes);
             }
-            prepartitions.get(message.getEType()).addMessage(message);
+            prepartitions.get(eType).add(e);
         }
+
+        // For each set of event nodes with the same event type, create
+        // one partition.
+        partitions = new LinkedHashSet<Partition>();
+        for (EventType eType : prepartitions.keySet()) {
+            partitions.add(new Partition(prepartitions.get(eType)));
+        }
+
         transitionCache.clear();
     }
 
@@ -207,9 +216,10 @@ public class PartitionGraph implements IGraph<Partition> {
                 for (LinkedHashSet<Integer> indexPartition : partitioningIndexSets) {
                     if (indexPartition.contains(index)) {
                         if (subPartitions[i] == null) {
-                            subPartitions[i] = new Partition(null);
+                            subPartitions[i] = new Partition(m);
+                        } else {
+                            subPartitions[i].addOneEventNode(m);
                         }
-                        subPartitions[i].addMessage(m);
                         added = true;
                         break;
                     }
@@ -249,11 +259,11 @@ public class PartitionGraph implements IGraph<Partition> {
                         new LinkedHashSet<EventNode>());
                 prepartitions.put(message.getEType(), partition);
             }
-            prepartitions.get(message.getEType()).addMessage(message);
+            prepartitions.get(message.getEType()).addOneEventNode(message);
         }
         for (Partition t : prepartitions.values()) {
             LinkedHashSet<EventNode> iSet = new LinkedHashSet<EventNode>();
-            for (EventNode e : t.getEvents()) {
+            for (EventNode e : t.getEventNodes()) {
                 if (initial.contains(e)) {
                     iSet.add(e);
                 }
@@ -261,7 +271,7 @@ public class PartitionGraph implements IGraph<Partition> {
             if (iSet.size() == 0) {
                 partitions.add(t);
             } else {
-                t.removeMessages(iSet);
+                t.removeEventNodes(iSet);
                 partitions.add(t);
                 partitions.add(new Partition(iSet));
             }
@@ -277,16 +287,16 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     private void partitionSeparately(Collection<EventNode> events) {
         partitions = new LinkedHashSet<Partition>();
-        final Map<EventNode, Partition> prepartitions = new LinkedHashMap<EventNode, Partition>();
-        for (EventNode message : events) {
-            if (!prepartitions.containsKey(message)) {
-                final Partition partition = new Partition(
-                        new LinkedHashSet<EventNode>());
-                partitions.add(partition);
-                prepartitions.put(message, partition);
+        Set<EventNode> seenENodes = new LinkedHashSet<EventNode>();
+        for (EventNode e : events) {
+            if (seenENodes.contains(e)) {
+                continue;
             }
-            prepartitions.get(message).addMessage(message);
+            Partition partition = new Partition(e);
+            partitions.add(partition);
+            seenENodes.add(e);
         }
+        transitionCache.clear();
     }
 
     @Override
@@ -341,7 +351,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
     @Override
     public void add(Partition node) {
-        for (EventNode m : node.getEvents()) {
+        for (EventNode m : node.getEventNodes()) {
             relations.addAll(m.getRelations());
         }
         partitions.add(node);
@@ -374,10 +384,14 @@ public class PartitionGraph implements IGraph<Partition> {
         // System.out.println("Cache' size: " + transitionCache.size());
     }
 
+    public void removeFromCache(Partition node) {
+        transitionCache.remove(node);
+    }
+
     @Override
     public void tagInitial(Partition initialNode, String relation) {
         partitions.add(initialNode);
-        addInitialMessages(initialNode.getEvents(), relation);
+        addInitialMessages(initialNode.getEventNodes(), relation);
         transitionCache.clear();
     }
 
@@ -411,7 +425,7 @@ public class PartitionGraph implements IGraph<Partition> {
                 throw new InternalSynopticException(
                         "bisim produced empty partition!");
             }
-            all.addAll(p.getEvents());
+            all.addAll(p.getEventNodes());
             totalCount += p.size();
         }
         if (totalCount != all.size()) {
