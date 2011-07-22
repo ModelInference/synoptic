@@ -16,14 +16,14 @@ public interface ITemporalInvariant {
      * Use Did/Can LTL instead of LTL. (Not using it is only partially
      * implemented.)
      */
-    public static final boolean useDIDCAN = true;
+    static final boolean useDIDCAN = true;
 
     /**
      * Get an LTL representation of the invariant.
      * 
      * @return an string representing the invariant in LTL
      */
-    public String getLTLString();
+    String getLTLString();
 
     /**
      * Shorten a counter-example for this invariant.
@@ -34,7 +34,7 @@ public interface ITemporalInvariant {
      *            the counter-example path
      * @return a prefix of {@code path} that still violates the the property
      */
-    public <T extends INode<T>> List<T> shorten(List<T> path);
+    <T extends INode<T>> List<T> shorten(List<T> path);
 
     /**
      * Get the Buchi-automaton that corresponds to this LTL property. This
@@ -42,14 +42,14 @@ public interface ITemporalInvariant {
      * 
      * @return a Buchi-automaton represented as a graph
      */
-    public gov.nasa.ltl.graph.Graph getAutomaton();
+    gov.nasa.ltl.graph.Graph getAutomaton();
 
     /**
      * Get the relation whose paths are constrained by this invariant.
      * 
      * @return the relation occurring in this invariant
      */
-    public String getRelation();
+    String getRelation();
 
     /**
      * Get the set of predicates occurring in this property. Predicates are here
@@ -57,19 +57,19 @@ public interface ITemporalInvariant {
      * 
      * @return a set of strings with the labels that occur in this invariant
      */
-    public Set<EventType> getPredicates();
+    Set<EventType> getPredicates();
 
     /**
      * Get the short name of the invariant (e.g. "AP" for "AlwaysPrecedes)
      * 
      * @return a short invariant name string
      */
-    public String getShortName();
+    String getShortName();
 
     /**
      * Get the long name of the invariant (e.g. "AlwaysPrecedes")
      * 
      * @return a long invariant name string
      */
-    public String getLongName();
+    String getLongName();
 }

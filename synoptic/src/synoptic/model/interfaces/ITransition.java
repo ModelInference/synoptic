@@ -8,27 +8,28 @@ package synoptic.model.interfaces;
  * @param <NodeType>
  *            the type of the nodes which are connected by this transition
  */
-public interface ITransition<NodeType> {
+public interface ITransition<NodeType> extends
+        Comparable<ITransition<NodeType>> {
     /**
      * Get the target node.
      * 
      * @return the target node
      */
-    public NodeType getTarget();
+    NodeType getTarget();
 
     /**
      * Get the source node.
      * 
      * @return the source node
      */
-    public NodeType getSource();
+    NodeType getSource();
 
     /**
      * get the label of the transition (i.e. the relation)
      * 
      * @return the name of the relation
      */
-    public String getRelation();
+    String getRelation();
 
     /**
      * Set the target node.
@@ -36,7 +37,7 @@ public interface ITransition<NodeType> {
      * @param target
      *            the new target node
      */
-    public void setTarget(NodeType target);
+    void setTarget(NodeType target);
 
     /**
      * Set the source node.
@@ -44,13 +45,12 @@ public interface ITransition<NodeType> {
      * @param source
      *            the new source node
      */
-    public void setSource(NodeType source);
+    void setSource(NodeType source);
 
     /**
      * Get a short description of the transition
      * 
      * @return a short description
      */
-    public String toStringConcise();
-
+    String toStringConcise();
 }

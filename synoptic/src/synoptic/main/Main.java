@@ -748,8 +748,7 @@ public class Main implements Callable<Integer> {
             filename = baseFilename + ".dot";
         }
         try {
-            GraphExporter
-                    .exportGraph(filename, g, outputEdgeLabelsCondition);
+            GraphExporter.exportGraph(filename, g, outputEdgeLabelsCondition);
         } catch (IOException e) {
             logger.fine("Unable to export graph to " + filename);
         }

@@ -1,5 +1,7 @@
 package synoptic.model;
 
+import synoptic.model.interfaces.ITransition;
+
 /**
  * A relation that supports storing two more pieces of information with a
  * transition: the fraction of all events that take this transition, and the
@@ -9,8 +11,7 @@ package synoptic.model;
  * @author Sigurd Schneider
  * @param <NodeType>
  */
-public class WeightedTransition<NodeType> extends Transition<NodeType>
-        implements Comparable<WeightedTransition<NodeType>> {
+public class WeightedTransition<NodeType> extends Transition<NodeType> {
     double fraction = 0.0;
     private int count = 0;
 
@@ -50,26 +51,23 @@ public class WeightedTransition<NodeType> extends Transition<NodeType>
     }
 
     @Override
-    public int compareTo(WeightedTransition<NodeType> other) {
-        // compare references
-        if (this == other) {
-            return 0;
+    public int compareTo(ITransition<NodeType> other) {
+        int cmpSuper = super.compareTo(other);
+        if (cmpSuper != 0) {
+            return cmpSuper;
         }
 
-        // compare fractions associated with relation
-        int fracCmp = Double.compare(this.getFraction(), other.getFraction());
+        WeightedTransition<NodeType> otherW = (WeightedTransition<NodeType>) (other);
+
+        // Compare fractions.
+        int fracCmp = Double.compare(this.getFraction(), otherW.getFraction());
         if (fracCmp != 0) {
             return fracCmp;
         }
 
-        // compare counts associated with relation
-        int countsCmp = ((Integer) this.getCount()).compareTo(other.getCount());
-        if (countsCmp != 0) {
-            return countsCmp;
-        }
-
-        // compare just the labels of the StateTypes
-        int actionCmp = relation.compareTo(other.relation);
-        return actionCmp;
+        // Compare counts.
+        int countsCmp = ((Integer) this.getCount())
+                .compareTo(otherW.getCount());
+        return countsCmp;
     }
 }

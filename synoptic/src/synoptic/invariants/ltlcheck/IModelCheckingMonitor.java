@@ -1,5 +1,5 @@
 package synoptic.invariants.ltlcheck;
 
 public interface IModelCheckingMonitor {
-    public void subTask(String str);
+    void subTask(String str);
 }

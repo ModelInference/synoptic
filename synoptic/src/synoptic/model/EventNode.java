@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -344,48 +343,39 @@ public class EventNode implements INode<EventNode> {
     }
 
     @Override
-    public Comparator<EventNode> getComparator() {
-        class EventNodeComparator implements Comparator<EventNode> {
+    public int compareTo(EventNode other) {
+        if (this == other) {
+            return 0;
+        }
 
-            @Override
-            public int compare(EventNode arg0, EventNode arg1) {
-                if (arg0 == arg1) {
-                    return 0;
-                }
+        // compare labels of the two message events
+        int labelCmp = event.getEType().compareTo(other.getEType());
+        if (labelCmp != 0) {
+            return labelCmp;
+        }
 
-                // compare labels of the two message events
-                int labelCmp = arg0.getEType().compareTo(arg1.getEType());
-                if (labelCmp != 0) {
-                    return labelCmp;
-                }
+        // compare number of children
+        int transitionCntCmp = new Integer(transitions.size())
+                .compareTo(other.transitions.size());
+        if (transitionCntCmp != 0) {
+            return transitionCntCmp;
+        }
 
-                // compare number of children
-                int transitionCntCmp = new Integer(arg0.transitions.size())
-                        .compareTo(arg1.transitions.size());
-                if (transitionCntCmp != 0) {
-                    return transitionCntCmp;
-                }
+        // compare transitions to children
+        ArrayList<WeightedTransition<EventNode>> thisTrans = new ArrayList<WeightedTransition<EventNode>>(
+                this.getWeightedTransitions());
+        ArrayList<WeightedTransition<EventNode>> otherTrans = new ArrayList<WeightedTransition<EventNode>>(
+                other.getWeightedTransitions());
 
-                // compare transitions to children
-                ArrayList<WeightedTransition<EventNode>> arg0SortedTrans = new ArrayList<WeightedTransition<EventNode>>(
-                        arg0.getWeightedTransitions());
-                ArrayList<WeightedTransition<EventNode>> arg1SortedTrans = new ArrayList<WeightedTransition<EventNode>>(
-                        arg1.getWeightedTransitions());
-
-                Collections.sort(arg0SortedTrans);
-                Collections.sort(arg1SortedTrans);
-                for (int i = 0; i < arg0SortedTrans.size(); i++) {
-                    int childCmp = arg0SortedTrans.get(i).compareTo(
-                            arg1SortedTrans.get(i));
-                    if (childCmp != 0) {
-                        return childCmp;
-                    }
-                }
-
-                return 0;
+        Collections.sort(thisTrans);
+        Collections.sort(otherTrans);
+        for (int i = 0; i < thisTrans.size(); i++) {
+            int transCmp = thisTrans.get(i).compareTo(otherTrans.get(i));
+            if (transCmp != 0) {
+                return transCmp;
             }
         }
-        return new EventNodeComparator();
+        return 0;
     }
 
     public String getLine() {

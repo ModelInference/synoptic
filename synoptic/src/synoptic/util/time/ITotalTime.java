@@ -1,7 +1,10 @@
 package synoptic.util.time;
 
+/**
+ * A wrapper for a totally ordered time type with an integer value.
+ */
 public class ITotalTime implements ITime {
-
+    /** Time value */
     public int time;
 
     /**

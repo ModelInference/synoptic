@@ -60,7 +60,7 @@ public interface IGraph<NodeType extends INode<NodeType>> {
      * @param node
      *            the node to add
      */
-    public void add(NodeType node);
+    void add(NodeType node);
 
     /**
      * Remove the node from the graph
@@ -68,7 +68,7 @@ public interface IGraph<NodeType extends INode<NodeType>> {
      * @param node
      *            the node to remove
      */
-    public void remove(NodeType node);
+    void remove(NodeType node);
 
     /**
      * Mark {@code initialNode} as initial with respect to {@code relation}.
@@ -80,7 +80,7 @@ public interface IGraph<NodeType extends INode<NodeType>> {
      * @param relation
      *            the relation with respect to which the node should be initial
      */
-    public void tagInitial(NodeType initialNode, String relation);
+    void tagInitial(NodeType initialNode, String relation);
 
     /**
      * Mark {@code terminalNode} as terminal with respect to {@code relation}.
@@ -92,5 +92,5 @@ public interface IGraph<NodeType extends INode<NodeType>> {
      * @param relation
      *            the relation with respect to which the node should be terminal
      */
-    public void tagTerminal(NodeType terminalNode, String relation);
+    void tagTerminal(NodeType terminalNode, String relation);
 }
