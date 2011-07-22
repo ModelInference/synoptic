@@ -20,7 +20,7 @@ public class GmlExportFormatter extends GraphExportFormatter {
 
     @Override
     public <T extends INode<T>> String nodeToString(int nodeId, T node,
-            boolean isInitial, boolean isTerminal, String relation) {
+            boolean isInitial, boolean isTerminal) {
         String nodeGraphics = new String("graphics [\n");
         if (isInitial) {
             nodeGraphics += "  type \"rectangle\"\n]\n";
@@ -35,14 +35,13 @@ public class GmlExportFormatter extends GraphExportFormatter {
                 + nodeGraphics + "]\n");
     }
 
-    @Override
-    public String edgeToString(boolean outputEdgeLabels, int nodeSrc,
-            int nodeDst, double freq, String relation) {
+    private String edgeToString(boolean withProb, int nodeSrc, int nodeDst,
+            double prob, String relation) {
 
-        String freqStr = quote(String.format("%.2f", freq));
         String s = new String("edge\n[\n  ");
         s += "source " + nodeSrc + "\n  target " + nodeDst + "\n";
-        if (outputEdgeLabels) {
+        if (withProb) {
+            String freqStr = quote(String.format("%.2f", prob));
             s += "  label \"" + freqStr + "\"\n";
         }
 
@@ -50,5 +49,17 @@ public class GmlExportFormatter extends GraphExportFormatter {
         // String color = relationColors.get(relation);
 
         return s + "]" + "\n";
+    }
+
+    @Override
+    public String edgeToStringWithProb(int nodeSrc, int nodeDst, double prob,
+            String relation) {
+        return edgeToString(true, nodeSrc, nodeDst, prob, relation);
+    }
+
+    @Override
+    public String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
+            String relation) {
+        return edgeToString(false, nodeSrc, nodeDst, 0.0, relation);
     }
 }

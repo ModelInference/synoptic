@@ -44,19 +44,18 @@ public class EventNode implements INode<EventNode> {
     // element, and transitionsByEvents becomes superfluous.
 
     List<Transition<EventNode>> transitions = new ArrayList<Transition<EventNode>>();
-    LinkedHashMap<String, List<Transition<EventNode>>> transitionsByEventLabel = new LinkedHashMap<String, List<Transition<EventNode>>>();
-
-    // LinkedHashMap<String, LinkedHashMap<LogEvent,
-    // List<Transition<LogEvent>>>> transitionsByEventAndTarget = new
-    // LinkedHashMap<String, LinkedHashMap<LogEvent,
-    // List<Transition<LogEvent>>>>();
+    LinkedHashMap<String, List<Transition<EventNode>>> transitionsByRelation = new LinkedHashMap<String, List<Transition<EventNode>>>();
 
     public EventNode(EventNode copyFrom) {
+        assert copyFrom != null;
+
         parent = copyFrom.parent;
         event = copyFrom.event;
     }
 
     public EventNode(Event eventArg) {
+        assert eventArg != null;
+
         event = eventArg;
         parent = null;
     }
@@ -180,40 +179,15 @@ public class EventNode implements INode<EventNode> {
         return e1DirectSuccessors;
     }
 
-    // public void addTransition(LogEvent dest, String relation, double
-    // probability) {
-    // if (dest == null) {
-    // throw new InternalSynopticException("Dest was null");
-    // }
-    // addTransition(new Transition<LogEvent>(this, dest, relation,
-    // probability));
-    // }
-
     public void addTransition(Transition<EventNode> transition) {
         transitions.add(transition);
         String eventLabel = transition.getRelation();
-        List<Transition<EventNode>> ref = transitionsByEventLabel
-                .get(eventLabel);
+        List<Transition<EventNode>> ref = transitionsByRelation.get(eventLabel);
         if (ref == null) {
             ref = new ArrayList<Transition<EventNode>>();
-            transitionsByEventLabel.put(eventLabel, ref);
+            transitionsByRelation.put(eventLabel, ref);
         }
         ref.add(transition);
-
-        // LogEvent target = transition.getTarget();
-        // LinkedHashMap<LogEvent, List<Transition<LogEvent>>> ref1 =
-        // transitionsByEventAndTarget
-        // .get(action);
-        // if (ref1 == null) {
-        // ref1 = new LinkedHashMap<LogEvent, List<Transition<LogEvent>>>();
-        // transitionsByEventAndTarget.put(action, ref1);
-        // }
-        // List<Transition<LogEvent>> ref2 = ref1.get(target);
-        // if (ref2 == null) {
-        // ref2 = new ArrayList<Transition<LogEvent>>();
-        // ref1.put(target, ref2);
-        // }
-        // ref2.add(transition);
     }
 
     // public void removeTransitions(List<Transition<LogEvent>> transitions) {
@@ -239,15 +213,13 @@ public class EventNode implements INode<EventNode> {
 
     @Override
     public final List<Transition<EventNode>> getTransitions() {
-        // Set<Relation<LogEvent>> set = new
-        // LinkedHashSet<Relation<LogEvent>>();
-        // set.addAll(transitions);
         return transitions;
     }
 
+    @Override
     public List<Transition<EventNode>> getTransitions(String relation) {
         // checkConsistency();
-        List<Transition<EventNode>> res = transitionsByEventLabel.get(relation);
+        List<Transition<EventNode>> res = transitionsByRelation.get(relation);
         if (res == null) {
             return Collections.emptyList();
         }
@@ -259,10 +231,7 @@ public class EventNode implements INode<EventNode> {
      */
     public void checkConsistency() {
         for (ITransition<EventNode> t : transitions) {
-            if (!transitionsByEventLabel.get(t.getRelation()).contains(t)) {
-                throw new InternalSynopticException(
-                        "inconsistent transitions in message");
-            }
+            assert (transitionsByRelation.get(t.getRelation()).contains(t)) : "inconsistent transitions in message";
         }
     }
 
@@ -337,7 +306,7 @@ public class EventNode implements INode<EventNode> {
 
     // TODO: order
     public Set<String> getRelations() {
-        return transitionsByEventLabel.keySet();
+        return transitionsByRelation.keySet();
     }
 
     /**
@@ -366,12 +335,18 @@ public class EventNode implements INode<EventNode> {
 
     @Override
     public boolean isTerminal() {
-        return transitions.isEmpty();
+        return event.getEType().isTerminalEventType();
+    }
+
+    @Override
+    public boolean isInitial() {
+        return event.getEType().isInitialEventType();
     }
 
     @Override
     public Comparator<EventNode> getComparator() {
-        class PartitionComparator implements Comparator<EventNode> {
+        class EventNodeComparator implements Comparator<EventNode> {
+
             @Override
             public int compare(EventNode arg0, EventNode arg1) {
                 if (arg0 == arg1) {
@@ -410,7 +385,7 @@ public class EventNode implements INode<EventNode> {
                 return 0;
             }
         }
-        return new PartitionComparator();
+        return new EventNodeComparator();
     }
 
     public String getLine() {
@@ -438,12 +413,15 @@ public class EventNode implements INode<EventNode> {
         return event.getLineNum();
     }
 
-    @Override
-    public List<WeightedTransition<EventNode>> getWeightedTransitions() {
+    /**
+     * This method returns the set of transitions augmenting each transition
+     * with information about frequency and number of observations.
+     */
+    private List<WeightedTransition<EventNode>> getWeightedTransitions(
+            List<Transition<EventNode>> trans) {
         List<WeightedTransition<EventNode>> result = new ArrayList<WeightedTransition<EventNode>>();
-        List<Transition<EventNode>> allTrans = getTransitions();
-        int totalTrans = allTrans.size();
-        for (Transition<EventNode> tr : allTrans) {
+        int totalTrans = trans.size();
+        for (Transition<EventNode> tr : trans) {
             double freq = (double) 1 / (double) totalTrans;
             WeightedTransition<EventNode> trWeighted = new WeightedTransition<EventNode>(
                     tr.getSource(), tr.getTarget(), tr.getRelation(), freq, 1);
@@ -453,7 +431,23 @@ public class EventNode implements INode<EventNode> {
     }
 
     @Override
+    public List<WeightedTransition<EventNode>> getWeightedTransitions() {
+        return getWeightedTransitions(getTransitions());
+    }
+
+    @Override
+    public List<WeightedTransition<EventNode>> getWeightedTransitions(
+            String relation) {
+        return getWeightedTransitions(getTransitions(relation));
+    }
+
+    @Override
     public ITransition<EventNode> getTransition(EventNode node, String relation) {
-        throw new InternalSynopticException("Not implemented.");
+        for (ITransition<EventNode> t : getTransitions(relation)) {
+            if (t.getTarget().equals(node)) {
+                return t;
+            }
+        }
+        return null;
     }
 }

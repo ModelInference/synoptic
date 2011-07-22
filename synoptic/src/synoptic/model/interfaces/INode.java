@@ -28,10 +28,7 @@ public interface INode<NodeType> {
     EventType getEType();
 
     /**
-     * Returns a comparator object that can be used to compare NodeType
-     * instances.
-     * 
-     * @return comparator for NodeType
+     * Returns a comparator that can be used to compare NodeType instances.
      */
     Comparator<NodeType> getComparator();
 
@@ -70,22 +67,41 @@ public interface INode<NodeType> {
     ITransition<NodeType> getTransition(NodeType node, String relation);
 
     /**
-     * Returns the set of all outgoing transitions of this node. The difference
-     * to {@code getTransitionsIterator} is that this call forces all
-     * transitions to be pre-computed.
+     * Returns the set of all outgoing transitions of this node (across all
+     * relations). The difference to {@code getTransitionsIterator} is that this
+     * call forces all transitions to be pre-computed.
      * 
      * @return the set of all outgoing transitions
      */
     List<? extends ITransition<NodeType>> getTransitions();
 
     /**
-     * Returns the set of all outgoing transitions of this node, each of which
-     * is "weighted." That is, the transition is annotated with the number of
-     * events that take the transition.
+     * Returns the set of outgoing transitions of this node for a specific
+     * relation. The difference to {@code getTransitionsIterator} is that this
+     * call forces all transitions to be pre-computed.
+     * 
+     * @return the set of outgoing transitions for relation
+     */
+    List<? extends ITransition<NodeType>> getTransitions(String relation);
+
+    /**
+     * Returns the set of all outgoing transitions of this node (across all
+     * relations), each of which is "weighted." That is, the transition is
+     * annotated with the number of events that take the transition.
      * 
      * @return list of weighted outgoing transition corresponding to this node
      */
     List<WeightedTransition<NodeType>> getWeightedTransitions();
+
+    /**
+     * Returns the set of outgoing transitions of this node for a specific
+     * relation, each of which is "weighted." That is, the transition is
+     * annotated with the number of events that take the transition.
+     * 
+     * @return list of weighted outgoing transition for relation corresponding
+     *         to this node
+     */
+    List<WeightedTransition<NodeType>> getWeightedTransitions(String relation);
 
     /**
      * Set the parent partition of this node.
@@ -113,7 +129,12 @@ public interface INode<NodeType> {
     Partition getParent();
 
     /**
-     * Whether or not this node is a 'terminal' node in some sample traces.
+     * Whether or not this is the dummy terminal node.
      */
     boolean isTerminal();
+
+    /**
+     * Whether or not this is the dummy initial node.
+     */
+    boolean isInitial();
 }

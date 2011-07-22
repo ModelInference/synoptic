@@ -1,6 +1,7 @@
 package synoptic.model;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -20,8 +21,8 @@ import synoptic.util.InternalSynopticException;
 
 /**
  * This class implements a partition graph. Nodes are {@code Partition}
- * instances, which are sets of messages -- ( {@code LogEvent}) -- and edges are
- * not maintained explicitly, but generated on-the-fly by class
+ * instances, which are sets of messages -- ( {@code EventNode}) -- and edges
+ * are not maintained explicitly, but generated on-the-fly by class
  * {@code Partition}. PartitionGraphs can only be modified via the method
  * {@code apply} which takes a object implementing {@code IOperation}.
  * Operations must perform changes on both representations.
@@ -89,7 +90,7 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     public PartitionGraph(IGraph<EventNode> g,
-            LinkedList<LinkedHashSet<Integer>> partitioningIndexSets,
+            List<LinkedHashSet<Integer>> partitioningIndexSets,
             TemporalInvariantSet invariants) {
         for (String relation : g.getRelations()) {
             addInitialMessages(g.getInitialNodes(relation), relation);
@@ -141,16 +142,16 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     @Override
     public Set<Partition> getAdjacentNodes(Partition pNode) {
-        Set<Partition> result = transitionCache.get(pNode);
-        if (result == null) {
-            result = new LinkedHashSet<Partition>();
-            List<Transition<Partition>> relations = pNode.getTransitions();
-            for (int i = 0; i < relations.size(); i++) {
-                result.add(relations.get(i).getTarget());
-            }
-            transitionCache.put(pNode, result);
+        if (transitionCache.containsKey(pNode)) {
+            return transitionCache.get(pNode);
         }
-        return result;
+
+        Set<Partition> adjPartitions = new LinkedHashSet<Partition>();
+        for (Transition<Partition> tr : pNode.getTransitionsIterator(null)) {
+            adjPartitions.add(tr.getTarget());
+        }
+        transitionCache.put(pNode, adjPartitions);
+        return adjPartitions;
     }
 
     /**
@@ -187,7 +188,7 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     private void partitionByIndexSetsAndLabels(Collection<EventNode> events,
-            LinkedList<LinkedHashSet<Integer>> partitioningIndexSets) {
+            List<LinkedHashSet<Integer>> partitioningIndexSets) {
         // 1. partition by labels.
         partitionByLabels(events);
         // 2. Map each message to a node in the system.
@@ -304,23 +305,25 @@ public class PartitionGraph implements IGraph<Partition> {
         return partitions;
     }
 
-    private Set<Partition> getAllRelationsLogEventPartitions(
+    /**
+     * Returns a set of partitions that corresponds to EventNodes in the union
+     * of the sets of the input map.values.
+     */
+    private Set<Partition> getEventNodePartitions(
             LinkedHashMap<String, Set<EventNode>> map) {
         Set<Partition> ret = new LinkedHashSet<Partition>();
-        for (String relation : getRelations()) {
-            ret.addAll(getRelationLogEventPartitions(relation, map));
+        for (Set<EventNode> eNodes : map.values()) {
+            ret.addAll(getEventNodePartitions(eNodes));
         }
         return ret;
     }
 
-    private Set<Partition> getRelationLogEventPartitions(String relation,
-            LinkedHashMap<String, Set<EventNode>> map) {
+    /**
+     * Returns a set of partitions that corresponds to the input eNodes.
+     */
+    private Set<Partition> getEventNodePartitions(Set<EventNode> eNodes) {
         Set<Partition> ret = new LinkedHashSet<Partition>();
-        Set<EventNode> events = map.get(relation);
-        if (events == null) {
-            return ret;
-        }
-        for (EventNode m : events) {
+        for (EventNode m : eNodes) {
             ret.add(m.getParent());
         }
         return ret;
@@ -328,20 +331,26 @@ public class PartitionGraph implements IGraph<Partition> {
 
     @Override
     public Set<Partition> getInitialNodes() {
-        return getAllRelationsLogEventPartitions(initialEvents);
+        return getEventNodePartitions(initialEvents);
     }
 
     public Set<Partition> getTerminalNodes() {
-        return getAllRelationsLogEventPartitions(terminalEvents);
+        return getEventNodePartitions(terminalEvents);
     }
 
     public Set<Partition> getTerminalNodes(String relation) {
-        return getRelationLogEventPartitions(relation, terminalEvents);
+        if (!terminalEvents.containsKey(relation)) {
+            return Collections.emptySet();
+        }
+        return getEventNodePartitions(terminalEvents.get(relation));
     }
 
     @Override
     public Set<Partition> getInitialNodes(String relation) {
-        return getRelationLogEventPartitions(relation, initialEvents);
+        if (!initialEvents.containsKey(relation)) {
+            return Collections.emptySet();
+        }
+        return getEventNodePartitions(initialEvents.get(relation));
     }
 
     @Override

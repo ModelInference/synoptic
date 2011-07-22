@@ -34,7 +34,9 @@ public class Graph<NodeType extends INode<NodeType>> implements
     private final Set<NodeType> nodes = new LinkedHashSet<NodeType>();
 
     /**
-     * Maps a relation to the set of initial nodes in this relation.
+     * Maps a relation to the set of initial nodes in this relation. That is,
+     * the set of nodes that have an edge from the dummy initial node (i.e.,
+     * from a NodeType x such that x.isInitial() is true).
      */
     private final Map<String, Set<NodeType>> initialNodes = new LinkedHashMap<String, Set<NodeType>>();
 
@@ -83,6 +85,8 @@ public class Graph<NodeType extends INode<NodeType>> implements
      */
     @Override
     public Set<NodeType> getInitialNodes() {
+        // FIXME: Graph.java is mixing up the notion of dummy initial node and
+        // the set of nodes that have an edge from the dummy initial node.
         Set<NodeType> copy = new LinkedHashSet<NodeType>();
         copy.add(dummyInitialNode);
         return copy;
