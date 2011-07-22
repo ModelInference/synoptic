@@ -123,7 +123,7 @@ public class GraphExporter {
                     + e.getMessage(), e);
         }
         // /////////////
-        expotGraph(writer, graph, outputEdgeLabels);
+        exportGraph(writer, graph, outputEdgeLabels);
         // /////////////
         writer.close();
     }
@@ -145,7 +145,7 @@ public class GraphExporter {
      * @throws IOException
      *             In case there is a problem using the writer
      */
-    public static <T extends INode<T>> void expotGraph(Writer writer,
+    public static <T extends INode<T>> void exportGraph(Writer writer,
             IGraph<T> graph, boolean outputEdgeLabels) throws IOException {
 
         try {

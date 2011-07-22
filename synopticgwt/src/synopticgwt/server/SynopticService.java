@@ -1,6 +1,5 @@
 package synopticgwt.server;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -28,7 +27,7 @@ import synoptic.model.Graph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.WeightedTransition;
-import synoptic.model.export.GraphVizExporter;
+import synoptic.model.export.GraphExporter;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
@@ -59,9 +58,6 @@ public class SynopticService extends RemoteServiceServlet implements
     private Set<ITemporalInvariant> unsatisfiedInvariants;
     private TemporalInvariantSet minedInvs;
     private Graph<EventNode> iGraph;
-
-    // Used for exporting files.
-    private final GraphVizExporter exporter = new GraphVizExporter();
 
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods.
@@ -419,7 +415,7 @@ public class SynopticService extends RemoteServiceServlet implements
         // Fetch log lines
         List<LogLine> validLines = new ArrayList<LogLine>();
         if (requested != null) {
-            for (EventNode event : requested.getEvents()) {
+            for (EventNode event : requested.getEventNodes()) {
                 validLines.add(new LogLine(event.getLineNum(), event.getLine(),
                         event.getShortFileName()));
             }
@@ -441,8 +437,7 @@ public class SynopticService extends RemoteServiceServlet implements
         // Naming convention for the file can be improved
         String fileString = userExport + now.getTimeInMillis()
                 + "exportmodel.dot";
-        File fileName = new File(fileString);
-        exporter.export(fileName, pGraph);
+        GraphExporter.exportGraph(fileString, pGraph, true);
         return fileString;
     }
 
@@ -452,8 +447,7 @@ public class SynopticService extends RemoteServiceServlet implements
     @Override
     public String exportPng() throws Exception {
         String fileString = exportDot();
-        File fileName = new File(fileString);
-        exporter.exportPng(fileName);
+        GraphExporter.generatePngFileFromDotFile(fileString);
         return fileString + ".png";
     }
 

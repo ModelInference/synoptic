@@ -13,9 +13,9 @@ public class GWTInvariant<S, T> implements Serializable {
     // The source node, the target node,
     // and the transition type between them,
     // i.e. AFby NFby AP
-    private final S source;
-    private final T target;
-    private final String transitionType;
+    private S source;
+    private T target;
+    private String transitionType;
 
     // This is a copy of the server-side
     // temporal invariant's hashCode.
