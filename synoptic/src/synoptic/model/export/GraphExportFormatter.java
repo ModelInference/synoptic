@@ -44,14 +44,30 @@ public abstract class GraphExportFormatter {
      *            whether or not node is initial
      * @param isTerminal
      *            whether or not node is terminal
-     * @param relation
-     *            a string representing the relation (e.g., "t")
      */
     public abstract <T extends INode<T>> String nodeToString(int nodeId,
-            T node, boolean isInitial, boolean isTerminal, String relation);
+            T node, boolean isInitial, boolean isTerminal);
 
     /**
-     * Serializes a single node edge in a graph to a string.
+     * Serializes a single node edge in a graph to a string that represents this
+     * edge, along with the probability of the edge transition.
+     * 
+     * @param nodeSrc
+     *            the unique identifier for the source node
+     * @param nodeDst
+     *            the unique identifier for the target node
+     * @param freq
+     *            the frequency value to be used as a label on the edge
+     * @param relation
+     *            a string representing the relation (e.g., "t")
+     * @return
+     */
+    public abstract String edgeToStringWithProb(int nodeSrc, int nodeDst,
+            double freq, String relation);
+
+    /**
+     * Serializes a single node edge in a graph to a string that represents this
+     * edge, with NO probability of the edge transition.
      * 
      * @param outputEdgeLabels
      *            whether or not to output edge labels
@@ -65,8 +81,8 @@ public abstract class GraphExportFormatter {
      *            a string representing the relation (e.g., "t")
      * @return
      */
-    public abstract String edgeToString(boolean outputEdgeLabels, int nodeSrc,
-            int nodeDst, double freq, String relation);
+    public abstract String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
+            String relation);
 
     /**
      * Returns a string with escaped forward slashes and double quotes.

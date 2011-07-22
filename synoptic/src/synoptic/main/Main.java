@@ -749,7 +749,7 @@ public class Main implements Callable<Integer> {
         }
         try {
             GraphExporter
-                    .serializeGraph(filename, g, outputEdgeLabelsCondition);
+                    .exportGraph(filename, g, outputEdgeLabelsCondition);
         } catch (IOException e) {
             logger.fine("Unable to export graph to " + filename);
         }
@@ -765,6 +765,12 @@ public class Main implements Callable<Integer> {
      */
     public static <T extends INode<T>> void exportInitialGraph(
             String baseFilename, IGraph<T> g) {
+        // false below : never include edge labels on exported initial graphs
+
+        // Main.dumpInitialGraphPngFile && !exportAsGML below : whether to
+        // convert exported graph to a png file -- the user must have explicitly
+        // requested this and the export must be in non-GML format (i.e., dot
+        // format).
         exportGraph(baseFilename, g, false, Main.dumpInitialGraphPngFile
                 && !exportAsGML);
     }
@@ -774,6 +780,12 @@ public class Main implements Callable<Integer> {
      */
     public static <T extends INode<T>> void exportNonInitialGraph(
             String baseFilename, IGraph<T> g) {
+        // Main.outputEdgeLabels below : the condition for including edge labels
+        // on exported graphs.
+
+        // !exportAsGML below : the condition for exporting an image to png file
+        // is that it is not in GML format (i.e., it is in dot format so we can
+        // use the 'dot' command).
         exportGraph(baseFilename, g, Main.outputEdgeLabels, !exportAsGML);
     }
 

@@ -56,7 +56,7 @@ public class GraphVizExporterTests extends SynopticTest {
 
         StringWriter writer = new StringWriter();
         try {
-            GraphExporter.serializeGraph(writer, g, false);
+            GraphExporter.expotGraph(writer, g, false);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -45,13 +45,7 @@ public class Partition implements INode<Partition> {
     private boolean initialized = false;
 
     /** The EvenType of this partition -- all events MUST be of this type. */
-    private EventType eType;
-
-    /**
-     * Whether or not this partition is a terminal partition. That is, whether
-     * or not it contains a terminal message event.
-     */
-    private boolean isTerminal = false;
+    private EventType eType = null;
 
     /**
      * Creates a new partition that will contain a set of event nodes.
@@ -78,7 +72,6 @@ public class Partition implements INode<Partition> {
 
     public void initialize(EventNode eNode) {
         eType = eNode.getEType();
-        isTerminal = eNode.isTerminal();
         initialized = true;
     }
 
@@ -99,7 +92,6 @@ public class Partition implements INode<Partition> {
             e.setParent(this);
             // A partition is final if it contains a message event that is a
             // terminal node in some input trace.
-            isTerminal |= e.isTerminal();
             assert eType.equals(e.getEType());
         }
     }
@@ -116,7 +108,6 @@ public class Partition implements INode<Partition> {
         } else {
             assert eType.equals(eNode.getEType());
             eNode.setParent(this);
-            isTerminal |= eNode.isTerminal();
         }
         events.add(eNode);
     }
@@ -149,13 +140,21 @@ public class Partition implements INode<Partition> {
     }
 
     /**
-     * Whether or not this partition is final (contains a terminal message
-     * event).
+     * Whether or not this is the dummy terminal partition.
      */
     @Override
     public boolean isTerminal() {
         assert initialized;
-        return isTerminal;
+        return eType.isTerminalEventType;
+    }
+
+    /**
+     * Whether or not this is the dummy initial partition.
+     */
+    @Override
+    public boolean isInitial() {
+        assert initialized;
+        return eType.isInitialEventType;
     }
 
     /**
@@ -294,6 +293,17 @@ public class Partition implements INode<Partition> {
      * information about frequency and number of observation.
      */
     @Override
+    public List<Transition<Partition>> getTransitions(String relation) {
+        assert initialized;
+
+        List<Transition<Partition>> result = new ArrayList<Transition<Partition>>();
+        for (Transition<Partition> tr : getTransitionsIterator(relation)) {
+            result.add(tr);
+        }
+        return result;
+    }
+
+    @Override
     public List<Transition<Partition>> getTransitions() {
         assert initialized;
 
@@ -304,12 +314,17 @@ public class Partition implements INode<Partition> {
         return result;
     }
 
-    @Override
-    public List<WeightedTransition<Partition>> getWeightedTransitions() {
-        List<WeightedTransition<Partition>> result = new ArrayList<WeightedTransition<Partition>>();
+    /**
+     * This method returns the set of transitions accessible through iterator
+     * iter, augmenting each transition with information about frequency and
+     * number of observations.
+     */
+    private List<WeightedTransition<Partition>> getWeightedTransitions(
+            IIterableIterator<Transition<Partition>> iter) {
         assert initialized;
 
-        for (Transition<Partition> tr : getTransitionsIterator(null)) {
+        List<WeightedTransition<Partition>> trsWeighted = new ArrayList<WeightedTransition<Partition>>();
+        for (Transition<Partition> tr : iter) {
             // Use splitting to compute the transition probabilities\labels.
             PartitionSplit s = getCandidateSplitBasedOnOutgoing(tr);
             if (s == null) {
@@ -321,9 +336,24 @@ public class Partition implements INode<Partition> {
             WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
                     tr.getSource(), tr.getTarget(), tr.getRelation(), freq,
                     numOutgoing);
-            result.add(trWeighted);
+            trsWeighted.add(trWeighted);
         }
-        return result;
+        return trsWeighted;
+    }
+
+    @Override
+    public List<WeightedTransition<Partition>> getWeightedTransitions(
+            String relation) {
+        assert initialized;
+
+        return getWeightedTransitions(getTransitionsIterator(relation));
+    }
+
+    @Override
+    public List<WeightedTransition<Partition>> getWeightedTransitions() {
+        assert initialized;
+
+        return getWeightedTransitions(getTransitionsIterator(null));
     }
 
     /**
@@ -349,6 +379,7 @@ public class Partition implements INode<Partition> {
         assert initialized;
 
         return new IIterableIterator<Transition<Partition>>() {
+
             private final Set<ITransition<Partition>> seen = new LinkedHashSet<ITransition<Partition>>();
             private final Iterator<EventNode> msgItr = events.iterator();
 
@@ -429,8 +460,6 @@ public class Partition implements INode<Partition> {
 
     @Override
     public Comparator<Partition> getComparator() {
-        assert initialized;
-
         class PartitionComparator implements Comparator<Partition> {
             @Override
             public int compare(Partition arg0, Partition arg1) {
@@ -440,7 +469,7 @@ public class Partition implements INode<Partition> {
                 }
 
                 // 1. compare label strings
-                int labelCmp = getEType().compareTo(arg1.getEType());
+                int labelCmp = arg0.getEType().compareTo(arg1.getEType());
                 if (labelCmp != 0) {
                     return labelCmp;
                 }
@@ -473,6 +502,7 @@ public class Partition implements INode<Partition> {
                 return 0;
             }
         }
+
         return new PartitionComparator();
     }
 

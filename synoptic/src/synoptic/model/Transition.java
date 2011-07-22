@@ -24,6 +24,10 @@ public class Transition<NodeType> implements ITransition<NodeType> {
      *            the label of the transition
      */
     public Transition(NodeType source, NodeType target, String relation) {
+        assert source != null;
+        assert target != null;
+        assert relation != null;
+
         this.source = source;
         this.target = target;
         this.relation = relation;

@@ -12,10 +12,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -110,7 +111,7 @@ public class GraphExporter {
      * Exports the graph to a format determined by Main.graphExportFormatter,
      * writing the resulting string to a file specified by fileName.
      */
-    public static <T extends INode<T>> void serializeGraph(String fileName,
+    public static <T extends INode<T>> void exportGraph(String fileName,
             IGraph<T> graph, boolean outputEdgeLabels) throws IOException {
         File f = new File(fileName);
         logger.info("Exporting graph to: " + fileName);
@@ -122,7 +123,7 @@ public class GraphExporter {
                     + e.getMessage(), e);
         }
         // /////////////
-        serializeGraph(writer, graph, outputEdgeLabels);
+        expotGraph(writer, graph, outputEdgeLabels);
         // /////////////
         writer.close();
     }
@@ -139,12 +140,12 @@ public class GraphExporter {
      *            The writer to use for dot output
      * @param graph
      *            The graph to export
-     * @param isInitialGraph
-     *            Whether or not the graph is an initial graph
+     * @param outputEdgeLabels
+     *            Whether or not to output edge labels
      * @throws IOException
      *             In case there is a problem using the writer
      */
-    public static <T extends INode<T>> void serializeGraph(Writer writer,
+    public static <T extends INode<T>> void expotGraph(Writer writer,
             IGraph<T> graph, boolean outputEdgeLabels) throws IOException {
 
         try {
@@ -156,29 +157,78 @@ public class GraphExporter {
             // A mapping between nodes in the graph and the their integer
             // identifiers in the dot output.
             LinkedHashMap<T, Integer> nodeToInt = new LinkedHashMap<T, Integer>();
-            // Collects all transitions between nodes of different relations.
-            LinkedList<WeightedTransition<T>> allTransitions = new LinkedList<WeightedTransition<T>>();
-            // Node identifier generator, updated in exportRelationNodes
+
+            // Use a comparator of type T for canonically ordering nodes.
+            Comparator<T> comparator = graph.getInitialNodes().iterator()
+                    .next().getComparator();
+
+            // A unique identifier used to represent nodes in the exported file.
             int nodeCnt = 0;
 
-            // TODO: determine which relations exist in graph and only export
-            // these relations.
+            // NOTE: we must create a new collection so that we do not modify
+            // the set maintained by the graph!
+            List<T> nodes = new ArrayList<T>(graph.getNodes());
+            Collections.sort(nodes, comparator);
 
-            // Export nodes in the 't' relation.
-            nodeCnt = exportRelationNodes(writer, graph, "t", allTransitions,
-                    nodeToInt, nodeCnt);
+            // /////////////////////
+            // EXPORT NODES:
+            Iterator<T> nodesIter = nodes.iterator();
+            while (nodesIter.hasNext()) {
+                T node = nodesIter.next();
 
-            // Export nodes in the 'i' relation.
-            exportRelationNodes(writer, graph, "i", allTransitions, nodeToInt,
-                    nodeCnt);
+                // On user request, do not show the initial/terminal nodes.
+                if ((!Main.showInitialNode && node.isInitial())
+                        || (!Main.showTerminalNode && node.isTerminal())) {
+                    // Remove the node from nodes to export (so that we do not
+                    // show the edges corresponding to the nodes).
+                    nodesIter.remove();
+                    continue;
+                }
 
-            // Output the edges:
-            for (WeightedTransition<T> trans : allTransitions) {
-                int nodeSrc = nodeToInt.get(trans.getSource());
-                int nodeDst = nodeToInt.get(trans.getTarget());
-                writer.write(Main.graphExportFormatter.edgeToString(
-                        outputEdgeLabels, nodeSrc, nodeDst,
-                        trans.getFraction(), trans.getRelation()));
+                // Output the node record -- its id along with its attributes.
+                writer.write(Main.graphExportFormatter.nodeToString(nodeCnt,
+                        node, node.isInitial(), node.isTerminal()));
+                // Remember the identifier assigned to this node (used for
+                // outputting transitions between nodes).
+                nodeToInt.put(node, nodeCnt);
+                nodeCnt += 1;
+            }
+
+            // /////////////////////
+            // EXPORT EDGES:
+            // Export all the edges corresponding to the nodes in the graph.
+            for (INode<T> node : nodes) {
+                List<? extends ITransition<T>> transitions;
+                if (outputEdgeLabels) {
+                    transitions = node.getWeightedTransitions();
+                } else {
+                    transitions = node.getTransitions();
+                }
+
+                for (ITransition<T> trans : transitions) {
+                    // If for some reason we don't have a unique identifier for
+                    // the source or the target node then we skip this
+                    // transition. For example, this may occur if the target is
+                    // a terminal node and Main.showTerminalNode is false.
+                    if (!nodeToInt.containsKey(trans.getSource())
+                            || !nodeToInt.containsKey(trans.getTarget())) {
+                        continue;
+                    }
+                    int nodeSrc = nodeToInt.get(trans.getSource());
+                    int nodeDst = nodeToInt.get(trans.getTarget());
+
+                    if (outputEdgeLabels) {
+                        double prob = ((WeightedTransition<T>) trans)
+                                .getFraction();
+                        writer.write(Main.graphExportFormatter
+                                .edgeToStringWithProb(nodeSrc, nodeDst, prob,
+                                        trans.getRelation()));
+                    } else {
+                        writer.write(Main.graphExportFormatter
+                                .edgeToStringWithNoProb(nodeSrc, nodeDst,
+                                        trans.getRelation()));
+                    }
+                }
             }
 
             // //////////////////////////
@@ -192,125 +242,6 @@ public class GraphExporter {
                             + e.getMessage(), e);
         }
         return;
-    }
-
-    /**
-     * Exports all the nodes in the graph for a particular relation, using
-     * output stream writer. This function only exports the nodes, but it also
-     * builds up a list of allTransitions that these nodes include, maintains a
-     * nodeCnt (which is then returned), and also maintains the nodeToInt map.
-     * All of these are also passed as arguments.
-     * 
-     * @param <T>
-     *            The node type in the graph being exported
-     * @param writer
-     *            The writer to use for writing out node records
-     * @param graph
-     *            The graph whose nodes will be exported
-     * @param relation
-     *            The relation to export (must be present in graph)
-     * @param allTransitions
-     *            A list of transitions that will be modified to include
-     *            transitions in graph.
-     * @param nodeToInt
-     *            A mapping between nodes in the graph and the node's id in the
-     *            output file. This is used to consistently output transitions
-     *            between nodes.
-     * @param nodeCnt
-     *            The node count -- used to generate unique node ids in
-     *            nodeToInt map
-     * @return the updated node count
-     * @throws IOException
-     *             in case there is a problem using the writer
-     */
-    private static <T extends INode<T>> int exportRelationNodes(
-            final Writer writer, IGraph<T> graph, String relation,
-            LinkedList<WeightedTransition<T>> allTransitions,
-            LinkedHashMap<T, Integer> nodeToInt, int nodeCnt)
-            throws IOException {
-
-        LinkedList<T> rootNodes = new LinkedList<T>(
-                graph.getInitialNodes(relation));
-
-        if (rootNodes.size() == 0) {
-            logger.fine("Cannot export a graph[relation "
-                    + relation
-                    + "] with no initial nodes: will result in empty graph output.");
-            return nodeCnt;
-        }
-
-        if (!Main.showInitialNode) {
-            // Follow each node in rootNodes one transition forward and mark the
-            // destination as the new root. This will
-            // ignore the dummy initial node.
-            LinkedList<T> newRootNodes = new LinkedList<T>();
-            for (T root : rootNodes) {
-                for (ITransition<T> trans : root.getTransitions()) {
-                    newRootNodes.add(trans.getTarget());
-                }
-            }
-            rootNodes = newRootNodes;
-        }
-
-        // Start walking the graph from the rootNodes.
-        LinkedList<T> parentNodes = new LinkedList<T>(rootNodes);
-
-        Comparator<T> comparator = null;
-        if (parentNodes.size() != 0) {
-            comparator = rootNodes.get(0).getComparator();
-        }
-
-        // A breadth first exploration of the graph to touch all nodes.
-        while (parentNodes.size() != 0) {
-            LinkedList<T> childNodes = new LinkedList<T>();
-            // For canonical output sort the parents.
-            Collections.sort(parentNodes, comparator);
-
-            for (T node : parentNodes) {
-                boolean isTerminal, isInitial;
-
-                if (nodeToInt.containsKey(node)) {
-                    // Skip nodes that have already been processed.
-                    continue;
-                }
-
-                if (!Main.showTerminalNode && node.isTerminal()) {
-                    // Skip the terminal node.
-                    continue;
-                }
-                // A node is not terminal unless shown to be otherwise.
-                isTerminal = false;
-
-                List<WeightedTransition<T>> transitions = node
-                        .getWeightedTransitions();
-
-                for (WeightedTransition<T> trans : transitions) {
-                    T child = trans.getTarget();
-                    childNodes.add(child);
-                    if (!Main.showTerminalNode && child.isTerminal()) {
-                        // Mark nodes preceding the terminal node as terminal.
-                        isTerminal = true;
-                    } else {
-                        // Include all transitions, except when
-                        // (!showTerminalNode && the transition is to the
-                        // terminal node) -- the if branch above.
-                        allTransitions.add(trans);
-                    }
-                }
-
-                isInitial = rootNodes.contains(node);
-
-                // Output the node record -- its id along with its attributes.
-                writer.write(Main.graphExportFormatter.nodeToString(nodeCnt,
-                        node, isInitial, isTerminal, relation));
-                // Remember the identifier assigned to this node.
-                nodeToInt.put(node, nodeCnt);
-                nodeCnt += 1;
-            }
-            parentNodes = childNodes;
-        }
-        writer.flush();
-        return nodeCnt;
     }
 
     // private static void exportSCCsWithInvariants(GraphVizExporter e,
