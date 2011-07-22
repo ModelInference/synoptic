@@ -14,7 +14,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -158,17 +157,13 @@ public class GraphExporter {
             // identifiers in the dot output.
             LinkedHashMap<T, Integer> nodeToInt = new LinkedHashMap<T, Integer>();
 
-            // Use a comparator of type T for canonically ordering nodes.
-            Comparator<T> comparator = graph.getInitialNodes().iterator()
-                    .next().getComparator();
-
             // A unique identifier used to represent nodes in the exported file.
             int nodeCnt = 0;
 
             // NOTE: we must create a new collection so that we do not modify
             // the set maintained by the graph!
             List<T> nodes = new ArrayList<T>(graph.getNodes());
-            Collections.sort(nodes, comparator);
+            Collections.sort(nodes);
 
             // /////////////////////
             // EXPORT NODES:
@@ -204,6 +199,8 @@ public class GraphExporter {
                 } else {
                     transitions = node.getTransitions();
                 }
+                // Sort the transitions for canonical output.
+                Collections.sort(transitions);
 
                 for (ITransition<T> trans : transitions) {
                     // If for some reason we don't have a unique identifier for

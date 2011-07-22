@@ -3,7 +3,6 @@ package synoptic.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -459,51 +458,44 @@ public class Partition implements INode<Partition> {
     }
 
     @Override
-    public Comparator<Partition> getComparator() {
-        class PartitionComparator implements Comparator<Partition> {
-            @Override
-            public int compare(Partition arg0, Partition arg1) {
-                // compare references
-                if (arg0 == arg1) {
-                    return 0;
-                }
+    public int compareTo(Partition other) {
+        assert initialized;
 
-                // 1. compare label strings
-                int labelCmp = arg0.getEType().compareTo(arg1.getEType());
-                if (labelCmp != 0) {
-                    return labelCmp;
-                }
-
-                // 2. compare number of children
-                List<WeightedTransition<Partition>> tnsArg0 = arg0
-                        .getWeightedTransitions();
-                List<WeightedTransition<Partition>> tnsArg1 = arg1
-                        .getWeightedTransitions();
-                int childrenCmp = ((Integer) tnsArg0.size()).compareTo(tnsArg1
-                        .size());
-                if (childrenCmp != 0) {
-                    return childrenCmp;
-                }
-
-                // 3. compare transitions to children
-                Collections.sort(tnsArg0);
-                Collections.sort(tnsArg1);
-                int index = 0;
-                int childCmp;
-                for (WeightedTransition<Partition> p : tnsArg0) {
-                    // sizes of tnsArg0 and tnsArg1 were checked to be equal
-                    // above
-                    WeightedTransition<Partition> p2 = tnsArg1.get(index);
-                    childCmp = p.compareTo(p2);
-                    if (childCmp != 0) {
-                        return childCmp;
-                    }
-                }
-                return 0;
-            }
+        // 0. Compare references.
+        if (this == other) {
+            return 0;
         }
 
-        return new PartitionComparator();
+        // 1. Compare label strings.
+        int labelCmp = eType.compareTo(other.getEType());
+        if (labelCmp != 0) {
+            return labelCmp;
+        }
+
+        // 2. Compare number of children.
+        List<WeightedTransition<Partition>> tnsThis = this
+                .getWeightedTransitions();
+        List<WeightedTransition<Partition>> tnsOther = other
+                .getWeightedTransitions();
+        int childrenCmp = ((Integer) tnsThis.size()).compareTo(tnsOther.size());
+        if (childrenCmp != 0) {
+            return childrenCmp;
+        }
+
+        // 3. Compare transitions.
+        Collections.sort(tnsThis);
+        Collections.sort(tnsOther);
+        int index = 0;
+        int transCmp;
+        for (WeightedTransition<Partition> p : tnsThis) {
+            // Sizes of tnsThis and tnsOther were checked to be equal above.
+            WeightedTransition<Partition> p2 = tnsOther.get(index);
+            transCmp = p.compareTo(p2);
+            if (transCmp != 0) {
+                return transCmp;
+            }
+        }
+        return 0;
     }
 
     @Override

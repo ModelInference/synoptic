@@ -1,5 +1,6 @@
 package synoptic.model;
 
+import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 
 /**
@@ -108,5 +109,25 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     @Override
     public String toStringConcise() {
         return getRelation();
+    }
+
+    @Override
+    public int compareTo(ITransition<NodeType> other) {
+        // First compare the sources of the two transitions.
+        int cmpSrc = ((INode<NodeType>) this.source).getEType().compareTo(
+                ((INode<NodeType>) other.getSource()).getEType());
+        if (cmpSrc != 0) {
+            return cmpSrc;
+        }
+
+        // Then, compare the targets of the two transitions.
+        int cmpTarget = ((INode<NodeType>) this.target).getEType().compareTo(
+                ((INode<NodeType>) other.getTarget()).getEType());
+        if (cmpTarget != 0) {
+            return cmpTarget;
+        }
+        // If both the sources and the targets are equal then we use the
+        // relations for possible disambiguation.
+        return this.relation.compareTo(other.getRelation());
     }
 }

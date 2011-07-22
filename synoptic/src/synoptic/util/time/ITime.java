@@ -1,21 +1,29 @@
 package synoptic.util.time;
 
+/**
+ * An interface that all Synoptic time types must implement. It abstract away
+ * the values of the time used -- vector clocks/integer/float/etc. And exposes
+ * the very basic operations on time, such as comparison for ordering.
+ */
 public interface ITime {
 
     /**
+     * Used to compare to time values. Note that (x < y) || (y < x) is only true
+     * for totally ordered time instances. It is not necessarily true for
+     * partially ordered time, such as vector clocks.
+     * 
      * @param t
-     *            the other itime
-     * @return true if (this < t), otherwise returns false
+     *            the other ITime instance
+     * @return true if (this < t), otherwise false
      */
-    public abstract boolean lessThan(ITime t);
+    boolean lessThan(ITime t);
 
     @Override
-    public abstract int hashCode();
+    int hashCode();
 
     @Override
-    public abstract boolean equals(Object obj);
+    boolean equals(Object obj);
 
     @Override
-    public abstract String toString();
-
+    String toString();
 }

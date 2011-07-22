@@ -210,6 +210,7 @@ public class SynopticService extends RemoteServiceServlet implements
         synoptic.main.Main.debugParse = false;
         synoptic.main.Main.logLvlVerbose = false;
         synoptic.main.Main.logLvlExtraVerbose = false;
+        synoptic.main.Main.graphExportFormatter = new synoptic.model.export.DotExportFormatter();
         synoptic.main.Main.randomSeed = System.currentTimeMillis();
         synoptic.main.Main.random = new java.util.Random(
                 synoptic.main.Main.randomSeed);
