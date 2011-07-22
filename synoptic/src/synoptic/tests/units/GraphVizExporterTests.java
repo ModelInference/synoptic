@@ -14,7 +14,7 @@ import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.Graph;
+import synoptic.model.TraceGraph;
 import synoptic.model.export.GraphExporter;
 import synoptic.tests.SynopticTest;
 
@@ -35,7 +35,7 @@ public class GraphVizExporterTests extends SynopticTest {
      */
     public String getExportedPathGraph(String[] events) {
         List<EventNode> path = getLogEventPath(events);
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
 
         // Randomize the order in which we add events to the graph
         List<EventNode> pathCopy = new ArrayList<EventNode>();

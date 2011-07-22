@@ -20,7 +20,7 @@ import synoptic.model.DistEventType;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.Graph;
+import synoptic.model.TraceGraph;
 import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
 import synoptic.model.export.DotExportFormatter;
@@ -154,9 +154,8 @@ public abstract class SynopticTest {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    public static Graph<EventNode> genInitialGraph(String[] events,
-            TraceParser parser) throws ParseException,
-            InternalSynopticException {
+    public static TraceGraph genInitialGraph(String[] events, TraceParser parser)
+            throws ParseException, InternalSynopticException {
         ArrayList<EventNode> parsedEvents = parseLogEvents(events, parser);
         return parser.generateDirectTemporalRelation(parsedEvents);
     }
@@ -171,8 +170,8 @@ public abstract class SynopticTest {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    public Graph<EventNode> genInitialLinearGraph(String[] events)
-            throws ParseException, InternalSynopticException {
+    public TraceGraph genInitialLinearGraph(String[] events) throws ParseException,
+            InternalSynopticException {
         return genInitialGraph(events, genDefParser());
     }
 
@@ -185,7 +184,7 @@ public abstract class SynopticTest {
      */
     public static PartitionGraph genInitialPartitionGraph(String[] events,
             TraceParser parser, InvariantMiner miner) throws Exception {
-        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TraceGraph inputGraph = genInitialGraph(events, parser);
         return new PartitionGraph(inputGraph, true,
                 miner.computeInvariants(inputGraph));
     }

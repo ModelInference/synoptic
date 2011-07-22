@@ -23,7 +23,7 @@ import synoptic.model.DistEventType;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.Graph;
+import synoptic.model.TraceGraph;
 import synoptic.model.StringEventType;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.NamedMatcher;
@@ -895,10 +895,10 @@ public class TraceParser {
      *            The list of events to process.
      * @throws ParseException
      */
-    public Graph<EventNode> generateDirectTemporalRelation(
-            ArrayList<EventNode> allEvents) throws ParseException {
+    public TraceGraph generateDirectTemporalRelation(ArrayList<EventNode> allEvents)
+            throws ParseException {
 
-        Graph<EventNode> graph = new Graph<EventNode>();
+        TraceGraph graph = new TraceGraph();
 
         boolean totallyOrderedTrace = logTimeTypeIsTotallyOrdered();
 

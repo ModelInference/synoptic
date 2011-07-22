@@ -14,7 +14,7 @@ import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.Graph;
+import synoptic.model.TraceGraph;
 import synoptic.model.Transition;
 import synoptic.tests.SynopticTest;
 
@@ -97,8 +97,8 @@ public class KTailsTests extends SynopticTest {
         testTrueBothSubsumingAndNotSubsuming(e1, e1, 100);
 
         String[] events = new String[] { "a", "b", "c", "d" };
-        Graph<EventNode> g1 = genInitialLinearGraph(events);
-        Graph<EventNode> g2 = genInitialLinearGraph(events);
+        TraceGraph g1 = genInitialLinearGraph(events);
+        TraceGraph g2 = genInitialLinearGraph(events);
         exportTestGraph(g1, 0);
         exportTestGraph(g2, 1);
         EventNode[] g1Nodes = new EventNode[g1.getNodes().size()];
@@ -156,8 +156,7 @@ public class KTailsTests extends SynopticTest {
         TraceParser parser = genParser();
         ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
-        Graph<EventNode> inputGraph = parser
-                .generateDirectTemporalRelation(parsedEvents);
+        TraceGraph inputGraph = parser.generateDirectTemporalRelation(parsedEvents);
         exportTestGraph(inputGraph, 0);
 
         // This returns a set with one node -- INITIAL. It will have two
@@ -206,8 +205,7 @@ public class KTailsTests extends SynopticTest {
         TraceParser parser = genParser();
         ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
-        Graph<EventNode> g1 = parser
-                .generateDirectTemporalRelation(parsedEvents);
+        TraceGraph g1 = parser.generateDirectTemporalRelation(parsedEvents);
         exportTestGraph(g1, 0);
 
         List<Transition<EventNode>> initNodeTransitions = g1.getInitialNodes()
@@ -227,8 +225,7 @@ public class KTailsTests extends SynopticTest {
         parser = genParser();
         parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
-        Graph<EventNode> g2 = parser
-                .generateDirectTemporalRelation(parsedEvents);
+        TraceGraph g2 = parser.generateDirectTemporalRelation(parsedEvents);
         exportTestGraph(g2, 1);
 
         EventNode initG1 = g1.getInitialNodes().iterator().next();
@@ -253,8 +250,7 @@ public class KTailsTests extends SynopticTest {
      *            Array of labels for new nodes to add to the graph
      * @return The list of generated nodes
      */
-    private static List<EventNode> addNodesToGraph(Graph<EventNode> g,
-            String[] labels) {
+    private static List<EventNode> addNodesToGraph(TraceGraph g, String[] labels) {
         LinkedList<EventNode> list = new LinkedList<EventNode>();
         for (String label : labels) {
             Event act = new Event(label);
@@ -279,7 +275,7 @@ public class KTailsTests extends SynopticTest {
         // NOTE: we can't use the parser to create a circular graph because
         // vector clocks are partially ordered and do not admit cycles. So we
         // have to create circular graphs manually.
-        Graph<EventNode> g1 = new Graph<EventNode>();
+        TraceGraph g1 = new TraceGraph();
         List<EventNode> g1Nodes = addNodesToGraph(g1, new String[] { "a", "a",
                 "a" });
         // Create a loop in g1, with 3 nodes
@@ -288,7 +284,7 @@ public class KTailsTests extends SynopticTest {
         g1Nodes.get(2).addTransition(g1Nodes.get(0), defRelation);
         exportTestGraph(g1, 0);
 
-        Graph<EventNode> g2 = new Graph<EventNode>();
+        TraceGraph g2 = new TraceGraph();
         List<EventNode> g2Nodes = addNodesToGraph(g2, new String[] { "a", "a" });
         // Create a loop in g2, with 2 nodes
         g2Nodes.get(0).addTransition(g2Nodes.get(1), defRelation);
@@ -300,7 +296,7 @@ public class KTailsTests extends SynopticTest {
         testFalseBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 2);
         testFalseBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 3);
 
-        Graph<EventNode> g3 = new Graph<EventNode>();
+        TraceGraph g3 = new TraceGraph();
         List<EventNode> g3Nodes = addNodesToGraph(g2, new String[] { "a" });
         // Create a loop in g3, from a to itself
         g3Nodes.get(0).addTransition(g3Nodes.get(0), defRelation);
@@ -323,7 +319,7 @@ public class KTailsTests extends SynopticTest {
         // different kinds of nodes topologically. At k=4 this becomes apparent
         // with kTails, if we start at the first 'a'.
 
-        Graph<EventNode> g1 = new Graph<EventNode>();
+        TraceGraph g1 = new TraceGraph();
         List<EventNode> g1Nodes = addNodesToGraph(g1, new String[] { "a", "b",
                 "c", "d" });
         // Create a loop in g1, with 4 nodes
@@ -339,7 +335,7 @@ public class KTailsTests extends SynopticTest {
                     g1Nodes.get(0), k);
         }
 
-        Graph<EventNode> g2 = new Graph<EventNode>();
+        TraceGraph g2 = new TraceGraph();
         List<EventNode> g2Nodes = addNodesToGraph(g2, new String[] { "a", "b",
                 "c", "d", "a" });
         // Create a chain from a to a'.
@@ -367,7 +363,7 @@ public class KTailsTests extends SynopticTest {
         // have to be correctly matched to g2 -- which is build in a different
         // order but is topologically identical to g1.
 
-        Graph<EventNode> g1 = new Graph<EventNode>();
+        TraceGraph g1 = new TraceGraph();
         List<EventNode> g1Nodes = addNodesToGraph(g1, new String[] { "a", "b",
                 "c", "d", "b", "c" });
 
@@ -388,7 +384,7 @@ public class KTailsTests extends SynopticTest {
         // Now create g2, by generating the two identical loops in the reverse
         // order.
 
-        Graph<EventNode> g2 = new Graph<EventNode>();
+        TraceGraph g2 = new TraceGraph();
         List<EventNode> g2Nodes = addNodesToGraph(g2, new String[] { "a", "b",
                 "c", "d", "b", "c" });
 

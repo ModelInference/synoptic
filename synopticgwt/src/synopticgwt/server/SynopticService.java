@@ -23,9 +23,9 @@ import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.TraceParser;
 import synoptic.model.EventNode;
-import synoptic.model.Graph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
+import synoptic.model.TraceGraph;
 import synoptic.model.WeightedTransition;
 import synoptic.model.export.GraphExporter;
 import synopticgwt.client.ISynopticService;
@@ -57,7 +57,7 @@ public class SynopticService extends RemoteServiceServlet implements
     private Integer numSplitSteps;
     private Set<ITemporalInvariant> unsatisfiedInvariants;
     private TemporalInvariantSet minedInvs;
-    private Graph<EventNode> iGraph;
+    private TraceGraph iGraph;
 
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods.
@@ -97,7 +97,7 @@ public class SynopticService extends RemoteServiceServlet implements
             // TODO: throw appropriate exception
             throw new Exception();
         }
-        iGraph = (Graph<EventNode>) session.getAttribute("inputGraph");
+        iGraph = (TraceGraph) session.getAttribute("inputGraph");
         return;
     }
 
@@ -222,7 +222,7 @@ public class SynopticService extends RemoteServiceServlet implements
         // Parse the log lines.
         ArrayList<EventNode> parsedEvents = parser.parseTraceString(logLines,
                 new String("traceName"), -1);
-        Graph<EventNode> inputGraph = parser
+        TraceGraph inputGraph = parser
                 .generateDirectTemporalRelation(parsedEvents);
 
         // Mine invariants, and convert them to GWTInvariants.
@@ -273,7 +273,7 @@ public class SynopticService extends RemoteServiceServlet implements
      */
 
     private GWTPair<GWTInvariantSet, GWTGraph> convertToGWT(
-            TemporalInvariantSet minedInvs, Graph<EventNode> inputGraph) {
+            TemporalInvariantSet minedInvs, TraceGraph inputGraph) {
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(minedInvs);
 
         // Create a PartitionGraph and convert it into a GWTGraph.

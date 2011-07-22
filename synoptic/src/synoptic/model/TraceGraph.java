@@ -10,9 +10,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import synoptic.model.interfaces.IGraph;
-import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.InternalSynopticException;
 import synoptic.util.Pair;
 import synoptic.util.Predicate.BinaryTrue;
 import synoptic.util.Predicate.IBinary;
@@ -20,25 +18,24 @@ import synoptic.util.Predicate.IBinary;
 /**
  * A graph implementation that provides a merge operation to merge another graph
  * into it. The graph can be modified by adding nodes to it. Whether edges can
- * be added depends on the capability of the {@code NodeType} class.
+ * be added depends on the capability of the {@code EventNode} class.
  * 
  * @author sigurd
- * @param <NodeType>
+ * @param <EventNode>
  *            the class of a node in the graph
  */
-public class Graph<NodeType extends INode<NodeType>> implements
-        IGraph<NodeType> {
+public class TraceGraph implements IGraph<EventNode> {
     /**
      * The nodes of the graph. The edges between nodes are managed by the nodes.
      */
-    private final Set<NodeType> nodes = new LinkedHashSet<NodeType>();
+    private final Set<EventNode> nodes = new LinkedHashSet<EventNode>();
 
     /**
      * Maps a relation to the set of initial nodes in this relation. That is,
      * the set of nodes that have an edge from the dummy initial node (i.e.,
-     * from a NodeType x such that x.isInitial() is true).
+     * from a EventNode x such that x.isInitial() is true).
      */
-    private final Map<String, Set<NodeType>> initialNodes = new LinkedHashMap<String, Set<NodeType>>();
+    private final Map<String, Set<EventNode>> initialNodes = new LinkedHashMap<String, Set<EventNode>>();
 
     /**
      * Every terminal node maintains a transition to this special node to
@@ -46,12 +43,12 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * this graph, and not just in partition graph because invariants are mined
      * over this graph.
      */
-    private NodeType dummyTerminalNode = null;
+    private EventNode dummyTerminalNode = null;
 
     /**
      * The node which has transitions to all the initial nodes in the graph.
      */
-    private NodeType dummyInitialNode = null;
+    private EventNode dummyInitialNode = null;
 
     private Set<String> cachedRelations = null;
 
@@ -61,14 +58,14 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * @param nodes
      *            the nodes of the graph
      */
-    public Graph(Collection<NodeType> nodes) {
+    public TraceGraph(Collection<EventNode> nodes) {
         this.nodes.addAll(nodes);
     }
 
     /**
      * Create an empty graph.
      */
-    public Graph() {
+    public TraceGraph() {
     }
 
     /**
@@ -76,7 +73,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * dummyTerminalNode.
      */
     @Override
-    public Set<NodeType> getNodes() {
+    public Set<EventNode> getNodes() {
         return nodes;
     }
 
@@ -84,10 +81,10 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * Returns all the initial nodes in this graph.
      */
     @Override
-    public Set<NodeType> getInitialNodes() {
+    public Set<EventNode> getInitialNodes() {
         // FIXME: Graph.java is mixing up the notion of dummy initial node and
         // the set of nodes that have an edge from the dummy initial node.
-        Set<NodeType> copy = new LinkedHashSet<NodeType>();
+        Set<EventNode> copy = new LinkedHashSet<EventNode>();
         copy.add(dummyInitialNode);
         return copy;
     }
@@ -97,7 +94,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * relation.
      */
     @Override
-    public Set<NodeType> getInitialNodes(String relation) {
+    public Set<EventNode> getInitialNodes(String relation) {
         if (!initialNodes.containsKey(relation)) {
             return Collections.emptySet();
         }
@@ -113,8 +110,8 @@ public class Graph<NodeType extends INode<NodeType>> implements
             return cachedRelations;
         }
         cachedRelations = new LinkedHashSet<String>();
-        for (NodeType node : nodes) {
-            for (Iterator<? extends ITransition<NodeType>> iter = node
+        for (EventNode node : nodes) {
+            for (Iterator<? extends ITransition<EventNode>> iter = node
                     .getTransitionsIterator(); iter.hasNext();) {
                 cachedRelations.add(iter.next().getRelation());
             }
@@ -126,7 +123,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * Adds a node to this graph.
      */
     @Override
-    public void add(NodeType node) {
+    public void add(EventNode node) {
         nodes.add(node);
         // Invalidate the relations cache.
         cachedRelations = null;
@@ -136,7 +133,7 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * Removes a node from this graph.
      */
     @Override
-    public void remove(NodeType node) {
+    public void remove(EventNode node) {
         nodes.remove(node);
         // Invalidate the relations cache.
         cachedRelations = null;
@@ -149,9 +146,9 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * @param dummyTerminal
      *            the dummy terminal node to use for this graph
      */
-    public void setDummyTerminal(NodeType dummyTerminal) {
-        this.dummyTerminalNode = dummyTerminal;
-        this.nodes.add(dummyTerminal);
+    public void setDummyTerminal(EventNode dummyTerminal) {
+        dummyTerminalNode = dummyTerminal;
+        nodes.add(dummyTerminal);
     }
 
     /**
@@ -163,37 +160,43 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * @param relation
      *            the relation with which this initial node is associated
      */
-    public void setDummyInitial(NodeType dummyInitial, String relation) {
-        this.dummyInitialNode = dummyInitial;
-        this.nodes.add(dummyInitial);
+    public void setDummyInitial(EventNode dummyInitial, String relation) {
+        dummyInitialNode = dummyInitial;
+        nodes.add(dummyInitial);
         if (!initialNodes.containsKey(relation)) {
-            initialNodes.put(relation, new LinkedHashSet<NodeType>());
+            initialNodes.put(relation, new LinkedHashSet<EventNode>());
         }
         initialNodes.get(relation).add(dummyInitial);
         cachedRelations = null;
     }
 
     /**
-     * Tags a node as terminal.
+     * Mark {@code terminalNode} as terminal with respect to {@code relation} by
+     * creating a transition from this node to the dummy terminal node.
+     * 
+     * @param terminalNode
+     *            the node to mark as terminal
+     * @param relation
+     *            the relation with respect to which the node should be terminal
      */
-    @Override
-    public void tagTerminal(NodeType terminalNode, String relation) {
-        if (dummyTerminalNode == null) {
-            throw new InternalSynopticException(
-                    "Must call setDummyTerminal() prior to tagTerminal().");
-        }
+    public void tagTerminal(EventNode terminalNode, String relation) {
+        assert dummyTerminalNode != null : "Must call setDummyTerminal() prior to tagTerminal().";
+
         terminalNode.addTransition(dummyTerminalNode, relation);
     }
 
     /**
-     * Tags a node as initial.
+     * Mark {@code initialNode} as initial with respect to {@code relation} by
+     * creating a transition from the dummy initial node to this node.
+     * 
+     * @param initialNode
+     *            the node to mark as initial
+     * @param relation
+     *            the relation with respect to which the node should be initial
      */
-    @Override
-    public void tagInitial(NodeType initialNode, String relation) {
-        if (dummyInitialNode == null) {
-            throw new InternalSynopticException(
-                    "Must call setDummyInitial() prior to tagInitial().");
-        }
+    public void tagInitial(EventNode initialNode, String relation) {
+        assert dummyInitialNode != null : "Must call setDummyInitial() prior to tagInitial().";
+
         dummyInitialNode.addTransition(initialNode, relation);
     }
 
@@ -203,11 +206,11 @@ public class Graph<NodeType extends INode<NodeType>> implements
      * @param graph
      *            the graph to merge into this one
      */
-    public void merge(Graph<NodeType> graph) {
+    public void merge(TraceGraph graph) {
         nodes.addAll(graph.getNodes());
         for (String key : graph.initialNodes.keySet()) {
             if (!initialNodes.containsKey(key)) {
-                initialNodes.put(key, new LinkedHashSet<NodeType>());
+                initialNodes.put(key, new LinkedHashSet<EventNode>());
             }
             initialNodes.get(key).addAll(graph.initialNodes.get(key));
         }
@@ -217,17 +220,16 @@ public class Graph<NodeType extends INode<NodeType>> implements
     /**
      * Tests for generic graph equality.
      */
-    public boolean equalsWith(Graph<NodeType> other,
-            IBinary<NodeType, NodeType> np) {
+    public boolean equalsWith(TraceGraph other, IBinary<EventNode, EventNode> np) {
         return equalsWith(other, np, new BinaryTrue<String, String>());
     }
 
-    public boolean equalsWith(Graph<NodeType> other,
-            IBinary<NodeType, NodeType> np, IBinary<String, String> rp) {
-        Set<NodeType> unusedOther = other.getInitialNodes();
-        for (NodeType n1 : this.getInitialNodes()) {
+    public boolean equalsWith(TraceGraph other,
+            IBinary<EventNode, EventNode> np, IBinary<String, String> rp) {
+        Set<EventNode> unusedOther = other.getInitialNodes();
+        for (EventNode n1 : this.getInitialNodes()) {
             boolean foundMatch = false;
-            for (NodeType n2 : unusedOther) {
+            for (EventNode n2 : unusedOther) {
                 // logger.fine("Comparing " + n1 + " against " + n2);
                 if (np.eval(n1, n2) && transitionEquality(n1, n2, np, rp)) {
                     foundMatch = true;
@@ -247,22 +249,22 @@ public class Graph<NodeType extends INode<NodeType>> implements
     /**
      * Helper for equalsWith.
      */
-    private boolean transitionEquality(NodeType a, NodeType b,
-            IBinary<NodeType, NodeType> np, IBinary<String, String> rp) {
-        Set<NodeType> visited = new LinkedHashSet<NodeType>();
-        Stack<synoptic.util.Pair<NodeType, NodeType>> toVisit = new Stack<synoptic.util.Pair<NodeType, NodeType>>();
-        toVisit.push(new Pair<NodeType, NodeType>(a, b));
+    private boolean transitionEquality(EventNode a, EventNode b,
+            IBinary<EventNode, EventNode> np, IBinary<String, String> rp) {
+        Set<EventNode> visited = new LinkedHashSet<EventNode>();
+        Stack<synoptic.util.Pair<EventNode, EventNode>> toVisit = new Stack<synoptic.util.Pair<EventNode, EventNode>>();
+        toVisit.push(new Pair<EventNode, EventNode>(a, b));
         while (!toVisit.isEmpty()) {
-            Pair<NodeType, NodeType> tv = toVisit.pop();
+            Pair<EventNode, EventNode> tv = toVisit.pop();
             visited.add(tv.getLeft());
-            for (ITransition<NodeType> trans1 : tv.getLeft().getTransitions()) {
+            for (ITransition<EventNode> trans1 : tv.getLeft().getTransitions()) {
                 boolean foundMatch = false;
-                for (ITransition<NodeType> trans2 : tv.getRight()
+                for (ITransition<EventNode> trans2 : tv.getRight()
                         .getTransitions()) {
                     if (rp.eval(trans1.getRelation(), trans2.getRelation())
                             && np.eval(trans1.getTarget(), trans2.getTarget())) {
                         if (!visited.contains(trans1.getTarget())) {
-                            toVisit.push(new Pair<NodeType, NodeType>(trans1
+                            toVisit.push(new Pair<EventNode, EventNode>(trans1
                                     .getTarget(), trans2.getTarget()));
                         }
                         foundMatch = true;
@@ -280,9 +282,9 @@ public class Graph<NodeType extends INode<NodeType>> implements
     }
 
     @Override
-    public Set<NodeType> getAdjacentNodes(NodeType node) {
-        Set<NodeType> result = new LinkedHashSet<NodeType>();
-        for (ITransition<NodeType> trans : node.getTransitions()) {
+    public Set<EventNode> getAdjacentNodes(EventNode node) {
+        Set<EventNode> result = new LinkedHashSet<EventNode>();
+        for (ITransition<EventNode> trans : node.getTransitions()) {
             result.add(trans.getTarget());
         }
         return result;

@@ -11,8 +11,8 @@ import org.junit.Test;
 
 import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.model.Event;
-import synoptic.model.Graph;
 import synoptic.model.EventNode;
+import synoptic.model.TraceGraph;
 import synoptic.model.Transition;
 import synoptic.tests.SynopticTest;
 
@@ -28,7 +28,7 @@ public class TransitiveClosureTests extends SynopticTest {
      */
     @Test
     public void constructorSimpleTest() {
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));
@@ -65,7 +65,7 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void constructorEmptyGraphTest() {
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
         assertTrue(tc.getTC().isEmpty());
@@ -73,7 +73,7 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void constructorNullRelationTest() {
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));
@@ -94,7 +94,7 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void constructorTCCase() {
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));
@@ -128,7 +128,7 @@ public class TransitiveClosureTests extends SynopticTest {
      */
     @Test
     public void constructorSimple2Test() {
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));
@@ -167,7 +167,7 @@ public class TransitiveClosureTests extends SynopticTest {
      */
     @Test
     public void constructorSimple3Test() {
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));
@@ -206,7 +206,7 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void constructorSimple4Test() {
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));
@@ -238,7 +238,7 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void constructorSimple5Test() {
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));
@@ -260,7 +260,7 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void constructorSelfTest() {
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         EventNode a = new EventNode(new Event("a"));
 
         a.addTransition(new Transition<EventNode>(a, a, "followed by"));
@@ -276,7 +276,7 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void isReachableSimpleTest() {
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));
@@ -313,7 +313,7 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void isReachableSelfTest() {
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         EventNode a = new EventNode(new Event("a"));
         a.addTransition(new Transition<EventNode>(a, a, "followed by"));
 
@@ -335,7 +335,7 @@ public class TransitiveClosureTests extends SynopticTest {
         b.addTransition(new Transition<EventNode>(b, c, "followed by"));
         c.addTransition(new Transition<EventNode>(c, d, "followed by"));
 
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         g.add(a);
         g.add(b);
         g.add(c);
@@ -343,7 +343,7 @@ public class TransitiveClosureTests extends SynopticTest {
         TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        Graph<EventNode> g2 = new Graph<EventNode>();
+        TraceGraph g2 = new TraceGraph();
         g2.add(a);
         g2.add(b);
         g2.add(c);
@@ -364,7 +364,7 @@ public class TransitiveClosureTests extends SynopticTest {
         b.addTransition(new Transition<EventNode>(b, c, "followed by"));
         c.addTransition(new Transition<EventNode>(c, d, "followed by"));
 
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         g.add(a);
         g.add(b);
         g.add(c);
@@ -372,7 +372,7 @@ public class TransitiveClosureTests extends SynopticTest {
         TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        Graph<EventNode> g2 = new Graph<EventNode>();
+        TraceGraph g2 = new TraceGraph();
         g2.add(a);
         g2.add(b);
         g2.add(c);
@@ -405,7 +405,7 @@ public class TransitiveClosureTests extends SynopticTest {
         b.addTransition(new Transition<EventNode>(b, c, "after"));
         c.addTransition(new Transition<EventNode>(c, d, "after"));
 
-        Graph<EventNode> g = new Graph<EventNode>();
+        TraceGraph g = new TraceGraph();
         g.add(a);
         g.add(b);
         g.add(c);
@@ -413,7 +413,7 @@ public class TransitiveClosureTests extends SynopticTest {
         TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        Graph<EventNode> g2 = new Graph<EventNode>();
+        TraceGraph g2 = new TraceGraph();
         g2.add(a);
         g2.add(b);
         g2.add(c);

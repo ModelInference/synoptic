@@ -13,7 +13,6 @@ import synoptic.main.ParseException;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.IIterableIterator;
-import synoptic.util.InternalSynopticException;
 import synoptic.util.IterableAdapter;
 import synoptic.util.time.EqualVectorTimestampsException;
 import synoptic.util.time.ITime;
@@ -74,11 +73,17 @@ public class EventNode implements INode<EventNode> {
         return "[" + getEvent().getEType() + "]";
     }
 
-    @Override
+    /**
+     * Add a transition from this node to node dest.
+     * 
+     * @param dest
+     *            The destination of the transition.
+     * @param relation
+     *            The relation for which this transition is valid
+     */
+    // void addTransition(NodeType dest, String relation);
     public void addTransition(EventNode dest, String relation) {
-        if (dest == null) {
-            throw new InternalSynopticException("Dest was null");
-        }
+        assert dest != null : "Transition Target cannot be null";
         addTransition(new Transition<EventNode>(this, dest, relation));
     }
 

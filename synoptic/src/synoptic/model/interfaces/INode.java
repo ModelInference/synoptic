@@ -106,16 +106,6 @@ public interface INode<NodeType> extends Comparable<NodeType> {
     void setParent(Partition parent);
 
     /**
-     * Add a transition from this node to node dest.
-     * 
-     * @param dest
-     *            The destination of the transition.
-     * @param relation
-     *            The relation for which this transition is valid
-     */
-    void addTransition(NodeType dest, String relation);
-
-    /**
      * Get the parent partition of this node.
      * 
      * @return the parent partition

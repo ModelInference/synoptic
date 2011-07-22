@@ -9,14 +9,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
-import synoptic.model.Graph;
 import synoptic.model.EventNode;
+import synoptic.model.TraceGraph;
 import synoptic.tests.SynopticTest;
 
 @RunWith(value = Parameterized.class)
@@ -42,8 +42,9 @@ public class TOMiningPerformanceTests extends SynopticTest {
         return Arrays.asList(data);
     }
 
-    public TOMiningPerformanceTests(InvariantMiner minerToUse, int numIterations,
-            int totalEvents, int numPartitions, int numEventTypes) {
+    public TOMiningPerformanceTests(InvariantMiner minerToUse,
+            int numIterations, int totalEvents, int numPartitions,
+            int numEventTypes) {
         miner = minerToUse;
         this.numIterations = numIterations;
         this.totalEvents = totalEvents;
@@ -95,7 +96,7 @@ public class TOMiningPerformanceTests extends SynopticTest {
 
             // //////
             startTime = System.currentTimeMillis();
-            Graph<EventNode> inputGraph = parser
+            TraceGraph inputGraph = parser
                     .generateDirectTemporalRelation(parsedEvents);
             delta = System.currentTimeMillis() - startTime;
             // ////////

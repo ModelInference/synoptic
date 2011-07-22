@@ -14,7 +14,6 @@ import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.InternalSynopticException;
 
 /**
  * Implements a temporal invariant mining algorithm for partially ordered logs,
@@ -57,16 +56,11 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             boolean mineConcurrencyInvariants) {
         String relation = TraceParser.defaultRelation;
 
-        if (g.getInitialNodes().isEmpty() || g.getInitialNodes().size() != 1) {
-            throw new InternalSynopticException(
-                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
-        }
+        assert (!g.getInitialNodes().isEmpty() && g.getInitialNodes().size() == 1) : "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.";
 
         EventNode initNode = g.getInitialNodes().iterator().next();
-        if (!initNode.getEType().isInitialEventType()) {
-            throw new InternalSynopticException(
-                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
-        }
+
+        assert initNode.getEType().isInitialEventType() : "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.";
 
         // TODO: we can set the initial capacity of the following HashMaps more
         // optimally, e.g. (N / 0.75) + 1 where N is the total number of event

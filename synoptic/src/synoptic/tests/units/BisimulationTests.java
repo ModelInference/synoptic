@@ -15,7 +15,7 @@ import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.EventNode;
-import synoptic.model.Graph;
+import synoptic.model.TraceGraph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.tests.SynopticTest;
@@ -96,7 +96,7 @@ public class BisimulationTests extends SynopticTest {
         TraceParser defParser = genDefParser();
         ArrayList<EventNode> parsedEvents = defParser.parseTraceString(
                 traceStr, SynopticTest.testName.getMethodName(), -1);
-        Graph<EventNode> inputGraph = defParser
+        TraceGraph inputGraph = defParser
                 .generateDirectTemporalRelation(parsedEvents);
 
         exportTestGraph(inputGraph, 0);
@@ -147,8 +147,7 @@ public class BisimulationTests extends SynopticTest {
 
         ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 SynopticTest.testName.getMethodName(), -1);
-        Graph<EventNode> inputGraph = parser
-                .generateDirectTemporalRelation(parsedEvents);
+        TraceGraph inputGraph = parser.generateDirectTemporalRelation(parsedEvents);
 
         PartitionGraph pGraph = new PartitionGraph(inputGraph, false, null);
         Bisimulation.kReduce(pGraph, 0);

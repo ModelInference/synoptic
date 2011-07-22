@@ -38,7 +38,7 @@ import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.model.EventNode;
-import synoptic.model.Graph;
+import synoptic.model.TraceGraph;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GmlExportFormatter;
@@ -906,8 +906,7 @@ public class Main implements Callable<Integer> {
 
         logger.info("Generating inter-event temporal relation...");
         startTime = System.currentTimeMillis();
-        Graph<EventNode> inputGraph = parser
-                .generateDirectTemporalRelation(parsedEvents);
+        TraceGraph inputGraph = parser.generateDirectTemporalRelation(parsedEvents);
         logger.info("Generating temporal relation took "
                 + (System.currentTimeMillis() - startTime) + "ms");
 
