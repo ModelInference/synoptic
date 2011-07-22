@@ -27,7 +27,7 @@ import synoptic.main.TraceParser;
 import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.Graph;
+import synoptic.model.TraceGraph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.Transition;
@@ -119,7 +119,7 @@ public class ModelCheckersTests extends SynopticTest {
             int lastCExampleIndex) throws InternalSynopticException,
             ParseException {
         // Create the graph.
-        Graph<EventNode> g = genInitialLinearGraph(events);
+        TraceGraph g = genInitialLinearGraph(events);
         Set<EventNode> initNodes = g.getInitialNodes();
 
         if (!cExampleExists) {

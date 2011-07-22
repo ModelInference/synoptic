@@ -14,7 +14,7 @@ import synoptic.invariants.miners.InvariantMiner;
 import synoptic.main.TraceParser;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.Graph;
+import synoptic.model.TraceGraph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
@@ -34,8 +34,7 @@ public class PartitionGraphTests extends SynopticTest {
         String traceStr = concatinateWithNewlines(events);
         ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
-        Graph<EventNode> inputGraph = parser
-                .generateDirectTemporalRelation(parsedEvents);
+        TraceGraph inputGraph = parser.generateDirectTemporalRelation(parsedEvents);
 
         InvariantMiner miner = new ChainWalkingTOInvMiner();
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);

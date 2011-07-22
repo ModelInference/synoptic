@@ -69,28 +69,4 @@ public interface IGraph<NodeType extends INode<NodeType>> {
      *            the node to remove
      */
     void remove(NodeType node);
-
-    /**
-     * Mark {@code initialNode} as initial with respect to {@code relation}.
-     * Implementations should make sure that initialNode is in fact a node of
-     * the graph.
-     * 
-     * @param initialNode
-     *            the node to mark as initial
-     * @param relation
-     *            the relation with respect to which the node should be initial
-     */
-    void tagInitial(NodeType initialNode, String relation);
-
-    /**
-     * Mark {@code terminalNode} as terminal with respect to {@code relation}.
-     * Implementations should make sure that terminalNode is in fact a node of
-     * the graph.
-     * 
-     * @param terminalNode
-     *            the node to mark as terminal
-     * @param relation
-     *            the relation with respect to which the node should be terminal
-     */
-    void tagTerminal(NodeType terminalNode, String relation);
 }

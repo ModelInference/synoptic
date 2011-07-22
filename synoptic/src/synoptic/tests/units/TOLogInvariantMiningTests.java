@@ -25,7 +25,7 @@ import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.model.EventNode;
-import synoptic.model.Graph;
+import synoptic.model.TraceGraph;
 import synoptic.model.StringEventType;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
@@ -94,7 +94,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
      * @throws Exception
      */
     public TemporalInvariantSet genInvariants(String[] events) throws Exception {
-        Graph<EventNode> inputGraph = genInitialLinearGraph(events);
+        TraceGraph inputGraph = genInitialLinearGraph(events);
         return miner.computeInvariants(inputGraph);
     }
 
@@ -182,7 +182,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         }
 
         // Generate set including tautological invariants.
-        Graph<EventNode> inputGraph = genInitialLinearGraph(log);
+        TraceGraph inputGraph = genInitialLinearGraph(log);
 
         // Generates an invariants set which includes all Tautological
         // invariants. So these are the "raw" invariants which are mined.
@@ -372,7 +372,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         String[] eventTypes = new String[] { "--", "a", "b", "c", "d", "e" };
         String[] log = genRandomLog(eventTypes);
 
-        Graph<EventNode> inputGraph = genInitialLinearGraph(log);
+        TraceGraph inputGraph = genInitialLinearGraph(log);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         // Test with FSM checker.

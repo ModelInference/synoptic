@@ -398,21 +398,8 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     @Override
-    public void tagInitial(Partition initialNode, String relation) {
-        partitions.add(initialNode);
-        addInitialMessages(initialNode.getEventNodes(), relation);
-        transitionCache.clear();
-    }
-
-    @Override
     public void remove(Partition node) {
         partitions.remove(node);
-    }
-
-    @Override
-    public void tagTerminal(Partition terminalNode, String relation) {
-        throw new InternalSynopticException(
-                "PartitionGraph tags terminal partitions implicitly -- by considering the LogEvents the partition contains.");
     }
 
     public Set<EventNode> getInitialMessages() {

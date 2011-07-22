@@ -19,7 +19,7 @@ import synoptic.main.TraceParser;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.Graph;
+import synoptic.model.TraceGraph;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBinary;
@@ -568,10 +568,9 @@ public class TraceParserTests extends SynopticTest {
     /**
      * Generates the expected graph for the two cases below.
      */
-    private static Graph<EventNode> genExpectedGraphForTotalOrder(
-            List<EventNode> events) {
+    private static TraceGraph genExpectedGraphForTotalOrder(List<EventNode> events) {
         // Generate the expected Graph.
-        Graph<EventNode> expectedGraph = new Graph<EventNode>();
+        TraceGraph expectedGraph = new TraceGraph();
 
         assertTrue(events.size() == 6);
         Event dummyAct = Event.newInitialStringEvent();
@@ -616,8 +615,8 @@ public class TraceParserTests extends SynopticTest {
         parser.addPartitionsSeparator("^--$");
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
-        Graph<EventNode> graph = parser.generateDirectTemporalRelation(events);
-        Graph<EventNode> expectedGraph = genExpectedGraphForTotalOrder(events);
+        TraceGraph graph = parser.generateDirectTemporalRelation(events);
+        TraceGraph expectedGraph = genExpectedGraphForTotalOrder(events);
         // Test graph equality.
         assertTrue(expectedGraph.equalsWith(graph,
                 new IBinary<EventNode, EventNode>() {
@@ -640,8 +639,8 @@ public class TraceParserTests extends SynopticTest {
         parser.setPartitionsMap("\\k<PARTITION>");
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
-        Graph<EventNode> graph = parser.generateDirectTemporalRelation(events);
-        Graph<EventNode> expectedGraph = genExpectedGraphForTotalOrder(events);
+        TraceGraph graph = parser.generateDirectTemporalRelation(events);
+        TraceGraph expectedGraph = genExpectedGraphForTotalOrder(events);
         // Test graph equality.
         assertTrue(expectedGraph.equalsWith(graph,
                 new IBinary<EventNode, EventNode>() {

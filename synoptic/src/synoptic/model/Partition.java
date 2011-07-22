@@ -13,7 +13,6 @@ import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.IIterableIterator;
-import synoptic.util.InternalSynopticException;
 import synoptic.util.NotImplementedException;
 
 /**
@@ -508,9 +507,10 @@ public class Partition implements INode<Partition> {
         throw new NotImplementedException();
     }
 
-    @Override
-    public void addTransition(Partition dest, String relation) {
-        throw new InternalSynopticException(
-                "Partitions manipulate edges implicitly through LogEvent instances they maintain. Cannot modify Partition transition directly.");
-    }
+    /*
+     * @Override public void addTransition(Partition dest, String relation) {
+     * throw new InternalSynopticException(
+     * "Partitions manipulate edges implicitly through LogEvent instances they maintain. Cannot modify Partition transition directly."
+     * ); }
+     */
 }

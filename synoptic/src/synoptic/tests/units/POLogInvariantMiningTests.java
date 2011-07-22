@@ -27,7 +27,7 @@ import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
-import synoptic.model.Graph;
+import synoptic.model.TraceGraph;
 import synoptic.model.StringEventType;
 import synoptic.tests.SynopticTest;
 
@@ -78,7 +78,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
         TraceParser parser = newTraceParser();
 
         String[] events = new String[] { "1,0 0 a", "0,1 1 b" };
-        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TraceGraph inputGraph = genInitialGraph(events, parser);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         logger.fine("mined: " + minedInvs.toString());
@@ -114,7 +114,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
         TraceParser parser = newTraceParser();
 
         String[] events = new String[] { "1,0 0 a", "0,1 1 b", "2,1 0 c" };
-        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TraceGraph inputGraph = genInitialGraph(events, parser);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         logger.fine("mined: " + minedInvs.toString());
@@ -164,7 +164,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
         TraceParser parser = newTraceParser();
 
         String[] events = new String[] { "1,0 0 a", "2,0 0 b", "1,1 1 c" };
-        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TraceGraph inputGraph = genInitialGraph(events, parser);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         logger.fine("mined: " + minedInvs.toString());
@@ -215,7 +215,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         String[] events = new String[] { "1,0 0 a", "--", "0,1 1 b", "--",
                 "1,0 0 a", "0,1 1 b", "1,2 1 b", "2,2 0 a", "1,3 1 b" };
-        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TraceGraph inputGraph = genInitialGraph(events, parser);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         logger.fine("mined: " + minedInvs.toString());
@@ -241,7 +241,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
         // Two b's after the two a's
         String[] events = new String[] { "0,1 1 b", "0,2 1 b", "1,2 0 a",
                 "2,2 0 a", "0,3 1 b", "2,4 1 b", "2,5 1 b" };
-        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TraceGraph inputGraph = genInitialGraph(events, parser);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         logger.fine("mined: " + minedInvs.toString());
@@ -276,7 +276,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
         String[] events = new String[] { "1,0 0 a", "2,0 0 a", "--", "0,1 1 b",
                 "0,2 1 b", "--", "1,0 0 a", "0,1 1 b" };
 
-        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TraceGraph inputGraph = genInitialGraph(events, parser);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         logger.fine("mined: " + minedInvs.toString());
@@ -305,7 +305,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
                 "0,2 1 b", "--", "1,0 0 a", "1,1 1 b", "--", "0,1 1 b",
                 "1,1 0 a", "--" };
 
-        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TraceGraph inputGraph = genInitialGraph(events, parser);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         logger.fine("mined: " + minedInvs.toString());
@@ -335,7 +335,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
                 "0,2 1 c", "--", "1,0 0 a", "2,0 0 b", "1,1 1 b", "2,2 1 c",
                 "--", "0,1 1 c", "1,1 0 a" };
 
-        Graph<EventNode> inputGraph = genInitialGraph(events, parser);
+        TraceGraph inputGraph = genInitialGraph(events, parser);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         logger.fine("mined: " + minedInvs.toString());
@@ -369,8 +369,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
         TraceParser parser = newTraceParser();
 
         ArrayList<EventNode> parsedEvents = parser.parseTraceFile(file, -1);
-        Graph<EventNode> inputGraph = parser
-                .generateDirectTemporalRelation(parsedEvents);
+        TraceGraph inputGraph = parser.generateDirectTemporalRelation(parsedEvents);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
         logger.info("Mined invariants from TicketReservationExample: "
                 + minedInvs.toString());
