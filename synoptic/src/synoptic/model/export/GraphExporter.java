@@ -220,13 +220,14 @@ public class GraphExporter {
                     // correctly (trace graphs are composed of EventNodes).
 
                     if (graph.isPartiallyOrdered()) {
-                        T transSource = trans.getSource();
-                        boolean b = (transSource instanceof EventNode);
-                        assert b;
+                        // NOTE: The extra casts are necessary for this to work
+                        // in Java 1.6, see here:
+                        // http://bugs.sun.com/view_bug.do?bug_id=6932571
+                        assert (((INode<?>) (trans.getSource())) instanceof EventNode);
                         s = Main.graphExportFormatter.edgeToStringWithTraceId(
                                 nodeSrc, nodeDst,
-                                ((EventNode) trans.getSource()).getTraceID(),
-                                trans.getRelation());
+                                ((EventNode) ((INode<?>) trans.getSource()))
+                                        .getTraceID(), trans.getRelation());
                     } else {
                         if (outputEdgeLabels) {
                             double prob = ((WeightedTransition<T>) trans)
