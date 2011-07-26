@@ -220,7 +220,8 @@ public class GraphExporter {
                     // correctly (trace graphs are composed of EventNodes).
 
                     if (graph.isPartiallyOrdered()) {
-                        assert (trans.getSource() instanceof EventNode);
+                        T transSource = trans.getSource();
+                        assert (transSource instanceof EventNode);
                         s = Main.graphExportFormatter.edgeToStringWithTraceId(
                                 nodeSrc, nodeDst,
                                 ((EventNode) trans.getSource()).getTraceID(),
