@@ -39,12 +39,9 @@ public class DotExportFormatter extends GraphExportFormatter {
         String s = new String(nodeSrc + "->" + nodeDst + " [");
         if (withProb) {
             String freqStr = quote(String.format("%.2f", prob));
-            s += "label=\"" + freqStr + "\", weight=\"" + freqStr + "\",";
+            s += "label=\"" + freqStr + "\", weight=\"" + freqStr + "\", ";
         }
-        String color = relationColors.get(relation);
-        if (!color.equals("")) {
-            s += ",color=blue";
-        }
+        s += "color=" + getRelationColor(relation);
         return s + "];" + "\n";
     }
 
