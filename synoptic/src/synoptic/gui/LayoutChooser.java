@@ -101,7 +101,8 @@ class LayoutChooser<Node, Transition> implements ActionListener {
         layouts.add(ISOMLayout.class);
 
         // Add items to the combo-box.
-        final JComboBox<Class<?>> comboBox = new JComboBox<Class<?>>(layouts);
+        // (JComboBox is generic in Java 7 but not in Java 6)
+        final JComboBox comboBox = new JComboBox(layouts);
         // Select the FRLayout as the default layout.
         comboBox.setSelectedItem(FRLayout.class);
         // Add a listener so that whenever a new item is chosen it hits the
