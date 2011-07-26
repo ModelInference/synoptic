@@ -221,7 +221,8 @@ public class GraphExporter {
 
                     if (graph.isPartiallyOrdered()) {
                         T transSource = trans.getSource();
-                        assert (transSource instanceof EventNode);
+                        boolean b = (transSource instanceof EventNode);
+                        assert b;
                         s = Main.graphExportFormatter.edgeToStringWithTraceId(
                                 nodeSrc, nodeDst,
                                 ((EventNode) trans.getSource()).getTraceID(),
