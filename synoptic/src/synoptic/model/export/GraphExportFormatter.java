@@ -2,6 +2,7 @@ package synoptic.model.export;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -37,9 +38,9 @@ public abstract class GraphExportFormatter {
     public GraphExportFormatter() {
         // This colors subset is taken from:
         // http://www.graphviz.org/doc/info/colors.html
-        String[] colorsArray = { "darkorange1", "goldenrod", "darkseagreen",
-                "green3", "gray66", "indianred", "indigo", "yellow1", "thistle" };
-        possibleColors = Arrays.asList(colorsArray);
+        possibleColors = new LinkedList<String>(Arrays.asList("darkorange1",
+                "goldenrod", "darkseagreen", "green3", "gray66", "indianred",
+                "indigo", "yellow1", "thistle"));
 
         relationColors = new LinkedHashMap<String, String>();
         relationColors.put("t", defaultRelationColor);
@@ -127,6 +128,25 @@ public abstract class GraphExportFormatter {
      */
     public abstract String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
             String relation);
+
+    /**
+     * Serializes a single node edge in a graph to a string. Also, outputs a
+     * trace identifier as the edge label.
+     * 
+     * @param nodeSrc
+     *            the unique identifier for the source node
+     * @param nodeDst
+     *            the unique identifier for the target node
+     * @param freq
+     *            the frequency value to be used as a label on the edge
+     * @param traceId
+     *            the identifier of the trace that this edge belongs to.
+     * @param relation
+     *            a string representing the relation (e.g., "t")
+     * @return
+     */
+    public abstract String edgeToStringWithTraceId(int nodeSrc, int nodeDst,
+            int traceId, String relation);
 
     /**
      * Returns a string with escaped forward slashes and double quotes.

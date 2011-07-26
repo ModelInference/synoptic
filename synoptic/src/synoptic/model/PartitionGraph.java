@@ -63,6 +63,9 @@ public class PartitionGraph implements IGraph<Partition> {
     /** An ordered list of all partition splits applied to the graph so far. */
     private final LinkedList<PartitionMultiSplit> appliedSplits = new LinkedList<PartitionMultiSplit>();
 
+    /** Whether or not the traces this graph represents are partially ordered */
+    private boolean partiallyOrderedTraces = false;
+
     /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
      * and stored. If partitionByLabel is true, all messages with identical
@@ -99,6 +102,16 @@ public class PartitionGraph implements IGraph<Partition> {
 
         partitionByIndexSetsAndLabels(g.getNodes(), partitioningIndexSets);
         this.invariants = invariants;
+    }
+
+    @Override
+    public void setPartiallyOrdered(boolean po) {
+        partiallyOrderedTraces = po;
+    }
+
+    @Override
+    public boolean isPartiallyOrdered() {
+        return partiallyOrderedTraces;
     }
 
     private void addInitialMessages(Set<EventNode> initialMessages,

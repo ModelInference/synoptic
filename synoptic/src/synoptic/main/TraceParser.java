@@ -23,8 +23,8 @@ import synoptic.model.DistEventType;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.TraceGraph;
 import synoptic.model.StringEventType;
+import synoptic.model.TraceGraph;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.NamedMatcher;
 import synoptic.util.NamedPattern;
@@ -895,12 +895,13 @@ public class TraceParser {
      *            The list of events to process.
      * @throws ParseException
      */
-    public TraceGraph generateDirectTemporalRelation(ArrayList<EventNode> allEvents)
-            throws ParseException {
+    public TraceGraph generateDirectTemporalRelation(
+            ArrayList<EventNode> allEvents) throws ParseException {
 
         TraceGraph graph = new TraceGraph();
 
         boolean totallyOrderedTrace = logTimeTypeIsTotallyOrdered();
+        graph.setPartiallyOrdered(!totallyOrderedTrace);
 
         // Find all direct successors of all events. For an event e1, direct
         // successors are successors (in terms of vector-clock) that are not
