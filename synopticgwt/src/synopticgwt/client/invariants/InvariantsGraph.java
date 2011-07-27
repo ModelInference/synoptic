@@ -1,8 +1,90 @@
 package synopticgwt.client.invariants;
 
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.google.gwt.core.client.JavaScriptObject;
 
+import synopticgwt.client.util.JsniUtil;
+import synopticgwt.shared.GWTInvariant;
+import synopticgwt.shared.GWTInvariantSet;
+
+/**
+ * Used to create an invariants graphic in which an invariant inv(x,y) is
+ * represented as a line between two vertices x and y. The graph is tripartite
+ * graph (three sets of vertices, with no edges between vertices in the same
+ * set). The sets have identical sizes and contain the same kinds of vertices --
+ * a vertex corresponding to each event type that is part of at least one
+ * invariant.
+ */
 public class InvariantsGraph {
+
+    /**
+     * Creates the invariant graphic corresponding to gwtInvs in a DIV with id
+     * indicated by invCanvasId.
+     */
+    public static void createInvariantsGraphic(GWTInvariantSet gwtInvs,
+            String invCanvasId) {
+        JavaScriptObject eventTypesJS = JavaScriptObject.createArray();
+        JavaScriptObject AFbyJS = JavaScriptObject.createArray();
+        JavaScriptObject NFbyJS = JavaScriptObject.createArray();
+        JavaScriptObject APJS = JavaScriptObject.createArray();
+
+        Set<String> invTypes = gwtInvs.getInvTypes();
+        int eTypesCnt = 0;
+
+        Set<String> eventTypes = new LinkedHashSet<String>();
+        int longestEType = 0;
+
+        // Iterate through all invariants to create the JS objects for drawing
+        // the invariants graphic.
+        for (String invType : invTypes) {
+            final List<GWTInvariant<String, String>> invs = gwtInvs
+                    .getInvs(invType);
+
+            for (GWTInvariant<String, String> inv : invs) {
+                if (!eventTypes.contains(inv.getSource())) {
+                    JsniUtil.pushArray(eventTypesJS, inv.getSource());
+                    eventTypes.add(inv.getSource());
+                    if (inv.getSource().length() > longestEType) {
+                        longestEType = inv.getSource().length();
+                    }
+                    eTypesCnt++;
+                }
+                if (!eventTypes.contains(inv.getTarget())) {
+                    JsniUtil.pushArray(eventTypesJS, inv.getTarget());
+                    eventTypes.add(inv.getTarget());
+                    if (inv.getTarget().length() > longestEType) {
+                        longestEType = inv.getTarget().length();
+                    }
+                    eTypesCnt++;
+                }
+
+                String x = inv.getSource();
+                String y = inv.getTarget();
+                if (invType.equals("AFby")) {
+                    JsniUtil.addToKeyInArray(AFbyJS, x, y);
+                } else if (invType.equals("NFby")) {
+                    JsniUtil.addToKeyInArray(NFbyJS, x, y);
+                } else if (invType.equals("AP")) {
+                    JsniUtil.addToKeyInArray(APJS, x, y);
+                }
+            }
+        }
+
+        // A little magic to size things right.
+        int lX = (longestEType * 30) / 2 - 60;
+        int mX = lX + (longestEType * 30);
+        int rX = mX + (longestEType * 30);
+        int width = rX + 50;
+
+        // Pass the created JavaScript structures to the native call that will
+        // create the graphic.
+        InvariantsGraph.createInvariantsGraphic(AFbyJS, NFbyJS, APJS,
+                eventTypesJS, width, (eTypesCnt + 1) * 50, lX, mX, rX,
+                invCanvasId);
+    }
 
     // //////////////////////////////////////////////////////////////////////////
     // JSNI methods -- JavaScript Native Interface methods. The method body of
@@ -32,7 +114,7 @@ public class InvariantsGraph {
      * @param canvasId
      *            the div id where to draw the graphic
      */
-    public static native void createInvariantsGraphic(JavaScriptObject AFby,
+    private static native void createInvariantsGraphic(JavaScriptObject AFby,
             JavaScriptObject NFby, JavaScriptObject AP,
             JavaScriptObject eTypes, int width, int height, int lX, int mX,
             int rX, String canvasId) /*-{
@@ -191,4 +273,6 @@ public class InvariantsGraph {
 		}
     }-*/;
 
+    // </JSNI methods>
+    // //////////////////////////////////////////////////////////////////////////
 }

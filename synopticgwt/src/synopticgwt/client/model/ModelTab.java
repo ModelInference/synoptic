@@ -16,10 +16,10 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.client.ISynopticServiceAsync;
+import synopticgwt.client.Tab;
 import synopticgwt.client.util.JsniUtil;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.client.util.TooltipListener;
@@ -28,9 +28,17 @@ import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTTriplet;
 import synopticgwt.shared.LogLine;
 
-public class ModelTab {
-    private ISynopticServiceAsync synopticService;
-    private ProgressWheel pWheel;
+/**
+ * Represents the model tab, using which the user can refine/coarsen the model
+ * and find out how the input log corresponds to paths and to nodes in the
+ * model.
+ */
+public class ModelTab extends Tab<DockPanel> {
+
+    // TODO: INITIAL_LABEL and TERMINAL_LABEL should not be hardcoded. Instead,
+    // these should be dynamically set based on server defaults -- the server
+    // can access EventType.initialNodeLabel and EventType.terminalNodeLabel to
+    // detect what these should be.
 
     /* Label of initial node, for layout purposes */
     private static final String INITIAL_LABEL = "INITIAL";
@@ -39,7 +47,6 @@ public class ModelTab {
     private static final String TERMINAL_LABEL = "TERMINAL";
 
     // Model tab widgets:
-    private final DockPanel modelPanel = new DockPanel();
     private final Button modelRefineButton = new Button("Refine");
     private final Button modelCoarsenButton = new Button("Coarsen");
     private final Button modelGetFinalButton = new Button("Final Model");
@@ -49,9 +56,8 @@ public class ModelTab {
     private FlexTable logLineTable;
 
     public ModelTab(ISynopticServiceAsync synopticService, ProgressWheel pWheel) {
-        this.synopticService = synopticService;
-        this.pWheel = pWheel;
-        // Construct the Model panel.
+        super(synopticService, pWheel);
+        panel = new DockPanel();
 
         VerticalPanel controlsPanel = new VerticalPanel();
 
@@ -105,7 +111,7 @@ public class ModelTab {
         cf.addStyleName(2, "FilenameCol");
 
         controlsPanel.add(logPanel);
-        modelPanel.add(controlsPanel, DockPanel.WEST);
+        panel.add(controlsPanel, DockPanel.WEST);
 
         // Coarsening is disabled until refinement is completed.
         modelCoarsenButton.setEnabled(false);
@@ -116,29 +122,20 @@ public class ModelTab {
         modelExportPngButton.addClickHandler(new ExportPngHandler());
     }
 
-    public DockPanel getInputsPanel() {
-        return modelPanel;
-    }
-
-    /**
-     * Shows the GWTGraph object on the screen in the modelPanel
-     * 
-     * @param graph
-     * @throws Exception
-     */
+    /** Shows the GWTGraph object on the screen in the modelPanel */
     public void showGraph(GWTGraph graph) {
         modelRefineButton.setEnabled(true);
         modelCoarsenButton.setEnabled(false);
         modelGetFinalButton.setEnabled(true);
 
         // Clear the second (non-button ) widget model
-        // panel
-        if (modelPanel.getWidgetCount() > 1) {
-            modelPanel.remove(modelPanel.getWidget(1));
-            assert (modelPanel.getWidgetCount() == 1);
+        // panel.
+        if (panel.getWidgetCount() > 1) {
+            panel.remove(panel.getWidget(1));
+            assert (panel.getWidgetCount() == 1);
         }
 
-        // clear the log line table
+        // Clear the log line table.
         clearLogTable();
 
         String canvasId = "canvasId";
@@ -147,7 +144,7 @@ public class ModelTab {
         graphPanel.getElement().setId(canvasId);
         graphPanel.setStylePrimaryName("modelCanvas");
         // modelPanel.addEast(graphPanel, 70);
-        modelPanel.add(graphPanel, DockPanel.CENTER);
+        panel.add(graphPanel, DockPanel.CENTER);
         // Create the list of graph node labels and their Ids.
         HashMap<Integer, String> nodes = graph.getNodes();
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
@@ -163,7 +160,7 @@ public class ModelTab {
             JsniUtil.pushArray(jsEdges, edge.getLeft().toString());
             JsniUtil.pushArray(jsEdges, edge.getMiddle().toString());
 
-            // This contains the edge's weight
+            // This contains the edge's weight.
             JsniUtil.pushArray(jsEdges, edge.getRight().toString());
         }
 
@@ -217,14 +214,16 @@ public class ModelTab {
     }
 
     /**
-     * Requests the log lines for the Partition with the given nodeID
+     * Requests the log lines for the Partition with the given nodeID.
      */
     public void LogLineRequestHandler(int nodeID) throws Exception {
+        // ////////////////////// Call to remote service.
         synopticService
                 .handleLogRequest(nodeID, new ViewLogLineAsyncCallback());
+        // //////////////////////
     }
 
-    /* removes currently displayed log lines from the log line table */
+    /** Removes currently displayed log lines from the log line table. */
     private void clearLogTable() {
         for (int i = 1; i < logLineTable.getRowCount(); i++) {
             logLineTable.removeRow(i);
@@ -232,7 +231,7 @@ public class ModelTab {
     }
 
     /**
-     * Displays the returned log lines from a LogLineRequest
+     * Displays the returned log lines from a LogLineRequest.
      */
     class ViewLogLineAsyncCallback implements AsyncCallback<List<LogLine>> {
 
@@ -258,7 +257,7 @@ public class ModelTab {
     }
 
     /**
-     * Used for handling Refine button clicks
+     * Used for handling Refine button clicks.
      */
     class RefineModelHandler implements ClickHandler {
         /**
@@ -268,32 +267,26 @@ public class ModelTab {
         public void onClick(ClickEvent event) {
             pWheel.startAnimation();
             modelRefineButton.setEnabled(false);
+
+            // ////////////////////// Call to remote service.
             try {
                 synopticService.refineOneStep(new RefineOneStepAsyncCallback());
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            // //////////////////////
         }
     }
 
     /**
-     * Injects an error message at the top of the page when an RPC call fails
-     */
-    public void injectRPCError(String message) {
-        Label error = new Label(message);
-        error.setStyleName("ErrorMessage");
-        RootPanel.get("rpcErrorDiv").add(error);
-    }
-
-    /**
-     * onSuccess\onFailure callback handler for refineOneStep()
+     * Callback handler for refineOneStep().
      **/
     class RefineOneStepAsyncCallback implements AsyncCallback<GWTGraphDelta> {
         @Override
         public void onFailure(Throwable caught) {
             pWheel.stopAnimation();
-            injectRPCError("Remote Procedure Call Failure while refining");
+            displayRPCErrorMessage("Remote Procedure Call Failure while refining");
             modelRefineButton.setEnabled(true);
         }
 
@@ -313,16 +306,14 @@ public class ModelTab {
     }
 
     /**
-     * Used for handling coarsen button clicks
+     * Handles coarsen button clicks.
      */
     class CoarsenModelHandler implements ClickHandler {
-        /**
-         * Fired when the user clicks on the coarsen.
-         */
         @Override
         public void onClick(ClickEvent event) {
             pWheel.startAnimation();
-            // Coarsening is a one-shot step at the moment.
+
+            // ////////////////////// Call to remote service.
             modelCoarsenButton.setEnabled(false);
             try {
                 synopticService
@@ -331,17 +322,18 @@ public class ModelTab {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            // //////////////////////
         }
     }
 
     /**
-     * onSuccess\onFailure callback handler for coarsenOneStep()
+     * Callback handler for coarsenOneStep().
      **/
     class CoarsenOneStepAsyncCallback implements AsyncCallback<GWTGraph> {
         @Override
         public void onFailure(Throwable caught) {
             pWheel.stopAnimation();
-            injectRPCError("Remote Procedure Call Failure while coarsening");
+            displayRPCErrorMessage("Remote Procedure Call Failure while coarsening");
         }
 
         @Override
@@ -354,12 +346,9 @@ public class ModelTab {
     }
 
     /**
-     * Used for handling Final Model button clicks
+     * Handles Final Model button clicks.
      */
     class GetFinalModelHandler implements ClickHandler {
-        /**
-         * Fired when the user clicks on the button.
-         */
         @Override
         public void onClick(ClickEvent event) {
             pWheel.startAnimation();
@@ -367,23 +356,25 @@ public class ModelTab {
             modelCoarsenButton.setEnabled(false);
             modelGetFinalButton.setEnabled(false);
 
+            // ////////////////////// Call to remote service.
             try {
                 synopticService.getFinalModel(new GetFinalModelAsyncCallback());
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            // //////////////////////
         }
     }
 
     /**
-     * onSuccess\onFailure callback handler for coarsenOneStep()
+     * Callback handler for coarsenOneStep()
      **/
     class GetFinalModelAsyncCallback implements AsyncCallback<GWTGraph> {
         @Override
         public void onFailure(Throwable caught) {
             pWheel.stopAnimation();
-            injectRPCError("Remote Procedure Call Failure while fetching final model");
+            displayRPCErrorMessage("Remote Procedure Call Failure while fetching final model");
         }
 
         @Override
@@ -396,68 +387,61 @@ public class ModelTab {
     }
 
     /**
-     * Used for handling Export DOT button clicks
-     * 
-     * @author i3az0kimchi
+     * Handles Export DOT button clicks
      */
-
     class ExportDotHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
+            // ////////////////////// Call to remote service.
             try {
                 synopticService.exportDot(new ExportDotAsyncCallback());
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            // //////////////////////
         }
-
     }
 
     /**
-     * onSuccess/onFailure callback handler for exportDot()
-     * 
-     * @author i3az0kimchi
+     * Callback handler for exportDot().
      */
     class ExportDotAsyncCallback implements AsyncCallback<String> {
         @Override
         public void onFailure(Throwable caught) {
-            injectRPCError("Remote Procedure Call Failure while exporting current model");
+            displayRPCErrorMessage("Remote Procedure Call Failure while exporting current model");
         }
 
         @Override
         public void onSuccess(String fileString) {
             Window.open("../" + fileString, "DOT file", "Enabled");
         }
-
     }
 
     /**
-     * Used for handling Export PNG button clicks
-     * 
-     * @author i3az0kimchi
+     * Handles Export PNG button clicks
      */
     class ExportPngHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
+            // ////////////////////// Call to remote service.
             try {
                 synopticService.exportPng(new ExportPngAsyncCallback());
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            // //////////////////////
         }
     }
 
     /**
-     * onSuccess/onFailure callback handler for exportPng()
-     * 
-     * @author i3az0kimchi
+     * Callback handler for exportPng().
      */
     class ExportPngAsyncCallback implements AsyncCallback<String> {
         @Override
         public void onFailure(Throwable caught) {
-            injectRPCError("Remote Procedure Call Failure while exporting current model");
+            displayRPCErrorMessage("Remote Procedure Call Failure while exporting current model");
         }
 
         @Override

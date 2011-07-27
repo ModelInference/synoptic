@@ -426,11 +426,8 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * <<<<<<< local Exports the current model and downloads it as a .png and
-     * .dot file. Returns the filename/directory. ======= Exports the current
-     * model as a .dot file. Returns the filename/directory. >>>>>>> other
+     * Exports the current model as a .dot file. Returns the filename/directory.
      */
-
     @Override
     public String exportDot() throws Exception {
         retrieveSessionState();
