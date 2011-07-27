@@ -40,10 +40,9 @@ public class InvariantsGraph {
         // Iterate through all invariants to create the JS objects for drawing
         // the invariants graphic.
         for (String invType : invTypes) {
-            final List<GWTInvariant<String, String>> invs = gwtInvs
-                    .getInvs(invType);
+            final List<GWTInvariant> invs = gwtInvs.getInvs(invType);
 
-            for (GWTInvariant<String, String> inv : invs) {
+            for (GWTInvariant inv : invs) {
                 if (!eventTypes.contains(inv.getSource())) {
                     JsniUtil.pushArray(eventTypesJS, inv.getSource());
                     eventTypes.add(inv.getSource());

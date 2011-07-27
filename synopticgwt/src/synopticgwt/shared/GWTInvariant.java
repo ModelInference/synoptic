@@ -7,14 +7,16 @@ import java.io.Serializable;
  * the server/client. Currently not all of the data within the server-side
  * temporal invariant classes can be converted to work with GWT.
  */
-public class GWTInvariant<S, T> implements Serializable {
+public class GWTInvariant implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    // The source node, the target node,
-    // and the transition type between them,
-    // i.e. AFby NFby AP
-    private S source;
-    private T target;
+    /** The first event label type for a binary invariant. */
+    private String eFirst;
+
+    /** The second event label type for a binary invariant. */
+    private String eSecond;
+
+    /** The invariant type, i.e. "AFby", "NFby", or "AP" */
     private String transitionType;
 
     // This is a copy of the server-side
@@ -22,8 +24,8 @@ public class GWTInvariant<S, T> implements Serializable {
     private int invID = 0;
 
     public GWTInvariant() {
-        source = null;
-        target = null;
+        eFirst = null;
+        eSecond = null;
         transitionType = null;
     }
 
@@ -38,9 +40,9 @@ public class GWTInvariant<S, T> implements Serializable {
      *            The type of transition between the nodes (i.e. AFBy, NFby,
      *            AP).
      */
-    public GWTInvariant(S source, T target, String transitionType) {
-        this.source = source;
-        this.target = target;
+    public GWTInvariant(String source, String target, String transitionType) {
+        this.eFirst = source;
+        this.eSecond = target;
         this.transitionType = transitionType;
     }
 
@@ -57,21 +59,20 @@ public class GWTInvariant<S, T> implements Serializable {
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof GWTInvariant<?, ?>) {
-            return (((GWTInvariant<?, ?>) other).getTarget()
-                    .equals(this.target) && ((GWTInvariant<?, ?>) other)
-                    .getSource().equals(this.source));
+        if (other instanceof GWTInvariant) {
+            return (((GWTInvariant) other).getTarget().equals(this.eSecond) && ((GWTInvariant) other)
+                    .getSource().equals(this.eFirst));
         } else {
             return false;
         }
     }
 
-    public S getSource() {
-        return source;
+    public String getSource() {
+        return eFirst;
     }
 
-    public T getTarget() {
-        return target;
+    public String getTarget() {
+        return eSecond;
     }
 
     public String getTransitionType() {
@@ -89,6 +90,7 @@ public class GWTInvariant<S, T> implements Serializable {
 
     @Override
     public String toString() {
-        return "<" + source.toString() + "," + target.toString() + ">";
+        return "<" + eFirst.toString() + "," + eSecond.toString() + ">";
     }
+
 }

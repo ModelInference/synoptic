@@ -74,8 +74,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
         // Iterate through all invariants to add them to the grid / table.
         for (String invType : invTypes) {
-            final List<GWTInvariant<String, String>> invs = gwtInvs
-                    .getInvs(invType);
+            final List<GWTInvariant> invs = gwtInvs.getInvs(invType);
 
             final Grid grid = new Grid(invs.size() + 1, 1);
             tableAndGraphicPanel.add(grid);
@@ -84,7 +83,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             grid.getCellFormatter().setStyleName(0, 0, "topTableCell");
 
             int i = 1;
-            for (GWTInvariant<String, String> inv : invs) {
+            for (GWTInvariant inv : invs) {
                 grid.setWidget(i, 0,
                         new Label(inv.getSource() + ", " + inv.getTarget()));
                 i += 1;
@@ -95,8 +94,9 @@ public class InvariantsTab extends Tab<VerticalPanel> {
                 grid.getCellFormatter().setStyleName(i, 0, "tableButtonCell");
             }
 
-            // Allow the user to toggle invariants on the grid.
-            addInvariantToggleHandler(grid, invs);
+            // Add a click handler to the grid that allows users to
+            // include/exclude invariants from use by Synoptic.
+            grid.addClickHandler(new InvGridClickHandler(grid, invs));
         }
 
         // Show the invariant graphic.
@@ -167,94 +167,95 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     }
 
     /**
-     * This makes the grid clickable, so that when clicked, the grid's cell data
-     * will be looked up in the client-side set of invariants. This client-side
-     * invariant then contains the server-side hashcode for the corresponding
-     * server-side invariant. This hash code is then queued up so that each
-     * server-side hash code specifies a server-side invariant for removal. When
-     * a cell is "active," this means that it's corresponding invariant is
-     * queued up to be removed at the click of the removal button. When one or
-     * more cells are active, then the removal button will also be activated.
-     * When a cell is deactivated, the corresponding invariant is removed from
-     * the queue. If all cells are not active, the removal button will also be
-     * deactivated.
+     * This is a handler for clicks on the grid showing mined invariants. On
+     * click, the grid's cell data will be looked up in the client-side set of
+     * invariants. This client-side invariant then contains the server-side
+     * hashcode for the corresponding server-side invariant. This hash code is
+     * then queued up so that each server-side hash code specifies a server-side
+     * invariant for removal. When a cell is "active," this means that it's
+     * corresponding invariant is queued up to be removed at the click of the
+     * removal button. When one or more cells are active, then the removal
+     * button will also be activated. When a cell is deactivated, the
+     * corresponding invariant is removed from the queue. If all cells are not
+     * active, the removal button will also be deactivated.
      * 
      * @param invs
      *            The set of client-side invariants
      * @param grid
      *            The grid which will become clickable.
      */
-    private void addInvariantToggleHandler(final Grid grid,
-            final List<GWTInvariant<String, String>> invs) {
+    class InvGridClickHandler implements ClickHandler {
+        List<GWTInvariant> invs;
+        Grid grid;
 
-        // Add the basic click handler to the graph.
-        grid.addClickHandler(new ClickHandler() {
+        public InvGridClickHandler(Grid grid, List<GWTInvariant> invs) {
+            this.invs = invs;
+            this.grid = grid;
+        }
 
-            // Add the aforementioned functionality to the click handler.
-            @Override
-            public void onClick(ClickEvent event) {
+        // Add the aforementioned functionality to the click handler.
+        @Override
+        public void onClick(ClickEvent event) {
+            // Identify the clicked cell.
+            HTMLTable.Cell cell = ((Grid) event.getSource())
+                    .getCellForEvent(event);
 
-                // Specify which cell was clicked.
-                HTMLTable.Cell cell = ((Grid) event.getSource())
-                        .getCellForEvent(event);
+            // Check to see (from the row index), whether the cell clicked
+            // is the top (zeroth) cell. This shouldn't be activated, as it
+            // is the
+            // column title.
+            int cellRowIndex = cell.getRowIndex();
+            if (cellRowIndex == 0) {
+                return;
+            }
 
-                // Check to see (from the row index), whether the cell clicked
-                // is the top (zeroth) cell. This shouldn't be activated, as it
-                // is the
-                // column title.
-                int cellRowIndex = cell.getRowIndex();
-                if (cellRowIndex > 0) {
-                    // Extract the cell data from the grid's cell.
-                    // TODO: This is likely an ineffective way of doing this,
-                    // as the invariants on the left and right may not be
-                    // separated by a
-                    // comma. They also may have more than just a single comma
-                    // in the
-                    // entire string.
-                    String[] cellData = cell.getElement().getInnerText()
-                            .split(", ", 2);
+            // Extract the cell data from the grid's cell.
+            // TODO: This is likely an ineffective way of doing this,
+            // as the invariants on the left and right may not be
+            // separated by a
+            // comma. They also may have more than just a single comma
+            // in the
+            // entire string.
+            String[] cellData = cell.getElement().getInnerText().split(", ", 2);
 
-                    // Create an invariant to be looked up in the client-side
-                    // list.
-                    GWTInvariant<String, String> invFromCell = new GWTInvariant<String, String>(
-                            cellData[0], cellData[1], "");
-                    int matchingIndex = invs.indexOf(invFromCell);
+            // Create an invariant to be looked up in the client-side
+            // list.
+            GWTInvariant invFromCell = new GWTInvariant(cellData[0],
+                    cellData[1], "");
+            int matchingIndex = invs.indexOf(invFromCell);
 
-                    // Extract a copy of the server-side's invariant hash code
-                    // (the invariant's ID).
-                    int invID = invs.get(matchingIndex).getID();
+            // Extract a copy of the server-side's invariant hash code
+            // (the invariant's ID).
+            int invID = invs.get(matchingIndex).getID();
 
-                    // Check whether the cell is active (style of
-                    // "tableButtonCell")
-                    // or not (style of "tableCellSelected").
-                    CellFormatter formatter = grid.getCellFormatter();
-                    if (formatter.getStyleName(cellRowIndex, 0).equals(
-                            "tableButtonCell")) {
+            // Check whether the cell is active (style of
+            // "tableButtonCell")
+            // or not (style of "tableCellSelected").
+            CellFormatter formatter = grid.getCellFormatter();
+            if (formatter.getStyleName(cellRowIndex, 0).equals(
+                    "tableButtonCell")) {
 
-                        // Activate the cell and queue up the hash code.
-                        formatter.setStyleName(cellRowIndex, 0,
-                                "tableCellSelected");
-                        invariantRemovalIDs.add(invID);
+                // Activate the cell and queue up the hash code.
+                formatter.setStyleName(cellRowIndex, 0, "tableCellSelected");
+                invariantRemovalIDs.add(invID);
 
-                        // Activate the removal button
-                        invRemoveButton.setEnabled(true);
-                    } else {
+                // Activate the removal button
+                invRemoveButton.setEnabled(true);
+            } else {
 
-                        // Deactivate the cell and remove the hash code from the
-                        // queue.
-                        formatter.setStyleName(cellRowIndex, 0,
-                                "tableButtonCell");
-                        invariantRemovalIDs.remove(invID);
+                // Deactivate the cell and remove the hash code from the
+                // queue.
+                formatter.setStyleName(cellRowIndex, 0, "tableButtonCell");
+                invariantRemovalIDs.remove(invID);
 
-                        // Deactivate the removal button if there are no
-                        // invariants
-                        // queued up.
-                        if (invariantRemovalIDs.isEmpty()) {
-                            invRemoveButton.setEnabled(false);
-                        }
-                    }
+                // Deactivate the removal button if there are no
+                // invariants
+                // queued up.
+                if (invariantRemovalIDs.isEmpty()) {
+                    invRemoveButton.setEnabled(false);
                 }
             }
-        });
+        }
     }
+
 }
