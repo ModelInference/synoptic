@@ -9,7 +9,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HTMLTable;
+import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -65,37 +65,30 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             assert (panel.getWidgetCount() == 1);
         }
 
-        // Create and populate the panel with the invariants table and the
-        // invariants graphic.
+        // Create and populate the panel with the invariants grid.
         HorizontalPanel tableAndGraphicPanel = new HorizontalPanel();
         panel.add(tableAndGraphicPanel);
 
-        Set<String> invTypes = gwtInvs.getInvTypes();
-
         // Iterate through all invariants to add them to the grid / table.
-        for (String invType : invTypes) {
-            final List<GWTInvariant> invs = gwtInvs.getInvs(invType);
+        for (String invType : gwtInvs.getInvTypes()) {
+            List<GWTInvariant> invs = gwtInvs.getInvs(invType);
 
-            final Grid grid = new Grid(invs.size() + 1, 1);
-            tableAndGraphicPanel.add(grid);
-
+            // Create a grid to contain invariants of invType.
+            Grid grid = new Grid(invs.size() + 1, 1);
+            grid.setStyleName("invariantsGrid grid");
             grid.setWidget(0, 0, new Label(invType));
             grid.getCellFormatter().setStyleName(0, 0, "topTableCell");
+            tableAndGraphicPanel.add(grid);
 
-            int i = 1;
-            for (GWTInvariant inv : invs) {
-                grid.setWidget(i, 0,
-                        new Label(inv.getSource() + ", " + inv.getTarget()));
-                i += 1;
-            }
-
-            grid.setStyleName("invariantsGrid grid");
-            for (i = 1; i < grid.getRowCount(); i++) {
-                grid.getCellFormatter().setStyleName(i, 0, "tableButtonCell");
+            for (int i = 0; i < invs.size(); i++) {
+                GWTInvariant inv = invs.get(i);
+                grid.setWidget(i + 1, 0, new InvariantGridLabel(inv));
+                grid.getCellFormatter().setStyleName(i + 1, 0,
+                        "tableButtonCell");
             }
 
             // Add a click handler to the grid that allows users to
-            // include/exclude invariants from use by Synoptic.
+            // include/exclude invariants for use by Synoptic.
             grid.addClickHandler(new InvGridClickHandler(grid, invs));
         }
 
@@ -196,47 +189,31 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         // Add the aforementioned functionality to the click handler.
         @Override
         public void onClick(ClickEvent event) {
-            // Identify the clicked cell.
-            HTMLTable.Cell cell = ((Grid) event.getSource())
-                    .getCellForEvent(event);
+            // The clicked cell.
+            Cell cell = ((Grid) event.getSource()).getCellForEvent(event);
 
-            // Check to see (from the row index), whether the cell clicked
-            // is the top (zeroth) cell. This shouldn't be activated, as it
-            // is the
-            // column title.
-            int cellRowIndex = cell.getRowIndex();
-            if (cellRowIndex == 0) {
+            // Cell's row index.
+            int rIndex = cell.getRowIndex();
+
+            // Ignore the title cells.
+            if (rIndex == 0) {
                 return;
             }
 
-            // Extract the cell data from the grid's cell.
-            // TODO: This is likely an ineffective way of doing this,
-            // as the invariants on the left and right may not be
-            // separated by a
-            // comma. They also may have more than just a single comma
-            // in the
-            // entire string.
-            String[] cellData = cell.getElement().getInnerText().split(", ", 2);
+            // Invariant label corresponding to the cell.
+            InvariantGridLabel invLabel = ((InvariantGridLabel) grid.getWidget(
+                    rIndex, 0));
 
-            // Create an invariant to be looked up in the client-side
-            // list.
-            GWTInvariant invFromCell = new GWTInvariant(cellData[0],
-                    cellData[1], "");
-            int matchingIndex = invs.indexOf(invFromCell);
-
-            // Extract a copy of the server-side's invariant hash code
-            // (the invariant's ID).
-            int invID = invs.get(matchingIndex).getID();
+            int invID = invLabel.getInvariant().getID();
 
             // Check whether the cell is active (style of
             // "tableButtonCell")
             // or not (style of "tableCellSelected").
             CellFormatter formatter = grid.getCellFormatter();
-            if (formatter.getStyleName(cellRowIndex, 0).equals(
-                    "tableButtonCell")) {
+            if (formatter.getStyleName(rIndex, 0).equals("tableButtonCell")) {
 
                 // Activate the cell and queue up the hash code.
-                formatter.setStyleName(cellRowIndex, 0, "tableCellSelected");
+                formatter.setStyleName(rIndex, 0, "tableCellSelected");
                 invariantRemovalIDs.add(invID);
 
                 // Activate the removal button
@@ -245,7 +222,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
                 // Deactivate the cell and remove the hash code from the
                 // queue.
-                formatter.setStyleName(cellRowIndex, 0, "tableButtonCell");
+                formatter.setStyleName(rIndex, 0, "tableButtonCell");
                 invariantRemovalIDs.remove(invID);
 
                 // Deactivate the removal button if there are no
