@@ -1,11 +1,9 @@
 package synopticgwt.client.invariants;
 
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -15,25 +13,24 @@ import com.google.gwt.user.client.ui.HTMLTable;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.SynopticGWT;
-import synopticgwt.client.util.JsniUtil;
+import synopticgwt.client.Tab;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
 
-public class InvariantsTab {
-    private ISynopticServiceAsync synopticService;
-    private ProgressWheel pWheel;
-
-    // Invariants tab widgets:
-    private final VerticalPanel invariantsPanel = new VerticalPanel();
-    private final HorizontalPanel invariantsButtonPanel = new HorizontalPanel();
+/**
+ * Represents the invariants tab. This tab visualizes the mined invariants, and
+ * allows the users to select a subset of the invariants that they would like to
+ * be satisfied by the model.
+ */
+public class InvariantsTab extends Tab<VerticalPanel> {
+    private final HorizontalPanel buttonPanel = new HorizontalPanel();
 
     // List of hash codes to be removed from the server's set of invariants.
     // Each hash code represents a temporal invariant.
@@ -42,60 +39,40 @@ public class InvariantsTab {
 
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
-        this.synopticService = synopticService;
-        this.pWheel = pWheel;
+        super(synopticService, pWheel);
+        panel = new VerticalPanel();
 
         // Set up invariants tab.
-        invariantsPanel.add(invariantsButtonPanel);
-        invariantsButtonPanel.add(invRemoveButton);
-        invariantsButtonPanel.setStyleName("buttonPanel");
+        panel.add(buttonPanel);
+        buttonPanel.add(invRemoveButton);
+        buttonPanel.setStyleName("buttonPanel");
         invRemoveButton.addClickHandler(new RemoveInvariantsHandler());
         invRemoveButton.setWidth("188px");
         invRemoveButton.setEnabled(false);
     }
 
-    public VerticalPanel getInputsPanel() {
-        return invariantsPanel;
-    }
-
     /**
-     * Injects an error message at the top of the page when an RPC call fails
-     */
-    public void injectRPCError(String message) {
-        Label error = new Label(message);
-        error.setStyleName("ErrorMessage");
-        RootPanel.get("rpcErrorDiv").add(error);
-    }
-
-    /**
-     * Shows the invariant graphic on the screen in the invariantsPanel
+     * Shows the invariant graphic on the screen in the invariantsPanel.
      * 
-     * @param graph
+     * @param gwtInvs
+     *            The invariants mined from the log.
      */
     public void showInvariants(GWTInvariantSet gwtInvs) {
         // Clear the invariants panel of the non-button widget
         // (the horizontal panel for the table and graphics).
-        if (invariantsPanel.getWidgetCount() > 1) {
-            invariantsPanel.remove(invariantsPanel.getWidget(1));
-            assert (invariantsPanel.getWidgetCount() == 1);
+        if (panel.getWidgetCount() > 1) {
+            panel.remove(panel.getWidget(1));
+            assert (panel.getWidgetCount() == 1);
         }
 
         // Create and populate the panel with the invariants table and the
         // invariants graphic.
         HorizontalPanel tableAndGraphicPanel = new HorizontalPanel();
-        invariantsPanel.add(tableAndGraphicPanel);
+        panel.add(tableAndGraphicPanel);
 
         Set<String> invTypes = gwtInvs.getInvTypes();
-        int eTypesCnt = 0;
-        JavaScriptObject eventTypesJS = JavaScriptObject.createArray();
-        JavaScriptObject AFbyJS = JavaScriptObject.createArray();
-        JavaScriptObject NFbyJS = JavaScriptObject.createArray();
-        JavaScriptObject APJS = JavaScriptObject.createArray();
-        Set<String> eventTypes = new LinkedHashSet<String>();
-        int longestEType = 0;
 
-        // Iterate through all invariants to (1) add them to the grid / table,
-        // and (2) to create the JS objects for drawing the invariants graphic.
+        // Iterate through all invariants to add them to the grid / table.
         for (String invType : invTypes) {
             final List<GWTInvariant<String, String>> invs = gwtInvs
                     .getInvs(invType);
@@ -108,33 +85,6 @@ public class InvariantsTab {
 
             int i = 1;
             for (GWTInvariant<String, String> inv : invs) {
-                if (!eventTypes.contains(inv.getSource())) {
-                    JsniUtil.pushArray(eventTypesJS, inv.getSource());
-                    eventTypes.add(inv.getSource());
-                    if (inv.getSource().length() > longestEType) {
-                        longestEType = inv.getSource().length();
-                    }
-                    eTypesCnt++;
-                }
-                if (!eventTypes.contains(inv.getTarget())) {
-                    JsniUtil.pushArray(eventTypesJS, inv.getTarget());
-                    eventTypes.add(inv.getTarget());
-                    if (inv.getTarget().length() > longestEType) {
-                        longestEType = inv.getTarget().length();
-                    }
-                    eTypesCnt++;
-                }
-
-                String x = inv.getSource();
-                String y = inv.getTarget();
-                if (invType.equals("AFby")) {
-                    JsniUtil.addToKeyInArray(AFbyJS, x, y);
-                } else if (invType.equals("NFby")) {
-                    JsniUtil.addToKeyInArray(NFbyJS, x, y);
-                } else if (invType.equals("AP")) {
-                    JsniUtil.addToKeyInArray(APJS, x, y);
-                }
-
                 grid.setWidget(i, 0,
                         new Label(inv.getSource() + ", " + inv.getTarget()));
                 i += 1;
@@ -147,52 +97,44 @@ public class InvariantsTab {
 
             // Allow the user to toggle invariants on the grid.
             addInvariantToggleHandler(grid, invs);
-
         }
 
         // Show the invariant graphic.
         String invCanvasId = "invCanvasId";
-        HorizontalPanel invGraphicId = new HorizontalPanel();
-        invGraphicId.getElement().setId(invCanvasId);
-        invGraphicId.setStylePrimaryName("modelCanvas");
-        tableAndGraphicPanel.add(invGraphicId);
-
-        // A little magic to size things right.
-        int lX = (longestEType * 30) / 2 - 60;
-        int mX = lX + (longestEType * 30);
-        int rX = mX + (longestEType * 30);
-        int width = rX + 50;
-
-        InvariantsGraph.createInvariantsGraphic(AFbyJS, NFbyJS, APJS,
-                eventTypesJS, width, (eTypesCnt + 1) * 50, lX, mX, rX,
-                invCanvasId);
+        HorizontalPanel invGraphicPanel = new HorizontalPanel();
+        invGraphicPanel.getElement().setId(invCanvasId);
+        invGraphicPanel.setStylePrimaryName("modelCanvas");
+        tableAndGraphicPanel.add(invGraphicPanel);
+        InvariantsGraph.createInvariantsGraphic(gwtInvs, invCanvasId);
     }
 
     /**
      * Accesses the list of copies of server-side invariant hash codes and uses
-     * them to remove their corresponding server-side invariants. The
-     * client-side graph and invariants are then recalculated and redisplayed.
+     * them to remove their corresponding server-side invariants.
      */
     class RemoveInvariantsHandler implements ClickHandler {
-
         @Override
         public void onClick(ClickEvent event) {
-
             // Keep the user from clicking the button multiple times.
             invRemoveButton.setEnabled(false);
 
-            // Remove the invariants from the server based on
-            // the hash code copies, then recalculate the graph
-            // and invariants so they can be redrawn in their respective
-            // panels.
+            // ////////////////////// Call to remote service.
             try {
                 synopticService.removeInvs(invariantRemovalIDs,
                         new RemoveInvariantsAsyncCallback());
             } catch (Exception e) {
+                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            // Since the invariants have been removed, the queue should be
-            // emptied.
+            // //////////////////////
+
+            // Empty the set of invariants to remove.
+            // TODO: If the server fails to remove the invariants then we lose
+            // the set of invariants the user wants to remove. Ideally, we would
+            // keep this set until we know that the server has removed them --
+            // this however, requires that the server can deal with cales to
+            // removeInvs() with invariants that have already been removed
+            // (i.e., the call must be idempotent w.r.t an invariant).
             invariantRemovalIDs.clear();
         }
     }
@@ -203,23 +145,23 @@ public class InvariantsTab {
      */
     class RemoveInvariantsAsyncCallback implements
             AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
-
         /**
          * Handles any general problems that may arise.
          */
         @Override
         public void onFailure(Throwable caught) {
-            injectRPCError("Remote Procedure Call Failure while removing invariants");
+            displayRPCErrorMessage("Remote Procedure Call Failure while removing invariants");
         }
 
         /**
          * Redraws the model and invariants tabs.
          */
         @Override
-        public void onSuccess(GWTPair<GWTInvariantSet, GWTGraph> result) {
-            GWTInvariantSet gwtInvs = result.getLeft();
-            GWTGraph gwtGraph = result.getRight();
-            SynopticGWT.entryPoint.afterRemovingInvariants(gwtInvs, gwtGraph);
+        public void onSuccess(GWTPair<GWTInvariantSet, GWTGraph> ret) {
+            // Communicate with the model tab and this invariants tab via
+            // SynopticGWT.
+            SynopticGWT.entryPoint.afterRemovingInvariants(ret.getLeft(),
+                    ret.getRight());
         }
 
     }

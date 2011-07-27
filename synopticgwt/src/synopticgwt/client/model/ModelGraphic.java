@@ -2,7 +2,14 @@ package synopticgwt.client.model;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
+/**
+ * Used to create the graphic representing the Synoptic model.
+ */
 public class ModelGraphic {
+    // //////////////////////////////////////////////////////////////////////////
+    // JSNI methods -- JavaScript Native Interface methods. The method body of
+    // these calls is pure JavaScript.
+
     /**
      * A JSNI method to create and display a graph.
      * 
@@ -20,46 +27,47 @@ public class ModelGraphic {
     public native void createGraph(JavaScriptObject nodes,
             JavaScriptObject edges, int width, int height, String canvasId,
             String initial, String terminal) /*-{
-            // required to export this instance
-var _this = this;
+		// Required to export this instance.
+		var _this = this;
 
-// export the LogLineRequestHandler globally
-$wnd.viewLogLines = function(id) {
-_this.@synopticgwt.client.model.ModelTab::LogLineRequestHandler(I)(id);
-};
+		// Export the LogLineRequestHandler globally.
+		$wnd.viewLogLines = function(id) {
+			_this.@synopticgwt.client.model.ModelTab::LogLineRequestHandler(I)(id);
+		};
 
-                                             // create the graph
-                                             var g = new $wnd.Graph();
-                                             g.edgeFactory.template.style.directed = true;
+		// Create the graph.
+		var g = new $wnd.Graph();
+		g.edgeFactory.template.style.directed = true;
 
-                                             // add each node to graph
-                                             for ( var i = 0; i < nodes.length; i += 2) {
-                                             g.addNode(nodes[i], {
-                                             label : nodes[i + 1],
-                                             render : $wnd.GRAPH_HANDLER.render
-                                             });
-                                             }
+		// Add each node to graph.
+		for ( var i = 0; i < nodes.length; i += 2) {
+			g.addNode(nodes[i], {
+				label : nodes[i + 1],
+				render : $wnd.GRAPH_HANDLER.render
+			});
+		}
 
-                                             // add each edge to graph
-                                             for ( var i = 0; i < edges.length; i += 3) {
-                                             //first is source, second is target, third is weight for the label
-                                             g.addEdge(edges[i], edges[i + 1], {
-                                             label : edges[i + 2],
-                                             //				stroke : "#bfa",
-                                             //				fill : "#56f"
-                                             });
-                                             }
+		// Add each edge to graph.
+		for ( var i = 0; i < edges.length; i += 3) {
+			// edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
+			g.addEdge(edges[i], edges[i + 1], {
+				label : edges[i + 2]
+			//				stroke : "#bfa",
+			//				fill : "#56f"
+			});
+		}
 
-                                             // give stable layout to graph elements
-                                             var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
+		// Give stable layout to graph elements.
+		var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
 
-                                             // render the graph
-                                             var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
-                                             height);
+		// Render the graph.
+		var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
+				height);
 
-// store graph state
-$wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer, layouter, g);
-}-*/;
+		// Store graph state.
+		$wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer,
+				layouter, g);
+    }-*/;
 
     /**
      * A JSNI method to update and display a refined graph, animating the
@@ -93,4 +101,7 @@ $wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer, layouter, g);
 		// re-draw the graph, animating transitions from old to new position
 		renderer.draw();
     }-*/;
+
+    // </JSNI methods>
+    // //////////////////////////////////////////////////////////////////////////
 }

@@ -11,6 +11,18 @@ import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.LogLine;
 
+/**
+ * Asynchronous interface specification for the Synoptic service. The browser
+ * connects to the server and expects the server to implement this interface.
+ * This interface is asynchronous -- when invoked, a method returns immediately.
+ * Each method takes a callback, which will be executed when the method finishes
+ * execution. For detailed comments about each of the methods, consult
+ * ISynopticService.
+ * 
+ * <pre>
+ * NOTE: This interface must match the interface specified by ISynopticService.
+ * </pre>
+ */
 public interface ISynopticServiceAsync {
     void parseLog(String logLines, List<String> regExps,
             String partitionRegExp, String separatorRegExp,
@@ -26,7 +38,8 @@ public interface ISynopticServiceAsync {
             throws Exception;
 
     void removeInvs(Set<Integer> hashes,
-    		AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> callback) throws Exception;
+            AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> callback)
+            throws Exception;
 
     void exportDot(AsyncCallback<String> callback) throws Exception;
 

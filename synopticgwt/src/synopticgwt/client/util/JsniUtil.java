@@ -2,7 +2,13 @@ package synopticgwt.client.util;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
+/**
+ * Implements methods for manipulating JavaScript data structures.
+ */
 public class JsniUtil {
+    // //////////////////////////////////////////////////////////////////////////
+    // JSNI methods -- JavaScript Native Interface methods. The method body of
+    // these calls is pure JavaScript.
 
     /**
      * A JSNI method for adding a String element to a java script array object.
@@ -34,4 +40,6 @@ public class JsniUtil {
 		array[key].push(val);
     }-*/;
 
+    // </JSNI methods>
+    // //////////////////////////////////////////////////////////////////////////
 }

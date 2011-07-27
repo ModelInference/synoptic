@@ -4,32 +4,71 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
- * Animates a spinning wheel to indicate progress, or some kind of activity.
+ * Implements an animated spinning wheel that can be used to indicate progress,
+ * or some kind of background (e.g., server) activity.
  */
 public class ProgressWheel {
-    // Timer controling the pace of the animation.
+    /** Timer controlling the pace of the animation. */
     private final Timer timer;
-    // The div containing the animation.
+
+    /** The panel containing the animation. */
     private final RootPanel divPanel;
 
-    public ProgressWheel(String divPanelId, RootPanel divPanel) {
-        this(divPanelId, divPanel, 10, 2, 7);
+    /**
+     * Create a progress wheel with default dimensions.
+     * 
+     * @param divPanelId
+     *            HTML id of the DIV where the progress wheel will be placed.
+     */
+    public ProgressWheel(String divPanelId) {
+        this(divPanelId, 10, 2, 7);
     }
 
-    public ProgressWheel(String divPanelId, RootPanel divPanel, int radius,
-            int r1, int r2) {
-        // Add the progress wheel to the div.
+    /**
+     * Creates a progress wheel with custom dimensions.
+     * 
+     * @param divPanelId
+     *            HTML id of the DIV where the progress wheel will be placed.
+     * @param radius
+     *            size of the SVG graphic / 2
+     * @param r1
+     *            (smaller) inner radius of wheel
+     * @param r2
+     *            (larger) outer radius of wheel
+     */
+    public ProgressWheel(String divPanelId, int radius, int r1, int r2) {
+        // Get the RootPanel containing the progress wheel based on divPanelId
+        // and hide it since the progress wheel isn't scheduled yet.
+        divPanel = RootPanel.get(divPanelId);
+        divPanel.setVisible(false);
+
+        // Add the progress wheel to the DIV.
         addProgressWheel(divPanelId, radius, r1, r2);
 
-        this.divPanel = divPanel;
-
-        // Create the timer, but don't schedule it.
+        // Create the timer, but do not schedule it.
         timer = new Timer() {
             @Override
             public void run() {
+                // Whenever the timer fires, it animates the progress wheel by
+                // one step.
                 animateProgressWheel();
             }
         };
+    }
+
+    /**
+     * Starts the wheel animation.
+     */
+    public void startAnimation() {
+        divPanel.setVisible(true);
+        timer.scheduleRepeating(100);
+    }
+
+    /**
+     * Stops the wheel animation.
+     */
+    public void stopAnimation() {
+        timer.cancel();
         divPanel.setVisible(false);
     }
 
@@ -37,6 +76,10 @@ public class ProgressWheel {
     // JSNI methods -- JavaScript Native Interface methods. The method body of
     // these calls is pure JavaScript.
 
+    /**
+     * A JSNI method to animate the progress wheel by one step, by changing
+     * opacity of all the sectors making up the wheel.
+     */
     private native static void animateProgressWheel() /*-{
 		$wnd.opacity.unshift($wnd.opacity.pop());
 		for ( var i = 0; i < $wnd.sectorsCount; i++) {
@@ -45,15 +88,15 @@ public class ProgressWheel {
     }-*/;
 
     /**
-     * A JSNI method to add a progress wheel to a div. To animate the progress
+     * A JSNI method to add a progress wheel to a DIV. To animate the progress
      * wheel by a single step, call the animateProgressWheel() function.
      * 
      * @param radius
-     *            size of the svg graphic / 2
+     *            size of the SVG graphic / 2
      * @param r1
      *            (smaller) inner radius of wheel
      * @param r2
-     *            (larger) outter radius of wheel
+     *            (larger) outer radius of wheel
      */
     private native static void addProgressWheel(String divPanelId, int radius,
             int r1, int r2) /*-{
@@ -90,20 +133,4 @@ public class ProgressWheel {
 
     // </JSNI methods>
     // //////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Starts the wheel animation.
-     */
-    public void startAnimation() {
-        divPanel.setVisible(true);
-        timer.scheduleRepeating(100);
-    }
-
-    /**
-     * Stops the wheel animation.
-     */
-    public void stopAnimation() {
-        timer.cancel();
-        divPanel.setVisible(false);
-    }
 }
