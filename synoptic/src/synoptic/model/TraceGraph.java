@@ -45,10 +45,11 @@ public class TraceGraph implements IGraph<EventNode> {
      */
     private EventNode dummyTerminalNode = null;
 
-    /**
-     * The node which has transitions to all the initial nodes in the graph.
-     */
+    /** The node which has transitions to all the initial nodes in the graph. */
     private EventNode dummyInitialNode = null;
+
+    /** Whether or not the traces this graph represents are partially ordered */
+    private boolean partiallyOrderedTraces = false;
 
     private Set<String> cachedRelations = null;
 
@@ -66,6 +67,16 @@ public class TraceGraph implements IGraph<EventNode> {
      * Create an empty graph.
      */
     public TraceGraph() {
+    }
+
+    @Override
+    public void setPartiallyOrdered(boolean po) {
+        partiallyOrderedTraces = po;
+    }
+
+    @Override
+    public boolean isPartiallyOrdered() {
+        return partiallyOrderedTraces;
     }
 
     /**

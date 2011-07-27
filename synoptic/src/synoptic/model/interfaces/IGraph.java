@@ -50,6 +50,18 @@ public interface IGraph<NodeType extends INode<NodeType>> {
      */
     Set<NodeType> getAdjacentNodes(NodeType node);
 
+    /**
+     * Sets whether or not the traces making up this IGraph are partially
+     * ordered
+     */
+    void setPartiallyOrdered(boolean po);
+
+    /**
+     * Returns whether or not the traces making up this IGraph are partially
+     * ordered
+     */
+    boolean isPartiallyOrdered();
+
     // ///////////////////////////////////////////////////////////////////////
     // Methods to modify the graph:
     // ///////////////////////////////////////////////////////////////////////

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import synoptic.main.Main;
+import synoptic.model.EventNode;
 import synoptic.model.WeightedTransition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -213,18 +214,35 @@ public class GraphExporter {
                     }
                     int nodeSrc = nodeToInt.get(trans.getSource());
                     int nodeDst = nodeToInt.get(trans.getTarget());
+                    String s = "";
 
-                    if (outputEdgeLabels) {
-                        double prob = ((WeightedTransition<T>) trans)
-                                .getFraction();
-                        writer.write(Main.graphExportFormatter
-                                .edgeToStringWithProb(nodeSrc, nodeDst, prob,
-                                        trans.getRelation()));
+                    // FIXME: special casing to handle PO trace graphs
+                    // correctly (trace graphs are composed of EventNodes).
+
+                    if (graph.isPartiallyOrdered()) {
+                        // NOTE: The extra casts are necessary for this to work
+                        // in Java 1.6, see here:
+                        // http://bugs.sun.com/view_bug.do?bug_id=6932571
+                        assert (((INode<?>) (trans.getSource())) instanceof EventNode);
+                        s = Main.graphExportFormatter.edgeToStringWithTraceId(
+                                nodeSrc, nodeDst,
+                                ((EventNode) ((INode<?>) trans.getSource()))
+                                        .getTraceID(), trans.getRelation());
                     } else {
-                        writer.write(Main.graphExportFormatter
-                                .edgeToStringWithNoProb(nodeSrc, nodeDst,
-                                        trans.getRelation()));
+                        if (outputEdgeLabels) {
+                            double prob = ((WeightedTransition<T>) trans)
+                                    .getFraction();
+                            s = Main.graphExportFormatter
+                                    .edgeToStringWithProb(nodeSrc, nodeDst,
+                                            prob, trans.getRelation());
+                        } else {
+                            s = Main.graphExportFormatter
+                                    .edgeToStringWithNoProb(nodeSrc, nodeDst,
+                                            trans.getRelation());
+                        }
                     }
+                    writer.write(s);
+
                 }
             }
 
@@ -240,7 +258,6 @@ public class GraphExporter {
         }
         return;
     }
-
     // private static void exportSCCsWithInvariants(GraphVizExporter e,
     // PartitionGraph pg) throws Exception {
     // StronglyConnectedComponents<Partition> sccs = new

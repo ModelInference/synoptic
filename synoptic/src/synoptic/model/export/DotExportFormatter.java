@@ -33,30 +33,38 @@ public class DotExportFormatter extends GraphExportFormatter {
         return new String("  " + nodeId + " [" + attributes + "];\n");
     }
 
-    private String edgeToString(boolean withProb, int nodeSrc, int nodeDst,
-            double prob, String relation) {
+    private String edgeToString(int nodeSrc, int nodeDst, String attributes,
+            String relation) {
+        assert (attributes != null);
 
         String s = new String(nodeSrc + "->" + nodeDst + " [");
-        if (withProb) {
-            String freqStr = quote(String.format("%.2f", prob));
-            s += "label=\"" + freqStr + "\", weight=\"" + freqStr + "\",";
+        if (!attributes.equals("")) {
+            s += attributes + ",";
         }
-        String color = relationColors.get(relation);
-        if (!color.equals("")) {
-            s += ",color=blue";
-        }
+        s += "color=" + getRelationColor(relation);
         return s + "];" + "\n";
+    }
+
+    @Override
+    public String edgeToStringWithTraceId(int nodeSrc, int nodeDst,
+            int traceId, String relation) {
+        String attributes = "label=\"" + traceId + "t\"";
+        return edgeToString(nodeSrc, nodeDst, attributes, relation);
     }
 
     @Override
     public String edgeToStringWithProb(int nodeSrc, int nodeDst, double prob,
             String relation) {
-        return edgeToString(true, nodeSrc, nodeDst, prob, relation);
+        String freqStr = quote(String.format("%.2f", prob));
+        String attributes = "label=\"" + freqStr + "\", weight=\"" + freqStr
+                + "\"";
+        return edgeToString(nodeSrc, nodeDst, relation, attributes);
     }
 
     @Override
     public String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
             String relation) {
-        return edgeToString(false, nodeSrc, nodeDst, 0.0, relation);
+        return edgeToString(nodeSrc, nodeDst, "", relation);
     }
+
 }
