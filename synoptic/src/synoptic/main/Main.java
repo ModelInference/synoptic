@@ -1087,9 +1087,6 @@ public class Main implements Callable<Integer> {
         // At this point, we have the final model in the pGraph object.
 
         // TODO: extract paths from graph that aren't in the input log.
-        logger.info("MAKIN MOAR PATHS THAT BE SYNTHETIC, YO");
-        logger.info(findSyntheticTraces(pGraph));
-
 
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result
