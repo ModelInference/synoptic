@@ -172,21 +172,17 @@ public class SynopticService extends RemoteServiceServlet implements
             TemporalInvariantSet invs) {
         GWTInvariantSet GWTinvs = new GWTInvariantSet();
         for (ITemporalInvariant inv : invs) {
+            assert (inv instanceof BinaryInvariant);
+            BinaryInvariant bInv = ((BinaryInvariant) inv);
             String invKey = inv.getShortName();
-            GWTInvariant<String, String> invVal;
-            if (inv instanceof BinaryInvariant) {
-                invVal = new GWTInvariant<String, String>(
-                        ((BinaryInvariant) inv).getFirst().toString(),
-                        ((BinaryInvariant) inv).getSecond().toString(),
-                        ((BinaryInvariant) inv).getShortName());
+            GWTInvariant invVal = new GWTInvariant(bInv.getFirst().toString(),
+                    bInv.getSecond().toString(), bInv.getShortName());
 
-                // Set a unique identification id.
-                invVal.setID(inv.hashCode());
+            // Set a unique identification id.
+            invVal.setID(inv.hashCode());
 
-                GWTinvs.addInv(invKey, invVal);
-            } else {
-                // TODO: throw an exception
-            }
+            GWTinvs.addInv(invKey, invVal);
+
         }
         return GWTinvs;
     }
