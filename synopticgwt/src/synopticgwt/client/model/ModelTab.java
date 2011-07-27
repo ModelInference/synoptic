@@ -23,9 +23,9 @@ import synopticgwt.client.Tab;
 import synopticgwt.client.util.JsniUtil;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.client.util.TooltipListener;
+import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
-import synopticgwt.shared.GWTTriplet;
 import synopticgwt.shared.LogLine;
 
 /**
@@ -155,13 +155,12 @@ public class ModelTab extends Tab<DockPanel> {
 
         // Create the list of edges, where two consecutive node Ids is an edge.
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
-        List<GWTTriplet<Integer, Integer, Double>> edges = graph.getEdges();
-        for (GWTTriplet<Integer, Integer, Double> edge : edges) {
-            JsniUtil.pushArray(jsEdges, edge.getLeft().toString());
-            JsniUtil.pushArray(jsEdges, edge.getMiddle().toString());
+        for (GWTEdge edge : graph.getEdges()) {
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()).toString());
 
             // This contains the edge's weight.
-            JsniUtil.pushArray(jsEdges, edge.getRight().toString());
+            JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
         }
 
         // Determine the size of the graphic -- make it depend on the current
@@ -194,12 +193,11 @@ public class ModelTab extends Tab<DockPanel> {
         }
 
         // Create the list of edges, where two consecutive node Ids is an edge.
-        // JavaScriptObject newEdges = JavaScriptObject.createArray();
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
-        List<GWTTriplet<Integer, Integer, Double>> edges = graph.getEdges();
-        for (GWTTriplet<Integer, Integer, Double> edge : edges) {
-            JsniUtil.pushArray(jsEdges, edge.getLeft().toString());
-            JsniUtil.pushArray(jsEdges, edge.getMiddle().toString());
+        List<GWTEdge> edges = graph.getEdges();
+        for (GWTEdge edge : edges) {
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()).toString());
         }
 
         // Determine the size of the graphic -- make it depend on the current
