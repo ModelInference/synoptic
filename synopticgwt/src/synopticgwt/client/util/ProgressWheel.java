@@ -1,12 +1,10 @@
-package synopticgwt.client;
+package synopticgwt.client.util;
 
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * Animates a spinning wheel to indicate progress, or some kind of activity.
- * 
- * @author ivan
  */
 public class ProgressWheel {
     // Timer controling the pace of the animation.
