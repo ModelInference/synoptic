@@ -9,11 +9,13 @@ import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -37,7 +39,9 @@ import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
+import synoptic.model.Event;
 import synoptic.model.EventNode;
+import synoptic.model.Partition;
 import synoptic.model.TraceGraph;
 import synoptic.model.PartitionGraph;
 import synoptic.model.export.DotExportFormatter;
@@ -412,7 +416,7 @@ public class Main implements Callable<Integer> {
     /**
      * The synoptic.main method to perform the inference algorithm. See user
      * documentation for an explanation of the options.
-     * 
+     *
      * @param args
      *            - command-line options
      */
@@ -519,7 +523,7 @@ public class Main implements Callable<Integer> {
 
     /**
      * Returns a command line option description for an option name
-     * 
+     *
      * @param optName
      *            The option variable name
      * @return a string description of the option
@@ -548,7 +552,7 @@ public class Main implements Callable<Integer> {
 
     /**
      * Runs all the synoptic unit tests
-     * 
+     *
      * @throws URISyntaxException
      *             if Main.class can't be located
      */
@@ -621,7 +625,7 @@ public class Main implements Callable<Integer> {
     /**
      * Takes a list of paths that point to JUnit test classes and executes them
      * using JUnitCore runner.
-     * 
+     *
      * @param testClasses
      */
     public static void runTests(List<String> testClasses) {
@@ -680,7 +684,7 @@ public class Main implements Callable<Integer> {
      * Given a potentially wild-carded file path, finds all those which match.
      * TODO: make sure that the same file doesn't appear twice in the returned
      * list
-     * 
+     *
      * @param fileArg
      *            The file path which may potentially contain wildcards.
      * @return An array of File handles which match.
@@ -713,7 +717,7 @@ public class Main implements Callable<Integer> {
      * stage name and round number. Adheres to the convention specified above in
      * usage, namely that the filename is of the format:
      * outputPathPrefix.stage-S.round-R.dot
-     * 
+     *
      * @param stageName
      *            Stage name string, e.g. "r" for refinement
      * @param roundNum
@@ -728,7 +732,7 @@ public class Main implements Callable<Integer> {
     /**
      * Serializes g using a dot/gml format and optionally outputs a png file
      * corresponding to the serialized format (dot format export only).
-     * 
+     *
      * @throws IOException
      */
     private static <T extends INode<T>> void exportGraph(String baseFilename,
@@ -788,6 +792,80 @@ public class Main implements Callable<Integer> {
         exportGraph(baseFilename, g, Main.outputEdgeLabels, !exportAsGML);
     }
 
+    /**
+     * Extracts any synthetic traces from the initial log. A synthetic trace is
+     * identified as any path in the partition graph that does not match an initial
+     * trace from the log.
+     */
+    public static String findSyntheticTraces(
+    		PartitionGraph pGraph) {
+
+    	// This will contain all paths.
+    	HashSet<String> paths =
+    		new HashSet<String>();
+
+    	for (Partition part : pGraph.getInitialNodes()) {
+    			findAllPaths(part, pGraph, paths, new ArrayList<Partition>());
+    	}
+
+    	return paths.toString();
+    }
+
+    /**
+     * Helper method for {@code findSyntheticTraces}. Recursively finds all possible
+     * paths from the partition graph and adds them to a set.
+     *
+     * TODO: This will calculate any subset of nodes multiple times if
+     * the topmost node of said subset has multiple parent nodes.  A cache
+     * should be used for these nodes to make this process more optimal.
+     * @param node
+     * 	The current node
+     * @param pGraph
+     * 	The graph  of partitions (for extracting adjacences from the node).
+     * @param allPaths
+     * 	The pointer to the set of all paths.
+     * @param prefixPath
+     * 	The path of all preceding nodes.
+     * @see findSyntheticTraces
+     */
+    private static void findAllPaths(Partition node,
+    		PartitionGraph pGraph,
+    		HashSet<String> allPaths,
+    		ArrayList<Partition> prefixPath) {
+
+    	Set<Partition> adjPartitions = pGraph.getAdjacentNodes(node);
+
+    	// Check to see if the path has had a single cycle.
+    	boolean isCycled = prefixPath.contains(node) ? true : false;
+
+    	// Add the node to the prefix.
+    	prefixPath.add(node);
+
+    	// If the node is terminal, then we have a path and it can
+    	// be added to the set.
+    	if (node.isTerminal()) {
+    		String path = "";
+    		for (Partition p : prefixPath) {
+    			// Convert the paths into a string (currently split by pipes).
+    			path += p.getEType().toString() + (p.isTerminal() ? "" : "|");
+    		}
+    		allPaths.add(path);
+    		return;
+    	}
+
+    	// Process all adjacent nodes.
+    	for (Partition adjPart : adjPartitions) {
+    		// Negation of:
+    		// "If there has been a cycle and the next
+    		// node is one that has been encountered."
+    		if (!isCycled || !prefixPath.contains(node))
+    			findAllPaths(adjPart, pGraph, allPaths, prefixPath);
+
+    		// Remove anything on the end after returning from the call stack.
+    		prefixPath.remove(prefixPath.size() - 1);
+    	}
+    }
+
     /***********************************************************/
 
     public Main() {
@@ -796,7 +874,7 @@ public class Main implements Callable<Integer> {
 
     /**
      * Prints the values of all the options for this instance of Main class
-     * 
+     *
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      */
@@ -1007,6 +1085,11 @@ public class Main implements Callable<Integer> {
                 + "ms");
 
         // At this point, we have the final model in the pGraph object.
+
+        // TODO: extract paths from graph that aren't in the input log.
+        logger.info("MAKIN MOAR PATHS THAT BE SYNTHETIC, YO");
+        logger.info(findSyntheticTraces(pGraph));
+
 
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result
