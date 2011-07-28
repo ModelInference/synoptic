@@ -2,6 +2,10 @@ package synopticgwt.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 
@@ -46,6 +50,8 @@ public class SynopticGWT implements EntryPoint {
     /** Encapsulates logic having to do with the model (e.g., vis, refinement..) */
     private ModelTab modelTab = null;
 
+    boolean invSetChanged = false;
+
     /**
      * Entry point to the entire application.
      */
@@ -72,19 +78,67 @@ public class SynopticGWT implements EntryPoint {
         tabPanel.add(inputTab.getPanel(), "Inputs");
         tabPanel.setWidth("100%");
         tabPanel.selectTab(0);
+
+        tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                int tabId = event.getSelectedItem();
+                if (tabId != 2) {
+                    return;
+                }
+                modelTabSelected();
+            }
+        });
     }
 
-    public void afterRemovingInvariants(GWTInvariantSet gwtInvs,
-            GWTGraph gwtGraph) {
-        tabPanel.selectTab(2);
-        modelTab.showGraph(gwtGraph);
-        invTab.showInvariants(gwtInvs);
+    /**
+     * Used by the invariants tab to signal that the user has modified the
+     * invariant set, by e.g., activating/deactivating some of the invariants.
+     */
+    public void invSetChanged() {
+        invSetChanged = true;
+    }
 
-        // An error occurs when the tabPanel stays
-        // in something other than the model tab when the graph is drawn,
-        // so the tab is switched to the graph for drawing, and then back to
-        // the invariants tab for now.
-        tabPanel.selectTab(1);
+    /**
+     * Callback method for committing user-specified invariants. Redraws the
+     * content in the model and invariants tab.
+     */
+    class CommitInvsAsyncCallback implements AsyncCallback<GWTGraph> {
+        @Override
+        public void onFailure(Throwable caught) {
+            Label error = new Label(
+                    "Remote Procedure Call Failure while updating invariants");
+            error.setStyleName("ErrorMessage");
+            RootPanel.get("rpcErrorDiv").add(error);
+        }
+
+        @Override
+        public void onSuccess(GWTGraph gwtGraph) {
+            tabPanel.selectTab(2);
+            modelTab.showGraph(gwtGraph);
+            invSetChanged = false;
+        }
+    }
+
+    /**
+     * Fired by SynopticTabPanel when the model tab is selected.
+     */
+    private void modelTabSelected() {
+        if (!invSetChanged) {
+            return;
+        }
+        // If the invariant set has changed, then we (1) ask the server to re-do
+        // refinement/coarsening with the new constraints
+        // model, and (2) re-draw everything in the model tab.
+
+        // ////////////////////// Call to remote service.
+        try {
+            synopticService.commitInvariants(new CommitInvsAsyncCallback());
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        // //////////////////////
     }
 
     /**

@@ -235,9 +235,11 @@ public class ModelTab extends Tab<DockPanel> {
 
         @Override
         public void onFailure(Throwable caught) {
+            // TODO: differentiate between clicks on initial/terminal nodes and
+            // other nodes.
+
             // This is expected whenever the user double clicks on an initial or
-            // terminal
-            // node, so we'll ignore it
+            // terminal node, so we'll ignore it
             clearLogTable();
         }
 
@@ -284,22 +286,23 @@ public class ModelTab extends Tab<DockPanel> {
         @Override
         public void onFailure(Throwable caught) {
             pWheel.stopAnimation();
-            displayRPCErrorMessage("Remote Procedure Call Failure while refining");
+            displayRPCErrorMessage("Remote Procedure Call Failure while refining: "
+                    + caught.toString());
             modelRefineButton.setEnabled(true);
         }
 
         @Override
         public void onSuccess(GWTGraphDelta graph) {
             pWheel.stopAnimation();
-            if (graph == null) {
+            showChangingGraph(graph.getGraph(), graph.getRefinedNode());
+
+            if (graph == null || graph.getUnsatInvs().invs.size() == 0) {
                 modelCoarsenButton.setEnabled(true);
                 return;
             }
             modelRefineButton.setEnabled(true);
             // Do we want to surprise the user and switch their view for them?
             // tabPanel.selectTab(2);
-            showChangingGraph(graph.getGraph(), graph.getRefinedNode());
-
         }
     }
 
@@ -340,6 +343,10 @@ public class ModelTab extends Tab<DockPanel> {
             // Do we want to surprise the user and switch their view for them?
             // tabPanel.selectTab(2);
             showGraph(graph);
+
+            modelRefineButton.setEnabled(false);
+            modelCoarsenButton.setEnabled(false);
+            modelGetFinalButton.setEnabled(false);
         }
     }
 
@@ -381,6 +388,9 @@ public class ModelTab extends Tab<DockPanel> {
             // Do we want to surprise the user and switch their view for them?
             // tabPanel.selectTab(2);
             showGraph(graph);
+            modelRefineButton.setEnabled(false);
+            modelCoarsenButton.setEnabled(false);
+            modelGetFinalButton.setEnabled(false);
         }
     }
 

@@ -1,7 +1,6 @@
 package synopticgwt.client;
 
 import java.util.List;
-import java.util.Set;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -37,9 +36,13 @@ public interface ISynopticServiceAsync {
     void handleLogRequest(int nodeID, AsyncCallback<List<LogLine>> callback)
             throws Exception;
 
-    void removeInvs(Set<Integer> hashes,
-            AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> callback)
+    void deactivateInvariant(Integer invHash, AsyncCallback<Integer> callback)
             throws Exception;
+
+    void activateInvariant(Integer invHash, AsyncCallback<Integer> callback)
+            throws Exception;
+
+    void commitInvariants(AsyncCallback<GWTGraph> callback) throws Exception;
 
     void exportDot(AsyncCallback<String> callback) throws Exception;
 

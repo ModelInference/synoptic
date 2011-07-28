@@ -38,5 +38,4 @@ public class GWTGraph implements Serializable {
     public List<GWTEdge> getEdges() {
         return edges;
     }
-
 }

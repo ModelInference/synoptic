@@ -1,13 +1,10 @@
 package synopticgwt.client.invariants;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
@@ -19,10 +16,8 @@ import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.SynopticGWT;
 import synopticgwt.client.Tab;
 import synopticgwt.client.util.ProgressWheel;
-import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
-import synopticgwt.shared.GWTPair;
 
 /**
  * Represents the invariants tab. This tab visualizes the mined invariants, and
@@ -30,25 +25,11 @@ import synopticgwt.shared.GWTPair;
  * be satisfied by the model.
  */
 public class InvariantsTab extends Tab<VerticalPanel> {
-    private final HorizontalPanel buttonPanel = new HorizontalPanel();
-
-    // List of hash codes to be removed from the server's set of invariants.
-    // Each hash code represents a temporal invariant.
-    private final Set<Integer> invariantRemovalIDs = new HashSet<Integer>();
-    private final Button invRemoveButton = new Button("Remove Invariants");
 
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
         super(synopticService, pWheel);
         panel = new VerticalPanel();
-
-        // Set up invariants tab.
-        panel.add(buttonPanel);
-        buttonPanel.add(invRemoveButton);
-        buttonPanel.setStyleName("buttonPanel");
-        invRemoveButton.addClickHandler(new RemoveInvariantsHandler());
-        invRemoveButton.setWidth("188px");
-        invRemoveButton.setEnabled(false);
     }
 
     /**
@@ -102,33 +83,48 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     }
 
     /**
-     * Accesses the list of copies of server-side invariant hash codes and uses
-     * them to remove their corresponding server-side invariants.
+     * <pre>
+     * TODO: This class is very similar to the ActivateInvAsyncCallback class.
+     *       Refactor their common functionality to a base class.
+     * </pre>
+     * 
+     * Callback method for removing user-specified invariants. Redraws the
+     * content in the model and invariants tab.
      */
-    class RemoveInvariantsHandler implements ClickHandler {
+    class DeactivateInvAsyncCallback implements AsyncCallback<Integer> {
+        Grid grid;
+        int cIndex;
+
+        public DeactivateInvAsyncCallback(Grid grid, int cIndex) {
+            this.grid = grid;
+            this.cIndex = cIndex;
+        }
+
         @Override
-        public void onClick(ClickEvent event) {
-            // Keep the user from clicking the button multiple times.
-            invRemoveButton.setEnabled(false);
+        public void onFailure(Throwable caught) {
+            displayRPCErrorMessage("Remote Procedure Call Failure while removing invariants: "
+                    + caught.toString());
+        }
 
-            // ////////////////////// Call to remote service.
-            try {
-                synopticService.removeInvs(invariantRemovalIDs,
-                        new RemoveInvariantsAsyncCallback());
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            // //////////////////////
+        @Override
+        public void onSuccess(Integer invHash) {
+            InvariantGridLabel invLabel = ((InvariantGridLabel) grid.getWidget(
+                    cIndex, 0));
 
-            // Empty the set of invariants to remove.
-            // TODO: If the server fails to remove the invariants then we lose
-            // the set of invariants the user wants to remove. Ideally, we would
-            // keep this set until we know that the server has removed them --
-            // this however, requires that the server can deal with cales to
-            // removeInvs() with invariants that have already been removed
-            // (i.e., the call must be idempotent w.r.t an invariant).
-            invariantRemovalIDs.clear();
+            // The invHash the server echo's back must be correspond to the
+            // invariant in the client's grid.
+            assert (invLabel.getInvariant().getID() == invHash);
+
+            invLabel.setActivated(false);
+
+            // Signal that the invariant set has changed.
+            SynopticGWT.entryPoint.invSetChanged();
+
+            // TODO: update the invariant graph.
+
+            // Change the look of the cell to deactivated.
+            CellFormatter cFormatter = grid.getCellFormatter();
+            cFormatter.setStyleName(cIndex, 0, "tableCellSelected");
         }
     }
 
@@ -136,41 +132,54 @@ public class InvariantsTab extends Tab<VerticalPanel> {
      * Callback method for removing user-specified invariants. Redraws the
      * content in the model and invariants tab.
      */
-    class RemoveInvariantsAsyncCallback implements
-            AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
-        /**
-         * Handles any general problems that may arise.
-         */
+    class ActivateInvAsyncCallback implements AsyncCallback<Integer> {
+        Grid grid;
+        int cIndex;
+
+        public ActivateInvAsyncCallback(Grid grid, int cIndex) {
+            this.grid = grid;
+            this.cIndex = cIndex;
+        }
+
         @Override
         public void onFailure(Throwable caught) {
             displayRPCErrorMessage("Remote Procedure Call Failure while removing invariants");
         }
 
-        /**
-         * Redraws the model and invariants tabs.
-         */
         @Override
-        public void onSuccess(GWTPair<GWTInvariantSet, GWTGraph> ret) {
-            // Communicate with the model tab and this invariants tab via
-            // SynopticGWT.
-            SynopticGWT.entryPoint.afterRemovingInvariants(ret.getLeft(),
-                    ret.getRight());
-        }
+        public void onSuccess(Integer invHash) {
+            InvariantGridLabel invLabel = ((InvariantGridLabel) grid.getWidget(
+                    cIndex, 0));
 
+            // The invHash the server echo's back must be correspond to the
+            // invariant in the client's grid.
+            assert (invLabel.getInvariant().getID() == invHash);
+
+            invLabel.setActivated(true);
+
+            // Signal that the invariant set has changed.
+            SynopticGWT.entryPoint.invSetChanged();
+
+            // TODO: update the invariant graph.
+
+            // Change the look of the cell to deactivated.
+            CellFormatter cFormatter = grid.getCellFormatter();
+            cFormatter.setStyleName(cIndex, 0, "tableButtonCell");
+        }
     }
 
     /**
-     * This is a handler for clicks on the grid showing mined invariants. On
-     * click, the grid's cell data will be looked up in the client-side set of
-     * invariants. This client-side invariant then contains the server-side
-     * hashcode for the corresponding server-side invariant. This hash code is
-     * then queued up so that each server-side hash code specifies a server-side
-     * invariant for removal. When a cell is "active," this means that it's
-     * corresponding invariant is queued up to be removed at the click of the
-     * removal button. When one or more cells are active, then the removal
-     * button will also be activated. When a cell is deactivated, the
-     * corresponding invariant is removed from the queue. If all cells are not
-     * active, the removal button will also be deactivated.
+     * Handler for clicks on the grid showing mined invariants. On click, the
+     * grid's cell data will be looked up in the client-side set of invariants.
+     * This client-side invariant then contains the server-side hashcode for the
+     * corresponding server-side invariant. This hash code is then queued up so
+     * that each server-side hash code specifies a server-side invariant for
+     * removal. When a cell is "active," this means that it's corresponding
+     * invariant is queued up to be removed at the click of the removal button.
+     * When one or more cells are active, then the removal button will also be
+     * activated. When a cell is deactivated, the corresponding invariant is
+     * removed from the queue. If all cells are not active, the removal button
+     * will also be deactivated.
      * 
      * @param invs
      *            The set of client-side invariants
@@ -193,45 +202,44 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             Cell cell = ((Grid) event.getSource()).getCellForEvent(event);
 
             // Cell's row index.
-            int rIndex = cell.getRowIndex();
+            int cIndex = cell.getRowIndex();
 
             // Ignore the title cells.
-            if (rIndex == 0) {
+            if (cIndex == 0) {
                 return;
             }
 
             // Invariant label corresponding to the cell.
             InvariantGridLabel invLabel = ((InvariantGridLabel) grid.getWidget(
-                    rIndex, 0));
+                    cIndex, 0));
 
             int invID = invLabel.getInvariant().getID();
 
-            // Check whether the cell is active (style of
-            // "tableButtonCell")
-            // or not (style of "tableCellSelected").
-            CellFormatter formatter = grid.getCellFormatter();
-            if (formatter.getStyleName(rIndex, 0).equals("tableButtonCell")) {
-
-                // Activate the cell and queue up the hash code.
-                formatter.setStyleName(rIndex, 0, "tableCellSelected");
-                invariantRemovalIDs.add(invID);
-
-                // Activate the removal button
-                invRemoveButton.setEnabled(true);
-            } else {
-
-                // Deactivate the cell and remove the hash code from the
-                // queue.
-                formatter.setStyleName(rIndex, 0, "tableButtonCell");
-                invariantRemovalIDs.remove(invID);
-
-                // Deactivate the removal button if there are no
-                // invariants
-                // queued up.
-                if (invariantRemovalIDs.isEmpty()) {
-                    invRemoveButton.setEnabled(false);
+            // Corresponding invariant is activated.
+            if (invLabel.getActivated()) {
+                // ////////////////////// Call to remote service.
+                try {
+                    synopticService.deactivateInvariant(invID,
+                            new DeactivateInvAsyncCallback(grid, cIndex));
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
+                // //////////////////////
+                return;
             }
+
+            // Corresponding invariant is deactivated.
+            // ////////////////////// Call to remote service.
+            try {
+                synopticService.activateInvariant(invID,
+                        new ActivateInvAsyncCallback(grid, cIndex));
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            // //////////////////////
+
         }
     }
 
