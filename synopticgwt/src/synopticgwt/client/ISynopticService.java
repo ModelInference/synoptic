@@ -1,7 +1,6 @@
 package synopticgwt.client;
 
 import java.util.List;
-import java.util.Set;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -73,18 +72,33 @@ public interface ISynopticService extends RemoteService {
     List<LogLine> handleLogRequest(int nodeID) throws Exception;
 
     /**
-     * Removes invariants from the server's collection. Invariants are specified
-     * for removal based on whether their hash code matches any of the hashes
-     * passed to the method. The method requires that the input graph and
-     * invariant set fields have been initialized, and alters the
+     * Deactivates an invariants.
      * 
-     * @param hashes
-     *            The hash codes for the invariants to be removed.
+     * @param invHash
+     *            The hash code for the invariant to deactivate.
+     * @return
      * @return
      * @throws Exception
      */
-    GWTPair<GWTInvariantSet, GWTGraph> removeInvs(Set<Integer> hashes)
-            throws Exception;
+    Integer deactivateInvariant(Integer invHash) throws Exception;
+
+    /**
+     * Activates an invariants.
+     * 
+     * @param invHash
+     *            The hash codes for the invariants to be removed.
+     * @throws Exception
+     */
+    Integer activateInvariant(Integer invHash) throws Exception;
+
+    /**
+     * Commits the activated invariants, and re-creates the partition graph
+     * based on this invariants set. Basically, this is a restart of refinement.
+     * 
+     * @return
+     * @throws Exception
+     */
+    GWTGraph commitInvariants() throws Exception;
 
     /**
      * Exports the current model as a .dot file. Returns the filename/directory.

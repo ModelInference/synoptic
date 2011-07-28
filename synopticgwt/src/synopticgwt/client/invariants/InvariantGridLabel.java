@@ -10,13 +10,23 @@ import synopticgwt.shared.GWTInvariant;
  */
 public class InvariantGridLabel extends Label {
     private GWTInvariant inv;
+    private boolean activated;
 
     public InvariantGridLabel(GWTInvariant inv) {
         super(inv.getSource() + ", " + inv.getTarget());
         this.inv = inv;
+        this.activated = true;
     }
 
     public GWTInvariant getInvariant() {
         return this.inv;
+    }
+
+    public boolean getActivated() {
+        return activated;
+    }
+
+    public void setActivated(boolean newVal) {
+        activated = newVal;
     }
 }

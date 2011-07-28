@@ -55,12 +55,53 @@ public class SynopticService extends RemoteServiceServlet implements
     // Variables corresponding to session state.
     private PartitionGraph pGraph;
     private Integer numSplitSteps;
-    private Set<ITemporalInvariant> unsatisfiedInvariants;
+    private Set<ITemporalInvariant> unsatInvs;
     private TemporalInvariantSet minedInvs;
-    private TraceGraph iGraph;
+    private Set<ITemporalInvariant> activeInvs;
+    private List<RelationPath<Partition>> counterExampleTraces;
+    private TraceGraph traceGraph;
 
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods.
+
+    /**
+     * Initializes the server state.
+     */
+    private void initializeRefinementState(TemporalInvariantSet invs) {
+        pGraph = new PartitionGraph(traceGraph, true, invs);
+        numSplitSteps = 0;
+
+        unsatInvs = new LinkedHashSet<ITemporalInvariant>();
+        unsatInvs.addAll(pGraph.getInvariants().getSet());
+
+        counterExampleTraces = new TemporalInvariantSet(unsatInvs)
+                .getAllCounterExamples(pGraph);
+
+        unsatInvs.clear();
+        for (RelationPath<Partition> relPath : counterExampleTraces) {
+            unsatInvs.add(relPath.invariant);
+        }
+
+        activeInvs = new LinkedHashSet<ITemporalInvariant>();
+        activeInvs.addAll(pGraph.getInvariants().getSet());
+    }
+
+    /**
+     * Save server state into the session object.
+     */
+    private void storeSessionState() {
+        // Retrieve HTTP session and store all the state in the session.
+        HttpServletRequest request = getThreadLocalRequest();
+        HttpSession session = request.getSession();
+
+        session.setAttribute("partitionGraph", pGraph);
+        session.setAttribute("numSplitSteps", 0);
+        session.setAttribute("unsatInvs", unsatInvs);
+        session.setAttribute("minedInvs", minedInvs);
+        session.setAttribute("activeInvs", activeInvs);
+        session.setAttribute("traceGraph", traceGraph);
+        session.setAttribute("counterExampleTraces", counterExampleTraces);
+    }
 
     /**
      * Retrieves session state and sets/reconstructs the local variables.
@@ -70,34 +111,58 @@ public class SynopticService extends RemoteServiceServlet implements
         // Retrieve HTTP session to access storage.
         HttpServletRequest request = getThreadLocalRequest();
         HttpSession session = request.getSession();
+
         // Retrieve stuff from storage, and if we can't find something then we
         // throw an error since we can't continue with refinement.
-        if (session.getAttribute("model") == null) {
+
+        if (session.getAttribute("partitionGraph") == null) {
             // TODO: throw appropriate exception
             throw new Exception();
         }
-        pGraph = (PartitionGraph) session.getAttribute("model");
+        pGraph = (PartitionGraph) session.getAttribute("partitionGraph");
+
         if (session.getAttribute("numSplitSteps") == null) {
             // TODO: throw appropriate exception
             throw new Exception();
         }
         numSplitSteps = (Integer) session.getAttribute("numSplitSteps");
+
         if (session.getAttribute("unsatInvs") == null) {
             // TODO: throw appropriate exception
             throw new Exception();
         }
-        unsatisfiedInvariants = (Set<ITemporalInvariant>) session
-                .getAttribute("unsatInvs");
-        if (session.getAttribute("invariants") == null) {
+        unsatInvs = (Set<ITemporalInvariant>) session.getAttribute("unsatInvs");
+
+        if (session.getAttribute("minedInvs") == null) {
             // TODO: throw appropriate exception
             throw new Exception();
         }
-        minedInvs = (TemporalInvariantSet) session.getAttribute("invariants");
-        if (session.getAttribute("inputGraph") == null) {
+        minedInvs = (TemporalInvariantSet) session.getAttribute("minedInvs");
+
+        if (session.getAttribute("activeInvs") == null) {
             // TODO: throw appropriate exception
             throw new Exception();
         }
-        iGraph = (TraceGraph) session.getAttribute("inputGraph");
+        activeInvs = (Set<ITemporalInvariant>) session
+                .getAttribute("activeInvs");
+
+        if (session.getAttribute("traceGraph") == null) {
+            // TODO: throw appropriate exception
+            throw new Exception();
+        }
+        traceGraph = (TraceGraph) session.getAttribute("traceGraph");
+
+        // NOTE: counterExampleTraces is allowed to be null.
+
+        // TODO: create the ability to detect when counterExampleTraces state
+        // has not been initialized.
+
+        // if (session.getAttribute("counterExampleTraces") == null) {
+        // TODO: throw appropriate exception
+        // throw new Exception();
+        // }
+        counterExampleTraces = (List<RelationPath<Partition>>) session
+                .getAttribute("counterExampleTraces");
         return;
     }
 
@@ -169,7 +234,7 @@ public class SynopticService extends RemoteServiceServlet implements
      * @return Equivalent GWTInvariants
      */
     private GWTInvariantSet TemporalInvariantSetToGWTInvariants(
-            TemporalInvariantSet invs) {
+            Set<ITemporalInvariant> invs) {
         GWTInvariantSet GWTinvs = new GWTInvariantSet();
         for (ITemporalInvariant inv : invs) {
             assert (inv instanceof BinaryInvariant);
@@ -218,8 +283,7 @@ public class SynopticService extends RemoteServiceServlet implements
         // Parse the log lines.
         ArrayList<EventNode> parsedEvents = parser.parseTraceString(logLines,
                 new String("traceName"), -1);
-        TraceGraph inputGraph = parser
-                .generateDirectTemporalRelation(parsedEvents);
+        traceGraph = parser.generateDirectTemporalRelation(parsedEvents);
 
         // Mine invariants, and convert them to GWTInvariants.
         InvariantMiner miner;
@@ -228,132 +292,128 @@ public class SynopticService extends RemoteServiceServlet implements
         } else {
             miner = new TransitiveClosureInvMiner();
         }
-        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+        minedInvs = miner.computeInvariants(traceGraph);
 
-        return convertToGWT(minedInvs, inputGraph);
+        initializeRefinementState(minedInvs);
+        storeSessionState();
+
+        GWTGraph graph = PGraphToGWTGraph(pGraph);
+        GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(minedInvs
+                .getSet());
+        return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
     }
 
     /**
      * Removes invariants from the server's collection. Invariants are specified
      * for removal based on whether their hash code matches any of the hashes
      * passed to the method. The method requires that the input graph and
-     * invariant set fields have been initialized, and alters the
+     * invariant set fields have been initialized.
      * 
-     * @param hashes
+     * @param invHash
      *            The hash codes for the invariants to be removed.
      */
     @Override
-    public GWTPair<GWTInvariantSet, GWTGraph> removeInvs(Set<Integer> hashes)
-            throws Exception {
-
+    public Integer deactivateInvariant(Integer invHash) throws Exception {
         // Set up current state.
         retrieveSessionState();
 
-        LinkedHashSet<ITemporalInvariant> invariantsForRemoval = new LinkedHashSet<ITemporalInvariant>();
+        LinkedHashSet<ITemporalInvariant> invsToRemove = new LinkedHashSet<ITemporalInvariant>();
         // Get the actual set of invariants to be removed.
         for (ITemporalInvariant inv : minedInvs) {
-            if (hashes.contains(inv.hashCode())) {
-                invariantsForRemoval.add(inv);
+            if (invHash.equals(inv.hashCode())) {
+                invsToRemove.add(inv);
             }
-
         }
 
-        // Remove all invariants.
-        minedInvs.removeAll(invariantsForRemoval);
-
-        return convertToGWT(minedInvs, iGraph);
+        // Remove all the specified invariants.
+        activeInvs.removeAll(invsToRemove);
+        return invHash;
     }
 
     /**
-     * Helper method for parseLog and removInvs methods
+     * Adds invariants to the server's collection. Invariants are specified for
+     * removal based on whether their hash code matches any of the hashes passed
+     * to the method. The method requires that the input graph and invariant set
+     * fields have been initialized.
+     * 
+     * @param invHash
+     *            The hash codes for the invariants to be removed.
      */
+    @Override
+    public Integer activateInvariant(Integer invHash) throws Exception {
+        // Set up current state.
+        retrieveSessionState();
 
-    private GWTPair<GWTInvariantSet, GWTGraph> convertToGWT(
-            TemporalInvariantSet minedInvs, TraceGraph inputGraph) {
-        GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(minedInvs);
+        LinkedHashSet<ITemporalInvariant> invsToAdd = new LinkedHashSet<ITemporalInvariant>();
+        // Get the actual set of invariants to be removed.
+        for (ITemporalInvariant inv : minedInvs) {
+            if (invHash.equals(inv.hashCode())) {
+                invsToAdd.add(inv);
+            }
+        }
 
-        // Create a PartitionGraph and convert it into a GWTGraph.
-        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, minedInvs);
-        GWTGraph graph = PGraphToGWTGraph(pGraph);
+        // Remove all the specified invariants.
+        activeInvs.addAll(invsToAdd);
+        return invHash;
+    }
 
-        // Retrieve HTTP session for storage.
-        HttpServletRequest request = getThreadLocalRequest();
-        HttpSession session = request.getSession();
+    /**
+     * Restarts refinement by re-creating the partition graph with the active
+     * invariants that the user selected.
+     */
+    @Override
+    public GWTGraph commitInvariants() throws Exception {
+        // Set up current state.
+        retrieveSessionState();
 
-        // Save stuff into session.
+        initializeRefinementState(new TemporalInvariantSet(activeInvs));
+        storeSessionState();
 
-        // Compute and save unsatisfied invariants (they are just the mined
-        // invariants)
-        Set<ITemporalInvariant> unsatisfiedInvariants;
-        unsatisfiedInvariants = new LinkedHashSet<ITemporalInvariant>();
-        unsatisfiedInvariants.addAll(pGraph.getInvariants().getSet());
-        session.setAttribute("invariants", minedInvs);
-        session.setAttribute("inputGraph", inputGraph);
-        session.setAttribute("unsatInvs", unsatisfiedInvariants);
-        session.setAttribute("model", pGraph);
-        session.setAttribute("numSplitSteps", 0);
-
-        return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
+        return PGraphToGWTGraph(pGraph);
     }
 
     /**
      * Performs a single step of refinement on the cached model.
+     * 
+     * @throws Exception
      */
     @Override
-    public GWTGraphDelta refineOneStep() {
-        // Retrieve HTTP session to access storage.
-        HttpServletRequest request = getThreadLocalRequest();
-        HttpSession session = request.getSession();
-        // Retrieve stuff from storage, and if we can't find something then we
-        // throw an error since we can't continue with refinement.
-        if (session.getAttribute("model") == null) {
-            // TODO: throw appropriate exception
+    public GWTGraphDelta refineOneStep() throws Exception {
+        // Set up state.
+        retrieveSessionState();
+
+        if (counterExampleTraces == null) {
+            // We do not need to perform refinement.
             return null;
         }
-        PartitionGraph pGraph = (PartitionGraph) session.getAttribute("model");
+        assert (counterExampleTraces.size() > 0);
 
-        if (session.getAttribute("numSplitSteps") == null) {
-            // TODO: throw appropriate exception
-            return null;
-        }
-        Integer numSplitSteps = (Integer) session.getAttribute("numSplitSteps");
-        if (session.getAttribute("unsatInvs") == null) {
-            // TODO: throw appropriate exception
-            return null;
-        }
-        @SuppressWarnings("unchecked")
-        Set<ITemporalInvariant> unsatisfiedInvariants = (Set<ITemporalInvariant>) session
-                .getAttribute("unsatInvs");
+        // Perform a single refinement step.
+        numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
+                numSplitSteps, pGraph, counterExampleTraces);
 
-        if (unsatisfiedInvariants.size() != 0) {
-            // Retrieve the counter-examples for the unsatisfied invariants.
-            List<RelationPath<Partition>> counterExampleTraces = new TemporalInvariantSet(
-                    unsatisfiedInvariants).getAllCounterExamples(pGraph);
+        // Recompute the counter-examples for the unsatisfied invariants.
+        counterExampleTraces = new TemporalInvariantSet(unsatInvs)
+                .getAllCounterExamples(pGraph);
 
-            // TODO: raise an appropriate Exception when the assert condition is
-            // violated.
-            assert (counterExampleTraces != null && counterExampleTraces.size() > 0);
-
-            // Perform a single refinement step.
-            numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
-                    numSplitSteps, pGraph, counterExampleTraces);
-
-            // Recompute the unsatisfied invariants based on
-            // counterExampleTraces (set by reference above).
-            unsatisfiedInvariants.clear();
+        unsatInvs.clear();
+        if (counterExampleTraces != null) {
             for (RelationPath<Partition> relPath : counterExampleTraces) {
-                unsatisfiedInvariants.add(relPath.invariant);
+                unsatInvs.add(relPath.invariant);
             }
-
-            PartitionMultiSplit last = pGraph.getMostRecentSplit();
-
-            int refinedNode = last.getPartition().hashCode(); // until
-                                                              // determined
-            // Return the new model.
-            return new GWTGraphDelta(PGraphToGWTGraph(pGraph), refinedNode);
         }
-        // We did not need to perform refinement.
-        return null;
+        PartitionMultiSplit last = pGraph.getMostRecentSplit();
+
+        int refinedNode = last.getPartition().hashCode();
+
+        // Because we've created new objects on top of older objects we need to
+        // store the state explicitly.
+        storeSessionState();
+
+        // Return the new model.
+        return new GWTGraphDelta(PGraphToGWTGraph(pGraph), refinedNode,
+                TemporalInvariantSetToGWTInvariants(unsatInvs));
+
     }
 
     /**
@@ -364,9 +424,9 @@ public class SynopticService extends RemoteServiceServlet implements
         // Set up state.
         retrieveSessionState();
 
-        // TODO: raise an appropriate Exception when the assert condition is
-        // violated.
-        assert (unsatisfiedInvariants.size() == 0);
+        if (unsatInvs.size() != 0) {
+            return null;
+        }
 
         Bisimulation.mergePartitions(pGraph);
         return PGraphToGWTGraph(pGraph);
@@ -383,7 +443,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
         // Refine.
         Bisimulation.splitPartitions(pGraph);
-        unsatisfiedInvariants.clear();
+        unsatInvs.clear();
 
         // Coarsen.
         Bisimulation.mergePartitions(pGraph);
@@ -396,7 +456,6 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     @Override
     public List<LogLine> handleLogRequest(int nodeID) throws Exception {
-
         // Set up state.
         retrieveSessionState();
 
