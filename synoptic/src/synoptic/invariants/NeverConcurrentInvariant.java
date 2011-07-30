@@ -1,18 +1,25 @@
 package synoptic.invariants;
 
-import java.util.List;
-
 import synoptic.model.DistEventType;
-import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
 
-public class NeverConcurrentInvariant extends BinaryInvariant {
+/**
+ * Represents the "x is never concurrent with y" invariant for some two
+ * distributed event types x and y. What this means is that for all the inputs
+ * traces to Synoptic:
+ * 
+ * <pre>
+ * 1) There was at least one trace in which x and y co-appeared.
+ * 2) Whenever x and y co-appeared in a trace, every instance of x and every
+ *    instance of y were ordered. That is, for every instance of x and every
+ *    instance of y, either (x < y) or (y < x).
+ * </pre>
+ */
+public class NeverConcurrentInvariant extends ConcurrencyInvariant {
     public NeverConcurrentInvariant(DistEventType typeFirst,
             DistEventType typeSecond, String relation) {
         super(typeFirst, typeSecond, relation);
     }
-
-    // ///////////////////////////////////////////////////////////////////////
 
     @Override
     public String toString() {
@@ -23,71 +30,6 @@ public class NeverConcurrentInvariant extends BinaryInvariant {
         }
         return s + " NeverConcurrentWith(" + relation + ") " + f;
 
-    }
-
-    // TODO: eliminate the copying of hashCode() and equals() below with a copy
-    // in AlwaysConcurrentInvariant
-
-    // NOTE: this invariant is symmetric -- NCwith(x,y) == NCwith(y,x)
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = getClass().hashCode();
-
-        int f = (first == null ? 0 : first.hashCode());
-        int s = (second == null ? 0 : second.hashCode());
-
-        result = prime * result + (f + s);
-        result = prime * result + (relation == null ? 0 : relation.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-
-        BinaryInvariant other = (BinaryInvariant) obj;
-        if (first == null) {
-            if (other.first != null) {
-                return false;
-            }
-        }
-        if (second == null) {
-            if (other.second != null) {
-                return false;
-            }
-        }
-
-        // NCwith invariant is symmetric.
-        if (!getPredicates().equals(other.getPredicates())) {
-            return false;
-        }
-
-        if (relation == null) {
-            if (other.relation != null) {
-                return false;
-            }
-        } else if (!relation.equals(other.relation)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * TODO: cannot be easily shortened?
-     */
-    @Override
-    public <T extends INode<T>> List<T> shorten(List<T> trace) {
-        return trace;
     }
 
     @Override
