@@ -35,14 +35,15 @@ public class GmlExportFormatter extends GraphExportFormatter {
                 + nodeGraphics + "]\n");
     }
 
-    private String edgeToString(boolean withProb, int nodeSrc, int nodeDst,
-            double prob, String relation) {
+    private String edgeToString(int nodeSrc, int nodeDst, String attributes,
+            String relation) {
+        assert (attributes != null);
 
         String s = new String("edge\n[\n  ");
         s += "source " + nodeSrc + "\n  target " + nodeDst + "\n";
-        if (withProb) {
-            String freqStr = quote(String.format("%.2f", prob));
-            s += "  label \"" + freqStr + "\"\n";
+
+        if (!attributes.equals("")) {
+            s += attributes + ",";
         }
 
         // TODO: use edge color that corresponds to the relation via:
@@ -52,14 +53,24 @@ public class GmlExportFormatter extends GraphExportFormatter {
     }
 
     @Override
+    public String edgeToStringWithTraceId(int nodeSrc, int nodeDst,
+            int traceId, String relation) {
+        String attributes = "  label \"" + quote(String.format("%d", traceId))
+                + "\"\n";
+        return edgeToString(nodeSrc, nodeDst, attributes, relation);
+    }
+
+    @Override
     public String edgeToStringWithProb(int nodeSrc, int nodeDst, double prob,
             String relation) {
-        return edgeToString(true, nodeSrc, nodeDst, prob, relation);
+        String attributes = "  label \"" + quote(String.format("%.2f", prob))
+                + "\"\n";
+        return edgeToString(nodeSrc, nodeDst, attributes, relation);
     }
 
     @Override
     public String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
             String relation) {
-        return edgeToString(false, nodeSrc, nodeDst, 0.0, relation);
+        return edgeToString(nodeSrc, nodeDst, "", relation);
     }
 }

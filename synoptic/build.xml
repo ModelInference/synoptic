@@ -50,6 +50,7 @@
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
+	    <!-- <compilerarg value="-Xlint:unchecked" /> -->
             <src path="src"/>
             <classpath refid="Synoptic.classpath"/>
         </javac>

@@ -47,7 +47,7 @@ h1 {
 /* Shapes the cells of a grid to look like
    buttons */
 .tableButtonCell {
-  border-style: outset;
+  border-style: inset;
   border-width: 2px;
   border-color: #CFD9FF;
   padding: 5px;
@@ -57,11 +57,12 @@ h1 {
 /* Changes the background color of a table cell to red to
    indicate whether it has been selected. */
 .tableCellSelected {
-  border-style: inset;
+  border-style: outset;
   border-width: 2px;
   border-color: #CFD9FF;
   padding: 5px;
-  background: #A1B5FF;
+  background: #C8C8C8; /* light grey */
+  text-decoration: line-through;
 }
 
 .topTableCell {
