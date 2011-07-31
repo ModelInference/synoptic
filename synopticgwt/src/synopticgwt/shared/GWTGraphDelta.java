@@ -18,6 +18,7 @@ public class GWTGraphDelta implements Serializable {
     private GWTInvariantSet unsatInvs;
 
     public GWTGraphDelta() {
+        // Empty constructor to avoid SerializationException.
     }
 
     public GWTGraphDelta(GWTGraph g, int refinedNode, GWTInvariantSet unsatInvs) {

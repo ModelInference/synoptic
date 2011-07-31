@@ -53,26 +53,19 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
 
     @Override
     public String getLTLString() {
-        if (useDIDCAN) {
-            // Weak-until version:
-            // return "!(did(" + second + ")) W (did(" + first + "))";
+        // Weak-until version:
+        // return "!(did(" + second + ")) W (did(" + first + "))";
 
-            /**
-             * Note that we do not need a "<> TERMINAL ->" prefix in front of
-             * the AP LTL formula. This is because an infinite (unfair) loop can
-             * only be a part of the counter-example if it contains a 'second'
-             * without ever going through a 'first'. And if this is the case
-             * then its a valid counter-example, which will be shortened.
-             * Therefore we do not need to worry about creating a fairness
-             * constraint as with AFby.
-             */
-            return "((<>(did(" + second.toString() + ")))->((!did("
-                    + second.toString() + ")) U did(" + first.toString()
-                    + ")))";
-        } else {
-            return "(<>(" + second.toString() + "))->((!" + second.toString()
-                    + ") U " + first.toString() + ")";
-        }
+        /**
+         * Note that we do not need a "<> TERMINAL ->" prefix in front of the AP
+         * LTL formula. This is because an infinite (unfair) loop can only be a
+         * part of the counter-example if it contains a 'second' without ever
+         * going through a 'first'. And if this is the case then its a valid
+         * counter-example, which will be shortened. Therefore we do not need to
+         * worry about creating a fairness constraint as with AFby.
+         */
+        return "((<>(did(" + second.toString() + ")))->((!did("
+                + second.toString() + ")) U did(" + first.toString() + ")))";
     }
 
     /**

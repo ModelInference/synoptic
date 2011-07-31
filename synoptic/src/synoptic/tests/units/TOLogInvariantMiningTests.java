@@ -16,7 +16,7 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.invariants.RelationPath;
+import synoptic.invariants.CExamplePath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
@@ -377,7 +377,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
 
         // Test with FSM checker.
         Main.useFSMChecker = true;
-        List<RelationPath<EventNode>> cExamples = minedInvs
+        List<CExamplePath<EventNode>> cExamples = minedInvs
                 .getAllCounterExamples(inputGraph);
         if (cExamples != null) {
             logger.fine("log: " + log);

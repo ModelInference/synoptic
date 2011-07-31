@@ -39,8 +39,8 @@ public class NamedPattern {
         return pattern.flags();
     }
 
-    public NamedMatcher matcher(CharSequence input) {
-        return new NamedMatcher(this, input);
+    public NamedMatcher matcher(CharSequence seqInput) {
+        return new NamedMatcher(this, seqInput);
     }
 
     Pattern pattern() {

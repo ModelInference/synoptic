@@ -39,12 +39,12 @@ public class SynopticServiceTests extends SynopticGWTTestCase {
             AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
         @Override
         public void onFailure(Throwable caught) {
-
+            // TODO
         }
 
         @Override
         public void onSuccess(GWTPair<GWTInvariantSet, GWTGraph> result) {
-
+            // TODO
         }
     }
 

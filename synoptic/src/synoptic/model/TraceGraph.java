@@ -67,6 +67,7 @@ public class TraceGraph implements IGraph<EventNode> {
      * Create an empty graph.
      */
     public TraceGraph() {
+        // Empty constructor used by unit tests.
     }
 
     @Override

@@ -384,10 +384,10 @@ public class PartitionGraph implements IGraph<Partition> {
     public void mergeAdjacentsCache(Partition from, Partition to) {
         for (Iterator<Entry<Partition, Set<Partition>>> pIter = transitionCache
                 .entrySet().iterator(); pIter.hasNext();) {
-            Set<Partition> partitions = pIter.next().getValue();
-            if (partitions.contains(from)) {
-                partitions.remove(from);
-                partitions.add(to);
+            Set<Partition> parts = pIter.next().getValue();
+            if (parts.contains(from)) {
+                parts.remove(from);
+                parts.add(to);
             }
         }
     }
@@ -397,8 +397,7 @@ public class PartitionGraph implements IGraph<Partition> {
         // System.out.println("Cache size: " + transitionCache.size());
         for (Iterator<Entry<Partition, Set<Partition>>> pIter = transitionCache
                 .entrySet().iterator(); pIter.hasNext();) {
-            Set<Partition> partitions = pIter.next().getValue();
-            if (partitions.contains(node)) {
+            if (pIter.next().getValue().contains(node)) {
                 // System.out.println("cache rm");
                 pIter.remove();
             }

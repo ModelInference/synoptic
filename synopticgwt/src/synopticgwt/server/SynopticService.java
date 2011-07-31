@@ -169,14 +169,14 @@ public class SynopticService extends RemoteServiceServlet implements
     /**
      * Converts a partition graph into a GWTGraph
      * 
-     * @param pGraph
+     * @param partGraph
      *            partition graph
      * @return Equivalent GWTGraph
      */
-    private GWTGraph PGraphToGWTGraph(PartitionGraph pGraph) {
+    private GWTGraph PGraphToGWTGraph(PartitionGraph partGraph) {
         GWTGraph graph = new GWTGraph();
 
-        Set<Partition> nodes = pGraph.getNodes();
+        Set<Partition> nodes = partGraph.getNodes();
         HashMap<Partition, Integer> nodeIds = new HashMap<Partition, Integer>();
         int pNodeId, adjPNodeId = 0;
 

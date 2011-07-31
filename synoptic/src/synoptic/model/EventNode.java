@@ -271,8 +271,8 @@ public class EventNode implements INode<EventNode> {
     // return res;
     // }
 
-    public void addTransitions(Collection<Transition<EventNode>> transitions) {
-        for (Transition<EventNode> t : transitions) {
+    public void addTransitions(Collection<Transition<EventNode>> transCollection) {
+        for (Transition<EventNode> t : transCollection) {
             this.addTransition(t);
         }
     }

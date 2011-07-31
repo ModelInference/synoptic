@@ -13,12 +13,6 @@ import synoptic.model.interfaces.INode;
  */
 public interface ITemporalInvariant {
     /**
-     * Use Did/Can LTL instead of LTL. (Not using it is only partially
-     * implemented.)
-     */
-    static final boolean useDIDCAN = true;
-
-    /**
      * Get an LTL representation of the invariant.
      * 
      * @return an string representing the invariant in LTL

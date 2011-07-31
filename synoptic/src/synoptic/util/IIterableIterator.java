@@ -13,4 +13,5 @@ import java.util.Iterator;
  *            The Type being of the collection which is iterated over.
  */
 public interface IIterableIterator<T> extends Iterator<T>, Iterable<T> {
+    // This empty interface acts as shorthand for Iterator/Iterable only.
 }

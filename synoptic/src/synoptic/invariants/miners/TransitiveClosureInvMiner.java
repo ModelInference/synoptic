@@ -37,6 +37,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
     public boolean useWarshall = true;
 
     public TransitiveClosureInvMiner() {
+        // Empty constructor for testing.
     }
 
     public TransitiveClosureInvMiner(boolean useWarshall) {
@@ -389,10 +390,12 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
         }
 
         // Based on eventuallySet generate INITIAL AFby x invariants.
-        for (EventType eLabel : eventuallySet) {
-            invariants.add(new AlwaysFollowedInvariant(StringEventType
-                    .NewInitialStringEventType(), eLabel,
-                    TraceParser.defaultRelation));
+        if (eventuallySet != null) {
+            for (EventType eLabel : eventuallySet) {
+                invariants.add(new AlwaysFollowedInvariant(StringEventType
+                        .NewInitialStringEventType(), eLabel,
+                        TraceParser.defaultRelation));
+            }
         }
 
         return invariants;

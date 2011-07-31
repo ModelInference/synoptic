@@ -51,53 +51,43 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
 
     @Override
     public String getLTLString() {
-        if (useDIDCAN) {
-            /**
-             * Version 1:
-             * 
-             * <pre>
-             * [] ( did(first) -> <> did(second) )
-             * </pre>
-             * 
-             * Can loop infinitely in a loop that does not reach a terminal
-             * node. In a sense it is completely unfair -- it has no fairness
-             * constraints.
-             */
-            /**
-             * Version 2:
-             * 
-             * <pre>
-             * (<>(did(TERMINAL))) -> [] ( did(first) -> <> did(second) )
-             * </pre>
-             * 
-             * Only considers paths that can reach the TERMINAL node, and only
-             * then checks the AFby invariant along those paths. WARNING: this
-             * version does not work (at all) for non-terminating traces!
-             */
-            /**
-             * For more information see: http://mitpress.
-             * mit.edu/catalog/item/default.asp?ttype=2&tid=11481
-             */
-            // Using Version 2:
+        /**
+         * Version 1:
+         * 
+         * <pre>
+         * [] ( did(first) -> <> did(second) )
+         * </pre>
+         * 
+         * Can loop infinitely in a loop that does not reach a terminal node. In
+         * a sense it is completely unfair -- it has no fairness constraints.
+         */
+        /**
+         * Version 2:
+         * 
+         * <pre>
+         * (<>(did(TERMINAL))) -> [] ( did(first) -> <> did(second) )
+         * </pre>
+         * 
+         * Only considers paths that can reach the TERMINAL node, and only then
+         * checks the AFby invariant along those paths. WARNING: this version
+         * does not work (at all) for non-terminating traces!
+         */
+        /**
+         * For more information see: http://mitpress.
+         * mit.edu/catalog/item/default.asp?ttype=2&tid=11481
+         */
+        // Using Version 2:
 
-            // NOTE: because our formulas are strings, we cannot compare
-            // EventType objects directly, so we compare the String
-            // representations of EventTypes, instead.
-            return "(<> (did("
-                    + StringEventType.NewTerminalStringEventType().toString()
-                    + "))) -> ([](did(" + first.toString() + ") -> (<> (did("
-                    + second.toString() + ")))))";
+        // NOTE: because our formulas are strings, we cannot compare
+        // EventType objects directly, so we compare the String
+        // representations of EventTypes, instead.
+        return "(<> (did("
+                + StringEventType.NewTerminalStringEventType().toString()
+                + "))) -> ([](did(" + first.toString() + ") -> (<> (did("
+                + second.toString() + ")))))";
 
-            // return "[](did(" + first + ") -> <> did(" + second + ")))";
-            // return "<> did(" + second + ")";
-        } else {
-            // Version 1: return "[](" + first + " -> (<>" + second + "))";
-            // Using Version 2:
-            return "(<> ("
-                    + StringEventType.NewTerminalStringEventType().toString()
-                    + ")) -> [](" + first.toString() + " -> (<>"
-                    + second.toString() + "))";
-        }
+        // return "[](did(" + first + ") -> <> did(" + second + ")))";
+        // return "<> did(" + second + ")";
     }
 
     /**

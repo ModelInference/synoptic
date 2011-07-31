@@ -3,8 +3,8 @@ package synoptic.invariants.fsmcheck;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.RelationPath;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
@@ -49,7 +49,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
         /**
          * Converts this chain into a RelationPath list.
          */
-        public RelationPath<T> toCounterexample(ITemporalInvariant inv) {
+        public CExamplePath<T> toCounterexample(ITemporalInvariant inv) {
             ArrayList<T> path = new ArrayList<T>();
             HistoryNode cur = this;
             // TODO: why do we require isTerminal here?
@@ -71,7 +71,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
             }
             Collections.reverse(path);
 
-            RelationPath<T> rpath = new RelationPath<T>(inv, inv.shorten(path));
+            CExamplePath<T> rpath = new CExamplePath<T>(inv, inv.shorten(path));
             if (rpath.path == null) {
                 throw new InternalSynopticException(
                         "counter-example shortening returned null for " + inv
@@ -101,7 +101,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
         if (prior == null) {
             return null;
         }
-        return new HistoryNode(node, prior, prior == null ? 1 : prior.count + 1);
+        return new HistoryNode(node, prior, prior.count + 1);
     }
 
     /*

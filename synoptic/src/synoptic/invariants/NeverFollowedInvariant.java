@@ -48,20 +48,15 @@ public class NeverFollowedInvariant extends BinaryInvariant {
 
     @Override
     public String getLTLString() {
-        if (useDIDCAN) {
-            /**
-             * Note that we do not need a "<> TERMINAL ->" prefix in front of
-             * the NFby LTL formula. This is because counter examples of this
-             * formula cannot get stuck in an infinite (unfair) loop, unless the
-             * loop itself contains a 'second'. In which case, the infinite loop
-             * is a valid counter-examples which will be shortened.
-             */
-            return "[](did(" + first.toString() + ") -> X([] !(did("
-                    + second.toString() + "))))";
-        } else {
-            return "[](\"" + first.toString() + "\" -> X([] !(\""
-                    + second.toString() + "\")))";
-        }
+        /**
+         * Note that we do not need a "<> TERMINAL ->" prefix in front of the
+         * NFby LTL formula. This is because counter examples of this formula
+         * cannot get stuck in an infinite (unfair) loop, unless the loop itself
+         * contains a 'second'. In which case, the infinite loop is a valid
+         * counter-examples which will be shortened.
+         */
+        return "[](did(" + first.toString() + ") -> X([] !(did("
+                + second.toString() + "))))";
     }
 
     /**

@@ -19,7 +19,8 @@ public final class GraphTransformations {
                 if (deadlockNode == null) {
                     deadlockNode = createDeadlockNode(g);
                 }
-                new Edge(n, deadlockNode, "__deadlock");
+                @SuppressWarnings("unused")
+                Edge e = new Edge(n, deadlockNode, "__deadlock");
             }
         }
     }
@@ -28,7 +29,8 @@ public final class GraphTransformations {
         // Create deadlock node and self-loop
         Node dln = new Node(g);
         dln.setBooleanAttribute("deadlock", true);
-        new Edge(dln, dln, "__deadlock");
+        @SuppressWarnings("unused")
+        Edge e = new Edge(dln, dln, "__deadlock");
 
         // Include "deadlock" as a state predicate
         List<AtomicProposition> label = new ArrayList<AtomicProposition>(1);

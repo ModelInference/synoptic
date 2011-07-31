@@ -16,7 +16,7 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.invariants.RelationPath;
+import synoptic.invariants.CExamplePath;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
@@ -184,7 +184,7 @@ public class FsmModelChecker {
      * @return The shortest counterexample path for this invariant.
      */
     @SuppressWarnings("unchecked")
-    public static <T extends INode<T>> RelationPath<T> getCounterExample(
+    public static <T extends INode<T>> CExamplePath<T> getCounterExample(
             BinaryInvariant invariant, IGraph<T> graph) {
 
         TracingStateSet<T> stateset = null;
