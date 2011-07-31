@@ -25,19 +25,19 @@ public class PartitionCache {
 	// what am I missing here?
 	
 	public Partition get(Set<EventNode> eNodes) {
-	
+        return null;
 	}
 	
 	public Partition get(EventNode eNode) {
-
+        return null;
 	}
 	
 	public Partition get(Partition part) {
-		
+        return null;
 	}
 	
 	public boolean put(Partition part) {
-		
+		return false;
 	}
 
 }
