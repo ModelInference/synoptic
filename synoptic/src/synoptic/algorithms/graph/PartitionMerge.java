@@ -24,13 +24,11 @@ public class PartitionMerge implements IOperation {
      *            partition {@code retained}
      */
     public PartitionMerge(Partition retained, Partition removed) {
-        // TODO: check that retained label is the same as removed label?
+        assert retained.getEType().equals(removed.getEType()) : "merging partitions of different types";
+        assert (retained.size() != 0 && removed.size() != 0) : "merging two empty partitions";
+
         this.retained = retained;
         this.removed = removed;
-        if (retained.size() == 0 || removed.size() == 0) {
-            throw new InternalSynopticException("merging empty partitions: "
-                    + retained.size() + ", " + removed.size());
-        }
     }
 
     @Override

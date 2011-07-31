@@ -18,8 +18,8 @@ import gov.nasa.ltl.trans.ParseErrorException;
 
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
+import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.RelationPath;
 import synoptic.invariants.ltlcheck.Counterexample;
 import synoptic.invariants.ltlcheck.LtlModelChecker;
 import synoptic.main.Main;
@@ -256,8 +256,8 @@ public class GraphLTLChecker<T extends INode<T>> {
      *            the graph within which the violating path must be found
      * @return a path in g that violates inv or null if one doesn't exist
      */
-    public RelationPath<T> getCounterExample(ITemporalInvariant inv, IGraph<T> g) {
-        RelationPath<T> r = null;
+    public CExamplePath<T> getCounterExample(ITemporalInvariant inv, IGraph<T> g) {
+        CExamplePath<T> r = null;
         try {
             Counterexample ce = this.check(g, inv);
             if (ce == null) {
@@ -269,7 +269,7 @@ public class GraphLTLChecker<T extends INode<T>> {
             logger.finest("converted-counter-example: " + trace.toString());
 
             if (trace != null) {
-                r = new RelationPath<T>(inv, inv.shorten(trace));
+                r = new CExamplePath<T>(inv, inv.shorten(trace));
                 if (r.path == null) {
                     throw new InternalSynopticException(
                             "counter-example shortening returned null for "

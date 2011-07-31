@@ -25,8 +25,8 @@ import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
+import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.model.EventNode;
@@ -101,7 +101,7 @@ public abstract class Bisimulation {
         IOperation rewindOperation = pGraph.apply(splitOp);
 
         // See if splitting resolved the violation.
-        RelationPath<Partition> violation = TemporalInvariantSet
+        CExamplePath<Partition> violation = TemporalInvariantSet
                 .getCounterExample(inv, pGraph);
 
         // Undo the split (rewind) to get back the input graph.
@@ -129,7 +129,7 @@ public abstract class Bisimulation {
     }
 
     private static IOperation tryAndRecordCandidateSplits(
-            List<RelationPath<Partition>> counterexampleTraces,
+            List<CExamplePath<Partition>> counterexampleTraces,
             PartitionGraph pGraph,
             HashMap<Partition, PartitionMultiSplit> splitsToDoByPartition,
             Set<ITemporalInvariant> newlySatisfiedInvariants) {
@@ -138,7 +138,7 @@ public abstract class Bisimulation {
 
         // TODO: we are considering counter-example traces in an arbitrary order
         // there's probably room for a heuristic here.
-        for (RelationPath<Partition> counterexampleTrace : counterexampleTraces) {
+        for (CExamplePath<Partition> counterexampleTrace : counterexampleTraces) {
 
             logger.fine("Considering counterexample: "
                     + counterexampleTrace.toString());
@@ -233,7 +233,7 @@ public abstract class Bisimulation {
 
     public static int performOneSplitPartitionsStep(int numSplitSteps,
             PartitionGraph pGraph,
-            List<RelationPath<Partition>> counterExampleTraces) {
+            List<CExamplePath<Partition>> counterExampleTraces) {
 
         // Stores all splits that cause an invariant to be satisfied, indexed by
         // partition to which they are applied.
@@ -333,7 +333,7 @@ public abstract class Bisimulation {
         unsatisfiedInvariants.addAll(pGraph.getInvariants().getSet());
         Set<ITemporalInvariant> satisfiedInvariants = new LinkedHashSet<ITemporalInvariant>();
 
-        List<RelationPath<Partition>> counterExampleTraces = null;
+        List<CExamplePath<Partition>> counterExampleTraces = null;
 
         while (true) {
             // Recompute the counter-examples for the unsatisfied invariants.
@@ -358,7 +358,7 @@ public abstract class Bisimulation {
             // satisfied/unsatisfied invariants.
 
             unsatisfiedInvariants.clear();
-            for (RelationPath<Partition> relPath : counterExampleTraces) {
+            for (CExamplePath<Partition> relPath : counterExampleTraces) {
                 unsatisfiedInvariants.add(relPath.invariant);
             }
             satisfiedInvariants.clear();
@@ -423,7 +423,7 @@ public abstract class Bisimulation {
      * @return a list of partition splits that remove relPath
      */
     private static List<PartitionSplit> getSplits(
-            RelationPath<Partition> counterexampleTrace, PartitionGraph pGraph) {
+            CExamplePath<Partition> counterexampleTrace, PartitionGraph pGraph) {
         /**
          * Holds the return values.
          */
@@ -603,7 +603,7 @@ public abstract class Bisimulation {
                             .apply(new PartitionMerge(p, q));
                     numAttemptedMerges++;
 
-                    RelationPath<Partition> vio = null;
+                    CExamplePath<Partition> vio = null;
 
                     if (invariants != null) {
                         vio = invariants.getFirstCounterExample(pGraph);

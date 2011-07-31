@@ -18,7 +18,7 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.invariants.RelationPath;
+import synoptic.invariants.CExamplePath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.Main;
@@ -77,7 +77,7 @@ public class ModelCheckersTests extends SynopticTest {
         TemporalInvariantSet invs = new TemporalInvariantSet();
         invs.add(inv);
 
-        List<RelationPath<T>> cexamples = invs.getAllCounterExamples(g);
+        List<CExamplePath<T>> cexamples = invs.getAllCounterExamples(g);
 
         if (cexamples != null) {
             logger.info("model-checker counter-example:"

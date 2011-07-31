@@ -31,21 +31,21 @@ public class LtlModelChecker {
 
         TimedTask didCanTrans = PerformanceMetrics
                 .createTask("didCanTranslation");
-        if (ITemporalInvariant.useDIDCAN) {
-            if (translationCache.containsKey(transitionSystem)) {
-                logger.finest("Adding did/can attributes... (cached)");
-                didCanTransitionSystem = translationCache.get(transitionSystem);
-            } else {
-                logger.finest("Adding did/can attributes...");
-                didCanTransitionSystem = DidCanTranslator
-                        .translate(transitionSystem);
-                translationCache.put(transitionSystem, didCanTransitionSystem);
-            }
-            // TODO: why limit the translation cache to 5 entries?
-            if (translationCache.size() > 5) {
-                translationCache.clear();
-            }
+
+        if (translationCache.containsKey(transitionSystem)) {
+            logger.finest("Adding did/can attributes... (cached)");
+            didCanTransitionSystem = translationCache.get(transitionSystem);
+        } else {
+            logger.finest("Adding did/can attributes...");
+            didCanTransitionSystem = DidCanTranslator
+                    .translate(transitionSystem);
+            translationCache.put(transitionSystem, didCanTransitionSystem);
         }
+        // TODO: why limit the translation cache to 5 entries?
+        if (translationCache.size() > 5) {
+            translationCache.clear();
+        }
+
         didCanTrans.stop();
 
         // Remove deadlock

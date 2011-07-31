@@ -44,8 +44,9 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test
     public void constructorNoExceptionsTest() {
-        new VectorTime("1,2,3");
-        new VectorTime(Arrays.asList(new Integer[] { 1, 2, 3 }));
+        @SuppressWarnings("unused")
+        VectorTime v = new VectorTime("1,2,3");
+        v = new VectorTime(Arrays.asList(new Integer[] { 1, 2, 3 }));
     }
 
     /**
@@ -54,7 +55,8 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithException1Test() {
-        new VectorTime("-1,2,3");
+        @SuppressWarnings("unused")
+        VectorTime v = new VectorTime("-1,2,3");
     }
 
     /**
@@ -63,7 +65,8 @@ public class VectorTimeTests extends SynopticTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithException2Test() {
-        new VectorTime(Arrays.asList(new Integer[] { 1, -2, 3 }));
+        @SuppressWarnings("unused")
+        VectorTime v = new VectorTime(Arrays.asList(new Integer[] { 1, -2, 3 }));
     }
 
     /**
@@ -240,7 +243,7 @@ public class VectorTimeTests extends SynopticTest {
      * events has an event that has a non-vector time.
      */
     @Test(expected = WrongTimeTypeException.class)
-    public void determineIthEventNonVTimeTest() throws ParseException {
+    public void determineIthEventNonVTimeTest() {
         ITime vtime, dtime;
         vtime = new VectorTime("1,2,3");
         dtime = new DTotalTime(1);

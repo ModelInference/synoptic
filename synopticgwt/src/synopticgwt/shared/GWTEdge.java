@@ -23,6 +23,7 @@ public class GWTEdge implements Serializable {
      * default-constructor/
      */
     public GWTEdge() {
+        // Empty constructor to avoid SerializationException.
     }
 
     public GWTEdge(int src, int dst, double weight) {

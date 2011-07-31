@@ -1,11 +1,11 @@
 //
 // Copyright (C) 2005 United States Government as represented by the
 // Administrator of the National Aeronautics and Space Administration
-// (NASA).  All Rights Reserved.
+// (NASA). All Rights Reserved.
 //
 // This software is distributed under the NASA Open Source Agreement
-// (NOSA), version 1.3.  The NOSA has been approved by the Open Source
-// Initiative.  See the file NOSA-1.3-JPF at the top of the distribution
+// (NOSA), version 1.3. The NOSA has been approved by the Open Source
+// Initiative. See the file NOSA-1.3-JPF at the top of the distribution
 // directory tree for the complete NOSA document.
 //
 // THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY
@@ -27,182 +27,183 @@ import java.util.StringTokenizer;
  * DOCUMENT ME!
  */
 public class Attributes {
-	private Hashtable<String, Object> ht = null;
+    private Hashtable<String, Object> ht = null;
 
-	public Attributes() {
-	}
+    public Attributes() {
+        //
+    }
 
-	public Attributes(Attributes a) {
-		if (a.ht == null)
-			return;
-		ht = new Hashtable<String, Object>();
+    public Attributes(Attributes a) {
+        if (a.ht == null)
+            return;
+        ht = new Hashtable<String, Object>();
 
-		for (Enumeration<String> e = a.ht.keys(); e.hasMoreElements();) {
-			String key = e.nextElement();
-			ht.put(key, a.ht.get(key));
-		}
-	}
+        for (Enumeration<String> e = a.ht.keys(); e.hasMoreElements();) {
+            String key = e.nextElement();
+            ht.put(key, a.ht.get(key));
+        }
+    }
 
-	public Attributes(String s) {
-		ht = new Hashtable<String, Object>();
+    public Attributes(String s) {
+        ht = new Hashtable<String, Object>();
 
-		if (s.equals("-")) {
-			return;
-		}
+        if (s.equals("-")) {
+            return;
+        }
 
-		StringTokenizer st = new StringTokenizer(s, ",");
+        StringTokenizer st = new StringTokenizer(s, ",");
 
-		while (st.hasMoreTokens()) {
-			String e = st.nextToken();
+        while (st.hasMoreTokens()) {
+            String e = st.nextToken();
 
-			int idx = e.indexOf("=");
+            int idx = e.indexOf("=");
 
-			String key;
-			String value;
+            String key;
+            String value;
 
-			if (idx == -1) {
-				key = e;
-				value = "";
-			} else {
-				key = e.substring(0, idx);
-				value = e.substring(idx + 1);
-			}
+            if (idx == -1) {
+                key = e;
+                value = "";
+            } else {
+                key = e.substring(0, idx);
+                value = e.substring(idx + 1);
+            }
 
-			ht.put(key, value);
-		}
-	}
+            ht.put(key, value);
+        }
+    }
 
-	public void set(String name, Object o) {
-		if (ht == null)
-			ht = new Hashtable<String, Object>();
-		ht.put(name, o);
-	}
+    public void set(String name, Object o) {
+        if (ht == null)
+            ht = new Hashtable<String, Object>();
+        ht.put(name, o);
+    }
 
-	public Object get(String name) {
-		if (ht == null)
-			return null;
-		return ht.get(name);
-	}
+    public Object get(String name) {
+        if (ht == null)
+            return null;
+        return ht.get(name);
+    }
 
-	public void setBoolean(String name, boolean value) {
-		if (ht == null)
-			ht = new Hashtable<String, Object>();
-		if (value) {
-			ht.put(name, Boolean.TRUE);
-		} else {
-			ht.remove(name);
-		}
-	}
+    public void setBoolean(String name, boolean value) {
+        if (ht == null)
+            ht = new Hashtable<String, Object>();
+        if (value) {
+            ht.put(name, Boolean.TRUE);
+        } else {
+            ht.remove(name);
+        }
+    }
 
-	public boolean getBoolean(String name) {
-		if (ht == null)
-			return false;
-		return ht.get(name) != null;
-	}
+    public boolean getBoolean(String name) {
+        if (ht == null)
+            return false;
+        return ht.get(name) != null;
+    }
 
-	public void setInt(String name, int value) {
-		if (ht == null)
-			ht = new Hashtable<String, Object>();
-		ht.put(name, Integer.valueOf(value));
-	}
+    public void setInt(String name, int value) {
+        if (ht == null)
+            ht = new Hashtable<String, Object>();
+        ht.put(name, Integer.valueOf(value));
+    }
 
-	public int getInt(String name) {
-		if (ht == null)
-			return 0;
-		Object o = ht.get(name);
+    public int getInt(String name) {
+        if (ht == null)
+            return 0;
+        Object o = ht.get(name);
 
-		if (o == null) {
-			return 0;
-		}
+        if (o == null) {
+            return 0;
+        }
 
-		if (o instanceof Integer) {
-			return (Integer) o;
-		} else if (o instanceof String) {
-			try {
-				return Integer.parseInt((String) o);
-			} catch (NumberFormatException e) {
-				return 0;
-			}
-		} else
-			return 0;
-	}
+        if (o instanceof Integer) {
+            return (Integer) o;
+        } else if (o instanceof String) {
+            try {
+                return Integer.parseInt((String) o);
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        } else
+            return 0;
+    }
 
-	public void setString(String name, String value) {
-		if (ht == null)
-			ht = new Hashtable<String, Object>();
-		ht.put(name, value);
-	}
+    public void setString(String name, String value) {
+        if (ht == null)
+            ht = new Hashtable<String, Object>();
+        ht.put(name, value);
+    }
 
-	public String getString(String name) {
-		if (ht == null)
-			return "";
-		Object o = ht.get(name);
-		if (o instanceof String) {
-			return (String) o;
-		} else if (o instanceof Integer) {
-			return ((Integer) o).toString();
-		} else
-			return "";
-	}
+    public String getString(String name) {
+        if (ht == null)
+            return "";
+        Object o = ht.get(name);
+        if (o instanceof String) {
+            return (String) o;
+        } else if (o instanceof Integer) {
+            return ((Integer) o).toString();
+        } else
+            return "";
+    }
 
-	public synchronized void save(PrintStream out, int format) {
-		switch (format) {
-		// case Graph.SM_FORMAT: save_sm(out); break;
-		// case Graph.FSP_FORMAT: save_fsp(out); break;
-		case Graph.XML_FORMAT:
-			save_xml(out);
+    public synchronized void save(PrintStream out, int format) {
+        switch (format) {
+        // case Graph.SM_FORMAT: save_sm(out); break;
+        // case Graph.FSP_FORMAT: save_fsp(out); break;
+        case Graph.XML_FORMAT:
+            save_xml(out);
 
-			break;
-		}
-	}
+            break;
+        }
+    }
 
-	@Override
-	public String toString() {
-		if (ht == null || ht.size() == 0) {
-			return "-";
-		}
+    @Override
+    public String toString() {
+        if (ht == null || ht.size() == 0) {
+            return "-";
+        }
 
-		StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer();
 
-		for (Enumeration<String> e = ht.keys(); e.hasMoreElements();) {
-			Object key = e.nextElement();
-			Object value = ht.get(key);
+        for (Enumeration<String> e = ht.keys(); e.hasMoreElements();) {
+            Object key = e.nextElement();
+            Object value = ht.get(key);
 
-			sb.append(key);
+            sb.append(key);
 
-			if (!value.equals("")) {
-				sb.append('=');
-				sb.append(value);
-			}
+            if (!value.equals("")) {
+                sb.append('=');
+                sb.append(value);
+            }
 
-			if (e.hasMoreElements()) {
-				sb.append(',');
-			}
-		}
+            if (e.hasMoreElements()) {
+                sb.append(',');
+            }
+        }
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 
-	public void unset(String name) {
-		if (ht==null)
-			return;
-		ht.remove(name);
-	}
+    public void unset(String name) {
+        if (ht == null)
+            return;
+        ht.remove(name);
+    }
 
-	private synchronized void save_xml(PrintStream out) {
-		if (ht==null || ht.size() == 0) {
-			return;
-		}
+    private synchronized void save_xml(PrintStream out) {
+        if (ht == null || ht.size() == 0) {
+            return;
+        }
 
-		for (Enumeration<String> e = ht.keys(); e.hasMoreElements();) {
-			String key = e.nextElement();
-			String value = getString(key);
+        for (Enumeration<String> e = ht.keys(); e.hasMoreElements();) {
+            String key = e.nextElement();
+            String value = getString(key);
 
-			if (value == "") {
-				out.println("<" + key + "/>");
-			} else {
-				out.println("<" + key + ">" + value + "</" + key + ">");
-			}
-		}
-	}
+            if (value == "") {
+                out.println("<" + key + "/>");
+            } else {
+                out.println("<" + key + ">" + value + "</" + key + ">");
+            }
+        }
+    }
 }

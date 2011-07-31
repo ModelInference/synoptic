@@ -36,6 +36,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     LinkedHashSet<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
     public TemporalInvariantSet() {
+        // Empty constructor for use by unit tests.
     }
 
     /**
@@ -65,15 +66,15 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         invariants.remove(invariant);
     }
 
-    public void addAll(Collection<ITemporalInvariant> invariants) {
-        this.invariants.addAll(invariants);
+    public void addAll(Collection<ITemporalInvariant> invs) {
+        this.invariants.addAll(invs);
     }
 
     /**
      * Removes all invariants from the set.
      */
-    public void removeAll(Collection<ITemporalInvariant> invariants) {
-        this.invariants.removeAll(invariants);
+    public void removeAll(Collection<ITemporalInvariant> invs) {
+        this.invariants.removeAll(invs);
     }
 
     public void add(TemporalInvariantSet set) {
@@ -106,7 +107,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
      *            the graph within which the violating path must be found
      * @return a path in g that violates inv or null if one doesn't exist
      */
-    public static <T extends INode<T>> RelationPath<T> getCounterExample(
+    public static <T extends INode<T>> CExamplePath<T> getCounterExample(
             ITemporalInvariant inv, IGraph<T> g) {
         TimedTask refinement = PerformanceMetrics.createTask(
                 "getCounterExample", true);
@@ -114,10 +115,9 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             if (Main.useFSMChecker) {
                 return FsmModelChecker.getCounterExample((BinaryInvariant) inv,
                         g);
-            } else {
-                GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
-                return ch.getCounterExample(inv, g);
             }
+            GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
+            return ch.getCounterExample(inv, g);
         } finally {
             refinement.stop();
         }
@@ -133,16 +133,16 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
      *            the graph within which the violating paths must be found
      * @return a list of violating paths
      */
-    public <T extends INode<T>> List<RelationPath<T>> getAllCounterExamples(
+    public <T extends INode<T>> List<CExamplePath<T>> getAllCounterExamples(
             IGraph<T> graph) {
         TimedTask violations = PerformanceMetrics.createTask(
                 "getAllCounterExamples", false);
         try {
-            List<RelationPath<T>> paths = null;
+            List<CExamplePath<T>> paths = null;
             if (Main.useFSMChecker) {
-                paths = new ArrayList<RelationPath<T>>();
+                paths = new ArrayList<CExamplePath<T>>();
                 for (ITemporalInvariant tinv : invariants) {
-                    RelationPath<T> path = FsmModelChecker.getCounterExample(
+                    CExamplePath<T> path = FsmModelChecker.getCounterExample(
                             (BinaryInvariant) tinv, graph);
                     if (path != null) {
                         paths.add(path);
@@ -150,10 +150,10 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
                 }
             } else {
                 // Use the LTL checker instead.
-                paths = new ArrayList<RelationPath<T>>();
+                paths = new ArrayList<CExamplePath<T>>();
                 GraphLTLChecker<T> checker = new GraphLTLChecker<T>();
                 for (ITemporalInvariant inv : invariants) {
-                    RelationPath<T> path = checker
+                    CExamplePath<T> path = checker
                             .getCounterExample(inv, graph);
                     if (path != null) {
                         paths.add(path);
@@ -166,9 +166,9 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
                 return null;
             }
 
-            Collections.sort(paths, new Comparator<RelationPath<T>>() {
+            Collections.sort(paths, new Comparator<CExamplePath<T>>() {
                 @Override
-                public int compare(RelationPath<T> o1, RelationPath<T> o2) {
+                public int compare(CExamplePath<T> o1, CExamplePath<T> o2) {
                     return new Integer(o1.path.size()).compareTo(o2.path.size());
                 }
             });
@@ -192,27 +192,26 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
      *            the graph to check
      * @return null if no violation is found, the counter-example path otherwise
      */
-    public <T extends INode<T>> RelationPath<T> getFirstCounterExample(
+    public <T extends INode<T>> CExamplePath<T> getFirstCounterExample(
             IGraph<T> g) {
         TimedTask violations = PerformanceMetrics.createTask(
                 "getFirstCounterExample", false);
         try {
             if (Main.useFSMChecker) {
                 for (ITemporalInvariant tinv : invariants) {
-                    RelationPath<T> path = FsmModelChecker.getCounterExample(
+                    CExamplePath<T> path = FsmModelChecker.getCounterExample(
                             (BinaryInvariant) tinv, g);
                     if (path != null) {
                         return path;
                     }
                 }
                 return null;
-            } else {
-                GraphLTLChecker<T> c = new GraphLTLChecker<T>();
-                for (ITemporalInvariant i : invariants) {
-                    RelationPath<T> result = c.getCounterExample(i, g);
-                    if (result != null) {
-                        return result;
-                    }
+            }
+            GraphLTLChecker<T> c = new GraphLTLChecker<T>();
+            for (ITemporalInvariant i : invariants) {
+                CExamplePath<T> result = c.getCounterExample(i, g);
+                if (result != null) {
+                    return result;
                 }
             }
             return null;

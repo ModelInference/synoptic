@@ -144,17 +144,14 @@ public class KTails {
                     // c2 has been visited but doesn't map to a visited child of
                     // n1.
                     return false;
-                } else {
-                    numVisitedN2ChildrenFound++;
                 }
+                numVisitedN2ChildrenFound++;
             } else {
                 if (visitedN2Children.contains(c2)) {
                     // c2 has not been visited but _does_ map to a visited child
                     // of n1 -- visitedMatches hash is therefore inconsistent.
                     throw new InternalSynopticException(
                             "Inconsistent kTails exploration.");
-                } else {
-
                 }
             }
         }
@@ -205,8 +202,6 @@ public class KTails {
                     kEqual = true;
                     childKEquivMatches.add(c2);
                     break;
-                } else {
-
                 }
             }
             // Could not find any kEqual c2 to match with c1.

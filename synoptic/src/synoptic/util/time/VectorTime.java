@@ -197,10 +197,10 @@ public class VectorTime implements ITime {
      * @return the newly created, incremented vtime
      */
     public VectorTime step(int index) {
-        List<Integer> vector = new ArrayList<Integer>();
-        vector.addAll(this.vector);
-        vector.set(index, vector.get(index) + 1);
-        return new VectorTime(vector);
+        List<Integer> vec = new ArrayList<Integer>();
+        vec.addAll(this.vector);
+        vec.set(index, vec.get(index) + 1);
+        return new VectorTime(vec);
     }
 
     /*

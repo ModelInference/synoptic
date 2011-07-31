@@ -74,8 +74,8 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.graph.PartitionSplit;
+import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.model.EventNode;
@@ -199,18 +199,18 @@ public class JungGui extends JApplet implements Printable {
     /**
      * Creates a new JApplet based on a given PartitionGraph.
      * 
-     * @param pGraph
+     * @param g
      * @throws Exception
      */
-    public JungGui(PartitionGraph pGraph) throws Exception {
+    public JungGui(PartitionGraph g) throws Exception {
 
         unsatisfiedInvariants = new LinkedHashSet<ITemporalInvariant>();
-        unsatisfiedInvariants.addAll(pGraph.getInvariants().getSet());
+        unsatisfiedInvariants.addAll(g.getInvariants().getSet());
 
-        this.pGraph = pGraph;
+        pGraph = g;
 
         newPartitions = new LinkedHashMap<Partition, Integer>();
-        for (Partition p : pGraph.getNodes()) {
+        for (Partition p : g.getNodes()) {
             newPartitions.put(p, p.getEventNodes().size());
         }
         oldPartitions = newPartitions;
@@ -228,15 +228,18 @@ public class JungGui extends JApplet implements Printable {
             }
 
             @Override
-            public void componentMoved(ComponentEvent e) {
+            public void componentHidden(ComponentEvent arg0) {
+                // TODO Auto-generated method stub
             }
 
             @Override
-            public void componentShown(ComponentEvent e) {
+            public void componentMoved(ComponentEvent arg0) {
+                // TODO Auto-generated method stub
             }
 
             @Override
-            public void componentHidden(ComponentEvent e) {
+            public void componentShown(ComponentEvent arg0) {
+                // TODO Auto-generated method stub
             }
         });
 
@@ -254,9 +257,9 @@ public class JungGui extends JApplet implements Printable {
     /**
      * Makes File menu
      * 
-     * @param frame
+     * @param f
      */
-    public void addMenuBar(JFrame frame) {
+    public void addMenuBar(JFrame f) {
         JMenuBar menuBar = new JMenuBar();
 
         JMenu fileMenu = new JMenu("File");
@@ -276,13 +279,15 @@ public class JungGui extends JApplet implements Printable {
         actions.add(createViewPathsMenuItem());
         menuBar.add(actions);
 
-        frame.setJMenuBar(menuBar);
+        f.setJMenuBar(menuBar);
 
     }
 
     @SuppressWarnings("serial")
     public void createFileMenu(JMenu fileMenu) {
         fileMenu.add(new AbstractAction("Make Image") {
+            private static final long serialVersionUID = 1L;
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
@@ -295,6 +300,8 @@ public class JungGui extends JApplet implements Printable {
         });
 
         fileMenu.add(new AbstractAction("Print") {
+            private static final long serialVersionUID = 1L;
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 PrinterJob printJob = PrinterJob.getPrinterJob();
@@ -319,6 +326,8 @@ public class JungGui extends JApplet implements Printable {
         fileMenu.add(help);
 
         fileMenu.add(new AbstractAction("Export as Graphviz dot file and PNG") {
+            private static final long serialVersionUID = 1L;
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 String filename = JOptionPane
@@ -400,15 +409,15 @@ public class JungGui extends JApplet implements Printable {
                                         int traceID = t.getTarget()
                                                 .getTraceID();
                                         if (intersectionOfIDs.contains(traceID)) {
-                                            Set<ITransition<Partition>> currentPath = new HashSet<ITransition<Partition>>();
+                                            Set<ITransition<Partition>> curPath = new HashSet<ITransition<Partition>>();
                                             ITransition<Partition> trans = p
                                                     .getTransition(t
                                                             .getTarget()
                                                             .getParent(), t
                                                             .getRelation());
-                                            currentPath.add(trans);
-                                            traverse(t.getTarget(), currentPath);
-                                            paths.put(traceID, currentPath);
+                                            curPath.add(trans);
+                                            traverse(t.getTarget(), curPath);
+                                            paths.put(traceID, curPath);
                                         }
                                     }
                                 }
@@ -419,7 +428,8 @@ public class JungGui extends JApplet implements Printable {
                                         "Trace ID " + trace);
                                 button.addActionListener(new ActionListener() {
                                     @Override
-                                    public void actionPerformed(ActionEvent e) {
+                                    public void actionPerformed(
+                                            ActionEvent event) {
                                         currentPath = paths.get(trace);
                                         displayPath();
                                     }
@@ -465,7 +475,7 @@ public class JungGui extends JApplet implements Printable {
         totalRefine.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<RelationPath<Partition>> counterExampleTraces = null;
+                List<CExamplePath<Partition>> counterExampleTraces = null;
                 // Retrieve the counter-examples for the unsatisfied invariants.
                 counterExampleTraces = new TemporalInvariantSet(
                         unsatisfiedInvariants).getAllCounterExamples(pGraph);
@@ -489,7 +499,7 @@ public class JungGui extends JApplet implements Printable {
         refineOption.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<RelationPath<Partition>> counterExampleTraces = null;
+                List<CExamplePath<Partition>> counterExampleTraces = null;
                 // Retrieve the counter-examples for the unsatisfied invariants.
                 counterExampleTraces = new TemporalInvariantSet(
                         unsatisfiedInvariants).getAllCounterExamples(pGraph);
@@ -543,7 +553,7 @@ public class JungGui extends JApplet implements Printable {
         JungGui.this.repaint();
     }
 
-    private void refine(List<RelationPath<Partition>> counterExampleTraces) {
+    private void refine(List<CExamplePath<Partition>> counterExampleTraces) {
         // Perform a single refinement step.
         numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
                 numSplitSteps, pGraph, counterExampleTraces);
@@ -561,7 +571,7 @@ public class JungGui extends JApplet implements Printable {
         vizViewer.setGraphLayout(vizViewer.getGraphLayout());
         JungGui.this.repaint();
 
-        for (RelationPath<Partition> relPath : counterExampleTraces) {
+        for (CExamplePath<Partition> relPath : counterExampleTraces) {
             unsatisfiedInvariants.add(relPath.invariant);
         }
     }
@@ -583,16 +593,16 @@ public class JungGui extends JApplet implements Printable {
         labels.put("ISOM", ISOMLayout.class);
 
         ButtonGroup layoutButtonGroup = new ButtonGroup();
-        for (final String layout : labels.keySet()) {
-            JRadioButton temp = new JRadioButton(layout);
+        for (final String layoutName : labels.keySet()) {
+            JRadioButton temp = new JRadioButton(layoutName);
             temp.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    selectLayout(labels.get(layout));
+                    selectLayout(labels.get(layoutName));
                 }
             });
 
-            if (layout.equals("Force-Directed")) {
+            if (layoutName.equals("Force-Directed")) {
                 temp.setSelected(true);
             }
             graphLayouts.add(temp);
@@ -881,19 +891,27 @@ public class JungGui extends JApplet implements Printable {
         }
 
         @Override
-        public void mousePressed(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-        }
-
-        @Override
         public void mouseEntered(MouseEvent e) {
+            // TODO Auto-generated method stub
+
         }
 
         @Override
         public void mouseExited(MouseEvent e) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            // TODO Auto-generated method stub
+
         }
     }
 

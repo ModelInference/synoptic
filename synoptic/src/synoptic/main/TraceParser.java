@@ -424,8 +424,8 @@ public class TraceParser {
      * Sets the partitioning filter, to the passed, back-reference containing
      * string.
      */
-    public void setPartitionsMap(String filter) {
-        this.filter = new NamedSubstitution(filter);
+    public void setPartitionsMap(String f) {
+        filter = new NamedSubstitution(f);
     }
 
     /**
@@ -518,8 +518,9 @@ public class TraceParser {
         ArrayList<EventNode> results = new ArrayList<EventNode>();
         String strLine = null;
 
+        String tName = traceName;
         if (Main.internCommonStrings) {
-            traceName = traceName.intern();
+            tName = tName.intern();
         }
 
         int lineNum = 0;
@@ -529,7 +530,7 @@ public class TraceParser {
                 break;
             }
             lineNum++;
-            EventNode event = parseLine(strLine, traceName, context, lineNum);
+            EventNode event = parseLine(strLine, tName, context, lineNum);
             if (event == null) {
                 continue;
             }
@@ -629,7 +630,7 @@ public class TraceParser {
         }
 
         logger.info("Successfully parsed " + results.size() + " events from "
-                + traceName);
+                + tName);
         return results;
     }
 

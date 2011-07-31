@@ -17,10 +17,7 @@ public class NamedMatcher implements INamedMatchResult {
     private Matcher matcher;
     private NamedPattern parentPattern;
 
-    NamedMatcher() {
-    }
-
-    NamedMatcher(NamedPattern parentPattern, MatchResult matcher) {
+    private NamedMatcher(NamedPattern parentPattern, MatchResult matcher) {
         this.parentPattern = parentPattern;
         this.matcher = (Matcher) matcher;
     }
