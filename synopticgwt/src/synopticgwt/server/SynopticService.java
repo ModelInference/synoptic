@@ -15,8 +15,8 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.invariants.BinaryInvariant;
+import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.RelationPath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
@@ -58,7 +58,7 @@ public class SynopticService extends RemoteServiceServlet implements
     private Set<ITemporalInvariant> unsatInvs;
     private TemporalInvariantSet minedInvs;
     private Set<ITemporalInvariant> activeInvs;
-    private List<RelationPath<Partition>> counterExampleTraces;
+    private List<CExamplePath<Partition>> counterExampleTraces;
     private TraceGraph traceGraph;
 
     // //////////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ public class SynopticService extends RemoteServiceServlet implements
                 .getAllCounterExamples(pGraph);
 
         unsatInvs.clear();
-        for (RelationPath<Partition> relPath : counterExampleTraces) {
+        for (CExamplePath<Partition> relPath : counterExampleTraces) {
             unsatInvs.add(relPath.invariant);
         }
 
@@ -161,7 +161,7 @@ public class SynopticService extends RemoteServiceServlet implements
         // TODO: throw appropriate exception
         // throw new Exception();
         // }
-        counterExampleTraces = (List<RelationPath<Partition>>) session
+        counterExampleTraces = (List<CExamplePath<Partition>>) session
                 .getAttribute("counterExampleTraces");
         return;
     }
@@ -398,7 +398,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
         unsatInvs.clear();
         if (counterExampleTraces != null) {
-            for (RelationPath<Partition> relPath : counterExampleTraces) {
+            for (CExamplePath<Partition> relPath : counterExampleTraces) {
                 unsatInvs.add(relPath.invariant);
             }
         }
