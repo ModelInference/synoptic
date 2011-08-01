@@ -46,7 +46,7 @@ h1 {
 
 /* Shapes the cells of a grid to look like
    buttons */
-.tableButtonCell {
+.tableCellInvActivated {
   border-style: inset;
   border-width: 2px;
   border-color: #CFD9FF;
@@ -56,7 +56,7 @@ h1 {
 
 /* Changes the background color of a table cell to red to
    indicate whether it has been selected. */
-.tableCellSelected {
+.tableCellInvDeactivated {
   border-style: outset;
   border-width: 2px;
   border-color: #CFD9FF;
@@ -65,7 +65,7 @@ h1 {
   text-decoration: line-through;
 }
 
-.topTableCell {
+.tableCellTopRow {
   padding: 5px;
   border: 1px solid #000000;
   background: #E8EDFF;

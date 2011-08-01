@@ -58,14 +58,14 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             Grid grid = new Grid(invs.size() + 1, 1);
             grid.setStyleName("invariantsGrid grid");
             grid.setWidget(0, 0, new Label(invType));
-            grid.getCellFormatter().setStyleName(0, 0, "topTableCell");
+            grid.getCellFormatter().setStyleName(0, 0, "tableCellTopRow");
             tableAndGraphicPanel.add(grid);
 
             for (int i = 0; i < invs.size(); i++) {
                 GWTInvariant inv = invs.get(i);
                 grid.setWidget(i + 1, 0, new InvariantGridLabel(inv));
                 grid.getCellFormatter().setStyleName(i + 1, 0,
-                        "tableButtonCell");
+                        "tableCellInvActivated");
             }
 
             // Add a click handler to the grid that allows users to
@@ -83,26 +83,36 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     }
 
     /**
-     * <pre>
-     * TODO: This class is very similar to the ActivateInvAsyncCallback class.
-     *       Refactor their common functionality to a base class.
-     * </pre>
-     * 
-     * Callback method for removing user-specified invariants. Redraws the
-     * content in the model and invariants tab.
+     * Callback method for adding/removing user-specified invariants.
      */
-    class DeactivateInvAsyncCallback implements AsyncCallback<Integer> {
+    class AddRemoveInvAsyncCallback implements AsyncCallback<Integer> {
         Grid grid;
         int cIndex;
+        boolean activateInv;
 
-        public DeactivateInvAsyncCallback(Grid grid, int cIndex) {
+        /**
+         * Creates a new callback that will execute when the result of an RPC to
+         * activate/deactivate an invariant returns.
+         * 
+         * @param grid
+         *            The grid object containing invariant labels
+         * @param cIndex
+         *            The column index of the invariant label in the grid this
+         *            RPC call references.
+         * @param activateInv
+         *            Whether or not the invariant is being added/activated or
+         *            removed/deactivated.
+         */
+        public AddRemoveInvAsyncCallback(Grid grid, int cIndex,
+                boolean activateInv) {
             this.grid = grid;
             this.cIndex = cIndex;
+            this.activateInv = activateInv;
         }
 
         @Override
         public void onFailure(Throwable caught) {
-            displayRPCErrorMessage("Remote Procedure Call Failure while removing invariants: "
+            displayRPCErrorMessage("Remote Procedure Call Failure while adding/removing an invariant: "
                     + caught.toString());
         }
 
@@ -115,56 +125,18 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             // invariant in the client's grid.
             assert (invLabel.getInvariant().getID() == invHash);
 
-            invLabel.setActivated(false);
+            invLabel.setActivated(activateInv);
 
             // Signal that the invariant set has changed.
             SynopticGWT.entryPoint.invSetChanged();
 
-            // TODO: update the invariant graph.
-
-            // Change the look of the cell to deactivated.
+            // Change the look of the cell.
             CellFormatter cFormatter = grid.getCellFormatter();
-            cFormatter.setStyleName(cIndex, 0, "tableCellSelected");
-        }
-    }
-
-    /**
-     * Callback method for removing user-specified invariants. Redraws the
-     * content in the model and invariants tab.
-     */
-    class ActivateInvAsyncCallback implements AsyncCallback<Integer> {
-        Grid grid;
-        int cIndex;
-
-        public ActivateInvAsyncCallback(Grid grid, int cIndex) {
-            this.grid = grid;
-            this.cIndex = cIndex;
-        }
-
-        @Override
-        public void onFailure(Throwable caught) {
-            displayRPCErrorMessage("Remote Procedure Call Failure while removing invariants");
-        }
-
-        @Override
-        public void onSuccess(Integer invHash) {
-            InvariantGridLabel invLabel = ((InvariantGridLabel) grid.getWidget(
-                    cIndex, 0));
-
-            // The invHash the server echo's back must be correspond to the
-            // invariant in the client's grid.
-            assert (invLabel.getInvariant().getID() == invHash);
-
-            invLabel.setActivated(true);
-
-            // Signal that the invariant set has changed.
-            SynopticGWT.entryPoint.invSetChanged();
-
-            // TODO: update the invariant graph.
-
-            // Change the look of the cell to deactivated.
-            CellFormatter cFormatter = grid.getCellFormatter();
-            cFormatter.setStyleName(cIndex, 0, "tableButtonCell");
+            if (activateInv) {
+                cFormatter.setStyleName(cIndex, 0, "tableCellInvActivated");
+            } else {
+                cFormatter.setStyleName(cIndex, 0, "tableCellInvDeactivated");
+            }
         }
     }
 
@@ -172,14 +144,10 @@ public class InvariantsTab extends Tab<VerticalPanel> {
      * Handler for clicks on the grid showing mined invariants. On click, the
      * grid's cell data will be looked up in the client-side set of invariants.
      * This client-side invariant then contains the server-side hashcode for the
-     * corresponding server-side invariant. This hash code is then queued up so
-     * that each server-side hash code specifies a server-side invariant for
-     * removal. When a cell is "active," this means that it's corresponding
-     * invariant is queued up to be removed at the click of the removal button.
-     * When one or more cells are active, then the removal button will also be
-     * activated. When a cell is deactivated, the corresponding invariant is
-     * removed from the queue. If all cells are not active, the removal button
-     * will also be deactivated.
+     * corresponding server-side invariant. If the cell contains an "activated"
+     * invariant (an invariant that is used to constrain the model), then an RPC
+     * to deactivate the invariant is invoked. Otherwise, the RPC call to
+     * activate the invariant is invoked.
      * 
      * @param invs
      *            The set of client-side invariants
@@ -195,7 +163,6 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             this.grid = grid;
         }
 
-        // Add the aforementioned functionality to the click handler.
         @Override
         public void onClick(ClickEvent event) {
             // The clicked cell.
@@ -204,7 +171,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             // Cell's row index.
             int cIndex = cell.getRowIndex();
 
-            // Ignore the title cells.
+            // Ignore title cells.
             if (cIndex == 0) {
                 return;
             }
@@ -215,12 +182,12 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
             int invID = invLabel.getInvariant().getID();
 
-            // Corresponding invariant is activated.
+            // Corresponding invariant is activated => deactive it.
             if (invLabel.getActivated()) {
                 // ////////////////////// Call to remote service.
                 try {
                     synopticService.deactivateInvariant(invID,
-                            new DeactivateInvAsyncCallback(grid, cIndex));
+                            new AddRemoveInvAsyncCallback(grid, cIndex, false));
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -229,18 +196,16 @@ public class InvariantsTab extends Tab<VerticalPanel> {
                 return;
             }
 
-            // Corresponding invariant is deactivated.
+            // Corresponding invariant is deactivated => activate it.
             // ////////////////////// Call to remote service.
             try {
                 synopticService.activateInvariant(invID,
-                        new ActivateInvAsyncCallback(grid, cIndex));
+                        new AddRemoveInvAsyncCallback(grid, cIndex, true));
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             // //////////////////////
-
         }
     }
-
 }
