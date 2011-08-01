@@ -107,16 +107,17 @@ public class SynopticGWT implements EntryPoint {
         @Override
         public void onFailure(Throwable caught) {
             Label error = new Label(
-                    "Remote Procedure Call Failure while updating invariants");
+                    "Remote Procedure Call Failure while updating invariants: "
+                            + caught.toString());
             error.setStyleName("ErrorMessage");
             RootPanel.get("rpcErrorDiv").add(error);
         }
 
         @Override
         public void onSuccess(GWTGraph gwtGraph) {
+            invSetChanged = false;
             tabPanel.selectTab(2);
             modelTab.showGraph(gwtGraph);
-            invSetChanged = false;
         }
     }
 

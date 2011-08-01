@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -49,6 +50,9 @@ public class SynopticService extends RemoteServiceServlet implements
         ISynopticService {
 
     private static final long serialVersionUID = 1L;
+
+    public static Logger logger = Logger.getLogger("SynopticService");
+
     // The directory in which files are currently exported to.
     private static final String userExport = "userexport/";
 
@@ -78,8 +82,14 @@ public class SynopticService extends RemoteServiceServlet implements
                 .getAllCounterExamples(pGraph);
 
         unsatInvs.clear();
-        for (CExamplePath<Partition> relPath : counterExampleTraces) {
-            unsatInvs.add(relPath.invariant);
+        if (counterExampleTraces != null) {
+            logger.info("counterExampleTraces : "
+                    + counterExampleTraces.toString());
+            for (CExamplePath<Partition> relPath : counterExampleTraces) {
+                unsatInvs.add(relPath.invariant);
+            }
+        } else {
+            logger.info("counterExampleTraces : NONE");
         }
 
         activeInvs = new LinkedHashSet<ITemporalInvariant>();
