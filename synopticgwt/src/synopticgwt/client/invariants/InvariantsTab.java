@@ -39,12 +39,8 @@ public class InvariantsTab extends Tab<VerticalPanel> {
      *            The invariants mined from the log.
      */
     public void showInvariants(GWTInvariantSet gwtInvs) {
-        // Clear the invariants panel of the non-button widget
-        // (the horizontal panel for the table and graphics).
-        if (panel.getWidgetCount() > 1) {
-            panel.remove(panel.getWidget(1));
-            assert (panel.getWidgetCount() == 1);
-        }
+        // Clear the invariants panel of any widgets it might have.
+        panel.clear();
 
         // Create and populate the panel with the invariants grid.
         HorizontalPanel tableAndGraphicPanel = new HorizontalPanel();

@@ -122,7 +122,10 @@ public class ModelTab extends Tab<DockPanel> {
         modelExportPngButton.addClickHandler(new ExportPngHandler());
     }
 
-    /** Shows the GWTGraph object on the screen in the modelPanel */
+    /**
+     * Shows the GWTGraph object on the screen in the modelPanel. NOTE: the
+     * model tab MUST be made visible for showGraph to work.
+     */
     public void showGraph(GWTGraph graph) {
         modelRefineButton.setEnabled(true);
         modelCoarsenButton.setEnabled(false);
@@ -294,13 +297,25 @@ public class ModelTab extends Tab<DockPanel> {
         @Override
         public void onSuccess(GWTGraphDelta graph) {
             pWheel.stopAnimation();
-            showChangingGraph(graph.getGraph(), graph.getRefinedNode());
 
-            if (graph == null || graph.getUnsatInvs().invs.size() == 0) {
+            if (graph == null) {
+                // Graph is null when no refinement occurred.
                 modelCoarsenButton.setEnabled(true);
                 return;
             }
-            modelRefineButton.setEnabled(true);
+
+            // Show an animation of refinement.
+            showChangingGraph(graph.getGraph(), graph.getRefinedNode());
+
+            if (graph.getUnsatInvs().invs.size() == 0) {
+                // No further refinement is possible: disable refinement, enable
+                // coarsening.
+                modelRefineButton.setEnabled(false);
+                modelCoarsenButton.setEnabled(true);
+            } else {
+                // Refinement still possible -- re-enable refinement.
+                modelRefineButton.setEnabled(true);
+            }
             // Do we want to surprise the user and switch their view for them?
             // tabPanel.selectTab(2);
         }
