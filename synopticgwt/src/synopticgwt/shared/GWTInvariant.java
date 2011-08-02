@@ -62,9 +62,8 @@ public class GWTInvariant implements Serializable {
         if (other instanceof GWTInvariant) {
             return (((GWTInvariant) other).getTarget().equals(this.eSecond) && ((GWTInvariant) other)
                     .getSource().equals(this.eFirst));
-        } else {
-            return false;
         }
+        return false;
     }
 
     public String getSource() {
