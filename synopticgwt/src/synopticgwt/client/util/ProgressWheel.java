@@ -80,7 +80,7 @@ public class ProgressWheel {
      * A JSNI method to animate the progress wheel by one step, by changing
      * opacity of all the sectors making up the wheel.
      */
-    private native static void animateProgressWheel() /*-{
+    native static void animateProgressWheel() /*-{
 		$wnd.opacity.unshift($wnd.opacity.pop());
 		for ( var i = 0; i < $wnd.sectorsCount; i++) {
 			$wnd.sectors[i].attr("opacity", $wnd.opacity[i]);

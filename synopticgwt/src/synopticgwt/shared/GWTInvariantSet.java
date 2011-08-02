@@ -31,9 +31,8 @@ public class GWTInvariantSet implements Serializable {
     private void addInvType(String invType) {
         if (invs.containsKey(invType)) {
             return;
-        } else {
-            invs.put(invType, new LinkedList<GWTInvariant>());
         }
+        invs.put(invType, new LinkedList<GWTInvariant>());
     }
 
     /**

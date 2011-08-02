@@ -314,67 +314,24 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Removes invariants from the server's collection. Invariants are specified
-     * for removal based on whether their hash code matches any of the hashes
-     * passed to the method. The method requires that the input graph and
-     * invariant set fields have been initialized.
-     * 
-     * @param invHash
-     *            The hash codes for the invariants to be removed.
-     */
-    @Override
-    public Integer deactivateInvariant(Integer invHash) throws Exception {
-        // Set up current state.
-        retrieveSessionState();
-
-        LinkedHashSet<ITemporalInvariant> invsToRemove = new LinkedHashSet<ITemporalInvariant>();
-        // Get the actual set of invariants to be removed.
-        for (ITemporalInvariant inv : minedInvs) {
-            if (invHash.equals(inv.hashCode())) {
-                invsToRemove.add(inv);
-            }
-        }
-
-        // Remove all the specified invariants.
-        activeInvs.removeAll(invsToRemove);
-        return invHash;
-    }
-
-    /**
-     * Adds invariants to the server's collection. Invariants are specified for
-     * removal based on whether their hash code matches any of the hashes passed
-     * to the method. The method requires that the input graph and invariant set
-     * fields have been initialized.
-     * 
-     * @param invHash
-     *            The hash codes for the invariants to be removed.
-     */
-    @Override
-    public Integer activateInvariant(Integer invHash) throws Exception {
-        // Set up current state.
-        retrieveSessionState();
-
-        LinkedHashSet<ITemporalInvariant> invsToAdd = new LinkedHashSet<ITemporalInvariant>();
-        // Get the actual set of invariants to be removed.
-        for (ITemporalInvariant inv : minedInvs) {
-            if (invHash.equals(inv.hashCode())) {
-                invsToAdd.add(inv);
-            }
-        }
-
-        // Remove all the specified invariants.
-        activeInvs.addAll(invsToAdd);
-        return invHash;
-    }
-
-    /**
      * Restarts refinement by re-creating the partition graph with the active
      * invariants that the user selected.
+     * 
+     * @throws Exception
      */
     @Override
-    public GWTGraph commitInvariants() throws Exception {
+    public GWTGraph commitInvariants(Set<Integer> activeInvsHashes)
+            throws Exception {
         // Set up current state.
         retrieveSessionState();
+
+        activeInvs.clear();
+        // Get the actual set of invariants to be removed.
+        for (ITemporalInvariant inv : minedInvs) {
+            if (activeInvsHashes.contains(inv.hashCode())) {
+                activeInvs.add(inv);
+            }
+        }
 
         initializeRefinementState(new TemporalInvariantSet(activeInvs));
         storeSessionState();

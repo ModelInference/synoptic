@@ -82,11 +82,7 @@ public class SynopticGWT implements EntryPoint {
         tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
-                int tabId = event.getSelectedItem();
-                if (tabId != 2) {
-                    return;
-                }
-                modelTabSelected();
+                tabSelected(event);
             }
         });
     }
@@ -99,32 +95,31 @@ public class SynopticGWT implements EntryPoint {
         invSetChanged = true;
     }
 
-    /**
-     * Callback method for committing user-specified invariants. Redraws the
-     * content in the model and invariants tab.
-     */
-    class CommitInvsAsyncCallback implements AsyncCallback<GWTGraph> {
-        @Override
-        public void onFailure(Throwable caught) {
-            Label error = new Label(
-                    "Remote Procedure Call Failure while updating invariants: "
-                            + caught.toString());
-            error.setStyleName("ErrorMessage");
-            RootPanel.get("rpcErrorDiv").add(error);
-        }
+    /** Called when commit invariants call to the Synoptic service fails. */
+    public void commitInvsFailure(Throwable caught) {
+        Label error = new Label(
+                "Remote Procedure Call Failure while updating invariants: "
+                        + caught.toString());
+        error.setStyleName("ErrorMessage");
+        RootPanel.get("rpcErrorDiv").add(error);
+    }
 
-        @Override
-        public void onSuccess(GWTGraph gwtGraph) {
-            invSetChanged = false;
-            tabPanel.selectTab(2);
-            modelTab.showGraph(gwtGraph);
-        }
+    /** Called when commit invariants call to the Synoptic service succeeds. */
+    public void commitInvsSuccess(GWTGraph gwtGraph) {
+        invSetChanged = false;
+        tabPanel.selectTab(2);
+        modelTab.showGraph(gwtGraph);
     }
 
     /**
-     * Fired by SynopticTabPanel when the model tab is selected.
+     * Fired by SynopticTabPanel whenever a tab is selected.
      */
-    private void modelTabSelected() {
+    public void tabSelected(SelectionEvent<Integer> event) {
+        int tabId = event.getSelectedItem();
+        if (tabId != 2) {
+            return;
+        }
+
         if (!invSetChanged) {
             return;
         }
@@ -134,7 +129,18 @@ public class SynopticGWT implements EntryPoint {
 
         // ////////////////////// Call to remote service.
         try {
-            synopticService.commitInvariants(new CommitInvsAsyncCallback());
+            synopticService.commitInvariants(invTab.activeInvsHashes,
+                    new AsyncCallback<GWTGraph>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            commitInvsFailure(caught);
+                        }
+
+                        @Override
+                        public void onSuccess(GWTGraph gwtGraph) {
+                            commitInvsSuccess(gwtGraph);
+                        }
+                    });
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

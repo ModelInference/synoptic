@@ -1,10 +1,11 @@
 package synopticgwt.client.invariants;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
@@ -25,6 +26,7 @@ import synopticgwt.shared.GWTInvariantSet;
  * be satisfied by the model.
  */
 public class InvariantsTab extends Tab<VerticalPanel> {
+    Set<Integer> activeInvsHashes = new LinkedHashSet<Integer>();
 
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
@@ -79,64 +81,6 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     }
 
     /**
-     * Callback method for adding/removing user-specified invariants.
-     */
-    class AddRemoveInvAsyncCallback implements AsyncCallback<Integer> {
-        Grid grid;
-        int cIndex;
-        boolean activateInv;
-
-        /**
-         * Creates a new callback that will execute when the result of an RPC to
-         * activate/deactivate an invariant returns.
-         * 
-         * @param grid
-         *            The grid object containing invariant labels
-         * @param cIndex
-         *            The column index of the invariant label in the grid this
-         *            RPC call references.
-         * @param activateInv
-         *            Whether or not the invariant is being added/activated or
-         *            removed/deactivated.
-         */
-        public AddRemoveInvAsyncCallback(Grid grid, int cIndex,
-                boolean activateInv) {
-            this.grid = grid;
-            this.cIndex = cIndex;
-            this.activateInv = activateInv;
-        }
-
-        @Override
-        public void onFailure(Throwable caught) {
-            displayRPCErrorMessage("Remote Procedure Call Failure while adding/removing an invariant: "
-                    + caught.toString());
-        }
-
-        @Override
-        public void onSuccess(Integer invHash) {
-            InvariantGridLabel invLabel = ((InvariantGridLabel) grid.getWidget(
-                    cIndex, 0));
-
-            // The invHash the server echo's back must be correspond to the
-            // invariant in the client's grid.
-            assert (invLabel.getInvariant().getID() == invHash);
-
-            invLabel.setActivated(activateInv);
-
-            // Signal that the invariant set has changed.
-            SynopticGWT.entryPoint.invSetChanged();
-
-            // Change the look of the cell.
-            CellFormatter cFormatter = grid.getCellFormatter();
-            if (activateInv) {
-                cFormatter.setStyleName(cIndex, 0, "tableCellInvActivated");
-            } else {
-                cFormatter.setStyleName(cIndex, 0, "tableCellInvDeactivated");
-            }
-        }
-    }
-
-    /**
      * Handler for clicks on the grid showing mined invariants. On click, the
      * grid's cell data will be looked up in the client-side set of invariants.
      * This client-side invariant then contains the server-side hashcode for the
@@ -178,30 +122,22 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
             int invID = invLabel.getInvariant().getID();
 
+            // Signal that the invariant set has changed.
+            SynopticGWT.entryPoint.invSetChanged();
+
+            CellFormatter cFormatter = grid.getCellFormatter();
+
             // Corresponding invariant is activated => deactive it.
             if (invLabel.getActivated()) {
-                // ////////////////////// Call to remote service.
-                try {
-                    synopticService.deactivateInvariant(invID,
-                            new AddRemoveInvAsyncCallback(grid, cIndex, false));
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                // //////////////////////
+                activeInvsHashes.remove(invID);
+                invLabel.setActivated(false);
+                cFormatter.setStyleName(cIndex, 0, "tableCellInvDeactivated");
                 return;
             }
 
-            // Corresponding invariant is deactivated => activate it.
-            // ////////////////////// Call to remote service.
-            try {
-                synopticService.activateInvariant(invID,
-                        new AddRemoveInvAsyncCallback(grid, cIndex, true));
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            // //////////////////////
+            activeInvsHashes.add(invID);
+            invLabel.setActivated(true);
+            cFormatter.setStyleName(cIndex, 0, "tableCellInvActivated");
         }
     }
 }
