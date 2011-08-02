@@ -36,9 +36,9 @@ import synopticgwt.shared.LogLine;
 public class ModelTab extends Tab<DockPanel> {
 
     // TODO: INITIAL_LABEL and TERMINAL_LABEL should not be hardcoded. Instead,
-    // these should be dynamically set based on server defaults -- the server
-    // can access EventType.initialNodeLabel and EventType.terminalNodeLabel to
-    // detect what these should be.
+    // the EventType class should be ported to GWT, or a mirror type should be
+    // created which would have the notion of initial/terminal based on
+    // EventType.isInitialEventTyep and EventType.isTerminalEventType.
 
     /* Label of initial node, for layout purposes */
     private static final String INITIAL_LABEL = "INITIAL";
@@ -115,11 +115,36 @@ public class ModelTab extends Tab<DockPanel> {
 
         // Coarsening is disabled until refinement is completed.
         modelCoarsenButton.setEnabled(false);
-        modelRefineButton.addClickHandler(new RefineModelHandler());
-        modelCoarsenButton.addClickHandler(new CoarsenModelHandler());
-        modelGetFinalButton.addClickHandler(new GetFinalModelHandler());
-        modelExportDotButton.addClickHandler(new ExportDotHandler());
-        modelExportPngButton.addClickHandler(new ExportPngHandler());
+        modelRefineButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                refineButtonClick(event);
+            }
+        });
+        modelCoarsenButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                coarsenModelButtonClick(event);
+            }
+        });
+        modelGetFinalButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                getFinalModelButtonClick(event);
+            }
+        });
+        modelExportDotButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                exportDotButtonClick(event);
+            }
+        });
+        modelExportPngButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                exportPngButtonClick(event);
+            }
+        });
     }
 
     /**
@@ -214,16 +239,6 @@ public class ModelTab extends Tab<DockPanel> {
                 canvasId);
     }
 
-    /**
-     * Requests the log lines for the Partition with the given nodeID.
-     */
-    public void LogLineRequestHandler(int nodeID) throws Exception {
-        // ////////////////////// Call to remote service.
-        synopticService
-                .handleLogRequest(nodeID, new ViewLogLineAsyncCallback());
-        // //////////////////////
-    }
-
     /** Removes currently displayed log lines from the log line table. */
     private void clearLogTable() {
         for (int i = 1; i < logLineTable.getRowCount(); i++) {
@@ -231,246 +246,265 @@ public class ModelTab extends Tab<DockPanel> {
         }
     }
 
-    /**
-     * Displays the returned log lines from a LogLineRequest.
-     */
-    class ViewLogLineAsyncCallback implements AsyncCallback<List<LogLine>> {
+    /** Called when the request to get log lines for a partition failed. */
+    public void viewLogLineFailure(Throwable caught) {
+        // TODO: differentiate between clicks on initial/terminal nodes and
+        // other nodes.
 
-        @Override
-        public void onFailure(Throwable caught) {
-            // TODO: differentiate between clicks on initial/terminal nodes and
-            // other nodes.
+        // This is expected whenever the user double clicks on an initial or
+        // terminal node, so we'll ignore it
+        clearLogTable();
+    }
 
-            // This is expected whenever the user double clicks on an initial or
-            // terminal node, so we'll ignore it
-            clearLogTable();
-        }
-
-        @Override
-        public void onSuccess(List<LogLine> result) {
-            clearLogTable();
-            int row = 1;
-            for (LogLine log : result) {
-                logLineTable.setText(row, 0, log.getLineNum() + "");
-                logLineTable.setText(row, 1, log.getLine());
-                logLineTable.setText(row, 2, log.getFilename());
-                row++;
-            }
+    /** Called when the request to get log lines for a partition succeeded. */
+    public void viewLogLineSuccess(List<LogLine> result) {
+        clearLogTable();
+        int row = 1;
+        for (LogLine log : result) {
+            logLineTable.setText(row, 0, log.getLineNum() + "");
+            logLineTable.setText(row, 1, log.getLine());
+            logLineTable.setText(row, 2, log.getFilename());
+            row++;
         }
     }
 
     /**
-     * Used for handling Refine button clicks.
+     * Requests the log lines for the Partition with the given nodeID. This
+     * method is used from within JavaScript -- when model nodes are double
+     * clicked.
      */
-    class RefineModelHandler implements ClickHandler {
-        /**
-         * Fired when the user clicks on the Refine.
-         */
-        @Override
-        public void onClick(ClickEvent event) {
-            pWheel.startAnimation();
+    public void LogLineRequestHandler(int nodeID) throws Exception {
+        // ////////////////////// Call to remote service.
+        synopticService.handleLogRequest(nodeID,
+                new AsyncCallback<List<LogLine>>() {
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        viewLogLineFailure(caught);
+                    }
+
+                    @Override
+                    public void onSuccess(List<LogLine> result) {
+                        viewLogLineSuccess(result);
+                    }
+                });
+        // //////////////////////
+    }
+
+    /**
+     * Generates a call to Synoptic service to refine the model by a single
+     * step.
+     */
+    public void refineButtonClick(ClickEvent event) {
+        pWheel.startAnimation();
+        modelRefineButton.setEnabled(false);
+
+        // ////////////////////// Call to remote service.
+        try {
+            synopticService.refineOneStep(new AsyncCallback<GWTGraphDelta>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    refineOneStepFailure(caught);
+                }
+
+                @Override
+                public void onSuccess(GWTGraphDelta graph) {
+                    refineOneStepSuccess(graph);
+                }
+            });
+        } catch (Exception ex) {
+            // TODO Auto-generated catch block
+            ex.printStackTrace();
+        }
+        // //////////////////////
+    }
+
+    /** Called when a refinement call to the service failed. */
+    public void refineOneStepFailure(Throwable caught) {
+        pWheel.stopAnimation();
+        displayRPCErrorMessage("Remote Procedure Call Failure while refining: "
+                + caught.toString());
+        modelRefineButton.setEnabled(true);
+    }
+
+    /** Called when a refinement call to the service succeeded. */
+    public void refineOneStepSuccess(GWTGraphDelta graph) {
+        pWheel.stopAnimation();
+
+        if (graph == null) {
+            // Graph is null when no refinement occurred.
+            modelCoarsenButton.setEnabled(true);
+            return;
+        }
+
+        // Show an animation of refinement.
+        showChangingGraph(graph.getGraph(), graph.getRefinedNode());
+
+        if (graph.getUnsatInvs().invs.size() == 0) {
+            // No further refinement is possible: disable refinement, enable
+            // coarsening.
             modelRefineButton.setEnabled(false);
-
-            // ////////////////////// Call to remote service.
-            try {
-                synopticService.refineOneStep(new RefineOneStepAsyncCallback());
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            // //////////////////////
-        }
-    }
-
-    /**
-     * Callback handler for refineOneStep().
-     **/
-    class RefineOneStepAsyncCallback implements AsyncCallback<GWTGraphDelta> {
-        @Override
-        public void onFailure(Throwable caught) {
-            pWheel.stopAnimation();
-            displayRPCErrorMessage("Remote Procedure Call Failure while refining: "
-                    + caught.toString());
+            modelCoarsenButton.setEnabled(true);
+        } else {
+            // Refinement still possible -- re-enable refinement.
             modelRefineButton.setEnabled(true);
         }
-
-        @Override
-        public void onSuccess(GWTGraphDelta graph) {
-            pWheel.stopAnimation();
-
-            if (graph == null) {
-                // Graph is null when no refinement occurred.
-                modelCoarsenButton.setEnabled(true);
-                return;
-            }
-
-            // Show an animation of refinement.
-            showChangingGraph(graph.getGraph(), graph.getRefinedNode());
-
-            if (graph.getUnsatInvs().invs.size() == 0) {
-                // No further refinement is possible: disable refinement, enable
-                // coarsening.
-                modelRefineButton.setEnabled(false);
-                modelCoarsenButton.setEnabled(true);
-            } else {
-                // Refinement still possible -- re-enable refinement.
-                modelRefineButton.setEnabled(true);
-            }
-            // Do we want to surprise the user and switch their view for them?
-            // tabPanel.selectTab(2);
-        }
+        // Do we want to surprise the user and switch their view for them?
+        // tabPanel.selectTab(2);
     }
 
-    /**
-     * Handles coarsen button clicks.
-     */
-    class CoarsenModelHandler implements ClickHandler {
-        @Override
-        public void onClick(ClickEvent event) {
-            pWheel.startAnimation();
+    /** Generates a call to Synoptic service to coarsen the model. */
+    public void coarsenModelButtonClick(ClickEvent event) {
+        pWheel.startAnimation();
 
-            // ////////////////////// Call to remote service.
-            modelCoarsenButton.setEnabled(false);
-            try {
-                synopticService
-                        .coarsenOneStep(new CoarsenOneStepAsyncCallback());
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            // //////////////////////
+        // ////////////////////// Call to remote service.
+        modelCoarsenButton.setEnabled(false);
+        try {
+            synopticService.coarsenOneStep(new AsyncCallback<GWTGraph>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    coarsenOneStepFailure(caught);
+                }
+
+                @Override
+                public void onSuccess(GWTGraph graph) {
+                    coarsenOneStepSuccess(graph);
+                }
+            });
+        } catch (Exception ex) {
+            // TODO Auto-generated catch block
+            ex.printStackTrace();
         }
+        // //////////////////////
     }
 
-    /**
-     * Callback handler for coarsenOneStep().
-     **/
-    class CoarsenOneStepAsyncCallback implements AsyncCallback<GWTGraph> {
-        @Override
-        public void onFailure(Throwable caught) {
-            pWheel.stopAnimation();
-            displayRPCErrorMessage("Remote Procedure Call Failure while coarsening");
-        }
+    /** Called when the coarsening call to the service failed. */
+    public void coarsenOneStepFailure(Throwable caught) {
+        pWheel.stopAnimation();
+        displayRPCErrorMessage("Remote Procedure Call Failure while coarsening");
 
-        @Override
-        public void onSuccess(GWTGraph graph) {
-            pWheel.stopAnimation();
-            // Do we want to surprise the user and switch their view for them?
-            // tabPanel.selectTab(2);
-            showGraph(graph);
-
-            modelRefineButton.setEnabled(false);
-            modelCoarsenButton.setEnabled(false);
-            modelGetFinalButton.setEnabled(false);
-        }
     }
 
-    /**
-     * Handles Final Model button clicks.
-     */
-    class GetFinalModelHandler implements ClickHandler {
-        @Override
-        public void onClick(ClickEvent event) {
-            pWheel.startAnimation();
-            modelRefineButton.setEnabled(false);
-            modelCoarsenButton.setEnabled(false);
-            modelGetFinalButton.setEnabled(false);
+    /** Called when the coarsening call to the service succeeded. */
+    public void coarsenOneStepSuccess(GWTGraph graph) {
+        pWheel.stopAnimation();
+        // Do we want to surprise the user and switch their view for them?
+        // tabPanel.selectTab(2);
+        showGraph(graph);
 
-            // ////////////////////// Call to remote service.
-            try {
-                synopticService.getFinalModel(new GetFinalModelAsyncCallback());
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            // //////////////////////
-        }
+        modelRefineButton.setEnabled(false);
+        modelCoarsenButton.setEnabled(false);
+        modelGetFinalButton.setEnabled(false);
+
     }
 
-    /**
-     * Callback handler for coarsenOneStep()
-     **/
-    class GetFinalModelAsyncCallback implements AsyncCallback<GWTGraph> {
-        @Override
-        public void onFailure(Throwable caught) {
-            pWheel.stopAnimation();
-            displayRPCErrorMessage("Remote Procedure Call Failure while fetching final model");
-        }
+    /** Generates a call to Synoptic service to retrieve the final model. */
+    public void getFinalModelButtonClick(ClickEvent event) {
+        pWheel.startAnimation();
+        modelRefineButton.setEnabled(false);
+        modelCoarsenButton.setEnabled(false);
+        modelGetFinalButton.setEnabled(false);
 
-        @Override
-        public void onSuccess(GWTGraph graph) {
-            pWheel.stopAnimation();
-            // Do we want to surprise the user and switch their view for them?
-            // tabPanel.selectTab(2);
-            showGraph(graph);
-            modelRefineButton.setEnabled(false);
-            modelCoarsenButton.setEnabled(false);
-            modelGetFinalButton.setEnabled(false);
+        // ////////////////////// Call to remote service.
+        try {
+            synopticService.getFinalModel(new AsyncCallback<GWTGraph>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    getFinalModelFailure(caught);
+                }
+
+                @Override
+                public void onSuccess(GWTGraph graph) {
+                    getFinalModelSuccess(graph);
+                }
+            });
+        } catch (Exception ex) {
+            // TODO Auto-generated catch block
+            ex.printStackTrace();
         }
+        // //////////////////////
     }
 
-    /**
-     * Handles Export DOT button clicks
-     */
-    class ExportDotHandler implements ClickHandler {
-        @Override
-        public void onClick(ClickEvent event) {
-            // ////////////////////// Call to remote service.
-            try {
-                synopticService.exportDot(new ExportDotAsyncCallback());
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            // //////////////////////
-        }
+    /** Called when the call to retrieve final model failed. */
+    public void getFinalModelFailure(Throwable caught) {
+        pWheel.stopAnimation();
+        displayRPCErrorMessage("Remote Procedure Call Failure while fetching final model");
+
     }
 
-    /**
-     * Callback handler for exportDot().
-     */
-    class ExportDotAsyncCallback implements AsyncCallback<String> {
-        @Override
-        public void onFailure(Throwable caught) {
-            displayRPCErrorMessage("Remote Procedure Call Failure while exporting current model");
-        }
+    /** Called when the call to retrieve final model succeeded. */
+    public void getFinalModelSuccess(GWTGraph graph) {
+        pWheel.stopAnimation();
+        // Do we want to surprise the user and switch their view for them?
+        // tabPanel.selectTab(2);
+        showGraph(graph);
+        modelRefineButton.setEnabled(false);
+        modelCoarsenButton.setEnabled(false);
+        modelGetFinalButton.setEnabled(false);
 
-        @Override
-        public void onSuccess(String fileString) {
-            Window.open("../" + fileString, "DOT file", "Enabled");
-        }
     }
 
-    /**
-     * Handles Export PNG button clicks
-     */
-    class ExportPngHandler implements ClickHandler {
-        @Override
-        public void onClick(ClickEvent event) {
-            // ////////////////////// Call to remote service.
-            try {
-                synopticService.exportPng(new ExportPngAsyncCallback());
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            // //////////////////////
+    /** Calls the Synoptic service to export the DOT file for the model. */
+    public void exportDotButtonClick(ClickEvent event) {
+        // ////////////////////// Call to remote service.
+        try {
+            synopticService.exportDot(new AsyncCallback<String>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    exportDotFailure(caught);
+                }
+
+                @Override
+                public void onSuccess(String fileString) {
+                    exportDotSuccess(fileString);
+                }
+            });
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+        // //////////////////////
     }
 
-    /**
-     * Callback handler for exportPng().
-     */
-    class ExportPngAsyncCallback implements AsyncCallback<String> {
-        @Override
-        public void onFailure(Throwable caught) {
-            displayRPCErrorMessage("Remote Procedure Call Failure while exporting current model");
-        }
-
-        @Override
-        public void onSuccess(String fileString) {
-            Window.open("../" + fileString, "PNG file", "Enabled");
-        }
+    /** Called when export DOT failed. */
+    public void exportDotFailure(Throwable caught) {
+        displayRPCErrorMessage("Remote Procedure Call Failure while exporting current model");
     }
 
+    /** Called when export DOT succeeded. */
+    public void exportDotSuccess(String fileString) {
+        Window.open("../" + fileString, "DOT file", "Enabled");
+    }
+
+    /** Calls the Synoptic service to export the PNG file for the model. */
+    public void exportPngButtonClick(ClickEvent event) {
+        // ////////////////////// Call to remote service.
+        try {
+            synopticService.exportPng(new AsyncCallback<String>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    exportPngFailure(caught);
+                }
+
+                @Override
+                public void onSuccess(String fileString) {
+                    exportPngSuccess(fileString);
+                }
+            });
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        // //////////////////////
+    }
+
+    /** Called when export PNg failed. */
+    public void exportPngFailure(Throwable caught) {
+        displayRPCErrorMessage("Remote Procedure Call Failure while exporting current model");
+    }
+
+    /** Called when export PNG succeeded. */
+    public void exportPngSuccess(String fileString) {
+        Window.open("../" + fileString, "PNG file", "Enabled");
+    }
 }
