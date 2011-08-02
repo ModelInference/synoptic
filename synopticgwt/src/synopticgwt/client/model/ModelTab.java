@@ -11,9 +11,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
-import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTMLTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -53,7 +51,7 @@ public class ModelTab extends Tab<DockPanel> {
     private final Button modelExportDotButton = new Button("Export DOT");
     private final Button modelExportPngButton = new Button("Export PNG");
     private FlowPanel graphPanel;
-    private FlexTable logLineTable;
+    private LogLinesTable logLinesTable;
 
     public ModelTab(ISynopticServiceAsync synopticService, ProgressWheel pWheel) {
         super(synopticService, pWheel);
@@ -94,21 +92,9 @@ public class ModelTab extends Tab<DockPanel> {
         logLineLabel.addMouseOutHandler(tooltip);
         logPanel.add(logLineLabel);
 
-        // Add log lines display table
-        logLineTable = new FlexTable();
-        logLineTable.setText(0, 0, "Line #");
-        logLineTable.setText(0, 1, "Line");
-        logLineTable.setText(0, 2, "Filename");
-        logPanel.add(logLineTable);
-
-        // Style table
-        logLineTable.addStyleName("FlexTable");
-        HTMLTable.RowFormatter rf = logLineTable.getRowFormatter();
-        rf.addStyleName(0, "TableHeader");
-        HTMLTable.ColumnFormatter cf = logLineTable.getColumnFormatter();
-        cf.addStyleName(0, "LineNumCol");
-        cf.addStyleName(1, "LineCol");
-        cf.addStyleName(2, "FilenameCol");
+        // Create and add a table with log lines.
+        logLinesTable = new LogLinesTable();
+        logPanel.add(logLinesTable);
 
         controlsPanel.add(logPanel);
         panel.add(controlsPanel, DockPanel.WEST);
@@ -164,7 +150,7 @@ public class ModelTab extends Tab<DockPanel> {
         }
 
         // Clear the log line table.
-        clearLogTable();
+        logLinesTable.clear();
 
         String canvasId = "canvasId";
 
@@ -198,7 +184,7 @@ public class ModelTab extends Tab<DockPanel> {
         int height = Math.max(Window.getClientHeight() - 300, 300);
         graphPanel.setPixelSize(width, height);
         ModelGraphic mGraphic = new ModelGraphic();
-        mGraphic.createGraph(jsNodes, jsEdges, width, height, canvasId,
+        mGraphic.createGraph(this, jsNodes, jsEdges, width, height, canvasId,
                 INITIAL_LABEL, TERMINAL_LABEL);
     }
 
@@ -239,13 +225,6 @@ public class ModelTab extends Tab<DockPanel> {
                 canvasId);
     }
 
-    /** Removes currently displayed log lines from the log line table. */
-    private void clearLogTable() {
-        for (int i = 1; i < logLineTable.getRowCount(); i++) {
-            logLineTable.removeRow(i);
-        }
-    }
-
     /** Called when the request to get log lines for a partition failed. */
     public void viewLogLineFailure(Throwable caught) {
         // TODO: differentiate between clicks on initial/terminal nodes and
@@ -253,27 +232,19 @@ public class ModelTab extends Tab<DockPanel> {
 
         // This is expected whenever the user double clicks on an initial or
         // terminal node, so we'll ignore it
-        clearLogTable();
+        logLinesTable.clear();
     }
 
     /** Called when the request to get log lines for a partition succeeded. */
     public void viewLogLineSuccess(List<LogLine> result) {
-        clearLogTable();
-        int row = 1;
-        for (LogLine log : result) {
-            logLineTable.setText(row, 0, log.getLineNum() + "");
-            logLineTable.setText(row, 1, log.getLine());
-            logLineTable.setText(row, 2, log.getFilename());
-            row++;
-        }
+        logLinesTable.showLines(result);
     }
 
     /**
      * Requests the log lines for the Partition with the given nodeID. This
-     * method is used from within JavaScript -- when model nodes are double
-     * clicked.
+     * method is called from JavaScript when model nodes are double clicked.
      */
-    public void LogLineRequestHandler(int nodeID) throws Exception {
+    public void handleLogRequest(int nodeID) throws Exception {
         // ////////////////////// Call to remote service.
         synopticService.handleLogRequest(nodeID,
                 new AsyncCallback<List<LogLine>>() {
@@ -395,7 +366,6 @@ public class ModelTab extends Tab<DockPanel> {
         modelRefineButton.setEnabled(false);
         modelCoarsenButton.setEnabled(false);
         modelGetFinalButton.setEnabled(false);
-
     }
 
     /** Generates a call to Synoptic service to retrieve the final model. */

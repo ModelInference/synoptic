@@ -13,6 +13,8 @@ public class ModelGraphic {
     /**
      * A JSNI method to create and display a graph.
      * 
+     * @param modelTab
+     *            A reference to the modelTab instance containing this graphic.
      * @param nodes
      *            An array of nodes, each consecutive pair is a <id,label>
      * @param edges
@@ -24,15 +26,12 @@ public class ModelGraphic {
      * @param canvasId
      *            the div id with which to associate the resulting graph
      */
-    public native void createGraph(JavaScriptObject nodes,
+    public native void createGraph(ModelTab modelTab, JavaScriptObject nodes,
             JavaScriptObject edges, int width, int height, String canvasId,
             String initial, String terminal) /*-{
-		// Required to export this instance.
-		var _this = this;
-
-		// Export the LogLineRequestHandler globally.
+		// Export the handleLogRequest globally.
 		$wnd.viewLogLines = function(id) {
-			_this.@synopticgwt.client.model.ModelTab::LogLineRequestHandler(I)(id);
+			modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
 		};
 
 		// Create the graph.
