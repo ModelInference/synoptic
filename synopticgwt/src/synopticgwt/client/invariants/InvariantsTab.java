@@ -26,7 +26,7 @@ import synopticgwt.shared.GWTInvariantSet;
  * be satisfied by the model.
  */
 public class InvariantsTab extends Tab<VerticalPanel> {
-    Set<Integer> activeInvsHashes = new LinkedHashSet<Integer>();
+    public Set<Integer> activeInvsHashes = new LinkedHashSet<Integer>();
 
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
