@@ -39,7 +39,6 @@ import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.TraceGraph;
@@ -792,80 +791,6 @@ public class Main implements Callable<Integer> {
         exportGraph(baseFilename, g, Main.outputEdgeLabels, !exportAsGML);
     }
 
-    /**
-     * Extracts any synthetic traces from the initial log. A synthetic trace is
-     * identified as any path in the partition graph that does not match an initial
-     * trace from the log.
-     */
-    public static String findSyntheticTraces(
-    		PartitionGraph pGraph) {
-
-    	// This will contain all paths.
-    	HashSet<String> paths =
-    		new HashSet<String>();
-
-    	for (Partition part : pGraph.getInitialNodes()) {
-    			findAllPaths(part, pGraph, paths, new ArrayList<Partition>());
-    	}
-
-    	return paths.toString();
-    }
-
-    /**
-     * Helper method for {@code findSyntheticTraces}. Recursively finds all possible
-     * paths from the partition graph and adds them to a set.
-     *
-     * TODO: This will calculate any subset of nodes multiple times if
-     * the topmost node of said subset has multiple parent nodes.  A cache
-     * should be used for these nodes to make this process more optimal.
-     * @param node
-     * 	The current node
-     * @param pGraph
-     * 	The graph  of partitions (for extracting adjacences from the node).
-     * @param allPaths
-     * 	The pointer to the set of all paths.
-     * @param prefixPath
-     * 	The path of all preceding nodes.
-     * @see findSyntheticTraces
-     */
-    private static void findAllPaths(Partition node,
-    		PartitionGraph pGraph,
-    		HashSet<String> allPaths,
-    		ArrayList<Partition> prefixPath) {
-
-    	Set<Partition> adjPartitions = pGraph.getAdjacentNodes(node);
-
-    	// Check to see if the path has had a single cycle.
-    	boolean isCycled = prefixPath.contains(node) ? true : false;
-
-    	// Add the node to the prefix.
-    	prefixPath.add(node);
-
-    	// If the node is terminal, then we have a path and it can
-    	// be added to the set.
-    	if (node.isTerminal()) {
-    		String path = "";
-    		for (Partition p : prefixPath) {
-    			// Convert the paths into a string (currently split by pipes).
-    			path += p.getEType().toString() + (p.isTerminal() ? "" : "|");
-    		}
-    		allPaths.add(path);
-    		return;
-    	}
-
-    	// Process all adjacent nodes.
-    	for (Partition adjPart : adjPartitions) {
-    		// Negation of:
-    		// "If there has been a cycle and the next
-    		// node is one that has been encountered."
-    		if (!isCycled || !prefixPath.contains(node))
-    			findAllPaths(adjPart, pGraph, allPaths, prefixPath);
-
-    		// Remove anything on the end after returning from the call stack.
-    		prefixPath.remove(prefixPath.size() - 1);
-    	}
-    }
-
     /***********************************************************/
 
     public Main() {
@@ -1053,7 +978,7 @@ public class Main implements Callable<Integer> {
         logger.info("Creating partition graph took "
                 + (System.currentTimeMillis() - startTime) + "ms");
         // inputGraph can be garbage-collected.
-        inputGraph = null;
+        // inputGraph = null;
 
         if (showGui) {
             JungGui gui = new JungGui(pGraph);
@@ -1086,7 +1011,7 @@ public class Main implements Callable<Integer> {
 
         // At this point, we have the final model in the pGraph object.
 
-        // TODO: extract paths from graph that aren't in the input log.
+        // TODO: Extract synthetic traces from the final model in the pGraph object.
 
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result
