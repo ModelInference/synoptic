@@ -1,7 +1,9 @@
 package synoptic.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -26,7 +28,7 @@ import synoptic.util.InternalSynopticException;
  * {@code Partition}. PartitionGraphs can only be modified via the method
  * {@code apply} which takes a object implementing {@code IOperation}.
  * Operations must perform changes on both representations.
- * 
+ *
  * @author sigurd
  */
 public class PartitionGraph implements IGraph<Partition> {
@@ -71,7 +73,7 @@ public class PartitionGraph implements IGraph<Partition> {
      * and stored. If partitionByLabel is true, all messages with identical
      * labels in {@code g} will become one partition. Otherwise, every message
      * gets its own partition (useful if only coarsening is to be performed).
-     * 
+     *
      * @param g
      *            The initial graph
      * @param partitionByLabel
@@ -149,7 +151,7 @@ public class PartitionGraph implements IGraph<Partition> {
     /**
      * Returns a set of partitions that are adjacent to pNode. Uses the internal
      * transitionCache for speed.
-     * 
+     *
      * @param pNode
      * @return set of adjacent partitions to pNode
      */
@@ -169,7 +171,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
     /**
      * All messages with identical labels are mapped to the same partition.
-     * 
+     *
      * @param events
      *            Set of message which to be partitioned
      */
@@ -295,7 +297,7 @@ public class PartitionGraph implements IGraph<Partition> {
     /**
      * Each event is mapped to its own unique partition. This is the most direct
      * means of mapping a graph into a partition graph.
-     * 
+     *
      * @param events
      *            Set of message to map
      */
@@ -443,4 +445,127 @@ public class PartitionGraph implements IGraph<Partition> {
         }
     }
 
+    /**
+     * Extracts any synthetic traces from the initial log. A synthetic trace is
+     * identified as any path in the partition graph that does not match an
+     * initial trace from the log.
+     *
+     * @return traces
+     *		Set<String> containing the synthetic traces
+     */
+    public HashSet<String> getSyntheticTraces() {
+    	HashSet<String> traces = getAllTraces();
+    	traces.removeAll(getInitialLogTraces());
+    	return traces;
+    }
+
+
+    public HashSet<String> getAllTraces() {
+    	// This will contain all the traces
+    	HashSet<String> allTraces = new HashSet<String>();
+    	// Constructs the set of all traces
+    	for (Partition pNode : getInitialNodes()) {
+			getAllTracesHelper(pNode, allTraces, new ArrayList<Partition>());
+    	}
+    	return allTraces;
+    }
+
+    /**
+     * Helper method for {@code findAllTraces}. Recursively finds all possible
+     * paths from the partition graph and adds them to a set.
+     *
+     * TODO: This will calculate any subset of nodes multiple times if
+     * the topmost node of said subset has multiple parent nodes.  A cache
+     * should be used for these nodes to make this process more optimal.
+     *
+     * @param pNode
+     * 		The current node
+     * @param allTraces
+     * 		The pointer to the set of all paths.
+     * @param prefixTrace
+     * 		The path of all preceding nodes.
+     * @see findAllTraces
+     */
+    private void getAllTracesHelper(Partition pNode,
+    		HashSet<String> allTraces,
+    		ArrayList<Partition> prefixTrace) {
+    	Set<Partition> adjPartitions = getAdjacentNodes(pNode);
+    	// Check to see if the path has had a single cycle.
+    	boolean isCycled = prefixTrace.contains(pNode) ? true : false;
+    	// Add the node to the prefix.
+    	prefixTrace.add(pNode);
+    	// If the node is terminal, then we have a path and it can
+    	// be added to the set.
+    	if (pNode.isTerminal()) {
+    		String path = "";
+    		for (Partition p : prefixTrace) {
+    			// Convert the paths into a string (currently split by pipes).
+    			path += p.getEType().toString() + (p.isTerminal() ? "" : " | ");
+    		}
+    		allTraces.add(path);
+    		return;
+    	}
+    	// Process all adjacent nodes.
+    	for (Partition adjPNode : adjPartitions) {
+    		// Negation of:
+    		// "If there has been a cycle and the next
+    		// node is one that has been encountered."
+    		// TODO: Could it be tail-recursive?
+    		if (!isCycled || !prefixTrace.contains(pNode))
+    			getAllTracesHelper(adjPNode, allTraces, prefixTrace);
+    		// Remove anything on the end after returning from the call stack.
+    		prefixTrace.remove(prefixTrace.size() - 1);
+    	}
+    }
+
+    /**
+     * Gets and returns the initialLogTraces as a HashSet<String>
+     *
+     * @return initialTraces
+     */
+    public HashSet<String> getInitialLogTraces() {
+    	// This will contain the set of initialTraces
+    	HashSet<String> initialTraces = new HashSet<String>();
+    	// This will contain the list of all EventNodes in the PartitionGraph
+    	List<EventNode> allEvents = new ArrayList<EventNode>();
+    	// Adding EventNodes
+    	for (Partition pNode : partitions) {
+    		for (EventNode event : pNode.getEventNodes()) {
+    			allEvents.add(event);
+    		}
+    	}
+    	// Getting initial EventNodes
+    	for (Partition pNode : getInitialNodes()) {
+    		for (EventNode event : pNode.getEventNodes()) {
+    			if (event.isInitial()) {
+    				getInitialLogTracesHelper(initialTraces, allEvents, event, "");
+    			}
+    		}
+    	}
+    	return initialTraces;
+    }
+
+    /**
+     * Helper method for {@code getInitialLogTraces}.
+     * Recursively traces eventNodes using {@code EventNode.getDirectSuccessors}.
+     *
+     * @param initialTraces
+     * 		The pointer for what will contain all of the initial traces
+     * @param allEvents
+     * 		A list of EventNodes to choose the next successor(s) EventNode(s)
+     * @param event
+     * 		The current EventNode
+     * @param currentTrace
+     * 		A String being built into the current trace
+     */
+    private void getInitialLogTracesHelper(HashSet<String> initialTraces, List<EventNode> allEvents, EventNode event, String currentTrace) {
+    	if (event.isTerminal()) {
+    		initialTraces.add(currentTrace + event.getEType().toString());
+    	} else {
+    		// TODO Unsure of whether the boolean value is correctly done.
+    		for (EventNode nextEvent : EventNode.getDirectSuccessors(event, allEvents, !partiallyOrderedTraces)) {
+    			getInitialLogTracesHelper(initialTraces, allEvents, nextEvent, event.getEType().toString() + " | ");
+    		}
+    	}
+    }
 }
