@@ -513,7 +513,7 @@ public class Main implements Callable<Integer> {
         } catch (ParseException e) {
             throw e;
         } catch (Exception e) {
-            throw InternalSynopticException.Wrap(e);
+             throw InternalSynopticException.Wrap(e);
         }
 
         logger.fine("Main.call() returned " + ret.toString());
