@@ -977,7 +977,7 @@ public class Main implements Callable<Integer> {
         logger.info("Creating partition graph took "
                 + (System.currentTimeMillis() - startTime) + "ms");
         // inputGraph can be garbage-collected.
-        // inputGraph = null;
+        inputGraph = null;
 
         if (showGui) {
             JungGui gui = new JungGui(pGraph);
@@ -1009,8 +1009,6 @@ public class Main implements Callable<Integer> {
                 + "ms");
 
         // At this point, we have the final model in the pGraph object.
-
-        // TODO: Extract synthetic traces from the final model in the pGraph object.
 
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result
