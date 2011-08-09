@@ -444,19 +444,19 @@ public class PartitionGraph implements IGraph<Partition> {
         }
     }
 
-    /**
-     * Extracts any synthetic traces from the initial log. A synthetic trace is
-     * identified as any path in the partition graph that does not match an
-     * initial trace from the log.
-     *
-     * @return traces
-     *		Set<String> containing the synthetic traces
-     */
-    public HashSet<String> getSyntheticTraces() {
-    	HashSet<String> traces = getAllTraces();
-    	traces.removeAll(getInitialLogTraces());
-    	return traces;
-    }
+//    /**
+//     * Extracts any synthetic traces from the initial log. A synthetic trace is
+//     * identified as any path in the partition graph that does not match an
+//     * initial trace from the log.
+//     *
+//     * @return traces
+//     *		Set<List<Partition>> containing the synthetic traces
+//     */
+//    public Set<List<Partition>> getSyntheticTraces() {
+//    	Set<List<Partition>> traces = getAllTraces();
+//    	traces.removeAll(getInitialLogTraces());
+//    	return traces;
+//    }
 
 
     public HashSet<String> getAllTraces() {
@@ -486,7 +486,7 @@ public class PartitionGraph implements IGraph<Partition> {
      * @see findAllTraces
      */
     private void getAllTracesHelper(Partition pNode,
-    		HashSet<String> allTraces,
+    		Set<String> allTraces,
     		ArrayList<Partition> prefixTrace) {
     	Set<Partition> adjPartitions = getAdjacentNodes(pNode);
     	// Check to see if the path has had a single cycle.
@@ -518,26 +518,25 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     /**
-     * Gets and returns the initialLogTraces as a HashSet<String>
+     * Returns the initial log traces as a Set<List<Partition>>
      *
      * @return initialTraces
      */
-    public HashSet<String> getInitialLogTraces() {
-    	// This will contain the set of initialTraces
-    	HashSet<String> initialTraces = new HashSet<String>();
+    public Set<List<Partition>> getInitialLogTraces() {
+    	// Will contain all of the initial traces
+    	Set<List<Partition>> initialTraces = new HashSet<List<Partition>>();
     	// This will contain the list of all EventNodes in the PartitionGraph
-    	List<EventNode> allEvents = new ArrayList<EventNode>();
-    	// Adding EventNodes
-    	for (Partition pNode : partitions) {
-    		for (EventNode event : pNode.getEventNodes()) {
-    			allEvents.add(event);
-    		}
-    	}
-    	// Getting initial EventNodes
+        List<EventNode> allEvents = new ArrayList<EventNode>();
+        // Adding EventNodes
+        for (Partition pNode : partitions) {
+        	allEvents.addAll(pNode.getEventNodes());
+        }
+        // Find initial events and add the results from each iteration to initialTraces
     	for (Partition pNode : getInitialNodes()) {
     		for (EventNode event : pNode.getEventNodes()) {
     			if (event.isInitial()) {
-    				getInitialLogTracesHelper(initialTraces, allEvents, event, "");
+    				initialTraces.addAll(getInitialLogTracesFromCurrentPartition(pNode, event,
+    						new ArrayList<Partition>(), allEvents));
     			}
     		}
     	}
@@ -545,26 +544,41 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     /**
-     * Helper method for {@code getInitialLogTraces}.
-     * Recursively traces eventNodes using {@code EventNode.getDirectSuccessors}.
      *
-     * @param initialTraces
-     * 		The pointer for what will contain all of the initial traces
-     * @param allEvents
-     * 		A list of EventNodes to choose the next successor(s) EventNode(s)
-     * @param event
-     * 		The current EventNode
+     * @param currentPartition
+     * 		The node to start from
+     * 		@currentEvent should be from @currentPartition
+     * @param currentEvent
+     * 		The event to start from
      * @param currentTrace
-     * 		A String being built into the current trace
+     * 		The trace to add to
+     * @param allEvents
+     * 		The pool of events from which to find the next EventNode
+     * @return
+     * 		Returns a set containing the traces starting from currentPartition and currentEvent
      */
-    private void getInitialLogTracesHelper(HashSet<String> initialTraces, List<EventNode> allEvents, EventNode event, String currentTrace) {
-    	if (event.isTerminal()) {
-    		initialTraces.add(currentTrace + event.getEType().toString());
+    private Set<List<Partition>> getInitialLogTracesFromCurrentPartition(Partition currentPartition,
+    		EventNode currentEvent, List<Partition> currentTrace, List<EventNode> allEvents) {
+    	// Will hold traces through the current partition
+    	Set<List<Partition>> traces = new HashSet<List<Partition>>();
+    	currentTrace.add(currentPartition);
+    	allEvents.remove(currentEvent);
+    	if (currentEvent.isTerminal()) {
+    		traces.add(currentTrace);
     	} else {
-    		// TODO Unsure of whether the boolean value is correctly done.
-    		for (EventNode nextEvent : EventNode.getDirectSuccessors(event, allEvents, !partiallyOrderedTraces)) {
-    			getInitialLogTracesHelper(initialTraces, allEvents, nextEvent, event.getEType().toString() + " | ");
+			Set<EventNode> nextEvents = EventNode.getDirectSuccessors(currentEvent, allEvents,
+					!partiallyOrderedTraces);
+    		for (Partition pNode : getAdjacentNodes(currentPartition)) {
+    			for (EventNode possibleNextEvent : pNode.getEventNodes()) {
+    				if (nextEvents.contains(possibleNextEvent)) {
+    					List<Partition> cloneTrace = new ArrayList<Partition>();
+    					cloneTrace.addAll(currentTrace);
+    					traces.addAll(getInitialLogTracesFromCurrentPartition(pNode, possibleNextEvent,
+    							cloneTrace, allEvents));
+    				}
+    			}
     		}
     	}
+    	return traces;
     }
 }
