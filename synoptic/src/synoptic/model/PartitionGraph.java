@@ -525,18 +525,21 @@ public class PartitionGraph implements IGraph<Partition> {
     public Set<List<Partition>> getInitialLogTraces() {
     	// Will contain all of the initial traces
     	Set<List<Partition>> initialTraces = new HashSet<List<Partition>>();
+
     	// This will contain the list of all EventNodes in the PartitionGraph
-        List<EventNode> allEvents = new ArrayList<EventNode>();
-        // Adding EventNodes
-        for (Partition pNode : partitions) {
-        	allEvents.addAll(pNode.getEventNodes());
-        }
-        // Find initial events and add the results from each iteration to initialTraces
+        // List<EventNode> allEvents = new ArrayList<EventNode>();
+
+    	// Adding EventNodes
+        // for (Partition pNode : partitions) {
+        //	allEvents.addAll(pNode.getEventNodes());
+        // }
+
+    	// Find initial events and add the results from each iteration to initialTraces
     	for (Partition pNode : getInitialNodes()) {
     		for (EventNode event : pNode.getEventNodes()) {
     			if (event.isInitial()) {
     				initialTraces.addAll(getInitialLogTracesFromCurrentPartition(pNode, event,
-    						new ArrayList<Partition>(), allEvents));
+    						new ArrayList<Partition>()));
     			}
     		}
     	}
@@ -558,23 +561,30 @@ public class PartitionGraph implements IGraph<Partition> {
      * 		Returns a set containing the traces starting from currentPartition and currentEvent
      */
     private Set<List<Partition>> getInitialLogTracesFromCurrentPartition(Partition currentPartition,
-    		EventNode currentEvent, List<Partition> currentTrace, List<EventNode> allEvents) {
+    		EventNode currentEvent, List<Partition> currentTrace) {
     	// Will hold traces through the current partition
     	Set<List<Partition>> traces = new HashSet<List<Partition>>();
     	currentTrace.add(currentPartition);
-    	allEvents.remove(currentEvent);
+
+    	// allEvents.remove(currentEvent);
+
     	if (currentEvent.isTerminal()) {
     		traces.add(currentTrace);
     	} else {
-			Set<EventNode> nextEvents = EventNode.getDirectSuccessors(currentEvent, allEvents,
-					!partiallyOrderedTraces);
+
+    		// Set<EventNode> nextEvents = EventNode.getDirectSuccessors(currentEvent, allEvents,
+			//		!partiallyOrderedTraces);
+
+    		// Gets the next event with relation to time.
+    		Set<EventNode> nextEvents = currentEvent.getSuccessors("t");
+    		// Finds the next partition to enter with the correct event.
     		for (Partition pNode : getAdjacentNodes(currentPartition)) {
     			for (EventNode possibleNextEvent : pNode.getEventNodes()) {
     				if (nextEvents.contains(possibleNextEvent)) {
     					List<Partition> cloneTrace = new ArrayList<Partition>();
     					cloneTrace.addAll(currentTrace);
     					traces.addAll(getInitialLogTracesFromCurrentPartition(pNode, possibleNextEvent,
-    							cloneTrace, allEvents));
+    							cloneTrace));
     				}
     			}
     		}
