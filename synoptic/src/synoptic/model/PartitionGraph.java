@@ -444,38 +444,49 @@ public class PartitionGraph implements IGraph<Partition> {
         }
     }
 
-//    /**
-//     * Extracts any synthetic traces from the initial log. A synthetic trace is
-//     * identified as any path in the partition graph that does not match an
-//     * initial trace from the log.
-//     *
-//     * @return traces
-//     *		Set<List<Partition>> containing the synthetic traces
-//     */
-//    public Set<List<Partition>> getSyntheticTraces() {
-//    	Set<List<Partition>> traces = getAllTraces();
-//    	traces.removeAll(getInitialLogTraces());
-//    	return traces;
-//    }
+    /**
+     * Extracts any synthetic traces from the initial log. A synthetic trace is
+     * identified as any path in the partition graph that does not match an
+     * initial trace from the log.
+     *
+     * @return traces
+     *		Set<List<Partition>> containing the synthetic traces
+     */
+    public Set<List<Partition>> getSyntheticTraces() {
+    	Set<List<Partition>> traces = getAllTraces();
+    	traces.removeAll(getInitialLogTraces());
+    	return traces;
+    }
 
-
-    public HashSet<String> getAllTraces() {
+    /**
+     * Traverses the partition graph and returns a set of all
+     * possible traces.
+     * 
+     * TODO: Use a more general data-type other than 'ArrayList'
+     * @return
+     */
+    public Set<List<Partition>> getAllTraces() {
     	// This will contain all the traces
-    	HashSet<String> allTraces = new HashSet<String>();
+    	Set<List<Partition>> allTraces = 
+    		new HashSet<List<Partition>>();
     	// Constructs the set of all traces
     	for (Partition pNode : getInitialNodes()) {
-			getAllTracesHelper(pNode, allTraces, new ArrayList<Partition>());
+			recursivleyAddTracesToSet(pNode, allTraces, new ArrayList<Partition>());
     	}
     	return allTraces;
     }
 
     /**
-     * Helper method for {@code findAllTraces}. Recursively finds all possible
+     * Helper method for {@code getAllTraces}. Recursively finds all possible
      * paths from the partition graph and adds them to a set.
      *
      * TODO: This will calculate any subset of nodes multiple times if
      * the topmost node of said subset has multiple parent nodes.  A cache
      * should be used for these nodes to make this process more optimal.
+     * 
+     * TODO: Return a set rather than alter a pointer.
+     * 
+     * TODO: Make a proper cycle-checking algorithm.
      *
      * @param pNode
      * 		The current node
@@ -485,40 +496,38 @@ public class PartitionGraph implements IGraph<Partition> {
      * 		The path of all preceding nodes.
      * @see findAllTraces
      */
-    private void getAllTracesHelper(Partition pNode,
-    		Set<String> allTraces,
-    		ArrayList<Partition> prefixTrace) {
+    private void recursivleyAddTracesToSet(Partition pNode,
+    		Set<List<Partition>> allTraces,
+    		List<Partition> prefixTrace) {
     	Set<Partition> adjPartitions = getAdjacentNodes(pNode);
     	// Check to see if the path has had a single cycle.
-    	boolean isCycled = prefixTrace.contains(pNode) ? true : false;
+    	boolean isCyclic = prefixTrace.contains(pNode);
     	// Add the node to the prefix.
     	prefixTrace.add(pNode);
     	// If the node is terminal, then we have a path and it can
     	// be added to the set.
     	if (pNode.isTerminal()) {
-    		String path = "";
-    		for (Partition p : prefixTrace) {
-    			// Convert the paths into a string (currently split by pipes).
-    			path += p.getEType().toString() + (p.isTerminal() ? "" : " | ");
-    		}
-    		allTraces.add(path);
+    		List<Partition> trace = new ArrayList<Partition>();
+    		trace.addAll(prefixTrace);
+    		allTraces.add(trace);
     		return;
     	}
-    	// Process all adjacent nodes.
+
+	    // Process all adjacent nodes.
     	for (Partition adjPNode : adjPartitions) {
     		// Negation of:
     		// "If there has been a cycle and the next
     		// node is one that has been encountered."
-    		// TODO: Could it be tail-recursive?
-    		if (!isCycled || !prefixTrace.contains(pNode))
-    			getAllTracesHelper(adjPNode, allTraces, prefixTrace);
-    		// Remove anything on the end after returning from the call stack.
-    		prefixTrace.remove(prefixTrace.size() - 1);
+    		if (!isCyclic || !prefixTrace.contains(adjPNode)) {
+    			recursivleyAddTracesToSet(adjPNode, allTraces, prefixTrace);
+				// Remove anything on the end after returning from the call stack.
+				prefixTrace.remove(prefixTrace.size() - 1);
+			}
     	}
     }
 
     /**
-     * Returns the initial log traces as a Set<List<Partition>>
+     * Returns the set of initial log traces.
      *
      * @return initialTraces
      */
