@@ -471,7 +471,7 @@ public class PartitionGraph implements IGraph<Partition> {
     		new HashSet<List<Partition>>();
     	// Constructs the set of all traces
     	for (Partition pNode : getInitialNodes()) {
-			recursivleyAddTracesToSet(pNode, allTraces, new ArrayList<Partition>());
+			recursivelyAddTracesToSet(pNode, allTraces, new ArrayList<Partition>());
     	}
     	return allTraces;
     }
@@ -496,7 +496,7 @@ public class PartitionGraph implements IGraph<Partition> {
      * 		The path of all preceding nodes.
      * @see findAllTraces
      */
-    private void recursivleyAddTracesToSet(Partition pNode,
+    private void recursivelyAddTracesToSet(Partition pNode,
     		Set<List<Partition>> allTraces,
     		List<Partition> prefixTrace) {
     	Set<Partition> adjPartitions = getAdjacentNodes(pNode);
@@ -519,7 +519,7 @@ public class PartitionGraph implements IGraph<Partition> {
     		// "If there has been a cycle and the next
     		// node is one that has been encountered."
     		if (!isCyclic || !prefixTrace.contains(adjPNode)) {
-    			recursivleyAddTracesToSet(adjPNode, allTraces, prefixTrace);
+    			recursivelyAddTracesToSet(adjPNode, allTraces, prefixTrace);
 				// Remove anything on the end after returning from the call stack.
 				prefixTrace.remove(prefixTrace.size() - 1);
 			}
