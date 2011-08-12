@@ -108,7 +108,6 @@ public class PartitionGraphTests extends SynopticTest {
      */
     @Test
     public void exportSyntheticTracesTest() throws Exception {
-    	// TODO: Make a partition graph creating method for other tests.
     	
     	// This should create two synthetic traces: I a b c T, I q a b T.
     	String[] events = new String[] { "1 0 a", "2 0 b", 
@@ -116,19 +115,18 @@ public class PartitionGraphTests extends SynopticTest {
         TraceParser parser = new TraceParser();
         parser.addRegex("^(?<TIME>)(?<nodename>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<nodename>");
-        
-        String traceStr = concatinateWithNewlines(events);
-        ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
-                testName.getMethodName(), -1);
-        TraceGraph inputGraph = parser.generateDirectTemporalRelation(parsedEvents);
 
         InvariantMiner miner = new ChainWalkingTOInvMiner();
-        TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
-        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
+        PartitionGraph pGraph = genInitialPartitionGraph(events,
+            parser, miner);
         
         // Prepare the output with what it should be (as mentioned above).
         Set<List<Partition>> pTraces = pGraph.getSyntheticTraces();
-        for (List<Partition> p : pTraces) { // only should run twice.
+        
+        // Should only have 2 synthetic traces.
+        assertTrue(pTraces.size() == 2);
+        for (List<Partition> p : pTraces) {
+        	// Synthetic traces will only have either a or q after INITIAL.
             boolean aTrace = p.get(1).getEType().equals(new StringEventType("a"));
             boolean qTrace = p.get(1).getEType().equals(new StringEventType("q"));
         	assertTrue(aTrace || qTrace);
