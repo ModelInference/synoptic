@@ -994,7 +994,7 @@ public class Main implements Callable<Integer> {
         }
         logger.info("Refining (Splitting)...");
         startTime = System.currentTimeMillis();
-//        Bisimulation.splitPartitions(pGraph);
+        Bisimulation.splitPartitions(pGraph);
         logger.info("Splitting took "
                 + (System.currentTimeMillis() - startTime) + "ms");
 
@@ -1004,7 +1004,7 @@ public class Main implements Callable<Integer> {
         }
         logger.info("Coarsening (Merging)..");
         startTime = System.currentTimeMillis();
-//        Bisimulation.mergePartitions(pGraph);
+        Bisimulation.mergePartitions(pGraph);
         logger.info("Merging took " + (System.currentTimeMillis() - startTime)
                 + "ms");
 
