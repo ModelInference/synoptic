@@ -1009,12 +1009,6 @@ public class Main implements Callable<Integer> {
                 + "ms");
 
         // At this point, we have the final model in the pGraph object.
-
-        // TODO: Remove this after testing!!!!!!!!!!!
-        startTime = System.currentTimeMillis();
-        logger.info("Synthetic Traces: " + pGraph.getSyntheticTraces().toString());
-        logger.info("Exporting traces took " + (System.currentTimeMillis() - startTime)
-        		+ "ms");
         
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result

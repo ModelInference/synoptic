@@ -128,8 +128,6 @@ public class PartitionGraphTests extends SynopticTest {
         
         // Prepare the output with what it should be (as mentioned above).
         Set<List<Partition>> pTraces = pGraph.getSyntheticTraces();
-        System.out.println(pGraph.getAllTraces());
-        System.out.println(pTraces.toString());
         for (List<Partition> p : pTraces) { // only should run twice.
             boolean aTrace = p.get(1).getEType().equals(new StringEventType("a"));
             boolean qTrace = p.get(1).getEType().equals(new StringEventType("q"));
