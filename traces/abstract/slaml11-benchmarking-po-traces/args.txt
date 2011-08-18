@@ -3,4 +3,5 @@
 -i
 --onlyMineInvariants=true
 --noRefinement=true
---dumpInitialGraph=false
+--dumpInitialGraphDotFile=false
+

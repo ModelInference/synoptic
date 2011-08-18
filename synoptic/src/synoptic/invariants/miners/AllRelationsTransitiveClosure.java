@@ -8,11 +8,8 @@ import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
 /**
- * Code taken from:
- * http://www.cs.princeton.edu/courses/archive/fall05/cos226/lectures
- * /digraph.pdf
- * 
- * @author Sigurd
+ * This class keeps a set of transitive closures for an IGraph, one transitive
+ * closure per relation in the IGraph.
  */
 public class AllRelationsTransitiveClosure<NodeType extends INode<NodeType>> {
     private final LinkedHashMap<String, TransitiveClosure<NodeType>> tcs = new LinkedHashMap<String, TransitiveClosure<NodeType>>();

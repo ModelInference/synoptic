@@ -215,7 +215,7 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
         }
 
         return new TemporalInvariantSet(extractPathInvariantsFromWalkCounts(
-                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts,
+                relation, gEventCnts, gFollowedByCnts, gPrecedesCnts, null,
                 AlwaysFollowsINITIALSet));
     }
 }
