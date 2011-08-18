@@ -32,6 +32,8 @@ import plume.Options;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.gui.JungGui;
+import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
@@ -968,6 +970,15 @@ public class Main implements Callable<Integer> {
         miner = null;
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
+        int totalNCwith = 0;
+        for (ITemporalInvariant inv : minedInvs.getSet()) {
+            if (inv instanceof NeverConcurrentInvariant) {
+                totalNCwith++;
+            }
+        }
+        logger.info("\tMined " + totalNCwith
+                + " NeverConcurrentWith invariants");
+
         if (dumpInvariants) {
             logger.info("Mined invariants: " + minedInvs);
         }
