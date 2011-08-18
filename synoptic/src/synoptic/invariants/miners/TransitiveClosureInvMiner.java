@@ -147,15 +147,10 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
             // partitions by traceIDs.
 
             for (EventNode node2 : partitions.get(e2)) {
-                if (!node1.getEType().isSpecialEventType()
-                        && !node2.getEType().isSpecialEventType()
-                        && node1.getTraceID() != node2.getTraceID()) {
-                    // The last condition is an optimization. The first
-                    // two conditions make sure that the optimization is
-                    // backward-compatible with
-                    // testTautologicalInvariantMining() in
-                    // TOLogInvariantMiningTests (TODO: fix the test to
-                    // remove this constraint)
+                if (node1.getTraceID() != node2.getTraceID()
+                        || node1.getEType().isSpecialEventType()
+                        || node2.getEType().isSpecialEventType()) {
+                    // Optimizations to ignore certain nodes.
                     continue;
                 }
 
