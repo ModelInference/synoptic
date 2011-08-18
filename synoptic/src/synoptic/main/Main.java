@@ -9,13 +9,11 @@ import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -40,7 +38,6 @@ import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.InvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.model.EventNode;
-import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.TraceGraph;
 import synoptic.model.export.DotExportFormatter;
@@ -336,6 +333,15 @@ public class Main implements Callable<Integer> {
     public static boolean useTransitiveClosureMining = false;
 
     /**
+     * Tell Synoptic to mine/not mine the NeverConcurrentWith invariant. When
+     * false, this option changes mining behavior when
+     * useTransitiveClosureMining = false (i.e., it only works for the DAG
+     * walking invariant miner, not the TC-based miner).
+     */
+    @Option("Mine the NeverConcurrentWith invariant (only makes a difference when useTransitiveClosureMining=false)")
+    public static boolean mineNeverConcurrentWithInv = true;
+
+    /**
      * Used to tell Synoptic to not go past mining invariants.
      */
     @Option("Mine invariants and then quit.")
@@ -415,7 +421,7 @@ public class Main implements Callable<Integer> {
     /**
      * The synoptic.main method to perform the inference algorithm. See user
      * documentation for an explanation of the options.
-     *
+     * 
      * @param args
      *            - command-line options
      */
@@ -513,7 +519,7 @@ public class Main implements Callable<Integer> {
         } catch (ParseException e) {
             throw e;
         } catch (Exception e) {
-             throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.Wrap(e);
         }
 
         logger.fine("Main.call() returned " + ret.toString());
@@ -522,7 +528,7 @@ public class Main implements Callable<Integer> {
 
     /**
      * Returns a command line option description for an option name
-     *
+     * 
      * @param optName
      *            The option variable name
      * @return a string description of the option
@@ -551,7 +557,7 @@ public class Main implements Callable<Integer> {
 
     /**
      * Runs all the synoptic unit tests
-     *
+     * 
      * @throws URISyntaxException
      *             if Main.class can't be located
      */
@@ -624,7 +630,7 @@ public class Main implements Callable<Integer> {
     /**
      * Takes a list of paths that point to JUnit test classes and executes them
      * using JUnitCore runner.
-     *
+     * 
      * @param testClasses
      */
     public static void runTests(List<String> testClasses) {
@@ -683,7 +689,7 @@ public class Main implements Callable<Integer> {
      * Given a potentially wild-carded file path, finds all those which match.
      * TODO: make sure that the same file doesn't appear twice in the returned
      * list
-     *
+     * 
      * @param fileArg
      *            The file path which may potentially contain wildcards.
      * @return An array of File handles which match.
@@ -715,7 +721,7 @@ public class Main implements Callable<Integer> {
      * stage name and round number. Adheres to the convention specified above in
      * usage, namely that the filename is of the format:
      * outputPathPrefix.stage-S.round-R.dot
-     *
+     * 
      * @param stageName
      *            Stage name string, e.g. "r" for refinement
      * @param roundNum
@@ -730,7 +736,7 @@ public class Main implements Callable<Integer> {
     /**
      * Serializes g using a dot/gml format and optionally outputs a png file
      * corresponding to the serialized format (dot format export only).
-     *
+     * 
      * @throws IOException
      */
     private static <T extends INode<T>> void exportGraph(String baseFilename,
@@ -798,7 +804,7 @@ public class Main implements Callable<Integer> {
 
     /**
      * Prints the values of all the options for this instance of Main class
-     *
+     * 
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      */
@@ -935,6 +941,10 @@ public class Main implements Callable<Integer> {
         // Invariant miners depend on total/partial ordering of the log.
         InvariantMiner miner;
         if (parser.logTimeTypeIsTotallyOrdered()) {
+            if (mineNeverConcurrentWithInv) {
+                logger.severe("Unable to mine or not mine NeverConcurrentWith invariant for a non-PO trace.");
+                return new Integer(1);
+            }
             miner = new ChainWalkingTOInvMiner();
         } else {
             logger.warning("Partially ordered log input detected. Only mining invariants since refinement/coarsening is not yet supported.");
@@ -942,7 +952,7 @@ public class Main implements Callable<Integer> {
             if (useTransitiveClosureMining) {
                 miner = new TransitiveClosureInvMiner();
             } else {
-                miner = new DAGWalkingPOInvMiner();
+                miner = new DAGWalkingPOInvMiner(mineNeverConcurrentWithInv);
             }
         }
         // Parser can be garbage-collected.
@@ -950,6 +960,7 @@ public class Main implements Callable<Integer> {
 
         logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
         startTime = System.currentTimeMillis();
+
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
         logger.info("Mining took " + (System.currentTimeMillis() - startTime)
                 + "ms");
@@ -1009,7 +1020,7 @@ public class Main implements Callable<Integer> {
                 + "ms");
 
         // At this point, we have the final model in the pGraph object.
-        
+
         // TODO: check that none of the initially mined synoptic.invariants are
         // unsatisfied in the result
 

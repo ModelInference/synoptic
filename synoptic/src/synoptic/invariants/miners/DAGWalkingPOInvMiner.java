@@ -28,6 +28,15 @@ import synoptic.model.interfaces.ITransition;
  * into valid temporal invariants.
  */
 public class DAGWalkingPOInvMiner extends InvariantMiner {
+    boolean mineNeverConcurrentWith;
+
+    public DAGWalkingPOInvMiner() {
+        mineNeverConcurrentWith = true;
+    }
+
+    public DAGWalkingPOInvMiner(boolean mineNeverConcurrentWith) {
+        this.mineNeverConcurrentWith = mineNeverConcurrentWith;
+    }
 
     @Override
     public TemporalInvariantSet computeInvariants(IGraph<EventNode> g) {
@@ -39,7 +48,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             mineConcurrencyInvariants = true;
         }
         // By default, mine the NeverConcurrentWith invariant.
-        return computeInvariants(g, mineConcurrencyInvariants, true);
+        return computeInvariants(g, mineConcurrencyInvariants);
     }
 
     /**
@@ -56,7 +65,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      * @return the set of mined invariants
      */
     public TemporalInvariantSet computeInvariants(IGraph<EventNode> g,
-            boolean mineConcurrencyInvariants, boolean mineNeverConcurrentWith) {
+            boolean mineConcurrencyInvariants) {
         String relation = TraceParser.defaultRelation;
 
         assert (!g.getInitialNodes().isEmpty() && g.getInitialNodes().size() == 1) : "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.";
@@ -216,10 +225,10 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                 // A pre-processing step: builds the parent\child counts maps,
                 // the parents map, the tSeenETypes set, and determines the
                 // terminal node in the trace.
-                termNodeNew = preTraverseTrace(mineNeverConcurrentWith,
-                        curNode, tNodeToNumParentsMap, tNodeToNumChildrenMap,
-                        tNodeParentsMap, tEventCnts, tNodeFollowingTypeCnts,
-                        tNodePrecedingTypeCnts, tSeenETypes);
+                termNodeNew = preTraverseTrace(curNode, tNodeToNumParentsMap,
+                        tNodeToNumChildrenMap, tNodeParentsMap, tEventCnts,
+                        tNodeFollowingTypeCnts, tNodePrecedingTypeCnts,
+                        tSeenETypes);
                 if (termNodeNew != null) {
                     termNode = termNodeNew;
                 }
@@ -428,8 +437,8 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      * @param tSeenETypes
      * @return the terminal node for this trace
      */
-    public EventNode preTraverseTrace(boolean mineNeverConcurrentWith,
-            EventNode curNode, Map<EventNode, Integer> tNodeToNumParentsMap,
+    public EventNode preTraverseTrace(EventNode curNode,
+            Map<EventNode, Integer> tNodeToNumParentsMap,
             Map<EventNode, Integer> tNodeToNumChildrenMap,
             Map<EventNode, Set<EventNode>> tNodeParentsMap,
             Map<EventType, Integer> tEventCnts,
@@ -529,10 +538,9 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             }
             parentNodes.add(node);
 
-            EventNode ret = preTraverseTrace(mineNeverConcurrentWith,
-                    childNode, tNodeToNumParentsMap, tNodeToNumChildrenMap,
-                    tNodeParentsMap, tEventCnts, tNodeFollowingTypeCnts,
-                    tNodePrecedingTypeCnts, tSeenETypes);
+            EventNode ret = preTraverseTrace(childNode, tNodeToNumParentsMap,
+                    tNodeToNumChildrenMap, tNodeParentsMap, tEventCnts,
+                    tNodeFollowingTypeCnts, tNodePrecedingTypeCnts, tSeenETypes);
             if (ret != null) {
                 termNode = ret;
             }
