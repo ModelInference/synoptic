@@ -38,6 +38,10 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         this.mineNeverConcurrentWith = mineNeverConcurrentWith;
     }
 
+    public boolean getMineNeverConcurrentWith() {
+        return mineNeverConcurrentWith;
+    }
+
     @Override
     public TemporalInvariantSet computeInvariants(IGraph<EventNode> g) {
         // Determine whether to mine concurrency invariants or not by testing
@@ -453,16 +457,16 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         while (true) {
             EventType a = node.getEType();
 
-            // if (!mineNeverConcurrentWith) {
-            if (!tNodeFollowingTypeCnts.containsKey(curNode)) {
-                tNodeFollowingTypeCnts.put(curNode,
-                        new LinkedHashMap<EventType, Integer>());
+            if (!mineNeverConcurrentWith) {
+                if (!tNodeFollowingTypeCnts.containsKey(node)) {
+                    tNodeFollowingTypeCnts.put(node,
+                            new LinkedHashMap<EventType, Integer>());
+                }
+                if (!tNodePrecedingTypeCnts.containsKey(node)) {
+                    tNodePrecedingTypeCnts.put(node,
+                            new LinkedHashMap<EventType, Integer>());
+                }
             }
-            if (!tNodePrecedingTypeCnts.containsKey(curNode)) {
-                tNodePrecedingTypeCnts.put(curNode,
-                        new LinkedHashMap<EventType, Integer>());
-            }
-            // }
 
             // Store the total number of children that this node has.
             if (!tNodeToNumChildrenMap.containsKey(node)) {

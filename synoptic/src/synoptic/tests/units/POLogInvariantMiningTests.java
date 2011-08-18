@@ -40,6 +40,7 @@ import synoptic.tests.SynopticTest;
 @RunWith(value = Parameterized.class)
 public class POLogInvariantMiningTests extends SynopticTest {
 
+    boolean mineNCWith = true;
     InvariantMiner miner = null;
 
     /**
@@ -53,12 +54,17 @@ public class POLogInvariantMiningTests extends SynopticTest {
         Object[][] data = new Object[][] {
                 { new TransitiveClosureInvMiner(false) },
                 { new TransitiveClosureInvMiner(true) },
-                { new DAGWalkingPOInvMiner() } };
+                { new DAGWalkingPOInvMiner(true) },
+                { new DAGWalkingPOInvMiner(false) } };
         return Arrays.asList(data);
     }
 
     public POLogInvariantMiningTests(InvariantMiner minerToUse) {
         miner = minerToUse;
+        if (miner instanceof DAGWalkingPOInvMiner) {
+            mineNCWith = ((DAGWalkingPOInvMiner) miner)
+                    .getMineNeverConcurrentWith();
+        }
     }
 
     public TraceParser newTraceParser() throws ParseException {
@@ -101,15 +107,6 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         // NOTE: "a NFby b" and "b NFby b" are subsumed by "a ACwith b"
         assertTrue(trueInvs.sameInvariants(minedInvs));
-
-        // TODO: activate and debug this test as a separate unit test
-        /*
-         * if (miner instanceof DAGWalkingPOInvMiner) { TemporalInvariantSet
-         * minedInvsWithoutNeverConcurrent = ((DAGWalkingPOInvMiner) miner)
-         * .computeInvariants(inputGraph, true, false);
-         * assertTrue(trueInvs.sameInvariants(minedInvsWithoutNeverConcurrent));
-         * }
-         */
     }
 
     /**
@@ -354,7 +351,9 @@ public class POLogInvariantMiningTests extends SynopticTest {
         DistEventType b = new DistEventType("b", "1");
         String R = SynopticTest.defRelation;
 
-        trueInvs.add(new NeverConcurrentInvariant(b, a, R));
+        if (mineNCWith) {
+            trueInvs.add(new NeverConcurrentInvariant(b, a, R));
+        }
 
         assertTrue(trueInvs.sameInvariants(minedInvs));
     }
@@ -438,8 +437,10 @@ public class POLogInvariantMiningTests extends SynopticTest {
         DistEventType c = new DistEventType("c", "1");
         String R = SynopticTest.defRelation;
 
-        assertTrue(minedInvs.getSet().contains(
-                new NeverConcurrentInvariant(c, a, R)));
+        if (mineNCWith) {
+            assertTrue(minedInvs.getSet().contains(
+                    new NeverConcurrentInvariant(c, a, R)));
+        }
     }
 
     /**
