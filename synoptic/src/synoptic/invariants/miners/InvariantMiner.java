@@ -335,11 +335,15 @@ public abstract class InvariantMiner {
 
                         // Online filtering of subsumed invariants:
                         // Only include "e1 NeverConcurrent e2" if not
-                        // "e1 AlwaysPrecedes e2" and not
-                        // "e2 AlwaysPrecedes e1"
+                        // "e1/e2 AlwaysPrecedes e2/e1" and not
+                        // "e1/e2 AlwaysFollowed e2/e1"
                         if (!alwaysPrecedes(gEventCnts, gPrecedesCnts, e1, e2)
                                 && !alwaysPrecedes(gEventCnts, gPrecedesCnts,
-                                        e2, e1)) {
+                                        e2, e1)
+                                && !alwaysFollowedBy(gEventCnts,
+                                        gFollowedByCnts, e1, e2)
+                                && !alwaysFollowedBy(gEventCnts,
+                                        gFollowedByCnts, e2, e1)) {
                             invariants.add(new NeverConcurrentInvariant(
                                     (DistEventType) e1, (DistEventType) e2,
                                     relation));

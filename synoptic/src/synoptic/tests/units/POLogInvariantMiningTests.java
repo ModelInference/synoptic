@@ -301,6 +301,36 @@ public class POLogInvariantMiningTests extends SynopticTest {
     }
 
     /**
+     * Tests a trace that satisfies the "a never followed by b" invariant, but
+     * which is subsumed by "b always concurrent with a" invariant.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineNFbySubsumedByAlwaysConcurrentTest() throws Exception {
+        TraceParser parser = newTraceParser();
+
+        String[] events = new String[] { "1,0 0 x", "2,0 0 a", "1,1 1 b",
+                "3,1 0 y" };
+
+        TraceGraph inputGraph = genInitialGraph(events, parser);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        logger.fine("mined: " + minedInvs.toString());
+
+        DistEventType a = new DistEventType("a", "0");
+        DistEventType b = new DistEventType("b", "1");
+        String R = SynopticTest.defRelation;
+
+        assertTrue(minedInvs.getSet().contains(
+                new AlwaysConcurrentInvariant(b, a, R)));
+        assertTrue(!minedInvs.getSet().contains(
+                new NeverFollowedInvariant(a, b, R)));
+        assertTrue(!minedInvs.getSet().contains(
+                new NeverFollowedInvariant(b, a, R)));
+    }
+
+    /**
      * Tests a trace with a single NeverConcurrent invariant.
      * 
      * @throws Exception
@@ -327,6 +357,62 @@ public class POLogInvariantMiningTests extends SynopticTest {
         trueInvs.add(new NeverConcurrentInvariant(b, a, R));
 
         assertTrue(trueInvs.sameInvariants(minedInvs));
+    }
+
+    /**
+     * Tests a trace that satisfies the "a never concurrent b" invariant, but
+     * which is subsumed by "b always followed by a" invariant.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineNeverConcurrentSubsumedByAFbyTest() throws Exception {
+        TraceParser parser = newTraceParser();
+
+        String[] events = new String[] { "1 1 b", "2 0 a", "--", "1 0 x",
+                "2 0 a", "--" };
+
+        TraceGraph inputGraph = genInitialGraph(events, parser);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        logger.fine("mined: " + minedInvs.toString());
+
+        DistEventType a = new DistEventType("a", "0");
+        DistEventType b = new DistEventType("b", "1");
+        String R = SynopticTest.defRelation;
+
+        assertTrue(minedInvs.getSet().contains(
+                new AlwaysFollowedInvariant(b, a, R)));
+        assertTrue(!minedInvs.getSet().contains(
+                new NeverConcurrentInvariant(b, a, R)));
+    }
+
+    /**
+     * Tests a trace that satisfies the "a never concurrent b" invariant, but
+     * which is subsumed by "b always precedes a" invariant.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void mineNeverConcurrentSubsumedByAPTest() throws Exception {
+        TraceParser parser = newTraceParser();
+
+        String[] events = new String[] { "1 1 b", "2 0 a", "--", "1 1 b",
+                "2 0 x", "--" };
+
+        TraceGraph inputGraph = genInitialGraph(events, parser);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        logger.fine("mined: " + minedInvs.toString());
+
+        DistEventType a = new DistEventType("a", "0");
+        DistEventType b = new DistEventType("b", "1");
+        String R = SynopticTest.defRelation;
+
+        assertTrue(minedInvs.getSet().contains(
+                new AlwaysPrecedesInvariant(b, a, R)));
+        assertTrue(!minedInvs.getSet().contains(
+                new NeverConcurrentInvariant(b, a, R)));
     }
 
     /**
