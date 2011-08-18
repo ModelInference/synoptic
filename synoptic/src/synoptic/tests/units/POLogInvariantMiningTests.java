@@ -27,8 +27,8 @@ import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
-import synoptic.model.TraceGraph;
 import synoptic.model.StringEventType;
+import synoptic.model.TraceGraph;
 import synoptic.tests.SynopticTest;
 
 /**
@@ -99,9 +99,17 @@ public class POLogInvariantMiningTests extends SynopticTest {
         trueInvs.add(new NeverFollowedInvariant(b, b, R));
         trueInvs.add(new AlwaysConcurrentInvariant(a, b, R));
 
-        // NOTE: a NFby b and b NFby b are redundant because a ACwith b
-
+        // NOTE: "a NFby b" and "b NFby b" are subsumed by "a ACwith b"
         assertTrue(trueInvs.sameInvariants(minedInvs));
+
+        // TODO: activate and debug this test as a separate unit test
+        /*
+         * if (miner instanceof DAGWalkingPOInvMiner) { TemporalInvariantSet
+         * minedInvsWithoutNeverConcurrent = ((DAGWalkingPOInvMiner) miner)
+         * .computeInvariants(inputGraph, true, false);
+         * assertTrue(trueInvs.sameInvariants(minedInvsWithoutNeverConcurrent));
+         * }
+         */
     }
 
     /**
@@ -369,7 +377,8 @@ public class POLogInvariantMiningTests extends SynopticTest {
         TraceParser parser = newTraceParser();
 
         ArrayList<EventNode> parsedEvents = parser.parseTraceFile(file, -1);
-        TraceGraph inputGraph = parser.generateDirectTemporalRelation(parsedEvents);
+        TraceGraph inputGraph = parser
+                .generateDirectTemporalRelation(parsedEvents);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
         logger.info("Mined invariants from TicketReservationExample: "
                 + minedInvs.toString());

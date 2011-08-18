@@ -36,7 +36,7 @@ public class ListedProperties extends Properties {
      * to maintain a list of property values per key
      */
     @Override
-    public Object put(Object key, Object value) {
+    public synchronized Object put(Object key, Object value) {
         // Properties does not assert that key and value are Strings but it
         // discourages non-String keys and values. No loss in being more strict.
         assert key instanceof String;

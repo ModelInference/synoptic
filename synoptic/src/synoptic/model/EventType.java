@@ -89,7 +89,7 @@ public abstract class EventType implements Comparable<EventType> {
 
     @Override
     public int hashCode() {
-        return (isInitialEventType ? 1231 : 1237)
-                + (isTerminalEventType ? 1831 : 1873);
+        return (isInitialEventType ? 1231 : 1301)
+                + (isTerminalEventType ? 1831 : 1907);
     }
 }

@@ -95,6 +95,7 @@ public class DistEventType extends EventType {
 
     @Override
     public int hashCode() {
-        return eType.hashCode() + processId.hashCode() + super.hashCode();
+        return (31 * eType.hashCode() + 73 * processId.hashCode() + 127 * super
+                .hashCode());
     }
 }
