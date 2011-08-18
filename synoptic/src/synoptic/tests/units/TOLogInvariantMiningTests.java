@@ -14,9 +14,9 @@ import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.invariants.CExamplePath;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
@@ -25,8 +25,8 @@ import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.model.EventNode;
-import synoptic.model.TraceGraph;
 import synoptic.model.StringEventType;
+import synoptic.model.TraceGraph;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 
@@ -155,50 +155,6 @@ public class TOLogInvariantMiningTests extends SynopticTest {
                 .NewTerminalStringEventType(), SynopticTest.defRelation));
         logger.fine("Returning tautological invariants: " + invs.toString());
         return invs;
-    }
-
-    /**
-     * Tests whether the invariants involving INITIAL\TERMINAL nodes are mined
-     * correctly.
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testTautologicalInvariantMining() throws Exception {
-        if (!(miner instanceof TransitiveClosureInvMiner)) {
-            // Structure-walking invariant miners do not explicitly mine
-            // tautological invariants in the first place.
-            return;
-        }
-
-        String[] eventTypes = new String[] { "--", "a", "b", "c", "d", "e" };
-        String[] log = genRandomLog(eventTypes);
-
-        ArrayList<String> allEvents = new ArrayList<String>();
-        for (String e : log) {
-            if (!e.equals("--")) {
-                allEvents.add(e);
-            }
-        }
-
-        // Generate set including tautological invariants.
-        TraceGraph inputGraph = genInitialLinearGraph(log);
-
-        // Generates an invariants set which includes all Tautological
-        // invariants. So these are the "raw" invariants which are mined.
-        TemporalInvariantSet s1 = ((TransitiveClosureInvMiner) miner)
-                .computeInvariants(inputGraph, false, false);
-
-        // Generate set without tautological invariants.
-        TemporalInvariantSet s2 = genInvariants(log);
-
-        logger.fine("set including tautological: " + s1);
-        logger.fine("set without tautological: " + s2);
-
-        s2.addAll(genTautologicalInvariants(allEvents));
-        logger.fine("set without tautological + true tautological: " + s2);
-
-        assertTrue(s1.sameInvariants(s2));
     }
 
     /**

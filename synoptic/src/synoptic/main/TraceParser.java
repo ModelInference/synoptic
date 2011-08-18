@@ -880,8 +880,8 @@ public class TraceParser {
 
             // This is the first time this partition has been observed,
             // assign it a trace ID and add it to the map of traceIDs
-            nextTraceID++;
             partitionNameToTraceID.put(pName, nextTraceID);
+            nextTraceID++;
         }
         eventNode.setTraceID(partitionNameToTraceID.get(pName));
         events.add(eventNode);

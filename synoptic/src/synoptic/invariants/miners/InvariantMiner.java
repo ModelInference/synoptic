@@ -40,6 +40,33 @@ public abstract class InvariantMiner {
     }
 
     /**
+     * Returns the number of trace ids that are immediately reachable from the
+     * initNode -- this is useful for PO traces since the number of transitions
+     * from the initial node is not necessarily the number of traces since it
+     * might be connected to two nodes in the same trace (that were concurrent
+     * at start).
+     */
+    protected int getNumTraces(IGraph<EventNode> g) {
+        if (g.getInitialNodes().isEmpty()) {
+            throw new InternalSynopticException(
+                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
+        }
+
+        EventNode initNode = g.getInitialNodes().iterator().next();
+        if (!initNode.getEType().isInitialEventType()) {
+            throw new InternalSynopticException(
+                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
+        }
+
+        Set<Integer> tids = new LinkedHashSet<Integer>();
+        for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
+            Integer tid = initTrans.getTarget().getTraceID();
+            tids.add(tid);
+        }
+        return tids.size();
+    }
+
+    /**
      * Builds and returns a map of trace id to the set of initial nodes in the
      * trace. This is used for partially ordered traces, where it is not
      * possible to determine which initial nodes (pointed to from the synthetic

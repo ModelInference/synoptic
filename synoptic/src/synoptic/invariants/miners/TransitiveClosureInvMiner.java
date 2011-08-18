@@ -1,7 +1,6 @@
 package synoptic.invariants.miners;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -13,7 +12,6 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.AlwaysConcurrentInvariant;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
-import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
@@ -26,8 +24,6 @@ import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.StringEventType;
 import synoptic.model.interfaces.IGraph;
-import synoptic.model.interfaces.ITransition;
-import synoptic.util.InternalSynopticException;
 
 public class TransitiveClosureInvMiner extends InvariantMiner {
 
@@ -54,7 +50,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
         if (g.getNodes().iterator().next().getEType() instanceof DistEventType) {
             mineConcurrencyInvariants = true;
         }
-        return computeInvariants(g, true, mineConcurrencyInvariants);
+        return computeInvariants(g, mineConcurrencyInvariants);
     }
 
     /**
@@ -66,14 +62,12 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
      * 
      * @param g
      *            the graph of nodes of type LogEvent
-     * @param filterTautological
-     *            whether or not tautological invariants should be filtered out
      * @param mineConcurrencyInvariants
      *            whether or not to also mine concurrency invariants
      * @return the set of temporal invariants the graph satisfies
      */
     public TemporalInvariantSet computeInvariants(IGraph<EventNode> g,
-            boolean filterTautological, boolean mineConcurrencyInvariants) {
+            boolean mineConcurrencyInvariants) {
 
         TimedTask mineInvariants = PerformanceMetrics.createTask(
                 "mineInvariants", false);
@@ -117,13 +111,6 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
             mineInvariants.stop();
         }
 
-        // Optionally filter out the tautological invariants.
-        if (filterTautological) {
-            filterOutTautologicalInvariants(overapproximatedInvariantsSet);
-            for (ITemporalInvariant inv : computeINITIALAFbyXInvariants(g)) {
-                overapproximatedInvariantsSet.add(inv);
-            }
-        }
         return new TemporalInvariantSet(overapproximatedInvariantsSet);
     }
 
@@ -231,11 +218,38 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
 
         // Initialize the partitions map: each unique label maps to a list of
         // nodes with that label.
-        for (EventNode m : g.getNodes()) {
-            if (!partitions.containsKey(m.getEType())) {
-                partitions.put(m.getEType(), new ArrayList<EventNode>());
+        for (EventNode node : g.getNodes()) {
+            if (node.getEType().isSpecialEventType()) {
+                /**
+                 * The inclusion of INITIAL and TERMINAL states in the graphs
+                 * generates the following types of "tautological" invariants
+                 * (for all event types X):
+                 * 
+                 * <pre>
+                 * - x AP TERMINAL
+                 * - INITIAL AP x
+                 * - x AP TERMINAL
+                 * - x AFby TERMINAL
+                 * - TERMINAL NFby INITIAL
+                 * </pre>
+                 * <p>
+                 * NOTE: x AP TERMINAL is not actually a tautological invariant,
+                 * but we do not mine/include it because we instead use x AFby
+                 * INITIAL.
+                 * </p>
+                 * <p>
+                 * We filter these out by simply ignoring any temporal
+                 * invariants of the form x INV y where x or y in {INITIAL,
+                 * TERMINAL}. This is useful because it relieves us from
+                 * checking/reporting invariants which are true for all graphs
+                 * produced with typical construction.
+                 **/
+                continue;
             }
-            partitions.get(m.getEType()).add(m);
+            if (!partitions.containsKey(node.getEType())) {
+                partitions.put(node.getEType(), new ArrayList<EventNode>());
+            }
+            partitions.get(node.getEType()).add(node);
         }
 
         Set<ITemporalInvariant> pathInvs = new LinkedHashSet<ITemporalInvariant>();
@@ -243,7 +257,29 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
         Set<ITemporalInvariant> alwaysConcurInvs = new LinkedHashSet<ITemporalInvariant>();
 
         Set<Pair<EventType, EventType>> observedPairs = new LinkedHashSet<Pair<EventType, EventType>>();
+        int numTraces = getNumTraces(g);
         for (EventType e1 : partitions.keySet()) {
+            // ///////////////// Determine if "INITIAL AFby e1" is true
+            // Allocate an array of false values (default boolean value).
+            boolean[] e1TraceAppearance = new boolean[numTraces];
+            int e1TracesCovered = 0;
+            // Iterate through all event nodes for e1 and record trace coverage.
+            for (EventNode node1 : partitions.get(e1)) {
+                int tid = node1.getTraceID();
+                if (!e1TraceAppearance[tid]) {
+                    e1TraceAppearance[tid] = true;
+                    e1TracesCovered++;
+                }
+            }
+            // Check if an e1 node appeared in every trace, if yes then inv
+            // true.
+            if (e1TracesCovered == numTraces) {
+                pathInvs.add(new AlwaysFollowedInvariant(StringEventType
+                        .NewInitialStringEventType(), e1,
+                        TraceParser.defaultRelation));
+            }
+            // /////////////////
+
             for (EventType e2 : partitions.keySet()) {
                 // If we have done (e1,e2) then do not do (e2,e1) because for
                 // pair (e1,e2) we derive orderings and invariants for both
@@ -256,6 +292,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                 }
                 observedPairs.add(new Pair<EventType, EventType>(e1, e2));
 
+                // ///////////////////////////////
                 // Derive the ordering summary between each instance of e1 and
                 // every instance of e2.
                 EventOrderingSummary E1orderE2 = summarizeOrderings(e1, e2,
@@ -263,6 +300,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                 // Do same for e2,e1.
                 EventOrderingSummary E2orderE1 = summarizeOrderings(e2, e1,
                         partitions, tc);
+                // ///////////////////////////////
 
                 // Whether or not never ordered invariant was added --
                 // determines whether or not NFby invariants are added
@@ -332,134 +370,5 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
         pathInvs.addAll(neverConcurInvs);
         pathInvs.addAll(alwaysConcurInvs);
         return pathInvs;
-    }
-
-    /**
-     * The inclusion of INITIAL and TERMINAL states in the graphs generates the
-     * following types of invariants (for all event types X):
-     * 
-     * <pre>
-     * - x AP TERMINAL
-     * - INITIAL AP x
-     * - x AP TERMINAL
-     * - x AFby TERMINAL
-     * - TERMINAL NFby INITIAL
-     * </pre>
-     * <p>
-     * NOTE: x AP TERMINAL is not considered a tautological invariant, but we
-     * filter it out anyway because we reconstruct it later.
-     * </p>
-     * <p>
-     * We filter these out by simply ignoring any temporal invariants of the
-     * form x INV y where x or y in {INITIAL, TERMINAL}. This filtering is
-     * useful because it relieves us from checking invariants which are true for
-     * all graphs produced with typical construction.
-     * </p>
-     * Note that this filtering, however, could filter out more invariants then
-     * the ones above. We rely on unit tests to make sure that the two sets are
-     * equivalent.
-     * 
-     * <pre>
-     * TODO: Final graphs should always satisfy all these invariants.
-     *       Convert this observation into an extra sanity check.
-     * </pre>
-     */
-    private void filterOutTautologicalInvariants(
-            Set<ITemporalInvariant> invariants) {
-        Set<ITemporalInvariant> invsToRemove = new LinkedHashSet<ITemporalInvariant>();
-
-        for (ITemporalInvariant inv : invariants) {
-            if (!(inv instanceof BinaryInvariant)) {
-                continue;
-            }
-            EventType first = ((BinaryInvariant) inv).getFirst();
-            EventType second = ((BinaryInvariant) inv).getSecond();
-
-            if (first.isSpecialEventType() || second.isSpecialEventType()) {
-                invsToRemove.add(inv);
-            }
-        }
-        logger.fine("Filtered out " + invsToRemove.size()
-                + " tautological invariants.");
-        invariants.removeAll(invsToRemove);
-    }
-
-    private void addToPartition(Set<EventType> partition, EventNode curNode) {
-        partition.add(curNode.getEType());
-        for (ITransition<EventNode> childTrans : curNode.getTransitions()) {
-            addToPartition(partition, childTrans.getTarget());
-        }
-    }
-
-    /**
-     * Computes the 'INITIAL AFby x' invariants = 'eventually x' invariants. We
-     * do this by considering the set of events in one trace, and then removing
-     * the events from this set when we do not find them in other traces. <br/>
-     * TODO: this code only works for a single relation
-     * (TraceParser.defaultRelation)
-     * 
-     * @param g
-     *            graph over LogEvent
-     * @return set of InitialAFbyX invariants
-     */
-    private Set<ITemporalInvariant> computeINITIALAFbyXInvariants(
-            IGraph<EventNode> g) {
-        Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
-
-        if (g.getInitialNodes().isEmpty()) {
-            throw new InternalSynopticException(
-                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
-        }
-
-        EventNode initNode = g.getInitialNodes().iterator().next();
-        if (!initNode.getEType().isInitialEventType()) {
-            throw new InternalSynopticException(
-                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
-        }
-
-        Set<EventType> eventuallySet = null;
-
-        Map<Integer, Set<EventNode>> traceIdToInitNodes = buildTraceIdToInitNodesMap(initNode);
-
-        // Iterate through all the traces.
-        for (Set<EventNode> initTraceNodes : traceIdToInitNodes.values()) {
-            Set<EventType> trace = new LinkedHashSet<EventType>();
-            // Iterate through the set of initial nodes in each of the traces.
-            for (EventNode curNode : initTraceNodes) {
-                addToPartition(trace, curNode);
-            }
-
-            // Initialize the set with events from the first trace.
-            if (eventuallySet == null) {
-                eventuallySet = new LinkedHashSet<EventType>(trace);
-                for (EventType e : trace) {
-                    if (e.isTerminalEventType()) {
-                        eventuallySet.remove(e);
-                    }
-                }
-                continue;
-            }
-
-            // Now eliminate events from the eventuallySet that do not
-            // appear in the traces that follow the first trace.
-            for (Iterator<EventType> it = eventuallySet.iterator(); it
-                    .hasNext();) {
-                EventType e = it.next();
-                if (!trace.contains(e)) {
-                    it.remove();
-                }
-            }
-        }
-
-        // Based on eventuallySet generate INITIAL AFby x invariants.
-        if (eventuallySet != null) {
-            for (EventType eLabel : eventuallySet) {
-                invariants.add(new AlwaysFollowedInvariant(StringEventType
-                        .NewInitialStringEventType(), eLabel,
-                        TraceParser.defaultRelation));
-            }
-        }
-
-        return invariants;
     }
 }
