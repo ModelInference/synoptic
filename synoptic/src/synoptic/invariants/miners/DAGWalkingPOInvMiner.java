@@ -38,7 +38,8 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         if (g.getNodes().iterator().next().getEType() instanceof DistEventType) {
             mineConcurrencyInvariants = true;
         }
-        return computeInvariants(g, mineConcurrencyInvariants);
+        // By default, mine the NeverConcurrentWith invariant.
+        return computeInvariants(g, mineConcurrencyInvariants, true);
     }
 
     /**
@@ -50,10 +51,12 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      *            input graph to mine invariants over
      * @param mineConcurrencyInvariants
      *            whether or not to mine distributed invariants
+     * @param mineNeverConcurrentWith
+     *            whether or not to mine the NeverConcurrentWith invariant
      * @return the set of mined invariants
      */
     public TemporalInvariantSet computeInvariants(IGraph<EventNode> g,
-            boolean mineConcurrencyInvariants) {
+            boolean mineConcurrencyInvariants, boolean mineNeverConcurrentWith) {
         String relation = TraceParser.defaultRelation;
 
         assert (!g.getInitialNodes().isEmpty() && g.getInitialNodes().size() == 1) : "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.";
@@ -110,6 +113,20 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         // Counts the number of times an event type appears in a trace.
         Map<EventType, Integer> tEventCnts = new LinkedHashMap<EventType, Integer>();
 
+        // /////////////////////////////////////
+        // Data structures used by the version of the algorithm that does not
+        // mine the NeverConcurrentWith (\nparallel) invariant
+
+        // For an EventNode n, and an event type e, maintains the count of event
+        // instances of type e that followed n
+        Map<EventNode, Map<EventType, Integer>> tNodeFollowingTypeCnts = new LinkedHashMap<EventNode, Map<EventType, Integer>>();
+
+        // For an EventNode n, and an event type e, maintains the count of event
+        // instances of type e that preceded n
+        Map<EventNode, Map<EventType, Integer>> tNodePrecedingTypeCnts = new LinkedHashMap<EventNode, Map<EventType, Integer>>();
+
+        // /////////////////////////////////////
+
         // For an EventNode n, maintains the set of nodes that followed this
         // node in the trace. In practice, only nodes with multiple children
         // will have a record.
@@ -124,7 +141,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         // an a instance and b instance that co-occur in a trace, the two
         // instances must be totally ordered. Therefore, either a is followed by
         // b or a is preceded by b. Whatever the case, the sum total of b's that
-        // the a instance must be preceded AND followed by must be the TOTAL
+        // the a instance must be preceded by AND followed by must be the TOTAL
         // number of b instances in the trace. Notice that if this property
         // holds for all a instances, then it must likewise hold for all b
         // instances (it is symmetric, and the NeverConcurrentWith
@@ -133,15 +150,17 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         // Therefore, to check if "a NeverConcurrentWith b" is true, we can sum
         // the total number of b's that follow or precede each a and check if
         // this total equals number of a's * number of b's. If yes, then the
-        // invariant is true. Further, to check if the invariant is true across
-        // all traces, we perform the same computation on each trace.
+        // invariant is true. To check if the invariant is true across
+        // all traces, we perform the same computation on each trace. However,
+        // to amortize the cost of checking across multiple traces we do this
+        // check with aggregates.
         //
         // The tTypeFollowingTypeCnts and tTypePrecedingTypeCnts structures are
-        // used for computing per-trace counts described above. The
-        // gEventTypesOrderedBalances structure is the global computation, which
-        // maintains the difference between the all the per-trace
-        // precedes/follows counts for types (e1,e2) and the products (number of
-        // e1's * number of e2's).
+        // used for maintaining per-trace counts described above. The
+        // gEventTypesOrderedBalances structure is computed globally, for a pair
+        // of types (e1, e2) it maintains the difference between the all
+        // per-trace precedes/follows counts for the two types and the product
+        // of their total counts (number of e1's * number of e2's).
 
         // For two event types e1, e2 in a trace; at the end of the trace
         // traversal tTypeFollowingTypeCnts[e1][e2] will represent the total
@@ -197,9 +216,10 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                 // A pre-processing step: builds the parent\child counts maps,
                 // the parents map, the tSeenETypes set, and determines the
                 // terminal node in the trace.
-                termNodeNew = preTraverseTrace(curNode, tNodeToNumParentsMap,
-                        tNodeToNumChildrenMap, tNodeParentsMap, tEventCnts,
-                        tSeenETypes);
+                termNodeNew = preTraverseTrace(mineNeverConcurrentWith,
+                        curNode, tNodeToNumParentsMap, tNodeToNumChildrenMap,
+                        tNodeParentsMap, tEventCnts, tNodeFollowingTypeCnts,
+                        tNodePrecedingTypeCnts, tSeenETypes);
                 if (termNodeNew != null) {
                     termNode = termNodeNew;
                 }
@@ -250,77 +270,99 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // Precedes relations recording: traverse the trace rooted at each
             // initial node in the forward direction.
             for (EventNode curNode : initTraceNodes) {
-                forwardTraverseTrace(curNode, tNodeToNumParentsMap, null,
-                        tPrecedingNodeSets, tTypePrecedingTypeCnts,
-                        gPrecedesCnts, gEventCnts);
+                if (mineNeverConcurrentWith) {
+                    forwardTraverseTrace(curNode, tNodeToNumParentsMap, null,
+                            tPrecedingNodeSets, tTypePrecedingTypeCnts,
+                            gPrecedesCnts, gEventCnts);
+                } else {
+                    forwardTraverseTraceWithoutNeverConcurrent(curNode,
+                            tNodeToNumParentsMap, null, tNodePrecedingTypeCnts,
+                            gPrecedesCnts, gEventCnts);
+                }
             }
 
             // ////////////////////////////////////////////////////////////////////////
             // FollowedBy relations recording: traverse the trace rooted at
             // termNode in the reverse direction (following the
             // tNodeParentsMap).
-            reverseTraverseTrace(termNode, tNodeToNumChildrenMap,
-                    tNodeParentsMap, null, tFollowingNodeSets,
-                    tTypeFollowingTypeCnts, gFollowedByCnts);
+            if (mineNeverConcurrentWith) {
+                reverseTraverseTrace(termNode, tNodeToNumChildrenMap,
+                        tNodeParentsMap, null, tFollowingNodeSets,
+                        tTypeFollowingTypeCnts, gFollowedByCnts);
+            } else {
+                reverseTraverseTraceWithoutNeverConcurrent(termNode,
+                        tNodeToNumChildrenMap, tNodeParentsMap, null,
+                        tNodeFollowingTypeCnts, gFollowedByCnts);
+            }
 
-            // Compute the gEventTypesOrderedBalances for the current trace.
+            if (mineNeverConcurrentWith) {
+                // Compute the gEventTypesOrderedBalances for the current trace.
 
-            // TODO: Because the NCwith invariant is symmetric, we only need to
-            // consider one of the permutations -- just (e1,e2) and not both
-            // (e1,e2) and (e2,e1).
+                // TODO: Because the NCwith invariant is symmetric, we only need
+                // to
+                // consider one of the permutations -- just (e1,e2) and not both
+                // (e1,e2) and (e2,e1).
 
-            for (EventType e1 : tSeenETypes) {
-                for (EventType e2 : tSeenETypes) {
-                    // Optimization: we won't be using ordering balance for
-                    // events that are local.
-                    if (e1 == e2) {
-                        continue;
+                for (EventType e1 : tSeenETypes) {
+                    for (EventType e2 : tSeenETypes) {
+                        // Optimization: we won't be using ordering balance for
+                        // events that are local.
+                        if (e1 == e2) {
+                            continue;
+                        }
+                        if (!(e1 instanceof DistEventType)
+                                || !(e2 instanceof DistEventType)) {
+                            continue;
+                        }
+                        if (((DistEventType) e1).getPID().equals(
+                                ((DistEventType) e2).getPID())) {
+                            continue;
+                        }
+                        // </Optimization>
+
+                        int typeFtypeCnt = 0;
+                        if (tTypeFollowingTypeCnts.containsKey(e1)
+                                && tTypeFollowingTypeCnts.get(e1).containsKey(
+                                        e2)) {
+                            typeFtypeCnt = tTypeFollowingTypeCnts.get(e1).get(
+                                    e2);
+                        }
+
+                        int numE1 = tEventCnts.get(e1);
+                        int numE2 = tEventCnts.get(e2);
+
+                        int typePtypeCnt = 0;
+                        if (tTypePrecedingTypeCnts.containsKey(e1)
+                                && tTypePrecedingTypeCnts.get(e1).containsKey(
+                                        e2)) {
+                            typePtypeCnt = tTypePrecedingTypeCnts.get(e1).get(
+                                    e2);
+                        }
+
+                        if (!gEventTypesOrderedBalances.containsKey(e1)) {
+                            gEventTypesOrderedBalances.put(e1,
+                                    new LinkedHashMap<EventType, Integer>());
+                        }
+
+                        int prevBalance = 0;
+                        if (gEventTypesOrderedBalances.get(e1).containsKey(e2)) {
+                            prevBalance = gEventTypesOrderedBalances.get(e1)
+                                    .get(e2);
+                        }
+
+                        // NOTE: since numE1 * numE2 is always >= typeFtypeCnt +
+                        // typePtypeCnt, the value is always <= 0. With 0
+                        // indicating
+                        // that \forall \hat{e1}, \forall \hat{e2} e1 \precedes
+                        // e2
+                        // or e2 \precedes e1. We use this to deduce that e1 and
+                        // e2
+                        // are never concurrent.
+                        gEventTypesOrderedBalances.get(e1).put(
+                                e2,
+                                prevBalance + typeFtypeCnt + typePtypeCnt
+                                        - (numE1 * numE2));
                     }
-                    if (!(e1 instanceof DistEventType)
-                            || !(e2 instanceof DistEventType)) {
-                        continue;
-                    }
-                    if (((DistEventType) e1).getPID().equals(
-                            ((DistEventType) e2).getPID())) {
-                        continue;
-                    }
-                    // </Optimization>
-
-                    int typeFtypeCnt = 0;
-                    if (tTypeFollowingTypeCnts.containsKey(e1)
-                            && tTypeFollowingTypeCnts.get(e1).containsKey(e2)) {
-                        typeFtypeCnt = tTypeFollowingTypeCnts.get(e1).get(e2);
-                    }
-
-                    int numE1 = tEventCnts.get(e1);
-                    int numE2 = tEventCnts.get(e2);
-
-                    int typePtypeCnt = 0;
-                    if (tTypePrecedingTypeCnts.containsKey(e1)
-                            && tTypePrecedingTypeCnts.get(e1).containsKey(e2)) {
-                        typePtypeCnt = tTypePrecedingTypeCnts.get(e1).get(e2);
-                    }
-
-                    if (!gEventTypesOrderedBalances.containsKey(e1)) {
-                        gEventTypesOrderedBalances.put(e1,
-                                new LinkedHashMap<EventType, Integer>());
-                    }
-
-                    int prevBalance = 0;
-                    if (gEventTypesOrderedBalances.get(e1).containsKey(e2)) {
-                        prevBalance = gEventTypesOrderedBalances.get(e1)
-                                .get(e2);
-                    }
-
-                    // NOTE: since numE1 * numE2 is always >= typeFtypeCnt +
-                    // typePtypeCnt, the value is always <= 0. With 0 indicating
-                    // that \forall \hat{e1}, \forall \hat{e2} e1 \precedes e2
-                    // or e2 \precedes e1. We use this to deduce that e1 and e2
-                    // are never concurrent.
-                    gEventTypesOrderedBalances.get(e1).put(
-                            e2,
-                            prevBalance + typeFtypeCnt + typePtypeCnt
-                                    - (numE1 * numE2));
                 }
             }
 
@@ -342,8 +384,14 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             tSeenETypes.clear();
             tFollowingNodeSets.clear();
             tPrecedingNodeSets.clear();
-            tTypeFollowingTypeCnts.clear();
-            tTypePrecedingTypeCnts.clear();
+
+            if (mineNeverConcurrentWith) {
+                tTypeFollowingTypeCnts.clear();
+                tTypePrecedingTypeCnts.clear();
+            } else {
+                tNodeFollowingTypeCnts.clear();
+                tNodePrecedingTypeCnts.clear();
+            }
 
             // At this point, we've completed all counts computation for the
             // trace rooted at curNode.
@@ -352,15 +400,16 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         // Extract the AFby, NFby, AP invariants based on counts.
         Set<ITemporalInvariant> pathInvs = extractPathInvariantsFromWalkCounts(
                 relation, gEventCnts, gFollowedByCnts, gPrecedesCnts,
-                gAlwaysFollowsINITIALSet);
+                gEventCoOccurrences, gAlwaysFollowsINITIALSet);
 
         if (mineConcurrencyInvariants) {
             // Extract the concurrency invariants based on counts.
             Set<ITemporalInvariant> concurInvs = extractConcurrencyInvariantsFromWalkCounts(
-                    relation, gEventCnts, gFollowedByCnts, gEventCoOccurrences,
+                    mineNeverConcurrentWith, relation, gEventCnts,
+                    gPrecedesCnts, gFollowedByCnts, gEventCoOccurrences,
                     gEventTypesOrderedBalances);
             // Merge the two sets.
-            mergePathAndConcurrencyInvariants(pathInvs, concurInvs);
+            pathInvs.addAll(concurInvs);
         }
         // Return pathInvs, which at this point contains any non-redundant
         // concurrency invariants (if these were also mined -- see above).
@@ -379,11 +428,14 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      * @param tSeenETypes
      * @return the terminal node for this trace
      */
-    public EventNode preTraverseTrace(EventNode curNode,
-            Map<EventNode, Integer> tNodeToNumParentsMap,
+    public EventNode preTraverseTrace(boolean mineNeverConcurrentWith,
+            EventNode curNode, Map<EventNode, Integer> tNodeToNumParentsMap,
             Map<EventNode, Integer> tNodeToNumChildrenMap,
             Map<EventNode, Set<EventNode>> tNodeParentsMap,
-            Map<EventType, Integer> tEventCnts, Set<EventType> tSeenETypes) {
+            Map<EventType, Integer> tEventCnts,
+            Map<EventNode, Map<EventType, Integer>> tNodeFollowingTypeCnts,
+            Map<EventNode, Map<EventType, Integer>> tNodePrecedingTypeCnts,
+            Set<EventType> tSeenETypes) {
 
         Set<EventNode> parentNodes;
         EventNode childNode;
@@ -391,6 +443,17 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
         while (true) {
             EventType a = node.getEType();
+
+            // if (!mineNeverConcurrentWith) {
+            if (!tNodeFollowingTypeCnts.containsKey(curNode)) {
+                tNodeFollowingTypeCnts.put(curNode,
+                        new LinkedHashMap<EventType, Integer>());
+            }
+            if (!tNodePrecedingTypeCnts.containsKey(curNode)) {
+                tNodePrecedingTypeCnts.put(curNode,
+                        new LinkedHashMap<EventType, Integer>());
+            }
+            // }
 
             // Store the total number of children that this node has.
             if (!tNodeToNumChildrenMap.containsKey(node)) {
@@ -466,9 +529,10 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             }
             parentNodes.add(node);
 
-            EventNode ret = preTraverseTrace(childNode, tNodeToNumParentsMap,
-                    tNodeToNumChildrenMap, tNodeParentsMap, tEventCnts,
-                    tSeenETypes);
+            EventNode ret = preTraverseTrace(mineNeverConcurrentWith,
+                    childNode, tNodeToNumParentsMap, tNodeToNumChildrenMap,
+                    tNodeParentsMap, tEventCnts, tNodeFollowingTypeCnts,
+                    tNodePrecedingTypeCnts, tSeenETypes);
             if (ret != null) {
                 termNode = ret;
             }
@@ -760,25 +824,232 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         }
     }
 
+    // ///////////////////////////////////////////////////////////////////////////////
+    // Without NeverConcurrent invariant versions.
+
+    /**
+     * Recursively, depth-first traverses the trace in the reverse direction to
+     * collect event followed-by count statistics.
+     * 
+     * @param curNode
+     * @param tNodeToNumChildrenMap
+     * @param tNodeParentsMap
+     * @param tNodeFollowsSetMap
+     * @param tFollowingTypeCnts
+     * @param gFollowedByCnts
+     */
+    public void reverseTraverseTraceWithoutNeverConcurrent(EventNode curNode,
+            Map<EventNode, Integer> tNodeToNumChildrenMap,
+            Map<EventNode, Set<EventNode>> tNodeParentsMap,
+            Map<EventType, Integer> tFollowingTypeCnts,
+            Map<EventNode, Map<EventType, Integer>> tNodeFollowingTypeCnts,
+            Map<EventType, Map<EventType, Integer>> gFollowedByCnts) {
+
+        while (true) {
+            // If we reach a node that has nodes we haven't seen followed before
+            // then we want to include them in the tFollowingTypes.
+            mergeIntegerMapsWithAddition(tNodeFollowingTypeCnts.get(curNode),
+                    tFollowingTypeCnts);
+            tFollowingTypeCnts = tNodeFollowingTypeCnts.get(curNode);
+
+            // This guarantees that we only process curNode once we have
+            // traversed all of its children (while accumulating the preceding
+            // types in the tFollowsNodeFollowsSetMapingTypes above).
+            if (tNodeToNumChildrenMap.get(curNode) > 1) {
+                tNodeToNumChildrenMap.put(curNode,
+                        tNodeToNumChildrenMap.get(curNode) - 1);
+                return;
+            }
+            // NOTE: We don't need to decrement tNodeToNumChildrenMap[curNode]
+            // because we are guaranteed to never pass through this node again.
+
+            // The current event is 'a', and all following events are 'b' --
+            // this notation indicates that an 'a' always occurs prior to a
+            // 'b' in the trace.
+            EventType a = curNode.getEType();
+
+            // Update the global precedes counts based on the a events that
+            // preceded the current b event in this trace.
+            for (EventType b : tFollowingTypeCnts.keySet()) {
+                Map<EventType, Integer> followingLabelCnts;
+                if (!gFollowedByCnts.containsKey(a)) {
+                    followingLabelCnts = new LinkedHashMap<EventType, Integer>();
+                    gFollowedByCnts.put(a, followingLabelCnts);
+                } else {
+                    followingLabelCnts = gFollowedByCnts.get(a);
+                }
+                if (!followingLabelCnts.containsKey(b)) {
+                    followingLabelCnts.put(b, 1);
+                } else {
+                    followingLabelCnts.put(b, followingLabelCnts.get(b) + 1);
+                }
+            }
+
+            if (!tFollowingTypeCnts.containsKey(a)) {
+                tFollowingTypeCnts.put(a, 1);
+            } else {
+                tFollowingTypeCnts.put(a, tFollowingTypeCnts.get(a) + 1);
+            }
+
+            // Nodes with multiple parents are handled outside the loop.
+            if (tNodeParentsMap.get(curNode).size() != 1) {
+                break;
+            }
+
+            // Move on to the next node in the trace without recursion.
+            curNode = tNodeParentsMap.get(curNode).iterator().next();
+
+            // We've hit the INITIAL node, stop.
+            if (tNodeParentsMap.get(curNode).size() == 0) {
+                return;
+            }
+        }
+
+        // Handle each of the node's parent branches recursively.
+        Iterator<EventNode> iter = tNodeParentsMap.get(curNode).iterator();
+
+        while (iter.hasNext()) {
+            EventNode parentNode = iter.next();
+            // We do not create a new copy of following types for each parent,
+            // because each parent already has its own -- maintained as part of
+            // tNodeFollowsSetMap (built in preTraverseTrace()).
+
+            // Only process those parents that are not INITIAL nodes.
+            if (tNodeParentsMap.get(parentNode).size() != 0) {
+                reverseTraverseTraceWithoutNeverConcurrent(parentNode,
+                        tNodeToNumChildrenMap, tNodeParentsMap,
+                        tFollowingTypeCnts, tNodeFollowingTypeCnts,
+                        gFollowedByCnts);
+            }
+        }
+        return;
+    } // /reverseTraverseTraceWithoutNeverConcurrent
+
+    /**
+     * Recursively, depth-first traverse the trace in the forward direction to
+     * collect event precedence count statistics.
+     * 
+     * @param curNode
+     * @param tNodeToNumParentsMap
+     * @param tNodePrecedesSetMap
+     * @param tPrecedingTypeCnts
+     * @param gPrecedesCnts
+     * @param gEventCnts
+     */
+    public void forwardTraverseTraceWithoutNeverConcurrent(EventNode curNode,
+            Map<EventNode, Integer> tNodeToNumParentsMap,
+            Map<EventType, Integer> tPrecedingTypeCnts,
+            Map<EventNode, Map<EventType, Integer>> tNodePrecedingTypeCnts,
+            Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
+            Map<EventType, Integer> gEventCnts) {
+
+        while (true) {
+            // If we reach a node that has nodes preceding it
+            // then we want to include them in the tPrecedingTypes and we want
+            // to save the nodes that preceded us so far in the same map.
+            mergeIntegerMapsWithAddition(tNodePrecedingTypeCnts.get(curNode),
+                    tPrecedingTypeCnts);
+            tPrecedingTypeCnts = tNodePrecedingTypeCnts.get(curNode);
+
+            // This guarantees that we only process curNode once we have
+            // traversed all of its parents (while accumulating the preceding
+            // types in the tNodePrecedesSetMap above).
+            if (tNodeToNumParentsMap.get(curNode) > 1) {
+                tNodeToNumParentsMap.put(curNode,
+                        tNodeToNumParentsMap.get(curNode) - 1);
+                return;
+            }
+            // NOTE: We don't need to decrement tNodeToNumParentsMap[curNode]
+            // because we are guaranteed to never pass through this node again.
+
+            // The current event is 'b', and all prior events are 'a' --
+            // this notation indicates that an 'a' always occurs prior to a
+            // 'b' in the trace.
+            EventType b = curNode.getEType();
+
+            // Update the global precedes counts based on the a events that
+            // preceded the current b event in this trace.
+            for (EventType a : tPrecedingTypeCnts.keySet()) {
+                Map<EventType, Integer> precedingLabelCnts;
+                if (!gPrecedesCnts.containsKey(a)) {
+                    precedingLabelCnts = new LinkedHashMap<EventType, Integer>();
+                    gPrecedesCnts.put(a, precedingLabelCnts);
+                } else {
+                    precedingLabelCnts = gPrecedesCnts.get(a);
+                }
+                if (!precedingLabelCnts.containsKey(b)) {
+                    precedingLabelCnts.put(b, 1);
+                } else {
+                    precedingLabelCnts.put(b, precedingLabelCnts.get(b) + 1);
+                }
+            }
+
+            if (!tPrecedingTypeCnts.containsKey(b)) {
+                tPrecedingTypeCnts.put(b, 1);
+            } else {
+                tPrecedingTypeCnts.put(b, tPrecedingTypeCnts.get(b) + 1);
+            }
+
+            // Update the global event counts.
+            if (!gEventCnts.containsKey(b)) {
+                gEventCnts.put(b, 1);
+            } else {
+                gEventCnts.put(b, gEventCnts.get(b) + 1);
+            }
+
+            // Nodes with multiple children are handled outside the loop.
+            if (curNode.getTransitions().size() != 1) {
+                break;
+            }
+
+            // Move on to the next node in the trace without recursion.
+            curNode = curNode.getTransitions().get(0).getTarget();
+
+            // We've hit a TERMINAL node, stop.
+            if (curNode.getTransitions().size() == 0) {
+                return;
+            }
+        }
+
+        // Handle each of the node's child branches recursively.
+        for (ITransition<EventNode> trans : curNode.getTransitions()) {
+            EventNode childNode = trans.getTarget();
+            // We do not create a new copy of preceding types for each child,
+            // because each child already has its own -- maintained as part of
+            // tNodePrecedesSetMap (built in preTraverseTrace()).
+
+            // Only process children that are not TERMINAL nodes.
+            if (childNode.getTransitions().size() > 0) {
+                forwardTraverseTraceWithoutNeverConcurrent(childNode,
+                        tNodeToNumParentsMap, tPrecedingTypeCnts,
+                        tNodePrecedingTypeCnts, gPrecedesCnts, gEventCnts);
+            }
+        }
+        return;
+    } // /forwardTraverseTraceWithoutNeverConcurrent
+
     /**
      * A helper function to merge the src map into the dst map, by adding the
      * leaf values, or adding to an implicit 0 in the dst map if it doesn't
-     * contain the requistite keys.
+     * contain the requisite keys.
      * 
      * @param dst
      * @param src
      */
-    // private void mergeMaps(Map<EventType, Integer> dst,
-    // Map<EventType, Integer> src) {
-    // if (src == null) {
-    // return;
-    // }
-    // for (EventType e : src.keySet()) {
-    // if (!dst.containsKey(e)) {
-    // dst.put(e, src.get(e));
-    // } else {
-    // dst.put(e, dst.get(e) + src.get(e));
-    // }
-    // }
-    // }
+    private void mergeIntegerMapsWithAddition(Map<EventType, Integer> dst,
+            Map<EventType, Integer> src) {
+        if (src == null) {
+            return;
+        }
+        for (EventType e : src.keySet()) {
+            if (!dst.containsKey(e)) {
+                dst.put(e, src.get(e));
+            } else {
+                dst.put(e, dst.get(e) + src.get(e));
+            }
+        }
+    }
+
+    // /Without NeverConcurrent invariant versions
+    // /////////////////////////////////////////////////////////////////////////////////
 }

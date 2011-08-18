@@ -66,10 +66,4 @@ public interface ITemporalInvariant {
      * @return a long invariant name string
      */
     String getLongName();
-
-    /**
-     * Whether or not the invariant predicate sets are equal symmetrically,
-     * i.e.: (a,b) = (b,a)
-     */
-    boolean predicatesSymmetricEquals(ITemporalInvariant other);
 }

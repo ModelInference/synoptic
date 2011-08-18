@@ -1,6 +1,5 @@
 package synoptic.invariants.miners;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -351,61 +350,5 @@ public abstract class InvariantMiner {
         }
 
         return invariants;
-    }
-
-    /**
-     * Merges a path invariants set and a concurrency invariants set into the
-     * path invariants set. During the merge, redundant invariants are removed
-     * from both sets (always preferring to keep the stronger invariant). For
-     * example, a_0 AFby b_1 is stronger than a_0 NCwith b_1, so the NCwith
-     * invariant can be removed as it is redundant. This method does not return
-     * anything since the result is stored in pathInvs.
-     * 
-     * @param pathInvs
-     *            set of path invariants
-     * @param concurInvs
-     *            set of concurrency invariants
-     */
-    public void mergePathAndConcurrencyInvariants(
-            Set<ITemporalInvariant> pathInvs, Set<ITemporalInvariant> concurInvs) {
-        Iterator<ITemporalInvariant> cInvIter = concurInvs.iterator();
-        while (cInvIter.hasNext()) {
-            ITemporalInvariant cInv = cInvIter.next();
-            if (cInv instanceof NeverConcurrentInvariant) {
-                // 1. Filter out redundant NCwith invariant types by
-                // checking if for an "a NCwith b" invariant there is a
-                // corresponding "a AP b" or "a AFby b" invariant. If yes,
-                // then NCwith is redundant.
-                for (ITemporalInvariant pInv : pathInvs) {
-                    if (pInv instanceof AlwaysFollowedInvariant
-                            || pInv instanceof AlwaysPrecedesInvariant) {
-                        if (pInv.predicatesSymmetricEquals(cInv)) {
-                            cInvIter.remove();
-                            break;
-                        }
-                    }
-                }
-            } else if (cInv instanceof AlwaysConcurrentInvariant) {
-                // 2. Filter out redundant NFby invariant types by checking
-                // if for an "a ACwith b" invariant there is a corresponding
-                // "a NFby b" invariant. If yes, NFby is redundant.
-                Iterator<ITemporalInvariant> pInvIter = pathInvs.iterator();
-                while (pInvIter.hasNext()) {
-                    ITemporalInvariant pInv = pInvIter.next();
-                    if (pInv instanceof NeverFollowedInvariant) {
-                        if (pInv.predicatesSymmetricEquals(cInv)) {
-                            pInvIter.remove();
-                        }
-                    }
-                }
-            } else {
-                throw new InternalSynopticException(
-                        "Detected an unknown concurrency invariant type: "
-                                + cInv.toString());
-            }
-        }
-        // Merge concurrent filtered invariants into the filtered path
-        // invariants for the final set of mined invariants.
-        pathInvs.addAll(concurInvs);
     }
 }

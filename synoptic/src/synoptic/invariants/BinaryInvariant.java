@@ -119,18 +119,6 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     }
 
     @Override
-    public boolean predicatesSymmetricEquals(ITemporalInvariant other) {
-        assert (other instanceof BinaryInvariant);
-        if (first.equals(((BinaryInvariant) other).first)) {
-            return second.equals(((BinaryInvariant) other).second);
-        }
-        if (!first.equals(((BinaryInvariant) other).second)) {
-            return false;
-        }
-        return second.equals(((BinaryInvariant) other).first);
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
