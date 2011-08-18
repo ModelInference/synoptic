@@ -96,49 +96,32 @@ public abstract class InvariantMiner {
             String relation, Map<EventType, Integer> gEventCnts,
             Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
             Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
+            Map<EventType, Set<EventType>> gEventCoOccurrences,
             Set<EventType> AlwaysFollowsINITIALSet) {
 
         Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
-        for (EventType label1 : gEventCnts.keySet()) {
-            for (EventType label2 : gEventCnts.keySet()) {
+        for (EventType e1 : gEventCnts.keySet()) {
+            for (EventType e2 : gEventCnts.keySet()) {
 
-                if (!gFollowedByCnts.containsKey(label1)) {
-                    // label1 appeared only as the last event, therefore
-                    // nothing can follow it, therefore label1 NFby label2
-
-                    invariants.add(new NeverFollowedInvariant(label1, label2,
-                            relation));
-
-                } else {
-                    if (!gFollowedByCnts.get(label1).containsKey(label2)) {
-                        // label1 was never followed by label2, therefore label1
-                        // NFby label2 (i.e. #_F(label1->label2) == 0)
-                        invariants.add(new NeverFollowedInvariant(label1,
-                                label2, relation));
-                    } else {
-                        // label1 was sometimes followed by label2
-                        if (gFollowedByCnts.get(label1).get(label2)
-                                .equals(gEventCnts.get(label1))) {
-                            // #_F(label1->label2) == #label1 therefore label1
-                            // AFby label2
-                            invariants.add(new AlwaysFollowedInvariant(label1,
-                                    label2, relation));
-                        }
+                if (neverFollowedBy(gFollowedByCnts, e1, e2)) {
+                    // Online filtering of subsumed invariants:
+                    if (gEventCoOccurrences == null
+                            || !alwaysConcurrentWith(gFollowedByCnts,
+                                    gEventCoOccurrences, e1, e2)) {
+                        invariants.add(new NeverFollowedInvariant(e1, e2,
+                                relation));
                     }
                 }
 
-                if (gPrecedesCnts.containsKey(label1)
-                        && gPrecedesCnts.get(label1).containsKey(label2)) {
+                if (alwaysFollowedBy(gEventCnts, gFollowedByCnts, e1, e2)) {
+                    invariants
+                            .add(new AlwaysFollowedInvariant(e1, e2, relation));
+                }
 
-                    // label1 sometimes preceded label2
-                    if (gPrecedesCnts.get(label1).get(label2)
-                            .equals(gEventCnts.get(label2))) {
-                        // #_P(label1->label2) == #label2 therefore label1
-                        // AP label2
-                        invariants.add(new AlwaysPrecedesInvariant(label1,
-                                label2, relation));
-                    }
+                if (alwaysPrecedes(gEventCnts, gPrecedesCnts, e1, e2)) {
+                    invariants
+                            .add(new AlwaysPrecedesInvariant(e1, e2, relation));
                 }
             }
         }
@@ -153,6 +136,138 @@ public abstract class InvariantMiner {
         return invariants;
     }
 
+    protected boolean alwaysPrecedes(Map<EventType, Integer> gEventCnts,
+            Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
+            EventType e1, EventType e2) {
+        if (gPrecedesCnts.containsKey(e1)
+                && gPrecedesCnts.get(e1).containsKey(e2)) {
+
+            // label1 sometimes preceded label2
+            if (gPrecedesCnts.get(e1).get(e2).equals(gEventCnts.get(e2))) {
+                // #_P(label1->label2) == #label2 therefore label1
+                // AP label2
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean neverFollowedBy(
+            Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
+            EventType e1, EventType e2) {
+        if (!gFollowedByCnts.containsKey(e1)) {
+            // label1 appeared only as the last event, therefore
+            // nothing can follow it, therefore label1 NFby label2
+            return true;
+        }
+
+        if (!gFollowedByCnts.get(e1).containsKey(e2)) {
+            // label1 was never followed by label2, therefore label1
+            // NFby label2 (i.e. #_F(label1->label2) == 0)
+            return true;
+        }
+        return false;
+    }
+
+    protected boolean alwaysFollowedBy(Map<EventType, Integer> gEventCnts,
+            Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
+            EventType e1, EventType e2) {
+        if (gFollowedByCnts.containsKey(e1)
+                && gFollowedByCnts.get(e1).containsKey(e2)) {
+            // label1 was sometimes followed by label2
+            if (gFollowedByCnts.get(e1).get(e2).equals(gEventCnts.get(e1))) {
+                // #_F(label1->label2) == #label1 therefore label1
+                // AFby label2
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean alwaysConcurrentWith(
+            Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
+            Map<EventType, Set<EventType>> gEventCoOccurrences, EventType e1,
+            EventType e2) {
+        int e1_fby_e2 = 0;
+        int e2_fby_e1 = 0;
+
+        if (gFollowedByCnts.containsKey(e1)
+                && gFollowedByCnts.get(e1).containsKey(e2)) {
+            e1_fby_e2 = gFollowedByCnts.get(e1).get(e2);
+        }
+        if (gFollowedByCnts.containsKey(e2)
+                && gFollowedByCnts.get(e2).containsKey(e1)) {
+            e2_fby_e1 = gFollowedByCnts.get(e2).get(e1);
+        }
+
+        // logger.info("-- e1: " + e1.toString() + ", e2: " +
+        // e2.toString() + "\n   e1_fby_e2: "
+        // + Internae1_fby_e2 e1_p_e2, e2_fby_e1, e2_p_e1)
+
+        if (e1_fby_e2 == 0 && e2_fby_e1 == 0) {
+            // That is, e1 NFby e2 && e2 NFby e1 means that e1 and e2
+            // are concurrent if they _ever_ co-appeared in the same
+            // trace.
+            if ((gEventCoOccurrences.containsKey(e1) && gEventCoOccurrences
+                    .get(e1).contains(e2))
+                    || (gEventCoOccurrences.containsKey(e2) && gEventCoOccurrences
+                            .get(e2).contains(e1))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean neverConcurrentWith(Map<EventType, Integer> gEventCnts,
+            Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
+            Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
+            Map<EventType, Set<EventType>> gEventCoOccurrences,
+            Map<EventType, Map<EventType, Integer>> gEventTypesOrderedBalances,
+            EventType e1, EventType e2) {
+        int e1_fby_e2 = 0;
+        int e2_fby_e1 = 0;
+
+        if (gFollowedByCnts.containsKey(e1)
+                && gFollowedByCnts.get(e1).containsKey(e2)) {
+            e1_fby_e2 = gFollowedByCnts.get(e1).get(e2);
+        }
+        if (gFollowedByCnts.containsKey(e2)
+                && gFollowedByCnts.get(e2).containsKey(e1)) {
+            e2_fby_e1 = gFollowedByCnts.get(e2).get(e1);
+        }
+
+        if (e1_fby_e2 != 0 || e2_fby_e1 != 0) {
+            // e1 was ordered with e2 or e2 was ordered with e1 at
+            // least
+            // once. Now we need to check whether they were _always_
+            // ordered w.r.t each other whenever they co-appeared in
+            // the
+            // same trace.
+
+            // logger.info("Potentially NeverConcurrent between "
+            // + e1.toString() + " and " + e2.toString());
+
+            // Both [e1][e2] and [e2][e1] records must exist since
+            // the
+            // two events co-appeared and therefore a record was
+            // created
+            // for both pairs during the DAGWalkingPO traversal
+            assert (gEventTypesOrderedBalances.containsKey(e1));
+            assert (gEventTypesOrderedBalances.get(e1).containsKey(e2));
+            assert (gEventTypesOrderedBalances.containsKey(e2));
+            assert (gEventTypesOrderedBalances.get(e2).containsKey(e1));
+
+            if (gEventTypesOrderedBalances.get(e1).get(e2) == 0) {
+                // Assert: the invariant is commutative, so should
+                // hold
+                // true for (e2,e1)
+                assert (gEventTypesOrderedBalances.get(e2).get(e1) == 0);
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Extracts concurrency/distributed invariants -- AlwaysConcurrentWith and
      * NeverConcurrentWith. These invariants are only useful for events at
@@ -160,6 +275,7 @@ public abstract class InvariantMiner {
      * AlwaysConcurrentWith(x,y) is trivially false, and
      * NeverConcurrentWith(x,y) is trivially true).
      * 
+     * @param mineNeverConcurrentWith
      * @param relation
      * @param gEventCnts
      * @param gFollowedByCnts
@@ -168,7 +284,9 @@ public abstract class InvariantMiner {
      * @return
      */
     protected Set<ITemporalInvariant> extractConcurrencyInvariantsFromWalkCounts(
-            String relation, Map<EventType, Integer> gEventCnts,
+            boolean mineNeverConcurrentWith, String relation,
+            Map<EventType, Integer> gEventCnts,
+            Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
             Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
             Map<EventType, Set<EventType>> gEventCoOccurrences,
             Map<EventType, Map<EventType, Integer>> gEventTypesOrderedBalances) {
@@ -206,51 +324,27 @@ public abstract class InvariantMiner {
                     continue;
                 }
 
-                int e1_fby_e2 = 0;
-                int e2_fby_e1 = 0;
+                if (alwaysConcurrentWith(gFollowedByCnts, gEventCoOccurrences,
+                        e1, e2)) {
+                    invariants.add(new AlwaysConcurrentInvariant(
+                            (DistEventType) e1, (DistEventType) e2, relation));
 
-                if (gFollowedByCnts.containsKey(e1)
-                        && gFollowedByCnts.get(e1).containsKey(e2)) {
-                    e1_fby_e2 = gFollowedByCnts.get(e1).get(e2);
-                }
-                if (gFollowedByCnts.containsKey(e2)
-                        && gFollowedByCnts.get(e2).containsKey(e1)) {
-                    e2_fby_e1 = gFollowedByCnts.get(e2).get(e1);
-                }
+                } else if (mineNeverConcurrentWith) {
+                    if (neverConcurrentWith(gEventCnts, gPrecedesCnts,
+                            gFollowedByCnts, gEventCoOccurrences,
+                            gEventTypesOrderedBalances, e1, e2)) {
 
-                // logger.info("-- e1: " + e1.toString() + ", e2: " +
-                // e2.toString() + "\n   e1_fby_e2: "
-                // + Internae1_fby_e2 e1_p_e2, e2_fby_e1, e2_p_e1)
-
-                if (e1_fby_e2 == 0 && e2_fby_e1 == 0) {
-                    // That is, e1 NFby e2 && e2 NFby e1 means that e1 and e2
-                    // are concurrent if they _ever_ co-appeared in the same
-                    // trace.
-                    if ((gEventCoOccurrences.containsKey(e1) && gEventCoOccurrences
-                            .get(e1).contains(e2))
-                            || (gEventCoOccurrences.containsKey(e2) && gEventCoOccurrences
-                                    .get(e2).contains(e1))) {
-                        invariants.add(new AlwaysConcurrentInvariant(
-                                (DistEventType) e1, (DistEventType) e2,
-                                relation));
-                    }
-                } else if (e1_fby_e2 != 0 || e2_fby_e1 != 0) {
-                    // e1 was ordered with e2 or e2 was ordered with e1 at least
-                    // once. Now we need to check whether they were _always_
-                    // ordered w.r.t each other whenever they co-appeared in the
-                    // same trace.
-
-                    // logger.info("Potentially NeverConcurrent between "
-                    // + e1.toString() + " and " + e2.toString());
-
-                    // Both [e1][e2] and [e2][e1] records must exist since the
-                    // two events co-appeared and therefore a record was created
-                    // for both pairs during the DAGWalkingPO traversal
-                    if (gEventTypesOrderedBalances.get(e1).get(e2) == 0
-                            && gEventTypesOrderedBalances.get(e2).get(e1) == 0) {
-                        invariants.add(new NeverConcurrentInvariant(
-                                (DistEventType) e1, (DistEventType) e2,
-                                relation));
+                        // Online filtering of subsumed invariants:
+                        // Only include "e1 NeverConcurrent e2" if not
+                        // "e1 AlwaysPrecedes e2" and not
+                        // "e2 AlwaysPrecedes e1"
+                        if (!alwaysPrecedes(gEventCnts, gPrecedesCnts, e1, e2)
+                                && !alwaysPrecedes(gEventCnts, gPrecedesCnts,
+                                        e2, e1)) {
+                            invariants.add(new NeverConcurrentInvariant(
+                                    (DistEventType) e1, (DistEventType) e2,
+                                    relation));
+                        }
                     }
                 }
             }
@@ -285,7 +379,7 @@ public abstract class InvariantMiner {
                 for (ITemporalInvariant pInv : pathInvs) {
                     if (pInv instanceof AlwaysFollowedInvariant
                             || pInv instanceof AlwaysPrecedesInvariant) {
-                        if (pInv.getPredicates().equals(cInv.getPredicates())) {
+                        if (pInv.predicatesSymmetricEquals(cInv)) {
                             cInvIter.remove();
                             break;
                         }
@@ -299,7 +393,7 @@ public abstract class InvariantMiner {
                 while (pInvIter.hasNext()) {
                     ITemporalInvariant pInv = pInvIter.next();
                     if (pInv instanceof NeverFollowedInvariant) {
-                        if (pInv.getPredicates().equals(cInv.getPredicates())) {
+                        if (pInv.predicatesSymmetricEquals(cInv)) {
                             pInvIter.remove();
                         }
                     }
