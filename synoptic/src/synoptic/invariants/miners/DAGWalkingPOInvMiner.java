@@ -85,6 +85,26 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
         // Tracks global event counts globally -- across all traces.
         Map<EventType, Integer> gEventCnts = new LinkedHashMap<EventType, Integer>();
+
+        // Build the set of all event types in the graph. We will use this set
+        // to pre-seed the various maps below. Also, since we're iterating over
+        // all nodes, we might as well count up the total counts of instances
+        // for each event type.
+        Set<EventType> eTypes = new LinkedHashSet<EventType>();
+        for (EventNode node : g.getNodes()) {
+            EventType e = node.getEType();
+            if (e.isSpecialEventType()) {
+                continue;
+            }
+
+            eTypes.add(e);
+            if (!gEventCnts.containsKey(e)) {
+                gEventCnts.put(e, 1);
+            } else {
+                gEventCnts.put(e, gEventCnts.get(e) + 1);
+            }
+        }
+
         // Tracks global followed-by counts -- across all traces.
         Map<EventType, Map<EventType, Integer>> gFollowedByCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         // Tracks global precedence counts -- across all traces.
@@ -213,6 +233,22 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         // same trace but were not ordered.
         Map<EventType, Map<EventType, Integer>> gEventTypesOrderedBalances = new LinkedHashMap<EventType, Map<EventType, Integer>>();
 
+        // Initialize the event-type contents of the maps that persist
+        // across traces (global counts maps).
+        for (EventType e : eTypes) {
+            Map<EventType, Integer> mapF = new LinkedHashMap<EventType, Integer>();
+            Map<EventType, Integer> mapP = new LinkedHashMap<EventType, Integer>();
+            Map<EventType, Integer> mapB = new LinkedHashMap<EventType, Integer>();
+            gFollowedByCnts.put(e, mapF);
+            gPrecedesCnts.put(e, mapP);
+            gEventTypesOrderedBalances.put(e, mapB);
+            for (EventType e2 : eTypes) {
+                mapF.put(e2, 0);
+                mapP.put(e2, 0);
+                mapB.put(e2, 0);
+            }
+        }
+
         // Iterate through all the traces.
         for (Set<EventNode> initTraceNodes : traceIdToInitNodes.values()) {
             tNodeParentsMap.put(initNode, emptyNodeHashSet);
@@ -286,11 +322,11 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                 if (mineNeverConcurrentWith) {
                     forwardTraverseTrace(curNode, tNodeToNumParentsMap, null,
                             tPrecedingNodeSets, tTypePrecedingTypeCnts,
-                            gPrecedesCnts, gEventCnts);
+                            gPrecedesCnts);
                 } else {
                     forwardTraverseTraceWithoutNeverConcurrent(curNode,
                             tNodeToNumParentsMap, null, tNodePrecedingTypeCnts,
-                            gPrecedesCnts, gEventCnts);
+                            gPrecedesCnts);
                 }
             }
 
@@ -312,9 +348,8 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                 // Compute the gEventTypesOrderedBalances for the current trace.
 
                 // TODO: Because the NCwith invariant is symmetric, we only need
-                // to
-                // consider one of the permutations -- just (e1,e2) and not both
-                // (e1,e2) and (e2,e1).
+                // to consider one of the permutations -- just (e1,e2) and not
+                // both (e1,e2) and (e2,e1).
 
                 for (EventType e1 : tSeenETypes) {
                     for (EventType e2 : tSeenETypes) {
@@ -352,25 +387,14 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                                     e2);
                         }
 
-                        if (!gEventTypesOrderedBalances.containsKey(e1)) {
-                            gEventTypesOrderedBalances.put(e1,
-                                    new LinkedHashMap<EventType, Integer>());
-                        }
-
-                        int prevBalance = 0;
-                        if (gEventTypesOrderedBalances.get(e1).containsKey(e2)) {
-                            prevBalance = gEventTypesOrderedBalances.get(e1)
-                                    .get(e2);
-                        }
+                        int prevBalance = gEventTypesOrderedBalances.get(e1)
+                                .get(e2);
 
                         // NOTE: since numE1 * numE2 is always >= typeFtypeCnt +
                         // typePtypeCnt, the value is always <= 0. With 0
-                        // indicating
-                        // that \forall \hat{e1}, \forall \hat{e2} e1 \precedes
-                        // e2
-                        // or e2 \precedes e1. We use this to deduce that e1 and
-                        // e2
-                        // are never concurrent.
+                        // indicating that \forall \hat{e1}, \forall \hat{e2} e1
+                        // \precedes e2 or e2 \precedes e1. We use this to
+                        // deduce that e1 and e2 are never concurrent.
                         gEventTypesOrderedBalances.get(e1).put(
                                 e2,
                                 prevBalance + typeFtypeCnt + typePtypeCnt
@@ -498,6 +522,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
             // We've hit a TERMINAL node, stop.
             if (node.getTransitions().size() == 0) {
+                // TODO: Why doesn't this work -- if (node.isTerminal()) ?
                 return node;
             }
 
@@ -624,18 +649,9 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             for (EventNode n : tFollowingNodeSetsNew) {
                 EventType b = n.getEType();
                 if (!visitedTypes.contains(b)) {
-                    Map<EventType, Integer> followingLabelCnts;
-                    if (!gFollowedByCnts.containsKey(a)) {
-                        followingLabelCnts = new LinkedHashMap<EventType, Integer>();
-                        gFollowedByCnts.put(a, followingLabelCnts);
-                    } else {
-                        followingLabelCnts = gFollowedByCnts.get(a);
-                    }
-                    if (!followingLabelCnts.containsKey(b)) {
-                        followingLabelCnts.put(b, 1);
-                    } else {
-                        followingLabelCnts
-                                .put(b, followingLabelCnts.get(b) + 1);
+                    if (!a.isTerminalEventType() && !b.isTerminalEventType()) {
+                        gFollowedByCnts.get(a).put(b,
+                                gFollowedByCnts.get(a).get(b) + 1);
                     }
                 }
                 visitedTypes.add(b);
@@ -660,6 +676,8 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
             // We've hit the INITIAL node, stop.
             if (tNodeParentsMap.get(node).size() == 0) {
+                // TODO: why doesn't this work --
+                // if(node.getEType().isInitialEventType()) ?
                 return;
             }
         }
@@ -682,7 +700,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             }
         }
         return;
-    } // /reverseTraverseTrace
+    }// /reverseTraverseTrace
 
     /**
      * Recursively, depth-first traverse the trace in the forward direction to
@@ -693,15 +711,13 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      * @param tNodePrecedesSetMap
      * @param tPrecedingTypeCnts
      * @param gPrecedesCnts
-     * @param gEventCnts
      */
     public void forwardTraverseTrace(EventNode curNode,
             Map<EventNode, Integer> tNodeToNumParentsMap,
             Set<EventNode> tPrecedingNodes,
             Map<EventNode, Set<EventNode>> tPrecedingNodeSets,
             Map<EventType, Map<EventType, Integer>> tTypePrecedingTypeCnts,
-            Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
-            Map<EventType, Integer> gEventCnts) {
+            Map<EventType, Map<EventType, Integer>> gPrecedesCnts) {
 
         // Merge the nodes preceding the above branch, including the branching
         // node into the set of nodes preceding curNode.
@@ -748,19 +764,18 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             for (EventNode n : tPrecedingNodesNew) {
                 EventType a = n.getEType();
                 if (!visitedTypes.contains(a)) {
-                    Map<EventType, Integer> precedingLabelCnts;
-                    if (!gPrecedesCnts.containsKey(a)) {
-                        precedingLabelCnts = new LinkedHashMap<EventType, Integer>();
-                        gPrecedesCnts.put(a, precedingLabelCnts);
-                    } else {
-                        precedingLabelCnts = gPrecedesCnts.get(a);
-                    }
-                    if (!precedingLabelCnts.containsKey(b)) {
-                        precedingLabelCnts.put(b, 1);
-                    } else {
-                        precedingLabelCnts
-                                .put(b, precedingLabelCnts.get(b) + 1);
-                    }
+                    /*
+                     * Map<EventType, Integer> precedingLabelCnts; if
+                     * (!gPrecedesCnts.containsKey(a)) { precedingLabelCnts =
+                     * new LinkedHashMap<EventType, Integer>();
+                     * gPrecedesCnts.put(a, precedingLabelCnts); } else {
+                     * precedingLabelCnts = gPrecedesCnts.get(a); } if
+                     * (!precedingLabelCnts.containsKey(b)) {
+                     * precedingLabelCnts.put(b, 1); } else { precedingLabelCnts
+                     * .put(b, precedingLabelCnts.get(b) + 1); }
+                     */
+                    gPrecedesCnts.get(a)
+                            .put(b, gPrecedesCnts.get(a).get(b) + 1);
                 }
                 visitedTypes.add(a);
             }
@@ -773,13 +788,6 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                     tPrecedingNodesNew);
 
             tPrecedingNodesNew.add(node);
-
-            // Update the global event counts.
-            if (!gEventCnts.containsKey(b)) {
-                gEventCnts.put(b, 1);
-            } else {
-                gEventCnts.put(b, gEventCnts.get(b) + 1);
-            }
 
             // Nodes with multiple children are handled outside the loop.
             if (node.getTransitions().size() != 1) {
@@ -807,7 +815,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
                 forwardTraverseTrace(childNode, tNodeToNumParentsMap,
                         // tNodePrecedesSetMap,
                         tPrecedingNodesNew, tPrecedingNodeSets,
-                        tTypePrecedingTypeCnts, gPrecedesCnts, gEventCnts);
+                        tTypePrecedingTypeCnts, gPrecedesCnts);
             }
         }
         return;
@@ -883,17 +891,20 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // Update the global precedes counts based on the a events that
             // preceded the current b event in this trace.
             for (EventType b : tFollowingTypeCnts.keySet()) {
-                Map<EventType, Integer> followingLabelCnts;
-                if (!gFollowedByCnts.containsKey(a)) {
-                    followingLabelCnts = new LinkedHashMap<EventType, Integer>();
-                    gFollowedByCnts.put(a, followingLabelCnts);
-                } else {
-                    followingLabelCnts = gFollowedByCnts.get(a);
-                }
-                if (!followingLabelCnts.containsKey(b)) {
-                    followingLabelCnts.put(b, 1);
-                } else {
-                    followingLabelCnts.put(b, followingLabelCnts.get(b) + 1);
+                /*
+                 * Map<EventType, Integer> followingLabelCnts;
+                 * 
+                 * if (!gFollowedByCnts.containsKey(a)) { followingLabelCnts =
+                 * new LinkedHashMap<EventType, Integer>();
+                 * gFollowedByCnts.put(a, followingLabelCnts); } else {
+                 * followingLabelCnts = gFollowedByCnts.get(a); } if
+                 * (!followingLabelCnts.containsKey(b)) {
+                 * followingLabelCnts.put(b, 1); } else {
+                 * followingLabelCnts.put(b, followingLabelCnts.get(b) + 1); }
+                 */
+                if (!a.isTerminalEventType() && !b.isTerminalEventType()) {
+                    gFollowedByCnts.get(a).put(b,
+                            gFollowedByCnts.get(a).get(b) + 1);
                 }
             }
 
@@ -946,14 +957,12 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      * @param tNodePrecedesSetMap
      * @param tPrecedingTypeCnts
      * @param gPrecedesCnts
-     * @param gEventCnts
      */
     public void forwardTraverseTraceWithoutNeverConcurrent(EventNode curNode,
             Map<EventNode, Integer> tNodeToNumParentsMap,
             Map<EventType, Integer> tPrecedingTypeCnts,
             Map<EventNode, Map<EventType, Integer>> tNodePrecedingTypeCnts,
-            Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
-            Map<EventType, Integer> gEventCnts) {
+            Map<EventType, Map<EventType, Integer>> gPrecedesCnts) {
 
         while (true) {
             // If we reach a node that has nodes preceding it
@@ -982,18 +991,17 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // Update the global precedes counts based on the a events that
             // preceded the current b event in this trace.
             for (EventType a : tPrecedingTypeCnts.keySet()) {
-                Map<EventType, Integer> precedingLabelCnts;
-                if (!gPrecedesCnts.containsKey(a)) {
-                    precedingLabelCnts = new LinkedHashMap<EventType, Integer>();
-                    gPrecedesCnts.put(a, precedingLabelCnts);
-                } else {
-                    precedingLabelCnts = gPrecedesCnts.get(a);
-                }
-                if (!precedingLabelCnts.containsKey(b)) {
-                    precedingLabelCnts.put(b, 1);
-                } else {
-                    precedingLabelCnts.put(b, precedingLabelCnts.get(b) + 1);
-                }
+                /*
+                 * Map<EventType, Integer> precedingLabelCnts; if
+                 * (!gPrecedesCnts.containsKey(a)) { precedingLabelCnts = new
+                 * LinkedHashMap<EventType, Integer>(); gPrecedesCnts.put(a,
+                 * precedingLabelCnts); } else { precedingLabelCnts =
+                 * gPrecedesCnts.get(a); } if
+                 * (!precedingLabelCnts.containsKey(b)) {
+                 * precedingLabelCnts.put(b, 1); } else {
+                 * precedingLabelCnts.put(b, precedingLabelCnts.get(b) + 1); }
+                 */
+                gPrecedesCnts.get(a).put(b, gPrecedesCnts.get(a).get(b) + 1);
             }
 
             if (!tPrecedingTypeCnts.containsKey(b)) {
@@ -1003,11 +1011,6 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             }
 
             // Update the global event counts.
-            if (!gEventCnts.containsKey(b)) {
-                gEventCnts.put(b, 1);
-            } else {
-                gEventCnts.put(b, gEventCnts.get(b) + 1);
-            }
 
             // Nodes with multiple children are handled outside the loop.
             if (curNode.getTransitions().size() != 1) {
@@ -1034,7 +1037,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             if (childNode.getTransitions().size() > 0) {
                 forwardTraverseTraceWithoutNeverConcurrent(childNode,
                         tNodeToNumParentsMap, tPrecedingTypeCnts,
-                        tNodePrecedingTypeCnts, gPrecedesCnts, gEventCnts);
+                        tNodePrecedingTypeCnts, gPrecedesCnts);
             }
         }
         return;

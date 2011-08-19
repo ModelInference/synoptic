@@ -77,10 +77,49 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
 
         // Tracks event counts globally -- across all traces.
         Map<EventType, Integer> gEventCnts = new LinkedHashMap<EventType, Integer>();
+
+        // Build the set of all event types in the graph. We will use this set
+        // to pre-seed the various maps below. Also, since we're iterating over
+        // all nodes, we might as well count up the total counts of instances
+        // for each event type.
+        Set<EventType> eTypes = new LinkedHashSet<EventType>();
+        for (EventNode node : g.getNodes()) {
+            EventType e = node.getEType();
+            // TODO: we currently only ignore initial nodes, be we also need to
+            // ignore terminal nodes. However, this would require a change to
+            // traversal below (instead of starting reverse traversal at
+            // terminal, we would need to start one node higher).
+
+            if (e.isSpecialEventType()) {
+                continue;
+            }
+
+            eTypes.add(e);
+            if (!gEventCnts.containsKey(e)) {
+                gEventCnts.put(e, 1);
+            } else {
+                gEventCnts.put(e, gEventCnts.get(e) + 1);
+            }
+        }
+
         // Tracks followed-by counts.
         Map<EventType, Map<EventType, Integer>> gFollowedByCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         // Tracks precedence counts.
         Map<EventType, Map<EventType, Integer>> gPrecedesCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
+
+        // Initialize the event-type contents of the maps that persist
+        // across traces (global counts maps).
+        for (EventType e : eTypes) {
+            Map<EventType, Integer> mapF = new LinkedHashMap<EventType, Integer>();
+            Map<EventType, Integer> mapP = new LinkedHashMap<EventType, Integer>();
+            gFollowedByCnts.put(e, mapF);
+            gPrecedesCnts.put(e, mapP);
+            for (EventType e2 : eTypes) {
+                mapF.put(e2, 0);
+                mapP.put(e2, 0);
+            }
+        }
+
         // Tracks which events were observed across all traces.
         Set<EventType> AlwaysFollowsINITIALSet = null;
 
@@ -126,19 +165,8 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
                 // Update the global precedes counts based on the a events that
                 // preceded the current b event in this trace.
                 for (EventType a : tSeen) {
-                    Map<EventType, Integer> precedingLabelCnts;
-                    if (!gPrecedesCnts.containsKey(a)) {
-                        precedingLabelCnts = new LinkedHashMap<EventType, Integer>();
-                        gPrecedesCnts.put(a, precedingLabelCnts);
-                    } else {
-                        precedingLabelCnts = gPrecedesCnts.get(a);
-                    }
-                    if (!precedingLabelCnts.containsKey(b)) {
-                        precedingLabelCnts.put(b, 1);
-                    } else {
-                        precedingLabelCnts
-                                .put(b, precedingLabelCnts.get(b) + 1);
-                    }
+                    gPrecedesCnts.get(a)
+                            .put(b, gPrecedesCnts.get(a).get(b) + 1);
                 }
 
                 // Update the followed by counts for this trace: the number of a
@@ -164,13 +192,6 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
                     tEventCnts.put(b, tEventCnts.get(b) + 1);
                 }
 
-                // Update the global event counts.
-                if (!gEventCnts.containsKey(b)) {
-                    gEventCnts.put(b, 1);
-                } else {
-                    gEventCnts.put(b, gEventCnts.get(b) + 1);
-                }
-
                 // Move on to the next node in the trace.
                 curNode = curNode.getTransitions().get(0).getTarget();
             }
@@ -179,20 +200,11 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
             // counts collected in this trace. We merge the counts with
             // addition.
             for (EventType a : tFollowedByCnts.keySet()) {
-                if (!gFollowedByCnts.containsKey(a)) {
-                    gFollowedByCnts.put(a, tFollowedByCnts.get(a));
-                } else {
-                    for (EventType b : tFollowedByCnts.get(a).keySet()) {
-                        if (!gFollowedByCnts.get(a).containsKey(b)) {
-                            gFollowedByCnts.get(a).put(b,
-                                    tFollowedByCnts.get(a).get(b));
-                        } else {
-                            gFollowedByCnts.get(a).put(
-                                    b,
-                                    gFollowedByCnts.get(a).get(b)
-                                            + tFollowedByCnts.get(a).get(b));
-                        }
-                    }
+                for (EventType b : tFollowedByCnts.get(a).keySet()) {
+                    gFollowedByCnts.get(a).put(
+                            b,
+                            gFollowedByCnts.get(a).get(b)
+                                    + tFollowedByCnts.get(a).get(b));
                 }
             }
 
