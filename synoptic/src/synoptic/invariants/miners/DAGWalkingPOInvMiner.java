@@ -1,8 +1,9 @@
 package synoptic.invariants.miners;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import synoptic.main.TraceParser;
 import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
+import synoptic.model.Transition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 
@@ -128,15 +130,15 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         // node's parents). Build during pre-traversal, and used for mining
         // FollowedBy counts. We do this because nodes only know about their
         // children, and not their parents.
-        Map<EventNode, Set<EventNode>> tNodeParentsMap = new LinkedHashMap<EventNode, Set<EventNode>>();
+        Map<EventNode, List<EventNode>> tNodeParentsMap = new LinkedHashMap<EventNode, List<EventNode>>();
 
         // Maintains a map of trace id to the set of initial nodes in the trace.
         Map<Integer, Set<EventNode>> traceIdToInitNodes = buildTraceIdToInitNodesMap(initNode);
 
         // A couple of hash sets for containing parents of special nodes.
-        Set<EventNode> initNodeHashSet = new LinkedHashSet<EventNode>();
-        initNodeHashSet.add(initNode);
-        Set<EventNode> emptyNodeHashSet = new LinkedHashSet<EventNode>();
+        List<EventNode> initNodeList = new ArrayList<EventNode>();
+        initNodeList.add(initNode);
+        List<EventNode> emptyNodeHashSet = new ArrayList<EventNode>();
 
         // Given two event types e1, e2. if gEventCoOccurrences[e1] contains e2
         // then there are instances of e1 and e2 that appeared in the same
@@ -261,7 +263,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
             EventNode termNode = null, termNodeNew = null;
             for (EventNode curNode : initTraceNodes) {
-                tNodeParentsMap.put(curNode, initNodeHashSet);
+                tNodeParentsMap.put(curNode, initNodeList);
                 // A pre-processing step: builds the parent\child counts maps,
                 // the parents map, the tSeenETypes set, and determines the
                 // terminal node in the trace.
@@ -468,13 +470,13 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
     public EventNode preTraverseTrace(EventNode curNode,
             Map<EventNode, Integer> tNodeToNumParentsMap,
             Map<EventNode, Integer> tNodeToNumChildrenMap,
-            Map<EventNode, Set<EventNode>> tNodeParentsMap,
+            Map<EventNode, List<EventNode>> tNodeParentsMap,
             Map<EventType, Integer> tEventCnts,
             Map<EventNode, Map<EventType, Integer>> tNodeFollowingTypeCnts,
             Map<EventNode, Map<EventType, Integer>> tNodePrecedingTypeCnts,
             Set<EventType> tSeenETypes) {
 
-        Set<EventNode> parentNodes;
+        List<EventNode> parentNodes;
         EventNode childNode;
         EventNode node = curNode;
 
@@ -541,7 +543,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // one).
             childNode = node.getTransitions().get(0).getTarget();
             if (!tNodeParentsMap.containsKey(childNode)) {
-                parentNodes = new LinkedHashSet<EventNode>();
+                parentNodes = new ArrayList<EventNode>();
                 tNodeParentsMap.put(childNode, parentNodes);
             } else {
                 parentNodes = tNodeParentsMap.get(childNode);
@@ -560,7 +562,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
             // Build up the parents map for all the children.
             if (!tNodeParentsMap.containsKey(childNode)) {
-                parentNodes = new LinkedHashSet<EventNode>();
+                parentNodes = new ArrayList<EventNode>();
                 tNodeParentsMap.put(childNode, parentNodes);
             } else {
                 parentNodes = tNodeParentsMap.get(childNode);
@@ -598,7 +600,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      */
     public void reverseTraverseTrace(EventNode curNode,
             Map<EventNode, Integer> tNodeToNumChildrenMap,
-            Map<EventNode, Set<EventNode>> tNodeParentsMap,
+            Map<EventNode, List<EventNode>> tNodeParentsMap,
             Set<EventNode> tFollowingNodes,
             Map<EventNode, Set<EventNode>> tFollowingNodeSets,
             Map<EventType, Map<EventType, Integer>> tTypeFollowingTypeCnts,
@@ -612,7 +614,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         }
 
         EventNode node = curNode;
-
+        Set<EventType> visitedTypes = new LinkedHashSet<EventType>();
         while (true) {
             if (tFollowingNodeSets.containsKey(node)) {
                 tFollowingNodeSetsNew.addAll(tFollowingNodeSets.get(node));
@@ -645,17 +647,19 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
             // TODO: these counts are re-computed for each node in the DAG. They
             // can be cached and efficiently maintained instead.
-            Set<EventType> visitedTypes = new LinkedHashSet<EventType>();
+
             for (EventNode n : tFollowingNodeSetsNew) {
                 EventType b = n.getEType();
-                if (!visitedTypes.contains(b)) {
-                    if (!a.isTerminalEventType() && !b.isTerminalEventType()) {
-                        gFollowedByCnts.get(a).put(b,
-                                gFollowedByCnts.get(a).get(b) + 1);
-                    }
+                if (visitedTypes.contains(b)) {
+                    continue;
+                }
+                if (!a.isTerminalEventType() && !b.isTerminalEventType()) {
+                    gFollowedByCnts.get(a).put(b,
+                            gFollowedByCnts.get(a).get(b) + 1);
                 }
                 visitedTypes.add(b);
             }
+            visitedTypes.clear();
 
             if (!tTypeFollowingTypeCnts.containsKey(a)) {
                 tTypeFollowingTypeCnts.put(a,
@@ -667,12 +671,13 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             tFollowingNodeSetsNew.add(node);
 
             // Nodes with multiple parents are handled outside the loop.
-            if (tNodeParentsMap.get(node).size() != 1) {
+            List<EventNode> parents = tNodeParentsMap.get(node);
+            if (parents.size() != 1) {
                 break;
             }
 
             // Move on to the next node in the trace without recursion.
-            node = tNodeParentsMap.get(node).iterator().next();
+            node = parents.get(0);
 
             // We've hit the INITIAL node, stop.
             if (tNodeParentsMap.get(node).size() == 0) {
@@ -683,10 +688,10 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         }
 
         // Handle each of the node's parent branches recursively.
-        Iterator<EventNode> iter = tNodeParentsMap.get(node).iterator();
+        List<EventNode> parents = tNodeParentsMap.get(node);
+        for (int i = 0; i < parents.size(); i++) {
+            EventNode parentNode = parents.get(i);
 
-        while (iter.hasNext()) {
-            EventNode parentNode = iter.next();
             // We do not create a new copy of following types for each parent,
             // because each parent already has its own -- maintained as part of
             // tNodeFollowsSetMap (built in preTraverseTrace()).
@@ -727,7 +732,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         }
 
         EventNode node = curNode;
-
+        Set<EventType> visitedTypes = new LinkedHashSet<EventType>();
         while (true) {
             if (tPrecedingNodeSets.containsKey(node)) {
                 tPrecedingNodesNew.addAll(tPrecedingNodeSets.get(node));
@@ -760,15 +765,15 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // i.e., gPrecedesCnts[a][b]++
             // TODO: these counts are re-computed for each node in the DAG. They
             // can be cached and efficiently maintained instead.
-            Set<EventType> visitedTypes = new LinkedHashSet<EventType>();
             for (EventNode n : tPrecedingNodesNew) {
                 EventType a = n.getEType();
-                if (!visitedTypes.contains(a)) {
-                    gPrecedesCnts.get(a)
-                            .put(b, gPrecedesCnts.get(a).get(b) + 1);
+                if (visitedTypes.contains(a)) {
+                    continue;
                 }
+                gPrecedesCnts.get(a).put(b, gPrecedesCnts.get(a).get(b) + 1);
                 visitedTypes.add(a);
             }
+            visitedTypes.clear();
 
             if (!tTypePrecedingTypeCnts.containsKey(b)) {
                 tTypePrecedingTypeCnts.put(b,
@@ -794,8 +799,11 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         }
 
         // Handle each of the node's child branches recursively.
-        for (ITransition<EventNode> trans : node.getTransitions()) {
+        List<Transition<EventNode>> transitions = node.getTransitions();
+        for (int i = 0; i < transitions.size(); i++) {
+            ITransition<EventNode> trans = transitions.get(i);
             EventNode childNode = trans.getTarget();
+
             // We do not create a new copy of preceding types for each child,
             // because each child already has its own -- maintained as part of
             // tNodePrecedesSetMap (built in preTraverseTrace()).
@@ -850,7 +858,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      */
     public void reverseTraverseTraceWithoutNeverConcurrent(EventNode curNode,
             Map<EventNode, Integer> tNodeToNumChildrenMap,
-            Map<EventNode, Set<EventNode>> tNodeParentsMap,
+            Map<EventNode, List<EventNode>> tNodeParentsMap,
             Map<EventType, Integer> tFollowingTypeCnts,
             Map<EventNode, Map<EventType, Integer>> tNodeFollowingTypeCnts,
             Map<EventType, Map<EventType, Integer>> gFollowedByCnts) {
@@ -894,12 +902,13 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             }
 
             // Nodes with multiple parents are handled outside the loop.
-            if (tNodeParentsMap.get(curNode).size() != 1) {
+            List<EventNode> parents = tNodeParentsMap.get(curNode);
+            if (parents.size() != 1) {
                 break;
             }
 
             // Move on to the next node in the trace without recursion.
-            curNode = tNodeParentsMap.get(curNode).iterator().next();
+            curNode = parents.get(0);
 
             // We've hit the INITIAL node, stop.
             if (tNodeParentsMap.get(curNode).size() == 0) {
@@ -908,10 +917,10 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         }
 
         // Handle each of the node's parent branches recursively.
-        Iterator<EventNode> iter = tNodeParentsMap.get(curNode).iterator();
+        List<EventNode> parents = tNodeParentsMap.get(curNode);
+        for (int i = 0; i < parents.size(); i++) {
+            EventNode parentNode = parents.get(i);
 
-        while (iter.hasNext()) {
-            EventNode parentNode = iter.next();
             // We do not create a new copy of following types for each parent,
             // because each parent already has its own -- maintained as part of
             // tNodeFollowsSetMap (built in preTraverseTrace()).
