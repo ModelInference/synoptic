@@ -165,15 +165,10 @@ public abstract class InvariantMiner {
     protected boolean alwaysPrecedes(Map<EventType, Integer> gEventCnts,
             Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
             EventType e1, EventType e2) {
-        if (gPrecedesCnts.containsKey(e1)
-                && gPrecedesCnts.get(e1).containsKey(e2)) {
-
-            // label1 sometimes preceded label2
-            if (gPrecedesCnts.get(e1).get(e2).equals(gEventCnts.get(e2))) {
-                // #_P(label1->label2) == #label2 therefore label1
-                // AP label2
-                return true;
-            }
+        if (gPrecedesCnts.get(e1).get(e2).equals(gEventCnts.get(e2))) {
+            // #_P(label1->label2) == #label2 therefore label1
+            // AP label2
+            return true;
         }
         return false;
     }
@@ -181,13 +176,7 @@ public abstract class InvariantMiner {
     protected boolean neverFollowedBy(
             Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
             EventType e1, EventType e2) {
-        if (!gFollowedByCnts.containsKey(e1)) {
-            // label1 appeared only as the last event, therefore
-            // nothing can follow it, therefore label1 NFby label2
-            return true;
-        }
-
-        if (!gFollowedByCnts.get(e1).containsKey(e2)) {
+        if (gFollowedByCnts.get(e1).get(e2) == 0) {
             // label1 was never followed by label2, therefore label1
             // NFby label2 (i.e. #_F(label1->label2) == 0)
             return true;
@@ -198,14 +187,10 @@ public abstract class InvariantMiner {
     protected boolean alwaysFollowedBy(Map<EventType, Integer> gEventCnts,
             Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
             EventType e1, EventType e2) {
-        if (gFollowedByCnts.containsKey(e1)
-                && gFollowedByCnts.get(e1).containsKey(e2)) {
-            // label1 was sometimes followed by label2
-            if (gFollowedByCnts.get(e1).get(e2).equals(gEventCnts.get(e1))) {
-                // #_F(label1->label2) == #label1 therefore label1
-                // AFby label2
-                return true;
-            }
+        if (gFollowedByCnts.get(e1).get(e2).equals(gEventCnts.get(e1))) {
+            // #_F(label1->label2) == #label1 therefore label1
+            // AFby label2
+            return true;
         }
         return false;
     }
@@ -214,21 +199,8 @@ public abstract class InvariantMiner {
             Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
             Map<EventType, Set<EventType>> gEventCoOccurrences, EventType e1,
             EventType e2) {
-        int e1_fby_e2 = 0;
-        int e2_fby_e1 = 0;
-
-        if (gFollowedByCnts.containsKey(e1)
-                && gFollowedByCnts.get(e1).containsKey(e2)) {
-            e1_fby_e2 = gFollowedByCnts.get(e1).get(e2);
-        }
-        if (gFollowedByCnts.containsKey(e2)
-                && gFollowedByCnts.get(e2).containsKey(e1)) {
-            e2_fby_e1 = gFollowedByCnts.get(e2).get(e1);
-        }
-
-        // logger.info("-- e1: " + e1.toString() + ", e2: " +
-        // e2.toString() + "\n   e1_fby_e2: "
-        // + Internae1_fby_e2 e1_p_e2, e2_fby_e1, e2_p_e1)
+        int e1_fby_e2 = gFollowedByCnts.get(e1).get(e2);
+        int e2_fby_e1 = gFollowedByCnts.get(e2).get(e1);
 
         if (e1_fby_e2 == 0 && e2_fby_e1 == 0) {
             // That is, e1 NFby e2 && e2 NFby e1 means that e1 and e2
@@ -250,43 +222,18 @@ public abstract class InvariantMiner {
             Map<EventType, Set<EventType>> gEventCoOccurrences,
             Map<EventType, Map<EventType, Integer>> gEventTypesOrderedBalances,
             EventType e1, EventType e2) {
-        int e1_fby_e2 = 0;
-        int e2_fby_e1 = 0;
-
-        if (gFollowedByCnts.containsKey(e1)
-                && gFollowedByCnts.get(e1).containsKey(e2)) {
-            e1_fby_e2 = gFollowedByCnts.get(e1).get(e2);
-        }
-        if (gFollowedByCnts.containsKey(e2)
-                && gFollowedByCnts.get(e2).containsKey(e1)) {
-            e2_fby_e1 = gFollowedByCnts.get(e2).get(e1);
-        }
+        int e1_fby_e2 = gFollowedByCnts.get(e1).get(e2);
+        int e2_fby_e1 = gFollowedByCnts.get(e2).get(e1);
 
         if (e1_fby_e2 != 0 || e2_fby_e1 != 0) {
             // e1 was ordered with e2 or e2 was ordered with e1 at
-            // least
-            // once. Now we need to check whether they were _always_
-            // ordered w.r.t each other whenever they co-appeared in
-            // the
+            // least once. Now we need to check whether they were _always_
+            // ordered w.r.t each other whenever they co-appeared in the
             // same trace.
-
-            // logger.info("Potentially NeverConcurrent between "
-            // + e1.toString() + " and " + e2.toString());
-
-            // Both [e1][e2] and [e2][e1] records must exist since
-            // the
-            // two events co-appeared and therefore a record was
-            // created
-            // for both pairs during the DAGWalkingPO traversal
-            assert (gEventTypesOrderedBalances.containsKey(e1));
-            assert (gEventTypesOrderedBalances.get(e1).containsKey(e2));
-            assert (gEventTypesOrderedBalances.containsKey(e2));
-            assert (gEventTypesOrderedBalances.get(e2).containsKey(e1));
 
             if (gEventTypesOrderedBalances.get(e1).get(e2) == 0) {
                 // Assert: the invariant is commutative, so should
-                // hold
-                // true for (e2,e1)
+                // hold true for (e2,e1):
                 assert (gEventTypesOrderedBalances.get(e2).get(e1) == 0);
                 return true;
             }
