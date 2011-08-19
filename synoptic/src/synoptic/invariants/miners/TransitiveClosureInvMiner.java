@@ -1,8 +1,9 @@
 package synoptic.invariants.miners;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -131,64 +132,90 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
         public EventOrderingSummary() {
             // Nothing to do here.
         }
+
+        /**
+         * Returns true if this ordering summary can no longer change by
+         * considering more traces.
+         */
+        public boolean fixedPoint() {
+            return (!neverFollowedBy && !alwaysFollowedBy && !alwaysPrecedes
+                    && !alwaysOrdered && !neverOrdered);
+        }
     }
 
-    private EventOrderingSummary summarizeOrderings(EventType e1, EventType e2,
-            Map<EventType, ArrayList<EventNode>> partitions,
+    /**
+     * Assumes that e1 and e2 are both not initial/terminal event types.
+     * 
+     * @param traceIdToEventNodesE1
+     * @param traceIdToEventNodesE2
+     * @param tc
+     * @return
+     */
+    private EventOrderingSummary summarizeOrderings(
+            Map<Integer, List<EventNode>> traceIdToEventNodesE1,
+            Map<Integer, List<EventNode>> traceIdToEventNodesE2,
             TransitiveClosure<EventNode> tc) {
         EventOrderingSummary order = new EventOrderingSummary();
-        for (EventNode node1 : partitions.get(e1)) {
-            boolean followerFound = false;
-            boolean predecessorFound = false;
 
-            // TODO: this could be greatly optimized by iterating
-            // through just EventNodes node2s such that node2 is in the
-            // same trace as node1 -- i.e., by partitioning nodes into
-            // partitions by traceIDs.
+        for (int tid : traceIdToEventNodesE1.keySet()) {
+            // Do not iterate if there are no e2 instances in the trace tid
 
-            for (EventNode node2 : partitions.get(e2)) {
-                if (node1.getTraceID() != node2.getTraceID()
-                        || node1.getEType().isSpecialEventType()
-                        || node2.getEType().isSpecialEventType()) {
-                    // Optimizations to ignore certain nodes.
-                    continue;
+            for (EventNode node1 : traceIdToEventNodesE1.get(tid)) {
+                boolean followerFound = false;
+                boolean predecessorFound = false;
+
+                if (traceIdToEventNodesE2.containsKey(tid)) {
+                    for (EventNode node2 : traceIdToEventNodesE2.get(tid)) {
+                        if (node1 == node2) {
+                            continue;
+                        }
+
+                        if (tc.isReachable(node1, node2)) {
+                            order.neverFollowedBy = false;
+                            followerFound = true;
+                        }
+
+                        if (tc.isReachable(node2, node1)) {
+                            predecessorFound = true;
+                        }
+
+                        // If node1 and node2 belong to same trace then for them
+                        // to be alwaysOrdered, there must be a path between
+                        // them either from node1 to node2 or from node2 to
+                        // node1.
+                        if (!tc.isReachable(node1, node2)
+                                && !tc.isReachable(node2, node1)) {
+                            order.alwaysOrdered = false;
+                        }
+                    }
                 }
 
-                if (tc.isReachable(node1, node2)) {
-                    order.neverFollowedBy = false;
-                    followerFound = true;
+                // Every node instance with label1 must be followed by a
+                // node instance with label2 for label1 AFby label2 to be
+                // true.
+                if (!followerFound) {
+                    order.alwaysFollowedBy = false;
+                }
+                // Every node instance with label1 must be preceded by a
+                // node instance with label2 for label2 AP label1 to be
+                // true.
+                if (!predecessorFound) {
+                    order.alwaysPrecedes = false;
                 }
 
-                if (tc.isReachable(node2, node1)) {
-                    predecessorFound = true;
+                if (followerFound || predecessorFound) {
+                    order.neverOrdered = false;
                 }
 
-                // If node1 and node2 belong to same trace then for them
-                // to be alwaysOrdered, there must be a path between
-                // them either from node1 to node2 or from node2 to
-                // node1.
-                if (!tc.isReachable(node1, node2)
-                        && !tc.isReachable(node2, node1)) {
-                    order.alwaysOrdered = false;
+                // Optimization: if no possibly trace can change the outcome of
+                // the ordering summary we have gathered so far, then stop and
+                // exit with the summary that we have.
+                if (order.fixedPoint()) {
+                    return order;
                 }
-            }
-            // Every node instance with label1 must be followed by a
-            // node instance with label2 for label1 AFby label2 to be
-            // true.
-            if (!followerFound) {
-                order.alwaysFollowedBy = false;
-            }
-            // Every node instance with label1 must be preceded by a
-            // node instance with label2 for label2 AP label1 to be
-            // true.
-            if (!predecessorFound) {
-                order.alwaysPrecedes = false;
-            }
-
-            if (followerFound || predecessorFound) {
-                order.neverOrdered = false;
             }
         }
+
         return order;
     }
 
@@ -209,7 +236,11 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
     private Set<ITemporalInvariant> extractInvariantsFromTC(
             IGraph<EventNode> g, TransitiveClosure<EventNode> tc,
             String relation, boolean mineConcurrencyInvariants) {
-        Map<EventType, ArrayList<EventNode>> partitions = new LinkedHashMap<EventType, ArrayList<EventNode>>();
+
+        // This maintains the mapping from event type to a map of trace ids ->
+        // list of event instances in the trace. This is used to check
+        // reachability only between event instances that are in the same trace.
+        Map<EventType, Map<Integer, List<EventNode>>> etypeToTraceIdToENode = new LinkedHashMap<EventType, Map<Integer, List<EventNode>>>();
 
         // Initialize the partitions map: each unique label maps to a list of
         // nodes with that label.
@@ -241,10 +272,24 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                  **/
                 continue;
             }
-            if (!partitions.containsKey(node.getEType())) {
-                partitions.put(node.getEType(), new ArrayList<EventNode>());
+            Map<Integer, List<EventNode>> map;
+            EventType etype = node.getEType();
+            if (!etypeToTraceIdToENode.containsKey(etype)) {
+                map = new LinkedHashMap<Integer, List<EventNode>>();
+                etypeToTraceIdToENode.put(etype, map);
+            } else {
+                map = etypeToTraceIdToENode.get(etype);
             }
-            partitions.get(node.getEType()).add(node);
+
+            List<EventNode> list;
+            int tid = node.getTraceID();
+            if (!map.containsKey(tid)) {
+                list = new LinkedList<EventNode>();
+                map.put(tid, list);
+            } else {
+                list = map.get(tid);
+            }
+            list.add(node);
         }
 
         Set<ITemporalInvariant> pathInvs = new LinkedHashSet<ITemporalInvariant>();
@@ -253,29 +298,18 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
 
         Set<Pair<EventType, EventType>> observedPairs = new LinkedHashSet<Pair<EventType, EventType>>();
         int numTraces = getNumTraces(g);
-        for (EventType e1 : partitions.keySet()) {
+        for (EventType e1 : etypeToTraceIdToENode.keySet()) {
             // ///////////////// Determine if "INITIAL AFby e1" is true
-            // Allocate an array of false values (default boolean value).
-            boolean[] e1TraceAppearance = new boolean[numTraces];
-            int e1TracesCovered = 0;
-            // Iterate through all event nodes for e1 and record trace coverage.
-            for (EventNode node1 : partitions.get(e1)) {
-                int tid = node1.getTraceID();
-                if (!e1TraceAppearance[tid]) {
-                    e1TraceAppearance[tid] = true;
-                    e1TracesCovered++;
-                }
-            }
             // Check if an e1 node appeared in every trace, if yes then inv
             // true.
-            if (e1TracesCovered == numTraces) {
+            if (etypeToTraceIdToENode.get(e1).keySet().size() == numTraces) {
                 pathInvs.add(new AlwaysFollowedInvariant(StringEventType
                         .NewInitialStringEventType(), e1,
                         TraceParser.defaultRelation));
             }
             // /////////////////
 
-            for (EventType e2 : partitions.keySet()) {
+            for (EventType e2 : etypeToTraceIdToENode.keySet()) {
                 // If we have done (e1,e2) then do not do (e2,e1) because for
                 // pair (e1,e2) we derive orderings and invariants for both
                 // (e1,e2) and (e2,e1) -- this is done so that we can do correct
@@ -290,11 +324,13 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                 // ///////////////////////////////
                 // Derive the ordering summary between each instance of e1 and
                 // every instance of e2.
-                EventOrderingSummary E1orderE2 = summarizeOrderings(e1, e2,
-                        partitions, tc);
+                EventOrderingSummary E1orderE2 = summarizeOrderings(
+                        etypeToTraceIdToENode.get(e1),
+                        etypeToTraceIdToENode.get(e2), tc);
                 // Do same for e2,e1.
-                EventOrderingSummary E2orderE1 = summarizeOrderings(e2, e1,
-                        partitions, tc);
+                EventOrderingSummary E2orderE1 = summarizeOrderings(
+                        etypeToTraceIdToENode.get(e2),
+                        etypeToTraceIdToENode.get(e1), tc);
                 // ///////////////////////////////
 
                 // Whether or not never ordered invariant was added --
