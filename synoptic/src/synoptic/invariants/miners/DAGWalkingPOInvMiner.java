@@ -764,16 +764,6 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             for (EventNode n : tPrecedingNodesNew) {
                 EventType a = n.getEType();
                 if (!visitedTypes.contains(a)) {
-                    /*
-                     * Map<EventType, Integer> precedingLabelCnts; if
-                     * (!gPrecedesCnts.containsKey(a)) { precedingLabelCnts =
-                     * new LinkedHashMap<EventType, Integer>();
-                     * gPrecedesCnts.put(a, precedingLabelCnts); } else {
-                     * precedingLabelCnts = gPrecedesCnts.get(a); } if
-                     * (!precedingLabelCnts.containsKey(b)) {
-                     * precedingLabelCnts.put(b, 1); } else { precedingLabelCnts
-                     * .put(b, precedingLabelCnts.get(b) + 1); }
-                     */
                     gPrecedesCnts.get(a)
                             .put(b, gPrecedesCnts.get(a).get(b) + 1);
                 }
@@ -891,17 +881,6 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // Update the global precedes counts based on the a events that
             // preceded the current b event in this trace.
             for (EventType b : tFollowingTypeCnts.keySet()) {
-                /*
-                 * Map<EventType, Integer> followingLabelCnts;
-                 * 
-                 * if (!gFollowedByCnts.containsKey(a)) { followingLabelCnts =
-                 * new LinkedHashMap<EventType, Integer>();
-                 * gFollowedByCnts.put(a, followingLabelCnts); } else {
-                 * followingLabelCnts = gFollowedByCnts.get(a); } if
-                 * (!followingLabelCnts.containsKey(b)) {
-                 * followingLabelCnts.put(b, 1); } else {
-                 * followingLabelCnts.put(b, followingLabelCnts.get(b) + 1); }
-                 */
                 if (!a.isTerminalEventType() && !b.isTerminalEventType()) {
                     gFollowedByCnts.get(a).put(b,
                             gFollowedByCnts.get(a).get(b) + 1);
@@ -991,16 +970,6 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             // Update the global precedes counts based on the a events that
             // preceded the current b event in this trace.
             for (EventType a : tPrecedingTypeCnts.keySet()) {
-                /*
-                 * Map<EventType, Integer> precedingLabelCnts; if
-                 * (!gPrecedesCnts.containsKey(a)) { precedingLabelCnts = new
-                 * LinkedHashMap<EventType, Integer>(); gPrecedesCnts.put(a,
-                 * precedingLabelCnts); } else { precedingLabelCnts =
-                 * gPrecedesCnts.get(a); } if
-                 * (!precedingLabelCnts.containsKey(b)) {
-                 * precedingLabelCnts.put(b, 1); } else {
-                 * precedingLabelCnts.put(b, precedingLabelCnts.get(b) + 1); }
-                 */
                 gPrecedesCnts.get(a).put(b, gPrecedesCnts.get(a).get(b) + 1);
             }
 
@@ -1009,8 +978,6 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
             } else {
                 tPrecedingTypeCnts.put(b, tPrecedingTypeCnts.get(b) + 1);
             }
-
-            // Update the global event counts.
 
             // Nodes with multiple children are handled outside the loop.
             if (curNode.getTransitions().size() != 1) {
