@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import synoptic.model.interfaces.IGraph;
-import synoptic.model.interfaces.INode;
+import synoptic.model.EventNode;
+import synoptic.model.TraceGraph;
 import synoptic.model.interfaces.ITransition;
 
 /**
@@ -19,14 +19,14 @@ import synoptic.model.interfaces.ITransition;
  * http://www.cs.princeton.edu/courses/archive/fall05/cos226/lectures
  * /digraph.pdf
  */
-public class TransitiveClosure<NodeType extends INode<NodeType>> {
+public class TransitiveClosure {
     // Reachability map.
     // If y is reachable from x then tc.get(x).contains(y) == true,
     // otherwise tc.get(x).contains(y) == false
-    private final Map<NodeType, Set<NodeType>> tc = new LinkedHashMap<NodeType, Set<NodeType>>();
+    private final Map<EventNode, Set<EventNode>> tc = new LinkedHashMap<EventNode, Set<EventNode>>();
 
     private final String relation;
-    private final IGraph<NodeType> graph;
+    private final TraceGraph graph;
 
     /**
      * Create the transitive closure of {@code graph} for the Relation
@@ -40,7 +40,7 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      * @param useWarshall
      *            whether or not to use Warshall's algorithm
      */
-    public TransitiveClosure(IGraph<NodeType> graph, String relation,
+    public TransitiveClosure(TraceGraph graph, String relation,
             boolean useWarshall) {
         this.relation = relation;
         this.graph = graph;
@@ -61,7 +61,7 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      * @param relation
      *            the relation
      */
-    public TransitiveClosure(IGraph<NodeType> graph, String relation) {
+    public TransitiveClosure(TraceGraph graph, String relation) {
         this(graph, relation, true);
     }
 
@@ -82,8 +82,8 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      */
     @SuppressWarnings("unused")
     private void goralcikovaAlg() {
-        Set<NodeType> allNodes = graph.getNodes();
-        List<NodeType> sortedNodes = new LinkedList<NodeType>();
+        Set<EventNode> allNodes = graph.getNodes();
+        List<EventNode> sortedNodes = new LinkedList<EventNode>();
 
         // 1. Get the nodes sorted in some topological order, and at the same
         // time construct a reverse graph -- the graph that is formed by
@@ -103,16 +103,16 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      * Warshall's Algorithm.
      */
     private void warshallAlg() {
-        Set<NodeType> allNodes = graph.getNodes();
+        Set<EventNode> allNodes = graph.getNodes();
 
         // Maps a node to its parents in the transitive closure.
-        HashMap<NodeType, HashSet<NodeType>> tcParents = new HashMap<NodeType, HashSet<NodeType>>();
+        HashMap<EventNode, HashSet<EventNode>> tcParents = new HashMap<EventNode, HashSet<EventNode>>();
 
         // Logger logger = Logger.getLogger("TransitiveClosure Logger");
-        for (NodeType m : allNodes) {
+        for (EventNode m : allNodes) {
             // logger.fine("tc map is: " + tc.toString());
             // logger.fine("Handling node " + m.toString());
-            Iterator<? extends ITransition<NodeType>> transIter = m
+            Iterator<? extends ITransition<EventNode>> transIter = m
                     .getTransitionsIterator(relation);
             /**
              * Iterate through all children of m and for each child do 2 things:
@@ -126,13 +126,13 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
             while (transIter.hasNext()) {
                 // Create new tc map for node m.
                 if (!tc.containsKey(m)) {
-                    tc.put(m, new LinkedHashSet<NodeType>());
+                    tc.put(m, new LinkedHashSet<EventNode>());
                 }
 
-                NodeType child = transIter.next().getTarget();
+                EventNode child = transIter.next().getTarget();
 
                 if (!tcParents.containsKey(child)) {
-                    tcParents.put(child, new HashSet<NodeType>());
+                    tcParents.put(child, new HashSet<EventNode>());
                 }
 
                 // Link m to c
@@ -144,9 +144,9 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
                     // m can reach nodes the child can reach transitively:
                     tc.get(m).addAll(tc.get(child));
                     // nodes that child can reach have m as a tc parent:
-                    for (NodeType n : tc.get(child)) {
+                    for (EventNode n : tc.get(child)) {
                         if (!tcParents.containsKey(n)) {
-                            tcParents.put(n, new HashSet<NodeType>());
+                            tcParents.put(n, new HashSet<EventNode>());
                         }
                         tcParents.get(n).add(m);
                     }
@@ -164,12 +164,12 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
              * </pre>
              */
             if (tcParents.containsKey(m) && tc.containsKey(m)) {
-                for (NodeType p : tcParents.get(m)) {
+                for (EventNode p : tcParents.get(m)) {
                     // P has a tc entry because its already part of
                     // tcParents of m (so we've already processed it)
                     // previously.
                     tc.get(p).addAll(tc.get(m));
-                    for (NodeType n : tc.get(m)) {
+                    for (EventNode n : tc.get(m)) {
                         // n has a tcParents entry because m is a tc parent
                         // of n and it must have been set above.
                         tcParents.get(n).add(p);
@@ -184,11 +184,11 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      * The old recursive TC algorithm.
      */
     private void oldTCAlg() {
-        for (NodeType m : graph.getNodes()) {
-            Iterator<? extends ITransition<NodeType>> i = m
+        for (EventNode m : graph.getNodes()) {
+            Iterator<? extends ITransition<EventNode>> i = m
                     .getTransitionsIterator(relation);
             while (i.hasNext()) {
-                ITransition<NodeType> t = i.next();
+                ITransition<EventNode> t = i.next();
                 if (!graph.getNodes().contains(t.getTarget())) {
                     continue;
                 }
@@ -206,14 +206,14 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      * @param n
      *            a node that can be reached from m
      */
-    private void dfs(NodeType m, NodeType n) {
+    private void dfs(EventNode m, EventNode n) {
         if (!tc.containsKey(m)) {
-            tc.put(m, new LinkedHashSet<NodeType>());
+            tc.put(m, new LinkedHashSet<EventNode>());
         }
         tc.get(m).add(n);
-        for (Iterator<? extends ITransition<NodeType>> i = n
+        for (Iterator<? extends ITransition<EventNode>> i = n
                 .getTransitionsIterator(relation); i.hasNext();) {
-            ITransition<NodeType> t = i.next();
+            ITransition<EventNode> t = i.next();
             if (!graph.getNodes().contains(t.getTarget())) {
                 continue;
             }
@@ -233,8 +233,8 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      *            a node
      * @return true if {@code m} can reach {@code n}
      */
-    public boolean isReachable(NodeType m, NodeType n) {
-        Set<NodeType> i = tc.get(m);
+    public boolean isReachable(EventNode m, EventNode n) {
+        Set<EventNode> i = tc.get(m);
         if (i == null) {
             return false;
         }
@@ -247,7 +247,7 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      * @param source
      *            the node from which the reachability closure is computed.
      */
-    public Set<NodeType> getReachableNodes(NodeType source) {
+    public Set<EventNode> getReachableNodes(EventNode source) {
         return tc.get(source);
     }
 
@@ -257,13 +257,13 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      * @param other
      * @return if {@code o} describes the same relation is {@code this}
      */
-    public boolean isEqual(TransitiveClosure<NodeType> other) {
+    public boolean isEqual(TransitiveClosure other) {
         if (!this.relation.equals(other.relation)) {
             return false;
         }
 
-        for (NodeType u : other.tc.keySet()) {
-            for (NodeType v : other.tc.get(u)) {
+        for (EventNode u : other.tc.keySet()) {
+            for (EventNode v : other.tc.get(u)) {
                 // v is reachable from u in other.tc, check that same is true
                 // for this.tc:
                 if (!isReachable(u, v)) {
@@ -272,8 +272,8 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
             }
         }
 
-        for (NodeType u : tc.keySet()) {
-            for (NodeType v : tc.get(u)) {
+        for (EventNode u : tc.keySet()) {
+            for (EventNode v : tc.get(u)) {
                 // v is reachable from u in this.tc, check that same is true for
                 // other.tc:
                 if (!other.isReachable(u, v)) {
@@ -287,7 +287,7 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
     /**
      * @return tc
      */
-    public Map<NodeType, Set<NodeType>> getTC() {
+    public Map<EventNode, Set<EventNode>> getTC() {
         return tc;
     }
 }

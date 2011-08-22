@@ -45,8 +45,7 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(b);
         g.add(c);
         g.add(d);
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
 
         assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).contains(b)
                 && tc.getTC().get(a).contains(c)
@@ -70,8 +69,7 @@ public class TransitiveClosureTests extends SynopticTest {
     @Test
     public void constructorEmptyGraphTest() {
         TraceGraph g = new TraceGraph();
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
         assertTrue(tc.getTC().isEmpty());
     }
 
@@ -91,8 +89,7 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(b);
         g.add(c);
         g.add(d);
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                null);
+        TransitiveClosure tc = new TransitiveClosure(g, null);
         assertTrue(tc.getTC().isEmpty());
     }
 
@@ -113,8 +110,7 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(c);
         g.add(d);
 
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
 
         Map<EventNode, Set<EventNode>> tc2 = new LinkedHashMap<EventNode, Set<EventNode>>();
         tc2.put(a, new LinkedHashSet<EventNode>());
@@ -147,8 +143,7 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(c);
         g.add(d);
 
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
 
         assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).contains(b));
         assertTrue(tc.getTC().containsKey(c) && tc.getTC().get(c).contains(d));
@@ -187,8 +182,7 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(c);
         g.add(d);
 
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
 
         for (EventNode z : g.getNodes()) {
             for (EventNode y : g.getNodes()) {
@@ -221,8 +215,7 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(b);
         g.add(c);
         g.add(d);
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
 
         Map<EventNode, Set<EventNode>> tc2 = new LinkedHashMap<EventNode, Set<EventNode>>();
         tc2.put(a, new LinkedHashSet<EventNode>());
@@ -249,14 +242,12 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(b);
         g.add(c);
 
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
         assertEquals(0, tc.getTC().size());
 
         a.addTransition(new Transition<EventNode>(a, b, "followed by"));
         a.addTransition(new Transition<EventNode>(a, c, "followed by"));
-        TransitiveClosure<EventNode> tc2 = new TransitiveClosure<EventNode>(g,
-                "after");
+        TransitiveClosure tc2 = new TransitiveClosure(g, "after");
         assertEquals(0, tc2.getTC().size());
 
     }
@@ -270,8 +261,7 @@ public class TransitiveClosureTests extends SynopticTest {
 
         g.add(a);
 
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
         assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).contains(a));
         assertEquals(1, tc.getTC().size());
         assertEquals(1, tc.getTC().get(a).size());
@@ -294,8 +284,7 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(c);
         g.add(d);
 
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
 
         ArrayList<EventNode> list = new ArrayList<EventNode>();
         list.add(a);
@@ -322,8 +311,7 @@ public class TransitiveClosureTests extends SynopticTest {
 
         g.add(a);
 
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
         assertTrue(tc.isReachable(a, a));
     }
 
@@ -343,16 +331,14 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(b);
         g.add(c);
         g.add(d);
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
 
         TraceGraph g2 = new TraceGraph();
         g2.add(a);
         g2.add(b);
         g2.add(c);
         g2.add(d);
-        TransitiveClosure<EventNode> tc2 = new TransitiveClosure<EventNode>(g2,
-                "followed by");
+        TransitiveClosure tc2 = new TransitiveClosure(g2, "followed by");
         assertTrue(tc.isEqual(tc2));
     }
 
@@ -372,8 +358,7 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(b);
         g.add(c);
         g.add(d);
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
 
         TraceGraph g2 = new TraceGraph();
         g2.add(a);
@@ -383,8 +368,7 @@ public class TransitiveClosureTests extends SynopticTest {
         EventNode e = new EventNode(new Event("e"));
         e.addTransition(new Transition<EventNode>(e, a, "followed by"));
         g2.add(e);
-        TransitiveClosure<EventNode> tc2 = new TransitiveClosure<EventNode>(g2,
-                "followed by");
+        TransitiveClosure tc2 = new TransitiveClosure(g2, "followed by");
 
         assertTrue(tc2.isReachable(e, b));
 
@@ -413,16 +397,14 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(b);
         g.add(c);
         g.add(d);
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
 
         TraceGraph g2 = new TraceGraph();
         g2.add(a);
         g2.add(b);
         g2.add(c);
         g2.add(d);
-        TransitiveClosure<EventNode> tc2 = new TransitiveClosure<EventNode>(g2,
-                "after");
+        TransitiveClosure tc2 = new TransitiveClosure(g2, "after");
 
         assertFalse(tc2.isEqual(tc));
 
