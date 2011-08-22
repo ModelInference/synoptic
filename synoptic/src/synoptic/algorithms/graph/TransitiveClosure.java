@@ -130,7 +130,6 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
                 }
 
                 NodeType child = transIter.next().getTarget();
-                assert (allNodes.contains(child));
 
                 if (!tcParents.containsKey(child)) {
                     tcParents.put(child, new HashSet<NodeType>());
