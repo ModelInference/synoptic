@@ -17,7 +17,7 @@ import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.StringEventType;
-import synoptic.model.interfaces.IGraph;
+import synoptic.model.TraceGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
@@ -34,7 +34,7 @@ public abstract class InvariantMiner {
      *            input graph over which to mine invariants
      * @return
      */
-    public TemporalInvariantSet computeInvariants(IGraph<EventNode> g) {
+    public TemporalInvariantSet computeInvariants(TraceGraph g) {
         throw new InternalSynopticException(
                 "computeInvariants must be overridden in a derived class.");
     }
@@ -46,7 +46,7 @@ public abstract class InvariantMiner {
      * might be connected to two nodes in the same trace (that were concurrent
      * at start).
      */
-    protected int getNumTraces(IGraph<EventNode> g) {
+    protected int getNumTraces(TraceGraph g) {
         if (g.getInitialNodes().isEmpty()) {
             throw new InternalSynopticException(
                     "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");

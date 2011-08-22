@@ -3,6 +3,11 @@ package synoptic.algorithms.graph;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import synoptic.model.interfaces.IGraph;
@@ -10,18 +15,16 @@ import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 
 /**
- * Computes the transitive closure. Code based on
+ * Computes and maintains the transitive closure. Code based on
  * http://www.cs.princeton.edu/courses/archive/fall05/cos226/lectures
  * /digraph.pdf
- * 
- * @author Sigurd
  */
 public class TransitiveClosure<NodeType extends INode<NodeType>> {
-    // Reachability map. Maps a node x to a map Mx which maintains reachability
-    // information for x:
-    // If y is reachable from x then Mx[y] == true,
-    // otherwise Mx[y] == false or Mx.contains(y) == false
-    private final HashMap<NodeType, HashMap<NodeType, Boolean>> tc = new HashMap<NodeType, HashMap<NodeType, Boolean>>();
+    // Reachability map.
+    // If y is reachable from x then tc.get(x).contains(y) == true,
+    // otherwise tc.get(x).contains(y) == false
+    private final Map<NodeType, Set<NodeType>> tc = new LinkedHashMap<NodeType, Set<NodeType>>();
+
     private final String relation;
     private final IGraph<NodeType> graph;
 
@@ -63,59 +66,90 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
     }
 
     /**
+     * <pre>
+     * The algorithm by Goralčíková and Koubek:
+     * "A reduct-and-closure algorithm for graphs" by Alla Goralčíková
+     * and Václav Koubek. MATHEMATICAL FOUNDATIONS OF COMPUTER SCIENCE 1979
+     * Lecture Notes in Computer Science, 1979, Volume 74/1979, 301-307,
+     * DOI: 10.1007/3-540-09526-8_27
+     * 
+     * A more modern/concise description can be found in:
+     * "An improved algorithm for transitive closure on acyclic digraphs" by
+     * Klaus Simon, AUTOMATA, LANGUAGES AND PROGRAMMING Lecture Notes in
+     * Computer Science, 1986, Volume 226/1986, 376-386,
+     * DOI: 10.1007/3-540-16761-7_87
+     * </pre>
+     */
+    @SuppressWarnings("unused")
+    private void goralcikovaAlg() {
+        Set<NodeType> allNodes = graph.getNodes();
+        List<NodeType> sortedNodes = new LinkedList<NodeType>();
+
+        // 1. Get the nodes sorted in some topological order, and at the same
+        // time construct a reverse graph -- the graph that is formed by
+        // reversing all the edges.
+
+        // TODO
+
+        // 2. Traverse the reverse graph from the terminal nodes, building up
+        // the transitive relation for a node in an order specified by the
+        // topological order of the node's children (see paper for more
+        // details).
+
+        // TODO
+    }
+
+    /**
      * Warshall's Algorithm.
      */
     private void warshallAlg() {
         Set<NodeType> allNodes = graph.getNodes();
 
-        // Since in our graphs a node doesn't know its parent(s), we maintain a
-        // tcParents map that specifies which maps a node to its parents in the
-        // transitive closure.
+        // Maps a node to its parents in the transitive closure.
         HashMap<NodeType, HashSet<NodeType>> tcParents = new HashMap<NodeType, HashSet<NodeType>>();
 
         // Logger logger = Logger.getLogger("TransitiveClosure Logger");
         for (NodeType m : allNodes) {
             // logger.fine("tc map is: " + tc.toString());
             // logger.fine("Handling node " + m.toString());
-            Iterator<? extends ITransition<NodeType>> i = m
+            Iterator<? extends ITransition<NodeType>> transIter = m
                     .getTransitionsIterator(relation);
             /**
-             * Iterate through all children c of m and for each c do 2 things:
+             * Iterate through all children of m and for each child do 2 things:
              * 
              * <pre>
-             * 1. create a tc link between m and c and add m to tcParents[c]
-             * 2. create a tc link between m and every node n to which c is already linked to in tc and add m to tcParents[n]
+             * 1. create a tc link between m and child and add m to tcParents[child]
+             * 2. create a tc link between m and every node n to which child is already
+             *    linked to in tc and add m to tcParents[n]
              * </pre>
              */
-            while (i.hasNext()) {
+            while (transIter.hasNext()) {
                 // Create new tc map for node m.
                 if (!tc.containsKey(m)) {
-                    tc.put(m, new HashMap<NodeType, Boolean>());
+                    tc.put(m, new LinkedHashSet<NodeType>());
                 }
 
-                ITransition<NodeType> t = i.next();
-                NodeType c = t.getTarget();
-                if (!allNodes.contains(c)) {
-                    continue;
-                }
-                if (!tcParents.containsKey(c)) {
-                    tcParents.put(c, new HashSet<NodeType>());
+                NodeType child = transIter.next().getTarget();
+                assert (allNodes.contains(child));
+
+                if (!tcParents.containsKey(child)) {
+                    tcParents.put(child, new HashSet<NodeType>());
                 }
 
                 // Link m to c
-                tc.get(m).put(c, true);
-                tcParents.get(c).add(m);
+                tc.get(m).add(child);
+                tcParents.get(child).add(m);
 
                 // Link m to all nodes that c is linked to in tc
-                if (tc.containsKey(c)) {
-                    for (NodeType n : tc.get(c).keySet()) {
-                        if (tc.get(c).get(n) == true) {
-                            tc.get(m).put(n, true);
-                            if (!tcParents.containsKey(n)) {
-                                tcParents.put(n, new HashSet<NodeType>());
-                            }
-                            tcParents.get(n).add(m);
+                if (tc.containsKey(child)) {
+                    // m can reach nodes the child can reach transitively:
+                    tc.get(m).addAll(tc.get(child));
+                    // nodes that child can reach have m as a tc parent:
+                    for (NodeType n : tc.get(child)) {
+                        if (!tcParents.containsKey(n)) {
+                            tcParents.put(n, new HashSet<NodeType>());
                         }
+                        tcParents.get(n).add(m);
                     }
                 }
             }
@@ -132,16 +166,14 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
              */
             if (tcParents.containsKey(m) && tc.containsKey(m)) {
                 for (NodeType p : tcParents.get(m)) {
-                    for (NodeType n : tc.get(m).keySet()) {
-                        if (tc.get(m).get(n)) {
-                            // P has a tc entry because its already part of
-                            // tcParents of m (so we've already processed it)
-                            // previously
-                            tc.get(p).put(n, true);
-                            // n has a tcParents entry because m is a tc parent
-                            // of n and it must have been set above.
-                            tcParents.get(n).add(p);
-                        }
+                    // P has a tc entry because its already part of
+                    // tcParents of m (so we've already processed it)
+                    // previously.
+                    tc.get(p).addAll(tc.get(m));
+                    for (NodeType n : tc.get(m)) {
+                        // n has a tcParents entry because m is a tc parent
+                        // of n and it must have been set above.
+                        tcParents.get(n).add(p);
                     }
                 }
             }
@@ -177,17 +209,16 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      */
     private void dfs(NodeType m, NodeType n) {
         if (!tc.containsKey(m)) {
-            tc.put(m, new HashMap<NodeType, Boolean>());
+            tc.put(m, new LinkedHashSet<NodeType>());
         }
-        tc.get(m).put(n, true);
+        tc.get(m).add(n);
         for (Iterator<? extends ITransition<NodeType>> i = n
                 .getTransitionsIterator(relation); i.hasNext();) {
             ITransition<NodeType> t = i.next();
             if (!graph.getNodes().contains(t.getTarget())) {
                 continue;
             }
-            Boolean r = tc.get(m).get(t.getTarget());
-            if (r == null || r == false) {
+            if (!tc.get(m).contains(t.getTarget())) {
                 dfs(m, t.getTarget());
             }
         }
@@ -204,39 +235,49 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
      * @return true if {@code m} can reach {@code n}
      */
     public boolean isReachable(NodeType m, NodeType n) {
-        HashMap<NodeType, Boolean> i = tc.get(m);
+        Set<NodeType> i = tc.get(m);
         if (i == null) {
             return false;
         }
-        Boolean r = i.get(n);
-        if (r == null) {
-            return false;
-        }
-        return r;
+        return i.contains(n);
+    }
+
+    /**
+     * Returns the set of nodes that are reachable from a source node
+     * 
+     * @param source
+     *            the node from which the reachability closure is computed.
+     */
+    public Set<NodeType> getReachableNodes(NodeType source) {
+        return tc.get(source);
     }
 
     /**
      * Equality for transitive closure
      * 
-     * @param o
+     * @param other
      * @return if {@code o} describes the same relation is {@code this}
      */
-    public boolean isEqual(TransitiveClosure<NodeType> o) {
-        if (!this.relation.equals(o.relation)) {
+    public boolean isEqual(TransitiveClosure<NodeType> other) {
+        if (!this.relation.equals(other.relation)) {
             return false;
         }
 
-        for (NodeType u : o.tc.keySet()) {
-            for (NodeType v : o.tc.get(u).keySet()) {
-                if (isReachable(u, v) != o.isReachable(u, v)) {
+        for (NodeType u : other.tc.keySet()) {
+            for (NodeType v : other.tc.get(u)) {
+                // v is reachable from u in other.tc, check that same is true
+                // for this.tc:
+                if (!isReachable(u, v)) {
                     return false;
                 }
             }
         }
 
         for (NodeType u : tc.keySet()) {
-            for (NodeType v : tc.get(u).keySet()) {
-                if (isReachable(u, v) != o.isReachable(u, v)) {
+            for (NodeType v : tc.get(u)) {
+                // v is reachable from u in this.tc, check that same is true for
+                // other.tc:
+                if (!other.isReachable(u, v)) {
                     return false;
                 }
             }
@@ -247,7 +288,7 @@ public class TransitiveClosure<NodeType extends INode<NodeType>> {
     /**
      * @return tc
      */
-    public HashMap<NodeType, HashMap<NodeType, Boolean>> getTC() {
+    public Map<NodeType, Set<NodeType>> getTC() {
         return tc;
     }
 }
