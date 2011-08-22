@@ -899,7 +899,7 @@ public class TraceParser {
     public TraceGraph generateDirectTemporalRelation(
             ArrayList<EventNode> allEvents) throws ParseException {
 
-        TraceGraph graph = new TraceGraph();
+        TraceGraph graph = new TraceGraph(allEvents);
 
         boolean totallyOrderedTrace = logTimeTypeIsTotallyOrdered();
         graph.setPartiallyOrdered(!totallyOrderedTrace);
@@ -931,11 +931,6 @@ public class TraceParser {
                     throw new ParseException();
                 }
             }
-        }
-
-        // Add all the log events to the graph.
-        for (EventNode e : allEvents) {
-            graph.add(e);
         }
 
         // Connect the events in the graph, and also build up noPredecessor and

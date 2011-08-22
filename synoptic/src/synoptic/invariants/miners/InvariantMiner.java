@@ -1,6 +1,5 @@
 package synoptic.invariants.miners;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -64,35 +63,6 @@ public abstract class InvariantMiner {
             tids.add(tid);
         }
         return tids.size();
-    }
-
-    /**
-     * Builds and returns a map of trace id to the set of initial nodes in the
-     * trace. This is used for partially ordered traces, where it is not
-     * possible to determine which initial nodes (pointed to from the synthetic
-     * INITIAL node) are in the same trace.
-     * 
-     * @param initNode
-     *            top level synthetic INITIAL node
-     * @return a map of trace id to the set of initial nodes in the trace
-     */
-    protected Map<Integer, Set<EventNode>> buildTraceIdToInitNodesMap(
-            EventNode initNode) {
-        Map<Integer, Set<EventNode>> traceIdToInitNodes = new LinkedHashMap<Integer, Set<EventNode>>();
-        // Build the trace id to initial nodes map by visiting all initial
-        // nodes that are pointed to from the synthetic INITIAL node.
-        for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
-            Integer tid = initTrans.getTarget().getTraceID();
-            Set<EventNode> initTraceNodes;
-            if (!traceIdToInitNodes.containsKey(tid)) {
-                initTraceNodes = new LinkedHashSet<EventNode>();
-                traceIdToInitNodes.put(tid, initTraceNodes);
-            } else {
-                initTraceNodes = traceIdToInitNodes.get(tid);
-            }
-            initTraceNodes.add(initTrans.getTarget());
-        }
-        return traceIdToInitNodes;
     }
 
     /**
