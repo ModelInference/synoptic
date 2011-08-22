@@ -41,7 +41,7 @@ public class PartitionMerge implements IOperation {
         }
         retained.addEventNodes(removed.getEventNodes());
         removed.removeAllEventNodes();
-        g.remove(removed);
+        g.removePartition(removed);
         if (removedSize + retainedSize != retained.size()) {
             throw new InternalSynopticException("lost messages!: "
                     + removedSize + "+" + retainedSize + "!= "

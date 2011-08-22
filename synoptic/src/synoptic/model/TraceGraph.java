@@ -38,6 +38,11 @@ public class TraceGraph implements IGraph<EventNode> {
     private final Map<String, Set<EventNode>> initialNodes = new LinkedHashMap<String, Set<EventNode>>();
 
     /**
+     * Maintains a map of trace id to the set of initial nodes in the trace.
+     */
+    private final Map<Integer, Set<EventNode>> traceIdToInitNodes = new LinkedHashMap<Integer, Set<EventNode>>();
+
+    /**
      * Every terminal node maintains a transition to this special node to
      * indicate that the source node is a terminal. We must have this node in
      * this graph, and not just in partition graph because invariants are mined
@@ -142,16 +147,6 @@ public class TraceGraph implements IGraph<EventNode> {
     }
 
     /**
-     * Removes a node from this graph.
-     */
-    @Override
-    public void remove(EventNode node) {
-        nodes.remove(node);
-        // Invalidate the relations cache.
-        cachedRelations = null;
-    }
-
-    /**
      * Sets the dummy terminal node to which all terminal nodes in the graph
      * have a transition.
      * 
@@ -210,23 +205,26 @@ public class TraceGraph implements IGraph<EventNode> {
         assert dummyInitialNode != null : "Must call setDummyInitial() prior to tagInitial().";
 
         dummyInitialNode.addTransition(initialNode, relation);
+
+        /**
+         * Build a map of trace id to the set of initial nodes in the trace.
+         * This is used for partially ordered traces, where it is not possible
+         * to determine which initial nodes (pointed to from the synthetic
+         * INITIAL node) are in the same trace.
+         */
+        Integer tid = initialNode.getTraceID();
+        Set<EventNode> initTraceNodes;
+        if (!traceIdToInitNodes.containsKey(tid)) {
+            initTraceNodes = new LinkedHashSet<EventNode>();
+            traceIdToInitNodes.put(tid, initTraceNodes);
+        } else {
+            initTraceNodes = traceIdToInitNodes.get(tid);
+        }
+        initTraceNodes.add(initialNode);
     }
 
-    /**
-     * Merge {@code graph} into this graph.
-     * 
-     * @param graph
-     *            the graph to merge into this one
-     */
-    public void merge(TraceGraph graph) {
-        nodes.addAll(graph.getNodes());
-        for (String key : graph.initialNodes.keySet()) {
-            if (!initialNodes.containsKey(key)) {
-                initialNodes.put(key, new LinkedHashSet<EventNode>());
-            }
-            initialNodes.get(key).addAll(graph.initialNodes.get(key));
-        }
-        cachedRelations = null;
+    public Map<Integer, Set<EventNode>> getTraceIdToInitNodes() {
+        return traceIdToInitNodes;
     }
 
     /**

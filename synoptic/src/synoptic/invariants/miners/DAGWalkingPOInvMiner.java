@@ -15,7 +15,6 @@ import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.TraceGraph;
 import synoptic.model.Transition;
-import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 
 /**
@@ -71,7 +70,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      *            whether or not to mine the NeverConcurrentWith invariant
      * @return the set of mined invariants
      */
-    public TemporalInvariantSet computeInvariants(IGraph<EventNode> g,
+    public TemporalInvariantSet computeInvariants(TraceGraph g,
             boolean mineConcurrencyInvariants) {
         String relation = TraceParser.defaultRelation;
 
@@ -132,9 +131,6 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         // FollowedBy counts. We do this because nodes only know about their
         // children, and not their parents.
         Map<EventNode, List<EventNode>> tNodeParentsMap = new LinkedHashMap<EventNode, List<EventNode>>();
-
-        // Maintains a map of trace id to the set of initial nodes in the trace.
-        Map<Integer, Set<EventNode>> traceIdToInitNodes = buildTraceIdToInitNodesMap(initNode);
 
         // A couple of hash sets for containing parents of special nodes.
         List<EventNode> initNodeList = new ArrayList<EventNode>();
@@ -253,7 +249,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         }
 
         // Iterate through all the traces.
-        for (Set<EventNode> initTraceNodes : traceIdToInitNodes.values()) {
+        for (Set<EventNode> initTraceNodes : g.getTraceIdToInitNodes().values()) {
             tNodeParentsMap.put(initNode, emptyNodeHashSet);
 
             // ///////////////////

@@ -74,11 +74,4 @@ public interface IGraph<NodeType extends INode<NodeType>> {
      */
     void add(NodeType node);
 
-    /**
-     * Remove the node from the graph
-     * 
-     * @param node
-     *            the node to remove
-     */
-    void remove(NodeType node);
 }
