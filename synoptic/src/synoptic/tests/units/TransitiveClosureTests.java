@@ -5,7 +5,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -45,16 +48,17 @@ public class TransitiveClosureTests extends SynopticTest {
         TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).get(b)
-                && tc.getTC().get(a).get(c) && tc.getTC().get(a).get(d));
+        assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).contains(b)
+                && tc.getTC().get(a).contains(c)
+                && tc.getTC().get(a).contains(d));
 
-        assertTrue(tc.getTC().containsKey(b) && tc.getTC().get(b).get(c)
-                && tc.getTC().get(b).get(d));
-        assertTrue(tc.getTC().containsKey(c) && tc.getTC().get(c).get(d));
+        assertTrue(tc.getTC().containsKey(b) && tc.getTC().get(b).contains(c)
+                && tc.getTC().get(b).contains(d));
+        assertTrue(tc.getTC().containsKey(c) && tc.getTC().get(c).contains(d));
 
-        assertFalse(tc.getTC().get(b).containsKey(a));
-        assertFalse(tc.getTC().get(c).containsKey(b));
-        assertFalse(tc.getTC().get(c).containsKey(a));
+        assertFalse(tc.getTC().get(b).contains(a));
+        assertFalse(tc.getTC().get(c).contains(b));
+        assertFalse(tc.getTC().get(c).contains(a));
         assertFalse(tc.getTC().containsKey(d));
 
         assertEquals(3, tc.getTC().size());
@@ -112,14 +116,14 @@ public class TransitiveClosureTests extends SynopticTest {
         TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        HashMap<EventNode, HashMap<EventNode, Boolean>> tc2 = new HashMap<EventNode, HashMap<EventNode, Boolean>>();
-        tc2.put(a, new HashMap<EventNode, Boolean>());
-        tc2.get(a).put(b, true);
-        tc2.put(c, new HashMap<EventNode, Boolean>());
-        tc2.get(c).put(d, true);
+        Map<EventNode, Set<EventNode>> tc2 = new LinkedHashMap<EventNode, Set<EventNode>>();
+        tc2.put(a, new LinkedHashSet<EventNode>());
+        tc2.get(a).add(b);
+        tc2.put(c, new LinkedHashSet<EventNode>());
+        tc2.get(c).add(d);
         assertTrue(tc2.equals(tc.getTC()));
 
-        tc2.put(d, new HashMap<EventNode, Boolean>());
+        tc2.put(d, new LinkedHashSet<EventNode>());
         assertFalse(tc2.equals(tc.getTC()));
     }
 
@@ -146,13 +150,13 @@ public class TransitiveClosureTests extends SynopticTest {
         TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).get(b));
-        assertTrue(tc.getTC().containsKey(c) && tc.getTC().get(c).get(d));
+        assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).contains(b));
+        assertTrue(tc.getTC().containsKey(c) && tc.getTC().get(c).contains(d));
 
-        assertFalse(tc.getTC().get(a).containsKey(c));
-        assertFalse(tc.getTC().get(a).containsKey(d));
-        assertFalse(tc.getTC().get(c).containsKey(b));
-        assertFalse(tc.getTC().get(c).containsKey(a));
+        assertFalse(tc.getTC().get(a).contains(c));
+        assertFalse(tc.getTC().get(a).contains(d));
+        assertFalse(tc.getTC().get(c).contains(b));
+        assertFalse(tc.getTC().get(c).contains(a));
         assertFalse(tc.getTC().containsKey(d));
         assertFalse(tc.getTC().containsKey(b));
 
@@ -191,8 +195,7 @@ public class TransitiveClosureTests extends SynopticTest {
                 assertTrue(tc.getTC().containsKey(z));
                 logger.fine("testing for key z=" + z.toString() + " and key y="
                         + y.toString());
-                assertTrue(tc.getTC().get(z).containsKey(y));
-                assertTrue(tc.getTC().get(z).get(y));
+                assertTrue(tc.getTC().get(z).contains(y));
             }
         }
 
@@ -221,18 +224,18 @@ public class TransitiveClosureTests extends SynopticTest {
         TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
 
-        HashMap<EventNode, HashMap<EventNode, Boolean>> tc2 = new HashMap<EventNode, HashMap<EventNode, Boolean>>();
-        tc2.put(a, new HashMap<EventNode, Boolean>());
-        tc2.get(a).put(c, true);
-        tc2.get(a).put(b, true);
-        tc2.get(a).put(d, true);
+        Map<EventNode, Set<EventNode>> tc2 = new LinkedHashMap<EventNode, Set<EventNode>>();
+        tc2.put(a, new LinkedHashSet<EventNode>());
+        tc2.get(a).add(c);
+        tc2.get(a).add(b);
+        tc2.get(a).add(d);
 
-        tc2.put(b, new HashMap<EventNode, Boolean>());
-        tc2.get(b).put(d, true);
+        tc2.put(b, new LinkedHashSet<EventNode>());
+        tc2.get(b).add(d);
 
         assertTrue(tc2.equals(tc.getTC()));
 
-        tc2.put(d, new HashMap<EventNode, Boolean>());
+        tc2.put(d, new LinkedHashSet<EventNode>());
         assertFalse(tc2.equals(tc.getTC()));
     }
 
@@ -269,7 +272,7 @@ public class TransitiveClosureTests extends SynopticTest {
 
         TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
                 "followed by");
-        assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).get(a));
+        assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).contains(a));
         assertEquals(1, tc.getTC().size());
         assertEquals(1, tc.getTC().get(a).size());
     }

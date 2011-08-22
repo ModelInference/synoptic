@@ -24,7 +24,7 @@ import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.StringEventType;
-import synoptic.model.interfaces.IGraph;
+import synoptic.model.TraceGraph;
 
 public class TransitiveClosureInvMiner extends InvariantMiner {
 
@@ -43,7 +43,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
     }
 
     @Override
-    public TemporalInvariantSet computeInvariants(IGraph<EventNode> g) {
+    public TemporalInvariantSet computeInvariants(TraceGraph g) {
         // Determine whether to mine concurrency invariants or not by testing
         // the event type of _some_ node in g -- concurrency invariants are
         // mined for nodes of DistEventType.
@@ -67,7 +67,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
      *            whether or not to also mine concurrency invariants
      * @return the set of temporal invariants the graph satisfies
      */
-    public TemporalInvariantSet computeInvariants(IGraph<EventNode> g,
+    public TemporalInvariantSet computeInvariants(TraceGraph g,
             boolean mineConcurrencyInvariants) {
 
         TimedTask mineInvariants = PerformanceMetrics.createTask(
@@ -233,9 +233,9 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
      * @return the over-approximated set of invariants
      * @throws Exception
      */
-    private Set<ITemporalInvariant> extractInvariantsFromTC(
-            IGraph<EventNode> g, TransitiveClosure<EventNode> tc,
-            String relation, boolean mineConcurrencyInvariants) {
+    private Set<ITemporalInvariant> extractInvariantsFromTC(TraceGraph g,
+            TransitiveClosure<EventNode> tc, String relation,
+            boolean mineConcurrencyInvariants) {
 
         // This maintains the mapping from event type to a map of trace ids ->
         // list of event instances in the trace. This is used to check

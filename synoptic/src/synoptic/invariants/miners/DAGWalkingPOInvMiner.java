@@ -13,6 +13,7 @@ import synoptic.main.TraceParser;
 import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
+import synoptic.model.TraceGraph;
 import synoptic.model.Transition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
@@ -45,7 +46,7 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
     }
 
     @Override
-    public TemporalInvariantSet computeInvariants(IGraph<EventNode> g) {
+    public TemporalInvariantSet computeInvariants(TraceGraph g) {
         // Determine whether to mine concurrency invariants or not by testing
         // the event type of _some_ node in g -- concurrency invariants are
         // mined for nodes of DistEventType.

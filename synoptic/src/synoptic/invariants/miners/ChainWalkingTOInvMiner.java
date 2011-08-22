@@ -9,7 +9,7 @@ import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.TraceParser;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.interfaces.IGraph;
+import synoptic.model.TraceGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
@@ -67,7 +67,7 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
      * @return the set of temporal invariants that g satisfies
      */
     @Override
-    public TemporalInvariantSet computeInvariants(IGraph<EventNode> g) {
+    public TemporalInvariantSet computeInvariants(TraceGraph g) {
         String relation = TraceParser.defaultRelation;
 
         // TODO: we can set the initial capacity of the following HashMaps more
