@@ -36,8 +36,7 @@ public class AllRelationsTransitiveClosureTests {
         g.add(c);
         g.add(d);
 
-        AllRelationsTransitiveClosure<EventNode> tcs = new AllRelationsTransitiveClosure<EventNode>(
-                g);
+        AllRelationsTransitiveClosure tcs = new AllRelationsTransitiveClosure(g);
 
         assertEquals(2, tcs.getRelations().size());
     }
@@ -59,8 +58,7 @@ public class AllRelationsTransitiveClosureTests {
         g.add(c);
         g.add(d);
 
-        AllRelationsTransitiveClosure<EventNode> tcs = new AllRelationsTransitiveClosure<EventNode>(
-                g);
+        AllRelationsTransitiveClosure tcs = new AllRelationsTransitiveClosure(g);
 
         // Initially failed - changed header of isReachable to accept a String
         // rather than Action
@@ -89,15 +87,12 @@ public class AllRelationsTransitiveClosureTests {
         g.add(c);
         g.add(d);
 
-        AllRelationsTransitiveClosure<EventNode> tcs = new AllRelationsTransitiveClosure<EventNode>(
-                g);
+        AllRelationsTransitiveClosure tcs = new AllRelationsTransitiveClosure(g);
 
-        TransitiveClosure<EventNode> tc = new TransitiveClosure<EventNode>(g,
-                "followed by");
+        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
         assertTrue(tc.isEqual(tcs.get("followed by")));
 
-        TransitiveClosure<EventNode> tc2 = new TransitiveClosure<EventNode>(g,
-                "pow");
+        TransitiveClosure tc2 = new TransitiveClosure(g, "pow");
         assertTrue(tc2.isEqual(tcs.get("pow")));
 
         assertFalse(tc.isEqual(tcs.get("pow")));
@@ -122,8 +117,7 @@ public class AllRelationsTransitiveClosureTests {
         g.add(c);
         g.add(d);
 
-        AllRelationsTransitiveClosure<EventNode> tcs = new AllRelationsTransitiveClosure<EventNode>(
-                g);
+        AllRelationsTransitiveClosure tcs = new AllRelationsTransitiveClosure(g);
 
         assertEquals(2, tcs.getRelations().size());
 

@@ -81,7 +81,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
                     "invariants_transitive_closure", false);
 
             // Compute the transitive closure.
-            AllRelationsTransitiveClosure<EventNode> transitiveClosure = new AllRelationsTransitiveClosure<EventNode>(
+            AllRelationsTransitiveClosure transitiveClosure = new AllRelationsTransitiveClosure(
                     g, useWarshall);
 
             // Get the over-approximation.
@@ -154,7 +154,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
     private EventOrderingSummary summarizeOrderings(
             Map<Integer, List<EventNode>> traceIdToEventNodesE1,
             Map<Integer, List<EventNode>> traceIdToEventNodesE2,
-            TransitiveClosure<EventNode> tc) {
+            TransitiveClosure tc) {
         EventOrderingSummary order = new EventOrderingSummary();
 
         for (int tid : traceIdToEventNodesE1.keySet()) {
@@ -234,7 +234,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
      * @throws Exception
      */
     private Set<ITemporalInvariant> extractInvariantsFromTC(TraceGraph g,
-            TransitiveClosure<EventNode> tc, String relation,
+            TransitiveClosure tc, String relation,
             boolean mineConcurrencyInvariants) {
 
         // This maintains the mapping from event type to a map of trace ids ->
