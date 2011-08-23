@@ -67,9 +67,9 @@ public class TransitiveClosure {
 
     /**
      * <pre>
-     * The algorithm by Goralčíková and Koubek:
-     * "A reduct-and-closure algorithm for graphs" by Alla Goralčíková
-     * and Václav Koubek. MATHEMATICAL FOUNDATIONS OF COMPUTER SCIENCE 1979
+     * The algorithm by Goralcikova and Koubek:
+     * "A reduct-and-closure algorithm for graphs" by Alla Goralcikova
+     * and Vaclav Koubek. MATHEMATICAL FOUNDATIONS OF COMPUTER SCIENCE 1979
      * Lecture Notes in Computer Science, 1979, Volume 74/1979, 301-307,
      * DOI: 10.1007/3-540-09526-8_27
      * 
