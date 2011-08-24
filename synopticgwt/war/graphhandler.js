@@ -2,11 +2,6 @@
  * Stores a graph, its layouter, and its renderer for manipulation of the graph's
  * display.
  */
-
-// The model node that is currently selected (has a different  color).
-// This node either has been single clicked, OR double clicked last.
-var currentSelectedRect = ""
-
 var GRAPH_HANDLER = {
 		// array of graph nodes
 		"currentNodes" : [],
@@ -47,18 +42,15 @@ var GRAPH_HANDLER = {
 					r : "9px"
 				});
 
-				// Add an onclick event to the rectangle to have it change color to "blue".
-				// Also, whenever a node is made blue, the node that was clicked on previously
-				// is turned back to its original color. We keep track of previously clicked
-				// node with the currentSelectedRect var.
-				rect.node.onclick = function () {
-					if (currentSelectedRect != "") {
-					   currentSelectedRect.attr("fill", "#fa8");
-					}
-					currentSelectedRect = rect
-
-					rect.attr("fill", "blue");
-				};
+				// Add a mouseover event to the rectangle to have it change color to "blue".
+				rect.mouseover(function (event) {
+					rect.animate({fill: "blue"}, 200);
+				});
+				
+				// Add a mouseout event to the rectangle to have it change color to "#fa8".
+				rect.mouseout(function (event) {
+				    this.animate({fill: "#fa8"}, 300);
+				});
 
 				// adds an action listener to the rectangle which calls the global viewLogLines
 				// function (exported by Synoptic.GWT) when a node is double-clicked
