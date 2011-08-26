@@ -402,7 +402,7 @@ public class JungGui extends JApplet implements Printable {
                             JPanel panel = new JPanel();
                             final Map<Integer, Set<ITransition<Partition>>> paths = new HashMap<Integer, Set<ITransition<Partition>>>();
                             // System.out.println(intersectionOfIDs);
-                            for (Partition p : pGraph.getInitialNodes()) {
+                            for (Partition p : pGraph.getDummyInitialNodes()) {
                                 for (EventNode event : p.getEventNodes()) {
                                     for (Transition<EventNode> t : event
                                             .getTransitions()) {

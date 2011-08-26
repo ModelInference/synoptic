@@ -11,9 +11,9 @@ import org.junit.Test;
 
 import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.invariants.miners.AllRelationsTransitiveClosure;
+import synoptic.model.ChainsTraceGraph;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.TraceGraph;
 import synoptic.model.Transition;
 
 public class AllRelationsTransitiveClosureTests {
@@ -21,7 +21,7 @@ public class AllRelationsTransitiveClosureTests {
     @Test
     public void constructorSimpleTest() {
 
-        TraceGraph g = new TraceGraph();
+        ChainsTraceGraph g = new ChainsTraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));
@@ -43,7 +43,7 @@ public class AllRelationsTransitiveClosureTests {
 
     @Test
     public void isReachableTest() {
-        TraceGraph g = new TraceGraph();
+        ChainsTraceGraph g = new ChainsTraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));
@@ -70,7 +70,7 @@ public class AllRelationsTransitiveClosureTests {
 
     @Test
     public void getTest() {
-        TraceGraph g = new TraceGraph();
+        ChainsTraceGraph g = new ChainsTraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));
@@ -89,10 +89,10 @@ public class AllRelationsTransitiveClosureTests {
 
         AllRelationsTransitiveClosure tcs = new AllRelationsTransitiveClosure(g);
 
-        TransitiveClosure tc = new TransitiveClosure(g, "followed by");
+        TransitiveClosure tc = g.getTransitiveClosure("followed by");
         assertTrue(tc.isEqual(tcs.get("followed by")));
 
-        TransitiveClosure tc2 = new TransitiveClosure(g, "pow");
+        TransitiveClosure tc2 = g.getTransitiveClosure("pow");
         assertTrue(tc2.isEqual(tcs.get("pow")));
 
         assertFalse(tc.isEqual(tcs.get("pow")));
@@ -102,7 +102,7 @@ public class AllRelationsTransitiveClosureTests {
 
     @Test
     public void getRelationsTest() {
-        TraceGraph g = new TraceGraph();
+        ChainsTraceGraph g = new ChainsTraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));

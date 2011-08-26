@@ -16,10 +16,9 @@ import junit.framework.Assert;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
-import synoptic.model.Event;
+import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.TraceGraph;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBinary;
@@ -405,7 +404,7 @@ public class TraceParserTests extends SynopticTest {
             fail("addRegex and parseTraceString should not have raised an exception");
         }
         // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTemporalRelation(events);
+        parser.generateDirectTORelation(events);
     }
 
     /**
@@ -424,7 +423,7 @@ public class TraceParserTests extends SynopticTest {
             fail("addRegex and parseTraceString should not have raised an exception");
         }
         // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTemporalRelation(events);
+        parser.generateDirectTORelation(events);
     }
 
     /**
@@ -443,7 +442,7 @@ public class TraceParserTests extends SynopticTest {
             fail("addRegex and parseTraceString should not have raised an exception");
         }
         // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTemporalRelation(events);
+        parser.generateDirectTORelation(events);
     }
 
     /**
@@ -462,7 +461,7 @@ public class TraceParserTests extends SynopticTest {
             fail("addRegex and parseTraceString should not have raised an exception");
         }
         // The exception should be thrown by generateDirectTemporalRelation
-        parser.generateDirectTemporalRelation(events);
+        parser.generateDirectPORelation(events);
     }
 
     // TODO: Check setting of constants -- e.g. (?<NODETYPE=>master)
@@ -568,15 +567,12 @@ public class TraceParserTests extends SynopticTest {
     /**
      * Generates the expected graph for the two cases below.
      */
-    private static TraceGraph genExpectedGraphForTotalOrder(List<EventNode> events) {
+    private static ChainsTraceGraph genExpectedGraphForTotalOrder(
+            List<EventNode> events) {
         // Generate the expected Graph.
-        TraceGraph expectedGraph = new TraceGraph();
+        ChainsTraceGraph expectedGraph = new ChainsTraceGraph(events);
 
         assertTrue(events.size() == 6);
-        Event dummyAct = Event.newInitialStringEvent();
-        expectedGraph.setDummyInitial(new EventNode(dummyAct), defRelation);
-        dummyAct = Event.newTerminalStringEvent();
-        expectedGraph.setDummyTerminal(new EventNode(dummyAct));
 
         expectedGraph.tagInitial(events.get(0), defRelation);
         expectedGraph.tagInitial(events.get(3), defRelation);
@@ -584,16 +580,12 @@ public class TraceParserTests extends SynopticTest {
         expectedGraph.tagTerminal(events.get(5), defRelation);
 
         EventNode prevEvent = events.get(0);
-        expectedGraph.add(prevEvent);
         for (EventNode event : events.subList(1, 2)) {
-            expectedGraph.add(event);
             prevEvent.addTransition(event, defRelation);
         }
 
         prevEvent = events.get(3);
-        expectedGraph.add(prevEvent);
         for (EventNode event : events.subList(4, 5)) {
-            expectedGraph.add(event);
             prevEvent.addTransition(event, defRelation);
         }
 
@@ -615,8 +607,8 @@ public class TraceParserTests extends SynopticTest {
         parser.addPartitionsSeparator("^--$");
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
-        TraceGraph graph = parser.generateDirectTemporalRelation(events);
-        TraceGraph expectedGraph = genExpectedGraphForTotalOrder(events);
+        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForTotalOrder(events);
         // Test graph equality.
         assertTrue(expectedGraph.equalsWith(graph,
                 new IBinary<EventNode, EventNode>() {
@@ -639,8 +631,8 @@ public class TraceParserTests extends SynopticTest {
         parser.setPartitionsMap("\\k<PARTITION>");
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
-        TraceGraph graph = parser.generateDirectTemporalRelation(events);
-        TraceGraph expectedGraph = genExpectedGraphForTotalOrder(events);
+        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForTotalOrder(events);
         // Test graph equality.
         assertTrue(expectedGraph.equalsWith(graph,
                 new IBinary<EventNode, EventNode>() {

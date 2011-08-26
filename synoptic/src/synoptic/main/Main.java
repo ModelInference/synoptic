@@ -3,6 +3,7 @@ package synoptic.main;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -37,11 +38,13 @@ import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
-import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.POInvariantMiner;
+import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
+import synoptic.model.ChainsTraceGraph;
+import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.PartitionGraph;
-import synoptic.model.TraceGraph;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GmlExportFormatter;
 import synoptic.model.export.GraphExportFormatter;
@@ -340,7 +343,7 @@ public class Main implements Callable<Integer> {
      * useTransitiveClosureMining = false (i.e., it only works for the DAG
      * walking invariant miner, not the TC-based miner).
      */
-    @Option("Mine the NeverConcurrentWith invariant (only makes a difference when useTransitiveClosureMining=false)")
+    @Option("Mine the NeverConcurrentWith invariant (only changes behavior for PO traces with useTransitiveClosureMining=false)")
     public static boolean mineNeverConcurrentWithInv = true;
 
     /**
@@ -865,26 +868,10 @@ public class Main implements Callable<Integer> {
         return parser;
     }
 
-    /**
-     * The workhorse method, which uses TraceParser to parse the input files,
-     * and calls the primary Synoptic functions to perform refinement\coarsening
-     * and finally outputs the final graph to the output file (specified as a
-     * command line option).
-     */
-    @Override
-    public Integer call() throws Exception {
-        Locale.setDefault(Locale.US);
-        TraceParser parser = newTraceParser(Main.regExps, Main.partitionRegExp,
-                Main.separatorRegExp);
-        long startTime;
-
-        // Parses all the log filenames, constructing the parsedEvents List.
-        ArrayList<EventNode> parsedEvents = new ArrayList<EventNode>();
-
-        logger.info("Parsing input files..");
-        startTime = System.currentTimeMillis();
-
-        for (String fileArg : Main.logFilenames) {
+    public List<EventNode> parseFiles(TraceParser parser, List<String> filenames)
+            throws Exception {
+        List<EventNode> parsedEvents = new ArrayList<EventNode>();
+        for (String fileArg : filenames) {
             logger.fine("\tprocessing fileArg: " + fileArg);
             File[] files = getFiles(fileArg);
             for (File file : files) {
@@ -896,37 +883,36 @@ public class Main implements Callable<Integer> {
                     logger.severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
                             + Main.getCmdLineOptDesc("help"));
                     logger.severe(e.toString());
-                    return new Integer(1);
+                    return null;
                 }
             }
         }
+        return parsedEvents;
+    }
 
-        logger.info("Parsing took " + (System.currentTimeMillis() - startTime)
-                + "ms");
+    private long loggerInfoStart(String msg) {
+        logger.info(msg);
+        return System.currentTimeMillis();
+    }
 
-        if (Main.debugParse) {
-            // Terminate since the user is interested in debugging the parser.
-            logger.info("Terminating. To continue further, re-run without the debugParse option.");
-            return new Integer(0);
-        }
+    private void loggerInfoEnd(String msg, long startTime) {
+        logger.info(msg + (System.currentTimeMillis() - startTime) + "ms");
+    }
 
-        // If we parsed any events, then run Synoptic.
-        logger.info("Running Synoptic...");
+    private Integer processPOLog(TraceParser parser,
+            List<EventNode> parsedEvents) throws ParseException,
+            FileNotFoundException {
+        // //////////////////
+        long startTime = loggerInfoStart("Generating inter-event temporal relation...");
+        DAGsTraceGraph inputGraph = parser
+                .generateDirectPORelation(parsedEvents);
+        loggerInfoEnd("Generating temporal relation took ", startTime);
+        // //////////////////
 
-        logger.info("Generating inter-event temporal relation...");
-        startTime = System.currentTimeMillis();
-        TraceGraph inputGraph = parser
-                .generateDirectTemporalRelation(parsedEvents);
-        logger.info("Generating temporal relation took "
-                + (System.currentTimeMillis() - startTime) + "ms");
+        // Parser can be garbage-collected.
+        parser = null;
 
-        if (dumpInitialGraphDotFile) {
-            logger.info("Exporting initial graph ["
-                    + inputGraph.getNodes().size() + " nodes]..");
-
-            exportInitialGraph(Main.outputPathPrefix + ".initial", inputGraph);
-        }
-
+        // TODO: vector time index sets aren't used yet.
         if (separateVTimeIndexSets != null) {
             // separateVTimeIndexSets is assumed to be in a format like:
             // "1,2;3;4,5,6" where the sets are {1,2}, {3}, {4,5,6}.
@@ -940,36 +926,25 @@ public class Main implements Callable<Integer> {
             }
         }
 
-        // Invariant miners depend on total/partial ordering of the log.
-        InvariantMiner miner;
-        if (parser.logTimeTypeIsTotallyOrdered()) {
-            if (mineNeverConcurrentWithInv) {
-                logger.severe("Unable to mine or not mine NeverConcurrentWith invariant for a non-PO trace.");
-                return new Integer(1);
-            }
-            miner = new ChainWalkingTOInvMiner();
+        POInvariantMiner miner;
+        if (useTransitiveClosureMining) {
+            miner = new TransitiveClosureInvMiner();
         } else {
-            logger.warning("Partially ordered log input detected. Only mining invariants since refinement/coarsening is not yet supported.");
-            onlyMineInvariants = true;
-            if (useTransitiveClosureMining) {
-                miner = new TransitiveClosureInvMiner();
-            } else {
-                miner = new DAGWalkingPOInvMiner(mineNeverConcurrentWithInv);
-            }
+            miner = new DAGWalkingPOInvMiner(mineNeverConcurrentWithInv);
         }
-        // Parser can be garbage-collected.
-        parser = null;
 
-        logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
-        startTime = System.currentTimeMillis();
-
+        // //////////////////
+        startTime = loggerInfoStart("Mining invariants ["
+                + miner.getClass().getName() + "]..");
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
-        logger.info("Mining took " + (System.currentTimeMillis() - startTime)
-                + "ms");
+        loggerInfoEnd("Mining took ", startTime);
+        // //////////////////
+
         // Miner can be garbage-collected.
         miner = null;
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
+
         int totalNCwith = 0;
         for (ITemporalInvariant inv : minedInvs.getSet()) {
             if (inv instanceof NeverConcurrentInvariant) {
@@ -988,16 +963,97 @@ public class Main implements Callable<Integer> {
             logger.info("Outputting invarians to file: " + invariantsFilename);
             minedInvs.outputToFile(invariantsFilename);
         }
+        return new Integer(0);
+    }
+
+    /**
+     * The workhorse method, which uses TraceParser to parse the input files,
+     * and calls the primary Synoptic functions to perform refinement\coarsening
+     * and finally outputs the final graph to the output file (specified as a
+     * command line option).
+     */
+    @Override
+    public Integer call() throws Exception {
+        Locale.setDefault(Locale.US);
+        TraceParser parser = newTraceParser(Main.regExps, Main.partitionRegExp,
+                Main.separatorRegExp);
+        long startTime;
+
+        // //////////////////
+        // Parses all the log filenames, constructing the parsedEvents List.
+        startTime = loggerInfoStart("Parsing input files..");
+        List<EventNode> parsedEvents = parseFiles(parser, Main.logFilenames);
+        loggerInfoEnd("Parsing took ", startTime);
+        // //////////////////
+
+        if (Main.debugParse) {
+            // Terminate since the user is interested in debugging the parser.
+            logger.info("Terminating. To continue further, re-run without the debugParse option.");
+            return new Integer(0);
+        }
+
+        // PO Logs are processed separately.
+        if (!parser.logTimeTypeIsTotallyOrdered()) {
+            logger.warning("Partially ordered log input detected. Only mining invariants since refinement/coarsening is not yet supported.");
+            return processPOLog(parser, parsedEvents);
+        }
+
+        // //////////////////
+        startTime = loggerInfoStart("Generating inter-event temporal relation...");
+        ChainsTraceGraph inputGraph = parser
+                .generateDirectTORelation(parsedEvents);
+        loggerInfoEnd("Generating temporal relation took ", startTime);
+        // //////////////////
+
+        if (dumpInitialGraphDotFile) {
+            logger.info("Exporting initial graph ["
+                    + inputGraph.getNodes().size() + " nodes]..");
+            exportInitialGraph(Main.outputPathPrefix + ".initial", inputGraph);
+        }
+
+        TOInvariantMiner miner;
+        if (useTransitiveClosureMining) {
+            miner = new TransitiveClosureInvMiner();
+        } else {
+            miner = new ChainWalkingTOInvMiner();
+        }
+
+        // Parser can be garbage-collected.
+        parser = null;
+
+        // //////////////////
+        startTime = loggerInfoStart("Mining invariants ["
+                + miner.getClass().getName() + "]..");
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+        loggerInfoEnd("Mining took ", startTime);
+        // //////////////////
+
+        // Miner can be garbage-collected.
+        miner = null;
+
+        logger.info("Mined " + minedInvs.numInvariants() + " invariants");
+
+        if (dumpInvariants) {
+            logger.info("Mined invariants: " + minedInvs);
+        }
+
+        if (outputInvariantsToFile) {
+            String invariantsFilename = outputPathPrefix + ".invariants.txt";
+            logger.info("Outputting invarians to file: " + invariantsFilename);
+            minedInvs.outputToFile(invariantsFilename);
+        }
 
         if (onlyMineInvariants) {
             return new Integer(0);
         }
 
+        // //////////////////
         // Create the initial partitioning graph.
-        startTime = System.currentTimeMillis();
+        startTime = loggerInfoStart("Creating initial partition graph.");
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, minedInvs);
-        logger.info("Creating partition graph took "
-                + (System.currentTimeMillis() - startTime) + "ms");
+        loggerInfoEnd("Creating partition graph took ", startTime);
+        // //////////////////
+
         // inputGraph can be garbage-collected.
         inputGraph = null;
 
@@ -1014,21 +1070,23 @@ public class Main implements Callable<Integer> {
             System.out.println("");
             System.out.println("");
         }
-        logger.info("Refining (Splitting)...");
-        startTime = System.currentTimeMillis();
+
+        // //////////////////
+        startTime = loggerInfoStart("Refining (Splitting)...");
         Bisimulation.splitPartitions(pGraph);
-        logger.info("Splitting took "
-                + (System.currentTimeMillis() - startTime) + "ms");
+        loggerInfoEnd("Splitting took ", startTime);
+        // //////////////////
 
         if (logLvlVerbose || logLvlExtraVerbose) {
             System.out.println("");
             System.out.println("");
         }
-        logger.info("Coarsening (Merging)..");
-        startTime = System.currentTimeMillis();
+
+        // //////////////////
+        startTime = loggerInfoStart("Coarsening (Merging)..");
         Bisimulation.mergePartitions(pGraph);
-        logger.info("Merging took " + (System.currentTimeMillis() - startTime)
-                + "ms");
+        loggerInfoEnd("Merging took ", startTime);
+        // //////////////////
 
         // At this point, we have the final model in the pGraph object.
 
