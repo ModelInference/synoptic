@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import synoptic.main.Main;
+import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.WeightedTransition;
 import synoptic.model.interfaces.IGraph;
@@ -219,7 +220,7 @@ public class GraphExporter {
                     // FIXME: special casing to handle PO trace graphs
                     // correctly (trace graphs are composed of EventNodes).
 
-                    if (graph.isPartiallyOrdered()) {
+                    if (graph instanceof DAGsTraceGraph) {
                         // NOTE: The extra casts are necessary for this to work
                         // in Java 1.6, see here:
                         // http://bugs.sun.com/view_bug.do?bug_id=6932571

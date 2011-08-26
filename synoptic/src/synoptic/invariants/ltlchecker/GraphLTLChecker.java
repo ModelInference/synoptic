@@ -168,7 +168,7 @@ public class GraphLTLChecker<T extends INode<T>> {
     private Graph convertGraph(IGraph<T> sourceGraph, String relation) {
         Graph targetGraph = new Graph();
 
-        Set<T> initialMessages = sourceGraph.getInitialNodes(relation);
+        Set<T> initialMessages = sourceGraph.getDummyInitialNodes();
         Set<T> allNodes = sourceGraph.getNodes();
         Node initialState = new Node(targetGraph);
         initialState.setAttribute("post", "P:initial");

@@ -7,9 +7,9 @@ import java.util.Set;
 
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.TraceParser;
+import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.TraceGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
@@ -24,7 +24,12 @@ import synoptic.util.InternalSynopticException;
  * 
  * @author ivan
  */
-public class ChainWalkingTOInvMiner extends InvariantMiner {
+public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
+        TOInvariantMiner {
+
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
+        return computeInvariants(g, TraceParser.defaultRelation);
+    }
 
     /**
      * Compute invariants of a graph g by mining invariants directly from the
@@ -66,9 +71,8 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
      *            the graph of nodes of type LogEvent
      * @return the set of temporal invariants that g satisfies
      */
-    @Override
-    public TemporalInvariantSet computeInvariants(TraceGraph g) {
-        String relation = TraceParser.defaultRelation;
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+            String relation) {
 
         // TODO: we can set the initial capacity of the following HashMaps more
         // optimally, e.g. (N / 0.75) + 1 where N is the total number of event
@@ -122,17 +126,7 @@ public class ChainWalkingTOInvMiner extends InvariantMiner {
 
         // Tracks which events were observed across all traces.
         Set<EventType> AlwaysFollowsINITIALSet = null;
-
-        if (g.getInitialNodes().isEmpty() || g.getInitialNodes().size() != 1) {
-            throw new InternalSynopticException(
-                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
-        }
-
-        EventNode initNode = g.getInitialNodes().iterator().next();
-        if (!initNode.getEType().isInitialEventType()) {
-            throw new InternalSynopticException(
-                    "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.");
-        }
+        EventNode initNode = g.getDummyInitialNode(relation);
 
         // The set of nodes seen prior to some point in the trace.
         Set<EventType> tSeen = new LinkedHashSet<EventType>();

@@ -29,10 +29,10 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
+import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.time.VectorTime;
@@ -500,7 +500,7 @@ public abstract class Bisimulation {
      *            the graph from which should be used as initial graph
      * @return the refined graph
      */
-    public static PartitionGraph getSplitGraph(IGraph<EventNode> graph,
+    public static PartitionGraph getSplitGraph(ChainsTraceGraph graph,
             TemporalInvariantSet invariants) {
         PartitionGraph g = new PartitionGraph(graph, true, invariants);
         splitPartitions(g);

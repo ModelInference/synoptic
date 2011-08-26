@@ -14,14 +14,10 @@ import synoptic.model.TraceGraph;
 public class AllRelationsTransitiveClosure {
     private final LinkedHashMap<String, TransitiveClosure> tcs = new LinkedHashMap<String, TransitiveClosure>();
 
-    public AllRelationsTransitiveClosure(TraceGraph g, boolean useWarshall) {
+    public AllRelationsTransitiveClosure(TraceGraph<?> g) {
         for (String relation : g.getRelations()) {
-            tcs.put(relation, new TransitiveClosure(g, relation, useWarshall));
+            tcs.put(relation, g.getTransitiveClosure(relation));
         }
-    }
-
-    public AllRelationsTransitiveClosure(TraceGraph g) {
-        this(g, true);
     }
 
     public boolean isReachable(EventNode m, EventNode n, String relation) {

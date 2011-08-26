@@ -19,6 +19,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import synoptic.model.ChainsTraceGraph;
+import synoptic.model.DAGsTraceGraph;
 import synoptic.model.DistEventType;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
@@ -888,6 +890,14 @@ public class TraceParser {
         return eventNode;
     }
 
+    public TraceGraph<?> generateDefaultOrderRelation(List<EventNode> allEvents)
+            throws ParseException {
+        if (logTimeTypeIsTotallyOrdered()) {
+            return generateDirectTORelation(allEvents);
+        }
+        return generateDirectPORelation(allEvents);
+    }
+
     /**
      * Given a list of log events, manipulates the builder to construct the
      * corresponding graph.
@@ -896,30 +906,78 @@ public class TraceParser {
      *            The list of events to process.
      * @throws ParseException
      */
-    public TraceGraph generateDirectTemporalRelation(
-            ArrayList<EventNode> allEvents) throws ParseException {
+    public ChainsTraceGraph generateDirectTORelation(List<EventNode> allEvents)
+            throws ParseException {
 
-        TraceGraph graph = new TraceGraph(allEvents);
+        assert logTimeTypeIsTotallyOrdered();
 
-        boolean totallyOrderedTrace = logTimeTypeIsTotallyOrdered();
-        graph.setPartiallyOrdered(!totallyOrderedTrace);
+        ChainsTraceGraph graph = new ChainsTraceGraph(allEvents);
 
-        // Find all direct successors of all events. For an event e1, direct
-        // successors are successors (in terms of vector-clock) that are not
-        // preceded by any other successors of e1. That is, if e1 < x then x
-        // is a direct successor if there is no other successor y to e1 such
-        // that y < x.
-        Map<EventNode, Set<EventNode>> directSuccessors = new LinkedHashMap<EventNode, Set<EventNode>>();
+        // Maintains nodes without predecessors.
+
+        Set<EventNode> noPredecessor = new LinkedHashSet<EventNode>();
+        EventNode directSuccessor;
+
+        // TODO: the inner loop simply sorts the EventNode objects in group.
+        // Change this code to actually run the Collections sort function with
+        // the appropriate comparator.
+
         for (List<EventNode> group : partitions.values()) {
-            // logger.info("generating temp relation for partition: "
-            // + partitions.values().toString());
+            noPredecessor.addAll(group);
             for (EventNode e1 : group) {
-                // Find and set all direct successors of e1. In totally ordered
-                // case there is at most one direct successor, in partially
-                // ordered case there may be multiple direct successors.
+                // In totally ordered case there is at most one direct
+                // successor.
                 try {
-                    directSuccessors.put(e1, EventNode.getDirectSuccessors(e1,
-                            group, totallyOrderedTrace));
+                    directSuccessor = EventNode.getDirectTOSuccessor(e1, group);
+                } catch (EqualVectorTimestampsException e) {
+                    logger.severe("Found two events with identical timestamps: (1) "
+                            + e.e1.toString() + " (2) " + e.e2.toString());
+                    throw new ParseException();
+                }
+
+                if (directSuccessor == null) {
+                    // Tag messages without a predecessor as terminal.
+                    graph.tagTerminal(e1, defaultRelation);
+                } else {
+                    e1.addTransition(directSuccessor, defaultRelation);
+                    noPredecessor.remove(directSuccessor);
+                }
+            }
+
+            // Mark event without a predecessor as initial.
+            assert noPredecessor.size() == 1;
+            graph.tagInitial(noPredecessor.iterator().next(), defaultRelation);
+            noPredecessor.clear();
+        }
+        return graph;
+    }
+
+    /**
+     * Given a list of log events, manipulates the builder to construct the
+     * corresponding graph.
+     * 
+     * @param allEvents
+     *            The list of events to process.
+     * @throws ParseException
+     */
+    public DAGsTraceGraph generateDirectPORelation(List<EventNode> allEvents)
+            throws ParseException {
+
+        assert !logTimeTypeIsTotallyOrdered();
+
+        DAGsTraceGraph graph = new DAGsTraceGraph(allEvents);
+
+        // Maintains nodes without predecessors.
+        Set<EventNode> noPredecessor = new LinkedHashSet<EventNode>(allEvents);
+
+        Set<EventNode> directSuccessors;
+        for (List<EventNode> group : partitions.values()) {
+            for (EventNode e1 : group) {
+                // In partially ordered case there may be multiple direct
+                // successors.
+                try {
+                    directSuccessors = EventNode.getDirectPOSuccessors(e1,
+                            group);
                 } catch (EqualVectorTimestampsException e) {
                     logger.severe("Found two events with identical timestamps: (1) "
                             + e.e1.toString() + " (2) " + e.e2.toString());
@@ -930,43 +988,23 @@ public class TraceParser {
                             + e.e1.toString() + " (2) " + e.e2.toString());
                     throw new ParseException();
                 }
-            }
-        }
 
-        // Connect the events in the graph, and also build up noPredecessor and
-        // noSuccessor event sets.
-        Set<EventNode> noPredecessor = new LinkedHashSet<EventNode>(allEvents);
-        Set<EventNode> noSuccessor = new LinkedHashSet<EventNode>();
-        for (EventNode e1 : directSuccessors.keySet()) {
-            for (EventNode e2 : directSuccessors.get(e1)) {
-                e1.addTransition(e2, defaultRelation);
-                noPredecessor.remove(e2);
+                if (directSuccessors.size() == 0) {
+                    // Tag messages without a predecessor as terminal.
+                    graph.tagTerminal(e1, defaultRelation);
+                } else {
+                    for (EventNode e2 : directSuccessors) {
+                        e1.addTransition(e2, defaultRelation);
+                        noPredecessor.remove(e2);
+                    }
+                }
             }
-            if (directSuccessors.get(e1).size() == 0) {
-                noSuccessor.add(e1);
-            }
-        }
 
-        Event initEvent;
-        Event termEvent;
-        if (logTimeTypeIsTotallyOrdered()) {
-            initEvent = Event.newInitialStringEvent();
-            termEvent = Event.newTerminalStringEvent();
-        } else {
-            initEvent = Event.newInitialDistEvent();
-            termEvent = Event.newTerminalDistEvent();
         }
-        graph.setDummyInitial(new EventNode(initEvent), defaultRelation);
-        graph.setDummyTerminal(new EventNode(termEvent));
 
         // Mark messages without a predecessor as initial.
         for (EventNode e : noPredecessor) {
             graph.tagInitial(e, defaultRelation);
-        }
-
-        // Mark messages without a predecessor as terminal.
-        for (EventNode e : noSuccessor) {
-            graph.tagTerminal(e, defaultRelation);
         }
 
         return graph;

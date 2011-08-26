@@ -20,13 +20,13 @@ import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
-import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
+import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.StringEventType;
-import synoptic.model.TraceGraph;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 
@@ -39,7 +39,7 @@ import synoptic.util.InternalSynopticException;
 @RunWith(value = Parameterized.class)
 public class TOLogInvariantMiningTests extends SynopticTest {
 
-    InvariantMiner miner = null;
+    TOInvariantMiner miner = null;
 
     /**
      * Generates parameters for this unit test. The only parameter right now is
@@ -57,7 +57,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         return Arrays.asList(data);
     }
 
-    public TOLogInvariantMiningTests(InvariantMiner minerToUse) {
+    public TOLogInvariantMiningTests(TOInvariantMiner minerToUse) {
         miner = minerToUse;
     }
 
@@ -94,7 +94,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
      * @throws Exception
      */
     public TemporalInvariantSet genInvariants(String[] events) throws Exception {
-        TraceGraph inputGraph = genInitialLinearGraph(events);
+        ChainsTraceGraph inputGraph = genInitialLinearGraph(events);
         return miner.computeInvariants(inputGraph);
     }
 
@@ -328,7 +328,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         String[] eventTypes = new String[] { "--", "a", "b", "c", "d", "e" };
         String[] log = genRandomLog(eventTypes);
 
-        TraceGraph inputGraph = genInitialLinearGraph(log);
+        ChainsTraceGraph inputGraph = genInitialLinearGraph(log);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         // Test with FSM checker.

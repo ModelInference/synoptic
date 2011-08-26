@@ -12,17 +12,19 @@ import org.junit.rules.TestName;
 
 import junit.framework.Assert;
 
-import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
+import synoptic.model.ChainsTraceGraph;
+import synoptic.model.DAGsTraceGraph;
 import synoptic.model.DistEventType;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.TraceGraph;
 import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
+import synoptic.model.TraceGraph;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -154,10 +156,29 @@ public abstract class SynopticTest {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    public static TraceGraph genInitialGraph(String[] events, TraceParser parser)
-            throws ParseException, InternalSynopticException {
+    // public static ChainsTraceGraph genChainsTraceGraph(String[] events,
+    public static TraceGraph<?> genChainsTraceGraph(String[] events,
+            TraceParser parser) throws ParseException,
+            InternalSynopticException {
         ArrayList<EventNode> parsedEvents = parseLogEvents(events, parser);
-        return parser.generateDirectTemporalRelation(parsedEvents);
+        // return parser.generateDirectTORelation(parsedEvents);
+        return parser.generateDefaultOrderRelation(parsedEvents);
+    }
+
+    /**
+     * Generates an initial graph using the supplied parser.
+     * 
+     * @param events
+     *            log of events
+     * @return an initial graph corresponding to the log of events
+     * @throws ParseException
+     * @throws InternalSynopticException
+     */
+    public static DAGsTraceGraph genDAGsTraceGraph(String[] events,
+            TraceParser parser) throws ParseException,
+            InternalSynopticException {
+        ArrayList<EventNode> parsedEvents = parseLogEvents(events, parser);
+        return parser.generateDirectPORelation(parsedEvents);
     }
 
     /**
@@ -170,9 +191,9 @@ public abstract class SynopticTest {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    public TraceGraph genInitialLinearGraph(String[] events) throws ParseException,
-            InternalSynopticException {
-        return genInitialGraph(events, genDefParser());
+    public ChainsTraceGraph genInitialLinearGraph(String[] events)
+            throws ParseException, InternalSynopticException {
+        return (ChainsTraceGraph) genChainsTraceGraph(events, genDefParser());
     }
 
     /**
@@ -183,8 +204,9 @@ public abstract class SynopticTest {
      * @throws Exception
      */
     public static PartitionGraph genInitialPartitionGraph(String[] events,
-            TraceParser parser, InvariantMiner miner) throws Exception {
-        TraceGraph inputGraph = genInitialGraph(events, parser);
+            TraceParser parser, TOInvariantMiner miner) throws Exception {
+        ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
+                events, parser);
         return new PartitionGraph(inputGraph, true,
                 miner.computeInvariants(inputGraph));
     }
@@ -207,6 +229,7 @@ public abstract class SynopticTest {
             if (prevEvent != null) {
                 prevEvent.addTransition(logEvent, defRelation);
             }
+            prevEvent = logEvent;
         }
         return ret;
     }
