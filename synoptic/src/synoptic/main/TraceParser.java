@@ -9,6 +9,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -899,8 +901,8 @@ public class TraceParser {
     }
 
     /**
-     * Given a list of log events, manipulates the builder to construct the
-     * corresponding graph.
+     * Given a list of log events that can be totally ordered, manipulates the
+     * builder to construct the corresponding trace graph.
      * 
      * @param allEvents
      *            The list of events to process.
@@ -912,49 +914,42 @@ public class TraceParser {
         assert logTimeTypeIsTotallyOrdered();
 
         ChainsTraceGraph graph = new ChainsTraceGraph(allEvents);
-
-        // Maintains nodes without predecessors.
-
-        Set<EventNode> noPredecessor = new LinkedHashSet<EventNode>();
-        EventNode directSuccessor;
-
-        // TODO: the inner loop simply sorts the EventNode objects in group.
-        // Change this code to actually run the Collections sort function with
-        // the appropriate comparator.
-
         for (List<EventNode> group : partitions.values()) {
-            noPredecessor.addAll(group);
-            for (EventNode e1 : group) {
-                // In totally ordered case there is at most one direct
-                // successor.
-                try {
-                    directSuccessor = EventNode.getDirectTOSuccessor(e1, group);
-                } catch (EqualVectorTimestampsException e) {
+
+            // Sort the events in this group/trace.
+            Collections.sort(group, new Comparator<EventNode>() {
+                @Override
+                public int compare(EventNode e1, EventNode e2) {
+                    return e1.getTime().compareTo(e2.getTime());
+                }
+            });
+
+            // Tag first node in the sorted list as initial.
+            EventNode prevNode = group.get(0);
+            graph.tagInitial(prevNode, defaultRelation);
+
+            // Create transitions to connect the nodes in the sorted trace.
+            for (EventNode curNode : group.subList(1, group.size())) {
+                if (prevNode.getTime().equals(curNode.getTime())) {
                     logger.severe("Found two events with identical timestamps: (1) "
-                            + e.e1.toString() + " (2) " + e.e2.toString());
+                            + prevNode.toString()
+                            + " (2) "
+                            + curNode.toString());
                     throw new ParseException();
                 }
-
-                if (directSuccessor == null) {
-                    // Tag messages without a predecessor as terminal.
-                    graph.tagTerminal(e1, defaultRelation);
-                } else {
-                    e1.addTransition(directSuccessor, defaultRelation);
-                    noPredecessor.remove(directSuccessor);
-                }
+                prevNode.addTransition(curNode, defaultRelation);
+                prevNode = curNode;
             }
 
-            // Mark event without a predecessor as initial.
-            assert noPredecessor.size() == 1;
-            graph.tagInitial(noPredecessor.iterator().next(), defaultRelation);
-            noPredecessor.clear();
+            // Tag the final node as terminal:
+            graph.tagTerminal(prevNode, defaultRelation);
         }
         return graph;
     }
 
     /**
-     * Given a list of log events, manipulates the builder to construct the
-     * corresponding graph.
+     * Given a list of log events that can be only partially ordered,
+     * manipulates the builder to construct the corresponding trace graph.
      * 
      * @param allEvents
      *            The list of events to process.

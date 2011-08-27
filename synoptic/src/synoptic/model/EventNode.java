@@ -9,7 +9,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import synoptic.main.ParseException;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.IIterableIterator;
@@ -84,52 +83,6 @@ public class EventNode implements INode<EventNode> {
     public void addTransition(EventNode dest, String relation) {
         assert dest != null : "Transition Target cannot be null";
         addTransition(new Transition<EventNode>(this, dest, relation));
-    }
-
-    /**
-     * Computes the set of direct successors of event e1 from a list of events.
-     * For totally ordered traces this set will contain at most a single event.
-     * In partially ordered traces this set may be larger than 1.
-     * 
-     * @param e1
-     *            the event for which to find direct successors in group
-     * @param group
-     *            the group of events of potentially direct successors of e1,
-     *            this may contain the EventNode e1.
-     * @return set of direct successors of e1
-     * @throws ParseException
-     *             when we detect that some two events in group have the same
-     *             timestamp or if they have different length vector timestamps
-     *             (comparison error).
-     */
-    public static EventNode getDirectTOSuccessor(EventNode e1,
-            List<EventNode> group) {
-
-        // All events in group are totally ordered. Therefore,
-        // the problem of finding direct successors has been reduced
-        // to finding _one_ element in group with the smallest
-        // time-stamp that exceeds e1's timestamp. We can do this with a
-        // single scan = O(n) time.
-
-        EventNode directSuccessor = null;
-        for (EventNode e2 : group) {
-            if (e1 == e2) {
-                continue;
-            }
-            if (e1.getTime().equals(e2.getTime())) {
-                throw new EqualVectorTimestampsException(e1.getTime(),
-                        e2.getTime());
-            }
-
-            if (e1.getTime().lessThan(e2.getTime())) {
-                if (directSuccessor == null) {
-                    directSuccessor = e2;
-                } else if (e2.getTime().lessThan(directSuccessor.getTime())) {
-                    directSuccessor = e2;
-                }
-            }
-        }
-        return directSuccessor;
     }
 
     /**
