@@ -126,9 +126,7 @@ public abstract class TraceGraph<EType extends EventType> implements
         cachedRelations = null;
     }
 
-    public TransitiveClosure getTransitiveClosure(String relation) {
-        return null;
-    }
+    public abstract TransitiveClosure getTransitiveClosure(String relation);
 
     public abstract int getNumTraces();
 

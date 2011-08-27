@@ -57,11 +57,12 @@ public class AllRelationsTransitiveClosureTests {
         g.add(b);
         g.add(c);
         g.add(d);
-
+        g.tagInitial(a, "followed by");
+        g.tagInitial(a, "after");
+        g.tagTerminal(d, "followed by");
+        g.tagTerminal(c, "after");
         AllRelationsTransitiveClosure tcs = new AllRelationsTransitiveClosure(g);
 
-        // Initially failed - changed header of isReachable to accept a String
-        // rather than Action
         assertTrue(tcs.isReachable(a, d, "followed by"));
         assertFalse(tcs.isReachable(a, d, "after"));
 

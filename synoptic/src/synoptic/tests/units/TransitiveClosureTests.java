@@ -13,8 +13,8 @@ import java.util.Set;
 import org.junit.Test;
 
 import synoptic.algorithms.graph.TransitiveClosure;
-import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
+import synoptic.model.DAGsTraceGraph;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.Transition;
@@ -47,6 +47,7 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(c);
         g.add(d);
         g.tagInitial(a, "followed by");
+        g.tagTerminal(d, "followed by");
 
         TransitiveClosure tc = g.getTransitiveClosure("followed by");
 
@@ -114,6 +115,8 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(d);
 
         g.tagInitial(a, "followed by");
+        g.tagTerminal(c, "after");
+        g.tagTerminal(d, "followed by");
 
         TransitiveClosure tc = g.getTransitiveClosure("followed by");
 
@@ -150,6 +153,8 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(d);
 
         g.tagInitial(a, "followed by");
+        g.tagTerminal(d, "followed by");
+        g.tagTerminal(c, "after");
         TransitiveClosure tc = g.getTransitiveClosure("followed by");
 
         assertTrue(tc.getTC().containsKey(a) && tc.getTC().get(a).contains(b));
@@ -203,7 +208,7 @@ public class TransitiveClosureTests extends SynopticTest {
 
     @Test
     public void constructorSimple4Test() {
-        ChainsTraceGraph g = new ChainsTraceGraph();
+        DAGsTraceGraph g = new DAGsTraceGraph();
         EventNode a = new EventNode(new Event("a"));
         EventNode b = new EventNode(new Event("b"));
         EventNode c = new EventNode(new Event("c"));
@@ -217,6 +222,9 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(d);
 
         g.tagInitial(a, "followed by");
+        g.tagTerminal(d, "followed by");
+        g.tagTerminal(c, "followed by");
+
         TransitiveClosure tc = g.getTransitiveClosure("followed by");
 
         Map<EventNode, Set<EventNode>> tc2 = new LinkedHashMap<EventNode, Set<EventNode>>();
@@ -234,26 +242,31 @@ public class TransitiveClosureTests extends SynopticTest {
         assertFalse(tc2.equals(tc.getTC()));
     }
 
-    @Test
-    public void constructorSimple5Test() {
-        ChainsTraceGraph g = new ChainsTraceGraph();
-        EventNode a = new EventNode(new Event("a"));
-        EventNode b = new EventNode(new Event("b"));
-        EventNode c = new EventNode(new Event("c"));
-        g.add(a);
-        g.add(b);
-        g.add(c);
+    // NOTE: this next test is invalid since ChainTraceGraph construction is
+    // constrained to constructing fully formed chains.
 
-        g.tagInitial(a, TraceParser.defaultRelation);
-        TransitiveClosure tc = g.getTransitiveClosure("followed by");
-        assertEquals(0, tc.getTC().size());
-
-        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
-        a.addTransition(new Transition<EventNode>(a, c, "followed by"));
-        TransitiveClosure tc2 = g.getTransitiveClosure("after");
-        assertEquals(0, tc2.getTC().size());
-
-    }
+    // @Test
+    // public void constructorSimple5Test() {
+    // ChainsTraceGraph g = new ChainsTraceGraph();
+    // EventNode a = new EventNode(new Event("a"));
+    // EventNode b = new EventNode(new Event("b"));
+    // EventNode c = new EventNode(new Event("c"));
+    // g.add(a);
+    // g.add(b);
+    // g.add(c);
+    //
+    // g.tagInitial(a, TraceParser.defaultRelation);
+    // g.tagTerminal(c, TraceParser.defaultRelation);
+    //
+    // TransitiveClosure tc = g.getTransitiveClosure("followed by");
+    // assertEquals(0, tc.getTC().size());
+    //
+    // a.addTransition(new Transition<EventNode>(a, b, "followed by"));
+    // a.addTransition(new Transition<EventNode>(a, c, "followed by"));
+    // TransitiveClosure tc2 = g.getTransitiveClosure("after");
+    // assertEquals(0, tc2.getTC().size());
+    //
+    // }
 
     // @Test
     // public void constructorSelfTest() {
@@ -287,6 +300,7 @@ public class TransitiveClosureTests extends SynopticTest {
         g.add(c);
         g.add(d);
         g.tagInitial(a, "followed by");
+        g.tagTerminal(d, "followed by");
 
         TransitiveClosure tc = g.getTransitiveClosure("followed by");
 

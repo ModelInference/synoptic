@@ -121,6 +121,10 @@ public class TransitiveClosure {
         return true;
     }
 
+    public String toString() {
+        return tc.toString();
+    }
+
     /**
      * @return tc
      */
