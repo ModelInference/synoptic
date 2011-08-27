@@ -3,10 +3,11 @@ package synoptic.model;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import synoptic.algorithms.graph.FloydWarshall;
 import synoptic.algorithms.graph.TransitiveClosure;
 
 public class ChainsTraceGraph extends TraceGraph<StringEventType> {
@@ -50,8 +51,44 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         return traceIdToInitNodes.size();
     }
 
+    /**
+     * Transitive closure construction for a ChainsTraceGraph is simple: iterate
+     * through each chain independently and add all successors of a node in a
+     * chain to it's transitive closure set. <br/>
+     * <br/>
+     * NOTE: a major assumption of this code is that although there are multiple
+     * relations, the graph remains a linear chain.
+     */
     public TransitiveClosure getTransitiveClosure(String relation) {
-        return FloydWarshall.warshallAlg(this, relation);
+        TransitiveClosure transClosure = new TransitiveClosure(relation);
+        List<EventNode> prevNodes = new LinkedList<EventNode>();
+        for (EventNode firstNode : traceIdToInitNodes.values()) {
+            EventNode curNode = firstNode;
+
+            while (!curNode.isTerminal()) {
+                while (curNode.getTransitions(relation).size() != 0) {
+                    for (EventNode prevNode : prevNodes) {
+                        transClosure.addReachable(prevNode, curNode);
+                    }
+                    prevNodes.add(curNode);
+                    curNode = curNode.getTransitions(relation).get(0)
+                            .getTarget();
+                }
+
+                if (!curNode.isTerminal()) {
+                    for (EventNode prevNode : prevNodes) {
+                        transClosure.addReachable(prevNode, curNode);
+                    }
+                }
+
+                prevNodes.clear();
+
+                if (!curNode.isTerminal()) {
+                    curNode = curNode.getTransitions().get(0).getTarget();
+                }
+            }
+        }
+        return transClosure;
     }
 
     // Used by tests only (so that DAGWalking invariant miner can operate on
