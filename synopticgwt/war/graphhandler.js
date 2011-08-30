@@ -2,14 +2,23 @@
  * Stores a graph, its layouter, and its renderer for manipulation of the graph's
  * display.
  */
+
+/*
+ * Holds the last double-clicked node.
+ */
+var currentSelectedNode = "";
+
 var GRAPH_HANDLER = {
 		// array of graph nodes
 		"currentNodes" : [],
-
+		
 		// initializes this GRAPH_HANDLER
 		"initializeStableIDs"  : function  (nodes, edges, renderer, layouter, g)  {
 		    	for (var i = 0; i < nodes.length; i+= 2) {
 		    		this.currentNodes[nodes[i]] = nodes[i+1];
+		    	}
+		    	for (var i = 0; i < edges.length; i++) {
+		    		this.currentEdges[i] = edges[i];
 		    	}
 		    	this.graph = g;
 		    	this.rend = renderer;
@@ -52,9 +61,15 @@ var GRAPH_HANDLER = {
 				    this.animate({fill: "#fa8"}, 300);
 				});
 
-				// adds an action listener to the rectangle which calls the global viewLogLines
+				// Adds an action listener to the rectangle which calls the global viewLogLines
 				// function (exported by Synoptic.GWT) when a node is double-clicked
+				// Also changes the last node's border to red when double-clicked
 				rect.dblclick(function (event) {
+					if (currentSelectedNode != "") {
+						currentSelectedNode.attr({stroke: "black"});
+					}
+					this.attr({stroke: "red"});
+					currentSelectedNode = this;
 					viewLogLines(parseInt(node.id));
 				});
 
