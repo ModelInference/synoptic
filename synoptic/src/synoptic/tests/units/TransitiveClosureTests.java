@@ -206,6 +206,20 @@ public class TransitiveClosureTests extends SynopticTest {
      * }
      */
 
+    /*
+     * @Test public void expListRetainAllSet() { List<String> l = new
+     * LinkedList<String>(); l.add(new String("a")); l.add(new String("b"));
+     * l.add(new String("c")); l.add(new String("d"));
+     * 
+     * Set<String> s = new LinkedHashSet<String>(); s.add(new String("b"));
+     * s.add(new String("d")); l.retainAll(s);
+     * 
+     * List<String> expected = new LinkedList<String>(); l.add(new String("a"));
+     * l.add(new String("c"));
+     * 
+     * assertTrue(l.equals(expected)); }
+     */
+
     @Test
     public void constructorSimple4Test() {
         DAGsTraceGraph g = new DAGsTraceGraph();
