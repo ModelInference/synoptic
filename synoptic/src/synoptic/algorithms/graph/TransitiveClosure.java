@@ -47,14 +47,22 @@ public class TransitiveClosure {
      * @return true if {@code m} can reach {@code n}
      */
     public boolean isReachable(EventNode m, EventNode n) {
-        // if (!tc.containsKey(m)) {
-        // return false;
-        // }
         Set<EventNode> i = tc.get(m);
         if (i == null) {
             return false;
         }
         return i.contains(n);
+    }
+
+    // WARNING: Assumes that 'into' has a non-null entry in tc.
+    public void mergeReachables(EventNode from, EventNode into) {
+        Set<EventNode> srcSet = tc.get(from);
+
+        if (srcSet != null) {
+            Set<EventNode> destSet = tc.get(into);
+            assert destSet != null;
+            destSet.addAll(srcSet);
+        }
     }
 
     /**

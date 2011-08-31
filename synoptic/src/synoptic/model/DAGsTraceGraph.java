@@ -1,9 +1,9 @@
 package synoptic.model;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -73,7 +73,33 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
     }
 
     public TransitiveClosure getTransitiveClosure(String relation) {
+        // NOTE: The Floyd-Warshall algorithm cannot be applied as is because it
+        // returns a TC that includes TERMINAL nodes.
+        // return FloydWarshall.warshallAlg(this, relation);
+
         return goralcikovaAlg(relation);
+    }
+
+    // TODO: this is inefficient because in the worst case it is n^2.
+    // Ideally, this would do the following:
+    // 1. Add all nodes in unordered to subList
+    // 2. Sort subList using a comparator that uses the relative position of
+    // elements in the orderedSuperList for computing the order of elements.
+    public List<EventNode> getSubSortedList(
+            Collection<Transition<EventNode>> unorderedTrans,
+            List<EventNode> orderedSuperList) {
+        List<EventNode> subList = new LinkedList<EventNode>();
+        Set<EventNode> unorderedNodes = new LinkedHashSet<EventNode>();
+        for (Transition<EventNode> trans : unorderedTrans) {
+            unorderedNodes.add(trans.getTarget());
+        }
+
+        for (EventNode n : orderedSuperList) {
+            if (unorderedNodes.contains(n)) {
+                subList.add(n);
+            }
+        }
+        return subList;
     }
 
     /**
@@ -98,154 +124,199 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
 
         List<EventNode> sortedNodes = new LinkedList<EventNode>();
 
-        // 1. Get the nodes sorted in some topological order, and at the same
-        // time construct a reverse graph -- the graph that is formed by
-        // reversing all the edges.
-
         // Maps a node to its parents in the transitive closure. This map is
         // cleared whenever we start processing a new DAG/Chain (a new PO/TO
         // trace).
         HashMap<EventNode, HashSet<EventNode>> tcParents = new HashMap<EventNode, HashSet<EventNode>>();
 
-        Map<EventNode, Integer> parentsCountMap = new LinkedHashMap<EventNode, Integer>();
         Set<EventNode> bfsPerimeter = new LinkedHashSet<EventNode>();
-        List<EventNode> topoOrder = new LinkedList<EventNode>();
+        List<EventNode> topoOrder;
+        List<EventNode> reverseTopoOrder = new LinkedList<EventNode>();
 
-        // Logger logger = Logger.getLogger("TransitiveClosure Logger");
+        // Maps a node to a set of parent nodes -- nodes that have a transitions
+        // to this node.
+        Map<EventNode, Set<EventNode>> parentsMap = new LinkedHashMap<EventNode, Set<EventNode>>();
+
+        // Maps a node in the topological order to its position in the order.
+        Map<EventNode, Integer> orderMap = new LinkedHashMap<EventNode, Integer>();
+
+        List<EventNode> subSortedList;
+
+        // Process each DAG separately.
         for (Set<EventNode> dagInits : traceIdToInitNodes.values()) {
-            // logger.info("dagInits: " + dagInits.toString());
-            // Traverse the trace, starting from the nodes dagInits to determine
-            // the number of parents that each node has.
+
+            // 1. Get the nodes sorted in some topological order.
+            topoOrder = computeTopologicalOrder(dagInits);
+
+            // TODO: Potential optimization
+            // 2. Build the order map -- this maps a node from the topological
+            // order to its position in the order. We use this map to derive
+            // sublists that are sorted from sets of nodes (that are not
+            // necessarily contiguous in the order).
+            // int counter = 0;
+            // for (EventNode n : topoOrder) {
+            // orderMap.put(n, counter);
+            // counter++;
+            // }
+
+            // 2. Construct the implicit reverse graph -- the graph that is
+            // formed by reversing all the edges (by constructing the
+            // parentsMap).
             bfsPerimeter.addAll(dagInits);
             while (bfsPerimeter.size() != 0) {
                 for (EventNode m : bfsPerimeter) {
-                    addToBFSPerimeter(bfsPerimeter, m, parentsCountMap);
+                    addToBFSPerimeter(bfsPerimeter, m, null, parentsMap);
                     bfsPerimeter.remove(m);
                     break;
                 }
             }
             bfsPerimeter.clear();
 
-            // Traverse the trace, respecting topological order, and build up
-            // topoOrder list.
-            for (EventNode m : dagInits) {
-                addToTopoOrder(topoOrder, m, parentsCountMap);
-                addToBFSPerimeter(bfsPerimeter, m);
-            }
-
-            // boolean here = false;
-            while (bfsPerimeter.size() != 0) {
-                for (EventNode m : bfsPerimeter) {
-                    if (parentsCountMap.get(m) == 0) {
-                        addToTopoOrder(topoOrder, m, parentsCountMap);
-                        bfsPerimeter.remove(m);
-                        addToBFSPerimeter(bfsPerimeter, m);
-                        // here = true;
-                        break;
-                    }
-                }
-            }
-
-            // 2. Traverse the reverse graph from the terminal nodes, building
+            // 3. Traverse the reverse graph from the terminal nodes, building
             // up the transitive relation for a node in an order specified by
-            // the topological order of the node's children (see paper for more
-            // details).
+            // the REVERSE topological order of the node's children (see paper
+            // for more details).
 
-            // Traverse the trace in a topological order, building up the
-            // transitive closure.
+            // TODO: figure out how topoOrder.retainAll() works -- what does
+            // retainAll mean for a List?
 
-            // descendingIterator()
-            for (EventNode m : topoOrder) {
+            reverseTopoOrder.addAll(topoOrder);
+            Collections.reverse(reverseTopoOrder);
+
+            for (EventNode m : reverseTopoOrder) {
                 // logger.fine("tc map is: " + tc.toString());
                 // logger.fine("Handling node " + m.toString());
-                Iterator<? extends ITransition<EventNode>> transIter = m
-                        .getTransitionsIterator(relation);
-                /**
-                 * Iterate through all children of m and for each child do 2
-                 * things:
-                 * 
-                 * <pre>
-                 * 1. create a tc link between m and child and add m to tcParents[child]
-                 * 2. create a tc link between m and every node n to which child is already
-                 *    linked to in tc and add m to tcParents[n]
-                 * </pre>
-                 */
-                while (transIter.hasNext()) {
-                    // Create new tc map for node m.
-                    if (!tc.containsKey(m)) {
-                        tc.put(m, new LinkedHashSet<EventNode>());
-                    }
 
-                    EventNode child = transIter.next().getTarget();
+                // Retrieve a sorted list of m's children based on the topoOrder
+                // that was computed earlier for all the nodes in the graph.
+                subSortedList = getSubSortedList(m.getTransitions(), topoOrder);
 
-                    if (!tcParents.containsKey(child)) {
-                        tcParents.put(child, new HashSet<EventNode>());
-                    }
-
-                    // Link m to c
-                    tc.get(m).add(child);
-                    tcParents.get(child).add(m);
-
-                    // Link m to all nodes that c is linked to in tc
-                    if (tc.containsKey(child)) {
-                        // m can reach nodes the child can reach transitively:
-                        tc.get(m).addAll(tc.get(child));
-                        // nodes that child can reach have m as a tc parent:
-                        for (EventNode n : tc.get(child)) {
-                            if (!tcParents.containsKey(n)) {
-                                tcParents.put(n, new HashSet<EventNode>());
-                            }
-                            tcParents.get(n).add(m);
-                        }
-                    }
-                }
-
-                /**
-                 * Now that we're done compiling the downward transitive closure
-                 * of m, its time to push that information to m's parent nodes.
-                 * For each tc parent p of m we do 2 things:
-                 * 
-                 * <pre>
-                 * 1. For each node n in tc of m, add tc link between p and n
-                 * 2. For each node n in tc of m, add p to tcParents[n]
-                 * </pre>
-                 */
-                if (tcParents.containsKey(m) && tc.containsKey(m)) {
-                    for (EventNode p : tcParents.get(m)) {
-                        // P has a tc entry because its already part of
-                        // tcParents of m (so we've already processed it)
-                        // previously.
-                        tc.get(p).addAll(tc.get(m));
-                        for (EventNode n : tc.get(m)) {
-                            // n has a tcParents entry because m is a tc parent
-                            // of n and it must have been set above.
-                            tcParents.get(n).add(p);
-                        }
+                for (EventNode child : subSortedList) {
+                    if (!transClosure.isReachable(m, child)) {
+                        // NOTE: addReachable is necessary before
+                        // mergeReachables because the set of reachable nodes
+                        // corresponding to m does not exist initially and
+                        // mergeReachables does not check for existence of this
+                        // set (should it?)
+                        transClosure.addReachable(m, child);
+                        transClosure.mergeReachables(child, m);
                     }
                 }
             }
-            // We do not need tcParents information between traces.
+            // We do not need the following information between different
+            // traces:
             tcParents.clear();
+            parentsMap.clear();
+            reverseTopoOrder.clear();
             topoOrder.clear();
-            bfsPerimeter.clear();
-            parentsCountMap.clear();
         }
         // logger.fine("FINAL tc map is: " + tc.toString());
         return transClosure;
     }
 
+    /**
+     * TODO: Needs testing. <br/>
+     * <br/>
+     * Computes a valid (one of many possible ones) topological ordering of
+     * vertices in the trace corresponding to traceid.
+     * 
+     * @param traceid
+     */
+    public void computeTopologicalOrder(int traceid) {
+        assert traceIdToInitNodes.containsKey(traceid);
+        computeTopologicalOrder(traceIdToInitNodes.get(traceid));
+    }
+
+    /**
+     * Computes a valid (one of many possible ones) topological ordering of
+     * vertices in the trace DAG that is reachable by the node set dagInits.
+     * 
+     * @param dagInits
+     */
+    private List<EventNode> computeTopologicalOrder(Set<EventNode> dagInits) {
+        Map<EventNode, Integer> parentsCountMap = new LinkedHashMap<EventNode, Integer>();
+        Set<EventNode> bfsPerimeter = new LinkedHashSet<EventNode>();
+        List<EventNode> topoOrder = new LinkedList<EventNode>();
+
+        // Traverse the trace, starting from the nodes dagInits to determine
+        // the number of parents that each node has.
+        bfsPerimeter.addAll(dagInits);
+        while (bfsPerimeter.size() != 0) {
+            for (EventNode m : bfsPerimeter) {
+                addToBFSPerimeter(bfsPerimeter, m, parentsCountMap, null);
+                bfsPerimeter.remove(m);
+                break;
+            }
+        }
+        bfsPerimeter.clear();
+
+        // Traverse the trace, respecting topological order, and build up
+        // topoOrder list.
+        for (EventNode m : dagInits) {
+            addToTopoOrder(topoOrder, m, parentsCountMap);
+            addToBFSPerimeter(bfsPerimeter, m);
+        }
+
+        while (bfsPerimeter.size() != 0) {
+            for (EventNode m : bfsPerimeter) {
+                if (parentsCountMap.get(m) == 0) {
+                    addToTopoOrder(topoOrder, m, parentsCountMap);
+                    bfsPerimeter.remove(m);
+                    addToBFSPerimeter(bfsPerimeter, m);
+                    break;
+                }
+            }
+        }
+        return topoOrder;
+    }
+
+    /**
+     * Adds node to the bfsPerimeter set of nodes, and updates the parents
+     * counts and map corresponding to the node.
+     * 
+     * @param bfsPerimeter
+     *            The perimeter of the search -- we will add all the children of
+     *            node to this set.
+     * @param node
+     *            The node to consider
+     * @param parentsCountMap
+     *            Maps a node to the number of preceding nodes (parents) that
+     *            this node has.
+     * @param parentsMap
+     *            Maps a node to its set of preceding nodes (parents)
+     */
     private void addToBFSPerimeter(Set<EventNode> bfsPerimeter, EventNode node,
-            Map<EventNode, Integer> parentsCountMap) {
+            Map<EventNode, Integer> parentsCountMap,
+            Map<EventNode, Set<EventNode>> parentsMap) {
+        // Iterate through all the transitions from the node.
         for (ITransition<EventNode> trans : node.getTransitions()) {
             EventNode dest = trans.getTarget();
             if (dest.isTerminal()) {
                 continue;
             }
-            if (!parentsCountMap.containsKey(dest)) {
-                parentsCountMap.put(dest, new Integer(1));
-            } else {
-                parentsCountMap.put(dest, parentsCountMap.get(dest) + 1);
+            // Update the parents counts for the node that the transition is
+            // pointing to.
+            if (parentsCountMap != null) {
+                if (!parentsCountMap.containsKey(dest)) {
+                    parentsCountMap.put(dest, new Integer(1));
+                } else {
+                    parentsCountMap.put(dest, parentsCountMap.get(dest) + 1);
+                }
             }
+            // Update the set of parents for the node that is pointed to by the
+            // transition.
+            if (parentsMap != null) {
+                Set<EventNode> parents;
+                if (!parentsMap.containsKey(dest)) {
+                    parents = new LinkedHashSet<EventNode>();
+                    parentsMap.put(dest, parents);
+                } else {
+                    parents = parentsMap.get(dest);
+                }
+                parents.add(node);
+            }
+            // Add the node to the BFS perimeter -- it can now be processed on
+            // the next call to this function.
             bfsPerimeter.add(dest);
         }
     }

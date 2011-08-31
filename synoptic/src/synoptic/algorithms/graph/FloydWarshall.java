@@ -14,6 +14,13 @@ import synoptic.model.interfaces.ITransition;
 public class FloydWarshall {
     /**
      * Warshall's Algorithm.
+     * 
+     * <pre>
+     * TODO: this algorithm cannot be used for invariant
+     * mining as is because it includes the TERMINAL node in the computation of
+     * the transitive closure, whereas the algorithms assume that this node is
+     * not present.
+     * </pre>
      */
     public static TransitiveClosure warshallAlg(IGraph<EventNode> graph,
             String relation) {

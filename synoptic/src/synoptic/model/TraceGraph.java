@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.logging.Logger;
 
 import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.model.interfaces.IGraph;
@@ -26,6 +27,8 @@ import synoptic.util.Predicate.IBinary;
  */
 public abstract class TraceGraph<EType extends EventType> implements
         IGraph<EventNode> {
+
+    public static Logger logger = Logger.getLogger("TransitiveClosure Logger");
 
     /**
      * The nodes of the graph. The edges between nodes are managed by the nodes.
