@@ -59,4 +59,12 @@ public class FTotalTime implements ITime {
     public String toString() {
         return Float.toString(time);
     }
+
+    @Override
+    public int compareTo(ITime t) {
+        if (!(t instanceof FTotalTime)) {
+            throw new NonComparableTimesException(this, t);
+        }
+        return new Float(time).compareTo(((FTotalTime) t).time);
+    }
 }

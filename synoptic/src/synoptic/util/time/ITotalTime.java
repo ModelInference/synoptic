@@ -59,4 +59,12 @@ public class ITotalTime implements ITime {
     public String toString() {
         return Integer.toString(time);
     }
+
+    @Override
+    public int compareTo(ITime t) {
+        if (!(t instanceof ITotalTime)) {
+            throw new NonComparableTimesException(this, t);
+        }
+        return new Integer(time).compareTo(((ITotalTime) t).time);
+    }
 }

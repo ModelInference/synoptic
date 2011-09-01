@@ -1,14 +1,15 @@
 package synoptic.model;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.logging.Logger;
 
+import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.Pair;
@@ -24,23 +25,23 @@ import synoptic.util.Predicate.IBinary;
  * @param <EventNode>
  *            the class of a node in the graph
  */
-public class TraceGraph implements IGraph<EventNode> {
+public abstract class TraceGraph<EType extends EventType> implements
+        IGraph<EventNode> {
+
+    public static Logger logger = Logger.getLogger("TransitiveClosure Logger");
+
     /**
      * The nodes of the graph. The edges between nodes are managed by the nodes.
      */
-    private final Set<EventNode> nodes = new LinkedHashSet<EventNode>();
+    protected final Set<EventNode> nodes = new LinkedHashSet<EventNode>();
 
     /**
-     * Maps a relation to the set of initial nodes in this relation. That is,
-     * the set of nodes that have an edge from the dummy initial node (i.e.,
+     * Maps a relation String to the set of initial nodes in this relation. That
+     * is, the set of nodes that have an edge from the dummy initial node (i.e.,
      * from a EventNode x such that x.isInitial() is true).
      */
-    private final Map<String, Set<EventNode>> initialNodes = new LinkedHashMap<String, Set<EventNode>>();
-
-    /**
-     * Maintains a map of trace id to the set of initial nodes in the trace.
-     */
-    private final Map<Integer, Set<EventNode>> traceIdToInitNodes = new LinkedHashMap<Integer, Set<EventNode>>();
+    // private final Map<String, Set<EventNode>> initialNodes = new
+    // LinkedHashMap<String, Set<EventNode>>();
 
     /**
      * Every terminal node maintains a transition to this special node to
@@ -48,13 +49,12 @@ public class TraceGraph implements IGraph<EventNode> {
      * this graph, and not just in partition graph because invariants are mined
      * over this graph.
      */
-    private EventNode dummyTerminalNode = null;
+    // private EventNode dummyTerminalNode = null;
+    private final Map<String, EventNode> dummyTerminalNodes = new LinkedHashMap<String, EventNode>();
 
     /** The node which has transitions to all the initial nodes in the graph. */
-    private EventNode dummyInitialNode = null;
-
-    /** Whether or not the traces this graph represents are partially ordered */
-    private boolean partiallyOrderedTraces = false;
+    // private EventNode dummyInitialNode = null;
+    private final Map<String, EventNode> dummyInitialNodes = new LinkedHashMap<String, EventNode>();
 
     private Set<String> cachedRelations = null;
 
@@ -65,6 +65,7 @@ public class TraceGraph implements IGraph<EventNode> {
      *            the nodes of the graph
      */
     public TraceGraph(Collection<EventNode> nodes) {
+        this();
         this.nodes.addAll(nodes);
     }
 
@@ -72,22 +73,11 @@ public class TraceGraph implements IGraph<EventNode> {
      * Create an empty graph.
      */
     public TraceGraph() {
-        // Empty constructor used by unit tests.
-    }
-
-    @Override
-    public void setPartiallyOrdered(boolean po) {
-        partiallyOrderedTraces = po;
-    }
-
-    @Override
-    public boolean isPartiallyOrdered() {
-        return partiallyOrderedTraces;
+        cachedRelations = null;
     }
 
     /**
-     * Returns all the nodes in this graph. This does NOT include the
-     * dummyTerminalNode.
+     * Returns all the nodes in this graph.
      */
     @Override
     public Set<EventNode> getNodes() {
@@ -97,13 +87,8 @@ public class TraceGraph implements IGraph<EventNode> {
     /**
      * Returns all the initial nodes in this graph.
      */
-    @Override
-    public Set<EventNode> getInitialNodes() {
-        // FIXME: Graph.java is mixing up the notion of dummy initial node and
-        // the set of nodes that have an edge from the dummy initial node.
-        Set<EventNode> copy = new LinkedHashSet<EventNode>();
-        copy.add(dummyInitialNode);
-        return copy;
+    public Set<EventNode> getDummyInitialNodes() {
+        return new LinkedHashSet<EventNode>(dummyInitialNodes.values());
     }
 
     /**
@@ -111,11 +96,9 @@ public class TraceGraph implements IGraph<EventNode> {
      * relation.
      */
     @Override
-    public Set<EventNode> getInitialNodes(String relation) {
-        if (!initialNodes.containsKey(relation)) {
-            return Collections.emptySet();
-        }
-        return initialNodes.get(relation);
+    public EventNode getDummyInitialNode(String relation) {
+        assert dummyInitialNodes.containsKey(relation);
+        return dummyInitialNodes.get(relation);
     }
 
     /**
@@ -146,36 +129,9 @@ public class TraceGraph implements IGraph<EventNode> {
         cachedRelations = null;
     }
 
-    /**
-     * Sets the dummy terminal node to which all terminal nodes in the graph
-     * have a transition.
-     * 
-     * @param dummyTerminal
-     *            the dummy terminal node to use for this graph
-     */
-    public void setDummyTerminal(EventNode dummyTerminal) {
-        dummyTerminalNode = dummyTerminal;
-        nodes.add(dummyTerminal);
-    }
+    public abstract TransitiveClosure getTransitiveClosure(String relation);
 
-    /**
-     * Sets the dummy initial node to which all the initial nodes in the trace
-     * transition.
-     * 
-     * @param dummyInitial
-     *            the dummy initial node to use for this graph
-     * @param relation
-     *            the relation with which this initial node is associated
-     */
-    public void setDummyInitial(EventNode dummyInitial, String relation) {
-        dummyInitialNode = dummyInitial;
-        nodes.add(dummyInitial);
-        if (!initialNodes.containsKey(relation)) {
-            initialNodes.put(relation, new LinkedHashSet<EventNode>());
-        }
-        initialNodes.get(relation).add(dummyInitial);
-        cachedRelations = null;
-    }
+    public abstract int getNumTraces();
 
     /**
      * Mark {@code terminalNode} as terminal with respect to {@code relation} by
@@ -186,10 +142,11 @@ public class TraceGraph implements IGraph<EventNode> {
      * @param relation
      *            the relation with respect to which the node should be terminal
      */
-    public void tagTerminal(EventNode terminalNode, String relation) {
-        assert dummyTerminalNode != null : "Must call setDummyTerminal() prior to tagTerminal().";
+    protected void tagTerminal(EventNode terminalNode, String relation) {
+        assert dummyTerminalNodes.containsKey(relation) : "A dummy terminal node for the relation must exist prior tagTerminal().";
+        assert nodes.contains(terminalNode) : "Node tagged as terminal must be added to the TraceGraph first.";
 
-        terminalNode.addTransition(dummyTerminalNode, relation);
+        terminalNode.addTransition(dummyTerminalNodes.get(relation), relation);
     }
 
     /**
@@ -201,43 +158,44 @@ public class TraceGraph implements IGraph<EventNode> {
      * @param relation
      *            the relation with respect to which the node should be initial
      */
-    public void tagInitial(EventNode initialNode, String relation) {
-        assert dummyInitialNode != null : "Must call setDummyInitial() prior to tagInitial().";
+    protected void tagInitial(EventNode initialNode, String relation) {
+        assert dummyInitialNodes.containsKey(relation) : "A dummy initial node for the relation must exist prior tagInitial().";
+        assert nodes.contains(initialNode) : "Node tagged as initial must be added to the TraceGraph first.";
 
-        dummyInitialNode.addTransition(initialNode, relation);
-
-        /**
-         * Build a map of trace id to the set of initial nodes in the trace.
-         * This is used for partially ordered traces, where it is not possible
-         * to determine which initial nodes (pointed to from the synthetic
-         * INITIAL node) are in the same trace.
-         */
-        Integer tid = initialNode.getTraceID();
-        Set<EventNode> initTraceNodes;
-        if (!traceIdToInitNodes.containsKey(tid)) {
-            initTraceNodes = new LinkedHashSet<EventNode>();
-            traceIdToInitNodes.put(tid, initTraceNodes);
-        } else {
-            initTraceNodes = traceIdToInitNodes.get(tid);
-        }
-        initTraceNodes.add(initialNode);
+        dummyInitialNodes.get(relation).addTransition(initialNode, relation);
     }
 
-    public Map<Integer, Set<EventNode>> getTraceIdToInitNodes() {
-        return traceIdToInitNodes;
+    protected void createIfNotExistsDummyTerminalNode(Event termEvent,
+            String relation) {
+        createIfNotExistsSpecialNode(termEvent, relation, dummyTerminalNodes);
+    }
+
+    protected void createIfNotExistsDummyInitialNode(Event initEvent,
+            String relation) {
+        createIfNotExistsSpecialNode(initEvent, relation, dummyInitialNodes);
+    }
+
+    private void createIfNotExistsSpecialNode(Event event, String relation,
+            Map<String, EventNode> specialNodes) {
+        if (!specialNodes.containsKey(relation)) {
+            EventNode node = new EventNode(event);
+            specialNodes.put(relation, node);
+            nodes.add(node);
+        }
     }
 
     /**
      * Tests for generic graph equality.
      */
-    public boolean equalsWith(TraceGraph other, IBinary<EventNode, EventNode> np) {
+    public boolean equalsWith(TraceGraph<?> other,
+            IBinary<EventNode, EventNode> np) {
         return equalsWith(other, np, new BinaryTrue<String, String>());
     }
 
-    public boolean equalsWith(TraceGraph other,
+    public boolean equalsWith(TraceGraph<?> other,
             IBinary<EventNode, EventNode> np, IBinary<String, String> rp) {
-        Set<EventNode> unusedOther = other.getInitialNodes();
-        for (EventNode n1 : this.getInitialNodes()) {
+        Set<EventNode> unusedOther = other.getDummyInitialNodes();
+        for (EventNode n1 : this.getDummyInitialNodes()) {
             boolean foundMatch = false;
             for (EventNode n2 : unusedOther) {
                 // logger.fine("Comparing " + n1 + " against " + n2);
@@ -299,4 +257,6 @@ public class TraceGraph implements IGraph<EventNode> {
         }
         return result;
     }
+
+    public abstract Map<Integer, Set<EventNode>> getTraceIdToInitNodes();
 }

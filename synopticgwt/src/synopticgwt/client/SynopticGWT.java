@@ -1,7 +1,14 @@
 package synopticgwt.client;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
+import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -24,6 +31,9 @@ import synopticgwt.shared.GWTInvariantSet;
  * other.
  */
 public class SynopticGWT implements EntryPoint {
+    /** Default global logger to use for logging all messages to the console. */
+    public static Logger logger = Logger.getLogger("SynopticGWT");
+
     /** Create an RPC proxy to talk to the Synoptic service */
     private final ISynopticServiceAsync synopticService = GWT
             .create(ISynopticService.class);
@@ -50,6 +60,8 @@ public class SynopticGWT implements EntryPoint {
     /** Encapsulates logic having to do with the model (e.g., vis, refinement..) */
     private ModelTab modelTab = null;
 
+    private Map<Integer, Tab<?>> tabIndexToTab = new LinkedHashMap<Integer, Tab<?>>();
+
     boolean invSetChanged = false;
 
     /**
@@ -64,6 +76,8 @@ public class SynopticGWT implements EntryPoint {
         // http://groups.google.com/group/google-web-toolkit/browse_thread/thread/5a2335ffb117bd08
         SynopticGWT.entryPoint = this;
 
+        logger.setLevel(Level.FINEST);
+
         // Add the panel of tabs to the page.
         RootPanel.get("mainDiv").add(tabPanel);
 
@@ -71,11 +85,32 @@ public class SynopticGWT implements EntryPoint {
         // progressWheelDiv container.
         pWheel = new ProgressWheel("progressWheelDiv");
 
-        // Create the tab on which the user will submit inputs to Synoptic.
+        // Tab on which the user will submit inputs.
         inputTab = new InputTab(synopticService, pWheel);
+        // Tab that will display miner invariants.
+        invTab = new InvariantsTab(synopticService, pWheel);
+        // Tab that will display the model.
+        modelTab = new ModelTab(synopticService, pWheel);
 
-        // Associate the tab with the tab panel.
+        // Associate the tabs with the tab panel.
         tabPanel.add(inputTab.getPanel(), "Inputs");
+        tabPanel.add(invTab.getPanel(), "Invariants");
+        tabPanel.add(modelTab.getPanel(), "Model");
+
+        // Enable the inputTab
+        inputTab.setEnabled(true);
+
+        // Build up a map between the tab index in the tab panel and the tab --
+        // this map is useful when processing events that change the selected
+        // tab.
+        tabIndexToTab.put(tabPanel.getWidgetIndex(inputTab.getPanel()),
+                inputTab);
+        tabIndexToTab.put(tabPanel.getWidgetIndex(invTab.getPanel()), invTab);
+        tabIndexToTab.put(tabPanel.getWidgetIndex(modelTab.getPanel()),
+                modelTab);
+
+        logger.info(tabIndexToTab.toString());
+
         tabPanel.setWidth("100%");
         tabPanel.selectTab(0);
 
@@ -85,6 +120,14 @@ public class SynopticGWT implements EntryPoint {
                 tabSelected(event);
             }
         });
+
+        tabPanel.addBeforeSelectionHandler(new BeforeSelectionHandler<Integer>() {
+            @Override
+            public void onBeforeSelection(BeforeSelectionEvent<Integer> event) {
+                tabBeforeSelected(event);
+            }
+        });
+
     }
 
     /**
@@ -112,11 +155,20 @@ public class SynopticGWT implements EntryPoint {
     }
 
     /**
+     * Fired by SynopticTabPanel _before_ the tab is selected.
+     */
+    public void tabBeforeSelected(BeforeSelectionEvent<Integer> event) {
+        if (!tabIndexToTab.get(event.getItem()).isEnabled()) {
+            event.cancel();
+        }
+    }
+
+    /**
      * Fired by SynopticTabPanel whenever a tab is selected.
      */
     public void tabSelected(SelectionEvent<Integer> event) {
         int tabId = event.getSelectedItem();
-        if (tabId != 2) {
+        if (tabIndexToTab.get(tabId) != modelTab) {
             return;
         }
 
@@ -161,16 +213,9 @@ public class SynopticGWT implements EntryPoint {
      *            The initial model for the log.
      */
     public void logParsed(GWTInvariantSet logInvs, GWTGraph initialModel) {
-        // If this is the first time a log was parsed then create a new
-        // invariants and model tabs.
-        if (invTab == null) {
-            assert (modelTab == null);
-            invTab = new InvariantsTab(synopticService, pWheel);
-            tabPanel.add(invTab.getPanel(), "Invariants");
-            modelTab = new ModelTab(synopticService, pWheel);
-            tabPanel.add(modelTab.getPanel(), "Model");
-        }
-        assert (modelTab != null);
+        invTab.setEnabled(true);
+        modelTab.setEnabled(true);
+
         invTab.showInvariants(logInvs);
         // The modelTab MUST be made visible for showGraph() to work below.
         tabPanel.selectTab(2);

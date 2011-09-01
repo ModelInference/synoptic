@@ -59,7 +59,7 @@ public class FsmModelChecker {
 
         // Populate the worklist with the initial nodes, and set the initial
         // path history on each.
-        for (T node : graph.getInitialNodes()) {
+        for (T node : graph.getDummyInitialNodes()) {
             onWorkList.add(node);
             workList.add(node);
             states.get(node).setInitial(node);

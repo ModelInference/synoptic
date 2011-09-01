@@ -62,4 +62,12 @@ public class DTotalTime implements ITime {
     public String toString() {
         return Double.toString(time);
     }
+
+    @Override
+    public int compareTo(ITime t) {
+        if (!(t instanceof DTotalTime)) {
+            throw new NonComparableTimesException(this, t);
+        }
+        return new Double(time).compareTo(((DTotalTime) t).time);
+    }
 }

@@ -7,15 +7,14 @@ import java.util.ArrayList;
 import org.junit.Test;
 
 import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.algorithms.bisim.KTails;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
+import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.TraceGraph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.tests.SynopticTest;
@@ -96,12 +95,12 @@ public class BisimulationTests extends SynopticTest {
         TraceParser defParser = genDefParser();
         ArrayList<EventNode> parsedEvents = defParser.parseTraceString(
                 traceStr, SynopticTest.testName.getMethodName(), -1);
-        TraceGraph inputGraph = defParser
-                .generateDirectTemporalRelation(parsedEvents);
+        ChainsTraceGraph inputGraph = defParser
+                .generateDirectTORelation(parsedEvents);
 
         exportTestGraph(inputGraph, 0);
 
-        InvariantMiner miner = new ChainWalkingTOInvMiner();
+        TOInvariantMiner miner = new ChainWalkingTOInvMiner();
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
 
         PartitionGraph pGraph = Bisimulation.getSplitGraph(inputGraph,
@@ -137,27 +136,31 @@ public class BisimulationTests extends SynopticTest {
 
     // TODO: test the single step splitPartitions version.
 
-    @Test
-    public void mergePartitionsTest() throws Exception {
-
-        // A trace that cannot be reduced with any k.
-        String[] traceStrArray = new String[] { "1,1,1 a", "2,2,2 b",
-                "1,2,3 c", "2,2,4 d" };
-        String traceStr = concatinateWithNewlines(traceStrArray);
-
-        ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
-                SynopticTest.testName.getMethodName(), -1);
-        TraceGraph inputGraph = parser.generateDirectTemporalRelation(parsedEvents);
-
-        PartitionGraph pGraph = new PartitionGraph(inputGraph, false, null);
-        Bisimulation.kReduce(pGraph, 0);
-        PartitionGraph expectedPGraph = new PartitionGraph(inputGraph, false,
-                null);
-
-        Partition initial1 = pGraph.getInitialNodes().iterator().next();
-        Partition initial2 = expectedPGraph.getInitialNodes().iterator().next();
-        assertTrue(KTails.kEquals(initial1, initial2, 4, false));
-    }
+    // TODO: change mergePartitionsTest to use total order, since a partially
+    // ordered trace cannot be turned into a partition graph.
+    // @Test
+    // public void mergePartitionsTest() throws Exception {
+    //
+    // // A trace that cannot be reduced with any k.
+    // String[] traceStrArray = new String[] { "1,1,1 a", "2,2,2 b",
+    // "1,2,3 c", "2,2,4 d" };
+    // String traceStr = concatinateWithNewlines(traceStrArray);
+    //
+    // ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
+    // SynopticTest.testName.getMethodName(), -1);
+    // DAGsTraceGraph inputGraph = parser
+    // .generateDirectPORelation(parsedEvents);
+    //
+    // PartitionGraph pGraph = new PartitionGraph(inputGraph, false, null);
+    // Bisimulation.kReduce(pGraph, 0);
+    // PartitionGraph expectedPGraph = new PartitionGraph(inputGraph, false,
+    // null);
+    //
+    // Partition initial1 = pGraph.getDummyInitialNodes().iterator().next();
+    // Partition initial2 = expectedPGraph.getDummyInitialNodes().iterator()
+    // .next();
+    // assertTrue(KTails.kEquals(initial1, initial2, 4, false));
+    // }
 
     // TODO: test mergePartitions on graphs where merging is possible.
 

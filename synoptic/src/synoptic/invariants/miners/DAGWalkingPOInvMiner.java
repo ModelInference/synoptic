@@ -10,6 +10,8 @@ import java.util.Set;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.TraceParser;
+import synoptic.model.ChainsTraceGraph;
+import synoptic.model.DAGsTraceGraph;
 import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
@@ -18,6 +20,9 @@ import synoptic.model.Transition;
 import synoptic.model.interfaces.ITransition;
 
 /**
+ * TODO: all calls to getTransitions should be getTransitions(relation) where
+ * relation is the argument to computeInvariants(). <br />
+ * <br/>
  * Implements a temporal invariant mining algorithm for partially ordered logs,
  * by walking the corresponding DAG trace structure in the forward and reverse
  * directions. This algorithm is a generalization of the ChainWalkingTOInvMiner
@@ -29,7 +34,8 @@ import synoptic.model.interfaces.ITransition;
  * TemporalInvariantSet.extractInvariantsFromWalkCounts() to turn these counts
  * into valid temporal invariants.
  */
-public class DAGWalkingPOInvMiner extends InvariantMiner {
+public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
+        POInvariantMiner, TOInvariantMiner {
 
     // TODO: we can set the initial capacity of the following HashMaps more
     // optimally, e.g. (N / 0.75) + 1 where N is the total number of event
@@ -38,8 +44,6 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
 
     // Tracks global event counts globally -- across all traces.
     Map<EventType, Integer> gEventCnts = new LinkedHashMap<EventType, Integer>();
-
-    String relation = TraceParser.defaultRelation;
 
     // Tracks global followed-by counts -- across all traces.
     Map<EventType, Map<EventType, Integer>> gFollowedByCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
@@ -185,6 +189,16 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
         return mineNeverConcurrentWith;
     }
 
+    public TemporalInvariantSet computeInvariants(DAGsTraceGraph g) {
+        mineConcurrencyInvariants = true;
+        return computeInvariants(g, TraceParser.defaultRelation);
+    }
+
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
+        mineConcurrencyInvariants = false;
+        return computeInvariants(g, TraceParser.defaultRelation);
+    }
+
     /**
      * Computes invariants for a graph g. mineConcurrencyInvariants determines
      * 
@@ -195,19 +209,9 @@ public class DAGWalkingPOInvMiner extends InvariantMiner {
      *            whether or not to mine the NeverConcurrentWith invariant
      * @return the set of mined invariants
      */
-    public TemporalInvariantSet computeInvariants(TraceGraph g) {
-        assert (!g.getInitialNodes().isEmpty() && g.getInitialNodes().size() == 1) : "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.";
-
-        EventNode initNode = g.getInitialNodes().iterator().next();
-
-        assert initNode.getEType().isInitialEventType() : "Cannot compute invariants over a graph that doesn't have exactly one INITIAL node.";
-
-        // Determine whether to mine concurrency invariants or not by testing
-        // the event type of _some_ node in g -- concurrency invariants are
-        // mined for nodes of DistEventType.
-        if (g.getNodes().iterator().next().getEType() instanceof DistEventType) {
-            mineConcurrencyInvariants = true;
-        }
+    public TemporalInvariantSet computeInvariants(TraceGraph<?> g,
+            String relation) {
+        EventNode initNode = g.getDummyInitialNode(relation);
 
         gEventCnts.clear();
 

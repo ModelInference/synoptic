@@ -45,6 +45,8 @@ public class PartitionGraph implements IGraph<Partition> {
      * track of the initial messages but we need to do this for every relation,
      * which is specified by the first argument to the hash-map.
      */
+    // private final LinkedHashMap<String, Set<EventNode>> initialEvents = new
+    // LinkedHashMap<String, Set<EventNode>>();
     private final LinkedHashMap<String, Set<EventNode>> initialEvents = new LinkedHashMap<String, Set<EventNode>>();
 
     /**
@@ -65,9 +67,6 @@ public class PartitionGraph implements IGraph<Partition> {
     /** An ordered list of all partition splits applied to the graph so far. */
     private final LinkedList<PartitionMultiSplit> appliedSplits = new LinkedList<PartitionMultiSplit>();
 
-    /** Whether or not the traces this graph represents are partially ordered */
-    private boolean partiallyOrderedTraces = false;
-
     /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
      * and stored. If partitionByLabel is true, all messages with identical
@@ -79,10 +78,10 @@ public class PartitionGraph implements IGraph<Partition> {
      * @param partitionByLabel
      *            Whether initial partitioning by label should be done
      */
-    public PartitionGraph(IGraph<EventNode> g, boolean partitionByLabel,
+    public PartitionGraph(ChainsTraceGraph g, boolean partitionByLabel,
             TemporalInvariantSet invariants) {
         for (String relation : g.getRelations()) {
-            addInitialMessages(g.getInitialNodes(relation), relation);
+            addInitialMessages(g.getDummyInitialNode(relation), relation);
             relations.add(relation);
         }
 
@@ -94,11 +93,11 @@ public class PartitionGraph implements IGraph<Partition> {
         this.invariants = invariants;
     }
 
-    public PartitionGraph(IGraph<EventNode> g,
+    public PartitionGraph(ChainsTraceGraph g,
             List<LinkedHashSet<Integer>> partitioningIndexSets,
             TemporalInvariantSet invariants) {
         for (String relation : g.getRelations()) {
-            addInitialMessages(g.getInitialNodes(relation), relation);
+            addInitialMessages(g.getDummyInitialNode(relation), relation);
             relations.add(relation);
         }
 
@@ -106,22 +105,12 @@ public class PartitionGraph implements IGraph<Partition> {
         this.invariants = invariants;
     }
 
-    @Override
-    public void setPartiallyOrdered(boolean po) {
-        partiallyOrderedTraces = po;
-    }
-
-    @Override
-    public boolean isPartiallyOrdered() {
-        return partiallyOrderedTraces;
-    }
-
-    private void addInitialMessages(Set<EventNode> initialMessages,
-            String relation) {
+    private void addInitialMessages(EventNode initialMessage, String relation) {
         if (!initialEvents.containsKey(relation)) {
             initialEvents.put(relation, new LinkedHashSet<EventNode>());
         }
-        initialEvents.get(relation).addAll(initialMessages);
+        initialEvents.get(relation).add(initialMessage);
+        // .addAll(initialMessages);
     }
 
     public TemporalInvariantSet getInvariants() {
@@ -345,8 +334,14 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     @Override
-    public Set<Partition> getInitialNodes() {
+    public Set<Partition> getDummyInitialNodes() {
         return getEventNodePartitions(initialEvents);
+    }
+
+    @Override
+    public Partition getDummyInitialNode(String relation) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     public Set<Partition> getTerminalNodes() {
@@ -360,13 +355,14 @@ public class PartitionGraph implements IGraph<Partition> {
         return getEventNodePartitions(terminalEvents.get(relation));
     }
 
-    @Override
-    public Set<Partition> getInitialNodes(String relation) {
-        if (!initialEvents.containsKey(relation)) {
-            return Collections.emptySet();
-        }
-        return getEventNodePartitions(initialEvents.get(relation));
-    }
+    //
+    // public Partition getDummyInitialNode(String relation) {
+    // if (!initialEvents.containsKey(relation)) {
+    // // return Collections.emptySet();
+    // return null;
+    // }
+    // return getEventNodePartitions(initialEvents.get(relation));
+    // }
 
     @Override
     public Set<String> getRelations() {
@@ -415,13 +411,14 @@ public class PartitionGraph implements IGraph<Partition> {
         partitions.remove(node);
     }
 
-    public Set<EventNode> getInitialMessages() {
-        Set<EventNode> initial = new LinkedHashSet<EventNode>();
-        for (Set<EventNode> set : initialEvents.values()) {
-            initial.addAll(set);
-        }
-        return initial;
-    }
+    // TODO: unused -- delete?
+    // public Set<EventNode> getInitialMessages() {
+    // Set<EventNode> initial = new LinkedHashSet<EventNode>();
+    // for (Set<EventNode> set : initialEvents.values()) {
+    // initial.addAll(set);
+    // }
+    // return initial;
+    // }
 
     /**
      * Check that all partitions are non-empty and disjunct.
@@ -458,7 +455,6 @@ public class PartitionGraph implements IGraph<Partition> {
 
     /**
      * Traverses the partition graph and returns a set of all possible traces.
-     * TODO: Use a more general data-type other than 'ArrayList'
      * 
      * @return
      */
@@ -466,7 +462,7 @@ public class PartitionGraph implements IGraph<Partition> {
         // This will contain all the traces
         Set<List<Partition>> allTraces = new HashSet<List<Partition>>();
         // Constructs the set of all traces
-        for (Partition pNode : getInitialNodes()) {
+        for (Partition pNode : getDummyInitialNodes()) {
             recursivelyAddTracesToSet(pNode, allTraces,
                     new ArrayList<Partition>());
         }
@@ -538,7 +534,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
         // Find initial events and add the results from each iteration to
         // initialTraces
-        for (Partition pNode : getInitialNodes()) {
+        for (Partition pNode : getDummyInitialNodes()) {
             for (EventNode event : pNode.getEventNodes()) {
                 if (event.isInitial()) {
                     initialTraces
@@ -596,4 +592,5 @@ public class PartitionGraph implements IGraph<Partition> {
         }
         return traces;
     }
+
 }

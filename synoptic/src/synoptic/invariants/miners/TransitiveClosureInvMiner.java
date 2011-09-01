@@ -20,13 +20,16 @@ import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.ltlcheck.Pair;
 import synoptic.main.Main;
 import synoptic.main.TraceParser;
+import synoptic.model.ChainsTraceGraph;
+import synoptic.model.DAGsTraceGraph;
 import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.StringEventType;
 import synoptic.model.TraceGraph;
 
-public class TransitiveClosureInvMiner extends InvariantMiner {
+public class TransitiveClosureInvMiner extends InvariantMiner implements
+        POInvariantMiner, TOInvariantMiner {
 
     /**
      * Whether or not to use iterative version of warshall's algorithm for TC
@@ -43,15 +46,13 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
     }
 
     @Override
-    public TemporalInvariantSet computeInvariants(TraceGraph g) {
-        // Determine whether to mine concurrency invariants or not by testing
-        // the event type of _some_ node in g -- concurrency invariants are
-        // mined for nodes of DistEventType.
-        boolean mineConcurrencyInvariants = false;
-        if (g.getNodes().iterator().next().getEType() instanceof DistEventType) {
-            mineConcurrencyInvariants = true;
-        }
-        return computeInvariants(g, mineConcurrencyInvariants);
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
+        return computeInvariants(g, false);
+    }
+
+    @Override
+    public TemporalInvariantSet computeInvariants(DAGsTraceGraph g) {
+        return computeInvariants(g, true);
     }
 
     /**
@@ -67,7 +68,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
      *            whether or not to also mine concurrency invariants
      * @return the set of temporal invariants the graph satisfies
      */
-    public TemporalInvariantSet computeInvariants(TraceGraph g,
+    public TemporalInvariantSet computeInvariants(TraceGraph<?> g,
             boolean mineConcurrencyInvariants) {
 
         TimedTask mineInvariants = PerformanceMetrics.createTask(
@@ -82,7 +83,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
 
             // Compute the transitive closure.
             AllRelationsTransitiveClosure transitiveClosure = new AllRelationsTransitiveClosure(
-                    g, useWarshall);
+                    g);
 
             // Get the over-approximation.
             itc.stop();
@@ -233,7 +234,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
      * @return the over-approximated set of invariants
      * @throws Exception
      */
-    private Set<ITemporalInvariant> extractInvariantsFromTC(TraceGraph g,
+    private Set<ITemporalInvariant> extractInvariantsFromTC(TraceGraph<?> g,
             TransitiveClosure tc, String relation,
             boolean mineConcurrencyInvariants) {
 
@@ -297,7 +298,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner {
         Set<ITemporalInvariant> alwaysConcurInvs = new LinkedHashSet<ITemporalInvariant>();
 
         Set<Pair<EventType, EventType>> observedPairs = new LinkedHashSet<Pair<EventType, EventType>>();
-        int numTraces = getNumTraces(g);
+        int numTraces = g.getNumTraces();
         for (EventType e1 : etypeToTraceIdToENode.keySet()) {
             // ///////////////// Determine if "INITIAL AFby e1" is true
             // Check if an e1 node appeared in every trace, if yes then inv
