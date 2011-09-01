@@ -28,6 +28,7 @@ header_str = """
 # 1 %s
 # 2 invariant mining time using transitive closure algorithm (ms)
 # 3 invariant mining time using co-occurrence counting algorithm (ms)
+# 4 invariant mining time using co-occurrence counting algorithm WITHOUT NeverConcurrentWith invariant (ms) 
 
 """
 
@@ -64,12 +65,13 @@ def extract_var_cnts(fnames, index):
 
 def main():
     dirs = [("vary-nodes", 0, 'nodes-%d_etypes-\d*_events-\d*_execs-\d*.txt.\d*'),
+            ("vary-numtraces", 3, 'nodes-\d*_etypes-\d*_events-\d*_execs-%d.txt.\d*'),
             ("vary-etypes", 1, 'nodes-\d*_etypes-%d_events-\d*_execs-\d*.txt.\d*'),
             ("vary-tracelen", 2, 'nodes-\d*_etypes-\d*_events-%d_execs-\d*.txt.\d*'),
-            ("vary-numtraces", 3, 'nodes-\d*_etypes-\d*_events-\d*_execs-%d.txt.\d*'),
             ]
 
     for (d,index,base_format) in dirs:
+        print "processing ", d
         result_dir = base_dir + d + "-results/"
         
         output_fname = output_dir + "latency_" + d + ".data"
@@ -84,9 +86,11 @@ def main():
             fout.write("%s " % var)
             tc_med_time = []
             co_occur_med_time = []
+            co_occur_no_ncwith_med_time = []
             for fname in fnames:
                 tc=False
                 dag=False
+                dag_no_ncwith=False
 
                 #print fname
 
@@ -94,20 +98,26 @@ def main():
                     tc=True
                 elif re.match((base_format + ".dag") % var, fname):
                     dag = True
+                elif re.match((base_format + ".noNCwithDAG") % var, fname):
+                    dag_no_ncwith = True
+                else:
+                    continue
 
-                if tc or dag:
-                    ms_time = commands.getoutput("cat %s | grep 'Mining took' | awk '{print $4}'" % (result_dir + fname))
-                    t = ms_time[:-2] # drop 'ms' at end
-                    #print t                
-                    #print tc
-                    #print dag
+                ms_time = commands.getoutput("cat %s | grep 'Mining took' | awk '{print $4}'" % (result_dir + fname))
+                t = ms_time[:-2] # drop 'ms' at end
+                #print t                
+                #print tc
+                #print dag
+                #print dag_no_ncwith
 
                 if tc:
                     tc_med_time.append(int(t))
                 if dag:
                     co_occur_med_time.append(int(t))
+                if dag_no_ncwith:
+                    co_occur_no_ncwith_med_time.append(int(t))
 
-            fout.write("%s %s\n" % (numpy.median(tc_med_time), numpy.median(co_occur_med_time)))
+            fout.write("%s %s %s\n" % (numpy.median(tc_med_time), numpy.median(co_occur_med_time), numpy.median(co_occur_no_ncwith_med_time)))
 
         fout.close()
 

@@ -19,6 +19,22 @@ public abstract class Tab<T extends Panel> {
     /** Panel with the contents of this tab. */
     protected T panel;
 
+    /** Whether or not this tab is enabled */
+    protected boolean isEnabled = false;
+
+    /**
+     * Whether or not this tab is enabled (the user should be allowed to view
+     * it). By default, new tabs are disabled.
+     **/
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
+    /** Sets the new enabled status of the tab. **/
+    public void setEnabled(boolean newEnabled) {
+        isEnabled = newEnabled;
+    }
+
     public Tab(ISynopticServiceAsync synopticService, ProgressWheel pWheel) {
         this.synopticService = synopticService;
         this.pWheel = pWheel;

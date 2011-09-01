@@ -20,13 +20,13 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.TraceParser;
+import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.TraceGraph;
 import synoptic.model.WeightedTransition;
 import synoptic.model.export.GraphExporter;
 import synopticgwt.client.ISynopticService;
@@ -63,7 +63,7 @@ public class SynopticService extends RemoteServiceServlet implements
     private TemporalInvariantSet minedInvs;
     private Set<ITemporalInvariant> activeInvs;
     private List<CExamplePath<Partition>> counterExampleTraces;
-    private TraceGraph traceGraph;
+    private ChainsTraceGraph traceGraph;
 
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods.
@@ -160,7 +160,7 @@ public class SynopticService extends RemoteServiceServlet implements
             // TODO: throw appropriate exception
             throw new Exception();
         }
-        traceGraph = (TraceGraph) session.getAttribute("traceGraph");
+        traceGraph = (ChainsTraceGraph) session.getAttribute("traceGraph");
 
         // NOTE: counterExampleTraces is allowed to be null.
 
@@ -293,10 +293,10 @@ public class SynopticService extends RemoteServiceServlet implements
         // Parse the log lines.
         ArrayList<EventNode> parsedEvents = parser.parseTraceString(logLines,
                 new String("traceName"), -1);
-        traceGraph = parser.generateDirectTemporalRelation(parsedEvents);
+        traceGraph = parser.generateDirectTORelation(parsedEvents);
 
         // Mine invariants, and convert them to GWTInvariants.
-        InvariantMiner miner;
+        TOInvariantMiner miner;
         if (parser.logTimeTypeIsTotallyOrdered()) {
             miner = new ChainWalkingTOInvMiner();
         } else {

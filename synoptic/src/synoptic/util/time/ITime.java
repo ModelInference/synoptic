@@ -8,8 +8,8 @@ package synoptic.util.time;
 public interface ITime {
 
     /**
-     * Used to compare to time values. Note that (x < y) || (y < x) is only true
-     * for totally ordered time instances. It is not necessarily true for
+     * Used to compare two time values. Note that (x < y) || (y < x) is only
+     * true for totally ordered time instances. It is not necessarily true for
      * partially ordered time, such as vector clocks.
      * 
      * @param t
@@ -17,6 +17,17 @@ public interface ITime {
      * @return true if (this < t), otherwise false
      */
     boolean lessThan(ITime t);
+
+    /**
+     * Used to compare two time values. Note that (x < y) || (y < x) is only
+     * true for totally ordered time instances. It is not necessarily true for
+     * partially ordered time, such as vector clocks.
+     * 
+     * @param t
+     *            the other ITime instance
+     * @return true if (this < t), otherwise false
+     */
+    int compareTo(ITime t);
 
     @Override
     int hashCode();

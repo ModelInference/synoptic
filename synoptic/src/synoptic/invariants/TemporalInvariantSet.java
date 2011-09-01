@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,10 +19,7 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.Main;
-import synoptic.model.Event;
-import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.TraceGraph;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
@@ -279,27 +275,28 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         PerformanceMetrics.get().record("percentReduction", percentReduction);
     }
 
-    public TraceGraph getInvariantGraph(String shortName) {
-        LinkedHashMap<EventType, EventNode> messageMap = new LinkedHashMap<EventType, EventNode>();
-        for (ITemporalInvariant i : invariants) {
-            for (EventType label : i.getPredicates()) {
-                if (!messageMap.containsKey(label)) {
-                    messageMap.put(label, new EventNode(new Event(label)));
-                }
-            }
-        }
-
-        for (ITemporalInvariant i : invariants) {
-            if (i instanceof BinaryInvariant
-                    && (shortName == null || i.getShortName().equals(shortName))) {
-                BinaryInvariant bi = (BinaryInvariant) i;
-                messageMap.get(bi.getFirst()).addTransition(
-                        messageMap.get(bi.getSecond()), bi.getShortName());
-            }
-        }
-
-        return new TraceGraph(messageMap.values());
-    }
+    // public TraceGraph getInvariantGraph(String shortName) {
+    // LinkedHashMap<EventType, EventNode> messageMap = new
+    // LinkedHashMap<EventType, EventNode>();
+    // for (ITemporalInvariant i : invariants) {
+    // for (EventType label : i.getPredicates()) {
+    // if (!messageMap.containsKey(label)) {
+    // messageMap.put(label, new EventNode(new Event(label)));
+    // }
+    // }
+    // }
+    //
+    // for (ITemporalInvariant i : invariants) {
+    // if (i instanceof BinaryInvariant
+    // && (shortName == null || i.getShortName().equals(shortName))) {
+    // BinaryInvariant bi = (BinaryInvariant) i;
+    // messageMap.get(bi.getFirst()).addTransition(
+    // messageMap.get(bi.getSecond()), bi.getShortName());
+    // }
+    // }
+    //
+    // return new TraceGraph(messageMap.values());
+    // }
 
     /**
      * Outputs the set of invariants to a file -- one invariant per line, and

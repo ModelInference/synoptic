@@ -3,22 +3,20 @@ package synoptic.tests.units;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
 
-import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.InvariantMiner;
+import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.main.TraceParser;
+import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.TraceGraph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
@@ -38,9 +36,10 @@ public class PartitionGraphTests extends SynopticTest {
         String traceStr = concatinateWithNewlines(events);
         ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
-        TraceGraph inputGraph = parser.generateDirectTemporalRelation(parsedEvents);
+        ChainsTraceGraph inputGraph = parser
+                .generateDirectTORelation(parsedEvents);
 
-        InvariantMiner miner = new ChainWalkingTOInvMiner();
+        TOInvariantMiner miner = new ChainWalkingTOInvMiner();
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
 
@@ -66,8 +65,8 @@ public class PartitionGraphTests extends SynopticTest {
 
         // The set of nodes is now: INITIAL, a, a', TERMINAL
         assertTrue(pGraph.getNodes().size() == 4);
-        assertTrue(pGraph.getInitialNodes().size() == 1);
-        Partition pInitial = pGraph.getInitialNodes().iterator().next();
+        assertTrue(pGraph.getDummyInitialNodes().size() == 1);
+        Partition pInitial = pGraph.getDummyInitialNodes().iterator().next();
         assertTrue(pInitial.getTransitions().size() == 2);
         Partition pA1 = pInitial.getTransitions().get(0).getTarget();
         assertTrue(pA1.getEType().equals(new StringEventType("a")));
@@ -98,47 +97,46 @@ public class PartitionGraphTests extends SynopticTest {
         }
         return null;
     }
-    
+
     /**
-     * Creates a partition graph and and checks to see if all synthetic
-     * traces are exported properly (based on what they "should" be).
-     * 
-     * TODO: Test for cycles (when cycle functionality has been properly
-     * implemented).
+     * Creates a partition graph and and checks to see if all synthetic traces
+     * are exported properly (based on what they "should" be). TODO: Test for
+     * cycles (when cycle functionality has been properly implemented).
      */
     @Test
     public void exportSyntheticTracesTest() throws Exception {
-    	
-    	// This should create two synthetic traces: I a b c T, I q a b T.
-    	String[] events = new String[] { "1 0 a", "2 0 b", 
-    					"3 1 q", "4 1 a", "5 1 b", "6 1 c" };
+
+        // This should create two synthetic traces: I a b c T, I q a b T.
+        String[] events = new String[] { "1 0 a", "2 0 b", "3 1 q", "4 1 a",
+                "5 1 b", "6 1 c" };
         TraceParser parser = new TraceParser();
         parser.addRegex("^(?<TIME>)(?<nodename>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<nodename>");
 
-        InvariantMiner miner = new ChainWalkingTOInvMiner();
-        PartitionGraph pGraph = genInitialPartitionGraph(events,
-            parser, miner);
-        
+        TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner);
+
         // Prepare the output with what it should be (as mentioned above).
         Set<List<Partition>> pTraces = pGraph.getSyntheticTraces();
-        
+
         // Should only have 2 synthetic traces.
         assertTrue(pTraces.size() == 2);
         for (List<Partition> p : pTraces) {
-        	// Synthetic traces will only have either a or q after INITIAL.
-            boolean aTrace = p.get(1).getEType().equals(new StringEventType("a"));
-            boolean qTrace = p.get(1).getEType().equals(new StringEventType("q"));
-        	assertTrue(aTrace || qTrace);
-    		assertTrue(p.get(0).isInitial());
-        	if (aTrace) {
-        		assertTrue(p.get(2).getEType().equals(new StringEventType("b")));
-        		assertTrue(p.get(3).getEType().equals(new StringEventType("c")));
-        	} else {
-        		assertTrue(p.get(2).getEType().equals(new StringEventType("a")));
-        		assertTrue(p.get(3).getEType().equals(new StringEventType("b")));
-        	}
-        	assertTrue(p.get(4).isTerminal());
+            // Synthetic traces will only have either a or q after INITIAL.
+            boolean aTrace = p.get(1).getEType()
+                    .equals(new StringEventType("a"));
+            boolean qTrace = p.get(1).getEType()
+                    .equals(new StringEventType("q"));
+            assertTrue(aTrace || qTrace);
+            assertTrue(p.get(0).isInitial());
+            if (aTrace) {
+                assertTrue(p.get(2).getEType().equals(new StringEventType("b")));
+                assertTrue(p.get(3).getEType().equals(new StringEventType("c")));
+            } else {
+                assertTrue(p.get(2).getEType().equals(new StringEventType("a")));
+                assertTrue(p.get(3).getEType().equals(new StringEventType("b")));
+            }
+            assertTrue(p.get(4).isTerminal());
         }
     }
 }

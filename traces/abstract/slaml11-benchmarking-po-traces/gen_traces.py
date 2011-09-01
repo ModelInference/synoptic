@@ -42,6 +42,35 @@ def run_simulator(dirname, nodes, etypes, events, execs):
     fname = dirname + "/nodes-%d_etypes-%d_events-%d_execs-%d.txt" % (nodes, etypes, events, execs)
     os.system("python simulator.py %d %d %d %d > %s" % (nodes, etypes, events, execs, fname))
 
+def get_defaults():
+    '''
+    Returns the default parameter values to be used for simulation.
+    '''
+    etypes = 50
+    events = 1000
+    execs = 50
+    nodes = 30
+    return (etypes, events, execs, nodes)
+
+def get_node_range():
+    '''
+    Returns a list of node count datapoints, for each of which a
+    single experiment will be generated.
+    '''
+    # return range(4, 41, 4)
+    return range(5, 51, 5)
+
+def get_tracelen_range():
+    # return range(200,2001,200)
+    return range(300,3001,300)
+
+def get_numtraces_range():
+    # return range(10,101,10)
+    return range(20,201,20)
+
+def get_etypes_range():
+    #return range(10,101,10)
+    return range(20,201,20)
 
 def main():
     '''
@@ -52,62 +81,33 @@ def main():
         answer = raw_input("This will delete all the previously generated input files, continue? (y/n) ")
 
     # vary nodes:
-    etypes = 10
-    events = 500
-    execs = 20
+    etypes, events, execs, nodes = get_defaults()
     dirname = "vary-nodes"
     clear_dir(dirname)
-    # nodes =  5
-    
-    nodes = 5 # note: must have at least 2 nodes
-    while (nodes != 45):
+    for nodes in get_node_range():
         run_simulator(dirname, nodes, etypes, events, execs)
-        nodes += 5
-
 
     # vary length of trace:
-    etypes = 10
-    # events = 500
-    execs = 20
-    nodes = 10
+    etypes, events, execs, nodes = get_defaults()
     dirname = "vary-tracelen"
     clear_dir(dirname)
-    for events in range(100,1000,100):
+    for events in get_tracelen_range():
         run_simulator(dirname, nodes, etypes, events, execs)
         
 
     # vary number of traces:
-    etypes = 10
-    events = 500
-    # execs = 40
-    nodes = 10
+    etypes, events, execs, nodes = get_defaults()
     dirname = "vary-numtraces"
     clear_dir(dirname)
-
-    execs = 1
-    while (execs != 90):
+    for execs in get_numtraces_range():
         run_simulator(dirname, nodes, etypes, events, execs)
-        if execs == 1:
-            execs = 10
-        else:
-            execs += 10
 
     # vary event types:
-    # etypes = 10
-    events = 500
-    execs = 20
-    nodes = 10
+    etypes, events, execs, nodes = get_defaults()
     dirname = "vary-etypes"
     clear_dir(dirname)
-    etypes = 4
-    while etypes != 90:
+    for etypes in get_etypes_range():
         run_simulator(dirname, nodes, etypes, events, execs)
-        if etypes == 4:
-            etypes = 10
-        else:
-            etypes += 10
-        
-        
 
 if __name__ == "__main__":
     main()
