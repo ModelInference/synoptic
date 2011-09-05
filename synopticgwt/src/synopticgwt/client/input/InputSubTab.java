@@ -30,7 +30,8 @@ public class InputSubTab extends Tab<VerticalPanel> {
     final Button parseLogButton = new Button("Parse Log");
 
     public InputSubTab(ISynopticServiceAsync synopticService, String logText,
-            String regExpText, String partitionRegExpText) {
+            String regExpText, String partitionRegExpText,
+            String separatorRegExpText) {
         super(synopticService);
 
         panel = new VerticalPanel();
@@ -76,9 +77,10 @@ public class InputSubTab extends Tab<VerticalPanel> {
         logTextArea.setText(logText);
         logTextArea.selectAll();
 
-        // Set up the test areas.
+        // Set up the other text areas.
         regExpsTextArea.setText(regExpText);
         partitionRegExpTextBox.setText(partitionRegExpText);
+        separatorRegExpTextBox.setText(separatorRegExpText);
 
         // Associate handler with the Parse Log button.
         parseLogButton.addClickHandler(new ParseLogHandler());
