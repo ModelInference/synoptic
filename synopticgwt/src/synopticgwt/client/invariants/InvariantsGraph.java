@@ -78,11 +78,49 @@ public class InvariantsGraph {
         int rX = mX + (longestEType * 30);
         int width = rX + 50;
 
+        int fontSize = getFontSize(longestEType);
+
         // Pass the created JavaScript structures to the native call that will
         // create the graphic.
         InvariantsGraph.createInvariantsGraphic(AFbyJS, NFbyJS, APJS,
                 eventTypesJS, width, (eTypesCnt + 1) * 50, lX, mX, rX,
-                invCanvasId);
+                fontSize, invCanvasId);
+    }
+
+    /**
+     * Determines and returns the font size to use font showing event types in
+     * the invariant graphic, based on the length of the longest event type.
+     * 
+     * <pre>
+     * NOTE: this code depends on the invariant graphic being size using:
+     *   lX = (longestEType * 30) / 2 - 60;
+     *   mX = lX + (longestEType * 30);
+     *   rX = mX + (longestEType * 30);
+     *   width = rX + 50;
+     * </pre>
+     * 
+     * @param longestEType
+     * @return
+     */
+    private static int getFontSize(int longestEType) {
+        // The max font we'll use is 30pt
+        int fontSizeMax = 30;
+        // The smallest font size we can use is about 10pt
+        int fontSizeMin = 10;
+        int fontSize = fontSizeMax;
+        // The longest event type we can show is "wwwwww" (at 30pt)
+        if (longestEType > 6) {
+            // When we get above 6, we scale down from 30. The 4.0 is a magic
+            // number determined through a few experiments with varying w.+
+            // etypes.
+            fontSize = (int) (30.0 * (4.0 / (1.0 * longestEType)));
+        }
+        // If we scale below min font size, then we just use the smallest font
+        // -- this won't be pretty, but at least it won't be invisible.
+        if (fontSize < fontSizeMin) {
+            fontSize = fontSizeMin;
+        }
+        return fontSize;
     }
 
     // //////////////////////////////////////////////////////////////////////////
@@ -116,7 +154,7 @@ public class InvariantsGraph {
     private static native void createInvariantsGraphic(JavaScriptObject AFby,
             JavaScriptObject NFby, JavaScriptObject AP,
             JavaScriptObject eTypes, int width, int height, int lX, int mX,
-            int rX, String canvasId) /*-{
+            int rX, int fontSize, String canvasId) /*-{
 
 		var paper = $wnd.Raphael($doc.getElementById(canvasId), width, height);
 
@@ -153,7 +191,7 @@ public class InvariantsGraph {
 			var tMiddle = paper.text(mX, dY * i + topMargin, eType);
 			tMiddlesArr.push(tMiddle);
 			tMiddle.attr({
-				'font-size' : "30px",
+				'font-size' : fontSize + "px",
 				fill : "grey"
 			});
 
@@ -167,14 +205,14 @@ public class InvariantsGraph {
 
 			var tLeft = paper.text(lX, dY * i + topMargin, eType);
 			tLeft.attr({
-				'font-size' : "30px",
+				'font-size' : fontSize + "px",
 				fill : "grey"
 			});
 			tLeftsArr[eType] = tLeft;
 
 			var tRight = paper.text(rX, dY * i + topMargin, eType);
 			tRight.attr({
-				'font-size' : "30px",
+				'font-size' : fontSize + "px",
 				fill : "grey"
 			});
 			tRightsArr[eType] = tRight;
