@@ -40,6 +40,11 @@ public abstract class Tab<T extends Panel> {
         this.pWheel = pWheel;
     }
 
+    public Tab(ISynopticServiceAsync synopticService) {
+        this.synopticService = synopticService;
+        this.pWheel = null;
+    }
+
     /**
      * Shows an error message in the rpcErrorDiv whenever an RPC call fails in a
      * Tab.
