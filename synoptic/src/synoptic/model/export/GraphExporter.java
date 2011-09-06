@@ -220,7 +220,11 @@ public class GraphExporter {
                     // FIXME: special casing to handle PO trace graphs
                     // correctly (trace graphs are composed of EventNodes).
 
-                    if (graph instanceof DAGsTraceGraph) {
+                    if (graph.getClass() == DAGsTraceGraph.class) {
+                        // TODO: this next statement throws
+                        // "inconvertible types" error:
+                        // if (graph instanceof DAGsTraceGraph) {
+
                         // NOTE: The extra casts are necessary for this to work
                         // in Java 1.6, see here:
                         // http://bugs.sun.com/view_bug.do?bug_id=6932571
