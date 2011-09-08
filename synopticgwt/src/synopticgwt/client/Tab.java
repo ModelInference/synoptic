@@ -53,9 +53,12 @@ public abstract class Tab<T extends Panel> {
      *            The error message to display.
      */
     public void displayRPCErrorMessage(String message) {
+    	
         Label error = new Label(message);
         error.setStyleName("ErrorMessage");
-        RootPanel.get("rpcErrorDiv").add(error);
+        RootPanel rpcErrorDiv = RootPanel.get("rpcErrorDiv");
+        rpcErrorDiv.clear();
+        rpcErrorDiv.add(error);
     }
 
     /** This call returns the tab's Panel widget that holds the tab's contents. */

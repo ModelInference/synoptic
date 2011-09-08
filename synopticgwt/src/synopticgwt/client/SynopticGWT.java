@@ -144,7 +144,9 @@ public class SynopticGWT implements EntryPoint {
                 "Remote Procedure Call Failure while updating invariants: "
                         + caught.toString());
         error.setStyleName("ErrorMessage");
-        RootPanel.get("rpcErrorDiv").add(error);
+        RootPanel rpcErrorDiv = RootPanel.get("rpcErrorDiv");
+        rpcErrorDiv.clear();
+        rpcErrorDiv.add(error);
     }
 
     /** Called when commit invariants call to the Synoptic service succeeds. */
