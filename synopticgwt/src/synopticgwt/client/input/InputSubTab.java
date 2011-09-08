@@ -129,8 +129,9 @@ public class InputSubTab extends Tab<VerticalPanel> {
             AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
         @Override
         public void onFailure(Throwable caught) {
-            displayRPCErrorMessage("Remote Procedure Call Failure while parsing log");
-            parseErrorMsgLabel.setText("Remote Procedure Call - Failure");
+            displayRPCErrorMessage("Remote Procedure Call Failure while parsing log:" + 
+            		"\n" + caught.getMessage());
+            parseErrorMsgLabel.setText(caught.getMessage());
             parseLogButton.setEnabled(true);
         }
 

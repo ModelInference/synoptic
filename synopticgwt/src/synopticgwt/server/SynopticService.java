@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.google.gwt.user.client.rpc.SerializableException;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import synoptic.algorithms.bisim.Bisimulation;
@@ -22,6 +23,7 @@ import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
+import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
@@ -267,11 +269,12 @@ public class SynopticService extends RemoteServiceServlet implements
     /**
      * Parses the input log, and sets up and stores Synoptic session state for
      * refinement\coarsening.
+     * @throws Exception 
      */
     @Override
     public GWTPair<GWTInvariantSet, GWTGraph> parseLog(String logLines,
             List<String> regExps, String partitionRegExp, String separatorRegExp)
-            throws synoptic.main.ParseException {
+            throws Exception {
 
         // Set up some static variables in Main that are necessary to use the
         // Synoptic library.
@@ -286,13 +289,16 @@ public class SynopticService extends RemoteServiceServlet implements
         synoptic.main.Main.random = new java.util.Random(
                 synoptic.main.Main.randomSeed);
 
-        // Instantiate the parser.
-        TraceParser parser = synoptic.main.Main.newTraceParser(regExps,
-                partitionRegExp, separatorRegExp);
-
-        // Parse the log lines.
-        ArrayList<EventNode> parsedEvents = parser.parseTraceString(logLines,
-                new String("traceName"), -1);
+        // Instantiate the parser and parse the log lines.
+        TraceParser parser = null;
+        ArrayList<EventNode> parsedEvents = null;
+        try {
+        	parser =  synoptic.main.Main.newTraceParser(regExps,
+                    partitionRegExp, separatorRegExp);
+        	parsedEvents = parser.parseTraceString(logLines, new String("traceName"), -1);
+        } catch (Exception e) {
+        	throw new Exception(e.getMessage());
+        }
         traceGraph = parser.generateDirectTORelation(parsedEvents);
 
         // Mine invariants, and convert them to GWTInvariants.
