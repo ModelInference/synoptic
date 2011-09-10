@@ -31,6 +31,7 @@ import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.WeightedTransition;
 import synoptic.model.export.GraphExporter;
+import synoptic.util.InternalSynopticException;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;

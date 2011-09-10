@@ -40,9 +40,15 @@ public class InternalSynopticException extends RuntimeException {
      *            Some Java exception
      */
     public InternalSynopticException(Exception e) {
+    	errMessage = e.getMessage();
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         stackTrace = sw.toString();
+    }
+    
+    @Override
+    public String getMessage() {
+    	return errMessage;
     }
 
     /**

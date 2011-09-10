@@ -214,7 +214,7 @@ public class TraceParser {
             logger.fine("matchAssign: " + field + " -> " + matcher.group(2));
             // Prevent the user from adding regexes that modify the parsing of
             // special time fields.
-            if (!validTimeGroups.contains(field)) {
+            if (validTimeGroups.contains(field)) {
             	String error = "Cannot assign custom regex expressions to parse time field "
                     + field + " in regex: " + regex;
                 logger.severe(error);
