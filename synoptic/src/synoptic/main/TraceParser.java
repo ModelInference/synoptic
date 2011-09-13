@@ -154,7 +154,9 @@ public class TraceParser {
         String error = "The fields: " + new LinkedHashSet<String>(lst)
         + " appear more than once in regex: " + regex;
         logger.severe(error);
-        throw new ParseException(error);
+        ParseException parseException = new ParseException(error);
+        parseException.setRegex(regex);
+        throw parseException;
     }
 
     /**
@@ -216,9 +218,11 @@ public class TraceParser {
             // special time fields.
             if (validTimeGroups.contains(field)) {
             	String error = "Cannot assign custom regex expressions to parse time field "
-                    + field + " in regex: " + regex;
+                    + field + " in regex: " + input_regex;
                 logger.severe(error);
-                throw new ParseException(error);
+                ParseException parseException = new ParseException(error);
+                parseException.setRegex(input_regex);
+                throw parseException;
             }
 
             if (implicitTimeGroup.equals(field)) {
@@ -233,9 +237,11 @@ public class TraceParser {
                 if (!value.equals("true")) {
                 	String error = "HIDE field cannot be assigned to: " + value
                     + ", it can only be assigned to 'true' in regex: "
-                    + regex;
+                    + input_regex;
                     logger.severe(error);
-                    throw new ParseException(error);
+                    ParseException parseException = new ParseException(error);
+                    parseException.setRegex(input_regex);
+                    throw parseException;
                 }
                 isHidden = true;
             }
@@ -286,10 +292,12 @@ public class TraceParser {
         try {
             parser = NamedPattern.compile(regex);
         } catch (Exception e) {
-        	String error = "Error parsing named-captures in " + regex + ":";
+        	String error = "Error parsing named-captures in " + input_regex + ":";
             logger.severe(error);
             logger.severe(e.toString());
-            throw new ParseException(error + "\n" + e);
+            ParseException parseException = new ParseException(error + " " + e.getMessage());
+            parseException.setRegex(input_regex);
+            throw parseException;
         }
         parsers.add(parser);
         List<String> groups = parser.groupNames();
@@ -314,11 +322,13 @@ public class TraceParser {
             // Check that the required groups are present.
             for (String reqGroup : requiredGroups) {
                 if (!groups.contains(reqGroup) && !fields.contains(reqGroup)) {
-                	String error = "Regular expression: " + regex
+                	String error = "Regular expression: " + input_regex
                     + " is missing the required named group: "
                     + reqGroup;
                     logger.severe(error);
-                    throw new ParseException(error);
+                    ParseException parseException = new ParseException(error);
+                    parseException.setRegex(input_regex);
+                    throw parseException;
                 }
             }
 
@@ -338,11 +348,13 @@ public class TraceParser {
 
                 if (validTimeGroups.contains(group)) {
                     if (regexTimeUsed != null) {
-                    	String error = "The regex: " + regex
+                    	String error = "The regex: " + input_regex
                         + " contains multiple time field definitions: "
                         + group + ", " + regexTimeUsed;
                         logger.severe(error);
-                        throw new ParseException(error);
+                        ParseException parseException = new ParseException(error);
+                        parseException.setRegex(input_regex);
+                        throw parseException;
                     }
                     regexTimeUsed = group;
                 }
@@ -371,10 +383,12 @@ public class TraceParser {
                 	String error = "Time type cannot vary. A prior regex used the type "
                         + selectedTimeGroup
                         + ", while regex "
-                        + regex
+                        + input_regex
                         + " uses the type " + regexTimeUsed;
                     logger.severe(error);
-                    throw new ParseException(error);
+                    ParseException parseException = new ParseException(error);
+                    parseException.setRegex(input_regex);
+                    throw parseException;
                 }
 
                 if (regexTimeUsed.equals("VTIME") && parsePIDs != usingPID) {
@@ -427,7 +441,10 @@ public class TraceParser {
         try {
             addRegex(regex + "(?<SEPCOUNT++>)(?<HIDE=>true)");
         } catch (ParseException e) {
-            throw InternalSynopticException.Wrap(e);
+        	InternalSynopticException internalSynopticException =
+        		InternalSynopticException.Wrap(e);
+        	internalSynopticException.setRegex(e.getRegex());
+            throw internalSynopticException;
         }
         cycle(parsers);
         cycle(incrementors);
@@ -768,7 +785,9 @@ public class TraceParser {
                 	String error = "Unable to parse time type "
                         + selectedTimeGroup + " from line " + line;
                     logger.severe(error);
-                    throw new ParseException(error);
+                    ParseException parseException = new ParseException(error);
+                    parseException.setLogLine(line);
+                    throw parseException;
                 }
 
                 // Attempt to parse the time type field as a VectorTime -- we
@@ -804,7 +823,9 @@ public class TraceParser {
                     + "\n\t" + Main.getCmdLineOptDesc("debugParse");
                     logger.severe(error);
                     logger.severe(e.toString());
-                    throw new ParseException(errMsg);
+                    ParseException parseException = new ParseException(errMsg);
+                    parseException.setLogLine(line);
+                    throw parseException;
                 }
             }
 
@@ -888,7 +909,9 @@ public class TraceParser {
         + Main.getCmdLineOptDesc("debugParse");
         
         logger.severe(loggerError);
-        throw new ParseException(exceptionError);
+        ParseException parseException = new ParseException(exceptionError);
+        parseException.setLogLine(line);
+        throw parseException;
     }
 
     /**

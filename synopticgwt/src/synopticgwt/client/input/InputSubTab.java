@@ -19,6 +19,7 @@ import synopticgwt.client.Tab;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
+import synopticgwt.shared.SerializableParseException;
 
 public class InputSubTab extends Tab<VerticalPanel> {
 
@@ -129,10 +130,47 @@ public class InputSubTab extends Tab<VerticalPanel> {
             AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
         @Override
         public void onFailure(Throwable caught) {
-            displayRPCErrorMessage("Remote Procedure Call Failure while parsing log:" + 
-            		"\n" + caught.getMessage());
+            displayRPCErrorMessage("Remote Procedure Call Failure while parsing log: " +
+            		caught.getMessage());
             parseErrorMsgLabel.setText(caught.getMessage());
             parseLogButton.setEnabled(true);
+            if (caught instanceof SerializableParseException) {
+            	SerializableParseException exception = (SerializableParseException) caught;
+            	// If the exception has both a regex and a logline, then only the TextArea
+            	// that sets their highlighting last will have highlighting.
+            	// A secret dependency for TextArea highlighting is focus.
+            	// As of now, 9/12/11, SerializableParseExceptions do not get 
+            	// thrown with both a regex and a logline.
+            	if (exception.hasRegex()) {
+	            	String regex = exception.getRegex();
+	                String regexes = regExpsTextArea.getText();
+	                int pos = indexOf(regexes, regex);
+	                regExpsTextArea.setFocus(true);
+	                regExpsTextArea.setSelectionRange(pos, regex.length());
+            	}
+            	if (exception.hasLogLine()) {
+            		String log = exception.getLogLine();
+            		String logs = logTextArea.getText();
+            		int pos = indexOf(logs, log);
+            		logTextArea.setFocus(true);
+            		logTextArea.setSelectionRange(pos, log.length());
+            	}
+            }
+        }
+        
+        public int indexOf(String string, String substring) {
+        	if (string == null || substring == null) {
+        		throw new NullPointerException();
+        	}
+        	
+        	// Need to use brain!
+        	int pos = string.indexOf(substring);
+        	while (string.charAt(pos + substring.length()) != '\r' || 
+        			string.charAt(pos + substring.length()) != '\n') {
+        		string = string.substring(pos + substring.length());
+        		pos = string.indexOf(substring);
+        	}
+        	return pos;
         }
 
         @Override

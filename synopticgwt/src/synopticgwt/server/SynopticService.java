@@ -39,6 +39,7 @@ import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.LogLine;
+import synopticgwt.shared.SerializableParseException;
 
 /**
  * Implements the Synoptic service which does:
@@ -297,8 +298,10 @@ public class SynopticService extends RemoteServiceServlet implements
         	parser =  synoptic.main.Main.newTraceParser(regExps,
                     partitionRegExp, separatorRegExp);
         	parsedEvents = parser.parseTraceString(logLines, new String("traceName"), -1);
-        } catch (Exception e) {
-        	throw new Exception(e.getMessage());
+        } catch (InternalSynopticException ise) {
+        	throw serializeException(ise);
+        } catch (ParseException pe) {
+        	throw serializeException(pe);
         }
         traceGraph = parser.generateDirectTORelation(parsedEvents);
 
@@ -318,6 +321,25 @@ public class SynopticService extends RemoteServiceServlet implements
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(minedInvs
                 .getSet());
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
+    }
+    
+    private SerializableParseException serializeException(ParseException pe) {
+    	SerializableParseException exception = new SerializableParseException(pe.getMessage());
+    	if (pe.hasRegex()) {    		
+    		exception.setRegex(pe.getRegex());
+    	} 
+    	if (pe.hasLogLine()) {
+    		exception.setLogLine(pe.getLogLine());
+    	}
+    	return exception;
+    }
+    
+    private SerializableParseException serializeException(InternalSynopticException ise) {
+    	if (ise.hasParseException()) {
+    		return serializeException(ise.getParseException());
+    	} else {
+    		return new SerializableParseException(ise.getMessage());
+    	}
     }
 
     /**
