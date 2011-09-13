@@ -1,14 +1,29 @@
 package synoptic.util;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 
-public class InternalSynopticException extends RuntimeException {
+import synoptic.main.ParseException;
+
+public class InternalSynopticException extends RuntimeException implements Serializable {
     /**
      * Unique version uid
      */
     private static final long serialVersionUID = 1L;
 
+    /**
+     *  Conflicting regular expression
+     */
+	private String regex;
+    
+    /**
+     *  Conflicting log entry
+     */
+	private String logLine;
+	
+	private ParseException parseException;
+	
     /**
      * The human readable message to display, in the case that we are not
      * wrapping a java exception.
@@ -40,6 +55,10 @@ public class InternalSynopticException extends RuntimeException {
      *            Some Java exception
      */
     public InternalSynopticException(Exception e) {
+    	if (e instanceof ParseException) {
+    		ParseException pe = (ParseException) e;
+    		setParseException(pe);
+    	}
     	errMessage = e.getMessage();
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
@@ -77,5 +96,44 @@ public class InternalSynopticException extends RuntimeException {
         ret += stackTrace;
         return ret;
     }
+    
+	/**
+	 * @return Nullable string describing conflicting regular expression
+	 */
+	public String getRegex() {
+		return regex;
+	}
+	
+	public void setRegex(String regex) {
+		this.regex = regex;
+	}
+	
+	public boolean hasRegex() {
+		return regex != null;
+	}
+	
+	public String getLogLine() {
+		return logLine;
+	}
+	
+	public void setLogLine(String logLine) {
+		this.logLine = logLine;
+	}
+	
+	public boolean hasLogLine() {
+		return logLine != null;
+	}
+	
+	public boolean hasParseException() {
+		return parseException != null;
+	}
+	
+	public void setParseException(ParseException pe) {
+		this.parseException = pe;
+	}
+	
+	public ParseException getParseException() {
+		return parseException;
+	}
 
 }

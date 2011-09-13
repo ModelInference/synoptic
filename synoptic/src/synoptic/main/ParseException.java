@@ -1,7 +1,19 @@
 package synoptic.main;
 
-public class ParseException extends Exception {
+import java.io.Serializable;
 
+public class ParseException extends Exception implements Serializable {
+
+    /**
+     *  Conflicting regular expression
+     */
+	private String regex;
+	
+    /**
+     *  Conflicting log entry
+     */
+	private String logLine;
+	
 	/**
 	 * Exception version id
 	 */
@@ -21,6 +33,33 @@ public class ParseException extends Exception {
 
 	public ParseException(Throwable cause) {
 		super(cause);
+	}
+	
+	/**
+	 * @return Nullable string describing conflicting regular expression
+	 */
+	public String getRegex() {
+		return regex;
+	}
+	
+	public void setRegex(String regex) {
+		this.regex = regex;
+	}
+	
+	public boolean hasRegex() {
+		return regex != null;
+	}
+	
+	public String getLogLine() {
+		return logLine;
+	}
+	
+	public void setLogLine(String logLine) {
+		this.logLine = logLine;
+	}
+	
+	public boolean hasLogLine() {
+		return logLine != null;
 	}
 	
 }
