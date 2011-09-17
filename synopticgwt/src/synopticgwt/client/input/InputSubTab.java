@@ -163,12 +163,22 @@ public class InputSubTab extends Tab<VerticalPanel> {
         		throw new NullPointerException();
         	}
         	
-        	// Need to use brain!
         	int pos = string.indexOf(substring);
-        	while (string.charAt(pos + substring.length()) != '\r' || 
-        			string.charAt(pos + substring.length()) != '\n') {
+        	
+        	if (pos == -1) {
+        		return pos;
+        	}       	
+        	
+        	while (pos + substring.length() < string.length() &&
+        			(string.charAt(pos + substring.length()) != '\r' || 
+        			string.charAt(pos + substring.length()) != '\n')) {
+        		
         		string = string.substring(pos + substring.length());
         		pos = string.indexOf(substring);
+        		
+            	if (pos == -1) {
+            		return pos;
+            	}  
         	}
         	return pos;
         }
