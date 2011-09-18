@@ -158,29 +158,33 @@ public class InputSubTab extends Tab<VerticalPanel> {
             }
         }
         
-        public int indexOf(String string, String substring) {
-        	if (string == null || substring == null) {
+        public int indexOf(String string, String searchString) {
+        	if (string == null || searchString == null) {
         		throw new NullPointerException();
         	}
         	
-        	int pos = string.indexOf(substring);
         	
-        	if (pos == -1) {
-        		return pos;
+        	int movingPosition = string.indexOf(searchString);
+        	int cumulativePosition = movingPosition;
+        	
+        	if (movingPosition == -1) {
+        		return movingPosition;
         	}       	
         	
-        	while (pos + substring.length() < string.length() &&
-        			(string.charAt(pos + substring.length()) != '\r' || 
-        			string.charAt(pos + substring.length()) != '\n')) {
+        	while (movingPosition + searchString.length() < string.length() &&
+        			!(string.charAt(movingPosition + searchString.length()) == '\r' || 
+        			string.charAt(movingPosition + searchString.length()) == '\n')) {
         		
-        		string = string.substring(pos + substring.length());
-        		pos = string.indexOf(substring);
-        		
-            	if (pos == -1) {
-            		return pos;
-            	}  
+        		string = string.substring(movingPosition + searchString.length());
+        		movingPosition = string.indexOf(searchString);
+        			
+            	if (movingPosition == -1) {
+            		return movingPosition;
+            	}
+            	
+            	cumulativePosition += movingPosition + searchString.length();
         	}
-        	return pos;
+        	return cumulativePosition;
         }
 
         @Override
