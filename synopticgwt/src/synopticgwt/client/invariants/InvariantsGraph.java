@@ -73,12 +73,12 @@ public class InvariantsGraph {
         }
 
         // A little magic to size things right.
-        int lX = (longestEType * 30) / 2 - 60;
-        int mX = lX + (longestEType * 30);
-        int rX = mX + (longestEType * 30);
-        int width = rX + 50;
+        int lX = (longestEType * 30) / 2 - 110;
+        int mX = lX + (longestEType * 30) - 110;
+        int rX = mX + (longestEType * 30) - 110;
+        int width = rX + 200;
 
-        int fontSize = getFontSize(longestEType);
+        int fontSize = 20; // getFontSize(longestEType);
 
         // Pass the created JavaScript structures to the native call that will
         // create the graphic.

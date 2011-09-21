@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import com.google.gwt.user.client.rpc.SerializableException;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import synoptic.algorithms.bisim.Bisimulation;
@@ -270,8 +269,9 @@ public class SynopticService extends RemoteServiceServlet implements
 
     /**
      * Parses the input log, and sets up and stores Synoptic session state for
-     * refinement\coarsening.
-     * @throws Exception 
+     * refinement\coarsening. <<<<<<< local <<<<<<< local
+     * 
+     * @throws Exception
      */
     @Override
     public GWTPair<GWTInvariantSet, GWTGraph> parseLog(String logLines,
@@ -295,14 +295,18 @@ public class SynopticService extends RemoteServiceServlet implements
         TraceParser parser = null;
         ArrayList<EventNode> parsedEvents = null;
         try {
-        	parser =  synoptic.main.Main.newTraceParser(regExps,
+            parser = synoptic.main.Main.newTraceParser(regExps,
                     partitionRegExp, separatorRegExp);
-        	parsedEvents = parser.parseTraceString(logLines, new String("traceName"), -1);
+            parsedEvents = parser.parseTraceString(logLines, new String(
+                    "traceName"), -1);
         } catch (InternalSynopticException ise) {
-        	throw serializeException(ise);
+            throw serializeException(ise);
+
         } catch (ParseException pe) {
-        	throw serializeException(pe);
+            throw serializeException(pe);
+
         }
+
         traceGraph = parser.generateDirectTORelation(parsedEvents);
 
         // Mine invariants, and convert them to GWTInvariants.
@@ -320,26 +324,29 @@ public class SynopticService extends RemoteServiceServlet implements
         GWTGraph graph = PGraphToGWTGraph(pGraph);
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(minedInvs
                 .getSet());
+
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
     }
-    
+
     private SerializableParseException serializeException(ParseException pe) {
-    	SerializableParseException exception = new SerializableParseException(pe.getMessage());
-    	if (pe.hasRegex()) {    		
-    		exception.setRegex(pe.getRegex());
-    	} 
-    	if (pe.hasLogLine()) {
-    		exception.setLogLine(pe.getLogLine());
-    	}
-    	return exception;
+        SerializableParseException exception = new SerializableParseException(
+                pe.getMessage());
+        if (pe.hasRegex()) {
+            exception.setRegex(pe.getRegex());
+        }
+        if (pe.hasLogLine()) {
+            exception.setLogLine(pe.getLogLine());
+        }
+        return exception;
+
     }
-    
-    private SerializableParseException serializeException(InternalSynopticException ise) {
-    	if (ise.hasParseException()) {
-    		return serializeException(ise.getParseException());
-    	} else {
-    		return new SerializableParseException(ise.getMessage());
-    	}
+
+    private SerializableParseException serializeException(
+            InternalSynopticException ise) {
+        if (ise.hasParseException()) {
+            return serializeException(ise.getParseException());
+        }
+        return new SerializableParseException(ise.getMessage());
     }
 
     /**

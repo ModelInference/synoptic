@@ -55,7 +55,17 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             // Create a grid to contain invariants of invType.
             Grid grid = new Grid(invs.size() + 1, 1);
             grid.setStyleName("invariantsGrid grid");
-            grid.setWidget(0, 0, new Label(invType));
+            String longType = "Unknown Invariant Type";
+
+            if (invType.equals("AFby")) {
+                longType = "AlwaysFollowedBy";
+            } else if (invType.equals("AP")) {
+                longType = "AlwaysPrecedes";
+            } else if (invType.equals("NFby")) {
+                longType = "NeverFollowedBy";
+            }
+            // grid.setWidget(0, 0, new Label(invType));
+            grid.setWidget(0, 0, new Label(longType));
             grid.getCellFormatter().setStyleName(0, 0, "tableCellTopRow");
             tableAndGraphicPanel.add(grid);
 
