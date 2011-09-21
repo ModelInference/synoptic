@@ -150,10 +150,13 @@ public class TraceParser {
         for (String e : lstSet) {
             lst.remove(e);
         }
-
-        logger.severe("The fields: " + new LinkedHashSet<String>(lst)
-                + " appear more than once in regex: " + regex);
-        throw new ParseException();
+        
+        String error = "The fields: " + new LinkedHashSet<String>(lst)
+        + " appear more than once in regex: " + regex;
+        logger.severe(error);
+        ParseException parseException = new ParseException(error);
+        parseException.setRegex(regex);
+        throw parseException;
     }
 
     /**
@@ -214,24 +217,31 @@ public class TraceParser {
             // Prevent the user from adding regexes that modify the parsing of
             // special time fields.
             if (validTimeGroups.contains(field)) {
-                logger.severe("Cannot assign custom regex expressions to parse time field "
-                        + field + " in regex: " + regex);
-                throw new ParseException();
+            	String error = "Cannot assign custom regex expressions to parse time field "
+                    + field + " in regex: " + input_regex;
+                logger.severe(error);
+                ParseException parseException = new ParseException(error);
+                parseException.setRegex(input_regex);
+                throw parseException;
             }
 
             if (implicitTimeGroup.equals(field)) {
-                logger.severe("The group " + implicitTimeGroup
-                        + " cannot be used explicitly as a capture group.");
-                throw new ParseException();
+            	String error = "The group " + implicitTimeGroup
+                + " cannot be used explicitly as a capture group.";
+                logger.severe(error);
+                throw new ParseException(error);
             }
 
             // HIDE groups can only be assigned to 'true'
             if (field.equals("HIDE")) {
                 if (!value.equals("true")) {
-                    logger.severe("HIDE field cannot be assigned to: " + value
-                            + ", it can only be assigned to 'true' in regex: "
-                            + regex);
-                    throw new ParseException();
+                	String error = "HIDE field cannot be assigned to: " + value
+                    + ", it can only be assigned to 'true' in regex: "
+                    + input_regex;
+                    logger.severe(error);
+                    ParseException parseException = new ParseException(error);
+                    parseException.setRegex(input_regex);
+                    throw parseException;
                 }
                 isHidden = true;
             }
@@ -282,9 +292,12 @@ public class TraceParser {
         try {
             parser = NamedPattern.compile(regex);
         } catch (Exception e) {
-            logger.severe("Error parsing named-captures in " + regex + ":");
+        	String error = "Error parsing named-captures in " + input_regex + ":";
+            logger.severe(error);
             logger.severe(e.toString());
-            throw new ParseException();
+            ParseException parseException = new ParseException(error + " " + e.getMessage());
+            parseException.setRegex(input_regex);
+            throw parseException;
         }
         parsers.add(parser);
         List<String> groups = parser.groupNames();
@@ -296,9 +309,10 @@ public class TraceParser {
         // Currently this is just LTIME.
         for (String group : groups) {
             if (implicitTimeGroup.equals(group)) {
-                logger.severe("The group " + implicitTimeGroup
-                        + " cannot be used explicitly as a capture group.");
-                throw new ParseException();
+            	String error = "The group " + implicitTimeGroup
+                + " cannot be used explicitly as a capture group.";
+                logger.severe(error);
+                throw new ParseException(error);
             }
         }
 
@@ -308,10 +322,13 @@ public class TraceParser {
             // Check that the required groups are present.
             for (String reqGroup : requiredGroups) {
                 if (!groups.contains(reqGroup) && !fields.contains(reqGroup)) {
-                    logger.severe("Regular expression: " + regex
-                            + " is missing the required named group: "
-                            + reqGroup);
-                    throw new ParseException();
+                	String error = "Regular expression: " + input_regex
+                    + " is missing the required named group: "
+                    + reqGroup;
+                    logger.severe(error);
+                    ParseException parseException = new ParseException(error);
+                    parseException.setRegex(input_regex);
+                    throw parseException;
                 }
             }
 
@@ -331,10 +348,13 @@ public class TraceParser {
 
                 if (validTimeGroups.contains(group)) {
                     if (regexTimeUsed != null) {
-                        logger.severe("The regex: " + regex
-                                + " contains multiple time field definitions: "
-                                + group + ", " + regexTimeUsed);
-                        throw new ParseException();
+                    	String error = "The regex: " + input_regex
+                        + " contains multiple time field definitions: "
+                        + group + ", " + regexTimeUsed;
+                        logger.severe(error);
+                        ParseException parseException = new ParseException(error);
+                        parseException.setRegex(input_regex);
+                        throw parseException;
                     }
                     regexTimeUsed = group;
                 }
@@ -352,24 +372,29 @@ public class TraceParser {
                     parsePIDs = usingPID;
                 } else {
                     if (usingPID) {
-                        logger.severe("The PID group name can only be used with a VTIME time group.");
-                        throw new ParseException();
+                    	String error = "The PID group name can only be used with a VTIME time group.";
+                        logger.severe(error);
+                        throw new ParseException(error);
                     }
                 }
             } else {
                 // Prior time type was used, make sure that it matches regex's.
                 if (!selectedTimeGroup.equals(regexTimeUsed)) {
-                    logger.severe("Time type cannot vary. A prior regex used the type "
-                            + selectedTimeGroup
-                            + ", while regex "
-                            + regex
-                            + " uses the type " + regexTimeUsed);
-                    throw new ParseException();
+                	String error = "Time type cannot vary. A prior regex used the type "
+                        + selectedTimeGroup
+                        + ", while regex "
+                        + input_regex
+                        + " uses the type " + regexTimeUsed;
+                    logger.severe(error);
+                    ParseException parseException = new ParseException(error);
+                    parseException.setRegex(input_regex);
+                    throw parseException;
                 }
 
                 if (regexTimeUsed.equals("VTIME") && parsePIDs != usingPID) {
-                    logger.severe("Either all or none of the VTIME-parsing reg-exps must specify the PID group.");
-                    throw new ParseException();
+                	String error = "Either all or none of the VTIME-parsing reg-exps must specify the PID group.";
+                    logger.severe(error);
+                    throw new ParseException(error);
                 }
             }
         }
@@ -416,7 +441,10 @@ public class TraceParser {
         try {
             addRegex(regex + "(?<SEPCOUNT++>)(?<HIDE=>true)");
         } catch (ParseException e) {
-            throw InternalSynopticException.Wrap(e);
+        	InternalSynopticException internalSynopticException =
+        		InternalSynopticException.Wrap(e);
+        	internalSynopticException.setRegex(e.getRegex());
+            throw internalSynopticException;
         }
         cycle(parsers);
         cycle(incrementors);
@@ -455,9 +483,10 @@ public class TraceParser {
             InputStreamReader fileReader = new InputStreamReader(fstream);
             return parseTrace(fileReader, fileName, linesToRead);
         } catch (IOException e) {
-            logger.severe("Error while attempting to read log file ["
-                    + fileName + "]: " + e.getMessage());
-            throw new ParseException();
+        	String error = "Error while attempting to read log file ["
+                + fileName + "]: " + e.getMessage();
+            logger.severe(error);
+            throw new ParseException(error);
         }
     }
 
@@ -484,9 +513,10 @@ public class TraceParser {
         try {
             return parseTrace(stringReader, traceName, linesToRead);
         } catch (IOException e) {
-            logger.severe("Error while reading string [" + traceName + "]: "
-                    + e.getMessage());
-            throw new ParseException();
+        	String error = "Error while reading string [" + traceName + "]: "
+            + e.getMessage();
+            logger.severe(error);
+            throw new ParseException(error);
         }
     }
 
@@ -554,8 +584,9 @@ public class TraceParser {
                     // Perform the inference.
                     listsNodeEvents = VectorTime.mapLogEventsToNodes(group);
                 } catch (Exception e) {
-                    logger.severe("Could not match vector times to host id.");
-                    throw new ParseException();
+                	String error = "Could not match vector times to host id.";
+                    logger.severe(error);
+                    throw new ParseException(error);
                 }
 
                 int pid = 0;
@@ -563,8 +594,9 @@ public class TraceParser {
                 for (List<EventNode> nodeEvents : listsNodeEvents) {
                     for (EventNode eNode : nodeEvents) {
                         if (!(eNode.getEType() instanceof DistEventType)) {
-                            logger.severe("Parsed a non dist. event type for a trace with VTIME format.");
-                            throw new ParseException();
+                        	String error = "Parsed a non dist. event type for a trace with VTIME format.";
+                            logger.severe(error);
+                            throw new ParseException(error);
                         }
                         ((DistEventType) eNode.getEType()).setPID(Integer
                                 .toString(pid));
@@ -582,8 +614,9 @@ public class TraceParser {
                 LinkedHashSet<String> PIDs = new LinkedHashSet<String>();
                 for (EventNode node : group) {
                     if (!(node.getEType() instanceof DistEventType)) {
-                        logger.severe("Parsed a non dist. event type for a trace with VTIME format.");
-                        throw new ParseException();
+                    	String error = "Parsed a non dist. event type for a trace with VTIME format.";
+                        logger.severe(error);
+                        throw new ParseException(error);
                     }
                     PIDs.add(((DistEventType) node.getEType()).getPID());
                 }
@@ -612,18 +645,19 @@ public class TraceParser {
                             } else {
                                 if (!minElement.getTime().lessThan(
                                         node.getTime())) {
-                                    logger.severe("Two events in the same partition with same PID["
-                                            + pid
-                                            + "] have incomparable VTIMEs: \n"
-                                            + "\t"
-                                            + minElement.toString()
-                                            + ": "
-                                            + minElement.getTime().toString()
-                                            + "\n\t"
-                                            + node.toString()
-                                            + ": "
-                                            + node.getTime().toString());
-                                    throw new ParseException();
+                                	String error = "Two events in the same partition with same PID["
+                                        + pid
+                                        + "] have incomparable VTIMEs: \n"
+                                        + "\t"
+                                        + minElement.toString()
+                                        + ": "
+                                        + minElement.getTime().toString()
+                                        + "\n\t"
+                                        + node.toString()
+                                        + ": "
+                                        + node.getTime().toString();
+                                    logger.severe(error);
+                                    throw new ParseException(error);
                                 }
                             }
                         }
@@ -748,9 +782,12 @@ public class TraceParser {
                 // Explicit case.
                 String timeField = matched.get(selectedTimeGroup);
                 if (timeField == null) {
-                    logger.severe("Unable to parse time type "
-                            + selectedTimeGroup + " from line " + line);
-                    throw new ParseException();
+                	String error = "Unable to parse time type "
+                        + selectedTimeGroup + " from line " + line;
+                    logger.severe(error);
+                    ParseException parseException = new ParseException(error);
+                    parseException.setLogLine(line);
+                    throw parseException;
                 }
 
                 // Attempt to parse the time type field as a VectorTime -- we
@@ -768,9 +805,10 @@ public class TraceParser {
                     } else if (selectedTimeGroup.equals("VTIME")) {
                         nextTime = new VectorTime(timeField.trim());
                     } else {
-                        logger.severe("Unable to recognize time type "
-                                + selectedTimeGroup);
-                        throw new ParseException();
+                    	String error = "Unable to recognize time type "
+                            + selectedTimeGroup;
+                        logger.severe(error);
+                        throw new ParseException(error);
                     }
                 } catch (Exception e) {
                     String errMsg = "Unable to parse time field on log line:\n"
@@ -780,12 +818,14 @@ public class TraceParser {
                                 + "\nIgnoring line and continuing.");
                         continue;
                     }
-                    logger.severe(errMsg + "\n\tTry cmd line options:\n\t"
-                            + Main.getCmdLineOptDesc("ignoreNonMatchingLines")
-                            + "\n\t" + Main.getCmdLineOptDesc("debugParse"));
-
+                    String error = errMsg + "\n\tTry cmd line options:\n\t"
+                    + Main.getCmdLineOptDesc("ignoreNonMatchingLines")
+                    + "\n\t" + Main.getCmdLineOptDesc("debugParse");
+                    logger.severe(error);
                     logger.severe(e.toString());
-                    throw new ParseException();
+                    ParseException parseException = new ParseException(errMsg);
+                    parseException.setLogLine(line);
+                    throw parseException;
                 }
             }
 
@@ -846,8 +886,9 @@ public class TraceParser {
             } else {
                 // We can't recover with vector time -- incrementing it simply
                 // doesn't make sense.
-                logger.severe("Unable to recover from parse error with vector-time type.");
-                throw new ParseException();
+            	String error = "Unable to recover from parse error with vector-time type.";
+                logger.severe(error);
+                throw new ParseException(error);
             }
 
             EventNode eventNode = addEventNodeToPartition(event,
@@ -860,12 +901,17 @@ public class TraceParser {
             return null;
         }
 
-        logger.severe("Line from file [" + fileName
-                + "] does not match any of the provided regular exceptions:\n"
-                + line + "\nTry cmd line options:\n\t"
-                + Main.getCmdLineOptDesc("ignoreNonMatchingLines") + "\n\t"
-                + Main.getCmdLineOptDesc("debugParse"));
-        throw new ParseException();
+        String exceptionError = "Line from file [" + fileName
+        + "] does not match any of the provided regular expressions:\n"
+        + line;
+        String loggerError =  exceptionError + "\nTry cmd line options:\n\t"
+        + Main.getCmdLineOptDesc("ignoreNonMatchingLines") + "\n\t"
+        + Main.getCmdLineOptDesc("debugParse");
+        
+        logger.severe(loggerError);
+        ParseException parseException = new ParseException(exceptionError);
+        parseException.setLogLine(line);
+        throw parseException;
     }
 
     /**
@@ -931,11 +977,12 @@ public class TraceParser {
             // Create transitions to connect the nodes in the sorted trace.
             for (EventNode curNode : group.subList(1, group.size())) {
                 if (prevNode.getTime().equals(curNode.getTime())) {
-                    logger.severe("Found two events with identical timestamps: (1) "
-                            + prevNode.toString()
-                            + " (2) "
-                            + curNode.toString());
-                    throw new ParseException();
+                	String error = "Found two events with identical timestamps: (1) "
+                        + prevNode.toString()
+                        + " (2) "
+                        + curNode.toString();
+                    logger.severe(error);
+                    throw new ParseException(error);
                 }
                 prevNode.addTransition(curNode, defaultRelation);
                 prevNode = curNode;
@@ -974,14 +1021,16 @@ public class TraceParser {
                     directSuccessors = EventNode.getDirectPOSuccessors(e1,
                             group);
                 } catch (EqualVectorTimestampsException e) {
-                    logger.severe("Found two events with identical timestamps: (1) "
-                            + e.e1.toString() + " (2) " + e.e2.toString());
-                    throw new ParseException();
+                	String error = "Found two events with identical timestamps: (1) "
+                        + e.e1.toString() + " (2) " + e.e2.toString();
+                    logger.severe(error);
+                    throw new ParseException(error);
 
                 } catch (NotComparableVectorsException e) {
-                    logger.severe("Found two events with different length vector timestamps: (1) "
-                            + e.e1.toString() + " (2) " + e.e2.toString());
-                    throw new ParseException();
+                	String error = "Found two events with different length vector timestamps: (1) "
+                        + e.e1.toString() + " (2) " + e.e2.toString();
+                    logger.severe(error);
+                    throw new ParseException(error);
                 }
 
                 if (directSuccessors.size() == 0) {
