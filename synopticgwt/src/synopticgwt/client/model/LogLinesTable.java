@@ -33,8 +33,8 @@ public class LogLinesTable extends FlexTable {
     /** Removes all currently displayed log lines from the table. */
     public void clear() {
         // Don't remove the header row.
-        for (int i = 1; i < this.getRowCount(); i++) {
-            this.removeRow(i);
+        while (this.getRowCount() != 1) {
+            this.removeRow(1);
         }
     }
 

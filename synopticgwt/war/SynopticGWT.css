@@ -6,8 +6,8 @@ h1 {
   font-size: 2em;
   font-weight: bold;
   color: #777777;
-  margin: 40px 0px 70px;
-  text-align: center;
+  margin: 10px 10px 0px;
+  text-align: right;
 }
 
 .sendButton {
@@ -44,6 +44,9 @@ h1 {
   background: #E8EDFF;
 }
 
+
+
+
 /* Shapes the cells of a grid to look like
    buttons */
 .tableCellInvActivated {
@@ -68,7 +71,7 @@ h1 {
 .tableCellTopRow {
   padding: 5px;
   border: 1px solid #000000;
-  background: #E8EDFF;
+  background: #fa8;
 }
 
 .invariantsGrid {
@@ -126,7 +129,8 @@ h1 {
 }
 
 .LineCol {
-	width: 175px;
+	width: 225px;
+	/* width: 175px; */
 }
 
 .FlexTable {
