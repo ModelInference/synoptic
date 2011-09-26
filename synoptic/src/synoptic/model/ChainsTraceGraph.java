@@ -10,6 +10,13 @@ import java.util.Set;
 
 import synoptic.algorithms.graph.TransitiveClosure;
 
+/**
+ * This structure holds all the totally ordered executions extracted from the
+ * input log(s). Each of these executions is a linear "chain" graph. The
+ * ChainsTraceGraph contains a root node INITIAL, which has an edge to the first
+ * node in each of these chain traces. It also contains a TERMINAL node that has
+ * an edge from the last node in each of the chain traces.
+ */
 public class ChainsTraceGraph extends TraceGraph<StringEventType> {
     static Event initEvent = Event.newInitialStringEvent();
     static Event termEvent = Event.newTerminalStringEvent();
@@ -28,13 +35,11 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
     }
 
     public void tagTerminal(EventNode terminalNode, String relation) {
-        // add(terminalNode);
         createIfNotExistsDummyTerminalNode(termEvent, relation);
         super.tagTerminal(terminalNode, relation);
     }
 
     public void tagInitial(EventNode initialNode, String relation) {
-        // add(initialNode);
         createIfNotExistsDummyInitialNode(initEvent, relation);
         super.tagInitial(initialNode, relation);
         traceIdToInitNodes.put(initialNode.getTraceID(), initialNode);
@@ -56,8 +61,8 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
      * through each chain independently and add all successors of a node in a
      * chain to it's transitive closure set. <br/>
      * <br/>
-     * NOTE: a major assumption of this code is that although there are multiple
-     * relations, the graph remains a linear chain.
+     * NOTE: a major assumption of this code is that although there might be
+     * multiple relations, the graph remains a linear chain.
      */
     public TransitiveClosure getTransitiveClosure(String relation) {
         TransitiveClosure transClosure = new TransitiveClosure(relation);

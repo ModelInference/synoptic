@@ -471,11 +471,17 @@ public class PartitionGraph implements IGraph<Partition> {
 
     /**
      * Helper method for {@code getAllTraces}. Recursively finds all possible
-     * paths from the partition graph and adds them to a set. TODO: This will
-     * calculate any subset of nodes multiple times if the topmost node of said
-     * subset has multiple parent nodes. A cache should be used for these nodes
-     * to make this process more optimal. TODO: Return a set rather than alter a
-     * pointer. TODO: Make a proper cycle-checking algorithm.
+     * paths from the partition graph and adds them to a set.
+     * 
+     * <pre>
+     * TODO: This will calculate any subset of nodes multiple times if the topmost
+     * node of said subset has multiple parent nodes. A cache should be used for
+     * these nodes to make this process more optimal.
+     * 
+     * TODO: Return a set rather than alter a pointer.
+     * 
+     * TODO: Make a proper cycle-checking algorithm.
+     * </pre>
      * 
      * @param pNode
      *            The current node

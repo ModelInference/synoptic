@@ -221,9 +221,6 @@ public class GraphExporter {
                     // correctly (trace graphs are composed of EventNodes).
 
                     if (graph.getClass() == DAGsTraceGraph.class) {
-                        // TODO: this next statement throws
-                        // "inconvertible types" error:
-                        // if (graph instanceof DAGsTraceGraph) {
 
                         // NOTE: The extra casts are necessary for this to work
                         // in Java 1.6, see here:

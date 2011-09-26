@@ -267,9 +267,7 @@ public class VectorTime implements ITime {
     /**
      * VectorTime is only partially ordered, therefore compareTo cannot be used
      * to derive a total ordering of a set of VectorTime instances. Instead,
-     * compareTo can be used to topologically sort a set of VectorTimes. <br/>
-     * <br/>
-     * TODO: Test this method.
+     * compareTo can be used to topologically sort a set of VectorTimes.
      */
     @Override
     public int compareTo(ITime t) {

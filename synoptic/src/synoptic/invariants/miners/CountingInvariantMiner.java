@@ -206,8 +206,6 @@ public class CountingInvariantMiner extends InvariantMiner {
             for (EventType e2 : toVisitETypes) {
                 if (!(e1 instanceof DistEventType)
                         || !(e2 instanceof DistEventType)) {
-                    // TODO: specialize the exception
-                    // TODO: print error message
                     throw new InternalSynopticException(
                             "Cannot compute concurrency invariants on non-distributed event types.");
                 }

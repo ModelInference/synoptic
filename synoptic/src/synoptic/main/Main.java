@@ -804,7 +804,7 @@ public class Main implements Callable<Integer> {
     /***********************************************************/
 
     public Main() {
-        // TODO: can set up graphical state here
+        //
     }
 
     /**
