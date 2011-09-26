@@ -23,12 +23,11 @@ import synoptic.tests.SynopticTest;
 /**
  * Tests for synoptic.algorithms.graph.TransitiveClosure class.
  */
-
 public class TransitiveClosureTests extends SynopticTest {
     /**
-     * Test constructor for simple case: a --> b --> c --> d should yield a
-     * TransitiveClosure with the following arrows representing true values in
-     * its tc map: a --> b b --> c c --> d a --> c b --> d a --> d and no others
+     * Test constructor for simple case: a->b->c->d should yield a
+     * TransitiveClosure with a tc map: a->b, b->c, c->d, a->c, b->d, a->d and
+     * no others.
      */
     @Test
     public void constructorSimpleTest() {

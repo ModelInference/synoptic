@@ -89,11 +89,6 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         Set<EventType> eTypes = new LinkedHashSet<EventType>();
         for (EventNode node : g.getNodes()) {
             EventType e = node.getEType();
-            // TODO: we currently only ignore initial nodes, be we also need to
-            // ignore terminal nodes. However, this would require a change to
-            // traversal below (instead of starting reverse traversal at
-            // terminal, we would need to start one node higher).
-
             if (e.isSpecialEventType()) {
                 continue;
             }

@@ -35,7 +35,6 @@ import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
-import synoptic.util.time.VectorTime;
 
 /**
  * This class implements the algorithm BisimH (
@@ -318,6 +317,8 @@ public abstract class Bisimulation {
      *            the partition graph to refine\split
      */
     public static void splitPartitions(PartitionGraph pGraph) {
+        // TODO: assert that the pGraph represents totally ordered traces.
+
         TimedTask refinement = PerformanceMetrics.createTask("refinement",
                 false);
 
@@ -375,26 +376,14 @@ public abstract class Bisimulation {
 
             if (numSplitSteps == prevNumSplitSteps) {
                 // No splits were performed, which means that we could not
-                // eliminate the present counter-examples. For partially ordered
-                // traces this is known to be possible. For totally ordered
-                // traces this is a bug.
+                // eliminate the present counter-examples. Since this function
+                // should only be applied to totally ordered traces, this is a
+                // bug (this is known to be possible for partially ordered
+                // traces).
 
-                // To determine if pGraph represents partially ordered
-                // traces or not, we test a single LogEvent for vector time
-                // length. A length of 1 indicates the traces are totally
-                // ordered, which means this should be thrown as an error.
-                Partition p = pGraph.getNodes().iterator().next();
-                // TODO: use the parser to determine if the input log was
-                // partially ordered or not.
-                if (!(p.getEventNodes().iterator().next().getEvent().getTime() instanceof VectorTime)) {
-                    throw new InternalSynopticException(
-                            "Could not satisfy invariants: "
-                                    + unsatisfiedInvariants);
-                }
-
-                logger.warning("Could not satisfy invariants: "
-                        + unsatisfiedInvariants + ". Stopping.");
-                break;
+                throw new InternalSynopticException(
+                        "Could not satisfy invariants: "
+                                + unsatisfiedInvariants);
             }
 
         }
