@@ -171,11 +171,54 @@ public class InvariantsGraph {
 				highlight : color
 			};
 		};
+		
+		paper.arrow = function(x1, y1, x2, y2) {
+			var HEAD_LENGTH = 10;
+			
+			var xRelativeZero = x1 - x2;
+			var yRelativeZero = y1 - y2;
+			var r = Math.sqrt(Math.pow(xRelativeZero, 2) + Math.pow(yRelativeZero, 2));
+			var theta = Math.atan2(yRelativeZero, xRelativeZero);
+			
+			var positiveTheta = theta + Math.PI / 4;
+			var negativeTheta = theta - Math.PI / 4;
+			
+			var relativePositiveHeadX = HEAD_LENGTH * Math.cos(positiveTheta); 
+			var relativePositiveHeadY = HEAD_LENGTH * Math.sin(positiveTheta);
+			var relativeNegativeHeadX = HEAD_LENGTH * Math.cos(negativeTheta);
+			var relativeNegativeHeadY = HEAD_LENGTH * Math.sin(negativeTheta);
+			
+			var positiveHeadX = relativePositiveHeadX + x2;
+			var positiveHeadY = relativePositiveHeadY + y2;
+			var negativeHeadX = relativeNegativeHeadX + x2;
+			var negativeHeadY = relativeNegativeHeadY + y2;
+			
+			var body = paper.path("M" + x1 + " " + y1 + 
+				"L" + x2 + " " + y2);
+			var positiveHead = paper.path("M" + x2 + " " + y2 + 
+				"L" + positiveHeadX + " " + positiveHeadY);
+			var negativeHead = paper.path("M" + x2 + " " + y2 + 
+				"L" + negativeHeadX + " " + negativeHeadY);
+			
+			var arrow = new Object();
+			arrow.body = body;
+			arrow.positiveHead = positiveHead;
+			arrow.negativeHead = negativeHead;
+			
+			// This probably needs to be fixed.
+			arrow.attr = function(arg) {
+				arrow.body.attr(arg);
+				arrow.positiveHead.attr(arg);
+				arrow.negativeHead.attr(arg);
+			}
+			
+			return arrow;
+		};
 
 		var topMargin = 20;
 		var dY = 50;
 
-		var lines = new Array();
+		var midLines = new Array();
 
 		// These will contain text labels in the middle/right/left columns:
 		var tMiddlesArr = [];
@@ -217,11 +260,16 @@ public class InvariantsGraph {
 			});
 			tRightsArr[eType] = tRight;
 		}
+		
+		// Draws time arrow
+		var arrowY = dY * eTypes.length + topMargin;
+		var arrow = paper.arrow(lX, arrowY, rX, arrowY);
+		arrow.attr({stroke : "grey"});
 
 		// Create all the lines by iterating through labels in the middle column.
 		for ( var i = 0; i < eTypes.length; i++) {
 			var eType = eTypes[i]
-			lines[eType] = []
+			midLines[eType] = []
 		}
 
 		for ( var i = 0; i < eTypes.length; i++) {
@@ -230,54 +278,51 @@ public class InvariantsGraph {
 
 			// AP:
 			for ( var j in AP[eType]) {
-				var line = paper.path(("M" + mX + " " + ypos[AP[eType][j]]
-						+ "L" + lX + " " + ypos[eType]));
-				line.attr({
+				var arrow = paper.arrow(mX, ypos[AP[eType][j]], lX, ypos[eType]);
+				arrow.attr({
 					stroke : "grey",
 					highlight : "blue",
 					dest : tLeftsArr[eType]
 				});
 				// NOTE: we associate the middle label destination of the arrow, not the left label source.
-				lines[AP[eType][j]].push(line);
+				midLines[AP[eType][j]].push(arrow);
 			}
 
 			// AFby:
 			for ( var j in AFby[eType]) {
-				var line = paper.path(("M" + mX + " " + ypos[eType] + "L" + rX
-						+ " " + ypos[AFby[eType][j]]));
-				line.attr({
+				var arrow = paper.arrow(mX, ypos[eType], rX, ypos[AFby[eType][j]]);
+				arrow.attr({
 					stroke : "grey",
 					highlight : "blue",
 					dest : tRightsArr[AFby[eType][j]]
 				});
-				lines[eType].push(line);
+				midLines[eType].push(arrow);
 			}
 
 			// NFby:
 			for ( var j in NFby[eType]) {
-				var line = paper.path(("M" + mX + " " + ypos[eType] + "L" + rX
-						+ " " + ypos[NFby[eType][j]]));
-				line.attr({
+				var arrow = paper.arrow(mX, ypos[eType], rX, ypos[NFby[eType][j]]);
+				arrow.attr({
 					stroke : "grey",
 					highlight : "red",
 					dest : tRightsArr[NFby[eType][j]]
 				});
-				lines[eType].push(line);
+				midLines[eType].push(arrow);
 			}
 
 			// Function to execute when the tMiddle label is pointed-to.
 			tMiddle.mouseover(function(y) {
 				return function(e) {
 					// y is tMiddle
-					for ( var line in lines[y.attr('text')]) {
-						lines[y.attr('text')][line].attr({
+					for ( var line in midLines[y.attr('text')]) {
+						midLines[y.attr('text')][line].attr({
 							'stroke-width' : '3'
 						});
-						lines[y.attr('text')][line].attr({
-							stroke : lines[y.attr('text')][line]
+						midLines[y.attr('text')][line].attr({
+							stroke : midLines[y.attr('text')][line]
 									.attr('highlight')
 						});
-						lines[y.attr('text')][line].attr('dest').attr({
+						midLines[y.attr('text')][line].attr('dest').attr({
 							fill : "black"
 						});
 					}
@@ -291,14 +336,14 @@ public class InvariantsGraph {
 			// Function to execute when the tMiddle label is not pointed-to.
 			tMiddle.mouseout(function(y) {
 				return function(e) {
-					for ( var line in lines[y.attr('text')]) {
-						lines[y.attr('text')][line].attr({
+					for ( var line in midLines[y.attr('text')]) {
+						midLines[y.attr('text')][line].attr({
 							'stroke-width' : '1'
 						});
-						lines[y.attr('text')][line].attr({
+						midLines[y.attr('text')][line].attr({
 							stroke : "grey"
 						});
-						lines[y.attr('text')][line].attr('dest').attr({
+						midLines[y.attr('text')][line].attr('dest').attr({
 							fill : "grey"
 						});
 					}
