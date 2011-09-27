@@ -47,10 +47,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
 
     /**
      * Returns the number of trace ids that are immediately reachable from the
-     * initNode -- this is useful for PO traces since the number of transitions
-     * from the initial node is not necessarily the number of traces since it
-     * might be connected to two nodes in the same trace (that were concurrent
-     * at start).
+     * initNode.
      */
     public int getNumTraces() {
         return traceIdToInitNodes.size();
@@ -61,10 +58,13 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
      * through each chain independently and add all successors of a node in a
      * chain to it's transitive closure set. <br/>
      * <br/>
-     * NOTE: a major assumption of this code is that although there might be
-     * multiple relations, the graph remains a linear chain.
+     * NOTE: an assumption of this code is that although there might be multiple
+     * relations, the graph remains a linear chain.
      */
     public TransitiveClosure getTransitiveClosure(String relation) {
+        assert super.dummyInitialNodes.size() != 0;
+        assert super.dummyTerminalNodes.size() != 0;
+
         TransitiveClosure transClosure = new TransitiveClosure(relation);
         List<EventNode> prevNodes = new LinkedList<EventNode>();
         for (EventNode firstNode : traceIdToInitNodes.values()) {
