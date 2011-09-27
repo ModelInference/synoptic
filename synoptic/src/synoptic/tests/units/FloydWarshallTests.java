@@ -1,11 +1,30 @@
 package synoptic.tests.units;
 
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
+import synoptic.algorithms.graph.FloydWarshall;
+import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.model.ChainsTraceGraph;
+import synoptic.model.EventNode;
+import synoptic.model.interfaces.IGraph;
 import synoptic.tests.SynopticTest;
 
 /**
  * Test for the FloydWarshall algorithm.
  */
 public class FloydWarshallTests extends SynopticTest {
+
+    /**
+     * Empty graph -- base case.
+     */
+    @Test
+    public void listConstructorTest() {
+        IGraph<EventNode> g = new ChainsTraceGraph();
+        TransitiveClosure tc = FloydWarshall.warshallAlg(g, "t");
+        assertTrue(tc.getTC().keySet().size() == 0);
+    }
 
     /**
      * Circular case
