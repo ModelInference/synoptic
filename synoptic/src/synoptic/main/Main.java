@@ -451,7 +451,7 @@ public class Main implements Callable<Integer> {
 
         // The remainder of the command line is treated as a list of log
         // filenames to process
-        logFilenames = Arrays.asList(cmdLineArgs);
+        logFilenames = new LinkedList<String>(Arrays.asList(cmdLineArgs));
 
         setUpLogging();
 
@@ -494,7 +494,12 @@ public class Main implements Callable<Integer> {
             runTests(testClassesUnits);
         }
 
-        if (logFilenames.size() == 0) {
+        // Remove any empty string filenames in the logFilenames list.
+        while (logFilenames.contains("")) {
+            logFilenames.remove("");
+        }
+
+        if (logFilenames.size() == 0 || logFilenames.get(0).equals("")) {
             logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
                     + Main.getCmdLineOptDesc("help"));
             return;
@@ -528,7 +533,6 @@ public class Main implements Callable<Integer> {
         }
 
         logger.fine("Main.call() returned " + ret.toString());
-        System.exit(ret);
     }
 
     /**
@@ -877,14 +881,7 @@ public class Main implements Callable<Integer> {
             for (File file : files) {
                 logger.fine("\tcalling parseTraceFile with file: "
                         + file.getAbsolutePath());
-                try {
-                    parsedEvents.addAll(parser.parseTraceFile(file, -1));
-                } catch (ParseException e) {
-                    logger.severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
-                            + Main.getCmdLineOptDesc("help"));
-                    logger.severe(e.toString());
-                    return null;
-                }
+                parsedEvents.addAll(parser.parseTraceFile(file, -1));
             }
         }
         return parsedEvents;
@@ -982,7 +979,15 @@ public class Main implements Callable<Integer> {
         // //////////////////
         // Parses all the log filenames, constructing the parsedEvents List.
         startTime = loggerInfoStart("Parsing input files..");
-        List<EventNode> parsedEvents = parseFiles(parser, Main.logFilenames);
+        List<EventNode> parsedEvents;
+        try {
+            parsedEvents = parseFiles(parser, Main.logFilenames);
+        } catch (ParseException e) {
+            logger.severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
+                    + Main.getCmdLineOptDesc("help"));
+            logger.severe(e.toString());
+            return new Integer(1);
+        }
         loggerInfoEnd("Parsing took ", startTime);
         // //////////////////
 
