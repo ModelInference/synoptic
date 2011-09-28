@@ -17,7 +17,7 @@ import synoptic.tests.SynopticTest;
  * successful execution -- no crashes.
  */
 @RunWith(value = Parameterized.class)
-public class EndToEndSimpleMainTest extends SynopticTest {
+public class EndToEndSimpleMainTests extends SynopticTest {
     String[] args;
 
     @Parameters
@@ -29,7 +29,7 @@ public class EndToEndSimpleMainTest extends SynopticTest {
                 { new String[] { "FILE_THAT_DOES_NOT_EXIST" } } });
     }
 
-    public EndToEndSimpleMainTest(String... argsParam) {
+    public EndToEndSimpleMainTests(String... argsParam) {
         this.args = argsParam;
     }
 
