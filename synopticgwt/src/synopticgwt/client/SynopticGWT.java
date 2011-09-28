@@ -22,7 +22,7 @@ import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTInvariantSet;
 
 /**
- * This class implements the entry point to the application -- it contains the
+ *  This class implements the entry point to the application -- it contains the
  * first method that will be run when the application is loaded by the browser.
  * This class ties together the various application tabs, and is the central
  * component through which functionality in different tabs communicate with each
