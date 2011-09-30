@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import synoptic.algorithms.graph.FloydWarshall;
 import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.model.interfaces.ITransition;
 
@@ -72,19 +73,39 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
         return traceIdToInitNodes.size();
     }
 
-    public TransitiveClosure getTransitiveClosure(String relation) {
-        // NOTE: The Floyd-Warshall algorithm cannot be applied as is because it
-        // returns a TC that includes TERMINAL nodes.
-        // return FloydWarshall.warshallAlg(this, relation);
-
+    /**
+     * Returns the transitive closure of the DAG trace graph. Computes the
+     * transitive closure using Floyd Warshall algorithm (if useFloydWarshall ==
+     * true), otherwise uses the more optimized Goralcikova algorithm.
+     */
+    public TransitiveClosure getTransitiveClosure(String relation,
+            boolean useFloydWarshall) {
+        if (useFloydWarshall) {
+            return FloydWarshall.warshallAlg(this, relation);
+        }
         return goralcikovaAlg(relation);
     }
 
-    // TODO: this is inefficient because in the worst case it is n^2.
-    // Ideally, this would do the following:
-    // 1. Add all nodes in unordered to subList
-    // 2. Sort subList using a comparator that uses the relative position of
-    // elements in the orderedSuperList for computing the order of elements.
+    @Override
+    public TransitiveClosure getTransitiveClosure(String relation) {
+        return getTransitiveClosure(relation, false);
+    }
+
+    /**
+     * This function takes a collection of transitions, and a list of nodes that
+     * are somehow canonically ordered. It returns a list of nodes that the
+     * transitions point to, in an order that is compatible with the canonical
+     * ordering. <br/>
+     * <br/>
+     * TODO: this is inefficient because in the worst case it is n^2. Ideally,
+     * this would do the following: 1. Add all nodes in unordered to subList 2.
+     * Sort subList using a comparator that uses the relative position of
+     * elements in the orderedSuperList for computing the order of elements.
+     * 
+     * @param unorderedTrans
+     * @param orderedSuperList
+     * @return
+     */
     public List<EventNode> getSubSortedList(
             Collection<Transition<EventNode>> unorderedTrans,
             List<EventNode> orderedSuperList) {
@@ -222,9 +243,9 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
      * 
      * @param traceid
      */
-    public void computeTopologicalOrder(int traceid) {
+    public List<EventNode> computeTopologicalOrder(int traceid) {
         assert traceIdToInitNodes.containsKey(traceid);
-        computeTopologicalOrder(traceIdToInitNodes.get(traceid));
+        return computeTopologicalOrder(traceIdToInitNodes.get(traceid));
     }
 
     /**
@@ -233,7 +254,7 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
      * 
      * @param dagInits
      */
-    private List<EventNode> computeTopologicalOrder(Set<EventNode> dagInits) {
+    public List<EventNode> computeTopologicalOrder(Set<EventNode> dagInits) {
         Map<EventNode, Integer> parentsCountMap = new LinkedHashMap<EventNode, Integer>();
         Set<EventNode> bfsPerimeter = new LinkedHashSet<EventNode>();
         List<EventNode> topoOrder = new LinkedList<EventNode>();

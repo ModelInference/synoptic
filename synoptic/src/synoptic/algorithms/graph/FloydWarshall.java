@@ -16,10 +16,8 @@ public class FloydWarshall {
      * Warshall's Algorithm.
      * 
      * <pre>
-     * TODO: this algorithm cannot be used for invariant
-     * mining as is because it includes the TERMINAL node in the computation of
-     * the transitive closure, whereas the algorithms assume that this node is
-     * not present.
+     * NOTE: this algorithm ignores special event types
+     * (e.g., initial/terminal types).
      * </pre>
      */
     public static TransitiveClosure warshallAlg(IGraph<EventNode> graph,
@@ -52,12 +50,19 @@ public class FloydWarshall {
              * </pre>
              */
             while (transIter.hasNext()) {
+                EventNode child = transIter.next().getTarget();
+
+                // ////////////////
+                // Ignore initial/terminal child events:
+                if (child.getEType().isSpecialEventType()) {
+                    continue;
+                }
+                // ///////////////
+
                 // Create new tc map for node m.
                 if (!tc.containsKey(m)) {
                     tc.put(m, new LinkedHashSet<EventNode>());
                 }
-
-                EventNode child = transIter.next().getTarget();
 
                 if (!tcParents.containsKey(child)) {
                     tcParents.put(child, new HashSet<EventNode>());
