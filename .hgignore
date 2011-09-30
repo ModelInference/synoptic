@@ -11,8 +11,8 @@ synopticgwt/war/synopticgwt/*
 synopticgwt/war/userexport/*
 synopticgwt/.gwt/*
 synopticgwt/.settings/*
+synopticgwt/gwt-unitCache/
 synopticjung/bin/*
-
 
 # Ignore the compiled synoptic.jar file
 lib/synoptic.jar
