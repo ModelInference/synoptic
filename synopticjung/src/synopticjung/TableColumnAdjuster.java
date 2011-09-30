@@ -1,4 +1,4 @@
-package synoptic.gui;
+package synopticjung;
 
 import java.awt.Component;
 
