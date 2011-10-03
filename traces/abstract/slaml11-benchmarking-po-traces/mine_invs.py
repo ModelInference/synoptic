@@ -28,7 +28,7 @@ def run_exps(exps, args_path, trace_dir, results_dir, fnames):
     os.system("rm -Rf " + results_dir)
     os.system("mkdir " + results_dir)
     for exp in exps:
-        print ".. exp " + str(exp) + ".. tc",
+        print "-> exp " + str(exp) + "tc[..",
         sys.stdout.flush()
 
         # TransitiveClosure
@@ -36,7 +36,15 @@ def run_exps(exps, args_path, trace_dir, results_dir, fnames):
             out_fname = fname + "." + str(exp) + ".tc"
             os.system("cd " + syn_dir + " && ./synoptic_bigheap.sh -c " + args_path + " " + trace_dir + fname + " --useTransitiveClosureMining=true &> " + results_dir + out_fname)
 
-        print " done.. dag",
+        print "done] noNCwithDAG[..",
+        sys.stdout.flush()
+
+        # DAG Walker without NeverConcurrentWith
+        for fname in fnames:
+            out_fname = fname + "." + str(exp) + ".noNCwithDAG"
+            os.system("cd " + syn_dir + " && ./synoptic_bigheap.sh -c " + args_path + " " + trace_dir + fname + " --useTransitiveClosureMining=false --mineNeverConcurrentWithInv=false &> " + results_dir + out_fname)
+
+        print "done] dag[..",
         sys.stdout.flush()
 
         # DAGWalker
@@ -44,7 +52,7 @@ def run_exps(exps, args_path, trace_dir, results_dir, fnames):
             out_fname = fname + "." + str(exp) + ".dag"
             os.system("cd " + syn_dir + " && ./synoptic_bigheap.sh -c " + args_path + " " + trace_dir + fname + " &> " + results_dir + out_fname)
         
-        print " done"
+        print "done]"
         sys.stdout.flush()
     
 def main():
@@ -55,7 +63,6 @@ def main():
 
     base_dir = syn_dir + "/traces/abstract/slaml11-benchmarking-po-traces/"
     args_path = base_dir + "args.txt"
-
     exps = range(5)
 
     dirs = ["vary-nodes", 
