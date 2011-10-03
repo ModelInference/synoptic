@@ -86,9 +86,17 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
         return goralcikovaAlg(relation);
     }
 
+<<<<<<< local
+<<<<<<< local
+=======
+>>>>>>> other
     @Override
     public TransitiveClosure getTransitiveClosure(String relation) {
+<<<<<<< local
+        return getTransitiveClosure(relation, true);
+=======
         return getTransitiveClosure(relation, false);
+>>>>>>> other
     }
 
     /**
@@ -106,6 +114,16 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
      * @param orderedSuperList
      * @return
      */
+<<<<<<< local
+=======
+    // TODO: this is inefficient because in the worst case it is n^2.
+    // Ideally, this would do the following:
+    // 1. Add all nodes in unordered to subList
+    // 2. Sort subList using a comparator that uses the relative position of
+    // elements in the orderedSuperList for computing the order of elements.
+>>>>>>> other
+=======
+>>>>>>> other
     public List<EventNode> getSubSortedList(
             Collection<Transition<EventNode>> unorderedTrans,
             List<EventNode> orderedSuperList) {
