@@ -3,12 +3,22 @@ package synopticgwt.client.input;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FileUpload;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -22,29 +32,50 @@ import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.SerializableParseException;
 
 public class InputSubTab extends Tab<VerticalPanel> {
+    private static final String UPLOAD_ACTION_URL = GWT.getModuleBaseURL() + "upload"; 
 
     final Label parseErrorMsgLabel = new Label();
+    final FormPanel form = new FormPanel();
     final TextArea logTextArea = new TextArea();
+    final FileUpload uploadButton = new FileUpload();
+    final Button submitButton = new Button("Load Log File (.txt)");
     final TextArea regExpsTextArea = new TextArea();
     final TextBox partitionRegExpTextBox = new TextBox();
     final TextBox separatorRegExpTextBox = new TextBox();
     final Button parseLogButton = new Button("Parse Log");
-
+    
     public InputSubTab(ISynopticServiceAsync synopticService, String logText,
             String regExpText, String partitionRegExpText,
             String separatorRegExpText) {
         super(synopticService);
-
+        
         panel = new VerticalPanel();
-
+        
         // Construct the inputs panel using a grid.
         panel.add(parseErrorMsgLabel);
 
         Grid grid = new Grid(5, 2);
         panel.add(grid);
+        
+        // Set up form to handle file upload.
+        form.setAction(UPLOAD_ACTION_URL);
+        form.setEncoding(FormPanel.ENCODING_MULTIPART);
+        form.setMethod(FormPanel.METHOD_POST);
+        form.setWidget(grid);
+       
+        // Set up inner panel containing file upload and submit. 
+        HorizontalPanel uploadPanel = new HorizontalPanel();
+        uploadButton.setName("uploadFormElement"); 
+        uploadPanel.add(uploadButton);
+        uploadPanel.add(submitButton); 
+        
+        // Set up inner panel containing textarea and upload section.
+        VerticalPanel logPanel = new VerticalPanel();
+        logPanel.add(logTextArea);
+        logPanel.add(uploadPanel);
 
         grid.setWidget(0, 0, new Label("Log lines"));
-        grid.setWidget(0, 1, logTextArea);
+        grid.setWidget(0, 1, logPanel);
         logTextArea.setCharacterWidth(80);
         logTextArea.setVisibleLines(10);
 
@@ -85,8 +116,36 @@ public class InputSubTab extends Tab<VerticalPanel> {
 
         // Associate handler with the Parse Log button.
         parseLogButton.addClickHandler(new ParseLogHandler());
-
+        
+        // Associate handler with Submit button.
+        submitButton.addClickHandler(new SubmitUploadHandler());
+        
+        // Associate handler with Form.
+        form.addSubmitCompleteHandler(new FormCompleteHandler());
+        
+        panel.add(form);
     }
+    
+    /**
+     * Handles submit button clicks.
+     */
+    class SubmitUploadHandler implements ClickHandler {
+    	@Override
+    	public void onClick(ClickEvent event) {
+    		form.submit();
+    	}
+    }
+   
+    /**
+     * Handles filling text area with contents of uploaded text file.
+     */
+    class FormCompleteHandler implements FormPanel.SubmitCompleteHandler {
+    	@Override
+    	public void onSubmitComplete(SubmitCompleteEvent event) {
+			logTextArea.setText(event.getResults());
+		}
+    }
+
 
     /**
      * Handles parse log button clicks.
