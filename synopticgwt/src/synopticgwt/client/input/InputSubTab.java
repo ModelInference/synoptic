@@ -142,7 +142,6 @@ public class InputSubTab extends Tab<VerticalPanel> {
 		}
     }
 
-
     /**
      * Handles parse log button clicks.
      */
