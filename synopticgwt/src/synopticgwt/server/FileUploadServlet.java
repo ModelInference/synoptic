@@ -45,7 +45,7 @@ public class FileUploadServlet extends HttpServlet {
 			}
 			if (!uploadedItem.getName().endsWith(".txt")) {
 				response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
-						"Incorect file format, supports .txt files only" + uploadedItem.getFieldName());
+						"Incorect file format, supports .txt files only.");
 				return;
 			}
    			response.setStatus(HttpServletResponse.SC_OK);
