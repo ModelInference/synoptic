@@ -346,7 +346,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         Main.useFSMChecker = false;
         cExamples = minedInvs.getAllCounterExamples(inputGraph);
         if (cExamples != null) {
-            logger.fine("log: " + log);
+            logger.fine("log: " + Arrays.toString(log));
             logger.fine("minedInvs: " + minedInvs);
             logger.fine("[LTL] cExamples: " + cExamples);
         }
