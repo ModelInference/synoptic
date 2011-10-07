@@ -39,10 +39,23 @@ public abstract class TracingStateSet<T extends INode<T>> implements
         }
 
         @Override
-        public int compareTo(HistoryNode other) {
-            if (this == other) {
-                return 0;
+        public boolean equals(Object other) {
+            if (super.equals(other)) {
+                return true;
             }
+            if (!(other instanceof TracingStateSet.HistoryNode)) {
+                return false;
+            }
+            @SuppressWarnings("unchecked")
+            HistoryNode hOther = (TracingStateSet<T>.HistoryNode) other;
+            if (this.compareTo(hOther) == 0) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public int compareTo(HistoryNode other) {
             return this.count - other.count;
         }
 

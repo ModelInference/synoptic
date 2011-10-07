@@ -840,18 +840,22 @@ public class Main implements Callable<Integer> {
      */
     public void printOptions() throws IllegalArgumentException,
             IllegalAccessException {
-        String optsString = "Synoptic options:\n";
+        StringBuffer optsString = new StringBuffer();
+        optsString.append("Synoptic options:\n");
         for (Field field : this.getClass().getDeclaredFields()) {
             if (field.getAnnotation(Option.class) != null) {
-                optsString += "\t" + field.getName() + ": ";
+                optsString.append("\t");
+                optsString.append(field.getName());
+                optsString.append(": ");
                 if (field.get(this) != null) {
-                    optsString += field.get(this).toString() + "\n";
+                    optsString.append(field.get(this).toString());
+                    optsString.append("\n");
                 } else {
-                    optsString += "null\n";
+                    optsString.append("null\n");
                 }
             }
         }
-        System.out.println(optsString);
+        System.out.println(optsString.toString());
     }
 
     public static TraceParser newTraceParser(List<String> rExps,
@@ -886,7 +890,7 @@ public class Main implements Callable<Integer> {
 
         if (sepRegExp != null) {
             parser.addPartitionsSeparator(sepRegExp);
-            if (partitioningRegExp != Main.partitionRegExpDefault) {
+            if (!partitioningRegExp.equals(Main.partitionRegExpDefault)) {
                 logger.warning("Partition separator and partition mapping regex are both specified. This may result in difficult to understand parsing behavior.");
             }
         }
