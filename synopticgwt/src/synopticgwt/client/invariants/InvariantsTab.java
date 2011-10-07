@@ -63,8 +63,11 @@ public class InvariantsTab extends Tab<VerticalPanel> {
                 longType = "AlwaysPrecedes";
             } else if (invType.equals("NFby")) {
                 longType = "NeverFollowedBy";
+            } else if (invType.equals("NCwith")) {
+                longType = "NeverConcurrentWith";
+            } else if (invType.equals("ACwith")) {
+                longType = "AlwaysConcurrentWith";
             }
-            // grid.setWidget(0, 0, new Label(invType));
             grid.setWidget(0, 0, new Label(longType));
             grid.getCellFormatter().setStyleName(0, 0, "tableCellTopRow");
             tableAndGraphicPanel.add(grid);
@@ -81,13 +84,16 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             grid.addClickHandler(new InvGridClickHandler(grid, invs));
         }
 
-        // Show the invariant graphic.
-        String invCanvasId = "invCanvasId";
-        HorizontalPanel invGraphicPanel = new HorizontalPanel();
-        invGraphicPanel.getElement().setId(invCanvasId);
-        invGraphicPanel.setStylePrimaryName("modelCanvas");
-        tableAndGraphicPanel.add(invGraphicPanel);
-        InvariantsGraph.createInvariantsGraphic(gwtInvs, invCanvasId);
+        // Show the TO invariant graphic only if there are no concurrency
+        // invariants in the set of invariants.
+        if (!gwtInvs.containsConcurrencyInvs) {
+            String invCanvasId = "invCanvasId";
+            HorizontalPanel invGraphicPanel = new HorizontalPanel();
+            invGraphicPanel.getElement().setId(invCanvasId);
+            invGraphicPanel.setStylePrimaryName("modelCanvas");
+            tableAndGraphicPanel.add(invGraphicPanel);
+            InvariantsGraph.createInvariantsGraphic(gwtInvs, invCanvasId);
+        }
     }
 
     /**

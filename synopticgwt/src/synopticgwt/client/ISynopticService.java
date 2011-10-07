@@ -30,7 +30,9 @@ public interface ISynopticService extends RemoteService {
      * @param regExps
      * @param partitionRegExp
      * @param separatorRegExp
-     * @return
+     * @return A pair of the mined invariants and the initial model. NOTE that
+     *         if the input log is a PO log then the returned model is null (PO
+     *         models are not supported yet).
      * @throws Exception
      */
     GWTPair<GWTInvariantSet, GWTGraph> parseLog(String logLines,
