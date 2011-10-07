@@ -17,14 +17,17 @@ import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
+import synoptic.invariants.ConcurrencyInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.invariants.miners.POInvariantMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
+import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -240,14 +243,32 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Converts a TemporalInvariantSet into GWTInvariants
-     * 
-     * @param invs
-     *            TemporalInvariantSet
-     * @return Equivalent GWTInvariants
+     * Calls the TemporalInvariantSetToGWTInvariants below, but first determines
+     * if there are any concurrency invariants in the input set.
      */
     private GWTInvariantSet TemporalInvariantSetToGWTInvariants(
             Set<ITemporalInvariant> invs) {
+        boolean containsConcurrencyInvs = false;
+        for (ITemporalInvariant inv : invs) {
+            if (inv instanceof ConcurrencyInvariant) {
+                containsConcurrencyInvs = true;
+            }
+        }
+        return TemporalInvariantSetToGWTInvariants(containsConcurrencyInvs,
+                invs);
+    }
+
+    /**
+     * Converts a TemporalInvariantSet into GWTInvariants
+     * 
+     * @param containsConcurrencyInvs
+     *            whether or not the set of invariants contains any
+     *            ConcurrencyInvariant instances
+     * @param invs
+     * @return Equivalent GWTInvariants
+     */
+    private GWTInvariantSet TemporalInvariantSetToGWTInvariants(
+            boolean containsConcurrencyInvs, Set<ITemporalInvariant> invs) {
         GWTInvariantSet GWTinvs = new GWTInvariantSet();
         for (ITemporalInvariant inv : invs) {
             assert (inv instanceof BinaryInvariant);
@@ -269,7 +290,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
     /**
      * Parses the input log, and sets up and stores Synoptic session state for
-     * refinement\coarsening. <<<<<<< local <<<<<<< local
+     * refinement\coarsening. For a PO log this returns a null GWTGraph.
      * 
      * @throws Exception
      */
@@ -307,23 +328,34 @@ public class SynopticService extends RemoteServiceServlet implements
 
         }
 
-        traceGraph = parser.generateDirectTORelation(parsedEvents);
-
-        // Mine invariants, and convert them to GWTInvariants.
-        TOInvariantMiner miner;
+        // Code below mines invariants, and converts them to GWTInvariants.
+        // TODO: refactor synoptic main so that it does all of this most of this
+        // for the client.
+        GWTGraph graph;
         if (parser.logTimeTypeIsTotallyOrdered()) {
-            miner = new ChainWalkingTOInvMiner();
+            ChainsTraceGraph inputGraph = parser
+                    .generateDirectTORelation(parsedEvents);
+            TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+            minedInvs = miner.computeInvariants(inputGraph);
+
+            // Since we're in the TO case then we also initialize and store
+            // refinement state.
+            initializeRefinementState(minedInvs);
+            storeSessionState();
+            graph = PGraphToGWTGraph(pGraph);
+
         } else {
-            miner = new TransitiveClosureInvMiner();
+            // TODO: expose to the user the option of using another kind of
+            // PO invariant miner.
+            DAGsTraceGraph inputGraph = parser
+                    .generateDirectPORelation(parsedEvents);
+            POInvariantMiner miner = new TransitiveClosureInvMiner();
+            minedInvs = miner.computeInvariants(inputGraph);
+            graph = null;
         }
-        minedInvs = miner.computeInvariants(traceGraph);
 
-        initializeRefinementState(minedInvs);
-        storeSessionState();
-
-        GWTGraph graph = PGraphToGWTGraph(pGraph);
-        GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(minedInvs
-                .getSet());
+        GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(
+                !parser.logTimeTypeIsTotallyOrdered(), minedInvs.getSet());
 
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
     }

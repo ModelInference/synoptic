@@ -130,61 +130,63 @@ public class InputSubTab extends Tab<VerticalPanel> {
             AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
         @Override
         public void onFailure(Throwable caught) {
-            displayRPCErrorMessage("Remote Procedure Call Failure while parsing log: " +
-            		caught.getMessage());
+            displayRPCErrorMessage("Remote Procedure Call Failure while parsing log: "
+                    + caught.getMessage());
             parseErrorMsgLabel.setText(caught.getMessage());
             parseLogButton.setEnabled(true);
             if (caught instanceof SerializableParseException) {
-            	SerializableParseException exception = (SerializableParseException) caught;
-            	// If the exception has both a regex and a logline, then only the TextArea
-            	// that sets their highlighting last will have highlighting.
-            	// A secret dependency for TextArea highlighting is focus.
-            	// As of now, 9/12/11, SerializableParseExceptions do not get 
-            	// thrown with both a regex and a logline.
-            	if (exception.hasRegex()) {
-	            	String regex = exception.getRegex();
-	                String regexes = regExpsTextArea.getText();
-	                int pos = indexOf(regexes, regex);
-	                regExpsTextArea.setFocus(true);
-	                regExpsTextArea.setSelectionRange(pos, regex.length());
-            	}
-            	if (exception.hasLogLine()) {
-            		String log = exception.getLogLine();
-            		String logs = logTextArea.getText();
-            		int pos = indexOf(logs, log);
-            		logTextArea.setFocus(true);
-            		logTextArea.setSelectionRange(pos, log.length());
-            	}
+                SerializableParseException exception = (SerializableParseException) caught;
+                // If the exception has both a regex and a logline, then only
+                // the TextArea
+                // that sets their highlighting last will have highlighting.
+                // A secret dependency for TextArea highlighting is focus.
+                // As of now, 9/12/11, SerializableParseExceptions do not get
+                // thrown with both a regex and a logline.
+                if (exception.hasRegex()) {
+                    String regex = exception.getRegex();
+                    String regexes = regExpsTextArea.getText();
+                    int pos = indexOf(regexes, regex);
+                    regExpsTextArea.setFocus(true);
+                    regExpsTextArea.setSelectionRange(pos, regex.length());
+                }
+                if (exception.hasLogLine()) {
+                    String log = exception.getLogLine();
+                    String logs = logTextArea.getText();
+                    int pos = indexOf(logs, log);
+                    logTextArea.setFocus(true);
+                    logTextArea.setSelectionRange(pos, log.length());
+                }
             }
         }
-        
+
+        // TODO: Explain the purpose of this method.
         public int indexOf(String string, String searchString) {
-        	if (string == null || searchString == null) {
-        		throw new NullPointerException();
-        	}
-        	
-        	
-        	int movingPosition = string.indexOf(searchString);
-        	int cumulativePosition = movingPosition;
-        	
-        	if (movingPosition == -1) {
-        		return movingPosition;
-        	}       	
-        	
-        	while (movingPosition + searchString.length() < string.length() &&
-        			!(string.charAt(movingPosition + searchString.length()) == '\r' || 
-        			string.charAt(movingPosition + searchString.length()) == '\n')) {
-        		
-        		string = string.substring(movingPosition + searchString.length());
-        		movingPosition = string.indexOf(searchString);
-        			
-            	if (movingPosition == -1) {
-            		return movingPosition;
-            	}
-            	
-            	cumulativePosition += movingPosition + searchString.length();
-        	}
-        	return cumulativePosition;
+            if (string == null || searchString == null) {
+                throw new NullPointerException();
+            }
+
+            int movingPosition = string.indexOf(searchString);
+            int cumulativePosition = movingPosition;
+
+            if (movingPosition == -1) {
+                return movingPosition;
+            }
+
+            while (movingPosition + searchString.length() < string.length()
+                    && !(string.charAt(movingPosition + searchString.length()) == '\r' || string
+                            .charAt(movingPosition + searchString.length()) == '\n')) {
+
+                string = string.substring(movingPosition
+                        + searchString.length());
+                movingPosition = string.indexOf(searchString);
+
+                if (movingPosition == -1) {
+                    return movingPosition;
+                }
+
+                cumulativePosition += movingPosition + searchString.length();
+            }
+            return cumulativePosition;
         }
 
         @Override
