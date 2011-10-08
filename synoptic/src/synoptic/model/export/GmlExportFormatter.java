@@ -10,18 +10,18 @@ public class GmlExportFormatter extends GraphExportFormatter {
 
     @Override
     public String beginGraphString() {
-        return new String("graph [\n");
+        return "graph [\n";
     }
 
     @Override
     public String endGraphString() {
-        return new String("]\n");
+        return "]\n";
     }
 
     @Override
     public <T extends INode<T>> String nodeToString(int nodeId, T node,
             boolean isInitial, boolean isTerminal) {
-        String nodeGraphics = new String("graphics [\n");
+        String nodeGraphics = "graphics [\n";
         if (isInitial) {
             nodeGraphics += "  type \"rectangle\"\n]\n";
         } else if (isTerminal) {
@@ -30,16 +30,16 @@ public class GmlExportFormatter extends GraphExportFormatter {
             nodeGraphics += "  type \"oval\"\n]\n";
         }
 
-        return new String("node\n[\n  id " + nodeId + "\n  label " + "\""
+        return "node\n[\n  id " + nodeId + "\n  label " + "\""
                 + quote(node.getEType().toString()) + "\"" + "\n"
-                + nodeGraphics + "]\n");
+                + nodeGraphics + "]\n";
     }
 
     private String edgeToString(int nodeSrc, int nodeDst, String attributes,
             String relation) {
         assert (attributes != null);
 
-        String s = new String("edge\n[\n  ");
+        String s = "edge\n[\n  ";
         s += "source " + nodeSrc + "\n  target " + nodeDst + "\n";
 
         if (!attributes.equals("")) {

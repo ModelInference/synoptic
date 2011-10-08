@@ -277,7 +277,7 @@ public class GraphLTLChecker<T extends INode<T>> {
                 }
             }
         } catch (ParseErrorException e) {
-            throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.wrap(e);
         }
         return r;
     }

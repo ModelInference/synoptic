@@ -65,6 +65,6 @@ public class ITotalTime implements ITime {
         if (!(t instanceof ITotalTime)) {
             throw new NonComparableTimesException(this, t);
         }
-        return new Integer(time).compareTo(((ITotalTime) t).time);
+        return Integer.valueOf(time).compareTo(((ITotalTime) t).time);
     }
 }

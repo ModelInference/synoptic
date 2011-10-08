@@ -57,8 +57,8 @@ public class TopologicalSort<NodeType extends INode<NodeType>> {
                     @Override
                     public int compare(Pair<Integer, NodeType> arg0,
                             Pair<Integer, NodeType> arg1) {
-                        return new Integer(arg0.getLeft()).compareTo(arg1
-                                .getLeft());
+                        return Integer.valueOf(arg0.getLeft()).compareTo(
+                                arg1.getLeft());
                     }
                 });
         for (NodeType n : getSourceNodes(graph)) {
