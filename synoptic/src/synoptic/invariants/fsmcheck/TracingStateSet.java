@@ -47,7 +47,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
                 return false;
             }
             @SuppressWarnings("unchecked")
-            HistoryNode hOther = (TracingStateSet<T>.HistoryNode) other;
+            HistoryNode hOther = (HistoryNode) other;
             if (this.compareTo(hOther) == 0) {
                 return true;
             }
