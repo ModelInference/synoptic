@@ -325,7 +325,7 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
             // pointing to.
             if (parentsCountMap != null) {
                 if (!parentsCountMap.containsKey(dest)) {
-                    parentsCountMap.put(dest, new Integer(1));
+                    parentsCountMap.put(dest, Integer.valueOf(1));
                 } else {
                     parentsCountMap.put(dest, parentsCountMap.get(dest) + 1);
                 }

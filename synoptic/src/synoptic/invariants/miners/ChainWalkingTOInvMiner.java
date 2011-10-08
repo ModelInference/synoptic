@@ -3,6 +3,7 @@ package synoptic.invariants.miners;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import synoptic.invariants.TemporalInvariantSet;
@@ -188,12 +189,12 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
             // Update the global event followed by counts based on followed by
             // counts collected in this trace. We merge the counts with
             // addition.
-            for (EventType a : tFollowedByCnts.keySet()) {
-                for (EventType b : tFollowedByCnts.get(a).keySet()) {
-                    gFollowedByCnts.get(a).put(
-                            b,
-                            gFollowedByCnts.get(a).get(b)
-                                    + tFollowedByCnts.get(a).get(b));
+            for (Entry<EventType, Map<EventType, Integer>> tAEntry : tFollowedByCnts
+                    .entrySet()) {
+                Map<EventType, Integer> gAEntry = gFollowedByCnts.get(tAEntry
+                        .getKey());
+                for (EventType b : tAEntry.getValue().keySet()) {
+                    gAEntry.put(b, gAEntry.get(b) + tAEntry.getValue().get(b));
                 }
             }
 

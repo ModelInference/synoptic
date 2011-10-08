@@ -439,7 +439,7 @@ public class TraceParser {
             addRegex(regex + "(?<SEPCOUNT++>)(?<HIDE=>true)");
         } catch (ParseException e) {
             InternalSynopticException internalSynopticException = InternalSynopticException
-                    .Wrap(e);
+                    .wrap(e);
             internalSynopticException.setRegex(e.getRegex());
             throw internalSynopticException;
         }

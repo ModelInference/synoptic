@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import synoptic.invariants.ITemporalInvariant;
@@ -1008,11 +1009,13 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
         if (src == null) {
             return;
         }
-        for (EventType e : src.keySet()) {
-            if (!dst.containsKey(e)) {
-                dst.put(e, src.get(e));
+
+        for (Entry<EventType, Integer> eEntry : src.entrySet()) {
+            if (!dst.containsKey(eEntry.getKey())) {
+                dst.put(eEntry.getKey(), eEntry.getValue());
             } else {
-                dst.put(e, dst.get(e) + src.get(e));
+                dst.put(eEntry.getKey(),
+                        dst.get(eEntry.getKey()) + eEntry.getValue());
             }
         }
     }

@@ -193,13 +193,13 @@ public abstract class FsmStateSet<T extends INode<T>> implements
         try {
             result = (FsmStateSet<T>) cons.newInstance(sets.size());
         } catch (IllegalArgumentException e) {
-            throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.wrap(e);
         } catch (InstantiationException e) {
-            throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.wrap(e);
         } catch (IllegalAccessException e) {
-            throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.wrap(e);
         } catch (InvocationTargetException e) {
-            throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.wrap(e);
         }
 
         result.count = count;

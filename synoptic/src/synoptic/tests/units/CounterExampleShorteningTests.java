@@ -17,7 +17,7 @@ public class CounterExampleShorteningTests extends SynopticTest {
      * Check shortening of NFby counter-examples.
      */
     @Test
-    public void ShortenNFbyCExamplesTest() {
+    public void shortenNFbyCExamplesTest() {
         NeverFollowedInvariant inv = new NeverFollowedInvariant("x", "y",
                 defRelation);
         List<EventNode> fullPath, shortPath;
@@ -53,8 +53,9 @@ public class CounterExampleShorteningTests extends SynopticTest {
     /**
      * Check shortening of AP counter-examples.
      */
+    @SuppressWarnings("null")
     @Test
-    public void ShortenAPCExamplesTest() {
+    public void shortenAPCExamplesTest() {
         AlwaysPrecedesInvariant inv = new AlwaysPrecedesInvariant("x", "y",
                 defRelation);
         List<EventNode> fullPath, shortPath;
@@ -68,8 +69,8 @@ public class CounterExampleShorteningTests extends SynopticTest {
         fullPath = SynopticTest.getLogEventPath(new String[] { "y", "x", "y",
                 "a", "b" });
         shortPath = inv.shorten(fullPath);
-        logger.fine(fullPath.toString());
-        logger.fine(shortPath.toString());
+        // logger.fine(fullPath.toString());
+        // logger.fine(shortPath.toString());
         assertTrue(shortPath != null);
         assertTrue(shortPath.equals(fullPath.subList(0, 1)));
 
@@ -78,8 +79,8 @@ public class CounterExampleShorteningTests extends SynopticTest {
         fullPath = SynopticTest.getLogEventPath(new String[] { "a", "b", "y",
                 "x", "y", "a" });
         shortPath = inv.shorten(fullPath);
-        logger.fine(fullPath.toString());
-        logger.fine(shortPath.toString());
+        // logger.fine(fullPath.toString());
+        // logger.fine(shortPath.toString());
         assertTrue(shortPath != null);
         assertTrue(shortPath.equals(fullPath.subList(0, 3)));
     }

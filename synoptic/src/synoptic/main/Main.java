@@ -436,7 +436,7 @@ public class Main implements Callable<Integer> {
         } catch (ParseException e) {
             throw e;
         } catch (Exception e) {
-            throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.wrap(e);
         }
 
         logger.fine("Main.call() returned " + ret.toString());
@@ -571,9 +571,9 @@ public class Main implements Callable<Integer> {
         try {
             field = Main.class.getField(optName);
         } catch (SecurityException e) {
-            throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.wrap(e);
         } catch (NoSuchFieldException e) {
-            throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.wrap(e);
         }
         Option opt = field.getAnnotation(Option.class);
         String desc = opt.value();
@@ -590,9 +590,10 @@ public class Main implements Callable<Integer> {
      * 
      * @throws URISyntaxException
      *             if Main.class can't be located
+     * @throws IOException
      */
     public static List<String> getTestsInPackage(String packageName)
-            throws URISyntaxException {
+            throws URISyntaxException, IOException {
         // If we are running from within a jar then jarName contains the path to
         // the jar
         // otherwise, it contains the path to where Main.class is located on the
@@ -608,11 +609,11 @@ public class Main implements Callable<Integer> {
 
         ArrayList<String> testClasses = new ArrayList<String>();
 
+        JarInputStream jarFile = null;
         try {
             // Case1: running from within a jar
             // Open the jar file and locate the tests by their path
-            JarInputStream jarFile = new JarInputStream(new FileInputStream(
-                    jarName));
+            jarFile = new JarInputStream(new FileInputStream(jarName));
             JarEntry jarEntry;
             while (true) {
                 jarEntry = jarFile.getNextJarEntry();
@@ -641,7 +642,11 @@ public class Main implements Callable<Integer> {
                 }
             }
         } catch (Exception e) {
-            throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.wrap(e);
+        } finally {
+            if (jarFile != null) {
+                jarFile.close();
+            }
         }
 
         // Remove anonymous inner classes from the list, these look
@@ -998,7 +1003,7 @@ public class Main implements Callable<Integer> {
         if (pGraph != null) {
             runSynoptic(pGraph);
         }
-        return new Integer(0);
+        return Integer.valueOf(0);
     }
 
     /**

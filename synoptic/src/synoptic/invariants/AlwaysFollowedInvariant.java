@@ -82,7 +82,7 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
         // EventType objects directly, so we compare the String
         // representations of EventTypes, instead.
         return "(<> (did("
-                + StringEventType.NewTerminalStringEventType().toString()
+                + StringEventType.newTerminalStringEventType().toString()
                 + "))) -> ([](did(" + first.toString() + ") -> (<> (did("
                 + second.toString() + ")))))";
 
