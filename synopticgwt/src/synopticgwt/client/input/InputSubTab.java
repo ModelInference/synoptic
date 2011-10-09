@@ -159,7 +159,13 @@ public class InputSubTab extends Tab<VerticalPanel> {
             }
         }
 
-        // TODO: Explain the purpose of this method.
+        /**
+         * Returns the index of searchString as a substring of string with the condition that
+         * the searchString is followed by a newline character, carriage return character, or
+         * nothing(end of string).
+         * Returns -1 if searchString is not found in string with the previous conditions.
+         * Throws a NullPointerException if string or searchString is null.
+         */
         public int indexOf(String string, String searchString) {
             if (string == null || searchString == null) {
                 throw new NullPointerException();
