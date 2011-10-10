@@ -13,6 +13,10 @@ synopticgwt/.gwt/*
 synopticgwt/.settings/*
 synopticgwt/gwt-unitCache/
 synopticjung/bin/*
+InvDFAMinimization/bin/*
+
+# Ignore vim .swp files
+.*.swp
 
 # Ignore the compiled synoptic.jar file
 lib/synoptic.jar
