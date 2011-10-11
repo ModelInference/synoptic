@@ -38,8 +38,8 @@ public class InputSubTab extends Tab<VerticalPanel> {
     final Label parseErrorMsgLabel = new Label();
     final Label logInputTypeLabel = new Label("Log input type:");
     final FormPanel logFileUploadForm = new FormPanel();
-    final RadioButton logTextRadioButton = new RadioButton("logInputType", "textArea");
-    final RadioButton logFileRadioButton = new RadioButton("logInputType", "textFile");
+    final RadioButton logTextRadioButton = new RadioButton("logInputType", "Text area");
+    final RadioButton logFileRadioButton = new RadioButton("logInputType", "Text file");
     final TextArea logTextArea = new TextArea();
     final FileUpload uploadLogFileButton = new FileUpload();
     final TextArea regExpsTextArea = new TextArea();
