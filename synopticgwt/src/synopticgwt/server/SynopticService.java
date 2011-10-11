@@ -1,5 +1,13 @@
 package synopticgwt.server;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -8,8 +16,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.io.FileUtils;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -104,9 +115,9 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     private void storeSessionState() {
         // Retrieve HTTP session and store all the state in the session.
-        HttpServletRequest request = getThreadLocalRequest();
-        HttpSession session = request.getSession();
-
+    	HttpServletRequest request = getThreadLocalRequest();
+    	HttpSession session = request.getSession();
+    	
         session.setAttribute("partitionGraph", pGraph);
         session.setAttribute("numSplitSteps", 0);
         session.setAttribute("unsatInvs", unsatInvs);
@@ -122,8 +133,8 @@ public class SynopticService extends RemoteServiceServlet implements
     @SuppressWarnings("unchecked")
     private void retrieveSessionState() throws Exception {
         // Retrieve HTTP session to access storage.
-        HttpServletRequest request = getThreadLocalRequest();
-        HttpSession session = request.getSession();
+    	HttpServletRequest request = getThreadLocalRequest();
+    	HttpSession session = request.getSession();
 
         // Retrieve stuff from storage, and if we can't find something then we
         // throw an error since we can't continue with refinement.
@@ -327,6 +338,45 @@ public class SynopticService extends RemoteServiceServlet implements
 
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
     }
+    
+    /**
+     * Parses the log file given by session state on server, and sets up and 
+     * stores Synoptic session state for refinement\coarsening. <<<<<<< local <<<<<<< local
+     * 
+     * @throws Exception
+     */
+    @Override
+    public GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(List<String> regExps, 
+    		String partitionRegExp, String separatorRegExp) throws Exception {
+        // Retrieve HTTP session to access location of recent log file uploaded.
+    	HttpServletRequest request = getThreadLocalRequest();
+     	HttpSession session = request.getSession();
+     	String path = session.getAttribute("logFilePath").toString();
+     	
+    	ServletContext context = getServletContext();
+    	
+    	// Retrieve full path instead of relative
+    	String realPath = context.getRealPath(path);
+    	  
+    	FileInputStream fis = new FileInputStream(realPath);
+    	BufferedInputStream bis = new BufferedInputStream(fis);
+    	BufferedReader br = new BufferedReader(new InputStreamReader(bis));
+    	
+    	// Build string containing contents within file
+    	StringBuilder buildLog = new StringBuilder();
+    	String checkLine;
+      	while ((checkLine = br.readLine()) != null) {
+      		buildLog.append(checkLine);
+      		buildLog.append("\n");
+      	}
+      	fis.close();
+      	bis.close();
+      	br.close();
+      	
+      	String logFileContent = buildLog.toString();
+    		
+    	return parseLog(logFileContent, regExps, partitionRegExp, separatorRegExp);
+    }
 
     private SerializableParseException serializeException(ParseException pe) {
         SerializableParseException exception = new SerializableParseException(
@@ -482,7 +532,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
         return validLines;
     }
-
+    
     /**
      * Exports the current model as a .dot file. Returns the filename/directory.
      */
