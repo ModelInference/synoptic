@@ -27,6 +27,10 @@ public interface ISynopticServiceAsync {
     void parseLog(String logLines, List<String> regExps,
             String partitionRegExp, String separatorRegExp,
             AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> callback);
+    
+    void parseUploadedLog(List<String> regExps,
+            String partitionRegExp, String separatorRegExp,
+            AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> callback);
 
     void refineOneStep(AsyncCallback<GWTGraphDelta> callback) throws Exception;
 
