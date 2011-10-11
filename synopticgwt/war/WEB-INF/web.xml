@@ -16,14 +16,15 @@
     <url-pattern>/synopticgwt/synoptic</url-pattern>
   </servlet-mapping>
   
+  <!--  Servlet for saving uploaded log text file to server disk -->
   <servlet>
-    <servlet-name>uploadServlet</servlet-name>
-    <servlet-class>synopticgwt.server.FileUploadServlet</servlet-class>
+    <servlet-name>LogFileUploadServlet</servlet-name>
+    <servlet-class>synopticgwt.server.LogFileUploadServlet</servlet-class>
   </servlet>
   
   <servlet-mapping>
-    <servlet-name>uploadServlet</servlet-name>
-    <url-pattern>/synopticgwt/upload</url-pattern>
+    <servlet-name>LogFileUploadServlet</servlet-name>
+    <url-pattern>/synopticgwt/log_file_upload</url-pattern>
   </servlet-mapping>
 
   <!-- Default page to serve -->
@@ -32,4 +33,3 @@
   </welcome-file-list>
 
 </web-app>
-
