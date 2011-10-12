@@ -27,7 +27,7 @@ public abstract class GraphExportFormatter {
     Map<String, String> relationColors;
 
     /** Color used for the "t" relation and when we run out of colors. */
-    final String defaultRelationColor = new String("black");
+    static final String defaultRelationColor = "black";
 
     /**
      * Whether or not we've printed a message stating that we've run out of

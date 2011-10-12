@@ -78,7 +78,7 @@ public class CountingInvariantMiner extends InvariantMiner {
         // "eventually x"
         for (EventType label : AlwaysFollowsINITIALSet) {
             invariants.add(new AlwaysFollowedInvariant(StringEventType
-                    .NewInitialStringEventType(), label, relation));
+                    .newInitialStringEventType(), label, relation));
         }
 
         return invariants;

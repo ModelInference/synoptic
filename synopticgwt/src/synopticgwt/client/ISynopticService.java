@@ -30,17 +30,19 @@ public interface ISynopticService extends RemoteService {
      * @param regExps
      * @param partitionRegExp
      * @param separatorRegExp
-     * @return
+     * @return A pair of the mined invariants and the initial model. NOTE that
+     *         if the input log is a PO log then the returned model is null (PO
+     *         models are not supported yet).
      * @throws Exception
      */
     GWTPair<GWTInvariantSet, GWTGraph> parseLog(String logLines,
             List<String> regExps, String partitionRegExp, String separatorRegExp)
             throws Exception;
-    
+
     /**
-     * Reads a log file located in server where path specified by saved session state assignment. 
-     * Parses the input log contained in file,and sets up and stores Synoptic session state for 
-     * refinement\coarsening.
+     * Reads a log file located in server where path specified by saved session
+     * state assignment. Parses the input log contained in file,and sets up and
+     * stores Synoptic session state for refinement\coarsening.
      * 
      * @param logFilePath
      * @param regExps
@@ -49,10 +51,8 @@ public interface ISynopticService extends RemoteService {
      * @return
      * @throws Exception
      */
-    GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(List<String> regExps, 
-    		String partitionRegExp, String separatorRegExp)
-            throws Exception;
-    
+    GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(List<String> regExps,
+            String partitionRegExp, String separatorRegExp) throws Exception;
 
     /**
      * Performs a single step of refinement on the cached model.

@@ -214,12 +214,14 @@ public class SynopticGWT implements EntryPoint {
      */
     public void logParsed(GWTInvariantSet logInvs, GWTGraph initialModel) {
         invTab.setEnabled(true);
-        modelTab.setEnabled(true);
-
         invTab.showInvariants(logInvs);
-        // The modelTab MUST be made visible for showGraph() to work below.
-        tabPanel.selectTab(2);
-        modelTab.showGraph(initialModel);
+
+        if (initialModel != null) {
+            modelTab.setEnabled(true);
+            // The modelTab MUST be made visible for showGraph() to work below.
+            tabPanel.selectTab(2);
+            modelTab.showGraph(initialModel);
+        }
 
         tabPanel.selectTab(1);
     }

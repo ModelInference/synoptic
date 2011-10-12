@@ -213,8 +213,10 @@ public class VectorTime implements ITime {
         final int prime = 31;
         int result = 1;
         result = prime * result + (vector == null ? 0 : vector.hashCode());
-        for (int i = 0; i < vector.size(); ++i) {
-            result += prime * result + vector.get(i).hashCode();
+        if (vector != null) {
+            for (int i = 0; i < vector.size(); ++i) {
+                result += prime * result + vector.get(i).hashCode();
+            }
         }
         return result;
     }

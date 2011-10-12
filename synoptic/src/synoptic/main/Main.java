@@ -32,7 +32,6 @@ import plume.OptionGroup;
 import plume.Options;
 
 import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.gui.JungGui;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.TemporalInvariantSet;
@@ -273,11 +272,6 @@ public class Main implements Callable<Integer> {
     @Option(value = "Show INITIAL node in generated graphs.")
     public static boolean showInitialNode = true;
 
-    /**
-     * Whether or not to show the Synoptic GUI.
-     */
-    @Option(value = "Show the GUI.")
-    public static boolean showGui = false;
     // end option group "Output Options"
 
     // //////////////////////////////////////////////////
@@ -428,9 +422,45 @@ public class Main implements Callable<Integer> {
      * documentation for an explanation of the options.
      * 
      * @param args
-     *            - command-line options
+     *            Command-line options
      */
     public static void main(String[] args) throws Exception {
+        Main mainInstance = processArgs(args);
+        if (mainInstance == null) {
+            return;
+        }
+
+        Integer ret;
+        try {
+            ret = mainInstance.call();
+        } catch (ParseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw InternalSynopticException.wrap(e);
+        }
+
+        logger.fine("Main.call() returned " + ret.toString());
+
+    }
+
+    /**
+     * Parses the set of arguments (args) to the program, to set up static state
+     * in Main. This state includes everything necessary to run Synoptic --
+     * input log files, regular expressions, etc.
+     * 
+     * @param args
+     *            Command line arguments that specify how Synoptic should
+     *            behave.
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     * @throws ParseException
+     */
+    public static Main processArgs(String[] args) throws IOException,
+            URISyntaxException, IllegalArgumentException,
+            IllegalAccessException, ParseException {
         // this directly sets the static member options of the Main class
         Options options = new Options(usage_string, Main.class);
         String[] cmdLineArgs = options.parse_or_usage(args);
@@ -463,18 +493,18 @@ public class Main implements Callable<Integer> {
                             "Execution Options", "Parser Options",
                             "Input Options", "Output Options",
                             "Verbosity Options", "Debugging Options"));
-            return;
+            return null;
         }
 
         // Display help just for the 'publicized' option groups
         if (help) {
             options.print_usage();
-            return;
+            return null;
         }
 
         if (version) {
             System.out.println("Synoptic version " + Main.versionString);
-            return;
+            return null;
         }
 
         // Setup the appropriate graph export formatter object.
@@ -502,13 +532,13 @@ public class Main implements Callable<Integer> {
         if (logFilenames.size() == 0 || logFilenames.get(0).equals("")) {
             logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
                     + Main.getCmdLineOptDesc("help"));
-            return;
+            return null;
         }
 
         if (dumpIntermediateStages && outputPathPrefix == null) {
             logger.severe("Cannot dump intermediate stages without an output path prefix. Set this prefix with:\n\t"
                     + Main.getCmdLineOptDesc("outputPathPrefix"));
-            return;
+            return null;
         }
 
         Main mainInstance = new Main();
@@ -523,16 +553,7 @@ public class Main implements Callable<Integer> {
         Main.random = new Random(randomSeed);
         logger.info("Using random seed: " + randomSeed);
 
-        Integer ret;
-        try {
-            ret = mainInstance.call();
-        } catch (ParseException e) {
-            throw e;
-        } catch (Exception e) {
-            throw InternalSynopticException.Wrap(e);
-        }
-
-        logger.fine("Main.call() returned " + ret.toString());
+        return mainInstance;
     }
 
     /**
@@ -550,9 +571,9 @@ public class Main implements Callable<Integer> {
         try {
             field = Main.class.getField(optName);
         } catch (SecurityException e) {
-            throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.wrap(e);
         } catch (NoSuchFieldException e) {
-            throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.wrap(e);
         }
         Option opt = field.getAnnotation(Option.class);
         String desc = opt.value();
@@ -569,9 +590,10 @@ public class Main implements Callable<Integer> {
      * 
      * @throws URISyntaxException
      *             if Main.class can't be located
+     * @throws IOException
      */
     public static List<String> getTestsInPackage(String packageName)
-            throws URISyntaxException {
+            throws URISyntaxException, IOException {
         // If we are running from within a jar then jarName contains the path to
         // the jar
         // otherwise, it contains the path to where Main.class is located on the
@@ -587,11 +609,11 @@ public class Main implements Callable<Integer> {
 
         ArrayList<String> testClasses = new ArrayList<String>();
 
+        JarInputStream jarFile = null;
         try {
             // Case1: running from within a jar
             // Open the jar file and locate the tests by their path
-            JarInputStream jarFile = new JarInputStream(new FileInputStream(
-                    jarName));
+            jarFile = new JarInputStream(new FileInputStream(jarName));
             JarEntry jarEntry;
             while (true) {
                 jarEntry = jarFile.getNextJarEntry();
@@ -620,7 +642,11 @@ public class Main implements Callable<Integer> {
                 }
             }
         } catch (Exception e) {
-            throw InternalSynopticException.Wrap(e);
+            throw InternalSynopticException.wrap(e);
+        } finally {
+            if (jarFile != null) {
+                jarFile.close();
+            }
         }
 
         // Remove anonymous inner classes from the list, these look
@@ -819,18 +845,22 @@ public class Main implements Callable<Integer> {
      */
     public void printOptions() throws IllegalArgumentException,
             IllegalAccessException {
-        String optsString = "Synoptic options:\n";
+        StringBuffer optsString = new StringBuffer();
+        optsString.append("Synoptic options:\n");
         for (Field field : this.getClass().getDeclaredFields()) {
             if (field.getAnnotation(Option.class) != null) {
-                optsString += "\t" + field.getName() + ": ";
+                optsString.append("\t");
+                optsString.append(field.getName());
+                optsString.append(": ");
                 if (field.get(this) != null) {
-                    optsString += field.get(this).toString() + "\n";
+                    optsString.append(field.get(this).toString());
+                    optsString.append("\n");
                 } else {
-                    optsString += "null\n";
+                    optsString.append("null\n");
                 }
             }
         }
-        System.out.println(optsString);
+        System.out.println(optsString.toString());
     }
 
     public static TraceParser newTraceParser(List<String> rExps,
@@ -865,7 +895,7 @@ public class Main implements Callable<Integer> {
 
         if (sepRegExp != null) {
             parser.addPartitionsSeparator(sepRegExp);
-            if (partitioningRegExp != Main.partitionRegExpDefault) {
+            if (!partitioningRegExp.equals(Main.partitionRegExpDefault)) {
                 logger.warning("Partition separator and partition mapping regex are both specified. This may result in difficult to understand parsing behavior.");
             }
         }
@@ -896,9 +926,8 @@ public class Main implements Callable<Integer> {
         logger.info(msg + (System.currentTimeMillis() - startTime) + "ms");
     }
 
-    private Integer processPOLog(TraceParser parser,
-            List<EventNode> parsedEvents) throws ParseException,
-            FileNotFoundException {
+    private void processPOLog(TraceParser parser, List<EventNode> parsedEvents)
+            throws ParseException, FileNotFoundException {
         // //////////////////
         long startTime = loggerInfoStart("Generating inter-event temporal relation...");
         DAGsTraceGraph inputGraph = parser
@@ -960,17 +989,34 @@ public class Main implements Callable<Integer> {
             logger.info("Outputting invarians to file: " + invariantsFilename);
             minedInvs.outputToFile(invariantsFilename);
         }
-        return new Integer(0);
     }
 
     /**
-     * The workhorse method, which uses TraceParser to parse the input files,
-     * and calls the primary Synoptic functions to perform refinement\coarsening
-     * and finally outputs the final graph to the output file (specified as a
-     * command line option).
+     * The top-level method that uses TraceParser to parse the input files, and
+     * calls the primary Synoptic functions to perform refinement\coarsening and
+     * then to output the final graph to the output file (specified as a command
+     * line option).
      */
     @Override
     public Integer call() throws Exception {
+        PartitionGraph pGraph = createInitialPartitionGraph();
+        if (pGraph != null) {
+            runSynoptic(pGraph);
+        }
+        return Integer.valueOf(0);
+    }
+
+    /**
+     * Uses the values of static variables in Main to (1) read and parse the
+     * input log files, (2) to mine invariants from the parsed files, and (3)
+     * construct an initial partition graph model of the parsed files.
+     * 
+     * @return The initial partition graph built from the parsed files or null.
+     *         Returns null when the arguments passed to Main require an early
+     *         termination.
+     * @throws Exception
+     */
+    public PartitionGraph createInitialPartitionGraph() throws Exception {
         Locale.setDefault(Locale.US);
         TraceParser parser = newTraceParser(Main.regExps, Main.partitionRegExp,
                 Main.separatorRegExp);
@@ -986,7 +1032,7 @@ public class Main implements Callable<Integer> {
             logger.severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
                     + Main.getCmdLineOptDesc("help"));
             logger.severe(e.toString());
-            return new Integer(1);
+            return null;
         }
         loggerInfoEnd("Parsing took ", startTime);
         // //////////////////
@@ -994,13 +1040,14 @@ public class Main implements Callable<Integer> {
         if (Main.debugParse) {
             // Terminate since the user is interested in debugging the parser.
             logger.info("Terminating. To continue further, re-run without the debugParse option.");
-            return new Integer(0);
+            return null;
         }
 
         // PO Logs are processed separately.
         if (!parser.logTimeTypeIsTotallyOrdered()) {
             logger.warning("Partially ordered log input detected. Only mining invariants since refinement/coarsening is not yet supported.");
-            return processPOLog(parser, parsedEvents);
+            processPOLog(parser, parsedEvents);
+            return null;
         }
 
         // //////////////////
@@ -1049,7 +1096,7 @@ public class Main implements Callable<Integer> {
         }
 
         if (onlyMineInvariants) {
-            return new Integer(0);
+            return null;
         }
 
         // //////////////////
@@ -1059,17 +1106,20 @@ public class Main implements Callable<Integer> {
         loggerInfoEnd("Creating partition graph took ", startTime);
         // //////////////////
 
-        // inputGraph can be garbage-collected.
-        inputGraph = null;
+        return pGraph;
+    }
 
-        if (showGui) {
-            JungGui gui = new JungGui(pGraph);
-            gui.init();
-            synchronized (gui) {
-                gui.wait();
-            }
-            return new Integer(0);
-        }
+    /**
+     * Runs the Synoptic algorithm starting from the initial graph (pGraph). The
+     * pGraph is assumed to be fully initialized and ready for refinement. The
+     * Synoptic algorithm first runs a refinement algorithm, and then runs a
+     * coarsening algorithm.
+     * 
+     * @param pGraph
+     *            The initial graph model to start refining.
+     */
+    public void runSynoptic(PartitionGraph pGraph) {
+        long startTime;
 
         if (logLvlVerbose || logLvlExtraVerbose) {
             System.out.println("");
@@ -1112,7 +1162,5 @@ public class Main implements Callable<Integer> {
             logger.warning("Cannot output final graph. Specify output path prefix using:\n\t"
                     + Main.getCmdLineOptDesc("outputPathPrefix"));
         }
-
-        return new Integer(0);
     }
 }

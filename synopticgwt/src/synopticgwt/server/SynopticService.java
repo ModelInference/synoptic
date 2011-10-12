@@ -23,14 +23,17 @@ import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
+import synoptic.invariants.ConcurrencyInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.invariants.miners.POInvariantMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
+import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -64,9 +67,9 @@ public class SynopticService extends RemoteServiceServlet implements
 
     // The directory in which files are currently exported to.
     private static final String userExport = "userexport/";
-    
+
     // Session attribute name storing path of client's uploaded log file.
-    private static final String logFileSessionAttribute = "logFilePath"; 
+    private static final String logFileSessionAttribute = "logFilePath";
 
     // Variables corresponding to session state.
     private PartitionGraph pGraph;
@@ -113,9 +116,9 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     private void storeSessionState() {
         // Retrieve HTTP session and store all the state in the session.
-    	HttpServletRequest request = getThreadLocalRequest();
-    	HttpSession session = request.getSession();
-    	
+        HttpServletRequest request = getThreadLocalRequest();
+        HttpSession session = request.getSession();
+
         session.setAttribute("partitionGraph", pGraph);
         session.setAttribute("numSplitSteps", 0);
         session.setAttribute("unsatInvs", unsatInvs);
@@ -131,8 +134,8 @@ public class SynopticService extends RemoteServiceServlet implements
     @SuppressWarnings("unchecked")
     private void retrieveSessionState() throws Exception {
         // Retrieve HTTP session to access storage.
-    	HttpServletRequest request = getThreadLocalRequest();
-    	HttpSession session = request.getSession();
+        HttpServletRequest request = getThreadLocalRequest();
+        HttpSession session = request.getSession();
 
         // Retrieve stuff from storage, and if we can't find something then we
         // throw an error since we can't continue with refinement.
@@ -249,14 +252,32 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Converts a TemporalInvariantSet into GWTInvariants
-     * 
-     * @param invs
-     *            TemporalInvariantSet
-     * @return Equivalent GWTInvariants
+     * Calls the TemporalInvariantSetToGWTInvariants below, but first determines
+     * if there are any concurrency invariants in the input set.
      */
     private GWTInvariantSet TemporalInvariantSetToGWTInvariants(
             Set<ITemporalInvariant> invs) {
+        boolean containsConcurrencyInvs = false;
+        for (ITemporalInvariant inv : invs) {
+            if (inv instanceof ConcurrencyInvariant) {
+                containsConcurrencyInvs = true;
+            }
+        }
+        return TemporalInvariantSetToGWTInvariants(containsConcurrencyInvs,
+                invs);
+    }
+
+    /**
+     * Converts a TemporalInvariantSet into GWTInvariants
+     * 
+     * @param containsConcurrencyInvs
+     *            whether or not the set of invariants contains any
+     *            ConcurrencyInvariant instances
+     * @param invs
+     * @return Equivalent GWTInvariants
+     */
+    private GWTInvariantSet TemporalInvariantSetToGWTInvariants(
+            boolean containsConcurrencyInvs, Set<ITemporalInvariant> invs) {
         GWTInvariantSet GWTinvs = new GWTInvariantSet();
         for (ITemporalInvariant inv : invs) {
             assert (inv instanceof BinaryInvariant);
@@ -278,7 +299,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
     /**
      * Parses the input log, and sets up and stores Synoptic session state for
-     * refinement\coarsening. <<<<<<< local <<<<<<< local
+     * refinement\coarsening. For a PO log this returns a null GWTGraph.
      * 
      * @throws Exception
      */
@@ -316,74 +337,91 @@ public class SynopticService extends RemoteServiceServlet implements
 
         }
 
-        traceGraph = parser.generateDirectTORelation(parsedEvents);
-
-        // Mine invariants, and convert them to GWTInvariants.
-        TOInvariantMiner miner;
+        // Code below mines invariants, and converts them to GWTInvariants.
+        // TODO: refactor synoptic main so that it does all of this most of this
+        // for the client.
+        GWTGraph graph;
         if (parser.logTimeTypeIsTotallyOrdered()) {
-            miner = new ChainWalkingTOInvMiner();
+            traceGraph = parser.generateDirectTORelation(parsedEvents);
+            TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+            minedInvs = miner.computeInvariants(traceGraph);
+
+            // Since we're in the TO case then we also initialize and store
+            // refinement state.
+            initializeRefinementState(minedInvs);
+            storeSessionState();
+            graph = PGraphToGWTGraph(pGraph);
+
         } else {
-            miner = new TransitiveClosureInvMiner();
+            // TODO: expose to the user the option of using another kind of
+            // PO invariant miner.
+            DAGsTraceGraph inputGraph = parser
+                    .generateDirectPORelation(parsedEvents);
+            POInvariantMiner miner = new TransitiveClosureInvMiner();
+            minedInvs = miner.computeInvariants(inputGraph);
+            graph = null;
         }
-        minedInvs = miner.computeInvariants(traceGraph);
 
-        initializeRefinementState(minedInvs);
-        storeSessionState();
-
-        GWTGraph graph = PGraphToGWTGraph(pGraph);
-        GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(minedInvs
-                .getSet());
+        GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(
+                !parser.logTimeTypeIsTotallyOrdered(), minedInvs.getSet());
 
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
     }
-    
+
     /**
-     * Reads the log file given by path in session state on server. Passes
-     * log file contents into parseLog(). Parses the input log, and sets up 
-     * and stores Synoptic session state for refinement\coarsening.
+     * Reads the log file given by path in session state on server. Passes log
+     * file contents into parseLog(). Parses the input log, and sets up and
+     * stores Synoptic session state for refinement\coarsening.
+     * 
      * @throws Exception
      */
     @Override
-    public GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(List<String> regExps, 
-    		String partitionRegExp, String separatorRegExp) throws Exception {
+    public GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(
+            List<String> regExps, String partitionRegExp, String separatorRegExp)
+            throws Exception {
         // Retrieve HTTP session to access location of recent log file uploaded.
-    	HttpServletRequest request = getThreadLocalRequest();
-     	HttpSession session = request.getSession();
-     	
-     	// This session state attribute set from LogFileUploadServlet and contains
-     	// path to log file saved on disk from client.
-     	if (session.getAttribute(logFileSessionAttribute) == null) {
-     		// TODO: throw appropriate exception
-     		throw new Exception();
-     	}
-     	String path = session.getAttribute(logFileSessionAttribute).toString();
-     	
-    	ServletContext context = getServletContext();
-    	
-    	// Retrieve full path instead of relative
-    	String realPath = context.getRealPath(path);
-    	
-    	String logFileContent = null;
-    	try {
-    		FileInputStream fileStream = new FileInputStream(realPath);
-    		BufferedInputStream bufferedStream = new BufferedInputStream(fileStream);
-    		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedStream));
-    	
-    		// Build string containing contents within file
-    		StringBuilder buildLog = new StringBuilder();
-    		String checkLine;
-    		while ((checkLine = bufferedReader.readLine()) != null) {
-    			buildLog.append(checkLine);
-    			buildLog.append("\n");
-    		}
-    		fileStream.close();
-    		bufferedStream.close();
-    		bufferedReader.close();
-    		logFileContent = buildLog.toString();
-    	} catch (FileNotFoundException e) {
-    		throw new FileNotFoundException("Unable to find file given from file path");
-    	}
-    	return parseLog(logFileContent, regExps, partitionRegExp, separatorRegExp);
+        HttpServletRequest request = getThreadLocalRequest();
+        HttpSession session = request.getSession();
+
+        // This session state attribute set from LogFileUploadServlet and
+        // contains
+        // path to log file saved on disk from client.
+        if (session.getAttribute(logFileSessionAttribute) == null) {
+            // TODO: throw appropriate exception
+            throw new Exception();
+        }
+        String path = session.getAttribute(logFileSessionAttribute).toString();
+
+        ServletContext context = getServletContext();
+
+        // Retrieve full path instead of relative
+        String realPath = context.getRealPath(path);
+
+        String logFileContent = null;
+        try {
+            FileInputStream fileStream = new FileInputStream(realPath);
+            BufferedInputStream bufferedStream = new BufferedInputStream(
+                    fileStream);
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(bufferedStream));
+
+            // Build string containing contents within file
+            StringBuilder buildLog = new StringBuilder();
+            String checkLine;
+            while ((checkLine = bufferedReader.readLine()) != null) {
+                buildLog.append(checkLine);
+                buildLog.append("\n");
+            }
+            fileStream.close();
+            bufferedStream.close();
+            bufferedReader.close();
+            logFileContent = buildLog.toString();
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException(
+                    "Unable to find file given from file path");
+        }
+        return parseLog(logFileContent, regExps, partitionRegExp,
+                separatorRegExp);
     }
 
     private SerializableParseException serializeException(ParseException pe) {
@@ -540,7 +578,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
         return validLines;
     }
-    
+
     /**
      * Exports the current model as a .dot file. Returns the filename/directory.
      */
