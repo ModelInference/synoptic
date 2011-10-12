@@ -248,7 +248,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         List<EventType> cExampleLabels = stringsToStringEventTypes(new String[] {
                 "x", "a", "y", "w" });
-        cExampleLabels.add(StringEventType.NewTerminalStringEventType());
+        cExampleLabels.add(StringEventType.newTerminalStringEventType());
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
 

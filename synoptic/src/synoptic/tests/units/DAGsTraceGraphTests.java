@@ -1,43 +1,22 @@
 package synoptic.tests.units;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.junit.Test;
 
-import synoptic.algorithms.graph.TransitiveClosure;
-import synoptic.main.ParseException;
-import synoptic.model.DAGsTraceGraph;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.Transition;
-import synoptic.tests.SynopticTest;
 
 /**
  * Tests for the DAGsTraceGraph.
  */
-public class DAGsTraceGraphTests extends SynopticTest {
-
-    DAGsTraceGraph g;
-    EventNode a = new EventNode(new Event("a"));
-    EventNode b = new EventNode(new Event("b"));
-    EventNode c = new EventNode(new Event("c"));
-    EventNode d = new EventNode(new Event("d"));
-
-    @Override
-    public void setUp() throws ParseException {
-        super.setUp();
-    }
-
-    /***********************************************************************/
+public class DAGsTraceGraphTests extends DAGsTraceGraphBaseTest {
 
     /**
-     * Tests the TC of a DAG that looks like:
+     * Tests the topological order of a DAG that looks like:
      * 
      * <pre>
      * a -> b -> d
@@ -45,35 +24,113 @@ public class DAGsTraceGraphTests extends SynopticTest {
      * </pre>
      */
     @Test
-    public void forkGraphTCTest() {
-        g = new DAGsTraceGraph();
+    public void forkDAGTopoOrderTest() {
+        dag = buildForkDAG();
+        List<EventNode> order = dag.computeTopologicalOrder(0);
 
-        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
-        a.addTransition(new Transition<EventNode>(a, c, "followed by"));
-        b.addTransition(new Transition<EventNode>(b, d, "followed by"));
-        g.add(a);
-        g.add(b);
-        g.add(c);
-        g.add(d);
+        List<List<EventNode>> trueOrders = new LinkedList<List<EventNode>>();
+        trueOrders.add(Arrays.asList(new EventNode[] { a, b, c, d }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, c, b, d }));
 
-        g.tagInitial(a, "followed by");
-        g.tagTerminal(d, "followed by");
-        g.tagTerminal(c, "followed by");
-
-        TransitiveClosure tc = g.getTransitiveClosure("followed by");
-
-        Map<EventNode, Set<EventNode>> tc2 = new LinkedHashMap<EventNode, Set<EventNode>>();
-        tc2.put(a, new LinkedHashSet<EventNode>());
-        tc2.get(a).add(c);
-        tc2.get(a).add(b);
-        tc2.get(a).add(d);
-
-        tc2.put(b, new LinkedHashSet<EventNode>());
-        tc2.get(b).add(d);
-
-        assertTrue(tc2.equals(tc.getTC()));
-
-        tc2.put(d, new LinkedHashSet<EventNode>());
-        assertFalse(tc2.equals(tc.getTC()));
+        assertTrue(trueOrders.contains(order));
     }
+
+    /**
+     * Tests the topological order of a DAG that looks like:
+     * 
+     * <pre>
+     * a -> b ---> d -> e
+     *  \-> c -/    \-> f
+     * </pre>
+     */
+    @Test
+    public void complexForkDAGTopoOrderTest() {
+        dag = buildComplexForkDAG();
+        List<EventNode> order = dag.computeTopologicalOrder(0);
+
+        List<List<EventNode>> trueOrders = new LinkedList<List<EventNode>>();
+        trueOrders.add(Arrays.asList(new EventNode[] { a, b, c, d, e, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, b, c, d, f, e }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, c, b, d, e, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, c, b, d, f, e }));
+
+        assertTrue(trueOrders.contains(order));
+    }
+
+    /**
+     * Tests the topological order of a DAG that looks like:
+     * 
+     * <pre>
+     * a
+     *  \
+     *   --> c --> d
+     *  /
+     * b
+     * </pre>
+     */
+    @Test
+    public void twoSourcesDAGTopoOrderTest() {
+        dag = buildTwoSourcesDAG();
+        List<EventNode> order = dag.computeTopologicalOrder(0);
+        List<List<EventNode>> trueOrders = new LinkedList<List<EventNode>>();
+        trueOrders.add(Arrays.asList(new EventNode[] { a, b, c, d }));
+        assertTrue(trueOrders.contains(order));
+    }
+
+    /**
+     * Tests the topological order of a DAG that looks like:
+     * 
+     * <pre>
+     * a --> c --
+     *  \        \
+     *   --> d --> f
+     *  /
+     * b --> e
+     * </pre>
+     */
+    @Test
+    public void twoSourcesComplexDAGTopoOrderTest() {
+        dag = buildTwoSourcesComplexDAG();
+        List<EventNode> order = dag.computeTopologicalOrder(0);
+
+        List<List<EventNode>> trueOrders = new LinkedList<List<EventNode>>();
+        // a, b
+        trueOrders.add(Arrays.asList(new EventNode[] { a, b, c, d, e, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, b, c, d, f, e }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, b, c, e, d, f }));
+
+        trueOrders.add(Arrays.asList(new EventNode[] { a, b, e, c, d, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, b, e, d, c, f }));
+
+        trueOrders.add(Arrays.asList(new EventNode[] { a, b, d, e, c, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, b, d, c, e, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, b, d, c, f, e }));
+
+        // a, c
+        trueOrders.add(Arrays.asList(new EventNode[] { a, c, b, e, d, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, c, b, d, e, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, c, b, d, f, e }));
+
+        trueOrders.add(Arrays.asList(new EventNode[] { a, c, d, f, b, e }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, c, d, b, f, e }));
+        trueOrders.add(Arrays.asList(new EventNode[] { a, c, d, b, e, f }));
+
+        // b, a
+        trueOrders.add(Arrays.asList(new EventNode[] { b, a, c, d, e, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { b, a, c, d, f, e }));
+        trueOrders.add(Arrays.asList(new EventNode[] { b, a, c, e, d, f }));
+
+        trueOrders.add(Arrays.asList(new EventNode[] { b, a, e, c, d, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { b, a, e, d, c, f }));
+
+        trueOrders.add(Arrays.asList(new EventNode[] { b, a, d, e, c, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { b, a, d, c, e, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { b, a, d, c, f, e }));
+
+        trueOrders.add(Arrays.asList(new EventNode[] { b, e, a, c, d, f }));
+        trueOrders.add(Arrays.asList(new EventNode[] { b, e, a, d, c, f }));
+
+        assertTrue(trueOrders.contains(order));
+    }
+
 }

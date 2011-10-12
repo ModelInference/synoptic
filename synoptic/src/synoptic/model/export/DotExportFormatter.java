@@ -10,12 +10,12 @@ public class DotExportFormatter extends GraphExportFormatter {
 
     @Override
     public String beginGraphString() {
-        return new String("digraph {\n");
+        return "digraph {\n";
     }
 
     @Override
     public String endGraphString() {
-        return new String("} // digraph {\n");
+        return "} // digraph {\n";
     }
 
     @Override
@@ -30,14 +30,14 @@ public class DotExportFormatter extends GraphExportFormatter {
             attributes = attributes + ",shape=diamond";
         }
 
-        return new String("  " + nodeId + " [" + attributes + "];\n");
+        return "  " + nodeId + " [" + attributes + "];\n";
     }
 
     private String edgeToString(int nodeSrc, int nodeDst, String attributes,
             String relation) {
         assert (attributes != null);
 
-        String s = new String(nodeSrc + "->" + nodeDst + " [");
+        String s = nodeSrc + "->" + nodeDst + " [";
         if (!attributes.equals("")) {
             s += attributes + ",";
         }

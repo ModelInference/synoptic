@@ -314,8 +314,8 @@ public class EventNode implements INode<EventNode> {
         }
 
         // compare number of children
-        int transitionCntCmp = new Integer(transitions.size())
-                .compareTo(other.transitions.size());
+        int transitionCntCmp = Integer.valueOf(transitions.size()).compareTo(
+                other.transitions.size());
         if (transitionCntCmp != 0) {
             return transitionCntCmp;
         }

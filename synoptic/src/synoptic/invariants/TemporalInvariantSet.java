@@ -165,7 +165,8 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             Collections.sort(paths, new Comparator<CExamplePath<T>>() {
                 @Override
                 public int compare(CExamplePath<T> o1, CExamplePath<T> o2) {
-                    return new Integer(o1.path.size()).compareTo(o2.path.size());
+                    return Integer.valueOf(o1.path.size()).compareTo(
+                            o2.path.size());
                 }
             });
 

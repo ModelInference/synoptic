@@ -182,8 +182,9 @@ public class PartitionGraph implements IGraph<Partition> {
         // For each set of event nodes with the same event type, create
         // one partition.
         partitions = new LinkedHashSet<Partition>();
-        for (EventType eType : prepartitions.keySet()) {
-            partitions.add(new Partition(prepartitions.get(eType)));
+        // for (EventType eType : prepartitions.keySet()) {
+        for (Entry<EventType, Set<EventNode>> entry : prepartitions.entrySet()) {
+            partitions.add(new Partition(entry.getValue()));
         }
 
         transitionCache.clear();
