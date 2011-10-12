@@ -334,9 +334,9 @@ public class SynopticService extends RemoteServiceServlet implements
     }
     
     /**
-     * Parses the log file given by session state on server, and sets up and 
-     * stores Synoptic session state for refinement\coarsening. <<<<<<< local <<<<<<< local
-     * 
+     * Reads the log file given by path in session state on server. Passes
+     * log file contents into parseLog(). Parses the input log, and sets up 
+     * and stores Synoptic session state for refinement\coarsening.
      * @throws Exception
      */
     @Override
@@ -345,6 +345,13 @@ public class SynopticService extends RemoteServiceServlet implements
         // Retrieve HTTP session to access location of recent log file uploaded.
     	HttpServletRequest request = getThreadLocalRequest();
      	HttpSession session = request.getSession();
+     	
+     	// This session state attribute set from LogFileUploadServlet and contains
+     	// path to log file saved on disk from client.
+     	if (session.getAttribute("logFilePath") == null) {
+     		// TODO: throw appropriate exception
+     		throw new Exception();
+     	}
      	String path = session.getAttribute("logFilePath").toString();
      	
     	ServletContext context = getServletContext();
@@ -352,20 +359,20 @@ public class SynopticService extends RemoteServiceServlet implements
     	// Retrieve full path instead of relative
     	String realPath = context.getRealPath(path);
     	  
-    	FileInputStream fis = new FileInputStream(realPath);
-    	BufferedInputStream bis = new BufferedInputStream(fis);
-    	BufferedReader br = new BufferedReader(new InputStreamReader(bis));
+    	FileInputStream fileStream = new FileInputStream(realPath);
+    	BufferedInputStream bufferedStream = new BufferedInputStream(fileStream);
+    	BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedStream));
     	
     	// Build string containing contents within file
     	StringBuilder buildLog = new StringBuilder();
     	String checkLine;
-      	while ((checkLine = br.readLine()) != null) {
+      	while ((checkLine = bufferedReader.readLine()) != null) {
       		buildLog.append(checkLine);
       		buildLog.append("\n");
       	}
-      	fis.close();
-      	bis.close();
-      	br.close();
+      	fileStream.close();
+      	bufferedStream.close();
+      	bufferedReader.close();
       	
       	String logFileContent = buildLog.toString();
     		
