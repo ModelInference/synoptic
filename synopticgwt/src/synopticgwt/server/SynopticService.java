@@ -3,6 +3,7 @@ package synopticgwt.server;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -63,6 +64,9 @@ public class SynopticService extends RemoteServiceServlet implements
 
     // The directory in which files are currently exported to.
     private static final String userExport = "userexport/";
+    
+    // Session attribute name storing path of client's uploaded log file.
+    private static final String logFileSessionAttribute = "logFilePath"; 
 
     // Variables corresponding to session state.
     private PartitionGraph pGraph;
@@ -348,34 +352,37 @@ public class SynopticService extends RemoteServiceServlet implements
      	
      	// This session state attribute set from LogFileUploadServlet and contains
      	// path to log file saved on disk from client.
-     	if (session.getAttribute("logFilePath") == null) {
+     	if (session.getAttribute(logFileSessionAttribute) == null) {
      		// TODO: throw appropriate exception
      		throw new Exception();
      	}
-     	String path = session.getAttribute("logFilePath").toString();
+     	String path = session.getAttribute(logFileSessionAttribute).toString();
      	
     	ServletContext context = getServletContext();
     	
     	// Retrieve full path instead of relative
     	String realPath = context.getRealPath(path);
-    	  
-    	FileInputStream fileStream = new FileInputStream(realPath);
-    	BufferedInputStream bufferedStream = new BufferedInputStream(fileStream);
-    	BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedStream));
     	
-    	// Build string containing contents within file
-    	StringBuilder buildLog = new StringBuilder();
-    	String checkLine;
-      	while ((checkLine = bufferedReader.readLine()) != null) {
-      		buildLog.append(checkLine);
-      		buildLog.append("\n");
-      	}
-      	fileStream.close();
-      	bufferedStream.close();
-      	bufferedReader.close();
-      	
-      	String logFileContent = buildLog.toString();
-    		
+    	String logFileContent = null;
+    	try {
+    		FileInputStream fileStream = new FileInputStream(realPath);
+    		BufferedInputStream bufferedStream = new BufferedInputStream(fileStream);
+    		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedStream));
+    	
+    		// Build string containing contents within file
+    		StringBuilder buildLog = new StringBuilder();
+    		String checkLine;
+    		while ((checkLine = bufferedReader.readLine()) != null) {
+    			buildLog.append(checkLine);
+    			buildLog.append("\n");
+    		}
+    		fileStream.close();
+    		bufferedStream.close();
+    		bufferedReader.close();
+    		logFileContent = buildLog.toString();
+    	} catch (FileNotFoundException e) {
+    		throw new FileNotFoundException("Unable to find file given from file path");
+    	}
     	return parseLog(logFileContent, regExps, partitionRegExp, separatorRegExp);
     }
 
