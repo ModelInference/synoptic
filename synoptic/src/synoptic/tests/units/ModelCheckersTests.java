@@ -62,7 +62,7 @@ public class ModelCheckersTests extends SynopticTest {
     }
 
     public ModelCheckersTests(boolean useFSMChecker) {
-        Main.useFSMChecker = useFSMChecker;
+        Main.options.useFSMChecker = useFSMChecker;
     }
 
     /**
@@ -318,7 +318,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         List<EventType> cExampleLabels = null;
 
-        if (Main.useFSMChecker) {
+        if (Main.options.useFSMChecker) {
             cExampleLabels = stringsToStringEventTypes(new String[] { "a", "c",
                     "d", "b" });
         } else {

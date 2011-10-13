@@ -203,7 +203,7 @@ public abstract class Bisimulation {
                 // result in making the invariant true!
 
                 for (PartitionSplit candidateSplit : candidateSplits) {
-                    if (Main.performExtraChecks) {
+                    if (Main.options.performExtraChecks) {
                         // getSplits() should never generate invalid splits.
                         if (!candidateSplit.isValid()) {
                             throw new InternalSynopticException(
@@ -299,7 +299,7 @@ public abstract class Bisimulation {
 
         logger.fine(logStr);
 
-        if (Main.dumpIntermediateStages) {
+        if (Main.options.dumpIntermediateStages) {
             Main.exportNonInitialGraph(
                     Main.getIntermediateDumpFilename("r", numSplitSteps + 1),
                     pGraph);
@@ -322,7 +322,7 @@ public abstract class Bisimulation {
         TimedTask refinement = PerformanceMetrics.createTask("refinement",
                 false);
 
-        if (Main.dumpIntermediateStages) {
+        if (Main.options.dumpIntermediateStages) {
             Main.exportNonInitialGraph(
                     Main.getIntermediateDumpFilename("r", 0), pGraph);
         }
@@ -388,7 +388,7 @@ public abstract class Bisimulation {
 
         }
 
-        if (Main.dumpIntermediateStages) {
+        if (Main.options.dumpIntermediateStages) {
             Main.exportNonInitialGraph(
                     Main.getIntermediateDumpFilename("r", numSplitSteps),
                     pGraph);
@@ -552,7 +552,7 @@ public abstract class Bisimulation {
         outerWhile:
         while (true) {
 
-            if (Main.dumpIntermediateStages) {
+            if (Main.options.dumpIntermediateStages) {
                 Main.exportNonInitialGraph(
                         Main.getIntermediateDumpFilename("c", outerItters),
                         pGraph);
@@ -608,7 +608,7 @@ public abstract class Bisimulation {
                         // Undo the merge.
                         pGraph.apply(rewindOperation);
 
-                        if (Main.performExtraChecks) {
+                        if (Main.options.performExtraChecks) {
                             pGraph.checkSanity();
                         }
 
@@ -634,7 +634,7 @@ public abstract class Bisimulation {
             break;
         }
 
-        if (Main.dumpIntermediateStages) {
+        if (Main.options.dumpIntermediateStages) {
             Main.exportNonInitialGraph(
                     Main.getIntermediateDumpFilename("c", outerItters), pGraph);
         }

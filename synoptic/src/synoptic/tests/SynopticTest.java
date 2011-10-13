@@ -1,19 +1,14 @@
 package synoptic.tests;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.logging.Logger;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.rules.TestName;
 
 import junit.framework.Assert;
 
 import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -25,62 +20,52 @@ import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
 import synoptic.model.TraceGraph;
-import synoptic.model.export.DotExportFormatter;
-import synoptic.model.interfaces.IGraph;
-import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
 
 /**
- * Base class for all Synoptic unit tests. Performs common set-up and tear-down
- * tasks, and defines methods used by multiple tests.
+ * Base class for all Synoptic project tests. Performs common set-up and
+ * tear-down tasks, and defines methods used by multiple tests.
+ * 
+ * <pre>
+ * Requires JUnit 4.7 or higher.
+ * </pre>
  * 
  * @author ivan
  */
-public abstract class SynopticTest {
-    /**
-     * Can be used to derive the current test name (as of JUnit 4.7) via
-     * name.getMethodName().
-     **/
-    @Rule
-    public static TestName testName;
+public abstract class SynopticTest extends SynopticLibTest {
 
-    // Set up the state statically.
-    static {
-        testName = new TestName();
-    }
-
-    /**
-     * The logger instance to use across all tests.
-     */
-    protected static Logger logger = Logger.getLogger("SynopticTest Logger");
     /**
      * Default relation used in invariant mining.
      */
     public static final String defRelation = "t";
 
+    static {
+        // Set up static SynopticLib state.
+        SynopticLibTest.initialize("SynopticTest Logger");
+    }
+
     /**
-     * Sets up the Synoptic state that is necessary for running unit tests in
-     * general.
+     * Sets up the Synoptic state that is necessary for running tests associated
+     * with the Synoptic project.
      * 
      * @throws ParseException
      */
     @Before
     public void setUp() throws ParseException {
-        Main.recoverFromParseErrors = false;
-        Main.ignoreNonMatchingLines = false;
-        Main.debugParse = false;
-        Main.logLvlVerbose = true;
-        Main.logLvlExtraVerbose = false;
-        // Main.logLvlExtraVerbose = true;
-        Main.setUpLogging();
-        Main.randomSeed = System.currentTimeMillis();
-        Main.random = new Random(Main.randomSeed);
-        Main.graphExportFormatter = new DotExportFormatter();
+        // Set up SynopticLib state.
+        super.setUp();
     }
 
     // //////////////////////////////////////////////
     // Common routines to simplify testing.
     // //////////////////////////////////////////////
+
+    /**
+     * Exposes SynopticLibTest's testName to derived classes.
+     */
+    protected static TestName getTestName() {
+        return SynopticLibTest.testName;
+    }
 
     /**
      * Converts an array of strings into a list of EventType objects. Does not
@@ -232,36 +217,6 @@ public abstract class SynopticTest {
             prevEvent = logEvent;
         }
         return ret;
-    }
-
-    /**
-     * Exports a graph to a png file.
-     * 
-     * @param g
-     *            Graph to export
-     */
-    protected static <T extends INode<T>> void exportTestGraph(IGraph<T> g,
-            int index) {
-        exportTestGraph(g, Integer.toString(index));
-    }
-
-    /**
-     * Exports a graph to a png file.
-     * 
-     * @param g
-     *            Graph to export
-     */
-    protected static <T extends INode<T>> void exportTestGraph(IGraph<T> g,
-            String title) {
-        // Only export test graphs we were told to be verbose.
-        if (!Main.logLvlVerbose && !Main.logLvlExtraVerbose) {
-            return;
-        }
-        // String eGraph = defExporter.export(g);
-        // logger.fine(eGraph);
-        String path = "test-output" + File.separator + testName.getMethodName()
-                + title + ".dot";
-        Main.exportInitialGraph(path, g);
     }
 
 }
