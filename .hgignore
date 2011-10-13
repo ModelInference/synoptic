@@ -4,6 +4,7 @@ syntax: glob
 # Ignore directories with auto-generated files
 synoptic/bin/*
 synoptic/junit/*
+
 synopticgwt/war/WEB-INF/*
 synopticgwt/www-test/*
 synopticgwt/war/synopticgwt.SynopticGWT.JUnit/*
@@ -13,8 +14,11 @@ synopticgwt/war/userlogfileexport/*
 synopticgwt/.gwt/*
 synopticgwt/.settings/*
 synopticgwt/gwt-unitCache/
+
 synopticjung/bin/*
+
 InvDFAMinimization/bin/*
+InvDFAMinimization/junit/*
 
 # Ignore vim .swp files
 .*.swp

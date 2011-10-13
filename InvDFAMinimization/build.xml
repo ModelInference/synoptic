@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-<project basedir="." default="build" name="Synoptic">
+<project basedir="." default="build" name="InvDFAMinimization">
     <property environment="env"/>
     <property name="SYNOPTIC_LIB" value="../lib"/>
     <property name="SYNOPTIC_JARRED_LIB" value="lib"/>
@@ -12,7 +12,7 @@
         <pathelement location="bin"/>
         <pathelement location="${SYNOPTIC_LIB}/junit-4.9b2.jar"/>
         <pathelement location="${SYNOPTIC_LIB}/plume.jar"/>
-        <pathelement location="${SYNOPTIC_LIB}/stixar-0.0.1-alpha.jar"/>
+        <pathelement location="${SYNOPTIC_LIB}/synoptic.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -38,20 +38,6 @@
         </javac>
     </target>
 
-    <target name="jar" depends="build">
-      <jar destfile="${SYNOPTIC_LIB}/synoptic.jar"
-           basedir="./bin/"
-           includes="**/*.class">
-        <manifest>
-	  <attribute name="Manifest-Version" value="1.0" />
-	  <attribute name="Implementation-Title" value="synoptic" />
-	  <attribute name="Implementation-Version" value="0.0.5" />
-	  <attribute name="Main-Class" value="synoptic.main.Main" />
-	  <attribute name="Class-Path" value="${SYNOPTIC_JARRED_LIB}/junit-4.9b2.jar ${SYNOPTIC_JARRED_LIB}/plume.jar" />
-	</manifest>
-      </jar>
-    </target>
-
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="no" printsummary="withOutAndErr" showoutput="true">
@@ -60,8 +46,8 @@
 
 	  <batchtest fork="no" todir="${junit.output.dir}">
 	    <fileset dir="bin/">
-	      <include name="synoptic/tests/units/*Tests.class"/>
-	      <include name="synoptic/tests/integration/*Tests.class"/>
+	      <include name="tests/units/*Tests.class"/>
+	      <include name="tests/integration/*Tests.class"/>
 	    </fileset>
 	  </batchtest>
 

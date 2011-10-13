@@ -35,11 +35,10 @@ public class EndToEndMainTests extends SynopticTest {
 
         Collection<Object[]> argsList = new LinkedList<Object[]>();
         for (String tPath : testPaths) {
-            // TODO: The -o option overrides any -o option in the args.txt file
-            // and is set to empty string. This is because we need to give
-            // Synoptic a correct path to the dot/png files output directory.
-            // This needs to be fixed, so that we have a truly end-to-end test
-            Object[] testCase = { new String[] { "-o", "", "-c",
+            // TODO: Another hidden path dependency is in the output file.
+            // Synoptic always produces graph output, and writes it to a default
+            // location, which needs to be set correctly.
+            Object[] testCase = { new String[] { "-o", "test", "-c",
                     tracesPath + tPath + "args.txt",
                     tracesPath + tPath + "trace.txt" } };
             argsList.add(testCase);
