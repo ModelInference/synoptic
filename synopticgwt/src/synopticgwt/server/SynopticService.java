@@ -1,5 +1,10 @@
 package synopticgwt.server;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -9,6 +14,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -65,6 +71,9 @@ public class SynopticService extends RemoteServiceServlet implements
 
     // The directory in which files are currently exported to.
     private static final String userExport = "userexport/";
+
+    // Session attribute name storing path of client's uploaded log file.
+    private static final String logFileSessionAttribute = "logFilePath";
 
     // Variables corresponding to session state.
     private PartitionGraph pGraph;
@@ -331,10 +340,9 @@ public class SynopticService extends RemoteServiceServlet implements
         // for the client.
         GWTGraph graph;
         if (parser.logTimeTypeIsTotallyOrdered()) {
-            ChainsTraceGraph inputGraph = parser
-                    .generateDirectTORelation(parsedEvents);
+            traceGraph = parser.generateDirectTORelation(parsedEvents);
             TOInvariantMiner miner = new ChainWalkingTOInvMiner();
-            minedInvs = miner.computeInvariants(inputGraph);
+            minedInvs = miner.computeInvariants(traceGraph);
 
             // Since we're in the TO case then we also initialize and store
             // refinement state.
@@ -356,6 +364,62 @@ public class SynopticService extends RemoteServiceServlet implements
                 !parser.logTimeTypeIsTotallyOrdered(), minedInvs.getSet());
 
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
+    }
+
+    /**
+     * Reads the log file given by path in session state on server. Passes log
+     * file contents into parseLog(). Parses the input log, and sets up and
+     * stores Synoptic session state for refinement\coarsening.
+     * 
+     * @throws Exception
+     */
+    @Override
+    public GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(
+            List<String> regExps, String partitionRegExp, String separatorRegExp)
+            throws Exception {
+        // Retrieve HTTP session to access location of recent log file uploaded.
+        HttpServletRequest request = getThreadLocalRequest();
+        HttpSession session = request.getSession();
+
+        // This session state attribute set from LogFileUploadServlet and
+        // contains
+        // path to log file saved on disk from client.
+        if (session.getAttribute(logFileSessionAttribute) == null) {
+            // TODO: throw appropriate exception
+            throw new Exception();
+        }
+        String path = session.getAttribute(logFileSessionAttribute).toString();
+
+        ServletContext context = getServletContext();
+
+        // Retrieve full path instead of relative
+        String realPath = context.getRealPath(path);
+
+        String logFileContent = null;
+        try {
+            FileInputStream fileStream = new FileInputStream(realPath);
+            BufferedInputStream bufferedStream = new BufferedInputStream(
+                    fileStream);
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(bufferedStream));
+
+            // Build string containing contents within file
+            StringBuilder buildLog = new StringBuilder();
+            String checkLine;
+            while ((checkLine = bufferedReader.readLine()) != null) {
+                buildLog.append(checkLine);
+                buildLog.append("\n");
+            }
+            fileStream.close();
+            bufferedStream.close();
+            bufferedReader.close();
+            logFileContent = buildLog.toString();
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException(
+                    "Unable to find file given from file path");
+        }
+        return parseLog(logFileContent, regExps, partitionRegExp,
+                separatorRegExp);
     }
 
     private SerializableParseException serializeException(ParseException pe) {

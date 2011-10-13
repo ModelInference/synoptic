@@ -133,6 +133,10 @@ h1 {
 	/* width: 175px; */
 }
 
+.LogTypeRadio {
+	margin: 5px;	
+}
+
 .FlexTable {
 	table-layout: fixed;
 }
