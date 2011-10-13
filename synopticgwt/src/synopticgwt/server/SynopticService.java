@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -24,7 +25,9 @@ import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.POInvariantMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
+import synoptic.main.Main;
 import synoptic.main.ParseException;
+import synoptic.main.SynopticOptions;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
@@ -32,6 +35,7 @@ import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.WeightedTransition;
+import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.util.InternalSynopticException;
 import synopticgwt.client.ISynopticService;
@@ -301,16 +305,10 @@ public class SynopticService extends RemoteServiceServlet implements
 
         // Set up some static variables in Main that are necessary to use the
         // Synoptic library.
+        Main.options = new SynopticOptions();
         synoptic.main.Main.setUpLogging();
-        synoptic.main.Main.recoverFromParseErrors = false;
-        synoptic.main.Main.ignoreNonMatchingLines = false;
-        synoptic.main.Main.debugParse = false;
-        synoptic.main.Main.logLvlVerbose = false;
-        synoptic.main.Main.logLvlExtraVerbose = false;
-        synoptic.main.Main.graphExportFormatter = new synoptic.model.export.DotExportFormatter();
-        synoptic.main.Main.randomSeed = System.currentTimeMillis();
-        synoptic.main.Main.random = new java.util.Random(
-                synoptic.main.Main.randomSeed);
+        Main.random = new Random(Main.options.randomSeed);
+        Main.graphExportFormatter = new DotExportFormatter();
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = null;

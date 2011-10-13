@@ -332,7 +332,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
         // Test with FSM checker.
-        Main.useFSMChecker = true;
+        Main.options.useFSMChecker = true;
         List<CExamplePath<EventNode>> cExamples = minedInvs
                 .getAllCounterExamples(inputGraph);
         if (cExamples != null) {
@@ -343,7 +343,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         assertTrue(cExamples == null);
 
         // Test with LTL checker.
-        Main.useFSMChecker = false;
+        Main.options.useFSMChecker = false;
         cExamples = minedInvs.getAllCounterExamples(inputGraph);
         if (cExamples != null) {
             logger.fine("log: " + Arrays.toString(log));

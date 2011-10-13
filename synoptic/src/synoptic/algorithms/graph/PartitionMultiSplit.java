@@ -63,7 +63,7 @@ public class PartitionMultiSplit implements IOperation {
 
         // //////////////
 
-        if (Main.performExtraChecks) {
+        if (Main.options.performExtraChecks) {
             g.checkSanity();
         }
 
