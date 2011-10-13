@@ -37,7 +37,7 @@ public class PerformanceTests extends SynopticTest {
     public PerformanceTests(boolean useFSMChecker, int numIterations,
             int traceType, int totalEvents, int numPartitions,
             int numEventTypes, boolean withInvariants) {
-        Main.useFSMChecker = useFSMChecker;
+        Main.options.useFSMChecker = useFSMChecker;
         this.numIterations = numIterations;
         this.traceType = traceType;
         this.totalEvents = totalEvents;
@@ -45,14 +45,14 @@ public class PerformanceTests extends SynopticTest {
         this.numEventTypes = numEventTypes;
         this.withInvariants = withInvariants;
 
-        Main.logLvlExtraVerbose = false;
-        Main.logLvlQuiet = true;
+        Main.options.logLvlExtraVerbose = false;
+        Main.options.logLvlQuiet = true;
     }
 
     public void reportTime(long msTime) {
         System.out.println(testName.getMethodName() + ":"
-                + "\n\tuseFSMChecker " + Main.useFSMChecker + "\n\tType "
-                + traceType + "\n\ttotalEvents " + totalEvents
+                + "\n\tuseFSMChecker " + Main.options.useFSMChecker
+                + "\n\tType " + traceType + "\n\ttotalEvents " + totalEvents
                 + "\n\tnumPartitions " + numPartitions + "\n\tnumEventTypes "
                 + numEventTypes + "\n\twithInvariants " + withInvariants
                 + "\n\t==> TIME: " + msTime + "ms (averaged over "

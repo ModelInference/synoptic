@@ -108,7 +108,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         TimedTask refinement = PerformanceMetrics.createTask(
                 "getCounterExample", true);
         try {
-            if (Main.useFSMChecker) {
+            if (Main.options.useFSMChecker) {
                 return FsmModelChecker.getCounterExample((BinaryInvariant) inv,
                         g);
             }
@@ -135,7 +135,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
                 "getAllCounterExamples", false);
         try {
             List<CExamplePath<T>> paths = null;
-            if (Main.useFSMChecker) {
+            if (Main.options.useFSMChecker) {
                 paths = new ArrayList<CExamplePath<T>>();
                 for (ITemporalInvariant tinv : invariants) {
                     CExamplePath<T> path = FsmModelChecker.getCounterExample(
@@ -173,7 +173,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             return paths;
         } finally {
             violations.stop();
-            if (Main.doBenchmarking) {
+            if (Main.options.doBenchmarking) {
                 logger.info("BENCHM: " + violations.toString());
             }
         }
@@ -194,7 +194,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         TimedTask violations = PerformanceMetrics.createTask(
                 "getFirstCounterExample", false);
         try {
-            if (Main.useFSMChecker) {
+            if (Main.options.useFSMChecker) {
                 for (ITemporalInvariant tinv : invariants) {
                     CExamplePath<T> path = FsmModelChecker.getCounterExample(
                             (BinaryInvariant) tinv, g);
@@ -258,7 +258,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         int percentReduction = possibleInvariants == 0 ? 0 : 100
                 - overapproximatedInvariantsSetSize * 100 / possibleInvariants;
 
-        if (Main.doBenchmarking) {
+        if (Main.options.doBenchmarking) {
             logger.info("BENCHM: "
                     + overapproximatedInvariantsSet.numInvariants()
                     + " true invariants, approximation guessed "
