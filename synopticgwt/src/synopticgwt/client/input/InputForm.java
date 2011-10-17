@@ -50,7 +50,7 @@ public class InputForm extends Tab<VerticalPanel> {
     final TextBox partitionRegExpTextBox = new TextBox();
     final TextBox separatorRegExpTextBox = new TextBox();
     final Button parseLogButton = new Button("Parse Log");
-    final Button clearInputsButton = new Button("Clear Inputs");
+    final Button clearInputsButton = new Button("Reset");
 
     public InputForm(ISynopticServiceAsync synopticService)  {
         super(synopticService);
@@ -143,6 +143,7 @@ public class InputForm extends Tab<VerticalPanel> {
         // Associate handler with the Parse Log button.
         parseLogButton.addClickHandler(new ParseLogHandler());
         parseLogButton.addStyleName("ParseLogButton");
+        parseLogButton.setEnabled(false);
         
         // Associate handler with the Clear Inputs button.
         clearInputsButton.addClickHandler(new ClearInputsHandler());
@@ -193,7 +194,7 @@ public class InputForm extends Tab<VerticalPanel> {
 			separatorRegExpTextBox.setText("");
 		}	
     }
-    
+     
     /**
      * Handles enabling/disabling of text area or file upload button when log
      * type radio buttons are changed.
