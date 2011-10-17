@@ -5,11 +5,8 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,10 +23,6 @@ import java.util.logging.Logger;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.runner.JUnitCore;
-
-import plume.Option;
-import plume.OptionGroup;
-import plume.Options;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.invariants.ITemporalInvariant;
@@ -66,356 +59,15 @@ public class Main implements Callable<Integer> {
      */
     public static Random random;
 
-    // //////////////////////////////////////////////////
-    /**
-     * Print the short usage message. This does not include verbosity or
-     * debugging options.
-     */
-    @OptionGroup("General Options")
-    @Option(value = "-h Print short usage message", aliases = { "-help" })
-    public static boolean help = false;
-
-    /**
-     * Print the extended usage message. This includes verbosity and debugging
-     * options but not internal options.
-     */
-    @Option("-H Print extended usage message (includes debugging options)")
-    public static boolean allHelp = false;
-
-    /**
-     * Print the current Synoptic version.
-     */
-    @Option(value = "-V Print program version", aliases = { "-version" })
-    public static boolean version = false;
-    // end option group "General Options"
-
-    // //////////////////////////////////////////////////
-    /**
-     * Be quiet, do not print much information. Sets the log level to WARNING.
-     */
-    @OptionGroup("Execution Options")
-    @Option(value = "-q Be quiet, do not print much information",
-            aliases = { "-quiet" })
-    public static boolean logLvlQuiet = false;
-
-    /**
-     * Be verbose, print extra detailed information. Sets the log level to FINE.
-     */
-    @Option(value = "-v Print detailed information during execution",
-            aliases = { "-verbose" })
-    public static boolean logLvlVerbose = false;
-
-    /**
-     * Use the new FSM checker instead of the LTL checker.
-     */
-    @Option(
-            value = "-f Use FSM checker instead of the default NASA LTL-based checker",
-            aliases = { "-use-fsm-checker" })
-    public static boolean useFSMChecker = true;
-
-    /**
-     * Sets the random seed for Synoptic's source of pseudo-random numbers.
-     */
-    @Option(
-            value = "Use a specific random seed for pseudo-random number generator")
-    public static Long randomSeed = null;
-
-    /**
-     * Use vector time indexes to partition the output graph into a set of
-     * graphs, one per distributed system node type.
-     */
-    @Option(
-            value = "Vector time index sets for partitioning the graph by system node type, e.g. '1,2;3,4'")
-    public static String separateVTimeIndexSets = null;
-    // end option group "Execution Options"
-
-    // //////////////////////////////////////////////////
-    /**
-     * Regular expression separator string. When lines are found which match
-     * this expression, the lines before and after are considered to be in
-     * different 'traces', each to be considered an individual sample of the
-     * behavior of the system. This is implemented by augmenting the separator
-     * expression with an incrementor, (?<SEPCOUNT++>), and adding \k<SEPCOUNT>
-     * to the partitioner.
-     */
-    @OptionGroup("Parser Options")
-    @Option(
-            value = "-s Partitions separator reg-exp: log lines below and above the matching line are placed into different partitions",
-            aliases = { "-partition-separator" })
-    public static String separatorRegExp = null;
-
-    /**
-     * Regular expressions used for parsing the trace file. This parameter may,
-     * and is often repeated, in order to express the different formats of log
-     * lines which should be parsed. The ordering is significant, and matching
-     * is attempted in the order in which the expressions are given. These
-     * 'regular' expressions are a bit specialized, in that they have named
-     * group matches of the form (?<name>regex), in order to extract the
-     * significant components of the log line. There are a few more variants on
-     * this, detailed in the online documentation.
-     */
-    @Option(
-            value = "-r Parser reg-exp: extracts event type and event time from a log line",
-            aliases = { "-regexp" })
-    public static List<String> regExps = null;
-
-    /**
-     * A substitution expression, used to express how to map the trace lines
-     * into partition traces, to be considered as an individual sample of the
-     * behavior of the system.
-     */
-    public static final String partitionRegExpDefault = "\\k<FILE>";
-    @Option(
-            value = "-m Partitions mapping reg-exp: maps a log line to a partition",
-            aliases = { "-partition-mapping" })
-    public static String partitionRegExp = partitionRegExpDefault;
-
-    /**
-     * This flag indicates whether Synoptic should partition traces by file
-     */
-    public static boolean partitionViaFile = true;
-
-    /**
-     * This option relieves the user from writing regular expressions to parse
-     * lines that they are not interested in. This also help to avoid parsing of
-     * lines that are corrupted.
-     */
-    @Option(
-            value = "-i Ignore lines that do not match any of the passed regular expressions")
-    public static boolean ignoreNonMatchingLines = false;
-
-    /**
-     * This allows users to get away with sloppy\incorrect regular expressions
-     * that might not fully cover the range of log lines appearing in the log
-     * files.
-     */
-    @Option(
-            value = "Ignore parser warnings and attempt to recover from parse errors if possible",
-            aliases = { "-ignore-parse-errors" })
-    public static boolean recoverFromParseErrors = false;
-
-    /**
-     * Output the fields extracted from each log line and terminate.
-     */
-    @Option(
-            value = "Debug the parser by printing field values extracted from the log and then terminate.",
-            aliases = { "-debugParse" })
-    public static boolean debugParse = false;
-    // end option group "Parser Options"
-
-    // //////////////////////////////////////////////////
-    /**
-     * Command line arguments input filename to use.
-     */
-    @OptionGroup("Input Options")
-    @Option(value = "-c Command line arguments input filename",
-            aliases = { "-argsfile" })
-    public static String argsFilename = null;
-    // end option group "Input Options"
-
-    // //////////////////////////////////////////////////
-    /**
-     * Specifies the prefix of where to store the final Synoptic representation
-     * output. This prefix is also used to determine filenames of intermediary
-     * files as well, like corresponding dot file and intermediate stage
-     * representations and dot files (if specified, e.g. with
-     * --dumpIntermediateStages).
-     */
-    @OptionGroup("Output Options")
-    @Option(
-            value = "-o Output path prefix for generating Graphviz dot files graphics",
-            aliases = { "-output-prefix" })
-    public static String outputPathPrefix = null;
-
-    /**
-     * Whether or not to output the list of invariants to a file, with one
-     * invariant per line.
-     */
-    @Option(value = "Output invariants to a file")
-    public static boolean outputInvariantsToFile = false;
-
-    /**
-     * Whether or not models should be exported as GML (graph modeling language)
-     * files (the default format is DOT file format).
-     */
-    @Option(value = "Export models as GML and not DOT files",
-            aliases = { "-export-as-gml" })
-    public static boolean exportAsGML = false;
-
-    /**
-     * The absolute path to the dot command executable to use for outputting
-     * graphical representations of Synoptic models
-     */
-    @Option(value = "-d Path to the Graphviz dot command executable to use",
-            aliases = { "-dot-executable" })
-    public static String dotExecutablePath = null;
-
-    /**
-     * This sets the output edge labels on graphs that are exported.
-     */
-    @Option(
-            value = "Output edge labels on graphs to indicate transition probabilities",
-            aliases = { "-outputEdgeLabels" })
-    public static boolean outputEdgeLabels = true;
-
-    /**
-     * Whether or not the output graphs include the common TERMINAL state, to
-     * which all final trace nodes have an edge.
-     */
-    @Option(value = "Show TERMINAL node in generated graphs.")
-    public static boolean showTerminalNode = true;
-
-    /**
-     * Whether or not the output graphs include the common INITIAL state, which
-     * has an edge to all the start trace nodes.
-     */
-    @Option(value = "Show INITIAL node in generated graphs.")
-    public static boolean showInitialNode = true;
-
-    // end option group "Output Options"
-
-    // //////////////////////////////////////////////////
-    /**
-     * Dump the complete list of mined synoptic.invariants for the set of input
-     * files to stdout. This option is <i>unpublicized</i>; it will not appear
-     * in the default usage message
-     */
-    @OptionGroup(value = "Verbosity Options", unpublicized = true)
-    @Option("Dump complete list of mined invariant to stdout")
-    public static boolean dumpInvariants = false;
-
-    /**
-     * Dump the DOT representation of the initial graph to file. The file will
-     * have the name <outputPathPrefix>.initial.dot, where 'outputPathPrefix' is
-     * the filename of the final Synoptic output. This option is
-     * <i>unpublicized</i>; it will not appear in the default usage message
-     */
-    @Option("Dump the DOT file for the initial graph to file <outputPathPrefix>.initial.dot")
-    public static boolean dumpInitialGraphDotFile = true;
-
-    /**
-     * Dump PNG of graph to file. The file will have the name
-     * <outputPathPrefix>.initial.dot.png, where 'outputPathPrefix' is the
-     * filename of the final Synoptic output. This option is
-     * <i>unpublicized</i>; it will not appear in the default usage message
-     */
-    @Option("Dump the PNG for the initial graph to file <outputPathPrefix>.initial.dot.png")
-    public static boolean dumpInitialGraphPngFile = true;
-
-    /**
-     * Dump the dot representations for intermediate Synoptic steps to file.
-     * Each of these files will have a name like:
-     * outputPathPrefix.stage-S.round-R.dot where 'outputPathPrefix' is the
-     * filename of the final Synoptic output, 'S' is the name of the stage (e.g.
-     * r for refinement, and c for coarsening), and 'R' is the round number
-     * within the stage. This option requires that the outputPathPrefix is set
-     * with the -o option (see above). This option is <i>unpublicized</i>; it
-     * will not appear in the default usage message
-     */
-    @Option("Dump dot files from intermediate Synoptic stages to files of form outputPathPrefix.stage-S.round-R.dot")
-    public static boolean dumpIntermediateStages = false;
-    // end option group "Verbosity Options"
-
-    // //////////////////////////////////////////////////
-    @OptionGroup(value = "Debugging Options", unpublicized = true)
-    /**
-     * Be extra verbose, print extra detailed information. Sets the log level to
-     * FINEST.
-     */
-    @Option(value = "Print extra detailed information during execution")
-    public static boolean logLvlExtraVerbose = false;
-
-    /**
-     * Used to select the algorithm for mining invariants.
-     */
-    @Option("Use the transitive closure invariant mining algorithm (usually slower)")
-    public static boolean useTransitiveClosureMining = false;
-
-    /**
-     * Tell Synoptic to mine/not mine the NeverConcurrentWith invariant. When
-     * false, this option changes mining behavior when
-     * useTransitiveClosureMining = false (i.e., it only works for the DAG
-     * walking invariant miner, not the TC-based miner).
-     */
-    @Option("Mine the NeverConcurrentWith invariant (only changes behavior for PO traces with useTransitiveClosureMining=false)")
-    public static boolean mineNeverConcurrentWithInv = true;
-
-    /**
-     * Used to tell Synoptic to not go past mining invariants.
-     */
-    @Option("Mine invariants and then quit.")
-    public static boolean onlyMineInvariants = false;
-
-    /**
-     * Do not perform the coarsening stage in Synoptic, and as final output use
-     * the most refined representation. This option is <i>unpublicized</i>; it
-     * will not appear in the default usage message
-     */
-    @Option("Do not perform the coarsening stage")
-    public static boolean noCoarsening = false;
-
-    /**
-     * Perform benchmarking and output benchmark information. This option is
-     * <i>unpublicized</i>; it will not appear in the default usage message
-     */
-    @Option("Perform benchmarking and output benchmark information")
-    public static boolean doBenchmarking = false;
-
-    /**
-     * Intern commonly occurring strings, such as event types, as a memory-usage
-     * optimization. This option is <i>unpublicized</i>; it will not appear in
-     * the default usage message
-     */
-    @Option("Intern commonly occurring strings, such as event types, as a memory-usage optimization")
-    public static boolean internCommonStrings = true;
-
-    /**
-     * Run all tests in synoptic.tests.units -- all the unit tests, and then
-     * terminate. This option is <i>unpublicized</i>; it will not appear in the
-     * default usage message
-     */
-    @Option("Run all tests in synoptic.tests.units, and then terminate.")
-    public static boolean runTests = false;
-
-    /**
-     * Run all tests in synoptic.tests -- unit and integration tests, and then
-     * terminate. This option is <i>unpublicized</i>; it will not appear in the
-     * default usage message
-     */
-    @Option("Run all tests in synoptic.tests, and then terminate.")
-    public static boolean runAllTests = false;
-
-    /**
-     * Turns on correctness checks that are disabled by default due to their
-     * expensive cpu\memory usage profiles.
-     */
-    @Option("Perform extra correctness checks at the expense of cpu and memory usage.")
-    public static boolean performExtraChecks = false;
-
-    /**
-     * Do not perform the refinement (and therefore do not perform coarsening)
-     * and do not produce any representation as output. This is useful for just
-     * printing the list of mined synoptic.invariants (using the option
-     * 'dumpInvariants' above). This option is <i>unpublicized</i>; it will not
-     * appear in the default usage message
-     */
-    @Option("Do not perform refinement")
-    public static boolean noRefinement = false;
-    // end option group "Debugging Options"
-
-    /**
-     * Input log files to run Synoptic on. These should appear without any
-     * options as the final elements in the command line.
-     */
-    public static List<String> logFilenames = null;
-
     /**
      * Formatter to use for exporting graphs (DOT/GML formatter).
      */
     public static GraphExportFormatter graphExportFormatter = null;
 
-    /** One line synopsis of usage */
-    private static String usage_string = "synoptic [options] <logfiles-to-analyze>";
+    /**
+     * Synoptic options parsed from the command line or set in some other way.
+     */
+    public static SynopticOptions options;
 
     /**
      * The synoptic.main method to perform the inference algorithm. See user
@@ -461,128 +113,66 @@ public class Main implements Callable<Integer> {
     public static Main processArgs(String[] args) throws IOException,
             URISyntaxException, IllegalArgumentException,
             IllegalAccessException, ParseException {
-        // this directly sets the static member options of the Main class
-        Options options = new Options(usage_string, Main.class);
-        String[] cmdLineArgs = options.parse_or_usage(args);
 
-        if (argsFilename != null) {
-            // read program arguments from a file
-            InputStream argsStream = new FileInputStream(argsFilename);
-            ListedProperties props = new ListedProperties();
-            props.load(argsStream);
-            String[] cmdLineFileArgs = props.getCmdArgsLine();
-            // the file-based args become the default args
-            options.parse_or_usage(cmdLineFileArgs);
-        }
-
-        // Parse the command line args to override any of the above config file
-        // args
-        options.parse_or_usage(args);
-
-        // The remainder of the command line is treated as a list of log
-        // filenames to process
-        logFilenames = new LinkedList<String>(Arrays.asList(cmdLineArgs));
-
+        SynopticOptions opts = new SynopticOptions(args);
         setUpLogging();
 
         // Display help for all option groups, including unpublicized ones
-        if (allHelp) {
-            System.out.println("Usage: " + usage_string);
-            System.out
-                    .println(options.usage("General Options",
-                            "Execution Options", "Parser Options",
-                            "Input Options", "Output Options",
-                            "Verbosity Options", "Debugging Options"));
+        if (opts.allHelp) {
+            opts.printLongHelp();
             return null;
         }
 
         // Display help just for the 'publicized' option groups
-        if (help) {
-            options.print_usage();
+        if (opts.help) {
+            opts.printShortHelp();
             return null;
         }
 
-        if (version) {
+        if (opts.version) {
             System.out.println("Synoptic version " + Main.versionString);
             return null;
         }
 
         // Setup the appropriate graph export formatter object.
-        if (exportAsGML) {
+        if (opts.exportAsGML) {
             graphExportFormatter = new GmlExportFormatter();
         } else {
             graphExportFormatter = new DotExportFormatter();
         }
 
-        if (runAllTests) {
+        if (opts.runAllTests) {
             List<String> testClasses = getTestsInPackage("synoptic.tests.units.");
             testClasses
                     .addAll(getTestsInPackage("synoptic.tests.integration."));
             runTests(testClasses);
-        } else if (runTests) {
+        } else if (opts.runTests) {
             List<String> testClassesUnits = getTestsInPackage("synoptic.tests.units.");
             runTests(testClassesUnits);
         }
 
-        // Remove any empty string filenames in the logFilenames list.
-        while (logFilenames.contains("")) {
-            logFilenames.remove("");
-        }
-
-        if (logFilenames.size() == 0 || logFilenames.get(0).equals("")) {
+        if (opts.logFilenames.size() == 0
+                || opts.logFilenames.get(0).equals("")) {
             logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
-                    + Main.getCmdLineOptDesc("help"));
+                    + SynopticOptions.getOptDesc("help"));
             return null;
         }
 
-        if (dumpIntermediateStages && outputPathPrefix == null) {
+        if (opts.dumpIntermediateStages && opts.outputPathPrefix == null) {
             logger.severe("Cannot dump intermediate stages without an output path prefix. Set this prefix with:\n\t"
-                    + Main.getCmdLineOptDesc("outputPathPrefix"));
+                    + SynopticOptions.getOptDesc("outputPathPrefix"));
             return null;
         }
 
-        Main mainInstance = new Main();
-
-        if (logLvlVerbose || logLvlExtraVerbose) {
-            mainInstance.printOptions();
+        if (opts.logLvlVerbose || opts.logLvlExtraVerbose) {
+            opts.printOptionValues();
         }
 
-        if (randomSeed == null) {
-            Main.randomSeed = System.currentTimeMillis();
-        }
-        Main.random = new Random(randomSeed);
-        logger.info("Using random seed: " + randomSeed);
+        Main.random = new Random(opts.randomSeed);
+        logger.info("Using random seed: " + opts.randomSeed);
 
+        Main mainInstance = new Main(opts);
         return mainInstance;
-    }
-
-    /**
-     * Returns a command line option description for an option name
-     * 
-     * @param optName
-     *            The option variable name
-     * @return a string description of the option
-     * @throws InternalSynopticException
-     *             if optName cannot be accessed
-     */
-    public static String getCmdLineOptDesc(String optName)
-            throws InternalSynopticException {
-        Field field;
-        try {
-            field = Main.class.getField(optName);
-        } catch (SecurityException e) {
-            throw InternalSynopticException.wrap(e);
-        } catch (NoSuchFieldException e) {
-            throw InternalSynopticException.wrap(e);
-        }
-        Option opt = field.getAnnotation(Option.class);
-        String desc = opt.value();
-        if (desc.length() > 0 && desc.charAt(0) != '-') {
-            // For options that do not have a short option form,
-            // include the long option trigger in the description.
-            desc = "--" + optName + " " + desc;
-        }
-        return desc;
     }
 
     /**
@@ -677,7 +267,11 @@ public class Main implements Callable<Integer> {
 
     /**
      * Sets up and configures the Main.logger object based on command line
-     * arguments
+     * arguments.
+     * 
+     * <pre>
+     * Assumes that Main.options is initialized.
+     * </pre>
      */
     public static void setUpLogging() {
         // Get the top Logger instance
@@ -706,11 +300,11 @@ public class Main implements Callable<Integer> {
         // consoleHandler.setFormatter(new CustomFormatter());
 
         // Set the logger's log level based on command line arguments
-        if (logLvlQuiet) {
+        if (Main.options.logLvlQuiet) {
             logger.setLevel(Level.WARNING);
-        } else if (logLvlVerbose) {
+        } else if (Main.options.logLvlVerbose) {
             logger.setLevel(Level.FINE);
-        } else if (logLvlExtraVerbose) {
+        } else if (Main.options.logLvlExtraVerbose) {
             logger.setLevel(Level.FINEST);
         } else {
             logger.setLevel(Level.INFO);
@@ -765,7 +359,8 @@ public class Main implements Callable<Integer> {
      */
     public static String getIntermediateDumpFilename(String stageName,
             int roundNum) {
-        return outputPathPrefix + ".stage-" + stageName + ".round-" + roundNum;
+        return Main.options.outputPathPrefix + ".stage-" + stageName
+                + ".round-" + roundNum;
     }
 
     /**
@@ -778,14 +373,14 @@ public class Main implements Callable<Integer> {
             IGraph<T> g, boolean outputEdgeLabelsCondition,
             boolean imageGenCondition) {
 
-        if (Main.outputPathPrefix == null) {
+        if (options.outputPathPrefix == null) {
             logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t"
-                    + Main.getCmdLineOptDesc("outputPathPrefix"));
+                    + SynopticOptions.getOptDesc("outputPathPrefix"));
             return;
         }
 
         String filename = null;
-        if (exportAsGML) {
+        if (options.exportAsGML) {
             filename = baseFilename + ".gml";
         } else {
             filename = baseFilename + ".dot";
@@ -813,8 +408,9 @@ public class Main implements Callable<Integer> {
         // convert exported graph to a png file -- the user must have explicitly
         // requested this and the export must be in non-GML format (i.e., dot
         // format).
-        exportGraph(baseFilename, g, false, Main.dumpInitialGraphPngFile
-                && !exportAsGML);
+        exportGraph(baseFilename, g, false,
+                Main.options.dumpInitialGraphPngFile
+                        && !Main.options.exportAsGML);
     }
 
     /**
@@ -828,39 +424,14 @@ public class Main implements Callable<Integer> {
         // !exportAsGML below : the condition for exporting an image to png file
         // is that it is not in GML format (i.e., it is in dot format so we can
         // use the 'dot' command).
-        exportGraph(baseFilename, g, Main.outputEdgeLabels, !exportAsGML);
+        exportGraph(baseFilename, g, Main.options.outputEdgeLabels,
+                !Main.options.exportAsGML);
     }
 
     /***********************************************************/
 
-    public Main() {
-        //
-    }
-
-    /**
-     * Prints the values of all the options for this instance of Main class
-     * 
-     * @throws IllegalArgumentException
-     * @throws IllegalAccessException
-     */
-    public void printOptions() throws IllegalArgumentException,
-            IllegalAccessException {
-        StringBuffer optsString = new StringBuffer();
-        optsString.append("Synoptic options:\n");
-        for (Field field : this.getClass().getDeclaredFields()) {
-            if (field.getAnnotation(Option.class) != null) {
-                optsString.append("\t");
-                optsString.append(field.getName());
-                optsString.append(": ");
-                if (field.get(this) != null) {
-                    optsString.append(field.get(this).toString());
-                    optsString.append("\n");
-                } else {
-                    optsString.append("null\n");
-                }
-            }
-        }
-        System.out.println(optsString.toString());
+    public Main(SynopticOptions opts) {
+        options = opts;
     }
 
     public static TraceParser newTraceParser(List<String> rExps,
@@ -868,9 +439,9 @@ public class Main implements Callable<Integer> {
         TraceParser parser = new TraceParser();
 
         logger.fine("Setting up the log file parser.");
-        if (partitioningRegExp == Main.partitionRegExpDefault) {
+        if (partitioningRegExp == SynopticOptions.partitionRegExpDefault) {
             logger.info("Using the default partitions mapping regex: "
-                    + Main.partitionRegExpDefault);
+                    + SynopticOptions.partitionRegExpDefault);
         }
 
         if (!rExps.isEmpty()) {
@@ -886,7 +457,7 @@ public class Main implements Callable<Integer> {
             logger.warning("Using a default regular expression to parse log-lines: "
                     + "will map the entire log line to an event type."
                     + "\nTo use a custom regular expressions use the option:\n\t"
-                    + Main.getCmdLineOptDesc("regExps") + "\n\t");
+                    + SynopticOptions.getOptDesc("regExps") + "\n\t");
             // TODO: is this next statement necessary?
             // parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
             parser.addRegex("(?<TYPE>.*)");
@@ -895,7 +466,8 @@ public class Main implements Callable<Integer> {
 
         if (sepRegExp != null) {
             parser.addPartitionsSeparator(sepRegExp);
-            if (!partitioningRegExp.equals(Main.partitionRegExpDefault)) {
+            if (!partitioningRegExp
+                    .equals(SynopticOptions.partitionRegExpDefault)) {
                 logger.warning("Partition separator and partition mapping regex are both specified. This may result in difficult to understand parsing behavior.");
             }
         }
@@ -939,11 +511,11 @@ public class Main implements Callable<Integer> {
         parser = null;
 
         // TODO: vector time index sets aren't used yet.
-        if (separateVTimeIndexSets != null) {
+        if (options.separateVTimeIndexSets != null) {
             // separateVTimeIndexSets is assumed to be in a format like:
             // "1,2;3;4,5,6" where the sets are {1,2}, {3}, {4,5,6}.
             LinkedList<LinkedHashSet<Integer>> indexSets = new LinkedList<LinkedHashSet<Integer>>();
-            for (String strSet : separateVTimeIndexSets.split(";")) {
+            for (String strSet : options.separateVTimeIndexSets.split(";")) {
                 LinkedHashSet<Integer> iSet = new LinkedHashSet<Integer>();
                 indexSets.add(iSet);
                 for (String index : strSet.split(",")) {
@@ -953,10 +525,10 @@ public class Main implements Callable<Integer> {
         }
 
         POInvariantMiner miner;
-        if (useTransitiveClosureMining) {
+        if (options.useTransitiveClosureMining) {
             miner = new TransitiveClosureInvMiner();
         } else {
-            miner = new DAGWalkingPOInvMiner(mineNeverConcurrentWithInv);
+            miner = new DAGWalkingPOInvMiner(options.mineNeverConcurrentWithInv);
         }
 
         // //////////////////
@@ -980,12 +552,13 @@ public class Main implements Callable<Integer> {
         logger.info("\tMined " + totalNCwith
                 + " NeverConcurrentWith invariants");
 
-        if (dumpInvariants) {
+        if (options.dumpInvariants) {
             logger.info("Mined invariants: " + minedInvs);
         }
 
-        if (outputInvariantsToFile) {
-            String invariantsFilename = outputPathPrefix + ".invariants.txt";
+        if (options.outputInvariantsToFile) {
+            String invariantsFilename = options.outputPathPrefix
+                    + ".invariants.txt";
             logger.info("Outputting invarians to file: " + invariantsFilename);
             minedInvs.outputToFile(invariantsFilename);
         }
@@ -1018,8 +591,8 @@ public class Main implements Callable<Integer> {
      */
     public PartitionGraph createInitialPartitionGraph() throws Exception {
         Locale.setDefault(Locale.US);
-        TraceParser parser = newTraceParser(Main.regExps, Main.partitionRegExp,
-                Main.separatorRegExp);
+        TraceParser parser = newTraceParser(options.regExps,
+                options.partitionRegExp, options.separatorRegExp);
         long startTime;
 
         // //////////////////
@@ -1027,17 +600,17 @@ public class Main implements Callable<Integer> {
         startTime = loggerInfoStart("Parsing input files..");
         List<EventNode> parsedEvents;
         try {
-            parsedEvents = parseFiles(parser, Main.logFilenames);
+            parsedEvents = parseFiles(parser, options.logFilenames);
         } catch (ParseException e) {
             logger.severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
-                    + Main.getCmdLineOptDesc("help"));
+                    + SynopticOptions.getOptDesc("help"));
             logger.severe(e.toString());
             return null;
         }
         loggerInfoEnd("Parsing took ", startTime);
         // //////////////////
 
-        if (Main.debugParse) {
+        if (options.debugParse) {
             // Terminate since the user is interested in debugging the parser.
             logger.info("Terminating. To continue further, re-run without the debugParse option.");
             return null;
@@ -1057,14 +630,15 @@ public class Main implements Callable<Integer> {
         loggerInfoEnd("Generating temporal relation took ", startTime);
         // //////////////////
 
-        if (dumpInitialGraphDotFile) {
+        if (options.dumpInitialGraphDotFile) {
             logger.info("Exporting initial graph ["
                     + inputGraph.getNodes().size() + " nodes]..");
-            exportInitialGraph(Main.outputPathPrefix + ".initial", inputGraph);
+            exportInitialGraph(options.outputPathPrefix + ".initial",
+                    inputGraph);
         }
 
         TOInvariantMiner miner;
-        if (useTransitiveClosureMining) {
+        if (options.useTransitiveClosureMining) {
             miner = new TransitiveClosureInvMiner();
         } else {
             miner = new ChainWalkingTOInvMiner();
@@ -1085,17 +659,18 @@ public class Main implements Callable<Integer> {
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
 
-        if (dumpInvariants) {
+        if (options.dumpInvariants) {
             logger.info("Mined invariants: " + minedInvs);
         }
 
-        if (outputInvariantsToFile) {
-            String invariantsFilename = outputPathPrefix + ".invariants.txt";
+        if (options.outputInvariantsToFile) {
+            String invariantsFilename = options.outputPathPrefix
+                    + ".invariants.txt";
             logger.info("Outputting invarians to file: " + invariantsFilename);
             minedInvs.outputToFile(invariantsFilename);
         }
 
-        if (onlyMineInvariants) {
+        if (options.onlyMineInvariants) {
             return null;
         }
 
@@ -1121,7 +696,7 @@ public class Main implements Callable<Integer> {
     public void runSynoptic(PartitionGraph pGraph) {
         long startTime;
 
-        if (logLvlVerbose || logLvlExtraVerbose) {
+        if (options.logLvlVerbose || options.logLvlExtraVerbose) {
             System.out.println("");
             System.out.println("");
         }
@@ -1132,7 +707,7 @@ public class Main implements Callable<Integer> {
         loggerInfoEnd("Splitting took ", startTime);
         // //////////////////
 
-        if (logLvlVerbose || logLvlExtraVerbose) {
+        if (options.logLvlVerbose || options.logLvlExtraVerbose) {
             System.out.println("");
             System.out.println("");
         }
@@ -1149,18 +724,18 @@ public class Main implements Callable<Integer> {
         // unsatisfied in the result
 
         // export the resulting graph
-        if (Main.outputPathPrefix != null) {
+        if (options.outputPathPrefix != null) {
             logger.info("Exporting final graph [" + pGraph.getNodes().size()
                     + " nodes]..");
             startTime = System.currentTimeMillis();
 
-            exportNonInitialGraph(Main.outputPathPrefix, pGraph);
+            exportNonInitialGraph(options.outputPathPrefix, pGraph);
 
             logger.info("Exporting took "
                     + (System.currentTimeMillis() - startTime) + "ms");
         } else {
             logger.warning("Cannot output final graph. Specify output path prefix using:\n\t"
-                    + Main.getCmdLineOptDesc("outputPathPrefix"));
+                    + SynopticOptions.getOptDesc("outputPathPrefix"));
         }
     }
 }

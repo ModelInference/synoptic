@@ -30,7 +30,7 @@ public class BisimulationTests extends SynopticTest {
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
         // Main.dumpIntermediateStages = true;
-        Main.useFSMChecker = true;
+        Main.options.useFSMChecker = true;
     }
 
     /**
@@ -94,7 +94,7 @@ public class BisimulationTests extends SynopticTest {
 
         TraceParser defParser = genDefParser();
         ArrayList<EventNode> parsedEvents = defParser.parseTraceString(
-                traceStr, SynopticTest.testName.getMethodName(), -1);
+                traceStr, SynopticTest.getTestName().getMethodName(), -1);
         ChainsTraceGraph inputGraph = defParser
                 .generateDirectTORelation(parsedEvents);
 

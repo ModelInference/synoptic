@@ -29,7 +29,11 @@ import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.SerializableParseException;
 
-public class InputSubTab extends Tab<VerticalPanel> {
+/**
+ * Panel that contains all text fields to enter log/re values. Contains upload
+ * button to upload a log file. 
+ */
+public class InputForm extends Tab<VerticalPanel> {
     private static final String UPLOAD_LOGFILE_URL = GWT.getModuleBaseURL()
             + "log_file_upload";
 
@@ -46,17 +50,16 @@ public class InputSubTab extends Tab<VerticalPanel> {
     final TextBox partitionRegExpTextBox = new TextBox();
     final TextBox separatorRegExpTextBox = new TextBox();
     final Button parseLogButton = new Button("Parse Log");
+    final Button clearInputsButton = new Button("Clear Inputs");
 
-    public InputSubTab(ISynopticServiceAsync synopticService, String logText,
-            String regExpText, String partitionRegExpText,
-            String separatorRegExpText) {
+    public InputForm(ISynopticServiceAsync synopticService)  {
         super(synopticService);
 
         panel = new VerticalPanel();
 
         // Construct the inputs panel using a grid.
         panel.add(parseErrorMsgLabel);
-
+        
         Grid grid = new Grid(5, 2);
         panel.add(grid);
 
@@ -110,7 +113,11 @@ public class InputSubTab extends Tab<VerticalPanel> {
         separatorRegExpTextBox.setVisibleLength(80);
         separatorRegExpTextBox.setName("separatorRegExpTextBox");
 
-        grid.setWidget(4, 1, parseLogButton);
+        HorizontalPanel buttonsPanel = new HorizontalPanel();
+        buttonsPanel.add(parseLogButton);
+        buttonsPanel.add(clearInputsButton);
+        parseLogButton.addStyleName("parseButton");
+        grid.setWidget(4, 1, buttonsPanel);
 
         grid.setStyleName("inputForm grid");
         for (int i = 0; i < grid.getRowCount(); i++) {
@@ -125,16 +132,20 @@ public class InputSubTab extends Tab<VerticalPanel> {
 
         // Set up the logTextArea.
         logTextArea.setFocus(true);
-        logTextArea.setText(logText);
+        logTextArea.setText("");
         logTextArea.selectAll();
 
         // Set up the other text areas.
-        regExpsTextArea.setText(regExpText);
-        partitionRegExpTextBox.setText(partitionRegExpText);
-        separatorRegExpTextBox.setText(separatorRegExpText);
+        regExpsTextArea.setText("");
+        partitionRegExpTextBox.setText("");
+        separatorRegExpTextBox.setText("");
 
         // Associate handler with the Parse Log button.
         parseLogButton.addClickHandler(new ParseLogHandler());
+        parseLogButton.addStyleName("ParseLogButton");
+        
+        // Associate handler with the Clear Inputs button.
+        clearInputsButton.addClickHandler(new ClearInputsHandler());
 
         // Associate handler with form.
         logFileUploadForm
@@ -144,6 +155,15 @@ public class InputSubTab extends Tab<VerticalPanel> {
         panel.add(logFileUploadForm);
     }
 
+    public void setInputs(String logText,
+            String regExpText, String partitionRegExpText,
+            String separatorRegExpText) {
+    	this.logTextArea.setText(logText);
+    	this.regExpsTextArea.setText(regExpText);
+    	this.partitionRegExpTextBox.setText(partitionRegExpText);
+    	this.separatorRegExpTextBox.setText(separatorRegExpText);
+    }
+    
     // Extracts regular expressions in text area for log parsing
     private List<String> getRegExps(TextArea textArea) {
         String regExpLines[] = textArea.getText().split("\\r?\\n");
@@ -159,7 +179,21 @@ public class InputSubTab extends Tab<VerticalPanel> {
         }
         return expression;
     }
+    
+    /**
+     * Handles clearing all input in text areas and text boxes.
+     */
+    class ClearInputsHandler implements ClickHandler {
 
+		@Override
+		public void onClick(ClickEvent event) {
+			logTextArea.setText("");
+			partitionRegExpTextBox.setText("");
+			regExpsTextArea.setText("");
+			separatorRegExpTextBox.setText("");
+		}	
+    }
+    
     /**
      * Handles enabling/disabling of text area or file upload button when log
      * type radio buttons are changed.

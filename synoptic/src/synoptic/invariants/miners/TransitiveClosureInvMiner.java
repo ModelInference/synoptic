@@ -88,7 +88,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
 
             // Get the over-approximation.
             itc.stop();
-            if (Main.doBenchmarking) {
+            if (Main.options.doBenchmarking) {
                 logger.info("BENCHM: " + itc);
             }
             TimedTask io = PerformanceMetrics.createTask(
@@ -105,7 +105,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
             }
 
             io.stop();
-            if (Main.doBenchmarking) {
+            if (Main.options.doBenchmarking) {
                 logger.info("BENCHM: " + io);
             }
             // logger.info("Over-approx set: "

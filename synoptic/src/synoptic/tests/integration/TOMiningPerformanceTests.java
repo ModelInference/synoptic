@@ -51,8 +51,8 @@ public class TOMiningPerformanceTests extends SynopticTest {
         this.numPartitions = numPartitions;
         this.numEventTypes = numEventTypes;
 
-        Main.logLvlExtraVerbose = false;
-        Main.logLvlQuiet = true;
+        Main.options.logLvlExtraVerbose = false;
+        Main.options.logLvlQuiet = true;
     }
 
     @Override

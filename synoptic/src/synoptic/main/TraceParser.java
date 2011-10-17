@@ -396,7 +396,7 @@ public class TraceParser {
             }
         }
 
-        if (Main.debugParse) {
+        if (Main.options.debugParse) {
             logger.info("input: " + input_regex);
             logger.info("processed: " + regex);
             logger.info("standard: " + parser.standardPattern());
@@ -550,7 +550,7 @@ public class TraceParser {
         String strLine = null;
 
         String tName = traceName;
-        if (Main.internCommonStrings) {
+        if (Main.options.internCommonStrings) {
             tName = tName.intern();
         }
 
@@ -739,7 +739,7 @@ public class TraceParser {
 
             String eTypeLabel;
             EventType eType;
-            if (Main.internCommonStrings) {
+            if (Main.options.internCommonStrings) {
                 eTypeLabel = matched.get("TYPE").intern();
             } else {
                 eTypeLabel = matched.get("TYPE");
@@ -810,14 +810,14 @@ public class TraceParser {
                 } catch (Exception e) {
                     String errMsg = "Unable to parse time field on log line:\n"
                             + line;
-                    if (Main.ignoreNonMatchingLines) {
+                    if (Main.options.ignoreNonMatchingLines) {
                         logger.warning(errMsg
                                 + "\nIgnoring line and continuing.");
                         continue;
                     }
                     String error = errMsg + "\n\tTry cmd line options:\n\t"
-                            + Main.getCmdLineOptDesc("ignoreNonMatchingLines")
-                            + "\n\t" + Main.getCmdLineOptDesc("debugParse");
+                            + SynopticOptions.getOptDesc("ignoreNonMatchingLines")
+                            + "\n\t" + SynopticOptions.getOptDesc("debugParse");
                     logger.severe(error);
                     logger.severe(e.toString());
                     ParseException parseException = new ParseException(errMsg);
@@ -835,7 +835,7 @@ public class TraceParser {
                 }
             }
 
-            if (Main.partitionRegExp.equals("\\k<FILE>")) {
+            if (Main.options.partitionRegExp.equals("\\k<FILE>")) {
                 // These logs are to be partitioned via file
                 eventStringArgs.put("FILE", fileName);
                 // "" + traceNameToTraceID.get(fileName));
@@ -849,7 +849,7 @@ public class TraceParser {
                 }
             }
 
-            if (Main.debugParse) {
+            if (Main.options.debugParse) {
                 // TODO: include partition name in the list of field values
                 logger.info("input: " + line);
                 StringBuilder msg = new StringBuilder("{");
@@ -872,7 +872,7 @@ public class TraceParser {
             return eventNode;
         }
 
-        if (Main.recoverFromParseErrors) {
+        if (Main.options.recoverFromParseErrors) {
             logger.warning("Failed to parse trace line: \n" + line + "\n"
                     + "Using entire line as type.");
             event = new Event(new StringEventType(line), line, fileName,
@@ -892,7 +892,7 @@ public class TraceParser {
                     filter.substitute(new LinkedHashMap<String, String>()));
             return eventNode;
 
-        } else if (Main.ignoreNonMatchingLines) {
+        } else if (Main.options.ignoreNonMatchingLines) {
             logger.fine("Failed to parse trace line: \n" + line + "\n"
                     + "Ignoring line and continuing.");
             return null;
@@ -902,8 +902,8 @@ public class TraceParser {
                 + "] does not match any of the provided regular expressions:\n"
                 + line;
         String loggerError = exceptionError + "\nTry cmd line options:\n\t"
-                + Main.getCmdLineOptDesc("ignoreNonMatchingLines") + "\n\t"
-                + Main.getCmdLineOptDesc("debugParse");
+                + SynopticOptions.getOptDesc("ignoreNonMatchingLines") + "\n\t"
+                + SynopticOptions.getOptDesc("debugParse");
 
         logger.severe(loggerError);
         ParseException parseException = new ParseException(exceptionError);
