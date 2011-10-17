@@ -44,9 +44,6 @@ h1 {
   background: #E8EDFF;
 }
 
-
-
-
 /* Shapes the cells of a grid to look like
    buttons */
 .tableCellInvActivated {
@@ -98,6 +95,10 @@ h1 {
   font-weight: normal;
 }
 
+.parseButton {
+	margin-right: 3em;
+}
+
 
 .modelCanvas {
   border: 2px solid #C3D9FF;
@@ -136,6 +137,16 @@ h1 {
 .LogTypeRadio {
 	margin: 5px;	
 }
+
+.LoadExampleLabel {
+	text-align: center;
+	text-decoration: underline;	
+}
+
+.ParseLogButton {
+	margin-right: 1em !important;
+}
+	
 
 .FlexTable {
 	table-layout: fixed;
