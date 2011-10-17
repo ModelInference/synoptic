@@ -52,7 +52,8 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         for (String invType : gwtInvs.getInvTypes()) {
             List<GWTInvariant> invs = gwtInvs.getInvs(invType);
 
-            // Create a grid to contain invariants of invType.
+            // This loop creates a grid for each Invariant type with one column
+            // and as many rows necessary to contain all of the invariants
             Grid grid = new Grid(invs.size() + 1, 1);
             grid.setStyleName("invariantsGrid grid");
             String longType = "Unknown Invariant Type";
@@ -72,6 +73,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             grid.getCellFormatter().setStyleName(0, 0, "tableCellTopRow");
             tableAndGraphicPanel.add(grid);
 
+            // Activated and deactivated grid cells are uniquely styled
             for (int i = 0; i < invs.size(); i++) {
                 GWTInvariant inv = invs.get(i);
                 grid.setWidget(i + 1, 0, new InvariantGridLabel(inv));
@@ -119,6 +121,8 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             this.grid = grid;
         }
 
+        // T.101.JV: What of this is going to change given the toggle state 
+        // refactoring?
         @Override
         public void onClick(ClickEvent event) {
             // The clicked cell.
@@ -139,21 +143,31 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             int invID = invLabel.getInvariant().getID();
 
             // Signal that the invariant set has changed.
+            // T.101.JV: This looks pretty important. It signals to
+            // SynopticGWT that the invariants have changed. Why not put
+            // this into the invariant set though?
+            // Is there a better way to communicate this information to 
+            // the Model tab? Maybe a mutation counter in GWTInvariant
+            // Set?
             SynopticGWT.entryPoint.invSetChanged();
 
             CellFormatter cFormatter = grid.getCellFormatter();
 
             // Corresponding invariant is activated => deactive it.
             if (invLabel.getActivated()) {
+            	// T.101.JV - Can I use activeInvsHashes instead of 
+            	// GWTInvariant.displayed
+            	// to keep track of toggle state?
                 activeInvsHashes.remove(invID);
                 invLabel.setActivated(false);
                 cFormatter.setStyleName(cIndex, 0, "tableCellInvDeactivated");
-                return;
+            } else { // Corresponding invariant is deactivated => activate it.
+                activeInvsHashes.add(invID);
+                invLabel.setActivated(true);
+                cFormatter.setStyleName(cIndex, 0, "tableCellInvActivated");
             }
-
-            activeInvsHashes.add(invID);
-            invLabel.setActivated(true);
-            cFormatter.setStyleName(cIndex, 0, "tableCellInvActivated");
         }
     }
+    // T.101.JV: Activation state is stored in the invLabel, and should
+    // probably instead be stored in the GWTInvariant
 }

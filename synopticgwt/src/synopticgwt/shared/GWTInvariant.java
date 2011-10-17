@@ -8,6 +8,7 @@ import java.io.Serializable;
  * temporal invariant classes can be converted to work with GWT.
  */
 public class GWTInvariant implements Serializable {
+	
     private static final long serialVersionUID = 1L;
 
     /** The first event label type for a binary invariant. */
@@ -28,6 +29,10 @@ public class GWTInvariant implements Serializable {
         eSecond = null;
         transitionType = null;
     }
+
+	private boolean displayed = true;
+
+    private GrahpicInvariant gInv;
 
     /**
      * Constructs a new GWTInvariant.
@@ -90,6 +95,23 @@ public class GWTInvariant implements Serializable {
     @Override
     public String toString() {
         return "<" + eFirst.toString() + "," + eSecond.toString() + ">";
+    }
+    
+    public void setDisplayed(boolean displayed) {
+        if (this.displayed && !displayed) {
+            gInv.hide();
+        } else if (!this.displayed && displayed) {
+            gInv.show();
+        }
+    	this.displayed = displayed;
+    }
+    
+    public boolean getDisplayed() {
+    	return displayed;
+    }
+
+    public void setGraphicInvariant(GraphicInvariant gInv) {
+        this.gInv = gInv;
     }
 
 }
