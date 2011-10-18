@@ -460,7 +460,7 @@ public class Main implements Callable<Integer> {
                     + SynopticOptions.getOptDesc("regExps") + "\n\t");
             // TODO: is this next statement necessary?
             // parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
-            parser.addRegex("(?<TYPE>.*)");
+            parser.addRegex(SynopticOptions.regExpDefault);
             parser.setPartitionsMap(partitioningRegExp);
         }
 
