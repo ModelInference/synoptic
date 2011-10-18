@@ -1,6 +1,8 @@
 package main;
 
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
+import synoptic.model.PartitionGraph;
 
 /**
  * Initial functionality for InvDFAMinimization: accepts a log file and regular
@@ -12,6 +14,8 @@ import synoptic.main.Main;
 public class DFAMain {
     public static void main(String[] args) throws Exception {
         Main synMain = Main.processArgs(args);
-        synMain.createInitialPartitionGraph();
+        PartitionGraph initialModel = synMain.createInitialPartitionGraph();
+        TemporalInvariantSet implicitInvariants = initialModel.getImplicitInvariants();
+        System.out.println(implicitInvariants);
     }
 }

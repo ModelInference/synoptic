@@ -681,6 +681,11 @@ public class Main implements Callable<Integer> {
         loggerInfoEnd("Creating partition graph took ", startTime);
         // //////////////////
 
+        if (options.dumpInitialPartitionGraph) { 
+        	exportGraph(options.outputPathPrefix + ".condensed",
+        			pGraph, true, true);
+        }
+        
         return pGraph;
     }
 
