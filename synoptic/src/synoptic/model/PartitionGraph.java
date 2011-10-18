@@ -3,6 +3,7 @@ package synoptic.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -16,6 +17,8 @@ import java.util.logging.Logger;
 
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMultiSplit;
+import synoptic.invariants.CanImmediatelyFollowedInvariant;
+import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
@@ -597,5 +600,52 @@ public class PartitionGraph implements IGraph<Partition> {
         }
         return traces;
     }
+    
+    /* 
+     * Traverses the model. If the current partition has not yet been examined,
+     * updates canFollow, a mapping from EventType to the events that can immediately
+     * follow, and recurses. 
+     */
+    private void traverseAndMineCIFbys(Partition current, Set<Partition> seen, Map<EventType, Set<EventType>> canFollow) {
+    	if (!seen.contains(current)) {
+    		seen.add(current);
+    		EventType type = current.getEType();
+    		canFollow.put(type, new HashSet<EventType>());
+    		for (Transition<Partition> transition : current.getTransitions()) {
+    			canFollow.get(type).add(transition.getTarget().getEType());
+    			traverseAndMineCIFbys(transition.getTarget(), seen, canFollow);
+    		}
+    	}
+    }
+    
+    /**
+     * Walks this PartitionGraph and returns a set of all the implicit invariants (CIFby and NIFby)
+     */
+    public TemporalInvariantSet getImplicitInvariants() {
 
+    	// tracks which partitions have been visited
+    	Set<Partition> seen = new HashSet<Partition>();
+    	
+    	// maps each EventType to the set of EventTypes that immediately follow it
+    	Map<EventType, Set<EventType>> canFollow = new HashMap<EventType, Set<EventType>>();
+    	
+    	// traverse the graph starting from each initial node (only one in totally-ordered case)
+    	for (Partition partition : getDummyInitialNodes())
+    		traverseAndMineCIFbys(partition, seen, canFollow);
+    	
+    	// create invariants: there will be n^2 where n is the number of event types
+    	TemporalInvariantSet implicitInvariants = new TemporalInvariantSet();
+    	Set<EventType> allEvents = canFollow.keySet();
+    	for (Entry<EventType, Set<EventType>> entry : canFollow.entrySet()) {
+    		EventType source = entry.getKey();
+    		Set<EventType> followedBy = entry.getValue();
+    		for (EventType target : allEvents) {
+    			if (followedBy.contains(target))
+    				implicitInvariants.add(new CanImmediatelyFollowedInvariant(source, target));
+    			else
+    				implicitInvariants.add(new NeverImmediatelyFollowedInvariant(source, target));
+    		}
+    	}
+    	return implicitInvariants;
+    }
 }
