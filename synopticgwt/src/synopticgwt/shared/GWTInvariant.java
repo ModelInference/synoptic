@@ -28,6 +28,21 @@ public class GWTInvariant implements Serializable {
         eSecond = null;
         transitionType = null;
     }
+    
+    /**
+     * @return A unicode representation of 
+     * the GWTInvariant transition type.
+     */
+    public String getUnicodeTransitionType() {
+    	if (transitionType.equals("AFby"))
+    		return"\u2192";
+    	else if (transitionType.endsWith("NFby"))
+    		return "\u219b";
+    	else if (transitionType.endsWith("AP"))
+    		return "\u2190";
+    	else
+    		return ",";
+    }
 
     /**
      * Constructs a new GWTInvariant.
@@ -73,7 +88,7 @@ public class GWTInvariant implements Serializable {
     public String getTarget() {
         return eSecond;
     }
-
+    
     public String getTransitionType() {
         return transitionType;
     }
