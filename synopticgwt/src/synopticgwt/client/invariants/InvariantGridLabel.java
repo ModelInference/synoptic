@@ -13,10 +13,7 @@ public class InvariantGridLabel extends Label {
     private boolean activated;
 
     public InvariantGridLabel(GWTInvariant inv) {
-    	
-        super(inv.getSource() + " " 
-        		
-        		//Unicode for right arrow (like ->) 
+        super(inv.getSource() + " "
         		+ inv.getUnicodeTransitionType()
         		+ " " + inv.getTarget());
         this.inv = inv;
