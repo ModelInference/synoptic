@@ -43,7 +43,7 @@ public class GWTInvariant implements Serializable {
     	else if (transitionType.equals("ACwith"))
     		return "\u2016"; // ||
     	else if (transitionType.equals("NCwith"))
-    		return "\u2226"; // not ||
+    		return "\u2226"; // || with a slash through it.
     	else
     		return ","; // The transition is undefined as of yet.
     }
