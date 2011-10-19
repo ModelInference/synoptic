@@ -67,7 +67,7 @@ public class Main implements Callable<Integer> {
     /**
      * Synoptic options parsed from the command line or set in some other way.
      */
-    public static SynopticOptions options;
+    public static SynopticOptions options = null;
 
     /**
      * The synoptic.main method to perform the inference algorithm. See user
@@ -115,6 +115,8 @@ public class Main implements Callable<Integer> {
             IllegalAccessException, ParseException {
 
         SynopticOptions opts = new SynopticOptions(args);
+        Main.options = opts;
+
         setUpLogging();
 
         // Display help for all option groups, including unpublicized ones
@@ -171,7 +173,7 @@ public class Main implements Callable<Integer> {
         Main.random = new Random(opts.randomSeed);
         logger.info("Using random seed: " + opts.randomSeed);
 
-        Main mainInstance = new Main(opts);
+        Main mainInstance = new Main();
         return mainInstance;
     }
 
@@ -430,8 +432,8 @@ public class Main implements Callable<Integer> {
 
     /***********************************************************/
 
-    public Main(SynopticOptions opts) {
-        options = opts;
+    private Main() {
+        // TODO: initialize instance state.
     }
 
     public static TraceParser newTraceParser(List<String> rExps,
@@ -480,6 +482,10 @@ public class Main implements Callable<Integer> {
         for (String fileArg : filenames) {
             logger.fine("\tprocessing fileArg: " + fileArg);
             File[] files = getFiles(fileArg);
+            if (files.length == 0) {
+                throw new ParseException(
+                        "The set of input files is empty. Please specify a set of existing files to parse.");
+            }
             for (File file : files) {
                 logger.fine("\tcalling parseTraceFile with file: "
                         + file.getAbsolutePath());
@@ -620,6 +626,11 @@ public class Main implements Callable<Integer> {
         if (!parser.logTimeTypeIsTotallyOrdered()) {
             logger.warning("Partially ordered log input detected. Only mining invariants since refinement/coarsening is not yet supported.");
             processPOLog(parser, parsedEvents);
+            return null;
+        }
+
+        if (parsedEvents.size() == 0) {
+            logger.severe("Did not parse any events from the input log files. Stopping.");
             return null;
         }
 
