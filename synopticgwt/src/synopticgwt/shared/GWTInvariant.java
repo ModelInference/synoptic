@@ -35,17 +35,17 @@ public class GWTInvariant implements Serializable {
      */
     public String getUnicodeTransitionType() {
     	if (transitionType.equals("AFby"))
-    		return"\u2192";
+    		return"\u2192"; // ->
     	else if (transitionType.equals("NFby"))
-    		return "\u219b";
+    		return "\u219b"; // -/->
     	else if (transitionType.equals("AP"))
-    		return "\u2190";
+    		return "\u2190"; // <-
     	else if (transitionType.equals("ACwith"))
-    		return "\u2016";
+    		return "\u2016"; // ||
     	else if (transitionType.equals("NCwith"))
-    		return "\u2226";
+    		return "\u2226"; // not ||
     	else
-    		return "UNDEF"; // The transition is undefined as of yet.
+    		return ","; // The transition is undefined as of yet.
     }
 
     /**
