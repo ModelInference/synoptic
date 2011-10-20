@@ -56,17 +56,28 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             Grid grid = new Grid(invs.size() + 1, 1);
             grid.setStyleName("invariantsGrid grid");
             String longType = "Unknown Invariant Type";
-
+            String unicodeType = GWTInvariant.getUnicodeTransitionType(invType);
+            
             if (invType.equals("AFby")) {
-                longType = "AlwaysFollowedBy ( \u2192 )";
+                longType = "AlwaysFollowedBy ( " + 
+                			unicodeType +
+                			" )";
             } else if (invType.equals("AP")) {
-                longType = "AlwaysPrecedes ( \u2190 )";
+                longType = "AlwaysPrecedes ( " +
+                			unicodeType +
+                			" )";
             } else if (invType.equals("NFby")) {
-                longType = "NeverFollowedBy ( \u219b )";
+                longType = "NeverFollowedBy ( " +
+                			unicodeType +
+                			" )";
             } else if (invType.equals("NCwith")) {
-                longType = "NeverConcurrentWith ( \u2226 )";
+                longType = "NeverConcurrentWith ( " +
+                			unicodeType +
+                			" )";
             } else if (invType.equals("ACwith")) {
-                longType = "AlwaysConcurrentWith ( \u2016 )";
+                longType = "AlwaysConcurrentWith ( +" +
+                			unicodeType +
+                			" )";
             }
             grid.setWidget(0, 0, new Label(longType));
             grid.getCellFormatter().setStyleName(0, 0, "tableCellTopRow");
