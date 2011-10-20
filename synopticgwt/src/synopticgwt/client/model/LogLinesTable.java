@@ -16,7 +16,7 @@ public class LogLinesTable extends FlexTable {
     /** Initialize a blank table, with a header row. */
     public LogLinesTable() {
         super();
-        this.setText(0, 0, "Line #");
+        this.setText(0, 0, "Line");
         this.setText(0, 1, "Line");
         this.setText(0, 2, "Filename");
 

@@ -73,9 +73,12 @@ public class InvariantsGraph {
         }
 
         // A little magic to size things right.
-        int lX = (longestEType * 30) / 2 - 110;
-        int mX = lX + (longestEType * 30) - 110;
-        int rX = mX + (longestEType * 30) - 110;
+        // int lX = (longestEType * 30) / 2 - 110;
+        int lX = (longestEType * 30) / 2 - 110 + 50;
+        // int mX = lX + (longestEType * 30) - 110;
+        int mX = lX + (longestEType * 30) - 110 + 50;
+        // int rX = mX + (longestEType * 30) - 110;
+        int rX = mX + (longestEType * 30) - 110 + 50;
         int width = rX + 200;
 
         int fontSize = 20; // getFontSize(longestEType);
