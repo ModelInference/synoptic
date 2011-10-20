@@ -58,15 +58,15 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             String longType = "Unknown Invariant Type";
 
             if (invType.equals("AFby")) {
-                longType = "AlwaysFollowedBy";
+                longType = "AlwaysFollowedBy ( \u2192 )";
             } else if (invType.equals("AP")) {
-                longType = "AlwaysPrecedes";
+                longType = "AlwaysPrecedes ( \u2190 )";
             } else if (invType.equals("NFby")) {
-                longType = "NeverFollowedBy";
+                longType = "NeverFollowedBy ( \u219b )";
             } else if (invType.equals("NCwith")) {
-                longType = "NeverConcurrentWith";
+                longType = "NeverConcurrentWith ( \u2226 )";
             } else if (invType.equals("ACwith")) {
-                longType = "AlwaysConcurrentWith";
+                longType = "AlwaysConcurrentWith ( \u2016 )";
             }
             grid.setWidget(0, 0, new Label(longType));
             grid.getCellFormatter().setStyleName(0, 0, "tableCellTopRow");
