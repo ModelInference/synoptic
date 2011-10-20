@@ -30,22 +30,31 @@ public class GWTInvariant implements Serializable {
     }
     
     /**
+     * @param transType
+     * 	The type of the transition.
+     * @return The unicode representation of {@code transType}
+     */
+    public static String getUnicodeTransitionType(String transType) {
+    	if (transType.equals("AFby"))
+    		return"\u2192"; // ->
+    	else if (transType.equals("NFby"))
+    		return "\u219b"; // -/->
+    	else if (transType.equals("AP"))
+    		return "\u2190"; // <-
+    	else if (transType.equals("ACwith"))
+    		return "\u2016"; // ||
+    	else if (transType.equals("NCwith"))
+    		return "\u2226"; // || with a slash through it.
+    	else
+    		return ","; // The transition is undefined as of yet.
+    }
+    
+    /**
      * @return A unicode representation of
      * the GWTInvariant transition type.
      */
     public String getUnicodeTransitionType() {
-    	if (transitionType.equals("AFby"))
-    		return"\u2192"; // ->
-    	else if (transitionType.equals("NFby"))
-    		return "\u219b"; // -/->
-    	else if (transitionType.equals("AP"))
-    		return "\u2190"; // <-
-    	else if (transitionType.equals("ACwith"))
-    		return "\u2016"; // ||
-    	else if (transitionType.equals("NCwith"))
-    		return "\u2226"; // || with a slash through it.
-    	else
-    		return ","; // The transition is undefined as of yet.
+    	return getUnicodeTransitionType(transitionType);
     }
 
     /**
