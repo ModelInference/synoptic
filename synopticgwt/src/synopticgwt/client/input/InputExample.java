@@ -1,5 +1,11 @@
 package synopticgwt.client.input;
 
+/**
+ * InputExample enum class for the example logs in the log input.
+ * Each enum contains methods to access necessary information to parse
+ * log. This includes the example logs' name, content, regular expression
+ * partition regular expression, and separator regular expression. 
+ */
 public enum  InputExample {
 	SHOPPINGCART (
 			"ShoppingCart",

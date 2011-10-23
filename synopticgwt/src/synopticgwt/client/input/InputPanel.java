@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -33,10 +34,14 @@ import synopticgwt.shared.SerializableParseException;
  * Panel that contains all text fields to enter log/re values. Contains upload
  * button to upload a log file. 
  */
-public class InputForm extends Tab<VerticalPanel> {
+public class InputPanel extends Tab<VerticalPanel> {
     private static final String UPLOAD_LOGFILE_URL = GWT.getModuleBaseURL()
             + "log_file_upload";
+    
+    private Anchor prevAnchor = null;
 
+    final Grid examplesGrid = new Grid(5, 1);
+    final Label loadExamples = new Label("Load example logs");
     final Label parseErrorMsgLabel = new Label();
     final Label logInputTypeLabel = new Label("Log input type:");
     final FormPanel logFileUploadForm = new FormPanel();
@@ -50,18 +55,35 @@ public class InputForm extends Tab<VerticalPanel> {
     final TextBox partitionRegExpTextBox = new TextBox();
     final TextBox separatorRegExpTextBox = new TextBox();
     final Button parseLogButton = new Button("Parse Log");
-    final Button clearInputsButton = new Button("Reset");
+    final Button clearInputsButton = new Button("Clear");
 
-    public InputForm(ISynopticServiceAsync synopticService)  {
+    public InputPanel(ISynopticServiceAsync synopticService)  {
         super(synopticService);
 
         panel = new VerticalPanel();
-
-        // Construct the inputs panel using a grid.
-        panel.add(parseErrorMsgLabel);
         
+        HorizontalPanel examplesAndInputForm = new HorizontalPanel();
+        VerticalPanel inputForm = new VerticalPanel();
+            
+        // Construct the inputs panel using a grid.
+        inputForm.add(parseErrorMsgLabel);
+        
+        // Set up the links for log examples panel. 
+        examplesGrid.setWidget(0, 0, loadExamples);
+        InputExample[] inputExamples = InputExample.values();
+        for (int i = 0; i < inputExamples.length; i++) {
+            // Create anchor for every InputExample enum.
+            Anchor exampleLink = new Anchor(inputExamples[i].getName());
+            
+            // Associate click listener to anchors.
+            exampleLink.addClickHandler(new ExampleLinkHandler());
+            examplesGrid.setWidget((i + 1), 0, exampleLink);
+            examplesGrid.getCellFormatter().setStyleName((i + 1), 0, "tableCell");
+        }
+        examplesGrid.setStyleName("inputForm");
+                
         Grid grid = new Grid(5, 2);
-        panel.add(grid);
+        inputForm.add(grid);
 
         // Set up form to handle file upload.
         logFileUploadForm.setAction(UPLOAD_LOGFILE_URL);
@@ -143,7 +165,6 @@ public class InputForm extends Tab<VerticalPanel> {
         // Associate handler with the Parse Log button.
         parseLogButton.addClickHandler(new ParseLogHandler());
         parseLogButton.addStyleName("ParseLogButton");
-        parseLogButton.setEnabled(false);
         
         // Associate handler with the Clear Inputs button.
         clearInputsButton.addClickHandler(new ClearInputsHandler());
@@ -153,9 +174,20 @@ public class InputForm extends Tab<VerticalPanel> {
                 .addSubmitCompleteHandler(new LogFileFormCompleteHandler());
         logTextRadioButton.addValueChangeHandler(new LogTypeRadioHandler());
         logFileRadioButton.addValueChangeHandler(new LogTypeRadioHandler());
-        panel.add(logFileUploadForm);
+       
+        inputForm.add(logFileUploadForm);
+        examplesAndInputForm.add(examplesGrid);
+        examplesAndInputForm.add(inputForm);
+        panel.add(examplesAndInputForm);
     }
-
+    
+    /**
+     * Sets each input text field to corresponding parameter.
+     * @param logText content of log file
+     * @param regExpText regular expression
+     * @param partitionRegExpText partition regular expression
+     * @param separatorRegExpText separator regular expression
+     */
     public void setInputs(String logText,
             String regExpText, String partitionRegExpText,
             String separatorRegExpText) {
@@ -192,7 +224,46 @@ public class InputForm extends Tab<VerticalPanel> {
 			partitionRegExpTextBox.setText("");
 			regExpsTextArea.setText("");
 			separatorRegExpTextBox.setText("");
+			for (int i = 1; i < examplesGrid.getRowCount(); i++) {
+			    if (prevAnchor != null && examplesGrid.getWidget(i,0) instanceof Label) {
+                    examplesGrid.getWidget(i,0).removeFromParent();
+                    examplesGrid.setWidget(i,0,prevAnchor);
+                }
+			}
 		}	
+    }
+    
+    /**
+     *  Handles clicks on example log anchors. Loads the associated log/re content into
+     *  the text areas and text boxes to the left. Sets an anchor as unclickable after
+     *  being clicked.
+     */
+    class ExampleLinkHandler implements ClickHandler {
+        
+        //TODO optimize? don't use two for loops
+        @Override
+        public void onClick(ClickEvent event) {
+            InputExample[] inputExamples = InputExample.values();
+            // Convert from label to anchor for previously clicked
+            for (int j = 1; j < examplesGrid.getRowCount(); j++) {
+                if (prevAnchor != null && examplesGrid.getWidget(j,0) instanceof Label) {
+                    examplesGrid.getWidget(j,0).removeFromParent();
+                    examplesGrid.setWidget(j,0,prevAnchor);
+                }
+            }
+            // Convert from anchor to label for currently clicked
+            for (int i = 1; i < examplesGrid.getRowCount(); i++) {
+                if (event.getSource() == examplesGrid.getWidget(i, 0)) {
+                    InputExample currExample = inputExamples[i-1];
+                    setInputs(currExample.getLogText(), currExample.getRegExpText(), 
+                            currExample.getPartitionRegExpText(), currExample.getSeparatorRegExpText());
+                    prevAnchor = (Anchor) examplesGrid.getWidget(i,0);
+                    examplesGrid.getWidget(i, 0).removeFromParent();
+                    //TODO make flyweight??
+                    examplesGrid.setWidget(i, 0, new Label(prevAnchor.getText()));
+                }
+            }   
+        }   
     }
      
     /**
