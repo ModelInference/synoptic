@@ -231,8 +231,7 @@ public class InputPanel extends Tab<VerticalPanel> {
     
     /**
      *  Handles clicks on example log anchors. Loads the associated log/re content into
-     *  the text areas and text boxes to the left. Sets an anchor as unclickable after
-     *  being clicked.
+     *  the text areas and text boxes to the left.
      */
     class ExampleLinkHandler implements ClickHandler {
         
@@ -242,23 +241,12 @@ public class InputPanel extends Tab<VerticalPanel> {
             // Clears all inputs and uploads
             logFileUploadForm.reset();
             InputExample[] inputExamples = InputExample.values();
-            // Convert from label to anchor for previously clicked
-            for (int j = 1; j < examplesGrid.getRowCount(); j++) {
-                if (prevAnchor != null && examplesGrid.getWidget(j,0) instanceof Label) {
-                    examplesGrid.getWidget(j,0).removeFromParent();
-                    examplesGrid.setWidget(j,0,prevAnchor);
-                }
-            }
-            // Convert from anchor to label for currently clicked
+   
             for (int i = 1; i < examplesGrid.getRowCount(); i++) {
                 if (event.getSource() == examplesGrid.getWidget(i, 0)) {
                     InputExample currExample = inputExamples[i-1];
                     setInputs(currExample.getLogText(), currExample.getRegExpText(), 
                             currExample.getPartitionRegExpText(), currExample.getSeparatorRegExpText());
-                    prevAnchor = (Anchor) examplesGrid.getWidget(i,0);
-                    examplesGrid.getWidget(i, 0).removeFromParent();
-                    //TODO make flyweight??
-                    examplesGrid.setWidget(i, 0, new Label(prevAnchor.getText()));
                 }
             }
         }   
