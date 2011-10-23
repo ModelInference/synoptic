@@ -29,6 +29,7 @@ public class InvariantGridLabel extends Label {
     }
 
     public void setActivated(boolean newVal) {
+        inv.setDisplayed(newVal);
         activated = newVal;
     }
 }

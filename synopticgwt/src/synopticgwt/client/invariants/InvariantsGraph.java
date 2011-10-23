@@ -20,6 +20,10 @@ import synopticgwt.shared.GWTInvariantSet;
  */
 public class InvariantsGraph {
 
+    // Raphael paper object
+    JavaScriptObject paper;
+    Set<GraphicInvariant> graphicInvariants;
+
     /**
      * Creates the invariant graphic corresponding to gwtInvs in a DIV with id
      * indicated by invCanvasId.
@@ -315,4 +319,14 @@ public class InvariantsGraph {
 
     // </JSNI methods>
     // //////////////////////////////////////////////////////////////////////////
+
+    public Set<GraphicInvariant> getGraphicInvariants() {
+        return new HashSet<GraphicInvariant>(graphicInvariants);
+    }
+
+    public void showElement(JavaScriptObject element) {
+    }
+    
+    public void hideElement(JavaScriptObject element) {
+    }
 }
