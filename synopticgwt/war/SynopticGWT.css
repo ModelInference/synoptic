@@ -1,0 +1,155 @@
+body {
+  padding: 10px;
+}
+
+h1 {
+  font-size: 2em;
+  font-weight: bold;
+  color: #777777;
+  margin: 10px 10px 0px;
+  text-align: right;
+}
+
+.sendButton {
+  display: block;
+  font-size: 16pt;
+}
+
+/** Most GWT widgets already have a style name defined */
+.gwt-DialogBox {
+  width: 400px;
+}
+
+.dialogVPanel {
+  margin: 5px;
+}
+
+.serverResponseLabelError {
+  color: red;
+}
+
+///////////
+
+.grid {
+  width: 50%;
+  height: 50px;
+  padding: 5px;
+  position: absolute;
+  left: 220px;
+  top: 350px;
+}
+
+.tableCell {
+  padding: 5px;
+  background: #E8EDFF;
+}
+
+/* Shapes the cells of a grid to look like
+   buttons */
+.tableCellInvActivated {
+  border-style: inset;
+  border-width: 2px;
+  border-color: #CFD9FF;
+  padding: 5px;
+  background: #E8EDFF;
+}
+
+/* Changes the background color of a table cell to red to
+   indicate whether it has been selected. */
+.tableCellInvDeactivated {
+  border-style: outset;
+  border-width: 2px;
+  border-color: #CFD9FF;
+  padding: 5px;
+  background: #C8C8C8; /* light grey */
+  text-decoration: line-through;
+}
+
+.tableCellTopRow {
+  padding: 5px;
+  border: 1px solid #000000;
+  background: #fa8;
+}
+
+.invariantsGrid {
+  background-color: #C3D9FF;
+  border: 1px solid #000000;
+  padding: 3px;
+  margin: 3px;
+  font-weight: normal;
+}
+
+.inputForm {
+  background-color: #C3D9FF;
+  border: 1px solid #000000;
+  padding: 3px;
+  margin: 3px;
+  font-weight: normal;
+}
+
+.buttonPanel {
+  background-color: #C3D9FF;
+  border: 1px solid #000000;
+  padding: 3px;
+  margin: 3px;
+  font-weight: normal;
+}
+
+.parseButton {
+	margin-right: 3em;
+}
+
+
+.modelCanvas {
+  border: 2px solid #C3D9FF;
+}
+
+#log-line-label {
+  border: 2px solid #C3D9FF;
+  font-weight: bold;
+  font-size: 1.25em;
+  text-align: center;
+}
+
+#log-line-instruct {
+	font-weight: normal;
+	font-size: 1em;
+}
+.tooltip {
+	background-color: #C3D9FF;
+	padding: 2px;
+	font-style:italic;
+}
+
+.TableHeader {
+	font-weight: bold;
+}
+
+.LineNumCol {
+	width: 50px;
+}
+
+.LineCol {
+	width: 225px;
+	/* width: 175px; */
+}
+
+.LogTypeRadio {
+	margin: 5px;	
+}
+
+.ParseLogButton {
+	margin-right: 1em !important;
+}
+	
+
+.FlexTable {
+	table-layout: fixed;
+}
+
+.ErrorMessage {
+	text-align: center;
+	color: red;
+	font-style: italic;
+	font-size: 2em;
+}
