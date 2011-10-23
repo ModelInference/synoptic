@@ -90,7 +90,7 @@ public class InputPanel extends Tab<VerticalPanel> {
         logFileUploadForm.setEncoding(FormPanel.ENCODING_MULTIPART);
         logFileUploadForm.setMethod(FormPanel.METHOD_POST);
         logFileUploadForm.setWidget(grid);
-
+        
         logTextRadioButton.setStyleName("LogTypeRadio");
         logFileRadioButton.setStyleName("LogTypeRadio");
         logTextRadioButton.setValue(true); // Log text area input initially
@@ -101,7 +101,7 @@ public class InputPanel extends Tab<VerticalPanel> {
         uploadLogFileButton.setName("uploadFormElement");
         uploadLogFileButton.setEnabled(false);
         uploadPanel.add(uploadLogFileButton);
-
+        
         HorizontalPanel radioButtonPanel = new HorizontalPanel();
         radioButtonPanel.add(logInputTypeLabel);
         radioButtonPanel.add(logTextRadioButton);
@@ -109,7 +109,6 @@ public class InputPanel extends Tab<VerticalPanel> {
 
         // Set up inner panel containing textarea and upload section.
         VerticalPanel logPanel = new VerticalPanel();
-
         logPanel.add(radioButtonPanel);
         logPanel.add(logTextArea);
         logPanel.add(uploadPanel);
@@ -214,16 +213,13 @@ public class InputPanel extends Tab<VerticalPanel> {
     }
     
     /**
-     * Handles clearing all input in text areas and text boxes.
+     * Clears inputs and enables all the log example links.
      */
     class ClearInputsHandler implements ClickHandler {
 
 		@Override
 		public void onClick(ClickEvent event) {
-			logTextArea.setText("");
-			partitionRegExpTextBox.setText("");
-			regExpsTextArea.setText("");
-			separatorRegExpTextBox.setText("");
+			logFileUploadForm.reset();
 			for (int i = 1; i < examplesGrid.getRowCount(); i++) {
 			    if (prevAnchor != null && examplesGrid.getWidget(i,0) instanceof Label) {
                     examplesGrid.getWidget(i,0).removeFromParent();
@@ -243,6 +239,8 @@ public class InputPanel extends Tab<VerticalPanel> {
         //TODO optimize? don't use two for loops
         @Override
         public void onClick(ClickEvent event) {
+            // Clears all inputs and uploads
+            logFileUploadForm.reset();
             InputExample[] inputExamples = InputExample.values();
             // Convert from label to anchor for previously clicked
             for (int j = 1; j < examplesGrid.getRowCount(); j++) {
@@ -262,7 +260,7 @@ public class InputPanel extends Tab<VerticalPanel> {
                     //TODO make flyweight??
                     examplesGrid.setWidget(i, 0, new Label(prevAnchor.getText()));
                 }
-            }   
+            }
         }   
     }
      
