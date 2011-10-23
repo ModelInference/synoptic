@@ -56,9 +56,12 @@ public abstract class GraphExportFormatter {
         if (relationColors.containsKey(relation)) {
             return relationColors.get(relation);
         }
-        if (possibleColors.size() == 0 && !reportedColorsDeficiency) {
-            logger.severe("Ran out of colors for relations when exporting graph. Using the default color ("
-                    + defaultRelationColor + ") for the remaining relations.");
+        if (possibleColors.size() == 0) {
+            if (!reportedColorsDeficiency) {
+                logger.severe("Ran out of colors for relations when exporting graph. Using the default color ("
+                        + defaultRelationColor
+                        + ") for the remaining relations.");
+            }
             reportedColorsDeficiency = true;
             return defaultRelationColor;
         }
