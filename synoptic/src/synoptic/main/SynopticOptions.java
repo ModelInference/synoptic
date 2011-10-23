@@ -103,6 +103,7 @@ public class SynopticOptions {
      * significant components of the log line. There are a few more variants on
      * this, detailed in the online documentation.
      */
+    public static final String regExpDefault = "(?<TYPE>.*)";
     @Option(
             value = "-r Parser reg-exp: extracts event type and event time from a log line",
             aliases = { "-regexp" })
