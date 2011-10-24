@@ -165,16 +165,16 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             CellFormatter cFormatter = grid.getCellFormatter();
 
             // Corresponding invariant is activated => deactive it.
-            if (invLabel.getActivated()) {
+            if (invLabel.getActive()) {
             	// T.101.JV - Can I use activeInvsHashes instead of 
             	// GWTInvariant.displayed
             	// to keep track of toggle state?
                 activeInvsHashes.remove(invID);
-                invLabel.setActivated(false);
+                invLabel.setActive(false);
                 cFormatter.setStyleName(cIndex, 0, "tableCellInvDeactivated");
             } else { // Corresponding invariant is deactivated => activate it.
                 activeInvsHashes.add(invID);
-                invLabel.setActivated(true);
+                invLabel.setActive(true);
                 cFormatter.setStyleName(cIndex, 0, "tableCellInvActivated");
             }
         }

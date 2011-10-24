@@ -2,6 +2,8 @@ package synopticgwt.shared;
 
 import java.io.Serializable;
 
+import synopticgwt.client.invariants.GraphicInvariant;
+
 /**
  * A client-side counterpart to the temporal invariant for communication between
  * the server/client. Currently not all of the data within the server-side
@@ -23,6 +25,10 @@ public class GWTInvariant implements Serializable {
     // This is a copy of the server-side
     // temporal invariant's hashCode.
     private int invID = 0;
+
+	private boolean active = true;
+
+    private GraphicInvariant gInv;
 
     public GWTInvariant() {
         eFirst = null;
@@ -58,9 +64,6 @@ public class GWTInvariant implements Serializable {
     	return getUnicodeTransitionType(transitionType);
     }
 
-	private boolean displayed = true;
-
-    private GrahpicInvariant gInv;
 
     /**
      * Constructs a new GWTInvariant.
@@ -125,17 +128,17 @@ public class GWTInvariant implements Serializable {
         return "<" + eFirst.toString() + "," + eSecond.toString() + ">";
     }
     
-    public void setDisplayed(boolean displayed) {
-        if (this.displayed && !displayed) {
+    public void setActive(boolean active) {
+        if (this.active && !active) {
             gInv.hide();
-        } else if (!this.displayed && displayed) {
+        } else if (!this.active && active) {
             gInv.show();
         }
-    	this.displayed = displayed;
+    	this.active = active;
     }
     
-    public boolean getDisplayed() {
-    	return displayed;
+    public boolean getActive() {
+    	return active;
     }
 
     public void setGraphicInvariant(GraphicInvariant gInv) {

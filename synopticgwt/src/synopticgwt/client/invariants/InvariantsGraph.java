@@ -1,5 +1,6 @@
 package synopticgwt.client.invariants;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -165,19 +166,6 @@ public class InvariantsGraph {
 
 		var paper = $wnd.Raphael($doc.getElementById(canvasId), width, height);
 
-		// Attribute to track the target node pointed to from the middle text-element.
-		paper.customAttributes.dest = function(textElem) {
-			return {
-				dest : textElem
-			};
-		};
-
-		// Attribute to track the highlighted color of the lines connected to the selected middle text-element.
-		paper.customAttributes.highlight = function(color) {
-			return {
-				highlight : color
-			};
-		};
 
 		var topMargin = 20;
 		var dY = 50;

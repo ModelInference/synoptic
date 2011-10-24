@@ -1,19 +1,19 @@
+package synopticgwt.client.invariants;
+
+import synopticgwt.shared.GWTInvariant;
+
 /* Graphic model for an invariant */
 public class GraphicInvariant {
-    GraphicEvent eFirst;
-    GraphicEvent eLast;
+    GraphicEvent src;
+    GraphicEvent dst;
     GraphicArrow arrow;
     GWTInvariant GWTinv;
 
-    public class GraphicInvariant(GraphicEvent eFirst, GraphicEvent eLast,
+    public GraphicInvariant(GraphicEvent src, GraphicEvent dst,
         GraphicArrow arrow, GWTInvariant GWTinv) {
-        this.eFirst = eFirst;
-        this.eLast = eLast;
+        this.src = src;
+        this.dst = dst;
         this.arrow = arrow;
-        setGWTInvariant(GWTinv);
-    }
-
-    public void setGWTInvariant(GWTInvariant GWTinv) {
         this.GWTinv = GWTinv;
     }
 
