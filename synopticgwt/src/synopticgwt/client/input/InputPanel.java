@@ -4,10 +4,18 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FileUpload;
@@ -22,6 +30,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import synoptic.main.SynopticOptions;
 import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.SynopticGWT;
 import synopticgwt.client.Tab;
@@ -38,21 +47,24 @@ public class InputPanel extends Tab<VerticalPanel> {
     private static final String UPLOAD_LOGFILE_URL = GWT.getModuleBaseURL()
             + "log_file_upload";
     
-    private Anchor prevAnchor = null;
-
     final Grid examplesGrid = new Grid(5, 1);
     final Label loadExamples = new Label("Load example logs");
     final Label parseErrorMsgLabel = new Label();
     final Label logInputTypeLabel = new Label("Log input type:");
+    final Label regExpDefaultLabel = new Label("Defaults to " + 
+            SynopticOptions.regExpDefault + " when empty");
+    final Label partitionRegExpDefaultLabel = new Label("Defaults to " + 
+            SynopticOptions.partitionRegExpDefault + " when empty");
     final FormPanel logFileUploadForm = new FormPanel();
     final RadioButton logTextRadioButton = new RadioButton("logInputType",
             "Text area");
     final RadioButton logFileRadioButton = new RadioButton("logInputType",
             "Text file");
-    final TextArea logTextArea = new TextArea();
+    
+    final ExtendedTextArea logTextArea = new ExtendedTextArea();    
     final FileUpload uploadLogFileButton = new FileUpload();
-    final TextArea regExpsTextArea = new TextArea();
-    final TextBox partitionRegExpTextBox = new TextBox();
+    final ExtendedTextArea regExpsTextArea = new ExtendedTextArea();
+    final ExtendedTextBox partitionRegExpTextBox = new ExtendedTextBox();
     final TextBox separatorRegExpTextBox = new TextBox();
     final Button parseLogButton = new Button("Parse Log");
     final Button clearInputsButton = new Button("Clear");
@@ -119,13 +131,21 @@ public class InputPanel extends Tab<VerticalPanel> {
         logTextArea.setVisibleLines(10);
         logTextArea.setName("logTextArea");
 
+        VerticalPanel regExpPanel = new VerticalPanel();
+        regExpPanel.add(regExpsTextArea);
+        regExpPanel.add(regExpDefaultLabel);
+        regExpDefaultLabel.setStyleName("DefaultExpLabel");
         grid.setWidget(1, 0, new Label("Regular expressions"));
-        grid.setWidget(1, 1, regExpsTextArea);
+        grid.setWidget(1, 1, regExpPanel);
         regExpsTextArea.setCharacterWidth(80);
         regExpsTextArea.setName("regExpsTextArea");
-
+        
+        VerticalPanel partitionExpPanel = new VerticalPanel();
+        partitionExpPanel.add(partitionRegExpTextBox);
+        partitionExpPanel.add(partitionRegExpDefaultLabel);
+        partitionRegExpDefaultLabel.setStyleName("DefaultExpLabel");
         grid.setWidget(2, 0, new Label("Partition expression"));
-        grid.setWidget(2, 1, partitionRegExpTextBox);
+        grid.setWidget(2, 1, partitionExpPanel);
         partitionRegExpTextBox.setVisibleLength(80);
         partitionRegExpTextBox.setName("partitionRegExpTextBox");
 
@@ -138,6 +158,7 @@ public class InputPanel extends Tab<VerticalPanel> {
         buttonsPanel.add(parseLogButton);
         buttonsPanel.add(clearInputsButton);
         parseLogButton.addStyleName("parseButton");
+        parseLogButton.setEnabled(false); // initially disabled
         grid.setWidget(4, 1, buttonsPanel);
 
         grid.setStyleName("inputForm grid");
@@ -155,12 +176,17 @@ public class InputPanel extends Tab<VerticalPanel> {
         logTextArea.setFocus(true);
         logTextArea.setText("");
         logTextArea.selectAll();
+        logTextArea.addKeyUpHandler(new KeyPressInputHandler());
 
         // Set up the other text areas.
         regExpsTextArea.setText("");
         partitionRegExpTextBox.setText("");
         separatorRegExpTextBox.setText("");
-
+        
+        // Associate KeyPress handlers to enable default labels appearing.
+        regExpsTextArea.addKeyUpHandler(new KeyPressInputHandler());
+        partitionRegExpTextBox.addKeyUpHandler(new KeyPressInputHandler());
+        
         // Associate handler with the Parse Log button.
         parseLogButton.addClickHandler(new ParseLogHandler());
         parseLogButton.addStyleName("ParseLogButton");
@@ -173,6 +199,7 @@ public class InputPanel extends Tab<VerticalPanel> {
                 .addSubmitCompleteHandler(new LogFileFormCompleteHandler());
         logTextRadioButton.addValueChangeHandler(new LogTypeRadioHandler());
         logFileRadioButton.addValueChangeHandler(new LogTypeRadioHandler());
+        uploadLogFileButton.addChangeHandler(new FileUploadHandler());
        
         inputForm.add(logFileUploadForm);
         examplesAndInputForm.add(examplesGrid);
@@ -196,20 +223,28 @@ public class InputPanel extends Tab<VerticalPanel> {
     	this.separatorRegExpTextBox.setText(separatorRegExpText);
     }
     
-    // Extracts regular expressions in text area for log parsing
+    // Extracts regular expressions in text area for log parsing.
     private List<String> getRegExps(TextArea textArea) {
         String regExpLines[] = textArea.getText().split("\\r?\\n");
         List<String> regExps = Arrays.asList(regExpLines);
         return regExps;
     }
 
-    // Extracts expression from text box for log parsing
+    // Extracts expression from text box for log parsing.
     private String getTextBoxRegExp(TextBox textBox) {
         String expression = textBox.getText();
         if (expression == "") {
             expression = null;
         }
         return expression;
+    }
+    
+    // Sets all input field values to be empty strings.
+    private void clearInputValues() {
+        logTextArea.setValue("");
+        regExpsTextArea.setValue("");
+        partitionRegExpTextBox.setValue("");
+        separatorRegExpTextBox.setValue("");
     }
     
     /**
@@ -219,14 +254,110 @@ public class InputPanel extends Tab<VerticalPanel> {
 
 		@Override
 		public void onClick(ClickEvent event) {
-			logFileUploadForm.reset();
-			for (int i = 1; i < examplesGrid.getRowCount(); i++) {
-			    if (prevAnchor != null && examplesGrid.getWidget(i,0) instanceof Label) {
-                    examplesGrid.getWidget(i,0).removeFromParent();
-                    examplesGrid.setWidget(i,0,prevAnchor);
-                }
-			}
+		    logFileUploadForm.reset();
+		    logTextArea.setEnabled(true);
+		    uploadLogFileButton.setEnabled(false);
+			parseLogButton.setEnabled(false);
+			regExpDefaultLabel.setVisible(true);
+			partitionRegExpDefaultLabel.setVisible(true);
 		}	
+    }
+    
+    class DefaultExpressionsHandler implements KeyUpHandler {
+
+        @Override
+        public void onKeyUp(KeyUpEvent event) {
+            if (event.getSource() == regExpsTextArea) {
+                if (regExpsTextArea.getValue().trim().length() != 0) {
+                    
+                }
+            } else { //partitionRegExpTextBox
+                if (partitionRegExpTextBox.getValue().trim().length() != 0) {
+                    
+                }
+            }
+        }    
+    }
+    
+    /**
+     * A subclass of text area that allows the browser to listen
+     * to capture a paste event and enable that parse log button. 
+     */
+    class ExtendedTextArea extends TextArea {
+        public ExtendedTextArea() {
+            super();
+            sinkEvents(Event.ONPASTE);
+        }
+        
+        @Override
+        public void onBrowserEvent(Event event) {
+            super.onBrowserEvent(event);
+            switch (DOM.eventGetType(event)) {
+            case Event.ONPASTE:
+                Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        // Enable parse log button if pasting non-empty text.
+                        if (logTextArea.getValue().trim().length() != 0) {
+                            parseLogButton.setEnabled(true);
+                        }
+                        if (regExpsTextArea.getValue().trim().length() != 0) {
+                            regExpDefaultLabel.setVisible(false);
+                        }
+                    }
+                });
+              break;
+            }
+        }
+    }
+    
+    /**
+     * A subclass of text box that allows the browser to listen
+     * to capture a paste event. 
+     */
+    class ExtendedTextBox extends TextBox {
+        public ExtendedTextBox() {
+            super();
+            sinkEvents(Event.ONPASTE);
+        }
+        
+        // Displays the default partition reg exp. if a paste event results
+        // in an empty textbox.
+        @Override
+        public void onBrowserEvent(Event event) {
+            super.onBrowserEvent(event);
+            switch (DOM.eventGetType(event)) {
+            case Event.ONPASTE:
+                Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        if (partitionRegExpTextBox.getValue().trim().length() != 0) {
+                            partitionRegExpDefaultLabel.setVisible(false);
+                        }
+                    }
+                });
+              break;
+            }
+        }
+    }
+    
+    /**
+     * Handles when a file is selected is to be uploaded. Enables parse log
+     * button and clears any prior inputs in fields when a file is chosen.
+     */
+    class FileUploadHandler implements ChangeHandler {
+
+        @Override
+        public void onChange(ChangeEvent event) {
+            if (uploadLogFileButton.getFilename() != null && logFileRadioButton.isEnabled()) {
+                parseLogButton.setEnabled(true);
+                clearInputValues();
+                regExpDefaultLabel.setVisible(true);
+                partitionRegExpDefaultLabel.setVisible(true);
+            } else {
+                parseLogButton.setEnabled(false);
+            }
+        }
     }
     
     /**
@@ -249,9 +380,51 @@ public class InputPanel extends Tab<VerticalPanel> {
                             currExample.getPartitionRegExpText(), currExample.getSeparatorRegExpText());
                 }
             }
+            if (regExpsTextArea.getValue().trim().length() != 0) {
+                regExpDefaultLabel.setVisible(false);
+            } else {
+                regExpDefaultLabel.setVisible(true);
+            }
+            if (partitionRegExpTextBox.getValue().trim().length() != 0) {
+                partitionRegExpDefaultLabel.setVisible(false);
+            } else {
+                partitionRegExpDefaultLabel.setVisible(true);
+            }
+            parseLogButton.setEnabled(true);
         }   
     }
      
+    /**
+     * Handles KeyPress events for all the log input fields. Enables/disables
+     * fields, labels, or buttons due to empty or non-empty fields.
+     */
+    class KeyPressInputHandler implements KeyUpHandler {
+
+        @Override
+        public void onKeyUp(KeyUpEvent event) {
+            if (event.getSource() == logTextArea) {
+                // Parse log enabled if log text area is not empty.
+                if (logTextRadioButton.isEnabled() && logTextArea.getValue().trim().length() != 0) {
+                    parseLogButton.setEnabled(true);
+                } else {
+                    parseLogButton.setEnabled(false);
+                }
+            } else if (event.getSource() == regExpsTextArea) {
+                if (regExpsTextArea.getValue().trim().length() != 0) {
+                    regExpDefaultLabel.setVisible(false);
+                } else {
+                    regExpDefaultLabel.setVisible(true);
+                }
+            } else if (event.getSource() == partitionRegExpTextBox) {
+                if (partitionRegExpTextBox.getValue().trim().length() != 0) {
+                    partitionRegExpDefaultLabel.setVisible(false);
+                } else {
+                    partitionRegExpDefaultLabel.setVisible(true);
+                }
+            }
+        }
+    }
+    
     /**
      * Handles enabling/disabling of text area or file upload button when log
      * type radio buttons are changed.
@@ -264,11 +437,13 @@ public class InputPanel extends Tab<VerticalPanel> {
                 if (uploadLogFileButton.isEnabled()) {
                     uploadLogFileButton.setEnabled(false);
                 }
-            } else {
+                parseLogButton.setEnabled(false);
+            } else { // logFileRadioButton
                 uploadLogFileButton.setEnabled(true);
                 if (logTextArea.isEnabled()) {
                     logTextArea.setEnabled(false);
                 }
+                parseLogButton.setEnabled(false);
             }
         }
     }
@@ -404,4 +579,5 @@ public class InputPanel extends Tab<VerticalPanel> {
             SynopticGWT.entryPoint.logParsed(ret.getLeft(), ret.getRight());
         }
     }
+
 }

@@ -125,6 +125,10 @@ h1 {
 	font-weight: bold;
 }
 
+.DefaultExpLabel {
+	color: #585858;	 
+}
+
 .LineNumCol {
 	width: 50px;
 }
