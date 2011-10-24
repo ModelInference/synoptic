@@ -15,20 +15,10 @@ import synoptic.model.interfaces.INode;
  */
 public class NeverImmediatelyFollowedInvariant extends BinaryInvariant {
 
-	/* Default relation between events, true for ordered logs */
-	private static final String DEFAULT_RELATION = "temporal";
-
     public NeverImmediatelyFollowedInvariant(EventType typeFirst, EventType typeSecond,
             String relation) {
         super(typeFirst, typeSecond, relation);
     }
-
-	/**
-	 * Constructs an NIFby invariant with the DEFAULT_RELATION
-	 */
-	public NeverImmediatelyFollowedInvariant(EventType typeFirst, EventType typeSecond) {
-		this(typeFirst, typeSecond, DEFAULT_RELATION);
-	}
     
     /**
      * Assumes the invariant is between two StringEventTypes
