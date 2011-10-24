@@ -15,7 +15,7 @@ public class DFAMain {
     public static void main(String[] args) throws Exception {
         Main synMain = Main.processArgs(args);
         PartitionGraph initialModel = synMain.createInitialPartitionGraph();
-        TemporalInvariantSet implicitInvariants = initialModel.getImplicitInvariants();
+        TemporalInvariantSet implicitInvariants = initialModel.getImmediatelyFollowsInvariants();
         System.out.println(implicitInvariants);
     }
 }

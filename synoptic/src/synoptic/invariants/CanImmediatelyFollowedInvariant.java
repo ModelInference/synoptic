@@ -5,29 +5,20 @@ import java.util.List;
 import synoptic.model.EventType;
 import synoptic.model.StringEventType;
 import synoptic.model.interfaces.INode;
+import synoptic.util.NotImplementedException;
 
 /**
  * An implicit invariant for Synoptic models, true for two events a and b when
- * there exists a trace such that event a is immediately followed event b.
+ * there exists a trace such that event a is immediately followed by event b.
  * 
  * @author Jenny
  */
 public class CanImmediatelyFollowedInvariant extends BinaryInvariant {
-	
-	/* Default relation between events, true for ordered logs */
-	private static final String DEFAULT_RELATION = "temporal";
 
     public CanImmediatelyFollowedInvariant(EventType typeFirst, EventType typeSecond,
             String relation) {
         super(typeFirst, typeSecond, relation);
     }
-    
-	/**
-	 * Constructs an CIFby invariant with the DEFAULT_RELATION
-	 */
-	public CanImmediatelyFollowedInvariant(EventType typeFirst, EventType typeSecond) {
-		this(typeFirst, typeSecond, DEFAULT_RELATION);
-	}
     
     /**
      * Assumes the invariant is between two StringEventTypes
@@ -74,7 +65,7 @@ public class CanImmediatelyFollowedInvariant extends BinaryInvariant {
 	   coarsening, so LTL has been left undefined */
 	@Override
 	public String getLTLString() {
-		return null;
+		throw new NotImplementedException();
 	}
 
 	@Override
