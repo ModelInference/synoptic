@@ -17,9 +17,9 @@ import java.util.logging.Logger;
 
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMultiSplit;
-import synoptic.invariants.CanImmediatelyFollowedInvariant;
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.main.TraceParser;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
@@ -622,7 +622,7 @@ public class PartitionGraph implements IGraph<Partition> {
     /**
      * Walks this PartitionGraph and returns a set of all the implicit invariants (CIFby and NIFby)
      */
-    public TemporalInvariantSet getImmediatelyFollowsInvariants() {
+    public Set<NeverImmediatelyFollowedInvariant> getImmediatelyFollowsInvariants() {
 
     	// Tracks which partitions have been visited.
     	Set<Partition> seen = new HashSet<Partition>();
@@ -636,7 +636,8 @@ public class PartitionGraph implements IGraph<Partition> {
     	}
 
     	// Create invariants: there will be n^2 where n is the number of event types.
-    	TemporalInvariantSet immediatelyFollowedInvariants = new TemporalInvariantSet();
+    	Set<NeverImmediatelyFollowedInvariant> immediatelyFollowedInvariants = 
+    			new HashSet<NeverImmediatelyFollowedInvariant>();
     	
     	// canFollow.keySet() will contain all events types because each node in the partition
     	// graph is visited and added to canFollow during traverseAndMineCIFbys().
@@ -646,12 +647,10 @@ public class PartitionGraph implements IGraph<Partition> {
     		EventType source = entry.getKey();
     		Set<EventType> followedBy = entry.getValue();
     		for (EventType target : allEvents) {
-    			if (followedBy.contains(target)) {
+    			if (!followedBy.contains(target)) {
     				immediatelyFollowedInvariants.add(
-    						new CanImmediatelyFollowedInvariant(source, target));
-    			} else {
-    				immediatelyFollowedInvariants.add(
-    						new NeverImmediatelyFollowedInvariant(source, target));
+    						new NeverImmediatelyFollowedInvariant(
+    								source, target, TraceParser.defaultRelation));
     			}
     		}
     	}
