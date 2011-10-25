@@ -28,7 +28,7 @@ public class GWTInvariant implements Serializable {
 
 	private boolean active = true;
 
-    private GraphicInvariant gInv;
+    // private GraphicInvariant gInv;
 
     public GWTInvariant() {
         eFirst = null;
@@ -129,11 +129,13 @@ public class GWTInvariant implements Serializable {
     }
     
     public void setActive(boolean active) {
+    	/*
         if (this.active && !active) {
             gInv.hide();
         } else if (!this.active && active) {
             gInv.show();
         }
+        */
     	this.active = active;
     }
     
@@ -142,7 +144,7 @@ public class GWTInvariant implements Serializable {
     }
 
     public void setGraphicInvariant(GraphicInvariant gInv) {
-        this.gInv = gInv;
+        //this.gInv = gInv;
     }
 
 }

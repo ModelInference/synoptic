@@ -1,9 +1,14 @@
 package synopticgwt.client.invariants;
 
+import java.io.Serializable;
+
 import com.google.gwt.core.client.JavaScriptObject;
 
-public class GraphicPaper {
-    // Raphael paper object
+public class GraphicPaper implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
+	// Raphael paper object
     private JavaScriptObject paper;
     
     public GraphicPaper(int width, int height, String canvasId) {

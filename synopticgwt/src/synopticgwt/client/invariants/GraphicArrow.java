@@ -1,10 +1,15 @@
 package synopticgwt.client.invariants;
 
+import java.io.Serializable;
+
 import com.google.gwt.core.client.JavaScriptObject;
 
 /* Java object representing an arrow on the iGraph */
-public class GraphicArrow {
-    // Raphael paper object
+public class GraphicArrow implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
+	// Raphael paper object
     private GraphicPaper paper;
     // Raphael path elements
     // Non-arrowhead part of the arrow

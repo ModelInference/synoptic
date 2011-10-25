@@ -1,10 +1,17 @@
 package synopticgwt.client.invariants;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.core.client.JavaScriptObject;
 
 /* Graphic model for a logged event type */
-public class GraphicEvent {
-    // Raphael paper object
+public class GraphicEvent implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
+	// Raphael paper object
     private GraphicPaper paper;
     // Raphael text objectj
     private JavaScriptObject text;
@@ -13,7 +20,7 @@ public class GraphicEvent {
 
     public GraphicEvent(int x, int y, String event, GraphicPaper paper) {
         this.paper = paper;
-        arrows = new ArrayList<Arrow>();
+        arrows = new ArrayList<GraphicArrow>();
         // TODO: construct text JSO
     }
 
