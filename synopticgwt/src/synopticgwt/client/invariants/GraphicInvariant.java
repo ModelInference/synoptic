@@ -1,10 +1,15 @@
 package synopticgwt.client.invariants;
 
+import java.io.Serializable;
+
 import synopticgwt.shared.GWTInvariant;
 
 /* Graphic model for an invariant */
-public class GraphicInvariant {
-    GraphicEvent src;
+public class GraphicInvariant implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+	
+	GraphicEvent src;
     GraphicEvent dst;
     GraphicArrow arrow;
     GWTInvariant GWTinv;
