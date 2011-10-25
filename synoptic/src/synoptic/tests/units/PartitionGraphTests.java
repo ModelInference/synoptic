@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionSplit;
-import synoptic.invariants.CanImmediatelyFollowedInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
@@ -165,27 +164,17 @@ public class PartitionGraphTests extends SynopticTest {
 		TOInvariantMiner miner = new ChainWalkingTOInvMiner();
 		PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner);
 
-		TemporalInvariantSet implicitInvariants = pGraph
+		Set<NeverImmediatelyFollowedInvariant> NIFbys = pGraph
 				.getImmediatelyFollowsInvariants();
 
 		int numEventTypes = pGraph.getNodes().size();
-		assertEquals("Number of mined invariants", numEventTypes
-				* numEventTypes, implicitInvariants.numInvariants());
 
-		// As observed from this example's initial model.
+		// As observed from this example's initial model, which contained 9 CIFby invariants.
 		int expectedNumNIFbys = numEventTypes * numEventTypes - 9;
 
-		// Build set of CIFby invariants
-		Set<NeverImmediatelyFollowedInvariant> NIFbys = new HashSet<NeverImmediatelyFollowedInvariant>();
-		for (ITemporalInvariant invariant : implicitInvariants.getSet()) {
-			if (invariant instanceof NeverImmediatelyFollowedInvariant) {
-				NIFbys.add((NeverImmediatelyFollowedInvariant) invariant);
-			}
-		}
-		
 		assertEquals("Number of NIFby invariants", expectedNumNIFbys,
 				NIFbys.size());
 
-		// TODO: test that the CIFbys are correct
+		// TODO: test that the NIFbys are correct
 	}
 }

@@ -115,6 +115,7 @@ public class Main implements Callable<Integer> {
             IllegalAccessException, ParseException {
 
         SynopticOptions opts = new SynopticOptions(args);
+        Main mainInstance = new Main(opts);
         setUpLogging();
 
         // Display help for all option groups, including unpublicized ones
@@ -171,7 +172,6 @@ public class Main implements Callable<Integer> {
         Main.random = new Random(opts.randomSeed);
         logger.info("Using random seed: " + opts.randomSeed);
 
-        Main mainInstance = new Main(opts);
         return mainInstance;
     }
 

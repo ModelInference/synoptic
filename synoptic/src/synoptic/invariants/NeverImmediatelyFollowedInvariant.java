@@ -5,6 +5,7 @@ import java.util.List;
 import synoptic.model.EventType;
 import synoptic.model.StringEventType;
 import synoptic.model.interfaces.INode;
+import synoptic.util.NotImplementedException;
 
 /**
  * An implicit invariant for Synoptic models, true for events a and b 
@@ -65,7 +66,7 @@ public class NeverImmediatelyFollowedInvariant extends BinaryInvariant {
 	   coarsening, so LTL has been left undefined */
 	@Override
 	public String getLTLString() {
-		return null;
+		throw new NotImplementedException();
 	}
 
 	@Override
