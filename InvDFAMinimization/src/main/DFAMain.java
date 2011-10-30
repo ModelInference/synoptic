@@ -21,6 +21,6 @@ public class DFAMain {
         Set<NeverImmediatelyFollowedInvariant> NIFbys = initialModel.getImmediatelyFollowsInvariants();
         
         InitialDFABuilder builder = new InitialDFABuilder(NIFbys);
-        builder.displayModel();
+        builder.exportDotAndPng("initialDfaModel.dot");
     }
 }
