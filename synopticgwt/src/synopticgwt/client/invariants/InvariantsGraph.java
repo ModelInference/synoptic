@@ -31,11 +31,6 @@ public class InvariantsGraph {
      */
     public static void createInvariantsGraphic(GWTInvariantSet gwtInvs,
             String invCanvasId) {
-        JavaScriptObject eventTypesJS = JavaScriptObject.createArray();
-        JavaScriptObject AFbyJS = JavaScriptObject.createArray();
-        JavaScriptObject NFbyJS = JavaScriptObject.createArray();
-        JavaScriptObject APJS = JavaScriptObject.createArray();
-
         Set<String> invTypes = gwtInvs.getInvTypes();
         int eTypesCnt = 0;
 
