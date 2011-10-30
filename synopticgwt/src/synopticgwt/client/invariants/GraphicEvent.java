@@ -15,82 +15,78 @@ public class GraphicEvent implements Serializable {
     private GraphicPaper paper;
     // Raphael text objectj
     private JavaScriptObject text;
-    // Incident arrows
-    private List<GraphicArrow> arrows;
+    // Incident relations
+    private List<GraphicInvariant> invariants;
 
     public GraphicEvent(int x, int y, String event, GraphicPaper paper) {
         this.paper = paper;
-        arrows = new ArrayList<GraphicArrow>();
-        // TODO: construct text JSO
+        invariants = new ArrayList<GraphicInvariant>();
+        text = constructText(x, y, event);
+        setMouseover();
+        setMouseout();
     }
 
-    // If the GraphicEvent is not visible on the paper, make it visible
-    public void show() {
-        paper.showElement(text);
-    }
-
-    // If the GraphicEvent is visible on the InvariantsGraph, make it invisible
-    public void hide() {
-        paper.hideElement(text);
-    }
-
-    public void addArrow(GraphicArrow arrow) {
-        arrows.add(arrow);
-    }
-
-    // Need to properly construct array of path objects to modify
-    // and plug into var line in lines
-    public native void updateMouseover() /*-{
-		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
-        
-        // Function to execute when the tMiddle label is pointed-to.
-        text.mouseover(function(y) {
-            return function(e) {
-                // y is text
-                for ( var line in lines[y.attr('text')]) {
-                    lines[y.attr('text')][line].attr({
-                        'stroke-width' : '3'
-                    });
-                    lines[y.attr('text')][line].attr({
-                        stroke : lines[y.attr('text')][line]
-                                .attr('highlight')
-                    });
-                    lines[y.attr('text')][line].attr('dest').attr({
-                        fill : "black"
-                    });
-                }
-                y.attr({
-                    fill : "black"
-                });
-
-            };
-        }(text));
+    public native JavaScriptObject constructText(int x, int y, 
+            String text) /*-{
+		var paper = this.@synopticgwt.client.invariants.GraphicEvent::paper;
+        var text = paper.text(x, y, text);
+        return text;
     }-*/;
 
-    // Need to properly construct array of path objects to modify
-    // and plug into var line in lines
-    public native void updateMouseout() /*-{
+    // If the GraphicEvent is not visible on the paper, make it visible
+    public native void show() /*-{
+		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
+        text.show();
+    }-*/;
+
+    // If the GraphicEvent is visible on the InvariantsGraph, make it invisible
+    public void hide() /*-{
+		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
+        text.hide();
+    }-*/;
+
+    public void addInvariant(GraphicInvariant gInv) {
+        invariants.add(gInv);
+    }
+
+    public void hightlightOnIncidentInvariants() {
+        for (GraphicInvariant gi : invariants) {
+            gi.highlightOn();
+        }
+    }
+
+    public void hightlightOffIncidentInvariants() {
+        for (GraphicInvariant gi : invariants) {
+            gi.highlightOff();
+        }
+    }
+
+    // Function to execute when the label is pointed-to.
+    public native void setMouseover() /*-{
+		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
+        
+        text.mouseover(
+            $entry(this.@synopticgwt.client.invariants.GraphicEvent::
+                highlightOnIncidentInvariants());
+        );
+    }-*/;
+
+
+    // Function to execute when the label is not pointed-to.
+    public native void setMouseout() /*-{
 		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
 
-        // Function to execute when the tMiddle label is not pointed-to.
-        text.mouseout(function(y) {
-            return function(e) {
-                for ( var line in lines[y.attr('text')]) {
-                    lines[y.attr('text')][line].attr({
-                        'stroke-width' : '1'
-                    });
-                    lines[y.attr('text')][line].attr({
-                        stroke : "grey"
-                    });
-                    lines[y.attr('text')][line].attr('dest').attr({
-                        fill : "grey"
-                    });
-                }
-                y.attr({
-                    fill : "grey"
-                });
-            };
-        }(text));
+        text.mouseout(
+            $entry(this.@synopticgwt.client.invariants.GraphicEvent::
+                highlightOffIncidentInvariants());
+        );
+    }-*/;
+
+    public native void setFill(String color) /*-{
+		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
+        text.attr({
+            fill : color
+        });
     }-*/;
     
 }

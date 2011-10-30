@@ -7,6 +7,17 @@ import com.google.gwt.core.client.JavaScriptObject;
 public class GraphicPaper implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
+    private static String DEFAULT_STROKE = "grey";
+    private static String AP_HIGHLIGHT_STROKE = "blue";
+    private static String AFBY_HIGHLIGHT_STROKE = "blue";
+    private static String NFBY_HIGHLIGHT_STROKE = "red";
+
+    private static int DEFAULT_STROKE_WIDTH = 1;
+    private static int HIGHLIGHT_STROKE_WIDTH = 3;
+
+    private static String DEFAULT_FILL = "grey";
+    private static String HIGHLIGHT_FILL = "black";
 	
 	// Raphael paper object
     private JavaScriptObject paper;
@@ -18,39 +29,7 @@ public class GraphicPaper implements Serializable {
     public native JavaScriptObject constructPaper(int width, int height, 
             String canvasId) /*-{
 		var paper = $wnd.Raphael($doc.getElementById(canvasId), width, height);
-
-		// Attribute to track the target node pointed to from the middle 
-		// text-element.
-		paper.customAttributes.dest = function(textElem) {
-			return {
-				dest : textElem
-			};
-		};
-
-		// Attribute to track the highlighted color of the lines connected 
-		// to the selected middle text-element.
-		paper.customAttributes.highlight = function(color) {
-			return {
-				highlight : color
-			};
-		};
-
         return paper;
     }-*/;
 
-    public native JavaScriptObject drawPath(int x1, int y1, int x2, int y2) /*-{
-		var paper = this.@synopticgwt.client.invariants.GraphicPaper::paper;
-    }-*/;
-
-    public native JavaScriptObject drawText(int x, int y, String text) /*-{
-        TODO: implement
-    }-*/;
-
-    public native void showElement(JavaScriptObject element) /*-{
-        TODO: implement
-    }-*/;
-
-    public native void hideElement(JavaScriptObject element) /*-{
-        TODO: implement
-    }-*/;
 }
