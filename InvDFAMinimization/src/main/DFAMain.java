@@ -1,8 +1,6 @@
 package main;
 
-import java.util.Set;
-
-import synoptic.invariants.NeverImmediatelyFollowedInvariant;
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
 import synoptic.model.PartitionGraph;
 
@@ -18,9 +16,12 @@ public class DFAMain {
 	public static void main(String[] args) throws Exception {
         Main synMain = Main.processArgs(args);
         PartitionGraph initialModel = synMain.createInitialPartitionGraph();
-        Set<NeverImmediatelyFollowedInvariant> NIFbys = initialModel.getImmediatelyFollowsInvariants();
         
-        InitialDFABuilder builder = new InitialDFABuilder(NIFbys);
-        builder.exportDotAndPng("initialDfaModel.dot");
-    }
+        TemporalInvariantSet NIFbys = initialModel.getImmediatelyFollowsInvariants();
+        TemporalInvariantSet minedInvariants = initialModel.getInvariants();
+        
+        DFABuilder builder = new DFABuilder(NIFbys, minedInvariants);
+        builder.exportDotAndPng("initialDfaModel.dot", false);
+        builder.exportDotAndPng("finalDfaModel.dot", true);
+	}
 }

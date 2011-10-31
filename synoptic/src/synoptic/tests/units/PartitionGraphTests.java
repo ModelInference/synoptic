@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -12,8 +11,6 @@ import org.junit.Test;
 
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionSplit;
-import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
@@ -164,7 +161,7 @@ public class PartitionGraphTests extends SynopticTest {
 		TOInvariantMiner miner = new ChainWalkingTOInvMiner();
 		PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner);
 
-		Set<NeverImmediatelyFollowedInvariant> NIFbys = pGraph
+		TemporalInvariantSet NIFbys = pGraph
 				.getImmediatelyFollowsInvariants();
 
 		int numEventTypes = pGraph.getNodes().size();
@@ -172,8 +169,7 @@ public class PartitionGraphTests extends SynopticTest {
 		// As observed from this example's initial model, which contained 9 CIFby invariants.
 		int expectedNumNIFbys = numEventTypes * numEventTypes - 9;
 
-		assertEquals("Number of NIFby invariants", expectedNumNIFbys,
-				NIFbys.size());
+		assertEquals("Number of NIFby invariants", expectedNumNIFbys, NIFbys.getSet().size());
 
 		// TODO: test that the NIFbys are correct
 	}

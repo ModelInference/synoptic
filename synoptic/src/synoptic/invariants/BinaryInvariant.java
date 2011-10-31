@@ -182,6 +182,7 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
      * 
      * @return
      */
+    @Override
     public EventType getFirst() {
         return first;
     }
@@ -191,6 +192,7 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
      * 
      * @return
      */
+    @Override
     public EventType getSecond() {
         return second;
     }
