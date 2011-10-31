@@ -16,7 +16,8 @@ import dk.brics.automaton.RegExp;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 
-import synoptic.invariants.NeverImmediatelyFollowedInvariant;
+import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.EventType;
 import synoptic.model.export.GraphExporter;
 
@@ -26,10 +27,13 @@ import synoptic.model.export.GraphExporter;
  * 
  * @author Jenny
  */
-public class InitialDFABuilder {
+public class DFABuilder {
 
 	// DFA of the initial model.
-	private Automaton model;
+	private Automaton initialModel;
+
+	// DFA of the final model.
+	private Automaton finalModel;
 
 	// Map of encoding characters to EventType labels.
 	private Map<Character, String> encodings;
@@ -41,9 +45,10 @@ public class InitialDFABuilder {
 	private static char INITIAL;
 	private static char TERMINAL;
 
-	public InitialDFABuilder(Set<NeverImmediatelyFollowedInvariant> NIFbys) {
+	public DFABuilder(TemporalInvariantSet NIFbys, TemporalInvariantSet minedInvariants) {
 		this.encodings = new HashMap<Character, String>();
-		model = buildInitialDFAModel(NIFbys);
+		initialModel = buildInitialDFAModel(NIFbys);
+		finalModel = buildFinalModel(minedInvariants);
 	}
 
 	/* Returns a character encoding for the given EventType. Updates the encodings map and possibly
@@ -63,27 +68,15 @@ public class InitialDFABuilder {
 	}
 
 	/* Builds the initial DFAModel from the given set of NIFby invariants. */
-	private Automaton buildInitialDFAModel(Set<NeverImmediatelyFollowedInvariant> NIFbys) {
+	private Automaton buildInitialDFAModel(TemporalInvariantSet NIFbys) {
 
-		Automaton model = BasicAutomata.makeAnyString();
+		Automaton model = intersectModelWith(BasicAutomata.makeAnyString(), NIFbys);
 
-		// Constructs all of the NIFby DFAs and intersects each with the model.
-		// TODO: As a side effect, this loop generates the EventType encodings
-		// -- should this be a separate, earlier step?
-		for (NeverImmediatelyFollowedInvariant invariant : NIFbys) {
-			char source = getEncoding(invariant.getFirst());
-			char target = getEncoding(invariant.getSecond());
-
-			RegExp re = new RegExp(NIFbyRegex(source, target));
-			model = BasicOperations.intersection(model, re.toAutomaton());
-		}
-
+		// Add INITIAL/TERMINAL constraints.
 		model = BasicOperations.intersection(model, new RegExp(
 				initialAndTerminalRegex()).toAutomaton());
 
 		// Use the encodings to limit the alphabet of the automaton.
-		// TODO: This seems to be an optional step, but improves both
-		// correctness of the model and readability of the output
 		model = BasicOperations.intersection(model,
 				new RegExp(alphabetRegex()).toAutomaton());
 
@@ -93,10 +86,23 @@ public class InitialDFABuilder {
 		return model;
 	}
 
-	/* Returns a regular expression describing the NIFby invariant for source
-	 * NIFby target. For x NIFby y, the expression is "([^x]|x[^y])*x*". */
-	private String NIFbyRegex(char source, char target) {
-		return "([^" + source + "]|" + source + "[^" + target + "])*" + source + "*";
+	/* Builds the final DFAModel from the initial model and the given set of mined invariants. */
+	private Automaton buildFinalModel(TemporalInvariantSet minedInvariants) {
+		Automaton finalModel = intersectModelWith(initialModel.clone(), minedInvariants);
+		finalModel.minimize();
+		return finalModel;
+	}
+	
+	/* Intersects the given model with DFAs for all of the given invariants */
+	private Automaton intersectModelWith(Automaton model, TemporalInvariantSet invariants) {
+		for (ITemporalInvariant invariant : invariants) {
+			char source = getEncoding(invariant.getFirst());
+			char dest = getEncoding(invariant.getSecond());
+			
+			RegExp re = new RegExp(invariant.getRegex(source, dest));
+			model = BasicOperations.intersection(model, re.toAutomaton());
+		}
+		return model;
 	}
 
 	/* Returns a regular expression describing the INITIAL and TERMINAL constraints for the DFA. */
@@ -121,11 +127,12 @@ public class InitialDFABuilder {
 	 * 
 	 * @param filename
 	 *            the name of the dot file
+	 * @param exportFinal
+	 * 			  whether to export the final or initial model
 	 * @throws IOException
 	 */
-	public void exportDotAndPng(String filename) throws IOException {
-		System.out.println(toGraphviz());
-		String dot = toGraphviz();
+	public void exportDotAndPng(String filename, boolean exportFinal) throws IOException {
+		String dot = toGraphviz(exportFinal);
 		Writer output = new BufferedWriter(new FileWriter(new File(filename)));
 		try {
 			output.write(dot);
@@ -136,7 +143,8 @@ public class InitialDFABuilder {
 	}
 
 	/* Constructs a Graphviz dot representation of the model. */
-	private String toGraphviz() {
+	private String toGraphviz(boolean exportFinal) {
+		Automaton model = exportFinal ? finalModel : initialModel;
 		StringBuilder b = new StringBuilder("digraph {\n");
 		
 		// Assign states consecutive numbers.
@@ -153,7 +161,7 @@ public class InitialDFABuilder {
 				b.append(" [shape=doublecircle,label=\"\"];\n");
 			else
 				b.append(" [shape=circle,label=\"\"];\n");
-			if (s == model.getInitialState()) {
+			if (s == initialModel.getInitialState()) {
 				b.append("  initial [shape=plaintext,label=\"\"];\n");
 				b.append("  initial -> ").append(stateOrdering.get(s))
 						.append("\n");
