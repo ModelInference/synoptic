@@ -84,12 +84,21 @@ public class InputPanel extends Tab<VerticalPanel> {
         examplesGrid.setWidget(0, 0, loadExamples);
         InputExample[] inputExamples = InputExample.values();
         for (int i = 0; i < inputExamples.length; i++) {
+            VerticalPanel linkAndType = new VerticalPanel();
             // Create anchor for every InputExample enum.
             Anchor exampleLink = new Anchor(inputExamples[i].getName());
-            
+            Label logType;
+            if (inputExamples[i].isPartiallyOrdered()) {
+                logType = new Label("(Partially Ordered Log)");
+            } else {
+                logType = new Label("(Totally Ordered Log)");
+            }
+            logType.setStyleName("logTypeLabel");
+            linkAndType.add(exampleLink);
+            linkAndType.add(logType);
             // Associate click listener to anchors.
             exampleLink.addClickHandler(new ExampleLinkHandler());
-            examplesGrid.setWidget((i + 1), 0, exampleLink);
+            examplesGrid.setWidget((i + 1), 0, linkAndType);
             examplesGrid.getCellFormatter().setStyleName((i + 1), 0, "tableCell");
         }
         examplesGrid.setStyleName("inputForm");
@@ -176,7 +185,7 @@ public class InputPanel extends Tab<VerticalPanel> {
         logTextArea.setFocus(true);
         logTextArea.setText("");
         logTextArea.selectAll();
-        logTextArea.addKeyUpHandler(new KeyPressInputHandler());
+        logTextArea.addKeyUpHandler(new KeyUpInputHandler());
 
         // Set up the other text areas.
         regExpsTextArea.setText("");
@@ -184,8 +193,8 @@ public class InputPanel extends Tab<VerticalPanel> {
         separatorRegExpTextBox.setText("");
         
         // Associate KeyPress handlers to enable default labels appearing.
-        regExpsTextArea.addKeyUpHandler(new KeyPressInputHandler());
-        partitionRegExpTextBox.addKeyUpHandler(new KeyPressInputHandler());
+        regExpsTextArea.addKeyUpHandler(new KeyUpInputHandler());
+        partitionRegExpTextBox.addKeyUpHandler(new KeyUpInputHandler());
         
         // Associate handler with the Parse Log button.
         parseLogButton.addClickHandler(new ParseLogHandler());
@@ -263,25 +272,9 @@ public class InputPanel extends Tab<VerticalPanel> {
 		}	
     }
     
-    class DefaultExpressionsHandler implements KeyUpHandler {
-
-        @Override
-        public void onKeyUp(KeyUpEvent event) {
-            if (event.getSource() == regExpsTextArea) {
-                if (regExpsTextArea.getValue().trim().length() != 0) {
-                    
-                }
-            } else { //partitionRegExpTextBox
-                if (partitionRegExpTextBox.getValue().trim().length() != 0) {
-                    
-                }
-            }
-        }    
-    }
-    
     /**
-     * A subclass of text area that allows the browser to listen
-     * to capture a paste event and enable that parse log button. 
+     * A subclass of text area that allows the browser to capture 
+     * a paste event and enable that parse log button. 
      */
     class ExtendedTextArea extends TextArea {
         public ExtendedTextArea() {
@@ -312,8 +305,8 @@ public class InputPanel extends Tab<VerticalPanel> {
     }
     
     /**
-     * A subclass of text box that allows the browser to listen
-     * to capture a paste event. 
+     * A subclass of text box that allows the browser capture 
+     * a paste event. 
      */
     class ExtendedTextBox extends TextBox {
         public ExtendedTextBox() {
@@ -366,15 +359,14 @@ public class InputPanel extends Tab<VerticalPanel> {
      */
     class ExampleLinkHandler implements ClickHandler {
         
-        //TODO optimize? don't use two for loops
         @Override
         public void onClick(ClickEvent event) {
             // Clears all inputs and uploads
             logFileUploadForm.reset();
             InputExample[] inputExamples = InputExample.values();
-   
             for (int i = 1; i < examplesGrid.getRowCount(); i++) {
-                if (event.getSource() == examplesGrid.getWidget(i, 0)) {
+                VerticalPanel curr = (VerticalPanel) examplesGrid.getWidget(i, 0);
+                if (event.getSource() == curr.getWidget(0)) {
                     InputExample currExample = inputExamples[i-1];
                     setInputs(currExample.getLogText(), currExample.getRegExpText(), 
                             currExample.getPartitionRegExpText(), currExample.getSeparatorRegExpText());
@@ -396,10 +388,9 @@ public class InputPanel extends Tab<VerticalPanel> {
      
     /**
      * Handles KeyPress events for all the log input fields. Enables/disables
-     * fields, labels, or buttons due to empty or non-empty fields.
+     * fields, labels, or buttons according to empty or non-empty fields.
      */
-    class KeyPressInputHandler implements KeyUpHandler {
-
+    class KeyUpInputHandler implements KeyUpHandler {
         @Override
         public void onKeyUp(KeyUpEvent event) {
             if (event.getSource() == logTextArea) {
@@ -437,13 +428,21 @@ public class InputPanel extends Tab<VerticalPanel> {
                 if (uploadLogFileButton.isEnabled()) {
                     uploadLogFileButton.setEnabled(false);
                 }
-                parseLogButton.setEnabled(false);
+                if (logTextArea.getValue().trim().length() == 0) {
+                    parseLogButton.setEnabled(false);
+                } else {
+                    parseLogButton.setEnabled(true);
+                }
             } else { // logFileRadioButton
                 uploadLogFileButton.setEnabled(true);
                 if (logTextArea.isEnabled()) {
                     logTextArea.setEnabled(false);
                 }
-                parseLogButton.setEnabled(false);
+                if (uploadLogFileButton.getFilename() != null) {
+                    parseLogButton.setEnabled(false);
+                } else {
+                    parseLogButton.setEnabled(true);
+                }
             }
         }
     }

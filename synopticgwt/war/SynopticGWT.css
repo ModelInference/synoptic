@@ -95,6 +95,11 @@ h1 {
   font-weight: normal;
 }
 
+.logTypeLabel {
+	color: #585858;
+	font-size: 0.5em;	 
+}
+
 .parseButton {
 	margin-right: 3em;
 }
