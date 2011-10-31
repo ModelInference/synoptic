@@ -12,7 +12,7 @@ public class GraphicArrow implements Serializable {
     public static final int TARGET_BUFFER = 10;
 	
 	// Raphael paper object
-    private GraphicPaper paper;
+    private JavaScriptObject paper;
     // Raphael path elements
     // Non-arrowhead part of the arrow
     private JavaScriptObject path;
@@ -21,18 +21,18 @@ public class GraphicArrow implements Serializable {
     // Part of the arrowhead that has a negative angular offset from the body
     private JavaScriptObject negativeHead;
 
-    public GraphicArrow(int x1, int y1, int x2, int y2, GraphicPaper paper) {
+    public GraphicArrow(int x1, int y1, int x2, int y2, JavaScriptObject paper) {
         this.paper = paper;
-        constrctArrow(x1, y1, x2 - TARGET_BUFFER, y2 - TARGET_BUFFER);
+        constructArrow(x1, y1, x2 - TARGET_BUFFER, y2 - TARGET_BUFFER);
+        setStroke(InvariantsGraph.DEFAULT_STROKE, 
+            InvariantsGraph.DEFAULT_STROKE_WIDTH);
     }
 
     public void constructArrow(int x1, int y1, int x2, int y2) {
         double xRelativeZero = x1 - x2;
         double yRelativeZero = y1 - y2;
-        double r = Math.sqrt(Math.pow(xRelativeZero, 2) 
-            + Math.pow(yRelativeZero, 2));
         
-        double theta = Math.atan(yRelativeZero, xRelativeZero);
+        double theta = Math.atan2(yRelativeZero, xRelativeZero);
         double positiveTheta = theta + Math.PI / 4;
         double negativeTheta = theta - Math.PI / 4;
 
@@ -56,10 +56,10 @@ public class GraphicArrow implements Serializable {
     }
         
 
-    public native JavaScriptObject constructPath(int x1, int y1, int x2, 
-            int y2) /*-{
-		var paper = this.@synopticgwt.client.invariants.GraphicEvent::paper;
-        var path = paper.path("M" + x1 + " " + y1 + "L" + x2 + " " y2);
+    public native JavaScriptObject constructPath(double x1, double y1, 
+    		double x2, double y2) /*-{
+		var paper = this.@synopticgwt.client.invariants.GraphicArrow::paper;
+        var path = paper.path("M" + x1 + " " + y1 + "L" + x2 + " " + y2);
         return path;
     }-*/;
 
@@ -95,7 +95,15 @@ public class GraphicArrow implements Serializable {
             this.@synopticgwt.client.invariants.GraphicArrow::negativeHead;
         path.attr({
             stroke : color,
-            stroke-width : width
+            'stroke-width' : width
+        });
+        positiveHead.attr({
+            stroke : color,
+            'stroke-width' : width
+        });
+        negativeHead.attr({
+            stroke : color,
+            'stroke-width' : width
         });
     }-*/;
 }

@@ -27,6 +27,8 @@ import synopticgwt.shared.GWTInvariantSet;
  */
 public class InvariantsTab extends Tab<VerticalPanel> {
     public Set<Integer> activeInvsHashes = new LinkedHashSet<Integer>();
+    
+    public InvariantsGraph iGraph = new InvariantsGraph();
 
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
@@ -105,7 +107,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             invGraphicPanel.getElement().setId(invCanvasId);
             invGraphicPanel.setStylePrimaryName("modelCanvas");
             tableAndGraphicPanel.add(invGraphicPanel);
-            InvariantsGraph.createInvariantsGraphic(gwtInvs, invCanvasId);
+            iGraph.createInvariantsGraphic(gwtInvs, invCanvasId);
         }
     }
 
