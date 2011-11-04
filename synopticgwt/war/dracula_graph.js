@@ -103,6 +103,9 @@ Graph.prototype = {
         delete this.nodes[id];
         for(var i = 0; i < this.edges.length; i++) {
             if (this.edges[i].source.id == id || this.edges[i].target.id == id) {
+            	// Hide the label (TODO: put this somewhere more appropriate, like 
+            	// in the hide function for the edge itself).
+            	this.edges[i].connection && this.edges[i].connection.label.hide();
             	this.edges[i].hide();
                 this.edges.splice(i, 1);
                 i--;

@@ -215,6 +215,7 @@ public class ModelTab extends Tab<DockPanel> {
         for (GWTEdge edge : edges) {
             JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()).toString());
             JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()).toString());
+            JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
         }
 
         // Determine the size of the graphic -- make it depend on the current
