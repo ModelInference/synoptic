@@ -82,17 +82,16 @@ public class GraphicEvent implements Serializable {
     // Function to execute when the label is pointed-to.
     public native void setMouseover() /*-{
 		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
-		var highlightOn = $entry(this.@synopticgwt.client.invariants.GraphicEvent::hightlightOnIncidentInvariants());
-        text.mouseover(highlightOn);
+		$wnd.on[text] = $entry(this.@synopticgwt.client.invariants.GraphicEvent::hightlightOnIncidentInvariants());
+        text.mouseover($wnd.on[text]);
     }-*/;
 
 
     // Function to execute when the label is not pointed-to.
     public native void setMouseout() /*-{
 		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
-		var highlightOff = $entry(this.@synopticgwt.client.invariants.GraphicEvent::hightlightOffIncidentInvariants());
-        text.mouseover(highlightOff);
-        );
+		$wnd.off[text] = $entry(this.@synopticgwt.client.invariants.GraphicEvent::hightlightOffIncidentInvariants());
+        text.mouseover($wnd.off[text]);
     }-*/;
 
     public native void setFill(String color) /*-{
