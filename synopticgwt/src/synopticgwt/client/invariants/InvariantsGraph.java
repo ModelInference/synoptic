@@ -198,6 +198,8 @@ public class InvariantsGraph {
     public native JavaScriptObject constructPaper(int width, int height, 
             String canvasId) /*-{
 		var paper = $wnd.Raphael($doc.getElementById(canvasId), width, height);
+        $wnd.on = new Array();
+        $wnd.off = new Array();
         return paper;
     }-*/;
 
