@@ -125,11 +125,15 @@ var GRAPH_HANDLER = {
 
 			// loop over all given edges, finding ones connected to the new
 			// nodes that need to be added to the graph
-			for ( var i = 0; i < edges.length; i += 2) {
+			for ( var i = 0; i < edges.length; i += 3) {
 				var source = edges[i];
 				var dest = edges[i+1];
+				var weight =  edges[i + 2];
 				if (newNodes[source] || newNodes[dest]) {
-					this.graph.addEdge(source, dest);
+					this.graph.addEdge(source, dest,
+							{
+								label : weight
+							});
 				}
 			}
 
