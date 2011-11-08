@@ -13,7 +13,9 @@ public class InvariantGridLabel extends Label {
     private boolean activated;
 
     public InvariantGridLabel(GWTInvariant inv) {
-        super(inv.getSource() + ", " + inv.getTarget());
+        super(inv.getSource() + " "
+        		+ inv.getUnicodeTransitionType()
+        		+ " " + inv.getTarget());
         this.inv = inv;
         this.activated = true;
     }
