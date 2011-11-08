@@ -9,58 +9,59 @@ import com.google.gwt.core.client.JavaScriptObject;
 /* Graphic model for a logged event type */
 public class GraphicEvent implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
-	// Raphael paper object
+    private static final long serialVersionUID = 1L;
+
+    // Raphael paper object
     private JavaScriptObject paper;
-    // Raphael text objectj
-    private JavaScriptObject text;
+    // Raphael text object
+    private JavaScriptObject labelText;
     // Incident relations
     private List<GraphicInvariant> invariants;
 
-    private int x;
-    private int y;
+    private int labelXCoord;
+    private int labelYCoord;
 
-    public GraphicEvent(int x, int y, int fontSize, String event, 
-    		JavaScriptObject paper) {
+    public GraphicEvent(int x, int y, int fontSize, String event,
+            JavaScriptObject paper) {
         this.paper = paper;
-        this.x = x;
-        this.y = y;
+        this.labelXCoord = x;
+        this.labelYCoord = y;
         invariants = new ArrayList<GraphicInvariant>();
-        text = constructText(x, y, fontSize, InvariantsGraph.DEFAULT_FILL, event);
+        labelText = constructText(x, y, fontSize, InvariantsGraph.DEFAULT_FILL,
+                event);
         setMouseover();
         setMouseout();
     }
 
-    public native JavaScriptObject constructText(int x, int y, 
-            int fontSize, String fillColor, String text) /*-{
+    public native JavaScriptObject constructText(int x, int y, int fontSize,
+            String fillColor, String text) /*-{
 		var paper = this.@synopticgwt.client.invariants.GraphicEvent::paper;
-        var text = paper.text(x, y, text);
-        text.attr({
-        	'font-size' : fontSize + "px",
-        	fill : fillColor
-        });
-        return text;
+		var text = paper.text(x, y, text);
+		text.attr({
+			'font-size' : fontSize + "px",
+			fill : fillColor
+		});
+		return text;
     }-*/;
 
     public int getX() {
-        return x;
+        return labelXCoord;
     }
 
     public int getY() {
-        return y;
+        return labelYCoord;
     }
 
     // If the GraphicEvent is not visible on the paper, make it visible
     public native void show() /*-{
-		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
-        text.show();
+		var text = this.@synopticgwt.client.invariants.GraphicEvent::labelText;
+		text.show();
     }-*/;
 
     // If the GraphicEvent is visible on the InvariantsGraph, make it invisible
     public native void hide() /*-{
-		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
-        text.hide();
+		var text = this.@synopticgwt.client.invariants.GraphicEvent::labelText;
+		text.hide();
     }-*/;
 
     public void addInvariant(GraphicInvariant gInv) {
@@ -68,6 +69,7 @@ public class GraphicEvent implements Serializable {
     }
 
     public void hightlightOnIncidentInvariants() {
+
         for (GraphicInvariant gi : invariants) {
             gi.highlightOn();
         }
@@ -81,24 +83,33 @@ public class GraphicEvent implements Serializable {
 
     // Function to execute when the label is pointed-to.
     public native void setMouseover() /*-{
-		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
-		$wnd.on[text] = $entry(this.@synopticgwt.client.invariants.GraphicEvent::hightlightOnIncidentInvariants());
-        text.mouseover($wnd.on[text]);
+		this.@synopticgwt.client.invariants.GraphicEvent::labelText
+				.mouseover(function(thisGraphicEvent) {
+					return function(e) {
+						thisGraphicEvent
+								.@synopticgwt.client.invariants.GraphicEvent::hightlightOnIncidentInvariants()
+								();
+					};
+				}(this));
     }-*/;
-
 
     // Function to execute when the label is not pointed-to.
     public native void setMouseout() /*-{
-		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
-		$wnd.off[text] = $entry(this.@synopticgwt.client.invariants.GraphicEvent::hightlightOffIncidentInvariants());
-        text.mouseover($wnd.off[text]);
+		this.@synopticgwt.client.invariants.GraphicEvent::labelText
+				.mouseout(function(thisGraphicEvent) {
+					return function(e) {
+						thisGraphicEvent
+								.@synopticgwt.client.invariants.GraphicEvent::hightlightOffIncidentInvariants()
+								();
+					};
+				}(this));
     }-*/;
 
     public native void setFill(String color) /*-{
-		var text = this.@synopticgwt.client.invariants.GraphicEvent::text;
-        text.attr({
-            fill : color
-        });
+		var text = this.@synopticgwt.client.invariants.GraphicEvent::labelText;
+		text.attr({
+			fill : color
+		});
     }-*/;
-    
+
 }
