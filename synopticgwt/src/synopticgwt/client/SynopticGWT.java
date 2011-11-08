@@ -223,6 +223,10 @@ public class SynopticGWT implements EntryPoint {
             modelTab.showGraph(initialModel);
         }
 
-        tabPanel.selectTab(1);
+        modelTab.getFinalModelButtonClick(null);
+
+        // tabPanel.selectTab(1);
+        tabPanel.selectTab(2);
+
     }
 }
