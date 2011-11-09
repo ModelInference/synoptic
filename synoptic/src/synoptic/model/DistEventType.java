@@ -39,7 +39,7 @@ public class DistEventType extends EventType {
     /**
      * Creates a new DistEventType that is an INITIAL.
      */
-    static public DistEventType NewInitialDistEventType() {
+    static public DistEventType newInitialDistEventType() {
         return new DistEventType(EventType.initialNodeLabel, syntheticEventPID,
                 true, false);
     }
@@ -47,7 +47,7 @@ public class DistEventType extends EventType {
     /**
      * Creates a new DistEventType that is an TERMINAL.
      */
-    static public DistEventType NewTerminalDistEventType() {
+    static public DistEventType newTerminalDistEventType() {
         return new DistEventType(EventType.terminalNodeLabel,
                 syntheticEventPID, false, true);
     }

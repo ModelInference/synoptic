@@ -58,9 +58,9 @@ algorithm, in four dimensions:
 
 For each of the dimensions, we first used the simulator to generate a
 set of logs, varying that dimension and keeping the others constant.
-The constant values were: 10 hosts, 10 host event types per host (=
-100 total since event types at different hosts are considered
-different), 500 events per execution, and 20 executions.
+The constant values were: 30 hosts, 50 host event types per host (=
+1,500 total since event types at different hosts are considered
+different), 1,000 events per execution, and 50 executions.
 
 We ran each algorithm 5 times and report the median value.
 """

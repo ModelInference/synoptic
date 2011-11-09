@@ -3,22 +3,19 @@
  * display.
  */
 
-/*
- * Holds the last double-clicked node.
- */
-var currentSelectedNode = "";
+// The model node that is currently selected (has a different  color).
+// This node either has been single clicked, OR double clicked last.
+var currentSelectedRect = ""
+var currentSelectedNode = ""
 
 var GRAPH_HANDLER = {
 		// array of graph nodes
 		"currentNodes" : [],
-		
+
 		// initializes this GRAPH_HANDLER
 		"initializeStableIDs"  : function  (nodes, edges, renderer, layouter, g)  {
 		    	for (var i = 0; i < nodes.length; i+= 2) {
 		    		this.currentNodes[nodes[i]] = nodes[i+1];
-		    	}
-		    	for (var i = 0; i < edges.length; i++) {
-		    		this.currentEdges[i] = edges[i];
 		    	}
 		    	this.graph = g;
 		    	this.rend = renderer;
@@ -44,41 +41,54 @@ var GRAPH_HANDLER = {
 		// and the node to draw. returns the set of drawn shapes for the node (rectangle and
 		// label)
 		"render" : function(canvas, node) {
+				var rect;
+				if (node.label == "INITIAL" || node.label == "TERMINAL") {
 				// creates the rectangle to be drawn
-				var rect = canvas.rect(node.point[0] - 30, node.point[1] - 13, 62, 86).attr({
+				var rect = canvas.rect(node.point[0] - 30, node.point[1] - 13, 122, 46).attr({
+					"fill" : "#808080",
+					"stroke-width" : 2,
+					r : "40px"
+				});
+				} else {
+					// creates the rectangle to be drawn
+				var rect = canvas.rect(node.point[0] - 30, node.point[1] - 13, 122, 46).attr({
 					"fill" : "#fa8",
 					"stroke-width" : 2,
 					r : "9px"
 				});
+				}
 
-				// Add a mouseover event to the rectangle to have it change color to "blue".
-				rect.mouseover(function (event) {
-					rect.animate({fill: "blue"}, 200);
-				});
-				
-				// Add a mouseout event to the rectangle to have it change color to "#fa8".
-				rect.mouseout(function (event) {
-				    this.animate({fill: "#fa8"}, 300);
-				});
 
-				// Adds an action listener to the rectangle which calls the global viewLogLines
-				// function (exported by Synoptic.GWT) when a node is double-clicked
-				// Also changes the last node's border to red when double-clicked
-				rect.dblclick(function (event) {
-					if (currentSelectedNode != "") {
-						currentSelectedNode.attr({stroke: "black"});
+
+				// Add an onclick event to the rectangle to have it change color to "blue".
+				// Also, whenever a node is made blue, the node that was clicked on previously
+				// is turned back to its original color. We keep track of previously clicked
+				// node with the currentSelectedRect var.
+				rect.node.onclick = function () {
+					if (currentSelectedRect != "") {
+					   if (currentSelectedNode.label == "INITIAL" || currentSelectedNode.label == "TERMINAL") {
+						   currentSelectedRect.attr("fill", "#808080");
+					   } else {
+						   currentSelectedRect.attr("fill", "#fa8");
+					   }
+
 					}
-					this.attr({stroke: "red"});
-					currentSelectedNode = this;
+					currentSelectedRect = rect
+					currentSelectedNode = node
 					viewLogLines(parseInt(node.id));
+					rect.attr("fill", "blue");
+				};
+
+				text = canvas.text(node.point[0] + 30, node.point[1] + 10, node.label).attr({
+						"font-size" : "16px",
 				});
 
 				// the Raphael set is obligatory, containing all you want to display
-				var set = canvas.set().push(rect).push
-					// draws this node's label
-					(canvas.text(node.point[0], node.point[1] + 30, node.label).attr({
-						"font-size" : "12px"
-				}));
+				// draws this node's label
+				var set = canvas.set().push(rect).push(text);
+
+				// The text, when clicked should behave as if the rectangle was clicked.
+				text.node.onclick = rect.node.onclick;
 				return set;
 			},
 
@@ -115,11 +125,15 @@ var GRAPH_HANDLER = {
 
 			// loop over all given edges, finding ones connected to the new
 			// nodes that need to be added to the graph
-			for ( var i = 0; i < edges.length; i += 2) {
+			for ( var i = 0; i < edges.length; i += 3) {
 				var source = edges[i];
 				var dest = edges[i+1];
+				var weight =  edges[i + 2];
 				if (newNodes[source] || newNodes[dest]) {
-					this.graph.addEdge(source, dest);
+					this.graph.addEdge(source, dest,
+							{
+								label : weight
+							});
 				}
 			}
 

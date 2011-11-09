@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import synoptic.main.Main;
+import synoptic.main.SynopticOptions;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.WeightedTransition;
@@ -61,11 +62,11 @@ public class GraphExporter {
                 return dotCommand;
             }
         }
-        if (Main.dotExecutablePath == null) {
+        if (Main.options.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
-                    + Main.getCmdLineOptDesc("dotExecutablePath"));
+                    + SynopticOptions.getOptDesc("dotExecutablePath"));
         }
-        return Main.dotExecutablePath;
+        return Main.options.dotExecutablePath;
     }
 
     /**
@@ -174,8 +175,8 @@ public class GraphExporter {
                 T node = nodesIter.next();
 
                 // On user request, do not show the initial/terminal nodes.
-                if ((!Main.showInitialNode && node.isInitial())
-                        || (!Main.showTerminalNode && node.isTerminal())) {
+                if ((!Main.options.showInitialNode && node.isInitial())
+                        || (!Main.options.showTerminalNode && node.isTerminal())) {
                     // Remove the node from nodes to export (so that we do not
                     // show the edges corresponding to the nodes).
                     nodesIter.remove();
@@ -221,9 +222,6 @@ public class GraphExporter {
                     // correctly (trace graphs are composed of EventNodes).
 
                     if (graph.getClass() == DAGsTraceGraph.class) {
-                        // TODO: this next statement throws
-                        // "inconvertible types" error:
-                        // if (graph instanceof DAGsTraceGraph) {
 
                         // NOTE: The extra casts are necessary for this to work
                         // in Java 1.6, see here:

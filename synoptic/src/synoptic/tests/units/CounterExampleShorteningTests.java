@@ -17,7 +17,7 @@ public class CounterExampleShorteningTests extends SynopticTest {
      * Check shortening of NFby counter-examples.
      */
     @Test
-    public void ShortenNFbyCExamplesTest() {
+    public void shortenNFbyCExamplesTest() {
         NeverFollowedInvariant inv = new NeverFollowedInvariant("x", "y",
                 defRelation);
         List<EventNode> fullPath, shortPath;
@@ -28,7 +28,8 @@ public class CounterExampleShorteningTests extends SynopticTest {
         assertTrue(shortPath == null);
 
         // a,x,y,y,x,y -> a,x,y (first x, followed by first y)
-        fullPath = SynopticTest.getLogEventPath(new String[] { "a", "x", "y", "y", "x", "y" });
+        fullPath = SynopticTest.getLogEventPath(new String[] { "a", "x", "y",
+                "y", "x", "y" });
         shortPath = inv.shorten(fullPath);
         assertTrue(shortPath != null);
         assertTrue(shortPath.equals(fullPath.subList(0, 3)));
@@ -42,7 +43,8 @@ public class CounterExampleShorteningTests extends SynopticTest {
         assertTrue(shortPath == null);
 
         // a,x,x,x,x,b -> a,x,x (first two x's)
-        fullPath = SynopticTest.getLogEventPath(new String[] { "a", "x", "x", "x", "x", "b" });
+        fullPath = SynopticTest.getLogEventPath(new String[] { "a", "x", "x",
+                "x", "x", "b" });
         shortPath = inv.shorten(fullPath);
         assertTrue(shortPath != null);
         assertTrue(shortPath.equals(fullPath.subList(0, 3)));
@@ -51,8 +53,9 @@ public class CounterExampleShorteningTests extends SynopticTest {
     /**
      * Check shortening of AP counter-examples.
      */
+    @SuppressWarnings("null")
     @Test
-    public void ShortenAPCExamplesTest() {
+    public void shortenAPCExamplesTest() {
         AlwaysPrecedesInvariant inv = new AlwaysPrecedesInvariant("x", "y",
                 defRelation);
         List<EventNode> fullPath, shortPath;
@@ -63,19 +66,21 @@ public class CounterExampleShorteningTests extends SynopticTest {
         assertTrue(shortPath == null);
 
         // y,x,y,a,b -> y (loose everything after the first y)
-        fullPath = SynopticTest.getLogEventPath(new String[] { "y", "x", "y", "a", "b" });
+        fullPath = SynopticTest.getLogEventPath(new String[] { "y", "x", "y",
+                "a", "b" });
         shortPath = inv.shorten(fullPath);
-        logger.fine(fullPath.toString());
-        logger.fine(shortPath.toString());
+        // logger.fine(fullPath.toString());
+        // logger.fine(shortPath.toString());
         assertTrue(shortPath != null);
         assertTrue(shortPath.equals(fullPath.subList(0, 1)));
 
         // a,b,y,x,y,a -> y (loose everything after the first y, with some non-y
         // initial events)
-        fullPath = SynopticTest.getLogEventPath(new String[] { "a", "b", "y", "x", "y", "a" });
+        fullPath = SynopticTest.getLogEventPath(new String[] { "a", "b", "y",
+                "x", "y", "a" });
         shortPath = inv.shorten(fullPath);
-        logger.fine(fullPath.toString());
-        logger.fine(shortPath.toString());
+        // logger.fine(fullPath.toString());
+        // logger.fine(shortPath.toString());
         assertTrue(shortPath != null);
         assertTrue(shortPath.equals(fullPath.subList(0, 3)));
     }
@@ -85,8 +90,8 @@ public class CounterExampleShorteningTests extends SynopticTest {
      */
     @Test(expected = InternalSynopticException.class)
     public void xAPxInvariantTest() {
-        @SuppressWarnings("unused")
         AlwaysPrecedesInvariant inv = new AlwaysPrecedesInvariant("x", "x",
                 defRelation);
+        logger.fine(inv.toString());
     }
 }

@@ -2,8 +2,6 @@ package synopticgwt.client;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -32,7 +30,7 @@ import synopticgwt.shared.GWTInvariantSet;
  */
 public class SynopticGWT implements EntryPoint {
     /** Default global logger to use for logging all messages to the console. */
-    public static Logger logger = Logger.getLogger("SynopticGWT");
+    // public static Logger logger = Logger.getLogger("SynopticGWT");
 
     /** Create an RPC proxy to talk to the Synoptic service */
     private final ISynopticServiceAsync synopticService = GWT
@@ -76,7 +74,7 @@ public class SynopticGWT implements EntryPoint {
         // http://groups.google.com/group/google-web-toolkit/browse_thread/thread/5a2335ffb117bd08
         SynopticGWT.entryPoint = this;
 
-        logger.setLevel(Level.FINEST);
+        // logger.setLevel(Level.FINEST);
 
         // Add the panel of tabs to the page.
         RootPanel.get("mainDiv").add(tabPanel);
@@ -109,7 +107,7 @@ public class SynopticGWT implements EntryPoint {
         tabIndexToTab.put(tabPanel.getWidgetIndex(modelTab.getPanel()),
                 modelTab);
 
-        logger.info(tabIndexToTab.toString());
+        // logger.info(tabIndexToTab.toString());
 
         tabPanel.setWidth("100%");
         tabPanel.selectTab(0);
@@ -216,11 +214,17 @@ public class SynopticGWT implements EntryPoint {
      */
     public void logParsed(GWTInvariantSet logInvs, GWTGraph initialModel) {
         invTab.setEnabled(true);
-        modelTab.setEnabled(true);
-
         invTab.showInvariants(logInvs);
-        // The modelTab MUST be made visible for showGraph() to work below.
-        tabPanel.selectTab(2);
-        modelTab.showGraph(initialModel);
+
+        if (initialModel != null) {
+            modelTab.setEnabled(true);
+            // The modelTab MUST be made visible for showGraph() to work below.
+            tabPanel.selectTab(2);
+            modelTab.showGraph(initialModel);
+            modelTab.getFinalModelButtonClick(null);
+        } else {
+            // Typically occurs if the log is partially ordered.
+            tabPanel.selectTab(1);
+        }
     }
 }

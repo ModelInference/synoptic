@@ -28,6 +28,10 @@ public interface ISynopticServiceAsync {
             String partitionRegExp, String separatorRegExp,
             AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> callback);
 
+    void parseUploadedLog(List<String> regExps, String partitionRegExp,
+            String separatorRegExp,
+            AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> callback);
+
     void refineOneStep(AsyncCallback<GWTGraphDelta> callback) throws Exception;
 
     void coarsenOneStep(AsyncCallback<GWTGraph> callback) throws Exception;

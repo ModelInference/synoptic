@@ -117,6 +117,7 @@ public class Benchmark<ArgumentType> {
                 Runnable task = taskFactory.configure(arg);
                 TimedTask total = new TimedTask("total");
                 task.run();
+                total.stop();
                 PerformanceMetrics.get().record(total);
 
             }

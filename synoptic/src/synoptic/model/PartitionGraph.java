@@ -45,8 +45,6 @@ public class PartitionGraph implements IGraph<Partition> {
      * track of the initial messages but we need to do this for every relation,
      * which is specified by the first argument to the hash-map.
      */
-    // private final LinkedHashMap<String, Set<EventNode>> initialEvents = new
-    // LinkedHashMap<String, Set<EventNode>>();
     private final LinkedHashMap<String, Set<EventNode>> initialEvents = new LinkedHashMap<String, Set<EventNode>>();
 
     /**
@@ -184,8 +182,9 @@ public class PartitionGraph implements IGraph<Partition> {
         // For each set of event nodes with the same event type, create
         // one partition.
         partitions = new LinkedHashSet<Partition>();
-        for (EventType eType : prepartitions.keySet()) {
-            partitions.add(new Partition(prepartitions.get(eType)));
+        // for (EventType eType : prepartitions.keySet()) {
+        for (Entry<EventType, Set<EventNode>> entry : prepartitions.entrySet()) {
+            partitions.add(new Partition(entry.getValue()));
         }
 
         transitionCache.clear();
@@ -471,11 +470,17 @@ public class PartitionGraph implements IGraph<Partition> {
 
     /**
      * Helper method for {@code getAllTraces}. Recursively finds all possible
-     * paths from the partition graph and adds them to a set. TODO: This will
-     * calculate any subset of nodes multiple times if the topmost node of said
-     * subset has multiple parent nodes. A cache should be used for these nodes
-     * to make this process more optimal. TODO: Return a set rather than alter a
-     * pointer. TODO: Make a proper cycle-checking algorithm.
+     * paths from the partition graph and adds them to a set.
+     * 
+     * <pre>
+     * TODO: This will calculate any subset of nodes multiple times if the topmost
+     * node of said subset has multiple parent nodes. A cache should be used for
+     * these nodes to make this process more optimal.
+     * 
+     * TODO: Return a set rather than alter a pointer.
+     * 
+     * TODO: Make a proper cycle-checking algorithm.
+     * </pre>
      * 
      * @param pNode
      *            The current node
