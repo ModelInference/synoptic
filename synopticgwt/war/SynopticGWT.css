@@ -6,8 +6,8 @@ h1 {
   font-size: 2em;
   font-weight: bold;
   color: #777777;
-  margin: 40px 0px 70px;
-  text-align: center;
+  margin: 10px 10px 0px;
+  text-align: right;
 }
 
 .sendButton {
@@ -68,7 +68,7 @@ h1 {
 .tableCellTopRow {
   padding: 5px;
   border: 1px solid #000000;
-  background: #E8EDFF;
+  background: #fa8;
 }
 
 .invariantsGrid {
@@ -93,6 +93,15 @@ h1 {
   padding: 3px;
   margin: 3px;
   font-weight: normal;
+}
+
+.logTypeLabel {
+	color: #585858;
+	font-size: 0.5em;	 
+}
+
+.parseButton {
+	margin-right: 3em;
 }
 
 
@@ -121,13 +130,27 @@ h1 {
 	font-weight: bold;
 }
 
+.DefaultExpLabel {
+	color: #585858;	 
+}
+
 .LineNumCol {
 	width: 50px;
 }
 
 .LineCol {
-	width: 175px;
+	width: 225px;
+	/* width: 175px; */
 }
+
+.LogTypeRadio {
+	margin: 5px;	
+}
+
+.ParseLogButton {
+	margin-right: 1em !important;
+}
+	
 
 .FlexTable {
 	table-layout: fixed;

@@ -1,35 +1,47 @@
 package synopticgwt.server;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import com.google.gwt.user.client.rpc.SerializableException;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
+import synoptic.invariants.ConcurrencyInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.invariants.miners.POInvariantMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
+import synoptic.main.Main;
 import synoptic.main.ParseException;
+import synoptic.main.SynopticOptions;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
+import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.WeightedTransition;
+import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.util.InternalSynopticException;
 import synopticgwt.client.ISynopticService;
@@ -59,6 +71,9 @@ public class SynopticService extends RemoteServiceServlet implements
 
     // The directory in which files are currently exported to.
     private static final String userExport = "userexport/";
+
+    // Session attribute name storing path of client's uploaded log file.
+    private static final String logFileSessionAttribute = "logFilePath";
 
     // Variables corresponding to session state.
     private PartitionGraph pGraph;
@@ -241,14 +256,32 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Converts a TemporalInvariantSet into GWTInvariants
-     * 
-     * @param invs
-     *            TemporalInvariantSet
-     * @return Equivalent GWTInvariants
+     * Calls the TemporalInvariantSetToGWTInvariants below, but first determines
+     * if there are any concurrency invariants in the input set.
      */
     private GWTInvariantSet TemporalInvariantSetToGWTInvariants(
             Set<ITemporalInvariant> invs) {
+        boolean containsConcurrencyInvs = false;
+        for (ITemporalInvariant inv : invs) {
+            if (inv instanceof ConcurrencyInvariant) {
+                containsConcurrencyInvs = true;
+            }
+        }
+        return TemporalInvariantSetToGWTInvariants(containsConcurrencyInvs,
+                invs);
+    }
+
+    /**
+     * Converts a TemporalInvariantSet into GWTInvariants
+     * 
+     * @param containsConcurrencyInvs
+     *            whether or not the set of invariants contains any
+     *            ConcurrencyInvariant instances
+     * @param invs
+     * @return Equivalent GWTInvariants
+     */
+    private GWTInvariantSet TemporalInvariantSetToGWTInvariants(
+            boolean containsConcurrencyInvs, Set<ITemporalInvariant> invs) {
         GWTInvariantSet GWTinvs = new GWTInvariantSet();
         for (ITemporalInvariant inv : invs) {
             assert (inv instanceof BinaryInvariant);
@@ -270,8 +303,9 @@ public class SynopticService extends RemoteServiceServlet implements
 
     /**
      * Parses the input log, and sets up and stores Synoptic session state for
-     * refinement\coarsening.
-     * @throws Exception 
+     * refinement\coarsening. For a PO log this returns a null GWTGraph.
+     * 
+     * @throws Exception
      */
     @Override
     public GWTPair<GWTInvariantSet, GWTGraph> parseLog(String logLines,
@@ -280,66 +314,133 @@ public class SynopticService extends RemoteServiceServlet implements
 
         // Set up some static variables in Main that are necessary to use the
         // Synoptic library.
+        Main.options = new SynopticOptions();
         synoptic.main.Main.setUpLogging();
-        synoptic.main.Main.recoverFromParseErrors = false;
-        synoptic.main.Main.ignoreNonMatchingLines = false;
-        synoptic.main.Main.debugParse = false;
-        synoptic.main.Main.logLvlVerbose = false;
-        synoptic.main.Main.logLvlExtraVerbose = false;
-        synoptic.main.Main.graphExportFormatter = new synoptic.model.export.DotExportFormatter();
-        synoptic.main.Main.randomSeed = System.currentTimeMillis();
-        synoptic.main.Main.random = new java.util.Random(
-                synoptic.main.Main.randomSeed);
+        Main.random = new Random(Main.options.randomSeed);
+        Main.graphExportFormatter = new DotExportFormatter();
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = null;
         ArrayList<EventNode> parsedEvents = null;
         try {
-        	parser =  synoptic.main.Main.newTraceParser(regExps,
+            parser = synoptic.main.Main.newTraceParser(regExps,
                     partitionRegExp, separatorRegExp);
-        	parsedEvents = parser.parseTraceString(logLines, new String("traceName"), -1);
+            parsedEvents = parser.parseTraceString(logLines, new String(
+                    "traceName"), -1);
         } catch (InternalSynopticException ise) {
-        	throw serializeException(ise);
+            throw serializeException(ise);
+
         } catch (ParseException pe) {
-        	throw serializeException(pe);
-        }
-        traceGraph = parser.generateDirectTORelation(parsedEvents);
+            throw serializeException(pe);
 
-        // Mine invariants, and convert them to GWTInvariants.
-        TOInvariantMiner miner;
+        }
+
+        // Code below mines invariants, and converts them to GWTInvariants.
+        // TODO: refactor synoptic main so that it does all of this most of this
+        // for the client.
+        GWTGraph graph;
         if (parser.logTimeTypeIsTotallyOrdered()) {
-            miner = new ChainWalkingTOInvMiner();
+            traceGraph = parser.generateDirectTORelation(parsedEvents);
+            TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+            minedInvs = miner.computeInvariants(traceGraph);
+
+            // Since we're in the TO case then we also initialize and store
+            // refinement state.
+            initializeRefinementState(minedInvs);
+            storeSessionState();
+            graph = PGraphToGWTGraph(pGraph);
+
         } else {
-            miner = new TransitiveClosureInvMiner();
+            // TODO: expose to the user the option of using another kind of
+            // PO invariant miner.
+            DAGsTraceGraph inputGraph = parser
+                    .generateDirectPORelation(parsedEvents);
+            POInvariantMiner miner = new TransitiveClosureInvMiner();
+            minedInvs = miner.computeInvariants(inputGraph);
+            graph = null;
         }
-        minedInvs = miner.computeInvariants(traceGraph);
 
-        initializeRefinementState(minedInvs);
-        storeSessionState();
+        GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(
+                !parser.logTimeTypeIsTotallyOrdered(), minedInvs.getSet());
 
-        GWTGraph graph = PGraphToGWTGraph(pGraph);
-        GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(minedInvs
-                .getSet());
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
     }
-    
-    private SerializableParseException serializeException(ParseException pe) {
-    	SerializableParseException exception = new SerializableParseException(pe.getMessage());
-    	if (pe.hasRegex()) {    		
-    		exception.setRegex(pe.getRegex());
-    	} 
-    	if (pe.hasLogLine()) {
-    		exception.setLogLine(pe.getLogLine());
-    	}
-    	return exception;
+
+    /**
+     * Reads the log file given by path in session state on server. Passes log
+     * file contents into parseLog(). Parses the input log, and sets up and
+     * stores Synoptic session state for refinement\coarsening.
+     * 
+     * @throws Exception
+     */
+    @Override
+    public GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(
+            List<String> regExps, String partitionRegExp, String separatorRegExp)
+            throws Exception {
+        // Retrieve HTTP session to access location of recent log file uploaded.
+        HttpServletRequest request = getThreadLocalRequest();
+        HttpSession session = request.getSession();
+
+        // This session state attribute set from LogFileUploadServlet and
+        // contains
+        // path to log file saved on disk from client.
+        if (session.getAttribute(logFileSessionAttribute) == null) {
+            // TODO: throw appropriate exception
+            throw new Exception();
+        }
+        String path = session.getAttribute(logFileSessionAttribute).toString();
+
+        ServletContext context = getServletContext();
+
+        // Retrieve full path instead of relative
+        String realPath = context.getRealPath(path);
+
+        String logFileContent = null;
+        try {
+            FileInputStream fileStream = new FileInputStream(realPath);
+            BufferedInputStream bufferedStream = new BufferedInputStream(
+                    fileStream);
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(bufferedStream));
+
+            // Build string containing contents within file
+            StringBuilder buildLog = new StringBuilder();
+            String checkLine;
+            while ((checkLine = bufferedReader.readLine()) != null) {
+                buildLog.append(checkLine);
+                buildLog.append("\n");
+            }
+            fileStream.close();
+            bufferedStream.close();
+            bufferedReader.close();
+            logFileContent = buildLog.toString();
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException(
+                    "Unable to find file given from file path");
+        }
+        return parseLog(logFileContent, regExps, partitionRegExp,
+                separatorRegExp);
     }
-    
-    private SerializableParseException serializeException(InternalSynopticException ise) {
-    	if (ise.hasParseException()) {
-    		return serializeException(ise.getParseException());
-    	} else {
-    		return new SerializableParseException(ise.getMessage());
-    	}
+
+    private SerializableParseException serializeException(ParseException pe) {
+        SerializableParseException exception = new SerializableParseException(
+                pe.getMessage());
+        if (pe.hasRegex()) {
+            exception.setRegex(pe.getRegex());
+        }
+        if (pe.hasLogLine()) {
+            exception.setLogLine(pe.getLogLine());
+        }
+        return exception;
+
+    }
+
+    private SerializableParseException serializeException(
+            InternalSynopticException ise) {
+        if (ise.hasParseException()) {
+            return serializeException(ise.getParseException());
+        }
+        return new SerializableParseException(ise.getMessage());
     }
 
     /**

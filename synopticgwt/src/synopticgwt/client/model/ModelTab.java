@@ -63,6 +63,7 @@ public class ModelTab extends Tab<DockPanel> {
         buttonsPanel.add(modelRefineButton);
         buttonsPanel.add(modelCoarsenButton);
         buttonsPanel.add(modelGetFinalButton);
+
         modelRefineButton.setWidth("100px");
         modelCoarsenButton.setWidth("100px");
         modelGetFinalButton.setWidth("100px");
@@ -180,8 +181,10 @@ public class ModelTab extends Tab<DockPanel> {
         // Determine the size of the graphic -- make it depend on the current
         // window size.
         // TODO: make sizing more robust, and allow users to resize the graphic
-        int width = Math.max(Window.getClientWidth() - 600, 300);
-        int height = Math.max(Window.getClientHeight() - 300, 300);
+        int width = Math.min(Window.getClientWidth() - 600, 600);
+        int height = Math.min(Window.getClientHeight() - 300, 600);
+        height = (int) (height * 1.45);
+        width = (int) (width * 1.6);
         graphPanel.setPixelSize(width, height);
         ModelGraphic mGraphic = new ModelGraphic();
         mGraphic.createGraph(this, jsNodes, jsEdges, width, height, canvasId,
@@ -212,6 +215,7 @@ public class ModelTab extends Tab<DockPanel> {
         for (GWTEdge edge : edges) {
             JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()).toString());
             JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()).toString());
+            JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
         }
 
         // Determine the size of the graphic -- make it depend on the current

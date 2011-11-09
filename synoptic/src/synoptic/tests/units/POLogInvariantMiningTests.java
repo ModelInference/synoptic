@@ -97,9 +97,9 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         // Add the "eventually x" invariants.
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), a, R));
+                .newInitialStringEventType(), a, R));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), b, R));
+                .newInitialStringEventType(), b, R));
 
         trueInvs.add(new NeverFollowedInvariant(a, a, R));
         trueInvs.add(new NeverFollowedInvariant(b, b, R));
@@ -133,11 +133,11 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         // Add the "eventually x" invariants.
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), a, R));
+                .newInitialStringEventType(), a, R));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), b, R));
+                .newInitialStringEventType(), b, R));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), c, R));
+                .newInitialStringEventType(), c, R));
 
         trueInvs.add(new AlwaysFollowedInvariant(a, c, R));
         trueInvs.add(new AlwaysFollowedInvariant(b, c, R));
@@ -183,11 +183,11 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         // Add the "eventually x" invariants.
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), a, R));
+                .newInitialStringEventType(), a, R));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), b, R));
+                .newInitialStringEventType(), b, R));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), c, R));
+                .newInitialStringEventType(), c, R));
 
         trueInvs.add(new AlwaysFollowedInvariant(a, c, R));
         trueInvs.add(new AlwaysFollowedInvariant(a, b, R));
@@ -259,9 +259,9 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         // Add the "eventually x" invariants.
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), a, R));
+                .newInitialStringEventType(), a, R));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .NewInitialStringEventType(), b, R));
+                .newInitialStringEventType(), b, R));
 
         trueInvs.add(new AlwaysPrecedesInvariant(b, a, R));
         trueInvs.add(new AlwaysFollowedInvariant(a, b, R));
@@ -457,9 +457,9 @@ public class POLogInvariantMiningTests extends SynopticTest {
      */
     @Test
     public void mineTicketReservationExampleTest() throws Exception {
-        String fname = new String(".." + File.separator + "traces"
-                + File.separator + "abstract" + File.separator
-                + "ticket-reservation-example" + File.separator + "trace.txt");
+        String fname = ".." + File.separator + "traces" + File.separator
+                + "abstract" + File.separator + "ticket-reservation-example"
+                + File.separator + "trace.txt";
         File file = new File(fname);
         TraceParser parser = newTraceParser();
 

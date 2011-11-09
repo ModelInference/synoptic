@@ -19,6 +19,13 @@ public class GWTInvariantSet implements Serializable {
      */
     public HashMap<String, List<GWTInvariant>> invs;
 
+    public boolean containsConcurrencyInvs = false;
+
+    public GWTInvariantSet(boolean containsConcurrencyInvs) {
+        invs = new HashMap<String, List<GWTInvariant>>();
+        this.containsConcurrencyInvs = containsConcurrencyInvs;
+    }
+
     public GWTInvariantSet() {
         invs = new HashMap<String, List<GWTInvariant>>();
     }

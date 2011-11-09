@@ -79,7 +79,7 @@ public class Event {
      * Returns the special INITIAL event of String type.
      */
     public static Event newInitialStringEvent() {
-        return new Event(StringEventType.NewInitialStringEventType(), null,
+        return new Event(StringEventType.newInitialStringEventType(), null,
                 null, 0);
     }
 
@@ -87,7 +87,7 @@ public class Event {
      * Returns the special terminal event of String type.
      */
     public static Event newTerminalStringEvent() {
-        return new Event(StringEventType.NewTerminalStringEventType(), null,
+        return new Event(StringEventType.newTerminalStringEventType(), null,
                 null, 0);
     }
 
@@ -95,14 +95,14 @@ public class Event {
      * Returns the special INITIAL event of DistEvent type.
      */
     public static Event newInitialDistEvent() {
-        return new Event(DistEventType.NewInitialDistEventType(), null, null, 0);
+        return new Event(DistEventType.newInitialDistEventType(), null, null, 0);
     }
 
     /**
      * Returns the special terminal event of DistEvent type.
      */
     public static Event newTerminalDistEvent() {
-        return new Event(DistEventType.NewTerminalDistEventType(), null, null,
+        return new Event(DistEventType.newTerminalDistEventType(), null, null,
                 0);
     }
 

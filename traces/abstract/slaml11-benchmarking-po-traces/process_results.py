@@ -88,6 +88,7 @@ def main():
             co_occur_med_time = []
             co_occur_no_ncwith_med_time = []
             for fname in fnames:
+                print fname
                 tc=False
                 dag=False
                 dag_no_ncwith=False

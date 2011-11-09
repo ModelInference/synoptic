@@ -26,14 +26,14 @@ public class StringEventType extends EventType {
     /**
      * Creates a new StringEventType that is an INITIAL.
      */
-    static public StringEventType NewInitialStringEventType() {
+    static public StringEventType newInitialStringEventType() {
         return new StringEventType(EventType.initialNodeLabel, true, false);
     }
 
     /**
      * Creates a new StringEventType that is an TERMINAL.
      */
-    static public StringEventType NewTerminalStringEventType() {
+    static public StringEventType newTerminalStringEventType() {
         return new StringEventType(EventType.terminalNodeLabel, false, true);
     }
 

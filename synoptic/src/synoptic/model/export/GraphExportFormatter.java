@@ -27,7 +27,7 @@ public abstract class GraphExportFormatter {
     Map<String, String> relationColors;
 
     /** Color used for the "t" relation and when we run out of colors. */
-    final String defaultRelationColor = new String("black");
+    static final String defaultRelationColor = "black";
 
     /**
      * Whether or not we've printed a message stating that we've run out of
@@ -56,9 +56,12 @@ public abstract class GraphExportFormatter {
         if (relationColors.containsKey(relation)) {
             return relationColors.get(relation);
         }
-        if (possibleColors.size() == 0 && !reportedColorsDeficiency) {
-            logger.severe("Ran out of colors for relations when exporting graph. Using the default color ("
-                    + defaultRelationColor + ") for the remaining relations.");
+        if (possibleColors.size() == 0) {
+            if (!reportedColorsDeficiency) {
+                logger.severe("Ran out of colors for relations when exporting graph. Using the default color ("
+                        + defaultRelationColor
+                        + ") for the remaining relations.");
+            }
             reportedColorsDeficiency = true;
             return defaultRelationColor;
         }

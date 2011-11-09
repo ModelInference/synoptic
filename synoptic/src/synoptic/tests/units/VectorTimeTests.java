@@ -184,13 +184,54 @@ public class VectorTimeTests extends SynopticTest {
      * Times of different types cannot be compared -- this throws an exception.
      */
     @Test(expected = NonComparableTimesException.class)
-    public void lessThanDiffTimeTypes() {
-        ITime v1, v2;
+    public void lessThanDiffTimeTypesTest() {
+        ITime v, d;
+        v = new VectorTime("1,2,3");
+        d = new DTotalTime(1);
+        v.lessThan(d);
+    }
 
+    /**
+     * Test the compareTo() method.
+     */
+    @Test
+    public void compareToTest() {
+        VectorTime v1, v2;
+        // Vectors of same lengths.
         v1 = new VectorTime("1,2,3");
+        v2 = new VectorTime("1,2,4");
+        assertTrue(v1.compareTo(v1) == 0);
+        assertTrue(v2.compareTo(v2) == 0);
 
-        v2 = new DTotalTime(1);
-        v1.lessThan(v2);
+        assertTrue(v1.compareTo(v2) == -1);
+        assertTrue(v2.compareTo(v1) == 0);
+
+        v2 = new VectorTime("1,0,4");
+        assertTrue(v1.compareTo(v2) == 0);
+        assertTrue(v2.compareTo(v1) == 0);
+    }
+
+    /**
+     * Vectors of different length cannot be compared -- this throws an
+     * exception.
+     */
+    @Test(expected = NotComparableVectorsException.class)
+    public void compareToDiffLengthVectorsTest() {
+        VectorTime v1, v2;
+        v1 = new VectorTime("1,2,3,0");
+        v2 = new VectorTime("1,2,4");
+        v1.compareTo(v2);
+    }
+
+    /**
+     * Times of different types cannot be compared -- this throws an exception.
+     */
+    @Test(expected = NonComparableTimesException.class)
+    public void compareToDiffTimeTypesTest() {
+        ITime v, d;
+        v = new VectorTime("1,2,3");
+        d = new DTotalTime(1);
+        v.compareTo(d);
     }
 
     /**

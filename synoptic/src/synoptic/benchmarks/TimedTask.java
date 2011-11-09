@@ -93,12 +93,10 @@ public class TimedTask {
      * be recorded there.
      */
     public void stop() {
-        // TODO: should we assert(timeEnd == null) ?
-        if (timeEnd == null) {
-            timeEnd = System.currentTimeMillis();
-            if (recordAt != null) {
-                recordAt.record(this);
-            }
+        assert (timeEnd == null);
+        timeEnd = System.currentTimeMillis();
+        if (recordAt != null) {
+            recordAt.record(this);
         }
     }
 

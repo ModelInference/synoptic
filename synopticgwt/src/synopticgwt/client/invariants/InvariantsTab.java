@@ -27,6 +27,8 @@ import synopticgwt.shared.GWTInvariantSet;
  */
 public class InvariantsTab extends Tab<VerticalPanel> {
     public Set<Integer> activeInvsHashes = new LinkedHashSet<Integer>();
+    
+    public InvariantsGraph iGraph = new InvariantsGraph();
 
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
@@ -52,13 +54,29 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         for (String invType : gwtInvs.getInvTypes()) {
             List<GWTInvariant> invs = gwtInvs.getInvs(invType);
 
-            // Create a grid to contain invariants of invType.
+            // This loop creates a grid for each Invariant type with one column
+            // and as many rows necessary to contain all of the invariants
             Grid grid = new Grid(invs.size() + 1, 1);
             grid.setStyleName("invariantsGrid grid");
-            grid.setWidget(0, 0, new Label(invType));
+            String longType = "Unknown Invariant Type";
+            String unicodeType = GWTInvariant.getUnicodeTransitionType(invType);
+
+            if (invType.equals("AFby")) {
+                longType = "AlwaysFollowedBy ( " + unicodeType + " )";
+            } else if (invType.equals("AP")) {
+                longType = "AlwaysPrecedes ( " + unicodeType + " )";
+            } else if (invType.equals("NFby")) {
+                longType = "NeverFollowedBy ( " + unicodeType + " )";
+            } else if (invType.equals("NCwith")) {
+                longType = "NeverConcurrentWith ( " + unicodeType + " )";
+            } else if (invType.equals("ACwith")) {
+                longType = "AlwaysConcurrentWith ( " + unicodeType + " )";
+            }
+            grid.setWidget(0, 0, new Label(longType));
             grid.getCellFormatter().setStyleName(0, 0, "tableCellTopRow");
             tableAndGraphicPanel.add(grid);
 
+            // Activated and deactivated grid cells are uniquely styled
             for (int i = 0; i < invs.size(); i++) {
                 GWTInvariant inv = invs.get(i);
                 grid.setWidget(i + 1, 0, new InvariantGridLabel(inv));
@@ -71,13 +89,16 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             grid.addClickHandler(new InvGridClickHandler(grid, invs));
         }
 
-        // Show the invariant graphic.
-        String invCanvasId = "invCanvasId";
-        HorizontalPanel invGraphicPanel = new HorizontalPanel();
-        invGraphicPanel.getElement().setId(invCanvasId);
-        invGraphicPanel.setStylePrimaryName("modelCanvas");
-        tableAndGraphicPanel.add(invGraphicPanel);
-        InvariantsGraph.createInvariantsGraphic(gwtInvs, invCanvasId);
+        // Show the TO invariant graphic only if there are no concurrency
+        // invariants in the set of invariants.
+        if (!gwtInvs.containsConcurrencyInvs) {
+            String invCanvasId = "invCanvasId";
+            HorizontalPanel invGraphicPanel = new HorizontalPanel();
+            invGraphicPanel.getElement().setId(invCanvasId);
+            invGraphicPanel.setStylePrimaryName("modelCanvas");
+            tableAndGraphicPanel.add(invGraphicPanel);
+            iGraph.createInvariantsGraphic(gwtInvs, invCanvasId);
+        }
     }
 
     /**
@@ -103,6 +124,8 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             this.grid = grid;
         }
 
+        // T.101.JV: What of this is going to change given the toggle state 
+        // refactoring?
         @Override
         public void onClick(ClickEvent event) {
             // The clicked cell.
@@ -123,21 +146,31 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             int invID = invLabel.getInvariant().getID();
 
             // Signal that the invariant set has changed.
+            // T.101.JV: This looks pretty important. It signals to
+            // SynopticGWT that the invariants have changed. Why not put
+            // this into the invariant set though?
+            // Is there a better way to communicate this information to 
+            // the Model tab? Maybe a mutation counter in GWTInvariant
+            // Set?
             SynopticGWT.entryPoint.invSetChanged();
 
             CellFormatter cFormatter = grid.getCellFormatter();
 
             // Corresponding invariant is activated => deactive it.
-            if (invLabel.getActivated()) {
+            if (invLabel.getActive()) {
+            	// T.101.JV - Can I use activeInvsHashes instead of 
+            	// GWTInvariant.displayed
+            	// to keep track of toggle state?
                 activeInvsHashes.remove(invID);
-                invLabel.setActivated(false);
+                invLabel.setActive(false);
                 cFormatter.setStyleName(cIndex, 0, "tableCellInvDeactivated");
-                return;
+            } else { // Corresponding invariant is deactivated => activate it.
+                activeInvsHashes.add(invID);
+                invLabel.setActive(true);
+                cFormatter.setStyleName(cIndex, 0, "tableCellInvActivated");
             }
-
-            activeInvsHashes.add(invID);
-            invLabel.setActivated(true);
-            cFormatter.setStyleName(cIndex, 0, "tableCellInvActivated");
         }
     }
+    // T.101.JV: Activation state is stored in the invLabel, and should
+    // probably instead be stored in the GWTInvariant
 }

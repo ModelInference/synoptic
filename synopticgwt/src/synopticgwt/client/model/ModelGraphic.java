@@ -50,9 +50,7 @@ public class ModelGraphic {
 		for ( var i = 0; i < edges.length; i += 3) {
 			// edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
 			g.addEdge(edges[i], edges[i + 1], {
-				label : edges[i + 2]
-			//				stroke : "#bfa",
-			//				fill : "#56f"
+				label : edges[i + 2],
 			});
 		}
 

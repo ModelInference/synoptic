@@ -259,18 +259,10 @@ public class EventNode implements INode<EventNode> {
         return IterableAdapter.make(getTransitions(relation).iterator());
     }
 
-    // @Override
-    // public ITransition<LogEvent> getTransition(LogEvent target, String
-    // relation) {
-    // List<Transition<LogEvent>> list = getTransitions(target, relation);
-    // return list.size() == 0 ? null : list.get(0);
-    // }
-
     public Event getEvent() {
         return event;
     }
 
-    // TODO: order
     public Set<String> getRelations() {
         return transitionsByRelation.keySet();
     }
@@ -322,8 +314,8 @@ public class EventNode implements INode<EventNode> {
         }
 
         // compare number of children
-        int transitionCntCmp = new Integer(transitions.size())
-                .compareTo(other.transitions.size());
+        int transitionCntCmp = Integer.valueOf(transitions.size()).compareTo(
+                other.transitions.size());
         if (transitionCntCmp != 0) {
             return transitionCntCmp;
         }

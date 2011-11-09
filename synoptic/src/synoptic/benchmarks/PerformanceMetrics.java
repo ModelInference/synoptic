@@ -52,7 +52,7 @@ public class PerformanceMetrics {
      *            the task to record
      */
     public void record(TimedTask t) {
-        t.stop();
+        // t.stop();
         record(t.getTask(), t.getTime());
         accumulativity.put(t.getTask(), t.getAccumulativity());
         previousTask = t.getParent();
@@ -81,7 +81,7 @@ public class PerformanceMetrics {
     public void record(String key, long value) {
         if (!getAccumulativity(key)) {
             // Print all recorded values.
-            if (Main.doBenchmarking) {
+            if (Main.options.doBenchmarking) {
                 logger.fine(key + " = " + value);
             }
         }

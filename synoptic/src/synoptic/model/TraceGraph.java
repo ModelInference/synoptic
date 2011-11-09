@@ -32,29 +32,26 @@ public abstract class TraceGraph<EType extends EventType> implements
 
     /**
      * The nodes of the graph. The edges between nodes are managed by the nodes.
+     * This set contains all the TERMINAL and INITIAL nodes in the graph (see
+     * below).
      */
     protected final Set<EventNode> nodes = new LinkedHashSet<EventNode>();
 
     /**
-     * Maps a relation String to the set of initial nodes in this relation. That
-     * is, the set of nodes that have an edge from the dummy initial node (i.e.,
-     * from a EventNode x such that x.isInitial() is true).
+     * Maintains a 1-1 map between relation strings and artificial TERMINAL
+     * nodes. Every terminal node in a trace maintains exactly one transition to
+     * such a TERMINAL node to indicate that the source node is a terminal. We
+     * must have these TERMINAL nodes in this graph, and not just in partition
+     * graph because invariants are mined over this graph.
      */
-    // private final Map<String, Set<EventNode>> initialNodes = new
-    // LinkedHashMap<String, Set<EventNode>>();
+    protected final Map<String, EventNode> dummyTerminalNodes = new LinkedHashMap<String, EventNode>();
 
     /**
-     * Every terminal node maintains a transition to this special node to
-     * indicate that the source node is a terminal. We must have this node in
-     * this graph, and not just in partition graph because invariants are mined
-     * over this graph.
+     * Maintains a 1-1 map between relation strings and artificial INITIAL
+     * nodes. Each initial node in a trace has a one of these INITIAL nodes as a
+     * parent.
      */
-    // private EventNode dummyTerminalNode = null;
-    private final Map<String, EventNode> dummyTerminalNodes = new LinkedHashMap<String, EventNode>();
-
-    /** The node which has transitions to all the initial nodes in the graph. */
-    // private EventNode dummyInitialNode = null;
-    private final Map<String, EventNode> dummyInitialNodes = new LinkedHashMap<String, EventNode>();
+    protected final Map<String, EventNode> dummyInitialNodes = new LinkedHashMap<String, EventNode>();
 
     private Set<String> cachedRelations = null;
 

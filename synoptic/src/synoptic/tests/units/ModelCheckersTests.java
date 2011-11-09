@@ -62,7 +62,7 @@ public class ModelCheckersTests extends SynopticTest {
     }
 
     public ModelCheckersTests(boolean useFSMChecker) {
-        Main.useFSMChecker = useFSMChecker;
+        Main.options.useFSMChecker = useFSMChecker;
     }
 
     /**
@@ -248,7 +248,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         List<EventType> cExampleLabels = stringsToStringEventTypes(new String[] {
                 "x", "a", "y", "w" });
-        cExampleLabels.add(StringEventType.NewTerminalStringEventType());
+        cExampleLabels.add(StringEventType.newTerminalStringEventType());
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
     }
 
@@ -318,7 +318,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         List<EventType> cExampleLabels = null;
 
-        if (Main.useFSMChecker) {
+        if (Main.options.useFSMChecker) {
             cExampleLabels = stringsToStringEventTypes(new String[] { "a", "c",
                     "d", "b" });
         } else {
