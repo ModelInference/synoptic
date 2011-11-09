@@ -221,12 +221,10 @@ public class SynopticGWT implements EntryPoint {
             // The modelTab MUST be made visible for showGraph() to work below.
             tabPanel.selectTab(2);
             modelTab.showGraph(initialModel);
+            modelTab.getFinalModelButtonClick(null);
+        } else {
+            // Typically occurs if the log is partially ordered.
+            tabPanel.selectTab(1);
         }
-
-        modelTab.getFinalModelButtonClick(null);
-
-        // tabPanel.selectTab(1);
-        tabPanel.selectTab(2);
-
     }
 }
