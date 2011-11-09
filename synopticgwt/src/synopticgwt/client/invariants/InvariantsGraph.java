@@ -36,7 +36,7 @@ public class InvariantsGraph {
     /** Distance of invariant columns from top of paper */
     public static final int TOP_MARGIN = 20;
     /** Distance of invariant columns from top of paper */
-    public static final int DY = 50;
+    public static final int EVENT_PADDING = 50;
     
     // Raphael paper object
     private JavaScriptObject paper;
@@ -102,7 +102,7 @@ public class InvariantsGraph {
         // int rX = mX + (longestEType * 30) - 110;
         int rX = mX + (longestEType * 30) - 110 + 50;
         int width = rX + 200;
-        int height = (eventTypesList.size() + 1) * DY;
+        int height = (eventTypesList.size() + 1) * EVENT_PADDING;
 
         int fontSize = 20; // getFontSize(longestEType);
 
@@ -111,15 +111,15 @@ public class InvariantsGraph {
         // draw graphic event type columns
         for (int i = 0; i < eventTypesList.size(); i++) {
         	String eType = eventTypesList.get(i);
-            GraphicEvent leftEvent = new GraphicEvent(lX, DY * i + TOP_MARGIN, 
+            GraphicEvent leftEvent = new GraphicEvent(lX, EVENT_PADDING * i + TOP_MARGIN, 
                 fontSize, eType, paper);
             leftEventCol.put(eType, leftEvent);
 
-            GraphicEvent midEvent = new GraphicEvent(mX, DY * i + TOP_MARGIN, 
+            GraphicEvent midEvent = new GraphicEvent(mX, EVENT_PADDING * i + TOP_MARGIN, 
         		fontSize, eType, paper);
             midEventCol.put(eType, midEvent);
 
-            GraphicEvent rightEvent = new GraphicEvent(rX, DY * i + TOP_MARGIN, 
+            GraphicEvent rightEvent = new GraphicEvent(rX, EVENT_PADDING * i + TOP_MARGIN, 
         		fontSize, eType, paper);
             rightEventCol.put(eType, rightEvent);
         }
