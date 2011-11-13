@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/junit-4.9b2.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/commons-io-2.0.1.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/plume.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/stixar-0.0.1-alpha.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
