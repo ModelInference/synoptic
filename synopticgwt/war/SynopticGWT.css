@@ -54,6 +54,7 @@ h1 {
   background: #E8EDFF;
 }
 
+
 /* Changes the background color of a table cell to red to
    indicate whether it has been selected. */
 .tableCellInvDeactivated {
@@ -131,8 +132,17 @@ h1 {
 }
 
 .DefaultExpLabel {
+	font-size: 0.7em;
 	color: #585858;	 
 }
+
+.DeleteButton {
+	margin-left: 5px !important;
+}
+
+.ExtraRegExps td {
+	vertical-align: middle !important;	
+}	
 
 .LineNumCol {
 	width: 50px;
@@ -151,7 +161,6 @@ h1 {
 	margin-right: 1em !important;
 }
 	
-
 .FlexTable {
 	table-layout: fixed;
 }

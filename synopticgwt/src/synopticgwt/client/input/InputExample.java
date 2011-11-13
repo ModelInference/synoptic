@@ -17,7 +17,7 @@ public enum  InputExample {
             "TwoPhaseCommit",
             "TM, 0, tx_prepare, 0\nTM, 1, tx_prepare, 0\nTM, 2, tx_prepare, 0\n0, TM, commit, 0\n1, TM, abort, 0\n2, TM, commit, 0\nTM, 0, tx_abort, 0\nTM, 1, tx_abort, 0\nTM, 2, tx_abort, 0\nTM, 0, tx_prepare, 1\nTM, 1, tx_prepare, 1\nTM, 2, tx_prepare, 1\n0, TM, commit, 1\n1, TM, commit, 1\n2, TM, commit, 1\nTM, 0, tx_commit, 1\nTM, 1, tx_commit, 1\nTM, 2, tx_commit, 1\nTM, 0, tx_prepare, 2\nTM, 1, tx_prepare, 2\nTM, 2, tx_prepare, 2\n0, TM, commit, 2\n1, TM, commit, 2\n2, TM, commit, 2\nTM, 0, tx_commit, 2\nTM, 1, tx_commit, 2\nTM, 2, tx_commit, 2\nTM, 0, tx_prepare, 3\nTM, 1, tx_prepare, 3\nTM, 2, tx_prepare, 3\n0, TM, commit, 3\n1, TM, abort, 3\n2, TM, commit, 3\nTM, 0, tx_abort, 3\nTM, 1, tx_abort, 3\nTM, 2, tx_abort, 3\nTM, 0, tx_prepare, 4\nTM, 1, tx_prepare, 4\nTM, 2, tx_prepare, 4\n0, TM, commit, 4\n1, TM, abort, 4\n2, TM, commit, 4\nTM, 0, tx_abort, 4\nTM, 1, tx_abort, 4\nTM, 2, tx_abort, 4\n",
             "^(?<sender>),(?<receiver>),(?<TYPE>),(?<txId>)",
-            "\\k<txId>", "", true),
+            "\\k<txId>", "", false),
 
     
     ABSTRACT (
