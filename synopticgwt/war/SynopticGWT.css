@@ -39,6 +39,19 @@ h1 {
   top: 350px;
 }
 
+.exampleLink {
+  background: #E8EDFF;
+}
+
+.exampleLinkTable {
+  border-spacing: 3px;	
+}
+
+.logTypeLabel {
+  color: #585858;
+  font-size: 0.75em;	
+}
+
 .tableCell {
   padding: 5px;
   background: #E8EDFF;
@@ -95,15 +108,9 @@ h1 {
   font-weight: normal;
 }
 
-.logTypeLabel {
-	color: #585858;
-	font-size: 0.5em;	 
-}
-
 .parseButton {
 	margin-right: 3em;
 }
-
 
 .modelCanvas {
   border: 2px solid #C3D9FF;

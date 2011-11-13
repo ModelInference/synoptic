@@ -50,7 +50,6 @@ public class InputPanel extends Tab<VerticalPanel> {
     final String partitionRegExpDefault = "\\k<FILE>";
 
     final Grid examplesGrid = new Grid(5, 1);
-    final Label loadExamples = new Label("Load example logs");
     final Label parseErrorMsgLabel = new Label();
     final Label logInputTypeLabel = new Label("Log input type:");
     final Label regExpDefaultLabel = new Label("Defaults to " + regExpDefault
@@ -82,27 +81,35 @@ public class InputPanel extends Tab<VerticalPanel> {
         // Construct the inputs panel using a grid.
         inputForm.add(parseErrorMsgLabel);
 
-        // Set up the links for log examples panel.
-        examplesGrid.setWidget(0, 0, loadExamples);
-        InputExample[] inputExamples = InputExample.values();
-        for (int i = 0; i < inputExamples.length; i++) {
-            VerticalPanel linkAndType = new VerticalPanel();
+        // Set up links and labels for examples panel.
+        examplesGrid.setWidget(0, 0, new Label("Load example logs"));
+        Label poLabel = new Label("Partially ordered");
+        Label toLabel = new Label("Totally ordered");
+        poLabel.setStyleName("logTypeLabel");
+        toLabel.setStyleName("logTypeLabel");
+       
+        examplesGrid.setWidget(1, 0, poLabel);
+        examplesGrid.setWidget(3, 0, toLabel);
+      
+        VerticalPanel poExamplesPanel = new VerticalPanel();
+        VerticalPanel toExamplesPanel = new VerticalPanel();
+        poExamplesPanel.setStyleName("exampleLinkTable");
+        toExamplesPanel.setStyleName("exampleLinkTable");
+
+        examplesGrid.setWidget(2, 0, poExamplesPanel);
+        examplesGrid.setWidget(4, 0, toExamplesPanel);
+        
+        InputExample[] examples = InputExample.values();   
+        for (int i = 0; i < examples.length; i++) {
             // Create anchor for every InputExample enum.
-            Anchor exampleLink = new Anchor(inputExamples[i].getName());
-            Label logType;
-            if (inputExamples[i].isPartiallyOrdered()) {
-                logType = new Label("(Partially Ordered Log)");
-            } else {
-                logType = new Label("(Totally Ordered Log)");
-            }
-            logType.setStyleName("logTypeLabel");
-            linkAndType.add(exampleLink);
-            linkAndType.add(logType);
-            // Associate click listener to anchors.
+            Anchor exampleLink = new Anchor(examples[i].getName());
             exampleLink.addClickHandler(new ExampleLinkHandler());
-            examplesGrid.setWidget((i + 1), 0, linkAndType);
-            examplesGrid.getCellFormatter().setStyleName((i + 1), 0,
-                    "tableCell");
+            exampleLink.addStyleName("exampleLink");
+            if (examples[i].isPartiallyOrdered()) {
+                poExamplesPanel.add(exampleLink);
+            } else {
+                toExamplesPanel.add(exampleLink);
+            }
         }
         examplesGrid.setStyleName("inputForm");
 
@@ -375,6 +382,7 @@ public class InputPanel extends Tab<VerticalPanel> {
                 VerticalPanel curr = (VerticalPanel) examplesGrid.getWidget(i,
                         0);
                 if (event.getSource() == curr.getWidget(0)) {
+                    // FIX
                     InputExample currExample = inputExamples[i - 1];
                     setInputs(currExample.getLogText(),
                             currExample.getRegExpText(),
