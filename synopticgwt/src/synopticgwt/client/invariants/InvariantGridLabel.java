@@ -10,6 +10,7 @@ import synopticgwt.shared.GWTInvariant;
  */
 public class InvariantGridLabel extends Label {
     private GWTInvariant inv;
+    private GraphicInvariant gInv;
 
     public InvariantGridLabel(GWTInvariant inv) {
         super(inv.getSource() + " "
@@ -26,8 +27,19 @@ public class InvariantGridLabel extends Label {
     public boolean getActive() {
         return inv.getActive();
     }
+    
+    public void setGraphicInvariant(GraphicInvariant gInv) {
+    	this.gInv = gInv;
+    }
 
     public void setActive(boolean active) {
+    	if (gInv != null) {
+    		if (active) {
+    			gInv.show();
+    		} else {
+    			gInv.hide();
+    		}
+    	}
         inv.setActive(active);
     }
 

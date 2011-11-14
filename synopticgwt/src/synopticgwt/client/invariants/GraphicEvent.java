@@ -4,128 +4,89 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.JavaScriptObject;
-
 /** 
  * Graphic model representing a logged event type
  * Also a java representation of a JavaScript text label on a Raphael canvas.
  * */
-public class GraphicEvent implements Serializable {
+public class GraphicEvent implements Serializable, MouseHover {
 
     private static final long serialVersionUID = 1L;
 
-    // Raphael canvas paper object
-    private JavaScriptObject paper;
-    // Raphael text object
-    private JavaScriptObject labelText;
-    // Incident relations
+    /** Wrapped Raphael label object */
+    private Label label;
+    /** Incident relations */
     private List<GraphicInvariant> invariants;
 
-    // Label's x coordinate on paper
-    private int labelXCoord;
-    // Label's y coordinate on paper
-    private int labelYCoord;
-
     /** 
-     * Creates a graphic event with text event, font size fontSize, and 
-     * positioned at (x, y) on paper.
-     * */
-    public GraphicEvent(int x, int y, int fontSize, String event,
-            JavaScriptObject paper) {
-        this.paper = paper;
-        this.labelXCoord = x;
-        this.labelYCoord = y;
-        invariants = new ArrayList<GraphicInvariant>();
-        labelText = constructText(x, y, fontSize, InvariantsGraph.DEFAULT_FILL,
-                event);
-        setMouseover();
-        setMouseout();
-    }
+     * Creates a graphic event 
+     * @param x x coordinate of event
+     * @param y y coordinate of event
+     * @param fontSize size of graphic font
+     * @param event text for event
+     * @param paper Raphael canvas to create event on
+     */
 
-    private native JavaScriptObject constructText(int x, int y, int fontSize,
-            String fillColor, String text) /*-{
-		var paper = this.@synopticgwt.client.invariants.GraphicEvent::paper;
-		var text = paper.text(x, y, text);
-		text.attr({
-			'font-size' : fontSize + "px",
-			fill : fillColor
-		});
-		return text;
-    }-*/;
+    public GraphicEvent(int x, int y, int fontSize, String event,
+            Paper paper) {
+        this.invariants = new ArrayList<GraphicInvariant>();
+        this.label = new Label(paper, x, y, fontSize, 
+            event, InvariantsGraph.DEFAULT_FILL);
+        hide();
+        label.setMouseover(this);
+        label.setMouseout(this);
+    }
 
     /** Return's the x coordinate of this event */
     public int getX() {
-        return labelXCoord;
+        return label.getX();
     }
 
     /** Return's the y coordinate of this event */
     public int getY() {
-        return labelYCoord;
+        return label.getY();
     }
 
-    /** Makes this visible on paper */
-    public native void show() /*-{
-		var text = this.@synopticgwt.client.invariants.GraphicEvent::labelText;
-		text.show();
-    }-*/;
+    public void show() {
+        label.show();
+    }
 
-    /** Makes this invisible on paper */
-    public native void hide() /*-{
-		var text = this.@synopticgwt.client.invariants.GraphicEvent::labelText;
-		text.hide();
-    }-*/;
+    public void hide() {
+        label.hide();
+    }
 
     /** Adds gInv to the list of invariants incident to this event */
     public void addInvariant(GraphicInvariant gInv) {
+    	if (invariants.size() == 0) {
+    		show();
+    	}
         invariants.add(gInv);
     }
 
-    /** Highlights all of the invariants incident to this event */
-    public void hightlightOnIncidentInvariants() {
+    /** 
+     * Highlights all of this event's incident invariants on mouseover
+     */
+    public void mouseover() {
         for (GraphicInvariant gi : invariants) {
-            gi.highlightOn();
+        	if (gi.getVisible()) {
+        		gi.highlightOn();
+        	}
+        }
+    }
+    
+    /** 
+     * Removes highlighting from all of this event's incident invariants
+     * on mouseout
+     */
+    public void mouseout() {
+        for (GraphicInvariant gi : invariants) {
+        	if (gi.getVisible()) {
+        		gi.highlightOff();
+        	}
         }
     }
 
-    /** Removes highlighting from all of the invariants incident to this 
-     * event 
-     * */
-    public void hightlightOffIncidentInvariants() {
-        for (GraphicInvariant gi : invariants) {
-            gi.highlightOff();
-        }
-    }
-
-    /** Registers highlightOnIncidentInvariants with the JS labelText object */
-    public native void setMouseover() /*-{
-		this.@synopticgwt.client.invariants.GraphicEvent::labelText
-				.mouseover(function(thisGraphicEvent) {
-					return function(e) {
-						thisGraphicEvent
-								.@synopticgwt.client.invariants.GraphicEvent::hightlightOnIncidentInvariants()
-								();
-					};
-				}(this));
-    }-*/;
-
-    /** Registers highlightOffIncidentInvariants with the JS labelText object */
-    public native void setMouseout() /*-{
-		this.@synopticgwt.client.invariants.GraphicEvent::labelText
-				.mouseout(function(thisGraphicEvent) {
-					return function(e) {
-						thisGraphicEvent
-								.@synopticgwt.client.invariants.GraphicEvent::hightlightOffIncidentInvariants()
-								();
-					};
-				}(this));
-    }-*/;
-
-    /** Sets the fill of the JS labelText object to color */
-    public native void setFill(String color) /*-{
-		var text = this.@synopticgwt.client.invariants.GraphicEvent::labelText;
-		text.attr({
-			fill : color
-		});
-    }-*/;
+	public void setFill(String fill) {
+		label.setFill(fill);
+	}
 
 }
