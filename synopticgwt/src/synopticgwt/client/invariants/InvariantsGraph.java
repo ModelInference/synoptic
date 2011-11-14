@@ -99,7 +99,8 @@ public class InvariantsGraph {
         // int rX = mX + (longestEType * 30) - 110;
         int rX = mX + (longestEType * 30) - 110 + 50;
         int width = rX + 200;
-        int height = (eventTypesList.size() + 1) * EVENT_PADDING;
+        // 2 is a little magical here, need it for time arrow/label
+        int height = (eventTypesList.size() + 2) * EVENT_PADDING;
 
         int fontSize = 20; // getFontSize(longestEType);
 
@@ -137,6 +138,15 @@ public class InvariantsGraph {
                 nfbyInvs.addAll(gInvs);
             }
         }
+        
+        // A little magic and hardcoding to make things pretty
+        int timeArrowYCoord = TOP_MARGIN + EVENT_PADDING * eventTypesList.size() - 25;
+        GraphicArrow timeArrow = new GraphicArrow(lX, timeArrowYCoord, rX, 
+        		timeArrowYCoord, paper, 0);
+        timeArrow.setStroke("green", HIGHLIGHT_STROKE_WIDTH);
+        int timeLabelYCoord = timeArrowYCoord + 25;
+        Label timeLabel = new Label(paper, mX, timeLabelYCoord, fontSize - 5, 
+        		"Time", DEFAULT_FILL);
     }
 
     /** 
