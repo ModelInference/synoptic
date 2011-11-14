@@ -89,7 +89,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             // Activated and deactivated grid cells are uniquely styled
             for (int i = 0; i < invs.size(); i++) {
                 GWTInvariant inv = invs.get(i);
-                InvariantGridLabel iGridLabel = new InvariantGridLabel(inv);
+                InvariantGridLabel iGridLabel = new InvariantGridLabel(inv, grid.getCellFormatter(), i + 1, 0);
                 iGridLabel.addMouseOverHandler(new InvLabelMouseOverHandler());
                 iGridLabel.addMouseOutHandler(new InvLabelMouseOutHandler());
                 gwtInvToGridLabel.put(inv, iGridLabel);

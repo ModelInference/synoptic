@@ -21,17 +21,19 @@ public class GraphicInvariant implements Serializable {
     private GraphicArrow arrow;
     /** GWTInvariant object that this represents */
     private GWTInvariant GWTinv;
+    private InvariantGridLabel iGridLabel;
     
     private boolean visible = true;
 
     /** Constructs a GraphicInvariant for GWTinv from src to dst on paper */
     public GraphicInvariant(GraphicEvent src, GraphicEvent dst,
-        GWTInvariant GWTinv, Paper paper) {
+        GWTInvariant GWTinv, Paper paper, InvariantGridLabel iGridLabel) {
         this.src = src;
         this.dst = dst;
         this.arrow = new GraphicArrow(src.getX(), src.getY(), dst.getX(),
             dst.getY(), paper, GraphicArrow.TARGET_BUFFER);
         this.GWTinv = GWTinv;
+        this.iGridLabel = iGridLabel;
     }
 
     /**
@@ -74,6 +76,7 @@ public class GraphicInvariant implements Serializable {
 	        } else {
 	            throw new IllegalStateException("Illegal type: " + transitionType);
 	        }
+	        iGridLabel.highlightOn();
     	}
     }
 
@@ -83,5 +86,6 @@ public class GraphicInvariant implements Serializable {
         dst.setFill(InvariantsGraph.DEFAULT_FILL);
         arrow.setStroke(InvariantsGraph.DEFAULT_STROKE, 
         		InvariantsGraph.DEFAULT_STROKE_WIDTH);
+        iGridLabel.highlightOff();
     }
 }
