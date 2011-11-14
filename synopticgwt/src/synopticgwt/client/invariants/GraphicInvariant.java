@@ -21,6 +21,8 @@ public class GraphicInvariant implements Serializable {
     private GraphicArrow arrow;
     /** GWTInvariant object that this represents */
     private GWTInvariant GWTinv;
+    
+    private boolean visible = true;
 
     /** Constructs a GraphicInvariant for GWTinv from src to dst on paper */
     public GraphicInvariant(GraphicEvent src, GraphicEvent dst,
@@ -36,6 +38,7 @@ public class GraphicInvariant implements Serializable {
      * Makes the GraphicInvariant visible on the paper used to construct this
      */  
     public void show() {
+    	visible = true;
         arrow.show();
     }
 
@@ -43,7 +46,12 @@ public class GraphicInvariant implements Serializable {
      * Makes the GraphicInvariant invisible on the paper used to construct this
      */  
     public void hide() {
+    	visible = false;
         arrow.hide();
+    }
+    
+    public boolean getVisible() {
+    	return visible;
     }
     
     /** Highlights src, dst, and arrow based on arrow's transition type */
