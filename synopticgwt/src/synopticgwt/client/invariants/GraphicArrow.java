@@ -2,9 +2,7 @@ package synopticgwt.client.invariants;
 
 import java.io.Serializable;
 
-import com.google.gwt.core.client.JavaScriptObject;
-
-/** Java representation of a Javascript arrow on a Raphael canvas */
+/** Java wrapper for an arrow on a Raphael canvas */
 public class GraphicArrow implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -13,21 +11,19 @@ public class GraphicArrow implements Serializable {
     /** Distance between terminal end of the arrow  and (x2, y2) */
     public static final int TARGET_BUFFER = 10;
 	
-	// Raphael paper object
-    private JavaScriptObject paper;
-    // Raphael path elements
     // Non-arrowhead part of the arrow
-    private JavaScriptObject path;
+    private Path body;
     // Part of the arrowhead that has a positive angular offset from the body
-    private JavaScriptObject positiveHead;
+    private Path positiveHead;
     // Part of the arrowhead that has a negative angular offset from the body
-    private JavaScriptObject negativeHead;
+    private Path negativeHead;
+	private Paper paper;
 
     /** 
      * Draws an arrow from (x1, y1) to (x2, y2) on paper 
      * Paper is a Raphael paper object
      * */
-    public GraphicArrow(int x1, int y1, int x2, int y2, JavaScriptObject paper) {
+    public GraphicArrow(int x1, int y1, int x2, int y2, Paper paper) {
         this.paper = paper;
         constructArrow(x1, y1, x2 - TARGET_BUFFER, y2 - TARGET_BUFFER);
         setStroke(InvariantsGraph.DEFAULT_STROKE, 
@@ -81,63 +77,30 @@ public class GraphicArrow implements Serializable {
         double negativeHeadX = relativeNegativeHeadX + x2;
         double negativeHeadY = relativeNegativeHeadY + y2;
 
-        this.path = constructPath(x1, y1, x2, y2);
-        this.positiveHead = constructPath(x2, y2, positiveHeadX, 
-            positiveHeadY);
-        this.negativeHead = constructPath(x2, y2, negativeHeadX, 
-            negativeHeadY);
+        this.body = new Path(x1, y1, x2, y2, paper);
+        this.positiveHead = new Path(x2, y2, positiveHeadX, positiveHeadY, paper);
+        this.negativeHead = new Path(x2, y2, negativeHeadX, negativeHeadY, paper);
     }
         
-    // Creates JS path object on paper from (x1, y1, to x2, y2)
-    private native JavaScriptObject constructPath(double x1, double y1, 
-    		double x2, double y2) /*-{
-		var paper = this.@synopticgwt.client.invariants.GraphicArrow::paper;
-        var path = paper.path("M" + x1 + " " + y1 + "L" + x2 + " " + y2);
-        return path;
-    }-*/;
 
     /** Makes the arrow visible on paper */
-    public native void show() /*-{
-		var path = this.@synopticgwt.client.invariants.GraphicArrow::path;
-		var positiveHead = 
-            this.@synopticgwt.client.invariants.GraphicArrow::positiveHead;
-		var negativeHead = 
-            this.@synopticgwt.client.invariants.GraphicArrow::negativeHead;
-        path.show();
+    public void show() {
+        body.show();
         positiveHead.show();
         negativeHead.show();
-    }-*/;
+    }
 
     /** Makes the arrow invisible on paper */
-    public native void hide() /*-{
-		var path = this.@synopticgwt.client.invariants.GraphicArrow::path;
-		var positiveHead = 
-            this.@synopticgwt.client.invariants.GraphicArrow::positiveHead;
-		var negativeHead = 
-            this.@synopticgwt.client.invariants.GraphicArrow::negativeHead;
-        path.hide();
+    public void hide() {
+        body.hide();
         positiveHead.hide();
         negativeHead.hide();
-    }-*/;
+    }
 
     /** Changes the arrow's color and stroke width to color and width */
-    public native void setStroke(String color, int width) /*-{
-		var path = this.@synopticgwt.client.invariants.GraphicArrow::path;
-		var positiveHead = 
-            this.@synopticgwt.client.invariants.GraphicArrow::positiveHead;
-		var negativeHead = 
-            this.@synopticgwt.client.invariants.GraphicArrow::negativeHead;
-        path.attr({
-            stroke : color,
-            'stroke-width' : width
-        });
-        positiveHead.attr({
-            stroke : color,
-            'stroke-width' : width
-        });
-        negativeHead.attr({
-            stroke : color,
-            'stroke-width' : width
-        });
-    }-*/;
+    public void setStroke(String color, int width) {
+        body.setStroke(color, width);
+        positiveHead.setStroke(color, width);
+        negativeHead.setStroke(color, width);
+    }
 }
