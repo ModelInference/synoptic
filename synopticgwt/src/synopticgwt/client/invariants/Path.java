@@ -50,16 +50,17 @@ public class Path implements Serializable {
 
     /** 
      * Creates JS path object on paper from (x1, y1) to x2, y2)
-     * @param x1 origin x coordinate
-     * @param y1 origin y coordinate
-     * @param x2 terminal x coordinate
-     * @param y2 terminal y coordinate
-     * @param paper unwrapped raphael canvas
+     * @param originX origin x coordinate
+     * @param originY origin y coordinate
+     * @param terminalX terminal x coordinate
+     * @param terminalY terminal y coordinate
+     * @param canvas unwrapped raphael canvas
      * @return unwrapped raphael path
      */
-    private native JavaScriptObject constructPath(double x1, double y1, 
-    		double x2, double y2, JavaScriptObject paper) /*-{
-        var path = paper.path("M" + x1 + " " + y1 + "L" + x2 + " " + y2);
+    private native JavaScriptObject constructPath(double originX, double originY, 
+    		double terminalX, double terminalY, JavaScriptObject canvas) /*-{
+        var path = canvas.path("M" + originX + " " + originY +
+         		"L" + terminalX + " " + terminalY);
         return path;
     }-*/;
 
