@@ -139,7 +139,10 @@ public class InvariantsGraph {
             }
         }
         
-        // A little magic and hardcoding to make things pretty
+        /* 
+         * Drawing a time arrow and label with a little magic and hardcoding 
+         * to make things pretty
+         */
         int timeArrowYCoord = TOP_MARGIN + EVENT_PADDING * eventTypesList.size() - 25;
         GraphicArrow timeArrow = new GraphicArrow(lX, timeArrowYCoord, rX, 
         		timeArrowYCoord, paper, 0);

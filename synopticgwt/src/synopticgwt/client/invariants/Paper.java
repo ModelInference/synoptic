@@ -69,14 +69,14 @@ public class Paper implements Serializable {
     /**
      * Creates a new Raphael canvas object
      * 
-     * @param width of the canvas
-     * @param height height of the canvas
+     * @param canvasWidth of the canvas
+     * @param canvasHeight height of the canvas
      * @param canvasId ID for document element canvas is injected into
      * @return Unwrapped canvas object
      */
-    private native JavaScriptObject constructPaper(int width, int height, 
+    private native JavaScriptObject constructPaper(int canvasWidth, int canvasHeight, 
             String canvasId) /*-{
-		var paper = $wnd.Raphael($doc.getElementById(canvasId), width, height);
+		var paper = $wnd.Raphael($doc.getElementById(canvasId), canvasWidth, canvasHeight);
         return paper;
     }-*/;
     
