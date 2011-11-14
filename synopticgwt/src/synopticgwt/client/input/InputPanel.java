@@ -95,15 +95,14 @@ public class InputPanel extends Tab<VerticalPanel> {
       
         examplesGrid.setWidget(2, 0, poExamplesPanel);
         examplesGrid.setWidget(4, 0, toExamplesPanel);
-        poExamplesPanel.setStyleName("exampleLinkTable");
-        toExamplesPanel.setStyleName("exampleLinkTable");
+        poExamplesPanel.setStyleName("poLinkTable");
+        toExamplesPanel.setStyleName("toLinkTable");
         
         InputExample[] examples = InputExample.values();   
         for (int i = 0; i < examples.length; i++) {
             // Create anchor for every InputExample enum.
             Anchor exampleLink = new Anchor(examples[i].getName());
             exampleLink.addClickHandler(new ExampleLinkHandler());
-            exampleLink.addStyleName("exampleLink");
             if (examples[i].isPartiallyOrdered()) {
                 poExamplesPanel.add(exampleLink);
             } else {

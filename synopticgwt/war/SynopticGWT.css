@@ -39,12 +39,12 @@ h1 {
   top: 350px;
 }
 
-.exampleLink {
-  background: #E8EDFF;
+.poLinkTable .toLinkTable {
+  border-spacing: 3px;	
 }
 
-.exampleLinkTable {
-  border-spacing: 3px;	
+.poLinkTable {
+  margin-bottom: 10px;
 }
 
 .logTypeLabel {
