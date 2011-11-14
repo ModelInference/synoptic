@@ -8,7 +8,7 @@ public class GraphicArrow implements Serializable {
 	private static final long serialVersionUID = 1L;
     /** Length of the positive and negative arrowhead segments */
     public static final int HEAD_LENGTH = 10;
-    /** Distance between terminal end of the arrow  and (x2, y2) */
+    /** Default target buffer */
     public static final int TARGET_BUFFER = 10;
 	
     // Non-arrowhead part of the arrow
@@ -21,11 +21,17 @@ public class GraphicArrow implements Serializable {
 
     /** 
      * Draws an arrow from (x1, y1) to (x2, y2) on paper 
-     * Paper is a Raphael paper object
-     * */
-    public GraphicArrow(int x1, int y1, int x2, int y2, Paper paper) {
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param paper raphael canvas
+     * @param targetBuffer Distance between terminal end of the arrow  and (x2, y2)
+     */
+
+    public GraphicArrow(int x1, int y1, int x2, int y2, Paper paper, int targetBuffer) {
         this.paper = paper;
-        constructArrow(x1, y1, x2 - TARGET_BUFFER, y2 - TARGET_BUFFER);
+        constructArrow(x1, y1, x2 - targetBuffer, y2 - targetBuffer);
         setStroke(InvariantsGraph.DEFAULT_STROKE, 
             InvariantsGraph.DEFAULT_STROKE_WIDTH);
     }

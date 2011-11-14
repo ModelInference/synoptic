@@ -51,19 +51,19 @@ public class Label implements Serializable {
 
     /**
      * Creates a raphael label
-     * @param x x coodrinate for label
-     * @param y y coordinate for label
-     * @param fontSize size of font
+     * @param xCoord x coodrinate for label
+     * @param yCoord y coordinate for label
+     * @param font size of font
      * @param fillColor color of label text
-     * @param labelText string to present on label
-     * @param paper unwrapped raphael paper
+     * @param text string to present on label
+     * @param canvas unwrapped raphael paper
      * @return unwrapped raphael text
      */
-    private native JavaScriptObject constructLabel(int x, int y, int fontSize,
-            String fillColor, String labelText, JavaScriptObject paper) /*-{
-		var rLabel = paper.text(x, y, labelText);
+    private native JavaScriptObject constructLabel(int xCoord, int yCoord, int font,
+            String fillColor, String text, JavaScriptObject canvas) /*-{
+		var rLabel = canvas.text(xCoord, yCoord, text);
 		rLabel.attr({
-			'font-size' : fontSize + "px",
+			'font-size' : font + "px",
 			fill : fillColor
 		});
 		return rLabel;
