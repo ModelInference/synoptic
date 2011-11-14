@@ -56,11 +56,15 @@ public class InvariantGridLabel extends Label {
     }
     
     public void mouseOver() {
-    	gInv.highlightOn();
+    	if (gInv != null) {
+    		gInv.highlightOn();
+    	}
     }
     
     public void mouseOut() {
-    	gInv.highlightOff();
+    	if (gInv != null) {
+    		gInv.highlightOff();
+    	}
     }
     
     public void highlightOn() {
@@ -68,7 +72,7 @@ public class InvariantGridLabel extends Label {
 	    	String tType = inv.getTransitionType();
 	    	if (tType.equals("NFby")) {
 	    		cForm.setStyleName(row, col, "tableCellHighlightRed");
-	    	} else {
+	    	} else if (tType.equals("AP") || tType.equals("AFby")){
 	    		cForm.setStyleName(row, col, "tableCellHighlightBlue");
 	    	}
     	}
