@@ -26,7 +26,7 @@ public class ModelGraphic {
      * @param canvasId
      *            the div id with which to associate the resulting graph
      */
-    public native void createGraph(ModelTab modelTab, JavaScriptObject nodes,
+    public static native void createGraph(ModelTab modelTab, JavaScriptObject nodes,
             JavaScriptObject edges, int width, int height, String canvasId,
             String initial, String terminal) /*-{
 		// Export the handleLogRequest globally.
