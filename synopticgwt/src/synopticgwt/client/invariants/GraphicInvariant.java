@@ -2,8 +2,6 @@ package synopticgwt.client.invariants;
 
 import java.io.Serializable;
 
-import com.google.gwt.core.client.JavaScriptObject;
-
 import synopticgwt.shared.GWTInvariant;
 
 /** 
@@ -26,7 +24,7 @@ public class GraphicInvariant implements Serializable {
 
     /** Constructs a GraphicInvariant for GWTinv from src to dst on paper */
     public GraphicInvariant(GraphicEvent src, GraphicEvent dst,
-        GWTInvariant GWTinv, JavaScriptObject paper) {
+        GWTInvariant GWTinv, Paper paper) {
         this.src = src;
         this.dst = dst;
         this.arrow = new GraphicArrow(src.getX(), src.getY(), dst.getX(),
@@ -49,6 +47,7 @@ public class GraphicInvariant implements Serializable {
     }
     
     /** Highlights src, dst, and arrow based on arrow's transition type */
+    // TODO: Remove invariant type hardcoding
     public void highlightOn() {
         src.setFill(InvariantsGraph.HIGHLIGHT_FILL);
         dst.setFill(InvariantsGraph.HIGHLIGHT_FILL);
