@@ -67,9 +67,7 @@ public class GraphicEvent implements Serializable, MouseHover {
      */
     public void mouseover() {
         for (GraphicInvariant gi : invariants) {
-        	if (gi.getVisible()) {
-        		gi.highlightOn();
-        	}
+    		gi.highlightOn();
         }
     }
     
@@ -79,9 +77,7 @@ public class GraphicEvent implements Serializable, MouseHover {
      */
     public void mouseout() {
         for (GraphicInvariant gi : invariants) {
-        	if (gi.getVisible()) {
-        		gi.highlightOff();
-        	}
+    		gi.highlightOff();
         }
     }
 

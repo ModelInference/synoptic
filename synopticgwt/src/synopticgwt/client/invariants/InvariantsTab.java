@@ -8,6 +8,10 @@ import java.util.Set;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
@@ -86,6 +90,8 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             for (int i = 0; i < invs.size(); i++) {
                 GWTInvariant inv = invs.get(i);
                 InvariantGridLabel iGridLabel = new InvariantGridLabel(inv);
+                iGridLabel.addMouseOverHandler(new InvLabelMouseOverHandler());
+                iGridLabel.addMouseOutHandler(new InvLabelMouseOutHandler());
                 gwtInvToGridLabel.put(inv, iGridLabel);
                 grid.setWidget(i + 1, 0, iGridLabel);
                 grid.getCellFormatter().setStyleName(i + 1, 0,
@@ -166,5 +172,36 @@ public class InvariantsTab extends Tab<VerticalPanel> {
                 cFormatter.setStyleName(cIndex, 0, "tableCellInvActivated");
             }
         }
+    }
+    
+    /**
+     * Highlights corresponding GraphicInvariant on InvariantGridLabel mouseover
+     * @author timjv
+     *
+     */
+    class InvLabelMouseOverHandler implements MouseOverHandler {
+    	
+		@Override
+		public void onMouseOver(MouseOverEvent event) {
+			InvariantGridLabel iGridLabel = (InvariantGridLabel) event.getSource();
+			iGridLabel.mouseOver();			
+		}
+    	
+    }
+    
+    /**
+     * Removes highlight from corresponding GraphicInvariant on 
+     * InvariantGridLabel mouseout
+     * @author timjv
+     *
+     */
+    class InvLabelMouseOutHandler implements MouseOutHandler {
+    	
+		@Override
+		public void onMouseOut(MouseOutEvent event) {
+			InvariantGridLabel iGridLabel = (InvariantGridLabel) event.getSource();
+			iGridLabel.mouseOut();			
+		}
+    	
     }
 }

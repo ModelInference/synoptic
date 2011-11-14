@@ -57,22 +57,24 @@ public class GraphicInvariant implements Serializable {
     /** Highlights src, dst, and arrow based on arrow's transition type */
     // TODO: Remove invariant type hardcoding
     public void highlightOn() {
-        src.setFill(InvariantsGraph.HIGHLIGHT_FILL);
-        dst.setFill(InvariantsGraph.HIGHLIGHT_FILL);
-
-        String transitionType = GWTinv.getTransitionType();
-        if (transitionType.equals("AP")) {
-            arrow.setStroke(InvariantsGraph.AP_HIGHLIGHT_STROKE, 
-            		InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
-        } else if (transitionType.equals("AFby")) {
-            arrow.setStroke(InvariantsGraph.AFBY_HIGHLIGHT_STROKE, 
-            		InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
-        } else if (transitionType.equals("NFby")) {
-            arrow.setStroke(InvariantsGraph.NFBY_HIGHLIGHT_STROKE, 
-            		InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
-        } else {
-            throw new IllegalStateException("Illegal type: " + transitionType);
-        }
+    	if (visible) {
+	        src.setFill(InvariantsGraph.HIGHLIGHT_FILL);
+	        dst.setFill(InvariantsGraph.HIGHLIGHT_FILL);
+	
+	        String transitionType = GWTinv.getTransitionType();
+	        if (transitionType.equals("AP")) {
+	            arrow.setStroke(InvariantsGraph.AP_HIGHLIGHT_STROKE, 
+	            		InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
+	        } else if (transitionType.equals("AFby")) {
+	            arrow.setStroke(InvariantsGraph.AFBY_HIGHLIGHT_STROKE, 
+	            		InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
+	        } else if (transitionType.equals("NFby")) {
+	            arrow.setStroke(InvariantsGraph.NFBY_HIGHLIGHT_STROKE, 
+	            		InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
+	        } else {
+	            throw new IllegalStateException("Illegal type: " + transitionType);
+	        }
+    	}
     }
 
     /** Removes highlightng from src, dst, and arrow */
