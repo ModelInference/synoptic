@@ -42,5 +42,13 @@ public class InvariantGridLabel extends Label {
     	}
         inv.setActive(active);
     }
+    
+    public void mouseOver() {
+    	gInv.highlightOn();
+    }
+    
+    public void mouseOut() {
+    	gInv.highlightOff();
+    }
 
 }
