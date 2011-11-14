@@ -170,10 +170,10 @@ public class InvariantsGraph {
             String dstEventString = inv.getTarget();
             GraphicEvent dstEvent = dstCol.get(dstEventString);
 
-            GraphicInvariant gInv = new GraphicInvariant(srcEvent, dstEvent,
-                inv, paper);
-            
             InvariantGridLabel iGridLabel = gwtInvToIGridLabel.get(inv);
+            
+            GraphicInvariant gInv = new GraphicInvariant(srcEvent, dstEvent,
+                inv, paper, iGridLabel);
             
             iGridLabel.setGraphicInvariant(gInv);
             
