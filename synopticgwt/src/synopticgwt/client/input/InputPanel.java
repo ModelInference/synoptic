@@ -18,17 +18,14 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ComplexPanel;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
-import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
@@ -45,26 +42,26 @@ import synopticgwt.shared.SerializableParseException;
 
 /**
  * Panel that contains all text fields to enter log/re values. Contains upload
- * button to upload a log file. 
+ * button to upload a log file.
  */
 public class InputPanel extends Tab<VerticalPanel> {
     private static final String UPLOAD_LOGFILE_URL = GWT.getModuleBaseURL()
             + "log_file_upload";
-    
+
     final Grid examplesGrid = new Grid(5, 1);
     final Label loadExamples = new Label("Load example logs");
     final Label parseErrorMsgLabel = new Label();
     final Label logInputTypeLabel = new Label("Log input type:");
-    final Label regExpDefaultLabel = new Label("Defaults to " + 
-            SynopticOptions.regExpDefault + " when empty");
-    final Label partitionRegExpDefaultLabel = new Label("Defaults to " + 
-            SynopticOptions.partitionRegExpDefault + " when empty");
+    final Label regExpDefaultLabel = new Label("Defaults to "
+            + SynopticOptions.regExpDefault + " when empty");
+    final Label partitionRegExpDefaultLabel = new Label("Defaults to "
+            + SynopticOptions.partitionRegExpDefault + " when empty");
     final FormPanel logFileUploadForm = new FormPanel();
     final RadioButton logTextRadioButton = new RadioButton("logInputType",
             "Text area");
     final RadioButton logFileRadioButton = new RadioButton("logInputType",
             "Text file");
-    
+
     final ExtendedTextArea logTextArea = new ExtendedTextArea();
     final ExtendedTextArea primaryRegExpsTextArea = new ExtendedTextArea();
     final ExtendedTextBox partitionRegExpTextBox = new ExtendedTextBox();
@@ -75,22 +72,22 @@ public class InputPanel extends Tab<VerticalPanel> {
     final Button parseLogButton = new Button("Parse Log");
     final Button clearInputsButton = new Button("Clear");
 
-    public InputPanel(ISynopticServiceAsync synopticService)  {
+    public InputPanel(ISynopticServiceAsync synopticService) {
         super(synopticService);
 
         panel = new VerticalPanel();
-        
+
         // Holds the examples panel and input panel
         HorizontalPanel examplesAndInputForm = new HorizontalPanel();
         VerticalPanel inputForm = new VerticalPanel();
         inputForm.add(parseErrorMsgLabel);
-        
-        // Set up the links for log examples panel. 
+
+        // Set up the links for log examples panel.
         examplesGrid.setWidget(0, 0, loadExamples);
         InputExample[] inputExamples = InputExample.values();
         for (int i = 0; i < inputExamples.length; i++) {
             VerticalPanel linkAndType = new VerticalPanel();
-            
+
             // Create anchor for every InputExample enum.
             Anchor exampleLink = new Anchor(inputExamples[i].getName());
             Label logType;
@@ -105,10 +102,11 @@ public class InputPanel extends Tab<VerticalPanel> {
             // Associate click listener to anchors.
             exampleLink.addClickHandler(new ExampleLinkHandler());
             examplesGrid.setWidget((i + 1), 0, linkAndType);
-            examplesGrid.getCellFormatter().setStyleName((i + 1), 0, "tableCell");
+            examplesGrid.getCellFormatter().setStyleName((i + 1), 0,
+                    "tableCell");
         }
         examplesGrid.setStyleName("inputForm");
-                
+
         Grid grid = new Grid(5, 2);
         inputForm.add(grid);
 
@@ -117,17 +115,17 @@ public class InputPanel extends Tab<VerticalPanel> {
         logFileUploadForm.setEncoding(FormPanel.ENCODING_MULTIPART);
         logFileUploadForm.setMethod(FormPanel.METHOD_POST);
         logFileUploadForm.setWidget(grid);
-        
+
         logTextRadioButton.setStyleName("LogTypeRadio");
         logFileRadioButton.setStyleName("LogTypeRadio");
-        logTextRadioButton.setValue(true); 
-        
+        logTextRadioButton.setValue(true);
+
         // Set up inner panel containing file upload and submit button.
         HorizontalPanel uploadPanel = new HorizontalPanel();
         uploadLogFileButton.setName("uploadFormElement");
         uploadLogFileButton.setEnabled(false);
         uploadPanel.add(uploadLogFileButton);
-        
+
         HorizontalPanel radioButtonPanel = new HorizontalPanel();
         radioButtonPanel.add(logInputTypeLabel);
         radioButtonPanel.add(logTextRadioButton);
@@ -149,7 +147,7 @@ public class InputPanel extends Tab<VerticalPanel> {
         extraRegExpPanel.add(regExpDefaultLabel);
         extraRegExpPanel.addStyleName("ExtraRegExps");
         regExpDefaultLabel.setStyleName("DefaultExpLabel");
-        
+
         Grid regExpsPanelHolder = new Grid(4, 1);
         regExpsPanelHolder.setWidget(0, 0, regExpDefaultLabel);
         regExpsPanelHolder.setWidget(1, 0, primaryRegExpsTextArea);
@@ -157,7 +155,7 @@ public class InputPanel extends Tab<VerticalPanel> {
         regExpsPanelHolder.setWidget(3, 0, addRegExpButton);
         grid.setWidget(1, 1, regExpsPanelHolder);
         setUpTextArea(primaryRegExpsTextArea);
-        
+
         VerticalPanel partitionExpPanel = new VerticalPanel();
         partitionExpPanel.add(partitionRegExpDefaultLabel);
         partitionExpPanel.add(partitionRegExpTextBox);
@@ -199,17 +197,17 @@ public class InputPanel extends Tab<VerticalPanel> {
         // Set up the other text areas.
         partitionRegExpTextBox.setText("");
         separatorRegExpTextBox.setText("");
-        
+
         // Associate handler with add extra reg exp button.
         addRegExpButton.addClickHandler(new AddRegExpHandler());
-        
+
         // Associate KeyPress handler to enable default labels appearing.
         partitionRegExpTextBox.addKeyUpHandler(new KeyUpInputHandler());
-        
+
         // Associate handler with the Parse Log button.
         parseLogButton.addClickHandler(new ParseLogHandler());
         parseLogButton.addStyleName("ParseLogButton");
-        
+
         // Associate handler with the Clear Inputs button.
         clearInputsButton.addClickHandler(new ClearInputsHandler());
 
@@ -219,31 +217,35 @@ public class InputPanel extends Tab<VerticalPanel> {
         logTextRadioButton.addValueChangeHandler(new LogTypeRadioHandler());
         logFileRadioButton.addValueChangeHandler(new LogTypeRadioHandler());
         uploadLogFileButton.addChangeHandler(new FileUploadHandler());
-       
+
         inputForm.add(logFileUploadForm);
         examplesAndInputForm.add(examplesGrid);
         examplesAndInputForm.add(inputForm);
         panel.add(examplesAndInputForm);
     }
-    
+
     /**
      * Sets each input text field to corresponding parameter.
-     * @param logText content of log file
-     * @param regExpText regular expression
-     * @param partitionRegExpText partition regular expression
-     * @param separatorRegExpText separator regular expression
+     * 
+     * @param logText
+     *            content of log file
+     * @param regExpText
+     *            regular expression
+     * @param partitionRegExpText
+     *            partition regular expression
+     * @param separatorRegExpText
+     *            separator regular expression
      */
-    //TODO: make this take in a List<String> regExpText to allow multiple regExps
-    //      noted in Issue151
-    public void setInputs(String logText,
-            String regExpText, String partitionRegExpText,
-            String separatorRegExpText) {
-    	this.logTextArea.setText(logText);
-    	this.primaryRegExpsTextArea.setText(regExpText);
-    	this.partitionRegExpTextBox.setText(partitionRegExpText);
-    	this.separatorRegExpTextBox.setText(separatorRegExpText);
+    // TODO: make this take in a List<String> regExpText to allow multiple
+    // regExps noted in Issue151
+    public void setInputs(String logText, String regExpText,
+            String partitionRegExpText, String separatorRegExpText) {
+        this.logTextArea.setText(logText);
+        this.primaryRegExpsTextArea.setText(regExpText);
+        this.partitionRegExpTextBox.setText(partitionRegExpText);
+        this.separatorRegExpTextBox.setText(separatorRegExpText);
     }
-    
+
     // Sets all input field values to be empty strings.
     private void clearInputValues() {
         logTextArea.setValue("");
@@ -251,23 +253,31 @@ public class InputPanel extends Tab<VerticalPanel> {
         separatorRegExpTextBox.setValue("");
         partitionRegExpTextBox.setValue("");
     }
-    
+
     // Extracts all regular expressions into a list.
     private List<String> extractAllRegExps() {
         List<String> result = new LinkedList<String>();
-        result.addAll(getRegExps(primaryRegExpsTextArea));
+        List<String> currRegExps;
+
+        currRegExps = getRegExps(primaryRegExpsTextArea);
+        if (currRegExps != null) {
+            result.addAll(currRegExps);
+        }
+
         for (int i = 0; i < extraRegExpPanel.getWidgetCount(); i++) {
             // Extract text area from panel within extraRegExpPanel
-            HorizontalPanel currPanel = (HorizontalPanel) extraRegExpPanel.getWidget(i);
+            HorizontalPanel currPanel = (HorizontalPanel) extraRegExpPanel
+                    .getWidget(i);
             TextArea currTextArea = (TextArea) currPanel.getWidget(0);
-            List<String> currRegExps = getRegExps(currTextArea);
+
+            currRegExps = getRegExps(currTextArea);
             if (currRegExps != null) {
-                result.addAll(getRegExps(currTextArea));
+                result.addAll(currRegExps);
             }
         }
         return result;
     }
-    
+
     // Extracts regular expressions in text area for log parsing.
     // If reg exp is empty string, list returns null
     private List<String> getRegExps(TextArea textArea) {
@@ -276,10 +286,8 @@ public class InputPanel extends Tab<VerticalPanel> {
             String regExpLines[] = textArea.getText().split("\\r?\\n");
             List<String> regExps = Arrays.asList(regExpLines);
             return regExps;
-        } else {
-            return null;
         }
-        
+        return null;
     }
 
     // Extracts expression from text box for log parsing.
@@ -290,7 +298,7 @@ public class InputPanel extends Tab<VerticalPanel> {
         }
         return expression;
     }
-    
+
     // Sets up properties for given TextArea.
     private void setUpTextArea(TextArea textArea) {
         textArea.setValue("");
@@ -298,10 +306,9 @@ public class InputPanel extends Tab<VerticalPanel> {
         textArea.setName("regExpsTextArea");
         textArea.addKeyUpHandler(new KeyUpInputHandler());
     }
-    
+
     /**
-     * Adds a new reg exp text area with a corresponding
-     * delete button.
+     * Adds a new reg exp text area with a corresponding delete button.
      */
     class AddRegExpHandler implements ClickHandler {
 
@@ -318,27 +325,26 @@ public class InputPanel extends Tab<VerticalPanel> {
             extraRegExpPanel.add(textAreaAndDeleteHolder);
         }
     }
-    
+
     /**
-     * Clears inputs and enables all the log example links
-     * and disables upload/parse log buttons.
+     * Clears inputs and enables all the log example links and disables
+     * upload/parse log buttons.
      */
     class ClearInputsHandler implements ClickHandler {
 
-		@Override
-		public void onClick(ClickEvent event) {
-		    logFileUploadForm.reset();
-		    logTextArea.setEnabled(true);
-		    uploadLogFileButton.setEnabled(false);
-			parseLogButton.setEnabled(false);
-			regExpDefaultLabel.setVisible(true);
-			partitionRegExpDefaultLabel.setVisible(true);
-		}	
+        @Override
+        public void onClick(ClickEvent event) {
+            logFileUploadForm.reset();
+            logTextArea.setEnabled(true);
+            uploadLogFileButton.setEnabled(false);
+            parseLogButton.setEnabled(false);
+            regExpDefaultLabel.setVisible(true);
+            partitionRegExpDefaultLabel.setVisible(true);
+        }
     }
-    
+
     /**
-     * Removes the text area to the left of the clicked
-     * delete button.
+     * Removes the text area to the left of the clicked delete button.
      */
     class DeleteTextAreaHandler implements ClickHandler {
 
@@ -347,26 +353,29 @@ public class InputPanel extends Tab<VerticalPanel> {
             Button clicked = (Button) event.getSource();
             clicked.getParent().removeFromParent();
         }
-        
+
     }
-    
+
     /**
-     *  Handles clicks on example log anchors. Loads the associated log/re content into
-     *  the proper text areas and text boxes.
+     * Handles clicks on example log anchors. Loads the associated log/re
+     * content into the proper text areas and text boxes.
      */
     class ExampleLinkHandler implements ClickHandler {
-        
+
         @Override
         public void onClick(ClickEvent event) {
             // Clears all inputs and uploads
             logFileUploadForm.reset();
             InputExample[] inputExamples = InputExample.values();
             for (int i = 1; i < examplesGrid.getRowCount(); i++) {
-                VerticalPanel curr = (VerticalPanel) examplesGrid.getWidget(i, 0);
+                VerticalPanel curr = (VerticalPanel) examplesGrid.getWidget(i,
+                        0);
                 if (event.getSource() == curr.getWidget(0)) {
-                    InputExample currExample = inputExamples[i-1];
-                    setInputs(currExample.getLogText(), currExample.getRegExpText(), 
-                            currExample.getPartitionRegExpText(), currExample.getSeparatorRegExpText());
+                    InputExample currExample = inputExamples[i - 1];
+                    setInputs(currExample.getLogText(),
+                            currExample.getRegExpText(),
+                            currExample.getPartitionRegExpText(),
+                            currExample.getSeparatorRegExpText());
                 }
             }
             if (primaryRegExpsTextArea.getValue().trim().length() != 0) {
@@ -382,19 +391,19 @@ public class InputPanel extends Tab<VerticalPanel> {
             // Clear extra reg exps text areas
             extraRegExpPanel.clear();
             parseLogButton.setEnabled(true);
-        }   
+        }
     }
-    
+
     /**
-     * A subclass of text area that allows the browser to capture 
-     * a paste event and enable that parse log button. 
+     * A subclass of text area that allows the browser to capture a paste event
+     * and enable that parse log button.
      */
     class ExtendedTextArea extends TextArea {
         public ExtendedTextArea() {
             super();
             sinkEvents(Event.ONPASTE);
         }
-        
+
         @Override
         public void onBrowserEvent(Event event) {
             super.onBrowserEvent(event);
@@ -409,21 +418,20 @@ public class InputPanel extends Tab<VerticalPanel> {
                         }
                     }
                 });
-              break;
+                break;
             }
         }
     }
-    
+
     /**
-     * A subclass of text box that allows the browser capture 
-     * a paste event. 
+     * A subclass of text box that allows the browser capture a paste event.
      */
     class ExtendedTextBox extends TextBox {
         public ExtendedTextBox() {
             super();
             sinkEvents(Event.ONPASTE);
         }
-        
+
         // Displays the default partition reg exp. if a paste event results
         // in an empty textbox.
         @Override
@@ -439,11 +447,11 @@ public class InputPanel extends Tab<VerticalPanel> {
                         }
                     }
                 });
-              break;
+                break;
             }
         }
     }
-    
+
     /**
      * Handles when a file is selected is to be uploaded. Enables parse log
      * button and clears any prior inputs in fields when a file is chosen.
@@ -452,7 +460,8 @@ public class InputPanel extends Tab<VerticalPanel> {
 
         @Override
         public void onChange(ChangeEvent event) {
-            if (uploadLogFileButton.getFilename() != null && logFileRadioButton.isEnabled()) {
+            if (uploadLogFileButton.getFilename() != null
+                    && logFileRadioButton.isEnabled()) {
                 parseLogButton.setEnabled(true);
                 clearInputValues();
                 regExpDefaultLabel.setVisible(true);
@@ -462,7 +471,7 @@ public class InputPanel extends Tab<VerticalPanel> {
             }
         }
     }
-    
+
     /**
      * Handles KeyPress events for all the log input fields. Enables/disables
      * fields, labels, or buttons according to empty or non-empty fields.
@@ -472,7 +481,8 @@ public class InputPanel extends Tab<VerticalPanel> {
         public void onKeyUp(KeyUpEvent event) {
             if (event.getSource() == logTextArea) {
                 // Parse log enabled if log text area is not empty.
-                if (logTextRadioButton.isEnabled() && logTextArea.getValue().trim().length() != 0) {
+                if (logTextRadioButton.isEnabled()
+                        && logTextArea.getValue().trim().length() != 0) {
                     parseLogButton.setEnabled(true);
                 } else {
                     parseLogButton.setEnabled(false);
@@ -492,7 +502,7 @@ public class InputPanel extends Tab<VerticalPanel> {
             }
         }
     }
-    
+
     /**
      * Called after log file uploaded is saved on server side. Handles calling
      * SynopticService to read and parse contents of the log file uploaded by
@@ -512,7 +522,7 @@ public class InputPanel extends Tab<VerticalPanel> {
             // //////////////////////
         }
     }
-    
+
     /**
      * Handles enabling/disabling of text area or file upload button when log
      * type radio buttons are changed.
@@ -534,7 +544,7 @@ public class InputPanel extends Tab<VerticalPanel> {
                 uploadLogFileButton.setEnabled(true);
                 if (logTextArea.isEnabled()) {
                     logTextArea.setEnabled(false);
-                } 
+                }
                 if (uploadLogFileButton.getFilename() != null) {
                     parseLogButton.setEnabled(false);
                 } else {
@@ -590,20 +600,22 @@ public class InputPanel extends Tab<VerticalPanel> {
             if (caught instanceof SerializableParseException) {
                 SerializableParseException exception = (SerializableParseException) caught;
                 // If the exception has both a regex and a logline, then only
-                // the TextArea
-                // that sets their highlighting last will have highlighting.
-                // A secret dependency for TextArea highlighting is focus.
-                // As of now, 9/12/11, SerializableParseExceptions do not get
-                // thrown with both a regex and a logline.
+                // the TextArea that sets their highlighting last will have
+                // highlighting. A secret dependency for TextArea highlighting
+                // is focus. As of now, 9/12/11, SerializableParseExceptions do
+                // not get thrown with both a regex and a logline.
                 if (exception.hasRegex()) {
                     String regex = exception.getRegex();
-                    //TODO: currently error handling only for primary regexps textarea,
-                    //      extend to all extra reg exp text area also.
-                    //      Noted in Issue152
+
+                    // TODO: currently error handling only for primary regexps
+                    // textarea, extend to all extra reg exp text area also.
+                    // Noted in Issue152
+
                     String regexes = primaryRegExpsTextArea.getText();
                     int pos = indexOf(regexes, regex);
                     primaryRegExpsTextArea.setFocus(true);
-                    primaryRegExpsTextArea.setSelectionRange(pos, regex.length());
+                    primaryRegExpsTextArea.setSelectionRange(pos,
+                            regex.length());
                 }
                 if (exception.hasLogLine()) {
                     String log = exception.getLogLine();
