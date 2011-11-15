@@ -272,7 +272,7 @@ public class ModelTab extends Tab<DockPanel> {
 				- (buttonsPanel.getOffsetWidth() + 50);
 		int height = Window.getClientHeight() - 100;
 		graphPanel.setPixelSize(width, height);
-		ModelGraphic.resizeGraph(width, height);
+		ModelGraphic.resizeGraph(canvasId, width, height);
 	}
 
 	/**
