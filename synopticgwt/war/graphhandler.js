@@ -41,11 +41,6 @@ var GRAPH_HANDLER = {
 	"getGraph" : function() {
 		return this.graph;
 	},
-	
-	// Sets the renderer.
-	"setRenderer" : function(renderer) {
-		this.rend = renderer || this.rend;
-	},
 
 	// provides instructions for how to render a node. accepts the canvas to be
 	// drawn on
