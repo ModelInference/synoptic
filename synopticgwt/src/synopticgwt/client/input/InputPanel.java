@@ -233,6 +233,8 @@ public class InputPanel extends Tab<VerticalPanel> {
      * @param partitionRegExpText partition regular expression
      * @param separatorRegExpText separator regular expression
      */
+    //TODO: make this take in a List<String> regExpText to allow multiple regExps
+    //      noted in Issue151
     public void setInputs(String logText,
             String regExpText, String partitionRegExpText,
             String separatorRegExpText) {
@@ -258,16 +260,26 @@ public class InputPanel extends Tab<VerticalPanel> {
             // Extract text area from panel within extraRegExpPanel
             HorizontalPanel currPanel = (HorizontalPanel) extraRegExpPanel.getWidget(i);
             TextArea currTextArea = (TextArea) currPanel.getWidget(0);
-            result.addAll(getRegExps(currTextArea));
+            List<String> currRegExps = getRegExps(currTextArea);
+            if (currRegExps != null) {
+                result.addAll(getRegExps(currTextArea));
+            }
         }
         return result;
     }
     
     // Extracts regular expressions in text area for log parsing.
+    // If reg exp is empty string, list returns null
     private List<String> getRegExps(TextArea textArea) {
-        String regExpLines[] = textArea.getText().split("\\r?\\n");
-        List<String> regExps = Arrays.asList(regExpLines);
-        return regExps;
+        String text = textArea.getText();
+        if (text.trim().length() != 0) {
+            String regExpLines[] = textArea.getText().split("\\r?\\n");
+            List<String> regExps = Arrays.asList(regExpLines);
+            return regExps;
+        } else {
+            return null;
+        }
+        
     }
 
     // Extracts expression from text box for log parsing.
@@ -585,8 +597,9 @@ public class InputPanel extends Tab<VerticalPanel> {
                 // thrown with both a regex and a logline.
                 if (exception.hasRegex()) {
                     String regex = exception.getRegex();
-                    //TODO currently error handling only for primary regexps textarea,
-                    //     extend to all extra reg exp text area also.
+                    //TODO: currently error handling only for primary regexps textarea,
+                    //      extend to all extra reg exp text area also.
+                    //      Noted in Issue152
                     String regexes = primaryRegExpsTextArea.getText();
                     int pos = indexOf(regexes, regex);
                     primaryRegExpsTextArea.setFocus(true);
