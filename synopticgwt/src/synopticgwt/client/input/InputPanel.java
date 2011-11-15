@@ -1,6 +1,5 @@
 package synopticgwt.client.input;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -62,9 +61,39 @@ public class InputPanel extends Tab<VerticalPanel> {
     final RadioButton logFileRadioButton = new RadioButton("logInputType",
             "Text file");
 
-    final ExtendedTextArea logTextArea = new ExtendedTextArea();
-    final ExtendedTextArea primaryRegExpsTextArea = new ExtendedTextArea();
-    final ExtendedTextBox partitionRegExpTextBox = new ExtendedTextBox();
+    final ExtendedTextArea logTextArea = new ExtendedTextArea(
+            new ScheduledCommand() {
+                @Override
+                public void execute() {
+                    // Enable parse log button if pasting non-empty text.
+                    if (logTextArea.getValue().trim().length() != 0) {
+                        parseLogButton.setEnabled(true);
+                    }
+                }
+            });
+
+    final ExtendedTextBox primaryRegExpsTextBox = new ExtendedTextBox(
+            new ScheduledCommand() {
+                @Override
+                public void execute() {
+                    // Hide the default reg-exp label if pasting non-empty text.
+                    if (primaryRegExpsTextBox.getValue().trim().length() != 0) {
+                        regExpDefaultLabel.setVisible(false);
+                    }
+                }
+            });
+
+    final ExtendedTextBox partitionRegExpTextBox = new ExtendedTextBox(
+            new ScheduledCommand() {
+                @Override
+                public void execute() {
+                    // Hide the default reg-exp label if pasting non-empty text.
+                    if (partitionRegExpTextBox.getValue().trim().length() != 0) {
+                        partitionRegExpDefaultLabel.setVisible(false);
+                    }
+                }
+            });
+
     final TextBox separatorRegExpTextBox = new TextBox();
     final FileUpload uploadLogFileButton = new FileUpload();
     final VerticalPanel extraRegExpPanel = new VerticalPanel();
@@ -150,11 +179,11 @@ public class InputPanel extends Tab<VerticalPanel> {
 
         Grid regExpsPanelHolder = new Grid(4, 1);
         regExpsPanelHolder.setWidget(0, 0, regExpDefaultLabel);
-        regExpsPanelHolder.setWidget(1, 0, primaryRegExpsTextArea);
+        regExpsPanelHolder.setWidget(1, 0, primaryRegExpsTextBox);
         regExpsPanelHolder.setWidget(2, 0, extraRegExpPanel);
         regExpsPanelHolder.setWidget(3, 0, addRegExpButton);
         grid.setWidget(1, 1, regExpsPanelHolder);
-        setUpTextArea(primaryRegExpsTextArea);
+        setUpTextBox(primaryRegExpsTextBox);
 
         VerticalPanel partitionExpPanel = new VerticalPanel();
         partitionExpPanel.add(partitionRegExpDefaultLabel);
@@ -241,7 +270,7 @@ public class InputPanel extends Tab<VerticalPanel> {
     public void setInputs(String logText, String regExpText,
             String partitionRegExpText, String separatorRegExpText) {
         this.logTextArea.setText(logText);
-        this.primaryRegExpsTextArea.setText(regExpText);
+        this.primaryRegExpsTextBox.setText(regExpText);
         this.partitionRegExpTextBox.setText(partitionRegExpText);
         this.separatorRegExpTextBox.setText(separatorRegExpText);
     }
@@ -249,7 +278,7 @@ public class InputPanel extends Tab<VerticalPanel> {
     // Sets all input field values to be empty strings.
     private void clearInputValues() {
         logTextArea.setValue("");
-        primaryRegExpsTextArea.setValue("");
+        primaryRegExpsTextBox.setValue("");
         separatorRegExpTextBox.setValue("");
         partitionRegExpTextBox.setValue("");
     }
@@ -257,37 +286,25 @@ public class InputPanel extends Tab<VerticalPanel> {
     // Extracts all regular expressions into a list.
     private List<String> extractAllRegExps() {
         List<String> result = new LinkedList<String>();
-        List<String> currRegExps;
+        String currRegExps;
 
-        currRegExps = getRegExps(primaryRegExpsTextArea);
-        if (currRegExps != null) {
-            result.addAll(currRegExps);
+        currRegExps = getTextBoxRegExp(primaryRegExpsTextBox);
+        if (!currRegExps.equals("")) {
+            result.add(currRegExps);
         }
 
         for (int i = 0; i < extraRegExpPanel.getWidgetCount(); i++) {
             // Extract text area from panel within extraRegExpPanel
             HorizontalPanel currPanel = (HorizontalPanel) extraRegExpPanel
                     .getWidget(i);
-            TextArea currTextArea = (TextArea) currPanel.getWidget(0);
+            TextBox currTextArea = (TextBox) currPanel.getWidget(0);
 
-            currRegExps = getRegExps(currTextArea);
-            if (currRegExps != null) {
-                result.addAll(currRegExps);
+            currRegExps = getTextBoxRegExp(currTextArea);
+            if (!currRegExps.equals("")) {
+                result.add(currRegExps);
             }
         }
         return result;
-    }
-
-    // Extracts regular expressions in text area for log parsing.
-    // If reg exp is empty string, list returns null
-    private List<String> getRegExps(TextArea textArea) {
-        String text = textArea.getText();
-        if (text.trim().length() != 0) {
-            String regExpLines[] = textArea.getText().split("\\r?\\n");
-            List<String> regExps = Arrays.asList(regExpLines);
-            return regExps;
-        }
-        return null;
     }
 
     // Extracts expression from text box for log parsing.
@@ -300,11 +317,11 @@ public class InputPanel extends Tab<VerticalPanel> {
     }
 
     // Sets up properties for given TextArea.
-    private void setUpTextArea(TextArea textArea) {
-        textArea.setValue("");
-        textArea.setCharacterWidth(80);
-        textArea.setName("regExpsTextArea");
-        textArea.addKeyUpHandler(new KeyUpInputHandler());
+    private void setUpTextBox(ExtendedTextBox textBox) {
+        textBox.setValue("");
+        textBox.setVisibleLength(80);
+        textBox.setName("regExpsTextArea");
+        textBox.addKeyUpHandler(new KeyUpInputHandler());
     }
 
     /**
@@ -314,13 +331,22 @@ public class InputPanel extends Tab<VerticalPanel> {
 
         @Override
         public void onClick(ClickEvent event) {
-            TextArea newTextArea = new ExtendedTextArea();
-            setUpTextArea(newTextArea);
+            ExtendedTextBox newTextBox = new ExtendedTextBox(
+                    new ScheduledCommand() {
+                        @Override
+                        public void execute() {
+                            if (primaryRegExpsTextBox.getValue().trim()
+                                    .length() != 0) {
+                                regExpDefaultLabel.setVisible(false);
+                            }
+                        }
+                    });
+            setUpTextBox(newTextBox);
             Button deleteButton = new Button("-");
             deleteButton.addStyleName("DeleteButton");
             deleteButton.addClickHandler(new DeleteTextAreaHandler());
             HorizontalPanel textAreaAndDeleteHolder = new HorizontalPanel();
-            textAreaAndDeleteHolder.add(newTextArea);
+            textAreaAndDeleteHolder.add(newTextBox);
             textAreaAndDeleteHolder.add(deleteButton);
             extraRegExpPanel.add(textAreaAndDeleteHolder);
         }
@@ -378,7 +404,7 @@ public class InputPanel extends Tab<VerticalPanel> {
                             currExample.getSeparatorRegExpText());
                 }
             }
-            if (primaryRegExpsTextArea.getValue().trim().length() != 0) {
+            if (primaryRegExpsTextBox.getValue().trim().length() != 0) {
                 regExpDefaultLabel.setVisible(false);
             } else {
                 regExpDefaultLabel.setVisible(true);
@@ -388,19 +414,25 @@ public class InputPanel extends Tab<VerticalPanel> {
             } else {
                 partitionRegExpDefaultLabel.setVisible(true);
             }
-            // Clear extra reg exps text areas
+            // Clear extra reg exps text areas.
             extraRegExpPanel.clear();
             parseLogButton.setEnabled(true);
         }
     }
 
+    // TODO: ExtendedTextArea and ExtendedTextBox have identical code. They need
+    // to be refactored into the same object
+
     /**
      * A subclass of text area that allows the browser to capture a paste event
-     * and enable that parse log button.
+     * and runs a custom command for the event.
      */
     class ExtendedTextArea extends TextArea {
-        public ExtendedTextArea() {
+        ScheduledCommand cmd;
+
+        public ExtendedTextArea(ScheduledCommand cmd) {
             super();
+            this.cmd = cmd;
             sinkEvents(Event.ONPASTE);
         }
 
@@ -409,26 +441,22 @@ public class InputPanel extends Tab<VerticalPanel> {
             super.onBrowserEvent(event);
             switch (DOM.eventGetType(event)) {
             case Event.ONPASTE:
-                Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        // Enable parse log button if pasting non-empty text.
-                        if (logTextArea.getValue().trim().length() != 0) {
-                            parseLogButton.setEnabled(true);
-                        }
-                    }
-                });
+                Scheduler.get().scheduleDeferred(this.cmd);
                 break;
             }
         }
     }
 
     /**
-     * A subclass of text box that allows the browser capture a paste event.
+     * A subclass of text box that allows the browser to capture a paste event
+     * and runs a custom command for the event.
      */
     class ExtendedTextBox extends TextBox {
-        public ExtendedTextBox() {
+        ScheduledCommand cmd;
+
+        public ExtendedTextBox(ScheduledCommand cmd) {
             super();
+            this.cmd = cmd;
             sinkEvents(Event.ONPASTE);
         }
 
@@ -439,14 +467,7 @@ public class InputPanel extends Tab<VerticalPanel> {
             super.onBrowserEvent(event);
             switch (DOM.eventGetType(event)) {
             case Event.ONPASTE:
-                Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        if (partitionRegExpTextBox.getValue().trim().length() != 0) {
-                            partitionRegExpDefaultLabel.setVisible(false);
-                        }
-                    }
-                });
+                Scheduler.get().scheduleDeferred(this.cmd);
                 break;
             }
         }
@@ -487,8 +508,8 @@ public class InputPanel extends Tab<VerticalPanel> {
                 } else {
                     parseLogButton.setEnabled(false);
                 }
-            } else if (event.getSource() == primaryRegExpsTextArea) {
-                if (primaryRegExpsTextArea.getValue().trim().length() != 0) {
+            } else if (event.getSource() == primaryRegExpsTextBox) {
+                if (primaryRegExpsTextBox.getValue().trim().length() != 0) {
                     regExpDefaultLabel.setVisible(false);
                 } else {
                     regExpDefaultLabel.setVisible(true);
@@ -611,11 +632,11 @@ public class InputPanel extends Tab<VerticalPanel> {
                     // textarea, extend to all extra reg exp text area also.
                     // Noted in Issue152
 
-                    String regexes = primaryRegExpsTextArea.getText();
+                    String regexes = primaryRegExpsTextBox.getText();
                     int pos = indexOf(regexes, regex);
-                    primaryRegExpsTextArea.setFocus(true);
-                    primaryRegExpsTextArea.setSelectionRange(pos,
-                            regex.length());
+                    primaryRegExpsTextBox.setFocus(true);
+                    primaryRegExpsTextBox
+                            .setSelectionRange(pos, regex.length());
                 }
                 if (exception.hasLogLine()) {
                     String log = exception.getLogLine();
