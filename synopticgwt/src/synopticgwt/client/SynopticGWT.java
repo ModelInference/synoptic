@@ -151,7 +151,7 @@ public class SynopticGWT implements EntryPoint {
         	// model updated until hopefully they release the mouse.
         	@Override
         	public void onResize(ResizeEvent event) {
-        		resizeTimer.schedule(555);
+        		resizeTimer.schedule(200);
         	}
         });
 
