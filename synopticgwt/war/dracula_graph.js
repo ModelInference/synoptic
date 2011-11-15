@@ -367,12 +367,11 @@ Graph.Layout.Spring.prototype = {
              var x = this.graph.nodes[i].layoutPosX;
              var y = this.graph.nodes[i].layoutPosY;
 
-             // Shameless hack for keeping all nodes from being
-             // drawn off of the edges.
-            if(x > maxx) maxx = x + 0.5;
-            if(x < minx) minx = x - 0.5;
-            if(y > maxy) maxy = y + 0.5;
-            if(y < miny) miny = y - 0.5;
+             // Keeps nodes away from the edges.
+            if(x > maxx) maxx = x + 0.6;
+            if(x < minx) minx = x - 0.6;
+            if(y > maxy) maxy = y + 0.6;
+            if(y < miny) miny = y - 0.6;
         }
 
         this.graph.layoutMinX = minx;
