@@ -26,6 +26,11 @@ var GRAPH_HANDLER = {
 	"getRenderer" : function() {
 		return this.rend;
 	},
+	
+	// Returns all of the current nodes.
+	"getCurrentNodes" : function () {
+		return this.currentNodes;
+	},
 
 	// returns this graph's layouter
 	"getLayouter" : function() {
@@ -35,6 +40,11 @@ var GRAPH_HANDLER = {
 	// returns this graph
 	"getGraph" : function() {
 		return this.graph;
+	},
+	
+	// Sets the renderer.
+	"setRenderer" : function(renderer) {
+		this.rend = renderer || this.rend;
 	},
 
 	// provides instructions for how to render a node. accepts the canvas to be
