@@ -19,6 +19,15 @@
  *
  *  Graph Dracula JavaScript Framework:
  *      http://graphdracula.net
+ *  
+ *  ///////////////////////////////////
+ *  
+ *  IMPORTANT NOTE:
+ *  	This file has contains code modifications, which may need to be
+ *  	retained when updating the library.  The modified sections of code
+ *  	are clearly marked in a style similar to this comment.
+ *  
+ *  ///////////////////////////////////
  *
  /*--------------------------------------------------------------------------*/
 
@@ -103,9 +112,24 @@ Graph.prototype = {
         delete this.nodes[id];
         for(var i = 0; i < this.edges.length; i++) {
             if (this.edges[i].source.id == id || this.edges[i].target.id == id) {
+            	
+            	
+            	/*////////////////////////////////////////////////////
+                 * 
+                 * THIS CODE IS NOT ORIGINALLY PART OF THE LIBRARY.
+                 * if the library is updated, changes here might be lost.
+                 * 
+                 *////////////////////////////////////////////////////
+            	
             	// Hide the label (TODO: put this somewhere more appropriate, like 
             	// in the hide function for the edge itself).
             	this.edges[i].connection && this.edges[i].connection.label.hide();
+            	
+            	/*///////////////////////////////////////////////////////
+            	 * 
+            	 * END OF MODIFIED CODE
+            	 * 
+            	 *///////////////////////////////////////////////////////
             	this.edges[i].hide();
                 this.edges.splice(i, 1);
                 i--;
@@ -367,11 +391,24 @@ Graph.Layout.Spring.prototype = {
              var x = this.graph.nodes[i].layoutPosX;
              var y = this.graph.nodes[i].layoutPosY;
 
+            /*////////////////////////////////////////////////////
+             * 
+             * THIS CODE IS NOT ORIGINALLY PART OF THE LIBRARY.
+             * if the library is updated, changes here might be lost.
+             * 
+             *////////////////////////////////////////////////////
+             
              // Keeps nodes away from the edges.
             if(x > maxx) maxx = x + 0.6;
             if(x < minx) minx = x - 0.6;
             if(y > maxy) maxy = y + 0.6;
             if(y < miny) miny = y - 0.6;
+            
+            /*///////////////////////////////////////////////////////
+             * 
+             * END OF MODIFICATION.
+             * 
+             *///////////////////////////////////////////////////////
         }
 
         this.graph.layoutMinX = minx;
