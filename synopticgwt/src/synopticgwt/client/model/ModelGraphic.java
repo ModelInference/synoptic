@@ -102,7 +102,8 @@ public class ModelGraphic {
 	/**
 	 * A JSNI method for updating the graph. This is supposed to be called upon
 	 * resizing the graph, as the graph is assumed not to have changed at all
-	 * when calling this method.
+	 * when calling this method.  Changes the size of the Raphael canvas and the
+	 * model div to the width and height of the parameters.
 	 * 
 	 * @param canvasId
 	 *            the div id with which to associate the resulting graph
@@ -111,7 +112,7 @@ public class ModelGraphic {
 	 * @param height
 	 *            The new height of the graph's canvas.
 	 */
-	public static native void resizeGraph(String canvasId, int width, int height) /*-{
+	public static native void resizeGraph(int width, int height) /*-{
 		
 		// Get the current layout so it can be updated.
 		var layouter = $wnd.GRAPH_HANDLER.getLayouter();
@@ -121,17 +122,17 @@ public class ModelGraphic {
 				.getCurrentNodes());
 
 		// Grab a pointer to the current renderer.
-		var renderer = $wnd.GRAPH_HANDLER.getRenderer();
+		var rend = $wnd.GRAPH_HANDLER.getRenderer();
 		
-		// Change the appropriate height/width of the renderer.
-		renderer.width = width;
-		renderer.height = height;
+		// Change the appropriate height/width of the div.
+		rend.width = width;
+		rend.height = height;
 		
 		// Change the width/height of the Raphael canvas.
-		renderer.r.setSize(width, height);
+		rend.r.setSize(width, height);
 
 		// Draw the new graph with all of the repositioned nodes.
-		renderer.draw();
+		rend.draw();
 	}-*/;
 
 	// </JSNI methods>
