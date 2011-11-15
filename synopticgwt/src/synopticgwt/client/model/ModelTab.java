@@ -187,7 +187,6 @@ public class ModelTab extends Tab<DockPanel> {
 		// calculated.
 		// The minus 100 as also arbitrary and needs a better way to be
 		// calculated.
-		// TODO: make sizing more robust, and allow users to resize the graphic
 		int width = Window.getClientWidth()
 				- (buttonsPanel.getOffsetWidth() + 50);
 		int height = Window.getClientHeight() - 100;

@@ -7,11 +7,8 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
 import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
@@ -21,6 +18,7 @@ import com.google.gwt.user.client.ui.TabPanel;
 import synopticgwt.client.input.InputTab;
 import synopticgwt.client.invariants.InvariantsTab;
 import synopticgwt.client.model.ModelTab;
+import synopticgwt.client.util.ModelResizeHandler;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTInvariantSet;
@@ -129,32 +127,11 @@ public class SynopticGWT implements EntryPoint {
                 tabBeforeSelected(event);
             }
         });
-        
-        // Add resize event handler for ModelTab.
-        Window.addResizeHandler(new ResizeHandler() {
-        	
-        	// Timer is here to delay any unnecessary updating.
-        	// since it gets rather heavy and can cause problems
-        	// when rendering the canvas too frequently.
-        	Timer resizeTimer = new Timer() {  
-	    	    @Override
-	    	    public void run() {
-	    	    	// If the tab is active, resize the canvas
-	        		// and redraw the graph (with fancy animation).
-	        		if (modelTab.isEnabled())
-	        			modelTab.updateGraphPanel();
-	    	    }
-        	};
-        	
-        	// The pause time for the timer is arbitrary at the moment,
-        	// but allows the user to resize the window and not have the
-        	// model updated until hopefully they release the mouse.
-        	@Override
-        	public void onResize(ResizeEvent event) {
-        		resizeTimer.schedule(200);
-        	}
-        });
 
+        // Add handler for when the window is resized while viewing the model.
+        // wait until 200 milliseconds after the last window update event
+        // to redraw the model.
+        Window.addResizeHandler(new ModelResizeHandler(modelTab, 200));
     }
 
     /**
