@@ -364,13 +364,15 @@ Graph.Layout.Spring.prototype = {
         var minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
 
         for (i in this.graph.nodes) {
-            var x = this.graph.nodes[i].layoutPosX;
-            var y = this.graph.nodes[i].layoutPosY;
+             var x = this.graph.nodes[i].layoutPosX;
+             var y = this.graph.nodes[i].layoutPosY;
 
-            if(x > maxx) maxx = x;
-            if(x < minx) minx = x;
-            if(y > maxy) maxy = y;
-            if(y < miny) miny = y;
+             // Shameless hack for keeping all nodes from being
+             // drawn off of the edges.
+            if(x > maxx) maxx = x + 0.5;
+            if(x < minx) minx = x - 0.5;
+            if(y > maxy) maxy = y + 0.5;
+            if(y < miny) miny = y - 0.5;
         }
 
         this.graph.layoutMinX = minx;

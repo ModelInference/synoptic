@@ -6,29 +6,29 @@ import com.google.gwt.core.client.JavaScriptObject;
  * Used to create the graphic representing the Synoptic model.
  */
 public class ModelGraphic {
-    // //////////////////////////////////////////////////////////////////////////
-    // JSNI methods -- JavaScript Native Interface methods. The method body of
-    // these calls is pure JavaScript.
+	// //////////////////////////////////////////////////////////////////////////
+	// JSNI methods -- JavaScript Native Interface methods. The method body of
+	// these calls is pure JavaScript.
 
-    /**
-     * A JSNI method to create and display a graph.
-     * 
-     * @param modelTab
-     *            A reference to the modelTab instance containing this graphic.
-     * @param nodes
-     *            An array of nodes, each consecutive pair is a <id,label>
-     * @param edges
-     *            An array of edges, each consecutive pair is <node id, node id>
-     * @param width
-     *            width of the graph
-     * @param height
-     *            height of the graph
-     * @param canvasId
-     *            the div id with which to associate the resulting graph
-     */
-    public native void createGraph(ModelTab modelTab, JavaScriptObject nodes,
-            JavaScriptObject edges, int width, int height, String canvasId,
-            String initial, String terminal) /*-{
+	/**
+	 * A JSNI method to create and display a graph.
+	 * 
+	 * @param modelTab
+	 *            A reference to the modelTab instance containing this graphic.
+	 * @param nodes
+	 *            An array of nodes, each consecutive pair is a <id,label>
+	 * @param edges
+	 *            An array of edges, each consecutive pair is <node id, node id>
+	 * @param width
+	 *            width of the graph
+	 * @param height
+	 *            height of the graph
+	 * @param canvasId
+	 *            the div id with which to associate the resulting graph
+	 */
+	public static native void createGraph(ModelTab modelTab,
+			JavaScriptObject nodes, JavaScriptObject edges, int width,
+			int height, String canvasId, String initial, String terminal) /*-{
 		// Export the handleLogRequest globally.
 		$wnd.viewLogLines = function(id) {
 			modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
@@ -64,23 +64,23 @@ public class ModelGraphic {
 		// Store graph state.
 		$wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer,
 				layouter, g);
-    }-*/;
+	}-*/;
 
-    /**
-     * A JSNI method to update and display a refined graph, animating the
-     * transition to a new layout.
-     * 
-     * @param nodes
-     *            An array of nodes, each consecutive pair is a <id,label>
-     * @param edges
-     *            An array of edges, each consecutive pair is <node id, node id>
-     * @param refinedNode
-     *            the ID of the refined node
-     * @param canvasId
-     *            the div id with which to associate the resulting graph
-     */
-    public static native void createChangingGraph(JavaScriptObject nodes,
-            JavaScriptObject edges, int refinedNode, String canvasId) /*-{
+	/**
+	 * A JSNI method to update and display a refined graph, animating the
+	 * transition to a new layout.
+	 * 
+	 * @param nodes
+	 *            An array of nodes, each consecutive pair is a <id,label>
+	 * @param edges
+	 *            An array of edges, each consecutive pair is <node id, node id>
+	 * @param refinedNode
+	 *            the ID of the refined node
+	 * @param canvasId
+	 *            the div id with which to associate the resulting graph
+	 */
+	public static native void createChangingGraph(JavaScriptObject nodes,
+			JavaScriptObject edges, int refinedNode, String canvasId) /*-{
 
 		// update graph and fetch array of new nodes
 		var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges,
@@ -97,8 +97,33 @@ public class ModelGraphic {
 
 		// re-draw the graph, animating transitions from old to new position
 		renderer.draw();
-    }-*/;
+	}-*/;
 
-    // </JSNI methods>
-    // //////////////////////////////////////////////////////////////////////////
+	/**
+	 * A JSNI method for updating the graph. This is supposed to be called upon
+	 * resizing the graph, as the graph is assumed not to have changed at all
+	 * when calling this method.
+	 */
+	public static native void resizeGraph(int width, int height) /*-{
+		
+		// Get the current layout so it can be updated.
+		var layouter = $wnd.GRAPH_HANDLER.getLayouter();
+
+		// Update the layout for all nodes.
+		layouter.updateLayout($wnd.GRAPH_HANDLER.getGraph(), $wnd.GRAPH_HANDLER
+				.getCurrentNodes());
+
+		// Grab a pointer to the current renderer.
+		var renderer = $wnd.GRAPH_HANDLER.getRenderer();
+		
+		// Change the appropriate height/width of the renderer.
+		renderer.width = width;
+		renderer.height = height;
+
+		// Draw the new graph with all of the repositioned nodes.
+		renderer.draw();
+	}-*/;
+
+	// </JSNI methods>
+	// //////////////////////////////////////////////////////////////////////////
 }
