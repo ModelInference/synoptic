@@ -84,7 +84,9 @@ public class InputPanel extends Tab<VerticalPanel> {
         inputForm.add(parseErrorMsgLabel);
 
         // Set up links and labels for examples panel.
-        examplesGrid.setWidget(0, 0, new Label("Load example logs"));
+        Label exampleLogLabel = new Label("Load example logs");
+        exampleLogLabel.setStyleName("exampleLogLabel");
+        examplesGrid.setWidget(0, 0, exampleLogLabel);
         Label poLabel = new Label("Partially ordered");
         Label toLabel = new Label("Totally ordered");
         poLabel.setStyleName("logTypeLabel");

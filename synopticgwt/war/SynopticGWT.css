@@ -47,6 +47,10 @@ h1 {
   margin-bottom: 10px;
 }
 
+.exampleLogLabel {
+  margin-bottom: 10px;	
+}
+
 .logTypeLabel {
   color: #585858;
   font-size: 0.75em;	
