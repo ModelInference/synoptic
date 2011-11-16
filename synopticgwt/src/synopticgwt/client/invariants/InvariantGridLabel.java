@@ -10,23 +10,25 @@ import synopticgwt.shared.GWTInvariant;
  */
 public class InvariantGridLabel extends Label {
     private GWTInvariant inv;
-    private boolean activated;
 
     public InvariantGridLabel(GWTInvariant inv) {
-        super(inv.getSource() + ", " + inv.getTarget());
+        super(inv.getSource() + " "
+        		+ inv.getUnicodeTransitionType()
+        		+ " " + inv.getTarget());
         this.inv = inv;
-        this.activated = true;
+        setActive(true);
+    }
+    
+	public GWTInvariant getInvariant() {
+		return inv;
+	}
+
+    public boolean getActive() {
+        return inv.getActive();
     }
 
-    public GWTInvariant getInvariant() {
-        return this.inv;
+    public void setActive(boolean active) {
+        inv.setActive(active);
     }
 
-    public boolean getActivated() {
-        return activated;
-    }
-
-    public void setActivated(boolean newVal) {
-        activated = newVal;
-    }
 }

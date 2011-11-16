@@ -2,12 +2,15 @@ package synopticgwt.shared;
 
 import java.io.Serializable;
 
+import synopticgwt.client.invariants.GraphicInvariant;
+
 /**
  * A client-side counterpart to the temporal invariant for communication between
  * the server/client. Currently not all of the data within the server-side
  * temporal invariant classes can be converted to work with GWT.
  */
 public class GWTInvariant implements Serializable {
+	
     private static final long serialVersionUID = 1L;
 
     /** The first event label type for a binary invariant. */
@@ -23,11 +26,44 @@ public class GWTInvariant implements Serializable {
     // temporal invariant's hashCode.
     private int invID = 0;
 
+	private boolean active = true;
+
+    // private GraphicInvariant gInv;
+
     public GWTInvariant() {
         eFirst = null;
         eSecond = null;
         transitionType = null;
     }
+    
+    /**
+     * @param transType
+     * 	The type of the transition.
+     * @return The unicode representation of {@code transType}
+     */
+    public static String getUnicodeTransitionType(String transType) {
+    	if (transType.equals("AFby"))
+    		return"\u2192"; // ->
+    	else if (transType.equals("NFby"))
+    		return "\u219b"; // -/->
+    	else if (transType.equals("AP"))
+    		return "\u2190"; // <-
+    	else if (transType.equals("ACwith"))
+    		return "\u2016"; // ||
+    	else if (transType.equals("NCwith"))
+    		return "\u2226"; // || with a slash through it.
+    	else
+    		return ","; // The transition is undefined as of yet.
+    }
+    
+    /**
+     * @return A unicode representation of
+     * the GWTInvariant transition type.
+     */
+    public String getUnicodeTransitionType() {
+    	return getUnicodeTransitionType(transitionType);
+    }
+
 
     /**
      * Constructs a new GWTInvariant.
@@ -73,7 +109,7 @@ public class GWTInvariant implements Serializable {
     public String getTarget() {
         return eSecond;
     }
-
+    
     public String getTransitionType() {
         return transitionType;
     }
@@ -90,6 +126,25 @@ public class GWTInvariant implements Serializable {
     @Override
     public String toString() {
         return "<" + eFirst.toString() + "," + eSecond.toString() + ">";
+    }
+    
+    public void setActive(boolean active) {
+    	/*
+        if (this.active && !active) {
+            gInv.hide();
+        } else if (!this.active && active) {
+            gInv.show();
+        }
+        */
+    	this.active = active;
+    }
+    
+    public boolean getActive() {
+    	return active;
+    }
+
+    public void setGraphicInvariant(GraphicInvariant gInv) {
+        //this.gInv = gInv;
     }
 
 }

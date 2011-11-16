@@ -58,7 +58,7 @@ var Graph = function() {
     this.edgeFactory = new EdgeFactory();
 };
 Graph.prototype = {
-    /* 
+    /*
      * add a node
      * @id          the node's ID (string or number)
      * @content     (optional, dictionary) can contain any information that is
@@ -83,7 +83,7 @@ Graph.prototype = {
         // NOTE: Even directed edges are added to both nodes.
         t.edges.push(edge);
     },
-    
+
     /* TODO to be implemented
      * Preserve a copy of the graph state (nodes, positions, ...)
      * @comment     a comment describing the state
@@ -103,6 +103,9 @@ Graph.prototype = {
         delete this.nodes[id];
         for(var i = 0; i < this.edges.length; i++) {
             if (this.edges[i].source.id == id || this.edges[i].target.id == id) {
+            	// Hide the label (TODO: put this somewhere more appropriate, like 
+            	// in the hide function for the edge itself).
+            	this.edges[i].connection && this.edges[i].connection.label.hide();
             	this.edges[i].hide();
                 this.edges.splice(i, 1);
                 i--;
@@ -159,7 +162,7 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
             return;
         }
     }
-    
+
     /*
      * Dragging
      */
@@ -171,7 +174,7 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
         this.set && this.set.animate({"fill-opacity": .1}, 200) && this.set.toFront();
         e.preventDefault && e.preventDefault();
     };
-    
+
     var d = document.getElementById(element);
     d.onmousemove = function (e) {
         e = e || window.event;
@@ -200,7 +203,7 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
     this.draw();
 };
 Graph.Renderer.Raphael.prototype = {
-    
+
 	translate: function(point) {
         return [
             (point[0] - this.graph.layoutMinX) * this.factorX + this.radius,
@@ -224,15 +227,15 @@ Graph.Renderer.Raphael.prototype = {
             this.drawEdge(this.graph.edges[i]);
         }
     },
-    
+
     drawNode: function(node) {
-    	
+
         var point = this.translate([node.layoutPosX, node.layoutPosY]);
         node.point = point;
 
         /* if node has already been drawn, move the nodes */
         if(node.shape) {
-        	
+
         	// to move edges along with nodes
         	var updateEdges = function (graph, count, animationDuration) {
         		for (var i in graph.edges) {
@@ -246,16 +249,16 @@ Graph.Renderer.Raphael.prototype = {
         	var shape = node.render(this.r, node).hide();
         	var box = shape.getBBox();
         	shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)));
-        	
+
         	// animate all items in this node's set
         	for (var i = 0; i < node.shape.items.length; i++) {
         		node.shape.items[i].animate({x :shape.items[i].attr("x")}, this.animationDuration, '<>');
         		node.shape.items[i].animate({y :shape.items[i].attr("y")}, this.animationDuration, '<>');
         	}
-        	
+
         	// set timer to animate edges
         	setTimeout(updateEdges, 10, this.graph, 0, this.animationDuration);
-        
+
             return node;
         	/*
         	 * original behavior:
@@ -265,12 +268,12 @@ Graph.Renderer.Raphael.prototype = {
              * this.r.safari();
              * return node;
              */
-            
+
         }/* else, draw new nodes */
-        
+
         var shape;
 
-        /* if a node renderer function is provided by the user, then use it 
+        /* if a node renderer function is provided by the user, then use it
            or the default render function instead */
         if(!node.render) {
             node.render = function(r, node) {
@@ -300,7 +303,7 @@ Graph.Renderer.Raphael.prototype = {
         var box = shape.getBBox();
         shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)))
         //console.log(box,point);
-        
+
         node.hidden || shape.show();
         node.shape = shape;
     },
@@ -313,7 +316,7 @@ Graph.Renderer.Raphael.prototype = {
             edge.connection && edge.connection.fg.hide() | edge.connection.bg && edge.connection.bg.hide();
             return;
         }
-       
+
         /* if edge already has been drawn, only refresh the edge */
         if(!edge.connection) {
             edge.style && edge.style.callback && edge.style.callback(edge); // TODO move this somewhere else
@@ -324,7 +327,7 @@ Graph.Renderer.Raphael.prototype = {
         edge.connection.fg.show();
         edge.connection.bg && edge.connection.bg.show();
         edge.connection.draw();
-        
+
     }
 };
 Graph.Layout = {};
@@ -354,16 +357,16 @@ Graph.Layout.Spring.prototype = {
             node.layoutForceX = 0;
             node.layoutForceY = 0;
         }
-        
+
     },
-    
+
     layoutCalcBounds: function() {
         var minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
 
         for (i in this.graph.nodes) {
             var x = this.graph.nodes[i].layoutPosX;
             var y = this.graph.nodes[i].layoutPosY;
-            
+
             if(x > maxx) maxx = x;
             if(x < minx) minx = x;
             if(y > maxy) maxy = y;
@@ -375,7 +378,7 @@ Graph.Layout.Spring.prototype = {
         this.graph.layoutMinY = miny;
         this.graph.layoutMaxY = maxy;
     },
-    
+
     layoutIteration: function() {
     	this.calculateForces();
         // Move by the given force
@@ -407,7 +410,7 @@ Graph.Layout.Spring.prototype = {
     layoutAttractive: function(edge) {
         var node1 = edge.source;
         var node2 = edge.target;
-        
+
         var dx = node2.layoutPosX - node1.layoutPosX;
         var dy = node2.layoutPosY - node1.layoutPosY;
         var d2 = dx * dx + dy * dy;
@@ -424,13 +427,13 @@ Graph.Layout.Spring.prototype = {
         var attractiveForce = (d2 - this.k * this.k) / this.k;
         if(edge.attraction == undefined) edge.attraction = 1;
         attractiveForce *= Math.log(edge.attraction) * 0.5 + 1;
-        
+
         node2.layoutForceX -= attractiveForce * dx / d;
         node2.layoutForceY -= attractiveForce * dy / d;
         node1.layoutForceX += attractiveForce * dx / d;
         node1.layoutForceY += attractiveForce * dy / d;
     },
-    
+
     // moves the given node using its current forces
     updateNode: function(node) {
         var xmove = this.c * node.layoutForceX;
@@ -441,13 +444,13 @@ Graph.Layout.Spring.prototype = {
         if(xmove < -max) xmove = -max;
         if(ymove > max) ymove = max;
         if(ymove < -max) ymove = -max;
-        
+
         node.layoutPosX += xmove;
         node.layoutPosY += ymove;
         node.layoutForceX = 0;
         node.layoutForceY = 0;
     },
-    
+
     // calculates repulsive and attractive forces on each node in the graph.
     // forces are stored in each node with layoutForceX and layoutForceY
     // fields. the layoutRepulsive and layoutAttractive methods modify those fields.
@@ -459,32 +462,32 @@ Graph.Layout.Spring.prototype = {
             for (var d in prev) {
                 var node2 = this.graph.nodes[prev[d]];
                 this.layoutRepulsive(node1, node2);
-                
+
             }
             prev.push(c);
         }
-        
+
         // Forces on nodes due to edge attractions
         for (var i = 0; i < this.graph.edges.length; i++) {
             var edge = this.graph.edges[i];
-            this.layoutAttractive(edge);             
+            this.layoutAttractive(edge);
         }
     }
 };
 
 // Provides stable positions for nodes with the given initial or terminal labels
 Graph.Layout.Stable = function (graph, initial, terminal) {
-	
+
 	// internal springLayout used to calculate node positions
 	this.springLayout = new Graph.Layout.Spring(graph);
-	
+
     this.graph = graph;
     this.initial = initial;		// label on initial nodes
     this.terminal = terminal;	// label on terminal nodes
 
     this.updates = 50;     // number of times to re-calculate node positions
-                           // by calculating forces when updateLayout is called    
-	
+                           // by calculating forces when updateLayout is called
+
     // do initial layout
     this.layout();
 };
@@ -494,11 +497,11 @@ Graph.Layout.Stable = function (graph, initial, terminal) {
 // updateLayout() function for updating the positions of given new nodes
 Graph.Layout.Stable.prototype = {
 
-	// initial layout: 
+	// initial layout:
 	//    layoutPrepare() assigns initial positions to each node
 	//    layoutIteration() is call a set number of times (Spring Layout's iterations),
 	//          and updates positions by calculating forces on nodes
-	//    layoutCalcBounds() tells the graph the min and max positions of all nodes, used 
+	//    layoutCalcBounds() tells the graph the min and max positions of all nodes, used
 	//          when rendering to ensure that the graph stretches to take all available space
     layout: function() {
         this.layoutPrepare();
@@ -507,7 +510,7 @@ Graph.Layout.Stable.prototype = {
         }
        this.springLayout.layoutCalcBounds();
 	},
-	    
+
 	// called on graphs that have already been laid out - updates the position
 	// of nodes in the newNodes array by calculating forces against all other nodes
 	// in the graph
@@ -525,9 +528,9 @@ Graph.Layout.Stable.prototype = {
 		// recalculates graph bounds
 		this.springLayout.layoutCalcBounds();
 	},
-	
+
 	// prepares nodes to be laid out by assigning default initial x, y positions
-	// and default x, y forces. terminal nodes are given x positions at the 
+	// and default x, y forces. terminal nodes are given x positions at the
 	// right side of the graph, all others assigned x positions on the left
     layoutPrepare: function() {
         for (i in this.graph.nodes) {
@@ -542,7 +545,7 @@ Graph.Layout.Stable.prototype = {
             node.layoutForceY = 0;
         }
     },
-    
+
     // updates node positions of all nodes aside from the initial and terminal nodes
     // by re-calculating forces on all nodes and updating node positions
     layoutIteration: function() {
@@ -550,7 +553,7 @@ Graph.Layout.Stable.prototype = {
         // Move by the given force
         for (i in this.graph.nodes) {
             var node = this.graph.nodes[i];
-            if (node.label !== this.initial && node.label !== this.terminal) {	
+            if (node.label !== this.initial && node.label !== this.terminal) {
             	this.springLayout.updateNode(node);
             }
         }
@@ -580,13 +583,13 @@ Graph.Layout.Ordered.prototype = {
         this.layoutPrepare();
         this.layoutCalcBounds();
     },
-    
+
     layoutPrepare: function(order) {
         for (i in this.graph.nodes) {
             var node = this.graph.nodes[i];
             node.layoutPosX = 0;
             node.layoutPosY = 0;
-            
+
         }
             var counter = 0;
             for (i in this.order) {
@@ -595,16 +598,16 @@ Graph.Layout.Ordered.prototype = {
                 node.layoutPosY = Math.random();
                 counter++;
             }
-            
+
     },
-    
+
     layoutCalcBounds: function() {
         var minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
 
         for (i in this.graph.nodes) {
             var x = this.graph.nodes[i].layoutPosX;
             var y = this.graph.nodes[i].layoutPosY;
-            
+
             if(x > maxx) maxx = x;
             if(x < minx) minx = x;
             if(y > maxy) maxy = y;
@@ -620,7 +623,7 @@ Graph.Layout.Ordered.prototype = {
 };
 
 /*
- * usefull JavaScript extensions, 
+ * usefull JavaScript extensions,
  */
 
 function log(a) {console.log&&console.log(a);}
@@ -641,14 +644,14 @@ Raphael.el.tooltip = function (tp) {
     this.tp.o = {x: 0, y: 0};
     this.tp.hide();
     this.hover(
-        function(event){ 
-            this.mousemove(function(event){ 
-                this.tp.translate(event.clientX - 
+        function(event){
+            this.mousemove(function(event){
+                this.tp.translate(event.clientX -
                                   this.tp.o.x,event.clientY - this.tp.o.y);
                 this.tp.o = {x: event.clientX, y: event.clientY};
             });
             this.tp.show().toFront();
-        }, 
+        },
         function(event){
             this.tp.hide();
             this.unmousemove();
