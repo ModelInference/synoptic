@@ -74,7 +74,7 @@ var GRAPH_HANDLER = {
         // is turned back to its original color. We keep track of previously
         // clicked
         // node with the currentSelectedRect var.
-        rect.node.onclick = function() {
+        rect.node.onmouseup = function() {
             if (currentSelectedRect != "") {
                 if (currentSelectedNode.label == "INITIAL"
                         || currentSelectedNode.label == "TERMINAL") {
@@ -84,8 +84,8 @@ var GRAPH_HANDLER = {
                 }
 
             }
-            currentSelectedRect = rect
-            currentSelectedNode = node
+            currentSelectedRect = rect;
+            currentSelectedNode = node;
             viewLogLines(parseInt(node.id));
             rect.attr("fill", "blue");
         };
@@ -100,7 +100,7 @@ var GRAPH_HANDLER = {
         var set = canvas.set().push(rect).push(text);
 
         // The text, when clicked should behave as if the rectangle was clicked.
-        text.node.onclick = rect.node.onclick;
+        text.node.onmouseup = rect.node.onmouseup;
         return set;
     },
 
