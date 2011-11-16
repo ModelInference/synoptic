@@ -9,6 +9,7 @@ import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
 import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -17,6 +18,7 @@ import com.google.gwt.user.client.ui.TabPanel;
 import synopticgwt.client.input.InputTab;
 import synopticgwt.client.invariants.InvariantsTab;
 import synopticgwt.client.model.ModelTab;
+import synopticgwt.client.util.ModelResizeHandler;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTInvariantSet;
@@ -126,6 +128,10 @@ public class SynopticGWT implements EntryPoint {
             }
         });
 
+        // Add handler for when the window is resized while viewing the model.
+        // wait until 200 milliseconds after the last window update event
+        // to redraw the model.
+        Window.addResizeHandler(new ModelResizeHandler(modelTab, 200));
     }
 
     /**

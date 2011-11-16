@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.gwt.core.client.JavaScriptObject;
-
 import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
 
@@ -38,9 +36,8 @@ public class InvariantsGraph {
     /** Distance of invariant columns from top of paper */
     public static final int EVENT_PADDING = 50;
     
-    // Raphael paper object
-    private JavaScriptObject paper;
-    private Set<GraphicInvariant> graphicInvariants;
+    /** Wrapped raphael canvas */
+    private Paper paper;
     private Map<String, GraphicEvent> leftEventCol;
     private Map<String, GraphicEvent> midEventCol;
     private Map<String, GraphicEvent> rightEventCol;
@@ -102,11 +99,12 @@ public class InvariantsGraph {
         // int rX = mX + (longestEType * 30) - 110;
         int rX = mX + (longestEType * 30) - 110 + 50;
         int width = rX + 200;
-        int height = (eventTypesList.size() + 1) * EVENT_PADDING;
+        // 2 is a little magical here, need it for time arrow/label
+        int height = (eventTypesList.size() + 2) * EVENT_PADDING;
 
         int fontSize = 20; // getFontSize(longestEType);
 
-        this.paper = constructPaper(width, height, invCanvasId);
+        this.paper = new Paper(width, height, invCanvasId);
 
         // draw graphic event type columns
         for (int i = 0; i < eventTypesList.size(); i++) {
@@ -140,6 +138,18 @@ public class InvariantsGraph {
                 nfbyInvs.addAll(gInvs);
             }
         }
+        
+        /* 
+         * Drawing a time arrow and label with a little magic and hardcoding 
+         * to make things pretty
+         */
+        int timeArrowYCoord = TOP_MARGIN + EVENT_PADDING * eventTypesList.size() - 25;
+        GraphicArrow timeArrow = new GraphicArrow(lX, timeArrowYCoord, rX, 
+        		timeArrowYCoord, paper, 0);
+        timeArrow.setStroke("green", HIGHLIGHT_STROKE_WIDTH);
+        int timeLabelYCoord = timeArrowYCoord + 25;
+        Label timeLabel = new Label(paper, mX, timeLabelYCoord, fontSize - 5, 
+        		"Time", DEFAULT_FILL);
     }
 
     /** 
@@ -202,26 +212,12 @@ public class InvariantsGraph {
         }
         return fontSize;
     }
-    
-    /**
-     * Creates a new Raphael paper object
-     * 
-     * @param width width of the Raphael paper object
-     * @param height height of the Raphael paper object
-     * @param canvasId Document element to put Raphael paper object into
-     * @return Raphael paper object
-     */
-    public native JavaScriptObject constructPaper(int width, int height, 
-            String canvasId) /*-{
-		var paper = $wnd.Raphael($doc.getElementById(canvasId), width, height);
-        return paper;
-    }-*/;
 
     /**
-     * Gets the Raphael paper object
-     * @return Raphael paper object
+     * Returns the Raphael canvas wrapper
+     * @return Raphael canvas wrapper
      */
-    public JavaScriptObject getGraphicPaper() {
-        return paper;
+    public Paper getGraphicPaper() {
+        return this.paper;
     }
 }
