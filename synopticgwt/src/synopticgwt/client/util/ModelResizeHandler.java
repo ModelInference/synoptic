@@ -6,6 +6,10 @@ import com.google.gwt.user.client.Timer;
 
 import synopticgwt.client.model.ModelTab;
 
+/**
+ * A resize handler that takes care of updating the model graphic whenever the
+ * model tab is resized.
+ */
 public class ModelResizeHandler implements ResizeHandler {
 
     // Timer is here to delay any unnecessary updating.
