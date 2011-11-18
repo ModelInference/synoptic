@@ -1,11 +1,17 @@
 package synopticgwt.client.invariants;
 
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
@@ -28,12 +34,16 @@ import synopticgwt.shared.GWTInvariantSet;
 public class InvariantsTab extends Tab<VerticalPanel> {
     public Set<Integer> activeInvsHashes = new LinkedHashSet<Integer>();
     
+    /** Relate GWTInvariants to InvariantGridLabels */
+    public Map<GWTInvariant, InvariantGridLabel> gwtInvToGridLabel;
+    
     public InvariantsGraph iGraph = new InvariantsGraph();
 
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
         super(synopticService, pWheel);
         panel = new VerticalPanel();
+        gwtInvToGridLabel = new HashMap<GWTInvariant, InvariantGridLabel>();
     }
 
     /**
@@ -79,7 +89,11 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             // Activated and deactivated grid cells are uniquely styled
             for (int i = 0; i < invs.size(); i++) {
                 GWTInvariant inv = invs.get(i);
-                grid.setWidget(i + 1, 0, new InvariantGridLabel(inv));
+                InvariantGridLabel iGridLabel = new InvariantGridLabel(inv, grid.getCellFormatter(), i + 1, 0);
+                iGridLabel.addMouseOverHandler(new InvLabelMouseOverHandler());
+                iGridLabel.addMouseOutHandler(new InvLabelMouseOutHandler());
+                gwtInvToGridLabel.put(inv, iGridLabel);
+                grid.setWidget(i + 1, 0, iGridLabel);
                 grid.getCellFormatter().setStyleName(i + 1, 0,
                         "tableCellInvActivated");
             }
@@ -97,7 +111,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             invGraphicPanel.getElement().setId(invCanvasId);
             invGraphicPanel.setStylePrimaryName("modelCanvas");
             tableAndGraphicPanel.add(invGraphicPanel);
-            iGraph.createInvariantsGraphic(gwtInvs, invCanvasId);
+            iGraph.createInvariantsGraphic(gwtInvs, invCanvasId, gwtInvToGridLabel);
         }
     }
 
@@ -124,8 +138,6 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             this.grid = grid;
         }
 
-        // T.101.JV: What of this is going to change given the toggle state 
-        // refactoring?
         @Override
         public void onClick(ClickEvent event) {
             // The clicked cell.
@@ -145,22 +157,20 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
             int invID = invLabel.getInvariant().getID();
 
-            // Signal that the invariant set has changed.
-            // T.101.JV: This looks pretty important. It signals to
+            ////////////////////////////////////////////////////////////
+            // This looks pretty important. It signals to
             // SynopticGWT that the invariants have changed. Why not put
             // this into the invariant set though?
             // Is there a better way to communicate this information to 
             // the Model tab? Maybe a mutation counter in GWTInvariant
             // Set?
+            ////////////////////////////////////////////////////////////
             SynopticGWT.entryPoint.invSetChanged();
 
             CellFormatter cFormatter = grid.getCellFormatter();
 
             // Corresponding invariant is activated => deactive it.
             if (invLabel.getActive()) {
-            	// T.101.JV - Can I use activeInvsHashes instead of 
-            	// GWTInvariant.displayed
-            	// to keep track of toggle state?
                 activeInvsHashes.remove(invID);
                 invLabel.setActive(false);
                 cFormatter.setStyleName(cIndex, 0, "tableCellInvDeactivated");
@@ -171,6 +181,35 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             }
         }
     }
-    // T.101.JV: Activation state is stored in the invLabel, and should
-    // probably instead be stored in the GWTInvariant
+    
+    /**
+     * Highlights corresponding GraphicInvariant on InvariantGridLabel mouseover
+     * @author timjv
+     *
+     */
+    class InvLabelMouseOverHandler implements MouseOverHandler {
+    	
+		@Override
+		public void onMouseOver(MouseOverEvent event) {
+			InvariantGridLabel iGridLabel = (InvariantGridLabel) event.getSource();
+			iGridLabel.mouseOver();			
+		}
+    	
+    }
+    
+    /**
+     * Removes highlight from corresponding GraphicInvariant on 
+     * InvariantGridLabel mouseout
+     * @author timjv
+     *
+     */
+    class InvLabelMouseOutHandler implements MouseOutHandler {
+    	
+		@Override
+		public void onMouseOut(MouseOutEvent event) {
+			InvariantGridLabel iGridLabel = (InvariantGridLabel) event.getSource();
+			iGridLabel.mouseOut();			
+		}
+    	
+    }
 }
