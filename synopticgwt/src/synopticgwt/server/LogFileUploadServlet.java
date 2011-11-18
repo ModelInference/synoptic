@@ -88,7 +88,6 @@ public class LogFileUploadServlet extends HttpServlet {
 
             // Successfully uploaded file to server's disk
             response.setStatus(HttpServletResponse.SC_CREATED);
-            response.getWriter().write("Successfully uploaded file");
 
             // Saves file path of file to session state
             HttpSession session = request.getSession();
@@ -115,7 +114,7 @@ public class LogFileUploadServlet extends HttpServlet {
             List<FileItem> items = upload.parseRequest(request);
             Iterator<FileItem> iter = items.iterator();
             while (iter.hasNext()) {
-                FileItem item = (FileItem) iter.next();
+                FileItem item = iter.next();
 
                 // FileItem is uploaded file and not simple form field
                 if (!item.isFormField()) {
