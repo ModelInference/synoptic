@@ -1,4 +1,4 @@
-package synopticgwt.client.invariants;
+package synopticgwt.client.util;
 
 /**
  * Why does this exist?
