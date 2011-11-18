@@ -120,6 +120,7 @@ public class InputPanel extends Tab<VerticalPanel> {
         // Set up links and labels for examples panel.
         exampleLogLabel.setStyleName("exampleLogLabel");
         examplesGrid.setWidget(0, 0, exampleLogLabel);
+
         Label poLabel = new Label("Partially ordered");
         Label toLabel = new Label("Totally ordered");
         poLabel.setStyleName("logTypeLabel");

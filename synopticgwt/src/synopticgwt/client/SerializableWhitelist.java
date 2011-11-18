@@ -1,6 +1,6 @@
 package synopticgwt.client;
 
-import java.io.FileNotFoundException;
+import java.io.Serializable;
 
 /**
  * A class that represents an explicit serialization policy white list --
@@ -20,6 +20,6 @@ import java.io.FileNotFoundException;
  * http://stackoverflow.com/questions/4202964/serializationpolicy-error-when-performing-rpc-from-within-gwt-application
  * </pre>
  */
-public final class SerializableWhitelist {
-    FileNotFoundException exception;
+public final class SerializableWhitelist implements Serializable {
+    private static final long serialVersionUID = 1L;
 }

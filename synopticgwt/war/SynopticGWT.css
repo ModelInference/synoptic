@@ -61,6 +61,22 @@ h1 {
   background: #E8EDFF;
 }
 
+.tableCellHighlightBlue {
+  border-style: inset;
+  border-width: 2px;
+  border-color: #CFD9FF;
+  padding: 5px;
+  background: #007FFF;
+}
+
+.tableCellHighlightRed {
+  border-style: inset;
+  border-width: 2px;
+  border-color: #CFD9FF;
+  padding: 5px;
+  background: #EE2C2C;
+}
+
 /* Shapes the cells of a grid to look like
    buttons */
 .tableCellInvActivated {

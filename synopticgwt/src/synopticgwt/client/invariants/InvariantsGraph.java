@@ -63,7 +63,8 @@ public class InvariantsGraph {
      * indicated by invCanvasId.
      */
     public void createInvariantsGraphic(GWTInvariantSet gwtInvs,
-            String invCanvasId) {
+            String invCanvasId , 
+            Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel) {
         Set<String> invTypes = gwtInvs.getInvTypes();
 
         Set<String> eventTypesSet = new LinkedHashSet<String>();
@@ -127,21 +128,22 @@ public class InvariantsGraph {
             List<GWTInvariant> invs = gwtInvs.getInvs(invType);
             if (invType.equals("AP")) {
                 List<GraphicInvariant> gInvs = 
-                    drawInvariants(invs, leftEventCol, midEventCol);
+                    drawInvariants(invs, leftEventCol, midEventCol, gwtInvToIGridLabel);
                 apInvs.addAll(gInvs);
             } else if (invType.equals("AFby")) {
                 List<GraphicInvariant> gInvs = 
-                    drawInvariants(invs, midEventCol, rightEventCol);
+                    drawInvariants(invs, midEventCol, rightEventCol, gwtInvToIGridLabel);
                 afbyInvs.addAll(gInvs);
             } else if (invType.equals("NFby")) {
                 List<GraphicInvariant> gInvs = 
-                    drawInvariants(invs, midEventCol, rightEventCol);
+                    drawInvariants(invs, midEventCol, rightEventCol, gwtInvToIGridLabel);
                 nfbyInvs.addAll(gInvs);
             }
         }
         
         /* 
-         * Drawing a time arrow and label with a little magic and hardcoding 
+         * Draws a time arrow and label below the GraphicEvents from the left
+         * column to the right column with a little magic and hardcoding 
          * to make things pretty
          */
         int timeArrowYCoord = TOP_MARGIN + EVENT_PADDING * eventTypesList.size() - 25;
@@ -160,7 +162,8 @@ public class InvariantsGraph {
      * */
     private List<GraphicInvariant> drawInvariants(List<GWTInvariant> invs, 
             Map<String, GraphicEvent> srcCol,
-            Map<String, GraphicEvent> dstCol) {
+            Map<String, GraphicEvent> dstCol, 
+            Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel) {
         List<GraphicInvariant> result = new ArrayList<GraphicInvariant>();
         for (GWTInvariant inv : invs) {
             String srcEventString = inv.getSource();
@@ -169,8 +172,13 @@ public class InvariantsGraph {
             String dstEventString = inv.getTarget();
             GraphicEvent dstEvent = dstCol.get(dstEventString);
 
+            InvariantGridLabel iGridLabel = gwtInvToIGridLabel.get(inv);
+            
             GraphicInvariant gInv = new GraphicInvariant(srcEvent, dstEvent,
-                inv, paper);
+                inv, paper, iGridLabel);
+            
+            iGridLabel.setGraphicInvariant(gInv);
+            
             srcEvent.addInvariant(gInv);
             dstEvent.addInvariant(gInv);
             result.add(gInv);

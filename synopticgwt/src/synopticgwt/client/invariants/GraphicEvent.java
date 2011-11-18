@@ -34,6 +34,7 @@ public class GraphicEvent implements Serializable, MouseHover {
         this.invariants = new ArrayList<GraphicInvariant>();
         this.label = new Label(paper, x, y, fontSize, 
             event, InvariantsGraph.DEFAULT_FILL);
+        hide();
         label.setMouseover(this);
         label.setMouseout(this);
     }
@@ -58,6 +59,9 @@ public class GraphicEvent implements Serializable, MouseHover {
 
     /** Adds gInv to the list of invariants incident to this event */
     public void addInvariant(GraphicInvariant gInv) {
+    	if (invariants.size() == 0) {
+    		show();
+    	}
         invariants.add(gInv);
     }
 
@@ -66,7 +70,7 @@ public class GraphicEvent implements Serializable, MouseHover {
      */
     public void mouseover() {
         for (GraphicInvariant gi : invariants) {
-            gi.highlightOn();
+    		gi.highlightOn();
         }
     }
     
@@ -76,7 +80,7 @@ public class GraphicEvent implements Serializable, MouseHover {
      */
     public void mouseout() {
         for (GraphicInvariant gi : invariants) {
-            gi.highlightOff();
+    		gi.highlightOff();
         }
     }
 
