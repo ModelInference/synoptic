@@ -2,6 +2,7 @@ package synopticgwt.client.invariants;
 
 import java.io.Serializable;
 
+import synopticgwt.client.util.Paper;
 import synopticgwt.shared.GWTInvariant;
 
 /** 

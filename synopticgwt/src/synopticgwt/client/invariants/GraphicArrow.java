@@ -2,6 +2,8 @@ package synopticgwt.client.invariants;
 
 import java.io.Serializable;
 
+import synopticgwt.client.util.Paper;
+
 /** Java wrapper for an arrow on a Raphael canvas */
 public class GraphicArrow implements Serializable {
 

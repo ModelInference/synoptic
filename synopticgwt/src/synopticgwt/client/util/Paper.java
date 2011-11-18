@@ -1,4 +1,4 @@
-package synopticgwt.client.invariants;
+package synopticgwt.client.util;
 
 import java.io.Serializable;
 

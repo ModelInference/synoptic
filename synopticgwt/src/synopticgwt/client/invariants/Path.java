@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
+import synopticgwt.client.util.Paper;
+
 /** 
  * Java wrapper for a Raphael path object 
  * @author timjv

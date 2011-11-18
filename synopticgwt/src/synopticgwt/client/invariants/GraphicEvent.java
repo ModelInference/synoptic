@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import synopticgwt.client.util.MouseHover;
+import synopticgwt.client.util.Paper;
+
 /** 
  * Graphic model representing a logged event type
  * Also a java representation of a JavaScript text label on a Raphael canvas.

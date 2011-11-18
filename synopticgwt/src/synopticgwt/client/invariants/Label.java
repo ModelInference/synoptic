@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
+import synopticgwt.client.util.MouseHover;
+import synopticgwt.client.util.Paper;
+
 /**
  * Java wrapper for a raphael text
  * @author timjv
@@ -137,7 +140,7 @@ public class Label implements Serializable {
         label.mouseover(
         	function(hoverable) {
 	            return function(e) {
-	                hoverable.@synopticgwt.client.invariants.MouseHover::mouseover()();
+	                hoverable.@synopticgwt.client.util.MouseHover::mouseover()();
             	};
         	} (hover));
     }-*/;
@@ -151,7 +154,7 @@ public class Label implements Serializable {
         label.mouseout(
         	function(hoverable) {
 	            return function(e) {
-	                hoverable.@synopticgwt.client.invariants.MouseHover::mouseout()();
+	                hoverable.@synopticgwt.client.util.MouseHover::mouseout()();
 	            };
         	} (hover));
     }-*/;
