@@ -48,6 +48,4 @@ public interface ISynopticServiceAsync {
 
     void exportPng(AsyncCallback<String> callback) throws Exception;
 
-    void dummy(SerializableWhitelist l,
-            AsyncCallback<SerializableWhitelist> callback);
 }

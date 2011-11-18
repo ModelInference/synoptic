@@ -74,8 +74,8 @@ public class LogFileUploadServlet extends HttpServlet {
             String path = userLogFileExport + fileName;
             if (fileName != null && !fileName.equals("")) {
                 fileName = FilenameUtils.getName(fileName);
-                File uploadedFile = new File(path);
                 try {
+                    File uploadedFile = new File(path);
                     uploadedItem.write(uploadedFile);
                 } catch (Exception e) {
                     logger.severe("Unable to save file to server : "
@@ -83,6 +83,7 @@ public class LogFileUploadServlet extends HttpServlet {
                     response.sendError(
                             HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                             "Unable to save file to server");
+                    return;
                 }
             }
 

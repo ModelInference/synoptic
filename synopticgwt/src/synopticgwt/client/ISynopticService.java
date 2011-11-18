@@ -114,13 +114,4 @@ public interface ISynopticService extends RemoteService {
      */
     String exportPng() throws Exception;
 
-    /**
-     * A call whose sole purpose is to include the types used by the
-     * SerializableWhitelist into the GWT white-list of serializable types. This
-     * call is never intended to be called and throws an exception it is ever
-     * called. Read description in SerializableWhitelist for more.
-     * 
-     * @throws RunTimeException.
-     */
-    SerializableWhitelist dummy(SerializableWhitelist l) throws Exception;
 }
