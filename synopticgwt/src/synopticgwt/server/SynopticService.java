@@ -45,6 +45,7 @@ import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.util.InternalSynopticException;
 import synopticgwt.client.ISynopticService;
+import synopticgwt.client.SerializableWhitelist;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariant;
@@ -601,4 +602,16 @@ public class SynopticService extends RemoteServiceServlet implements
         return fileString + ".png";
     }
 
+    /**
+     * A call whose sole purpose is to include the types used by the
+     * SerializableWhitelist into the GWT white-list of serializable types. This
+     * call is never intended to be called and throws an exception it is ever
+     * called. Read description in SerializableWhitelist for more.
+     */
+    @Override
+    public SerializableWhitelist dummy(SerializableWhitelist l)
+            throws Exception {
+        throw new Exception(
+                "This dummy method is intended for including types into the serialization policy during compile time.");
+    }
 }
