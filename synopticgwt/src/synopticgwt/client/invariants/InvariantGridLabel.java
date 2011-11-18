@@ -7,7 +7,9 @@ import synopticgwt.shared.GWTInvariant;
 
 /**
  * Represents a label in a grid of invariants. Keeps track of the associated
- * GWTInvariant instance for the label in the grid.
+ * GWTInvariant instance for the label in the grid so the label can be clicked
+ * on/off to activate/deactivate the invariant from being considered in model 
+ * construction (e.g., refinement/coarsening)
  */
 public class InvariantGridLabel extends Label {
 	/** Cellformatter for label's corresponding grid cell */
@@ -18,6 +20,8 @@ public class InvariantGridLabel extends Label {
 	private int col;
     private GWTInvariant inv;
     private GraphicInvariant gInv;
+    // T.101.JV: Activation state is stored in the invLabel, and should
+    // probably instead be stored in the GWTInvariant
     private boolean active = true;
 
     public InvariantGridLabel(GWTInvariant inv, CellFormatter cForm, int row, int col) {
@@ -67,6 +71,7 @@ public class InvariantGridLabel extends Label {
     	}
     }
     
+    // highlighting only works for NFby/AP/AFby invariants
     public void highlightOn() {
     	if (active) {
 	    	String tType = inv.getTransitionType();

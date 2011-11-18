@@ -141,7 +141,8 @@ public class InvariantsGraph {
         }
         
         /* 
-         * Drawing a time arrow and label with a little magic and hardcoding 
+         * Draws a time arrow and label below the GraphicEvents from the left
+         * column to the right column with a little magic and hardcoding 
          * to make things pretty
          */
         int timeArrowYCoord = TOP_MARGIN + EVENT_PADDING * eventTypesList.size() - 25;

@@ -31,7 +31,7 @@ public class GraphicInvariant implements Serializable {
         this.src = src;
         this.dst = dst;
         this.arrow = new GraphicArrow(src.getX(), src.getY(), dst.getX(),
-            dst.getY(), paper, GraphicArrow.TARGET_BUFFER);
+            dst.getY(), paper);
         this.GWTinv = GWTinv;
         this.iGridLabel = iGridLabel;
     }

@@ -157,6 +157,14 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
             int invID = invLabel.getInvariant().getID();
 
+            ////////////////////////////////////////////////////////////
+            // This looks pretty important. It signals to
+            // SynopticGWT that the invariants have changed. Why not put
+            // this into the invariant set though?
+            // Is there a better way to communicate this information to 
+            // the Model tab? Maybe a mutation counter in GWTInvariant
+            // Set?
+            ////////////////////////////////////////////////////////////
             SynopticGWT.entryPoint.invSetChanged();
 
             CellFormatter cFormatter = grid.getCellFormatter();
