@@ -1,0 +1,1151 @@
+Gathering traceroutes to srcs planetlab6.cs.cornell.edu planetlab02.cs.washington.edu planetlab3.upc.es planet3.prakinf.tu-ilmenau.de planetlab2.cs.uit.no planetlab2.uta.edu planetlab3.csail.mit.edu planetlab2.ics.forth.gr planetlab2.sfc.wide.ad.jp planetlab-2.ssvl.kth.se planet1.scs.stanford.edu
+2010/02/28.1926.00 Connecting to tr_server druby://bouncer.cs.washington.edu:59317
+2010/02/28.1926.01 Issuing traceroutes: 2010.0228.1926.00 1
+2010/02/28.1926.01 Connecting to controller druby://128.208.2.159:39482
+2010/02/28.1926.01 Traceroutes for planetlab6.cs.cornell.edu
+2010/02/28.1926.02 Traceroute to 64.209.96.225 reaches for planetlab6.cs.cornell.edu 64.209.96.225
+2010/02/28.1926.02 Trying to find 1 hops from [64.212.107.89 154.54.26.138 154.54.26.181 154.54.24.150 38.104.190.245 132.236.222.7 132.236.222.161 128.84.154.1 planetlab6.cs.cornell.edu]
+2010/02/28.1926.02 Rev Seg is 64.212.107.89
+2010/02/28.1926.02 Fwd planetlab6.cs.cornell.edu to 64.209.96.225: 128.84.154.1 132.236.222.161 132.236.222.7 38.104.190.245 154.54.24.150 154.54.26.181 154.54.26.138 64.212.107.89 64.209.96.225
+2010/02/28.1926.02 Checking planetlab6.cs.cornell.edu 64.209.96.225 64.209.96.225 for traceroutes to source
+2010/02/28.1926.02 Initializing RR VPs in a batch for 1
+2010/02/28.1926.02 Total VPs: 222
+2010/02/28.1926.02 Total spoofers: 160 at 75 sites
+2010/02/28.1926.02 Total up spoofers: 135 at 61 sites
+2010/02/28.1926.02 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1926.03 Connecting to vp_server druby://bouncer.cs.washington.edu:38051
+2010/02/28.1926.03 Found 34 spoofers of 131 for 64.209.96.225: planetlab4.williams.edu mlab2.nuq01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg mlab2.ams02.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.sea01.measurement-lab.org pli1-pa-5.hpl.hp.com mlab3.par01.measurement-lab.org mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab3.ham01.measurement-lab.org mlab2.lax01.measurement-lab.org planetlab4.singaren.net.sg planetlab1.cs.uiuc.edu planetlab3-dsl.cs.cornell.edu mlab3.lhr01.measurement-lab.org planetlab2.uta.edu planetlab-2.cs.uh.edu node2.planetlab.albany.edu planetlab1.pc.cis.udel.edu planetlab2.utdallas.edu planetlab2lannion.elibel.tm.fr planetlab-01.kusa.ac.jp mlab3.lga01.measurement-lab.org planetlab-2.cs.auckland.ac.nz planetlab1.dojima.wide.ad.jp planetlabnode-1.docomolabs-usa.com plnode-01.gpolab.bbn.com planetlab-01.ece.uprm.edu adam.ee.ntu.edu.tw planetlab2.cis.upenn.edu pl1.planetlab.ics.tut.ac.jp planet1.ku.edu.tr planetlab2.ntu.nodes.planet-lab.org
+2010/02/28.1926.03 planetlab6.cs.cornell.edu 64.209.96.225 64.209.96.225 35 RR VPs left to try
+2010/02/28.1926.03 planetlab6.cs.cornell.edu 64.209.96.225 64.209.96.225 using non_spoofed
+2010/02/28.1926.03 Issuing recordroutes: 2010.0228.1926.03 1
+2010/02/28.1926.06 planetlab6.cs.cornell.edu 64.209.96.225 64.209.96.225 34 RR VPs left to try
+2010/02/28.1926.06 planetlab6.cs.cornell.edu 64.209.96.225 64.209.96.225 using planetlab4.williams.edu mlab2.nuq01.measurement-lab.org pnode2.pdcc-ntu.singaren.net.sg
+2010/02/28.1926.06 Issuing spoofed recordroutes: 2010.0228.1926.06
+2010/02/28.1926.16 planetlab6.cs.cornell.edu received 0 total responses from 
+2010/02/28.1926.16 planetlab6.cs.cornell.edu 64.209.96.225 64.209.96.225 31 RR VPs left to try
+2010/02/28.1926.16 planetlab6.cs.cornell.edu 64.209.96.225 64.209.96.225 using mlab2.ams02.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com mlab1.sea01.measurement-lab.org
+2010/02/28.1926.16 Issuing spoofed recordroutes: 2010.0228.1926.16
+2010/02/28.1926.27 planetlab6.cs.cornell.edu received 0 total responses from 
+2010/02/28.1926.27 planetlab6.cs.cornell.edu 64.209.96.225 64.209.96.225 28 RR VPs left to try
+2010/02/28.1926.27 planetlab6.cs.cornell.edu 64.209.96.225 64.209.96.225 using pli1-pa-5.hpl.hp.com mlab3.par01.measurement-lab.org mlab3.dfw01.measurement-lab.org
+2010/02/28.1926.27 Issuing spoofed recordroutes: 2010.0228.1926.27
+2010/02/28.1926.38 planetlab6.cs.cornell.edu received 0 total responses from 
+2010/02/28.1926.38 Current hop 64.209.96.225/64.209.96.225 seems to be unresponsive for planetlab6.cs.cornell.edu 64.209.96.225
+2010/02/28.1926.38 Connecting to adjacency_server druby://bouncer.cs.washington.edu:43430
+2010/02/28.1926.38 Adjacents for planetlab6.cs.cornell.edu 64.209.96.225 are 64.209.96.226 64.208.110.130 194.68.123.164 212.47.201.195 212.47.201.193 208.178.60.190 67.17.109.90 64.212.107.18 67.16.131.22
+2010/02/28.1926.38 planetlab6.cs.cornell.edu 64.209.96.225 64.209.96.225 9 TS adjacents left to try
+2010/02/28.1926.38 Issuing timestamps: 2010.0228.1926.38 1
+2010/02/28.1926.41 Total VPs: 222
+2010/02/28.1926.41 Total spoofers: 160 at 75 sites
+2010/02/28.1926.41 Total up spoofers: 135 at 61 sites
+2010/02/28.1926.41 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1926.41 Issuing spoofed_timestamps: 2010.0228.1926.41 5
+2010/02/28.1926.56 planetlab6.cs.cornell.edu received 0 total responses from 
+2010/02/28.1926.56 Current hop 64.209.96.225 seems to be TS unresponsive for planetlab6.cs.cornell.edu 64.209.96.225
+2010/02/28.1926.56 Traceroute to 64.209.96.225 reaches for planetlab6.cs.cornell.edu 64.209.96.225
+2010/02/28.1926.56 Trying to find 1 hops from [64.212.107.89 154.54.26.138 154.54.26.181 154.54.24.150 38.104.190.245 132.236.222.7 132.236.222.161 128.84.154.1 planetlab6.cs.cornell.edu]
+2010/02/28.1926.57 Rev Seg is 64.212.107.89
+2010/02/28.1926.57 REACHED
+2010/02/28.1926.57 FOUND
+2010/02/28.1926.57 RevPath_D64.209.96.225_Splanetlab6.cs.cornell.edu_RevSegment_[64.209.96.225]_Dst,RevSegment_[64.212.107.89]_Dst_AssumeSym
+2010/02/28.1926.57 NONE
+2010/02/28.1926.57 FAILED
+2010/02/28.1926.57 --------
+2010/02/28.1926.57 Checking planetlab6.cs.cornell.edu 64.209.96.225 64.212.107.89 for traceroutes to source
+2010/02/28.1926.57 Initializing RR VPs in a batch for 1
+2010/02/28.1926.57 Total VPs: 222
+2010/02/28.1926.58 Total spoofers: 160 at 75 sites
+2010/02/28.1926.58 Total up spoofers: 135 at 61 sites
+2010/02/28.1926.58 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1926.58 Found 35 spoofers of 130 for 64.212.107.89: 75-130-96-13.static.oxfr.ma.charter.com pl1.bit.uoit.ca mlab3.lga01.measurement-lab.org plnode-01.gpolab.bbn.com planetlab2.cis.upenn.edu planetlab2.uta.edu mlab2.dfw01.measurement-lab.org mlab1.lax01.measurement-lab.org planetlab3.williams.edu pli1-pa-5.hpl.hp.com planetlab3-dsl.cs.cornell.edu mlab3.sea01.measurement-lab.org mlab4.nuq01.measurement-lab.org mlab1.par01.measurement-lab.org mlab1.lhr01.measurement-lab.org mlab3.ham01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg planetlab4.cs.uiuc.edu mlab2.ams02.measurement-lab.org planetlab4.singaren.net.sg planetlab-1.cs.uh.edu node1.planetlab.albany.edu fobos.cecalc.ula.ve planetlab-01.kusa.ac.jp planetlab2lannion.elibel.tm.fr planetlab-2.cs.auckland.ac.nz planetlab1.pc.cis.udel.edu planetlabnode-1.docomolabs-usa.com planetlab2.utdallas.edu planetlab0.dojima.wide.ad.jp node3.planet-lab.titech.ac.jp planetlab2.ntu.nodes.planet-lab.org pl1.planetlab.ics.tut.ac.jp eve.ee.ntu.edu.tw planet1.ku.edu.tr
+2010/02/28.1926.58 planetlab6.cs.cornell.edu 64.209.96.225 64.212.107.89 36 RR VPs left to try
+2010/02/28.1926.58 planetlab6.cs.cornell.edu 64.209.96.225 64.212.107.89 using non_spoofed
+2010/02/28.1926.58 Issuing recordroutes: 2010.0228.1926.58 1
+2010/02/28.1927.01 REACHED
+2010/02/28.1927.01 FOUND
+2010/02/28.1927.01 RevPath_D64.209.96.225_Splanetlab6.cs.cornell.edu_RevSegment_[64.209.96.225]_Dst,RevSegment_[64.212.107.89]_Dst_AssumeSym,RevSegment_[67.17.81.55]_RR
+2010/02/28.1927.01 NONE
+2010/02/28.1927.01 FAILED
+2010/02/28.1927.01 --------
+2010/02/28.1927.01 Checking planetlab6.cs.cornell.edu 64.209.96.225 67.17.81.55 for traceroutes to source
+2010/02/28.1927.01 Initializing RR VPs in a batch for 1
+2010/02/28.1927.01 Total VPs: 222
+2010/02/28.1927.02 Total spoofers: 160 at 75 sites
+2010/02/28.1927.02 Total up spoofers: 135 at 61 sites
+2010/02/28.1927.02 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1927.02 Found 35 spoofers of 133 for 67.17.81.55: pli1-pa-4.hpl.hp.com mlab2.dfw01.measurement-lab.org node3.planet-lab.titech.ac.jp 75-130-96-13.static.oxfr.ma.charter.com mlab4.nuq01.measurement-lab.org mlab1.sea01.measurement-lab.org pl1.bit.uoit.ca mlab1.par01.measurement-lab.org mlab3.lhr01.measurement-lab.org mlab2.ham01.measurement-lab.org pnode1.pdcc-ntu.singaren.net.sg planetlab3-dsl.cs.cornell.edu mlab2.ams02.measurement-lab.org mlab3.lax01.measurement-lab.org planetlab4.williams.edu planetlab1.cs.uiuc.edu planetlab4.singaren.net.sg planetlab-1.cs.uh.edu fobos.cecalc.ula.ve node2.planetlab.albany.edu planetlab2.uta.edu planetlab2.pc.cis.udel.edu planetlab-01.kusa.ac.jp planetlab-2.cs.auckland.ac.nz planetlab2lannion.elibel.tm.fr planetlab1.utdallas.edu mlab2.lga01.measurement-lab.org planetlab0.dojima.wide.ad.jp planetlabnode-1.docomolabs-usa.com plnode-01.gpolab.bbn.com planetlab2.ntu.nodes.planet-lab.org planet1.ku.edu.tr planetlab1.cis.upenn.edu pl1.planetlab.ics.tut.ac.jp eve.ee.ntu.edu.tw
+2010/02/28.1927.02 planetlab6.cs.cornell.edu 64.209.96.225 67.17.81.55 36 RR VPs left to try
+2010/02/28.1927.02 planetlab6.cs.cornell.edu 64.209.96.225 67.17.81.55 using non_spoofed
+2010/02/28.1927.02 Issuing recordroutes: 2010.0228.1927.02 1
+2010/02/28.1927.05 REACHED
+2010/02/28.1927.05 FOUND
+2010/02/28.1927.05 RevPath_D64.209.96.225_Splanetlab6.cs.cornell.edu_RevSegment_[64.209.96.225]_Dst,RevSegment_[64.212.107.89]_Dst_AssumeSym,RevSegment_[67.17.81.55]_RR,RevSegment_[66.152.112.25]_RR
+2010/02/28.1927.05 NONE
+2010/02/28.1927.05 FAILED
+2010/02/28.1927.05 --------
+2010/02/28.1927.05 Checking planetlab6.cs.cornell.edu 64.209.96.225 66.152.112.25 for traceroutes to source
+2010/02/28.1927.05 REACHED
+2010/02/28.1927.05 RevPath_D64.209.96.225_Splanetlab6.cs.cornell.edu_RevSegment_[64.209.96.225]_Dst,RevSegment_[64.212.107.89]_Dst_AssumeSym,RevSegment_[67.17.81.55]_RR,RevSegment_[66.152.112.25]_RR,RevSegment_[66.152.112.26 66.152.112.2 66.152.116.54 132.236.222.6 132.236.222.162 128.84.154.45 128.84.154.45 128.84.154.45]_TRtoSrc
+2010/02/28.1927.06 FOUND
+2010/02/28.1927.06 NONE
+2010/02/28.1927.06 FAILED
+2010/02/28.1927.06 --------
+2010/02/28.1927.06 Total time: 66
+2010/02/28.1927.06 Total probes: rr=3 spoof-ts=5 spoof-rr=9 tr=1 ts=1
+RevPath_D64.209.96.225_Splanetlab6.cs.cornell.edu_RevSegment_[64.209.96.225]_Dst,RevSegment_[64.212.107.89]_Dst_AssumeSym,RevSegment_[67.17.81.55]_RR,RevSegment_[66.152.112.25]_RR,RevSegment_[66.152.112.26 66.152.112.2 66.152.116.54 132.236.222.6 132.236.222.162 128.84.154.45 128.84.154.45 128.84.154.45]_TRtoSrc
+2010/02/28.1927.10 Issuing traceroutes: 2010.0228.1927.10 1
+2010/02/28.1927.10 Traceroutes for planetlab02.cs.washington.edu
+2010/02/28.1927.11 Traceroute to 146.228.50.254 reaches for planetlab02.cs.washington.edu 146.228.50.254
+2010/02/28.1927.11 Trying to find 1 hops from [64.213.54.110 64.57.29.98 64.57.29.73 64.57.29.74 209.124.188.134 205.175.101.2 205.175.101.157 205.175.108.21 128.208.4.102 planetlab02.cs.washington.edu]
+2010/02/28.1927.11 Rev Seg is 64.213.54.110
+2010/02/28.1927.11 Fwd planetlab02.cs.washington.edu to 146.228.50.254: 128.208.4.102 205.175.108.21 205.175.101.157 205.175.101.2 209.124.188.134 64.57.29.74 64.57.29.73 64.57.29.98 64.213.54.110 146.228.50.254
+2010/02/28.1927.11 Checking planetlab02.cs.washington.edu 146.228.50.254 146.228.50.254 for traceroutes to source
+2010/02/28.1927.11 Initializing RR VPs in a batch for 1
+2010/02/28.1927.11 Total VPs: 222
+2010/02/28.1927.11 Total spoofers: 160 at 75 sites
+2010/02/28.1927.11 Total up spoofers: 135 at 61 sites
+2010/02/28.1927.11 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1927.12 Found 26 spoofers of 74 for 146.228.50.254: mlab2.ams01.measurement-lab.org planetlab1.williams.edu 75-130-96-13.static.oxfr.ma.charter.com mlab3.lhr01.measurement-lab.org mlab1.par01.measurement-lab.org mlab2.ham01.measurement-lab.org mlab2.nuq01.measurement-lab.org pli1-pa-5.hpl.hp.com planetlab-01.kusa.ac.jp pl1.bit.uoit.ca planetlab1.dojima.wide.ad.jp planetlab4.cs.uiuc.edu pnode1.pdcc-ntu.singaren.net.sg planetlab1.iis.sinica.edu.tw planetlab3-dsl.cs.cornell.edu planetlab2.pc.cis.udel.edu planetlab1.sfc.wide.ad.jp mlab2.lga02.measurement-lab.org eve.ee.ntu.edu.tw planetlab1.uta.edu planetlab-1.cs.uh.edu planetlab1.ntu.nodes.planet-lab.org plab-2.sinp.msu.ru plnode-01.gpolab.bbn.com planetlab-2.cs.auckland.ac.nz mlab2.mia01.measurement-lab.org
+2010/02/28.1927.12 planetlab02.cs.washington.edu 146.228.50.254 146.228.50.254 27 RR VPs left to try
+2010/02/28.1927.12 planetlab02.cs.washington.edu 146.228.50.254 146.228.50.254 using non_spoofed
+2010/02/28.1927.12 Issuing recordroutes: 2010.0228.1927.12 1
+2010/02/28.1927.14 planetlab02.cs.washington.edu 146.228.50.254 146.228.50.254 26 RR VPs left to try
+2010/02/28.1927.14 planetlab02.cs.washington.edu 146.228.50.254 146.228.50.254 using mlab2.ams01.measurement-lab.org planetlab1.williams.edu 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.1927.14 Issuing spoofed recordroutes: 2010.0228.1927.14
+2010/02/28.1927.24 planetlab02.cs.washington.edu received 3 total responses from 75-130-96-13.static.oxfr.ma.charter.com planetlab1.williams.edu 213.244.128.150
+2010/02/28.1927.24 REACHED
+2010/02/28.1927.24 FOUND
+2010/02/28.1927.24 RevPath_D146.228.50.254_Splanetlab02.cs.washington.edu_RevSegment_[146.228.50.254]_Dst,RevSegment_[213.248.81.46 80.91.249.112 213.248.64.253 213.248.64.245]_RR_SpfSrc75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.1927.24 NONE
+2010/02/28.1927.25 FAILED
+2010/02/28.1927.25 --------
+2010/02/28.1927.25 Checking planetlab02.cs.washington.edu 146.228.50.254 213.248.64.245 for traceroutes to source
+2010/02/28.1927.25 Checking planetlab02.cs.washington.edu 146.228.50.254 213.248.64.253 for traceroutes to source
+2010/02/28.1927.25 Checking planetlab02.cs.washington.edu 146.228.50.254 80.91.249.112 for traceroutes to source
+2010/02/28.1927.25 REACHED
+2010/02/28.1927.25 RevPath_D146.228.50.254_Splanetlab02.cs.washington.edu_RevSegment_[146.228.50.254]_Dst,RevSegment_[213.248.81.46 80.91.249.112 213.248.64.253 213.248.64.245]_RR_SpfSrc75-130-96-13.static.oxfr.ma.charter.com,RevSegment_[80.91.251.233 80.91.247.141 80.91.252.40 80.91.253.150 213.244.165.249 4.69.139.129 4.69.133.90 4.69.141.149 4.69.132.138 4.69.137.50 4.69.132.69 4.69.132.113 4.69.132.61 4.69.132.53 4.68.105.35 4.79.106.74 209.124.188.134 209.124.188.135 205.175.101.1 205.175.101.158 205.175.108.22 128.208.4.198]_TRtoSrc
+2010/02/28.1927.25 FOUND
+2010/02/28.1927.25 NONE
+2010/02/28.1927.26 FAILED
+2010/02/28.1927.26 --------
+2010/02/28.1927.26 Total time: 16
+2010/02/28.1927.26 Total probes: rr=1 spoof-rr=3 tr=1
+RevPath_D146.228.50.254_Splanetlab02.cs.washington.edu_RevSegment_[146.228.50.254]_Dst,RevSegment_[213.248.81.46 80.91.249.112 213.248.64.253 213.248.64.245]_RR_SpfSrc75-130-96-13.static.oxfr.ma.charter.com,RevSegment_[80.91.251.233 80.91.247.141 80.91.252.40 80.91.253.150 213.244.165.249 4.69.139.129 4.69.133.90 4.69.141.149 4.69.132.138 4.69.137.50 4.69.132.69 4.69.132.113 4.69.132.61 4.69.132.53 4.68.105.35 4.79.106.74 209.124.188.134 209.124.188.135 205.175.101.1 205.175.101.158 205.175.108.22 128.208.4.198]_TRtoSrc
+2010/02/28.1927.34 Issuing traceroutes: 2010.0228.1927.34 1
+2010/02/28.1927.35 Traceroutes for planetlab3.upc.es
+2010/02/28.1927.35 Traceroute to 212.47.201.192 reaches for planetlab3.upc.es 212.47.201.192
+2010/02/28.1927.36 Trying to find 1 hops from [208.178.60.190 162.97.119.17 130.206.250.25 130.206.202.29 84.88.18.17 10.10.124.14 10.10.124.50 10.10.100.13 147.83.30.130 planetlab3.upc.es]
+2010/02/28.1927.36 Rev Seg is 208.178.60.190
+2010/02/28.1927.36 Fwd planetlab3.upc.es to 212.47.201.192: 147.83.30.130 10.10.100.13 10.10.124.50 10.10.124.14 84.88.18.17 130.206.202.29 130.206.250.25 162.97.119.17 208.178.60.190 212.47.201.192
+2010/02/28.1927.36 Checking planetlab3.upc.es 212.47.201.192 212.47.201.192 for traceroutes to source
+2010/02/28.1927.36 Initializing RR VPs in a batch for 1
+2010/02/28.1927.36 Total VPs: 222
+2010/02/28.1927.36 Total spoofers: 160 at 75 sites
+2010/02/28.1927.37 Total up spoofers: 135 at 61 sites
+2010/02/28.1927.37 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1927.37 Found 21 spoofers of 92 for 212.47.201.192: plab-1.sinp.msu.ru mlab4.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com pl1.bit.uoit.ca planetlab3-dsl.cs.cornell.edu planetlab1.postel.org planetlab1.cs.uiuc.edu mlab2.ams01.measurement-lab.org planetlab2.pc.cis.udel.edu node1.planetlab.albany.edu mlab3.lga02.measurement-lab.org plnode-01.gpolab.bbn.com planetlabnode-1.docomolabs-usa.com planetlab-1.ssvl.kth.se planetlab1.uta.edu planetlab1.dojima.wide.ad.jp planetlab-2.cs.auckland.ac.nz planetlab-02.kusa.ac.jp mlab3.lhr01.measurement-lab.org planetlab5.williams.edu planetlab2.utdallas.edu
+2010/02/28.1927.37 planetlab3.upc.es 212.47.201.192 212.47.201.192 22 RR VPs left to try
+2010/02/28.1927.37 planetlab3.upc.es 212.47.201.192 212.47.201.192 using non_spoofed
+2010/02/28.1927.37 Issuing recordroutes: 2010.0228.1927.37 1
+2010/02/28.1927.40 planetlab3.upc.es 212.47.201.192 212.47.201.192 21 RR VPs left to try
+2010/02/28.1927.40 planetlab3.upc.es 212.47.201.192 212.47.201.192 using plab-1.sinp.msu.ru mlab4.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.1927.40 Issuing spoofed recordroutes: 2010.0228.1927.40
+2010/02/28.1927.51 planetlab3.upc.es received 3 total responses from 64.9.225.176 75-130-96-13.static.oxfr.ma.charter.com plab-1.sinp.msu.ru
+2010/02/28.1927.51 REACHED
+2010/02/28.1927.51 FOUND
+2010/02/28.1927.51 RevPath_D212.47.201.192_Splanetlab3.upc.es_RevSegment_[212.47.201.192]_Dst,RevSegment_[4.69.177.130 80.91.255.3 213.248.64.244 213.248.64.225]_RR_SpfSrcplab-1.sinp.msu.ru
+2010/02/28.1927.51 NONE
+2010/02/28.1927.52 FAILED
+2010/02/28.1927.52 --------
+2010/02/28.1927.52 Checking planetlab3.upc.es 212.47.201.192 213.248.64.225 for traceroutes to source
+2010/02/28.1927.52 Checking planetlab3.upc.es 212.47.201.192 213.248.64.244 for traceroutes to source
+2010/02/28.1927.52 REACHED
+2010/02/28.1927.52 RevPath_D212.47.201.192_Splanetlab3.upc.es_RevSegment_[212.47.201.192]_Dst,RevSegment_[4.69.177.130 80.91.255.3 213.248.64.244 213.248.64.225]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[80.239.147.178 80.91.247.40 80.91.248.131 213.248.81.26 130.206.250.1 130.206.250.26 130.206.202.30 84.88.18.18 0.0.0.0 0.0.0.0 0.0.0.0 147.83.30.164]_TRtoSrc
+2010/02/28.1927.52 FOUND
+2010/02/28.1927.52 NONE
+2010/02/28.1927.52 FAILED
+2010/02/28.1927.52 --------
+2010/02/28.1927.53 Total time: 19
+2010/02/28.1927.53 Total probes: rr=1 spoof-rr=3 tr=1
+RevPath_D212.47.201.192_Splanetlab3.upc.es_RevSegment_[212.47.201.192]_Dst,RevSegment_[4.69.177.130 80.91.255.3 213.248.64.244 213.248.64.225]_RR_SpfSrcplab-1.sinp.msu.ru,RevSegment_[80.239.147.178 80.91.247.40 80.91.248.131 213.248.81.26 130.206.250.1 130.206.250.26 130.206.202.30 84.88.18.18 0.0.0.0 0.0.0.0 0.0.0.0 147.83.30.164]_TRtoSrc
+2010/02/28.1927.59 Issuing traceroutes: 2010.0228.1927.59 1
+2010/02/28.1928.00 Traceroutes for planet3.prakinf.tu-ilmenau.de
+2010/02/28.1928.00 Traceroute to 62.214.109.177 reaches for planet3.prakinf.tu-ilmenau.de 62.214.109.177
+2010/02/28.1928.00 Trying to find 1 hops from [62.214.110.37 62.214.110.41 193.178.185.15 188.1.145.146 188.1.144.198 188.1.238.1 141.24.35.253 planet3.prakinf.tu-ilmenau.de]
+2010/02/28.1928.00 Rev Seg is 62.214.110.37
+2010/02/28.1928.00 Fwd planet3.prakinf.tu-ilmenau.de to 62.214.109.177: 141.24.35.253 188.1.238.1 188.1.144.198 188.1.145.146 193.178.185.15 62.214.110.41 62.214.110.37 62.214.109.177
+2010/02/28.1928.00 Checking planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.109.177 for traceroutes to source
+2010/02/28.1928.00 Initializing RR VPs in a batch for 1
+2010/02/28.1928.00 Total VPs: 222
+2010/02/28.1928.00 Total spoofers: 160 at 75 sites
+2010/02/28.1928.00 Total up spoofers: 135 at 61 sites
+2010/02/28.1928.01 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1928.01 Found 8 spoofers of 46 for 62.214.109.177: pli1-pa-4.hpl.hp.com mlab3.ham01.measurement-lab.org pl1.bit.uoit.ca mlab3.par01.measurement-lab.org planetlab-2.cs.uh.edu planetlab2.pc.cis.udel.edu planet1.ku.edu.tr mlab3.lga02.measurement-lab.org
+2010/02/28.1928.01 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.109.177 9 RR VPs left to try
+2010/02/28.1928.01 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.109.177 using non_spoofed
+2010/02/28.1928.01 Issuing recordroutes: 2010.0228.1928.01 1
+2010/02/28.1928.04 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.109.177 8 RR VPs left to try
+2010/02/28.1928.04 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.109.177 using pli1-pa-4.hpl.hp.com mlab3.ham01.measurement-lab.org pl1.bit.uoit.ca
+2010/02/28.1928.04 Issuing spoofed recordroutes: 2010.0228.1928.04
+2010/02/28.1928.14 planet3.prakinf.tu-ilmenau.de received 3 total responses from pli1-pa-4.hpl.hp.com pl1.bit.uoit.ca 80.239.142.227
+2010/02/28.1928.14 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.109.177 5 RR VPs left to try
+2010/02/28.1928.14 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.109.177 using mlab3.par01.measurement-lab.org planetlab-2.cs.uh.edu planetlab2.pc.cis.udel.edu
+2010/02/28.1928.15 Issuing spoofed recordroutes: 2010.0228.1928.14
+2010/02/28.1928.27 planet3.prakinf.tu-ilmenau.de received 3 total responses from planetlab-2.cs.uh.edu 80.239.168.227 planetlab2.pc.cis.udel.edu
+2010/02/28.1928.27 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.109.177 2 RR VPs left to try
+2010/02/28.1928.27 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.109.177 using planet1.ku.edu.tr mlab3.lga02.measurement-lab.org
+2010/02/28.1928.27 Issuing spoofed recordroutes: 2010.0228.1928.27
+2010/02/28.1928.47 planet3.prakinf.tu-ilmenau.de received 1 total responses from 38.106.70.163
+2010/02/28.1928.47 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.109.177 0 TS adjacents left to try
+2010/02/28.1928.47 No adjacents to 62.214.109.177 left to test for planet3.prakinf.tu-ilmenau.de 62.214.109.177
+2010/02/28.1928.47 Traceroute to 62.214.109.177 reaches for planet3.prakinf.tu-ilmenau.de 62.214.109.177
+2010/02/28.1928.47 Trying to find 1 hops from [62.214.110.37 62.214.110.41 193.178.185.15 188.1.145.146 188.1.144.198 188.1.238.1 141.24.35.253 planet3.prakinf.tu-ilmenau.de]
+2010/02/28.1928.47 Rev Seg is 62.214.110.37
+2010/02/28.1928.47 REACHED
+2010/02/28.1928.47 FOUND
+2010/02/28.1928.47 RevPath_D62.214.109.177_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[62.214.109.177]_Dst,RevSegment_[62.214.110.37]_Dst_AssumeSym
+2010/02/28.1928.47 NONE
+2010/02/28.1928.47 FAILED
+2010/02/28.1928.48 --------
+2010/02/28.1928.48 Checking planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 for traceroutes to source
+2010/02/28.1928.48 Initializing RR VPs in a batch for 1
+2010/02/28.1928.48 Total VPs: 222
+2010/02/28.1928.48 Total spoofers: 160 at 75 sites
+2010/02/28.1928.48 Total up spoofers: 135 at 61 sites
+2010/02/28.1928.48 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1928.48 Found 8 spoofers of 46 for 62.214.110.37: mlab3.ham01.measurement-lab.org pli1-pa-4.hpl.hp.com mlab1.par01.measurement-lab.org pl1.bit.uoit.ca planetlab-2.cs.uh.edu planetlab1.pc.cis.udel.edu planet1.ku.edu.tr mlab1.lga02.measurement-lab.org
+2010/02/28.1928.48 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 9 RR VPs left to try
+2010/02/28.1928.48 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 using non_spoofed
+2010/02/28.1928.49 Issuing recordroutes: 2010.0228.1928.49 1
+2010/02/28.1928.51 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 8 RR VPs left to try
+2010/02/28.1928.51 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 using mlab3.ham01.measurement-lab.org pli1-pa-4.hpl.hp.com mlab1.par01.measurement-lab.org
+2010/02/28.1928.51 Issuing spoofed recordroutes: 2010.0228.1928.51
+2010/02/28.1929.01 planet3.prakinf.tu-ilmenau.de received 4 total responses from planet1.ku.edu.tr 80.239.142.227 pli1-pa-4.hpl.hp.com 80.239.168.201
+2010/02/28.1929.01 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 5 RR VPs left to try
+2010/02/28.1929.01 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 using pl1.bit.uoit.ca planetlab-2.cs.uh.edu planetlab1.pc.cis.udel.edu
+2010/02/28.1929.02 Issuing spoofed recordroutes: 2010.0228.1929.02
+2010/02/28.1929.13 planet3.prakinf.tu-ilmenau.de received 3 total responses from pl1.bit.uoit.ca planetlab-2.cs.uh.edu planetlab1.pc.cis.udel.edu
+2010/02/28.1929.13 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 2 RR VPs left to try
+2010/02/28.1929.13 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 using planet1.ku.edu.tr mlab1.lga02.measurement-lab.org
+2010/02/28.1929.13 Issuing spoofed recordroutes: 2010.0228.1929.13
+2010/02/28.1929.33 planet3.prakinf.tu-ilmenau.de received 1 total responses from 38.106.70.137
+2010/02/28.1929.33 Adjacents for planet3.prakinf.tu-ilmenau.de 62.214.32.33 are 4.69.133.178 62.214.110.182 62.214.110.42 195.69.145.109 62.214.105.46 62.214.110.249 62.214.105.42 62.214.110.66 64.208.110.25 62.214.105.38 62.214.110.54 64.208.110.37 62.214.105.34 193.178.185.15 62.214.108.158 67.17.74.174 62.214.108.154 212.162.17.6 62.214.110.226 62.214.32.83 62.214.110.146 62.214.110.130 4.69.133.185 62.214.84.78 67.17.107.250 62.214.110.185 195.202.33.1 195.149.74.1 62.214.110.45 62.214.52.110 80.81.192.80 89.246.246.26 64.208.110.165 62.214.137.14 194.150.228.1 213.30.195.150 213.30.195.154 212.7.158.74 62.214.108.182 213.30.195.138 213.30.195.134 64.209.97.105 62.214.108.146 162.97.119.17 64.208.205.105 62.214.110.142 62.72.80.70 62.214.110.162 62.214.108.150 62.214.110.154 64.209.94.161 64.215.185.81 89.246.246.242 62.214.110.89 62.214.110.85 62.214.110.81 206.165.213.41 64.212.107.1 192.205.35.90 64.208.27.173 64.212.225.245 62.214.89.134 192.205.36.210 62.214.32.68 64.208.27.169 64.209.100.33 4.68.110.66 66.109.9.202 62.214.108.186 62.214.111.182 62.214.111.254 62.214.111.194 62.214.111.178 62.214.51.35 62.214.108.210 62.214.111.82 64.215.195.149 62.214.61.25 62.214.32.84 62.214.61.17 62.214.61.21 208.51.134.25 62.214.51.34 208.49.195.33 87.245.233.109 64.208.27.177 64.209.88.125 62.214.111.90 62.214.111.86 64.208.110.29 64.215.81.145 64.208.110.201 64.212.107.61 80.81.194.1 208.178.63.149 134.159.62.134 4.68.111.242 134.159.62.170 207.138.144.165 62.214.108.190 4.68.111.162 59.128.1.222 192.205.34.110 192.205.33.34 64.215.195.193 77.232.64.49 59.128.1.218 208.50.13.9 83.97.72.1 64.208.110.117 211.40.6.90 195.253.6.144 4.68.110.90 4.68.63.158 204.255.169.126 208.51.134.97 63.146.26.226 144.232.18.66 87.245.233.82 64.208.27.133 67.17.106.29 195.66.224.243 192.205.34.246 212.93.6.226 64.208.110.222 195.66.225.114 162.97.116.65 62.214.61.9 62.214.61.1 62.214.35.66 207.138.144.101 64.212.107.18 64.213.78.149 4.68.110.194 64.209.111.137 144.232.18.105 212.23.53.21 62.214.32.214 213.30.195.182 4.69.134.65 62.214.61.5 62.214.106.24 130.117.50.58 64.212.107.97 87.245.233.77 130.117.49.210
+2010/02/28.1929.33 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 146 TS adjacents left to try
+2010/02/28.1929.33 Issuing timestamps: 2010.0228.1929.33 1
+2010/02/28.1929.36 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12574329 4.69.133.178 0 4.69.133.178 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1929.36 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 145 TS adjacents left to try
+2010/02/28.1929.36 Issuing timestamps: 2010.0228.1929.36 1
+2010/02/28.1929.39 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12576982 62.214.110.182 0 62.214.110.182 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1929.39 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 144 TS adjacents left to try
+2010/02/28.1929.39 Issuing timestamps: 2010.0228.1929.39 1
+2010/02/28.1929.41 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12579680 62.214.110.42 0 62.214.110.42 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1929.41 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 143 TS adjacents left to try
+2010/02/28.1929.42 Issuing timestamps: 2010.0228.1929.42 1
+2010/02/28.1929.44 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12582320 195.69.145.109 0 195.69.145.109 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1929.44 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 142 TS adjacents left to try
+2010/02/28.1929.44 Issuing timestamps: 2010.0228.1929.44 1
+2010/02/28.1929.47 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12584957 62.214.105.46 0 62.214.105.46 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1929.47 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 141 TS adjacents left to try
+2010/02/28.1929.47 Issuing timestamps: 2010.0228.1929.47 1
+2010/02/28.1929.49 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12587672 62.214.110.249 0 62.214.110.249 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1929.49 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 140 TS adjacents left to try
+2010/02/28.1929.50 Issuing timestamps: 2010.0228.1929.50 1
+2010/02/28.1929.52 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12590311 62.214.105.42 0 62.214.105.42 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1929.52 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 139 TS adjacents left to try
+2010/02/28.1929.52 Issuing timestamps: 2010.0228.1929.52 1
+2010/02/28.1929.55 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12593015 62.214.110.66 0 62.214.110.66 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1929.55 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 138 TS adjacents left to try
+2010/02/28.1929.55 Issuing timestamps: 2010.0228.1929.55 1
+2010/02/28.1929.57 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12595673 64.208.110.25 0 64.208.110.25 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1929.57 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 137 TS adjacents left to try
+2010/02/28.1929.58 Issuing timestamps: 2010.0228.1929.57 1
+2010/02/28.1930.00 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12598490 62.214.105.38 0 62.214.105.38 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.00 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 136 TS adjacents left to try
+2010/02/28.1930.00 Issuing timestamps: 2010.0228.1930.00 1
+2010/02/28.1930.03 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12601150 62.214.110.54 0 62.214.110.54 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.03 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 135 TS adjacents left to try
+2010/02/28.1930.03 Issuing timestamps: 2010.0228.1930.03 1
+2010/02/28.1930.06 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12603929 64.208.110.37 0 64.208.110.37 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.06 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 134 TS adjacents left to try
+2010/02/28.1930.06 Issuing timestamps: 2010.0228.1930.06 1
+2010/02/28.1930.08 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12606578 62.214.105.34 0 62.214.105.34 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.08 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 133 TS adjacents left to try
+2010/02/28.1930.08 Issuing timestamps: 2010.0228.1930.08 1
+2010/02/28.1930.11 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12609258 193.178.185.15 12609260 193.178.185.15 0 128.208.3.77 0: need to test for linux bug
+2010/02/28.1930.11 Issuing timestamps: 2010.0228.1930.11 1
+2010/02/28.1930.13 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12611785 128.208.3.77 0 128.208.3.77 0 0.0.0.0 0: not linux bug!
+2010/02/28.1930.14 Declaring 193.178.185.15 reverse hop!
+2010/02/28.1930.14 Issuing spoofed_timestamps: 2010.0228.1930.14 0
+2010/02/28.1930.14 REACHED
+2010/02/28.1930.14 FOUND
+2010/02/28.1930.14 RevPath_D62.214.109.177_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[62.214.109.177]_Dst,RevSegment_[62.214.110.37]_Dst_AssumeSym,RevSegment_[193.178.185.15]_TSAdj
+2010/02/28.1930.14 NONE
+2010/02/28.1930.14 FAILED
+2010/02/28.1930.14 --------
+2010/02/28.1930.14 Checking planet3.prakinf.tu-ilmenau.de 62.214.109.177 193.178.185.15 for traceroutes to source
+2010/02/28.1930.14 Initializing RR VPs in a batch for 1
+2010/02/28.1930.15 Total VPs: 222
+2010/02/28.1930.15 Total spoofers: 160 at 75 sites
+2010/02/28.1930.15 Total up spoofers: 135 at 61 sites
+2010/02/28.1930.15 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1930.15 Found 0 spoofers of 20 for 193.178.185.15: 
+2010/02/28.1930.15 planet3.prakinf.tu-ilmenau.de 62.214.109.177 193.178.185.15 1 RR VPs left to try
+2010/02/28.1930.15 planet3.prakinf.tu-ilmenau.de 62.214.109.177 193.178.185.15 using non_spoofed
+2010/02/28.1930.15 Issuing recordroutes: 2010.0228.1930.15 1
+2010/02/28.1930.18 Adjacents for planet3.prakinf.tu-ilmenau.de 193.178.185.15 are 188.1.144.221 62.214.110.181 62.214.110.41 62.214.110.186 62.214.110.46 188.1.145.146 188.1.145.194 188.1.144.30 188.1.144.213 188.1.145.134 188.1.145.210 62.214.32.218 62.214.32.214 62.214.35.18
+2010/02/28.1930.18 planet3.prakinf.tu-ilmenau.de 62.214.109.177 193.178.185.15 14 TS adjacents left to try
+2010/02/28.1930.18 Issuing timestamps: 2010.0228.1930.18 1
+2010/02/28.1930.20 Total VPs: 222
+2010/02/28.1930.20 Total spoofers: 160 at 75 sites
+2010/02/28.1930.21 Total up spoofers: 135 at 61 sites
+2010/02/28.1930.21 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1930.21 Issuing spoofed_timestamps: 2010.0228.1930.21 5
+2010/02/28.1930.32 planet3.prakinf.tu-ilmenau.de received 0 total responses from 
+2010/02/28.1930.32 Current hop 193.178.185.15 seems to be TS unresponsive for planet3.prakinf.tu-ilmenau.de 62.214.109.177
+2010/02/28.1930.32 Issuing traceroutes: 2010.0228.1930.32 1
+2010/02/28.1930.32 Traceroutes for planet3.prakinf.tu-ilmenau.de
+2010/02/28.1930.33 REACHED
+2010/02/28.1930.33 FOUND
+2010/02/28.1930.33 NONE
+2010/02/28.1930.33 RevPath_D62.214.109.177_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[62.214.109.177]_Dst,RevSegment_[62.214.110.37]_Dst_AssumeSym,RevSegment_[193.178.185.15]_TSAdj
+2010/02/28.1930.33 Failing path: RevPath_D62.214.109.177_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[62.214.109.177]_Dst,RevSegment_[62.214.110.37]_Dst_AssumeSym,RevSegment_[193.178.185.15]_TSAdj
+2010/02/28.1930.33 FAILED
+2010/02/28.1930.33 --------
+2010/02/28.1930.33 Checking planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 for traceroutes to source
+2010/02/28.1930.33 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 132 TS adjacents left to try
+2010/02/28.1930.33 Issuing timestamps: 2010.0228.1930.33 1
+2010/02/28.1930.36 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12634415 62.214.108.158 0 62.214.108.158 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.36 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 131 TS adjacents left to try
+2010/02/28.1930.36 Issuing timestamps: 2010.0228.1930.36 1
+2010/02/28.1930.39 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12637044 67.17.74.174 0 67.17.74.174 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.39 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 130 TS adjacents left to try
+2010/02/28.1930.39 Issuing timestamps: 2010.0228.1930.39 1
+2010/02/28.1930.41 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12639622 62.214.108.154 0 62.214.108.154 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.41 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 129 TS adjacents left to try
+2010/02/28.1930.41 Issuing timestamps: 2010.0228.1930.41 1
+2010/02/28.1930.44 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12642155 212.162.17.6 0 212.162.17.6 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.44 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 128 TS adjacents left to try
+2010/02/28.1930.44 Issuing timestamps: 2010.0228.1930.44 1
+2010/02/28.1930.47 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12644837 62.214.110.226 0 62.214.110.226 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.47 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 127 TS adjacents left to try
+2010/02/28.1930.47 Issuing timestamps: 2010.0228.1930.47 1
+2010/02/28.1930.49 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12647591 62.214.32.83 0 62.214.32.83 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.49 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 126 TS adjacents left to try
+2010/02/28.1930.50 Issuing timestamps: 2010.0228.1930.49 1
+2010/02/28.1930.52 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12650231 62.214.110.146 0 62.214.110.146 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.52 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 125 TS adjacents left to try
+2010/02/28.1930.52 Issuing timestamps: 2010.0228.1930.52 1
+2010/02/28.1930.55 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12652871 62.214.110.130 0 62.214.110.130 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.55 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 124 TS adjacents left to try
+2010/02/28.1930.55 Issuing timestamps: 2010.0228.1930.55 1
+2010/02/28.1930.57 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12655510 4.69.133.185 0 4.69.133.185 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1930.57 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 123 TS adjacents left to try
+2010/02/28.1930.57 Issuing timestamps: 2010.0228.1930.57 1
+2010/02/28.1931.00 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12658163 62.214.84.78 0 62.214.84.78 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.00 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 122 TS adjacents left to try
+2010/02/28.1931.00 Issuing timestamps: 2010.0228.1931.00 1
+2010/02/28.1931.02 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12660804 67.17.107.250 0 67.17.107.250 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.03 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 121 TS adjacents left to try
+2010/02/28.1931.03 Issuing timestamps: 2010.0228.1931.03 1
+2010/02/28.1931.05 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12663442 62.214.110.185 0 62.214.110.185 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.05 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 120 TS adjacents left to try
+2010/02/28.1931.05 Issuing timestamps: 2010.0228.1931.05 1
+2010/02/28.1931.08 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12666174 195.202.33.1 0 195.202.33.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.08 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 119 TS adjacents left to try
+2010/02/28.1931.08 Issuing timestamps: 2010.0228.1931.08 1
+2010/02/28.1931.10 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12668798 195.149.74.1 0 195.149.74.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.11 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 118 TS adjacents left to try
+2010/02/28.1931.11 Issuing timestamps: 2010.0228.1931.11 1
+2010/02/28.1931.13 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12671414 62.214.110.45 0 62.214.110.45 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.13 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 117 TS adjacents left to try
+2010/02/28.1931.13 Issuing timestamps: 2010.0228.1931.13 1
+2010/02/28.1931.16 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12674073 62.214.52.110 0 62.214.52.110 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.16 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 116 TS adjacents left to try
+2010/02/28.1931.16 Issuing timestamps: 2010.0228.1931.16 1
+2010/02/28.1931.18 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12676743 80.81.192.80 0 80.81.192.80 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.18 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 115 TS adjacents left to try
+2010/02/28.1931.19 Issuing timestamps: 2010.0228.1931.19 1
+2010/02/28.1931.21 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12679454 89.246.246.26 0 89.246.246.26 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.21 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 114 TS adjacents left to try
+2010/02/28.1931.21 Issuing timestamps: 2010.0228.1931.21 1
+2010/02/28.1931.24 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12681984 64.208.110.165 0 64.208.110.165 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.24 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 113 TS adjacents left to try
+2010/02/28.1931.24 Issuing timestamps: 2010.0228.1931.24 1
+2010/02/28.1931.26 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12684623 62.214.137.14 0 62.214.137.14 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.26 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 112 TS adjacents left to try
+2010/02/28.1931.27 Issuing timestamps: 2010.0228.1931.26 1
+2010/02/28.1931.29 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12687261 194.150.228.1 0 194.150.228.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.29 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 111 TS adjacents left to try
+2010/02/28.1931.29 Issuing timestamps: 2010.0228.1931.29 1
+2010/02/28.1931.32 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12689908 213.30.195.150 0 213.30.195.150 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.32 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 110 TS adjacents left to try
+2010/02/28.1931.32 Issuing timestamps: 2010.0228.1931.32 1
+2010/02/28.1931.34 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12692632 213.30.195.154 0 213.30.195.154 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.34 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 109 TS adjacents left to try
+2010/02/28.1931.35 Issuing timestamps: 2010.0228.1931.34 1
+2010/02/28.1931.37 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12695326 212.7.158.74 0 212.7.158.74 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.37 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 108 TS adjacents left to try
+2010/02/28.1931.37 Issuing timestamps: 2010.0228.1931.37 1
+2010/02/28.1931.40 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12698171 62.214.108.182 0 62.214.108.182 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.40 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 107 TS adjacents left to try
+2010/02/28.1931.40 Issuing timestamps: 2010.0228.1931.40 1
+2010/02/28.1931.42 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12700789 213.30.195.138 0 213.30.195.138 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.42 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 106 TS adjacents left to try
+2010/02/28.1931.43 Issuing timestamps: 2010.0228.1931.43 1
+2010/02/28.1931.45 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12703451 213.30.195.134 0 213.30.195.134 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.45 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 105 TS adjacents left to try
+2010/02/28.1931.45 Issuing timestamps: 2010.0228.1931.45 1
+2010/02/28.1931.48 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12706218 64.209.97.105 0 64.209.97.105 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.48 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 104 TS adjacents left to try
+2010/02/28.1931.48 Issuing timestamps: 2010.0228.1931.48 1
+2010/02/28.1931.50 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12708784 62.214.108.146 0 62.214.108.146 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.51 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 103 TS adjacents left to try
+2010/02/28.1931.51 Issuing timestamps: 2010.0228.1931.51 1
+2010/02/28.1931.53 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12711803 162.97.119.17 0 162.97.119.17 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.54 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 102 TS adjacents left to try
+2010/02/28.1931.54 Issuing timestamps: 2010.0228.1931.54 1
+2010/02/28.1931.56 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12714443 64.208.205.105 0 64.208.205.105 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.56 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 101 TS adjacents left to try
+2010/02/28.1931.56 Issuing timestamps: 2010.0228.1931.56 1
+2010/02/28.1931.59 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12717085 62.214.110.142 0 62.214.110.142 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1931.59 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 100 TS adjacents left to try
+2010/02/28.1931.59 Issuing timestamps: 2010.0228.1931.59 1
+2010/02/28.1932.01 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12719770 62.72.80.70 0 62.72.80.70 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.02 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 99 TS adjacents left to try
+2010/02/28.1932.02 Issuing timestamps: 2010.0228.1932.02 1
+2010/02/28.1932.04 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12722442 62.214.110.162 0 62.214.110.162 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.04 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 98 TS adjacents left to try
+2010/02/28.1932.04 Issuing timestamps: 2010.0228.1932.04 1
+2010/02/28.1932.07 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12725083 62.214.108.150 0 62.214.108.150 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.07 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 97 TS adjacents left to try
+2010/02/28.1932.07 Issuing timestamps: 2010.0228.1932.07 1
+2010/02/28.1932.09 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12727727 62.214.110.154 0 62.214.110.154 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.09 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 96 TS adjacents left to try
+2010/02/28.1932.10 Issuing timestamps: 2010.0228.1932.10 1
+2010/02/28.1932.12 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12730498 64.209.94.161 0 64.209.94.161 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.12 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 95 TS adjacents left to try
+2010/02/28.1932.12 Issuing timestamps: 2010.0228.1932.12 1
+2010/02/28.1932.15 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12733039 64.215.185.81 0 64.215.185.81 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.15 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 94 TS adjacents left to try
+2010/02/28.1932.15 Issuing timestamps: 2010.0228.1932.15 1
+2010/02/28.1932.17 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12735704 89.246.246.242 0 89.246.246.242 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.18 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 93 TS adjacents left to try
+2010/02/28.1932.18 Issuing timestamps: 2010.0228.1932.18 1
+2010/02/28.1932.20 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12738414 62.214.110.89 0 62.214.110.89 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.20 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 92 TS adjacents left to try
+2010/02/28.1932.20 Issuing timestamps: 2010.0228.1932.20 1
+2010/02/28.1932.23 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12741055 62.214.110.85 0 62.214.110.85 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.23 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 91 TS adjacents left to try
+2010/02/28.1932.23 Issuing timestamps: 2010.0228.1932.23 1
+2010/02/28.1932.25 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12743742 62.214.110.81 0 62.214.110.81 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.25 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 90 TS adjacents left to try
+2010/02/28.1932.26 Issuing timestamps: 2010.0228.1932.26 1
+2010/02/28.1932.28 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12746408 206.165.213.41 0 206.165.213.41 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.28 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 89 TS adjacents left to try
+2010/02/28.1932.28 Issuing timestamps: 2010.0228.1932.28 1
+2010/02/28.1932.31 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12749044 64.212.107.1 0 64.212.107.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.31 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 88 TS adjacents left to try
+2010/02/28.1932.31 Issuing timestamps: 2010.0228.1932.31 1
+2010/02/28.1932.33 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12751679 192.205.35.90 0 192.205.35.90 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.33 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 87 TS adjacents left to try
+2010/02/28.1932.34 Issuing timestamps: 2010.0228.1932.34 1
+2010/02/28.1932.36 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12754326 64.208.27.173 0 64.208.27.173 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.36 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 86 TS adjacents left to try
+2010/02/28.1932.36 Issuing timestamps: 2010.0228.1932.36 1
+2010/02/28.1932.39 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12756977 64.212.225.245 0 64.212.225.245 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.39 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 85 TS adjacents left to try
+2010/02/28.1932.39 Issuing timestamps: 2010.0228.1932.39 1
+2010/02/28.1932.41 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12759623 62.214.89.134 0 62.214.89.134 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.41 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 84 TS adjacents left to try
+2010/02/28.1932.42 Issuing timestamps: 2010.0228.1932.41 1
+2010/02/28.1932.44 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12762455 192.205.36.210 0 192.205.36.210 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.44 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 83 TS adjacents left to try
+2010/02/28.1932.44 Issuing timestamps: 2010.0228.1932.44 1
+2010/02/28.1932.47 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12765106 62.214.32.68 0 62.214.32.68 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.47 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 82 TS adjacents left to try
+2010/02/28.1932.47 Issuing timestamps: 2010.0228.1932.47 1
+2010/02/28.1932.49 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12767657 64.208.27.169 0 64.208.27.169 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.49 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 81 TS adjacents left to try
+2010/02/28.1932.50 Issuing timestamps: 2010.0228.1932.49 1
+2010/02/28.1932.52 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12770315 64.209.100.33 0 64.209.100.33 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.52 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 80 TS adjacents left to try
+2010/02/28.1932.52 Issuing timestamps: 2010.0228.1932.52 1
+2010/02/28.1932.55 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12772884 4.68.110.66 0 4.68.110.66 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.55 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 79 TS adjacents left to try
+2010/02/28.1932.55 Issuing timestamps: 2010.0228.1932.55 1
+2010/02/28.1932.57 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12775559 66.109.9.202 0 66.109.9.202 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1932.57 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 78 TS adjacents left to try
+2010/02/28.1932.57 Issuing timestamps: 2010.0228.1932.57 1
+2010/02/28.1933.00 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12778232 62.214.108.186 0 62.214.108.186 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.00 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 77 TS adjacents left to try
+2010/02/28.1933.00 Issuing timestamps: 2010.0228.1933.00 1
+2010/02/28.1933.02 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12780834 62.214.111.182 0 62.214.111.182 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.03 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 76 TS adjacents left to try
+2010/02/28.1933.03 Issuing timestamps: 2010.0228.1933.03 1
+2010/02/28.1933.05 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12783512 62.214.111.254 0 62.214.111.254 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.05 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 75 TS adjacents left to try
+2010/02/28.1933.05 Issuing timestamps: 2010.0228.1933.05 1
+2010/02/28.1933.08 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12786166 62.214.111.194 0 62.214.111.194 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.08 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 74 TS adjacents left to try
+2010/02/28.1933.08 Issuing timestamps: 2010.0228.1933.08 1
+2010/02/28.1933.10 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12788827 62.214.111.178 0 62.214.111.178 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.11 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 73 TS adjacents left to try
+2010/02/28.1933.11 Issuing timestamps: 2010.0228.1933.11 1
+2010/02/28.1933.13 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12791477 62.214.51.35 0 62.214.51.35 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.13 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 72 TS adjacents left to try
+2010/02/28.1933.13 Issuing timestamps: 2010.0228.1933.13 1
+2010/02/28.1933.16 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12794129 62.214.108.210 0 62.214.108.210 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.16 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 71 TS adjacents left to try
+2010/02/28.1933.16 Issuing timestamps: 2010.0228.1933.16 1
+2010/02/28.1933.18 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12796826 62.214.111.82 0 62.214.111.82 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.19 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 70 TS adjacents left to try
+2010/02/28.1933.19 Issuing timestamps: 2010.0228.1933.19 1
+2010/02/28.1933.21 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12799534 64.215.195.149 0 64.215.195.149 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.21 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 69 TS adjacents left to try
+2010/02/28.1933.21 Issuing timestamps: 2010.0228.1933.21 1
+2010/02/28.1933.24 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12802054 62.214.61.25 0 62.214.61.25 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.24 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 68 TS adjacents left to try
+2010/02/28.1933.24 Issuing timestamps: 2010.0228.1933.24 1
+2010/02/28.1933.26 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12804737 62.214.32.84 0 62.214.32.84 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.26 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 67 TS adjacents left to try
+2010/02/28.1933.27 Issuing timestamps: 2010.0228.1933.27 1
+2010/02/28.1933.29 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12807359 62.214.61.17 0 62.214.61.17 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.29 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 66 TS adjacents left to try
+2010/02/28.1933.29 Issuing timestamps: 2010.0228.1933.29 1
+2010/02/28.1933.32 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12810023 62.214.61.21 0 62.214.61.21 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.32 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 65 TS adjacents left to try
+2010/02/28.1933.32 Issuing timestamps: 2010.0228.1933.32 1
+2010/02/28.1933.34 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12812736 208.51.134.25 0 208.51.134.25 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.34 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 64 TS adjacents left to try
+2010/02/28.1933.35 Issuing timestamps: 2010.0228.1933.35 1
+2010/02/28.1933.37 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12815412 62.214.51.34 0 62.214.51.34 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.37 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 63 TS adjacents left to try
+2010/02/28.1933.37 Issuing timestamps: 2010.0228.1933.37 1
+2010/02/28.1933.40 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12818060 208.49.195.33 0 208.49.195.33 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.40 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 62 TS adjacents left to try
+2010/02/28.1933.40 Issuing timestamps: 2010.0228.1933.40 1
+2010/02/28.1933.42 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12820725 87.245.233.109 0 87.245.233.109 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.42 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 61 TS adjacents left to try
+2010/02/28.1933.43 Issuing timestamps: 2010.0228.1933.43 1
+2010/02/28.1933.45 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12823424 64.208.27.177 0 64.208.27.177 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.45 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 60 TS adjacents left to try
+2010/02/28.1933.45 Issuing timestamps: 2010.0228.1933.45 1
+2010/02/28.1933.48 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12826435 64.209.88.125 0 64.209.88.125 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.48 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 59 TS adjacents left to try
+2010/02/28.1933.48 Issuing timestamps: 2010.0228.1933.48 1
+2010/02/28.1933.51 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12829287 62.214.111.90 0 62.214.111.90 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.51 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 58 TS adjacents left to try
+2010/02/28.1933.51 Issuing timestamps: 2010.0228.1933.51 1
+2010/02/28.1933.53 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12831903 62.214.111.86 0 62.214.111.86 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.53 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 57 TS adjacents left to try
+2010/02/28.1933.54 Issuing timestamps: 2010.0228.1933.54 1
+2010/02/28.1933.56 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12834433 64.208.110.29 0 64.208.110.29 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.56 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 56 TS adjacents left to try
+2010/02/28.1933.56 Issuing timestamps: 2010.0228.1933.56 1
+2010/02/28.1933.59 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12837186 64.215.81.145 0 64.215.81.145 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1933.59 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 55 TS adjacents left to try
+2010/02/28.1933.59 Issuing timestamps: 2010.0228.1933.59 1
+2010/02/28.1934.01 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12839954 64.208.110.201 0 64.208.110.201 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.01 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 54 TS adjacents left to try
+2010/02/28.1934.02 Issuing timestamps: 2010.0228.1934.02 1
+2010/02/28.1934.04 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12842364 64.212.107.61 0 64.212.107.61 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.04 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 53 TS adjacents left to try
+2010/02/28.1934.04 Issuing timestamps: 2010.0228.1934.04 1
+2010/02/28.1934.07 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12845030 80.81.194.1 0 80.81.194.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.07 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 52 TS adjacents left to try
+2010/02/28.1934.07 Issuing timestamps: 2010.0228.1934.07 1
+2010/02/28.1934.09 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12847760 208.178.63.149 0 208.178.63.149 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.10 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 51 TS adjacents left to try
+2010/02/28.1934.10 Issuing timestamps: 2010.0228.1934.10 1
+2010/02/28.1934.13 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12851184 134.159.62.134 0 134.159.62.134 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.13 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 50 TS adjacents left to try
+2010/02/28.1934.13 Issuing timestamps: 2010.0228.1934.13 1
+2010/02/28.1934.16 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12853885 4.68.111.242 0 4.68.111.242 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.16 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 49 TS adjacents left to try
+2010/02/28.1934.16 Issuing timestamps: 2010.0228.1934.16 1
+2010/02/28.1934.18 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12856579 134.159.62.170 0 134.159.62.170 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.18 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 48 TS adjacents left to try
+2010/02/28.1934.18 Issuing timestamps: 2010.0228.1934.18 1
+2010/02/28.1934.21 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12859232 207.138.144.165 0 207.138.144.165 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.21 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 47 TS adjacents left to try
+2010/02/28.1934.21 Issuing timestamps: 2010.0228.1934.21 1
+2010/02/28.1934.24 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12861893 62.214.108.190 0 62.214.108.190 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.24 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 46 TS adjacents left to try
+2010/02/28.1934.24 Issuing timestamps: 2010.0228.1934.24 1
+2010/02/28.1934.26 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12864627 4.68.111.162 0 4.68.111.162 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.26 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 45 TS adjacents left to try
+2010/02/28.1934.26 Issuing timestamps: 2010.0228.1934.26 1
+2010/02/28.1934.29 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12867171 59.128.1.222 0 59.128.1.222 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.29 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 44 TS adjacents left to try
+2010/02/28.1934.29 Issuing timestamps: 2010.0228.1934.29 1
+2010/02/28.1934.31 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12869817 192.205.34.110 0 192.205.34.110 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.32 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 43 TS adjacents left to try
+2010/02/28.1934.32 Issuing timestamps: 2010.0228.1934.32 1
+2010/02/28.1934.34 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12872465 192.205.33.34 0 192.205.33.34 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.34 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 42 TS adjacents left to try
+2010/02/28.1934.34 Issuing timestamps: 2010.0228.1934.34 1
+2010/02/28.1934.37 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12875114 64.215.195.193 0 64.215.195.193 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.37 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 41 TS adjacents left to try
+2010/02/28.1934.37 Issuing timestamps: 2010.0228.1934.37 1
+2010/02/28.1934.39 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12877759 77.232.64.49 0 77.232.64.49 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.40 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 40 TS adjacents left to try
+2010/02/28.1934.40 Issuing timestamps: 2010.0228.1934.40 1
+2010/02/28.1934.42 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12880403 59.128.1.218 0 59.128.1.218 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.42 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 39 TS adjacents left to try
+2010/02/28.1934.42 Issuing timestamps: 2010.0228.1934.42 1
+2010/02/28.1934.45 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12883059 208.50.13.9 0 208.50.13.9 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.45 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 38 TS adjacents left to try
+2010/02/28.1934.45 Issuing timestamps: 2010.0228.1934.45 1
+2010/02/28.1934.47 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12885715 83.97.72.1 0 83.97.72.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.47 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 37 TS adjacents left to try
+2010/02/28.1934.48 Issuing timestamps: 2010.0228.1934.48 1
+2010/02/28.1934.50 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12888351 64.208.110.117 0 64.208.110.117 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.50 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 36 TS adjacents left to try
+2010/02/28.1934.50 Issuing timestamps: 2010.0228.1934.50 1
+2010/02/28.1934.53 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12890993 211.40.6.90 0 211.40.6.90 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.53 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 35 TS adjacents left to try
+2010/02/28.1934.53 Issuing timestamps: 2010.0228.1934.53 1
+2010/02/28.1934.55 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12893666 195.253.6.144 0 195.253.6.144 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.55 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 34 TS adjacents left to try
+2010/02/28.1934.56 Issuing timestamps: 2010.0228.1934.55 1
+2010/02/28.1934.58 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12896320 4.68.110.90 0 4.68.110.90 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1934.58 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 33 TS adjacents left to try
+2010/02/28.1934.58 Issuing timestamps: 2010.0228.1934.58 1
+2010/02/28.1935.01 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12899092 4.68.63.158 0 4.68.63.158 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.01 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 32 TS adjacents left to try
+2010/02/28.1935.01 Issuing timestamps: 2010.0228.1935.01 1
+2010/02/28.1935.03 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12901811 204.255.169.126 0 204.255.169.126 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.03 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 31 TS adjacents left to try
+2010/02/28.1935.04 Issuing timestamps: 2010.0228.1935.03 1
+2010/02/28.1935.06 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12904376 208.51.134.97 0 208.51.134.97 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.06 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 30 TS adjacents left to try
+2010/02/28.1935.06 Issuing timestamps: 2010.0228.1935.06 1
+2010/02/28.1935.09 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12907002 63.146.26.226 0 63.146.26.226 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.09 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 29 TS adjacents left to try
+2010/02/28.1935.09 Issuing timestamps: 2010.0228.1935.09 1
+2010/02/28.1935.11 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12909588 144.232.18.66 0 144.232.18.66 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.11 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 28 TS adjacents left to try
+2010/02/28.1935.11 Issuing timestamps: 2010.0228.1935.11 1
+2010/02/28.1935.14 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12912289 87.245.233.82 0 87.245.233.82 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.14 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 27 TS adjacents left to try
+2010/02/28.1935.14 Issuing timestamps: 2010.0228.1935.14 1
+2010/02/28.1935.17 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12914927 64.208.27.133 0 64.208.27.133 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.17 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 26 TS adjacents left to try
+2010/02/28.1935.17 Issuing timestamps: 2010.0228.1935.17 1
+2010/02/28.1935.19 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12917563 67.17.106.29 0 67.17.106.29 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.19 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 25 TS adjacents left to try
+2010/02/28.1935.19 Issuing timestamps: 2010.0228.1935.19 1
+2010/02/28.1935.22 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12920208 195.66.224.243 0 195.66.224.243 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.22 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 24 TS adjacents left to try
+2010/02/28.1935.22 Issuing timestamps: 2010.0228.1935.22 1
+2010/02/28.1935.25 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12922845 192.205.34.246 0 192.205.34.246 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.25 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 23 TS adjacents left to try
+2010/02/28.1935.25 Issuing timestamps: 2010.0228.1935.25 1
+2010/02/28.1935.27 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12925490 212.93.6.226 0 212.93.6.226 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.27 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 22 TS adjacents left to try
+2010/02/28.1935.27 Issuing timestamps: 2010.0228.1935.27 1
+2010/02/28.1935.30 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12928590 64.208.110.222 0 64.208.110.222 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.30 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 21 TS adjacents left to try
+2010/02/28.1935.30 Issuing timestamps: 2010.0228.1935.30 1
+2010/02/28.1935.33 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12931120 195.66.225.114 0 195.66.225.114 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.33 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 20 TS adjacents left to try
+2010/02/28.1935.33 Issuing timestamps: 2010.0228.1935.33 1
+2010/02/28.1935.35 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12933780 162.97.116.65 0 162.97.116.65 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.35 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 19 TS adjacents left to try
+2010/02/28.1935.36 Issuing timestamps: 2010.0228.1935.36 1
+2010/02/28.1935.38 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12936362 62.214.61.9 0 62.214.61.9 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.38 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 18 TS adjacents left to try
+2010/02/28.1935.38 Issuing timestamps: 2010.0228.1935.38 1
+2010/02/28.1935.41 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12939000 62.214.61.1 0 62.214.61.1 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.41 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 17 TS adjacents left to try
+2010/02/28.1935.41 Issuing timestamps: 2010.0228.1935.41 1
+2010/02/28.1935.44 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12942011 62.214.35.66 0 62.214.35.66 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.44 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 16 TS adjacents left to try
+2010/02/28.1935.44 Issuing timestamps: 2010.0228.1935.44 1
+2010/02/28.1935.46 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12944676 207.138.144.101 0 207.138.144.101 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.46 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 15 TS adjacents left to try
+2010/02/28.1935.47 Issuing timestamps: 2010.0228.1935.47 1
+2010/02/28.1935.49 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12947363 64.212.107.18 0 64.212.107.18 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.49 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 14 TS adjacents left to try
+2010/02/28.1935.49 Issuing timestamps: 2010.0228.1935.49 1
+2010/02/28.1935.52 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12949963 64.213.78.149 0 64.213.78.149 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.52 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 13 TS adjacents left to try
+2010/02/28.1935.52 Issuing timestamps: 2010.0228.1935.52 1
+2010/02/28.1935.54 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12952603 4.68.110.194 0 4.68.110.194 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.54 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 12 TS adjacents left to try
+2010/02/28.1935.55 Issuing timestamps: 2010.0228.1935.54 1
+2010/02/28.1935.57 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12955243 64.209.111.137 0 64.209.111.137 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1935.57 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 11 TS adjacents left to try
+2010/02/28.1935.57 Issuing timestamps: 2010.0228.1935.57 1
+2010/02/28.1936.00 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12957879 144.232.18.105 0 144.232.18.105 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1936.00 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 10 TS adjacents left to try
+2010/02/28.1936.00 Issuing timestamps: 2010.0228.1936.00 1
+2010/02/28.1936.02 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12960520 212.23.53.21 0 212.23.53.21 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1936.02 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 9 TS adjacents left to try
+2010/02/28.1936.02 Issuing timestamps: 2010.0228.1936.02 1
+2010/02/28.1936.05 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12963264 62.214.32.214 0 62.214.32.214 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1936.05 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 8 TS adjacents left to try
+2010/02/28.1936.05 Issuing timestamps: 2010.0228.1936.05 1
+2010/02/28.1936.08 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12965992 213.30.195.182 0 213.30.195.182 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1936.08 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 7 TS adjacents left to try
+2010/02/28.1936.08 Issuing timestamps: 2010.0228.1936.08 1
+2010/02/28.1936.11 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12969777 4.69.134.65 0 4.69.134.65 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1936.11 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 6 TS adjacents left to try
+2010/02/28.1936.11 Issuing timestamps: 2010.0228.1936.11 1
+2010/02/28.1936.14 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12972450 62.214.61.5 0 62.214.61.5 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1936.14 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 5 TS adjacents left to try
+2010/02/28.1936.14 Issuing timestamps: 2010.0228.1936.14 1
+2010/02/28.1936.16 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12974891 62.214.106.24 0 62.214.106.24 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1936.17 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 4 TS adjacents left to try
+2010/02/28.1936.17 Issuing timestamps: 2010.0228.1936.17 1
+2010/02/28.1936.19 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12977441 130.117.50.58 0 130.117.50.58 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1936.19 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 3 TS adjacents left to try
+2010/02/28.1936.19 Issuing timestamps: 2010.0228.1936.19 1
+2010/02/28.1936.22 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12980135 64.212.107.97 0 64.212.107.97 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1936.22 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 2 TS adjacents left to try
+2010/02/28.1936.22 Issuing timestamps: 2010.0228.1936.22 1
+2010/02/28.1936.24 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12982815 87.245.233.77 0 87.245.233.77 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1936.25 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 1 TS adjacents left to try
+2010/02/28.1936.25 Issuing timestamps: 2010.0228.1936.25 1
+2010/02/28.1936.27 TS probe is non_spoofed 62.214.110.37 62.214.110.37 12985421 130.117.49.210 0 130.117.49.210 0 128.208.3.77 0: no reverse hop found
+2010/02/28.1936.27 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 0 TS adjacents left to try
+2010/02/28.1936.27 No adjacents to 62.214.110.37 left to test for planet3.prakinf.tu-ilmenau.de 62.214.109.177
+2010/02/28.1936.27 Backing off along current path for planet3.prakinf.tu-ilmenau.de 62.214.109.177
+2010/02/28.1936.27 Trying to find 2 hops from [62.214.110.37 62.214.110.41 193.178.185.15 188.1.145.146 188.1.144.198 188.1.238.1 141.24.35.253 planet3.prakinf.tu-ilmenau.de]
+2010/02/28.1936.27 Rev Seg is 62.214.110.37 62.214.110.41
+2010/02/28.1936.28 REACHED
+2010/02/28.1936.28 FOUND
+2010/02/28.1936.28 RevPath_D62.214.109.177_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[62.214.109.177]_Dst,RevSegment_[62.214.110.37 62.214.110.41]_Dst_AssumeSym
+2010/02/28.1936.28 NONE
+2010/02/28.1936.28 FAILED
+2010/02/28.1936.28 --------
+2010/02/28.1936.28 Checking planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.41 for traceroutes to source
+2010/02/28.1936.28 Checking planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.37 for traceroutes to source
+2010/02/28.1936.28 Initializing RR VPs in a batch for 1
+2010/02/28.1936.29 Total VPs: 222
+2010/02/28.1936.29 Total spoofers: 160 at 75 sites
+2010/02/28.1936.29 Total up spoofers: 135 at 61 sites
+2010/02/28.1936.29 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1936.29 Found 8 spoofers of 46 for 62.214.110.41: mlab1.par01.measurement-lab.org pli1-pa-5.hpl.hp.com mlab1.ham01.measurement-lab.org pl1.bit.uoit.ca planetlab-2.cs.uh.edu planetlab1.pc.cis.udel.edu planet1.ku.edu.tr mlab3.lga01.measurement-lab.org
+2010/02/28.1936.29 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.41 9 RR VPs left to try
+2010/02/28.1936.29 planet3.prakinf.tu-ilmenau.de 62.214.109.177 62.214.110.41 using non_spoofed
+2010/02/28.1936.29 Issuing recordroutes: 2010.0228.1936.29 1
+2010/02/28.1936.32 REACHED
+2010/02/28.1936.32 FOUND
+2010/02/28.1936.32 RevPath_D62.214.109.177_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[62.214.109.177]_Dst,RevSegment_[62.214.110.37 62.214.110.41]_Dst_AssumeSym,RevSegment_[193.178.185.15 188.1.145.194]_RR
+2010/02/28.1936.32 NONE
+2010/02/28.1936.32 FAILED
+2010/02/28.1936.32 --------
+2010/02/28.1936.32 Checking planet3.prakinf.tu-ilmenau.de 62.214.109.177 188.1.145.194 for traceroutes to source
+2010/02/28.1936.32 REACHED
+2010/02/28.1936.33 RevPath_D62.214.109.177_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[62.214.109.177]_Dst,RevSegment_[62.214.110.37 62.214.110.41]_Dst_AssumeSym,RevSegment_[193.178.185.15 188.1.145.194]_RR,RevSegment_[188.1.145.193 188.1.144.197 188.1.238.2 141.24.33.192]_TRtoSrc
+2010/02/28.1936.33 FOUND
+2010/02/28.1936.33 NONE
+2010/02/28.1936.33 FAILED
+2010/02/28.1936.33 --------
+2010/02/28.1936.33 Total time: 514
+2010/02/28.1936.33 Total probes: rr=4 spoof-ts=5 spoof-rr=16 tr=2 ts=148
+RevPath_D62.214.109.177_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[62.214.109.177]_Dst,RevSegment_[62.214.110.37 62.214.110.41]_Dst_AssumeSym,RevSegment_[193.178.185.15 188.1.145.194]_RR,RevSegment_[188.1.145.193 188.1.144.197 188.1.238.2 141.24.33.192]_TRtoSrc
+2010/02/28.1936.39 Issuing traceroutes: 2010.0228.1936.39 1
+2010/02/28.1936.40 Traceroutes for planetlab2.cs.uit.no
+2010/02/28.1936.41 Traceroute to 164.128.251.1 reaches for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1936.41 Trying to find 1 hops from [138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25 109.105.97.10 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/28.1936.41 Rev Seg is 138.187.130.181
+2010/02/28.1936.41 Fwd planetlab2.cs.uit.no to 164.128.251.1: 129.242.19.193 129.242.222.1 129.242.1.9 128.39.47.217 128.39.65.73 109.105.102.21 109.105.97.10 109.105.97.25 195.69.144.100 138.187.129.65 138.187.129.9 138.187.130.181 164.128.251.1
+2010/02/28.1936.41 Checking planetlab2.cs.uit.no 164.128.251.1 164.128.251.1 for traceroutes to source
+2010/02/28.1936.41 Initializing RR VPs in a batch for 1
+2010/02/28.1936.41 Total VPs: 222
+2010/02/28.1936.41 Total spoofers: 160 at 75 sites
+2010/02/28.1936.41 Total up spoofers: 135 at 61 sites
+2010/02/28.1936.41 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1936.42 Found 0 spoofers of 6 for 164.128.251.1: 
+2010/02/28.1936.42 planetlab2.cs.uit.no 164.128.251.1 164.128.251.1 1 RR VPs left to try
+2010/02/28.1936.42 planetlab2.cs.uit.no 164.128.251.1 164.128.251.1 using non_spoofed
+2010/02/28.1936.42 Issuing recordroutes: 2010.0228.1936.42 1
+2010/02/28.1936.44 Adjacents for planetlab2.cs.uit.no 164.128.251.1 are 138.187.157.10 138.187.130.181
+2010/02/28.1936.45 planetlab2.cs.uit.no 164.128.251.1 164.128.251.1 2 TS adjacents left to try
+2010/02/28.1936.45 Issuing timestamps: 2010.0228.1936.45 1
+2010/02/28.1936.47 Total VPs: 222
+2010/02/28.1936.47 Total spoofers: 160 at 75 sites
+2010/02/28.1936.47 Total up spoofers: 135 at 61 sites
+2010/02/28.1936.47 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1936.48 Issuing spoofed_timestamps: 2010.0228.1936.47 5
+2010/02/28.1936.59 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1936.59 Current hop 164.128.251.1 seems to be TS unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1936.59 Traceroute to 164.128.251.1 reaches for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1936.59 Trying to find 1 hops from [138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25 109.105.97.10 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/28.1936.59 Rev Seg is 138.187.130.181
+2010/02/28.1936.59 REACHED
+2010/02/28.1936.59 FOUND
+2010/02/28.1937.00 RevPath_D164.128.251.1_Splanetlab2.cs.uit.no_RevSegment_[164.128.251.1]_Dst,RevSegment_[138.187.130.181]_Dst_AssumeSym
+2010/02/28.1937.00 NONE
+2010/02/28.1937.00 FAILED
+2010/02/28.1937.00 --------
+2010/02/28.1937.00 Checking planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 for traceroutes to source
+2010/02/28.1937.00 Initializing RR VPs in a batch for 1
+2010/02/28.1937.00 Total VPs: 222
+2010/02/28.1937.00 Total spoofers: 160 at 75 sites
+2010/02/28.1937.00 Total up spoofers: 135 at 61 sites
+2010/02/28.1937.00 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1937.01 Found 14 spoofers of 46 for 138.187.130.181: mlab2.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab3.lga01.measurement-lab.org mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab4.williams.edu plnode-01.gpolab.bbn.com mlab2.ams01.measurement-lab.org planetlab1.cis.upenn.edu planetlab1.pc.cis.udel.edu mlab1.lhr01.measurement-lab.org mlab2.nuq01.measurement-lab.org planetlab1.uta.edu mlab1.lax01.measurement-lab.org
+2010/02/28.1937.01 planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 15 RR VPs left to try
+2010/02/28.1937.01 planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 using non_spoofed
+2010/02/28.1937.01 Issuing recordroutes: 2010.0228.1937.01 1
+2010/02/28.1937.03 planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 14 RR VPs left to try
+2010/02/28.1937.04 planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 using mlab2.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab3.lga01.measurement-lab.org
+2010/02/28.1937.04 Issuing spoofed recordroutes: 2010.0228.1937.04
+2010/02/28.1937.14 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1937.14 planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 11 RR VPs left to try
+2010/02/28.1937.14 planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 using mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab4.williams.edu
+2010/02/28.1937.14 Issuing spoofed recordroutes: 2010.0228.1937.14
+2010/02/28.1937.24 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1937.24 planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 8 RR VPs left to try
+2010/02/28.1937.24 planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 using plnode-01.gpolab.bbn.com mlab2.ams01.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/28.1937.24 Issuing spoofed recordroutes: 2010.0228.1937.24
+2010/02/28.1937.34 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1937.34 Current hop 138.187.130.181/138.187.130.181 seems to be unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1937.35 Adjacents for planetlab2.cs.uit.no 138.187.130.181 are 138.187.156.162 138.187.159.45 138.187.130.66 138.187.130.6 138.187.129.9 138.187.156.165 164.128.251.1 193.72.79.1 138.187.130.4 138.187.129.137 138.187.156.172
+2010/02/28.1937.35 planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 11 TS adjacents left to try
+2010/02/28.1937.35 Issuing timestamps: 2010.0228.1937.35 1
+2010/02/28.1937.37 Total VPs: 222
+2010/02/28.1937.37 Total spoofers: 160 at 75 sites
+2010/02/28.1937.37 Total up spoofers: 135 at 61 sites
+2010/02/28.1937.37 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1937.38 Issuing spoofed_timestamps: 2010.0228.1937.38 5
+2010/02/28.1937.54 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1937.54 Current hop 138.187.130.181 seems to be TS unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1937.54 Backing off along current path for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1937.54 Trying to find 2 hops from [138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25 109.105.97.10 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/28.1937.54 Rev Seg is 138.187.130.181 138.187.129.9
+2010/02/28.1937.54 REACHED
+2010/02/28.1937.54 FOUND
+2010/02/28.1937.55 RevPath_D164.128.251.1_Splanetlab2.cs.uit.no_RevSegment_[164.128.251.1]_Dst,RevSegment_[138.187.130.181 138.187.129.9]_Dst_AssumeSym
+2010/02/28.1937.55 NONE
+2010/02/28.1937.55 FAILED
+2010/02/28.1937.55 --------
+2010/02/28.1937.55 Checking planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 for traceroutes to source
+2010/02/28.1937.55 Checking planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 for traceroutes to source
+2010/02/28.1937.55 Initializing RR VPs in a batch for 1
+2010/02/28.1937.55 Total VPs: 222
+2010/02/28.1937.55 Total spoofers: 160 at 75 sites
+2010/02/28.1937.55 Total up spoofers: 135 at 61 sites
+2010/02/28.1937.56 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1937.56 Found 14 spoofers of 46 for 138.187.129.9: mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab1.lga01.measurement-lab.org mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab1.williams.edu plnode-01.gpolab.bbn.com mlab2.ams02.measurement-lab.org planetlab2.cis.upenn.edu planetlab1.pc.cis.udel.edu mlab3.lhr01.measurement-lab.org mlab2.nuq01.measurement-lab.org planetlab1.uta.edu mlab3.lax01.measurement-lab.org
+2010/02/28.1937.56 planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 15 RR VPs left to try
+2010/02/28.1937.56 planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 using non_spoofed
+2010/02/28.1937.56 Issuing recordroutes: 2010.0228.1937.56 1
+2010/02/28.1937.59 planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 14 RR VPs left to try
+2010/02/28.1937.59 planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 using mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab1.lga01.measurement-lab.org
+2010/02/28.1937.59 Issuing spoofed recordroutes: 2010.0228.1937.59
+2010/02/28.1938.09 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1938.09 planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 11 RR VPs left to try
+2010/02/28.1938.09 planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 using mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab1.williams.edu
+2010/02/28.1938.09 Issuing spoofed recordroutes: 2010.0228.1938.09
+2010/02/28.1938.20 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1938.20 planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 8 RR VPs left to try
+2010/02/28.1938.20 planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 using plnode-01.gpolab.bbn.com mlab2.ams02.measurement-lab.org planetlab2.cis.upenn.edu
+2010/02/28.1938.20 Issuing spoofed recordroutes: 2010.0228.1938.20
+2010/02/28.1938.30 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1938.30 Current hop 138.187.129.9/138.187.129.9 seems to be unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1938.31 Current hop 138.187.130.181/138.187.130.181 seems to be unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1938.31 Adjacents for planetlab2.cs.uit.no 138.187.129.9 are 194.68.129.159 138.187.130.74 138.187.129.65 138.187.130.65 138.187.130.181 138.187.129.150 138.187.129.158 138.187.130.173 213.46.163.38 213.46.163.6 138.187.130.5 138.187.129.10 138.187.130.7 62.35.254.10
+2010/02/28.1938.31 planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 14 TS adjacents left to try
+2010/02/28.1938.31 Issuing timestamps: 2010.0228.1938.31 1
+2010/02/28.1938.33 Total VPs: 222
+2010/02/28.1938.33 Total spoofers: 160 at 75 sites
+2010/02/28.1938.33 Total up spoofers: 135 at 61 sites
+2010/02/28.1938.34 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1938.34 Issuing spoofed_timestamps: 2010.0228.1938.34 5
+2010/02/28.1938.45 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1938.45 Current hop 138.187.129.9 seems to be TS unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1938.45 Backing off along current path for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1938.45 Trying to find 3 hops from [138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25 109.105.97.10 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/28.1938.46 Rev Seg is 138.187.130.181 138.187.129.9 138.187.129.65
+2010/02/28.1938.46 REACHED
+2010/02/28.1938.46 FOUND
+2010/02/28.1938.46 RevPath_D164.128.251.1_Splanetlab2.cs.uit.no_RevSegment_[164.128.251.1]_Dst,RevSegment_[138.187.130.181 138.187.129.9 138.187.129.65]_Dst_AssumeSym
+2010/02/28.1938.46 NONE
+2010/02/28.1938.46 FAILED
+2010/02/28.1938.46 --------
+2010/02/28.1938.46 Checking planetlab2.cs.uit.no 164.128.251.1 138.187.129.65 for traceroutes to source
+2010/02/28.1938.46 Checking planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 for traceroutes to source
+2010/02/28.1938.46 Checking planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 for traceroutes to source
+2010/02/28.1938.47 Initializing RR VPs in a batch for 1
+2010/02/28.1938.47 Total VPs: 222
+2010/02/28.1938.47 Total spoofers: 160 at 75 sites
+2010/02/28.1938.47 Total up spoofers: 135 at 61 sites
+2010/02/28.1938.47 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1938.47 Found 14 spoofers of 46 for 138.187.129.65: mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab1.lga01.measurement-lab.org mlab1.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab5.williams.edu plnode-01.gpolab.bbn.com mlab2.ams02.measurement-lab.org planetlab1.cis.upenn.edu planetlab1.pc.cis.udel.edu mlab3.lhr01.measurement-lab.org mlab4.nuq01.measurement-lab.org planetlab1.uta.edu mlab1.lax01.measurement-lab.org
+2010/02/28.1938.47 planetlab2.cs.uit.no 164.128.251.1 138.187.129.65 15 RR VPs left to try
+2010/02/28.1938.47 planetlab2.cs.uit.no 164.128.251.1 138.187.129.65 using non_spoofed
+2010/02/28.1938.48 Issuing recordroutes: 2010.0228.1938.48 1
+2010/02/28.1938.50 planetlab2.cs.uit.no 164.128.251.1 138.187.129.65 14 RR VPs left to try
+2010/02/28.1938.50 planetlab2.cs.uit.no 164.128.251.1 138.187.129.65 using mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab1.lga01.measurement-lab.org
+2010/02/28.1938.50 Issuing spoofed recordroutes: 2010.0228.1938.50
+2010/02/28.1939.00 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1939.00 planetlab2.cs.uit.no 164.128.251.1 138.187.129.65 11 RR VPs left to try
+2010/02/28.1939.01 planetlab2.cs.uit.no 164.128.251.1 138.187.129.65 using mlab1.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab5.williams.edu
+2010/02/28.1939.01 Issuing spoofed recordroutes: 2010.0228.1939.01
+2010/02/28.1939.11 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1939.11 planetlab2.cs.uit.no 164.128.251.1 138.187.129.65 8 RR VPs left to try
+2010/02/28.1939.11 planetlab2.cs.uit.no 164.128.251.1 138.187.129.65 using plnode-01.gpolab.bbn.com mlab2.ams02.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/28.1939.11 Issuing spoofed recordroutes: 2010.0228.1939.11
+2010/02/28.1939.21 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1939.21 Current hop 138.187.129.65/138.187.129.65 seems to be unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1939.21 Current hop 138.187.129.9/138.187.129.9 seems to be unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1939.21 Current hop 138.187.130.181/138.187.130.181 seems to be unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1939.21 Adjacents for planetlab2.cs.uit.no 138.187.129.65 are 195.69.144.100 138.187.129.9 138.187.130.6 138.187.129.66 164.128.33.218 138.187.131.254 87.245.233.54
+2010/02/28.1939.22 planetlab2.cs.uit.no 164.128.251.1 138.187.129.65 7 TS adjacents left to try
+2010/02/28.1939.22 Issuing timestamps: 2010.0228.1939.22 1
+2010/02/28.1939.24 Total VPs: 222
+2010/02/28.1939.24 Total spoofers: 160 at 75 sites
+2010/02/28.1939.24 Total up spoofers: 135 at 61 sites
+2010/02/28.1939.24 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1939.25 Issuing spoofed_timestamps: 2010.0228.1939.25 5
+2010/02/28.1939.35 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1939.35 Current hop 138.187.129.65 seems to be TS unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1939.35 Backing off along current path for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1939.35 Trying to find 4 hops from [138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25 109.105.97.10 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/28.1939.35 Rev Seg is 138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100
+2010/02/28.1939.35 REACHED
+2010/02/28.1939.35 FOUND
+2010/02/28.1939.35 RevPath_D164.128.251.1_Splanetlab2.cs.uit.no_RevSegment_[164.128.251.1]_Dst,RevSegment_[138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100]_Dst_AssumeSym
+2010/02/28.1939.35 NONE
+2010/02/28.1939.36 FAILED
+2010/02/28.1939.36 --------
+2010/02/28.1939.36 Checking planetlab2.cs.uit.no 164.128.251.1 195.69.144.100 for traceroutes to source
+2010/02/28.1939.36 Checking planetlab2.cs.uit.no 164.128.251.1 138.187.129.65 for traceroutes to source
+2010/02/28.1939.36 Checking planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 for traceroutes to source
+2010/02/28.1939.36 Checking planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 for traceroutes to source
+2010/02/28.1939.36 Initializing RR VPs in a batch for 1
+2010/02/28.1939.37 Total VPs: 222
+2010/02/28.1939.37 Total spoofers: 160 at 75 sites
+2010/02/28.1939.37 Total up spoofers: 135 at 61 sites
+2010/02/28.1939.37 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1939.37 Found 15 spoofers of 44 for 195.69.144.100: plab-1.sinp.msu.ru mlab2.ams02.measurement-lab.org pl1.bit.uoit.ca mlab1.ham01.measurement-lab.org mlab3.par01.measurement-lab.org mlab1.lhr01.measurement-lab.org pli1-pa-5.hpl.hp.com planetlab0.dojima.wide.ad.jp planetlab-02.kusa.ac.jp mlab1.lga02.measurement-lab.org planetlab2.pc.cis.udel.edu planet1.ku.edu.tr plnode-01.gpolab.bbn.com planetlab2.ntu.nodes.planet-lab.org planetlab1.sfc.wide.ad.jp
+2010/02/28.1939.37 planetlab2.cs.uit.no 164.128.251.1 195.69.144.100 16 RR VPs left to try
+2010/02/28.1939.37 planetlab2.cs.uit.no 164.128.251.1 195.69.144.100 using non_spoofed
+2010/02/28.1939.37 Issuing recordroutes: 2010.0228.1939.37 1
+2010/02/28.1939.40 planetlab2.cs.uit.no 164.128.251.1 195.69.144.100 15 RR VPs left to try
+2010/02/28.1939.40 planetlab2.cs.uit.no 164.128.251.1 195.69.144.100 using plab-1.sinp.msu.ru mlab2.ams02.measurement-lab.org pl1.bit.uoit.ca
+2010/02/28.1939.40 Issuing spoofed recordroutes: 2010.0228.1939.40
+2010/02/28.1939.52 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1939.53 planetlab2.cs.uit.no 164.128.251.1 195.69.144.100 12 RR VPs left to try
+2010/02/28.1939.53 planetlab2.cs.uit.no 164.128.251.1 195.69.144.100 using mlab1.ham01.measurement-lab.org mlab3.par01.measurement-lab.org mlab1.lhr01.measurement-lab.org
+2010/02/28.1939.53 Issuing spoofed recordroutes: 2010.0228.1939.53
+2010/02/28.1940.03 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1940.03 planetlab2.cs.uit.no 164.128.251.1 195.69.144.100 9 RR VPs left to try
+2010/02/28.1940.03 planetlab2.cs.uit.no 164.128.251.1 195.69.144.100 using pli1-pa-5.hpl.hp.com planetlab0.dojima.wide.ad.jp planetlab-02.kusa.ac.jp
+2010/02/28.1940.03 Issuing spoofed recordroutes: 2010.0228.1940.03
+2010/02/28.1940.14 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1940.14 Current hop 195.69.144.100/195.69.144.100 seems to be unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1940.14 Current hop 138.187.129.65/138.187.129.65 seems to be unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1940.14 Current hop 138.187.129.9/138.187.129.9 seems to be unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1940.15 Current hop 138.187.130.181/138.187.130.181 seems to be unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1940.15 Adjacents for planetlab2.cs.uit.no 195.69.144.100 are 138.187.131.253 194.85.40.241 145.145.80.65 138.187.129.65 193.191.16.22 193.191.17.49 85.112.0.90 87.79.16.227 195.113.144.222 85.112.0.69 194.186.157.62 194.186.57.194 82.195.67.226 85.112.0.78 129.250.4.221 67.17.108.170 195.113.235.101 195.209.14.18 194.186.158.93 71.5.174.10 166.49.200.33 212.156.102.9 195.69.144.217 193.10.68.54 162.97.119.17
+2010/02/28.1940.15 planetlab2.cs.uit.no 164.128.251.1 195.69.144.100 25 TS adjacents left to try
+2010/02/28.1940.15 Issuing timestamps: 2010.0228.1940.15 1
+2010/02/28.1940.17 Total VPs: 222
+2010/02/28.1940.17 Total spoofers: 160 at 75 sites
+2010/02/28.1940.17 Total up spoofers: 135 at 61 sites
+2010/02/28.1940.18 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1940.18 Issuing spoofed_timestamps: 2010.0228.1940.18 5
+2010/02/28.1940.31 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/28.1940.32 Current hop 195.69.144.100 seems to be TS unresponsive for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1940.32 Backing off along current path for planetlab2.cs.uit.no 164.128.251.1
+2010/02/28.1940.32 Trying to find 5 hops from [138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25 109.105.97.10 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/28.1940.32 Rev Seg is 138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25
+2010/02/28.1940.32 REACHED
+2010/02/28.1940.32 FOUND
+2010/02/28.1940.32 RevPath_D164.128.251.1_Splanetlab2.cs.uit.no_RevSegment_[164.128.251.1]_Dst,RevSegment_[138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25]_Dst_AssumeSym
+2010/02/28.1940.32 NONE
+2010/02/28.1940.32 FAILED
+2010/02/28.1940.32 --------
+2010/02/28.1940.32 Checking planetlab2.cs.uit.no 164.128.251.1 109.105.97.25 for traceroutes to source
+2010/02/28.1940.33 Checking planetlab2.cs.uit.no 164.128.251.1 195.69.144.100 for traceroutes to source
+2010/02/28.1940.33 Checking planetlab2.cs.uit.no 164.128.251.1 138.187.129.65 for traceroutes to source
+2010/02/28.1940.33 Checking planetlab2.cs.uit.no 164.128.251.1 138.187.129.9 for traceroutes to source
+2010/02/28.1940.33 Checking planetlab2.cs.uit.no 164.128.251.1 138.187.130.181 for traceroutes to source
+2010/02/28.1940.33 Initializing RR VPs in a batch for 1
+2010/02/28.1940.33 Total VPs: 222
+2010/02/28.1940.33 Total spoofers: 160 at 75 sites
+2010/02/28.1940.34 Total up spoofers: 135 at 61 sites
+2010/02/28.1940.34 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1940.34 Resorting to all 61 spoofers for 109.105.97.25
+2010/02/28.1940.34 planetlab2.cs.uit.no 164.128.251.1 109.105.97.25 62 RR VPs left to try
+2010/02/28.1940.34 planetlab2.cs.uit.no 164.128.251.1 109.105.97.25 using non_spoofed
+2010/02/28.1940.34 Issuing recordroutes: 2010.0228.1940.34 1
+2010/02/28.1940.37 REACHED
+2010/02/28.1940.37 FOUND
+2010/02/28.1940.37 RevPath_D164.128.251.1_Splanetlab2.cs.uit.no_RevSegment_[164.128.251.1]_Dst,RevSegment_[138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25]_Dst_AssumeSym,RevSegment_[109.105.102.25]_RR
+2010/02/28.1940.37 NONE
+2010/02/28.1940.37 FAILED
+2010/02/28.1940.37 --------
+2010/02/28.1940.37 Checking planetlab2.cs.uit.no 164.128.251.1 109.105.102.25 for traceroutes to source
+2010/02/28.1940.38 Initializing RR VPs in a batch for 1
+2010/02/28.1940.38 Total VPs: 222
+2010/02/28.1940.38 Total spoofers: 160 at 75 sites
+2010/02/28.1940.38 Total up spoofers: 135 at 61 sites
+2010/02/28.1940.38 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1940.38 Resorting to all 61 spoofers for 109.105.102.25
+2010/02/28.1940.38 planetlab2.cs.uit.no 164.128.251.1 109.105.102.25 62 RR VPs left to try
+2010/02/28.1940.38 planetlab2.cs.uit.no 164.128.251.1 109.105.102.25 using non_spoofed
+2010/02/28.1940.39 Issuing recordroutes: 2010.0228.1940.39 1
+2010/02/28.1940.41 REACHED
+2010/02/28.1940.41 FOUND
+2010/02/28.1940.41 RevPath_D164.128.251.1_Splanetlab2.cs.uit.no_RevSegment_[164.128.251.1]_Dst,RevSegment_[138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25]_Dst_AssumeSym,RevSegment_[109.105.102.25]_RR,RevSegment_[128.39.65.22 128.39.3.1]_RR
+2010/02/28.1940.41 NONE
+2010/02/28.1940.41 FAILED
+2010/02/28.1940.42 --------
+2010/02/28.1940.42 Checking planetlab2.cs.uit.no 164.128.251.1 128.39.3.1 for traceroutes to source
+2010/02/28.1940.42 Checking planetlab2.cs.uit.no 164.128.251.1 128.39.65.22 for traceroutes to source
+2010/02/28.1940.42 Initializing RR VPs in a batch for 2
+2010/02/28.1940.42 Total VPs: 222
+2010/02/28.1940.42 Total spoofers: 160 at 75 sites
+2010/02/28.1940.42 Total up spoofers: 135 at 61 sites
+2010/02/28.1940.42 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1940.43 Found 9 spoofers of 41 for 128.39.3.1: mlab3.ham01.measurement-lab.org mlab3.par01.measurement-lab.org planetlab-1.ssvl.kth.se pl1.bit.uoit.ca mlab1.ams01.measurement-lab.org mlab3.lhr01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com node1.planet-lab.titech.ac.jp planetlab2-saopaulo.lan.redclara.net
+2010/02/28.1940.43 Found 9 spoofers of 41 for 128.39.65.22: mlab3.ham01.measurement-lab.org mlab3.par01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab-1.ssvl.kth.se planetlab2-saopaulo.lan.redclara.net pl1.bit.uoit.ca mlab1.ams01.measurement-lab.org mlab3.lhr01.measurement-lab.org node1.planet-lab.titech.ac.jp
+2010/02/28.1940.43 planetlab2.cs.uit.no 164.128.251.1 128.39.3.1 10 RR VPs left to try
+2010/02/28.1940.43 planetlab2.cs.uit.no 164.128.251.1 128.39.3.1 using non_spoofed
+2010/02/28.1940.43 Issuing recordroutes: 2010.0228.1940.43 1
+2010/02/28.1940.46 REACHED
+2010/02/28.1940.46 FOUND
+2010/02/28.1940.46 RevPath_D164.128.251.1_Splanetlab2.cs.uit.no_RevSegment_[164.128.251.1]_Dst,RevSegment_[138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25]_Dst_AssumeSym,RevSegment_[109.105.102.25]_RR,RevSegment_[128.39.65.22 128.39.3.1]_RR,RevSegment_[128.39.65.97 129.242.1.9 129.242.222.1 129.242.19.193]_RR
+2010/02/28.1940.46 NONE
+2010/02/28.1940.46 FAILED
+2010/02/28.1940.46 --------
+2010/02/28.1940.46 Checking planetlab2.cs.uit.no 164.128.251.1 129.242.19.193 for traceroutes to source
+2010/02/28.1940.46 REACHED
+2010/02/28.1940.46 RevPath_D164.128.251.1_Splanetlab2.cs.uit.no_RevSegment_[164.128.251.1]_Dst,RevSegment_[138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25]_Dst_AssumeSym,RevSegment_[109.105.102.25]_RR,RevSegment_[128.39.65.22 128.39.3.1]_RR,RevSegment_[128.39.65.97 129.242.1.9 129.242.222.1 129.242.19.193]_RR,RevSegment_[129.242.19.197 129.242.19.197 129.242.19.197]_TRtoSrc
+2010/02/28.1940.46 FOUND
+2010/02/28.1940.47 NONE
+2010/02/28.1940.47 FAILED
+2010/02/28.1940.47 --------
+2010/02/28.1940.47 Total time: 248
+2010/02/28.1940.47 Total probes: rr=8 spoof-ts=25 spoof-rr=36 tr=1 ts=5
+RevPath_D164.128.251.1_Splanetlab2.cs.uit.no_RevSegment_[164.128.251.1]_Dst,RevSegment_[138.187.130.181 138.187.129.9 138.187.129.65 195.69.144.100 109.105.97.25]_Dst_AssumeSym,RevSegment_[109.105.102.25]_RR,RevSegment_[128.39.65.22 128.39.3.1]_RR,RevSegment_[128.39.65.97 129.242.1.9 129.242.222.1 129.242.19.193]_RR,RevSegment_[129.242.19.197 129.242.19.197 129.242.19.197]_TRtoSrc
+2010/02/28.1940.54 Issuing traceroutes: 2010.0228.1940.53 1
+2010/02/28.1940.54 Traceroutes for planetlab2.uta.edu
+2010/02/28.1940.54 Traceroute to 213.200.64.93 reaches for planetlab2.uta.edu 213.200.64.93
+2010/02/28.1940.54 Trying to find 1 hops from [154.54.10.130 66.28.4.174 154.54.0.125 38.104.34.125 129.107.35.49 129.107.35.129 planetlab2.uta.edu]
+2010/02/28.1940.54 Rev Seg is 154.54.10.130
+2010/02/28.1940.54 Fwd planetlab2.uta.edu to 213.200.64.93: 129.107.35.129 129.107.35.49 38.104.34.125 154.54.0.125 66.28.4.174 154.54.10.130 213.200.64.93
+2010/02/28.1940.55 Checking planetlab2.uta.edu 213.200.64.93 213.200.64.93 for traceroutes to source
+2010/02/28.1940.55 REACHED
+2010/02/28.1940.55 RevPath_D213.200.64.93_Splanetlab2.uta.edu_RevSegment_[213.200.64.93]_Dst,RevSegment_[77.67.74.42 154.54.28.93 66.28.4.57 154.54.7.138 154.54.5.157 154.54.27.102 38.104.34.126 129.107.35.50 129.107.35.132]_TRtoSrc
+2010/02/28.1940.55 FOUND
+2010/02/28.1940.55 NONE
+2010/02/28.1940.55 FAILED
+2010/02/28.1940.55 --------
+2010/02/28.1940.55 Total time: 2
+2010/02/28.1940.55 Total probes: tr=1
+RevPath_D213.200.64.93_Splanetlab2.uta.edu_RevSegment_[213.200.64.93]_Dst,RevSegment_[77.67.74.42 154.54.28.93 66.28.4.57 154.54.7.138 154.54.5.157 154.54.27.102 38.104.34.126 129.107.35.50 129.107.35.132]_TRtoSrc
+2010/02/28.1940.59 Issuing traceroutes: 2010.0228.1940.59 1
+2010/02/28.1941.00 Traceroutes for planetlab3.csail.mit.edu
+2010/02/28.1941.00 Traceroute to 216.18.63.213 reaches for planetlab3.csail.mit.edu 216.18.63.213
+2010/02/28.1941.00 Trying to find 1 hops from [66.59.191.85 206.223.119.113 64.57.28.72 207.210.142.2 207.210.142.1 207.210.142.233 18.168.1.50 18.168.1.18 18.4.7.1 128.30.0.245 128.31.1.2 planetlab3.csail.mit.edu]
+2010/02/28.1941.00 Rev Seg is 66.59.191.85
+2010/02/28.1941.00 Fwd planetlab3.csail.mit.edu to 216.18.63.213: 128.31.1.2 128.30.0.245 18.4.7.1 18.168.1.18 18.168.1.50 207.210.142.233 207.210.142.1 207.210.142.2 64.57.28.72 206.223.119.113 66.59.191.85 216.18.63.213
+2010/02/28.1941.00 Checking planetlab3.csail.mit.edu 216.18.63.213 216.18.63.213 for traceroutes to source
+2010/02/28.1941.00 REACHED
+2010/02/28.1941.00 RevPath_D216.18.63.213_Splanetlab3.csail.mit.edu_RevSegment_[216.18.63.213]_Dst,RevSegment_[66.59.191.37 66.59.191.110 66.59.191.114 154.54.6.205 154.54.25.178 154.54.28.113 38.104.186.186 18.168.1.23 18.4.7.65 128.30.0.254 128.31.1.13]_TRtoSrc
+2010/02/28.1941.00 FOUND
+2010/02/28.1941.00 NONE
+2010/02/28.1941.01 FAILED
+2010/02/28.1941.01 --------
+2010/02/28.1941.01 Total time: 3
+2010/02/28.1941.01 Total probes: tr=1
+RevPath_D216.18.63.213_Splanetlab3.csail.mit.edu_RevSegment_[216.18.63.213]_Dst,RevSegment_[66.59.191.37 66.59.191.110 66.59.191.114 154.54.6.205 154.54.25.178 154.54.28.113 38.104.186.186 18.168.1.23 18.4.7.65 128.30.0.254 128.31.1.13]_TRtoSrc
+2010/02/28.1941.05 Issuing traceroutes: 2010.0228.1941.05 1
+2010/02/28.1941.06 Traceroutes for planetlab2.ics.forth.gr
+2010/02/28.1941.06 Traceroute to 192.65.184.221 reaches for planetlab2.ics.forth.gr 192.65.184.221
+2010/02/28.1941.06 Trying to find 1 hops from [62.40.112.33 62.40.112.18 62.40.112.165 62.40.124.89 195.251.27.54 195.251.24.173 139.91.34.85 139.91.90.253 planetlab2.ics.forth.gr]
+2010/02/28.1941.06 Rev Seg is 62.40.112.33
+2010/02/28.1941.06 Fwd planetlab2.ics.forth.gr to 192.65.184.221: 139.91.90.253 139.91.34.85 195.251.24.173 195.251.27.54 62.40.124.89 62.40.112.165 62.40.112.18 62.40.112.33 192.65.184.221
+2010/02/28.1941.06 Checking planetlab2.ics.forth.gr 192.65.184.221 192.65.184.221 for traceroutes to source
+2010/02/28.1941.06 REACHED
+2010/02/28.1941.06 RevPath_D192.65.184.221_Splanetlab2.ics.forth.gr_RevSegment_[192.65.184.221]_Dst,RevSegment_[62.40.124.21 62.40.112.34 62.40.112.17 62.40.112.166 62.40.124.90 195.251.27.45 195.251.24.174 139.91.34.82 139.91.90.239]_TRtoSrc
+2010/02/28.1941.07 FOUND
+2010/02/28.1941.07 NONE
+2010/02/28.1941.07 FAILED
+2010/02/28.1941.07 --------
+2010/02/28.1941.07 Total time: 3
+2010/02/28.1941.07 Total probes: tr=1
+RevPath_D192.65.184.221_Splanetlab2.ics.forth.gr_RevSegment_[192.65.184.221]_Dst,RevSegment_[62.40.124.21 62.40.112.34 62.40.112.17 62.40.112.166 62.40.124.90 195.251.27.45 195.251.24.174 139.91.34.82 139.91.90.239]_TRtoSrc
+2010/02/28.1941.11 Issuing traceroutes: 2010.0228.1941.11 1
+2010/02/28.1941.12 Traceroutes for planetlab2.sfc.wide.ad.jp
+2010/02/28.1941.12 Traceroute to 212.47.201.142 reaches for planetlab2.sfc.wide.ad.jp 212.47.201.142
+2010/02/28.1941.12 Trying to find 1 hops from [64.208.110.222 129.250.4.178 129.250.3.87 129.250.4.214 203.105.72.157 203.105.72.17 203.178.141.142 203.178.136.65 203.178.136.73 203.178.136.93 203.178.137.75 203.178.143.1 planetlab2.sfc.wide.ad.jp]
+2010/02/28.1941.13 Rev Seg is 64.208.110.222
+2010/02/28.1941.13 Fwd planetlab2.sfc.wide.ad.jp to 212.47.201.142: 203.178.143.1 203.178.137.75 203.178.136.93 203.178.136.73 203.178.136.65 203.178.141.142 203.105.72.17 203.105.72.157 129.250.4.214 129.250.3.87 129.250.4.178 64.208.110.222 212.47.201.142
+2010/02/28.1941.13 Checking planetlab2.sfc.wide.ad.jp 212.47.201.142 212.47.201.142 for traceroutes to source
+2010/02/28.1941.13 Initializing RR VPs in a batch for 1
+2010/02/28.1941.13 Total VPs: 222
+2010/02/28.1941.13 Total spoofers: 160 at 75 sites
+2010/02/28.1941.13 Total up spoofers: 135 at 61 sites
+2010/02/28.1941.13 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1941.13 Found 21 spoofers of 91 for 212.47.201.142: planetlab2.postel.org planetlab4.cs.uiuc.edu plab-2.sinp.msu.ru node2.planetlab.albany.edu plnode-02.gpolab.bbn.com planetlabnode-1.docomolabs-usa.com planetlab1.uta.edu planetlab0.dojima.wide.ad.jp planetlab-2.cs.auckland.ac.nz planetlab-02.kusa.ac.jp mlab2.ams01.measurement-lab.org mlab2.nuq01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com pl1.bit.uoit.ca planetlab3-dsl.cs.cornell.edu mlab2.lga01.measurement-lab.org planetlab1.pc.cis.udel.edu planetlab1.williams.edu planetlab-1.ssvl.kth.se mlab3.lhr01.measurement-lab.org planetlab1.utdallas.edu
+2010/02/28.1941.14 planetlab2.sfc.wide.ad.jp 212.47.201.142 212.47.201.142 22 RR VPs left to try
+2010/02/28.1941.14 planetlab2.sfc.wide.ad.jp 212.47.201.142 212.47.201.142 using non_spoofed
+2010/02/28.1941.14 Issuing recordroutes: 2010.0228.1941.14 1
+2010/02/28.1941.16 planetlab2.sfc.wide.ad.jp 212.47.201.142 212.47.201.142 21 RR VPs left to try
+2010/02/28.1941.16 planetlab2.sfc.wide.ad.jp 212.47.201.142 212.47.201.142 using planetlab2.postel.org planetlab4.cs.uiuc.edu plab-2.sinp.msu.ru
+2010/02/28.1941.16 Issuing spoofed recordroutes: 2010.0228.1941.16
+2010/02/28.1941.30 planetlab2.sfc.wide.ad.jp received 3 total responses from planetlab2.postel.org plab-2.sinp.msu.ru planetlab4.cs.uiuc.edu
+2010/02/28.1941.30 REACHED
+2010/02/28.1941.30 FOUND
+2010/02/28.1941.30 RevPath_D212.47.201.142_Splanetlab2.sfc.wide.ad.jp_RevSegment_[212.47.201.142]_Dst,RevSegment_[129.250.8.202 129.250.5.230 129.250.0.14]_RR_SpfSrcplab-2.sinp.msu.ru
+2010/02/28.1941.30 NONE
+2010/02/28.1941.30 FAILED
+2010/02/28.1941.30 --------
+2010/02/28.1941.30 Checking planetlab2.sfc.wide.ad.jp 212.47.201.142 129.250.0.14 for traceroutes to source
+2010/02/28.1941.31 Checking planetlab2.sfc.wide.ad.jp 212.47.201.142 129.250.5.230 for traceroutes to source
+2010/02/28.1941.31 REACHED
+2010/02/28.1941.31 RevPath_D212.47.201.142_Splanetlab2.sfc.wide.ad.jp_RevSegment_[212.47.201.142]_Dst,RevSegment_[129.250.8.202 129.250.5.230 129.250.0.14]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[129.250.2.16 129.250.2.226 129.250.4.86 129.250.5.35 129.250.4.209 203.105.72.154 203.105.72.18 203.178.141.141 203.178.136.66 203.178.136.74 203.178.136.94 203.178.137.67 203.178.143.28]_TRtoSrc
+2010/02/28.1941.31 FOUND
+2010/02/28.1941.31 NONE
+2010/02/28.1941.31 FAILED
+2010/02/28.1941.31 --------
+2010/02/28.1941.31 Total time: 20
+2010/02/28.1941.31 Total probes: rr=1 spoof-rr=3 tr=1
+RevPath_D212.47.201.142_Splanetlab2.sfc.wide.ad.jp_RevSegment_[212.47.201.142]_Dst,RevSegment_[129.250.8.202 129.250.5.230 129.250.0.14]_RR_SpfSrcplab-2.sinp.msu.ru,RevSegment_[129.250.2.16 129.250.2.226 129.250.4.86 129.250.5.35 129.250.4.209 203.105.72.154 203.105.72.18 203.178.141.141 203.178.136.66 203.178.136.74 203.178.136.94 203.178.137.67 203.178.143.28]_TRtoSrc
+2010/02/28.1941.37 Issuing traceroutes: 2010.0228.1941.37 1
+2010/02/28.1941.43 Total time: 5
+2010/02/28.1941.43 Total probes: tr=1
+2010/02/28.1941.43 Issuing traceroutes: 2010.0228.1941.43 1
+2010/02/28.1941.46 Traceroutes for planet1.scs.stanford.edu
+2010/02/28.1941.46 Traceroute to 212.47.201.94 reaches for planet1.scs.stanford.edu 212.47.201.94
+2010/02/28.1941.46 Trying to find 1 hops from [212.47.201.193 213.242.69.46 4.69.140.197 4.69.142.169 4.69.132.137 4.69.137.61 4.69.134.157 4.69.134.190 4.69.132.93 4.69.134.65 4.69.134.114 4.69.135.186 4.69.134.249 4.68.18.190 4.53.16.185 137.164.23.45 171.67.255.134 171.66.3.2 planet1.scs.stanford.edu]
+2010/02/28.1941.46 Rev Seg is 212.47.201.193
+2010/02/28.1941.46 Fwd planet1.scs.stanford.edu to 212.47.201.94: 171.66.3.2 171.67.255.134 137.164.23.45 4.53.16.185 4.68.18.190 4.69.134.249 4.69.135.186 4.69.134.114 4.69.134.65 4.69.132.93 4.69.134.190 4.69.134.157 4.69.137.61 4.69.132.137 4.69.142.169 4.69.140.197 213.242.69.46 212.47.201.193 212.47.201.94
+2010/02/28.1941.46 Checking planet1.scs.stanford.edu 212.47.201.94 212.47.201.94 for traceroutes to source
+2010/02/28.1941.47 Initializing RR VPs in a batch for 1
+2010/02/28.1941.47 Total VPs: 222
+2010/02/28.1941.47 Total spoofers: 160 at 75 sites
+2010/02/28.1941.47 Total up spoofers: 135 at 61 sites
+2010/02/28.1941.47 Final total spoofers to use: 1 each at 61 sites
+2010/02/28.1941.48 Found 21 spoofers of 91 for 212.47.201.94: 75-130-96-13.static.oxfr.ma.charter.com pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org plab-1.sinp.msu.ru planetlab4.postel.org planetlab5.cs.uiuc.edu mlab2.ams01.measurement-lab.org node2.planetlab.albany.edu planetlab3-dsl.cs.cornell.edu mlab2.lga02.measurement-lab.org planetlabnode-1.docomolabs-usa.com plnode-02.gpolab.bbn.com planetlab1.dojima.wide.ad.jp planetlab-2.cs.auckland.ac.nz planetlab1.uta.edu planetlab-01.kusa.ac.jp planetlab2.pc.cis.udel.edu planetlab3.williams.edu planetlab-1.ssvl.kth.se mlab3.lhr01.measurement-lab.org planetlab2.utdallas.edu
+2010/02/28.1941.48 planet1.scs.stanford.edu 212.47.201.94 212.47.201.94 22 RR VPs left to try
+2010/02/28.1941.48 planet1.scs.stanford.edu 212.47.201.94 212.47.201.94 using non_spoofed
+2010/02/28.1941.48 Issuing recordroutes: 2010.0228.1941.48 1
+2010/02/28.1941.50 planet1.scs.stanford.edu 212.47.201.94 212.47.201.94 21 RR VPs left to try
+2010/02/28.1941.50 planet1.scs.stanford.edu 212.47.201.94 212.47.201.94 using 75-130-96-13.static.oxfr.ma.charter.com pl1.bit.uoit.ca mlab4.nuq01.measurement-lab.org
+2010/02/28.1941.50 Issuing spoofed recordroutes: 2010.0228.1941.50
+2010/02/28.1942.00 planet1.scs.stanford.edu received 3 total responses from 75-130-96-13.static.oxfr.ma.charter.com pl1.bit.uoit.ca 64.9.225.176
+2010/02/28.1942.01 REACHED
+2010/02/28.1942.01 FOUND
+2010/02/28.1942.01 RevPath_D212.47.201.94_Splanet1.scs.stanford.edu_RevSegment_[212.47.201.94]_Dst,RevSegment_[217.28.250.9 154.54.11.138]_RR_SpfSrc75-130-96-13.static.oxfr.ma.charter.com
+2010/02/28.1942.01 NONE
+2010/02/28.1942.01 FAILED
+2010/02/28.1942.01 --------
+2010/02/28.1942.01 Checking planet1.scs.stanford.edu 212.47.201.94 154.54.11.138 for traceroutes to source
+2010/02/28.1942.01 REACHED
+2010/02/28.1942.01 RevPath_D212.47.201.94_Splanet1.scs.stanford.edu_RevSegment_[212.47.201.94]_Dst,RevSegment_[217.28.250.9 154.54.11.138]_RR_SpfSrc75-130-96-13.static.oxfr.ma.charter.com,RevSegment_[154.54.11.61 154.54.2.61 154.54.29.145 154.54.6.158 154.54.24.117 154.54.0.178 66.250.7.138 68.65.168.40 171.66.3.181]_TRtoSrc
+2010/02/28.1942.01 FOUND
+2010/02/28.1942.01 NONE
+2010/02/28.1942.02 FAILED
+2010/02/28.1942.02 --------
+2010/02/28.1942.02 Total time: 19
+2010/02/28.1942.02 Total probes: rr=1 spoof-rr=3 tr=1
+RevPath_D212.47.201.94_Splanet1.scs.stanford.edu_RevSegment_[212.47.201.94]_Dst,RevSegment_[217.28.250.9 154.54.11.138]_RR_SpfSrc75-130-96-13.static.oxfr.ma.charter.com,RevSegment_[154.54.11.61 154.54.2.61 154.54.29.145 154.54.6.158 154.54.24.117 154.54.0.178 66.250.7.138 68.65.168.40 171.66.3.181]_TRtoSrc
