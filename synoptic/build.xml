@@ -3,17 +3,17 @@
 <project basedir="." default="build" name="Synoptic">
     <property environment="env"/>
     <property name="SYNOPTIC_LIB" value="../lib"/>
-    <property name="SYNOPTIC_JARRED_LIB" value="lib"/>
     <property name="junit.output.dir" value="junit"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
+
     <path id="Synoptic.classpath">
         <pathelement location="bin"/>
         <pathelement location="${SYNOPTIC_LIB}/junit-4.9b2.jar"/>
         <pathelement location="${SYNOPTIC_LIB}/plume.jar"/>
-        <pathelement location="${SYNOPTIC_LIB}/stixar-0.0.1-alpha.jar"/>
     </path>
+
     <target name="init">
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
@@ -22,13 +22,19 @@
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
+
     </target>
+
     <target name="clean">
         <delete dir="bin"/>
     </target>
+
     <target depends="clean" name="cleanall"/>
+
     <target depends="build-subprojects,build-project" name="build"/>
+
     <target name="build-subprojects"/>
+
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
@@ -47,7 +53,7 @@
 	  <attribute name="Implementation-Title" value="synoptic" />
 	  <attribute name="Implementation-Version" value="0.0.5" />
 	  <attribute name="Main-Class" value="synoptic.main.Main" />
-	  <attribute name="Class-Path" value="${SYNOPTIC_JARRED_LIB}/junit-4.9b2.jar ${SYNOPTIC_JARRED_LIB}/plume.jar" />
+	  <attribute name="Class-Path" value="junit-4.9b2.ja plume.jar" />
 	</manifest>
       </jar>
     </target>
@@ -76,4 +82,5 @@
             <report format="frames" todir="${junit.output.dir}"/>
         </junitreport>
     </target>
+
 </project>
