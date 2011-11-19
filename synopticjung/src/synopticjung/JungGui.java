@@ -13,8 +13,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -37,7 +35,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.JApplet;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -48,8 +45,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
 
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.functors.MapTransformer;
@@ -68,7 +63,6 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.picking.PickedState;
 import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
@@ -78,20 +72,16 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
+import synoptic.main.SynopticOptions;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.Transition;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
 /**
- * Shows how to create a graph editor with JUNG. Mouse modes and actions are
- * explained in the help text. The application version of GraphEditorDemo
- * provides a File menu with an option to save the visible graph as a jpeg file.
- * 
- * @author Tom Nelson Edits to display our graphs.
+ * A JUNG front-end for Synoptic, implemented as an Applet.
  */
 public class JungGui extends JApplet implements Printable {
 
@@ -102,12 +92,12 @@ public class JungGui extends JApplet implements Printable {
     /**
      * Java frame used by the gui.
      */
-    private final JFrame frame;
+    public final JFrame frame;
 
     /**
      * The partition graph maintained by Synoptic.
      */
-    private final PartitionGraph pGraph;
+    public final PartitionGraph pGraph;
 
     /**
      * MenuItems for transformation options
@@ -129,52 +119,12 @@ public class JungGui extends JApplet implements Printable {
     /**
      * the visual component and renderer for the graph
      */
-    VisualizationViewer<INode<Partition>, ITransition<Partition>> vizViewer;
+    public VisualizationViewer<INode<Partition>, ITransition<Partition>> vizViewer;
 
     /**
      * The currently selected path to highlight
      */
     private Set<ITransition<Partition>> currentPath;
-
-    static String instructions = "<html>"
-            + "<h3>Edges:</h3>"
-            + "<ul>"
-            + "<li>Labels denote the number of log events that were observed to make the transition along the edge</li>"
-            + "</ul>"
-            + "<h3>Node Colors:</h3>"
-            + "<ul>"
-            + "<li>Grey: initial and terminal nodes</li>"
-            + "<li>Yellow: nodes that did not change in the last refinement step</li>"
-            + "<li>Dark Green: nodes that <b>changed</b> in the last refinement step</li>"
-            + "<li>Light Green: nodes that <b>created</b> by the last refinement step</li>"
-            + "</ul>"
-            + "<h3>All Modes:</h3>"
-            + "<ul>"
-            + "<li>Mousewheel scales with a crossover value of 1.0.<p>"
-            + "     - scales the graph layout when the combined scale is greater than 1<p>"
-            + "     - scales the graph view when the combined scale is less than 1"
-            + "</ul>"
-            + "<h3>Transforming Mode: (right mouse clicks)</h3>"
-            + "<ul>"
-            + "<li>Mouse3+drag pans the graph"
-            + "<li>Mouse3+Shift+drag rotates the graph"
-            + "<li>Mouse3+CTRL(or Command)+drag shears the graph"
-            // +
-            // "<li>Mouse3 double-click on a vertex or edge allows you to edit the label"
-            + "</ul>"
-            + "<h3>Picking Mode: (left mouse clicks)</h3>"
-            + "<ul>"
-            + "<li>Mouse1 on a Vertex selects the vertex"
-            + "<li>Mouse1 elsewhere unselects all Vertices"
-            + "<li>Mouse1+Shift on a Vertex adds/removes Vertex selection"
-            + "<li>Mouse1+drag on a Vertex moves all selected Vertices"
-            + "<li>Mouse1+drag elsewhere selects Vertices in a region"
-            + "<li>Mouse1+Shift+drag adds selection of Vertices in a new region"
-            + "<li>Mouse1+CTRL on a Vertex selects the vertex and centers the display on it"
-            + "<li>Mouse1 double-click on a vertex allows you to view the log lines represented by that node"
-            // +
-            // "<li>Mouse1 double-click on a vertex or edge allows you to edit the label"
-            + "</ul>" + "</html>";
 
     Set<ITemporalInvariant> unsatisfiedInvariants;
     int numSplitSteps = 0;
@@ -190,6 +140,11 @@ public class JungGui extends JApplet implements Printable {
      */
     LinkedHashMap<Partition, Integer> newPartitions;
 
+    /**
+     * Command line arguments.
+     */
+    SynopticOptions options;
+
     static final Color lightGreenColor;
     static {
         float[] hsb = Color.RGBtoHSB(50, 190, 50, null);
@@ -202,7 +157,8 @@ public class JungGui extends JApplet implements Printable {
      * @param g
      * @throws Exception
      */
-    public JungGui(PartitionGraph g) throws Exception {
+    public JungGui(PartitionGraph g, SynopticOptions options) throws Exception {
+        this.options = options;
 
         unsatisfiedInvariants = new LinkedHashSet<ITemporalInvariant>();
         unsatisfiedInvariants.addAll(g.getInvariants().getSet());
@@ -230,17 +186,21 @@ public class JungGui extends JApplet implements Printable {
             @Override
             public void componentHidden(ComponentEvent arg0) {
                 // TODO Auto-generated method stub
+
             }
 
             @Override
             public void componentMoved(ComponentEvent arg0) {
                 // TODO Auto-generated method stub
+
             }
 
             @Override
             public void componentShown(ComponentEvent arg0) {
                 // TODO Auto-generated method stub
+
             }
+
         });
 
         setUpGui();
@@ -265,8 +225,6 @@ public class JungGui extends JApplet implements Printable {
         JMenu fileMenu = new JMenu("File");
         createFileMenu(fileMenu);
         menuBar.add(fileMenu);
-
-        // JMenu actionsMenu = new JMenu("Synoptic Actions");
 
         JMenu graphLayouts = new JMenu("Graph Layouts");
         createLayoutsMenu(graphLayouts);
@@ -320,7 +278,8 @@ public class JungGui extends JApplet implements Printable {
         help.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(vizViewer, instructions);
+                JOptionPane.showMessageDialog(vizViewer,
+                        SynopticJungMain.instructions);
             }
         });
         fileMenu.add(help);
@@ -333,9 +292,9 @@ public class JungGui extends JApplet implements Printable {
                 String filename = JOptionPane
                         .showInputDialog("Enter name for this export:");
                 if (filename != null && filename.length() > 0) {
-                    if (Main.outputPathPrefix != null) {
+                    if (options.outputPathPrefix != null) {
                         try {
-                            Main.exportNonInitialGraph(Main.outputPathPrefix
+                            Main.exportNonInitialGraph(options.outputPathPrefix
                                     + "." + filename, pGraph);
                         } catch (Exception e1) {
                             e1.printStackTrace();
@@ -347,7 +306,8 @@ public class JungGui extends JApplet implements Printable {
                                         "Cannot output "
                                                 + filename
                                                 + "graph. Specify output path prefix using:\n\t"
-                                                + Main.getCmdLineOptDesc("outputPathPrefix"));
+                                                + SynopticOptions
+                                                        .getOptDesc("outputPathPrefix"));
                     }
                 }
             }
@@ -357,117 +317,8 @@ public class JungGui extends JApplet implements Printable {
     public JMenuItem createViewPathsMenuItem() {
         viewPathsOption = new JMenuItem("View paths through selected nodes");
         viewPathsOption.setEnabled(true);
-        viewPathsOption.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                PickedState<INode<Partition>> pState = vizViewer
-                        .getPickedVertexState();
-                Set<INode<Partition>> pickedVertices = pState.getPicked();
-                if (pickedVertices.isEmpty()) {
-                    JOptionPane
-                            .showMessageDialog(frame, "No vertices selected");
-                } else {
-                    List<Set<Integer>> partitionIDs = new ArrayList<Set<Integer>>();
-                    Set<Integer> temp;
-                    for (INode<Partition> v : pickedVertices) {
-                        temp = new HashSet<Integer>();
-                        for (EventNode event : ((Partition) v).getEventNodes()) {
-                            if (event.getTraceID() != 0) {
-                                temp.add(event.getTraceID());
-                            }
-                        }
-                        if (!temp.isEmpty()) {
-                            partitionIDs.add(temp);
-                        }
-                    }
-                    if (partitionIDs.isEmpty()) {
-                        JOptionPane.showMessageDialog(frame,
-                                "No events observed in the selected vertices");
-                    } else {
-                        Set<Integer> intersectionOfIDs = partitionIDs.get(0);
-                        for (int i = 1; i < partitionIDs.size(); i++) {
-                            intersectionOfIDs.retainAll(partitionIDs.get(i));
-                        }
-
-                        // Now intersectionOfIDs is a set intersection of the
-                        // traceIDs for the current selected vertices
-                        if (intersectionOfIDs.isEmpty()) {
-                            JOptionPane
-                                    .showMessageDialog(frame,
-                                            "No traces observed through all selected vertices");
-                        } else {
-                            JFrame optionsFrame = new JFrame("Possible traces");
-                            JLabel message = new JLabel("Select path to view",
-                                    SwingConstants.CENTER);
-                            JPanel panel = new JPanel();
-                            final Map<Integer, Set<ITransition<Partition>>> paths = new HashMap<Integer, Set<ITransition<Partition>>>();
-                            // System.out.println(intersectionOfIDs);
-                            for (Partition p : pGraph.getDummyInitialNodes()) {
-                                for (EventNode event : p.getEventNodes()) {
-                                    for (Transition<EventNode> t : event
-                                            .getTransitions()) {
-                                        int traceID = t.getTarget()
-                                                .getTraceID();
-                                        if (intersectionOfIDs.contains(traceID)) {
-                                            Set<ITransition<Partition>> curPath = new HashSet<ITransition<Partition>>();
-                                            ITransition<Partition> trans = p
-                                                    .getTransition(t
-                                                            .getTarget()
-                                                            .getParent(), t
-                                                            .getRelation());
-                                            curPath.add(trans);
-                                            traverse(t.getTarget(), curPath);
-                                            paths.put(traceID, curPath);
-                                        }
-                                    }
-                                }
-                            }
-                            ButtonGroup traceButtonGroup = new ButtonGroup();
-                            for (final Integer trace : intersectionOfIDs) {
-                                JRadioButton button = new JRadioButton(
-                                        "Trace ID " + trace);
-                                button.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(
-                                            ActionEvent event) {
-                                        currentPath = paths.get(trace);
-                                        displayPath();
-                                    }
-                                });
-                                panel.add(button);
-                                traceButtonGroup.add(button);
-                                optionsFrame
-                                        .addWindowListener(new WindowAdapter() {
-                                            @Override
-                                            public void windowClosing(
-                                                    WindowEvent ev) {
-                                                currentPath.clear();
-                                                displayPath();
-                                            }
-                                        });
-                                optionsFrame
-                                        .setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                                optionsFrame.add(message, BorderLayout.NORTH);
-                                optionsFrame.add(panel, BorderLayout.SOUTH);
-                                optionsFrame.pack();
-                                optionsFrame.setVisible(true);
-                            }
-                        }
-                    }
-                }
-            }
-        });
+        viewPathsOption.addActionListener(new ViewPathsActionListener(this));
         return viewPathsOption;
-    }
-
-    private void traverse(EventNode event, Set<ITransition<Partition>> path) {
-        // Should be a single transition for totally ordered logs
-        for (Transition<EventNode> transition : event.getTransitions()) {
-            path.add(event.getParent().getTransition(
-                    transition.getTarget().getParent(),
-                    transition.getRelation()));
-            traverse(transition.getTarget(), path);
-        }
     }
 
     public JMenuItem createTotalRefineMenuItem() {
@@ -574,12 +425,6 @@ public class JungGui extends JApplet implements Printable {
         for (CExamplePath<Partition> relPath : counterExampleTraces) {
             unsatisfiedInvariants.add(relPath.invariant);
         }
-    }
-
-    private void displayPath() {
-        vizViewer.getGraphLayout().setGraph(JungGui.this.getJGraph());
-        vizViewer.setGraphLayout(vizViewer.getGraphLayout());
-        JungGui.this.repaint();
     }
 
     public void createLayoutsMenu(JMenu graphLayouts) {
@@ -800,6 +645,17 @@ public class JungGui extends JApplet implements Printable {
         }
     }
 
+    public void displayPath(Set<ITransition<Partition>> path) {
+        if (path == null) {
+            currentPath.clear();
+        } else {
+            currentPath = path;
+        }
+        vizViewer.getGraphLayout().setGraph(this.getJGraph());
+        vizViewer.setGraphLayout(vizViewer.getGraphLayout());
+        this.repaint();
+    }
+
     @Override
     public int print(java.awt.Graphics graphics,
             java.awt.print.PageFormat pageFormat, int pageIndex)
@@ -819,7 +675,6 @@ public class JungGui extends JApplet implements Printable {
         }
     }
 
-    // questionable
     private JTable table;
     private final int scrollBarWidth = 28;
     private TableColumnAdjuster adjuster;
@@ -827,9 +682,6 @@ public class JungGui extends JApplet implements Printable {
     protected class CustomMousePlugin implements MouseListener {
         private final Dimension defaultSize = new Dimension(600, 100);
         private final LogLineTableModel dataModel;
-
-        // private TableColumnAdjuster adjuster;
-        // private Table table;
 
         public CustomMousePlugin(JPanel logLineWindow) {
             dataModel = new LogLineTableModel(new Object[0][0]);
@@ -891,28 +743,29 @@ public class JungGui extends JApplet implements Printable {
         }
 
         @Override
-        public void mouseEntered(MouseEvent e) {
+        public void mouseEntered(MouseEvent arg0) {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void mouseExited(MouseEvent e) {
+        public void mouseExited(MouseEvent arg0) {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void mousePressed(MouseEvent e) {
+        public void mousePressed(MouseEvent arg0) {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void mouseReleased(MouseEvent e) {
+        public void mouseReleased(MouseEvent arg0) {
             // TODO Auto-generated method stub
 
         }
+
     }
 
     private void resizePanel() {
