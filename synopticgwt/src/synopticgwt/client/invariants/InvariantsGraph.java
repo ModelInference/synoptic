@@ -46,6 +46,8 @@ public class InvariantsGraph {
     private List<GraphicInvariant> apInvs;
     private List<GraphicInvariant> afbyInvs;
     private List<GraphicInvariant> nfbyInvs;
+    
+    public static final String INITIAL_EVENT_LABEL = synoptic.model.EventType.initialNodeLabel;
 
     /**
      * Creates an empty InvariantsGraph
@@ -113,10 +115,10 @@ public class InvariantsGraph {
         Collections.sort(eventTypesList);
         
         // Put initial at the head of the list
-        if (eventTypesList.contains("INITIAL")) {
-            int initialETypeIndex = eventTypesList.indexOf("INITIAL");
+        if (eventTypesList.contains(INITIAL_EVENT_LABEL)) {
+            int initialETypeIndex = eventTypesList.indexOf(INITIAL_EVENT_LABEL);
             eventTypesList.remove(initialETypeIndex);
-            eventTypesList.add(0, "INITIAL");
+            eventTypesList.add(0, INITIAL_EVENT_LABEL);
         }
 
         // draw graphic event type columns
