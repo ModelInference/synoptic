@@ -1,0 +1,37 @@
+loginwindow[35]: Login Window Started Security Agent
+May 20 16:15:27 my-mac SecurityAgent[130]: Showing Login Window
+May 20 16:29:19 my-mac SecurityAgent[130]: User info context values set for jenny
+May 20 16:29:19 my-mac authorizationhost[129]: Failed to authenticate user <jenny> (tDirStatus: -14090).
+May 20 16:29:22 my-mac SecurityAgent[130]: User info context values set for jenny
+May 20 16:29:22 my-mac SecurityAgent[130]: Login Window Showing Progress
+May 20 16:29:22 my-mac SecurityAgent[130]: Login Window done
+May 20 16:29:22 my-mac com.apple.SecurityServer[23]: Succeeded authorizing right 'system.login.console' by client '/System/Library/CoreServices/loginwindow.app' for authorization created by '/System/Library/CoreServices/loginwindow.app'
+loginwindow[35]: Login Window Started Security Agent
+May 22 07:24:18 my-mac SecurityAgent[130]: Showing Login Window
+May 22 07:25:13 my-mac SecurityAgent[130]: User info context values set for ivan
+May 22 07:25:13 my-mac authorizationhost[129]: Failed to authenticate user <ivan> (tDirStatus: -14090).
+May 22 07:25:15 my-mac SecurityAgent[130]: Login Window Showing Progress
+May 22 07:25:15 my-mac SecurityAgent[130]: Login Window done
+May 22 07:25:16 my-mac com.apple.SecurityServer[23]: Succeeded authorizing right 'system.login.console' by client '/System/Library/CoreServices/loginwindow.app' for authorization created by '/System/Library/CoreServices/loginwindow.app'
+loginwindow[35]: Login Window Started Security Agent
+May 20 16:15:27 my-mac SecurityAgent[130]: Showing Login Window
+May 20 16:29:19 my-mac SecurityAgent[130]: User info context values set for jenny
+May 20 16:29:22 my-mac SecurityAgent[130]: Login Window Showing Progress
+May 20 16:29:22 my-mac SecurityAgent[130]: Login Window done
+May 20 16:29:22 my-mac com.apple.SecurityServer[23]: Succeeded authorizing right 'system.login.console' by client '/System/Library/CoreServices/loginwindow.app' for authorization created by '/System/Library/CoreServices/loginwindow.app'
+loginwindow[35]: Login Window Started Security Agent
+May 20 16:15:27 my-mac SecurityAgent[130]: Showing Login Window
+May 20 16:29:19 my-mac SecurityAgent[130]: User info context values set for jenny
+May 20 16:29:19 my-mac authorizationhost[129]: Failed to authenticate user <jenny> (tDirStatus: -14090).
+May 20 16:29:22 my-mac SecurityAgent[130]: User info context values set for jenny
+May 20 16:29:19 my-mac authorizationhost[129]: Failed to authenticate user <jenny> (tDirStatus: -14090).
+May 20 16:29:22 my-mac SecurityAgent[130]: User info context values set for jenny
+May 20 16:29:22 my-mac SecurityAgent[130]: Login Window Showing Progress
+May 20 16:29:22 my-mac SecurityAgent[130]: Login Window done
+May 20 16:29:22 my-mac com.apple.SecurityServer[23]: Succeeded authorizing right 'system.login.console' by client '/System/Library/CoreServices/loginwindow.app' for authorization created by '/System/Library/CoreServices/loginwindow.app'
+loginwindow[35]: Login Window Started Security Agent
+May 20 16:15:27 my-mac SecurityAgent[130]: Showing Login Window
+May 20 16:29:22 my-mac SecurityAgent[130]: User info context values set for guest
+May 20 16:29:22 my-mac SecurityAgent[130]: Login Window Showing Progress
+May 20 16:29:22 my-mac SecurityAgent[130]: Login Window done
+May 20 16:29:22 my-mac com.apple.SecurityServer[23]: Succeeded authorizing right 'system.login.console' by client '/System/Library/CoreServices/loginwindow.app' for authorization created by '/System/Library/CoreServices/loginwindow.app'
