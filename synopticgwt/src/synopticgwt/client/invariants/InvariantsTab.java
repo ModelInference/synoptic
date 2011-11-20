@@ -1,7 +1,10 @@
 package synopticgwt.client.invariants;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,18 +35,23 @@ import synopticgwt.shared.GWTInvariantSet;
  * be satisfied by the model.
  */
 public class InvariantsTab extends Tab<VerticalPanel> {
-    public Set<Integer> activeInvsHashes = new LinkedHashSet<Integer>();
+    public Set<Integer> activeInvsHashes;
     
     /** Relate GWTInvariants to InvariantGridLabels */
     public Map<GWTInvariant, InvariantGridLabel> gwtInvToGridLabel;
     
-    public InvariantsGraph iGraph = new InvariantsGraph();
+    public InvariantsGraph iGraph;
+    
+    HorizontalPanel tableAndGraphicPanel;
 
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
         super(synopticService, pWheel);
         panel = new VerticalPanel();
         gwtInvToGridLabel = new HashMap<GWTInvariant, InvariantGridLabel>();
+        iGraph = new InvariantsGraph();
+        tableAndGraphicPanel = new HorizontalPanel();
+        activeInvsHashes = new LinkedHashSet<Integer>();
     }
 
     /**
@@ -56,51 +64,29 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         // Clear the invariants panel of any widgets it might have.
         panel.clear();
 
-        // Create and populate the panel with the invariants grid.
-        HorizontalPanel tableAndGraphicPanel = new HorizontalPanel();
+        // Populate the panel with the invariants grid.
         panel.add(tableAndGraphicPanel);
 
         // Iterate through all invariants to add them to the grid / table.
         for (String invType : gwtInvs.getInvTypes()) {
             List<GWTInvariant> invs = gwtInvs.getInvs(invType);
-
-            // This loop creates a grid for each Invariant type with one column
-            // and as many rows necessary to contain all of the invariants
-            Grid grid = new Grid(invs.size() + 1, 1);
-            grid.setStyleName("invariantsGrid grid");
-            String longType = "Unknown Invariant Type";
-            String unicodeType = GWTInvariant.getUnicodeTransitionType(invType);
-
-            if (invType.equals("AFby")) {
-                longType = "AlwaysFollowedBy ( " + unicodeType + " )";
-            } else if (invType.equals("AP")) {
-                longType = "AlwaysPrecedes ( " + unicodeType + " )";
-            } else if (invType.equals("NFby")) {
-                longType = "NeverFollowedBy ( " + unicodeType + " )";
-            } else if (invType.equals("NCwith")) {
-                longType = "NeverConcurrentWith ( " + unicodeType + " )";
-            } else if (invType.equals("ACwith")) {
-                longType = "AlwaysConcurrentWith ( " + unicodeType + " )";
+            Collections.sort(invs);
+            
+            List<GWTInvariant> initialInvs = new LinkedList<GWTInvariant>();
+            
+            // Put invariants with an "INITIAL" first event into initialInvs
+            // in GWTInvariant.compareTo order 
+            Iterator<GWTInvariant> gInvIterator = invs.iterator(); 
+            while (gInvIterator.hasNext()) {
+            	GWTInvariant gInv = gInvIterator.next();
+            	if (gInv.getSource().equals("INITIAL")) {
+            		gInvIterator.remove();
+            		initialInvs.add(gInv);
+            	}
             }
-            grid.setWidget(0, 0, new Label(longType));
-            grid.getCellFormatter().setStyleName(0, 0, "tableCellTopRow");
-            tableAndGraphicPanel.add(grid);
-
-            // Activated and deactivated grid cells are uniquely styled
-            for (int i = 0; i < invs.size(); i++) {
-                GWTInvariant inv = invs.get(i);
-                InvariantGridLabel iGridLabel = new InvariantGridLabel(inv, grid.getCellFormatter(), i + 1, 0);
-                iGridLabel.addMouseOverHandler(new InvLabelMouseOverHandler());
-                iGridLabel.addMouseOutHandler(new InvLabelMouseOutHandler());
-                gwtInvToGridLabel.put(inv, iGridLabel);
-                grid.setWidget(i + 1, 0, iGridLabel);
-                grid.getCellFormatter().setStyleName(i + 1, 0,
-                        "tableCellInvActivated");
-            }
-
-            // Add a click handler to the grid that allows users to
-            // include/exclude invariants for use by Synoptic.
-            grid.addClickHandler(new InvGridClickHandler(grid, invs));
+            
+            invs.addAll(0, initialInvs);           
+            drawColumn(invType, invs);
         }
 
         // Show the TO invariant graphic only if there are no concurrency
@@ -113,6 +99,51 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             tableAndGraphicPanel.add(invGraphicPanel);
             iGraph.createInvariantsGraphic(gwtInvs, invCanvasId, gwtInvToGridLabel);
         }
+    }
+    
+    /**
+     * Draws a grid column of an invariant type
+     * @param invType Invariant type of column
+     * @param invs List of invariants
+     */
+    public void drawColumn(String invType, List<GWTInvariant> invs) {
+        // This loop creates a grid for each Invariant type with one column
+        // and as many rows necessary to contain all of the invariants
+        Grid grid = new Grid(invs.size() + 1, 1);
+        grid.setStyleName("invariantsGrid grid");
+        String longType = "Unknown Invariant Type";
+        String unicodeType = GWTInvariant.getUnicodeTransitionType(invType);
+
+        if (invType.equals("AFby")) {
+            longType = "AlwaysFollowedBy ( " + unicodeType + " )";
+        } else if (invType.equals("AP")) {
+            longType = "AlwaysPrecedes ( " + unicodeType + " )";
+        } else if (invType.equals("NFby")) {
+            longType = "NeverFollowedBy ( " + unicodeType + " )";
+        } else if (invType.equals("NCwith")) {
+            longType = "NeverConcurrentWith ( " + unicodeType + " )";
+        } else if (invType.equals("ACwith")) {
+            longType = "AlwaysConcurrentWith ( " + unicodeType + " )";
+        }
+        grid.setWidget(0, 0, new Label(longType));
+        grid.getCellFormatter().setStyleName(0, 0, "tableCellTopRow");
+        tableAndGraphicPanel.add(grid);
+
+        // Activated and deactivated grid cells are uniquely styled
+        for (int i = 0; i < invs.size(); i++) {
+            GWTInvariant inv = invs.get(i);
+            InvariantGridLabel iGridLabel = new InvariantGridLabel(inv, grid.getCellFormatter(), i + 1, 0);
+            iGridLabel.addMouseOverHandler(new InvLabelMouseOverHandler());
+            iGridLabel.addMouseOutHandler(new InvLabelMouseOutHandler());
+            gwtInvToGridLabel.put(inv, iGridLabel);
+            grid.setWidget(i + 1, 0, iGridLabel);
+            grid.getCellFormatter().setStyleName(i + 1, 0,
+                    "tableCellInvActivated");
+        }
+
+        // Add a click handler to the grid that allows users to
+        // include/exclude invariants for use by Synoptic.
+        grid.addClickHandler(new InvGridClickHandler(grid, invs));
     }
 
     /**
