@@ -113,9 +113,11 @@ public class InvariantsGraph {
         Collections.sort(eventTypesList);
         
         // Put initial at the head of the list
-        int initialETypeIndex = eventTypesList.indexOf("INITIAL");
-        eventTypesList.remove(initialETypeIndex);
-        eventTypesList.add(0, "INITIAL");
+        if (eventTypesList.contains("INITIAL")) {
+            int initialETypeIndex = eventTypesList.indexOf("INITIAL");
+            eventTypesList.remove(initialETypeIndex);
+            eventTypesList.add(0, "INITIAL");
+        }
 
         // draw graphic event type columns
         for (int i = 0; i < eventTypesList.size(); i++) {
