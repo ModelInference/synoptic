@@ -29,7 +29,7 @@
 
   <!-- Default page to serve -->
   <welcome-file-list>
-    <welcome-file>SynopticGWT.html</welcome-file>
+    <welcome-file>SynopticGWT.jsp</welcome-file>
   </welcome-file-list>
 
 </web-app>
