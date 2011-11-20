@@ -3,16 +3,16 @@
 <project basedir="." default="build" name="InvDFAMinimization">
     <property environment="env"/>
     <property name="SYNOPTIC_LIB" value="../lib"/>
-    <property name="SYNOPTIC_JARRED_LIB" value="lib"/>
     <property name="junit.output.dir" value="junit"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-    <path id="Synoptic.classpath">
+    <path id="InvDFAMinimization.classpath">
         <pathelement location="bin"/>
         <pathelement location="${SYNOPTIC_LIB}/junit-4.9b2.jar"/>
         <pathelement location="${SYNOPTIC_LIB}/plume.jar"/>
         <pathelement location="${SYNOPTIC_LIB}/synoptic.jar"/>
+        <pathelement location="${SYNOPTIC_LIB}/automaton.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -34,14 +34,14 @@
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
 	    <!-- <compilerarg value="-Xlint:unchecked" /> -->
             <src path="src"/>
-            <classpath refid="Synoptic.classpath"/>
+            <classpath refid="InvDFAMinimization.classpath"/>
         </javac>
     </target>
 
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="no" printsummary="withOutAndErr" showoutput="true">
-	  <classpath refid="Synoptic.classpath"/>
+	  <classpath refid="InvDFAMinimization.classpath"/>
 	  <formatter type="xml"/>
 
 	  <batchtest fork="no" todir="${junit.output.dir}">
@@ -52,6 +52,20 @@
 	  </batchtest>
 
         </junit>
+    </target>
+
+    <target name="jar" depends="build">
+      <jar destfile="${SYNOPTIC_LIB}/inv-dfa-minimization.jar"
+           basedir="./bin/"
+           includes="**/*.class">
+        <manifest>
+	  <attribute name="Manifest-Version" value="1.0" />
+	  <attribute name="Implementation-Title" value="InvDFAMinimization" />
+	  <attribute name="Implementation-Version" value="0.0.1" />
+	  <attribute name="Main-Class" value="main.DFAMain" />
+	  <attribute name="Class-Path" value="junit-4.9b2.jar plume.jar synoptic.jar automaton.jar" />
+	</manifest>
+      </jar>
     </target>
 
     <target name="junitreport">
