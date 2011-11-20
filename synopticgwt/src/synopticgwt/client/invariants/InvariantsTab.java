@@ -63,6 +63,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     public void showInvariants(GWTInvariantSet gwtInvs) {
         // Clear the invariants panel of any widgets it might have.
         panel.clear();
+        tableAndGraphicPanel.clear();
 
         // Populate the panel with the invariants grid.
         panel.add(tableAndGraphicPanel);
@@ -86,7 +87,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             }
             
             invs.addAll(0, initialInvs);           
-            drawColumn(invType, invs);
+            addInvariantColumnToGrid(invType, invs);
         }
 
         // Show the TO invariant graphic only if there are no concurrency
@@ -106,7 +107,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
      * @param invType Invariant type of column
      * @param invs List of invariants
      */
-    public void drawColumn(String invType, List<GWTInvariant> invs) {
+    public void addInvariantColumnToGrid(String invType, List<GWTInvariant> invs) {
         // This loop creates a grid for each Invariant type with one column
         // and as many rows necessary to contain all of the invariants
         Grid grid = new Grid(invs.size() + 1, 1);
