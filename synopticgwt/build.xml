@@ -62,9 +62,14 @@
   </target>
 
 
-  <target name="war">
+  <target name="embedded-war">
     <war basedir="war" destfile="synopticgwt.war" webxml="war/WEB-INF/web.xml" />
   	<copy file="synopticgwt.war" todir="../embeddedgwt/apps/" />
+  </target>
+
+  <target name="deployment-war">
+    <war basedir="war" destfile="root.war" webxml="war/WEB-INF/web.xml" />
+  	<copy file="root.war" todir="../" />
   </target>
 
 </project>
