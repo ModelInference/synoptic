@@ -14,16 +14,24 @@ public class AppConfiguration {
     public final String analyticsTrackerID;
 
     /**
-     * The directory to which files are currently exported to.
+     * The directory to which model dot/png files are exported.
      */
-    public final String userExport;
+    public final String modelExportsDir;
+
+    /**
+     * The directory to which submitted logs are saved.
+     */
+    public final String uploadedLogFilesDir;
 
     /**
      * Private constructor prevents instantiation from other classes
      */
     private AppConfiguration() {
         analyticsTrackerID = System.getProperty("analyticsTrackerID");
-        userExport = System.getProperty("userExport", "userexport/");
+        modelExportsDir = System.getProperty("modelExportsDir",
+                "model-exports/");
+        uploadedLogFilesDir = System.getProperty("logFilesDir",
+                "uploaded-logfiles/");
     }
 
     public static AppConfiguration getInstance() {

@@ -2,6 +2,7 @@ package synopticgwt.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -17,7 +18,6 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FilenameUtils;
 
 /**
  * Servlet that handles POST form submission containing log file and saving that
@@ -28,9 +28,6 @@ public class LogFileUploadServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     public static Logger logger = Logger.getLogger("LogFileUploadServlet");
-
-    // The directory in which files are currently exported to.
-    private static final String userLogFileExport = "userlogfileexport/";
 
     /**
      * Handles POST request. Retrieves file uploaded in form from request and
@@ -70,21 +67,28 @@ public class LogFileUploadServlet extends HttpServlet {
                         "No file was uploaded");
                 return;
             }
+
             String fileName = uploadedItem.getName();
-            String path = userLogFileExport + fileName;
-            if (fileName != null && !fileName.equals("")) {
-                fileName = FilenameUtils.getName(fileName);
-                try {
-                    File uploadedFile = new File(path);
-                    uploadedItem.write(uploadedFile);
-                } catch (Exception e) {
-                    logger.severe("Unable to save file to server : "
-                            + e.getMessage());
-                    response.sendError(
-                            HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                            "Unable to save file to server");
-                    return;
-                }
+            if (fileName == null || fileName.equals("")) {
+                logger.severe("Uploaded a file with an empty filename.");
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+                        "Uploaded a file with an empty filename");
+                return;
+            }
+
+            Calendar now = Calendar.getInstance();
+            fileName = now.getTimeInMillis() + ".log.txt";
+            String path = SynopticService.config.uploadedLogFilesDir + fileName;
+            try {
+                File uploadedFile = new File(path);
+                uploadedItem.write(uploadedFile);
+            } catch (Exception e) {
+                logger.severe("Unable to save file to server : "
+                        + e.getMessage());
+                response.sendError(
+                        HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                        "Unable to save file to server");
+                return;
             }
 
             // Successfully uploaded file to server's disk
@@ -92,7 +96,7 @@ public class LogFileUploadServlet extends HttpServlet {
 
             // Saves file path of file to session state
             HttpSession session = request.getSession();
-            session.setAttribute("logFilePath", path);
+            session.setAttribute(SynopticService.logFileSessionAttribute, path);
         } else {
             logger.severe("Not multipart request");
             response.sendError(HttpServletResponse.SC_BAD_REQUEST,

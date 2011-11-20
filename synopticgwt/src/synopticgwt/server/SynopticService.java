@@ -70,9 +70,9 @@ public class SynopticService extends RemoteServiceServlet implements
     public static Logger logger = Logger.getLogger("SynopticService");
 
     // Session attribute name storing path of client's uploaded log file.
-    private static final String logFileSessionAttribute = "logFilePath";
+    static final String logFileSessionAttribute = "logFilePath";
 
-    private AppConfiguration config = AppConfiguration.getInstance();
+    static final AppConfiguration config = AppConfiguration.getInstance();
 
     // Variables corresponding to session state.
     private PartitionGraph pGraph;
@@ -584,8 +584,8 @@ public class SynopticService extends RemoteServiceServlet implements
         retrieveSessionState();
         Calendar now = Calendar.getInstance();
         // Naming convention for the file can be improved
-        String fileString = config.userExport + now.getTimeInMillis()
-                + "exportmodel.dot";
+        String fileString = config.modelExportsDir + now.getTimeInMillis()
+                + ".model.dot";
         GraphExporter.exportGraph(fileString, pGraph, true);
         return fileString;
     }
