@@ -7,7 +7,7 @@ import java.io.Serializable;
  * the server/client. Currently not all of the data within the server-side
  * temporal invariant classes can be converted to work with GWT.
  */
-public class GWTInvariant implements Serializable {
+public class GWTInvariant implements Serializable, Comparable<GWTInvariant> {
 	
     private static final long serialVersionUID = 1L;
 
@@ -131,5 +131,15 @@ public class GWTInvariant implements Serializable {
     public boolean getActive() {
     	return active;
     }
+
+	@Override
+	public int compareTo(GWTInvariant o) {
+		int compareSource = getSource().compareTo(o.getSource());
+		if (compareSource != 0) {
+			return compareSource;
+		} else {
+			return getTarget().compareTo(o.getTarget());
+		}
+	}
 
 }

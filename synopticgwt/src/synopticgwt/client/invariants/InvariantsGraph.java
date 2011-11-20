@@ -1,6 +1,7 @@
 package synopticgwt.client.invariants;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -107,6 +108,14 @@ public class InvariantsGraph {
         int fontSize = 20; // getFontSize(longestEType);
 
         this.paper = new Paper(width, height, invCanvasId);
+
+        // Sort eventTypesList alphabetically
+        Collections.sort(eventTypesList);
+        
+        // Put initial at the head of the list
+        int initialETypeIndex = eventTypesList.indexOf("INITIAL");
+        eventTypesList.remove(initialETypeIndex);
+        eventTypesList.add(0, "INITIAL");
 
         // draw graphic event type columns
         for (int i = 0; i < eventTypesList.size(); i++) {
