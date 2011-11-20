@@ -2,6 +2,7 @@ package synopticgwt.client.invariants;
 
 import java.io.Serializable;
 
+import synopticgwt.client.util.MouseHover;
 import synopticgwt.client.util.Paper;
 import synopticgwt.shared.GWTInvariant;
 
@@ -10,7 +11,7 @@ import synopticgwt.shared.GWTInvariant;
  * Relates two GraphicEvents representing the source and destination of
  * the invariant arrow with the actual GraphicArrow 
  * */
-public class GraphicInvariant implements Serializable {
+public class GraphicInvariant implements Serializable, MouseHover {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -33,6 +34,8 @@ public class GraphicInvariant implements Serializable {
         this.dst = dst;
         this.arrow = new GraphicArrow(src.getX(), src.getY(), dst.getX(),
             dst.getY(), paper);
+        arrow.setMouseover(this);
+        arrow.setMouseout(this);
         this.GWTinv = GWTinv;
         this.iGridLabel = iGridLabel;
     }
@@ -63,20 +66,7 @@ public class GraphicInvariant implements Serializable {
     	if (visible) {
 	        src.setFill(InvariantsGraph.HIGHLIGHT_FILL);
 	        dst.setFill(InvariantsGraph.HIGHLIGHT_FILL);
-	
-	        String transitionType = GWTinv.getTransitionType();
-	        if (transitionType.equals("AP")) {
-	            arrow.setStroke(InvariantsGraph.AP_HIGHLIGHT_STROKE, 
-	            		InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
-	        } else if (transitionType.equals("AFby")) {
-	            arrow.setStroke(InvariantsGraph.AFBY_HIGHLIGHT_STROKE, 
-	            		InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
-	        } else if (transitionType.equals("NFby")) {
-	            arrow.setStroke(InvariantsGraph.NFBY_HIGHLIGHT_STROKE, 
-	            		InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
-	        } else {
-	            throw new IllegalStateException("Illegal type: " + transitionType);
-	        }
+	        highlightOnArrow();
 	        iGridLabel.highlightOn();
     	}
     }
@@ -85,8 +75,50 @@ public class GraphicInvariant implements Serializable {
     public void highlightOff() {
         src.setFill(InvariantsGraph.DEFAULT_FILL);
         dst.setFill(InvariantsGraph.DEFAULT_FILL);
-        arrow.setStroke(InvariantsGraph.DEFAULT_STROKE, 
-        		InvariantsGraph.DEFAULT_STROKE_WIDTH);
+        mouseout();
         iGridLabel.highlightOff();
+    }
+    
+    /**
+     * Highlights arrow based on arrow's transition type
+     */
+    public void highlightOnArrow() {
+        if (visible) {
+            String transitionType = GWTinv.getTransitionType();
+            if (transitionType.equals("AP")) {
+                arrow.setStroke(InvariantsGraph.AP_HIGHLIGHT_STROKE, 
+                        InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
+            } else if (transitionType.equals("AFby")) {
+                arrow.setStroke(InvariantsGraph.AFBY_HIGHLIGHT_STROKE, 
+                        InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
+            } else if (transitionType.equals("NFby")) {
+                arrow.setStroke(InvariantsGraph.NFBY_HIGHLIGHT_STROKE, 
+                        InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
+            } else {
+                throw new IllegalStateException("Illegal type: " + transitionType);
+            }    
+        }
+    }
+    
+    /** Removes highlightng from arrow */
+    public void highlightOffArrow() {
+        arrow.setStroke(InvariantsGraph.DEFAULT_STROKE, 
+                InvariantsGraph.DEFAULT_STROKE_WIDTH); 
+    }
+
+    /**
+     * Sets arrow stroke to highlight state
+     */
+    @Override
+    public void mouseover() {
+        highlightOnArrow();
+    }
+
+    /**
+     * Sets arrow stroke to default state
+     */
+    @Override
+    public void mouseout() {
+        highlightOffArrow();
     }
 }

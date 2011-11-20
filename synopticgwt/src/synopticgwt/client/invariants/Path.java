@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
+import synopticgwt.client.util.MouseHover;
 import synopticgwt.client.util.Paper;
 
 /** 
@@ -94,5 +95,33 @@ public class Path implements Serializable {
             stroke : color,
             'stroke-width' : width
         });
+    }-*/;
+    
+    /** 
+     * Registers hover mouseover with the Raphael path
+     * @param hover object with java level mouseover function
+     */
+    public native void setMouseover(MouseHover hover) /*-{
+        var path = this.@synopticgwt.client.invariants.Path::path;
+        path.mouseover(
+            function(hoverable) {
+                return function(e) {
+                    hoverable.@synopticgwt.client.util.MouseHover::mouseover()();
+                };
+            } (hover));
+    }-*/;
+    
+    /** 
+     * Registers hover mouseout with the Raphael path
+     * @param hover object with java level mouseout function
+     */
+    public native void setMouseout(MouseHover hover) /*-{
+        var path = this.@synopticgwt.client.invariants.Path::path;
+        path.mouseout(
+            function(hoverable) {
+                return function(e) {
+                    hoverable.@synopticgwt.client.util.MouseHover::mouseout()();
+                };
+            } (hover));
     }-*/;
 }
