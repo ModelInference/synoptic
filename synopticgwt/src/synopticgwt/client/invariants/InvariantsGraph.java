@@ -47,7 +47,7 @@ public class InvariantsGraph {
     private List<GraphicInvariant> afbyInvs;
     private List<GraphicInvariant> nfbyInvs;
     
-    public static final String INITIAL_EVENT_LABEL = "INITIAL";
+    public static final String INITIAL_EVENT_LABEL = synoptic.model.EventType.initialNodeLabel;
 
     /**
      * Creates an empty InvariantsGraph
