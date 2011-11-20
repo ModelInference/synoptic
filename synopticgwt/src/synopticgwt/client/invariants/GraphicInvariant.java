@@ -67,7 +67,6 @@ public class GraphicInvariant implements Serializable, MouseHover {
 	        src.setFill(InvariantsGraph.HIGHLIGHT_FILL);
 	        dst.setFill(InvariantsGraph.HIGHLIGHT_FILL);
 	        highlightOnArrow();
-	        iGridLabel.highlightOn();
     	}
     }
 
@@ -75,8 +74,7 @@ public class GraphicInvariant implements Serializable, MouseHover {
     public void highlightOff() {
         src.setFill(InvariantsGraph.DEFAULT_FILL);
         dst.setFill(InvariantsGraph.DEFAULT_FILL);
-        mouseout();
-        iGridLabel.highlightOff();
+        highlightOffArrow();
     }
     
     /**
@@ -97,6 +95,7 @@ public class GraphicInvariant implements Serializable, MouseHover {
             } else {
                 throw new IllegalStateException("Illegal type: " + transitionType);
             }    
+            iGridLabel.highlightOn();
         }
     }
     
@@ -104,6 +103,7 @@ public class GraphicInvariant implements Serializable, MouseHover {
     public void highlightOffArrow() {
         arrow.setStroke(InvariantsGraph.DEFAULT_STROKE, 
                 InvariantsGraph.DEFAULT_STROKE_WIDTH); 
+        iGridLabel.highlightOff();
     }
 
     /**
@@ -119,6 +119,6 @@ public class GraphicInvariant implements Serializable, MouseHover {
      */
     @Override
     public void mouseout() {
-        highlightOffArrow();
+        highlightOffArrow();  
     }
 }
