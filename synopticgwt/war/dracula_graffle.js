@@ -48,7 +48,7 @@ Raphael.fn.connection = function (obj1, obj2, style) {
              */
             /* loop the first object's connection coordinates */
             for (var i = 0; i < 4; i++) {
-                /* loop the seond object's connection coordinates */
+                /* loop the second object's connection coordinates */
                 for (var j = 4; j < 8; j++) {
                     var dx = Math.abs(p[i].x - p[j].x),
                         dy = Math.abs(p[i].y - p[j].y);
