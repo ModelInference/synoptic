@@ -1,5 +1,6 @@
 package synopticgwt.client.invariants;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -67,27 +68,24 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
         // Populate the panel with the invariants grid.
         panel.add(tableAndGraphicPanel);
-
-        // Iterate through all invariants to add them to the grid / table.
-        for (String invType : gwtInvs.getInvTypes()) {
-            List<GWTInvariant> invs = gwtInvs.getInvs(invType);
-            Collections.sort(invs);
-            
-            List<GWTInvariant> initialInvs = new LinkedList<GWTInvariant>();
-            
-            // Put invariants with an "INITIAL" first event into initialInvs
-            // in GWTInvariant.compareTo order 
-            Iterator<GWTInvariant> gInvIterator = invs.iterator(); 
-            while (gInvIterator.hasNext()) {
-            	GWTInvariant gInv = gInvIterator.next();
-            	if (gInv.getSource().equals("INITIAL")) {
-            		gInvIterator.remove();
-            		initialInvs.add(gInv);
-            	}
-            }
-            
-            invs.addAll(0, initialInvs);           
-            addInvariantColumnToGrid(invType, invs);
+        
+        Set<String> invTypes = gwtInvs.getInvTypes();
+        
+        // Adds the invariant type columns in a specified order
+        if (invTypes.contains("AP")) {
+            addInvariantColumnToGrid("AP", gwtInvs);
+        }
+        if (invTypes.contains("AFby")) {
+            addInvariantColumnToGrid("AFby", gwtInvs);
+        }
+        if (invTypes.contains("NFby")) {
+            addInvariantColumnToGrid("NFby", gwtInvs);
+        }
+        if (invTypes.contains("ACwith")) {
+            addInvariantColumnToGrid("ACwith", gwtInvs);
+        }
+        if (invTypes.contains("NCwith")) {
+            addInvariantColumnToGrid("NCwith", gwtInvs);
         }
 
         // Show the TO invariant graphic only if there are no concurrency
@@ -103,13 +101,33 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     }
     
     /**
-     * Draws a grid column of an invariant type
+     * Adds a grid column of an invariant type to tableAndGraphicPanel
      * @param invType Invariant type of column
      * @param invs List of invariants
      */
-    public void addInvariantColumnToGrid(String invType, List<GWTInvariant> invs) {
-        // This loop creates a grid for each Invariant type with one column
+    public void addInvariantColumnToGrid(String invType, GWTInvariantSet gwtInvs) {
+        // This creates a grid for each Invariant type with one column
         // and as many rows necessary to contain all of the invariants
+        
+        List<GWTInvariant> invs = gwtInvs.getInvs(invType);
+        Collections.sort(invs);
+        
+        List<GWTInvariant> initialInvs = new LinkedList<GWTInvariant>();
+        
+        // Put invariants with an "INITIAL" first event into initialInvs
+        // in GWTInvariant.compareTo order 
+        Iterator<GWTInvariant> gInvIterator = invs.iterator(); 
+        while (gInvIterator.hasNext()) {
+            GWTInvariant gInv = gInvIterator.next();
+            if (gInv.getSource().equals("INITIAL")) {
+                gInvIterator.remove();
+                initialInvs.add(gInv);
+            }
+        }
+        
+        // Adds the "INITIAL" invariants to the head of the invariant list
+        invs.addAll(0, initialInvs); 
+        
         Grid grid = new Grid(invs.size() + 1, 1);
         grid.setStyleName("invariantsGrid grid");
         String longType = "Unknown Invariant Type";
