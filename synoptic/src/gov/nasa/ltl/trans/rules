@@ -1,0 +1,68 @@
+p/\p
+p
+
+p/\true
+p
+
+p/\false
+false
+
+p/\!p
+false
+
+p\/p
+p
+
+p\/true
+true
+
+p\/false
+p
+
+p\/!p
+true
+
+( X p ) U ( X q )
+X ( p U q )
+
+( p V q ) /\ ( p V r )
+p V ( q /\ r )
+
+( p V r ) \/ ( q V r )
+( p \/ q ) V r
+
+( X p ) /\ ( X q )
+X ( p /\ q )
+
+X true
+true
+
+p U false
+false
+
+[] <> p \/ [] <> q
+[] <> ( p \/ q )
+
+<> X p
+X <> p
+
+[] [] <> p
+[] <> p
+
+<> [] <> p
+[] <> p
+
+X [] <> p
+[] <> p
+
+<> ( p /\ [] <> q )
+( <> p ) /\ ( [] <> q )
+
+[] ( p \/ [] <> q )
+( [] p ) \/ ( [] <> q )
+
+X ( p /\ [] <> q )
+( X p ) /\ ( [] <> q )
+
+X ( p \/ [] <> q )
+( X p ) \/ ( [] <> q )
