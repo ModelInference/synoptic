@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.TabPanel;
 import synopticgwt.client.input.InputTab;
 import synopticgwt.client.invariants.InvariantsTab;
 import synopticgwt.client.model.ModelTab;
+import synopticgwt.client.util.AnalyticsTracker;
 import synopticgwt.client.util.ModelResizeHandler;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTGraph;
@@ -131,6 +132,9 @@ public class SynopticGWT implements EntryPoint {
         // Add handler for when the window is resized while viewing the model.
         // wait until 200 milliseconds after the last window update event
         // to redraw the model.
+        // TODO: Have the handler enabled only when the model tab is selected.
+        // That is, register the handler when the model tab is clicked, and
+        // remove it when any one of the other tabs is clicked.
         Window.addResizeHandler(new ModelResizeHandler(modelTab, 200));
     }
 
@@ -164,9 +168,17 @@ public class SynopticGWT implements EntryPoint {
      * Fired by SynopticTabPanel _before_ the tab is selected.
      */
     public void tabBeforeSelected(BeforeSelectionEvent<Integer> event) {
-        if (!tabIndexToTab.get(event.getItem()).isEnabled()) {
-            event.cancel();
+        if (!tabIndexToTab.containsKey(event.getItem())) {
+            return;
         }
+
+        Tab<?> t = tabIndexToTab.get(event.getItem());
+        if (!t.isEnabled()) {
+            event.cancel();
+            return;
+        }
+        AnalyticsTracker.trackEvent(t.trackerCategoryName, "selected",
+                "navigation");
     }
 
     /**

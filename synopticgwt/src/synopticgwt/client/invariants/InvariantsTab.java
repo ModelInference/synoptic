@@ -1,6 +1,5 @@
 package synopticgwt.client.invariants;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,17 +36,17 @@ import synopticgwt.shared.GWTInvariantSet;
  */
 public class InvariantsTab extends Tab<VerticalPanel> {
     public Set<Integer> activeInvsHashes;
-    
+
     /** Relate GWTInvariants to InvariantGridLabels */
     public Map<GWTInvariant, InvariantGridLabel> gwtInvToGridLabel;
-    
+
     public InvariantsGraph iGraph;
-    
+
     HorizontalPanel tableAndGraphicPanel;
 
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
-        super(synopticService, pWheel);
+        super(synopticService, pWheel, "inv-tab");
         panel = new VerticalPanel();
         gwtInvToGridLabel = new HashMap<GWTInvariant, InvariantGridLabel>();
         iGraph = new InvariantsGraph();
@@ -68,9 +67,9 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
         // Populate the panel with the invariants grid.
         panel.add(tableAndGraphicPanel);
-        
+
         Set<String> invTypes = gwtInvs.getInvTypes();
-        
+
         // Adds the invariant type columns in a specified order
         if (invTypes.contains("AP")) {
             addInvariantColumnToGrid("AP", gwtInvs);
@@ -96,27 +95,31 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             invGraphicPanel.getElement().setId(invCanvasId);
             invGraphicPanel.setStylePrimaryName("modelCanvas");
             tableAndGraphicPanel.add(invGraphicPanel);
-            iGraph.createInvariantsGraphic(gwtInvs, invCanvasId, gwtInvToGridLabel);
+            iGraph.createInvariantsGraphic(gwtInvs, invCanvasId,
+                    gwtInvToGridLabel);
         }
     }
-    
+
     /**
      * Adds a grid column of an invariant type to tableAndGraphicPanel
-     * @param invType Invariant type of column
-     * @param invs List of invariants
+     * 
+     * @param invType
+     *            Invariant type of column
+     * @param invs
+     *            List of invariants
      */
     public void addInvariantColumnToGrid(String invType, GWTInvariantSet gwtInvs) {
         // This creates a grid for each Invariant type with one column
         // and as many rows necessary to contain all of the invariants
-        
+
         List<GWTInvariant> invs = gwtInvs.getInvs(invType);
         Collections.sort(invs);
-        
+
         List<GWTInvariant> initialInvs = new LinkedList<GWTInvariant>();
-        
+
         // Put invariants with an "INITIAL" first event into initialInvs
-        // in GWTInvariant.compareTo order 
-        Iterator<GWTInvariant> gInvIterator = invs.iterator(); 
+        // in GWTInvariant.compareTo order
+        Iterator<GWTInvariant> gInvIterator = invs.iterator();
         while (gInvIterator.hasNext()) {
             GWTInvariant gInv = gInvIterator.next();
             if (gInv.getSource().equals("INITIAL")) {
@@ -124,10 +127,10 @@ public class InvariantsTab extends Tab<VerticalPanel> {
                 initialInvs.add(gInv);
             }
         }
-        
+
         // Adds the "INITIAL" invariants to the head of the invariant list
-        invs.addAll(0, initialInvs); 
-        
+        invs.addAll(0, initialInvs);
+
         Grid grid = new Grid(invs.size() + 1, 1);
         grid.setStyleName("invariantsGrid grid");
         String longType = "Unknown Invariant Type";
@@ -151,7 +154,8 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         // Activated and deactivated grid cells are uniquely styled
         for (int i = 0; i < invs.size(); i++) {
             GWTInvariant inv = invs.get(i);
-            InvariantGridLabel iGridLabel = new InvariantGridLabel(inv, grid.getCellFormatter(), i + 1, 0);
+            InvariantGridLabel iGridLabel = new InvariantGridLabel(inv,
+                    grid.getCellFormatter(), i + 1, 0);
             iGridLabel.addMouseOverHandler(new InvLabelMouseOverHandler());
             iGridLabel.addMouseOutHandler(new InvLabelMouseOutHandler());
             gwtInvToGridLabel.put(inv, iGridLabel);
@@ -207,14 +211,14 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
             int invID = invLabel.getInvariant().getID();
 
-            ////////////////////////////////////////////////////////////
+            // //////////////////////////////////////////////////////////
             // This looks pretty important. It signals to
             // SynopticGWT that the invariants have changed. Why not put
             // this into the invariant set though?
-            // Is there a better way to communicate this information to 
+            // Is there a better way to communicate this information to
             // the Model tab? Maybe a mutation counter in GWTInvariant
             // Set?
-            ////////////////////////////////////////////////////////////
+            // //////////////////////////////////////////////////////////
             SynopticGWT.entryPoint.invSetChanged();
 
             CellFormatter cFormatter = grid.getCellFormatter();
@@ -231,35 +235,37 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             }
         }
     }
-    
+
     /**
      * Highlights corresponding GraphicInvariant on InvariantGridLabel mouseover
+     * 
      * @author timjv
-     *
      */
     class InvLabelMouseOverHandler implements MouseOverHandler {
-    	
-		@Override
-		public void onMouseOver(MouseOverEvent event) {
-			InvariantGridLabel iGridLabel = (InvariantGridLabel) event.getSource();
-			iGridLabel.mouseOver();			
-		}
-    	
+
+        @Override
+        public void onMouseOver(MouseOverEvent event) {
+            InvariantGridLabel iGridLabel = (InvariantGridLabel) event
+                    .getSource();
+            iGridLabel.mouseOver();
+        }
+
     }
-    
+
     /**
-     * Removes highlight from corresponding GraphicInvariant on 
+     * Removes highlight from corresponding GraphicInvariant on
      * InvariantGridLabel mouseout
+     * 
      * @author timjv
-     *
      */
     class InvLabelMouseOutHandler implements MouseOutHandler {
-    	
-		@Override
-		public void onMouseOut(MouseOutEvent event) {
-			InvariantGridLabel iGridLabel = (InvariantGridLabel) event.getSource();
-			iGridLabel.mouseOut();			
-		}
-    	
+
+        @Override
+        public void onMouseOut(MouseOutEvent event) {
+            InvariantGridLabel iGridLabel = (InvariantGridLabel) event
+                    .getSource();
+            iGridLabel.mouseOut();
+        }
+
     }
 }

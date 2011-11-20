@@ -22,6 +22,9 @@ public abstract class Tab<T extends Panel> {
     /** Whether or not this tab is enabled */
     protected boolean isEnabled = false;
 
+    /** Tracker event category name. */
+    public String trackerCategoryName;
+
     /**
      * Whether or not this tab is enabled (the user should be allowed to view
      * it). By default, new tabs are disabled.
@@ -35,9 +38,11 @@ public abstract class Tab<T extends Panel> {
         isEnabled = newEnabled;
     }
 
-    public Tab(ISynopticServiceAsync synopticService, ProgressWheel pWheel) {
+    public Tab(ISynopticServiceAsync synopticService, ProgressWheel pWheel,
+            String trackerCategoryName) {
         this.synopticService = synopticService;
         this.pWheel = pWheel;
+        this.trackerCategoryName = trackerCategoryName;
     }
 
     public Tab(ISynopticServiceAsync synopticService) {
@@ -53,7 +58,7 @@ public abstract class Tab<T extends Panel> {
      *            The error message to display.
      */
     public void displayRPCErrorMessage(String message) {
-    	
+
         Label error = new Label(message);
         error.setStyleName("ErrorMessage");
         RootPanel rpcErrorDiv = RootPanel.get("rpcErrorDiv");
