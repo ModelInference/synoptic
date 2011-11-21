@@ -36,7 +36,7 @@ import synopticgwt.client.Tab;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
-import synopticgwt.shared.SerializableParseException;
+import synopticgwt.shared.GWTParseException;
 
 /**
  * Panel that contains all text fields to enter log/re values. Contains upload
@@ -311,16 +311,20 @@ public class InputPanel extends Tab<VerticalPanel> {
         return result;
     }
 
-    // Extracts expression from text box for log parsing.
+    /**
+     * Extracts expression from text box for log parsing.
+     */
     private String getTextBoxRegExp(TextBox textBox) {
         String expression = textBox.getText();
-        if (expression == "") {
-            expression = null;
+        if (expression == null) {
+            return "";
         }
         return expression;
     }
 
-    // Sets all input field values to be empty strings.
+    /**
+     * Sets all input field values to be empty strings.
+     */
     private void clearInputValues() {
         logTextArea.setValue("");
         primaryRegExpsTextBox.setValue("");
@@ -328,7 +332,9 @@ public class InputPanel extends Tab<VerticalPanel> {
         separatorRegExpTextBox.setValue("");
     }
 
-    // Sets up properties for given TextArea.
+    /**
+     * Sets up properties for given TextArea.
+     */
     private void setUpTextBox(ExtendedTextBox textBox) {
         textBox.setValue("");
         textBox.setVisibleLength(80);
@@ -581,6 +587,7 @@ public class InputPanel extends Tab<VerticalPanel> {
      * Handles parse log button clicks.
      */
     class ParseLogHandler implements ClickHandler {
+        @SuppressWarnings("synthetic-access")
         @Override
         public void onClick(ClickEvent event) {
             // Disallow the user from making concurrent Parse Log calls.
@@ -620,33 +627,33 @@ public class InputPanel extends Tab<VerticalPanel> {
                     + caught.getMessage());
             parseErrorMsgLabel.setText(caught.getMessage());
             parseLogButton.setEnabled(true);
-            if (caught instanceof SerializableParseException) {
-                SerializableParseException exception = (SerializableParseException) caught;
-                // If the exception has both a regex and a logline, then only
-                // the TextArea
-                // that sets their highlighting last will have highlighting.
-                // A secret dependency for TextArea highlighting is focus.
-                // As of now, 9/12/11, SerializableParseExceptions do not get
-                // thrown with both a regex and a logline.
-                if (exception.hasRegex()) {
-                    String regex = exception.getRegex();
-                    // TODO: currently error handling only for primary regexps
-                    // textarea,
-                    // extend to all extra reg exp text area also.
-                    // Noted in Issue152
-                    String regexes = primaryRegExpsTextBox.getText();
-                    int pos = indexOf(regexes, regex);
-                    primaryRegExpsTextBox.setFocus(true);
-                    primaryRegExpsTextBox
-                            .setSelectionRange(pos, regex.length());
-                }
-                if (exception.hasLogLine()) {
-                    String log = exception.getLogLine();
-                    String logs = logTextArea.getText();
-                    int pos = indexOf(logs, log);
-                    logTextArea.setFocus(true);
-                    logTextArea.setSelectionRange(pos, log.length());
-                }
+            if (!(caught instanceof GWTParseException)) {
+                return;
+            }
+            GWTParseException exception = (GWTParseException) caught;
+            // If the exception has both a regex and a logline, then only
+            // the TextArea
+            // that sets their highlighting last will have highlighting.
+            // A secret dependency for TextArea highlighting is focus.
+            // As of now, 9/12/11, SerializableParseExceptions do not get
+            // thrown with both a regex and a logline.
+            if (exception.hasRegex()) {
+                String regex = exception.getRegex();
+                // TODO: currently error handling only for primary regexps
+                // textarea, extend to all extra reg exp text area also.
+                // Noted in Issue152
+                String regexes = primaryRegExpsTextBox.getText();
+                int pos = indexOf(regexes, regex);
+                primaryRegExpsTextBox.setFocus(true);
+                primaryRegExpsTextBox.setSelectionRange(pos, regex.length());
+            }
+            if (exception.hasLogLine()) {
+                String log = exception.getLogLine();
+                String logs = logTextArea.getText();
+                int pos = indexOf(logs, log);
+                logTextArea.setFocus(true);
+                logTextArea.setSelectionRange(pos, log.length());
+
             }
         }
 

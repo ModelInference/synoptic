@@ -1,13 +1,11 @@
 package synoptic.util;
 
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.io.StringWriter;
 
 import synoptic.main.ParseException;
 
-public class InternalSynopticException extends RuntimeException implements
-        Serializable {
+public class InternalSynopticException extends RuntimeException {
     /**
      * Unique version uid
      */

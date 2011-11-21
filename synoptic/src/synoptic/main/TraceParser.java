@@ -504,8 +504,7 @@ public class TraceParser {
      *             when Synoptic code is the problem
      */
     public ArrayList<EventNode> parseTraceString(String trace,
-            String traceName, int linesToRead) throws ParseException,
-            InternalSynopticException {
+            String traceName, int linesToRead) throws ParseException {
         StringReader stringReader = new StringReader(trace);
         try {
             return parseTrace(stringReader, traceName, linesToRead);
@@ -815,8 +814,10 @@ public class TraceParser {
                                 + "\nIgnoring line and continuing.");
                         continue;
                     }
-                    String error = errMsg + "\n\tTry cmd line options:\n\t"
-                            + SynopticOptions.getOptDesc("ignoreNonMatchingLines")
+                    String error = errMsg
+                            + "\n\tTry cmd line options:\n\t"
+                            + SynopticOptions
+                                    .getOptDesc("ignoreNonMatchingLines")
                             + "\n\t" + SynopticOptions.getOptDesc("debugParse");
                     logger.severe(error);
                     logger.severe(e.toString());
