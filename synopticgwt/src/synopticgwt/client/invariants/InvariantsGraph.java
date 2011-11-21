@@ -31,7 +31,9 @@ public class InvariantsGraph {
     public static int HIGHLIGHT_STROKE_WIDTH = 3;
 
     public static String DEFAULT_FILL = "grey";
-    public static String HIGHLIGHT_FILL = "black";
+    public static String ORDERED_FILL = "black";
+    public static String CONCURRENT_FILL = "blue";
+    public static String NEVER_CONCURRENT_FILL = "red";
 
     /** Distance of invariant columns from top of paper */
     public static final int TOP_MARGIN = 20;
@@ -43,9 +45,9 @@ public class InvariantsGraph {
     private Map<String, GraphicEvent> leftEventCol;
     private Map<String, GraphicEvent> midEventCol;
     private Map<String, GraphicEvent> rightEventCol;
-    private List<GraphicInvariant> apInvs;
-    private List<GraphicInvariant> afbyInvs;
-    private List<GraphicInvariant> nfbyInvs;
+    private List<GraphicOrderedInvariant> apInvs;
+    private List<GraphicOrderedInvariant> afbyInvs;
+    private List<GraphicOrderedInvariant> nfbyInvs;
 
     // TODO: Ideally this would refer to
     // synoptic.mode.EventType.initialNodeLabel. However, since this code runs
@@ -61,9 +63,9 @@ public class InvariantsGraph {
         this.leftEventCol = new HashMap<String, GraphicEvent>();
         this.midEventCol = new HashMap<String, GraphicEvent>();
         this.rightEventCol = new HashMap<String, GraphicEvent>();
-        this.apInvs = new ArrayList<GraphicInvariant>();
-        this.afbyInvs = new ArrayList<GraphicInvariant>();
-        this.nfbyInvs = new ArrayList<GraphicInvariant>();
+        this.apInvs = new ArrayList<GraphicOrderedInvariant>();
+        this.afbyInvs = new ArrayList<GraphicOrderedInvariant>();
+        this.nfbyInvs = new ArrayList<GraphicOrderedInvariant>();
     }
 
     /**
@@ -145,15 +147,15 @@ public class InvariantsGraph {
         for (String invType : invTypes) {
             List<GWTInvariant> invs = gwtInvs.getInvs(invType);
             if (invType.equals("AP")) {
-                List<GraphicInvariant> gInvs = drawInvariants(invs,
+                List<GraphicOrderedInvariant> gInvs = drawInvariants(invs,
                         leftEventCol, midEventCol, gwtInvToIGridLabel);
                 apInvs.addAll(gInvs);
             } else if (invType.equals("AFby")) {
-                List<GraphicInvariant> gInvs = drawInvariants(invs,
+                List<GraphicOrderedInvariant> gInvs = drawInvariants(invs,
                         midEventCol, rightEventCol, gwtInvToIGridLabel);
                 afbyInvs.addAll(gInvs);
             } else if (invType.equals("NFby")) {
-                List<GraphicInvariant> gInvs = drawInvariants(invs,
+                List<GraphicOrderedInvariant> gInvs = drawInvariants(invs,
                         midEventCol, rightEventCol, gwtInvToIGridLabel);
                 nfbyInvs.addAll(gInvs);
             }
@@ -179,10 +181,11 @@ public class InvariantsGraph {
      * GraphicEvents and creates/draws the GraphicInvariant representing a
      * GWTInvariant and liking a GraphicEvent from srcCol to dstCol.
      */
-    private List<GraphicInvariant> drawInvariants(List<GWTInvariant> invs,
-            Map<String, GraphicEvent> srcCol, Map<String, GraphicEvent> dstCol,
+    private List<GraphicOrderedInvariant> drawInvariants(
+            List<GWTInvariant> invs, Map<String, GraphicEvent> srcCol,
+            Map<String, GraphicEvent> dstCol,
             Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel) {
-        List<GraphicInvariant> result = new ArrayList<GraphicInvariant>();
+        List<GraphicOrderedInvariant> result = new ArrayList<GraphicOrderedInvariant>();
         for (GWTInvariant inv : invs) {
             String srcEventString = inv.getSource();
             GraphicEvent srcEvent = srcCol.get(srcEventString);
@@ -192,8 +195,8 @@ public class InvariantsGraph {
 
             InvariantGridLabel iGridLabel = gwtInvToIGridLabel.get(inv);
 
-            GraphicInvariant gInv = new GraphicInvariant(srcEvent, dstEvent,
-                    inv, paper, iGridLabel);
+            GraphicOrderedInvariant gInv = new GraphicOrderedInvariant(
+                    srcEvent, dstEvent, inv, paper, iGridLabel);
 
             iGridLabel.setGraphicInvariant(gInv);
 
