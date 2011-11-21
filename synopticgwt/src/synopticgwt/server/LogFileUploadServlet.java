@@ -79,6 +79,7 @@ public class LogFileUploadServlet extends HttpServlet {
             Calendar now = Calendar.getInstance();
             fileName = now.getTimeInMillis() + ".log.txt";
             String path = SynopticService.config.uploadedLogFilesDir + fileName;
+            logger.info("Storing uploaded file to: " + path);
             try {
                 File uploadedFile = new File(path);
                 uploadedItem.write(uploadedFile);
