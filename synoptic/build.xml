@@ -1,18 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 <project basedir="." default="build" name="Synoptic">
+    <description>
+      This build file is used to build the Synoptic project. It can
+      also be used to run the test suite, and to generate the
+      synoptic.jar file.
+    </description>
+
     <property environment="env"/>
-    <property name="SYNOPTIC_LIB" value="../lib"/>
+    <!-- Where to find the libraries Synoptic depends on. -->
+    <property name="synoptic.libdir" value="../lib"/>
+
+    <!-- Where to create the synoptic.jar file. -->
+    <property name="synoptic.jarpath" value="${synoptic.libdir}/synoptic.jar"/>
+
+    <!-- Where to output junit test results. -->
     <property name="junit.output.dir" value="junit"/>
+
+    <!-- Where to find the generated synoptic classes. -->
+    <path id="synoptic.classes.classpath">
+        <pathelement location="bin"/>
+    </path>
+
+    <!-- The set of jars synoptic depends on, in classpath format. -->
+    <path id="synoptic.depjars.classpath">
+        <pathelement location="${synoptic.libdir}/junit-4.9b2.jar"/>
+        <pathelement location="${synoptic.libdir}/plume.jar"/>
+    </path>
+
+    <!-- The complete classpath for running the compiled synoptic. -->
+    <path id="synoptic.classpath">
+        <path refid="synoptic.classes.classpath"/>
+        <path refid="synoptic.depjars.classpath"/>
+    </path>
+
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-
-    <path id="Synoptic.classpath">
-        <pathelement location="bin"/>
-        <pathelement location="${SYNOPTIC_LIB}/junit-4.9b2.jar"/>
-        <pathelement location="${SYNOPTIC_LIB}/plume.jar"/>
-    </path>
 
     <target name="init">
         <mkdir dir="bin"/>
@@ -40,12 +64,16 @@
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
 	    <!-- <compilerarg value="-Xlint:unchecked" /> -->
             <src path="src"/>
-            <classpath refid="Synoptic.classpath"/>
+            <classpath refid="synoptic.classpath"/>
         </javac>
     </target>
 
+    <manifestclasspath property="jar.liblist" jarfile="${synoptic.jarpath}">
+      <classpath refid="synoptic.depjars.classpath" />
+    </manifestclasspath>
+
     <target name="jar" depends="build">
-      <jar destfile="${SYNOPTIC_LIB}/synoptic.jar"
+      <jar destfile="${synoptic.jarpath}"
            basedir="./bin/"
            includes="**/*.class">
         <manifest>
@@ -53,7 +81,7 @@
 	  <attribute name="Implementation-Title" value="synoptic" />
 	  <attribute name="Implementation-Version" value="0.0.5" />
 	  <attribute name="Main-Class" value="synoptic.main.Main" />
-	  <attribute name="Class-Path" value="junit-4.9b2.ja plume.jar" />
+	  <attribute name="Class-Path" value="${jar.liblist}" />
 	</manifest>
       </jar>
     </target>
@@ -61,7 +89,7 @@
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="no" printsummary="withOutAndErr" showoutput="true">
-	  <classpath refid="Synoptic.classpath"/>
+	  <classpath refid="synoptic.classpath"/>
 	  <formatter type="xml"/>
 
 	  <batchtest fork="no" todir="${junit.output.dir}">
