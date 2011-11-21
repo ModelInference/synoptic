@@ -43,7 +43,6 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.WeightedTransition;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
-import synoptic.util.InternalSynopticException;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
@@ -51,7 +50,7 @@ import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.LogLine;
-import synopticgwt.shared.SerializableParseException;
+import synopticgwt.shared.GWTParseException;
 
 /**
  * Implements the Synoptic service which does:
@@ -314,6 +313,8 @@ public class SynopticService extends RemoteServiceServlet implements
         // Set up some static variables in Main that are necessary to use the
         // Synoptic library.
         Main.options = new SynopticOptions();
+        // Output as much internal Synoptic information as possible.
+        Main.options.logLvlExtraVerbose = true;
         synoptic.main.Main.setUpLogging();
         Main.random = new Random(Main.options.randomSeed);
         Main.graphExportFormatter = new DotExportFormatter();
@@ -321,23 +322,29 @@ public class SynopticService extends RemoteServiceServlet implements
         // Instantiate the parser and parse the log lines.
         TraceParser parser = null;
         ArrayList<EventNode> parsedEvents = null;
+
         try {
             parser = synoptic.main.Main.newTraceParser(regExps,
                     partitionRegExp, separatorRegExp);
             parsedEvents = parser.parseTraceString(logLines, new String(
                     "traceName"), -1);
-        } catch (InternalSynopticException ise) {
-            throw serializeException(ise);
-
         } catch (ParseException pe) {
-            throw serializeException(pe);
+            logger.info("Caught parse exception: " + pe.toString());
+            pe.printStackTrace();
+            throw new GWTParseException(pe.getMessage(), pe.getCause(),
+                    pe.getRegex(), pe.getLogLine());
 
+        } catch (Exception e) {
+            logger.info("Caught exception: " + e.toString());
+            e.printStackTrace();
+            throw e;
         }
 
         // Code below mines invariants, and converts them to GWTInvariants.
         // TODO: refactor synoptic main so that it does all of this most of this
         // for the client.
         GWTGraph graph;
+
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
             TOInvariantMiner miner = new ChainWalkingTOInvMiner();
@@ -419,27 +426,6 @@ public class SynopticService extends RemoteServiceServlet implements
         }
         return parseLog(logFileContent, regExps, partitionRegExp,
                 separatorRegExp);
-    }
-
-    private SerializableParseException serializeException(ParseException pe) {
-        SerializableParseException exception = new SerializableParseException(
-                pe.getMessage());
-        if (pe.hasRegex()) {
-            exception.setRegex(pe.getRegex());
-        }
-        if (pe.hasLogLine()) {
-            exception.setLogLine(pe.getLogLine());
-        }
-        return exception;
-
-    }
-
-    private SerializableParseException serializeException(
-            InternalSynopticException ise) {
-        if (ise.hasParseException()) {
-            return serializeException(ise.getParseException());
-        }
-        return new SerializableParseException(ise.getMessage());
     }
 
     /**

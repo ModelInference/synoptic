@@ -438,10 +438,12 @@ public class Main implements Callable<Integer> {
 
     public static TraceParser newTraceParser(List<String> rExps,
             String partitioningRegExp, String sepRegExp) throws ParseException {
+        assert (partitioningRegExp != null);
+
         TraceParser parser = new TraceParser();
 
         logger.fine("Setting up the log file parser.");
-        if (partitioningRegExp == SynopticOptions.partitionRegExpDefault) {
+        if (partitioningRegExp.equals(SynopticOptions.partitionRegExpDefault)) {
             logger.info("Using the default partitions mapping regex: "
                     + SynopticOptions.partitionRegExpDefault);
         }
