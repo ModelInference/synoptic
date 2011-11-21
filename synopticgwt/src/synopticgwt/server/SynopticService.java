@@ -3,7 +3,6 @@ package synopticgwt.server;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -14,7 +13,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -49,8 +47,8 @@ import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
-import synopticgwt.shared.LogLine;
 import synopticgwt.shared.GWTParseException;
+import synopticgwt.shared.LogLine;
 
 /**
  * Implements the Synoptic service which does:
@@ -394,16 +392,14 @@ public class SynopticService extends RemoteServiceServlet implements
             // TODO: throw appropriate exception
             throw new Exception();
         }
+
+        // Absolute path to the uploaded file.
         String path = session.getAttribute(logFileSessionAttribute).toString();
-
-        ServletContext context = getServletContext();
-
-        // Retrieve full path instead of relative
-        String realPath = context.getRealPath(path);
+        logger.info("Reading uploaded file from: " + path);
 
         String logFileContent = null;
         try {
-            FileInputStream fileStream = new FileInputStream(realPath);
+            FileInputStream fileStream = new FileInputStream(path);
             BufferedInputStream bufferedStream = new BufferedInputStream(
                     fileStream);
             BufferedReader bufferedReader = new BufferedReader(
@@ -420,9 +416,8 @@ public class SynopticService extends RemoteServiceServlet implements
             bufferedStream.close();
             bufferedReader.close();
             logFileContent = buildLog.toString();
-        } catch (FileNotFoundException e) {
-            throw new FileNotFoundException(
-                    "Unable to find file given from file path");
+        } catch (Exception e) {
+            throw new Exception("Unable to read uploaded file.");
         }
         return parseLog(logFileContent, regExps, partitionRegExp,
                 separatorRegExp);
@@ -563,27 +558,38 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Exports the current model as a .dot file. Returns the filename/directory.
+     * Exports the model to a dot file and returns the dot fileName.
+     */
+    private String exportModelToDot() throws Exception {
+        Calendar now = Calendar.getInstance();
+        // Naming convention for the file can be improved
+        String fileName = now.getTimeInMillis() + ".model.dot";
+        String filePath = config.modelExportsDir + fileName;
+        GraphExporter.exportGraph(filePath, pGraph, true);
+        return fileName;
+    }
+
+    /**
+     * Exports the current model as a .dot file. Returns the URL where the
+     * generated file may be accessed by a client.
      */
     @Override
     public String exportDot() throws Exception {
         retrieveSessionState();
-        Calendar now = Calendar.getInstance();
-        // Naming convention for the file can be improved
-        String fileString = config.modelExportsDir + now.getTimeInMillis()
-                + ".model.dot";
-        GraphExporter.exportGraph(fileString, pGraph, true);
-        return fileString;
+        String fileName = exportModelToDot();
+        return config.modelExportsURLprefix + fileName;
     }
 
     /**
-     * Exports the current model as a .png file. Returns the filename/directory.
+     * Exports the current model as a .png file. Returns the URL where the
+     * generated file may be accessed by a client.
      */
     @Override
     public String exportPng() throws Exception {
-        String fileString = exportDot();
-        GraphExporter.generatePngFileFromDotFile(fileString);
-        return fileString + ".png";
+        retrieveSessionState();
+        String fileName = exportModelToDot();
+        GraphExporter.generatePngFileFromDotFile(config.modelExportsDir
+                + fileName);
+        return config.modelExportsURLprefix + fileName + ".png";
     }
-
 }
