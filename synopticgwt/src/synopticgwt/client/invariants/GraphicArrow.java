@@ -128,4 +128,24 @@ public class GraphicArrow implements Serializable {
         positiveHead.setMouseout(hover);
         negativeHead.setMouseout(hover);
     }
+    
+    public void highlightDefault() {
+    	setStroke(InvariantsGraph.DEFAULT_STROKE, 
+                InvariantsGraph.DEFAULT_STROKE_WIDTH); 
+    }
+    
+    public void highlightAP() {
+    	setStroke(InvariantsGraph.AP_HIGHLIGHT_STROKE, 
+                InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
+    }
+    
+    public void highlightAFby() {
+    	setStroke(InvariantsGraph.AFBY_HIGHLIGHT_STROKE, 
+                InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
+    }
+    
+    public void highlightNFby() {
+    	setStroke(InvariantsGraph.NFBY_HIGHLIGHT_STROKE, 
+                InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
+    }
 }

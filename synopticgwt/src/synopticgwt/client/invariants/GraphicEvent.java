@@ -7,34 +7,41 @@ import java.util.List;
 import synopticgwt.client.util.MouseHover;
 import synopticgwt.client.util.Paper;
 
-/** 
- * Graphic model representing a logged event type
- * Also a java representation of a JavaScript text label on a Raphael canvas.
- * */
+/**
+ * Graphic model representing a logged event type Also a java representation of
+ * a JavaScript text label on a Raphael canvas.
+ */
 public class GraphicEvent implements Serializable, MouseHover {
 
     private static final long serialVersionUID = 1L;
 
     /** Wrapped Raphael label object */
     private Label label;
-    /** Incident relations */
+    /** Incident OrderedInvariants and transitive ConcurrentInvariants */
     private List<GraphicInvariant> invariants;
+    private String event;
 
-    /** 
-     * Creates a graphic event 
-     * @param x x coordinate of event
-     * @param y y coordinate of event
-     * @param fontSize size of graphic font
-     * @param event text for event
-     * @param paper Raphael canvas to create event on
+    /**
+     * Creates a graphic event
+     * 
+     * @param x
+     *            x coordinate of event
+     * @param y
+     *            y coordinate of event
+     * @param fontSize
+     *            size of graphic font
+     * @param event
+     *            text for event
+     * @param paper
+     *            Raphael canvas to create event on
      */
 
-    public GraphicEvent(int x, int y, int fontSize, String event,
-            Paper paper) {
+    public GraphicEvent(int x, int y, int fontSize, String event, Paper paper) {
         this.invariants = new ArrayList<GraphicInvariant>();
-        this.label = new Label(paper, x, y, fontSize, 
-            event, InvariantsGraph.DEFAULT_FILL);
+        this.label = new Label(paper, x, y, fontSize, event,
+                InvariantsGraph.DEFAULT_FILL);
         hide();
+        this.event = event;
         label.setMouseover(this);
         label.setMouseout(this);
     }
@@ -58,34 +65,66 @@ public class GraphicEvent implements Serializable, MouseHover {
     }
 
     /** Adds gInv to the list of invariants incident to this event */
-    public void addInvariant(GraphicInvariant gInv) {
-    	if (invariants.size() == 0) {
-    		show();
-    	}
+    public void addInvariant(GraphicOrderedInvariant gInv) {
+        if (invariants.size() == 0) {
+            show();
+        }
         invariants.add(gInv);
     }
 
-    /** 
-     * Highlights all of this event's incident invariants on mouseover
+    public void highlightOrdered() {
+        setFill(InvariantsGraph.ORDERED_FILL);
+    }
+
+    public void highlightDefault() {
+        setFill(InvariantsGraph.DEFAULT_FILL);
+    }
+
+    public void highlightConcurrent() {
+        setFill(InvariantsGraph.CONCURRENT_FILL);
+    }
+
+    public void highlightNeverConcurrent() {
+        setFill(InvariantsGraph.NEVER_CONCURRENT_FILL);
+    }
+
+    /**
+     * Highlights this event's incident OrderedInvariants, transitive
+     * ConcurrentInvariants, and the event itself on mouseover
      */
     public void mouseover() {
         for (GraphicInvariant gi : invariants) {
-    		gi.highlightOn();
+            gi.highlightOn();
         }
+        highlightOrdered();
     }
-    
-    /** 
-     * Removes highlighting from all of this event's incident invariants
-     * on mouseout
+
+    /**
+     * Removes highlighting from this event's incident OrderedInvariants,
+     * transitive ConcurrentInvariants, and the event itself on mouseout
      */
     public void mouseout() {
         for (GraphicInvariant gi : invariants) {
-    		gi.highlightOff();
+            gi.highlightOff();
         }
+        highlightDefault();
     }
 
-	public void setFill(String fill) {
-		label.setFill(fill);
-	}
+    public void setFill(String fill) {
+        label.setFill(fill);
+    }
+    
+    public String getEvent() {
+        return event;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof GraphicEvent) {
+            GraphicEvent otherEvent = (GraphicEvent) o;
+            return getEvent().equals(otherEvent.getEvent());
+        }
+        return false;
+    }
 
 }
