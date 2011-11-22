@@ -162,23 +162,23 @@ public class ModelTab extends Tab<DockPanel> {
 		graphPanel.setStylePrimaryName("modelCanvas");
 		// modelPanel.addEast(graphPanel, 70);
 		panel.add(graphPanel, DockPanel.CENTER);
-		// Create the list of graph node labels and their Ids.
-		HashMap<Integer, String> nodes = graph.getNodes();
-		JavaScriptObject jsNodes = JavaScriptObject.createArray();
-		for (Integer key : nodes.keySet()) {
-			JsniUtil.pushArray(jsNodes, key.toString());
-			JsniUtil.pushArray(jsNodes, nodes.get(key));
-		}
+        // Create the list of graph node labels and their Ids.
+        HashMap<Integer, String> nodes = graph.getNodes();
+        JavaScriptObject jsNodes = JavaScriptObject.createArray();
+        for (Integer key : nodes.keySet()) {
+            JsniUtil.pushArray(jsNodes, key.toString());
+            JsniUtil.pushArray(jsNodes, nodes.get(key));
+        }
 
-		// Create the list of edges, where two consecutive node Ids is an edge.
-		JavaScriptObject jsEdges = JavaScriptObject.createArray();
-		for (GWTEdge edge : graph.getEdges()) {
-			JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()).toString());
-			JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()).toString());
+        // Create the list of edges, where two consecutive node Ids is an edge.
+        JavaScriptObject jsEdges = JavaScriptObject.createArray();
+        for (GWTEdge edge : graph.getEdges()) {
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()).toString());
 
-			// This contains the edge's weight.
-			JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
-		}
+            // This contains the edge's weight.
+            JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
+        }
 
 		// Determine the size of the graphic -- make it depend on the current
 		// window size.
