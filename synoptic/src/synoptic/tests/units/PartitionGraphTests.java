@@ -142,13 +142,13 @@ public class PartitionGraphTests extends SynopticTest {
 	}
 
 	/**
-	 * Test implicit invariant mining on midbranching example in
+	 * Test NIFby invariant mining on midbranching example in
 	 * traces/abstract/
 	 * 
 	 * @throws Exception
 	 */
 	@Test
-	public void implicitInvariantsMidBranching() throws Exception {
+	public void neverIFbyInvariantsMidBrnevanching() throws Exception {
 
 		String[] events = new String[] { "1 0 c", "2 0 b", "3 0 a", "4 0 d",
 				"1 1 f", "2 1 b", "3 1 a", "4 1 e", "1 2 f", "2 2 b", "3 2 a",
@@ -162,7 +162,7 @@ public class PartitionGraphTests extends SynopticTest {
 		PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner);
 
 		TemporalInvariantSet NIFbys = pGraph
-				.getImmediatelyFollowsInvariants();
+				.getNIFbyInvariants();
 
 		int numEventTypes = pGraph.getNodes().size();
 

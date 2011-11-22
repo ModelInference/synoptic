@@ -113,14 +113,14 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
     
 	/**
 	 * Returns a regular expressions describing this invariant for first AFby second. The
-	 * expression is "([^x]*|(x[^y]*))*".
+	 * expression is "([^x]*|(x[^y]*y))*".
 	 * 
-	 * @param first a character representation of first
-	 * @param second a character representation of second
+	 * @param firstC a character representation of first
+	 * @param secondC a character representation of second
 	 * @return a regex for this invariant
 	 */
 	@Override
-	public String getRegex(char first, char second) {
-		return "([^" + first + "]*|(" + first + "[^" + second + "]*" + second + "))*";
+	public String getRegex(char firstC, char secondC) {
+		return "([^" + firstC + "]*|(" + firstC + "[^" + secondC + "]*" + secondC + "))*";
 	}
 }

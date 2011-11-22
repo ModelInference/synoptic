@@ -50,7 +50,7 @@ public class NeverConcurrentInvariant extends ConcurrencyInvariant {
     }
 
 	@Override
-	public String getRegex(char first, char second) {
+	public String getRegex(char firstC, char secondC) {
 		throw new NotImplementedException();
 	}
 }
