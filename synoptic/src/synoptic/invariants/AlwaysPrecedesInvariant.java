@@ -125,7 +125,7 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
 	 * @return a regex for this invariant
 	 */
 	@Override
-	public String getRegex(char first, char second) {
-		return "[^" + second + "]*(" + first + ".*)*";
+	public String getRegex(char firstC, char secondC) {
+		return "[^" + secondC + "]*(" + firstC + ".*)*";
 	}
 }
