@@ -71,11 +71,11 @@ public interface ITemporalInvariant {
      * Returns a regular expression defining the relationship between first and second given this
      * invariant.
      * 
-     * @param first a character representing this invariant's first predicate
-     * @param second a character representing this invariant's second predicate
+     * @param firstC a character representing this invariant's first predicate
+     * @param secondC a character representing this invariant's second predicate
      * @return a regex expressing this invariant using first and second
      */
-    String getRegex(char first, char second);
+    String getRegex(char firstC, char secondC);
     
     
     /**  Returns the first invariant predicate. */

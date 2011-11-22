@@ -11,6 +11,13 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 
+/**
+ * Uses the Automaton class to test if the getRegex methods for Synoptic's temporal invariants
+ * are correct.
+ * 
+ * @author Jenny
+ *
+ */
 public class InvariantRegexTests {
 	
 	@Test
