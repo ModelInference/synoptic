@@ -38,12 +38,12 @@ public class TOInitialTerminalInvariant extends BinaryInvariant {
 
 	@Override
 	public String getShortName() {
-		return "Initial/Terminal";
+		return "^Initial*Terminal$";
 	}
 
 	@Override
 	public String getLongName() {
-		return "Initial/Terminal";
+		return getShortName();
 	}
 
 	@Override

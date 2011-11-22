@@ -36,25 +36,16 @@ public class EncodedAutomaton {
 	// Range of possible unicode characters for encoding names.
 	private static final int UNICODE_CHARS = 0x10FFFF;
 	
+	// Whether the alphabet for this Automaton has been finalized
+	private boolean finalized;
+	
 	/**
 	 * Constructs a new EncodedAutomaton that accepts all strings.
 	 */
 	public EncodedAutomaton() {
 		this.model = BasicAutomata.makeAnyString();
 		this.encoding = new HashMap<Character, String>();
-	}
-	
-	/**
-	 * Limits this Automaton to names current encoded.
-	 */
-	public void finalizeAlphabet() {
-		StringBuilder alphabet = new StringBuilder();
-		for (Character character : encoding.keySet()) {
-			alphabet.append("|" + character);
-		}
-		alphabet.replace(0, 1, "("); // Hacky fix to fence post issue.
-		alphabet.append(")*");
-		intersectWithRE(alphabet.toString());
+		finalized = false;
 	}
 
 	/**
@@ -87,6 +78,14 @@ public class EncodedAutomaton {
 	}
 	
 	/**
+	 * Returns whether the alphabet for this model has been finalized (limited to the set
+	 * of Strings currently encoded).
+	 */
+	public boolean alphabetFinalized() {
+		return finalized;
+	}
+	
+	/**
 	 * Uses Hopcroft's algorithm to minimize this Automaton.
 	 */
 	public void minimize() {
@@ -94,7 +93,9 @@ public class EncodedAutomaton {
 	}
 	
 	/**
-	 * Exports this Builder's model as a Graphviz dot file and associated png.
+	 * Exports this Builder's model as a Graphviz dot file and associated png. Limits the
+	 * alphabet of this model to currently encoded characters, such that no additional
+	 * Strings can be encoded for use in this model.
 	 * 
 	 * @param filename
 	 *            the name of the dot file
@@ -103,6 +104,7 @@ public class EncodedAutomaton {
 	 * @throws IOException
 	 */
 	public void exportDotAndPng(String filename) throws IOException {
+		finalizeAlphabet();  // 
 		String dot = toGraphviz();
 		Writer output = new BufferedWriter(new FileWriter(new File(filename)));
 		try {
@@ -111,6 +113,23 @@ public class EncodedAutomaton {
 			output.close();
 		}
 		GraphExporter.generatePngFileFromDotFile(filename);
+	}
+	
+	/*
+	 * Limits this Automaton to names current encoded to remove extraneous characters
+	 * from the output dfa. After calling, additional characters cannot be used in this model.
+	 */
+	private void finalizeAlphabet() {
+		if (!finalized) {
+			StringBuilder alphabet = new StringBuilder();
+			for (Character character : encoding.keySet()) {
+				alphabet.append("|" + character);
+			}
+			alphabet.replace(0, 1, "(");  // Hacky fix to fence post issue.
+			alphabet.append(")*");
+			intersectWithRE(alphabet.toString());
+			}
+		finalized = true;
 	}
 	
 	/** Constructs a Graphviz dot representation of the model. */
