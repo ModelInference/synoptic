@@ -620,9 +620,9 @@ public class PartitionGraph implements IGraph<Partition> {
     }
     
     /**
-     * Walks this PartitionGraph and returns a set of all the implicit invariants (CIFby and NIFby)
+     * Walks this PartitionGraph and returns a set of all of the NIFby invariants.
      */
-    public TemporalInvariantSet getImmediatelyFollowsInvariants() {
+    public TemporalInvariantSet getNIFbyInvariants() {
 
     	// Tracks which partitions have been visited.
     	Set<Partition> seen = new HashSet<Partition>();
@@ -635,8 +635,8 @@ public class PartitionGraph implements IGraph<Partition> {
     		traverseAndMineCIFbys(partition, seen, canFollow);
     	}
 
-    	// Create invariants: there will be n^2 where n is the number of event types.
-    	TemporalInvariantSet immediatelyFollowedInvariants = 
+    	// Create invariants
+    	TemporalInvariantSet neverIFbyInvariants = 
     			new TemporalInvariantSet();
     	
     	// canFollow.keySet() will contain all events types because each node in the partition
@@ -648,12 +648,12 @@ public class PartitionGraph implements IGraph<Partition> {
     		Set<EventType> followedBy = entry.getValue();
     		for (EventType target : allEvents) {
     			if (!followedBy.contains(target)) {
-    				immediatelyFollowedInvariants.add(
+    				neverIFbyInvariants.add(
     						new NeverImmediatelyFollowedInvariant(
     								source, target, TraceParser.defaultRelation));
     			}
     		}
     	}
-    	return immediatelyFollowedInvariants;
+    	return neverIFbyInvariants;
     }
 }
