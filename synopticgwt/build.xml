@@ -61,15 +61,28 @@
     </java>
   </target>
 
-
+  <!-- Generates a war archive for embedded Jetty deployments. -->
   <target name="embedded-war">
     <war basedir="war" destfile="synopticgwt.war" webxml="war/WEB-INF/web.xml" />
-  	<copy file="synopticgwt.war" todir="../embeddedgwt/apps/" />
+    <copy file="synopticgwt.war" todir="../embeddedgwt/apps/" />
   </target>
 
+  <!-- Generates a war archive for deployment onto a stand-alone web server. -->
   <target name="deployment-war">
-    <war basedir="war" destfile="root.war" webxml="war/WEB-INF/web.xml" />
-  	<copy file="root.war" todir="../" />
+    <!-- Find out the current hg changeset id. -->
+    <exec executable="hg" outputproperty="hg.revision" failifexecutionfails="true" errorproperty="">
+      <arg value="id" />
+      <arg value="-i" />
+    </exec>
+    <echo message="Embedding hg changeset number ${hg.revision}" />
+
+    <!-- Embed the changeste id in the MANIFEST.MF file in the war archive. -->
+    <war basedir="war" destfile="root.war" webxml="war/WEB-INF/web.xml">
+        <manifest>
+	  <attribute name="ChangesetID" value="${hg.revision}" />
+	</manifest>
+    </war>
+    <copy file="root.war" todir="../" />
   </target>
 
 </project>

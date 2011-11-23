@@ -13,6 +13,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -69,7 +70,8 @@ public class SynopticService extends RemoteServiceServlet implements
     // Session attribute name storing path of client's uploaded log file.
     static final String logFileSessionAttribute = "logFilePath";
 
-    static final AppConfiguration config = AppConfiguration.getInstance();
+    AppConfiguration config;
+    HttpSession session;
 
     // Variables corresponding to session state.
     private PartitionGraph pGraph;
@@ -115,9 +117,10 @@ public class SynopticService extends RemoteServiceServlet implements
      * Save server state into the session object.
      */
     private void storeSessionState() {
-        // Retrieve HTTP session and store all the state in the session.
-        HttpServletRequest request = getThreadLocalRequest();
-        HttpSession session = request.getSession();
+        // Store all the state in the session.
+        if (session == null) {
+            return;
+        }
 
         session.setAttribute("partitionGraph", pGraph);
         session.setAttribute("numSplitSteps", 0);
@@ -133,9 +136,12 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     @SuppressWarnings("unchecked")
     private void retrieveSessionState() throws Exception {
+        ServletContext context = getServletConfig().getServletContext();
+        this.config = AppConfiguration.getInstance(context);
+
         // Retrieve HTTP session to access storage.
         HttpServletRequest request = getThreadLocalRequest();
-        HttpSession session = request.getSession();
+        session = request.getSession();
 
         // Retrieve stuff from storage, and if we can't find something then we
         // throw an error since we can't continue with refinement.
@@ -381,9 +387,12 @@ public class SynopticService extends RemoteServiceServlet implements
     public GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(
             List<String> regExps, String partitionRegExp, String separatorRegExp)
             throws Exception {
+        // Set up state.
+        retrieveSessionState();
+
         // Retrieve HTTP session to access location of recent log file uploaded.
-        HttpServletRequest request = getThreadLocalRequest();
-        HttpSession session = request.getSession();
+        // HttpServletRequest request = getThreadLocalRequest();
+        // HttpSession session = request.getSession();
 
         // This session state attribute set from LogFileUploadServlet and
         // contains

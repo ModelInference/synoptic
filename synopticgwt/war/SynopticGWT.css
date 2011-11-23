@@ -20,6 +20,12 @@ body {
  text-align:right;
 }
 
+#div-footer-bar {
+ text-align:right;
+ color: #585858;
+ font-size: 0.75em;
+}
+
 #mainDiv {
  position:relative;
 }
