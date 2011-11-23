@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +30,8 @@ public class LogFileUploadServlet extends HttpServlet {
 
     public static Logger logger = Logger.getLogger("LogFileUploadServlet");
 
+    AppConfiguration config;
+
     /**
      * Handles POST request. Retrieves file uploaded in form from request and
      * saves file on disk. Response sends error if request is not multi-part.
@@ -40,6 +43,10 @@ public class LogFileUploadServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
+
+        ServletContext context = getServletConfig().getServletContext();
+        this.config = AppConfiguration.getInstance(context);
+
         response.setContentType("text/plain");
 
         // Process only multipart requests.
@@ -78,7 +85,7 @@ public class LogFileUploadServlet extends HttpServlet {
 
             Calendar now = Calendar.getInstance();
             fileName = now.getTimeInMillis() + ".log.txt";
-            String path = SynopticService.config.uploadedLogFilesDir + fileName;
+            String path = config.uploadedLogFilesDir + fileName;
             logger.info("Storing uploaded file to: " + path);
             try {
                 File uploadedFile = new File(path);

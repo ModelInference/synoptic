@@ -3,7 +3,6 @@
   <!-- Inherit the core Web Toolkit stuff. -->
   <inherits name='com.google.gwt.user.User'/>
 
-
   <!-- See http://code.google.com/webtoolkit/doc/latest/DevGuideLogging.html -->
   <!--  <inherits name="com.google.gwt.logging.Logging"/> -->
 

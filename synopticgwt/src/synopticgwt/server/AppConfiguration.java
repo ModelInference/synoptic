@@ -1,12 +1,17 @@
 package synopticgwt.server;
 
+import java.io.IOException;
+import java.util.Properties;
+
+import javax.servlet.ServletContext;
+
 /**
  * Singleton class that takes care of loading in all of the application
  * configuration parameters. Currently, these are passed to the application as
  * system properties.
  */
 public class AppConfiguration {
-    private static final AppConfiguration instance = new AppConfiguration();
+    private static AppConfiguration instance;
 
     /**
      * The Google Analytics tracking identifier.
@@ -30,9 +35,16 @@ public class AppConfiguration {
     public final String uploadedLogFilesDir;
 
     /**
-     * Private constructor prevents instantiation from other classes
+     * Mercurial changeset id embedded in MANIFEST.MF
      */
-    private AppConfiguration() {
+    public String changesetID;
+
+    /**
+     * Private constructor prevents instantiation from other classes
+     * 
+     * @throws IOException
+     */
+    private AppConfiguration(ServletContext context) {
         analyticsTrackerID = System.getProperty("analyticsTrackerID", null);
 
         String modelExportsDir_ = System.getProperty("modelExportsDir", null);
@@ -53,9 +65,24 @@ public class AppConfiguration {
         } else {
             uploadedLogFilesDir = uploadedLogFilesDir_ + "/";
         }
+
+        try {
+            // Extract the hg changeset id from MANIFEST.MF
+            Properties prop = new Properties();
+            prop.load(context.getResourceAsStream("/META-INF/MANIFEST.MF"));
+            // System.out.println("All attributes:" +
+            // prop.stringPropertyNames());
+            // System.out.println(prop.getProperty("ChangesetID"));
+            changesetID = prop.getProperty("ChangesetID");
+        } catch (Exception e) {
+            changesetID = "unknown";
+        }
     }
 
-    public static AppConfiguration getInstance() {
-        return instance;
+    public static AppConfiguration getInstance(ServletContext context) {
+        if (instance != null) {
+            return instance;
+        }
+        return new AppConfiguration(context);
     }
 }
