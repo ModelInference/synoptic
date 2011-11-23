@@ -6,6 +6,7 @@
 
   <!-- Configure path to GWT SDK -->
   <property name="gwt.sdk" location="../lib/gwt/" />
+
   <!-- Configure path to SYNOPTIC_LIB -->
   <property name="SYNOPTIC_LIB" location="../lib/" />
 
@@ -17,6 +18,7 @@
     <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
   </path>
 
+  <!--=====================================================================-->
   <target name="libs" description="Copy libs to WEB-INF/lib">
     <mkdir dir="war/WEB-INF/lib" />
     <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
@@ -25,9 +27,10 @@
   	<copy todir="war/WEB-INF/lib" file="${SYNOPTIC_LIB}/junit-4.9b2.jar" />
   	<copy todir="war/WEB-INF/lib" file="${SYNOPTIC_LIB}/plume.jar" />
   	<copy todir="war/WEB-INF/lib" file="${SYNOPTIC_LIB}/commons-fileupload-1.2.2.jar" />
-    <!-- Add any additional server libs that need to be copied -->
+	<!-- Add any additional server libs that need to be copied -->
   </target>
 
+  <!--=====================================================================-->
   <target name="javac" depends="libs" description="Compile java source to bytecode">
     <mkdir dir="war/WEB-INF/classes"/>
     <javac srcdir="src" includes="**"
@@ -43,6 +46,7 @@
     </copy>
   </target>
 
+  <!--=====================================================================-->
   <target name="build" depends="javac" description="GWT compile to JavaScript (production mode)">
     <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
       <classpath>
@@ -61,19 +65,43 @@
     </java>
   </target>
 
+  <!--=====================================================================-->
   <!-- Generates a war archive for embedded Jetty deployments. -->
   <target name="embedded-war">
     <war basedir="war" destfile="synopticgwt.war" webxml="war/WEB-INF/web.xml" />
     <copy file="synopticgwt.war" todir="../embeddedgwt/apps/" />
   </target>
 
-  <!-- Generates a war archive for deployment onto a stand-alone web server. -->
-  <target name="deployment-war">
+  <!--=====================================================================-->
+  <!-- Tests that the repository contains no uncommitted changes and
+  fails if this is the case. Otherwise sets hg.revision for use by
+  deployment-war target. -->
+  <target name="hg-rev-extract">
     <!-- Find out the current hg changeset id. -->
     <exec executable="hg" outputproperty="hg.revision" failifexecutionfails="true" errorproperty="">
       <arg value="id" />
       <arg value="-i" />
     </exec>
+
+    <!-- Check that the current repository does not include any
+    uncommitted changes. This is indicated by a '+' at the end of
+    ${hg.revision}. The hg.revision.ok property will be set iff there
+    are no uncommitted changes. -->
+
+    <condition property="hg.revision.ok" value="true">
+      <not>
+	<contains string="${hg.revision}" substring="+" />
+      </not>
+    </condition>
+
+    <fail unless="hg.revision.ok">Repository contains uncommitted changes (${hg.revision}). Cannot continue.</fail>
+    
+  </target>
+
+  <!--=====================================================================-->
+  <!-- Generates a war archive for deployment onto a stand-alone web server. -->
+  <target name="deployment-war" depends="hg-rev-extract">
+
     <echo message="Embedding hg changeset number ${hg.revision}" />
 
     <!-- Embed the changeste id in the MANIFEST.MF file in the war archive. -->
