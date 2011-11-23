@@ -5,6 +5,11 @@
 
 <web-app>
 
+ <!-- Default page to serve -->
+  <welcome-file-list>
+    <welcome-file>main</welcome-file>
+  </welcome-file-list>
+
   <!-- Main entry point into the Synoptic web application. -->
   <servlet>
     <servlet-name>GwtHostingServlet</servlet-name>
@@ -13,7 +18,7 @@
 
   <servlet-mapping>
     <servlet-name>GwtHostingServlet</servlet-name>
-    <url-pattern>index.html</url-pattern>
+    <url-pattern>/main</url-pattern>
   </servlet-mapping>
 
   <!-- Remotely-accessible synoptic service. -->
