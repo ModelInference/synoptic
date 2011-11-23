@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 <project basedir="." default="build" name="InvDFAMinimization">
+    <!-- Include ant xml file with shared utils. -->
+    <include file="../ant-util.xml" as="util" />
+
     <property environment="env"/>
-    <property name="SYNOPTIC_LIB" value="../lib"/>
-    <property name="SYNOPTIC_JARRED_LIB" value="lib"/>
     <property name="junit.output.dir" value="junit"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
     <path id="Synoptic.classpath">
         <pathelement location="bin"/>
-        <pathelement location="${SYNOPTIC_LIB}/junit-4.9b2.jar"/>
-        <pathelement location="${SYNOPTIC_LIB}/plume.jar"/>
-        <pathelement location="${SYNOPTIC_LIB}/synoptic.jar"/>
+        <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
+        <pathelement location="${util.synoptic.libdir}/plume.jar"/>
+        <pathelement location="${util.synoptic.libdir}/synoptic.jar"/>
     </path>
+
+    <!--=====================================================================-->
     <target name="init">
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
@@ -23,13 +26,14 @@
             </fileset>
         </copy>
     </target>
+
+    <!--=====================================================================-->
     <target name="clean">
         <delete dir="bin"/>
     </target>
-    <target depends="clean" name="cleanall"/>
-    <target depends="build-subprojects,build-project" name="build"/>
-    <target name="build-subprojects"/>
-    <target depends="init" name="build-project">
+
+    <!--=====================================================================-->
+    <target depends="init" name="build">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
 	    <!-- <compilerarg value="-Xlint:unchecked" /> -->
@@ -38,6 +42,7 @@
         </javac>
     </target>
 
+    <!--=====================================================================-->
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="no" printsummary="withOutAndErr" showoutput="true">
@@ -54,6 +59,7 @@
         </junit>
     </target>
 
+    <!--=====================================================================-->
     <target name="junitreport">
         <junitreport todir="${junit.output.dir}">
             <fileset dir="${junit.output.dir}">
@@ -62,4 +68,5 @@
             <report format="frames" todir="${junit.output.dir}"/>
         </junitreport>
     </target>
+
 </project>
