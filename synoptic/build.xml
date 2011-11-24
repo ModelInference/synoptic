@@ -87,7 +87,7 @@
 	  <attribute name="Implementation-Version" value="0.0.5" />
 	  <attribute name="Main-Class" value="synoptic.main.Main" />
 	  <attribute name="Class-Path" value="${jar.liblist}" />
-	  <attribute name="ChangesetID" value="${hg.revision}" />
+	  <attribute name="ChangesetID" value="${util.hg.revision}" />
 	</manifest>
       </jar>
     </target>

@@ -26,7 +26,9 @@ public class GwtHostingServlet extends HttpServlet {
         // Make certain configuration parameters accessible from within JSP.
         HttpSession session = req.getSession();
         session.setAttribute("analyticsTrackerID", config.analyticsTrackerID);
-        session.setAttribute("changesetID", config.changesetID);
+        session.setAttribute("synopticGWTChangesetID",
+                config.synopticGWTChangesetID);
+        session.setAttribute("synopticChangesetID", config.synopticChangesetID);
 
         // Forward to the main JSP page for content synthesis.
         try {

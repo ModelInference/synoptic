@@ -5,6 +5,8 @@ import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
+import synoptic.main.Main;
+
 /**
  * Singleton class that takes care of loading in all of the application
  * configuration parameters. Currently, these are passed to the application as
@@ -35,9 +37,16 @@ public class AppConfiguration {
     public final String uploadedLogFilesDir;
 
     /**
-     * Mercurial changeset id embedded in MANIFEST.MF
+     * Hg changeset id embedded in MANIFEST.MF corresponding to the SynopticGWT
+     * project.
      */
-    public String changesetID;
+    public String synopticGWTChangesetID;
+
+    /**
+     * Hg changeset id for the Synoptic jar that is used by the SynopticGWT
+     * project.
+     */
+    public String synopticChangesetID;
 
     /**
      * Private constructor prevents instantiation from other classes
@@ -67,15 +76,20 @@ public class AppConfiguration {
         }
 
         try {
-            // Extract the hg changeset id from MANIFEST.MF
+            // Extract the hg changeset id from war archive MANIFEST.MF
             Properties prop = new Properties();
             prop.load(context.getResourceAsStream("/META-INF/MANIFEST.MF"));
-            // System.out.println("All attributes:" +
-            // prop.stringPropertyNames());
-            // System.out.println(prop.getProperty("ChangesetID"));
-            changesetID = prop.getProperty("ChangesetID");
+            synopticGWTChangesetID = prop.getProperty("ChangesetID");
         } catch (Exception e) {
-            changesetID = "unknown";
+            synopticGWTChangesetID = "unknown";
+        }
+        if (synopticGWTChangesetID == null) {
+            synopticGWTChangesetID = "unknown";
+        }
+
+        synopticChangesetID = Main.getHgChangesetID();
+        if (synopticChangesetID == null) {
+            synopticChangesetID = "unknown";
         }
     }
 
