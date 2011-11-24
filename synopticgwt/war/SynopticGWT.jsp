@@ -104,7 +104,8 @@
     </div>
 
     <div id="div-footer-bar">
- 		Changeset <%= session.getAttribute("changesetID") %>
+    	Synoptic Changeset <%= session.getAttribute("synopticChangesetID") %> <br />
+		SynopticGWT Changeset <%= session.getAttribute("synopticGWTChangesetID") %>
     </div>
 
   </body>

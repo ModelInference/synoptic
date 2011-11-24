@@ -5,7 +5,9 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -13,8 +15,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -68,6 +72,31 @@ public class Main implements Callable<Integer> {
      * Synoptic options parsed from the command line or set in some other way.
      */
     public static SynopticOptions options = null;
+
+    /**
+     * Retrieve and return the ChangesetID attribute in the manifest of the jar
+     * that contains this Main class. If not running from a jar, returns null.
+     */
+    public static String getHgChangesetID() {
+        String changesetID = null;
+        try {
+            // Find the jar corresponding to Main (this) class.
+            URL res = Main.class.getResource(Main.class.getSimpleName()
+                    + ".class");
+            JarURLConnection conn = (JarURLConnection) res.openConnection();
+            // Grab attributes from the manifest of the jar (synoptic.jar)
+            Manifest mf = conn.getManifest();
+            Attributes atts = mf.getMainAttributes();
+            // Extract ChangesetID from the attributes and print it out.
+            changesetID = atts.getValue("ChangesetID");
+        } catch (Exception e) {
+            // We might get an exception in the case that we're not running
+            // from inside a jar. In this case, simply don't print the
+            // ChangesetID.
+            return null;
+        }
+        return changesetID;
+    }
 
     /**
      * The synoptic.main method to perform the inference algorithm. See user
@@ -133,6 +162,10 @@ public class Main implements Callable<Integer> {
 
         if (opts.version) {
             System.out.println("Synoptic version " + Main.versionString);
+            String changesetID = getHgChangesetID();
+            if (changesetID != null) {
+                System.out.println("Synoptic changeset " + changesetID);
+            }
             return null;
         }
 
