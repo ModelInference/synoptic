@@ -26,6 +26,12 @@ Raphael.fn.connection = function (obj1, obj2, style) {
             /* get bounding boxes of target and source */
             var bb1 = obj1.getBBox();
             var bb2 = obj2.getBBox();
+            var isSelfLoop = false;
+            
+            if (bb1.x == bb2.x && bb1.y == bb2.y) {
+            	isSelfLoop = true;
+            }	
+            
             var off1 = 0;
             var off2 = 0;
             /* coordinates for potential connection coordinates from/to the objects */
@@ -48,7 +54,7 @@ Raphael.fn.connection = function (obj1, obj2, style) {
              */
             /* loop the first object's connection coordinates */
             for (var i = 0; i < 4; i++) {
-                /* loop the second object's connection coordinates */
+                /* loop the seond object's connection coordinates */
                 for (var j = 4; j < 8; j++) {
                     var dx = Math.abs(p[i].x - p[j].x),
                         dy = Math.abs(p[i].y - p[j].y);
