@@ -55,10 +55,12 @@ Raphael.fn.connection = function (obj1, obj2, style) {
             	/* decreasing value increases roundness of oval */
             	var controlPointYOffset = 5;
             	
+            	/* loop */
             	path = ["M", x, startY, "C", x + controlPointXOffset, startY + controlPointYOffset,
-            	        x + controlPointXOffset, endY - controlPointYOffset, x, endY];
+            	        x + controlPointXOffset, endY - controlPointYOffset, x, endY].join(",");
             	
-            	// TODO: draw arrow at one of the ends.
+            	/* arrow */
+            	path = path + ",M"+(x+5)+","+(endY-5)+",L"+x+","+endY+",L"+(x+5)+","+(endY+5);
             	
             	labelX = bb1.x + bb1.width + controlPointXOffset + 15;
             	labelY = bb1.y + (bb1.height / 2);
