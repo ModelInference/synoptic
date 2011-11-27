@@ -8,8 +8,8 @@
 /**
  * Usage:
  * connect two shapes
- * parameters: 
- *      source shape [or connection for redrawing], 
+ * parameters:
+ *      source shape [or connection for redrawing],
  *      target shape,
  *      style with { fg : linecolor, bg : background color, directed: boolean }
  * returns:
@@ -27,47 +27,48 @@ Raphael.fn.connection = function (obj1, obj2, style) {
             var bb1 = obj1.getBBox();
             var bb2 = obj2.getBBox();
             var isSelfLoop = false;
-            
-            /* if the x-coordinate and y-coordinate of the two boxes 
+
+            /* If the x-coordinate and y-coordinate of the two boxes
              * are equivalent, then assume the two boxes are the same
              * and a self-loop is used to connect them. */
             if (bb1.x == bb2.x && bb1.y == bb2.y) {
             	isSelfLoop = true;
-            }	
-            
+            }
+
             var path;
-            
+
             /* x-coordinate for label */
             var labelX;
             /* y-coordinate for label */
             var labelY;
-            
+
             if (isSelfLoop) {
+            	/* Source and destination nodes are the same node => draw a self loop. */
+
             	var x = bb1.x + bb1.width;
             	var startY = bb1.y + (bb1.height / 4);
             	var endY = bb1.y + ((bb1.height * 3) / 4);
-            	
-            	/* the offset used to calculate coordinates of control points.
+
+            	/* The offset used to calculate coordinates of control points.
             	 * control points are calculated relative to start and ending
             	 * points of self-loop. */
-            	/* increasing value increases length of oval */ 
+            	/* Increasing value increases length of oval. */
             	var controlPointXOffset = 30;
-            	/* decreasing value increases roundness of oval */
+            	/* Decreasing value increases roundness of oval. */
             	var controlPointYOffset = 5;
-            	
+
             	/* loop */
             	path = ["M", x, startY, "C", x + controlPointXOffset, startY + controlPointYOffset,
             	        x + controlPointXOffset, endY - controlPointYOffset, x, endY].join(",");
-            	
+
             	/* arrow */
             	path = path + ",M"+(x+5)+","+(endY-5)+",L"+x+","+endY+",L"+(x+5)+","+(endY+5);
-            	
+
             	labelX = bb1.x + bb1.width + controlPointXOffset + 15;
             	labelY = bb1.y + (bb1.height / 2);
-            	            
+
             } else {
-            	/* this branch contains unmodified unmodified Dracula code for
-            	 * computing paths */
+            	/* This branch contains unmodified Dracula code for computing paths. */
                 var off1 = 0;
                 var off2 = 0;
                 /* coordinates for potential connection coordinates from/to the objects */
@@ -81,7 +82,7 @@ Raphael.fn.connection = function (obj1, obj2, style) {
                     {x: bb2.x - off2, y: bb2.y + bb2.height / 2},             /* WEST  2 */
                     {x: bb2.x + bb2.width + off2, y: bb2.y + bb2.height / 2}  /* EAST  2 */
                 ];
-                
+
                 /* distances between objects and according coordinates connection */
                 var d = {}, dis = [];
 
@@ -112,7 +113,7 @@ Raphael.fn.connection = function (obj1, obj2, style) {
                     y2 = [y1 - dy, y1 + dy, y1, y1][res[0]].toFixed(3),
                     x3 = [0, 0, 0, 0, x4, x4, x4 - dx, x4 + dx][res[1]].toFixed(3),
                     y3 = [0, 0, 0, 0, y1 + dy, y1 - dy, y4, y4][res[1]].toFixed(3);
-                
+
                 /* assemble path and arrow */
                 path = ["M", x1.toFixed(3), y1.toFixed(3), "C", x2, y2, x3, y3, x4.toFixed(3), y4.toFixed(3)].join(",");
                 /* arrow */
@@ -126,26 +127,26 @@ Raphael.fn.connection = function (obj1, obj2, style) {
                         {x:(norm(x4-x3)+norm(y4-y3)+x4).toFixed(3), y:(norm(y4-y3)+norm(x4-x3)+y4).toFixed(3)},
                         {x:(norm(x4-x3)-norm(y4-y3)+x4).toFixed(3), y:(norm(y4-y3)-norm(x4-x3)+y4).toFixed(3)}
                     ];
-                    path = path + ",M"+arr[0].x+","+arr[0].y+",L"+x4+","+y4+",L"+arr[1].x+","+arr[1].y; 
+                    path = path + ",M"+arr[0].x+","+arr[0].y+",L"+x4+","+y4+",L"+arr[1].x+","+arr[1].y;
                 }
-                
+
                 labelX = (x1+x4)/2;
                 labelY = (y1+y4)/2;
             }
-            
+
             /* function to be used for moving existent path(s), e.g. animate() or attr() */
             var move = "attr";
             /* applying path(s) */
-            edge.fg && edge.fg[move]({path:path}) 
+            edge.fg && edge.fg[move]({path:path})
                 || (edge.fg = selfRef.path(path).attr({stroke: style && style.stroke || "#000", fill: "none"}).toBack());
             edge.bg && edge.bg[move]({path:path})
                 || style && style.fill && (edge.bg = style.fill.split && selfRef.path(path).attr({stroke: style.fill.split("|")[0], fill: "none", "stroke-width": style.fill.split("|")[1] || 3}).toBack());
             /* setting label */
-            style && style.label 
-                && (edge.label && edge.label.attr({x: labelX, y: labelY}) 
+            style && style.label
+                && (edge.label && edge.label.attr({x: labelX, y: labelY})
                     || (edge.label = selfRef.text(labelX, labelY, style.label).attr({fill: "#000", "font-size": style["font-size"] || "12px"})));
             style && style.label && style["label-style"] && edge.label && edge.label.attr(style["label-style"]);
-            style && style.callback && style.callback(edge);            	
+            style && style.callback && style.callback(edge);
         }
     }
     edge.draw();
