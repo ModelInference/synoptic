@@ -7,7 +7,7 @@ import synopticgwt.client.util.Paper;
 import synopticgwt.shared.GWTInvariant;
 
 /**
- * Graphic model representing a GWTInvariant Relates two GraphicEvents
+ * Graphic model representing an ordered GWTInvariant Relates two GraphicEvents
  * representing the source and destination of the invariant arrow with the
  * actual GraphicArrow
  */

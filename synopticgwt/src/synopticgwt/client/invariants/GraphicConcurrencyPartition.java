@@ -3,28 +3,54 @@ package synopticgwt.client.invariants;
 import java.util.HashSet;
 import java.util.Set;
 
+/** Represents a set of concurrent ACWith invariants */
 public class GraphicConcurrencyPartition {
+    /** Set of concurrent invariants */
     private Set<GraphicConcurrentInvariant> concurrentInvs;
     
     public GraphicConcurrencyPartition() {
         concurrentInvs = new HashSet<GraphicConcurrentInvariant>();
     }
     
-    public boolean add(GraphicConcurrentInvariant otherGCInv) {
-        boolean transitive = isTransitive(otherGCInv);
-        if (transitive) {
-            concurrentInvs.add(otherGCInv);
+    /** Adds gci to the partition if it's concurrent with the partition
+     * 
+     * @param gci
+     * @return
+     */
+    public void add(GraphicConcurrentInvariant gci) {
+        if (concurrentInvs.isEmpty() || isTransitive(gci)) {
+            concurrentInvs.add(gci);
+            GraphicEvent src = gci.getSrc();
+            src.setACPartition(this);
+            GraphicEvent dst = gci.getDst();
+            dst.setACPartition(this);
         }
-        return transitive;
     }
     
-    public boolean isTransitive(GraphicConcurrentInvariant otherGCInv) {
+    /** Determines whether or not otherGCInv is transitively concurrent
+     * with this partition
+     * @param gci
+     * @return
+     */
+    public boolean isTransitive(GraphicConcurrentInvariant gci) {
         for (GraphicConcurrentInvariant gcInv : concurrentInvs) {
-            if (gcInv.isTransitive(otherGCInv)) {
+            if (gcInv.isTransitive(gci)) {
                 return true;
             }
         }
         return false;
+    }
+    
+    public void highlightOn() {
+        for (GraphicConcurrentInvariant gci : concurrentInvs) {
+            gci.highlightConcurrent();
+        }
+    }
+    
+    public void highlightOff() {
+        for (GraphicConcurrentInvariant gci : concurrentInvs) {
+            gci.highlightOff();
+        }
     }
 
 }

@@ -10,4 +10,8 @@ public interface GraphicInvariant {
     public void highlightOn();
 
     public void highlightOff();
+    
+    public void show();
+    
+    public void hide();
 }

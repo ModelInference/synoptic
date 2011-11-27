@@ -3,6 +3,7 @@ package synopticgwt.client.invariants;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,12 +43,22 @@ public class InvariantsGraph {
 
     /** Wrapped raphael canvas */
     private Paper paper;
+    
+    /* Event columns */
     private Map<String, GraphicEvent> leftEventCol;
     private Map<String, GraphicEvent> midEventCol;
     private Map<String, GraphicEvent> rightEventCol;
+    
+    /* Graphic Invariants */
     private List<GraphicOrderedInvariant> apInvs;
     private List<GraphicOrderedInvariant> afbyInvs;
     private List<GraphicOrderedInvariant> nfbyInvs;
+    private List<GraphicConcurrentInvariant> acwithInvs;
+    private List<GraphicConcurrentInvariant> ncwithInvs;
+    
+    /* Concurrency Partitions */
+    private List<GraphicConcurrencyPartition> acPartitions;
+    private List<GraphicNonConcurrentPartition> ncPartitions;
 
     // TODO: Ideally this would refer to
     // synoptic.mode.EventType.initialNodeLabel. However, since this code runs
@@ -66,6 +77,8 @@ public class InvariantsGraph {
         this.apInvs = new ArrayList<GraphicOrderedInvariant>();
         this.afbyInvs = new ArrayList<GraphicOrderedInvariant>();
         this.nfbyInvs = new ArrayList<GraphicOrderedInvariant>();
+        this.acPartitions = new ArrayList<GraphicConcurrencyPartition>();
+        this.ncPartitions = new ArrayList<GraphicNonConcurrentPartition>();
     }
 
     /**
@@ -147,17 +160,53 @@ public class InvariantsGraph {
         for (String invType : invTypes) {
             List<GWTInvariant> invs = gwtInvs.getInvs(invType);
             if (invType.equals("AP")) {
-                List<GraphicOrderedInvariant> gInvs = drawInvariants(invs,
+                List<GraphicOrderedInvariant> gInvs = drawOrderedInvariants(invs,
                         leftEventCol, midEventCol, gwtInvToIGridLabel);
                 apInvs.addAll(gInvs);
             } else if (invType.equals("AFby")) {
-                List<GraphicOrderedInvariant> gInvs = drawInvariants(invs,
+                List<GraphicOrderedInvariant> gInvs = drawOrderedInvariants(invs,
                         midEventCol, rightEventCol, gwtInvToIGridLabel);
                 afbyInvs.addAll(gInvs);
             } else if (invType.equals("NFby")) {
-                List<GraphicOrderedInvariant> gInvs = drawInvariants(invs,
+                List<GraphicOrderedInvariant> gInvs = drawOrderedInvariants(invs,
                         midEventCol, rightEventCol, gwtInvToIGridLabel);
                 nfbyInvs.addAll(gInvs);
+            } else if (invType.equals("ACwith")) {
+                acwithInvs = drawConcurrentInvariants(invs, midEventCol, 
+                       gwtInvToIGridLabel);
+                for (GraphicConcurrentInvariant acInv : acwithInvs) {
+                    boolean inserted = false;
+                    for (GraphicConcurrencyPartition acPart : acPartitions) {
+                        if (acPart.isTransitive(acInv)) {
+                            acPart.add(acInv);
+                            inserted = true;
+                        }
+                    }
+                    if (!inserted) {
+                        GraphicConcurrencyPartition singlePart = 
+                                new GraphicConcurrencyPartition();
+                        singlePart.add(acInv);
+                        acPartitions.add(singlePart);
+                    }
+                }
+            } else if (invType.equals("NCwith")) {
+                ncwithInvs = drawConcurrentInvariants(invs, midEventCol,
+                        gwtInvToIGridLabel);
+                Set<GraphicEvent> ncEvents = new HashSet<GraphicEvent>();
+                for (GraphicConcurrentInvariant ncInv : ncwithInvs) {
+                    ncEvents.add(ncInv.getSrc());
+                    ncEvents.add(ncInv.getDst());
+                }
+                for (GraphicEvent ge : ncEvents) {
+                    GraphicNonConcurrentPartition ncPart = 
+                            new GraphicNonConcurrentPartition(ge);
+                    for (GraphicConcurrentInvariant ncInv : ncwithInvs) {
+                        if (ncPart.isNeverConcurrent(ncInv)) {
+                            ncPart.add(ncInv);
+                        }
+                    }
+                    ncPartitions.add(ncPart);
+                }
             }
         }
 
@@ -177,11 +226,11 @@ public class InvariantsGraph {
     }
 
     /**
-     * Takes lists of GWTInvariants, source GraphicEvents, and destination
+     * Takes lists of Ordered GWTInvariants, source GraphicEvents, and destination
      * GraphicEvents and creates/draws the GraphicInvariant representing a
      * GWTInvariant and liking a GraphicEvent from srcCol to dstCol.
      */
-    private List<GraphicOrderedInvariant> drawInvariants(
+    private List<GraphicOrderedInvariant> drawOrderedInvariants(
             List<GWTInvariant> invs, Map<String, GraphicEvent> srcCol,
             Map<String, GraphicEvent> dstCol,
             Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel) {
@@ -202,6 +251,30 @@ public class InvariantsGraph {
 
             srcEvent.addInvariant(gInv);
             dstEvent.addInvariant(gInv);
+            result.add(gInv);
+        }
+        return result;
+    }
+    
+    private List<GraphicConcurrentInvariant> drawConcurrentInvariants(
+            List<GWTInvariant> invs, Map<String, GraphicEvent> col,
+            Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel) {
+        List<GraphicConcurrentInvariant> result = 
+                new ArrayList<GraphicConcurrentInvariant>();
+        for (GWTInvariant inv : invs) {
+            String srcEventString = inv.getSource();
+            GraphicEvent srcEvent = col.get(srcEventString);
+
+            String dstEventString = inv.getTarget();
+            GraphicEvent dstEvent = col.get(dstEventString);
+
+            InvariantGridLabel iGridLabel = gwtInvToIGridLabel.get(inv);
+
+            GraphicConcurrentInvariant gInv = new GraphicConcurrentInvariant(
+                    srcEvent, dstEvent, inv, iGridLabel);
+
+            iGridLabel.setGraphicInvariant(gInv);
+
             result.add(gInv);
         }
         return result;
