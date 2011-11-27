@@ -19,7 +19,7 @@ public class InvariantGridLabel extends Label {
     /** Column for Label's corresponding grid cell */
     private int col;
     private GWTInvariant inv;
-    private GraphicOrderedInvariant gInv;
+    private GraphicInvariant gInv;
     // T.101.JV: Activation state is stored in the invLabel, and should
     // probably instead be stored in the GWTInvariant
     private boolean active = true;
@@ -43,7 +43,7 @@ public class InvariantGridLabel extends Label {
         return inv.getActive();
     }
 
-    public void setGraphicInvariant(GraphicOrderedInvariant gInv) {
+    public void setGraphicInvariant(GraphicInvariant gInv) {
         this.gInv = gInv;
     }
 

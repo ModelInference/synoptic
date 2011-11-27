@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 import synopticgwt.shared.GWTInvariant;
 
+/**
+ * Graphic model representing a concurrent GWTInvariant, relates two 
+ * GraphicEvents representing the source and destination of the invariant
+ */
 public class GraphicConcurrentInvariant implements Serializable,
         GraphicInvariant {
 
@@ -12,25 +16,38 @@ public class GraphicConcurrentInvariant implements Serializable,
 	 */
     private static final long serialVersionUID = 1L;
 
-    private GraphicEvent gEventA;
-    private GraphicEvent gEventB;
+    /** Events are labeled src and dst for simplicity, as opposed to a and b 
+     * but this relationship doesn't really exist since concurrency is
+     * commutative.
+     */
+    private GraphicEvent src;
+    private GraphicEvent dst;
+    /** GWTInvariant object that this represents */
     private GWTInvariant gwtInv;
     private InvariantGridLabel iGridLabel;
     private boolean visible;
-    private GraphicConcurrencyPartition concurrencyParition;
 
-    public GraphicConcurrentInvariant(GraphicEvent a, GraphicEvent b,
+    /** Constructs a GraphicInvariant for GWTinv over src and dst on paper */
+    public GraphicConcurrentInvariant(GraphicEvent src, GraphicEvent dst,
             GWTInvariant gwtInv, InvariantGridLabel iGridLabel) {
-        this.gEventA = a;
-        this.gEventB = b;
+        this.src = src;
+        this.dst = dst;
         this.gwtInv = gwtInv;
         this.iGridLabel = iGridLabel;
     }
 
+    /**
+     * Allows this invariant to be highlighted when involved in a mouseover 
+     * event
+     */
     public void show() {
         visible = true;
     }
 
+    /**
+     * Prevents this invariant from being highlighted when involved in a mouseover 
+     * event
+     */
     public void hide() {
         visible = false;
     }
@@ -40,13 +57,13 @@ public class GraphicConcurrentInvariant implements Serializable,
     }
     
     public void highlightConcurrent() {
-        gEventA.highlightConcurrent();
-        gEventB.highlightConcurrent();
+        src.highlightConcurrent();
+        dst.highlightConcurrent();
     }
     
     public void highlightNeverConcurrent() {
-        gEventA.highlightNeverConcurrent();
-        gEventB.highlightNeverConcurrent();
+        src.highlightNeverConcurrent();
+        dst.highlightNeverConcurrent();
     }
 
     @Override
@@ -67,14 +84,15 @@ public class GraphicConcurrentInvariant implements Serializable,
 
     @Override
     public void highlightOff() {
-        gEventA.highlightDefault();
-        gEventB.highlightDefault();
+        src.highlightDefault();
+        dst.highlightDefault();
     }
     
     public GWTInvariant getGWTInvariant() {
         return gwtInv;
     }
     
+    /** Equal if the underlying GWTInvariant is equal */
     @Override
     public boolean equals(Object o) {
         if (o instanceof GraphicConcurrentInvariant) {
@@ -84,22 +102,25 @@ public class GraphicConcurrentInvariant implements Serializable,
         return false;
     }
     
-    public GraphicEvent getEventA() {
-        return gEventA;
+    public GraphicEvent getSrc() {
+        return src;
     }
     
-    public GraphicEvent getEventB() {
-        return gEventB;
+    public GraphicEvent getDst() {
+        return dst;
     }
     
+    /** Returns whether or not the two invariants share a mutual graphic 
+     * event 
+     */
     public boolean isTransitive(GraphicConcurrentInvariant gcInv) {
-        GraphicEvent otherA = gcInv.getEventA();
-        GraphicEvent otherB = gcInv.getEventB();
+        GraphicEvent otherA = gcInv.getSrc();
+        GraphicEvent otherB = gcInv.getDst();
         boolean result = false;
-        result = result || otherA.equals(getEventA());
-        result = result || otherA.equals(getEventB());
-        result = result || otherB.equals(getEventA());
-        result = result || otherB.equals(getEventB());
+        result = result || otherA.equals(getSrc());
+        result = result || otherA.equals(getDst());
+        result = result || otherB.equals(getSrc());
+        result = result || otherB.equals(getDst());
         return result;
     }
 

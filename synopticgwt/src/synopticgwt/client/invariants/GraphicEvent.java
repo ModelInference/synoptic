@@ -19,6 +19,10 @@ public class GraphicEvent implements Serializable, MouseHover {
     private Label label;
     /** Incident OrderedInvariants and transitive ConcurrentInvariants */
     private List<GraphicInvariant> invariants;
+    /** Invariant partition this event is concurrent with */
+    private GraphicConcurrencyPartition ACpartition;
+    /** Event partition this event is never concurrent with */
+    private GraphicNonConcurrentPartition NCPartition;
     private String event;
 
     /**
@@ -44,6 +48,14 @@ public class GraphicEvent implements Serializable, MouseHover {
         this.event = event;
         label.setMouseover(this);
         label.setMouseout(this);
+    }
+    
+    public void setACPartition(GraphicConcurrencyPartition ACPart) {
+        this.ACpartition = ACPart;
+    }
+    
+    public void setNCPartition(GraphicNonConcurrentPartition NCPart) {
+        this.NCPartition = NCPart;
     }
 
     /** Return's the x coordinate of this event */
@@ -96,6 +108,10 @@ public class GraphicEvent implements Serializable, MouseHover {
         for (GraphicInvariant gi : invariants) {
             gi.highlightOn();
         }
+        if (ACpartition != null)
+            ACpartition.highlightOn();
+        if (NCPartition != null)
+            NCPartition.highlightOn();
         highlightOrdered();
     }
 
@@ -107,6 +123,10 @@ public class GraphicEvent implements Serializable, MouseHover {
         for (GraphicInvariant gi : invariants) {
             gi.highlightOff();
         }
+        if (ACpartition != null)
+            ACpartition.highlightOff();
+        if (NCPartition != null)
+            NCPartition.highlightOff();
         highlightDefault();
     }
 
@@ -118,6 +138,9 @@ public class GraphicEvent implements Serializable, MouseHover {
         return event;
     }
     
+    /** Assumes this is only being compared with graphic events in the same
+     * graphical column.
+     */
     @Override
     public boolean equals(Object o) {
         if (o instanceof GraphicEvent) {
