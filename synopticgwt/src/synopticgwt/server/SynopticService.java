@@ -3,7 +3,6 @@ package synopticgwt.server;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -43,15 +42,14 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.WeightedTransition;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
-import synoptic.util.InternalSynopticException;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
+import synopticgwt.shared.GWTParseException;
 import synopticgwt.shared.LogLine;
-import synopticgwt.shared.SerializableParseException;
 
 /**
  * Implements the Synoptic service which does:
@@ -69,11 +67,11 @@ public class SynopticService extends RemoteServiceServlet implements
 
     public static Logger logger = Logger.getLogger("SynopticService");
 
-    // The directory in which files are currently exported to.
-    private static final String userExport = "userexport/";
-
     // Session attribute name storing path of client's uploaded log file.
-    private static final String logFileSessionAttribute = "logFilePath";
+    static final String logFileSessionAttribute = "logFilePath";
+
+    AppConfiguration config;
+    HttpSession session;
 
     // Variables corresponding to session state.
     private PartitionGraph pGraph;
@@ -119,9 +117,10 @@ public class SynopticService extends RemoteServiceServlet implements
      * Save server state into the session object.
      */
     private void storeSessionState() {
-        // Retrieve HTTP session and store all the state in the session.
-        HttpServletRequest request = getThreadLocalRequest();
-        HttpSession session = request.getSession();
+        // Store all the state in the session.
+        if (session == null) {
+            return;
+        }
 
         session.setAttribute("partitionGraph", pGraph);
         session.setAttribute("numSplitSteps", 0);
@@ -137,9 +136,12 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     @SuppressWarnings("unchecked")
     private void retrieveSessionState() throws Exception {
+        ServletContext context = getServletConfig().getServletContext();
+        this.config = AppConfiguration.getInstance(context);
+
         // Retrieve HTTP session to access storage.
         HttpServletRequest request = getThreadLocalRequest();
-        HttpSession session = request.getSession();
+        session = request.getSession();
 
         // Retrieve stuff from storage, and if we can't find something then we
         // throw an error since we can't continue with refinement.
@@ -315,6 +317,8 @@ public class SynopticService extends RemoteServiceServlet implements
         // Set up some static variables in Main that are necessary to use the
         // Synoptic library.
         Main.options = new SynopticOptions();
+        // Output as much internal Synoptic information as possible.
+        Main.options.logLvlExtraVerbose = true;
         synoptic.main.Main.setUpLogging();
         Main.random = new Random(Main.options.randomSeed);
         Main.graphExportFormatter = new DotExportFormatter();
@@ -322,23 +326,29 @@ public class SynopticService extends RemoteServiceServlet implements
         // Instantiate the parser and parse the log lines.
         TraceParser parser = null;
         ArrayList<EventNode> parsedEvents = null;
+
         try {
             parser = synoptic.main.Main.newTraceParser(regExps,
                     partitionRegExp, separatorRegExp);
             parsedEvents = parser.parseTraceString(logLines, new String(
                     "traceName"), -1);
-        } catch (InternalSynopticException ise) {
-            throw serializeException(ise);
-
         } catch (ParseException pe) {
-            throw serializeException(pe);
+            logger.info("Caught parse exception: " + pe.toString());
+            pe.printStackTrace();
+            throw new GWTParseException(pe.getMessage(), pe.getCause(),
+                    pe.getRegex(), pe.getLogLine());
 
+        } catch (Exception e) {
+            logger.info("Caught exception: " + e.toString());
+            e.printStackTrace();
+            throw e;
         }
 
         // Code below mines invariants, and converts them to GWTInvariants.
         // TODO: refactor synoptic main so that it does all of this most of this
         // for the client.
         GWTGraph graph;
+
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
             TOInvariantMiner miner = new ChainWalkingTOInvMiner();
@@ -377,9 +387,12 @@ public class SynopticService extends RemoteServiceServlet implements
     public GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(
             List<String> regExps, String partitionRegExp, String separatorRegExp)
             throws Exception {
+        // Set up state.
+        retrieveSessionState();
+
         // Retrieve HTTP session to access location of recent log file uploaded.
-        HttpServletRequest request = getThreadLocalRequest();
-        HttpSession session = request.getSession();
+        // HttpServletRequest request = getThreadLocalRequest();
+        // HttpSession session = request.getSession();
 
         // This session state attribute set from LogFileUploadServlet and
         // contains
@@ -388,16 +401,14 @@ public class SynopticService extends RemoteServiceServlet implements
             // TODO: throw appropriate exception
             throw new Exception();
         }
+
+        // Absolute path to the uploaded file.
         String path = session.getAttribute(logFileSessionAttribute).toString();
-
-        ServletContext context = getServletContext();
-
-        // Retrieve full path instead of relative
-        String realPath = context.getRealPath(path);
+        logger.info("Reading uploaded file from: " + path);
 
         String logFileContent = null;
         try {
-            FileInputStream fileStream = new FileInputStream(realPath);
+            FileInputStream fileStream = new FileInputStream(path);
             BufferedInputStream bufferedStream = new BufferedInputStream(
                     fileStream);
             BufferedReader bufferedReader = new BufferedReader(
@@ -414,33 +425,11 @@ public class SynopticService extends RemoteServiceServlet implements
             bufferedStream.close();
             bufferedReader.close();
             logFileContent = buildLog.toString();
-        } catch (FileNotFoundException e) {
-            throw new FileNotFoundException(
-                    "Unable to find file given from file path");
+        } catch (Exception e) {
+            throw new Exception("Unable to read uploaded file.");
         }
         return parseLog(logFileContent, regExps, partitionRegExp,
                 separatorRegExp);
-    }
-
-    private SerializableParseException serializeException(ParseException pe) {
-        SerializableParseException exception = new SerializableParseException(
-                pe.getMessage());
-        if (pe.hasRegex()) {
-            exception.setRegex(pe.getRegex());
-        }
-        if (pe.hasLogLine()) {
-            exception.setLogLine(pe.getLogLine());
-        }
-        return exception;
-
-    }
-
-    private SerializableParseException serializeException(
-            InternalSynopticException ise) {
-        if (ise.hasParseException()) {
-            return serializeException(ise.getParseException());
-        }
-        return new SerializableParseException(ise.getMessage());
     }
 
     /**
@@ -578,27 +567,38 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Exports the current model as a .dot file. Returns the filename/directory.
+     * Exports the model to a dot file and returns the dot fileName.
+     */
+    private String exportModelToDot() throws Exception {
+        Calendar now = Calendar.getInstance();
+        // Naming convention for the file can be improved
+        String fileName = now.getTimeInMillis() + ".model.dot";
+        String filePath = config.modelExportsDir + fileName;
+        GraphExporter.exportGraph(filePath, pGraph, true);
+        return fileName;
+    }
+
+    /**
+     * Exports the current model as a .dot file. Returns the URL where the
+     * generated file may be accessed by a client.
      */
     @Override
     public String exportDot() throws Exception {
         retrieveSessionState();
-        Calendar now = Calendar.getInstance();
-        // Naming convention for the file can be improved
-        String fileString = userExport + now.getTimeInMillis()
-                + "exportmodel.dot";
-        GraphExporter.exportGraph(fileString, pGraph, true);
-        return fileString;
+        String fileName = exportModelToDot();
+        return config.modelExportsURLprefix + fileName;
     }
 
     /**
-     * Exports the current model as a .png file. Returns the filename/directory.
+     * Exports the current model as a .png file. Returns the URL where the
+     * generated file may be accessed by a client.
      */
     @Override
     public String exportPng() throws Exception {
-        String fileString = exportDot();
-        GraphExporter.generatePngFileFromDotFile(fileString);
-        return fileString + ".png";
+        retrieveSessionState();
+        String fileName = exportModelToDot();
+        GraphExporter.generatePngFileFromDotFile(config.modelExportsDir
+                + fileName);
+        return config.modelExportsURLprefix + fileName + ".png";
     }
-
 }

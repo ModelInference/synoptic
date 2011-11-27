@@ -26,7 +26,7 @@ synoptic_repo=`pwd`
 synoptic_wiki_repo=$1
 
 # Location of the usage screen wiki page.
-usagef=${synoptic_wiki_repo}/DocsUsageScreen.wiki
+usagef=${synoptic_wiki_repo}/DocsCmdLineHelpScreen.wiki
 
 # 1. Pull and update the wiki repository
 cd ${synoptic_wiki_repo} && hg pull && hg up

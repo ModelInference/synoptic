@@ -1,19 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 <project basedir="." default="build" name="Synoptic">
+    <description>
+      This build file is used to build the Synoptic project. It can
+      also be used to run the test suite, and to generate the
+      synoptic.jar file.
+    </description>
+
+    <!-- Include ant xml file with shared utils. -->
+    <include file="../ant-util.xml" as="util" />
+
     <property environment="env"/>
-    <property name="SYNOPTIC_LIB" value="../lib"/>
-    <property name="SYNOPTIC_JARRED_LIB" value="lib"/>
+    
+    <!-- Where to create the synoptic.jar file. -->
+    <property name="synoptic.jarpath" value="${util.synoptic.libdir}/synoptic.jar"/>
+
+    <!-- Where to output junit test results. -->
     <property name="junit.output.dir" value="junit"/>
+
+    <!-- Where to find the generated synoptic classes. -->
+    <path id="synoptic.classes.classpath">
+        <pathelement location="bin"/>
+    </path>
+
+    <!-- The set of jars synoptic depends on, in classpath format. -->
+    <path id="synoptic.depjars.classpath">
+        <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
+        <pathelement location="${util.synoptic.libdir}/plume.jar"/>
+    </path>
+
+    <!-- The complete classpath for running the compiled synoptic. -->
+    <path id="synoptic.classpath">
+        <path refid="synoptic.classes.classpath"/>
+        <path refid="synoptic.depjars.classpath"/>
+    </path>
+
+    <manifestclasspath property="jar.liblist" jarfile="${synoptic.jarpath}">
+      <classpath refid="synoptic.depjars.classpath" />
+    </manifestclasspath>
+
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-    <path id="Synoptic.classpath">
-        <pathelement location="bin"/>
-        <pathelement location="${SYNOPTIC_LIB}/junit-4.9b2.jar"/>
-        <pathelement location="${SYNOPTIC_LIB}/plume.jar"/>
-        <pathelement location="${SYNOPTIC_LIB}/stixar-0.0.1-alpha.jar"/>
-    </path>
+
+    <!--=====================================================================-->
     <target name="init">
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
@@ -22,24 +52,33 @@
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
+
     </target>
+
+    <!--=====================================================================-->
     <target name="clean">
         <delete dir="bin"/>
     </target>
-    <target depends="clean" name="cleanall"/>
+
+    <!--=====================================================================-->
     <target depends="build-subprojects,build-project" name="build"/>
+
+    <!--=====================================================================-->
     <target name="build-subprojects"/>
+
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
 	    <!-- <compilerarg value="-Xlint:unchecked" /> -->
             <src path="src"/>
-            <classpath refid="Synoptic.classpath"/>
+            <classpath refid="synoptic.classpath"/>
         </javac>
     </target>
-
-    <target name="jar" depends="build">
-      <jar destfile="${SYNOPTIC_LIB}/synoptic.jar"
+    
+    <!--=====================================================================-->
+    <target name="jar" depends="build,util.hg-rev-extract">
+      <echo message="Embedding hg changeset number ${util.hg.revision}" />
+      <jar destfile="${synoptic.jarpath}"
            basedir="./bin/"
            includes="**/*.class">
         <manifest>
@@ -47,15 +86,17 @@
 	  <attribute name="Implementation-Title" value="synoptic" />
 	  <attribute name="Implementation-Version" value="0.0.5" />
 	  <attribute name="Main-Class" value="synoptic.main.Main" />
-	  <attribute name="Class-Path" value="${SYNOPTIC_JARRED_LIB}/junit-4.9b2.jar ${SYNOPTIC_JARRED_LIB}/plume.jar" />
+	  <attribute name="Class-Path" value="${jar.liblist}" />
+	  <attribute name="ChangesetID" value="${util.hg.revision}" />
 	</manifest>
       </jar>
     </target>
 
+    <!--=====================================================================-->
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="no" printsummary="withOutAndErr" showoutput="true">
-	  <classpath refid="Synoptic.classpath"/>
+	  <classpath refid="synoptic.classpath"/>
 	  <formatter type="xml"/>
 
 	  <batchtest fork="no" todir="${junit.output.dir}">
@@ -68,6 +109,7 @@
         </junit>
     </target>
 
+    <!--=====================================================================-->
     <target name="junitreport">
         <junitreport todir="${junit.output.dir}">
             <fileset dir="${junit.output.dir}">
@@ -76,4 +118,5 @@
             <report format="frames" todir="${junit.output.dir}"/>
         </junitreport>
     </target>
+
 </project>

@@ -7,8 +7,8 @@ import java.io.Serializable;
  * the server/client. Currently not all of the data within the server-side
  * temporal invariant classes can be converted to work with GWT.
  */
-public class GWTInvariant implements Serializable {
-	
+public class GWTInvariant implements Serializable, Comparable<GWTInvariant> {
+
     private static final long serialVersionUID = 1L;
 
     /** The first event label type for a binary invariant. */
@@ -24,42 +24,40 @@ public class GWTInvariant implements Serializable {
     // temporal invariant's hashCode.
     private int invID = 0;
 
-	private boolean active = true;
+    private boolean active = true;
 
     public GWTInvariant() {
         eFirst = null;
         eSecond = null;
         transitionType = null;
     }
-    
+
     /**
      * @param transType
-     * 	The type of the transition.
+     *            The type of the transition.
      * @return The unicode representation of {@code transType}
      */
     public static String getUnicodeTransitionType(String transType) {
-    	if (transType.equals("AFby"))
-    		return"\u2192"; // ->
-    	else if (transType.equals("NFby"))
-    		return "\u219b"; // -/->
-    	else if (transType.equals("AP"))
-    		return "\u2190"; // <-
-    	else if (transType.equals("ACwith"))
-    		return "\u2016"; // ||
-    	else if (transType.equals("NCwith"))
-    		return "\u2226"; // || with a slash through it.
-    	else
-    		return ","; // The transition is undefined as of yet.
-    }
-    
-    /**
-     * @return A unicode representation of
-     * the GWTInvariant transition type.
-     */
-    public String getUnicodeTransitionType() {
-    	return getUnicodeTransitionType(transitionType);
+        if (transType.equals("AFby"))
+            return "\u2192"; // ->
+        else if (transType.equals("NFby"))
+            return "\u219b"; // -/->
+        else if (transType.equals("AP"))
+            return "\u2190"; // <-
+        else if (transType.equals("ACwith"))
+            return "\u2016"; // ||
+        else if (transType.equals("NCwith"))
+            return "\u2226"; // || with a slash through it.
+        else
+            return ","; // The transition is undefined as of yet.
     }
 
+    /**
+     * @return A unicode representation of the GWTInvariant transition type.
+     */
+    public String getUnicodeTransitionType() {
+        return getUnicodeTransitionType(transitionType);
+    }
 
     /**
      * Constructs a new GWTInvariant.
@@ -105,7 +103,7 @@ public class GWTInvariant implements Serializable {
     public String getTarget() {
         return eSecond;
     }
-    
+
     public String getTransitionType() {
         return transitionType;
     }
@@ -123,13 +121,22 @@ public class GWTInvariant implements Serializable {
     public String toString() {
         return "<" + eFirst.toString() + "," + eSecond.toString() + ">";
     }
-    
+
     public void setActive(boolean active) {
-    	this.active = active;
+        this.active = active;
     }
-    
+
     public boolean getActive() {
-    	return active;
+        return active;
+    }
+
+    @Override
+    public int compareTo(GWTInvariant o) {
+        int compareSource = getSource().compareTo(o.getSource());
+        if (compareSource != 0) {
+            return compareSource;
+        }
+        return getTarget().compareTo(o.getTarget());
     }
 
 }

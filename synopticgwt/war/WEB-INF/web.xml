@@ -5,7 +5,23 @@
 
 <web-app>
 
-  <!-- Servlets -->
+ <!-- Default page to serve -->
+  <welcome-file-list>
+    <welcome-file>main</welcome-file>
+  </welcome-file-list>
+
+  <!-- Main entry point into the Synoptic web application. -->
+  <servlet>
+    <servlet-name>GwtHostingServlet</servlet-name>
+    <servlet-class>synopticgwt.server.GwtHostingServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>GwtHostingServlet</servlet-name>
+    <url-pattern>/main</url-pattern>
+  </servlet-mapping>
+
+  <!-- Remotely-accessible synoptic service. -->
    <servlet>
     <servlet-name>SynopticService</servlet-name>
     <servlet-class>synopticgwt.server.SynopticService</servlet-class>
@@ -26,10 +42,5 @@
     <servlet-name>LogFileUploadServlet</servlet-name>
     <url-pattern>/synopticgwt/log_file_upload</url-pattern>
   </servlet-mapping>
-
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>SynopticGWT.html</welcome-file>
-  </welcome-file-list>
 
 </web-app>

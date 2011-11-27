@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
 <project name="SynopticGWT" basedir="." default="build">
+  <!-- Include ant xml file with shared utils. -->
+  <include file="../ant-util.xml" as="util" />
+
   <!-- Arguments to gwtc and devmode targets -->
   <property name="gwt.args" value="" />
 
   <!-- Configure path to GWT SDK -->
   <property name="gwt.sdk" location="../lib/gwt/" />
-  <!-- Configure path to SYNOPTIC_LIB -->
-  <property name="SYNOPTIC_LIB" location="../lib/" />
 
   <path id="project.class.path">
     <pathelement location="war/WEB-INF/classes"/>
@@ -17,17 +18,19 @@
     <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
   </path>
 
+  <!--=====================================================================-->
   <target name="libs" description="Copy libs to WEB-INF/lib">
     <mkdir dir="war/WEB-INF/lib" />
     <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
     <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet-deps.jar" />
-  	<copy todir="war/WEB-INF/lib" file="${SYNOPTIC_LIB}/synoptic.jar" />
-  	<copy todir="war/WEB-INF/lib" file="${SYNOPTIC_LIB}/junit-4.9b2.jar" />
-  	<copy todir="war/WEB-INF/lib" file="${SYNOPTIC_LIB}/plume.jar" />
-  	<copy todir="war/WEB-INF/lib" file="${SYNOPTIC_LIB}/commons-fileupload-1.2.2.jar" />
-    <!-- Add any additional server libs that need to be copied -->
+  	<copy todir="war/WEB-INF/lib" file="${util.synoptic.libdir}/synoptic.jar" />
+  	<copy todir="war/WEB-INF/lib" file="${util.synoptic.libdir}/junit-4.9b2.jar" />
+  	<copy todir="war/WEB-INF/lib" file="${util.synoptic.libdir}/plume.jar" />
+  	<copy todir="war/WEB-INF/lib" file="${util.synoptic.libdir}/commons-fileupload-1.2.2.jar" />
+	<!-- Add any additional server libs that need to be copied -->
   </target>
 
+  <!--=====================================================================-->
   <target name="javac" depends="libs" description="Compile java source to bytecode">
     <mkdir dir="war/WEB-INF/classes"/>
     <javac srcdir="src" includes="**"
@@ -43,6 +46,7 @@
     </copy>
   </target>
 
+  <!--=====================================================================-->
   <target name="build" depends="javac" description="GWT compile to JavaScript (production mode)">
     <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
       <classpath>
@@ -61,10 +65,26 @@
     </java>
   </target>
 
-
-  <target name="war">
+  <!--=====================================================================-->
+  <!-- Generates a war archive for embedded Jetty deployments. -->
+  <target name="embedded-war" depends="build,util.hg-rev-extract">
     <war basedir="war" destfile="synopticgwt.war" webxml="war/WEB-INF/web.xml" />
-  	<copy file="synopticgwt.war" todir="../embeddedgwt/apps/" />
+    <copy file="synopticgwt.war" todir="../embeddedgwt/apps/" />
+  </target>
+
+  <!--=====================================================================-->
+  <!-- Generates a war archive for deployment onto a stand-alone web server. -->
+  <target name="deployment-war" depends="build,util.hg-rev-extract">
+
+    <echo message="Embedding hg changeset number ${util.hg.revision}" />
+
+    <!-- Embed the changeste id in the MANIFEST.MF file in the war archive. -->
+    <war basedir="war" destfile="root.war" webxml="war/WEB-INF/web.xml">
+      <manifest>
+	<attribute name="ChangesetID" value="${util.hg.revision}" />
+      </manifest>
+    </war>
+    <copy file="root.war" todir="../" />
   </target>
 
 </project>

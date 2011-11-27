@@ -2,6 +2,7 @@ package synopticgwt.client.invariants;
 
 import java.io.Serializable;
 
+import synopticgwt.client.util.MouseHover;
 import synopticgwt.client.util.Paper;
 
 /** Java wrapper for an arrow on a Raphael canvas */
@@ -114,5 +115,17 @@ public class GraphicArrow implements Serializable {
         body.setStroke(color, width);
         positiveHead.setStroke(color, width);
         negativeHead.setStroke(color, width);
+    }
+    
+    public void setMouseover(MouseHover hover) {
+        body.setMouseover(hover);
+        positiveHead.setMouseover(hover);
+        negativeHead.setMouseover(hover);
+    }
+    
+    public void setMouseout(MouseHover hover) {
+        body.setMouseout(hover);
+        positiveHead.setMouseout(hover);
+        negativeHead.setMouseout(hover);
     }
 }

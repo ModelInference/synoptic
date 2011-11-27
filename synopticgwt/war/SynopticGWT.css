@@ -2,12 +2,32 @@ body {
   padding: 10px;
 }
 
-h1 {
+#a-logo-title {
   font-size: 2em;
   font-weight: bold;
   color: #777777;
+  text-decoration: none;
   margin: 10px 10px 0px;
   text-align: right;
+}
+
+#div-globalContainer{
+ position:relative;
+}
+
+#div-top-bar {
+ right:0;
+ text-align:right;
+}
+
+#div-footer-bar {
+ text-align:right;
+ color: #585858;
+ font-size: 0.75em;
+}
+
+#mainDiv {
+ position:relative;
 }
 
 .sendButton {
@@ -28,6 +48,7 @@ h1 {
   color: red;
 }
 
+
 ///////////
 
 .grid {
@@ -40,7 +61,7 @@ h1 {
 }
 
 .poLinkTable .toLinkTable {
-  border-spacing: 3px;	
+  border-spacing: 3px;
 }
 
 .poLinkTable {
@@ -48,12 +69,12 @@ h1 {
 }
 
 .exampleLogLabel {
-  margin-bottom: 10px;	
+  margin-bottom: 10px;
 }
 
 .logTypeLabel {
   color: #585858;
-  font-size: 0.75em;	
+  font-size: 0.75em;
 }
 
 .tableCell {
@@ -160,7 +181,7 @@ h1 {
 
 .DefaultExpLabel {
 	font-size: 0.7em;
-	color: #585858;	 
+	color: #585858;
 }
 
 .DeleteButton {
@@ -168,8 +189,8 @@ h1 {
 }
 
 .ExtraRegExps td {
-	vertical-align: middle !important;	
-}	
+	vertical-align: middle !important;
+}
 
 .LineNumCol {
 	width: 50px;
@@ -181,13 +202,13 @@ h1 {
 }
 
 .LogTypeRadio {
-	margin: 5px;	
+	margin: 5px;
 }
 
 .ParseLogButton {
 	margin-right: 1em !important;
 }
-	
+
 .FlexTable {
 	table-layout: fixed;
 }

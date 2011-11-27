@@ -34,6 +34,36 @@
     <script type="text/javascript">Math.seedrandom("any string you like, different");</script>
  	<script type="text/javascript" src="/graphhandler.js"></script>
 
+    <!-- Analytics -->
+    <script type="text/javascript">
+
+    <%
+    String analyticsTrackerID = (String) session.getAttribute("analyticsTrackerID");
+
+    // Retrieve the analytics tracker ID property and, if it exists,
+ 	// includes the appropriate analytics JS snippet and initializes tracking.
+ 	// String analyticsTrackerID = System.getProperty("analyticsTrackerID");
+ 	if (analyticsTrackerID != null) {
+ 	%>
+	    var analyticsTrackerID = '<%= analyticsTrackerID %>';
+	    var _gaq = _gaq || [];
+	    _gaq.push(['_setAccount', '<%= analyticsTrackerID %>']);
+
+	    (function() {
+	      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	    })();
+	<%
+	} else {
+	    // No analytics ID specified => no tracking.
+    %>
+	    var analyticsTrackerID = null;
+    <%
+	}
+ 	%>
+    </script>
+
   </head>
 
   <!--                                           -->
@@ -55,10 +85,28 @@
       </div>
     </noscript>
 
-    <h1>Synoptic</h1>
-    <div id="progressWheelDiv"></div>
-    <div id="rpcErrorDiv"></div>
-    <div id="mainDiv"></div>
+
+	<div id="div-globalContainer">
+
+		<div id="div-top-bar">
+	    	<a id="a-logo-title" href="http://synoptic.googlecode.com">Synoptic</a> <br/>
+	        <a href="http://synoptic.googlecode.com">Main site</a> |
+	        <a href="http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial">Tutorial</a> |
+	    	<a href="http://code.google.com/p/synoptic/issues/entry">Report issue</a>
+	    	<br/>
+	    </div>
+
+
+	    <div id="progressWheelDiv"></div>
+	    <div id="rpcErrorDiv"></div>
+	    <div id="mainDiv"></div>
+
+    </div>
+
+    <div id="div-footer-bar">
+    	Synoptic Changeset <%= session.getAttribute("synopticChangesetID") %> <br />
+		SynopticGWT Changeset <%= session.getAttribute("synopticGWTChangesetID") %>
+    </div>
 
   </body>
 </html>
