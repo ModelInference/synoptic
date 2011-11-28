@@ -163,7 +163,7 @@ public class InputPanel extends Tab<VerticalPanel> {
         // Set up inner panel containing file upload and submit button.
         HorizontalPanel uploadPanel = new HorizontalPanel();
         uploadLogFileButton.setName("uploadFormElement");
-        uploadLogFileButton.setEnabled(false);
+        uploadLogFileButton.setVisible(false);
         uploadPanel.add(uploadLogFileButton);
 
         HorizontalPanel radioButtonPanel = new HorizontalPanel();
@@ -323,12 +323,15 @@ public class InputPanel extends Tab<VerticalPanel> {
     }
 
     /**
-     * Sets all input field values to be empty strings.
+     * Sets all input field values to be empty strings
+     * and displays default reg exp labels.
      */
     private void clearInputValues() {
         logTextArea.setValue("");
         primaryRegExpsTextBox.setValue("");
+        regExpDefaultLabel.setVisible(true);
         partitionRegExpTextBox.setValue("");
+        partitionRegExpDefaultLabel.setVisible(true);
         separatorRegExpTextBox.setValue("");
     }
 
@@ -371,16 +374,17 @@ public class InputPanel extends Tab<VerticalPanel> {
     }
 
     /**
-     * Clears inputs and enables all the log example links and disables
-     * upload/parse log buttons.
+     * Handler for when "Clear" button selected. Clears all inputs and 
+     * disables upload/parse log buttons. Displays empty reg exp labels
+     * and log text area.
      */
     class ClearInputsHandler implements ClickHandler {
 
         @Override
         public void onClick(ClickEvent event) {
             logFileUploadForm.reset();
-            logTextArea.setEnabled(true);
-            uploadLogFileButton.setEnabled(false);
+            logTextArea.setVisible(true);
+            uploadLogFileButton.setVisible(false);
             parseLogButton.setEnabled(false);
             regExpDefaultLabel.setVisible(true);
             partitionRegExpDefaultLabel.setVisible(true);
@@ -416,6 +420,8 @@ public class InputPanel extends Tab<VerticalPanel> {
             setInputs(example.getLogText(), example.getRegExpText(),
                     example.getPartitionRegExpText(),
                     example.getSeparatorRegExpText());
+            logTextArea.setVisible(true);
+            uploadLogFileButton.setVisible(false);
             if (primaryRegExpsTextBox.getValue().trim().length() != 0) {
                 regExpDefaultLabel.setVisible(false);
             } else {
@@ -482,19 +488,15 @@ public class InputPanel extends Tab<VerticalPanel> {
     }
 
     /**
-     * Handles when a file is selected is to be uploaded. Enables parse log
-     * button and clears any prior inputs in fields when a file is chosen.
+     * Enables parse log button if a file is selected. Disables parse
+     * log button otherwise. 
      */
     class FileUploadHandler implements ChangeHandler {
 
         @Override
         public void onChange(ChangeEvent event) {
-            if (uploadLogFileButton.getFilename() != null
-                    && logFileRadioButton.isEnabled()) {
+            if (!uploadLogFileButton.getFilename().isEmpty()) {
                 parseLogButton.setEnabled(true);
-                clearInputValues();
-                regExpDefaultLabel.setVisible(true);
-                partitionRegExpDefaultLabel.setVisible(true);
             } else {
                 parseLogButton.setEnabled(false);
             }
@@ -510,8 +512,7 @@ public class InputPanel extends Tab<VerticalPanel> {
         public void onKeyUp(KeyUpEvent event) {
             if (event.getSource() == logTextArea) {
                 // Parse log enabled if log text area is not empty.
-                if (logTextRadioButton.isEnabled()
-                        && logTextArea.getValue().trim().length() != 0) {
+                if (logTextArea.getValue().trim().length() != 0) {
                     parseLogButton.setEnabled(true);
                 } else {
                     parseLogButton.setEnabled(false);
@@ -560,24 +561,21 @@ public class InputPanel extends Tab<VerticalPanel> {
         @Override
         public void onValueChange(ValueChangeEvent<Boolean> event) {
             if (event.getSource() == logTextRadioButton) {
-                logTextArea.setEnabled(true);
-                if (uploadLogFileButton.isEnabled()) {
-                    uploadLogFileButton.setEnabled(false);
-                }
+                logTextArea.setVisible(true);
+                uploadLogFileButton.setVisible(false);
                 if (logTextArea.getValue().trim().length() == 0) {
                     parseLogButton.setEnabled(false);
                 } else {
                     parseLogButton.setEnabled(true);
                 }
             } else { // logFileRadioButton
-                uploadLogFileButton.setEnabled(true);
-                if (logTextArea.isEnabled()) {
-                    logTextArea.setEnabled(false);
-                }
-                if (uploadLogFileButton.getFilename() != null) {
-                    parseLogButton.setEnabled(false);
-                } else {
+                logTextArea.setVisible(false);
+                uploadLogFileButton.setVisible(true);
+                clearInputValues();
+                if (!uploadLogFileButton.getFilename().isEmpty()) {
                     parseLogButton.setEnabled(true);
+                } else {
+                    parseLogButton.setEnabled(false);
                 }
             }
         }
