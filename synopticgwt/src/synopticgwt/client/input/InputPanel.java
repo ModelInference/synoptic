@@ -100,7 +100,7 @@ public class InputPanel extends Tab<VerticalPanel> {
 
     final TextBox separatorRegExpTextBox = new TextBox();
     final FileUpload uploadLogFileButton = new FileUpload();
-    final VerticalPanel extraRegExpPanel = new VerticalPanel();
+    final VerticalPanel regExpPanel = new VerticalPanel();
     final Button addRegExpButton = new Button("+");
     final Button parseLogButton = new Button("Parse Log");
     final Button clearInputsButton = new Button("Clear");
@@ -184,13 +184,13 @@ public class InputPanel extends Tab<VerticalPanel> {
         logTextArea.setName("logTextArea");
 
         grid.setWidget(1, 0, new Label("Regular expressions"));
-        extraRegExpPanel.addStyleName("ExtraRegExps");
+        regExpPanel.addStyleName("ExtraRegExps");
         regExpDefaultLabel.setStyleName("DefaultExpLabel");
 
         Grid regExpsPanelHolder = new Grid(4, 1);
         regExpsPanelHolder.setWidget(0, 0, regExpDefaultLabel);
         regExpsPanelHolder.setWidget(1, 0, primaryRegExpsTextBox);
-        regExpsPanelHolder.setWidget(2, 0, extraRegExpPanel);
+        regExpsPanelHolder.setWidget(2, 0, regExpPanel);
         regExpsPanelHolder.setWidget(3, 0, addRegExpButton);
         grid.setWidget(1, 1, regExpsPanelHolder);
         setUpTextBox(primaryRegExpsTextBox);
@@ -297,9 +297,9 @@ public class InputPanel extends Tab<VerticalPanel> {
             result.add(currRegExp);
         }
 
-        for (int i = 0; i < extraRegExpPanel.getWidgetCount(); i++) {
+        for (int i = 0; i < regExpPanel.getWidgetCount(); i++) {
             // Extract each addition text box from panel within extraRegExpPanel
-            HorizontalPanel currPanel = (HorizontalPanel) extraRegExpPanel
+            HorizontalPanel currPanel = (HorizontalPanel) regExpPanel
                     .getWidget(i);
             TextBox currTextBox = (TextBox) currPanel.getWidget(0);
 
@@ -366,7 +366,7 @@ public class InputPanel extends Tab<VerticalPanel> {
             HorizontalPanel textAreaAndDeleteHolder = new HorizontalPanel();
             textAreaAndDeleteHolder.add(newTextBox);
             textAreaAndDeleteHolder.add(deleteButton);
-            extraRegExpPanel.add(textAreaAndDeleteHolder);
+            regExpPanel.add(textAreaAndDeleteHolder);
         }
     }
 
