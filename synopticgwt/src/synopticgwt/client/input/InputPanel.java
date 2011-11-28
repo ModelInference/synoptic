@@ -61,9 +61,9 @@ public class InputPanel extends Tab<VerticalPanel> {
             + partitionRegExpDefault + " when empty");
     final FormPanel logFileUploadForm = new FormPanel();
     final RadioButton logTextRadioButton = new RadioButton("logInputType",
-            "Text area");
+            "Text");
     final RadioButton logFileRadioButton = new RadioButton("logInputType",
-            "Text file");
+            "File");
 
     final ExtendedTextArea logTextArea = new ExtendedTextArea(
             new ScheduledCommand() {
