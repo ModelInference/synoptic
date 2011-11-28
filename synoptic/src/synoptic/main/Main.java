@@ -142,8 +142,28 @@ public class Main implements Callable<Integer> {
     public static Main processArgs(String[] args) throws IOException,
             URISyntaxException, IllegalArgumentException,
             IllegalAccessException, ParseException {
-
         SynopticOptions opts = new SynopticOptions(args);
+        return processArgs(opts);
+    }
+
+    /**
+     * Uses the parsed opts to set up static state in Main. This state includes
+     * everything necessary to run Synoptic -- input log files, regular
+     * expressions, etc.
+     * 
+     * @param opts
+     *            Parsed command line arguments.
+     * @return
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     * @throws ParseException
+     */
+    public static Main processArgs(SynopticOptions opts) throws IOException,
+            URISyntaxException, IllegalArgumentException,
+            IllegalAccessException {
+
         Main.options = opts;
 
         setUpLogging();
@@ -726,6 +746,11 @@ public class Main implements Callable<Integer> {
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, minedInvs);
         loggerInfoEnd("Creating partition graph took ", startTime);
         // //////////////////
+
+        if (options.dumpInitialPartitionGraph) {
+            exportGraph(options.outputPathPrefix + ".condensed", pGraph, true,
+                    true);
+        }
 
         return pGraph;
     }

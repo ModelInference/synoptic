@@ -2,6 +2,7 @@ package synoptic.invariants;
 
 import synoptic.model.DistEventType;
 import synoptic.util.InternalSynopticException;
+import synoptic.util.NotImplementedException;
 
 /**
  * Represents the "x is never concurrent with y" invariant for some two
@@ -47,4 +48,9 @@ public class NeverConcurrentInvariant extends ConcurrencyInvariant {
         throw new InternalSynopticException(
                 "LTL string cannot be composed for concurrency invariants");
     }
+
+	@Override
+	public String getRegex(char firstC, char secondC) {
+		throw new NotImplementedException();
+	}
 }
