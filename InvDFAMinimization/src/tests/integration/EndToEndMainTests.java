@@ -28,5 +28,4 @@ public class EndToEndMainTests extends InvDFAMinimizationTest {
                 tPath + "abstract/osx-login-example/trace.txt" };
         DFAMain.main(args);
     }
-
 }
