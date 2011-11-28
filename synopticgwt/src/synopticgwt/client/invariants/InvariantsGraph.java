@@ -53,12 +53,14 @@ public class InvariantsGraph {
     private List<GraphicOrderedInvariant> apInvs;
     private List<GraphicOrderedInvariant> afbyInvs;
     private List<GraphicOrderedInvariant> nfbyInvs;
-    private List<GraphicConcurrentInvariant> acwithInvs;
-    private List<GraphicConcurrentInvariant> ncwithInvs;
     
     /* Concurrency Partitions */
-    private List<GraphicConcurrencyPartition> acPartitions;
-    private List<GraphicNonConcurrentPartition> ncPartitions;
+    private List<GraphicConcurrencyPartition> leftACPartitions;
+    private List<GraphicConcurrencyPartition> midACPartitions;
+    private List<GraphicConcurrencyPartition> rightACPartitions;
+    private List<GraphicNonConcurrentPartition> leftNCPartitions;
+    private List<GraphicNonConcurrentPartition> midNCPartitions;
+    private List<GraphicNonConcurrentPartition> rightNCPartitions;
 
     // TODO: Ideally this would refer to
     // synoptic.mode.EventType.initialNodeLabel. However, since this code runs
@@ -77,8 +79,6 @@ public class InvariantsGraph {
         this.apInvs = new ArrayList<GraphicOrderedInvariant>();
         this.afbyInvs = new ArrayList<GraphicOrderedInvariant>();
         this.nfbyInvs = new ArrayList<GraphicOrderedInvariant>();
-        this.acPartitions = new ArrayList<GraphicConcurrencyPartition>();
-        this.ncPartitions = new ArrayList<GraphicNonConcurrentPartition>();
     }
 
     /**
@@ -172,41 +172,26 @@ public class InvariantsGraph {
                         midEventCol, rightEventCol, gwtInvToIGridLabel);
                 nfbyInvs.addAll(gInvs);
             } else if (invType.equals("ACwith")) {
-                acwithInvs = drawConcurrentInvariants(invs, midEventCol, 
-                       gwtInvToIGridLabel);
-                for (GraphicConcurrentInvariant acInv : acwithInvs) {
-                    boolean inserted = false;
-                    for (GraphicConcurrencyPartition acPart : acPartitions) {
-                        if (acPart.isTransitive(acInv)) {
-                            acPart.add(acInv);
-                            inserted = true;
-                        }
-                    }
-                    if (!inserted) {
-                        GraphicConcurrencyPartition singlePart = 
-                                new GraphicConcurrencyPartition();
-                        singlePart.add(acInv);
-                        acPartitions.add(singlePart);
-                    }
-                }
+                leftACPartitions = drawACInvariants(
+                        drawConcurrentInvariants(invs, leftEventCol, 
+                                gwtInvToIGridLabel));
+                midACPartitions = drawACInvariants(
+                        drawConcurrentInvariants(invs, midEventCol, 
+                                gwtInvToIGridLabel));
+                rightACPartitions = drawACInvariants(
+                        drawConcurrentInvariants(invs, rightEventCol, 
+                                gwtInvToIGridLabel));
             } else if (invType.equals("NCwith")) {
-                ncwithInvs = drawConcurrentInvariants(invs, midEventCol,
-                        gwtInvToIGridLabel);
-                Set<GraphicEvent> ncEvents = new HashSet<GraphicEvent>();
-                for (GraphicConcurrentInvariant ncInv : ncwithInvs) {
-                    ncEvents.add(ncInv.getSrc());
-                    ncEvents.add(ncInv.getDst());
-                }
-                for (GraphicEvent ge : ncEvents) {
-                    GraphicNonConcurrentPartition ncPart = 
-                            new GraphicNonConcurrentPartition(ge);
-                    for (GraphicConcurrentInvariant ncInv : ncwithInvs) {
-                        if (ncPart.isNeverConcurrent(ncInv)) {
-                            ncPart.add(ncInv);
-                        }
-                    }
-                    ncPartitions.add(ncPart);
-                }
+                leftNCPartitions = drawNCInvariants(
+                        drawConcurrentInvariants(invs, leftEventCol, 
+                                gwtInvToIGridLabel));
+                midNCPartitions = drawNCInvariants(
+                        drawConcurrentInvariants(invs, midEventCol, 
+                                gwtInvToIGridLabel));
+                rightNCPartitions = drawNCInvariants(
+                        drawConcurrentInvariants(invs, rightEventCol, 
+                                gwtInvToIGridLabel));
+                
             }
         }
 
@@ -223,6 +208,50 @@ public class InvariantsGraph {
         int timeLabelYCoord = timeArrowYCoord + 25;
         Label timeLabel = new Label(paper, mX, timeLabelYCoord, fontSize - 5,
                 "Time", DEFAULT_FILL);
+    }
+
+    private List<GraphicNonConcurrentPartition> drawNCInvariants(
+            List<GraphicConcurrentInvariant> ncwithInvs) {
+        List<GraphicNonConcurrentPartition> ncPartitions =
+                new ArrayList<GraphicNonConcurrentPartition>();
+        Set<GraphicEvent> ncEvents = new HashSet<GraphicEvent>();
+        for (GraphicConcurrentInvariant ncInv : ncwithInvs) {
+            ncEvents.add(ncInv.getSrc());
+            ncEvents.add(ncInv.getDst());
+        }
+        for (GraphicEvent ge : ncEvents) {
+            GraphicNonConcurrentPartition ncPart = 
+                    new GraphicNonConcurrentPartition(ge);
+            for (GraphicConcurrentInvariant ncInv : ncwithInvs) {
+                if (ncPart.isNeverConcurrent(ncInv)) {
+                    ncPart.add(ncInv);
+                }
+            }
+            ncPartitions.add(ncPart);
+        }
+        return ncPartitions;
+    }
+
+    private List<GraphicConcurrencyPartition> drawACInvariants(
+            List<GraphicConcurrentInvariant> acwithInvs) {
+        List<GraphicConcurrencyPartition> acPartitions =
+                new ArrayList<GraphicConcurrencyPartition>();
+        for (GraphicConcurrentInvariant acInv : acwithInvs) {
+            boolean inserted = false;
+            for (GraphicConcurrencyPartition acPart : acPartitions) {
+                if (acPart.isTransitive(acInv)) {
+                    acPart.add(acInv);
+                    inserted = true;
+                }
+            }
+            if (!inserted) {
+                GraphicConcurrencyPartition singlePart = 
+                        new GraphicConcurrencyPartition();
+                singlePart.add(acInv);
+                acPartitions.add(singlePart);
+            }
+        }
+        return acPartitions;
     }
 
     /**

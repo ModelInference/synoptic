@@ -51,10 +51,12 @@ public class GraphicEvent implements Serializable, MouseHover {
     }
     
     public void setACPartition(GraphicConcurrencyPartition ACPart) {
+        show();
         this.ACpartition = ACPart;
     }
     
     public void setNCPartition(GraphicNonConcurrentPartition NCPart) {
+        show();
         this.NCPartition = NCPart;
     }
 

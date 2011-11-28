@@ -1,5 +1,8 @@
 package synopticgwt.client.invariants;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 import com.google.gwt.user.client.ui.Label;
 
@@ -19,7 +22,10 @@ public class InvariantGridLabel extends Label {
     /** Column for Label's corresponding grid cell */
     private int col;
     private GWTInvariant inv;
-    private GraphicInvariant gInv;
+    /* This is a list so we can point to multiple 
+     * GraphicConcurrentInvariants
+     */
+    private List<GraphicInvariant> gInvs;
     // T.101.JV: Activation state is stored in the invLabel, and should
     // probably instead be stored in the GWTInvariant
     private boolean active = true;
@@ -29,10 +35,11 @@ public class InvariantGridLabel extends Label {
         super(inv.getSource() + " " + inv.getUnicodeTransitionType() + " "
                 + inv.getTarget());
         this.inv = inv;
-        setActive(true);
         this.cForm = cForm;
         this.row = row;
         this.col = col;
+        this.gInvs = new ArrayList<GraphicInvariant>();
+        setActive(true);
     }
 
     public GWTInvariant getInvariant() {
@@ -44,15 +51,19 @@ public class InvariantGridLabel extends Label {
     }
 
     public void setGraphicInvariant(GraphicInvariant gInv) {
-        this.gInv = gInv;
+        gInvs.add(gInv);
     }
 
     public void setActive(boolean active) {
-        if (gInv != null) {
+        if (!gInvs.isEmpty()) {
             if (active) {
-                gInv.show();
+                for (GraphicInvariant gInv : gInvs) {
+                    gInv.show();
+                }
             } else {
-                gInv.hide();
+                for (GraphicInvariant gInv : gInvs) {
+                    gInv.hide();
+                }
             }
         }
         inv.setActive(active);
@@ -60,14 +71,18 @@ public class InvariantGridLabel extends Label {
     }
 
     public void mouseOver() {
-        if (gInv != null) {
-            gInv.highlightOn();
+        if (!gInvs.isEmpty()) {
+            for (GraphicInvariant gInv : gInvs) {
+                gInv.highlightOn();
+            }
         }
     }
 
     public void mouseOut() {
-        if (gInv != null) {
-            gInv.highlightOff();
+        if (!gInvs.isEmpty()) {
+            for (GraphicInvariant gInv : gInvs) {
+                gInv.highlightOff();
+            }
         }
     }
 
@@ -75,9 +90,10 @@ public class InvariantGridLabel extends Label {
     public void highlightOn() {
         if (active) {
             String tType = inv.getTransitionType();
-            if (tType.equals("NFby")) {
+            if (tType.equals("NFby") || tType.equals("NCwith")) {
                 cForm.setStyleName(row, col, "tableCellHighlightRed");
-            } else if (tType.equals("AP") || tType.equals("AFby")) {
+            } else if (tType.equals("AP") || tType.equals("AFby") || 
+                    tType.equals("ACwith")) {
                 cForm.setStyleName(row, col, "tableCellHighlightBlue");
             }
         }

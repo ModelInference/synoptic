@@ -46,7 +46,7 @@ public class GraphicNonConcurrentPartition {
     
     public void highlightOn() {
         for (GraphicConcurrentInvariant gci : NCInvs) {
-            gci.highlightNeverConcurrent();
+            gci.highlightOn();
         }
     }
     
