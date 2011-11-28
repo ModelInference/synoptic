@@ -34,6 +34,7 @@ public class GraphicConcurrentInvariant implements Serializable,
         this.dst = dst;
         this.gwtInv = gwtInv;
         this.iGridLabel = iGridLabel;
+        this.visible = true;
     }
 
     /**
@@ -86,6 +87,7 @@ public class GraphicConcurrentInvariant implements Serializable,
     public void highlightOff() {
         src.highlightDefault();
         dst.highlightDefault();
+        iGridLabel.highlightOff();
     }
     
     public GWTInvariant getGWTInvariant() {

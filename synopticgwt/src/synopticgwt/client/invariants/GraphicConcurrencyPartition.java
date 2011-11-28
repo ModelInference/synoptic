@@ -43,7 +43,7 @@ public class GraphicConcurrencyPartition {
     
     public void highlightOn() {
         for (GraphicConcurrentInvariant gci : concurrentInvs) {
-            gci.highlightConcurrent();
+            gci.highlightOn();
         }
     }
     
