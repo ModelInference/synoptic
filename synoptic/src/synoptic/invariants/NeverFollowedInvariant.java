@@ -101,4 +101,17 @@ public class NeverFollowedInvariant extends BinaryInvariant {
     public String getLongName() {
         return "NeverFollowedBy";
     }
+    
+	/**
+	 * Returns a regular expressions describing this invariant for first NFby second. The
+	 * expression is "[^x]*(x[^y]*)*".
+	 * 
+	 * @param firstC a character representation of first
+	 * @param secondC a character representation of second
+	 * @return a regex for this invariant
+	 */
+	@Override
+	public String getRegex(char firstC, char secondC) {
+		return "[^" + firstC + "]*(" + firstC + "[^" + secondC + "]*)*";
+	}
 }
