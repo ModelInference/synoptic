@@ -27,7 +27,7 @@ import synoptic.model.export.GraphExporter;
 public class EncodedAutomaton {
 
     // The Automaton wrapped with String encodings.
-    protected Automaton model;
+    private Automaton model;
 
     // Stores encodings for all characters in the model.
     private Map<Character, String> encoding;
@@ -45,6 +45,13 @@ public class EncodedAutomaton {
         this.model = BasicAutomata.makeAnyString();
         this.encoding = new HashMap<Character, String>();
         finalized = false;
+    }
+
+    /**
+     * Returns the initial state of the wrapped Automaton.
+     */
+    protected void setInitialState(State initial) {
+        model.setInitialState(initial);
     }
 
     /**
@@ -107,7 +114,8 @@ public class EncodedAutomaton {
      * @throws IOException
      */
     public void exportDotAndPng(String filename) throws IOException {
-        finalizeAlphabet(); //
+        finalizeAlphabet();
+        // model = SpecialOperations.projectChars(model, encoding.keySet());
         String dot = toGraphviz();
         Writer output = new BufferedWriter(new FileWriter(new File(filename)));
         try {
