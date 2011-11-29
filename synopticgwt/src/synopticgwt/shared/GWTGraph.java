@@ -13,19 +13,19 @@ public class GWTGraph implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public HashSet<GWTNode> nodeIdToLabel;
+    public HashSet<GWTNode> nodeSet;
 
     // The first int is the sourceID then the targetID, and then the edge
     // weight.
     public List<GWTEdge> edges;
 
     public GWTGraph() {
-        nodeIdToLabel = new HashSet<GWTNode>();
+        nodeSet = new HashSet<GWTNode>();
         edges = new LinkedList<GWTEdge>();
     }
 
     public void addNode(GWTNode node) {
-        nodeIdToLabel.add(node);
+        nodeSet.add(node);
     }
 
     public void addEdge(GWTNode source, GWTNode target, double weight) {
@@ -33,7 +33,7 @@ public class GWTGraph implements Serializable {
     }
 
     public HashSet<GWTNode> getNodes() {
-        return nodeIdToLabel;
+        return nodeSet;
     }
 
     public List<GWTEdge> getEdges() {
