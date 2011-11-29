@@ -6,6 +6,11 @@ import java.io.Serializable;
  * Represents an edge between two GWTNodes in GWTGraph.
  */
 public class GWTEdge implements Serializable {
+    
+    // TODO: Add a field containing a JSNI object and
+    // a method that can be used for changing the style
+    // of said object to allow this object to interact
+    // with Dracula Graph edges.
 
     private static final long serialVersionUID = 1L;
 
