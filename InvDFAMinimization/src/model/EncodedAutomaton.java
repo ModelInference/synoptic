@@ -70,27 +70,13 @@ public abstract class EncodedAutomaton {
     }
 
     /**
-     * Performs Brzozowski's algorithm to minimize this Automaton.
-     */
-    public void minimizeBrzozowski() {
-        MinimizationOperations.minimizeBrzozowski(model);
-    }
-
-    /**
      * Performs Hopcroft's algorithm to minimize this Automaton.
      */
-    public void minimizeHopcroft() {
+    public void minimize() {
         MinimizationOperations.minimizeHopcroft(model);
     }
 
     /**
-     * Performs Huffman's (Moore's) algorithm to minimize this Automaton.
-     */
-    public void minimizeHuffman() {
-        MinimizationOperations.minimizeHuffman(model);
-    }
-
-    /*
      * Intersects this Automaton with the given Automaton, accepting all of
      * other's current encodings.
      */
@@ -151,6 +137,15 @@ public abstract class EncodedAutomaton {
         GraphExporter.generatePngFileFromDotFile(filename);
     }
 
+    /**
+     * Updates the internal state of this Automaton. Should be called after any
+     * time the model is altered manually.
+     */
+    protected void restoreInvariant() {
+        model.setDeterministic(false);
+        model.restoreInvariant();
+    }
+
     /** Constructs a Graphviz dot representation of the model. */
     public String toGraphviz() {
         StringBuilder b = new StringBuilder("digraph {\n");
@@ -188,7 +183,7 @@ public abstract class EncodedAutomaton {
         return b.append("}\n").toString();
     }
 
-    /*
+    /**
      * Add a transition line to the given StringBuilder with the given label,
      * from the source to the dest nodes.
      */
@@ -200,7 +195,7 @@ public abstract class EncodedAutomaton {
         b.append("\"]\n");
     }
 
-    /*
+    /**
      * Returns a character encoding for the given name. Updates the encodings
      * map. TODO: Address possibility of encoding collisions
      */
@@ -212,7 +207,7 @@ public abstract class EncodedAutomaton {
         return c;
     }
 
-    /*
+    /**
      * Sets the initial state of the wrapped Automaton.
      */
     protected void setInitialState(State initial) {

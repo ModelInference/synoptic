@@ -9,35 +9,47 @@ import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.Transition;
 
+/**
+ * Translates a Synoptic model from PartitionGraph to EncodedAutomaton DFA.
+ * 
+ * @author Jenny
+ */
 public class SynopticModel extends EncodedAutomaton {
 
     public SynopticModel(PartitionGraph synoptic) {
 
+        // The set of partitions we've visited, mapped to the source state for
+        // each partition's generated transition.
         Map<Partition, State> preEventStates = new HashMap<Partition, State>();
 
+        // We manually construct the DFA from this initial state.
         State initial = new State();
 
+        // Convert all partitions starting from the INITIAL node.
         for (Partition initialPartition : synoptic.getDummyInitialNodes()) {
             convert(initialPartition, initial, preEventStates);
         }
 
+        // Set the automaton to our newly constructed model.
         super.setInitialState(initial);
+
+        // Required after manually operations on the model.
+        super.restoreInvariant();
     }
 
-    /*
+    /**
      * Converts the given partition into a transition from the given prev state
-     * to either a fresh state or the state before this partition's original
-     * transition if we've explored this partition before. If we have not
-     * explored this partition before, we then explore this partition's
-     * children.
+     * to either a fresh state or if we've explored this partition before the
+     * state that this partition's original transition led to. If we have not
+     * explored this partition before we then explore this partition's children.
      */
     private void convert(Partition eventNode, State prev,
             Map<Partition, State> preEventStates) {
 
         if (preEventStates.containsKey(eventNode)) {
+
             // We've already seen eventNode, and should transition from prev to
             // the pre-state stored in preEventStates.
-
             dk.brics.automaton.Transition t = new dk.brics.automaton.Transition(
                     super.getEncoding(eventNode.getEType().toString()),
                     preEventStates.get(eventNode));
@@ -46,14 +58,18 @@ public class SynopticModel extends EncodedAutomaton {
 
         } else {
 
+            // We haven't seen this partition before, and so should transition
+            // to a new state.
             State next = new State();
-
             dk.brics.automaton.Transition t = new dk.brics.automaton.Transition(
                     super.getEncoding(eventNode.getEType().toString()), next);
-
-            preEventStates.put(eventNode, next);
             prev.addTransition(t);
 
+            // Update map of partitions we've seen.
+            preEventStates.put(eventNode, next);
+
+            // The 'next' state should be an accept state if eventNode is
+            // TERMINAL.
             if (eventNode.getEType().isTerminalEventType()) {
                 next.setAccept(true);
             }

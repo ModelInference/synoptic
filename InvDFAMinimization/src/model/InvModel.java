@@ -19,9 +19,12 @@ public class InvModel extends EncodedAutomaton {
      */
     public InvModel(ITemporalInvariant invariant) {
         this.inv = invariant;
+
+        // Construct an encoded regex for the given invariant.
         char first = super.getEncoding(inv.getFirst().toString());
         char second = super.getEncoding(inv.getSecond().toString());
         String re = inv.getRegex(first, second);
+
         super.intersectWithRE(re);
     }
 

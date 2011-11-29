@@ -26,17 +26,6 @@ public class InvsModel extends EncodedAutomaton {
     }
 
     /**
-     * Returns true if the given sequence of Strings are accepted by this model.
-     */
-    @Override
-    public boolean run(List<String> statements) {
-        if (invariants.size() == 0) {
-            return false;
-        }
-        return super.run(statements);
-    }
-
-    /**
      * Returns the set of ITemporalInvariants composing this model.
      */
     public Set<ITemporalInvariant> getInvariants() {
