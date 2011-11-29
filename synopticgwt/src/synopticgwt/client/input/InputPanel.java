@@ -300,7 +300,6 @@ public class InputPanel extends Tab<VerticalPanel> {
     private List<String> extractAllRegExps() {
         String currRegExp;
         List<String> result = new LinkedList<String>();
-
         for (int i = 0; i < regExpsPanel.getWidgetCount(); i++) {
             // Extract each addition text box from panel within extraRegExpPanel
             HorizontalPanel currPanel = (HorizontalPanel) regExpsPanel
@@ -316,7 +315,8 @@ public class InputPanel extends Tab<VerticalPanel> {
     
     /**
      * Returns a HorizontalPanel containing an ExtendedTextBox and a
-     * "delete" button. This is used for regular expression inputs.
+     * "minus" button, which the user can click to remove the panel 
+     * altogether. This is used for regular expression inputs.
      */
     private HorizontalPanel getTextBoxAndDeletePanel() {
         ExtendedTextBox newTextBox = new ExtendedTextBox(
@@ -353,9 +353,9 @@ public class InputPanel extends Tab<VerticalPanel> {
      * Returns true if the regular expression input(s) are empty.
      * Returns false otherwise.
      */
-    private boolean isEmptyRegExps(VerticalPanel panel) {
-        for (int i = 0; i < panel.getWidgetCount(); i++) {
-            HorizontalPanel hp = (HorizontalPanel) panel.getWidget(i);
+    private boolean isEmptyRegExps(VerticalPanel regExVerticalPanel) {
+        for (int i = 0; i < regExVerticalPanel.getWidgetCount(); i++) {
+            HorizontalPanel hp = (HorizontalPanel) regExVerticalPanel.getWidget(i);
             TextBox textBox = (ExtendedTextBox)hp.getWidget(0);
             if (textBox.getValue().trim().length() != 0) {
                 return false;
