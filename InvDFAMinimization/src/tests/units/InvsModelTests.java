@@ -28,7 +28,6 @@ public class InvsModelTests {
     public void testConstructor() {
         InvsModel model = new InvsModel();
         assertTrue(model.getInvariants().size() == 0);
-        assertFalse(model.run(Arrays.asList("a")));
     }
 
     @Test

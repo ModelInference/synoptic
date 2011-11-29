@@ -64,18 +64,19 @@ public class DFAMain {
         dfa.intersectWith(getMinModelFromInvs(minedInvariants));
 
         // Minimize the model.
-        dfa.minimizeHopcroft();
+        dfa.minimize();
 
         // Export final model.
         dfa.exportDotAndPng(opts.finalModelFile);
 
+        // Export the translated Synoptic model.
         exportAndTranslateSynopticModel(synMain, initialModel,
                 "convertedSynModel");
     }
 
     /**
-     * Runs synoptic on the given partition graph, then converts the synoptic
-     * result to a dfa.
+     * Runs Synoptic on the given partition graph, then converts the synoptic
+     * result to a dfa for export.
      */
     public static void exportAndTranslateSynopticModel(Main synMain,
             PartitionGraph initialModel, String filename) throws IOException {
@@ -83,8 +84,9 @@ public class DFAMain {
         // Run synoptic on the initial model, initial model becomes final model.
         synMain.runSynoptic(initialModel);
 
+        // Convert
         SynopticModel convertedDfa = new SynopticModel(initialModel);
-        convertedDfa.minimizeBrzozowski();
+        convertedDfa.minimize();
         convertedDfa.exportDotAndPng(filename);
     }
 
@@ -107,7 +109,7 @@ public class DFAMain {
         }
 
         // Optimize by minimizing the model.
-        model.minimizeHopcroft();
+        model.minimize();
 
         return model;
     }
