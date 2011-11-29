@@ -6,12 +6,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import dk.brics.automaton.Automaton;
 import dk.brics.automaton.BasicAutomata;
 import dk.brics.automaton.BasicOperations;
+import dk.brics.automaton.MinimizationOperations;
 import dk.brics.automaton.RegExp;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
@@ -24,7 +26,7 @@ import synoptic.model.export.GraphExporter;
  * 
  * @author Jenny
  */
-public class EncodedAutomaton {
+public abstract class EncodedAutomaton {
 
     // The Automaton wrapped with String encodings.
     private Automaton model;
@@ -35,7 +37,7 @@ public class EncodedAutomaton {
     // Range of possible unicode characters for encoding names.
     private static final int UNICODE_CHARS = 0x10FFFF;
 
-    // Whether the alphabet for this Automaton has been finalized
+    // Whether the alphabet for this Automaton has been finalized.
     private boolean finalized;
 
     /**
@@ -48,10 +50,14 @@ public class EncodedAutomaton {
     }
 
     /**
-     * Returns the initial state of the wrapped Automaton.
+     * Returns true if the given sequence of Strings are accepted by this model.
      */
-    protected void setInitialState(State initial) {
-        model.setInitialState(initial);
+    public boolean run(List<String> statements) {
+        StringBuilder builder = new StringBuilder();
+        for (String s : statements) {
+            builder.append(getEncoding(s));
+        }
+        return model.run(builder.toString());
     }
 
     /**
@@ -64,27 +70,36 @@ public class EncodedAutomaton {
     }
 
     /**
+     * Performs Brzozowski's algorithm to minimize this Automaton.
+     */
+    public void minimizeBrzozowski() {
+        MinimizationOperations.minimizeBrzozowski(model);
+    }
+
+    /**
+     * Performs Hopcroft's algorithm to minimize this Automaton.
+     */
+    public void minimizeHopcroft() {
+        MinimizationOperations.minimizeHopcroft(model);
+    }
+
+    /**
+     * Performs Huffman's (Moore's) algorithm to minimize this Automaton.
+     */
+    public void minimizeHuffman() {
+        MinimizationOperations.minimizeHuffman(model);
+    }
+
+    /*
      * Intersects this Automaton with the given Automaton, accepting all of
      * other's current encodings.
      */
-    public void intersectWith(EncodedAutomaton other) {
+    protected void intersectWith(EncodedAutomaton other) {
         // Add other's encodings.
         encoding.putAll(other.encoding);
 
         // Update this model.
         model = BasicOperations.intersection(model, other.model);
-    }
-
-    /*
-     * Returns a character encoding for the given name. Updates the encodings
-     * map. TODO: Address possibility of encoding collisions
-     */
-    protected char getEncoding(String name) {
-        char c = (char) (name.hashCode() % UNICODE_CHARS);
-        if (!encoding.containsKey(c)) {
-            encoding.put(c, name.toString());
-        }
-        return c;
     }
 
     /**
@@ -96,10 +111,21 @@ public class EncodedAutomaton {
     }
 
     /**
-     * Uses Hopcroft's algorithm to minimize this Automaton.
+     * Limits this Automaton to names current encoded to remove extraneous
+     * characters from the output dfa. After calling, additional characters
+     * cannot be used in this model.
      */
-    public void minimize() {
-        model.minimize();
+    public void finalizeAlphabet() {
+        if (!finalized) {
+            StringBuilder alphabet = new StringBuilder();
+            for (Character character : encoding.keySet()) {
+                alphabet.append("|" + character);
+            }
+            alphabet.replace(0, 1, "("); // Hacky fix to fence post issue.
+            alphabet.append(")*");
+            intersectWithRE(alphabet.toString());
+        }
+        finalized = true;
     }
 
     /**
@@ -115,7 +141,6 @@ public class EncodedAutomaton {
      */
     public void exportDotAndPng(String filename) throws IOException {
         finalizeAlphabet();
-        // model = SpecialOperations.projectChars(model, encoding.keySet());
         String dot = toGraphviz();
         Writer output = new BufferedWriter(new FileWriter(new File(filename)));
         try {
@@ -124,24 +149,6 @@ public class EncodedAutomaton {
             output.close();
         }
         GraphExporter.generatePngFileFromDotFile(filename);
-    }
-
-    /*
-     * Limits this Automaton to names current encoded to remove extraneous
-     * characters from the output dfa. After calling, additional characters
-     * cannot be used in this model.
-     */
-    private void finalizeAlphabet() {
-        if (!finalized) {
-            StringBuilder alphabet = new StringBuilder();
-            for (Character character : encoding.keySet()) {
-                alphabet.append("|" + character);
-            }
-            alphabet.replace(0, 1, "("); // Hacky fix to fence post issue.
-            alphabet.append(")*");
-            intersectWithRE(alphabet.toString());
-        }
-        finalized = true;
     }
 
     /** Constructs a Graphviz dot representation of the model. */
@@ -191,5 +198,24 @@ public class EncodedAutomaton {
         b.append(" -> ").append(dest).append(" [label=\"");
         b.append(label);
         b.append("\"]\n");
+    }
+
+    /*
+     * Returns a character encoding for the given name. Updates the encodings
+     * map. TODO: Address possibility of encoding collisions
+     */
+    protected char getEncoding(String name) {
+        char c = (char) (name.hashCode() % UNICODE_CHARS);
+        if (!encoding.containsKey(c)) {
+            encoding.put(c, name.toString());
+        }
+        return c;
+    }
+
+    /*
+     * Sets the initial state of the wrapped Automaton.
+     */
+    protected void setInitialState(State initial) {
+        model.setInitialState(initial);
     }
 }
