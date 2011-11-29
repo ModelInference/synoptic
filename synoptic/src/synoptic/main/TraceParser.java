@@ -815,8 +815,10 @@ public class TraceParser {
                                 + "\nIgnoring line and continuing.");
                         continue;
                     }
-                    String error = errMsg + "\n\tTry cmd line options:\n\t"
-                            + SynopticOptions.getOptDesc("ignoreNonMatchingLines")
+                    String error = errMsg
+                            + "\n\tTry cmd line options:\n\t"
+                            + SynopticOptions
+                                    .getOptDesc("ignoreNonMatchingLines")
                             + "\n\t" + SynopticOptions.getOptDesc("debugParse");
                     logger.severe(error);
                     logger.severe(e.toString());

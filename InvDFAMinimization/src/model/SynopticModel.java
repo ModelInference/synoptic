@@ -3,7 +3,6 @@ package model;
 import java.util.HashMap;
 import java.util.Map;
 
-import dk.brics.automaton.Automaton;
 import dk.brics.automaton.State;
 
 import synoptic.model.Partition;
@@ -14,15 +13,16 @@ public class SynopticModel extends EncodedAutomaton {
     private Map<Partition, State> preEventState;
 
     public SynopticModel(PartitionGraph synoptic) {
-        model = new Automaton();
 
         preEventState = new HashMap<Partition, State>();
 
-        State initial = model.getInitialState();
+        State initial = new State();
 
         for (Partition initialPartition : synoptic.getDummyInitialNodes()) {
             convert(initialPartition, initial);
         }
+
+        super.setInitialState(initial);
     }
 
     /*

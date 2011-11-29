@@ -23,7 +23,7 @@ public class EndToEndMainTests extends InvDFAMinimizationTest {
         // TODO: make the path insensitive to current location.
         String tPath = "../traces/";
 
-        String[] args = new String[] {"-c",
+        String[] args = new String[] { "-c",
                 tPath + "abstract/osx-login-example/args.txt",
                 tPath + "abstract/osx-login-example/trace.txt" };
         DFAMain.main(args);
