@@ -47,6 +47,7 @@ import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
+import synopticgwt.shared.GWTNode;
 import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.GWTParseException;
 import synopticgwt.shared.LogLine;
@@ -208,18 +209,20 @@ public class SynopticService extends RemoteServiceServlet implements
         GWTGraph graph = new GWTGraph();
 
         Set<Partition> nodes = partGraph.getNodes();
-        HashMap<Partition, Integer> nodeIds = new HashMap<Partition, Integer>();
-        int pNodeId, adjPNodeId = 0;
-
+        HashMap<String, GWTNode> nodeIds = new HashMap<String, GWTNode>();
+        GWTNode gwtNode, adjGWTNode;
+        String pNodeEType;
+        
         // Iterate through all the nodes in the pGraph
         for (Partition pNode : nodes) {
+            pNodeEType = pNode.getEType().toString();
             // Add the pNode to the GWTGraph
-            if (nodeIds.containsKey(pNode)) {
-                pNodeId = nodeIds.get(pNode);
+            if (nodeIds.containsKey(pNodeEType)) {
+                gwtNode = nodeIds.get(pNodeEType);
             } else {
-                pNodeId = pNode.hashCode();
-                nodeIds.put(pNode, pNodeId);
-                graph.addNode(pNodeId, pNode.getEType().toString());
+                gwtNode = new GWTNode(pNodeEType);
+                nodeIds.put(pNodeEType, gwtNode);
+                graph.addNode(gwtNode);
             }
 
             /*
@@ -234,15 +237,16 @@ public class SynopticService extends RemoteServiceServlet implements
             for (WeightedTransition<Partition> wTransition : adjacents) {
                 // The current adjacent partition.
                 Partition adjPNode = wTransition.getTarget();
-
-                if (nodeIds.containsKey(adjPNode.hashCode())) {
-                    adjPNodeId = nodeIds.get(adjPNode);
+                String adjPNodeEType = adjPNode.getEType().toString();
+                
+                if (nodeIds.containsKey(adjPNodeEType)) {
+                    adjGWTNode = nodeIds.get(adjPNodeEType);
                 } else {
                     // Add the node to the graph so it can be connected
                     // if it doesn't exist.
-                    adjPNodeId = adjPNode.hashCode();
-                    nodeIds.put(adjPNode, adjPNodeId);
-                    graph.addNode(adjPNodeId, adjPNode.getEType().toString());
+                    adjGWTNode = new GWTNode(adjPNodeEType);
+                    nodeIds.put(adjPNodeEType, adjGWTNode);
+                    graph.addNode(adjGWTNode);
                 }
 
                 // Truncate the last three digits to make the weight more
@@ -251,7 +255,7 @@ public class SynopticService extends RemoteServiceServlet implements
                         .ceil(wTransition.getFraction() * 1000) / 1000;
 
                 // Add the complete weighted edge
-                graph.addEdge(pNodeId, adjPNodeId, transitionFrac);
+                graph.addEdge(gwtNode, adjGWTNode, transitionFrac);
             }
         }
         return graph;
