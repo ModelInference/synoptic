@@ -2,9 +2,23 @@ package synopticgwt.shared;
 
 import java.io.Serializable;
 
+/**
+ * A representation of a graph node for GWT.  Overall, this is a
+ * representation of a partition node which acts as a bridge between
+ * Synoptic's server and the front end.
+ * 
+ * @author a.w.davies.vio
+ */
 public class GWTNode implements Serializable {
+    
+    // TODO: Create a JSNI field that holds a reference
+    // to a Dracula Graph node so that updates can be sent
+    // to the node via this object rather than in JS
+    // file.
+    
     private static final long serialVersionUID = 1L;
 
+    // The event type of the partition.
     private String eType = null;
 
     public GWTNode() {
@@ -13,9 +27,11 @@ public class GWTNode implements Serializable {
 
     /**
      * Constructs a GWTNode object, which identifies itself via its event type.
+     * The event type is the String representation of the event type to which
+     * this node must correspond.
      */
     public GWTNode(String eType) {
-        assert this.eType != null;
+        assert eType != null;
         this.eType = eType;
     }
 
