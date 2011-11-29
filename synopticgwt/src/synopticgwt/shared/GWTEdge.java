@@ -9,9 +9,8 @@ public class GWTEdge implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    // Nodes are identified by their hashcodes at the moment.
-    int src = -1;
-    int dst = -1;
+    private GWTNode src = null;
+    private GWTNode dst = null;
 
     // Edge weight indicates transition probability from source node to
     // destination node.
@@ -26,19 +25,19 @@ public class GWTEdge implements Serializable {
         // Empty constructor to avoid SerializationException.
     }
 
-    public GWTEdge(int src, int dst, double weight) {
+    public GWTEdge(GWTNode src, GWTNode dst, double weight) {
         this.src = src;
         this.dst = dst;
         this.weight = weight;
     }
 
-    public int getSrc() {
-        assert src != -1;
+    public GWTNode getSrc() {
+        assert src != null;
         return src;
     }
 
-    public int getDst() {
-        assert dst != -1;
+    public GWTNode getDst() {
+        assert dst != null;
         return dst;
     }
 

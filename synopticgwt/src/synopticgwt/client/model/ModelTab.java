@@ -1,7 +1,7 @@
 package synopticgwt.client.model;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.HashSet;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -24,6 +24,7 @@ import synopticgwt.client.util.TooltipListener;
 import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
+import synopticgwt.shared.GWTNode;
 import synopticgwt.shared.LogLine;
 
 /**
@@ -90,7 +91,7 @@ public class ModelTab extends Tab<DockPanel> {
         DOM.setElementAttribute(logLineLabel.getElement(), "id",
                 "log-line-label");
 
-        // Add tooltip to LogLineLabel
+        // Add tool-tip to LogLineLabel
         TooltipListener tooltip = new TooltipListener(
                 "Double-click on a node to view log lines", 5000, "tooltip");
         logLineLabel.addMouseOverHandler(tooltip);
@@ -163,18 +164,18 @@ public class ModelTab extends Tab<DockPanel> {
         // modelPanel.addEast(graphPanel, 70);
         panel.add(graphPanel, DockPanel.CENTER);
         // Create the list of graph node labels and their Ids.
-        HashMap<Integer, String> nodes = graph.getNodes();
+        HashSet<GWTNode> nodes = graph.getNodes();
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
-        for (Integer key : nodes.keySet()) {
-            JsniUtil.pushArray(jsNodes, key.toString());
-            JsniUtil.pushArray(jsNodes, nodes.get(key));
+        for (GWTNode node : nodes) {
+            JsniUtil.pushArray(jsNodes, ((Integer) node.hashCode()).toString());
+            JsniUtil.pushArray(jsNodes, nodes.toString());
         }
 
         // Create the list of edges, where two consecutive node Ids is an edge.
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
         for (GWTEdge edge : graph.getEdges()) {
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()).toString());
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()).toString());
+            JsniUtil.pushArray(jsEdges, edge.getSrc().toString());
+            JsniUtil.pushArray(jsEdges, edge.getDst().toString());
 
             // This contains the edge's weight.
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
@@ -205,19 +206,19 @@ public class ModelTab extends Tab<DockPanel> {
      *            the refined node's id
      */
     public void showChangingGraph(GWTGraph graph, int refinedNode) {
-        HashMap<Integer, String> nodes = graph.getNodes();
+        HashSet<GWTNode> nodes = graph.getNodes();
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
-        for (Integer key : nodes.keySet()) {
-            JsniUtil.pushArray(jsNodes, key.toString());
-            JsniUtil.pushArray(jsNodes, nodes.get(key));
+        for (GWTNode node : nodes) {
+            JsniUtil.pushArray(jsNodes, ((Integer) node.hashCode()).toString());
+            JsniUtil.pushArray(jsNodes, nodes.toString());
         }
 
         // Create the list of edges, where two consecutive node Ids is an edge.
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
         List<GWTEdge> edges = graph.getEdges();
         for (GWTEdge edge : edges) {
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()).toString());
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()).toString());
+            JsniUtil.pushArray(jsEdges, edge.getSrc().toString());
+            JsniUtil.pushArray(jsEdges, edge.getDst().toString());
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
         }
 
