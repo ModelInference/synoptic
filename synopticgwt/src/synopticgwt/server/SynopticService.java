@@ -234,9 +234,8 @@ public class SynopticService extends RemoteServiceServlet implements
             // For every adjacent node, calculate the likelihood of the
             // transition, and add that to the graph's edge.
             for (WeightedTransition<Partition> wTransition : adjacents) {
-                // The current adjacent partition.
-                Partition adjPNode = wTransition.getTarget();
-                String adjPNodeEType = adjPNode.getEType().toString();
+                // The current adjacent partition's Event Type (as a string).
+                String adjPNodeEType = wTransition.getTarget().getEType().toString();
                 
                 if (nodeIds.containsKey(adjPNodeEType)) {
                     adjGWTPNode = nodeIds.get(adjPNodeEType);
