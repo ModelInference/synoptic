@@ -76,17 +76,6 @@ public class InputPanel extends Tab<VerticalPanel> {
                 }
             });
 
-    final ExtendedTextBox primaryRegExpsTextBox = new ExtendedTextBox(
-            new ScheduledCommand() {
-                @Override
-                public void execute() {
-                    // Hide the default reg-exp label if pasting non-empty text.
-                    if (primaryRegExpsTextBox.getValue().trim().length() != 0) {
-                        regExpDefaultLabel.setVisible(false);
-                    }
-                }
-            });
-
     final ExtendedTextBox partitionRegExpTextBox = new ExtendedTextBox(
             new ScheduledCommand() {
                 @Override
@@ -100,7 +89,7 @@ public class InputPanel extends Tab<VerticalPanel> {
 
     final TextBox separatorRegExpTextBox = new TextBox();
     final FileUpload uploadLogFileButton = new FileUpload();
-    final VerticalPanel regExpPanel = new VerticalPanel();
+    final VerticalPanel regExpsPanel = new VerticalPanel();
     final Button addRegExpButton = new Button("+");
     final Button parseLogButton = new Button("Parse Log");
     final Button clearInputsButton = new Button("Clear");
@@ -184,16 +173,18 @@ public class InputPanel extends Tab<VerticalPanel> {
         logTextArea.setName("logTextArea");
 
         grid.setWidget(1, 0, new Label("Regular expressions"));
-        regExpPanel.addStyleName("ExtraRegExps");
+        regExpsPanel.addStyleName("ExtraRegExps");
         regExpDefaultLabel.setStyleName("DefaultExpLabel");
 
-        Grid regExpsPanelHolder = new Grid(4, 1);
-        regExpsPanelHolder.setWidget(0, 0, regExpDefaultLabel);
-        regExpsPanelHolder.setWidget(1, 0, primaryRegExpsTextBox);
-        regExpsPanelHolder.setWidget(2, 0, regExpPanel);
-        regExpsPanelHolder.setWidget(3, 0, addRegExpButton);
-        grid.setWidget(1, 1, regExpsPanelHolder);
-        setUpTextBox(primaryRegExpsTextBox);
+        Grid regExpsHolder = new Grid(3, 1);
+        regExpsHolder.setWidget(0, 0, regExpDefaultLabel);
+        regExpsHolder.setWidget(1, 0, regExpsPanel);
+        HorizontalPanel firstInput = getTextBoxAndDeletePanel();
+        setUpTextBox(((ExtendedTextBox)firstInput.getWidget(0)));
+        regExpsPanel.add(firstInput);
+        ((Button)firstInput.getWidget(1)).setVisible(false);
+        regExpsHolder.setWidget(2, 0, addRegExpButton);
+        grid.setWidget(1, 1, regExpsHolder);
 
         VerticalPanel partitionExpPanel = new VerticalPanel();
         partitionExpPanel.add(partitionRegExpDefaultLabel);
@@ -280,7 +271,8 @@ public class InputPanel extends Tab<VerticalPanel> {
     public void setInputs(String logText, String regExpText,
             String partitionRegExpText, String separatorRegExpText) {
         this.logTextArea.setText(logText);
-        this.primaryRegExpsTextBox.setText(regExpText);
+        HorizontalPanel firstPanel = (HorizontalPanel)regExpsPanel.getWidget(0);
+        ((TextBox)firstPanel.getWidget(0)).setText(regExpText);
         this.partitionRegExpTextBox.setText(partitionRegExpText);
         this.separatorRegExpTextBox.setText(separatorRegExpText);
     }
@@ -292,14 +284,9 @@ public class InputPanel extends Tab<VerticalPanel> {
         String currRegExp;
         List<String> result = new LinkedList<String>();
 
-        currRegExp = getTextBoxRegExp(primaryRegExpsTextBox);
-        if (!currRegExp.equals("")) {
-            result.add(currRegExp);
-        }
-
-        for (int i = 0; i < regExpPanel.getWidgetCount(); i++) {
+        for (int i = 0; i < regExpsPanel.getWidgetCount(); i++) {
             // Extract each addition text box from panel within extraRegExpPanel
-            HorizontalPanel currPanel = (HorizontalPanel) regExpPanel
+            HorizontalPanel currPanel = (HorizontalPanel) regExpsPanel
                     .getWidget(i);
             TextBox currTextBox = (TextBox) currPanel.getWidget(0);
 
@@ -309,6 +296,30 @@ public class InputPanel extends Tab<VerticalPanel> {
             }
         }
         return result;
+    }
+    
+    /**
+     * Returns a HorizontalPanel containing an ExtendedTextBox and a
+     * "delete" button. This is used for regular expression inputs.
+     */
+    private HorizontalPanel getTextBoxAndDeletePanel() {
+        ExtendedTextBox newTextBox = new ExtendedTextBox(
+                new ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        if (!isEmptyRegExps(regExpsPanel)) {
+                            regExpDefaultLabel.setVisible(false);
+                        }
+                    }
+                });
+        setUpTextBox(newTextBox);
+        Button deleteButton = new Button("-");
+        deleteButton.addStyleName("DeleteButton");
+        deleteButton.addClickHandler(new DeleteTextAreaHandler());
+        HorizontalPanel textBoxAndDeleteHolder = new HorizontalPanel();
+        textBoxAndDeleteHolder.add(newTextBox);
+        textBoxAndDeleteHolder.add(deleteButton);
+        return textBoxAndDeleteHolder;
     }
 
     /**
@@ -321,27 +332,32 @@ public class InputPanel extends Tab<VerticalPanel> {
         }
         return expression;
     }
-
+    
     /**
-     * Sets all input field values to be empty strings.
+     * Returns true if the regular expression input(s) are empty.
+     * Returns false otherwise.
      */
-    private void clearInputValues() {
-        logTextArea.setValue("");
-        primaryRegExpsTextBox.setValue("");
-        partitionRegExpTextBox.setValue("");
-        separatorRegExpTextBox.setValue("");
+    private boolean isEmptyRegExps(VerticalPanel panel) {
+        for (int i = 0; i < panel.getWidgetCount(); i++) {
+            HorizontalPanel hp = (HorizontalPanel) panel.getWidget(i);
+            TextBox curr = (ExtendedTextBox)hp.getWidget(i);
+            if (curr.getValue().trim().length() != 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
-     * Sets up properties for given TextArea.
+     * Sets up properties for given ExtendedTextBox.
      */
     private void setUpTextBox(ExtendedTextBox textBox) {
         textBox.setValue("");
         textBox.setVisibleLength(80);
         textBox.setName("regExpsTextArea");
         textBox.addKeyUpHandler(new KeyUpInputHandler());
-    }
-
+    }  
+     
     /**
      * Adds a new reg exp text area with a corresponding delete button.
      */
@@ -349,24 +365,10 @@ public class InputPanel extends Tab<VerticalPanel> {
 
         @Override
         public void onClick(ClickEvent event) {
-            ExtendedTextBox newTextBox = new ExtendedTextBox(
-                    new ScheduledCommand() {
-                        @Override
-                        public void execute() {
-                            if (primaryRegExpsTextBox.getValue().trim()
-                                    .length() != 0) {
-                                regExpDefaultLabel.setVisible(false);
-                            }
-                        }
-                    });
-            setUpTextBox(newTextBox);
-            Button deleteButton = new Button("-");
-            deleteButton.addStyleName("DeleteButton");
-            deleteButton.addClickHandler(new DeleteTextAreaHandler());
-            HorizontalPanel textAreaAndDeleteHolder = new HorizontalPanel();
-            textAreaAndDeleteHolder.add(newTextBox);
-            textAreaAndDeleteHolder.add(deleteButton);
-            regExpPanel.add(textAreaAndDeleteHolder);
+            regExpsPanel.add(getTextBoxAndDeletePanel());
+            HorizontalPanel firstPanel = (HorizontalPanel)regExpsPanel.getWidget(0);
+            Button firstDelete = (Button)firstPanel.getWidget(1);
+            firstDelete.setVisible(true);
         }
     }
 
@@ -396,6 +398,13 @@ public class InputPanel extends Tab<VerticalPanel> {
         public void onClick(ClickEvent event) {
             Button clicked = (Button) event.getSource();
             clicked.getParent().removeFromParent();
+            HorizontalPanel firstPanel = (HorizontalPanel)regExpsPanel.getWidget(0);
+            Button firstDelete = (Button)firstPanel.getWidget(1);
+            if (regExpsPanel.getWidgetCount() > 1) {
+                firstDelete.setVisible(true); 
+            } else {
+                firstDelete.setVisible(false);
+            }
         }
 
     }
@@ -416,10 +425,10 @@ public class InputPanel extends Tab<VerticalPanel> {
             setInputs(example.getLogText(), example.getRegExpText(),
                     example.getPartitionRegExpText(),
                     example.getSeparatorRegExpText());
-            if (primaryRegExpsTextBox.getValue().trim().length() != 0) {
-                regExpDefaultLabel.setVisible(false);
-            } else {
+            if (!isEmptyRegExps(regExpsPanel)) {
                 regExpDefaultLabel.setVisible(true);
+            } else {
+                regExpDefaultLabel.setVisible(false);
             }
             if (partitionRegExpTextBox.getValue().trim().length() != 0) {
                 partitionRegExpDefaultLabel.setVisible(false);
@@ -482,8 +491,8 @@ public class InputPanel extends Tab<VerticalPanel> {
     }
 
     /**
-     * Handles when a file is selected is to be uploaded. Enables parse log
-     * button and clears any prior inputs in fields when a file is chosen.
+     * Handles when a file is selected is to be uploaded. Enables 
+     * parse log button when a file is chosen.
      */
     class FileUploadHandler implements ChangeHandler {
 
@@ -492,7 +501,6 @@ public class InputPanel extends Tab<VerticalPanel> {
             if (uploadLogFileButton.getFilename() != null
                     && logFileRadioButton.isEnabled()) {
                 parseLogButton.setEnabled(true);
-                clearInputValues();
                 regExpDefaultLabel.setVisible(true);
                 partitionRegExpDefaultLabel.setVisible(true);
             } else {
@@ -516,17 +524,17 @@ public class InputPanel extends Tab<VerticalPanel> {
                 } else {
                     parseLogButton.setEnabled(false);
                 }
-            } else if (event.getSource() == primaryRegExpsTextBox) {
-                if (primaryRegExpsTextBox.getValue().trim().length() != 0) {
-                    regExpDefaultLabel.setVisible(false);
-                } else {
-                    regExpDefaultLabel.setVisible(true);
-                }
             } else if (event.getSource() == partitionRegExpTextBox) {
                 if (partitionRegExpTextBox.getValue().trim().length() != 0) {
                     partitionRegExpDefaultLabel.setVisible(false);
                 } else {
                     partitionRegExpDefaultLabel.setVisible(true);
+                }
+            } else { // KeyUp event in a reg exp textbox input.
+                if (!isEmptyRegExps(regExpsPanel)) {
+                    regExpDefaultLabel.setVisible(false);
+                } else {
+                    regExpDefaultLabel.setVisible(true);
                 }
             }
         }
@@ -639,13 +647,13 @@ public class InputPanel extends Tab<VerticalPanel> {
             // thrown with both a regex and a logline.
             if (exception.hasRegex()) {
                 String regex = exception.getRegex();
-                // TODO: currently error handling only for primary regexps
-                // textarea, extend to all extra reg exp text area also.
+                // TODO: currently error handling only for first reg exps
+                // text box, extend to all extra reg exp text box also.
                 // Noted in Issue152
-                String regexes = primaryRegExpsTextBox.getText();
+                String regexes = ((TextBox)regExpsPanel.getWidget(0)).getText();
                 int pos = indexOf(regexes, regex);
-                primaryRegExpsTextBox.setFocus(true);
-                primaryRegExpsTextBox.setSelectionRange(pos, regex.length());
+                ((TextBox)regExpsPanel.getWidget(0)).setFocus(true);
+                ((TextBox)regExpsPanel.getWidget(0)).setSelectionRange(pos, regex.length());
             }
             if (exception.hasLogLine()) {
                 String log = exception.getLogLine();
