@@ -285,8 +285,8 @@ public class InputPanel extends Tab<VerticalPanel> {
         logTextArea.setValue("");
         regExpDefaultLabel.setVisible(true);
         for (int i = 0; i < regExpsPanel.getWidgetCount(); i++) {
-            HorizontalPanel panel = (HorizontalPanel)regExpsPanel.getWidget(i);
-            TextBox textBox = (TextBox)panel.getWidget(0);
+            HorizontalPanel currPanel = (HorizontalPanel)regExpsPanel.getWidget(i);
+            TextBox textBox = (TextBox)currPanel.getWidget(0);
             textBox.setValue("");
         }
         partitionRegExpTextBox.setValue("");
