@@ -208,21 +208,20 @@ public class SynopticService extends RemoteServiceServlet implements
     private GWTGraph PGraphToGWTGraph(PartitionGraph partGraph) {
         GWTGraph graph = new GWTGraph();
 
-        Set<Partition> nodes = partGraph.getNodes();
+        Set<Partition> nodeSet = partGraph.getNodes();
         HashMap<String, GWTNode> nodeIds = new HashMap<String, GWTNode>();
-        GWTNode gwtNode, adjGWTNode;
-        String pNodeEType;
+        GWTNode gwtPNode, adjGWTPNode;
         
         // Iterate through all the nodes in the pGraph
-        for (Partition pNode : nodes) {
-            pNodeEType = pNode.getEType().toString();
+        for (Partition pNode : nodeSet) {
+            String pNodeEType = pNode.getEType().toString();
             // Add the pNode to the GWTGraph
             if (nodeIds.containsKey(pNodeEType)) {
-                gwtNode = nodeIds.get(pNodeEType);
+                gwtPNode = nodeIds.get(pNodeEType);
             } else {
-                gwtNode = new GWTNode(pNodeEType);
-                nodeIds.put(pNodeEType, gwtNode);
-                graph.addNode(gwtNode);
+                gwtPNode = new GWTNode(pNodeEType);
+                nodeIds.put(pNodeEType, gwtPNode);
+                graph.addNode(gwtPNode);
             }
 
             /*
@@ -240,13 +239,13 @@ public class SynopticService extends RemoteServiceServlet implements
                 String adjPNodeEType = adjPNode.getEType().toString();
                 
                 if (nodeIds.containsKey(adjPNodeEType)) {
-                    adjGWTNode = nodeIds.get(adjPNodeEType);
+                    adjGWTPNode = nodeIds.get(adjPNodeEType);
                 } else {
                     // Add the node to the graph so it can be connected
                     // if it doesn't exist.
-                    adjGWTNode = new GWTNode(adjPNodeEType);
-                    nodeIds.put(adjPNodeEType, adjGWTNode);
-                    graph.addNode(adjGWTNode);
+                    adjGWTPNode = new GWTNode(adjPNodeEType);
+                    nodeIds.put(adjPNodeEType, adjGWTPNode);
+                    graph.addNode(adjGWTPNode);
                 }
 
                 // Truncate the last three digits to make the weight more
@@ -255,7 +254,7 @@ public class SynopticService extends RemoteServiceServlet implements
                         .ceil(wTransition.getFraction() * 1000) / 1000;
 
                 // Add the complete weighted edge
-                graph.addEdge(gwtNode, adjGWTNode, transitionFrac);
+                graph.addEdge(gwtPNode, adjGWTPNode, transitionFrac);
             }
         }
         return graph;
@@ -494,7 +493,7 @@ public class SynopticService extends RemoteServiceServlet implements
         }
         PartitionMultiSplit last = pGraph.getMostRecentSplit();
 
-        int refinedNode = last.getPartition().hashCode();
+        GWTNode refinedNode = new GWTNode(last.getPartition().getEType().toString());
 
         // Because we've created new objects on top of older objects we need to
         // store the state explicitly.

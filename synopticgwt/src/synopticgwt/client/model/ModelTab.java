@@ -164,11 +164,11 @@ public class ModelTab extends Tab<DockPanel> {
         // modelPanel.addEast(graphPanel, 70);
         panel.add(graphPanel, DockPanel.CENTER);
         // Create the list of graph node labels and their Ids.
-        HashSet<GWTNode> nodes = graph.getNodes();
+        HashSet<GWTNode> nodeSet = graph.getNodes();
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
-        for (GWTNode node : nodes) {
+        for (GWTNode node : nodeSet) {
             JsniUtil.pushArray(jsNodes, ((Integer) node.hashCode()).toString());
-            JsniUtil.pushArray(jsNodes, nodes.toString());
+            JsniUtil.pushArray(jsNodes, node.toString());
         }
 
         // Create the list of edges, where two consecutive node Ids is an edge.
@@ -205,24 +205,24 @@ public class ModelTab extends Tab<DockPanel> {
      * @param refinedNode
      *            the refined node's id
      */
-    public void showChangingGraph(GWTGraph graph, int refinedNode) {
-        HashSet<GWTNode> nodes = graph.getNodes();
+    public void showChangingGraph(GWTGraph graph, GWTNode refinedNode) {
+        HashSet<GWTNode> nodeSet = graph.getNodes();
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
-        for (GWTNode node : nodes) {
+        for (GWTNode node : nodeSet) {
             JsniUtil.pushArray(jsNodes, ((Integer) node.hashCode()).toString());
-            JsniUtil.pushArray(jsNodes, nodes.toString());
+            JsniUtil.pushArray(jsNodes, node.toString());
         }
 
         // Create the list of edges, where two consecutive node Ids is an edge.
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
-        List<GWTEdge> edges = graph.getEdges();
-        for (GWTEdge edge : edges) {
+        List<GWTEdge> edgeList = graph.getEdges();
+        for (GWTEdge edge : edgeList) {
             JsniUtil.pushArray(jsEdges, edge.getSrc().toString());
             JsniUtil.pushArray(jsEdges, edge.getDst().toString());
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
         }
 
-        ModelGraphic.createChangingGraph(jsNodes, jsEdges, refinedNode,
+        ModelGraphic.createChangingGraph(jsNodes, jsEdges, refinedNode.hashCode(),
                 canvasId);
     }
 

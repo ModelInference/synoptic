@@ -4,8 +4,6 @@ import java.io.Serializable;
 
 public class GWTNode implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    private volatile int hashCode;
 
     private String eType = null;
 
@@ -30,16 +28,11 @@ public class GWTNode implements Serializable {
         GWTNode o = (GWTNode) other;
         return o.toString().equals(this.toString());
     }
-    
+
     @Override
     public int hashCode() {
-        // Lazily evaluate hash code.
-        int result = hashCode;
-        if (result == 0) {
-            result = 17;
-            result = 31 * result + eType.hashCode();
-            hashCode = result;
-        }
+        int result = 17;
+        result = 31 * result + eType.hashCode();
         return result;
     }
 
