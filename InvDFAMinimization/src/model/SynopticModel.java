@@ -10,43 +10,38 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.Transition;
 
 public class SynopticModel extends EncodedAutomaton {
-    private Map<Partition, State> preEventState;
 
     public SynopticModel(PartitionGraph synoptic) {
 
-        preEventState = new HashMap<Partition, State>();
+        Map<Partition, State> preEventStates = new HashMap<Partition, State>();
 
         State initial = new State();
 
         for (Partition initialPartition : synoptic.getDummyInitialNodes()) {
-            convert(initialPartition, initial);
+            convert(initialPartition, initial, preEventStates);
         }
 
         super.setInitialState(initial);
     }
 
     /*
-     * TODO: incorporate kTails algorithm for ease in modifying k later.
-     * 
-     * @param eventNode the partition we're currently interested in converting
-     * 
-     * @param prev the state we're transitioning from, will need to make a new
-     * transition from prev represented by the eventNode partition.
-     * 
-     * @param visited the set of partitions we've already seen
-     * 
-     * @param preEventState mapping from previously seen partitions to their
-     * source states
+     * Converts the given partition into a transition from the given prev state
+     * to either a fresh state or the state before this partition's original
+     * transition if we've explored this partition before. If we have not
+     * explored this partition before, we then explore this partition's
+     * children.
      */
-    private void convert(Partition eventNode, State prev) {
+    private void convert(Partition eventNode, State prev,
+            Map<Partition, State> preEventStates) {
 
-        // We've already seen eventNode, and should transition from prev to the
-        // pre-state stored in preEventState.
-        if (preEventState.containsKey(eventNode)) {
+        if (preEventStates.containsKey(eventNode)) {
+            // We've already seen eventNode, and should transition from prev to
+            // the pre-state stored in preEventStates.
 
             dk.brics.automaton.Transition t = new dk.brics.automaton.Transition(
                     super.getEncoding(eventNode.getEType().toString()),
-                    preEventState.get(eventNode));
+                    preEventStates.get(eventNode));
+
             prev.addTransition(t);
 
         } else {
@@ -56,14 +51,17 @@ public class SynopticModel extends EncodedAutomaton {
             dk.brics.automaton.Transition t = new dk.brics.automaton.Transition(
                     super.getEncoding(eventNode.getEType().toString()), next);
 
-            preEventState.put(eventNode, next);
+            preEventStates.put(eventNode, next);
             prev.addTransition(t);
 
             if (eventNode.getEType().isTerminalEventType()) {
                 next.setAccept(true);
             }
+
+            // Convert child partitions, who should transition from the 'next'
+            // state.
             for (Transition<Partition> synTrans : eventNode.getTransitions()) {
-                convert(synTrans.getTarget(), next);
+                convert(synTrans.getTarget(), next, preEventStates);
             }
         }
     }
