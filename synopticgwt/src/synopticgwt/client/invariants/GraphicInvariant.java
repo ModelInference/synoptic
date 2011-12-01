@@ -1,8 +1,7 @@
 package synopticgwt.client.invariants;
 
 /**
- * This exists so we can have a simple interface to use in GraphicEvent for
- * highlighting Concurrent and Ordered invariants.
+ * An interface for use by GraphicEvent to highlight PO and TO invariants.
  * 
  * @author t101jv
  */
@@ -11,7 +10,9 @@ public interface GraphicInvariant {
 
     public void highlightOff();
     
+    // Sets GraphicInvariant to be drawn on the graph
     public void show();
     
+    // Sets GraphicInvariant to be invisible on the graph
     public void hide();
 }

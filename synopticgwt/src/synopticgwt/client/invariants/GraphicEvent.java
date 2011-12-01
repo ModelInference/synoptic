@@ -20,8 +20,10 @@ public class GraphicEvent implements Serializable, MouseHover {
     /** Incident OrderedInvariants and transitive ConcurrentInvariants */
     private List<GraphicInvariant> invariants;
     /** Invariant partition this event is concurrent with */
+    // Null if this is not part of an AC partition
     private GraphicConcurrencyPartition ACpartition;
     /** Event partition this event is never concurrent with */
+    // Null if this is not part of a NC partition
     private GraphicNonConcurrentPartition NCPartition;
     private String event;
 
@@ -140,16 +142,26 @@ public class GraphicEvent implements Serializable, MouseHover {
         return event;
     }
     
-    /** Assumes this is only being compared with graphic events in the same
-     * graphical column.
-     */
     @Override
     public boolean equals(Object o) {
+        /* 
+         * Assumes this is only being equated with graphic events in the same
+         * graphical column which has no event duplicates.
+         */
         if (o instanceof GraphicEvent) {
             GraphicEvent otherEvent = (GraphicEvent) o;
             return getEvent().equals(otherEvent.getEvent());
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        /*
+         * Assumes this is only being hashed against graphic events in the same
+         * graphical column which has no event duplicates.
+         */
+        return getEvent().hashCode();
     }
 
 }
