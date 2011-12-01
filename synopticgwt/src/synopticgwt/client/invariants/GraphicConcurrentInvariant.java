@@ -5,40 +5,43 @@ import java.io.Serializable;
 import synopticgwt.shared.GWTInvariant;
 
 /**
- * Graphic model representing a concurrent GWTInvariant, relates two 
- * GraphicEvents representing the source and destination of the invariant
+ * Graphic model representing a concurrent GWTInvariant, relates two
+ * GraphicEvents representing the source and destination of the invariant. This
+ * represents a PO invariant, as opposed to a TO invariant. This is used by the
+ * InvariantsGraph. A set of ACwith invariants are represented by
+ * GraphicConcurrencyPartition. A set of NCwith invariants are represented by
+ * GraphicNonConcurrentPartition
  */
 public class GraphicConcurrentInvariant implements Serializable,
         GraphicInvariant {
 
-    /**
-	 * 
-	 */
     private static final long serialVersionUID = 1L;
 
-    /** Events are labeled src and dst for simplicity, as opposed to a and b 
-     * but this relationship doesn't really exist since concurrency is
-     * commutative.
+    /**
+     * Events are labeled a and b for simplicity, as opposed to src and dst.
+     * A source and destination relationship is a confusing way to describe
+     * these events because it is an asymmetric relationship whereas
+     * concurrency is a symmetric relationship.
      */
-    private GraphicEvent src;
-    private GraphicEvent dst;
+    private GraphicEvent a;
+    private GraphicEvent b;
     /** GWTInvariant object that this represents */
     private GWTInvariant gwtInv;
     private InvariantGridLabel iGridLabel;
     private boolean visible;
 
-    /** Constructs a GraphicInvariant for GWTinv over src and dst on paper */
-    public GraphicConcurrentInvariant(GraphicEvent src, GraphicEvent dst,
+    /** Constructs a GraphicInvariant for GWTinv over a and b on paper */
+    public GraphicConcurrentInvariant(GraphicEvent a, GraphicEvent b,
             GWTInvariant gwtInv, InvariantGridLabel iGridLabel) {
-        this.src = src;
-        this.dst = dst;
+        this.a = a;
+        this.b = b;
         this.gwtInv = gwtInv;
         this.iGridLabel = iGridLabel;
         this.visible = true;
     }
 
     /**
-     * Allows this invariant to be highlighted when involved in a mouseover 
+     * Allows this invariant to be highlighted when involved in a mouseover
      * event
      */
     public void show() {
@@ -46,8 +49,8 @@ public class GraphicConcurrentInvariant implements Serializable,
     }
 
     /**
-     * Prevents this invariant from being highlighted when involved in a mouseover 
-     * event
+     * Prevents this invariant from being highlighted when involved in a
+     * mouseover event
      */
     public void hide() {
         visible = false;
@@ -56,15 +59,15 @@ public class GraphicConcurrentInvariant implements Serializable,
     public boolean isVisible() {
         return visible;
     }
-    
+
     public void highlightConcurrent() {
-        src.highlightConcurrent();
-        dst.highlightConcurrent();
+        a.highlightConcurrent();
+        b.highlightConcurrent();
     }
-    
+
     public void highlightNeverConcurrent() {
-        src.highlightNeverConcurrent();
-        dst.highlightNeverConcurrent();
+        a.highlightNeverConcurrent();
+        b.highlightNeverConcurrent();
     }
 
     @Override
@@ -85,44 +88,53 @@ public class GraphicConcurrentInvariant implements Serializable,
 
     @Override
     public void highlightOff() {
-        src.highlightDefault();
-        dst.highlightDefault();
+        a.highlightDefault();
+        b.highlightDefault();
         iGridLabel.highlightOff();
     }
-    
+
     public GWTInvariant getGWTInvariant() {
         return gwtInv;
     }
-    
-    /** Equal if the underlying GWTInvariant is equal */
+   
     @Override
     public boolean equals(Object o) {
+        /* Equal if the underlying GWTInvariant is equal */
         if (o instanceof GraphicConcurrentInvariant) {
             GraphicConcurrentInvariant otherInv = (GraphicConcurrentInvariant) o;
             return getGWTInvariant().equals(otherInv.getGWTInvariant());
         }
         return false;
     }
-    
-    public GraphicEvent getSrc() {
-        return src;
+
+    public GraphicEvent getA() {
+        return a;
     }
-    
-    public GraphicEvent getDst() {
-        return dst;
+
+    public GraphicEvent getB() {
+        return b;
     }
-    
-    /** Returns whether or not the two invariants share a mutual graphic 
-     * event 
+
+    /**
+     * Return whether or not there is a transitive implication between this and
+     * gcInv. For example if this = a AC b and gcInv = c AC b, then 
+     * isTransitive would return true since this and gcInv are transitively
+     * related through b.
+     * 
+     * @param gcInv
+     * @return
      */
     public boolean isTransitive(GraphicConcurrentInvariant gcInv) {
-        GraphicEvent otherA = gcInv.getSrc();
-        GraphicEvent otherB = gcInv.getDst();
+        /*
+         * Returns whether or not the two invariants share a mutual graphic event
+         */
+        GraphicEvent otherA = gcInv.getA();
+        GraphicEvent otherB = gcInv.getB();
         boolean result = false;
-        result = result || otherA.equals(getSrc());
-        result = result || otherA.equals(getDst());
-        result = result || otherB.equals(getSrc());
-        result = result || otherB.equals(getDst());
+        result = result || otherA.equals(getA());
+        result = result || otherA.equals(getB());
+        result = result || otherB.equals(getA());
+        result = result || otherB.equals(getB());
         return result;
     }
 
