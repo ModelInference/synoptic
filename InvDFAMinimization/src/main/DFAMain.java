@@ -1,7 +1,10 @@
 package main;
 
+import java.io.IOException;
+
 import model.InvModel;
 import model.InvsModel;
+import model.SynopticModel;
 
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TOInitialTerminalInvariant;
@@ -43,7 +46,7 @@ public class DFAMain {
         // Intersect with initial/terminal InvModel.
         /*
          * TODO: Replace once getInitial and getTerminal are implemented (Issue
-         * 173) EventType initial = initialModel.getInitialEvent(); EventType
+         * 173). EventType initial = initialModel.getInitialEvent(); EventType
          * terminal = initialModel.getTerminalEvent();
          */
         EventType initial = StringEventType.newInitialStringEventType();
@@ -65,6 +68,26 @@ public class DFAMain {
 
         // Export final model.
         dfa.exportDotAndPng(opts.finalModelFile);
+
+        // Export the translated Synoptic model.
+        exportAndTranslateSynopticModel(synMain, initialModel,
+                "convertedSynModel");
+    }
+
+    /**
+     * Runs Synoptic on the given partition graph, then converts the synoptic
+     * result to a dfa for export.
+     */
+    public static void exportAndTranslateSynopticModel(Main synMain,
+            PartitionGraph initialModel, String filename) throws IOException {
+
+        // Run synoptic on the initial model, initial model becomes final model.
+        synMain.runSynoptic(initialModel);
+
+        // Convert
+        SynopticModel convertedDfa = new SynopticModel(initialModel);
+        convertedDfa.minimize();
+        convertedDfa.exportDotAndPng(filename);
     }
 
     /**
