@@ -211,7 +211,7 @@ public class SynopticService extends RemoteServiceServlet implements
         Set<Partition> nodeSet = partGraph.getNodes();
         HashMap<String, GWTNode> nodeIds = new HashMap<String, GWTNode>();
         GWTNode gwtPNode, adjGWTPNode;
-        
+
         // Iterate through all the nodes in the pGraph
         for (Partition pNode : nodeSet) {
             String pNodeEType = pNode.getEType().toString();
@@ -219,7 +219,7 @@ public class SynopticService extends RemoteServiceServlet implements
             if (nodeIds.containsKey(pNodeEType)) {
                 gwtPNode = nodeIds.get(pNodeEType);
             } else {
-                gwtPNode = new GWTNode(pNodeEType);
+                gwtPNode = new GWTNode(pNodeEType, pNode.hashCode());
                 nodeIds.put(pNodeEType, gwtPNode);
                 graph.addNode(gwtPNode);
             }
@@ -235,14 +235,16 @@ public class SynopticService extends RemoteServiceServlet implements
             // transition, and add that to the graph's edge.
             for (WeightedTransition<Partition> wTransition : adjacents) {
                 // The current adjacent partition's Event Type (as a string).
-                String adjPNodeEType = wTransition.getTarget().getEType().toString();
-                
+                String adjPNodeEType = wTransition.getTarget().getEType()
+                        .toString();
+
                 if (nodeIds.containsKey(adjPNodeEType)) {
                     adjGWTPNode = nodeIds.get(adjPNodeEType);
                 } else {
                     // Add the node to the graph so it can be connected
                     // if it doesn't exist.
-                    adjGWTPNode = new GWTNode(adjPNodeEType);
+                    adjGWTPNode = new GWTNode(adjPNodeEType, wTransition
+                            .getTarget().hashCode());
                     nodeIds.put(adjPNodeEType, adjGWTPNode);
                     graph.addNode(adjGWTPNode);
                 }
@@ -492,7 +494,8 @@ public class SynopticService extends RemoteServiceServlet implements
         }
         PartitionMultiSplit last = pGraph.getMostRecentSplit();
 
-        GWTNode refinedNode = new GWTNode(last.getPartition().getEType().toString());
+        GWTNode refinedNode = new GWTNode(last.getPartition().getEType()
+                .toString(), last.getPartition().hashCode());
 
         // Because we've created new objects on top of older objects we need to
         // store the state explicitly.
