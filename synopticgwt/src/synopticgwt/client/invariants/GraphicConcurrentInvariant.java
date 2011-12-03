@@ -5,10 +5,9 @@ import java.io.Serializable;
 import synopticgwt.shared.GWTInvariant;
 
 /**
- * Graphic model representing a concurrent GWTInvariant, relates two
- * GraphicEvents representing the source and destination of the invariant. This
- * represents a PO invariant, as opposed to a TO invariant. This is used by the
- * InvariantsGraph. A set of ACwith invariants are represented by
+ * A graphic model (representing a GWTInvariant) that relates two concurrent
+ * events. This represents a PO invariant, as opposed to a TO invariant. This is
+ * used by the InvariantsGraph. A set of ACwith invariants are represented by
  * GraphicConcurrencyPartition. A set of NCwith invariants are represented by
  * GraphicNonConcurrentPartition
  */
@@ -17,16 +16,13 @@ public class GraphicConcurrentInvariant implements Serializable,
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Events are labeled a and b for simplicity, as opposed to src and dst.
-     * A source and destination relationship is a confusing way to describe
-     * these events because it is an asymmetric relationship whereas
-     * concurrency is a symmetric relationship.
-     */
+    /** The two events that are related by this invariant. */
     private GraphicEvent a;
     private GraphicEvent b;
+
     /** GWTInvariant object that this represents */
     private GWTInvariant gwtInv;
+
     private InvariantGridLabel iGridLabel;
     private boolean visible;
 
@@ -42,7 +38,7 @@ public class GraphicConcurrentInvariant implements Serializable,
 
     /**
      * Allows this invariant to be highlighted when involved in a mouseover
-     * event
+     * event.
      */
     public void show() {
         visible = true;
@@ -96,10 +92,10 @@ public class GraphicConcurrentInvariant implements Serializable,
     public GWTInvariant getGWTInvariant() {
         return gwtInv;
     }
-   
+
     @Override
     public boolean equals(Object o) {
-        /* Equal if the underlying GWTInvariant is equal */
+        // Equal if the underlying GWTInvariant is equal.
         if (o instanceof GraphicConcurrentInvariant) {
             GraphicConcurrentInvariant otherInv = (GraphicConcurrentInvariant) o;
             return getGWTInvariant().equals(otherInv.getGWTInvariant());
@@ -117,17 +113,14 @@ public class GraphicConcurrentInvariant implements Serializable,
 
     /**
      * Return whether or not there is a transitive implication between this and
-     * gcInv. For example if this = a AC b and gcInv = c AC b, then 
-     * isTransitive would return true since this and gcInv are transitively
-     * related through b.
+     * gcInv. For example if this = a AC b and gcInv = c AC b, then isTransitive
+     * would return true since this and gcInv are transitively related through
+     * b. Otherwise, returns false.
      * 
      * @param gcInv
      * @return
      */
     public boolean isTransitive(GraphicConcurrentInvariant gcInv) {
-        /*
-         * Returns whether or not the two invariants share a mutual graphic event
-         */
         GraphicEvent otherA = gcInv.getA();
         GraphicEvent otherB = gcInv.getB();
         boolean result = false;

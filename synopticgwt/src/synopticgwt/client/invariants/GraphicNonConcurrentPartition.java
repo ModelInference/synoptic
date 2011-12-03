@@ -4,22 +4,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * What's this for? Why not use GraphicConcurrencyPartition? Events that are
- * always concurrent with each other have a nice transitive relationship where
- * if a AC b and b AC c, then a AC c. Events that are never concurrent don't.
- * For never concurrent events, a NC b and b NC c does not imply a NC c
+ * This class contains the set of all NCwith invariants that implicate a
+ * particular baseEvent. This set of invariants is used to compactly present
+ * this set of relationships to the user. For example, the set of invariant is
+ * highlighted whenever the user mouses-over the baseEvent in the
+ * InvariantsGraph. Unlike GraphicConcurrencyPartition, NCwith invariants, the
+ * set of which are represented by this class, do _not_ have a transitive
+ * property.
  * 
  * @author t101jv
  */
 public class GraphicNonConcurrentPartition {
-    /*
-     * This class written with respect to a single GraphicEvent -- baseEvent
-     * below. It contains the set of all NCwith invariants that implicate the
-     * baseEvent. This set of invariants is used to compactly present this set
-     * of relationships to the user. For example, the set of invariant is
-     * highlighted whenever the user mouses-over the baseEvent in the
-     * InvariantsGraph.
-     */
+
     private GraphicEvent baseEvent;
     private Set<GraphicConcurrentInvariant> NCInvs;
 
