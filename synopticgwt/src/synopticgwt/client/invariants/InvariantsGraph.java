@@ -191,8 +191,8 @@ public class InvariantsGraph {
 
         /*
          * Draws a time arrow and label below the GraphicEvents from the left
-         * column to the right column with a little magic and hardcoding to make
-         * things pretty
+         * column to the right column with a little magic and hard-coding to
+         * make things pretty
          */
         int timeArrowYCoord = TOP_MARGIN + EVENT_PADDING
                 * eventTypesList.size() - 25;
@@ -234,7 +234,7 @@ public class InvariantsGraph {
 
     /**
      * Takes a list of ACWith invariants and partitions them into sets of
-     * invariants that are transitively concurrent
+     * invariants that are closed under transitivity.
      * 
      * @param ncwithInvs
      * @return
@@ -260,8 +260,8 @@ public class InvariantsGraph {
     }
 
     /**
-     * Draws TO invs from srcCol to dstCol on paper and links the generated
-     * invariants to their corresponding grid labels.
+     * Draws TO invariants from srcCol to dstCol on paper and links the
+     * generated invariants to their corresponding grid labels.
      * 
      * @param invs
      * @param srcCol
@@ -296,8 +296,8 @@ public class InvariantsGraph {
     }
 
     /**
-     * Draws PO invs within col on paper and links the generated invariants to
-     * their corresponding grid labels.
+     * Draws PO invariants within a column on paper and links the generated
+     * invariants to their corresponding grid labels.
      * 
      * @param invs
      * @param col

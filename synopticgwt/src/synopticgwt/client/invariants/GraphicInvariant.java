@@ -9,10 +9,10 @@ public interface GraphicInvariant {
     public void highlightOn();
 
     public void highlightOff();
-    
-    // Sets GraphicInvariant to be drawn on the graph
+
+    /** Sets GraphicInvariant to be visible on the graph. */
     public void show();
-    
-    // Sets GraphicInvariant to be invisible on the graph
+
+    /** Sets GraphicInvariant to be invisible on the graph. */
     public void hide();
 }

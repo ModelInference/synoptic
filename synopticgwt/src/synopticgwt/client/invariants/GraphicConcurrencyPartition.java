@@ -4,11 +4,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Represents a set of concurrent ACWith invariants. Concurrency is defined as:
- * For any ACWith invariants i, j where each invariant has a src and a dst
- * event, i.src is always concurrent with j.src and j.dst, and i.dst is always
- * concurrent with j.src and j.dst. The invariant defined over this class is that
- * for any invariants k, l in the partition, k and l are concurrent.
+ * Represents a set of ACWith invariants, closed under transitive closure. That
+ * is, if a and b are in the set, and b ACWith c, then c is also in the set.
+ * That is, a ACwith c.
  */
 public class GraphicConcurrencyPartition {
     /** Set of concurrent invariants */
@@ -19,7 +17,9 @@ public class GraphicConcurrencyPartition {
     }
 
     /**
-     * Adds gci to the partition if it's concurrent or empty
+     * Adds a gci to the partition if one of the event types is (transitively)
+     * concurrent with at least one of the event types in this partition. If
+     * not, then this is a noop.
      * 
      * @param gci
      * @return
@@ -35,17 +35,15 @@ public class GraphicConcurrencyPartition {
     }
 
     /**
-     * Determines whether or not gci is concurrent with this partition.
+     * Determines whether or not an event type in the gci is (transitively)
+     * concurrent with at least one of the event types in this partition.
      * 
      * @param gci
      * @return
      */
     public boolean isTransitive(GraphicConcurrentInvariant gci) {
-        /*
-         * Finding a single invariant in the partition that gci is concurrent
-         * with implies gci is concurrent with every other invariant and
-         * therefore the partition by transitivity.
-         */
+        // Loop through all invariants, trying to find one that matches the
+        // event type of this gci.
         for (GraphicConcurrentInvariant gcInv : concurrentInvs) {
             if (gcInv.isTransitive(gci)) {
                 return true;
