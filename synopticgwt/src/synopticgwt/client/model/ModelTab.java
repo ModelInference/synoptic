@@ -167,15 +167,18 @@ public class ModelTab extends Tab<DockPanel> {
         HashSet<GWTNode> nodeSet = graph.getNodes();
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
         for (GWTNode node : nodeSet) {
-            JsniUtil.pushArray(jsNodes, ((Integer) node.hashCode()).toString());
+            JsniUtil.pushArray(jsNodes,
+                    ((Integer) node.getPartitionNodeHashCode()).toString());
             JsniUtil.pushArray(jsNodes, node.toString());
         }
 
         // Create the list of edges, where two consecutive node Ids is an edge.
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
         for (GWTEdge edge : graph.getEdges()) {
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc().hashCode()).toString());
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst().hashCode()).toString());
+            JsniUtil.pushArray(jsEdges,
+                    ((Integer) edge.getSrc().getPartitionNodeHashCode()).toString());
+            JsniUtil.pushArray(jsEdges,
+                    ((Integer) edge.getDst().getPartitionNodeHashCode()).toString());
 
             // This contains the edge's weight.
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
@@ -209,7 +212,8 @@ public class ModelTab extends Tab<DockPanel> {
         HashSet<GWTNode> nodeSet = graph.getNodes();
         JavaScriptObject jsNodes = JavaScriptObject.createArray();
         for (GWTNode node : nodeSet) {
-            JsniUtil.pushArray(jsNodes, ((Integer) node.hashCode()).toString());
+            JsniUtil.pushArray(jsNodes,
+                    ((Integer) node.getPartitionNodeHashCode()).toString());
             JsniUtil.pushArray(jsNodes, node.toString());
         }
 
@@ -217,13 +221,15 @@ public class ModelTab extends Tab<DockPanel> {
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
         List<GWTEdge> edgeList = graph.getEdges();
         for (GWTEdge edge : edgeList) {
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc().hashCode()).toString());
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst().hashCode()).toString());
+            JsniUtil.pushArray(jsEdges,
+                    ((Integer) edge.getSrc().getPartitionNodeHashCode()).toString());
+            JsniUtil.pushArray(jsEdges,
+                    ((Integer) edge.getDst().getPartitionNodeHashCode()).toString());
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
         }
 
-        ModelGraphic.createChangingGraph(jsNodes, jsEdges, refinedNode.hashCode(),
-                canvasId);
+        ModelGraphic.createChangingGraph(jsNodes, jsEdges,
+                refinedNode.hashCode(), canvasId);
     }
 
     /** Called when the request to get log lines for a partition failed. */
