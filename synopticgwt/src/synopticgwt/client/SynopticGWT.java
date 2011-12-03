@@ -165,18 +165,21 @@ public class SynopticGWT implements EntryPoint {
     }
 
     /**
-     * Fired by SynopticTabPanel _before_ the tab is selected.
+     * Fired by SynopticTabPanel _before_ the tab is selected. We capture this
+     * event for two reasons: (1) cancel the event in case the tab is disabled,
+     * and (2) to track the event for analytics.
      */
     public void tabBeforeSelected(BeforeSelectionEvent<Integer> event) {
         if (!tabIndexToTab.containsKey(event.getItem())) {
             return;
         }
-
+        // 1. Check if the tab is enabled. If not, cancel the event.
         Tab<?> t = tabIndexToTab.get(event.getItem());
         if (!t.isEnabled()) {
             event.cancel();
             return;
         }
+        // 2. Only track the event if it has not been canceled.
         AnalyticsTracker.trackEvent(t.trackerCategoryName, "selected",
                 "navigation");
     }
@@ -234,6 +237,8 @@ public class SynopticGWT implements EntryPoint {
         invTab.setEnabled(true);
         invTab.showInvariants(logInvs);
 
+        // TODO: Communicate whether we are processing a TO or a PO log
+        // explicitly, instead of through (initialModel =?= null).
         if (initialModel != null) {
             modelTab.setEnabled(true);
             // The modelTab MUST be made visible for showGraph() to work below.
@@ -243,6 +248,9 @@ public class SynopticGWT implements EntryPoint {
         } else {
             // Typically occurs if the log is partially ordered.
             tabPanel.selectTab(1);
+            modelTab.setEnabled(false);
+            // TODO: we also want to clear model state here, in the case
+            // that the prior generated model is large.
         }
     }
 }
