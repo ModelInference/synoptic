@@ -114,21 +114,28 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Save server state into the session object.
+     * Save server state into the global session object. This function assumes
+     * that this session is set appropriate.
      */
     private void storeSessionState() {
-        // Store all the state in the session.
-        if (session == null) {
+        storeSessionState(session);
+    }
+
+    /**
+     * Save server state into an explicitly given session object.
+     */
+    private void storeSessionState(HttpSession dstSession) {
+        if (dstSession == null) {
             return;
         }
 
-        session.setAttribute("partitionGraph", pGraph);
-        session.setAttribute("numSplitSteps", 0);
-        session.setAttribute("unsatInvs", unsatInvs);
-        session.setAttribute("minedInvs", minedInvs);
-        session.setAttribute("activeInvs", activeInvs);
-        session.setAttribute("traceGraph", traceGraph);
-        session.setAttribute("counterExampleTraces", counterExampleTraces);
+        dstSession.setAttribute("partitionGraph", pGraph);
+        dstSession.setAttribute("numSplitSteps", 0);
+        dstSession.setAttribute("unsatInvs", unsatInvs);
+        dstSession.setAttribute("minedInvs", minedInvs);
+        dstSession.setAttribute("activeInvs", activeInvs);
+        dstSession.setAttribute("traceGraph", traceGraph);
+        dstSession.setAttribute("counterExampleTraces", counterExampleTraces);
     }
 
     /**
@@ -357,7 +364,7 @@ public class SynopticService extends RemoteServiceServlet implements
             // Since we're in the TO case then we also initialize and store
             // refinement state.
             initializeRefinementState(minedInvs);
-            storeSessionState();
+            storeSessionState(getThreadLocalRequest().getSession());
             graph = PGraphToGWTGraph(pGraph);
 
         } else {

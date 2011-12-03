@@ -43,8 +43,9 @@ public class ModelResizeHandler implements ResizeHandler {
             public void run() {
                 // If the tab is active, resize the canvas
                 // and redraw the graph (with fancy animation).
-                if (modelTab.isEnabled())
+                if (modelTab.isEnabled()) {
                     modelTab.updateGraphPanel();
+                }
             }
         };
     }
