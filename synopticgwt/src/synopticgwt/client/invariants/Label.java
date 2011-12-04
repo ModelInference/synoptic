@@ -158,5 +158,10 @@ public class Label implements Serializable {
 	            };
         	} (hover));
     }-*/;
+    
+    public native int getWidth() /*-{
+        var label = this.@synopticgwt.client.invariants.Label::label;
+        return label.width;
+    }-*/;
 
 }

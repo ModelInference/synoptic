@@ -87,5 +87,9 @@ public class GraphicEvent implements Serializable, MouseHover {
 	public void setFill(String fill) {
 		label.setFill(fill);
 	}
+	
+	public int getWidth() {
+	    return label.getWidth();
+	}
 
 }
