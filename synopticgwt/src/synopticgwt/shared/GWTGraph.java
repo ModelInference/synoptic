@@ -14,9 +14,6 @@ public class GWTGraph implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public HashSet<GWTNode> nodeSet;
-
-    // The first int is the sourceID then the targetID, and then the edge
-    // weight.
     public List<GWTEdge> edges;
 
     public GWTGraph() {

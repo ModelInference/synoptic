@@ -105,8 +105,6 @@ public class ModelGraphic {
      * when calling this method. Changes the size of the Raphael canvas and the
      * model div to the width and height of the parameters.
      * 
-     * @param canvasId
-     *            the div id with which to associate the resulting graph
      * @param width
      *            The new width of the graph's canvas.
      * @param height
