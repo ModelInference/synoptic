@@ -186,9 +186,11 @@ public class InvariantsGraph {
         for (GWTInvariant inv : invs) {
             String srcEventString = inv.getSource();
             GraphicEvent srcEvent = srcCol.get(srcEventString);
+            System.err.println("srcEvent width = " + srcEvent.getWidth());
 
             String dstEventString = inv.getTarget();
             GraphicEvent dstEvent = dstCol.get(dstEventString);
+            System.err.println("dstEvent width = " + dstEvent.getWidth());
 
             InvariantGridLabel iGridLabel = gwtInvToIGridLabel.get(inv);
 
