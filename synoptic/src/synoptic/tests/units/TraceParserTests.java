@@ -550,6 +550,13 @@ public class TraceParserTests extends SynopticTest {
         parser.parseTraceString(traceStr, null, -1);
     }
 
+    @Test(expected = ParseException.class)
+    public void parseEmptyRegExExceptionTest() throws ParseException {
+        String traceStr = "1,1,2 a\n1,1,2,3 b\n2,2,2 c\n";
+        parser.addRegex("");
+        parser.parseTraceString(traceStr, "test", -1);
+    }
+
     /**
      * Parse a log using a non-default TYPE.
      */
