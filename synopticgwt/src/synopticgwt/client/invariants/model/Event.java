@@ -1,9 +1,11 @@
-package synopticgwt.client.invariants;
+package synopticgwt.client.invariants.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import synopticgwt.client.invariants.InvariantsGraph;
+import synopticgwt.client.invariants.Label;
 import synopticgwt.client.util.MouseHover;
 import synopticgwt.client.util.Paper;
 
@@ -11,24 +13,24 @@ import synopticgwt.client.util.Paper;
  * Graphic model representing a logged event type Also a java representation of
  * a JavaScript text label on a Raphael canvas.
  */
-public class GraphicEvent implements Serializable, MouseHover {
+public class Event implements Serializable, MouseHover {
 
     private static final long serialVersionUID = 1L;
 
     /** Wrapped Raphael label object */
     private Label label;
     /** Incident OrderedInvariants and transitive ConcurrentInvariants */
-    private List<GraphicInvariant> invariants;
+    private List<Invariant> invariants;
     /**
      * Invariant partition this event is concurrent with. Null if this is not
      * part of an AC partition
      */
-    private GraphicConcurrencyPartition ACpartition;
+    private ACPartition ACpartition;
     /**
      * Event partition this event is never concurrent with. Null if this is not
      * part of a NC partition.
      */
-    private GraphicNonConcurrentPartition NCPartition;
+    private NCPartition NCPartition;
     private String event;
 
     /**
@@ -46,8 +48,8 @@ public class GraphicEvent implements Serializable, MouseHover {
      *            Raphael canvas to create event on
      */
 
-    public GraphicEvent(int x, int y, int fontSize, String event, Paper paper) {
-        this.invariants = new ArrayList<GraphicInvariant>();
+    public Event(int x, int y, int fontSize, String event, Paper paper) {
+        this.invariants = new ArrayList<Invariant>();
         this.label = new Label(paper, x, y, fontSize, event,
                 InvariantsGraph.DEFAULT_FILL);
         hide();
@@ -56,12 +58,12 @@ public class GraphicEvent implements Serializable, MouseHover {
         label.setMouseout(this);
     }
 
-    public void setACPartition(GraphicConcurrencyPartition ACPart) {
+    public void setACPartition(ACPartition ACPart) {
         show();
         this.ACpartition = ACPart;
     }
 
-    public void setNCPartition(GraphicNonConcurrentPartition NCPart) {
+    public void setNCPartition(NCPartition NCPart) {
         show();
         this.NCPartition = NCPart;
     }
@@ -85,7 +87,7 @@ public class GraphicEvent implements Serializable, MouseHover {
     }
 
     /** Adds gInv to the list of invariants incident to this event */
-    public void addInvariant(GraphicOrderedInvariant gInv) {
+    public void addInvariant(TOInvariant gInv) {
         if (invariants.size() == 0) {
             show();
         }
@@ -113,7 +115,7 @@ public class GraphicEvent implements Serializable, MouseHover {
      * ConcurrentInvariants, and the event itself on mouseover
      */
     public void mouseover() {
-        for (GraphicInvariant gi : invariants) {
+        for (Invariant gi : invariants) {
             gi.highlightOn();
         }
         if (ACpartition != null)
@@ -128,7 +130,7 @@ public class GraphicEvent implements Serializable, MouseHover {
      * transitive ConcurrentInvariants, and the event itself on mouseout
      */
     public void mouseout() {
-        for (GraphicInvariant gi : invariants) {
+        for (Invariant gi : invariants) {
             gi.highlightOff();
         }
         if (ACpartition != null)
@@ -152,8 +154,8 @@ public class GraphicEvent implements Serializable, MouseHover {
          * Assumes this is only being equated with graphic events in the same
          * graphical column which has no event duplicates.
          */
-        if (o instanceof GraphicEvent) {
-            GraphicEvent otherEvent = (GraphicEvent) o;
+        if (o instanceof Event) {
+            Event otherEvent = (Event) o;
             return getEvent().equals(otherEvent.getEvent());
         }
         return false;

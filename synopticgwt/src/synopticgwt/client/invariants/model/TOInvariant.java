@@ -1,40 +1,40 @@
-package synopticgwt.client.invariants;
+package synopticgwt.client.invariants.model;
 
 import java.io.Serializable;
 
+import synopticgwt.client.invariants.InvariantGridLabel;
 import synopticgwt.client.util.MouseHover;
 import synopticgwt.client.util.Paper;
 import synopticgwt.shared.GWTInvariant;
 
 /**
- * Graphic model representing an ordered GWTInvariant Relates two GraphicEvents
+ * Graphic model representing an ordered GWTInvariant Relates two Events
  * representing the source and destination of the invariant arrow with the
- * actual GraphicArrow
+ * actual Arrow
  */
-public class GraphicOrderedInvariant implements Serializable, MouseHover,
-        GraphicInvariant {
+public class TOInvariant implements Serializable, MouseHover, Invariant {
 
     private static final long serialVersionUID = 1L;
 
-    /** GraphicEvent where arrow originates */
-    private GraphicEvent src;
-    /** GraphicEvent where arrow terminates */
-    private GraphicEvent dst;
-    /** GraphicArrow between src and dst */
-    private GraphicArrow arrow;
+    /** Event where arrow originates */
+    private Event src;
+    /** Event where arrow terminates */
+    private Event dst;
+    /** Arrow between src and dst */
+    private Arrow arrow;
     /** GWTInvariant object that this represents */
     private GWTInvariant GWTinv;
     private InvariantGridLabel iGridLabel;
 
     private boolean visible;
 
-    /** Constructs a GraphicInvariant for GWTinv from src to dst on paper */
-    public GraphicOrderedInvariant(GraphicEvent src, GraphicEvent dst,
-            GWTInvariant GWTinv, Paper paper, InvariantGridLabel iGridLabel) {
+    /** Constructs a Invariant for GWTinv from src to dst on paper */
+    public TOInvariant(Event src, Event dst, GWTInvariant GWTinv, Paper paper,
+            InvariantGridLabel iGridLabel) {
         this.src = src;
         this.dst = dst;
-        this.arrow = new GraphicArrow(src.getX(), src.getY(), dst.getX(),
-                dst.getY(), paper);
+        this.arrow = new Arrow(src.getX(), src.getY(), dst.getX(), dst.getY(),
+                paper);
         arrow.setMouseover(this);
         arrow.setMouseout(this);
         this.GWTinv = GWTinv;
@@ -43,7 +43,7 @@ public class GraphicOrderedInvariant implements Serializable, MouseHover,
     }
 
     /**
-     * Makes the GraphicInvariant visible on the paper used to construct this
+     * Makes the Invariant visible on the paper used to construct this
      */
     public void show() {
         visible = true;
@@ -51,7 +51,7 @@ public class GraphicOrderedInvariant implements Serializable, MouseHover,
     }
 
     /**
-     * Makes the GraphicInvariant invisible on the paper used to construct this
+     * Makes the Invariant invisible on the paper used to construct this
      */
     public void hide() {
         visible = false;

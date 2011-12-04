@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import synopticgwt.client.invariants.model.Arrow;
+import synopticgwt.client.invariants.model.Event;
+import synopticgwt.client.invariants.model.ACPartition;
+import synopticgwt.client.invariants.model.NCPartition;
+import synopticgwt.client.invariants.model.POInvariant;
+import synopticgwt.client.invariants.model.TOInvariant;
 import synopticgwt.client.util.Paper;
 import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
@@ -45,22 +51,34 @@ public class InvariantsGraph {
     private Paper paper;
 
     /* Event columns */
-    private Map<String, GraphicEvent> leftEventCol;
-    private Map<String, GraphicEvent> midEventCol;
-    private Map<String, GraphicEvent> rightEventCol;
+    private Map<String, Event> leftEventCol;
+    private Map<String, Event> midEventCol;
+    private Map<String, Event> rightEventCol;
 
     /* Graphic Invariants */
-    private List<GraphicOrderedInvariant> apInvs;
-    private List<GraphicOrderedInvariant> afbyInvs;
-    private List<GraphicOrderedInvariant> nfbyInvs;
+    private List<TOInvariant> apInvs;
+    private List<TOInvariant> afbyInvs;
+    private List<TOInvariant> nfbyInvs;
 
-    /* Concurrency Partitions */
-    private List<GraphicConcurrencyPartition> leftACPartitions;
-    private List<GraphicConcurrencyPartition> midACPartitions;
-    private List<GraphicConcurrencyPartition> rightACPartitions;
-    private List<GraphicNonConcurrentPartition> leftNCPartitions;
-    private List<GraphicNonConcurrentPartition> midNCPartitions;
-    private List<GraphicNonConcurrentPartition> rightNCPartitions;
+    /*
+     * Concurrency Partitions, as of 12/4/11 these are all currently unused,
+     * however I am maintaining references to them here since InvariantsGraph is
+     * their client and the only other reference to them is in the GraphicEvent
+     * classes. If someone wants access to these data structures, this is
+     * probably where they should get it.
+     */
+    @SuppressWarnings("unused")
+    private List<ACPartition> leftACPartitions;
+    @SuppressWarnings("unused")
+    private List<ACPartition> midACPartitions;
+    @SuppressWarnings("unused")
+    private List<ACPartition> rightACPartitions;
+    @SuppressWarnings("unused")
+    private List<NCPartition> leftNCPartitions;
+    @SuppressWarnings("unused")
+    private List<NCPartition> midNCPartitions;
+    @SuppressWarnings("unused")
+    private List<NCPartition> rightNCPartitions;
 
     // TODO: Ideally this would refer to
     // synoptic.mode.EventType.initialNodeLabel. However, since this code runs
@@ -73,12 +91,12 @@ public class InvariantsGraph {
      * Creates an empty InvariantsGraph
      */
     public InvariantsGraph() {
-        this.leftEventCol = new HashMap<String, GraphicEvent>();
-        this.midEventCol = new HashMap<String, GraphicEvent>();
-        this.rightEventCol = new HashMap<String, GraphicEvent>();
-        this.apInvs = new ArrayList<GraphicOrderedInvariant>();
-        this.afbyInvs = new ArrayList<GraphicOrderedInvariant>();
-        this.nfbyInvs = new ArrayList<GraphicOrderedInvariant>();
+        this.leftEventCol = new HashMap<String, Event>();
+        this.midEventCol = new HashMap<String, Event>();
+        this.rightEventCol = new HashMap<String, Event>();
+        this.apInvs = new ArrayList<TOInvariant>();
+        this.afbyInvs = new ArrayList<TOInvariant>();
+        this.nfbyInvs = new ArrayList<TOInvariant>();
     }
 
     /**
@@ -144,15 +162,15 @@ public class InvariantsGraph {
         // draw graphic event type columns
         for (int i = 0; i < eventTypesList.size(); i++) {
             String eType = eventTypesList.get(i);
-            GraphicEvent leftEvent = new GraphicEvent(lX, EVENT_PADDING * i
+            Event leftEvent = new Event(lX, EVENT_PADDING * i
                     + TOP_MARGIN, fontSize, eType, paper);
             leftEventCol.put(eType, leftEvent);
 
-            GraphicEvent midEvent = new GraphicEvent(mX, EVENT_PADDING * i
+            Event midEvent = new Event(mX, EVENT_PADDING * i
                     + TOP_MARGIN, fontSize, eType, paper);
             midEventCol.put(eType, midEvent);
 
-            GraphicEvent rightEvent = new GraphicEvent(rX, EVENT_PADDING * i
+            Event rightEvent = new Event(rX, EVENT_PADDING * i
                     + TOP_MARGIN, fontSize, eType, paper);
             rightEventCol.put(eType, rightEvent);
         }
@@ -160,15 +178,15 @@ public class InvariantsGraph {
         for (String invType : invTypes) {
             List<GWTInvariant> invs = gwtInvs.getInvs(invType);
             if (invType.equals("AP")) {
-                List<GraphicOrderedInvariant> gInvs = drawTOInvariants(invs,
+                List<TOInvariant> gInvs = drawTOInvariants(invs,
                         leftEventCol, midEventCol, gwtInvToIGridLabel);
                 apInvs.addAll(gInvs);
             } else if (invType.equals("AFby")) {
-                List<GraphicOrderedInvariant> gInvs = drawTOInvariants(invs,
+                List<TOInvariant> gInvs = drawTOInvariants(invs,
                         midEventCol, rightEventCol, gwtInvToIGridLabel);
                 afbyInvs.addAll(gInvs);
             } else if (invType.equals("NFby")) {
-                List<GraphicOrderedInvariant> gInvs = drawTOInvariants(invs,
+                List<TOInvariant> gInvs = drawTOInvariants(invs,
                         midEventCol, rightEventCol, gwtInvToIGridLabel);
                 nfbyInvs.addAll(gInvs);
             } else if (invType.equals("ACwith")) {
@@ -196,7 +214,7 @@ public class InvariantsGraph {
          */
         int timeArrowYCoord = TOP_MARGIN + EVENT_PADDING
                 * eventTypesList.size() - 25;
-        GraphicArrow timeArrow = new GraphicArrow(lX, timeArrowYCoord, rX,
+        Arrow timeArrow = new Arrow(lX, timeArrowYCoord, rX,
                 timeArrowYCoord, paper, 0);
         timeArrow.setStroke("green", HIGHLIGHT_STROKE_WIDTH);
         int timeLabelYCoord = timeArrowYCoord + 25;
@@ -211,18 +229,18 @@ public class InvariantsGraph {
      * @param ncwithInvs
      * @return
      */
-    private List<GraphicNonConcurrentPartition> generateNCPartitions(
-            List<GraphicConcurrentInvariant> ncwithInvs) {
-        List<GraphicNonConcurrentPartition> ncPartitions = new ArrayList<GraphicNonConcurrentPartition>();
-        Set<GraphicEvent> ncEvents = new HashSet<GraphicEvent>();
-        for (GraphicConcurrentInvariant ncInv : ncwithInvs) {
+    private List<NCPartition> generateNCPartitions(
+            List<POInvariant> ncwithInvs) {
+        List<NCPartition> ncPartitions = new ArrayList<NCPartition>();
+        Set<Event> ncEvents = new HashSet<Event>();
+        for (POInvariant ncInv : ncwithInvs) {
             ncEvents.add(ncInv.getA());
             ncEvents.add(ncInv.getB());
         }
-        for (GraphicEvent ge : ncEvents) {
-            GraphicNonConcurrentPartition ncPart = new GraphicNonConcurrentPartition(
+        for (Event ge : ncEvents) {
+            NCPartition ncPart = new NCPartition(
                     ge);
-            for (GraphicConcurrentInvariant ncInv : ncwithInvs) {
+            for (POInvariant ncInv : ncwithInvs) {
                 if (ncPart.isInvariantOverBaseEvent(ncInv)) {
                     ncPart.add(ncInv);
                 }
@@ -239,19 +257,19 @@ public class InvariantsGraph {
      * @param ncwithInvs
      * @return
      */
-    private List<GraphicConcurrencyPartition> generateACPartitions(
-            List<GraphicConcurrentInvariant> acwithInvs) {
-        List<GraphicConcurrencyPartition> acPartitions = new ArrayList<GraphicConcurrencyPartition>();
-        for (GraphicConcurrentInvariant acInv : acwithInvs) {
+    private List<ACPartition> generateACPartitions(
+            List<POInvariant> acwithInvs) {
+        List<ACPartition> acPartitions = new ArrayList<ACPartition>();
+        for (POInvariant acInv : acwithInvs) {
             boolean inserted = false;
-            for (GraphicConcurrencyPartition acPart : acPartitions) {
+            for (ACPartition acPart : acPartitions) {
                 if (acPart.isTransitive(acInv)) {
                     acPart.add(acInv);
                     inserted = true;
                 }
             }
             if (!inserted) {
-                GraphicConcurrencyPartition singlePart = new GraphicConcurrencyPartition();
+                ACPartition singlePart = new ACPartition();
                 singlePart.add(acInv);
                 acPartitions.add(singlePart);
             }
@@ -269,21 +287,21 @@ public class InvariantsGraph {
      * @param gwtInvToIGridLabel
      * @return
      */
-    private List<GraphicOrderedInvariant> drawTOInvariants(
-            List<GWTInvariant> invs, Map<String, GraphicEvent> srcCol,
-            Map<String, GraphicEvent> dstCol,
+    private List<TOInvariant> drawTOInvariants(
+            List<GWTInvariant> invs, Map<String, Event> srcCol,
+            Map<String, Event> dstCol,
             Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel) {
-        List<GraphicOrderedInvariant> result = new ArrayList<GraphicOrderedInvariant>();
+        List<TOInvariant> result = new ArrayList<TOInvariant>();
         for (GWTInvariant inv : invs) {
             String srcEventString = inv.getSource();
-            GraphicEvent srcEvent = srcCol.get(srcEventString);
+            Event srcEvent = srcCol.get(srcEventString);
 
             String dstEventString = inv.getTarget();
-            GraphicEvent dstEvent = dstCol.get(dstEventString);
+            Event dstEvent = dstCol.get(dstEventString);
 
             InvariantGridLabel iGridLabel = gwtInvToIGridLabel.get(inv);
 
-            GraphicOrderedInvariant gInv = new GraphicOrderedInvariant(
+            TOInvariant gInv = new TOInvariant(
                     srcEvent, dstEvent, inv, paper, iGridLabel);
 
             iGridLabel.setGraphicInvariant(gInv);
@@ -304,20 +322,20 @@ public class InvariantsGraph {
      * @param gwtInvToIGridLabel
      * @return
      */
-    private List<GraphicConcurrentInvariant> drawPOInvariants(
-            List<GWTInvariant> invs, Map<String, GraphicEvent> col,
+    private List<POInvariant> drawPOInvariants(
+            List<GWTInvariant> invs, Map<String, Event> col,
             Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel) {
-        List<GraphicConcurrentInvariant> result = new ArrayList<GraphicConcurrentInvariant>();
+        List<POInvariant> result = new ArrayList<POInvariant>();
         for (GWTInvariant inv : invs) {
             String srcEventString = inv.getSource();
-            GraphicEvent srcEvent = col.get(srcEventString);
+            Event srcEvent = col.get(srcEventString);
 
             String dstEventString = inv.getTarget();
-            GraphicEvent dstEvent = col.get(dstEventString);
+            Event dstEvent = col.get(dstEventString);
 
             InvariantGridLabel iGridLabel = gwtInvToIGridLabel.get(inv);
 
-            GraphicConcurrentInvariant gInv = new GraphicConcurrentInvariant(
+            POInvariant gInv = new POInvariant(
                     srcEvent, dstEvent, inv, iGridLabel);
 
             iGridLabel.setGraphicInvariant(gInv);

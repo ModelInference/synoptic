@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 import com.google.gwt.user.client.ui.Label;
 
+import synopticgwt.client.invariants.model.Invariant;
 import synopticgwt.shared.GWTInvariant;
 
 /**
@@ -25,7 +26,7 @@ public class InvariantGridLabel extends Label {
     /* This is a list so we can point to multiple 
      * GraphicConcurrentInvariants
      */
-    private List<GraphicInvariant> gInvs;
+    private List<Invariant> gInvs;
     // T.101.JV: Activation state is stored in the invLabel, and should
     // probably instead be stored in the GWTInvariant
     private boolean active = true;
@@ -38,7 +39,7 @@ public class InvariantGridLabel extends Label {
         this.cForm = cForm;
         this.row = row;
         this.col = col;
-        this.gInvs = new ArrayList<GraphicInvariant>();
+        this.gInvs = new ArrayList<Invariant>();
         setActive(true);
     }
 
@@ -50,18 +51,18 @@ public class InvariantGridLabel extends Label {
         return inv.getActive();
     }
 
-    public void setGraphicInvariant(GraphicInvariant gInv) {
+    public void setGraphicInvariant(Invariant gInv) {
         gInvs.add(gInv);
     }
 
     public void setActive(boolean active) {
         if (!gInvs.isEmpty()) {
             if (active) {
-                for (GraphicInvariant gInv : gInvs) {
+                for (Invariant gInv : gInvs) {
                     gInv.show();
                 }
             } else {
-                for (GraphicInvariant gInv : gInvs) {
+                for (Invariant gInv : gInvs) {
                     gInv.hide();
                 }
             }
@@ -72,7 +73,7 @@ public class InvariantGridLabel extends Label {
 
     public void mouseOver() {
         if (!gInvs.isEmpty()) {
-            for (GraphicInvariant gInv : gInvs) {
+            for (Invariant gInv : gInvs) {
                 gInv.highlightOn();
             }
         }
@@ -80,7 +81,7 @@ public class InvariantGridLabel extends Label {
 
     public void mouseOut() {
         if (!gInvs.isEmpty()) {
-            for (GraphicInvariant gInv : gInvs) {
+            for (Invariant gInv : gInvs) {
                 gInv.highlightOff();
             }
         }
