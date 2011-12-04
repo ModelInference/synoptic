@@ -229,7 +229,7 @@ public class ModelTab extends Tab<DockPanel> {
         }
 
         ModelGraphic.createChangingGraph(jsNodes, jsEdges,
-                refinedNode.hashCode(), canvasId);
+                refinedNode.getPartitionNodeHashCode(), canvasId);
     }
 
     /** Called when the request to get log lines for a partition failed. */
@@ -418,6 +418,7 @@ public class ModelTab extends Tab<DockPanel> {
     public void getFinalModelFailure(Throwable caught) {
         pWheel.stopAnimation();
         displayRPCErrorMessage("Remote Procedure Call Failure while fetching final model");
+        caught.printStackTrace();
 
     }
 

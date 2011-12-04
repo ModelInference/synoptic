@@ -209,18 +209,18 @@ public class SynopticService extends RemoteServiceServlet implements
         GWTGraph graph = new GWTGraph();
 
         Set<Partition> nodeSet = partGraph.getNodes();
-        HashMap<String, GWTNode> nodeIds = new HashMap<String, GWTNode>();
+        HashMap<Integer, GWTNode> nodeIds = new HashMap<Integer, GWTNode>();
         GWTNode gwtPNode, adjGWTPNode;
 
         // Iterate through all the nodes in the pGraph
         for (Partition pNode : nodeSet) {
             String pNodeEType = pNode.getEType().toString();
             // Add the pNode to the GWTGraph
-            if (nodeIds.containsKey(pNodeEType)) {
-                gwtPNode = nodeIds.get(pNodeEType);
+            if (nodeIds.containsKey(pNode.hashCode())) {
+                gwtPNode = nodeIds.get(pNode.hashCode());
             } else {
                 gwtPNode = new GWTNode(pNodeEType, pNode.hashCode());
-                nodeIds.put(pNodeEType, gwtPNode);
+                nodeIds.put(pNode.hashCode(), gwtPNode);
                 graph.addNode(gwtPNode);
             }
 
@@ -234,18 +234,17 @@ public class SynopticService extends RemoteServiceServlet implements
             // For every adjacent node, calculate the likelihood of the
             // transition, and add that to the graph's edge.
             for (WeightedTransition<Partition> wTransition : adjacents) {
-                // The current adjacent partition's Event Type (as a string).
-                String adjPNodeEType = wTransition.getTarget().getEType()
-                        .toString();
+                // The current adjacent partition.
+                Partition adjPNode = wTransition.getTarget();
 
-                if (nodeIds.containsKey(adjPNodeEType)) {
-                    adjGWTPNode = nodeIds.get(adjPNodeEType);
+                if (nodeIds.containsKey(adjPNode.hashCode())) {
+                    adjGWTPNode = nodeIds.get(adjPNode.hashCode());
                 } else {
                     // Add the node to the graph so it can be connected
                     // if it doesn't exist.
-                    adjGWTPNode = new GWTNode(adjPNodeEType, wTransition
-                            .getTarget().hashCode());
-                    nodeIds.put(adjPNodeEType, adjGWTPNode);
+                    adjGWTPNode = new GWTNode(adjPNode.getEType().toString(),
+                            adjPNode.hashCode());
+                    nodeIds.put(adjPNode.hashCode(), adjGWTPNode);
                     graph.addNode(adjGWTPNode);
                 }
 

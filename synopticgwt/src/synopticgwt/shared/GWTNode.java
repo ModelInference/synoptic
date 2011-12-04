@@ -2,7 +2,6 @@ package synopticgwt.shared;
 
 import java.io.Serializable;
 
-import com.google.gwt.core.client.JavaScriptObject;
 
 /**
  * A representation of a graph node for GWT. Overall, this is a representation
@@ -21,12 +20,12 @@ public class GWTNode implements Serializable {
     private static final long serialVersionUID = 1L;
 
     // The event type of the partition.
-    private String eType = null;
+    private String eventType = null;
 
     // The hashCode of the corresponding pNode.
-    private Integer pNodeHash;
+    private int pNodeHash;
 
-//    private JavaScriptObject jsNodeRef;
+//    private JavaScriptObject jsNodeRef = null;
 
     public GWTNode() {
         // Default constructor to avoid serialization errors.
@@ -42,10 +41,9 @@ public class GWTNode implements Serializable {
      * @param hashCode
      *            The hashCode of the corresponding partition node.
      */
-    public GWTNode(String eType, Integer hashCode) {
+    public GWTNode(String eType, int hashCode) {
         assert eType != null;
-        assert hashCode != null;
-        this.eType = eType;
+        this.eventType = eType;
         this.pNodeHash = hashCode;
     }
 
@@ -63,15 +61,15 @@ public class GWTNode implements Serializable {
     @Override
     public int hashCode() {
         int result = 17;
-        result = 31 * result + eType.hashCode();
+        result = 31 * result + eventType.hashCode();
         result = 31 * result + pNodeHash;
         return result;
     }
 
     @Override
     public String toString() {
-        assert this.eType != null;
-        return eType;
+        assert this.eventType != null;
+        return eventType;
     }
 
     /**
@@ -88,8 +86,9 @@ public class GWTNode implements Serializable {
      * @param node
      *            The JS node.
      */
-    public native void addJSNodeRef(JavaScriptObject jsNode) /*-{
-		// TODO: Make this add reference
-		var node = jsNode;
-    }-*/;
+//    public native void addJSNodeRef(JavaScriptObject jsNode) /*-{
+//		// TODO: Make this add reference
+//		var node = this.@synopticgwt.shared.GWTNode::jsNodeRef;
+//		node = jsNode;
+//    }-*/;
 }
