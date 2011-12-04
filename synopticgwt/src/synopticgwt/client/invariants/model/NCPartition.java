@@ -1,4 +1,4 @@
-package synopticgwt.client.invariants;
+package synopticgwt.client.invariants.model;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -8,24 +8,23 @@ import java.util.Set;
  * particular baseEvent. This set of invariants is used to compactly present
  * this set of relationships to the user. For example, the set of invariant is
  * highlighted whenever the user mouses-over the baseEvent in the
- * InvariantsGraph. Unlike GraphicConcurrencyPartition, NCwith invariants, the
- * set of which are represented by this class, do _not_ have a transitive
- * property.
+ * InvariantsGraph. Unlike ACPartition, NCwith invariants, the set of which are
+ * represented by this class, do _not_ have a transitive property.
  * 
  * @author t101jv
  */
-public class GraphicNonConcurrentPartition {
+public class NCPartition {
 
-    private GraphicEvent baseEvent;
-    private Set<GraphicConcurrentInvariant> NCInvs;
+    private Event baseEvent;
+    private Set<POInvariant> NCInvs;
 
-    public GraphicNonConcurrentPartition(GraphicEvent baseEvent) {
+    public NCPartition(Event baseEvent) {
         this.baseEvent = baseEvent;
-        this.NCInvs = new HashSet<GraphicConcurrentInvariant>();
+        this.NCInvs = new HashSet<POInvariant>();
         baseEvent.setNCPartition(this);
     }
 
-    public boolean add(GraphicConcurrentInvariant gci) {
+    public boolean add(POInvariant gci) {
         boolean result = isInvariantOverBaseEvent(gci);
         if (result) {
             NCInvs.add(gci);
@@ -39,20 +38,20 @@ public class GraphicNonConcurrentPartition {
      * @param gci
      * @return
      */
-    public boolean isInvariantOverBaseEvent(GraphicConcurrentInvariant gci) {
+    public boolean isInvariantOverBaseEvent(POInvariant gci) {
         boolean equalsSrc = gci.getA().equals(baseEvent);
         boolean equalsDst = gci.getB().equals(baseEvent);
         return equalsSrc || equalsDst;
     }
 
     public void highlightOn() {
-        for (GraphicConcurrentInvariant gci : NCInvs) {
+        for (POInvariant gci : NCInvs) {
             gci.highlightOn();
         }
     }
 
     public void highlightOff() {
-        for (GraphicConcurrentInvariant gci : NCInvs) {
+        for (POInvariant gci : NCInvs) {
             gci.highlightOff();
         }
     }

@@ -1,19 +1,20 @@
-package synopticgwt.client.invariants;
+package synopticgwt.client.invariants.model;
 
 import java.util.HashSet;
 import java.util.Set;
+
 
 /**
  * Represents a set of ACWith invariants, closed under transitive closure. That
  * is, if a and b are in the set, and b ACWith c, then c is also in the set.
  * That is, a ACwith c.
  */
-public class GraphicConcurrencyPartition {
+public class ACPartition {
     /** Set of concurrent invariants */
-    private Set<GraphicConcurrentInvariant> concurrentInvs;
+    private Set<POInvariant> concurrentInvs;
 
-    public GraphicConcurrencyPartition() {
-        concurrentInvs = new HashSet<GraphicConcurrentInvariant>();
+    public ACPartition() {
+        concurrentInvs = new HashSet<POInvariant>();
     }
 
     /**
@@ -24,12 +25,12 @@ public class GraphicConcurrencyPartition {
      * @param gci
      * @return
      */
-    public void add(GraphicConcurrentInvariant gci) {
+    public void add(POInvariant gci) {
         if (concurrentInvs.isEmpty() || isTransitive(gci)) {
             concurrentInvs.add(gci);
-            GraphicEvent src = gci.getA();
+            Event src = gci.getA();
             src.setACPartition(this);
-            GraphicEvent dst = gci.getB();
+            Event dst = gci.getB();
             dst.setACPartition(this);
         }
     }
@@ -41,10 +42,10 @@ public class GraphicConcurrencyPartition {
      * @param gci
      * @return
      */
-    public boolean isTransitive(GraphicConcurrentInvariant gci) {
+    public boolean isTransitive(POInvariant gci) {
         // Loop through all invariants, trying to find one that matches the
         // event type of this gci.
-        for (GraphicConcurrentInvariant gcInv : concurrentInvs) {
+        for (POInvariant gcInv : concurrentInvs) {
             if (gcInv.isTransitive(gci)) {
                 return true;
             }
@@ -53,13 +54,13 @@ public class GraphicConcurrencyPartition {
     }
 
     public void highlightOn() {
-        for (GraphicConcurrentInvariant gci : concurrentInvs) {
+        for (POInvariant gci : concurrentInvs) {
             gci.highlightOn();
         }
     }
 
     public void highlightOff() {
-        for (GraphicConcurrentInvariant gci : concurrentInvs) {
+        for (POInvariant gci : concurrentInvs) {
             gci.highlightOff();
         }
     }

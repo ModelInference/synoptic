@@ -1,24 +1,23 @@
-package synopticgwt.client.invariants;
+package synopticgwt.client.invariants.model;
 
 import java.io.Serializable;
 
+import synopticgwt.client.invariants.InvariantGridLabel;
 import synopticgwt.shared.GWTInvariant;
 
 /**
  * A graphic model (representing a GWTInvariant) that relates two concurrent
  * events. This represents a PO invariant, as opposed to a TO invariant. This is
  * used by the InvariantsGraph. A set of ACwith invariants are represented by
- * GraphicConcurrencyPartition. A set of NCwith invariants are represented by
- * GraphicNonConcurrentPartition
+ * ACPartition. A set of NCwith invariants are represented by NCPartition
  */
-public class GraphicConcurrentInvariant implements Serializable,
-        GraphicInvariant {
+public class POInvariant implements Serializable, Invariant {
 
     private static final long serialVersionUID = 1L;
 
     /** The two events that are related by this invariant. */
-    private GraphicEvent a;
-    private GraphicEvent b;
+    private Event a;
+    private Event b;
 
     /** GWTInvariant object that this represents */
     private GWTInvariant gwtInv;
@@ -26,9 +25,9 @@ public class GraphicConcurrentInvariant implements Serializable,
     private InvariantGridLabel iGridLabel;
     private boolean visible;
 
-    /** Constructs a GraphicInvariant for GWTinv over a and b on paper */
-    public GraphicConcurrentInvariant(GraphicEvent a, GraphicEvent b,
-            GWTInvariant gwtInv, InvariantGridLabel iGridLabel) {
+    /** Constructs an Invariant for GWTinv over a and b on paper */
+    public POInvariant(Event a, Event b, GWTInvariant gwtInv,
+            InvariantGridLabel iGridLabel) {
         this.a = a;
         this.b = b;
         this.gwtInv = gwtInv;
@@ -96,18 +95,18 @@ public class GraphicConcurrentInvariant implements Serializable,
     @Override
     public boolean equals(Object o) {
         // Equal if the underlying GWTInvariant is equal.
-        if (o instanceof GraphicConcurrentInvariant) {
-            GraphicConcurrentInvariant otherInv = (GraphicConcurrentInvariant) o;
+        if (o instanceof POInvariant) {
+            POInvariant otherInv = (POInvariant) o;
             return getGWTInvariant().equals(otherInv.getGWTInvariant());
         }
         return false;
     }
 
-    public GraphicEvent getA() {
+    public Event getA() {
         return a;
     }
 
-    public GraphicEvent getB() {
+    public Event getB() {
         return b;
     }
 
@@ -120,9 +119,9 @@ public class GraphicConcurrentInvariant implements Serializable,
      * @param gcInv
      * @return
      */
-    public boolean isTransitive(GraphicConcurrentInvariant gcInv) {
-        GraphicEvent otherA = gcInv.getA();
-        GraphicEvent otherB = gcInv.getB();
+    public boolean isTransitive(POInvariant gcInv) {
+        Event otherA = gcInv.getA();
+        Event otherB = gcInv.getB();
         boolean result = false;
         result = result || otherA.equals(getA());
         result = result || otherA.equals(getB());
