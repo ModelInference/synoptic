@@ -111,6 +111,11 @@ public class TraceParserTests extends SynopticTest {
         parser.addRegex("^(?<DTIME=>\\d\\d\\d)\\s(?<TYPE>)$");
     }
 
+    @Test(expected = ParseException.class)
+    public void addRegexNullRegExpExceptionTest() throws ParseException {
+        parser.addRegex(null);
+    }
+
     /**
      * The LTIME group is built-in and should not be used in any regular
      * expressions. These tests attempt to use LTIME in various ways -- expect a
@@ -530,6 +535,19 @@ public class TraceParserTests extends SynopticTest {
         String traceStr = "1,1,2 a\n1,1,2,3 b\n2,2,2 c\n";
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.parseTraceString(traceStr, "test", -1);
+    }
+
+    @Test(expected = ParseException.class)
+    public void parseNullStringExceptionTest() throws ParseException {
+        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+        parser.parseTraceString(null, "test", -1);
+    }
+
+    @Test(expected = ParseException.class)
+    public void parseNullTraceNameExceptionTest() throws ParseException {
+        String traceStr = "1,1,2 a\n1,1,2,3 b\n2,2,2 c\n";
+        parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
+        parser.parseTraceString(traceStr, null, -1);
     }
 
     /**
