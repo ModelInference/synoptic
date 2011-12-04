@@ -3,6 +3,7 @@ package synopticgwt.client.util;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.TabBar;
 
 import synopticgwt.client.model.ModelTab;
 
@@ -12,13 +13,15 @@ import synopticgwt.client.model.ModelTab;
  */
 public class ModelResizeHandler implements ResizeHandler {
 
-    // Timer is here to delay any unnecessary updating.
-    // since it gets rather heavy and can cause problems
-    // when rendering the canvas too frequently.
+    // Timer is used to delay unnecessary updating, as the animation becomes
+    // compute intensive when rendering the canvas too frequently.
     private final Timer resizeTimer;
 
+    private final TabBar tabBar;
     private final ModelTab modelTab;
-    private final int ms;
+
+    // How often to schedule the re-animation timer (in milliseconds).
+    private final int msTimerGranularity;
 
     /**
      * Adds a resize handler to the window to manage resize events for the model
@@ -33,17 +36,18 @@ public class ModelResizeHandler implements ResizeHandler {
      *            The amount of time to wait after the window has updated before
      *            running the modelTab update.
      */
-    public ModelResizeHandler(ModelTab mdlTab, int milliseconds) {
+    public ModelResizeHandler(TabBar tbBar, ModelTab mdlTab, int milliseconds) {
         super();
+        this.tabBar = tbBar;
         this.modelTab = mdlTab;
-        this.ms = milliseconds;
+        this.msTimerGranularity = milliseconds;
 
         resizeTimer = new Timer() {
             @Override
             public void run() {
-                // If the tab is active, resize the canvas
+                // If the tab is enabled, resize the canvas
                 // and redraw the graph (with fancy animation).
-                if (modelTab.isEnabled()) {
+                if (tabBar.isTabEnabled(2)) {
                     modelTab.updateGraphPanel();
                 }
             }
@@ -56,6 +60,6 @@ public class ModelResizeHandler implements ResizeHandler {
      */
     @Override
     public void onResize(ResizeEvent event) {
-        resizeTimer.schedule(this.ms);
+        resizeTimer.schedule(this.msTimerGranularity);
     }
 }

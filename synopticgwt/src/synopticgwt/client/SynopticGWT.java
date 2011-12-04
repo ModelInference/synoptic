@@ -98,9 +98,6 @@ public class SynopticGWT implements EntryPoint {
         tabPanel.add(invTab.getPanel(), "Invariants");
         tabPanel.add(modelTab.getPanel(), "Model");
 
-        // Enable the inputTab
-        inputTab.setEnabled(true);
-
         // Build up a map between the tab index in the tab panel and the tab --
         // this map is useful when processing events that change the selected
         // tab.
@@ -111,9 +108,11 @@ public class SynopticGWT implements EntryPoint {
                 modelTab);
 
         // logger.info(tabIndexToTab.toString());
-
         tabPanel.setWidth("100%");
         tabPanel.selectTab(0);
+        // Disable the invariants/model tabs (until the user parses a log).
+        tabPanel.getTabBar().setTabEnabled(1, false);
+        tabPanel.getTabBar().setTabEnabled(2, false);
 
         tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
@@ -135,7 +134,8 @@ public class SynopticGWT implements EntryPoint {
         // TODO: Have the handler enabled only when the model tab is selected.
         // That is, register the handler when the model tab is clicked, and
         // remove it when any one of the other tabs is clicked.
-        Window.addResizeHandler(new ModelResizeHandler(modelTab, 200));
+        Window.addResizeHandler(new ModelResizeHandler(tabPanel.getTabBar(),
+                modelTab, 200));
     }
 
     /**
@@ -174,12 +174,12 @@ public class SynopticGWT implements EntryPoint {
             return;
         }
         // 1. Check if the tab is enabled. If not, cancel the event.
-        Tab<?> t = tabIndexToTab.get(event.getItem());
-        if (!t.isEnabled()) {
+        if (!tabPanel.getTabBar().isTabEnabled(event.getItem())) {
             event.cancel();
             return;
         }
         // 2. Only track the event if it has not been canceled.
+        Tab<?> t = tabIndexToTab.get(event.getItem());
         AnalyticsTracker.trackEvent(t.trackerCategoryName, "selected",
                 "navigation");
     }
@@ -196,9 +196,11 @@ public class SynopticGWT implements EntryPoint {
         if (!invSetChanged) {
             return;
         }
-        // If the invariant set has changed, then we (1) ask the server to re-do
-        // refinement/coarsening with the new constraints
-        // model, and (2) re-draw everything in the model tab.
+
+        // If we are clicking on the model tab, and the invariant set has
+        // changed, then we (1) ask the server to re-do refinement/coarsening
+        // with the new set of invariants, and (2) re-draw everything in the
+        // model tab.
 
         // ////////////////////// Call to remote service.
         try {
@@ -234,21 +236,27 @@ public class SynopticGWT implements EntryPoint {
      *            The initial model for the log.
      */
     public void logParsed(GWTInvariantSet logInvs, GWTGraph initialModel) {
-        invTab.setEnabled(true);
+        // Enable the invariants tab, and show the invariants.
+        tabPanel.getTabBar().setTabEnabled(1, true);
         invTab.showInvariants(logInvs);
 
         // TODO: Communicate whether we are processing a TO or a PO log
         // explicitly, instead of through (initialModel =?= null).
         if (initialModel != null) {
-            modelTab.setEnabled(true);
-            // The modelTab MUST be made visible for showGraph() to work below.
+            // TO log.
+            // Enable the model tab.
+            tabPanel.getTabBar().setTabEnabled(2, true);
+
+            // The modelTab MUST be selected before calling showGraph().
             tabPanel.selectTab(2);
             modelTab.showGraph(initialModel);
+            // Retrieve and show the final model.
             modelTab.getFinalModelButtonClick(null);
         } else {
-            // Typically occurs if the log is partially ordered.
+            // PO log.
+            // Switch to the invariant tab, and disable the model tab.
             tabPanel.selectTab(1);
-            modelTab.setEnabled(false);
+            tabPanel.getTabBar().setTabEnabled(2, false);
             // TODO: we also want to clear model state here, in the case
             // that the prior generated model is large.
         }
