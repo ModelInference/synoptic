@@ -48,8 +48,7 @@ Raphael.fn.connection = function (obj1, obj2, style) {
             	/* Source and destination nodes are the same node => draw a self loop. */
 
             	var x = bb1.x + bb1.width;
-            	//var startY = bb1.y + (bb1.height / 4);
-            	//var endY = bb1.y + ((bb1.height * 3) / 4);
+            	
             	var startY = bb1.y + bb1.height / 2 - vertOffset;
             	var endY = bb1.y + bb1.height / 2 + vertOffset;
 
@@ -84,10 +83,10 @@ Raphael.fn.connection = function (obj1, obj2, style) {
                              
                 /* coordinates for potential connection coordinates to bb2 */
                 var p_outputs = [
-                     {x: bb2.x + bb2.width / 2 + horizOffset, y: bb2.y},              /* NORTH 2 */
-                     {x: bb2.x + bb2.width / 2 - horizOffset, y: bb2.y + bb2.height}, /* SOUTH 2 */
-                     {x: bb2.x, y: bb2.y + bb2.height / 2 - vertOffset},              /* WEST  2 */
-                     {x: bb2.x + bb2.width, y: bb2.y + bb2.height / 2 + vertOffset},  /* EAST  2 */
+                 	{x: bb2.x + bb2.width / 2 + horizOffset, y: bb2.y},              /* NORTH 2 */
+                 	{x: bb2.x + bb2.width / 2 - horizOffset, y: bb2.y + bb2.height}, /* SOUTH 2 */
+                 	{x: bb2.x, y: bb2.y + bb2.height / 2 - vertOffset},              /* WEST  2 */
+                 	{x: bb2.x + bb2.width, y: bb2.y + bb2.height / 2 + vertOffset},  /* EAST  2 */
                  ];
                                 
                 /* distances between objects and according coordinates connection */
