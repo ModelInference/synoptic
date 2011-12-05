@@ -1,0 +1,7 @@
+ERROR: second argument must be 0 or 1
+USAGE: src/gen_peterson_trace.py N 0|1 [S]
+	 N : number of nodes to simulate (N > 0)
+	 0|1 : whether active/relay should come last in a round (1) or not (0)
+	 [optional] S : random seed to use (S > 0)
+	 note1: output is deterministic for a combination of (N,S)
+	 note2: without an S parameter, the random seed is system time or other system resource
