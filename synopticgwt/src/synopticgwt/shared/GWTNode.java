@@ -25,8 +25,6 @@ public class GWTNode implements Serializable {
     // The hashCode of the corresponding pNode.
     private int pNodeHash;
 
-//    private JavaScriptObject jsNodeRef = null;
-
     public GWTNode() {
         // Default constructor to avoid serialization errors.
     }
@@ -79,16 +77,4 @@ public class GWTNode implements Serializable {
     public int getPartitionNodeHashCode() {
         return pNodeHash;
     }
-
-    /**
-     * Used for adding a JS Node reference from Dracula.
-     * 
-     * @param node
-     *            The JS node.
-     */
-//    public native void addJSNodeRef(JavaScriptObject jsNode) /*-{
-//		// TODO: Make this add reference
-//		var node = this.@synopticgwt.shared.GWTNode::jsNodeRef;
-//		node = jsNode;
-//    }-*/;
 }
