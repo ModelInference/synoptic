@@ -1,12 +1,14 @@
-package synopticgwt.client.invariants;
+package synopticgwt.client.invariants.model;
 
 import java.io.Serializable;
 
+import synopticgwt.client.invariants.InvariantsGraph;
+import synopticgwt.client.invariants.Path;
 import synopticgwt.client.util.MouseHover;
 import synopticgwt.client.util.Paper;
 
 /** Java wrapper for an arrow on a Raphael canvas */
-public class GraphicArrow implements Serializable {
+public class Arrow implements Serializable {
 
 	private static final long serialVersionUID = 1L;
     /** Length of the positive and negative arrowhead segments */
@@ -32,14 +34,14 @@ public class GraphicArrow implements Serializable {
      * @param targetBuffer Distance between terminal end of the arrow  and (x2, y2)
      */
 
-    public GraphicArrow(int x1, int y1, int x2, int y2, Paper paper, int targetBuffer) {
+    public Arrow(int x1, int y1, int x2, int y2, Paper paper, int targetBuffer) {
         this.paper = paper;
         constructArrow(x1, y1, x2 - targetBuffer, y2 - targetBuffer);
         setStroke(InvariantsGraph.DEFAULT_STROKE, 
             InvariantsGraph.DEFAULT_STROKE_WIDTH);
     }
     
-    public GraphicArrow(int x1, int y1, int x2, int y2, Paper paper) {
+    public Arrow(int x1, int y1, int x2, int y2, Paper paper) {
     	this(x1, y1, x2, y2, paper, TARGET_BUFFER);
     }
 
@@ -127,5 +129,25 @@ public class GraphicArrow implements Serializable {
         body.setMouseout(hover);
         positiveHead.setMouseout(hover);
         negativeHead.setMouseout(hover);
+    }
+    
+    public void highlightDefault() {
+    	setStroke(InvariantsGraph.DEFAULT_STROKE, 
+                InvariantsGraph.DEFAULT_STROKE_WIDTH); 
+    }
+    
+    public void highlightAP() {
+    	setStroke(InvariantsGraph.AP_HIGHLIGHT_STROKE, 
+                InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
+    }
+    
+    public void highlightAFby() {
+    	setStroke(InvariantsGraph.AFBY_HIGHLIGHT_STROKE, 
+                InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
+    }
+    
+    public void highlightNFby() {
+    	setStroke(InvariantsGraph.NFBY_HIGHLIGHT_STROKE, 
+                InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
     }
 }
