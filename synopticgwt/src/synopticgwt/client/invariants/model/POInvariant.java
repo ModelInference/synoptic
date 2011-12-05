@@ -101,6 +101,11 @@ public class POInvariant implements Serializable, Invariant {
         }
         return false;
     }
+    
+    @Override
+    public int hashCode() {
+        return gwtInv.hashCode();
+    }
 
     public Event getA() {
         return a;

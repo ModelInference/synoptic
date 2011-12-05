@@ -50,12 +50,19 @@ public class InvariantsGraph {
     /** Wrapped raphael canvas */
     private Paper paper;
 
-    /* Event columns */
+    /*
+     * Event columns, as of 12/4/11 these are not used but references to events
+     * are maintained here since InvariantsGraph is their primary client
+     */
     private Map<String, Event> leftEventCol;
     private Map<String, Event> midEventCol;
     private Map<String, Event> rightEventCol;
 
-    /* Graphic Invariants */
+    /*
+     * Graphic Invariants, as of 12/4/11 these are not used but references to
+     * invariants are maintained here since InvariantsGraph is their primary
+     * client
+     */
     private List<TOInvariant> apInvs;
     private List<TOInvariant> afbyInvs;
     private List<TOInvariant> nfbyInvs;
@@ -63,7 +70,7 @@ public class InvariantsGraph {
     /*
      * Concurrency Partitions, as of 12/4/11 these are all currently unused,
      * however I am maintaining references to them here since InvariantsGraph is
-     * their client and the only other reference to them is in the GraphicEvent
+     * their primary client and the only other reference to them is in the Event
      * classes. If someone wants access to these data structures, this is
      * probably where they should get it.
      */
@@ -162,32 +169,32 @@ public class InvariantsGraph {
         // draw graphic event type columns
         for (int i = 0; i < eventTypesList.size(); i++) {
             String eType = eventTypesList.get(i);
-            Event leftEvent = new Event(lX, EVENT_PADDING * i
-                    + TOP_MARGIN, fontSize, eType, paper);
+            Event leftEvent = new Event(lX, EVENT_PADDING * i + TOP_MARGIN,
+                    fontSize, eType, paper);
             leftEventCol.put(eType, leftEvent);
 
-            Event midEvent = new Event(mX, EVENT_PADDING * i
-                    + TOP_MARGIN, fontSize, eType, paper);
+            Event midEvent = new Event(mX, EVENT_PADDING * i + TOP_MARGIN,
+                    fontSize, eType, paper);
             midEventCol.put(eType, midEvent);
 
-            Event rightEvent = new Event(rX, EVENT_PADDING * i
-                    + TOP_MARGIN, fontSize, eType, paper);
+            Event rightEvent = new Event(rX, EVENT_PADDING * i + TOP_MARGIN,
+                    fontSize, eType, paper);
             rightEventCol.put(eType, rightEvent);
         }
 
         for (String invType : invTypes) {
             List<GWTInvariant> invs = gwtInvs.getInvs(invType);
             if (invType.equals("AP")) {
-                List<TOInvariant> gInvs = drawTOInvariants(invs,
-                        leftEventCol, midEventCol, gwtInvToIGridLabel);
+                List<TOInvariant> gInvs = drawTOInvariants(invs, leftEventCol,
+                        midEventCol, gwtInvToIGridLabel);
                 apInvs.addAll(gInvs);
             } else if (invType.equals("AFby")) {
-                List<TOInvariant> gInvs = drawTOInvariants(invs,
-                        midEventCol, rightEventCol, gwtInvToIGridLabel);
+                List<TOInvariant> gInvs = drawTOInvariants(invs, midEventCol,
+                        rightEventCol, gwtInvToIGridLabel);
                 afbyInvs.addAll(gInvs);
             } else if (invType.equals("NFby")) {
-                List<TOInvariant> gInvs = drawTOInvariants(invs,
-                        midEventCol, rightEventCol, gwtInvToIGridLabel);
+                List<TOInvariant> gInvs = drawTOInvariants(invs, midEventCol,
+                        rightEventCol, gwtInvToIGridLabel);
                 nfbyInvs.addAll(gInvs);
             } else if (invType.equals("ACwith")) {
                 leftACPartitions = generateACPartitions(drawPOInvariants(invs,
@@ -214,8 +221,8 @@ public class InvariantsGraph {
          */
         int timeArrowYCoord = TOP_MARGIN + EVENT_PADDING
                 * eventTypesList.size() - 25;
-        Arrow timeArrow = new Arrow(lX, timeArrowYCoord, rX,
-                timeArrowYCoord, paper, 0);
+        Arrow timeArrow = new Arrow(lX, timeArrowYCoord, rX, timeArrowYCoord,
+                paper, 0);
         timeArrow.setStroke("green", HIGHLIGHT_STROKE_WIDTH);
         int timeLabelYCoord = timeArrowYCoord + 25;
         Label timeLabel = new Label(paper, mX, timeLabelYCoord, fontSize - 5,
@@ -229,8 +236,7 @@ public class InvariantsGraph {
      * @param ncwithInvs
      * @return
      */
-    private List<NCPartition> generateNCPartitions(
-            List<POInvariant> ncwithInvs) {
+    private List<NCPartition> generateNCPartitions(List<POInvariant> ncwithInvs) {
         List<NCPartition> ncPartitions = new ArrayList<NCPartition>();
         Set<Event> ncEvents = new HashSet<Event>();
         for (POInvariant ncInv : ncwithInvs) {
@@ -238,8 +244,7 @@ public class InvariantsGraph {
             ncEvents.add(ncInv.getB());
         }
         for (Event ge : ncEvents) {
-            NCPartition ncPart = new NCPartition(
-                    ge);
+            NCPartition ncPart = new NCPartition(ge);
             for (POInvariant ncInv : ncwithInvs) {
                 if (ncPart.isInvariantOverBaseEvent(ncInv)) {
                     ncPart.add(ncInv);
@@ -257,8 +262,7 @@ public class InvariantsGraph {
      * @param ncwithInvs
      * @return
      */
-    private List<ACPartition> generateACPartitions(
-            List<POInvariant> acwithInvs) {
+    private List<ACPartition> generateACPartitions(List<POInvariant> acwithInvs) {
         List<ACPartition> acPartitions = new ArrayList<ACPartition>();
         for (POInvariant acInv : acwithInvs) {
             boolean inserted = false;
@@ -287,9 +291,8 @@ public class InvariantsGraph {
      * @param gwtInvToIGridLabel
      * @return
      */
-    private List<TOInvariant> drawTOInvariants(
-            List<GWTInvariant> invs, Map<String, Event> srcCol,
-            Map<String, Event> dstCol,
+    private List<TOInvariant> drawTOInvariants(List<GWTInvariant> invs,
+            Map<String, Event> srcCol, Map<String, Event> dstCol,
             Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel) {
         List<TOInvariant> result = new ArrayList<TOInvariant>();
         for (GWTInvariant inv : invs) {
@@ -301,8 +304,8 @@ public class InvariantsGraph {
 
             InvariantGridLabel iGridLabel = gwtInvToIGridLabel.get(inv);
 
-            TOInvariant gInv = new TOInvariant(
-                    srcEvent, dstEvent, inv, paper, iGridLabel);
+            TOInvariant gInv = new TOInvariant(srcEvent, dstEvent, inv, paper,
+                    iGridLabel);
 
             iGridLabel.setGraphicInvariant(gInv);
 
@@ -322,8 +325,8 @@ public class InvariantsGraph {
      * @param gwtInvToIGridLabel
      * @return
      */
-    private List<POInvariant> drawPOInvariants(
-            List<GWTInvariant> invs, Map<String, Event> col,
+    private List<POInvariant> drawPOInvariants(List<GWTInvariant> invs,
+            Map<String, Event> col,
             Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel) {
         List<POInvariant> result = new ArrayList<POInvariant>();
         for (GWTInvariant inv : invs) {
@@ -335,8 +338,8 @@ public class InvariantsGraph {
 
             InvariantGridLabel iGridLabel = gwtInvToIGridLabel.get(inv);
 
-            POInvariant gInv = new POInvariant(
-                    srcEvent, dstEvent, inv, iGridLabel);
+            POInvariant gInv = new POInvariant(srcEvent, dstEvent, inv,
+                    iGridLabel);
 
             iGridLabel.setGraphicInvariant(gInv);
 
