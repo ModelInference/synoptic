@@ -99,12 +99,12 @@ Raphael.fn.connection = function (obj1, obj2, style) {
                  * find out the best connection coordinates by trying all possible ways
                  */
                 /* loop the first object's connection coordinates */
-                for (var i = 0; i < 4; i++) {
+                for (var i = 0; i < p_inputs.length; i++) {
                 	/* loop the second object's connection coordinates */
-                	for (var j = 0; j < 4; j++) {
+                	for (var j = 0; j < p_outputs.length; j++) {
                 		var dx = Math.abs(p_inputs[i].x - p_outputs[j].x),
                 			dy = Math.abs(p_inputs[i].y - p_outputs[j].y);
-                		if ((i == j) || (((i != 3 && j != 3) || p_inputs[i].x < p_outputs[j].x) && ((i != 2 && j != 3) || p_inputs[i].x > p_outputs[j].x) && ((i != 0 && j != 1) || p_inputs[i].y > p_outputs[j].y) && ((i != 1 && j != 0) || p_inputs[i].y < p_outputs[j].y))) {
+                		if ((i == j) || (((i != 3 && j != 2) || p_inputs[i].x < p_outputs[j].x) && ((i != 2 && j != 3) || p_inputs[i].x > p_outputs[j].x) && ((i != 0 && j != 1) || p_inputs[i].y > p_outputs[j].y) && ((i != 1 && j != 0) || p_inputs[i].y < p_outputs[j].y))) {
                 			dis.push(dx + dy);
                 			d[dis[dis.length - 1].toFixed(3)] = [i, j + 4];
                 		}
