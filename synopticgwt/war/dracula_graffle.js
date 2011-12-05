@@ -69,27 +69,23 @@ Raphael.fn.connection = function (obj1, obj2, style) {
 
             } else {
             	/* This branch contains unmodified Dracula code for computing paths. */
-                var off1 = 0;
-                var off2 = 0;
+                var horizOffset = bb1.width / 6;
+                var vertOffset = bb1.height / 6;
                 
                 /* coordinates for potential connection coordinates from bb1 */
                 var p_inputs = [
-                    {x: bb1.x + bb1.width / 2, y: bb1.y - off1},              /* NORTH 1 */
-                	{x: bb1.x + bb1.width / 2, y: bb1.y + bb1.height + off1}, /* SOUTH 1 */
-                	{x: bb1.x - off1, y: bb1.y + bb1.height / 2},             /* WEST  1 */
-                	{x: bb1.x + bb1.width + off1, y: bb1.y + bb1.height / 2}, /* EAST  1 */
-                	{x: bb1.x - off1, y: bb1.y - off1}, /* NORTHWEST 1 */
-                	{x: bb1.x + bb1.width + off1, y: bb1.y + bb1.height + off1} /* SOUTHEAST 1 */
+                    {x: bb1.x + bb1.width / 2 - horizOffset, y: bb1.y},              	/* NORTH 1 */
+                	{x: bb1.x + bb1.width / 2  + horizOffset, y: bb1.y + bb1.height}, 	/* SOUTH 1 */
+                	{x: bb1.x, y: bb1.y + bb1.height / 2 + vertOffset},             	/* WEST  1 */
+                	{x: bb1.x + bb1.width, y: bb1.y + bb1.height / 2 - vertOffset}, 	/* EAST  1 */
                 ];
                              
                 /* coordinates for potential connection coordinates to bb2 */
                 var p_outputs = [
-                     {x: bb2.x + bb2.width / 2, y: bb2.y - off2},              /* NORTH 2 */
-                     {x: bb2.x + bb2.width / 2, y: bb2.y + bb2.height + off2}, /* SOUTH 2 */
-                     {x: bb2.x - off2, y: bb2.y + bb2.height / 2},             /* WEST  2 */
-                     {x: bb2.x + bb2.width + off2, y: bb2.y + bb2.height / 2},  /* EAST  2 */
-                     {x: bb2.x - off1, y: bb2.y + bb2.height + off1}, /* SOUTHWEST 2 */
-                     {x: bb2.x + bb2.width + off1, y: bb1.y - off2} /* NORTHEAST 2 */
+                     {x: bb2.x + bb2.width / 2 + horizOffset, y: bb2.y},              /* NORTH 2 */
+                     {x: bb2.x + bb2.width / 2 - horizOffset, y: bb2.y + bb2.height}, /* SOUTH 2 */
+                     {x: bb2.x, y: bb2.y + bb2.height / 2 - vertOffset},              /* WEST  2 */
+                     {x: bb2.x + bb2.width, y: bb2.y + bb2.height / 2 + vertOffset},  /* EAST  2 */
                  ];
                                 
                 /* distances between objects and according coordinates connection */
@@ -99,9 +95,9 @@ Raphael.fn.connection = function (obj1, obj2, style) {
                  * find out the best connection coordinates by trying all possible ways
                  */
                 /* loop the first object's connection coordinates */
-                for (var i = 0; i < p_inputs.length; i++) {
+                for (var i = 0; i < 4; i++) {
                 	/* loop the second object's connection coordinates */
-                	for (var j = 0; j < p_outputs.length; j++) {
+                	for (var j = 0; j < 4; j++) {
                 		var dx = Math.abs(p_inputs[i].x - p_outputs[j].x),
                 			dy = Math.abs(p_inputs[i].y - p_outputs[j].y);
                 		if ((i == j) || (((i != 3 && j != 2) || p_inputs[i].x < p_outputs[j].x) && ((i != 2 && j != 3) || p_inputs[i].x > p_outputs[j].x) && ((i != 0 && j != 1) || p_inputs[i].y > p_outputs[j].y) && ((i != 1 && j != 0) || p_inputs[i].y < p_outputs[j].y))) {
