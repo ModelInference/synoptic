@@ -1,0 +1,22 @@
+login attempt
+auth failed
+login attempt
+authorized
+--
+login attempt
+auth failed
+authorized
+--
+login attempt
+authorized
+--
+login attempt
+auth failed
+login attempt
+auth failed
+login attempt
+authorized
+--
+login attempt
+guest login
+authorized
