@@ -36,10 +36,13 @@
 
     <!-- Analytics -->
     <script type="text/javascript">
- 	<%
- 	// Retrieve the analytics tracker ID property and, if it exists,
+
+    <%
+    String analyticsTrackerID = (String) session.getAttribute("analyticsTrackerID");
+
+    // Retrieve the analytics tracker ID property and, if it exists,
  	// includes the appropriate analytics JS snippet and initializes tracking.
- 	String analyticsTrackerID = System.getProperty("analyticsTrackerID");
+ 	// String analyticsTrackerID = System.getProperty("analyticsTrackerID");
  	if (analyticsTrackerID != null) {
  	%>
 	    var analyticsTrackerID = '<%= analyticsTrackerID %>';
@@ -98,6 +101,11 @@
 	    <div id="rpcErrorDiv"></div>
 	    <div id="mainDiv"></div>
 
+    </div>
+
+    <div id="div-footer-bar">
+    	Synoptic Changeset <%= session.getAttribute("synopticChangesetID") %> <br />
+		SynopticGWT Changeset <%= session.getAttribute("synopticGWTChangesetID") %>
     </div>
 
   </body>

@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Synoptic"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/automaton.jar"/>
 	<classpathentry kind="var" path="SYNOPTIC_LIB/junit-4.9b2.jar"/>
+	<classpathentry kind="var" path="SYNOPTIC_LIB/plume.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

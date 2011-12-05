@@ -187,6 +187,10 @@ public class TraceParser {
         // TODO: this method for splitting is ugly, but it works for now
         // In order to use ";;" in a regex, escape as \;\;
         // TODO: document this on the wiki
+        if (input_regex == null) {
+            throw new ParseException("Regular expression cannot be null.");
+        }
+
         logger.fine("entering addRegex with: " + input_regex);
         String regex = matchEscapedSeparator.matcher(input_regex).replaceAll(
                 ";;");
@@ -504,8 +508,13 @@ public class TraceParser {
      *             when Synoptic code is the problem
      */
     public ArrayList<EventNode> parseTraceString(String trace,
-            String traceName, int linesToRead) throws ParseException,
-            InternalSynopticException {
+            String traceName, int linesToRead) throws ParseException {
+        if (trace == null) {
+            throw new ParseException("Trace string cannot be null.");
+        }
+        if (traceName == null) {
+            throw new ParseException("Trace name string cannot be null.");
+        }
         StringReader stringReader = new StringReader(trace);
         try {
             return parseTrace(stringReader, traceName, linesToRead);
@@ -533,7 +542,7 @@ public class TraceParser {
      * @throws InternalSynopticException
      *             when Synoptic code is the problem
      */
-    public ArrayList<EventNode> parseTrace(Reader traceReader,
+    private ArrayList<EventNode> parseTrace(Reader traceReader,
             String traceName, int linesToRead) throws ParseException,
             IOException, InternalSynopticException {
         BufferedReader br = new BufferedReader(traceReader);
@@ -815,8 +824,10 @@ public class TraceParser {
                                 + "\nIgnoring line and continuing.");
                         continue;
                     }
-                    String error = errMsg + "\n\tTry cmd line options:\n\t"
-                            + SynopticOptions.getOptDesc("ignoreNonMatchingLines")
+                    String error = errMsg
+                            + "\n\tTry cmd line options:\n\t"
+                            + SynopticOptions
+                                    .getOptDesc("ignoreNonMatchingLines")
                             + "\n\t" + SynopticOptions.getOptDesc("debugParse");
                     logger.severe(error);
                     logger.severe(e.toString());

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project>
+
+  <description>
+    Contains shared variables and common utility ant targets used by
+    all Synoptic projects.
+  </description>
+
+  <!-- Where to find the libraries Synoptic depends on. -->
+  <property name="util.synoptic.libdir" value="../lib"/>
+
+  <!--=====================================================================-->
+  <!-- Tests that the repository contains no uncommitted changes and
+       fails if this is the case. Otherwise sets util.hg.revision to
+       current hg revision. -->
+  <target name="hg-rev-extract">
+    <!-- Find out the current hg changeset id using 'hd id -i'. -->
+    <exec executable="hg" outputproperty="util.hg.revision" failifexecutionfails="true" errorproperty="">
+      <arg value="id" />
+      <arg value="-i" />
+    </exec>
+
+    <!-- Check that the current repository does not include any
+	 uncommitted changes. This is indicated by a '+' at the end of
+	 ${util.hg.revision}. The hg.revision.ok property will be set
+	 iff there are no uncommitted changes. -->
+    <condition property="hg.revision.ok" value="true">
+      <not>
+	<contains string="${util.hg.revision}" substring="+" />
+      </not>
+    </condition>
+
+    <fail unless="hg.revision.ok">Repository contains uncommitted changes (${util.hg.revision}). Cannot continue.</fail>
+
+  </target>
+
+</project>

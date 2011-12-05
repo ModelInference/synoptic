@@ -16,7 +16,6 @@ public class AnalyticsTracker {
     public static native void trackEvent(String category, String action,
             String label) /*-{
 		if ($wnd.analyticsTrackerID != null) {
-			alert("hello!");
 			$wnd._gaq.push([ '_trackEvent', category, action, label ]);
 		}
     }-*/;

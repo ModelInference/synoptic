@@ -12,7 +12,7 @@ public class GWTGraphDelta implements Serializable {
     private GWTGraph graph;
 
     /** ID of the node that was refined during this step. */
-    private int refinedNode;
+    private GWTNode refinedNode;
 
     /** Invariants that remain unsatisfied, after the delta is applied. */
     private GWTInvariantSet unsatInvs;
@@ -21,7 +21,7 @@ public class GWTGraphDelta implements Serializable {
         // Empty constructor to avoid SerializationException.
     }
 
-    public GWTGraphDelta(GWTGraph g, int refinedNode, GWTInvariantSet unsatInvs) {
+    public GWTGraphDelta(GWTGraph g, GWTNode refinedNode, GWTInvariantSet unsatInvs) {
         this.graph = g;
         this.refinedNode = refinedNode;
         this.unsatInvs = unsatInvs;
@@ -31,7 +31,7 @@ public class GWTGraphDelta implements Serializable {
         return graph;
     }
 
-    public int getRefinedNode() {
+    public GWTNode getRefinedNode() {
         return refinedNode;
     }
 
