@@ -17,6 +17,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.model.EventNode;
+import synoptic.tests.DAGsTraceGraphBaseTest;
 
 @RunWith(value = Parameterized.class)
 public class DAGsTraceGraphTCTests extends DAGsTraceGraphBaseTest {
