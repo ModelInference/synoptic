@@ -1,12 +1,16 @@
-package synoptic.tests.units;
+package synoptic.tests;
 
 import synoptic.main.ParseException;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.Transition;
-import synoptic.tests.SynopticTest;
 
+/**
+ * Base test class for testing trace graph generation. This class provides a few
+ * methods for generating topologically interesting trace graphs. These are then
+ * checked by derived test classes (e.g., DAGsTraceGraphTCTests).
+ */
 public class DAGsTraceGraphBaseTest extends SynopticTest {
 
     @Override
@@ -14,13 +18,13 @@ public class DAGsTraceGraphBaseTest extends SynopticTest {
         super.setUp();
     }
 
-    DAGsTraceGraph dag;
-    EventNode a = new EventNode(new Event("a"));
-    EventNode b = new EventNode(new Event("b"));
-    EventNode c = new EventNode(new Event("c"));
-    EventNode d = new EventNode(new Event("d"));
-    EventNode e = new EventNode(new Event("e"));
-    EventNode f = new EventNode(new Event("f"));
+    protected DAGsTraceGraph dag;
+    protected EventNode a = new EventNode(new Event("a"));
+    protected EventNode b = new EventNode(new Event("b"));
+    protected EventNode c = new EventNode(new Event("c"));
+    protected EventNode d = new EventNode(new Event("d"));
+    protected EventNode e = new EventNode(new Event("e"));
+    protected EventNode f = new EventNode(new Event("f"));
 
     /**
      * Builds the DAG:
