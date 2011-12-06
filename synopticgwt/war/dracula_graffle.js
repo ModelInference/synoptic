@@ -36,6 +36,8 @@ Raphael.fn.connection = function (obj1, obj2, style) {
             }
 
             var path;
+            var horizOffset = bb1.width / 6;
+            var vertOffset = bb1.height / 6;
 
             /* x-coordinate for label */
             var labelX;
@@ -46,8 +48,9 @@ Raphael.fn.connection = function (obj1, obj2, style) {
             	/* Source and destination nodes are the same node => draw a self loop. */
 
             	var x = bb1.x + bb1.width;
-            	var startY = bb1.y + (bb1.height / 4);
-            	var endY = bb1.y + ((bb1.height * 3) / 4);
+            	
+            	var startY = bb1.y + bb1.height / 2 - vertOffset;
+            	var endY = bb1.y + bb1.height / 2 + vertOffset;
 
             	/* The offset used to calculate coordinates of control points.
             	 * control points are calculated relative to start and ending
@@ -55,7 +58,7 @@ Raphael.fn.connection = function (obj1, obj2, style) {
             	/* Increasing value increases length of oval. */
             	var controlPointXOffset = 30;
             	/* Decreasing value increases roundness of oval. */
-            	var controlPointYOffset = 5;
+            	var controlPointYOffset = 0;
 
             	/* loop */
             	path = ["M", x, startY, "C", x + controlPointXOffset, startY + controlPointYOffset,
@@ -69,23 +72,21 @@ Raphael.fn.connection = function (obj1, obj2, style) {
 
             } else {
             	/* This branch contains unmodified Dracula code for computing paths. */
-                var off1 = 0;
-                var off2 = 0;
-              
+
                 /* coordinates for potential connection coordinates from bb1 */
                 var p_inputs = [
-                    {x: bb1.x + bb1.width / 2, y: bb1.y - off1},              /* NORTH 1 */
-                	{x: bb1.x + bb1.width / 2, y: bb1.y + bb1.height + off1}, /* SOUTH 1 */
-                	{x: bb1.x - off1, y: bb1.y + bb1.height / 2},             /* WEST  1 */
-                	{x: bb1.x + bb1.width + off1, y: bb1.y + bb1.height / 2}, /* EAST  1 */       
+                    {x: bb1.x + bb1.width / 2 - horizOffset, y: bb1.y},              	/* NORTH 1 */
+                	{x: bb1.x + bb1.width / 2  + horizOffset, y: bb1.y + bb1.height}, 	/* SOUTH 1 */
+                	{x: bb1.x, y: bb1.y + bb1.height / 2 + vertOffset},             	/* WEST  1 */
+                	{x: bb1.x + bb1.width, y: bb1.y + bb1.height / 2 - vertOffset}, 	/* EAST  1 */
                 ];
                              
                 /* coordinates for potential connection coordinates to bb2 */
                 var p_outputs = [
-                 {x: bb2.x + bb2.width / 2, y: bb2.y - off2},              /* NORTH 2 */
-                 {x: bb2.x + bb2.width / 2, y: bb2.y + bb2.height + off2}, /* SOUTH 2 */
-                 {x: bb2.x - off2, y: bb2.y + bb2.height / 2},             /* WEST  2 */
-                 {x: bb2.x + bb2.width + off2, y: bb2.y + bb2.height / 2}  /* EAST  2 */
+                 	{x: bb2.x + bb2.width / 2 + horizOffset, y: bb2.y},              /* NORTH 2 */
+                 	{x: bb2.x + bb2.width / 2 - horizOffset, y: bb2.y + bb2.height}, /* SOUTH 2 */
+                 	{x: bb2.x, y: bb2.y + bb2.height / 2 - vertOffset},              /* WEST  2 */
+                 	{x: bb2.x + bb2.width, y: bb2.y + bb2.height / 2 + vertOffset},  /* EAST  2 */
                  ];
                                 
                 /* distances between objects and according coordinates connection */
