@@ -17,13 +17,13 @@
  */
 Raphael.fn.connection = function (obj1, obj2, style) {
     var selfRef = this;
-    /* create and return new connection */
+    /* Create and return new connection. */
     var edge = {/*
         from : obj1,
         to : obj2,
         style : style,*/
         draw : function() {
-            /* get bounding boxes of target and source */
+            /* Get bounding boxes of target and source. */
             var bb1 = obj1.getBBox();
             var bb2 = obj2.getBBox();
             var isSelfLoop = false;
@@ -36,21 +36,43 @@ Raphael.fn.connection = function (obj1, obj2, style) {
             }
 
             var path;
+            
+            /* Input points are displaced 1/6 of edge length clockwise from mid-point 
+             * of each edge. Output points are displaced 1/6 of edge length 
+             * counter-clockwise from mid-point of each edge. */
+            /* The offset amount from the mid-point of a horizontal edge. */
             var horizOffset = bb1.width / 6;
+            /* The offset amount from the mid-point of a vertical edge. */
             var vertOffset = bb1.height / 6;
 
             /* x-coordinate for label */
             var labelX;
             /* y-coordinate for label */
             var labelY;
+            
+            /* Coordinates for potential connection input points from bb1. */
+            var p_inputs = [
+                {x: bb1.x + bb1.width / 2 - horizOffset, y: bb1.y},              	/* NORTH in */
+            	{x: bb1.x + bb1.width / 2  + horizOffset, y: bb1.y + bb1.height}, 	/* SOUTH in */
+            	{x: bb1.x, y: bb1.y + bb1.height / 2 + vertOffset},             	/* WEST  in */
+            	{x: bb1.x + bb1.width, y: bb1.y + bb1.height / 2 - vertOffset}, 	/* EAST  in */
+            ];
+                         
+            /* Coordinates for potential connection output points to bb2. */
+            var p_outputs = [
+             	{x: bb2.x + bb2.width / 2 + horizOffset, y: bb2.y},              /* NORTH out */
+             	{x: bb2.x + bb2.width / 2 - horizOffset, y: bb2.y + bb2.height}, /* SOUTH out */
+             	{x: bb2.x, y: bb2.y + bb2.height / 2 - vertOffset},              /* WEST  out */
+             	{x: bb2.x + bb2.width, y: bb2.y + bb2.height / 2 + vertOffset},  /* EAST  out */
+             ];
 
             if (isSelfLoop) {
             	/* Source and destination nodes are the same node => draw a self loop. */
-
-            	var x = bb1.x + bb1.width;
             	
-            	var startY = bb1.y + bb1.height / 2 - vertOffset;
-            	var endY = bb1.y + bb1.height / 2 + vertOffset;
+            	/* Self-loops currently hard-coded to be EAST of object */
+            	var loopX = p_inputs[3].x;
+            	var startY = p_inputs[3].y;
+            	var endY = p_outputs[3].y;
 
             	/* The offset used to calculate coordinates of control points.
             	 * control points are calculated relative to start and ending
@@ -60,44 +82,29 @@ Raphael.fn.connection = function (obj1, obj2, style) {
             	/* Decreasing value increases roundness of oval. */
             	var controlPointYOffset = 0;
 
-            	/* loop */
-            	path = ["M", x, startY, "C", x + controlPointXOffset, startY + controlPointYOffset,
-            	        x + controlPointXOffset, endY - controlPointYOffset, x, endY].join(",");
+            	/* Loop */
+            	path = ["M", loopX, startY, "C", loopX + controlPointXOffset, startY + controlPointYOffset,
+            	        loopX + controlPointXOffset, endY - controlPointYOffset, loopX, endY].join(",");
 
-            	/* arrow */
-            	path = path + ",M"+(x+5)+","+(endY-5)+",L"+x+","+endY+",L"+(x+5)+","+(endY+5);
+            	/* Arrow */
+            	path = path + ",M"+(loopX+5)+","+(endY-5)+",L"+loopX+","+endY+",L"+(loopX+5)+","+(endY+5);
 
-            	labelX = bb1.x + bb1.width + controlPointXOffset + 15;
+            	/* Label directly to right of self-loop */
+            	labelX = loopX + controlPointXOffset + 15;
             	labelY = bb1.y + (bb1.height / 2);
 
             } else {
             	/* This branch contains unmodified Dracula code for computing paths. */
-
-                /* coordinates for potential connection coordinates from bb1 */
-                var p_inputs = [
-                    {x: bb1.x + bb1.width / 2 - horizOffset, y: bb1.y},              	/* NORTH 1 */
-                	{x: bb1.x + bb1.width / 2  + horizOffset, y: bb1.y + bb1.height}, 	/* SOUTH 1 */
-                	{x: bb1.x, y: bb1.y + bb1.height / 2 + vertOffset},             	/* WEST  1 */
-                	{x: bb1.x + bb1.width, y: bb1.y + bb1.height / 2 - vertOffset}, 	/* EAST  1 */
-                ];
-                             
-                /* coordinates for potential connection coordinates to bb2 */
-                var p_outputs = [
-                 	{x: bb2.x + bb2.width / 2 + horizOffset, y: bb2.y},              /* NORTH 2 */
-                 	{x: bb2.x + bb2.width / 2 - horizOffset, y: bb2.y + bb2.height}, /* SOUTH 2 */
-                 	{x: bb2.x, y: bb2.y + bb2.height / 2 - vertOffset},              /* WEST  2 */
-                 	{x: bb2.x + bb2.width, y: bb2.y + bb2.height / 2 + vertOffset},  /* EAST  2 */
-                 ];
                                 
-                /* distances between objects and according coordinates connection */
+                /* Distances between objects and according coordinates connection. */
                 var d = {}, dis = [];
 
                 /*
-                 * find out the best connection coordinates by trying all possible ways
+                 * Find out the best connection coordinates by trying all possible ways.
                  */
-                /* loop the first object's connection coordinates */
+                /* Loop the first object's connection coordinates. */
                 for (var i = 0; i < 4; i++) {
-                	/* loop the second object's connection coordinates */
+                	/* Loop the second object's connection coordinates. */
                 	for (var j = 0; j < 4; j++) {
                 		var dx = Math.abs(p_inputs[i].x - p_outputs[j].x),
                 			dy = Math.abs(p_inputs[i].y - p_outputs[j].y);
@@ -110,7 +117,7 @@ Raphael.fn.connection = function (obj1, obj2, style) {
                 
                 var disIsEmpty = dis.length == 0;
                 var res = disIsEmpty ? [0, 4] : d[Math.min.apply(Math, dis).toFixed(3)];
-                /* bezier path */
+                /* Bezier path. */
                 var x1 = p_inputs[res[0]].x,
                 	y1 = p_inputs[res[0]].y,
                 	x4 = p_outputs[disIsEmpty ? res[1] : res[1] - 4].x,
@@ -122,15 +129,15 @@ Raphael.fn.connection = function (obj1, obj2, style) {
                 	x3 = [0, 0, 0, 0, x4, x4, x4 - dx, x4 + dx][res[1]].toFixed(3),
                 	y3 = [0, 0, 0, 0, y1 + dy, y1 - dy, y4, y4][res[1]].toFixed(3);
 
-                /* assemble path and arrow */
+                /* Assemble path and arrow. */
                 path = ["M", x1.toFixed(3), y1.toFixed(3), "C", x2, y2, x3, y3, x4.toFixed(3), y4.toFixed(3)].join(",");
-                /* arrow */
+                /* Arrow */
                 if(style && style.directed) {
-                    /* magnitude, length of the last path vector */
+                    /* Magnitude, length of the last path vector. */
                     var mag = Math.sqrt((y4 - y3) * (y4 - y3) + (x4 - x3) * (x4 - x3));
-                    /* vector normalisation to specified length  */
+                    /* Vector normalisation to specified length.  */
                     var norm = function(x,l){return (-x*(l||5)/mag);};
-                    /* calculate array coordinates (two lines orthogonal to the path vector) */
+                    /* Calculate array coordinates (two lines orthogonal to the path vector). */
                     var arr = [
                         {x:(norm(x4-x3)+norm(y4-y3)+x4).toFixed(3), y:(norm(y4-y3)+norm(x4-x3)+y4).toFixed(3)},
                         {x:(norm(x4-x3)-norm(y4-y3)+x4).toFixed(3), y:(norm(y4-y3)-norm(x4-x3)+y4).toFixed(3)}
@@ -142,14 +149,14 @@ Raphael.fn.connection = function (obj1, obj2, style) {
                 labelY = (y1+y4)/2;
             }
 
-            /* function to be used for moving existent path(s), e.g. animate() or attr() */
+            /* Function to be used for moving existent path(s), e.g. animate() or attr(). */
             var move = "attr";
-            /* applying path(s) */
+            /* Applying path(s). */
             edge.fg && edge.fg[move]({path:path})
                 || (edge.fg = selfRef.path(path).attr({stroke: style && style.stroke || "#000", fill: "none"}).toBack());
             edge.bg && edge.bg[move]({path:path})
                 || style && style.fill && (edge.bg = style.fill.split && selfRef.path(path).attr({stroke: style.fill.split("|")[0], fill: "none", "stroke-width": style.fill.split("|")[1] || 3}).toBack());
-            /* setting label */
+            /* Setting label. */
             style && style.label
                 && (edge.label && edge.label.attr({x: labelX, y: labelY})
                     || (edge.label = selfRef.text(labelX, labelY, style.label).attr({fill: "#000", "font-size": style["font-size"] || "12px"})));
