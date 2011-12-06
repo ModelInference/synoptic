@@ -58,7 +58,7 @@ public class DotExportFormatter extends GraphExportFormatter {
         String freqStr = quote(String.format("%.2f", prob));
         String attributes = "label=\"" + freqStr + "\", weight=\"" + freqStr
                 + "\"";
-        return edgeToString(nodeSrc, nodeDst, relation, attributes);
+        return edgeToString(nodeSrc, nodeDst, attributes, relation);
     }
 
     @Override

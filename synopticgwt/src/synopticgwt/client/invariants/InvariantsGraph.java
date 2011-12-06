@@ -154,6 +154,9 @@ public class InvariantsGraph {
 
         int fontSize = 20; // getFontSize(longestEType);
 
+        // Used to offset arrow heads and bases from overlapping event labels
+        int labelOffset = longestEType * fontSize;
+
         this.paper = new Paper(width, height, invCanvasId);
 
         // Sort eventTypesList alphabetically
@@ -186,15 +189,15 @@ public class InvariantsGraph {
             List<GWTInvariant> invs = gwtInvs.getInvs(invType);
             if (invType.equals("AP")) {
                 List<TOInvariant> gInvs = drawTOInvariants(invs, leftEventCol,
-                        midEventCol, gwtInvToIGridLabel);
+                        midEventCol, gwtInvToIGridLabel, labelOffset);
                 apInvs.addAll(gInvs);
             } else if (invType.equals("AFby")) {
                 List<TOInvariant> gInvs = drawTOInvariants(invs, midEventCol,
-                        rightEventCol, gwtInvToIGridLabel);
+                        rightEventCol, gwtInvToIGridLabel, labelOffset);
                 afbyInvs.addAll(gInvs);
             } else if (invType.equals("NFby")) {
                 List<TOInvariant> gInvs = drawTOInvariants(invs, midEventCol,
-                        rightEventCol, gwtInvToIGridLabel);
+                        rightEventCol, gwtInvToIGridLabel, labelOffset);
                 nfbyInvs.addAll(gInvs);
             } else if (invType.equals("ACwith")) {
                 leftACPartitions = generateACPartitions(drawPOInvariants(invs,
@@ -289,11 +292,15 @@ public class InvariantsGraph {
      * @param srcCol
      * @param dstCol
      * @param gwtInvToIGridLabel
+     * @param labelOffset
+     *            Used to offset arrow heads and bases from overlapping event
+     *            labels
      * @return
      */
     private List<TOInvariant> drawTOInvariants(List<GWTInvariant> invs,
             Map<String, Event> srcCol, Map<String, Event> dstCol,
-            Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel) {
+            Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel,
+            int labelOffset) {
         List<TOInvariant> result = new ArrayList<TOInvariant>();
         for (GWTInvariant inv : invs) {
             String srcEventString = inv.getSource();
@@ -305,7 +312,7 @@ public class InvariantsGraph {
             InvariantGridLabel iGridLabel = gwtInvToIGridLabel.get(inv);
 
             TOInvariant gInv = new TOInvariant(srcEvent, dstEvent, inv, paper,
-                    iGridLabel);
+                    iGridLabel, labelOffset);
 
             iGridLabel.setGraphicInvariant(gInv);
 

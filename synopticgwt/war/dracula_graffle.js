@@ -72,7 +72,7 @@ Raphael.fn.connection = function (obj1, obj2, style) {
 
             } else {
             	/* This branch contains unmodified Dracula code for computing paths. */
-                
+
                 /* coordinates for potential connection coordinates from bb1 */
                 var p_inputs = [
                     {x: bb1.x + bb1.width / 2 - horizOffset, y: bb1.y},              	/* NORTH 1 */

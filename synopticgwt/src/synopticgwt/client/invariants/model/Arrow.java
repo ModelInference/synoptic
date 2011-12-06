@@ -14,7 +14,8 @@ public class Arrow implements Serializable {
     /** Length of the positive and negative arrowhead segments */
     public static final int HEAD_LENGTH = 10;
     /** Distance between terminal end of the arrow  and (x2, y2) */
-    public static final int TARGET_BUFFER = 10;
+    // Zero since arrows are now offset from labels differently
+    public static final int TARGET_BUFFER = 0;
 	
     // Non-arrowhead part of the arrow
     private Path body;

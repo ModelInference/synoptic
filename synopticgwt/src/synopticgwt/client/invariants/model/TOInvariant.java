@@ -28,13 +28,24 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
 
     private boolean visible;
 
-    /** Constructs a Invariant for GWTinv from src to dst on paper */
+    /**
+     * Constructs a Invariant for GWTinv from src to dst on paper
+     * 
+     * @param labelOffset
+     *            Used to offset arrow heads and bases from overlapping event
+     *            labels
+     */
     public TOInvariant(Event src, Event dst, GWTInvariant GWTinv, Paper paper,
-            InvariantGridLabel iGridLabel) {
+            InvariantGridLabel iGridLabel, int labelOffset) {
         this.src = src;
         this.dst = dst;
-        this.arrow = new Arrow(src.getX(), src.getY(), dst.getX(), dst.getY(),
-                paper);
+        /*
+         *  I use dst.getX() for srcX and src.getX() for dstX. This is a hack,
+         *  but it seems to work reasonably well.
+         */
+        int srcX = dst.getX() - labelOffset;
+        int dstX = src.getX() + labelOffset;
+        this.arrow = new Arrow(srcX, src.getY(), dstX, dst.getY(), paper);
         arrow.setMouseover(this);
         arrow.setMouseout(this);
         this.GWTinv = GWTinv;

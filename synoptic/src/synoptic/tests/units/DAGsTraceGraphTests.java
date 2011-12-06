@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Test;
 
 import synoptic.model.EventNode;
+import synoptic.tests.DAGsTraceGraphBaseTest;
 
 /**
  * Tests for the DAGsTraceGraph.
