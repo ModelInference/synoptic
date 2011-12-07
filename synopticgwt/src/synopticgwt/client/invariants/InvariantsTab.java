@@ -194,6 +194,14 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
         @Override
         public void onClick(ClickEvent event) {
+
+            // Do not activate/deactivate invariants if the model tab is
+            // disabled (i.e., if no model is currently displayed).
+            if (!SynopticGWT.entryPoint.getTabPanel().getTabBar()
+                    .isTabEnabled(2)) {
+                return;
+            }
+
             // The clicked cell.
             Cell cell = ((Grid) event.getSource()).getCellForEvent(event);
 
@@ -211,19 +219,16 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
             int invID = invLabel.getInvariant().getID();
 
-            // //////////////////////////////////////////////////////////
-            // This looks pretty important. It signals to
-            // SynopticGWT that the invariants have changed. Why not put
-            // this into the invariant set though?
-            // Is there a better way to communicate this information to
-            // the Model tab? Maybe a mutation counter in GWTInvariant
-            // Set?
-            // //////////////////////////////////////////////////////////
+            // This call signals to SynopticGWT that the invariants have
+            // changed.
+            // TODO: Perhaps there is a better way to communicate this
+            // information to the Model tab, perhaps by using a mutation counter
+            // in GWTInvariantSet.
             SynopticGWT.entryPoint.invSetChanged();
 
             CellFormatter cFormatter = grid.getCellFormatter();
 
-            // Corresponding invariant is activated => deactive it.
+            // Corresponding invariant is activated => deactivate it.
             if (invLabel.getActive()) {
                 activeInvsHashes.remove(invID);
                 invLabel.setActive(false);

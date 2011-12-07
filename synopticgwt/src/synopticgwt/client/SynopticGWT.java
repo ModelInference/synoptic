@@ -40,7 +40,7 @@ public class SynopticGWT implements EntryPoint {
             .create(ISynopticService.class);
 
     /** This contains the three main application tabs. */
-    TabPanel tabPanel = new TabPanel();
+    private TabPanel tabPanel = new TabPanel();
 
     // TODO: there should be a pWheel for every tab.
     /** The progress wheel is an visual indicator of progress for the user. */
@@ -260,5 +260,9 @@ public class SynopticGWT implements EntryPoint {
             // TODO: we also want to clear model state here, in the case
             // that the prior generated model is large.
         }
+    }
+
+    public TabPanel getTabPanel() {
+        return tabPanel;
     }
 }
