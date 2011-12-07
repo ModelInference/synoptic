@@ -23,8 +23,8 @@ public class InvariantGridLabel extends Label {
     /** Column for Label's corresponding grid cell */
     private int col;
     private GWTInvariant inv;
-    /* This is a list so we can point to multiple 
-     * GraphicConcurrentInvariants
+    /*
+     * This is a list so we can point to multiple GraphicConcurrentInvariants
      */
     private List<Invariant> gInvs;
     // T.101.JV: Activation state is stored in the invLabel, and should
@@ -87,14 +87,16 @@ public class InvariantGridLabel extends Label {
         }
     }
 
-    // highlighting only works for NFby/AP/AFby invariants
+    /**
+     * Note: highlighting only works for NFby/AP/AFby invariants
+     */
     public void highlightOn() {
         if (active) {
             String tType = inv.getTransitionType();
             if (tType.equals("NFby") || tType.equals("NCwith")) {
                 cForm.setStyleName(row, col, "tableCellHighlightRed");
-            } else if (tType.equals("AP") || tType.equals("AFby") || 
-                    tType.equals("ACwith")) {
+            } else if (tType.equals("AP") || tType.equals("AFby")
+                    || tType.equals("ACwith")) {
                 cForm.setStyleName(row, col, "tableCellHighlightBlue");
             }
         }
