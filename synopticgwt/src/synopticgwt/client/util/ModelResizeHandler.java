@@ -5,6 +5,7 @@ import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.TabBar;
 
+import synopticgwt.client.SynopticGWT;
 import synopticgwt.client.model.ModelTab;
 
 /**
@@ -47,7 +48,7 @@ public class ModelResizeHandler implements ResizeHandler {
             public void run() {
                 // If the tab is enabled, resize the canvas
                 // and redraw the graph (with fancy animation).
-                if (tabBar.isTabEnabled(2)) {
+                if (tabBar.isTabEnabled(SynopticGWT.modelTabIndex)) {
                     modelTab.updateGraphPanel();
                 }
             }
