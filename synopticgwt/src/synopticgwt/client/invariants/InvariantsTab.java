@@ -223,7 +223,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             // Do not activate/deactivate invariants if the model tab is
             // disabled (i.e., if no model is currently displayed).
             if (!SynopticGWT.entryPoint.getTabPanel().getTabBar()
-                    .isTabEnabled(2)) {
+                    .isTabEnabled(SynopticGWT.modelTabIndex)) {
                 return;
             }
 
