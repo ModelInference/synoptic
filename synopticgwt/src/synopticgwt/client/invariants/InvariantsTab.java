@@ -77,17 +77,12 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             }
         }
 
-        // Show the TO invariant graphic only if there are no concurrency
-        // invariants in the set of invariants.
-        if (!gwtInvs.containsConcurrencyInvs) {
-            String invCanvasId = "invCanvasId";
-            HorizontalPanel invGraphicPanel = new HorizontalPanel();
-            invGraphicPanel.getElement().setId(invCanvasId);
-            invGraphicPanel.setStylePrimaryName("modelCanvas");
-            tableAndGraphicPanel.add(invGraphicPanel);
-            iGraph.createInvariantsGraphic(gwtInvs, invCanvasId,
-                    gwtInvToGridLabel);
-        }
+        String invCanvasId = "invCanvasId";
+        HorizontalPanel invGraphicPanel = new HorizontalPanel();
+        invGraphicPanel.getElement().setId(invCanvasId);
+        invGraphicPanel.setStylePrimaryName("modelCanvas");
+        tableAndGraphicPanel.add(invGraphicPanel);
+        iGraph.createInvariantsGraphic(gwtInvs, invCanvasId, gwtInvToGridLabel);
     }
 
     /**

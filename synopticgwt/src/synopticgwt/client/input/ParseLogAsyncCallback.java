@@ -16,22 +16,22 @@ import synopticgwt.shared.GWTParseException;
 class ParseLogAsyncCallback extends
         ErrorReportingAsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
 
-    private final InputPanel inputPanel;
+    private final InputTab inputTab;
 
     /**
      * @param inputPanel
      */
-    public ParseLogAsyncCallback(ProgressWheel pWheel, InputPanel inputPanel) {
+    public ParseLogAsyncCallback(ProgressWheel pWheel, InputTab inputPanel) {
         super(pWheel, "parseLog call");
-        this.inputPanel = inputPanel;
+        this.inputTab = inputPanel;
     }
 
     @Override
     public void onFailure(Throwable caught) {
         super.onFailure(caught);
 
-        inputPanel.parseErrorMsgLabel.setText(caught.getMessage());
-        inputPanel.parseLogButton.setEnabled(true);
+        inputTab.parseErrorMsgLabel.setText(caught.getMessage());
+        inputTab.parseLogButton.setEnabled(true);
         if (!(caught instanceof GWTParseException)) {
             return;
         }
@@ -47,19 +47,19 @@ class ParseLogAsyncCallback extends
             // TODO: currently error handling only for first reg exps
             // text box, extend to all extra reg exp text box also.
             // Noted in Issue152
-            String regexes = ((TextBox) inputPanel.regExpsPanel.getWidget(0))
+            String regexes = ((TextBox) inputTab.regExpsPanel.getWidget(0))
                     .getText();
             int pos = indexOf(regexes, regex);
-            ((TextBox) inputPanel.regExpsPanel.getWidget(0)).setFocus(true);
-            ((TextBox) inputPanel.regExpsPanel.getWidget(0)).setSelectionRange(
+            ((TextBox) inputTab.regExpsPanel.getWidget(0)).setFocus(true);
+            ((TextBox) inputTab.regExpsPanel.getWidget(0)).setSelectionRange(
                     pos, regex.length());
         }
         if (exception.hasLogLine()) {
             String log = exception.getLogLine();
-            String logs = inputPanel.logTextArea.getText();
+            String logs = inputTab.logTextArea.getText();
             int pos = indexOf(logs, log);
-            inputPanel.logTextArea.setFocus(true);
-            inputPanel.logTextArea.setSelectionRange(pos, log.length());
+            inputTab.logTextArea.setFocus(true);
+            inputTab.logTextArea.setSelectionRange(pos, log.length());
 
         }
     }
@@ -103,7 +103,7 @@ class ParseLogAsyncCallback extends
     public void onSuccess(GWTPair<GWTInvariantSet, GWTGraph> ret) {
         super.onSuccess(ret);
 
-        inputPanel.parseLogButton.setEnabled(true);
+        inputTab.parseLogButton.setEnabled(true);
         SynopticGWT.entryPoint.logParsed(ret.getLeft(), ret.getRight());
     }
 }

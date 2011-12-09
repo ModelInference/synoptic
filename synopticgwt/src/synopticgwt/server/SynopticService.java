@@ -306,11 +306,14 @@ public class SynopticService extends RemoteServiceServlet implements
             GWTInvariant invVal = new GWTInvariant(bInv.getFirst().toString(),
                     bInv.getSecond().toString(), bInv.getShortName());
 
+            if (bInv instanceof ConcurrencyInvariant) {
+                GWTinvs.containsConcurrencyInvs = true;
+            }
+
             // Set a unique identification id.
             invVal.setID(inv.hashCode());
 
             GWTinvs.addInv(invKey, invVal);
-
         }
         return GWTinvs;
     }
