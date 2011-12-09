@@ -5,11 +5,15 @@ syntax: glob
 synoptic/bin/*
 synoptic/junit/*
 
+# Manifest is generated automatically during build.
+synopticgwt/META-INF/MANIFEST.MF
 synopticgwt/war/WEB-INF/*
 synopticgwt/www-test/*
 synopticgwt/war/synopticgwt.SynopticGWT.JUnit/*
-synopticgwt/war/synopticgwt/*
-synopticgwt/war/userexport/*
+synopticgwt/war/synopticgwt/
+synopticgwt/junit/
+synopticgwt/war/model-exports/*
+synopticgwt/war/uploaded-logfiles/*
 synopticgwt/war/userlogfileexport/*
 synopticgwt/.gwt/*
 synopticgwt/.settings/*

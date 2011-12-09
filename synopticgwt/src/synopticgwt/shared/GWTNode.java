@@ -2,7 +2,6 @@ package synopticgwt.shared;
 
 import java.io.Serializable;
 
-
 /**
  * A representation of a graph node for GWT. Overall, this is a representation
  * of a partition node which acts as a bridge between Synoptic's server and the
@@ -64,10 +63,14 @@ public class GWTNode implements Serializable {
         return result;
     }
 
-    @Override
-    public String toString() {
+    public String getEventType() {
         assert this.eventType != null;
         return eventType;
+    }
+
+    @Override
+    public String toString() {
+        return getEventType();
     }
 
     /**
