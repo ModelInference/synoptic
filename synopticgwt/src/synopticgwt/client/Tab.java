@@ -1,8 +1,6 @@
 package synopticgwt.client;
 
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.RootPanel;
 
 import synopticgwt.client.util.ProgressWheel;
 
@@ -41,21 +39,6 @@ public abstract class Tab<T extends Panel> {
     public Tab(ISynopticServiceAsync synopticService) {
         this.synopticService = synopticService;
         this.pWheel = null;
-    }
-
-    /**
-     * Shows an error message in the rpcErrorDiv whenever an RPC call fails in a
-     * Tab.
-     * 
-     * @param message
-     *            The error message to display.
-     */
-    public void displayRPCErrorMessage(String message) {
-        Label error = new Label(message);
-        error.setStyleName("ErrorMessage");
-        RootPanel rpcErrorDiv = RootPanel.get("rpcErrorDiv");
-        rpcErrorDiv.clear();
-        rpcErrorDiv.add(error);
     }
 
     /** This call returns the tab's Panel widget that holds the tab's contents. */

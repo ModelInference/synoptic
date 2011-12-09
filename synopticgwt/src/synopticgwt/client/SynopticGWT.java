@@ -10,7 +10,9 @@ import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.DisclosurePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabPanel;
@@ -19,6 +21,7 @@ import synopticgwt.client.input.InputTab;
 import synopticgwt.client.invariants.InvariantsTab;
 import synopticgwt.client.model.ModelTab;
 import synopticgwt.client.util.AnalyticsTracker;
+import synopticgwt.client.util.ErrorReportingAsyncCallback;
 import synopticgwt.client.util.ModelResizeHandler;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTGraph;
@@ -154,17 +157,6 @@ public class SynopticGWT implements EntryPoint {
         invSetChanged = true;
     }
 
-    /** Called when commit invariants call to the Synoptic service fails. */
-    public void commitInvsFailure(Throwable caught) {
-        Label error = new Label(
-                "Remote Procedure Call Failure while updating invariants: "
-                        + caught.toString());
-        error.setStyleName("ErrorMessage");
-        RootPanel rpcErrorDiv = RootPanel.get("rpcErrorDiv");
-        rpcErrorDiv.clear();
-        rpcErrorDiv.add(error);
-    }
-
     /** Called when commit invariants call to the Synoptic service succeeds. */
     public void commitInvsSuccess(GWTGraph gwtGraph) {
         invSetChanged = false;
@@ -219,14 +211,11 @@ public class SynopticGWT implements EntryPoint {
         // ////////////////////// Call to remote service.
         try {
             synopticService.commitInvariants(invTab.activeInvsHashes,
-                    new AsyncCallback<GWTGraph>() {
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            commitInvsFailure(caught);
-                        }
-
+                    new ErrorReportingAsyncCallback<GWTGraph>(
+                            "commitInvariants call") {
                         @Override
                         public void onSuccess(GWTGraph gwtGraph) {
+                            super.onSuccess(gwtGraph);
                             commitInvsSuccess(gwtGraph);
                         }
                     });
@@ -278,5 +267,50 @@ public class SynopticGWT implements EntryPoint {
 
     public TabPanel getTabPanel() {
         return tabPanel;
+    }
+
+    /**
+     * Clears the current error message, if any.
+     */
+    public void clearError() {
+        RootPanel rpcErrorDiv = RootPanel.get("ErrorDiv");
+        rpcErrorDiv.clear();
+    }
+
+    /**
+     * Shows an error message in the errorDiv.
+     */
+    public void showError(String msg, String clientStackTrace,
+            String serverStackTrace) {
+        // First, clear whatever error might be currently displayed.
+        clearError();
+
+        // All error-related messages will be added to this flow panel.
+        RootPanel errorDiv = RootPanel.get("ErrorDiv");
+        FlowPanel fPanel = new FlowPanel();
+        errorDiv.add(fPanel);
+
+        // Add the principle error message.
+        Label errorMsg = new Label(msg);
+        errorMsg.setStyleName("ErrorMessage");
+        fPanel.add(errorMsg);
+
+        // Client-side stack trace can be revealed/hidden.
+        if (clientStackTrace != "") {
+            DisclosurePanel strace = new DisclosurePanel("Client stack trace");
+            strace.setAnimationEnabled(true);
+            strace.setContent(new HTML(clientStackTrace.replace("\n", "<br/>")));
+            strace.setStyleName("ClientExceptionTraceBack");
+            fPanel.add(strace);
+        }
+
+        // Server-side stack trace can be revealed/hidden.
+        if (serverStackTrace != "") {
+            DisclosurePanel strace = new DisclosurePanel("Server stack trace");
+            strace.setAnimationEnabled(true);
+            strace.setContent(new HTML(serverStackTrace.replace("\n", "<br/>")));
+            strace.setStyleName("ServerExceptionTraceBack");
+            fPanel.add(strace);
+        }
     }
 }

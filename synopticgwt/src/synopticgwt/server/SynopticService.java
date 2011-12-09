@@ -4,6 +4,9 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -50,6 +53,7 @@ import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTNode;
 import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.GWTParseException;
+import synopticgwt.shared.GWTServerException;
 import synopticgwt.shared.LogLine;
 
 /**
@@ -311,6 +315,29 @@ public class SynopticService extends RemoteServiceServlet implements
         return GWTinvs;
     }
 
+    protected String throwableStackTraceString(Throwable t) {
+        final Writer writer = new StringWriter();
+        final PrintWriter printWriter = new PrintWriter(writer);
+        t.printStackTrace(printWriter);
+        return writer.toString();
+    }
+
+    // //////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Handle any exceptions that escape processCall().
+     */
+    @Override
+    protected void doUnexpectedFailure(Throwable t) {
+        t.printStackTrace(System.err);
+
+        if (!(t instanceof GWTServerException)) {
+            t = new GWTServerException(t.getMessage(), t.getCause(),
+                    throwableStackTraceString(t));
+        }
+        super.doUnexpectedFailure(t);
+    }
+
     // //////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -346,7 +373,8 @@ public class SynopticService extends RemoteServiceServlet implements
             logger.info("Caught parse exception: " + pe.toString());
             pe.printStackTrace();
             throw new GWTParseException(pe.getMessage(), pe.getCause(),
-                    pe.getRegex(), pe.getLogLine());
+                    throwableStackTraceString(pe), pe.getRegex(),
+                    pe.getLogLine());
 
         } catch (Exception e) {
             logger.info("Caught exception: " + e.toString());

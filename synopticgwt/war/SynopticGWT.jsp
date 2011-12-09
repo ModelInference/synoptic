@@ -98,7 +98,9 @@
 
 
 	    <div id="progressWheelDiv"></div>
-	    <div id="rpcErrorDiv"></div>
+	    
+	    <div id="ErrorDiv"></div>
+            
 	    <div id="mainDiv"></div>
 
     </div>

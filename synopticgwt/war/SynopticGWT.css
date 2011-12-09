@@ -44,10 +44,6 @@ body {
   margin: 5px;
 }
 
-.serverResponseLabelError {
-  color: red;
-}
-
 
 ///////////
 
@@ -213,9 +209,57 @@ body {
 	table-layout: fixed;
 }
 
+
 .ErrorMessage {
-	text-align: center;
+    border: 1px solid red;
+    	
+	margin-right: 60px;
+	margin-left: 60px;
+	margin-top: 0px;
+	margin-bottom: 2px;
+	
+	padding: 10px 20px;
+	
 	color: red;
-	font-style: italic;
-	font-size: 2em;
+	background-color: #f2dbdb;
+	text-align: center;
 }
+
+.ClientExceptionTraceBack {
+	border: 1px solid red;
+	
+	margin-top: 0px;
+	margin-bottom: 2px;
+	margin-left: 60px;
+	margin-right: 60px;
+	
+	padding-top: 0px;
+	padding-bottom: 2px;
+	padding-left: 20px;
+	padding-right: 20px;
+	
+	color: red;
+	background-color: #f2dbdb;
+	text-align: left;
+}
+
+.ServerExceptionTraceBack {
+	border: 1px solid red;
+	
+	margin-top: 0px;
+	margin-bottom: 2px;
+	margin-left: 20px;
+	margin-left: 60px;
+	margin-right: 60px;
+	
+	padding-top: 0px;
+	padding-bottom: 2px;
+	padding-left: 20px;
+	padding-right: 20px;
+	
+	color: red;
+	background-color: #f2dbdb;
+	text-align: left;
+}
+
+

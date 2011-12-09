@@ -1,14 +1,13 @@
 package synopticgwt.client.model;
 
-import java.util.List;
 import java.util.HashSet;
+import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -18,6 +17,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.Tab;
+import synopticgwt.client.util.ErrorReportingAsyncCallback;
 import synopticgwt.client.util.JsniUtil;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.client.util.TooltipListener;
@@ -175,10 +175,10 @@ public class ModelTab extends Tab<DockPanel> {
         // Create the list of edges, where two consecutive node Ids is an edge.
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
         for (GWTEdge edge : graph.getEdges()) {
-            JsniUtil.pushArray(jsEdges,
-                    ((Integer) edge.getSrc().getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsEdges,
-                    ((Integer) edge.getDst().getPartitionNodeHashCode()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()
+                    .getPartitionNodeHashCode()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()
+                    .getPartitionNodeHashCode()).toString());
 
             // This contains the edge's weight.
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
@@ -221,30 +221,15 @@ public class ModelTab extends Tab<DockPanel> {
         JavaScriptObject jsEdges = JavaScriptObject.createArray();
         List<GWTEdge> edgeList = graph.getEdges();
         for (GWTEdge edge : edgeList) {
-            JsniUtil.pushArray(jsEdges,
-                    ((Integer) edge.getSrc().getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsEdges,
-                    ((Integer) edge.getDst().getPartitionNodeHashCode()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()
+                    .getPartitionNodeHashCode()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()
+                    .getPartitionNodeHashCode()).toString());
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
         }
 
         ModelGraphic.createChangingGraph(jsNodes, jsEdges,
                 refinedNode.getPartitionNodeHashCode(), canvasId);
-    }
-
-    /** Called when the request to get log lines for a partition failed. */
-    public void viewLogLineFailure(Throwable caught) {
-        // TODO: differentiate between clicks on initial/terminal nodes and
-        // other nodes.
-
-        // This is expected whenever the user double clicks on an initial or
-        // terminal node, so we'll ignore it
-        logLinesTable.clear();
-    }
-
-    /** Called when the request to get log lines for a partition succeeded. */
-    public void viewLogLineSuccess(List<LogLine> result) {
-        logLinesTable.showLines(result);
     }
 
     /**
@@ -254,16 +239,28 @@ public class ModelTab extends Tab<DockPanel> {
     public void handleLogRequest(int nodeID) throws Exception {
         // ////////////////////// Call to remote service.
         synopticService.handleLogRequest(nodeID,
-                new AsyncCallback<List<LogLine>>() {
+                new ErrorReportingAsyncCallback<List<LogLine>>(pWheel,
+                        "handleLogRequest call") {
 
+                    @SuppressWarnings("synthetic-access")
                     @Override
                     public void onFailure(Throwable caught) {
-                        viewLogLineFailure(caught);
+                        super.onFailure(caught);
+                        // TODO: differentiate between clicks on
+                        // initial/terminal nodes and
+                        // other nodes.
+
+                        // This is expected whenever the user double clicks on
+                        // an initial or
+                        // terminal node, so we'll ignore it
+                        logLinesTable.clear();
                     }
 
+                    @SuppressWarnings("synthetic-access")
                     @Override
                     public void onSuccess(List<LogLine> result) {
-                        viewLogLineSuccess(result);
+                        super.onSuccess(result);
+                        logLinesTable.showLines(result);
                     }
                 });
         // //////////////////////
@@ -286,22 +283,26 @@ public class ModelTab extends Tab<DockPanel> {
      * step.
      */
     public void refineButtonClick(ClickEvent event) {
-        pWheel.startAnimation();
         modelRefineButton.setEnabled(false);
 
         // ////////////////////// Call to remote service.
         try {
-            synopticService.refineOneStep(new AsyncCallback<GWTGraphDelta>() {
-                @Override
-                public void onFailure(Throwable caught) {
-                    refineOneStepFailure(caught);
-                }
+            synopticService
+                    .refineOneStep(new ErrorReportingAsyncCallback<GWTGraphDelta>(
+                            pWheel, "refineOneStep call") {
+                        @SuppressWarnings("synthetic-access")
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            super.onFailure(caught);
+                            modelRefineButton.setEnabled(true);
+                        }
 
-                @Override
-                public void onSuccess(GWTGraphDelta graph) {
-                    refineOneStepSuccess(graph);
-                }
-            });
+                        @Override
+                        public void onSuccess(GWTGraphDelta graph) {
+                            super.onSuccess(graph);
+                            refineOneStepSuccess(graph);
+                        }
+                    });
         } catch (Exception ex) {
             // TODO Auto-generated catch block
             ex.printStackTrace();
@@ -309,18 +310,8 @@ public class ModelTab extends Tab<DockPanel> {
         // //////////////////////
     }
 
-    /** Called when a refinement call to the service failed. */
-    public void refineOneStepFailure(Throwable caught) {
-        pWheel.stopAnimation();
-        displayRPCErrorMessage("Remote Procedure Call Failure while refining: "
-                + caught.toString());
-        modelRefineButton.setEnabled(true);
-    }
-
     /** Called when a refinement call to the service succeeded. */
     public void refineOneStepSuccess(GWTGraphDelta graph) {
-        pWheel.stopAnimation();
-
         if (graph == null) {
             // Graph is null when no refinement occurred.
             modelCoarsenButton.setEnabled(true);
@@ -339,74 +330,51 @@ public class ModelTab extends Tab<DockPanel> {
             // Refinement still possible -- re-enable refinement.
             modelRefineButton.setEnabled(true);
         }
-        // Do we want to surprise the user and switch their view for them?
-        // tabPanel.selectTab(2);
     }
 
     /** Generates a call to Synoptic service to coarsen the model. */
     public void coarsenModelButtonClick(ClickEvent event) {
-        pWheel.startAnimation();
-
         // ////////////////////// Call to remote service.
         modelCoarsenButton.setEnabled(false);
         try {
-            synopticService.coarsenOneStep(new AsyncCallback<GWTGraph>() {
-                @Override
-                public void onFailure(Throwable caught) {
-                    coarsenOneStepFailure(caught);
-                }
-
-                @Override
-                public void onSuccess(GWTGraph graph) {
-                    coarsenOneStepSuccess(graph);
-                }
-            });
+            synopticService
+                    .coarsenOneStep(new ErrorReportingAsyncCallback<GWTGraph>(
+                            pWheel, "coarsenOneStep call") {
+                        @SuppressWarnings("synthetic-access")
+                        @Override
+                        public void onSuccess(GWTGraph graph) {
+                            super.onSuccess(graph);
+                            showGraph(graph);
+                            modelRefineButton.setEnabled(false);
+                            modelCoarsenButton.setEnabled(false);
+                            modelGetFinalButton.setEnabled(false);
+                        }
+                    });
         } catch (Exception ex) {
             // TODO Auto-generated catch block
             ex.printStackTrace();
         }
         // //////////////////////
-    }
-
-    /** Called when the coarsening call to the service failed. */
-    public void coarsenOneStepFailure(Throwable caught) {
-        pWheel.stopAnimation();
-        displayRPCErrorMessage("Remote Procedure Call Failure while coarsening");
-
-    }
-
-    /** Called when the coarsening call to the service succeeded. */
-    public void coarsenOneStepSuccess(GWTGraph graph) {
-        pWheel.stopAnimation();
-        // Do we want to surprise the user and switch their view for them?
-        // tabPanel.selectTab(2);
-        showGraph(graph);
-
-        modelRefineButton.setEnabled(false);
-        modelCoarsenButton.setEnabled(false);
-        modelGetFinalButton.setEnabled(false);
     }
 
     /** Generates a call to Synoptic service to retrieve the final model. */
     public void getFinalModelButtonClick(ClickEvent event) {
-        pWheel.startAnimation();
         modelRefineButton.setEnabled(false);
         modelCoarsenButton.setEnabled(false);
         modelGetFinalButton.setEnabled(false);
 
         // ////////////////////// Call to remote service.
         try {
-            synopticService.getFinalModel(new AsyncCallback<GWTGraph>() {
-                @Override
-                public void onFailure(Throwable caught) {
-                    getFinalModelFailure(caught);
-                }
+            synopticService
+                    .getFinalModel(new ErrorReportingAsyncCallback<GWTGraph>(
+                            pWheel, "getFinalModel call") {
 
-                @Override
-                public void onSuccess(GWTGraph graph) {
-                    getFinalModelSuccess(graph);
-                }
-            });
+                        @Override
+                        public void onSuccess(GWTGraph graph) {
+                            super.onSuccess(graph);
+                            getFinalModelSuccess(graph);
+                        }
+                    });
         } catch (Exception ex) {
             // TODO Auto-generated catch block
             ex.printStackTrace();
@@ -414,39 +382,24 @@ public class ModelTab extends Tab<DockPanel> {
         // //////////////////////
     }
 
-    /** Called when the call to retrieve final model failed. */
-    public void getFinalModelFailure(Throwable caught) {
-        pWheel.stopAnimation();
-        displayRPCErrorMessage("Remote Procedure Call Failure while fetching final model");
-        caught.printStackTrace();
-
-    }
-
     /** Called when the call to retrieve final model succeeded. */
     public void getFinalModelSuccess(GWTGraph graph) {
-        pWheel.stopAnimation();
-        // Do we want to surprise the user and switch their view for them?
-        // tabPanel.selectTab(2);
         showGraph(graph);
         modelRefineButton.setEnabled(false);
         modelCoarsenButton.setEnabled(false);
         modelGetFinalButton.setEnabled(false);
-
     }
 
     /** Calls the Synoptic service to export the DOT file for the model. */
     public void exportDotButtonClick(ClickEvent event) {
         // ////////////////////// Call to remote service.
         try {
-            synopticService.exportDot(new AsyncCallback<String>() {
-                @Override
-                public void onFailure(Throwable caught) {
-                    exportDotFailure(caught);
-                }
-
+            synopticService.exportDot(new ErrorReportingAsyncCallback<String>(
+                    pWheel, "exportDot call") {
                 @Override
                 public void onSuccess(String fileString) {
-                    exportDotSuccess(fileString);
+                    super.onSuccess(fileString);
+                    Window.open("../" + fileString, "DOT file", "Enabled");
                 }
             });
         } catch (Exception e) {
@@ -454,31 +407,19 @@ public class ModelTab extends Tab<DockPanel> {
             e.printStackTrace();
         }
         // //////////////////////
-    }
-
-    /** Called when export DOT failed. */
-    public void exportDotFailure(Throwable caught) {
-        displayRPCErrorMessage("Remote Procedure Call Failure while exporting current model");
-    }
-
-    /** Called when export DOT succeeded. */
-    public void exportDotSuccess(String fileString) {
-        Window.open("../" + fileString, "DOT file", "Enabled");
     }
 
     /** Calls the Synoptic service to export the PNG file for the model. */
     public void exportPngButtonClick(ClickEvent event) {
         // ////////////////////// Call to remote service.
         try {
-            synopticService.exportPng(new AsyncCallback<String>() {
-                @Override
-                public void onFailure(Throwable caught) {
-                    exportPngFailure(caught);
-                }
+            synopticService.exportPng(new ErrorReportingAsyncCallback<String>(
+                    pWheel, "exportPng call") {
 
                 @Override
                 public void onSuccess(String fileString) {
-                    exportPngSuccess(fileString);
+                    super.onSuccess(fileString);
+                    Window.open("../" + fileString, "PNG file", "Enabled");
                 }
             });
         } catch (Exception e) {
@@ -486,15 +427,5 @@ public class ModelTab extends Tab<DockPanel> {
             e.printStackTrace();
         }
         // //////////////////////
-    }
-
-    /** Called when export PNg failed. */
-    public void exportPngFailure(Throwable caught) {
-        displayRPCErrorMessage("Remote Procedure Call Failure while exporting current model");
-    }
-
-    /** Called when export PNG succeeded. */
-    public void exportPngSuccess(String fileString) {
-        Window.open("../" + fileString, "PNG file", "Enabled");
     }
 }
