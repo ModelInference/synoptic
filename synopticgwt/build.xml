@@ -9,6 +9,9 @@
 
   <!-- Configure path to GWT SDK -->
   <property name="gwt.sdk" location="../lib/gwt/" />
+	
+  <!-- Where to output junit test results. -->
+  <property name="junit.output.dir" value="junit"/>
 
   <path id="project.class.path">
     <pathelement location="war/WEB-INF/classes"/>
@@ -17,7 +20,7 @@
     <!-- Add any additional non-server libs (such as JUnit) -->
     <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
   </path>
-
+	
   <!--=====================================================================-->
   <target name="libs" description="Copy libs to WEB-INF/lib">
     <mkdir dir="war/WEB-INF/lib" />
@@ -66,16 +69,49 @@
   </target>
 
   <!--=====================================================================-->
-  <!-- Generates a war archive for embedded Jetty deployments. -->
-  <target name="embedded-war" depends="build,util.hg-rev-extract">
+  <target name="javac.tests" depends="javac" description="Compiles test code">
+    <javac srcdir="test" includes="**" encoding="utf-8"
+      source="1.5" target="1.5" nowarn="true"
+      debug="true" debuglevel="lines,vars,source">
+      <classpath refid="project.class.path"/>
+    </javac>
+  </target>
+
+  <!--=====================================================================-->
+  <target name="test.dev" depends="javac.tests" description="Run development mode tests">
+    <mkdir dir="${junit.output.dir}"/>
+    <junit fork="yes" printsummary="yes" haltonfailure="yes">
+      <jvmarg value="-XstartOnFirstThread"/> 
+      <jvmarg line="-Xmx256m" />
+    	
+      <sysproperty key="gwt.args" value="-logLevel WARN" />
+      <sysproperty key="java.awt.headless" value="true" />
+      <classpath>
+      	 <pathelement location="src"/>
+      	 <pathelement location="test"/>
+         <path refid="project.class.path"/>
+      </classpath>    	
+
+      <batchtest todir="${junit.output.dir}">
+	<fileset dir="test"> 
+	  <include name="**/**Tests.java"/> 
+	</fileset> 
+      </batchtest>
+      <formatter type="xml"/>
+    </junit>
+  </target>
+
+
+  <!--=====================================================================-->
+  <target name="embedded-war" depends="build,util.hg-rev-extract"
+	  description="Generate a war archive for embedded Jetty deployments">
     <war basedir="war" destfile="synopticgwt.war" webxml="war/WEB-INF/web.xml" />
     <copy file="synopticgwt.war" todir="../embeddedgwt/apps/" />
   </target>
 
   <!--=====================================================================-->
-  <!-- Generates a war archive for deployment onto a stand-alone web server. -->
-  <target name="deployment-war" depends="build,util.hg-rev-extract">
-
+  <target name="deployment-war" depends="build,util.hg-rev-extract"
+	  description="Generate a war archive for deployment onto a stand-alone web server">
     <echo message="Embedding hg changeset number ${util.hg.revision}" />
 
     <!-- Embed the changeste id in the MANIFEST.MF file in the war archive. -->

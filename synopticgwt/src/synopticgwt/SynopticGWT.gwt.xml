@@ -2,7 +2,7 @@
 <module rename-to='synopticgwt'>
   <!-- Inherit the core Web Toolkit stuff. -->
   <inherits name='com.google.gwt.user.User'/>
-
+  
   <!-- See http://code.google.com/webtoolkit/doc/latest/DevGuideLogging.html -->
   <!--  <inherits name="com.google.gwt.logging.Logging"/> -->
 
@@ -32,5 +32,9 @@
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>
   <source path='shared'/>
+  <source path='tests'/>
+  
+  <!-- Specify the path to any remote services.                   -->
+  <servlet path="/synoptic" class="synopticgwt.server.SynopticService" />
 
 </module>

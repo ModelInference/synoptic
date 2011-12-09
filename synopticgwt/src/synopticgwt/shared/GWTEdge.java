@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Represents an edge between two GWTNodes in GWTGraph.
  */
 public class GWTEdge implements Serializable {
-    
+
     // TODO: Add a field containing a JSNI object and
     // a method that can be used for changing the style
     // of said object to allow this object to interact
@@ -49,5 +49,25 @@ public class GWTEdge implements Serializable {
     public double getWeight() {
         assert weight != -1;
         return weight;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this)
+            return true;
+        if (!(other instanceof GWTEdge))
+            return false;
+        GWTEdge o = (GWTEdge) other;
+        return this.src.equals(o.getSrc()) && this.dst.equals(o.getDst())
+                && weight == o.getWeight();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 23;
+        result = 37 * result + this.src.hashCode();
+        result = 41 * result + this.dst.hashCode();
+        result = 47 * result + (new Double(weight)).hashCode();
+        return result;
     }
 }
