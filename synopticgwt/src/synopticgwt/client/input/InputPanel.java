@@ -16,7 +16,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FileUpload;
@@ -31,12 +30,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.client.ISynopticServiceAsync;
-import synopticgwt.client.SynopticGWT;
 import synopticgwt.client.Tab;
-import synopticgwt.shared.GWTGraph;
-import synopticgwt.shared.GWTInvariantSet;
-import synopticgwt.shared.GWTPair;
-import synopticgwt.shared.GWTParseException;
 
 /**
  * Panel that contains all text fields to enter log/re values. Contains upload
@@ -180,9 +174,9 @@ public class InputPanel extends Tab<VerticalPanel> {
         regExpsHolder.setWidget(0, 0, regExpDefaultLabel);
         regExpsHolder.setWidget(1, 0, regExpsPanel);
         HorizontalPanel firstInput = getTextBoxAndDeletePanel();
-        setUpTextBox(((ExtendedTextBox)firstInput.getWidget(0)));
+        setUpTextBox(((ExtendedTextBox) firstInput.getWidget(0)));
         regExpsPanel.add(firstInput);
-        ((Button)firstInput.getWidget(1)).setVisible(false);
+        ((Button) firstInput.getWidget(1)).setVisible(false);
         regExpsHolder.setWidget(2, 0, addRegExpButton);
         grid.setWidget(1, 1, regExpsHolder);
 
@@ -215,7 +209,7 @@ public class InputPanel extends Tab<VerticalPanel> {
         }
 
         // Set up the error label's style\visibility.
-        parseErrorMsgLabel.setStyleName("serverResponseLabelError");
+        parseErrorMsgLabel.setStyleName("ErrorMessage");
         parseErrorMsgLabel.setVisible(false);
 
         // Set up the logTextArea.
@@ -271,29 +265,31 @@ public class InputPanel extends Tab<VerticalPanel> {
     public void setInputs(String logText, String regExpText,
             String partitionRegExpText, String separatorRegExpText) {
         this.logTextArea.setText(logText);
-        HorizontalPanel firstPanel = (HorizontalPanel)regExpsPanel.getWidget(0);
-        ((TextBox)firstPanel.getWidget(0)).setText(regExpText);
+        HorizontalPanel firstPanel = (HorizontalPanel) regExpsPanel
+                .getWidget(0);
+        ((TextBox) firstPanel.getWidget(0)).setText(regExpText);
         this.partitionRegExpTextBox.setText(partitionRegExpText);
         this.separatorRegExpTextBox.setText(separatorRegExpText);
     }
 
     /**
-     * Sets all input field values to be empty strings
-     * and displays default reg exp labels.
+     * Sets all input field values to be empty strings and displays default reg
+     * exp labels.
      */
     private void clearInputValues() {
         logTextArea.setValue("");
         regExpDefaultLabel.setVisible(true);
         for (int i = 0; i < regExpsPanel.getWidgetCount(); i++) {
-            HorizontalPanel currPanel = (HorizontalPanel)regExpsPanel.getWidget(i);
-            TextBox textBox = (TextBox)currPanel.getWidget(0);
+            HorizontalPanel currPanel = (HorizontalPanel) regExpsPanel
+                    .getWidget(i);
+            TextBox textBox = (TextBox) currPanel.getWidget(0);
             textBox.setValue("");
         }
         partitionRegExpTextBox.setValue("");
         partitionRegExpDefaultLabel.setVisible(true);
         separatorRegExpTextBox.setValue("");
     }
-    
+
     /**
      * Extracts all regular expressions into a list.
      */
@@ -312,11 +308,11 @@ public class InputPanel extends Tab<VerticalPanel> {
         }
         return result;
     }
-    
+
     /**
-     * Returns a HorizontalPanel containing an ExtendedTextBox and a
-     * "minus" button, which the user can click to remove the panel 
-     * altogether. This is used for regular expression inputs.
+     * Returns a HorizontalPanel containing an ExtendedTextBox and a "minus"
+     * button, which the user can click to remove the panel altogether. This is
+     * used for regular expression inputs.
      */
     private HorizontalPanel getTextBoxAndDeletePanel() {
         ExtendedTextBox newTextBox = new ExtendedTextBox(
@@ -348,15 +344,16 @@ public class InputPanel extends Tab<VerticalPanel> {
         }
         return expression;
     }
-    
+
     /**
-     * Returns true if the regular expression input(s) are empty.
-     * Returns false otherwise.
+     * Returns true if the regular expression input(s) are empty. Returns false
+     * otherwise.
      */
     private boolean isEmptyRegExps(VerticalPanel regExVerticalPanel) {
         for (int i = 0; i < regExVerticalPanel.getWidgetCount(); i++) {
-            HorizontalPanel hp = (HorizontalPanel) regExVerticalPanel.getWidget(i);
-            TextBox textBox = (ExtendedTextBox)hp.getWidget(0);
+            HorizontalPanel hp = (HorizontalPanel) regExVerticalPanel
+                    .getWidget(i);
+            TextBox textBox = (ExtendedTextBox) hp.getWidget(0);
             if (textBox.getValue().trim().length() != 0) {
                 return false;
             }
@@ -372,8 +369,8 @@ public class InputPanel extends Tab<VerticalPanel> {
         textBox.setVisibleLength(80);
         textBox.setName("regExpsTextArea");
         textBox.addKeyUpHandler(new KeyUpInputHandler());
-    }  
-     
+    }
+
     /**
      * Adds a new reg exp text area with a corresponding delete button.
      */
@@ -382,16 +379,17 @@ public class InputPanel extends Tab<VerticalPanel> {
         @Override
         public void onClick(ClickEvent event) {
             regExpsPanel.add(getTextBoxAndDeletePanel());
-            HorizontalPanel firstPanel = (HorizontalPanel)regExpsPanel.getWidget(0);
-            Button firstDelete = (Button)firstPanel.getWidget(1);
+            HorizontalPanel firstPanel = (HorizontalPanel) regExpsPanel
+                    .getWidget(0);
+            Button firstDelete = (Button) firstPanel.getWidget(1);
             firstDelete.setVisible(true);
         }
     }
 
     /**
-     * Handler for when "Clear" button selected. Clears all inputs and 
-     * disables upload/parse log buttons. Displays empty reg exp labels
-     * and log text area.
+     * Handler for when "Clear" button selected. Clears all inputs and disables
+     * upload/parse log buttons. Displays empty reg exp labels and log text
+     * area.
      */
     class ClearInputsHandler implements ClickHandler {
 
@@ -415,11 +413,13 @@ public class InputPanel extends Tab<VerticalPanel> {
         public void onClick(ClickEvent event) {
             Button clicked = (Button) event.getSource();
             clicked.getParent().removeFromParent();
-            HorizontalPanel firstPanel = (HorizontalPanel)regExpsPanel.getWidget(0);
-            Button firstDelete = (Button)firstPanel.getWidget(1);
-            // Display a "minus" button only if there is more than one text area.
+            HorizontalPanel firstPanel = (HorizontalPanel) regExpsPanel
+                    .getWidget(0);
+            Button firstDelete = (Button) firstPanel.getWidget(1);
+            // Display a "minus" button only if there is more than one text
+            // area.
             if (regExpsPanel.getWidgetCount() > 1) {
-                firstDelete.setVisible(true); 
+                firstDelete.setVisible(true);
             } else {
                 firstDelete.setVisible(false);
             }
@@ -514,15 +514,15 @@ public class InputPanel extends Tab<VerticalPanel> {
     }
 
     /**
-     * Enables parse log button if a file is selected. Disables parse
-     * log button otherwise. 
+     * Enables parse log button if a file is selected. Disables parse log button
+     * otherwise.
      */
     class FileUploadHandler implements ChangeHandler {
 
         @Override
         public void onChange(ChangeEvent event) {
             if (!uploadLogFileButton.getFilename().isEmpty()) {
-                parseLogButton.setEnabled(true); 
+                parseLogButton.setEnabled(true);
             } else {
                 parseLogButton.setEnabled(false);
             }
@@ -574,7 +574,8 @@ public class InputPanel extends Tab<VerticalPanel> {
 
             // ////////////////////// Call to remote service.
             synopticService.parseUploadedLog(regExps, partitionRegExp,
-                    separatorRegExp, new ParseLogAsyncCallback());
+                    separatorRegExp, new ParseLogAsyncCallback(pWheel,
+                            InputPanel.this));
             // //////////////////////
         }
     }
@@ -634,93 +635,10 @@ public class InputPanel extends Tab<VerticalPanel> {
 
                 // ////////////////////// Call to remote service.
                 synopticService.parseLog(logLines, regExps, partitionRegExp,
-                        separatorRegExp, new ParseLogAsyncCallback());
+                        separatorRegExp, new ParseLogAsyncCallback(pWheel,
+                                InputPanel.this));
                 // //////////////////////
             }
-        }
-    }
-
-    /**
-     * Callback handler for the parseLog() Synoptic service call.
-     */
-    class ParseLogAsyncCallback implements
-            AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
-        @Override
-        public void onFailure(Throwable caught) {
-            displayRPCErrorMessage("Remote Procedure Call Failure while parsing log: "
-                    + caught.getMessage());
-            parseErrorMsgLabel.setText(caught.getMessage());
-            parseLogButton.setEnabled(true);
-            if (!(caught instanceof GWTParseException)) {
-                return;
-            }
-            GWTParseException exception = (GWTParseException) caught;
-            // If the exception has both a regex and a logline, then only
-            // the TextArea
-            // that sets their highlighting last will have highlighting.
-            // A secret dependency for TextArea highlighting is focus.
-            // As of now, 9/12/11, SerializableParseExceptions do not get
-            // thrown with both a regex and a logline.
-            if (exception.hasRegex()) {
-                String regex = exception.getRegex();
-                // TODO: currently error handling only for first reg exps
-                // text box, extend to all extra reg exp text box also.
-                // Noted in Issue152
-                String regexes = ((TextBox)regExpsPanel.getWidget(0)).getText();
-                int pos = indexOf(regexes, regex);
-                ((TextBox)regExpsPanel.getWidget(0)).setFocus(true);
-                ((TextBox)regExpsPanel.getWidget(0)).setSelectionRange(pos, regex.length());
-            }
-            if (exception.hasLogLine()) {
-                String log = exception.getLogLine();
-                String logs = logTextArea.getText();
-                int pos = indexOf(logs, log);
-                logTextArea.setFocus(true);
-                logTextArea.setSelectionRange(pos, log.length());
-
-            }
-        }
-
-        /**
-         * Returns the index of searchString as a substring of string with the
-         * condition that the searchString is followed by a newline character,
-         * carriage return character, or nothing(end of string). Returns -1 if
-         * searchString is not found in string with the previous conditions.
-         * Throws a NullPointerException if string or searchString is null.
-         */
-        public int indexOf(String string, String searchString) {
-            if (string == null || searchString == null) {
-                throw new NullPointerException();
-            }
-
-            int movingPosition = string.indexOf(searchString);
-            int cumulativePosition = movingPosition;
-
-            if (movingPosition == -1) {
-                return movingPosition;
-            }
-
-            while (movingPosition + searchString.length() < string.length()
-                    && !(string.charAt(movingPosition + searchString.length()) == '\r' || string
-                            .charAt(movingPosition + searchString.length()) == '\n')) {
-
-                string = string.substring(movingPosition
-                        + searchString.length());
-                movingPosition = string.indexOf(searchString);
-
-                if (movingPosition == -1) {
-                    return movingPosition;
-                }
-
-                cumulativePosition += movingPosition + searchString.length();
-            }
-            return cumulativePosition;
-        }
-
-        @Override
-        public void onSuccess(GWTPair<GWTInvariantSet, GWTGraph> ret) {
-            parseLogButton.setEnabled(true);
-            SynopticGWT.entryPoint.logParsed(ret.getLeft(), ret.getRight());
         }
     }
 
