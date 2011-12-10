@@ -18,6 +18,8 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
@@ -30,8 +32,10 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.client.ISynopticServiceAsync;
+import synopticgwt.client.SynopticGWT;
 import synopticgwt.client.Tab;
 import synopticgwt.client.util.ProgressWheel;
+import synopticgwt.shared.GWTSynOpts;
 
 /**
  * The inputs tab. This tab contains text fields to enter log/re values, an
@@ -86,6 +90,9 @@ public class InputTab extends Tab<VerticalPanel> {
     final FileUpload uploadLogFileButton = new FileUpload();
     final VerticalPanel regExpsPanel = new VerticalPanel();
     final Button addRegExpButton = new Button("+");
+    final CheckBox ignoreNonMatchedLines = new CheckBox();
+    final CheckBox manualRefineCoarsen = new CheckBox();
+    final CheckBox onlyMineInvs = new CheckBox();
     final Button parseLogButton = new Button("Parse Log");
     final Button clearInputsButton = new Button("Clear");
 
@@ -131,7 +138,7 @@ public class InputTab extends Tab<VerticalPanel> {
         }
         examplesGrid.setStyleName("inputForm");
 
-        Grid grid = new Grid(5, 2);
+        Grid grid = new Grid(6, 2);
         inputForm.add(grid);
 
         // Set up form to handle file upload.
@@ -195,12 +202,38 @@ public class InputTab extends Tab<VerticalPanel> {
         separatorRegExpTextBox.setVisibleLength(80);
         separatorRegExpTextBox.setName("separatorRegExpTextBox");
 
+        HorizontalPanel optsPanel = new HorizontalPanel();
+        DisclosurePanel parOpts = new DisclosurePanel("Parsing options");
+        parOpts.setAnimationEnabled(true);
+
+        Grid parOptsGrid = new Grid(2, 2);
+        parOptsGrid.setCellSpacing(6);
+        parOptsGrid.setWidget(0, 0, ignoreNonMatchedLines);
+        parOptsGrid.setHTML(0, 1, "Ignore non-matched lines");
+        parOpts.setContent(parOptsGrid);
+        parOpts.setStyleName("SpecialOptions");
+        optsPanel.add(parOpts);
+
+        DisclosurePanel debugOpts = new DisclosurePanel("Debugging options");
+        Grid debugOptsGrid = new Grid(2, 2);
+        debugOptsGrid.setCellSpacing(6);
+        debugOptsGrid.setWidget(0, 0, manualRefineCoarsen);
+        debugOptsGrid.setHTML(0, 1, "Manual refinement/coarsening");
+        debugOptsGrid.setWidget(1, 0, onlyMineInvs);
+        debugOptsGrid.setHTML(1, 1, "Only mine invariants");
+
+        debugOpts.setContent(debugOptsGrid);
+        debugOpts.setAnimationEnabled(true);
+        debugOpts.setStyleName("SpecialOptions");
+        optsPanel.add(debugOpts);
+        grid.setWidget(4, 1, optsPanel);
+
         HorizontalPanel buttonsPanel = new HorizontalPanel();
         buttonsPanel.add(parseLogButton);
         buttonsPanel.add(clearInputsButton);
         parseLogButton.addStyleName("parseButton");
         parseLogButton.setEnabled(false); // initially disabled
-        grid.setWidget(4, 1, buttonsPanel);
+        grid.setWidget(5, 1, buttonsPanel);
 
         grid.setStyleName("inputForm grid");
         for (int i = 0; i < grid.getRowCount(); i++) {
@@ -573,11 +606,14 @@ public class InputTab extends Tab<VerticalPanel> {
             List<String> regExps = extractAllRegExps();
             String partitionRegExp = getTextBoxRegExp(partitionRegExpTextBox);
             String separatorRegExp = getTextBoxRegExp(separatorRegExpTextBox);
-
+            SynopticGWT.entryPoint.manualRefineCoarsen = manualRefineCoarsen
+                    .getValue();
+            GWTSynOpts synOpts = new GWTSynOpts(null, regExps, partitionRegExp,
+                    separatorRegExp, ignoreNonMatchedLines.getValue(),
+                    manualRefineCoarsen.getValue(), onlyMineInvs.getValue());
             // ////////////////////// Call to remote service.
-            synopticService.parseUploadedLog(regExps, partitionRegExp,
-                    separatorRegExp, new ParseLogAsyncCallback(pWheel,
-                            InputTab.this));
+            synopticService.parseUploadedLog(synOpts,
+                    new ParseLogAsyncCallback(pWheel, InputTab.this));
             // //////////////////////
         }
     }
@@ -634,11 +670,16 @@ public class InputTab extends Tab<VerticalPanel> {
                 String separatorRegExp = getTextBoxRegExp(separatorRegExpTextBox);
 
                 // TODO: validate the arguments to parseLog.
+                SynopticGWT.entryPoint.manualRefineCoarsen = manualRefineCoarsen
+                        .getValue();
 
+                GWTSynOpts synOpts = new GWTSynOpts(logLines, regExps,
+                        partitionRegExp, separatorRegExp,
+                        ignoreNonMatchedLines.getValue(),
+                        manualRefineCoarsen.getValue(), onlyMineInvs.getValue());
                 // ////////////////////// Call to remote service.
-                synopticService.parseLog(logLines, regExps, partitionRegExp,
-                        separatorRegExp, new ParseLogAsyncCallback(pWheel,
-                                InputTab.this));
+                synopticService.parseLog(synOpts, new ParseLogAsyncCallback(
+                        pWheel, InputTab.this));
                 // //////////////////////
             }
         }

@@ -54,6 +54,7 @@ import synopticgwt.shared.GWTNode;
 import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.GWTParseException;
 import synopticgwt.shared.GWTServerException;
+import synopticgwt.shared.GWTSynOpts;
 import synopticgwt.shared.LogLine;
 
 /**
@@ -350,8 +351,7 @@ public class SynopticService extends RemoteServiceServlet implements
      * @throws Exception
      */
     @Override
-    public GWTPair<GWTInvariantSet, GWTGraph> parseLog(String logLines,
-            List<String> regExps, String partitionRegExp, String separatorRegExp)
+    public GWTPair<GWTInvariantSet, GWTGraph> parseLog(GWTSynOpts synOpts)
             throws Exception {
 
         // Set up some static variables in Main that are necessary to use the
@@ -368,10 +368,10 @@ public class SynopticService extends RemoteServiceServlet implements
         ArrayList<EventNode> parsedEvents = null;
 
         try {
-            parser = synoptic.main.Main.newTraceParser(regExps,
-                    partitionRegExp, separatorRegExp);
-            parsedEvents = parser.parseTraceString(logLines, new String(
-                    "traceName"), -1);
+            parser = synoptic.main.Main.newTraceParser(synOpts.regExps,
+                    synOpts.partitionRegExp, synOpts.separatorRegExp);
+            parsedEvents = parser.parseTraceString(synOpts.logLines,
+                    new String("traceName"), -1);
         } catch (ParseException pe) {
             logger.info("Caught parse exception: " + pe.toString());
             pe.printStackTrace();
@@ -426,8 +426,7 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     @Override
     public GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(
-            List<String> regExps, String partitionRegExp, String separatorRegExp)
-            throws Exception {
+            GWTSynOpts synOpts) throws Exception {
         // Set up state.
         retrieveSessionState();
 
@@ -469,8 +468,8 @@ public class SynopticService extends RemoteServiceServlet implements
         } catch (Exception e) {
             throw new Exception("Unable to read uploaded file.");
         }
-        return parseLog(logFileContent, regExps, partitionRegExp,
-                separatorRegExp);
+        synOpts.logLines = logFileContent;
+        return parseLog(synOpts);
     }
 
     /**

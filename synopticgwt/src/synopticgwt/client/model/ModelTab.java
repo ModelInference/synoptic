@@ -68,11 +68,11 @@ public class ModelTab extends Tab<DockPanel> {
         buttonsPanel.add(modelRefineButton);
         buttonsPanel.add(modelCoarsenButton);
         buttonsPanel.add(modelGetFinalButton);
+        buttonsPanel.setStyleName("buttonPanel");
 
         modelRefineButton.setWidth("100px");
         modelCoarsenButton.setWidth("100px");
         modelGetFinalButton.setWidth("100px");
-        buttonsPanel.setStyleName("buttonPanel");
         controlsPanel.add(buttonsPanel);
 
         HorizontalPanel buttonsPanelTwo = new HorizontalPanel();
@@ -271,9 +271,9 @@ public class ModelTab extends Tab<DockPanel> {
      * canvas.
      */
     public void updateGraphPanel() {
-        int width = Window.getClientWidth()
-                - (buttonsPanel.getOffsetWidth() + 50);
+        int width = Window.getClientWidth() - (controlsPanel.getOffsetWidth());
         int height = Window.getClientHeight() - 100;
+
         graphPanel.setPixelSize(width, height);
         ModelGraphic.resizeGraph(width, height);
     }
@@ -427,5 +427,13 @@ public class ModelTab extends Tab<DockPanel> {
             e.printStackTrace();
         }
         // //////////////////////
+    }
+
+    /**
+     * Manual control is translated to making refine/coarsen/final model buttons
+     * visible.
+     */
+    public void setManualMode(boolean manualRefineCoarsen) {
+        buttonsPanel.setVisible(manualRefineCoarsen);
     }
 }

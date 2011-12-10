@@ -262,4 +262,10 @@ body {
 	text-align: left;
 }
 
+.SpecialOptions {
+  border-left: 3px solid #e7e7e7;
+  padding: 4px 0px 4px 8px;
+  margin-left: 6px;
+}
+
 
