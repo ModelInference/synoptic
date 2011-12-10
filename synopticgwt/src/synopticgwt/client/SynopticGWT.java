@@ -71,6 +71,12 @@ public class SynopticGWT implements EntryPoint {
 
     private Map<Integer, Tab<?>> tabIndexToTab = new LinkedHashMap<Integer, Tab<?>>();
 
+    /**
+     * Whether or not the user wants to manually control the
+     * refinement/coarsening process.
+     */
+    public boolean manualRefineCoarsen;
+
     boolean invSetChanged = false;
 
     /**
@@ -162,6 +168,12 @@ public class SynopticGWT implements EntryPoint {
         invSetChanged = false;
         tabPanel.selectTab(modelTabIndex);
         modelTab.showGraph(gwtGraph);
+
+        // Retrieve and show the final model, if this process is not being
+        // controlled manually.
+        if (!manualRefineCoarsen) {
+            modelTab.getFinalModelButtonClick(null);
+        }
     }
 
     /**
@@ -250,11 +262,17 @@ public class SynopticGWT implements EntryPoint {
             // Enable the model tab.
             tabPanel.getTabBar().setTabEnabled(modelTabIndex, true);
 
+            modelTab.setManualMode(manualRefineCoarsen);
+
             // The modelTab MUST be selected before calling showGraph().
             tabPanel.selectTab(modelTabIndex);
             modelTab.showGraph(initialModel);
-            // Retrieve and show the final model.
-            modelTab.getFinalModelButtonClick(null);
+
+            // Retrieve and show the final model, if this process is not being
+            // controlled manually.
+            if (!manualRefineCoarsen) {
+                modelTab.getFinalModelButtonClick(null);
+            }
         } else {
             // PO log.
             // Switch to the invariant tab, and disable the model tab.

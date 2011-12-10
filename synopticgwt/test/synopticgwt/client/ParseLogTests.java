@@ -16,6 +16,7 @@ import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTNode;
 import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.GWTParseException;
+import synopticgwt.shared.GWTSynOpts;
 
 /**
  * Tests the parseLog RPC.
@@ -32,7 +33,10 @@ public class ParseLogTests extends SynopticGWTTestCase {
         regExps.add("(?<TYPE>)");
         String partitionRegExp = "";
         String separatorRegExp = "";
-        service.parseLog(logLines, regExps, partitionRegExp, separatorRegExp,
+
+        GWTSynOpts synOpts = new GWTSynOpts(logLines, regExps, partitionRegExp,
+                separatorRegExp, false, false, false);
+        service.parseLog(synOpts,
                 new AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>>() {
                     @Override
                     public void onFailure(Throwable caught) {
@@ -103,7 +107,9 @@ public class ParseLogTests extends SynopticGWTTestCase {
         regExps.add(failingRegExp);
         String partitionRegExp = "";
         String separatorRegExp = "";
-        service.parseLog(logLines, regExps, partitionRegExp, separatorRegExp,
+        GWTSynOpts synOpts = new GWTSynOpts(logLines, regExps, partitionRegExp,
+                separatorRegExp, false, false, false);
+        service.parseLog(synOpts,
                 new AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>>() {
                     @Override
                     @SuppressWarnings("synthetic-access")

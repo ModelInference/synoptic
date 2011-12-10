@@ -6,7 +6,7 @@ import com.google.gwt.junit.client.GWTTestCase;
 /**
  * Base class for Synoptic tests that build on GWTTestCase.
  */
-public abstract class SynopticGWTTestCase extends GWTTestCase {
+public class SynopticGWTTestCase extends GWTTestCase {
     // Instance of the Synoptic service to test.
     ISynopticServiceAsync service = null;
 
