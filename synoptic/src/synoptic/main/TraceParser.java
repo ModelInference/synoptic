@@ -909,9 +909,16 @@ public class TraceParser {
             return null;
         }
 
-        String exceptionError = "Line from file [" + fileName
-                + "] does not match any of the provided regular expressions:\n"
-                + line;
+        String exceptionError;
+        if (fileName.equals("")) {
+            exceptionError = "Input line does not match any of the provided regular expressions:\n";
+        } else {
+            exceptionError = "Line from file ["
+                    + fileName
+                    + "] does not match any of the provided regular expressions:\n";
+        }
+        exceptionError += line;
+
         String loggerError = exceptionError + "\nTry cmd line options:\n\t"
                 + SynopticOptions.getOptDesc("ignoreNonMatchingLines") + "\n\t"
                 + SynopticOptions.getOptDesc("debugParse");
