@@ -292,7 +292,9 @@ public class SynopticGWT implements EntryPoint {
      */
     public void clearError() {
         RootPanel rpcErrorDiv = RootPanel.get("ErrorDiv");
+        RootPanel straceDiv = RootPanel.get("StackTraceDiv");
         rpcErrorDiv.clear();
+        straceDiv.clear();
     }
 
     /**
@@ -305,13 +307,17 @@ public class SynopticGWT implements EntryPoint {
 
         // All error-related messages will be added to this flow panel.
         RootPanel errorDiv = RootPanel.get("ErrorDiv");
-        FlowPanel fPanel = new FlowPanel();
-        errorDiv.add(fPanel);
+        // FlowPanel fPanel = new FlowPanel();
+        // errorDiv.add(fPanel);
 
         // Add the principle error message.
         Label errorMsg = new Label(msg);
         errorMsg.setStyleName("ErrorMessage");
-        fPanel.add(errorMsg);
+        errorDiv.add(errorMsg);
+
+        RootPanel straceDiv = RootPanel.get("StackTraceDiv");
+        FlowPanel fPanel = new FlowPanel();
+        straceDiv.add(fPanel);
 
         // Client-side stack trace can be revealed/hidden.
         if (clientStackTrace != "") {

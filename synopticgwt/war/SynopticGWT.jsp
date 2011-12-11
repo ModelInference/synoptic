@@ -105,6 +105,8 @@
 
     </div>
 
+    <div id="StackTraceDiv"></div>
+
     <div id="div-footer-bar">
     	Synoptic Changeset <%= session.getAttribute("synopticChangesetID") %> <br />
 		SynopticGWT Changeset <%= session.getAttribute("synopticGWTChangesetID") %>
