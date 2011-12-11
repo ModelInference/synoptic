@@ -24,6 +24,11 @@ body {
  text-align:right;
  color: #585858;
  font-size: 0.75em;
+ float: right;
+}
+
+#StackTraceDiv {
+  float: left;
 }
 
 #mainDiv {
@@ -213,10 +218,10 @@ body {
 .ErrorMessage {
     border: 1px solid red;
     	
-	margin-right: 60px;
-	margin-left: 60px;
-	margin-top: 0px;
-	margin-bottom: 2px;
+	margin-right: 100px;
+	margin-left: 100px;
+	margin-top: 10px;
+	margin-bottom: 10px;
 	
 	padding: 10px 20px;
 	
@@ -228,10 +233,10 @@ body {
 .ClientExceptionTraceBack {
 	border: 1px solid red;
 	
-	margin-top: 0px;
-	margin-bottom: 2px;
-	margin-left: 60px;
-	margin-right: 60px;
+	margin-top: 10px;
+	margin-bottom: 0px;
+	margin-left: 5px;
+	margin-right: 5px;
 	
 	padding-top: 0px;
 	padding-bottom: 2px;
@@ -246,11 +251,10 @@ body {
 .ServerExceptionTraceBack {
 	border: 1px solid red;
 	
-	margin-top: 0px;
-	margin-bottom: 2px;
-	margin-left: 20px;
-	margin-left: 60px;
-	margin-right: 60px;
+	margin-top: 10px;
+	margin-bottom: 0px;
+	margin-left: 5px;
+	margin-right: 5px;
 	
 	padding-top: 0px;
 	padding-bottom: 2px;

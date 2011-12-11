@@ -371,8 +371,7 @@ public class SynopticService extends RemoteServiceServlet implements
         try {
             parser = synoptic.main.Main.newTraceParser(synOpts.regExps,
                     synOpts.partitionRegExp, synOpts.separatorRegExp);
-            parsedEvents = parser.parseTraceString(synOpts.logLines,
-                    new String("traceName"), -1);
+            parsedEvents = parser.parseTraceString(synOpts.logLines, "", -1);
         } catch (ParseException pe) {
             logger.info("Caught parse exception: " + pe.toString());
             pe.printStackTrace();
