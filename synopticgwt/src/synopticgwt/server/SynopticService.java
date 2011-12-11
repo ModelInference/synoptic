@@ -359,6 +359,7 @@ public class SynopticService extends RemoteServiceServlet implements
         Main.options = new SynopticOptions();
         // Output as much internal Synoptic information as possible.
         Main.options.logLvlExtraVerbose = true;
+        Main.options.ignoreNonMatchingLines = synOpts.ignoreNonMatchedLines;
         synoptic.main.Main.setUpLogging();
         Main.random = new Random(Main.options.randomSeed);
         Main.graphExportFormatter = new DotExportFormatter();
@@ -388,19 +389,20 @@ public class SynopticService extends RemoteServiceServlet implements
         // Code below mines invariants, and converts them to GWTInvariants.
         // TODO: refactor synoptic main so that it does all of this most of this
         // for the client.
-        GWTGraph graph;
+        GWTGraph graph = null;
 
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
             TOInvariantMiner miner = new ChainWalkingTOInvMiner();
             minedInvs = miner.computeInvariants(traceGraph);
 
-            // Since we're in the TO case then we also initialize and store
-            // refinement state.
-            initializeRefinementState(minedInvs);
-            storeSessionState(getThreadLocalRequest().getSession());
-            graph = PGraphToGWTGraph(pGraph);
-
+            if (!synOpts.onlyMineInvs) {
+                // Since we're in the TO case then we also initialize and store
+                // refinement state.
+                initializeRefinementState(minedInvs);
+                storeSessionState(getThreadLocalRequest().getSession());
+                graph = PGraphToGWTGraph(pGraph);
+            }
         } else {
             // TODO: expose to the user the option of using another kind of
             // PO invariant miner.
