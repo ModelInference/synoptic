@@ -57,6 +57,7 @@ public class ModelTab extends Tab<DockPanel> {
     private final Button modelExportPngButton = new Button("Export PNG");
     private FlowPanel graphPanel;
     private LogLinesTable logLinesTable;
+    private Label logLineLabel;
 
     // String representing the canvas div.
     private static final String canvasId = "canvasId";
@@ -87,7 +88,7 @@ public class ModelTab extends Tab<DockPanel> {
         logPanel.setWidth("300px");
 
         // Header
-        Label logLineLabel = new Label("Log Lines");
+        logLineLabel = new Label("Log Lines");
         DOM.setElementAttribute(logLineLabel.getElement(), "id",
                 "log-line-label");
 
@@ -271,7 +272,10 @@ public class ModelTab extends Tab<DockPanel> {
      * canvas.
      */
     public void updateGraphPanel() {
-        int width = Window.getClientWidth() - (controlsPanel.getOffsetWidth());
+        // TODO: make this more robust -- perhaps, by hard-coding the percentage
+        // area that the model can take up.
+        int width = Window.getClientWidth()
+                - (logLineLabel.getOffsetWidth() + 50);
         int height = Window.getClientHeight() - 100;
 
         graphPanel.setPixelSize(width, height);
