@@ -34,6 +34,9 @@ public class DFAMain {
     public static void main(String[] args) throws Exception {
         InvDFAMinimizationOptions opts = new InvDFAMinimizationOptions(args);
         Main synMain = Main.processArgs(args);
+        if (synMain == null) {
+            return;
+        }
         PartitionGraph initialModel = synMain.createInitialPartitionGraph();
 
         // Construct initial DFA from NIFby invariants.
