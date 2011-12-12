@@ -225,6 +225,11 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             // The clicked cell.
             Cell cell = ((Grid) event.getSource()).getCellForEvent(event);
 
+            // If the click did not actually hit a cell, then cell will be null.
+            if (cell == null) {
+                return;
+            }
+
             // Cell's row index.
             int rowID = cell.getRowIndex();
 
