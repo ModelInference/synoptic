@@ -15,6 +15,8 @@ import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
@@ -59,10 +61,28 @@ public class InvariantsTab extends Tab<VerticalPanel> {
      * @param gwtInvs
      *            The invariants mined from the log.
      */
-    public void showInvariants(GWTInvariantSet gwtInvs) {
+    public void showInvariants(final GWTInvariantSet gwtInvs) {
         // Clear the invariants panel of any widgets it might have.
         panel.clear();
         tableAndGraphicPanel.clear();
+
+        Anchor exportInvsLink = new Anchor("[Show invariants as text]");
+        panel.add(exportInvsLink);
+        exportInvsLink.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                TextualInvariantsPopUp popUp = new TextualInvariantsPopUp(
+                        gwtInvs);
+                // popUp.setPixelSize(Window.getClientWidth() / 2,
+                // Window.getClientHeight() / 2);
+                popUp.setHeight("" + (Window.getClientHeight() / 2) + "px");
+
+                popUp.setGlassEnabled(true);
+                popUp.center();
+                popUp.show();
+            }
+
+        });
 
         // Populate the panel with the invariants grid.
         panel.add(tableAndGraphicPanel);
