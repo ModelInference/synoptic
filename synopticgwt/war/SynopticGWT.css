@@ -280,5 +280,26 @@ body {
   padding: 5px;
 }
 
+.HelpPopUp {
+  padding: 5px;
+}
+
+#learn-about-synoptic {
+    width: 30%;
+    text-align : center;
+    background-color : #ded;
+    border : 1px solid #0a0;
+    padding : 1em;
+    margin-top : 1em;
+    margin-bottom : 1em;
+    margin-right : 1em;
+    font-size : 1.2em;
+    float:left;
+    position:relative;
+    left:25%;
+}
 
 
+.WelcomeLink {
+    text-decoration:underline;
+}

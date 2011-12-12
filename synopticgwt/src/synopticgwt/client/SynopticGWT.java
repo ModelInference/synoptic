@@ -5,11 +5,15 @@ import java.util.Map;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
 import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -92,6 +96,20 @@ public class SynopticGWT implements EntryPoint {
         SynopticGWT.entryPoint = this;
 
         // logger.setLevel(Level.FINEST);
+
+        // Add click handler to the help link at top of page.
+        Anchor helpLink = Anchor.wrap(DOM.getElementById("helpPopUp-link"));
+        helpLink.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                HelpPopUp popUp = new HelpPopUp();
+                popUp.setHeight("" + (Window.getClientHeight() / 2) + "px");
+                popUp.setGlassEnabled(true);
+                popUp.center();
+                popUp.show();
+            }
+
+        });
 
         // Add the panel of tabs to the page.
         RootPanel.get("mainDiv").add(tabPanel);

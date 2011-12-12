@@ -74,43 +74,47 @@
   <body>
 
 
-    <!-- OPTIONAL: include this if you want history support -->
-    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
+  <!-- OPTIONAL: include this if you want history support -->
+  <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
 
-    <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
-    <noscript>
-      <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
-        Your web browser must have JavaScript enabled
-        in order for this application to display correctly.
-      </div>
-    </noscript>
-
-
-	<div id="div-globalContainer">
-
-		<div id="div-top-bar">
-	    	<a id="a-logo-title" href="http://synoptic.googlecode.com">Synoptic</a> <br/>
-	        <a href="http://synoptic.googlecode.com">Main site</a> |
-	        <a href="http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial">Tutorial</a> |
-	    	<a href="http://code.google.com/p/synoptic/issues/entry">Report issue</a>
-	    	<br/>
-	    </div>
+  <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+  <noscript>
+    <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+      Your web browser must have JavaScript enabled
+      in order for this application to display correctly.
+    </div>
+  </noscript>
 
 
-	    <div id="progressWheelDiv"></div>
-	    
-	    <div id="ErrorDiv"></div>
-            
-	    <div id="mainDiv"></div>
+  <div id="div-globalContainer">
 
+    <div id="learn-about-synoptic">
+      New to Synoptic? <a class="WelcomeLink" href="http://synoptic.googlecode.com/">Learn about Synoptic</a> or 
+      <a class="WelcomeLink" id="helpPopUp-link">learn how to use this tool</a>.
     </div>
 
-    <div id="StackTraceDiv"></div>
-
-    <div id="div-footer-bar">
-    	Synoptic Changeset <%= session.getAttribute("synopticChangesetID") %> <br />
-		SynopticGWT Changeset <%= session.getAttribute("synopticGWTChangesetID") %>
+    <div id="div-top-bar">
+      <a id="a-logo-title" href="http://synoptic.googlecode.com">Synoptic</a> <br/>
+      <a href="http://synoptic.googlecode.com">Main site</a> |
+      <a href="http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial">Tutorial</a> |
+      <a href="http://code.google.com/p/synoptic/issues/entry">Report issue</a>
+      <br/>
     </div>
-
+    
+    <div id="progressWheelDiv"></div>
+    
+    <div id="ErrorDiv"></div>
+    
+    <div id="mainDiv"></div>
+    
+  </div>
+  
+  <div id="StackTraceDiv"></div>
+  
+  <div id="div-footer-bar">
+    Synoptic Changeset <%= session.getAttribute("synopticChangesetID") %> <br />
+    SynopticGWT Changeset <%= session.getAttribute("synopticGWTChangesetID") %>
+  </div>
+  
   </body>
 </html>
