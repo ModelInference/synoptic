@@ -88,11 +88,6 @@
 
   <div id="div-globalContainer">
 
-    <div id="learn-about-synoptic">
-      New to Synoptic? <a class="WelcomeLink" href="http://synoptic.googlecode.com/">Learn about Synoptic</a> or 
-      <a class="WelcomeLink" id="helpPopUp-link">learn how to use this tool</a>.
-    </div>
-
     <div id="div-top-bar">
       <a id="a-logo-title" href="http://synoptic.googlecode.com">Synoptic</a> <br/>
       <a href="http://synoptic.googlecode.com">Main site</a> |
