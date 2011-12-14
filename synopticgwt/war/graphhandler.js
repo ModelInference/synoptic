@@ -86,7 +86,10 @@ var GRAPH_HANDLER = {
             }
             currentSelectedRect = rect;
             currentSelectedNode = node;
-            viewLogLines(parseInt(node.id));
+            if (currentSelectedNode.label != "INITIAL"
+            	&& currentSelectedNode.label != "TERMINAL") {
+            	viewLogLines(parseInt(node.id));
+            }
             rect.attr("fill", "blue");
         };
 
