@@ -1,5 +1,7 @@
 package synopticgwt.client;
 
+import java.util.Date;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Cookies;
@@ -41,8 +43,10 @@ public class WelcomePopUp extends PopupPanel {
             public void onClick(ClickEvent event) {
                 if (WelcomePopUp.this.doNotShowAgain.getValue()) {
                     // Create a cookie to remember not to show the welcome
-                    // screen again.
-                    Cookies.setCookie(noShowCookieName, "");
+                    // screen again (expires 1 year from now).
+                    Date expireDate = new Date();
+                    expireDate.setTime(expireDate.getTime() + 31556926);
+                    Cookies.setCookie(noShowCookieName, "", expireDate);
                 }
 
                 WelcomePopUp.this.hide();
