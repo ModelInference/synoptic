@@ -1,5 +1,6 @@
 package synopticgwt.client;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -9,7 +10,11 @@ import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
 import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -71,6 +76,11 @@ public class SynopticGWT implements EntryPoint {
 
     private Map<Integer, Tab<?>> tabIndexToTab = new LinkedHashMap<Integer, Tab<?>>();
 
+    /** Check box to control visibility of tool-tips. */
+    public final CheckBox showHelpToolTips = new CheckBox("Show help tool-tips");
+    static final String hideHelpToolTipsCookieName = new String(
+            "hide-help-tool-tips");
+
     /**
      * Whether or not the user wants to manually control the
      * refinement/coarsening process.
@@ -92,6 +102,34 @@ public class SynopticGWT implements EntryPoint {
         SynopticGWT.entryPoint = this;
 
         // logger.setLevel(Level.FINEST);
+
+        // Show check box to control visibility of tool-tips.
+        RootPanel.get("div-top-bar").add(showHelpToolTips);
+        if (Cookies.getCookie(hideHelpToolTipsCookieName) == null) {
+            // Cookie does not exist => default to showing tool-tips
+            showHelpToolTips.setValue(true);
+        } else {
+            // Cookie exists => do not show tool-tips
+            showHelpToolTips.setValue(false);
+        }
+        // When tool tips are disabled, we store a cookie to remember this
+        // across sessions.
+        showHelpToolTips
+                .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                    @Override
+                    public void onValueChange(ValueChangeEvent<Boolean> event) {
+                        boolean newVal = event.getValue();
+                        if (!newVal) {
+                            // Create a cookie that expires 1 year from now.
+                            Date expireDate = new Date();
+                            expireDate.setTime(expireDate.getTime() + 31556926);
+                            Cookies.setCookie(hideHelpToolTipsCookieName, "",
+                                    expireDate);
+                        } else {
+                            Cookies.removeCookie(hideHelpToolTipsCookieName);
+                        }
+                    }
+                });
 
         // Add the panel of tabs to the page.
         RootPanel.get("mainDiv").add(tabPanel);

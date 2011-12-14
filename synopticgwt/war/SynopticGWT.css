@@ -171,9 +171,8 @@ body {
     font-size: 1em;
 }
 .tooltip {
-    background-color: #C3D9FF;
+    background-color: rgb(249,235,88);
     padding: 2px;
-    font-style:italic;
 }
 
 .TableHeader {
