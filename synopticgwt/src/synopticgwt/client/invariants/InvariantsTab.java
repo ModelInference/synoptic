@@ -41,6 +41,10 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     /** Relate GWTInvariants to InvariantGridLabels */
     public Map<GWTInvariant, InvariantGridLabel> gwtInvToGridLabel;
 
+    /** The ordering of invariant types used across all interfaces. */
+    public static final String[] invOrdering = { "AP", "AFby", "NFby",
+            "ACwith", "NCwith" };
+
     public InvariantsGraph iGraph;
 
     HorizontalPanel tableAndGraphicPanel;
@@ -73,10 +77,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             public void onClick(ClickEvent event) {
                 TextualInvariantsPopUp popUp = new TextualInvariantsPopUp(
                         gwtInvs);
-                // popUp.setPixelSize(Window.getClientWidth() / 2,
-                // Window.getClientHeight() / 2);
                 popUp.setHeight("" + (Window.getClientHeight() / 2) + "px");
-
                 popUp.setGlassEnabled(true);
                 popUp.center();
                 popUp.show();
@@ -89,9 +90,8 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
         Set<String> invTypes = gwtInvs.getInvTypes();
 
-        // Adds the invariant type columns in a specific order.
-        String[] invGridOrdering = { "AP", "AFby", "NFby", "ACwith", "NCwith" };
-        for (String invName : invGridOrdering) {
+        // Add the invariant type columns in a specific order.
+        for (String invName : invOrdering) {
             if (invTypes.contains(invName)) {
                 addInvariantColumnToGrid(invName, gwtInvs);
             }
