@@ -185,16 +185,9 @@ public class ModelTab extends Tab<DockPanel> {
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
         }
 
-        // Determine the size of the graphic -- make it depend on the current
-        // window size.
-        // TODO: Currently the +50 with buttonsPanel's width is to account
-        // for a small offset, and needs a better way to be consistently
-        // calculated.
-        // The minus 100 as also arbitrary and needs a better way to be
-        // calculated.
-        int width = Window.getClientWidth()
-                - (buttonsPanel.getOffsetWidth() + 50);
-        int height = Window.getClientHeight() - 100;
+        // Determine the size of the graphic.
+        int width = getModelGraphicWidth();
+        int height = getModelGraphicHeight();
         graphPanel.setPixelSize(width, height);
         ModelGraphic.createGraph(this, jsNodes, jsEdges, width, height,
                 canvasId, INITIAL_LABEL, TERMINAL_LABEL);
@@ -267,16 +260,27 @@ public class ModelTab extends Tab<DockPanel> {
         // //////////////////////
     }
 
+    /** Returns the correct width for the model graphic in the model tab. */
+    public int getModelGraphicWidth() {
+        // TODO: make this more robust -- perhaps, by hard-coding the percentage
+        // area that the model can take up.
+        return Window.getClientWidth() - (logLineLabel.getOffsetWidth() + 50);
+    }
+
+    /** Returns the correct height for the model graphic in the model tab. */
+    public int getModelGraphicHeight() {
+        // TODO: make this more robust -- perhaps, by hard-coding the percentage
+        // area that the model can take up.
+        return Window.getClientHeight() - 100;
+    }
+
     /**
      * Updates the graph panel's canvas, and animates the model the fill the new
      * canvas.
      */
     public void updateGraphPanel() {
-        // TODO: make this more robust -- perhaps, by hard-coding the percentage
-        // area that the model can take up.
-        int width = Window.getClientWidth()
-                - (logLineLabel.getOffsetWidth() + 50);
-        int height = Window.getClientHeight() - 100;
+        int width = getModelGraphicWidth();
+        int height = getModelGraphicHeight();
 
         graphPanel.setPixelSize(width, height);
         ModelGraphic.resizeGraph(width, height);
