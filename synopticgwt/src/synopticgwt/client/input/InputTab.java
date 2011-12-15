@@ -53,7 +53,6 @@ public class InputTab extends Tab<VerticalPanel> {
     final Grid examplesGrid = new Grid(5, 1);
     final Label exampleLogLabel = new Label("Load example logs");
     final Label parseErrorMsgLabel = new Label();
-    final Label logInputTypeLabel = new Label("Log input type:");
     final Label regExpDefaultLabel = new Label("Defaults to " + regExpDefault
             + " when empty");
     final Label partitionRegExpDefaultLabel = new Label("Defaults to "
@@ -157,18 +156,17 @@ public class InputTab extends Tab<VerticalPanel> {
         uploadLogFileButton.setVisible(false);
         uploadPanel.add(uploadLogFileButton);
 
-        HorizontalPanel radioButtonPanel = new HorizontalPanel();
-        radioButtonPanel.add(logInputTypeLabel);
-        radioButtonPanel.add(logTextRadioButton);
-        radioButtonPanel.add(logFileRadioButton);
-
         // Set up inner panel containing textarea and upload.
         VerticalPanel logPanel = new VerticalPanel();
-        logPanel.add(radioButtonPanel);
         logPanel.add(logTextArea);
         logPanel.add(uploadPanel);
 
-        grid.setWidget(0, 0, new Label("Log lines"));
+        VerticalPanel logInputPanel = new VerticalPanel();
+        grid.setWidget(0, 0, logInputPanel);
+        logInputPanel.add(new Label("Log"));
+        logInputPanel.add(logTextRadioButton);
+        logInputPanel.add(logFileRadioButton);
+
         grid.setWidget(0, 1, logPanel);
         logTextArea.setCharacterWidth(80);
         logTextArea.setVisibleLines(10);
