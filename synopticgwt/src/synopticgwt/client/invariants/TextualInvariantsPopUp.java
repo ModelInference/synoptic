@@ -23,7 +23,7 @@ public class TextualInvariantsPopUp extends PopupPanel {
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("InvariantsPopUp");
 
-        Anchor closeLink = new Anchor("Close");
+        Anchor closeLink = new Anchor("[Close]");
         panel.add(closeLink);
         closeLink.addClickHandler(new ClickHandler() {
             @Override
@@ -43,7 +43,11 @@ public class TextualInvariantsPopUp extends PopupPanel {
      */
     private String invariantsToText(GWTInvariantSet invs) {
         String ret = "";
-        for (String iType : invs.getInvTypes()) {
+
+        for (String iType : InvariantsTab.invOrdering) {
+            if (!invs.getInvTypes().contains(iType)) {
+                continue;
+            }
             for (GWTInvariant inv : invs.getInvs(iType)) {
                 ret += inv.getSource() + " " + iType + " " + inv.getTarget()
                         + "<br />";
