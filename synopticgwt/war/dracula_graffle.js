@@ -50,22 +50,15 @@ Raphael.fn.connection = function (obj1, obj2, style) {
             /* y-coordinate for label */
             var labelY;
             
+            /* Change this line of code to get desired layout */
+            var coordinates = getCornerLayoutCoords(bb1, bb2);
+            
             /* Coordinates for potential connection input points from bb1. */
-            var p_inputs = [
-                {x: bb1.x + bb1.width / 2 - horizOffset, y: bb1.y},              	/* NORTH in */
-            	{x: bb1.x + bb1.width / 2  + horizOffset, y: bb1.y + bb1.height}, 	/* SOUTH in */
-            	{x: bb1.x, y: bb1.y + bb1.height / 2 + vertOffset},             	/* WEST  in */
-            	{x: bb1.x + bb1.width, y: bb1.y + bb1.height / 2 - vertOffset}, 	/* EAST  in */
-            ];
-                         
+            var p_inputs = coordinates[0];
+             
             /* Coordinates for potential connection output points to bb2. */
-            var p_outputs = [
-             	{x: bb2.x + bb2.width / 2 + horizOffset, y: bb2.y},              /* NORTH out */
-             	{x: bb2.x + bb2.width / 2 - horizOffset, y: bb2.y + bb2.height}, /* SOUTH out */
-             	{x: bb2.x, y: bb2.y + bb2.height / 2 - vertOffset},              /* WEST  out */
-             	{x: bb2.x + bb2.width, y: bb2.y + bb2.height / 2 + vertOffset},  /* EAST  out */
-             ];
-
+            var p_outputs = coordinates[1];
+          
             if (isSelfLoop) {
             	/* Source and destination nodes are the same node => draw a self loop. */
             	
@@ -167,4 +160,53 @@ Raphael.fn.connection = function (obj1, obj2, style) {
     edge.draw();
     return edge;
 };
+
+/* Input points are displaced 1/6 of edge length clockwise from mid-point 
+ * of each edge. Output points are displaced 1/6 of edge length 
+ * counter-clockwise from mid-point of each edge.
+ * Returns nested array: first element contains input points, second
+ * element contains output points. */
+function getEdgeLayoutCoords(bb1, bb2) {
+	/* The offset amount from the mid-point of a horizontal edge. */
+	var horizOffset = bb1.width / 6;
+	/* The offset amount from the mid-point of a vertical edge. */
+	var vertOffset = bb1.height / 6;
+   
+	return [[
+     {x: bb1.x + bb1.width / 2 - horizOffset, y: bb1.y},              	/* NORTH in */
+     {x: bb1.x + bb1.width / 2  + horizOffset, y: bb1.y + bb1.height}, 	/* SOUTH in */
+     {x: bb1.x, y: bb1.y + bb1.height / 2 + vertOffset},             	/* WEST  in */
+     {x: bb1.x + bb1.width, y: bb1.y + bb1.height / 2 - vertOffset} 	/* EAST  in */
+     ], [
+     {x: bb2.x + bb2.width / 2 + horizOffset, y: bb2.y},              	/* NORTH out */
+     {x: bb2.x + bb2.width / 2 - horizOffset, y: bb2.y + bb2.height}, 	/* SOUTH out */
+     {x: bb2.x, y: bb2.y + bb2.height / 2 - vertOffset},              	/* WEST  out */
+     {x: bb2.x + bb2.width, y: bb2.y + bb2.height / 2 + vertOffset}  	/* EAST  out */
+ 	]];
+}
+
+/* Input points are situated in the top left and bottom right corners. 
+ * Output points are situated in the top right and bottom left corners.
+ * Returns nested array: first element contains input points, second
+ * element contains output points. */
+function getCornerLayoutCoords(bb1, bb2) {
+	/* Offset for input coordinates to account for
+	 * rounded corners. */
+	var inOff = 2;
+	/* Offset for output coordinates to account for
+	 * rounded corners. */
+	var outOff = 1;
+	return [[
+     {x: bb1.x + inOff, y: bb1.y + inOff}, 								/* NW in */
+     {x: bb1.x + (bb1.width - inOff), y: bb1.y + (bb1.height - inOff)},	/* SE in */
+     {x: bb1.x + inOff, y: bb1.y + inOff}, 								/* NW in */
+     {x: bb1.x + (bb1.width - inOff), y: bb1.y + (bb1.height - inOff)} 	/* SE in */
+     ], [
+     {x: bb2.x + (bb2.width - outOff), y: bb2.y - outOff}, 		/* NE out */
+     {x: bb2.x + outOff, y: bb2.y + (bb2.height - outOff)}, 	/* SW out */
+     {x: bb2.x + outOff, y: bb2.y + (bb2.height - outOff)},		/* SW out */
+     {x: bb2.x + (bb2.width - outOff), y: bb2.y - outOff} 		/* NE out */
+	]];
+}
+
 //Raphael.prototype.set.prototype.dodo=function(){console.log("works");};
