@@ -15,11 +15,12 @@ import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.client.ISynopticServiceAsync;
@@ -39,6 +40,10 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
     /** Relate GWTInvariants to InvariantGridLabels */
     public Map<GWTInvariant, InvariantGridLabel> gwtInvToGridLabel;
+
+    /** The ordering of invariant types used across all interfaces. */
+    public static final String[] invOrdering = { "AP", "AFby", "NFby",
+            "ACwith", "NCwith" };
 
     public InvariantsGraph iGraph;
 
@@ -60,44 +65,44 @@ public class InvariantsTab extends Tab<VerticalPanel> {
      * @param gwtInvs
      *            The invariants mined from the log.
      */
-    public void showInvariants(GWTInvariantSet gwtInvs) {
+    public void showInvariants(final GWTInvariantSet gwtInvs) {
         // Clear the invariants panel of any widgets it might have.
         panel.clear();
         tableAndGraphicPanel.clear();
+
+        Anchor exportInvsLink = new Anchor("[Show invariants as text]");
+        panel.add(exportInvsLink);
+        exportInvsLink.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                TextualInvariantsPopUp popUp = new TextualInvariantsPopUp(
+                        gwtInvs);
+                popUp.setHeight("" + (Window.getClientHeight() / 2) + "px");
+                popUp.setGlassEnabled(true);
+                popUp.center();
+                popUp.show();
+            }
+
+        });
 
         // Populate the panel with the invariants grid.
         panel.add(tableAndGraphicPanel);
 
         Set<String> invTypes = gwtInvs.getInvTypes();
 
-        // Adds the invariant type columns in a specified order
-        if (invTypes.contains("AP")) {
-            addInvariantColumnToGrid("AP", gwtInvs);
-        }
-        if (invTypes.contains("AFby")) {
-            addInvariantColumnToGrid("AFby", gwtInvs);
-        }
-        if (invTypes.contains("NFby")) {
-            addInvariantColumnToGrid("NFby", gwtInvs);
-        }
-        if (invTypes.contains("ACwith")) {
-            addInvariantColumnToGrid("ACwith", gwtInvs);
-        }
-        if (invTypes.contains("NCwith")) {
-            addInvariantColumnToGrid("NCwith", gwtInvs);
+        // Add the invariant type columns in a specific order.
+        for (String invName : invOrdering) {
+            if (invTypes.contains(invName)) {
+                addInvariantColumnToGrid(invName, gwtInvs);
+            }
         }
 
-        // Show the TO invariant graphic only if there are no concurrency
-        // invariants in the set of invariants.
-        if (!gwtInvs.containsConcurrencyInvs) {
-            String invCanvasId = "invCanvasId";
-            HorizontalPanel invGraphicPanel = new HorizontalPanel();
-            invGraphicPanel.getElement().setId(invCanvasId);
-            invGraphicPanel.setStylePrimaryName("modelCanvas");
-            tableAndGraphicPanel.add(invGraphicPanel);
-            iGraph.createInvariantsGraphic(gwtInvs, invCanvasId,
-                    gwtInvToGridLabel);
-        }
+        String invCanvasId = "invCanvasId";
+        HorizontalPanel invGraphicPanel = new HorizontalPanel();
+        invGraphicPanel.getElement().setId(invCanvasId);
+        invGraphicPanel.setStylePrimaryName("modelCanvas");
+        tableAndGraphicPanel.add(invGraphicPanel);
+        iGraph.createInvariantsGraphic(gwtInvs, invCanvasId, gwtInvToGridLabel);
     }
 
     /**
@@ -147,7 +152,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         } else if (invType.equals("ACwith")) {
             longType = "AlwaysConcurrentWith ( " + unicodeType + " )";
         }
-        grid.setWidget(0, 0, new Label(longType));
+        grid.setWidget(0, 0, new InvariantGridTitleLabel(longType));
         grid.getCellFormatter().setStyleName(0, 0, "tableCellTopRow");
         tableAndGraphicPanel.add(grid);
 
@@ -186,86 +191,146 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     class InvGridClickHandler implements ClickHandler {
         List<GWTInvariant> invs;
         Grid grid;
+        CellFormatter cFormatter;
+        InvariantGridTitleLabel titleLabel;
 
         public InvGridClickHandler(Grid grid, List<GWTInvariant> invs) {
             this.invs = invs;
             this.grid = grid;
+            this.cFormatter = grid.getCellFormatter();
+            this.titleLabel = ((InvariantGridTitleLabel) grid.getWidget(0, 0));
+        }
+
+        /** Mark a specific inv cell as deactivated; update activeInvsHashes. */
+        private void deactivateCell(int rowID) {
+            InvariantGridLabel invLabel = ((InvariantGridLabel) grid.getWidget(
+                    rowID, 0));
+            int invID = invLabel.getInvariant().getID();
+            activeInvsHashes.remove(invID);
+            invLabel.setActive(false);
+            cFormatter.setStyleName(rowID, 0, "tableCellInvDeactivated");
+        }
+
+        /** Mark a specific inv cell as activated; update activeInvsHashes. */
+        private void activateCell(int rowID) {
+            InvariantGridLabel invLabel = ((InvariantGridLabel) grid.getWidget(
+                    rowID, 0));
+            int invID = invLabel.getInvariant().getID();
+            activeInvsHashes.add(invID);
+            invLabel.setActive(true);
+            cFormatter.setStyleName(rowID, 0, "tableCellInvActivated");
+        }
+
+        /** Mark a title cell as activated. */
+        private void activateTitleCell() {
+            titleLabel.active = true;
+            cFormatter.setStyleName(0, 0, "tableCellTopRow");
+        }
+
+        /** Mark a title cell as deactivated. */
+        private void deactivateTitleCell() {
+            titleLabel.active = false;
+            cFormatter.setStyleName(0, 0, "tableCellInvDeactivated");
         }
 
         @Override
         public void onClick(ClickEvent event) {
-            // The clicked cell.
-            Cell cell = ((Grid) event.getSource()).getCellForEvent(event);
-
-            // Cell's row index.
-            int cIndex = cell.getRowIndex();
-
-            // Ignore title cells.
-            if (cIndex == 0) {
+            // Do not activate/deactivate invariants if the model tab is
+            // disabled (i.e., if no model is currently displayed).
+            if (!SynopticGWT.entryPoint.getTabPanel().getTabBar()
+                    .isTabEnabled(SynopticGWT.modelTabIndex)) {
                 return;
             }
 
-            // Invariant label corresponding to the cell.
-            InvariantGridLabel invLabel = ((InvariantGridLabel) grid.getWidget(
-                    cIndex, 0));
+            // The clicked cell.
+            Cell cell = ((Grid) event.getSource()).getCellForEvent(event);
 
-            int invID = invLabel.getInvariant().getID();
+            // If the click did not actually hit a cell, then cell will be null.
+            if (cell == null) {
+                return;
+            }
 
-            // //////////////////////////////////////////////////////////
-            // This looks pretty important. It signals to
-            // SynopticGWT that the invariants have changed. Why not put
-            // this into the invariant set though?
-            // Is there a better way to communicate this information to
-            // the Model tab? Maybe a mutation counter in GWTInvariant
-            // Set?
-            // //////////////////////////////////////////////////////////
+            // Cell's row index.
+            int rowID = cell.getRowIndex();
+
+            // This call signals to SynopticGWT that the invariants have
+            // changed.
+            // TODO: Perhaps there is a better way to communicate this
+            // information to the Model tab, perhaps by using a mutation counter
+            // in GWTInvariantSet.
             SynopticGWT.entryPoint.invSetChanged();
 
-            CellFormatter cFormatter = grid.getCellFormatter();
+            // Title cells are special -- they make entire sets of invariants
+            // activated/deactivated.
+            if (rowID == 0) {
+                if (titleLabel.active) {
+                    deactivateTitleCell();
+                    // Skip the first (title) cell.
+                    for (int i = 1; i < grid.getRowCount(); i++) {
+                        deactivateCell(i);
+                    }
+                } else {
+                    activateTitleCell();
+                    // Skip the first (title) cell.
+                    for (int i = 1; i < grid.getRowCount(); i++) {
+                        activateCell(i);
+                    }
+                }
+            } else {
+                // Invariant label corresponding to the cell.
+                InvariantGridLabel invLabel = ((InvariantGridLabel) grid
+                        .getWidget(rowID, 0));
 
-            // Corresponding invariant is activated => deactive it.
-            if (invLabel.getActive()) {
-                activeInvsHashes.remove(invID);
-                invLabel.setActive(false);
-                cFormatter.setStyleName(cIndex, 0, "tableCellInvDeactivated");
-            } else { // Corresponding invariant is deactivated => activate it.
-                activeInvsHashes.add(invID);
-                invLabel.setActive(true);
-                cFormatter.setStyleName(cIndex, 0, "tableCellInvActivated");
+                if (invLabel.getActive()) {
+                    // Corresponding invariant is activated => deactivate it.
+                    deactivateCell(rowID);
+                    // If all invariants are deactivated, also deactivate the
+                    // title cell.
+                    // (Skip the first (title) cell.)
+                    deactivateTitleCell();
+                    for (int i = 1; i < grid.getRowCount(); i++) {
+                        InvariantGridLabel invL = ((InvariantGridLabel) grid
+                                .getWidget(i, 0));
+                        if (invL.getActive()) {
+                            // Nope, some invariant is active -- reset title
+                            // cell.
+                            activateTitleCell();
+                            break;
+                        }
+                    }
+                } else {
+                    // Corresponding invariant is deactivated => activate it.
+                    activateCell(rowID);
+                    // Reset title cell.
+                    activateTitleCell();
+                }
             }
         }
     }
 
     /**
-     * Highlights corresponding GraphicInvariant on InvariantGridLabel mouseover
-     * 
-     * @author timjv
+     * Highlights corresponding GraphicInvariant on InvariantGridLabel
+     * mouseover.
      */
     class InvLabelMouseOverHandler implements MouseOverHandler {
-
         @Override
         public void onMouseOver(MouseOverEvent event) {
             InvariantGridLabel iGridLabel = (InvariantGridLabel) event
                     .getSource();
             iGridLabel.mouseOver();
         }
-
     }
 
     /**
      * Removes highlight from corresponding GraphicInvariant on
-     * InvariantGridLabel mouseout
-     * 
-     * @author timjv
+     * InvariantGridLabel mouseout.
      */
     class InvLabelMouseOutHandler implements MouseOutHandler {
-
         @Override
         public void onMouseOut(MouseOutEvent event) {
             InvariantGridLabel iGridLabel = (InvariantGridLabel) event
                     .getSource();
             iGridLabel.mouseOut();
         }
-
     }
 }

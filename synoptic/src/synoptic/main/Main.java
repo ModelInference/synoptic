@@ -127,7 +127,8 @@ public class Main implements Callable<Integer> {
     /**
      * Parses the set of arguments (args) to the program, to set up static state
      * in Main. This state includes everything necessary to run Synoptic --
-     * input log files, regular expressions, etc.
+     * input log files, regular expressions, etc. Return null if there is a
+     * problem with the parsed options.
      * 
      * @param args
      *            Command line arguments that specify how Synoptic should

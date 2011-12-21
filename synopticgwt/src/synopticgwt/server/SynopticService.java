@@ -4,6 +4,9 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -50,6 +53,8 @@ import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTNode;
 import synopticgwt.shared.GWTPair;
 import synopticgwt.shared.GWTParseException;
+import synopticgwt.shared.GWTServerException;
+import synopticgwt.shared.GWTSynOpts;
 import synopticgwt.shared.LogLine;
 
 /**
@@ -302,13 +307,39 @@ public class SynopticService extends RemoteServiceServlet implements
             GWTInvariant invVal = new GWTInvariant(bInv.getFirst().toString(),
                     bInv.getSecond().toString(), bInv.getShortName());
 
+            if (bInv instanceof ConcurrencyInvariant) {
+                GWTinvs.containsConcurrencyInvs = true;
+            }
+
             // Set a unique identification id.
             invVal.setID(inv.hashCode());
 
             GWTinvs.addInv(invKey, invVal);
-
         }
         return GWTinvs;
+    }
+
+    protected String throwableStackTraceString(Throwable t) {
+        final Writer writer = new StringWriter();
+        final PrintWriter printWriter = new PrintWriter(writer);
+        t.printStackTrace(printWriter);
+        return writer.toString();
+    }
+
+    // //////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Handle any exceptions that escape processCall().
+     */
+    @Override
+    protected void doUnexpectedFailure(Throwable t) {
+        t.printStackTrace(System.err);
+
+        if (!(t instanceof GWTServerException)) {
+            t = new GWTServerException(t.getMessage(), t.getCause(),
+                    throwableStackTraceString(t));
+        }
+        super.doUnexpectedFailure(t);
     }
 
     // //////////////////////////////////////////////////////////////////////////////
@@ -320,8 +351,7 @@ public class SynopticService extends RemoteServiceServlet implements
      * @throws Exception
      */
     @Override
-    public GWTPair<GWTInvariantSet, GWTGraph> parseLog(String logLines,
-            List<String> regExps, String partitionRegExp, String separatorRegExp)
+    public GWTPair<GWTInvariantSet, GWTGraph> parseLog(GWTSynOpts synOpts)
             throws Exception {
 
         // Set up some static variables in Main that are necessary to use the
@@ -329,6 +359,7 @@ public class SynopticService extends RemoteServiceServlet implements
         Main.options = new SynopticOptions();
         // Output as much internal Synoptic information as possible.
         Main.options.logLvlExtraVerbose = true;
+        Main.options.ignoreNonMatchingLines = synOpts.ignoreNonMatchedLines;
         synoptic.main.Main.setUpLogging();
         Main.random = new Random(Main.options.randomSeed);
         Main.graphExportFormatter = new DotExportFormatter();
@@ -338,15 +369,15 @@ public class SynopticService extends RemoteServiceServlet implements
         ArrayList<EventNode> parsedEvents = null;
 
         try {
-            parser = synoptic.main.Main.newTraceParser(regExps,
-                    partitionRegExp, separatorRegExp);
-            parsedEvents = parser.parseTraceString(logLines, new String(
-                    "traceName"), -1);
+            parser = synoptic.main.Main.newTraceParser(synOpts.regExps,
+                    synOpts.partitionRegExp, synOpts.separatorRegExp);
+            parsedEvents = parser.parseTraceString(synOpts.logLines, "", -1);
         } catch (ParseException pe) {
             logger.info("Caught parse exception: " + pe.toString());
             pe.printStackTrace();
             throw new GWTParseException(pe.getMessage(), pe.getCause(),
-                    pe.getRegex(), pe.getLogLine());
+                    throwableStackTraceString(pe), pe.getRegex(),
+                    pe.getLogLine());
 
         } catch (Exception e) {
             logger.info("Caught exception: " + e.toString());
@@ -357,19 +388,20 @@ public class SynopticService extends RemoteServiceServlet implements
         // Code below mines invariants, and converts them to GWTInvariants.
         // TODO: refactor synoptic main so that it does all of this most of this
         // for the client.
-        GWTGraph graph;
+        GWTGraph graph = null;
 
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
             TOInvariantMiner miner = new ChainWalkingTOInvMiner();
             minedInvs = miner.computeInvariants(traceGraph);
 
-            // Since we're in the TO case then we also initialize and store
-            // refinement state.
-            initializeRefinementState(minedInvs);
-            storeSessionState(getThreadLocalRequest().getSession());
-            graph = PGraphToGWTGraph(pGraph);
-
+            if (!synOpts.onlyMineInvs) {
+                // Since we're in the TO case then we also initialize and store
+                // refinement state.
+                initializeRefinementState(minedInvs);
+                storeSessionState(getThreadLocalRequest().getSession());
+                graph = PGraphToGWTGraph(pGraph);
+            }
         } else {
             // TODO: expose to the user the option of using another kind of
             // PO invariant miner.
@@ -395,8 +427,7 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     @Override
     public GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(
-            List<String> regExps, String partitionRegExp, String separatorRegExp)
-            throws Exception {
+            GWTSynOpts synOpts) throws Exception {
         // Set up state.
         retrieveSessionState();
 
@@ -438,8 +469,8 @@ public class SynopticService extends RemoteServiceServlet implements
         } catch (Exception e) {
             throw new Exception("Unable to read uploaded file.");
         }
-        return parseLog(logFileContent, regExps, partitionRegExp,
-                separatorRegExp);
+        synOpts.logLines = logFileContent;
+        return parseLog(synOpts);
     }
 
     /**

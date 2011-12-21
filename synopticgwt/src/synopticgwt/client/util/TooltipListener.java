@@ -28,6 +28,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import synopticgwt.client.SynopticGWT;
+
 public class TooltipListener implements MouseOverHandler, MouseOutHandler {
     private static final String DEFAULT_TOOLTIP_STYLE = "TooltipPopup";
     private static final int DEFAULT_OFFSET_X = 10;
@@ -58,6 +60,10 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
 
     @Override
     public void onMouseOver(MouseOverEvent event) {
+        // Only show the tool-tip if tool-tips are enabled globally.
+        if (!SynopticGWT.entryPoint.showHelpToolTips.getValue()) {
+            return;
+        }
         Widget sender = (Widget) event.getSource();
         if (tooltip != null)
             tooltip.hide();

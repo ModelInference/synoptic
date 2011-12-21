@@ -1,5 +1,6 @@
 package synopticgwt.client;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -9,8 +10,14 @@ import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
 import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.DisclosurePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabPanel;
@@ -19,6 +26,7 @@ import synopticgwt.client.input.InputTab;
 import synopticgwt.client.invariants.InvariantsTab;
 import synopticgwt.client.model.ModelTab;
 import synopticgwt.client.util.AnalyticsTracker;
+import synopticgwt.client.util.ErrorReportingAsyncCallback;
 import synopticgwt.client.util.ModelResizeHandler;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTGraph;
@@ -35,12 +43,17 @@ public class SynopticGWT implements EntryPoint {
     /** Default global logger to use for logging all messages to the console. */
     // public static Logger logger = Logger.getLogger("SynopticGWT");
 
+    /** These hold specific Tab indices (set in SynopticGWT.onModuleLoad()). */
+    public static int inputsTabIndex;
+    public static int invariantsTabIndex;
+    public static int modelTabIndex;
+
     /** Create an RPC proxy to talk to the Synoptic service */
     private final ISynopticServiceAsync synopticService = GWT
             .create(ISynopticService.class);
 
     /** This contains the three main application tabs. */
-    TabPanel tabPanel = new TabPanel();
+    private TabPanel tabPanel = new TabPanel();
 
     // TODO: there should be a pWheel for every tab.
     /** The progress wheel is an visual indicator of progress for the user. */
@@ -63,6 +76,17 @@ public class SynopticGWT implements EntryPoint {
 
     private Map<Integer, Tab<?>> tabIndexToTab = new LinkedHashMap<Integer, Tab<?>>();
 
+    /** Check box to control visibility of tool-tips. */
+    public final CheckBox showHelpToolTips = new CheckBox("Show help tool-tips");
+    static final String hideHelpToolTipsCookieName = new String(
+            "hide-help-tool-tips");
+
+    /**
+     * Whether or not the user wants to manually control the
+     * refinement/coarsening process.
+     */
+    public boolean manualRefineCoarsen;
+
     boolean invSetChanged = false;
 
     /**
@@ -78,6 +102,34 @@ public class SynopticGWT implements EntryPoint {
         SynopticGWT.entryPoint = this;
 
         // logger.setLevel(Level.FINEST);
+
+        // Show check box to control visibility of tool-tips.
+        RootPanel.get("div-top-bar").add(showHelpToolTips);
+        if (Cookies.getCookie(hideHelpToolTipsCookieName) == null) {
+            // Cookie does not exist => default to showing tool-tips
+            showHelpToolTips.setValue(true);
+        } else {
+            // Cookie exists => do not show tool-tips
+            showHelpToolTips.setValue(false);
+        }
+        // When tool tips are disabled, we store a cookie to remember this
+        // across sessions.
+        showHelpToolTips
+                .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                    @Override
+                    public void onValueChange(ValueChangeEvent<Boolean> event) {
+                        boolean newVal = event.getValue();
+                        if (!newVal) {
+                            // Create a cookie that expires 1 year from now.
+                            Date expireDate = new Date();
+                            expireDate.setTime(expireDate.getTime() + 31556926);
+                            Cookies.setCookie(hideHelpToolTipsCookieName, "",
+                                    expireDate);
+                        } else {
+                            Cookies.removeCookie(hideHelpToolTipsCookieName);
+                        }
+                    }
+                });
 
         // Add the panel of tabs to the page.
         RootPanel.get("mainDiv").add(tabPanel);
@@ -95,24 +147,27 @@ public class SynopticGWT implements EntryPoint {
 
         // Associate the tabs with the tab panel.
         tabPanel.add(inputTab.getPanel(), "Inputs");
+        inputsTabIndex = tabPanel.getWidgetIndex(inputTab.getPanel());
+
         tabPanel.add(invTab.getPanel(), "Invariants");
+        invariantsTabIndex = tabPanel.getWidgetIndex(invTab.getPanel());
+
         tabPanel.add(modelTab.getPanel(), "Model");
+        modelTabIndex = tabPanel.getWidgetIndex(modelTab.getPanel());
 
         // Build up a map between the tab index in the tab panel and the tab --
-        // this map is useful when processing events that change the selected
-        // tab.
-        tabIndexToTab.put(tabPanel.getWidgetIndex(inputTab.getPanel()),
-                inputTab);
-        tabIndexToTab.put(tabPanel.getWidgetIndex(invTab.getPanel()), invTab);
-        tabIndexToTab.put(tabPanel.getWidgetIndex(modelTab.getPanel()),
-                modelTab);
+        // this is useful when processing events that change the selected tab.
+        tabIndexToTab.put(inputsTabIndex, inputTab);
+        tabIndexToTab.put(invariantsTabIndex, invTab);
+        tabIndexToTab.put(modelTabIndex, modelTab);
 
-        // logger.info(tabIndexToTab.toString());
         tabPanel.setWidth("100%");
-        tabPanel.selectTab(0);
-        // Disable the invariants/model tabs (until the user parses a log).
-        tabPanel.getTabBar().setTabEnabled(1, false);
-        tabPanel.getTabBar().setTabEnabled(2, false);
+
+        // On load show the inputs tab, and disable the invariants/model tabs
+        // (until the user parses a log).
+        tabPanel.selectTab(inputsTabIndex);
+        tabPanel.getTabBar().setTabEnabled(invariantsTabIndex, false);
+        tabPanel.getTabBar().setTabEnabled(modelTabIndex, false);
 
         tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
@@ -136,6 +191,15 @@ public class SynopticGWT implements EntryPoint {
         // remove it when any one of the other tabs is clicked.
         Window.addResizeHandler(new ModelResizeHandler(tabPanel.getTabBar(),
                 modelTab, 200));
+
+        // Check whether or not to show the welcome screen.
+        if (WelcomePopUp.showWelcome()) {
+            WelcomePopUp welcome = new WelcomePopUp();
+            welcome.setGlassEnabled(true);
+            welcome.center();
+            welcome.show();
+        }
+
     }
 
     /**
@@ -146,22 +210,17 @@ public class SynopticGWT implements EntryPoint {
         invSetChanged = true;
     }
 
-    /** Called when commit invariants call to the Synoptic service fails. */
-    public void commitInvsFailure(Throwable caught) {
-        Label error = new Label(
-                "Remote Procedure Call Failure while updating invariants: "
-                        + caught.toString());
-        error.setStyleName("ErrorMessage");
-        RootPanel rpcErrorDiv = RootPanel.get("rpcErrorDiv");
-        rpcErrorDiv.clear();
-        rpcErrorDiv.add(error);
-    }
-
     /** Called when commit invariants call to the Synoptic service succeeds. */
     public void commitInvsSuccess(GWTGraph gwtGraph) {
         invSetChanged = false;
-        tabPanel.selectTab(2);
+        tabPanel.selectTab(modelTabIndex);
         modelTab.showGraph(gwtGraph);
+
+        // Retrieve and show the final model, if this process is not being
+        // controlled manually.
+        if (!manualRefineCoarsen) {
+            modelTab.getFinalModelButtonClick(null);
+        }
     }
 
     /**
@@ -170,16 +229,20 @@ public class SynopticGWT implements EntryPoint {
      * and (2) to track the event for analytics.
      */
     public void tabBeforeSelected(BeforeSelectionEvent<Integer> event) {
-        if (!tabIndexToTab.containsKey(event.getItem())) {
+        int tabIndex = event.getItem();
+
+        // Sanity check of tabIndex.
+        if (!tabIndexToTab.containsKey(tabIndex)) {
             return;
         }
+
         // 1. Check if the tab is enabled. If not, cancel the event.
-        if (!tabPanel.getTabBar().isTabEnabled(event.getItem())) {
+        if (!tabPanel.getTabBar().isTabEnabled(tabIndex)) {
             event.cancel();
             return;
         }
         // 2. Only track the event if it has not been canceled.
-        Tab<?> t = tabIndexToTab.get(event.getItem());
+        Tab<?> t = tabIndexToTab.get(tabIndex);
         AnalyticsTracker.trackEvent(t.trackerCategoryName, "selected",
                 "navigation");
     }
@@ -188,8 +251,10 @@ public class SynopticGWT implements EntryPoint {
      * Fired by SynopticTabPanel whenever a tab is selected.
      */
     public void tabSelected(SelectionEvent<Integer> event) {
-        int tabId = event.getSelectedItem();
-        if (tabIndexToTab.get(tabId) != modelTab) {
+        int tabIndex = event.getSelectedItem();
+
+        // Ignore non-model-tab tab selections.
+        if (tabIndex != modelTabIndex) {
             return;
         }
 
@@ -205,14 +270,11 @@ public class SynopticGWT implements EntryPoint {
         // ////////////////////// Call to remote service.
         try {
             synopticService.commitInvariants(invTab.activeInvsHashes,
-                    new AsyncCallback<GWTGraph>() {
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            commitInvsFailure(caught);
-                        }
-
+                    new ErrorReportingAsyncCallback<GWTGraph>(
+                            "commitInvariants call") {
                         @Override
                         public void onSuccess(GWTGraph gwtGraph) {
+                            super.onSuccess(gwtGraph);
                             commitInvsSuccess(gwtGraph);
                         }
                     });
@@ -237,7 +299,7 @@ public class SynopticGWT implements EntryPoint {
      */
     public void logParsed(GWTInvariantSet logInvs, GWTGraph initialModel) {
         // Enable the invariants tab, and show the invariants.
-        tabPanel.getTabBar().setTabEnabled(1, true);
+        tabPanel.getTabBar().setTabEnabled(invariantsTabIndex, true);
         invTab.showInvariants(logInvs);
 
         // TODO: Communicate whether we are processing a TO or a PO log
@@ -245,20 +307,81 @@ public class SynopticGWT implements EntryPoint {
         if (initialModel != null) {
             // TO log.
             // Enable the model tab.
-            tabPanel.getTabBar().setTabEnabled(2, true);
+            tabPanel.getTabBar().setTabEnabled(modelTabIndex, true);
+
+            modelTab.setManualMode(manualRefineCoarsen);
 
             // The modelTab MUST be selected before calling showGraph().
-            tabPanel.selectTab(2);
+            tabPanel.selectTab(modelTabIndex);
             modelTab.showGraph(initialModel);
-            // Retrieve and show the final model.
-            modelTab.getFinalModelButtonClick(null);
+
+            // Retrieve and show the final model, if this process is not being
+            // controlled manually.
+            if (!manualRefineCoarsen) {
+                modelTab.getFinalModelButtonClick(null);
+            }
         } else {
             // PO log.
             // Switch to the invariant tab, and disable the model tab.
-            tabPanel.selectTab(1);
-            tabPanel.getTabBar().setTabEnabled(2, false);
+            tabPanel.selectTab(invariantsTabIndex);
+            tabPanel.getTabBar().setTabEnabled(modelTabIndex, false);
             // TODO: we also want to clear model state here, in the case
             // that the prior generated model is large.
+        }
+    }
+
+    public TabPanel getTabPanel() {
+        return tabPanel;
+    }
+
+    /**
+     * Clears the current error message, if any.
+     */
+    public void clearError() {
+        RootPanel rpcErrorDiv = RootPanel.get("ErrorDiv");
+        RootPanel straceDiv = RootPanel.get("StackTraceDiv");
+        rpcErrorDiv.clear();
+        straceDiv.clear();
+    }
+
+    /**
+     * Shows an error message in the errorDiv.
+     */
+    public void showError(String msg, String clientStackTrace,
+            String serverStackTrace) {
+        // First, clear whatever error might be currently displayed.
+        clearError();
+
+        // All error-related messages will be added to this flow panel.
+        RootPanel errorDiv = RootPanel.get("ErrorDiv");
+        // FlowPanel fPanel = new FlowPanel();
+        // errorDiv.add(fPanel);
+
+        // Add the principle error message.
+        Label errorMsg = new Label(msg);
+        errorMsg.setStyleName("ErrorMessage");
+        errorDiv.add(errorMsg);
+
+        RootPanel straceDiv = RootPanel.get("StackTraceDiv");
+        FlowPanel fPanel = new FlowPanel();
+        straceDiv.add(fPanel);
+
+        // Client-side stack trace can be revealed/hidden.
+        if (clientStackTrace != "") {
+            DisclosurePanel strace = new DisclosurePanel("Client stack trace");
+            strace.setAnimationEnabled(true);
+            strace.setContent(new HTML(clientStackTrace.replace("\n", "<br/>")));
+            strace.setStyleName("ClientExceptionTraceBack");
+            fPanel.add(strace);
+        }
+
+        // Server-side stack trace can be revealed/hidden.
+        if (serverStackTrace != "") {
+            DisclosurePanel strace = new DisclosurePanel("Server stack trace");
+            strace.setAnimationEnabled(true);
+            strace.setContent(new HTML(serverStackTrace.replace("\n", "<br/>")));
+            strace.setStyleName("ServerExceptionTraceBack");
+            fPanel.add(strace);
         }
     }
 }

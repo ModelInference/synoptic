@@ -9,6 +9,7 @@ import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTPair;
+import synopticgwt.shared.GWTSynOpts;
 import synopticgwt.shared.LogLine;
 
 /**
@@ -24,12 +25,10 @@ import synopticgwt.shared.LogLine;
  * </pre>
  */
 public interface ISynopticServiceAsync {
-    void parseLog(String logLines, List<String> regExps,
-            String partitionRegExp, String separatorRegExp,
+    void parseLog(GWTSynOpts synOpts,
             AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> callback);
 
-    void parseUploadedLog(List<String> regExps, String partitionRegExp,
-            String separatorRegExp,
+    void parseUploadedLog(GWTSynOpts synOpts,
             AsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> callback);
 
     void refineOneStep(AsyncCallback<GWTGraphDelta> callback) throws Exception;

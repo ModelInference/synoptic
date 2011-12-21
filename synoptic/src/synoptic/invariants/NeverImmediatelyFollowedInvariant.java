@@ -8,24 +8,22 @@ import synoptic.model.interfaces.INode;
 import synoptic.util.NotImplementedException;
 
 /**
- * An implicit invariant for Synoptic models, true for events a and b 
- * when for all input traces there is never an instance where event a
- * is immediately followed by event b.
- * 
- * @author Jenny
+ * An implicit invariant for Synoptic models, true for events a and b when for
+ * all input traces there is never an instance of event a that is immediately
+ * followed by an instance of event b.
  */
 public class NeverImmediatelyFollowedInvariant extends BinaryInvariant {
 
-    public NeverImmediatelyFollowedInvariant(EventType typeFirst, EventType typeSecond,
-            String relation) {
+    public NeverImmediatelyFollowedInvariant(EventType typeFirst,
+            EventType typeSecond, String relation) {
         super(typeFirst, typeSecond, relation);
     }
-    
+
     /**
      * Assumes the invariant is between two StringEventTypes
      */
-    public NeverImmediatelyFollowedInvariant(String typeFirst, String typeSecond,
-            String relation) {
+    public NeverImmediatelyFollowedInvariant(String typeFirst,
+            String typeSecond, String relation) {
         this(new StringEventType(typeFirst), new StringEventType(typeSecond),
                 relation);
     }
@@ -33,58 +31,63 @@ public class NeverImmediatelyFollowedInvariant extends BinaryInvariant {
     /**
      * Assumes the invariant is between two StringEventTypes
      */
-    public NeverImmediatelyFollowedInvariant(StringEventType typeFirst, String typeSecond,
-            String relation) {
+    public NeverImmediatelyFollowedInvariant(StringEventType typeFirst,
+            String typeSecond, String relation) {
         this(typeFirst, new StringEventType(typeSecond), relation);
     }
 
     /**
      * Assumes the invariant is between two StringEventTypes
      */
-    public NeverImmediatelyFollowedInvariant(String typeFirst, StringEventType typeSecond,
-            String relation) {
+    public NeverImmediatelyFollowedInvariant(String typeFirst,
+            StringEventType typeSecond, String relation) {
         this(new StringEventType(typeFirst), typeSecond, relation);
     }
-    
+
     @Override
     public String toString() {
         return first.toString() + " IsNeverImmediatelyFollowedBy "
                 + second.toString();
     }
 
-	@Override
-	public String getLongName() {
-		return "IsNeverImmediatelyFollowedBy";
-	}
+    @Override
+    public String getLongName() {
+        return "IsNeverImmediatelyFollowedBy";
+    }
 
-	@Override
-	public String getShortName() {
-		return "NIFby";
-	}
-	
-	/* This invariant is not used during refinement or
-	   coarsening, so LTL has been left undefined */
-	@Override
-	public String getLTLString() {
-		throw new NotImplementedException();
-	}
+    @Override
+    public String getShortName() {
+        return "NIFby";
+    }
 
-	@Override
-	public <T extends INode<T>> List<T> shorten(List<T> path) {
-		return path;
-	}
+    /**
+     * This invariant is not used during refinement or coarsening, so LTL has
+     * been left undefined
+     */
+    @Override
+    public String getLTLString() {
+        throw new NotImplementedException();
+    }
 
-	/**
-	 * Returns a regular expressions describing this invariant for first NIFby second. The
-	 * expression is "([^x]|x[^y])*x*". The last x* allows a trace ending with x, not
-	 * followed by anything.
-	 * 
-	 * @param firstC a character representation of first
-	 * @param secondC a character representation of second
-	 * @return a regex for this invariant
-	 */
-	@Override
-	public String getRegex(char firstC, char secondC) {
-		return "([^" + firstC + "]|" + firstC + "[^" + secondC + "])*" + firstC + "*";
-	}
+    @Override
+    public <T extends INode<T>> List<T> shorten(List<T> path) {
+        return path;
+    }
+
+    /**
+     * Returns a regular expressions describing this invariant. For x NIFby y,
+     * the expression is "([^x]|x[^y])*x*". The last x* allows a trace ending
+     * with x, not followed by anything.
+     * 
+     * @param firstC
+     *            a character representation of first
+     * @param secondC
+     *            a character representation of second
+     * @return a regex for this invariant
+     */
+    @Override
+    public String getRegex(char firstC, char secondC) {
+        return "([^" + firstC + "]|" + firstC + "[^" + secondC + "])*" + firstC
+                + "*";
+    }
 }
