@@ -3,6 +3,7 @@ package synoptic.tests.integration;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -26,6 +27,7 @@ public class PerformanceTests extends SynopticTest {
     int numPartitions;
     int numEventTypes;
     boolean withInvariants;
+    boolean useFSMChecker;
 
     @Parameters
     public static Collection<Object[]> data() {
@@ -37,16 +39,21 @@ public class PerformanceTests extends SynopticTest {
     public PerformanceTests(boolean useFSMChecker, int numIterations,
             int traceType, int totalEvents, int numPartitions,
             int numEventTypes, boolean withInvariants) {
-        Main.options.useFSMChecker = useFSMChecker;
+        this.useFSMChecker = useFSMChecker;
         this.numIterations = numIterations;
         this.traceType = traceType;
         this.totalEvents = totalEvents;
         this.numPartitions = numPartitions;
         this.numEventTypes = numEventTypes;
         this.withInvariants = withInvariants;
+    }
 
-        Main.options.logLvlExtraVerbose = false;
-        Main.options.logLvlQuiet = true;
+    @Before
+    public void setUp() throws ParseException {
+        super.setUp();
+        Main.options.useFSMChecker = this.useFSMChecker;
+        synoptic.main.Main.options.logLvlExtraVerbose = false;
+        synoptic.main.Main.options.logLvlQuiet = true;
     }
 
     public void reportTime(long msTime) {
