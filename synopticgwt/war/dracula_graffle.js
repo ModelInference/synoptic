@@ -51,7 +51,8 @@ Raphael.fn.connection = function (obj1, obj2, style) {
             var labelY;
             
             /* Change this line of code to get desired layout */
-            var coordinates = getCornerLayoutCoords(bb1, bb2);
+            // var coordinates = getCornerLayoutCoords(bb1, bb2);
+            var coordinates = getEdgeLayoutCoords(bb1, bb2);
             
             /* Coordinates for potential connection input points from bb1. */
             var p_inputs = coordinates[0];
