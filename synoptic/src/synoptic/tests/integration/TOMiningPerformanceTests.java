@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -12,7 +13,6 @@ import org.junit.runners.Parameterized.Parameters;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
-import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -50,15 +50,13 @@ public class TOMiningPerformanceTests extends SynopticTest {
         this.totalEvents = totalEvents;
         this.numPartitions = numPartitions;
         this.numEventTypes = numEventTypes;
-
-        Main.options.logLvlExtraVerbose = false;
-        Main.options.logLvlQuiet = true;
     }
 
-    @Override
+    @Before
     public void setUp() throws ParseException {
         super.setUp();
-
+        synoptic.main.Main.options.logLvlExtraVerbose = false;
+        synoptic.main.Main.options.logLvlQuiet = true;
     }
 
     public void reportTime(long msTime) {

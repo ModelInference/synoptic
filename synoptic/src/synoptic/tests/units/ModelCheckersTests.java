@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -61,8 +62,16 @@ public class ModelCheckersTests extends SynopticTest {
         return Arrays.asList(data);
     }
 
+    boolean useFSMChecker;
+
     public ModelCheckersTests(boolean useFSMChecker) {
-        Main.options.useFSMChecker = useFSMChecker;
+        this.useFSMChecker = useFSMChecker;
+    }
+
+    @Before
+    public void setUp() throws ParseException {
+        super.setUp();
+        synoptic.main.Main.options.useFSMChecker = this.useFSMChecker;
     }
 
     /**
