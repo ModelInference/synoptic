@@ -2,6 +2,7 @@
  * Stores a graph, its layouter, and its renderer for manipulation of the graph's
  * display.
  */
+
 var GRAPH_HANDLER = {
     // array of graph nodes
     "currentNodes" : [],
@@ -42,6 +43,11 @@ var GRAPH_HANDLER = {
     // (rectangle and
     // label)
     "render" : function(canvas, node) {
+        // Add the node to the total number of nodes (these aren't the same as
+        // the nodes within the GRAPH_HANDLER object. These nodes are dracula
+        // nodes).
+        graphNodes.push(node);
+
         var rect;
         if (node.label == "INITIAL" || node.label == "TERMINAL") {
             // creates the rectangle to be drawn
@@ -61,17 +67,12 @@ var GRAPH_HANDLER = {
             });
         }
 
-        // Adds a function to the given rectangle so that, when clicked,
-        // the associated event node is "selected" (shown as blue when clicked)
-        // and then the log lines associated with the event are shown in the
-        // the model tab (grabbed via a RPC call).  When clicking a node a 
-        // second time, the node is "deselected," and turned back to its normal 
-        // color.  When deselecting a node, the log lines are not shown for that node.
-        //
-        // TODO: Make it so that when a node is clicked, a single node is selected,
-        // and only select more than one node if a certain checkbox is active, or the
-        // user is holding shift.
-        rect.node.onmouseup = function() {
+        // Toggles whether the node has been selected.
+        // more details on what qualifies as "selected"
+        // in the next function (defined for mouse click events).
+        // TODO: Add a reference to the selected node to ModelTab.java
+        // or ModelGraphic.java
+        node.toggleSelected = function() {
             var isIOrTNode = node.label == "INITIAL"
                     && node.label == "TERMINAL";
 
@@ -79,23 +80,17 @@ var GRAPH_HANDLER = {
             // if it doesn't already exist (initialized
             // as false so as to make the rest of the function
             // work properly.
-            if (rect.selected == null) {
-                rect.selected = false;
+            if (node.selected == null) {
+                node.selected = false;
             }
-            
-            // Toggle selection of the node
-            rect.selected = !rect.selected;
 
-            // Find associated log lines if the node is selected and not an
-            // INITIAL or TERMINAL node.
-            if (!isIOrTNode && rect.selected) {
-                viewLogLines(parseInt(node.id));
-            }
+            // Toggle selection of the node
+            node.selected = !node.selected;
 
             // Fill the rectangle with the designated color.
             // If selected, turn the node blue, else change back
             // to default color.
-            if (rect.selected) {
+            if (node.selected) {
                 rect.attr("fill", "blue");
             } else {
                 // If INITIAL or TERMINAL node
@@ -105,6 +100,38 @@ var GRAPH_HANDLER = {
                     rect.attr("fill", "#fa8");
                 }
             }
+        };
+
+        // Adds a function to the given rectangle so that, when clicked,
+        // the associated event node is "selected" (shown as blue when clicked)
+        // and then the log lines associated with the event are shown in the
+        // the model tab (grabbed via a RPC call). When clicking a node a
+        // second time, the node is "deselected," and turned back to its normal
+        // color. When deselecting a node, the log lines are not shown for that
+        // node.
+        rect.node.onmouseup = function(event) {
+            // Detect shift events, and toggle
+            // more than one node if the shift key is being
+            // held down. If the node has been clicked without
+            // the shift key being held down, simply show the log lines
+            // for the node.
+            if (!event.shiftKey) {
+                console.log("RUNNING CLEAR FUNCTION");
+                // Deselect all of the nodes.
+                for ( var i = 0; i < graphNodes.length; i++) {
+                    var n = graphNodes[i];
+                    // If the node is selected,
+                    // deselect it.
+                    if (n.selected) {
+                        console.log("TOGGLED NODE: " + n.label);
+                        n.toggleSelected();
+                    }
+                }
+
+                viewLogLines(parseInt(node.id));
+            }
+
+            node.toggleSelected();
         };
 
         text = canvas.text(node.point[0] + 30, node.point[1] + 10, node.label)
