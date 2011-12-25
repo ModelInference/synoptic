@@ -2,12 +2,6 @@
  * Stores a graph, its layouter, and its renderer for manipulation of the graph's
  * display.
  */
-
-// The model node that is currently selected (has a different  color).
-// This node either has been single clicked, OR double clicked last.
-var currentSelectedRect = ""
-var currentSelectedNode = ""
-
 var GRAPH_HANDLER = {
     // array of graph nodes
     "currentNodes" : [],
@@ -67,30 +61,50 @@ var GRAPH_HANDLER = {
             });
         }
 
-        // Add an onclick event to the rectangle to have it change color to
-        // "blue".
-        // Also, whenever a node is made blue, the node that was clicked on
-        // previously
-        // is turned back to its original color. We keep track of previously
-        // clicked
-        // node with the currentSelectedRect var.
+        // Adds a function to the given rectangle so that, when clicked,
+        // the associated event node is "selected" (shown as blue when clicked)
+        // and then the log lines associated with the event are shown in the
+        // the model tab (grabbed via a RPC call).  When clicking a node a 
+        // second time, the node is "deselected," and turned back to its normal 
+        // color.  When deselecting a node, the log lines are not shown for that node.
+        //
+        // TODO: Make it so that when a node is clicked, a single node is selected,
+        // and only select more than one node if a certain checkbox is active, or the
+        // user is holding shift.
         rect.node.onmouseup = function() {
-            if (currentSelectedRect != "") {
-                if (currentSelectedNode.label == "INITIAL"
-                        || currentSelectedNode.label == "TERMINAL") {
-                    currentSelectedRect.attr("fill", "#808080");
-                } else {
-                    currentSelectedRect.attr("fill", "#fa8");
-                }
+            var isIOrTNode = node.label == "INITIAL"
+                    && node.label == "TERMINAL";
 
+            // Add the "selected" field to the object
+            // if it doesn't already exist (initialized
+            // as false so as to make the rest of the function
+            // work properly.
+            if (rect.selected == null) {
+                rect.selected = false;
             }
-            currentSelectedRect = rect;
-            currentSelectedNode = node;
-            if (currentSelectedNode.label != "INITIAL"
-            	&& currentSelectedNode.label != "TERMINAL") {
-            	viewLogLines(parseInt(node.id));
+            
+            // Toggle selection of the node
+            rect.selected = !rect.selected;
+
+            // Find associated log lines if the node is selected and not an
+            // INITIAL or TERMINAL node.
+            if (!isIOrTNode && rect.selected) {
+                viewLogLines(parseInt(node.id));
             }
-            rect.attr("fill", "blue");
+
+            // Fill the rectangle with the designated color.
+            // If selected, turn the node blue, else change back
+            // to default color.
+            if (rect.selected) {
+                rect.attr("fill", "blue");
+            } else {
+                // If INITIAL or TERMINAL node
+                if (isIOrTNode) {
+                    rect.attr("fill", "#808080");
+                } else {
+                    rect.attr("fill", "#fa8");
+                }
+            }
         };
 
         text = canvas.text(node.point[0] + 30, node.point[1] + 10, node.label)
