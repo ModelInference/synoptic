@@ -29,6 +29,11 @@ public class ModelGraphic {
     public static native void createGraph(ModelTab modelTab,
             JavaScriptObject nodes, JavaScriptObject edges, int width,
             int height, String canvasId, String initial, String terminal) /*-{
+
+        // This keeps track of the dracula nodes so that selected nodes
+        // can be monitored.
+        $wnd.graphNodes = [];
+
         // Export the handleLogRequest globally.
         $wnd.viewLogLines = function(id) {
             modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
@@ -82,9 +87,8 @@ public class ModelGraphic {
     public static native void createChangingGraph(JavaScriptObject nodes,
             JavaScriptObject edges, int refinedNode, String canvasId) /*-{
 
-        if (notIOrT) {
-            toggleSelectedNode(node);
-        }
+        // Clear the graph nodes.
+        $wnd.graphNodes = [];
 
         // update graph and fetch array of new nodes
         var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges,
