@@ -1,5 +1,6 @@
 package synopticgwt.client.input;
 
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
 import synopticgwt.client.SynopticGWT;
@@ -44,15 +45,20 @@ class ParseLogAsyncCallback extends
         // thrown with both a regex and a logline.
         if (exception.hasRegex()) {
             String regex = exception.getRegex();
-            // TODO: currently error handling only for first reg exps
-            // text box, extend to all extra reg exp text box also.
-            // Noted in Issue152
-            String regexes = ((TextBox) inputTab.regExpsPanel.getWidget(0))
-                    .getText();
-            int pos = indexOf(regexes, regex);
-            ((TextBox) inputTab.regExpsPanel.getWidget(0)).setFocus(true);
-            ((TextBox) inputTab.regExpsPanel.getWidget(0)).setSelectionRange(
-                    pos, regex.length());
+            for (int i = 0; i < inputTab.regExpsPanel.getWidgetCount(); i++) {
+                HorizontalPanel currPanel = (HorizontalPanel) 
+                                    inputTab.regExpsPanel.getWidget(i);
+                TextBox textBox = (TextBox) currPanel.getWidget(0);
+                
+                String regexes = textBox.getText();
+                int pos = indexOf(regexes, regex);
+                if (pos != -1) { // TextBox containing bad regex found.
+                    textBox.setFocus(true);
+                    textBox.setSelectionRange(pos, regex.length());
+                    textBox.setStyleName("errorHighlight");
+                    break;
+                }
+            }
         }
         if (exception.hasLogLine()) {
             String log = exception.getLogLine();
@@ -60,7 +66,7 @@ class ParseLogAsyncCallback extends
             int pos = indexOf(logs, log);
             inputTab.logTextArea.setFocus(true);
             inputTab.logTextArea.setSelectionRange(pos, log.length());
-            inputTab.logTextArea.setStyleName("logTextArea");
+            inputTab.logTextArea.setStyleName("errorHighlight");
         }
     }
 
