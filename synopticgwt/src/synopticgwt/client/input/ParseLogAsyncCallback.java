@@ -60,7 +60,7 @@ class ParseLogAsyncCallback extends
             int pos = indexOf(logs, log);
             inputTab.logTextArea.setFocus(true);
             inputTab.logTextArea.setSelectionRange(pos, log.length());
-
+            inputTab.logTextArea.setStyleName("logTextArea");
         }
     }
 

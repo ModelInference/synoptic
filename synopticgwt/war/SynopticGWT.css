@@ -73,6 +73,10 @@ body {
     margin-bottom: 10px;
 }
 
+.logTextArea {
+	border: 3px solid #FF0000;	
+}
+
 .logTypeLabel {
     color: #585858;
     font-size: 0.75em;
@@ -212,7 +216,6 @@ body {
 .FlexTable {
     table-layout: fixed;
 }
-
 
 .ErrorMessage {
     border: 1px solid red;
