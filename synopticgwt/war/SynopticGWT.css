@@ -69,12 +69,11 @@ body {
     margin-bottom: 10px;
 }
 
+.errorHighlight {
+	border: 3px solid #FF0000;	
+}
 .exampleLogLabel {
     margin-bottom: 10px;
-}
-
-.logTextArea {
-	border: 3px solid #FF0000;	
 }
 
 .logTypeLabel {
