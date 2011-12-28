@@ -60,6 +60,8 @@ public abstract class GraphExportFormatter {
             logger.severe("Ran out of colors for relations when exporting graph. Using the default color ("
                     + defaultRelationColor + ") for the remaining relations.");
             reportedColorsDeficiency = true;
+        }
+        if (possibleColors.size() == 0) {
             return defaultRelationColor;
         }
         String color = possibleColors.remove(0);

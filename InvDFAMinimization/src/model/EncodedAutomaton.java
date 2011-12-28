@@ -11,18 +11,18 @@ import java.util.Map;
 import java.util.Set;
 
 import dk.brics.automaton.Automaton;
-import dk.brics.automaton.BasicAutomata;
 import dk.brics.automaton.BasicOperations;
 import dk.brics.automaton.MinimizationOperations;
 import dk.brics.automaton.RegExp;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 
+import synoptic.model.EventType;
 import synoptic.model.export.GraphExporter;
 
 /**
- * Wrapper class for dk.brics.automaton.Automaton which provides name encodings
- * for building Automaton with Strings rather than characters.
+ * Wrapper class for dk.brics.automaton.Automaton which provides character
+ * encodings for building Automaton with EventTypes rather than characters.
  * 
  * @author Jenny
  */
@@ -31,33 +31,39 @@ public abstract class EncodedAutomaton {
     // The Automaton wrapped with String encodings.
     private Automaton model;
 
-    // Stores encodings for all characters in the model.
-    private Map<Character, String> encoding;
-
-    // Range of possible unicode characters for encoding names.
-    private static final int UNICODE_CHARS = 0x10FFFF;
-
-    // Whether the alphabet for this Automaton has been finalized.
-    private boolean finalized;
+    // The encoding scheme for the Automaton.
+    private EventTypeEncodings encodings;
 
     /**
-     * Constructs a new EncodedAutomaton that accepts all strings.
+     * Constructs a new EncodedAutomaton using the given encodings. The initial
+     * model accepts any sequence of EventTypes made up of EventTypes encoded in
+     * the given encodings.
      */
-    public EncodedAutomaton() {
-        this.model = BasicAutomata.makeAnyString();
-        this.encoding = new HashMap<Character, String>();
-        finalized = false;
+    public EncodedAutomaton(EventTypeEncodings encodings) {
+        this.encodings = encodings;
+        model = encodings.getInitialModel();
+    }
+
+    public boolean subsetOf(EncodedAutomaton other) {
+        return model.subsetOf(other.model);
     }
 
     /**
      * Returns true if the given sequence of Strings are accepted by this model.
      */
-    public boolean run(List<String> statements) {
+    public boolean run(List<EventType> events) {
         StringBuilder builder = new StringBuilder();
-        for (String s : statements) {
-            builder.append(getEncoding(s));
+        for (EventType e : events) {
+            builder.append(encodings.getEncoding(e));
         }
         return model.run(builder.toString());
+    }
+
+    /**
+     * Performs Hopcroft's algorithm to minimize this Automaton.
+     */
+    public void minimize() {
+        MinimizationOperations.minimizeHopcroft(model);
     }
 
     /**
@@ -70,48 +76,20 @@ public abstract class EncodedAutomaton {
     }
 
     /**
-     * Performs Hopcroft's algorithm to minimize this Automaton.
+     * Intersects this Automaton with the given Automaton, such that this
+     * Automaton is the result of intersection. Visible for testing.
+     * 
+     * @throws IllegalArgumentException
+     *             if this Automaton is not using the same EventTypeEncoding as
+     *             other
      */
-    public void minimize() {
-        MinimizationOperations.minimizeHopcroft(model);
-    }
-
-    /**
-     * Intersects this Automaton with the given Automaton, accepting all of
-     * other's current encodings.
-     */
-    protected void intersectWith(EncodedAutomaton other) {
-        // Add other's encodings.
-        encoding.putAll(other.encoding);
-
-        // Update this model.
-        model = BasicOperations.intersection(model, other.model);
-    }
-
-    /**
-     * Returns whether the alphabet for this model has been finalized (limited
-     * to the set of Strings currently encoded).
-     */
-    public boolean alphabetFinalized() {
-        return finalized;
-    }
-
-    /**
-     * Limits this Automaton to names current encoded to remove extraneous
-     * characters from the output dfa. After calling, additional characters
-     * cannot be used in this model.
-     */
-    public void finalizeAlphabet() {
-        if (!finalized) {
-            StringBuilder alphabet = new StringBuilder();
-            for (Character character : encoding.keySet()) {
-                alphabet.append("|" + character);
-            }
-            alphabet.replace(0, 1, "("); // Hacky fix to fence post issue.
-            alphabet.append(")*");
-            intersectWithRE(alphabet.toString());
+    public void intersectWith(EncodedAutomaton other) {
+        if (!this.encodings.equals(other.encodings)) {
+            throw new IllegalArgumentException(
+                    "Cannot intersect Automata using different encoding schemes");
         }
-        finalized = true;
+
+        model = BasicOperations.intersection(model, other.model);
     }
 
     /**
@@ -126,7 +104,7 @@ public abstract class EncodedAutomaton {
      * @throws IOException
      */
     public void exportDotAndPng(String filename) throws IOException {
-        finalizeAlphabet();
+        // finalizeAlphabet();
         String dot = toGraphviz();
         Writer output = new BufferedWriter(new FileWriter(new File(filename)));
         try {
@@ -135,15 +113,6 @@ public abstract class EncodedAutomaton {
             output.close();
         }
         GraphExporter.generatePngFileFromDotFile(filename);
-    }
-
-    /**
-     * Updates the internal state of this Automaton. Should be called after any
-     * time the model is altered manually.
-     */
-    protected void restoreInvariant() {
-        model.setDeterministic(false);
-        model.restoreInvariant();
     }
 
     /** Constructs a Graphviz dot representation of the model. */
@@ -173,10 +142,11 @@ public abstract class EncodedAutomaton {
                 int source = stateOrdering.get(s);
                 int dest = stateOrdering.get(t.getDest());
                 char cur = t.getMin();
-                appendDotTransition(b, encoding.get(cur), source, dest);
+                appendDotTransition(b, encodings.getString(cur), source, dest);
                 while (cur < t.getMax()) {
                     cur++;
-                    appendDotTransition(b, encoding.get(cur), source, dest);
+                    appendDotTransition(b, encodings.getString(cur), source,
+                            dest);
                 }
             }
         }
@@ -196,21 +166,13 @@ public abstract class EncodedAutomaton {
     }
 
     /**
-     * Returns a character encoding for the given name. Updates the encodings
-     * map. TODO: Address possibility of encoding collisions
+     * Sets the initial state of the wrapped Automaton. Calls
+     * setDeterministic(false) and restoreInvariant() on the model since it has
+     * been manipulated manually. Visible for testing.
      */
-    protected char getEncoding(String name) {
-        char c = (char) (name.hashCode() % UNICODE_CHARS);
-        if (!encoding.containsKey(c)) {
-            encoding.put(c, name.toString());
-        }
-        return c;
-    }
-
-    /**
-     * Sets the initial state of the wrapped Automaton.
-     */
-    protected void setInitialState(State initial) {
+    public void setInitialState(State initial) {
         model.setInitialState(initial);
+        model.setDeterministic(false);
+        model.restoreInvariant();
     }
 }
