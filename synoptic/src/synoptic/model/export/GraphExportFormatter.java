@@ -63,6 +63,8 @@ public abstract class GraphExportFormatter {
                         + ") for the remaining relations.");
             }
             reportedColorsDeficiency = true;
+        }
+        if (possibleColors.size() == 0) {
             return defaultRelationColor;
         }
         String color = possibleColors.remove(0);

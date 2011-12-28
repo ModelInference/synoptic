@@ -21,7 +21,8 @@ public class InvsModel extends EncodedAutomaton {
     /**
      * Constructs a new InvsModel that accepts all strings.
      */
-    public InvsModel() {
+    public InvsModel(EventTypeEncodings encodings) {
+        super(encodings);
         invariants = new HashSet<ITemporalInvariant>();
     }
 
