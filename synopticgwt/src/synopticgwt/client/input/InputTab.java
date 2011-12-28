@@ -30,12 +30,14 @@ import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.SynopticGWT;
 import synopticgwt.client.Tab;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTSynOpts;
+import synopticgwt.client.util.TooltipListener;
 
 /**
  * The inputs tab. This tab contains text fields to enter log/re values, an
@@ -278,6 +280,17 @@ public class InputTab extends Tab<VerticalPanel> {
         examplesAndInputForm.add(examplesGrid);
         examplesAndInputForm.add(inputForm);
         panel.add(examplesAndInputForm);
+        
+        // Set tooltips for controls.
+        initTooltips();
+    }
+    
+    /**
+     *  Associates controls with tooltips explaining what each control represents
+     *  or does. 
+     */
+    private void initTooltips() {
+        TooltipListener.setTooltip(exampleLogLabel, "Click one of the links below to load an example log into the input fields");
     }
 
     /**

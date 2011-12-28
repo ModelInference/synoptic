@@ -25,6 +25,7 @@ import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -50,6 +51,12 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
         this.text = text;
         this.delay = delay;
         this.styleName = styleName;
+    }
+    
+    public static void setTooltip(Label l, String s) {
+        TooltipListener tooltip = new TooltipListener(s, 5000, "tooltip");
+        l.addMouseOverHandler(tooltip);
+        l.addMouseOutHandler(tooltip);
     }
 
     @Override
