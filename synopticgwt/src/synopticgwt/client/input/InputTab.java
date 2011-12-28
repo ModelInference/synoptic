@@ -55,10 +55,14 @@ public class InputTab extends Tab<VerticalPanel> {
     final Grid examplesGrid = new Grid(5, 1);
     final Label exampleLogLabel = new Label("Load example logs");
     final Label parseErrorMsgLabel = new Label();
+    final Label logLabel = new Label("Log");
+    final Label regExpLabel = new Label("Regular expressions");
     final Label regExpDefaultLabel = new Label("Defaults to " + regExpDefault
             + " when empty");
+    final Label partitionRegExpLabel = new Label("Partition expression");
     final Label partitionRegExpDefaultLabel = new Label("Defaults to "
             + partitionRegExpDefault + " when empty");
+    final Label separatorRegExpLabel = new Label("Separator expression");
     final FormPanel logFileUploadForm = new FormPanel();
     final RadioButton logTextRadioButton = new RadioButton("logInputType",
             "Text");
@@ -165,7 +169,7 @@ public class InputTab extends Tab<VerticalPanel> {
 
         VerticalPanel logInputPanel = new VerticalPanel();
         grid.setWidget(0, 0, logInputPanel);
-        logInputPanel.add(new Label("Log"));
+        logInputPanel.add(logLabel);
         logInputPanel.add(logTextRadioButton);
         logInputPanel.add(logFileRadioButton);
 
@@ -174,7 +178,7 @@ public class InputTab extends Tab<VerticalPanel> {
         logTextArea.setVisibleLines(10);
         logTextArea.setName("logTextArea");
 
-        grid.setWidget(1, 0, new Label("Regular expressions"));
+        grid.setWidget(1, 0, regExpLabel);
         regExpsPanel.addStyleName("ExtraRegExps");
         regExpDefaultLabel.setStyleName("DefaultExpLabel");
 
@@ -192,12 +196,12 @@ public class InputTab extends Tab<VerticalPanel> {
         partitionExpPanel.add(partitionRegExpDefaultLabel);
         partitionExpPanel.add(partitionRegExpTextBox);
         partitionRegExpDefaultLabel.setStyleName("DefaultExpLabel");
-        grid.setWidget(2, 0, new Label("Partition expression"));
+        grid.setWidget(2, 0, partitionRegExpLabel);
         grid.setWidget(2, 1, partitionExpPanel);
         partitionRegExpTextBox.setVisibleLength(80);
         partitionRegExpTextBox.setName("partitionRegExpTextBox");
 
-        grid.setWidget(3, 0, new Label("Separator expression"));
+        grid.setWidget(3, 0, separatorRegExpLabel);
         grid.setWidget(3, 1, separatorRegExpTextBox);
         separatorRegExpTextBox.setVisibleLength(80);
         separatorRegExpTextBox.setName("separatorRegExpTextBox");
@@ -291,6 +295,10 @@ public class InputTab extends Tab<VerticalPanel> {
      */
     private void initTooltips() {
         TooltipListener.setTooltip(exampleLogLabel, "Click one of the links below to load an example log into the input fields");
+        TooltipListener.setTooltip(logLabel, "Click on \"Text\" to copy and paste log or click on \"File\" to load a log file");
+        TooltipListener.setTooltip(regExpLabel, "Input regular expression(s) to match each event instance");
+        TooltipListener.setTooltip(partitionRegExpLabel, "Input a regular expression to identify which set the particular event belongs to");
+        TooltipListener.setTooltip(separatorRegExpLabel, "Input a regular expression to indicate the boundary between distinct partitions");
     }
 
     /**
