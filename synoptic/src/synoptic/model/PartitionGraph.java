@@ -69,6 +69,12 @@ public class PartitionGraph implements IGraph<Partition> {
     private final LinkedList<PartitionMultiSplit> appliedSplits = new LinkedList<PartitionMultiSplit>();
 
     /**
+     * Set of all EventTypes, initialized only after getNIFbyInvariants() is
+     * called.
+     */
+    private Set<EventType> allEvents;
+
+    /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
      * and stored. If partitionByLabel is true, all messages with identical
      * labels in {@code g} will become one partition. Otherwise, every message
@@ -600,60 +606,74 @@ public class PartitionGraph implements IGraph<Partition> {
         }
         return traces;
     }
-    
-    /* 
+
+    /*
      * Traverses the model. If the current partition has not yet been examined,
-     * updates canFollow, a mapping from EventType to the events that can immediately
-     * follow, and recurses. 
+     * updates canFollow, a mapping from EventType to the events that can
+     * immediately follow, and recurses.
      */
-    private void traverseAndMineCIFbys(Partition current, Set<Partition> seen, Map<EventType,
-    		Set<EventType>> canFollow) {
-    	if (!seen.contains(current)) {
-    		seen.add(current);
-    		EventType type = current.getEType();
-    		canFollow.put(type, new HashSet<EventType>());
-    		for (Transition<Partition> transition : current.getTransitions()) {
-    			canFollow.get(type).add(transition.getTarget().getEType());
-    			traverseAndMineCIFbys(transition.getTarget(), seen, canFollow);
-    		}
-    	}
+    private void traverseAndMineCIFbys(Partition current, Set<Partition> seen,
+            Map<EventType, Set<EventType>> canFollow) {
+        if (!seen.contains(current)) {
+            seen.add(current);
+            EventType type = current.getEType();
+            canFollow.put(type, new HashSet<EventType>());
+            for (Transition<Partition> transition : current.getTransitions()) {
+                canFollow.get(type).add(transition.getTarget().getEType());
+                traverseAndMineCIFbys(transition.getTarget(), seen, canFollow);
+            }
+        }
     }
-    
+
     /**
-     * Walks this PartitionGraph and returns a set of all of the NIFby invariants.
+     * Walks this PartitionGraph and returns a set of all of the NIFby
+     * invariants.
      */
     public TemporalInvariantSet getNIFbyInvariants() {
 
-    	// Tracks which partitions have been visited.
-    	Set<Partition> seen = new HashSet<Partition>();
-    	
-    	// Maps each EventType to the set of EventTypes that immediately follow it.
-    	Map<EventType, Set<EventType>> canFollow = new HashMap<EventType, Set<EventType>>();
-    	
-    	// Traverse the graph starting from each initial node (only one in totally-ordered case).
-    	for (Partition partition : getDummyInitialNodes()) {
-    		traverseAndMineCIFbys(partition, seen, canFollow);
-    	}
+        // Tracks which partitions have been visited.
+        Set<Partition> seen = new HashSet<Partition>();
 
-    	// Create invariants
-    	TemporalInvariantSet neverIFbyInvariants = 
-    			new TemporalInvariantSet();
-    	
-    	// canFollow.keySet() will contain all events types because each node in the partition
-    	// graph is visited and added to canFollow during traverseAndMineCIFbys().
-    	Set<EventType> allEvents = canFollow.keySet();
-    	
-    	for (Entry<EventType, Set<EventType>> entry : canFollow.entrySet()) {
-    		EventType source = entry.getKey();
-    		Set<EventType> followedBy = entry.getValue();
-    		for (EventType target : allEvents) {
-    			if (!followedBy.contains(target)) {
-    				neverIFbyInvariants.add(
-    						new NeverImmediatelyFollowedInvariant(
-    								source, target, TraceParser.defaultRelation));
-    			}
-    		}
-    	}
-    	return neverIFbyInvariants;
+        // Maps each EventType to the set of EventTypes that immediately follow
+        // it.
+        Map<EventType, Set<EventType>> canFollow = new HashMap<EventType, Set<EventType>>();
+
+        // Traverse the graph starting from each initial node (only one in
+        // totally-ordered case).
+        for (Partition partition : getDummyInitialNodes()) {
+            traverseAndMineCIFbys(partition, seen, canFollow);
+        }
+
+        // Create invariants
+        TemporalInvariantSet neverIFbyInvariants = new TemporalInvariantSet();
+
+        // canFollow.keySet() will contain all events types because each node in
+        // the partition
+        // graph is visited and added to canFollow during
+        // traverseAndMineCIFbys().
+        allEvents = canFollow.keySet();
+
+        for (Entry<EventType, Set<EventType>> entry : canFollow.entrySet()) {
+            EventType source = entry.getKey();
+            Set<EventType> followedBy = entry.getValue();
+            for (EventType target : allEvents) {
+                if (!followedBy.contains(target)) {
+                    neverIFbyInvariants
+                            .add(new NeverImmediatelyFollowedInvariant(source,
+                                    target, TraceParser.defaultRelation));
+                }
+            }
+        }
+        return neverIFbyInvariants;
+    }
+
+    /**
+     * Returns a set of all EventTypes in this PartitionGraph.
+     */
+    public Set<EventType> getEventTypes() {
+        if (allEvents == null) {
+            getNIFbyInvariants();
+        }
+        return allEvents;
     }
 }
