@@ -1,0 +1,3 @@
+-r ^(?<DTIME>)(?<nodename>)(?<TYPE>)$
+-m \\k<nodename>
+-o output/mid_branching.png
