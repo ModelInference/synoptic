@@ -24,9 +24,13 @@ import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import synopticgwt.client.SynopticGWT;
@@ -35,6 +39,7 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
     private static final String DEFAULT_TOOLTIP_STYLE = "TooltipPopup";
     private static final int DEFAULT_OFFSET_X = 10;
     private static final int DEFAULT_OFFSET_Y = 35;
+    private static final int HIDE_DELAY = 2000;
 
     private Tooltip tooltip;
     private String text;
@@ -61,8 +66,16 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
 
     @Override
     public void onMouseOut(MouseOutEvent event) {
-        if (tooltip != null)
-            tooltip.hide();
+        if (tooltip != null) {
+            Timer t = new Timer() {
+
+                public void run() {
+                    tooltip.hide();
+                }
+
+            };
+            t.schedule(HIDE_DELAY);
+        }
     }
 
     @Override
@@ -112,8 +125,13 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
             this.delay = delay;
 
             HTML contents = new HTML(text);
-            add(contents);
-
+            Anchor link = new Anchor("More information", "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial?ts=1325124406&updated=DocsWebAppTutorial");
+            
+            VerticalPanel vp = new VerticalPanel();
+            vp.add(contents);
+            vp.add(link);
+            
+            add(vp);
             int left = sender.getAbsoluteLeft() + offsetX;
             int top = sender.getAbsoluteTop() + offsetY;
 
