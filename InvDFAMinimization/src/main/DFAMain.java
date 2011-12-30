@@ -1,6 +1,8 @@
 package main;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import model.EncodedAutomaton;
@@ -9,7 +11,13 @@ import model.InvModel;
 import model.InvsModel;
 import model.SynopticModel;
 
+import synoptic.invariants.AlwaysFollowedInvariant;
+import synoptic.invariants.AlwaysImmediatelyFollowedInvariant;
+import synoptic.invariants.AlwaysImmediatelyPrecededInvariant;
+import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
+import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TOInitialTerminalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
@@ -48,7 +56,23 @@ public class DFAMain {
 
         // Construct initial DFA from NIFby invariants.
         TemporalInvariantSet NIFbys = initialModel.getNIFbyInvariants();
-        Set<EventType> allEvents = initialModel.getEventTypes();
+        Set<EventType> allEvents = new HashSet<EventType>(
+                initialModel.getEventTypes());
+        Set<EventType> syntheticEvents = new HashSet<EventType>();
+
+        // Fetch the CIFby map
+        Map<EventType, Set<EventType>> CIFbys = initialModel.getCIFbyMapping();
+
+        // Generate synthetic events
+        for (EventType a : CIFbys.keySet()) {
+            for (EventType b : CIFbys.get(a)) {
+                EventType synEvent = new StringEventType(a.toString()
+                        + b.toString());
+                allEvents.add(synEvent);
+                syntheticEvents.add(synEvent);
+            }
+        }
+
         EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
         InvsModel dfa = getMinModelFromInvs(NIFbys, encodings);
 
@@ -70,11 +94,70 @@ public class DFAMain {
         dfa.intersectWith(getMinModelFromInvs(minedInvariants, encodings));
         dfa.minimize();
 
+        // Export final model.
+        dfa.exportDotAndPng(opts.finalModelFile);
+
         compareTranslatedSynopticModel(synMain, initialModel, encodings,
                 opts.synopticModelFile, dfa);
 
-        // Export final model.
-        dfa.exportDotAndPng(opts.finalModelFile);
+        for (EventType a : CIFbys.keySet()) {
+            for (EventType b : CIFbys.get(a)) {
+                TemporalInvariantSet syntheticInvariants = new TemporalInvariantSet();
+
+                dfa.intersectWith(new InvModel(
+                        new NeverImmediatelyFollowedInvariant(a, b,
+                                TraceParser.defaultRelation), encodings));
+
+                EventType tempInv = new StringEventType(a.toString()
+                        + b.toString());
+
+                dfa.intersectWith(new InvModel(
+                        new AlwaysImmediatelyPrecededInvariant(a, tempInv,
+                                TraceParser.defaultRelation), encodings));
+                dfa.intersectWith(new InvModel(
+                        new AlwaysImmediatelyFollowedInvariant(tempInv, b,
+                                TraceParser.defaultRelation), encodings));
+
+                dfa.minimize();
+
+                for (ITemporalInvariant inv : minedInvariants) {
+                    if (inv instanceof NeverFollowedInvariant) {
+                        if ((inv.getFirst().equals(a) || inv.getFirst().equals(
+                                b))
+                                && !inv.getSecond().equals(b)) {
+                            syntheticInvariants.add(new NeverFollowedInvariant(
+                                    tempInv, inv.getSecond(),
+                                    TraceParser.defaultRelation));
+                        } else if (inv.getSecond().equals(a)
+                                || inv.getSecond().equals(b)) {
+                            syntheticInvariants.add(new NeverFollowedInvariant(
+                                    inv.getFirst(), tempInv,
+                                    TraceParser.defaultRelation));
+                        }
+                    } else if (inv instanceof AlwaysPrecedesInvariant
+                            && (inv.getSecond().equals(a) || inv.getSecond()
+                                    .equals(b))) {
+                        syntheticInvariants.add(new AlwaysPrecedesInvariant(inv
+                                .getFirst(), tempInv,
+                                TraceParser.defaultRelation));
+                    } else if (inv instanceof AlwaysFollowedInvariant
+                            && (inv.getFirst().equals(a) || inv.getSecond()
+                                    .equals(b))) {
+                        syntheticInvariants.add(new AlwaysFollowedInvariant(
+                                tempInv, inv.getSecond(),
+                                TraceParser.defaultRelation));
+                    }
+                }
+                dfa.intersectWith(getMinModelFromInvs(syntheticInvariants,
+                        encodings));
+            }
+        }
+
+        dfa.intersectWith(getMinModelFromInvs(initialModel.getSyntheticInvs(),
+                encodings));
+
+        dfa.minimize();
+        dfa.exportDotAndPng("converted");
     }
 
     /**
@@ -84,7 +167,7 @@ public class DFAMain {
      * 
      * @throws IOException
      */
-    public static void compareTranslatedSynopticModel(Main synMain,
+    private static void compareTranslatedSynopticModel(Main synMain,
             PartitionGraph initialModel, EventTypeEncodings encodings,
             String synFileName, EncodedAutomaton dfa) throws IOException {
 

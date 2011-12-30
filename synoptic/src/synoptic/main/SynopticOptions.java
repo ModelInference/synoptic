@@ -255,9 +255,9 @@ public class SynopticOptions {
     /**
      * Dumps PNG of initial condensed partition graph to file. The file will
      * have the name <outputPathPrefix>.condensed.dot.png, where
-     * 'outputPathPrefix' is the filename of the final Synoptic output. This 
-     * option is <i>unpublicized</i>; it will not appear in the default
-     * usage message.
+     * 'outputPathPrefix' is the filename of the final Synoptic output. This
+     * option is <i>unpublicized</i>; it will not appear in the default usage
+     * message.
      */
     @Option("Dump the initial condensed partition graph")
     public boolean dumpInitialPartitionGraph = false;
@@ -290,6 +290,12 @@ public class SynopticOptions {
      */
     @Option("Use the transitive closure invariant mining algorithm (usually slower)")
     public boolean useTransitiveClosureMining = false;
+
+    /**
+     * Used by DFAminimization to mine synthetic invariants.
+     */
+    @Option("Mines synthetic invariants for context-sensitive information during DFAminimization")
+    public boolean miningSyntheticInvariants = false;
 
     /**
      * Tell Synoptic to mine/not mine the NeverConcurrentWith invariant. When
