@@ -39,7 +39,7 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
     private static final String DEFAULT_TOOLTIP_STYLE = "TooltipPopup";
     private static final int DEFAULT_OFFSET_X = 10;
     private static final int DEFAULT_OFFSET_Y = 35;
-    private static final int HIDE_DELAY = 2000;
+    private static final int HIDE_DELAY = 1000;
 
     private Tooltip tooltip;
     private String text;
