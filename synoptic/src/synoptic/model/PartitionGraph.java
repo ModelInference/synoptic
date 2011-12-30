@@ -74,14 +74,6 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     private Set<EventType> allEvents;
 
-    private TemporalInvariantSet syntheticInvs = null;
-
-    /**
-     * Mapping from all EventTypes to a set of EventTypes that can immediately
-     * follow the Event.
-     */
-    private Map<EventType, Set<EventType>> canFollow;
-
     /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
      * and stored. If partitionByLabel is true, all messages with identical
@@ -620,14 +612,15 @@ public class PartitionGraph implements IGraph<Partition> {
      * updates canFollow, a mapping from EventType to the events that can
      * immediately follow, and recurses.
      */
-    private void traverseAndMineCIFbys(Partition current, Set<Partition> seen) {
+    private void traverseAndMineCIFbys(Partition current, Set<Partition> seen,
+            Map<EventType, Set<EventType>> canFollow) {
         if (!seen.contains(current)) {
             seen.add(current);
             EventType type = current.getEType();
             canFollow.put(type, new HashSet<EventType>());
             for (Transition<Partition> transition : current.getTransitions()) {
                 canFollow.get(type).add(transition.getTarget().getEType());
-                traverseAndMineCIFbys(transition.getTarget(), seen);
+                traverseAndMineCIFbys(transition.getTarget(), seen, canFollow);
             }
         }
     }
@@ -643,12 +636,12 @@ public class PartitionGraph implements IGraph<Partition> {
 
         // Maps each EventType to the set of EventTypes that immediately follow
         // it.
-        canFollow = new HashMap<EventType, Set<EventType>>();
+        Map<EventType, Set<EventType>> canFollow = new HashMap<EventType, Set<EventType>>();
 
         // Traverse the graph starting from each initial node (only one in
         // totally-ordered case).
         for (Partition partition : getDummyInitialNodes()) {
-            traverseAndMineCIFbys(partition, seen);
+            traverseAndMineCIFbys(partition, seen, canFollow);
         }
 
         // Create invariants
@@ -682,24 +675,5 @@ public class PartitionGraph implements IGraph<Partition> {
             getNIFbyInvariants();
         }
         return allEvents;
-    }
-
-    /**
-     * Returns a map from each EventType to all EventTypes that can immediately
-     * follow the EventType.
-     */
-    public Map<EventType, Set<EventType>> getCIFbyMapping() {
-        if (canFollow == null) {
-            getNIFbyInvariants();
-        }
-        return canFollow;
-    }
-
-    public void setSyntheticInvs(TemporalInvariantSet syntheticInvs) {
-        this.syntheticInvs = syntheticInvs;
-    }
-
-    public TemporalInvariantSet getSyntheticInvs() {
-        return syntheticInvs;
     }
 }

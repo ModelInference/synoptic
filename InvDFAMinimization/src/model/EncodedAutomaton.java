@@ -175,8 +175,4 @@ public abstract class EncodedAutomaton {
         model.setDeterministic(false);
         model.restoreInvariant();
     }
-
-    public State getInitialState() {
-        return model.getInitialState();
-    }
 }
