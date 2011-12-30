@@ -33,7 +33,6 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.ChainWalkingTOSyntheticInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.POInvariantMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
@@ -706,14 +705,10 @@ public class Main implements Callable<Integer> {
 
         TOInvariantMiner miner;
 
-        if (options.miningSyntheticInvariants) {
-            miner = new ChainWalkingTOSyntheticInvMiner();
+        if (options.useTransitiveClosureMining) {
+            miner = new TransitiveClosureInvMiner();
         } else {
-            if (options.useTransitiveClosureMining) {
-                miner = new TransitiveClosureInvMiner();
-            } else {
-                miner = new ChainWalkingTOInvMiner();
-            }
+            miner = new ChainWalkingTOInvMiner();
         }
 
         // Parser can be garbage-collected.
@@ -725,13 +720,6 @@ public class Main implements Callable<Integer> {
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
         loggerInfoEnd("Mining took ", startTime);
         // //////////////////
-
-        TemporalInvariantSet syntheticInvs = null;
-
-        if (options.miningSyntheticInvariants) {
-            ChainWalkingTOSyntheticInvMiner m = (ChainWalkingTOSyntheticInvMiner) miner;
-            syntheticInvs = m.getSyntheticInvs();
-        }
 
         // Miner can be garbage-collected.
         miner = null;
@@ -764,8 +752,6 @@ public class Main implements Callable<Integer> {
             exportGraph(options.outputPathPrefix + ".condensed", pGraph, true,
                     true);
         }
-
-        pGraph.setSyntheticInvs(syntheticInvs);
 
         return pGraph;
     }

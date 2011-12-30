@@ -292,12 +292,6 @@ public class SynopticOptions {
     public boolean useTransitiveClosureMining = false;
 
     /**
-     * Used by DFAminimization to mine synthetic invariants.
-     */
-    @Option("Mines synthetic invariants for context-sensitive information during DFAminimization")
-    public boolean miningSyntheticInvariants = false;
-
-    /**
      * Tell Synoptic to mine/not mine the NeverConcurrentWith invariant. When
      * false, this option changes mining behavior when
      * useTransitiveClosureMining = false (i.e., it only works for the DAG
