@@ -4,7 +4,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
 import synopticgwt.client.SynopticGWT;
-import synopticgwt.client.util.ErrorReportingAsyncCallback;
+import synopticgwt.client.util.AbstractErrorReportingAsyncCallback;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTInvariantSet;
@@ -14,8 +14,8 @@ import synopticgwt.shared.GWTParseException;
 /**
  * Callback handler for the parseLog() Synoptic service call.
  */
-class ParseLogAsyncCallback extends
-        ErrorReportingAsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
+final class ParseLogAsyncCallback extends
+        AbstractErrorReportingAsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
 
     private final InputTab inputTab;
 
@@ -25,6 +25,7 @@ class ParseLogAsyncCallback extends
     public ParseLogAsyncCallback(ProgressWheel pWheel, InputTab inputPanel) {
         super(pWheel, "parseLog call");
         this.inputTab = inputPanel;
+        initialize();
     }
 
     @Override
@@ -46,10 +47,10 @@ class ParseLogAsyncCallback extends
         if (exception.hasRegex()) {
             String regex = exception.getRegex();
             for (int i = 0; i < inputTab.regExpsPanel.getWidgetCount(); i++) {
-                HorizontalPanel currPanel = (HorizontalPanel) 
-                                    inputTab.regExpsPanel.getWidget(i);
+                HorizontalPanel currPanel = (HorizontalPanel) inputTab.regExpsPanel
+                        .getWidget(i);
                 TextBox textBox = (TextBox) currPanel.getWidget(0);
-                
+
                 String regexes = textBox.getText();
                 int pos = indexOf(regexes, regex);
                 if (pos != -1) { // TextBox containing bad regex found.
@@ -112,4 +113,18 @@ class ParseLogAsyncCallback extends
         inputTab.parseLogButton.setEnabled(true);
         SynopticGWT.entryPoint.logParsed(ret.getLeft(), ret.getRight());
     }
+
+    @Override
+    public void clearError() {
+        super.clearError();
+        // Revert any style changes that highlight parse errors.
+        for (int i = 0; i < inputTab.regExpsPanel.getWidgetCount(); i++) {
+            HorizontalPanel currPanel = (HorizontalPanel) inputTab.regExpsPanel
+                    .getWidget(i);
+            TextBox textBox = (TextBox) currPanel.getWidget(0);
+            textBox.removeStyleName("errorHighlight");
+        }
+        inputTab.logTextArea.removeStyleName("errorHighlight");
+    }
+
 }
