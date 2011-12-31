@@ -1,9 +1,10 @@
 package synopticgwt.client.input;
 
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
 import synopticgwt.client.SynopticGWT;
-import synopticgwt.client.util.ErrorReportingAsyncCallback;
+import synopticgwt.client.util.AbstractErrorReportingAsyncCallback;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTInvariantSet;
@@ -13,8 +14,8 @@ import synopticgwt.shared.GWTParseException;
 /**
  * Callback handler for the parseLog() Synoptic service call.
  */
-class ParseLogAsyncCallback extends
-        ErrorReportingAsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
+final class ParseLogAsyncCallback extends
+        AbstractErrorReportingAsyncCallback<GWTPair<GWTInvariantSet, GWTGraph>> {
 
     private final InputTab inputTab;
 
@@ -24,6 +25,7 @@ class ParseLogAsyncCallback extends
     public ParseLogAsyncCallback(ProgressWheel pWheel, InputTab inputPanel) {
         super(pWheel, "parseLog call");
         this.inputTab = inputPanel;
+        initialize();
     }
 
     @Override
@@ -44,15 +46,20 @@ class ParseLogAsyncCallback extends
         // thrown with both a regex and a logline.
         if (exception.hasRegex()) {
             String regex = exception.getRegex();
-            // TODO: currently error handling only for first reg exps
-            // text box, extend to all extra reg exp text box also.
-            // Noted in Issue152
-            String regexes = ((TextBox) inputTab.regExpsPanel.getWidget(0))
-                    .getText();
-            int pos = indexOf(regexes, regex);
-            ((TextBox) inputTab.regExpsPanel.getWidget(0)).setFocus(true);
-            ((TextBox) inputTab.regExpsPanel.getWidget(0)).setSelectionRange(
-                    pos, regex.length());
+            for (int i = 0; i < inputTab.regExpsPanel.getWidgetCount(); i++) {
+                HorizontalPanel currPanel = (HorizontalPanel) inputTab.regExpsPanel
+                        .getWidget(i);
+                TextBox textBox = (TextBox) currPanel.getWidget(0);
+
+                String regexes = textBox.getText();
+                int pos = indexOf(regexes, regex);
+                if (pos != -1) { // TextBox containing bad regex found.
+                    textBox.setFocus(true);
+                    textBox.setSelectionRange(pos, regex.length());
+                    textBox.setStyleName("errorHighlight");
+                    break;
+                }
+            }
         }
         if (exception.hasLogLine()) {
             String log = exception.getLogLine();
@@ -60,7 +67,7 @@ class ParseLogAsyncCallback extends
             int pos = indexOf(logs, log);
             inputTab.logTextArea.setFocus(true);
             inputTab.logTextArea.setSelectionRange(pos, log.length());
-
+            inputTab.logTextArea.setStyleName("errorHighlight");
         }
     }
 
@@ -106,4 +113,18 @@ class ParseLogAsyncCallback extends
         inputTab.parseLogButton.setEnabled(true);
         SynopticGWT.entryPoint.logParsed(ret.getLeft(), ret.getRight());
     }
+
+    @Override
+    public void clearError() {
+        super.clearError();
+        // Revert any style changes that highlight parse errors.
+        for (int i = 0; i < inputTab.regExpsPanel.getWidgetCount(); i++) {
+            HorizontalPanel currPanel = (HorizontalPanel) inputTab.regExpsPanel
+                    .getWidget(i);
+            TextBox textBox = (TextBox) currPanel.getWidget(0);
+            textBox.removeStyleName("errorHighlight");
+        }
+        inputTab.logTextArea.removeStyleName("errorHighlight");
+    }
+
 }

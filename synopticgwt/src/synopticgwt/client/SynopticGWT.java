@@ -15,10 +15,6 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.DisclosurePanel;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 
@@ -334,54 +330,4 @@ public class SynopticGWT implements EntryPoint {
         return tabPanel;
     }
 
-    /**
-     * Clears the current error message, if any.
-     */
-    public void clearError() {
-        RootPanel rpcErrorDiv = RootPanel.get("ErrorDiv");
-        RootPanel straceDiv = RootPanel.get("StackTraceDiv");
-        rpcErrorDiv.clear();
-        straceDiv.clear();
-    }
-
-    /**
-     * Shows an error message in the errorDiv.
-     */
-    public void showError(String msg, String clientStackTrace,
-            String serverStackTrace) {
-        // First, clear whatever error might be currently displayed.
-        clearError();
-
-        // All error-related messages will be added to this flow panel.
-        RootPanel errorDiv = RootPanel.get("ErrorDiv");
-        // FlowPanel fPanel = new FlowPanel();
-        // errorDiv.add(fPanel);
-
-        // Add the principle error message.
-        Label errorMsg = new Label(msg);
-        errorMsg.setStyleName("ErrorMessage");
-        errorDiv.add(errorMsg);
-
-        RootPanel straceDiv = RootPanel.get("StackTraceDiv");
-        FlowPanel fPanel = new FlowPanel();
-        straceDiv.add(fPanel);
-
-        // Client-side stack trace can be revealed/hidden.
-        if (clientStackTrace != "") {
-            DisclosurePanel strace = new DisclosurePanel("Client stack trace");
-            strace.setAnimationEnabled(true);
-            strace.setContent(new HTML(clientStackTrace.replace("\n", "<br/>")));
-            strace.setStyleName("ClientExceptionTraceBack");
-            fPanel.add(strace);
-        }
-
-        // Server-side stack trace can be revealed/hidden.
-        if (serverStackTrace != "") {
-            DisclosurePanel strace = new DisclosurePanel("Server stack trace");
-            strace.setAnimationEnabled(true);
-            strace.setContent(new HTML(serverStackTrace.replace("\n", "<br/>")));
-            strace.setStyleName("ServerExceptionTraceBack");
-            fPanel.add(strace);
-        }
-    }
 }

@@ -127,7 +127,7 @@ public class Main implements Callable<Integer> {
     /**
      * Parses the set of arguments (args) to the program, to set up static state
      * in Main. This state includes everything necessary to run Synoptic --
-     * input log files, regular expressions, etc. Return null if there is a
+     * input log files, regular expressions, etc. Returns null if there is a
      * problem with the parsed options.
      * 
      * @param args
@@ -375,9 +375,9 @@ public class Main implements Callable<Integer> {
     }
 
     /**
-     * Given a potentially wild-carded file path, finds all those which match.
-     * TODO: make sure that the same file doesn't appear twice in the returned
-     * list
+     * Given a potentially wild-carded file path, finds all those files that
+     * match the expression. TODO: make sure that the same file doesn't appear
+     * twice in the returned list
      * 
      * @param fileArg
      *            The file path which may potentially contain wildcards.
