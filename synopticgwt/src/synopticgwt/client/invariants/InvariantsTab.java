@@ -48,6 +48,9 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     public InvariantsGraph iGraph;
 
     HorizontalPanel tableAndGraphicPanel;
+    
+    private GWTInvariantSet gwtInvs;
+    private boolean invariantsInitialized;
 
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
@@ -65,7 +68,11 @@ public class InvariantsTab extends Tab<VerticalPanel> {
      * @param gwtInvs
      *            The invariants mined from the log.
      */
-    public void showInvariants(final GWTInvariantSet gwtInvs) {
+    public void showInvariants() {
+        if (!invariantsInitialized) {
+            return;
+        }
+        
         // Clear the invariants panel of any widgets it might have.
         panel.clear();
         tableAndGraphicPanel.clear();
@@ -93,7 +100,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         // Add the invariant type columns in a specific order.
         for (String invName : invOrdering) {
             if (invTypes.contains(invName)) {
-                addInvariantColumnToGrid(invName, gwtInvs);
+                addInvariantColumnToGrid(invName);
             }
         }
 
@@ -104,6 +111,11 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         tableAndGraphicPanel.add(invGraphicPanel);
         iGraph.createInvariantsGraphic(gwtInvs, invCanvasId, gwtInvToGridLabel);
     }
+    
+    public void setInvariants(GWTInvariantSet gwtInvs) {
+        this.invariantsInitialized = true;
+        this.gwtInvs = gwtInvs;
+    }
 
     /**
      * Adds a grid column of an invariant type to tableAndGraphicPanel
@@ -113,7 +125,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
      * @param invs
      *            List of invariants
      */
-    public void addInvariantColumnToGrid(String invType, GWTInvariantSet gwtInvs) {
+    public void addInvariantColumnToGrid(String invType) {
         // This creates a grid for each Invariant type with one column
         // and as many rows necessary to contain all of the invariants
 
