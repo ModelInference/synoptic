@@ -112,6 +112,10 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         iGraph.createInvariantsGraphic(gwtInvs, invCanvasId, gwtInvToGridLabel);
     }
     
+    public void resize() {
+        iGraph.resize();
+    }
+    
     public void setInvariants(GWTInvariantSet gwtInvs) {
         this.invariantsInitialized = true;
         this.gwtInvs = gwtInvs;

@@ -399,4 +399,9 @@ public class InvariantsGraph {
     public Paper getGraphicPaper() {
         return this.paper;
     }
+
+    public void resize() {
+        // TODO Auto-generated method stub
+        
+    }
 }
