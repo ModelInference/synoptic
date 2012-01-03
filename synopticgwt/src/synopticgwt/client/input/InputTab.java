@@ -46,6 +46,8 @@ import synopticgwt.client.util.TooltipListener;
 public class InputTab extends Tab<VerticalPanel> {
     private static final String UPLOAD_LOGFILE_URL = GWT.getModuleBaseURL()
             + "log_file_upload";
+    
+    private static final String TOOLTIP_URL = "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial?ts=1325576801&updated=DocsWebAppTutorial#Inputs_Tab"; 
 
     final String regExpDefault = "(?<TYPE>.*)";
     final String partitionRegExpDefault = "\\k<FILE>";
@@ -294,11 +296,11 @@ public class InputTab extends Tab<VerticalPanel> {
      *  or does. 
      */
     private void initTooltips() {
-        TooltipListener.setTooltip(exampleLogLabel, "Click one of the links below to load an example log into the input fields");
-        TooltipListener.setTooltip(logLabel, "Click on \"Text\" to copy and paste log or click on \"File\" to load a log file");
-        TooltipListener.setTooltip(regExpLabel, "Input regular expression(s) to match each event instance");
-        TooltipListener.setTooltip(partitionRegExpLabel, "Input a regular expression to identify which set the particular event belongs to");
-        TooltipListener.setTooltip(separatorRegExpLabel, "Input a regular expression to indicate the boundary between distinct partitions");
+        TooltipListener.setTooltip(exampleLogLabel, "Click one of the links below to load an example log into the input fields.", TOOLTIP_URL);
+        TooltipListener.setTooltip(logLabel, "Click on \"Text\" to copy and paste log or click on \"File\" to load a log file.", TOOLTIP_URL);
+        TooltipListener.setTooltip(regExpLabel, "Input regular expression(s) to match each event instance. Click on \"+\" to input additional regular expressions. If more than two regular expression fields exists, then \"-\" can be clicked to delete the neighboring input field.", TOOLTIP_URL);
+        TooltipListener.setTooltip(partitionRegExpLabel, "Input a regular expression to identify which set the particular event belongs to.", TOOLTIP_URL);
+        TooltipListener.setTooltip(separatorRegExpLabel, "Input a regular expression to indicate the boundary between distinct partitions. If your log contains partitions sequentially, then specify this instead of specifying a partition expression.", TOOLTIP_URL);
     }
 
     /**

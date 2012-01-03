@@ -138,8 +138,18 @@ public class ModelTab extends Tab<DockPanel> {
                 exportPngButtonClick(event);
             }
         });
+        
+        initTooltips();
     }
 
+   /**
+    *  Associates controls with tooltips explaining what each control represents
+    *  or does. 
+    */
+    private void initTooltips() {
+        
+    }
+    
     /**
      * Shows the GWTGraph object on the screen in the modelPanel. NOTE: the
      * model tab MUST be made visible for showGraph to work.

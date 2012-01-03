@@ -43,6 +43,7 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
 
     private Tooltip tooltip;
     private String text;
+    private String urlLink;
     private String styleName;
     private int delay;
     private int offsetX = DEFAULT_OFFSET_X;
@@ -53,16 +54,22 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
     }
 
     public TooltipListener(String text, int delay, String styleName) {
+        this(text, null, delay, styleName);
+    }
+    
+    public TooltipListener(String text, String urlLink, int delay, String styleName) {
         this.text = text;
+        this.urlLink = urlLink;
         this.delay = delay;
         this.styleName = styleName;
     }
     
-    public static void setTooltip(Label l, String s) {
-        TooltipListener tooltip = new TooltipListener(s, 5000, "tooltip");
+    public static void setTooltip(Label l, String s, String urlLink) {
+        TooltipListener tooltip = new TooltipListener(s, urlLink, 5000, "tooltip");
         l.addMouseOverHandler(tooltip);
         l.addMouseOutHandler(tooltip);
     }
+    
 
     @Override
     public void onMouseOut(MouseOutEvent event) {
@@ -87,7 +94,7 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
         Widget sender = (Widget) event.getSource();
         if (tooltip != null)
             tooltip.hide();
-        tooltip = new Tooltip(sender, offsetX, offsetY, text, delay, styleName);
+        tooltip = new Tooltip(sender, offsetX, offsetY, text, urlLink, delay, styleName);
         tooltip.show();
     }
 
@@ -119,18 +126,21 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
         private int delay;
 
         public Tooltip(Widget sender, int offsetX, int offsetY,
-                final String text, final int delay, final String styleName) {
+                final String text, final String urlLink,
+                final int delay, final String styleName) {
             super(true);
 
             this.delay = delay;
 
             HTML contents = new HTML(text);
-            Anchor link = new Anchor("More information", "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial?ts=1325124406&updated=DocsWebAppTutorial");
-            
             VerticalPanel vp = new VerticalPanel();
-            vp.add(contents);
-            vp.add(link);
-            
+            vp.add(contents);            
+
+            if (urlLink != null) {
+                Anchor link = new Anchor("More information", urlLink);
+                vp.add(link);
+            }
+                       
             add(vp);
             int left = sender.getAbsoluteLeft() + offsetX;
             int top = sender.getAbsoluteTop() + offsetY;
