@@ -70,7 +70,6 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
         l.addMouseOutHandler(tooltip);
     }
     
-
     @Override
     public void onMouseOut(MouseOutEvent event) {
         if (tooltip != null) {
