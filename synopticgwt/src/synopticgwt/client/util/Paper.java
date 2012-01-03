@@ -65,6 +65,22 @@ public class Paper implements Serializable {
     public String getCanvasID() {
         return this.canvasID;
     }
+    
+    /** 
+     * Removes all elements from the paper
+     */
+    public native void clear() /*-{
+        var paper = this.@synopticgwt.client.util.Paper::paper;
+        paper.clear();
+    }-*/;
+    
+    /** 
+     * Resizes paper element
+     */
+    public native void setSize(int width, int height) /*-{
+        var paper = this.@synopticgwt.client.util.Paper::paper;
+        paper.setSize(width, height);
+    }-*/;
 
     /**
      * Creates a new Raphael canvas object

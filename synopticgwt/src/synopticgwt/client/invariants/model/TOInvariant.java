@@ -43,8 +43,8 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
          *  I use dst.getX() for srcX and src.getX() for dstX. This is a hack,
          *  but it seems to work reasonably well.
          */
-        int srcX = dst.getX() - labelOffset;
-        int dstX = src.getX() + labelOffset;
+        int srcX = src.getX() + labelOffset;
+        int dstX = dst.getX() - labelOffset;
         this.arrow = new Arrow(srcX, src.getY(), dstX, dst.getY(), paper);
         arrow.setMouseover(this);
         arrow.setMouseout(this);

@@ -87,6 +87,14 @@ public class Label implements Serializable {
 		var label = this.@synopticgwt.client.invariants.Label::label;
 		label.hide();
     }-*/;
+    
+    /** 
+     * Removes label from paper
+     */
+    public native void remove() /*-{
+        var label = this.@synopticgwt.client.invariants.Label::label;
+        label.remove();
+    }-*/;
 
     /** 
      * Sets the fill of the JS labelText object to color
@@ -122,7 +130,25 @@ public class Label implements Serializable {
     public int getY() {
         return this.y;
     }
+    
+    /**
+     * Returns element height, 0 if element is not rendered
+     */
+    public native float getHeight() /*-{
+        var label = this.@synopticgwt.client.invariants.Label::label;
+        var labelBBox = label.getBBox();
+        return labelBBox.height;
+    }-*/;
 
+    /**
+     * Returns element width, 0 if element is not rendered
+     */
+    public native float getWidth() /*-{
+        var label = this.@synopticgwt.client.invariants.Label::label;
+        var labelBBox = label.getBBox();
+        return labelBBox.width;
+    }-*/;
+    
     /**
      * 
      * @return unwrapped raphael text
