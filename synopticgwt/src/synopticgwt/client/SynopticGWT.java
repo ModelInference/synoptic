@@ -13,6 +13,7 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -26,6 +27,7 @@ import synopticgwt.client.invariants.InvariantsTab;
 import synopticgwt.client.model.ModelTab;
 import synopticgwt.client.util.AnalyticsTracker;
 import synopticgwt.client.util.ErrorReportingAsyncCallback;
+import synopticgwt.client.util.InvariantsResizeHandler;
 import synopticgwt.client.util.ModelResizeHandler;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTGraph;
@@ -190,6 +192,13 @@ public class SynopticGWT implements EntryPoint {
         // remove it when any one of the other tabs is clicked.
         Window.addResizeHandler(new ModelResizeHandler(tabPanel.getTabBar(),
                 modelTab, 200));
+        
+        /* 
+         * Handler for redrawing invariants when invariants tab is selected and
+         * window is resized
+         */
+        Window.addResizeHandler(new InvariantsResizeHandler(tabPanel.getTabBar(),
+                invTab));
 
         // Check whether or not to show the welcome screen.
         if (WelcomePopUp.showWelcome()) {

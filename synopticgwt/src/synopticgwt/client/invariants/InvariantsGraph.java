@@ -155,7 +155,7 @@ public class InvariantsGraph {
         int fontSize = 20; // getFontSize(longestEType);
 
         // Used to offset arrow heads and bases from overlapping event labels
-        int labelOffset = longestEType * fontSize;
+        int labelOffset = 0;
 
         this.paper = new Paper(width, height, invCanvasId);
 
@@ -230,6 +230,152 @@ public class InvariantsGraph {
         int timeLabelYCoord = timeArrowYCoord + 25;
         Label timeLabel = new Label(paper, mX, timeLabelYCoord, fontSize - 5,
                 "Time", DEFAULT_FILL);
+    }
+    
+    /**
+     * Resizes the InvariantsGraph to fit the input window dimensions,
+     * assumes Paper is rendered
+     *   
+     * @param gwtInvs
+     * @param invCanvasId
+     * @param gwtInvToIGridLabel
+     * @param height
+     * @param width
+     */
+    public void resize(GWTInvariantSet gwtInvs, String invCanvasId,
+            Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel,
+            int height, int width) {
+        paper.clear();
+        
+        Set<String> invTypes = gwtInvs.getInvTypes();
+
+        Set<String> eventTypesSet = new LinkedHashSet<String>();
+        int longestEType = 0;
+
+        // Generate set of eTypes
+        for (String invType : invTypes) {
+            List<GWTInvariant> invs = gwtInvs.getInvs(invType);
+
+            for (GWTInvariant inv : invs) {
+                String src = inv.getSource();
+                eventTypesSet.add(src);
+                int srcLen = src.length();
+                if (srcLen > longestEType) {
+                    longestEType = srcLen;
+                }
+
+                String dst = inv.getTarget();
+                eventTypesSet.add(dst);
+                int dstLen = dst.length();
+                if (dstLen > longestEType) {
+                    longestEType = dstLen;
+                }
+            }
+        }
+        
+        int fontSize = 20; // getFontSize(longestEType);
+
+        List<String> eventTypesList = new ArrayList<String>(eventTypesSet);
+        
+        paper.setSize(width, (eventTypesList.size() + 2) * EVENT_PADDING);
+        
+        // Determine max height and width of event labels
+        // Could potentially break here if drawing outside of visible paper 
+        // area means no rendering
+        int maxLabelWidth = 0;
+        for (String event : eventTypesList) {
+            Label eventLabel = new Label(paper, 0 , 0, fontSize, event,
+                    DEFAULT_FILL);
+            if (eventLabel.getWidth() > maxLabelWidth) {
+                maxLabelWidth = Math.round(eventLabel.getWidth());
+            }
+            eventLabel.remove();
+        }
+        
+        int eventColumnWidth = width / 3;
+
+        int lX = eventColumnWidth / 2;
+
+        int mX = eventColumnWidth + eventColumnWidth / 2;
+
+        int rX = eventColumnWidth * 2 + eventColumnWidth / 2;
+        
+
+        // Used to offset arrow heads and bases from overlapping event labels
+        int labelOffset = maxLabelWidth / 2 + 20;
+
+        // Sort eventTypesList alphabetically
+        Collections.sort(eventTypesList);
+
+        // Put initial at the head of the list
+        if (eventTypesList.contains(INITIAL_EVENT_LABEL)) {
+            int initialETypeIndex = eventTypesList.indexOf(INITIAL_EVENT_LABEL);
+            eventTypesList.remove(initialETypeIndex);
+            eventTypesList.add(0, INITIAL_EVENT_LABEL);
+        }
+
+        // draw graphic event type columns
+        for (int i = 0; i < eventTypesList.size(); i++) {
+            String eType = eventTypesList.get(i);
+            Event leftEvent = new Event(lX, EVENT_PADDING * i + TOP_MARGIN,
+                    fontSize, eType, paper);
+            leftEventCol.put(eType, leftEvent);
+
+            Event midEvent = new Event(mX, EVENT_PADDING * i + TOP_MARGIN,
+                    fontSize, eType, paper);
+            midEventCol.put(eType, midEvent);
+
+            Event rightEvent = new Event(rX, EVENT_PADDING * i + TOP_MARGIN,
+                    fontSize, eType, paper);
+            rightEventCol.put(eType, rightEvent);
+        }
+
+        for (String invType : invTypes) {
+            List<GWTInvariant> invs = gwtInvs.getInvs(invType);
+            if (invType.equals("AP")) {
+                List<TOInvariant> gInvs = drawTOInvariants(invs, leftEventCol,
+                        midEventCol, gwtInvToIGridLabel, labelOffset);
+                apInvs.addAll(gInvs);
+            } else if (invType.equals("AFby")) {
+                List<TOInvariant> gInvs = drawTOInvariants(invs, midEventCol,
+                        rightEventCol, gwtInvToIGridLabel, labelOffset);
+                afbyInvs.addAll(gInvs);
+            } else if (invType.equals("NFby")) {
+                List<TOInvariant> gInvs = drawTOInvariants(invs, midEventCol,
+                        rightEventCol, gwtInvToIGridLabel, labelOffset);
+                nfbyInvs.addAll(gInvs);
+            } else if (invType.equals("ACwith")) {
+                leftACPartitions = generateACPartitions(drawPOInvariants(invs,
+                        leftEventCol, gwtInvToIGridLabel));
+                midACPartitions = generateACPartitions(drawPOInvariants(invs,
+                        midEventCol, gwtInvToIGridLabel));
+                rightACPartitions = generateACPartitions(drawPOInvariants(invs,
+                        rightEventCol, gwtInvToIGridLabel));
+            } else if (invType.equals("NCwith")) {
+                leftNCPartitions = generateNCPartitions(drawPOInvariants(invs,
+                        leftEventCol, gwtInvToIGridLabel));
+                midNCPartitions = generateNCPartitions(drawPOInvariants(invs,
+                        midEventCol, gwtInvToIGridLabel));
+                rightNCPartitions = generateNCPartitions(drawPOInvariants(invs,
+                        rightEventCol, gwtInvToIGridLabel));
+
+            }
+        }
+
+        /*
+         * Draws a time arrow and label below the GraphicEvents from the left
+         * column to the right column with a little magic and hard-coding to
+         * make things pretty
+         */
+        int timeArrowYCoord = TOP_MARGIN + EVENT_PADDING
+                * eventTypesList.size() - 25;
+        Arrow timeArrow = new Arrow(lX, timeArrowYCoord, rX, timeArrowYCoord,
+                paper, 0);
+        timeArrow.setStroke("green", HIGHLIGHT_STROKE_WIDTH);
+        int timeLabelYCoord = timeArrowYCoord + 25;
+        Label timeLabel = new Label(paper, mX, timeLabelYCoord, fontSize - 5,
+                "Time", DEFAULT_FILL);
+        
     }
 
     /**
@@ -400,8 +546,5 @@ public class InvariantsGraph {
         return this.paper;
     }
 
-    public void resize() {
-        // TODO Auto-generated method stub
-        
-    }
+    
 }
