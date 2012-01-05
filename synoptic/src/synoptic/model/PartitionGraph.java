@@ -700,6 +700,11 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     public TemporalInvariantSet getSyntheticInvs() {
+        if (syntheticInvs == null) {
+            throw new IllegalStateException(
+                    "Synthetic invariants uninitialized. You may want to pass "
+                            + "--miningSyntheticInvariants=true option.");
+        }
         return syntheticInvs;
     }
 }

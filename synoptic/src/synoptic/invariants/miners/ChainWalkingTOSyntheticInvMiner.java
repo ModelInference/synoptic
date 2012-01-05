@@ -374,6 +374,10 @@ public class ChainWalkingTOSyntheticInvMiner extends CountingInvariantMiner
                     syntheticInvs.add(new AlwaysFollowedInvariant(e2, synEvent,
                             relation));
                 }
+                if (neverFollowedBy(gFollowedByCnts, e2, synEvent)) {
+                    syntheticInvs.add(new NeverFollowedInvariant(e2, synEvent,
+                            relation));
+                }
             }
         }
 

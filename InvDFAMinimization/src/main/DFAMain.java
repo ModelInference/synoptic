@@ -2,8 +2,6 @@ package main;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import model.EncodedAutomaton;
 import model.EventTypeEncodings;
@@ -11,13 +9,7 @@ import model.InvModel;
 import model.InvsModel;
 import model.SynopticModel;
 
-import synoptic.invariants.AlwaysFollowedInvariant;
-import synoptic.invariants.AlwaysImmediatelyFollowedInvariant;
-import synoptic.invariants.AlwaysImmediatelyPrecededInvariant;
-import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TOInitialTerminalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
@@ -54,38 +46,23 @@ public class DFAMain {
         Main synMain = Main.processArgs(args);
         PartitionGraph initialModel = synMain.createInitialPartitionGraph();
 
-        // Construct initial DFA from NIFby invariants.
+        // Set up SyntheticEventManager and encodings
+        SyntheticEventManager manager = new SyntheticEventManager(
+                new HashSet<EventType>(initialModel.getEventTypes()),
+                initialModel.getCIFbyMapping());
+        EventTypeEncodings encodings = manager.getEncodings();
+        // EventTypeEncodings encodings = new EventTypeEncodings(
+        // initialModel.getEventTypes());
+
+        // Construct initial DFA from NIFby invariants and encodings.
         TemporalInvariantSet NIFbys = initialModel.getNIFbyInvariants();
-        Set<EventType> allEvents = new HashSet<EventType>(
-                initialModel.getEventTypes());
-        Set<EventType> syntheticEvents = new HashSet<EventType>();
-
-        // Fetch the CIFby map
-        Map<EventType, Set<EventType>> CIFbys = initialModel.getCIFbyMapping();
-
-        // Generate synthetic events
-        for (EventType a : CIFbys.keySet()) {
-            for (EventType b : CIFbys.get(a)) {
-                EventType synEvent = new StringEventType(a.toString()
-                        + b.toString());
-                allEvents.add(synEvent);
-                syntheticEvents.add(synEvent);
-            }
-        }
-
-        EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
-        InvsModel dfa = getMinModelFromInvs(NIFbys, encodings);
+        EncodedAutomaton dfa = getMinModelFromInvs(NIFbys, encodings);
 
         // Intersect with initial/terminal InvModel.
-        /*
-         * TODO: Replace once getInitial and getTerminal are implemented (Issue
-         * 173). EventType initial = initialModel.getInitialEvent(); EventType
-         * terminal = initialModel.getTerminalEvent();
-         */
-        EventType initial = StringEventType.newInitialStringEventType();
-        EventType terminal = StringEventType.newTerminalStringEventType();
         InvModel initialTerminalInv = new InvModel(
-                new TOInitialTerminalInvariant(initial, terminal,
+                new TOInitialTerminalInvariant(
+                        StringEventType.newInitialStringEventType(),
+                        StringEventType.newTerminalStringEventType(),
                         TraceParser.defaultRelation), encodings);
         dfa.intersectWith(initialTerminalInv);
 
@@ -94,70 +71,15 @@ public class DFAMain {
         dfa.intersectWith(getMinModelFromInvs(minedInvariants, encodings));
         dfa.minimize();
 
+        dfa = manager.intersectWithSyntheticInvariants(dfa, minedInvariants,
+                initialModel.getSyntheticInvs());
+        dfa = manager.removeSyntheticEvents(dfa);
+
         // Export final model.
         dfa.exportDotAndPng(opts.finalModelFile);
 
         compareTranslatedSynopticModel(synMain, initialModel, encodings,
                 opts.synopticModelFile, dfa);
-
-        for (EventType a : CIFbys.keySet()) {
-            for (EventType b : CIFbys.get(a)) {
-                TemporalInvariantSet syntheticInvariants = new TemporalInvariantSet();
-
-                dfa.intersectWith(new InvModel(
-                        new NeverImmediatelyFollowedInvariant(a, b,
-                                TraceParser.defaultRelation), encodings));
-
-                EventType tempInv = new StringEventType(a.toString()
-                        + b.toString());
-
-                dfa.intersectWith(new InvModel(
-                        new AlwaysImmediatelyPrecededInvariant(a, tempInv,
-                                TraceParser.defaultRelation), encodings));
-                dfa.intersectWith(new InvModel(
-                        new AlwaysImmediatelyFollowedInvariant(tempInv, b,
-                                TraceParser.defaultRelation), encodings));
-
-                dfa.minimize();
-
-                for (ITemporalInvariant inv : minedInvariants) {
-                    if (inv instanceof NeverFollowedInvariant) {
-                        if ((inv.getFirst().equals(a) || inv.getFirst().equals(
-                                b))
-                                && !inv.getSecond().equals(b)) {
-                            syntheticInvariants.add(new NeverFollowedInvariant(
-                                    tempInv, inv.getSecond(),
-                                    TraceParser.defaultRelation));
-                        } else if (inv.getSecond().equals(a)
-                                || inv.getSecond().equals(b)) {
-                            syntheticInvariants.add(new NeverFollowedInvariant(
-                                    inv.getFirst(), tempInv,
-                                    TraceParser.defaultRelation));
-                        }
-                    } else if (inv instanceof AlwaysPrecedesInvariant
-                            && (inv.getSecond().equals(a) || inv.getSecond()
-                                    .equals(b))) {
-                        syntheticInvariants.add(new AlwaysPrecedesInvariant(inv
-                                .getFirst(), tempInv,
-                                TraceParser.defaultRelation));
-                    } else if (inv instanceof AlwaysFollowedInvariant
-                            && (inv.getFirst().equals(a) || inv.getSecond()
-                                    .equals(b))) {
-                        syntheticInvariants.add(new AlwaysFollowedInvariant(
-                                tempInv, inv.getSecond(),
-                                TraceParser.defaultRelation));
-                    }
-                }
-                dfa.intersectWith(getMinModelFromInvs(syntheticInvariants,
-                        encodings));
-            }
-        }
-
-        dfa.intersectWith(getMinModelFromInvs(initialModel.getSyntheticInvs(),
-                encodings));
-
-        dfa.minimize();
-        dfa.exportDotAndPng("converted");
     }
 
     /**
@@ -187,6 +109,28 @@ public class DFAMain {
         System.out
                 .println("Translated Synoptic DFA language a subset of DFAmin language: "
                         + convertedDfa.subsetOf(dfa));
+
+        // for (int i = 5; i < 10; i++) {
+        // System.out.println("i is " + i);
+        //
+        // Set<String> dfaMinStrings = dfa.getStrings(i);
+        // for (String s : convertedDfa.getStrings(i)) {
+        // if (!dfaMinStrings.contains(s)) {
+        // System.out
+        // .println("Synoptic allows following sequence which dfa min does not.");
+        // for (char c : s.toCharArray()) {
+        // System.out.print(encodings.getString(c) + " ");
+        // }
+        // System.out.println();
+        //
+        // }
+        // }
+        //
+        // }
+        // System.out.println("With synthetic events");
+        // System.out.println("Translated Synoptic model has "
+        // + convertedDfa.getNumStates() + " and "
+        // + convertedDfa.getNumTransitions() + " transitions.");
     }
 
     /**
@@ -206,6 +150,7 @@ public class DFAMain {
         for (ITemporalInvariant invariant : invariants) {
             InvModel current = new InvModel(invariant, encodings);
             model.intersectWith(current);
+            model.minimize();
         }
 
         // Optimize by minimizing the model.
