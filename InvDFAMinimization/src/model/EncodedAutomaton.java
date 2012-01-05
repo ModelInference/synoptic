@@ -14,6 +14,7 @@ import dk.brics.automaton.Automaton;
 import dk.brics.automaton.BasicOperations;
 import dk.brics.automaton.MinimizationOperations;
 import dk.brics.automaton.RegExp;
+import dk.brics.automaton.SpecialOperations;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 
@@ -176,7 +177,22 @@ public abstract class EncodedAutomaton {
         model.restoreInvariant();
     }
 
+    /**
+     * Returns the initial state for this Automaton, for manual modifications.
+     */
     public State getInitialState() {
         return model.getInitialState();
+    }
+
+    public Set<String> getStrings(int length) {
+        return SpecialOperations.getStrings(model, length);
+    }
+
+    public int getNumStates() {
+        return model.getNumberOfStates();
+    }
+
+    public int getNumTransitions() {
+        return model.getNumberOfTransitions();
     }
 }

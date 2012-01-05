@@ -27,7 +27,7 @@ public class EventTypeEncodings {
         eventEncodings = new HashMap<String, Character>();
         charEncodings = new HashMap<Character, String>();
 
-        cur = 'a';
+        cur = 1000;
         for (EventType e : events) {
             eventEncodings.put(e.toString(), cur);
             charEncodings.put(cur, e.toString());
