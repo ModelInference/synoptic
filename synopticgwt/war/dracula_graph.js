@@ -207,9 +207,18 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
             // TODO round the coordinates here (eg. for proper image representation)
             var newX = e.clientX - selfRef.isDrag.dx + (bBox.x + bBox.width / 2);
             var newY = e.clientY - selfRef.isDrag.dy + (bBox.y + bBox.height / 2);
+            
+            /* making changes external changes to Dracula code to fix issue 
+             * regarding model layout being drawn on outside the canvas space */
+            /* NOTE: offX and offY values were previously hard-coded to 20
+            /* center of shape is considered in layout, so must account for one
+             * half of the shape to not be drawn outside canvas */
+            var offX = bBox.width / 2;
+            var offY = bBox.height / 2;
+            
             /* prevent shapes from being dragged out of the canvas */
-            var clientX = e.clientX - (newX < 20 ? newX - 20 : newX > selfRef.width - 20 ? newX - selfRef.width + 20 : 0);
-            var clientY = e.clientY - (newY < 20 ? newY - 20 : newY > selfRef.height - 20 ? newY - selfRef.height + 20 : 0);
+            var clientX = e.clientX - (newX < offX ? newX - offX : newX > selfRef.width - offX ? newX - selfRef.width + offX : 0);
+            var clientY = e.clientY - (newY < offY ? newY - offY : newY > selfRef.height - offY ? newY - selfRef.height + offY : 0);
             selfRef.isDrag.set.translate(clientX - Math.round(selfRef.isDrag.dx), clientY - Math.round(selfRef.isDrag.dy));
             //            console.log(clientX - Math.round(selfRef.isDrag.dx), clientY - Math.round(selfRef.isDrag.dy));
             for (var i in selfRef.graph.edges) {
