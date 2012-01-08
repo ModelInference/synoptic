@@ -43,11 +43,6 @@ var GRAPH_HANDLER = {
     // (rectangle and
     // label)
     "render" : function(canvas, node) {
-        // Add the node to the total number of nodes (these aren't the same as
-        // the nodes within the GRAPH_HANDLER object. These nodes are dracula
-        // nodes).
-        graphNodes.push(node);
-
         var rect;
         if (node.label == "INITIAL" || node.label == "TERMINAL") {
             // creates the rectangle to be drawn
@@ -73,13 +68,10 @@ var GRAPH_HANDLER = {
         // TODO: Add a reference to the selected node to ModelTab.java
         // or ModelGraphic.java
         node.toggleSelected = function() {
-            var isIOrTNode = node.label == "INITIAL"
-                    && node.label == "TERMINAL";
-
             // Add the "selected" field to the object
             // if it doesn't already exist (initialized
             // as false so as to make the rest of the function
-            // work properly.
+            // work properly).
             if (node.selected == null) {
                 node.selected = false;
             }
@@ -91,10 +83,12 @@ var GRAPH_HANDLER = {
             // If selected, turn the node blue, else change back
             // to default color.
             if (node.selected) {
+                console.log("Node [" + node.label + "] has been selected.  Turning blue.");
                 rect.attr("fill", "blue");
             } else {
+                console.log("Node [" + node.label + "] has been deselected. Turning default.");
                 // If INITIAL or TERMINAL node
-                if (isIOrTNode) {
+                if (node.label == "INITIAL" && node.label == "TERMINAL") {
                     rect.attr("fill", "#808080");
                 } else {
                     rect.attr("fill", "#fa8");
@@ -105,33 +99,28 @@ var GRAPH_HANDLER = {
         // Adds a function to the given rectangle so that, when clicked,
         // the associated event node is "selected" (shown as blue when clicked)
         // and then the log lines associated with the event are shown in the
-        // the model tab (grabbed via a RPC call). When clicking a node a
+        // the model tab (grabbed via a RPC). When clicking a node a
         // second time, the node is "deselected," and turned back to its normal
         // color. When deselecting a node, the log lines are not shown for that
         // node.
         rect.node.onmouseup = function(event) {
-            // Detect shift events, and toggle
-            // more than one node if the shift key is being
-            // held down. If the node has been clicked without
-            // the shift key being held down, simply show the log lines
-            // for the node.
-            if (!event.shiftKey) {
-                console.log("RUNNING CLEAR FUNCTION");
-                // Deselect all of the nodes.
-                for ( var i = 0; i < graphNodes.length; i++) {
-                    var n = graphNodes[i];
-                    // If the node is selected,
-                    // deselect it.
-                    if (n.selected) {
-                        console.log("TOGGLED NODE: " + n.label);
-                        n.toggleSelected();
-                    }
+            if (node.label != "INITIAL" && node.label != "TERMINAL") {
+                // Detect shift events, and toggle
+                // more than one node if the shift key is being
+                // held down. If the node has been clicked without
+                // the shift key being held down, simply show the log lines
+                // for the node, while deselecting all other nodes.
+                //
+                // TODO: When selecting a node to view log lines that has already
+                // been selected (and the log lines are currently in view), 
+                // don't bother making another RPC (since it's unnecessary).
+                if (!event.shiftKey) {
+                    clearSelectedDraculaNodes();
+                    viewLogLines(parseInt(node.id));
                 }
 
-                viewLogLines(parseInt(node.id));
+                node.toggleSelected();
             }
-
-            node.toggleSelected();
         };
 
         text = canvas.text(node.point[0] + 30, node.point[1] + 10, node.label)
