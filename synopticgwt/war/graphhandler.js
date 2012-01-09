@@ -3,14 +3,13 @@
  * display.
  */
 
-// The model node that is currently selected (has a different  color).
-// This node either has been single clicked, OR double clicked last.
-var currentSelectedRect = ""
-var currentSelectedNode = ""
-
 var GRAPH_HANDLER = {
     // array of graph nodes
     "currentNodes" : [],
+
+    // An assocative array of event node IDs mapped to raphael rectangle
+    // objects.
+    "draculaNodeMap" : {},
 
     // initializes this GRAPH_HANDLER
     "initializeStableIDs" : function(nodes, edges, renderer, layouter, g) {
@@ -20,6 +19,26 @@ var GRAPH_HANDLER = {
         this.graph = g;
         this.rend = renderer;
         this.layouter = layouter;
+    },
+
+    // A function for clearing the "selected" state of the
+    // dracula nodes in the GRAPH_HANDLER object. The graph
+    // handler object must have had the initializeStableIDs
+    // function run at least once before calling this function
+    // subsequently.
+    "clearSelectedNodes" : function() {
+        // Grab the nodes from the main dracula graph.
+        var nodes = GRAPH_HANDLER.getGraph().nodes;
+
+        // Deselect all of the nodes.
+        for ( var i in nodes) {
+            var n = nodes[i];
+            // If the node is selected,
+            // deselect it.
+            if (n.selected) {
+                n.toggleSelected();
+            }
+        }
     },
 
     // returns this graph's renderer
@@ -67,30 +86,68 @@ var GRAPH_HANDLER = {
             });
         }
 
-        // Add an onclick event to the rectangle to have it change color to
-        // "blue".
-        // Also, whenever a node is made blue, the node that was clicked on
-        // previously
-        // is turned back to its original color. We keep track of previously
-        // clicked
-        // node with the currentSelectedRect var.
-        rect.node.onmouseup = function() {
-            if (currentSelectedRect != "") {
-                if (currentSelectedNode.label == "INITIAL"
-                        || currentSelectedNode.label == "TERMINAL") {
-                    currentSelectedRect.attr("fill", "#808080");
-                } else {
-                    currentSelectedRect.attr("fill", "#fa8");
+        if (this.draculaNodeMap[node.id] == undefined) {
+            this.draculaNodeMap[node.id] = rect;
+        }
+
+        // Toggles whether the node has been selected.
+        // more details on what qualifies as "selected"
+        // in the next function (defined for mouse click events).
+        // TODO: Add a reference to the selected node to ModelTab.java
+        // or ModelGraphic.java
+        node.toggleSelected = function() {
+            // Add the "selected" field to the object
+            // if it doesn't already exist (initialized
+            // as false so as to make the rest of the function
+            // work properly).
+            if (this.selected == null) {
+                this.selected = false;
+            }
+
+            // Toggle selection of the node
+            this.selected = !this.selected;
+
+            // Fill the rectangle with the designated color.
+            // If selected, turn the node blue, else change back
+            // to default color.
+            var rectangle = GRAPH_HANDLER.draculaNodeMap[this.id];
+            if (this.selected) {
+                rectangle.attr("fill", "blue");
+            } else {
+                rectangle.attr("fill", "#fa8");
+            }
+        };
+
+        // Adds a function to the given rectangle so that, when clicked,
+        // the associated event node is "selected" (shown as blue when clicked)
+        // and then the log lines associated with the event are shown in the
+        // the model tab (grabbed via a RPC).
+        //
+        // When clicking the same node again, the node stays selected. When
+        // clicking
+        // a different node, the previous node is deselected, and the new node
+        // is
+        // selected.
+        //
+        // The function will also detect shift events, and toggle
+        // more than one node if the shift key is being
+        // held down. If the node has been clicked without
+        // the shift key being held down all nodes except for the node clicked
+        // will be deselected. Holding shift and clicking a selected node
+        // will deselect it.
+        rect.node.onmouseup = function(event) {
+            if (node.label != "INITIAL" && node.label != "TERMINAL") {
+                // TODO: When selecting a node to view log lines that has
+                // already
+                // been selected (and the log lines are currently in view),
+                // don't bother making another RPC (since it's unnecessary).
+                if (!event.shiftKey) {
+                    GRAPH_HANDLER.clearSelectedNodes();
+                    viewLogLines(parseInt(node.id));
                 }
 
+                node.toggleSelected();
             }
-            currentSelectedRect = rect;
-            currentSelectedNode = node;
-            if (currentSelectedNode.label != "INITIAL"
-            	&& currentSelectedNode.label != "TERMINAL") {
-            	viewLogLines(parseInt(node.id));
-            }
-            rect.attr("fill", "blue");
         };
 
         text = canvas.text(node.point[0] + 30, node.point[1] + 10, node.label)
@@ -119,6 +176,7 @@ var GRAPH_HANDLER = {
         // remove the refined node and all its edges from the graph
         this.graph.removeNode(splitNodeID);
         delete this.currentNodes[splitNodeID];
+        delete this.draculaNodeMap[splitNodeID];
 
         // tracks which new nodes are added to update edges below
         var newNodes = [];
