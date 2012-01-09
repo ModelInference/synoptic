@@ -209,7 +209,7 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
             var newY = e.clientY - selfRef.isDrag.dy + (bBox.y + bBox.height / 2);
             
             /* making changes external changes to Dracula code to fix issue 
-             * regarding model layout being drawn on outside the canvas space */
+             * regarding nodes draggable outside the canvas space */
             /* NOTE: offX and offY values were previously hard-coded to 20
             /* center of shape is considered in layout, so must account for one
              * half of the shape to not be drawn outside canvas */
@@ -334,6 +334,7 @@ Graph.Renderer.Raphael.prototype = {
         shape.mousedown(this.dragger);
 
         var box = shape.getBBox();
+        
         shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)))
         //console.log(box,point);
 
@@ -408,8 +409,9 @@ Graph.Layout.Spring.prototype = {
              *////////////////////////////////////////////////////
              
              // Keeps nodes away from the edges.
-            if(x > maxx) maxx = x + 0.6;
-            if(x < minx) minx = x - 0.6;
+             /* Modified from 0.6 for more appropriate cushion from side edges */
+            if(x > maxx) maxx = x + 2.0;
+            if(x < minx) minx = x - 1.0;
             if(y > maxy) maxy = y + 0.6;
             if(y < miny) miny = y - 0.6;
             
@@ -419,7 +421,7 @@ Graph.Layout.Spring.prototype = {
              * 
              *///////////////////////////////////////////////////////
         }
-
+        
         this.graph.layoutMinX = minx;
         this.graph.layoutMaxX = maxx;
         this.graph.layoutMinY = miny;
