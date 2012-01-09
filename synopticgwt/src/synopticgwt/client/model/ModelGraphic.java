@@ -29,41 +29,42 @@ public class ModelGraphic {
     public static native void createGraph(ModelTab modelTab,
             JavaScriptObject nodes, JavaScriptObject edges, int width,
             int height, String canvasId, String initial, String terminal) /*-{
-		// Export the handleLogRequest globally.
-		$wnd.viewLogLines = function(id) {
-			modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
-		};
 
-		// Create the graph.
-		var g = new $wnd.Graph();
-		g.edgeFactory.template.style.directed = true;
+        // Export the handleLogRequest globally.
+        $wnd.viewLogLines = function(id) {
+            modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
+        };
 
-		// Add each node to graph.
-		for ( var i = 0; i < nodes.length; i += 2) {
-			g.addNode(nodes[i], {
-				label : nodes[i + 1],
-				render : $wnd.GRAPH_HANDLER.render
-			});
-		}
+        // Create the graph.
+        var g = new $wnd.Graph();
+        g.edgeFactory.template.style.directed = true;
 
-		// Add each edge to graph.
-		for ( var i = 0; i < edges.length; i += 3) {
-			// edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
-			g.addEdge(edges[i], edges[i + 1], {
-				label : edges[i + 2],
-			});
-		}
+        // Add each node to graph.
+        for ( var i = 0; i < nodes.length; i += 2) {
+            g.addNode(nodes[i], {
+                label : nodes[i + 1],
+                render : $wnd.GRAPH_HANDLER.render
+            });
+        }
 
-		// Give stable layout to graph elements.
-		var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
+        // Add each edge to graph.
+        for ( var i = 0; i < edges.length; i += 3) {
+            // edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
+            g.addEdge(edges[i], edges[i + 1], {
+                label : edges[i + 2],
+            });
+        }
 
-		// Render the graph.
-		var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
-				height);
+        // Give stable layout to graph elements.
+        var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
 
-		// Store graph state.
-		$wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer,
-				layouter, g);
+        // Render the graph.
+        var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
+                height);
+
+        // Store graph state.
+        $wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer,
+                layouter, g);
     }-*/;
 
     /**
@@ -82,21 +83,24 @@ public class ModelGraphic {
     public static native void createChangingGraph(JavaScriptObject nodes,
             JavaScriptObject edges, int refinedNode, String canvasId) /*-{
 
-		// update graph and fetch array of new nodes
-		var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges,
-				refinedNode);
+        // Clear the selected nodes from the graph's state.
+        $wnd.GRAPH_HANDLER.clearSelectedNodes();
 
-		// fetch the current layouter
-		var layouter = $wnd.GRAPH_HANDLER.getLayouter();
+        // update graph and fetch array of new nodes
+        var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges,
+                refinedNode);
 
-		// update each graph element's position, re-assigning a position
-		layouter.updateLayout($wnd.GRAPH_HANDLER.getGraph(), newNodes);
+        // fetch the current layouter
+        var layouter = $wnd.GRAPH_HANDLER.getLayouter();
 
-		// fetch the renderer
-		var renderer = $wnd.GRAPH_HANDLER.getRenderer();
+        // update each graph element's position, re-assigning a position
+        layouter.updateLayout($wnd.GRAPH_HANDLER.getGraph(), newNodes);
 
-		// re-draw the graph, animating transitions from old to new position
-		renderer.draw();
+        // fetch the renderer
+        var renderer = $wnd.GRAPH_HANDLER.getRenderer();
+
+        // re-draw the graph, animating transitions from old to new position
+        renderer.draw();
     }-*/;
 
     /**
@@ -112,25 +116,25 @@ public class ModelGraphic {
      */
     public static native void resizeGraph(int width, int height) /*-{
 
-		// Get the current layout so it can be updated.
-		var layouter = $wnd.GRAPH_HANDLER.getLayouter();
+        // Get the current layout so it can be updated.
+        var layouter = $wnd.GRAPH_HANDLER.getLayouter();
 
-		// Update the layout for all nodes.
-		layouter.updateLayout($wnd.GRAPH_HANDLER.getGraph(), $wnd.GRAPH_HANDLER
-				.getCurrentNodes());
+        // Update the layout for all nodes.
+        layouter.updateLayout($wnd.GRAPH_HANDLER.getGraph(), $wnd.GRAPH_HANDLER
+                .getCurrentNodes());
 
-		// Grab a pointer to the current renderer.
-		var rend = $wnd.GRAPH_HANDLER.getRenderer();
+        // Grab a pointer to the current renderer.
+        var rend = $wnd.GRAPH_HANDLER.getRenderer();
 
-		// Change the appropriate height/width of the div.
-		rend.width = width;
-		rend.height = height;
+        // Change the appropriate height/width of the div.
+        rend.width = width;
+        rend.height = height;
 
-		// Change the width/height of the Raphael canvas.
-		rend.r.setSize(width, height);
+        // Change the width/height of the Raphael canvas.
+        rend.r.setSize(width, height);
 
-		// Draw the new graph with all of the repositioned nodes.
-		rend.draw();
+        // Draw the new graph with all of the repositioned nodes.
+        rend.draw();
     }-*/;
 
     // </JSNI methods>
