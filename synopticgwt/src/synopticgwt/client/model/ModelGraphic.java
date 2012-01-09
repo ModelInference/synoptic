@@ -30,6 +30,9 @@ public class ModelGraphic {
             JavaScriptObject nodes, JavaScriptObject edges, int width,
             int height, String canvasId, String initial, String terminal) /*-{
 
+        // Clear the draculaNodeMap.
+        $wnd.draculaNodeMap = {};
+
         // Export the handleLogRequest globally.
         $wnd.viewLogLines = function(id) {
             modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
@@ -85,7 +88,7 @@ public class ModelGraphic {
 
         // Clear the selected nodes from the graph's state.
         $wnd.clearSelectedNodes();
-
+        
         // update graph and fetch array of new nodes
         var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges,
                 refinedNode);
