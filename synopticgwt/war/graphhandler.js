@@ -6,7 +6,7 @@
 // An assocative array of event node IDs mapped to raphael rectangle objects.
 var draculaNodeMap = {};
 
-//A function for clearing the "selected" state of the
+// A function for clearing the "selected" state of the
 // dracula nodes in the GRAPH_HANDLER object. The graph
 // handler object must have had the initializeStableIDs
 // function run at least once before calling this function
