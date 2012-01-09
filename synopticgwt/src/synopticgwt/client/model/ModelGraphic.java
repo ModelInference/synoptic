@@ -84,7 +84,7 @@ public class ModelGraphic {
             JavaScriptObject edges, int refinedNode, String canvasId) /*-{
 
         // Clear the selected nodes from the graph's state.
-        $wnd.GRAPH_HANDLER.clearSelectedNodes();
+        $wnd.clearSelectedNodes();
 
         // update graph and fetch array of new nodes
         var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges,
