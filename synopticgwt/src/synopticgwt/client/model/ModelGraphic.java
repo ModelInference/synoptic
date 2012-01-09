@@ -30,9 +30,6 @@ public class ModelGraphic {
             JavaScriptObject nodes, JavaScriptObject edges, int width,
             int height, String canvasId, String initial, String terminal) /*-{
 
-        // Clear the draculaNodeMap.
-        $wnd.draculaNodeMap = {};
-
         // Export the handleLogRequest globally.
         $wnd.viewLogLines = function(id) {
             modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);

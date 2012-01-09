@@ -4,25 +4,17 @@
  */
 
 // An assocative array of event node IDs mapped to raphael rectangle objects.
-var draculaNodeMap = {};
+var selectedDraculaNodes = {};
 
-// A function for clearing the "selected" state of the
-// dracula nodes in the GRAPH_HANDLER object. The graph
-// handler object must have had the initializeStableIDs
-// function run at least once before calling this function
-// subsequently.
+/*
+ * A function for clearing the state of the selected nodes.
+ * each node is set back to the default color and then removed
+ * from the set of selected nodes.
+ */
 var clearSelectedNodes = function() {
-    // Grab the nodes from the main dracula graph.
-    var nodes = GRAPH_HANDLER.getGraph().nodes;
-
-    // Deselect all of the nodes.
-    for ( var i in nodes) {
-        var n = nodes[i];
-        // If the node is selected,
-        // deselect it.
-        if (n.selected) {
-            n.toggleSelected();
-        }
+    for (var i in selectedDraculaNodes) {
+        selectedDraculaNodes[i].attr("fill", "#fa8");
+        delete selectedDraculaNodes[i];
     }
 }
 
@@ -85,38 +77,6 @@ var GRAPH_HANDLER = {
             });
         }
 
-        if (draculaNodeMap[node.id] == undefined) {
-            draculaNodeMap[node.id] = rect;
-        }
-
-        // Toggles whether the node has been selected.
-        // more details on what qualifies as "selected"
-        // in the next function (defined for mouse click events).
-        // TODO: Add a reference to the selected node to ModelTab.java
-        // or ModelGraphic.java
-        node.toggleSelected = function() {
-            // Add the "selected" field to the object
-            // if it doesn't already exist (initialized
-            // as false so as to make the rest of the function
-            // work properly).
-            if (this.selected == null) {
-                this.selected = false;
-            }
-
-            // Toggle selection of the node
-            this.selected = !this.selected;
-
-            // Fill the rectangle with the designated color.
-            // If selected, turn the node blue, else change back
-            // to default color.
-            var rectangle = draculaNodeMap[this.id];
-            if (this.selected) {
-                rectangle.attr("fill", "blue");
-            } else {
-                rectangle.attr("fill", "#fa8");
-            }
-        };
-
         // Adds a function to the given rectangle so that, when clicked,
         // the associated event node is "selected" (shown as blue when clicked)
         // and then the log lines associated with the event are shown in the
@@ -144,8 +104,14 @@ var GRAPH_HANDLER = {
                     clearSelectedNodes();
                     viewLogLines(parseInt(node.id));
                 }
-
-                node.toggleSelected();
+                
+                if (selectedDraculaNodes[node.id] == undefined) {
+                    rect.attr("fill", "blue");
+                    selectedDraculaNodes[node.id] = rect;
+                } else {
+                    rect.attr("fill", "#fa8");
+                    delete selectedDraculaNodes[node.id];
+                }
             }
         };
 
@@ -175,7 +141,6 @@ var GRAPH_HANDLER = {
         // remove the refined node and all its edges from the graph
         this.graph.removeNode(splitNodeID);
         delete this.currentNodes[splitNodeID];
-        delete draculaNodeMap[splitNodeID];
 
         // tracks which new nodes are added to update edges below
         var newNodes = [];
