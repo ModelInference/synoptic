@@ -35,27 +35,6 @@ public class ModelGraphic {
             modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
         };
 
-        // A function for clearing the "selected" state of the
-        // dracula nodes in the GRAPH_HANDLER object.  The graph
-        // handler object must have had the initializeStableIDs
-        // function run at least once before calling this function
-        // subsequently.
-        $wnd.clearSelectedDraculaNodes = function() {
-            
-            // Grab the nodes from the main dracula graph.
-            var nodes = $wnd.GRAPH_HANDLER.getGraph().nodes;
-            
-            // Deselect all of the nodes.
-            for (var i in nodes) {
-                var n = nodes[i];
-                // If the node is selected,
-                // deselect it.
-                if (n.selected) {
-                    n.toggleSelected();
-                }
-            }
-        };
-
         // Create the graph.
         var g = new $wnd.Graph();
         g.edgeFactory.template.style.directed = true;
@@ -103,9 +82,9 @@ public class ModelGraphic {
      */
     public static native void createChangingGraph(JavaScriptObject nodes,
             JavaScriptObject edges, int refinedNode, String canvasId) /*-{
-               
+
         // Clear the selected nodes from the graph's state.
-        $wnd.clearSelectedDraculaNodes();
+        $wnd.GRAPH_HANDLER.clearSelectedNodes();
 
         // update graph and fetch array of new nodes
         var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges,

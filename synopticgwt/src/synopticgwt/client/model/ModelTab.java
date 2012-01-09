@@ -94,7 +94,7 @@ public class ModelTab extends Tab<DockPanel> {
 
         // Add tool-tip to LogLineLabel
         TooltipListener tooltip = new TooltipListener(
-                "Double-click on a node to view log lines", 5000, "tooltip");
+                "Click on a node to view log lines.  Shift+Click to select multiple nodes.", 5000, "tooltip");
         logLineLabel.addMouseOverHandler(tooltip);
         logLineLabel.addMouseOutHandler(tooltip);
         logPanel.add(logLineLabel);
