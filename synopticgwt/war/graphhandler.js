@@ -3,13 +3,32 @@
  * display.
  */
 
+// An assocative array of event node IDs mapped to raphael rectangle objects.
+var draculaNodeMap = {};
+
+//A function for clearing the "selected" state of the
+// dracula nodes in the GRAPH_HANDLER object. The graph
+// handler object must have had the initializeStableIDs
+// function run at least once before calling this function
+// subsequently.
+var clearSelectedNodes = function() {
+    // Grab the nodes from the main dracula graph.
+    var nodes = GRAPH_HANDLER.getGraph().nodes;
+
+    // Deselect all of the nodes.
+    for ( var i in nodes) {
+        var n = nodes[i];
+        // If the node is selected,
+        // deselect it.
+        if (n.selected) {
+            n.toggleSelected();
+        }
+    }
+}
+
 var GRAPH_HANDLER = {
     // array of graph nodes
     "currentNodes" : [],
-
-    // An assocative array of event node IDs mapped to raphael rectangle
-    // objects.
-    "draculaNodeMap" : {},
 
     // initializes this GRAPH_HANDLER
     "initializeStableIDs" : function(nodes, edges, renderer, layouter, g) {
@@ -19,26 +38,6 @@ var GRAPH_HANDLER = {
         this.graph = g;
         this.rend = renderer;
         this.layouter = layouter;
-    },
-
-    // A function for clearing the "selected" state of the
-    // dracula nodes in the GRAPH_HANDLER object. The graph
-    // handler object must have had the initializeStableIDs
-    // function run at least once before calling this function
-    // subsequently.
-    "clearSelectedNodes" : function() {
-        // Grab the nodes from the main dracula graph.
-        var nodes = GRAPH_HANDLER.getGraph().nodes;
-
-        // Deselect all of the nodes.
-        for ( var i in nodes) {
-            var n = nodes[i];
-            // If the node is selected,
-            // deselect it.
-            if (n.selected) {
-                n.toggleSelected();
-            }
-        }
     },
 
     // returns this graph's renderer
@@ -86,8 +85,8 @@ var GRAPH_HANDLER = {
             });
         }
 
-        if (this.draculaNodeMap[node.id] == undefined) {
-            this.draculaNodeMap[node.id] = rect;
+        if (draculaNodeMap[node.id] == undefined) {
+            draculaNodeMap[node.id] = rect;
         }
 
         // Toggles whether the node has been selected.
@@ -110,7 +109,7 @@ var GRAPH_HANDLER = {
             // Fill the rectangle with the designated color.
             // If selected, turn the node blue, else change back
             // to default color.
-            var rectangle = GRAPH_HANDLER.draculaNodeMap[this.id];
+            var rectangle = draculaNodeMap[this.id];
             if (this.selected) {
                 rectangle.attr("fill", "blue");
             } else {
@@ -142,7 +141,7 @@ var GRAPH_HANDLER = {
                 // been selected (and the log lines are currently in view),
                 // don't bother making another RPC (since it's unnecessary).
                 if (!event.shiftKey) {
-                    GRAPH_HANDLER.clearSelectedNodes();
+                    clearSelectedNodes();
                     viewLogLines(parseInt(node.id));
                 }
 
@@ -176,7 +175,7 @@ var GRAPH_HANDLER = {
         // remove the refined node and all its edges from the graph
         this.graph.removeNode(splitNodeID);
         delete this.currentNodes[splitNodeID];
-        delete this.draculaNodeMap[splitNodeID];
+        delete draculaNodeMap[splitNodeID];
 
         // tracks which new nodes are added to update edges below
         var newNodes = [];
