@@ -264,13 +264,14 @@ public class ModelTab extends Tab<DockPanel> {
     public int getModelGraphicWidth() {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
-        return Window.getClientWidth() - (logLineLabel.getOffsetWidth() + 50);
+        return Window.getClientWidth() - (logLineLabel.getOffsetWidth() + 100);
     }
 
     /** Returns the correct height for the model graphic in the model tab. */
     public int getModelGraphicHeight() {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
+        /* The 200 offset represents the top Synoptic header */
         return Window.getClientHeight() - 200;
     }
 
