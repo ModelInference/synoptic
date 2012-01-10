@@ -271,7 +271,7 @@ public class ModelTab extends Tab<DockPanel> {
     public int getModelGraphicHeight() {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
-        return Window.getClientHeight() - 100;
+        return Window.getClientHeight() - 200;
     }
 
     /**
