@@ -409,7 +409,9 @@ Graph.Layout.Spring.prototype = {
              *////////////////////////////////////////////////////
              
              // Keeps nodes away from the edges.
-             /* Modified from 0.6 for more appropriate cushion from side edges */
+             /* EXTERNAL CHANGE TO CODE 
+              * Modified offset value in maxx and minx for more appropriate
+              * cushion from side edges (originally both set to 0.6) */
             if(x > maxx) maxx = x + 2.0;
             if(x < minx) minx = x - 1.0;
             if(y > maxy) maxy = y + 0.6;
@@ -587,7 +589,10 @@ Graph.Layout.Stable.prototype = {
             if (node.label !== this.terminal) {
             	node.layoutPosX = 0;
             } else {
-            	node.layoutPosX = 10;
+            	/* EXTERNAL CHANGE TO ORIGINAL CODE 
+            	 * Modified this value from 10 to 20 to prevent terminal node from
+            	 * extending past right side of canvas */
+            	node.layoutPosX = 20;
             }
             node.layoutPosY = 0;
             node.layoutForceX = 0;
