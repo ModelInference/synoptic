@@ -38,6 +38,8 @@ self string method_name;
 self string signature;
 self int indent;
 
+inline string package_prefix_filter = "synoptic/";
+
 /* Retrieve the method's package name so that we can filter on it
    below. */
 hotspot*:::method-entry
@@ -63,7 +65,7 @@ hotspot*:::method-return
 /* Print out method ENTRY information for methods in synoptic
    namespace only. */
 hotspot*:::method-entry
-/substr(self->package_name,0,9) == "synoptic/"/
+/substr(self->package_name,0,9) == package_prefix_filter/
 {
   self->str_ptr = (char*) copyin(arg1, arg2+1);
   self->str_ptr[arg2] = '\0';
@@ -99,7 +101,7 @@ hotspot*:::method-entry
 /* Print out method RETURN information for methods in synoptic
    namespace only. */
 hotspot*:::method-return
-/substr(self->package_name,0,9) == "synoptic/"/
+/substr(self->package_name,0,9) == package_prefix_filter/
 {
   self->str_ptr = (char*) copyin(arg1, arg2+1);
   self->str_ptr[arg2] = '\0';
