@@ -29,40 +29,47 @@ import synopticgwt.shared.GWTInvariantSet;
  */
 public class InvariantsGraph {
 
-    public static String DEFAULT_STROKE = "grey";
-    public static String AP_HIGHLIGHT_STROKE = "blue";
-    public static String AFBY_HIGHLIGHT_STROKE = "blue";
-    public static String NFBY_HIGHLIGHT_STROKE = "red";
+    public static final String DEFAULT_STROKE = "grey";
+    public static final String AP_HIGHLIGHT_STROKE = "blue";
+    public static final String AFBY_HIGHLIGHT_STROKE = "blue";
+    public static final String NFBY_HIGHLIGHT_STROKE = "red";
 
-    public static int DEFAULT_STROKE_WIDTH = 1;
-    public static int HIGHLIGHT_STROKE_WIDTH = 3;
+    public static final int DEFAULT_STROKE_WIDTH = 1;
+    public static final int HIGHLIGHT_STROKE_WIDTH = 3;
 
-    public static String DEFAULT_FILL = "grey";
-    public static String ORDERED_FILL = "black";
-    public static String CONCURRENT_FILL = "blue";
-    public static String NEVER_CONCURRENT_FILL = "red";
+    public static final String DEFAULT_FILL = "grey";
+    public static final String ORDERED_FILL = "black";
+    public static final String CONCURRENT_FILL = "blue";
+    public static final String NEVER_CONCURRENT_FILL = "red";
 
     /** Distance of invariant columns from top of paper */
     public static final int TOP_MARGIN = 20;
     /** Distance of invariant columns from top of paper */
     public static final int EVENT_PADDING = 50;
+    
+    public static final int MIN_LABEL_WIDTH = 100;
+    public static final int MIN_LABEL_HEIGHT = 20;
+    public static final int MIN_HORIZONTAL_ARROW_SPACE = 100;
+    public static final int MIN_VERTICAL_LABEL_BUFFER = 20;
+    
+    public static final int EVENT_COLUMNS = 3;
+    
+    public static final int ARROW_LABEL_BUFFER = 20;
 
     /** Wrapped raphael canvas */
     private Paper paper;
+    
+    /** Arrow indicating time axis */
+    private Arrow timeArrow;
+    /** Label for time arrow */
+    private Label timeLabel;
+    
+    private List<String> eventTypesList;
 
-    /*
-     * Event columns, as of 12/4/11 these are not used but references to events
-     * are maintained here since InvariantsGraph is their primary client
-     */
     private Map<String, Event> leftEventCol;
     private Map<String, Event> midEventCol;
     private Map<String, Event> rightEventCol;
 
-    /*
-     * Graphic Invariants, as of 12/4/11 these are not used but references to
-     * invariants are maintained here since InvariantsGraph is their primary
-     * client
-     */
     private List<TOInvariant> apInvs;
     private List<TOInvariant> afbyInvs;
     private List<TOInvariant> nfbyInvs;
@@ -139,7 +146,7 @@ public class InvariantsGraph {
             }
         }
 
-        List<String> eventTypesList = new ArrayList<String>(eventTypesSet);
+        eventTypesList = new ArrayList<String>(eventTypesSet);
 
         // A little magic to size things right.
         // int lX = (longestEType * 30) / 2 - 110;
@@ -224,11 +231,11 @@ public class InvariantsGraph {
          */
         int timeArrowYCoord = TOP_MARGIN + EVENT_PADDING
                 * eventTypesList.size() - 25;
-        Arrow timeArrow = new Arrow(lX, timeArrowYCoord, rX, timeArrowYCoord,
+        timeArrow = new Arrow(lX, timeArrowYCoord, rX, timeArrowYCoord,
                 paper, 0);
         timeArrow.setStroke("green", HIGHLIGHT_STROKE_WIDTH);
         int timeLabelYCoord = timeArrowYCoord + 25;
-        Label timeLabel = new Label(paper, mX, timeLabelYCoord, fontSize - 5,
+        timeLabel = new Label(paper, mX, timeLabelYCoord, fontSize - 5,
                 "Time", DEFAULT_FILL);
     }
     
@@ -236,145 +243,118 @@ public class InvariantsGraph {
      * Resizes the InvariantsGraph to fit the input window dimensions,
      * assumes Paper is rendered
      *   
-     * @param gwtInvs
-     * @param invCanvasId
-     * @param gwtInvToIGridLabel
      * @param height
      * @param width
      */
-    public void resize(GWTInvariantSet gwtInvs, String invCanvasId,
-            Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel,
-            int height, int width) {
-        paper.clear();
+    public void resize(int paperHeight, int paperWidth) {
         
-        Set<String> invTypes = gwtInvs.getInvTypes();
-
-        Set<String> eventTypesSet = new LinkedHashSet<String>();
-        int longestEType = 0;
-
-        // Generate set of eTypes
-        for (String invType : invTypes) {
-            List<GWTInvariant> invs = gwtInvs.getInvs(invType);
-
-            for (GWTInvariant inv : invs) {
-                String src = inv.getSource();
-                eventTypesSet.add(src);
-                int srcLen = src.length();
-                if (srcLen > longestEType) {
-                    longestEType = srcLen;
-                }
-
-                String dst = inv.getTarget();
-                eventTypesSet.add(dst);
-                int dstLen = dst.length();
-                if (dstLen > longestEType) {
-                    longestEType = dstLen;
-                }
+        paper.setSize(paperWidth, paperHeight);
+        
+        int arrowColumns = EVENT_COLUMNS - 1;
+        int labelWidth = paperWidth / (EVENT_COLUMNS + arrowColumns);
+        if (labelWidth < MIN_LABEL_WIDTH) {
+            labelWidth = MIN_LABEL_WIDTH;
+        }
+        int arrowWidth = labelWidth;
+        
+        int rows = eventTypesList.size();
+        int labelHeight = (paperHeight - (rows - 1) * MIN_VERTICAL_LABEL_BUFFER) / rows;
+        if (labelHeight < MIN_LABEL_HEIGHT) {
+            labelHeight = MIN_LABEL_HEIGHT;
+        }
+        
+        // Maybe the event columns should go in a data structure so we don't
+        // have to do things like this
+        translateAndScaleEvents(leftEventCol, labelHeight, labelWidth, 
+                labelWidth / 2 + 0 * (labelWidth + arrowWidth));
+        
+        translateAndScaleEvents(midEventCol, labelHeight, labelWidth,
+                labelWidth / 2 + 1 * (labelWidth + arrowWidth));
+        translateAndScaleEvents(rightEventCol, labelHeight, labelWidth,
+                labelWidth / 2 + 2 * (labelWidth + arrowWidth));
+        
+        translateAndScaleArrows(apInvs, arrowWidth,
+                arrowWidth / 2 + 1 * (labelWidth + ARROW_LABEL_BUFFER) +
+                0 * (ARROW_LABEL_BUFFER + arrowWidth));
+        translateAndScaleArrows(afbyInvs, arrowWidth,
+                arrowWidth / 2 + 2 * (labelWidth + ARROW_LABEL_BUFFER) +
+                1 * (ARROW_LABEL_BUFFER + arrowWidth));
+        translateAndScaleArrows(nfbyInvs, arrowWidth,
+                arrowWidth / 2 + 2 * (labelWidth + ARROW_LABEL_BUFFER) +
+                1 * (ARROW_LABEL_BUFFER + arrowWidth));
+        
+    }
+    
+    /* Maybe this should be in TOInvariant? I feel like I'm breaking
+     * abstraction barriers here by digging at the arrow of the inv
+     */
+    private void translateAndScaleArrows(List<TOInvariant> arrows, 
+            int maxWidth, int targetX) {
+        
+        for (int i = 0; i < arrows.size(); i++) {
+            
+            TOInvariant inv = arrows.get(i);
+            
+            double targetWidth = maxWidth - 2 * ARROW_LABEL_BUFFER;
+            double targetHeight = inv.getEventHeightDifference();
+            
+            double width = inv.getWidth();
+            double height = inv.getHeight();
+            double sx = targetWidth / width;
+            double sy = targetHeight / height;
+            
+            inv.scale(sx, sy);
+            
+            double targetY;
+            double eventYMidpoint = inv.getEventHeightDifference() / 2;
+            if (inv.arrowSrcIsTopLeft()) {
+                targetY = inv.getSrcY() + eventYMidpoint;
+            } else {
+                targetY = inv.getSrcY() - eventYMidpoint;
             }
+            
+            double dx = targetX - inv.getX();
+            double dy = targetY - inv.getY();
+            inv.translate(dx, dy);
+            
         }
         
-        int fontSize = 20; // getFontSize(longestEType);
-
-        List<String> eventTypesList = new ArrayList<String>(eventTypesSet);
+    }
+    
+    /* Maybe this should be in TOInvariant? I feel like I'm breaking
+     * some abstraction barriers here as well
+     */
+    private void translateAndScaleEvents(Map<String, Event> typeToEvent, 
+            int maxHeight, int maxWidth, int targetX) {
         
-        paper.setSize(width, (eventTypesList.size() + 2) * EVENT_PADDING);
-        
-        // Determine max height and width of event labels
-        // Could potentially break here if drawing outside of visible paper 
-        // area means no rendering
-        int maxLabelWidth = 0;
-        for (String event : eventTypesList) {
-            Label eventLabel = new Label(paper, 0 , 0, fontSize, event,
-                    DEFAULT_FILL);
-            if (eventLabel.getWidth() > maxLabelWidth) {
-                maxLabelWidth = Math.round(eventLabel.getWidth());
-            }
-            eventLabel.remove();
-        }
-        
-        int eventColumnWidth = width / 3;
-
-        int lX = eventColumnWidth / 2;
-
-        int mX = eventColumnWidth + eventColumnWidth / 2;
-
-        int rX = eventColumnWidth * 2 + eventColumnWidth / 2;
-        
-
-        // Used to offset arrow heads and bases from overlapping event labels
-        int labelOffset = maxLabelWidth / 2 + 20;
-
-        // Sort eventTypesList alphabetically
-        Collections.sort(eventTypesList);
-
-        // Put initial at the head of the list
-        if (eventTypesList.contains(INITIAL_EVENT_LABEL)) {
-            int initialETypeIndex = eventTypesList.indexOf(INITIAL_EVENT_LABEL);
-            eventTypesList.remove(initialETypeIndex);
-            eventTypesList.add(0, INITIAL_EVENT_LABEL);
-        }
-
-        // draw graphic event type columns
         for (int i = 0; i < eventTypesList.size(); i++) {
-            String eType = eventTypesList.get(i);
-            Event leftEvent = new Event(lX, EVENT_PADDING * i + TOP_MARGIN,
-                    fontSize, eType, paper);
-            leftEventCol.put(eType, leftEvent);
-
-            Event midEvent = new Event(mX, EVENT_PADDING * i + TOP_MARGIN,
-                    fontSize, eType, paper);
-            midEventCol.put(eType, midEvent);
-
-            Event rightEvent = new Event(rX, EVENT_PADDING * i + TOP_MARGIN,
-                    fontSize, eType, paper);
-            rightEventCol.put(eType, rightEvent);
-        }
-
-        for (String invType : invTypes) {
-            List<GWTInvariant> invs = gwtInvs.getInvs(invType);
-            if (invType.equals("AP")) {
-                List<TOInvariant> gInvs = drawTOInvariants(invs, leftEventCol,
-                        midEventCol, gwtInvToIGridLabel, labelOffset);
-                apInvs.addAll(gInvs);
-            } else if (invType.equals("AFby")) {
-                List<TOInvariant> gInvs = drawTOInvariants(invs, midEventCol,
-                        rightEventCol, gwtInvToIGridLabel, labelOffset);
-                afbyInvs.addAll(gInvs);
-            } else if (invType.equals("NFby")) {
-                List<TOInvariant> gInvs = drawTOInvariants(invs, midEventCol,
-                        rightEventCol, gwtInvToIGridLabel, labelOffset);
-                nfbyInvs.addAll(gInvs);
-            } else if (invType.equals("ACwith")) {
-                leftACPartitions = generateACPartitions(drawPOInvariants(invs,
-                        leftEventCol, gwtInvToIGridLabel));
-                midACPartitions = generateACPartitions(drawPOInvariants(invs,
-                        midEventCol, gwtInvToIGridLabel));
-                rightACPartitions = generateACPartitions(drawPOInvariants(invs,
-                        rightEventCol, gwtInvToIGridLabel));
-            } else if (invType.equals("NCwith")) {
-                leftNCPartitions = generateNCPartitions(drawPOInvariants(invs,
-                        leftEventCol, gwtInvToIGridLabel));
-                midNCPartitions = generateNCPartitions(drawPOInvariants(invs,
-                        midEventCol, gwtInvToIGridLabel));
-                rightNCPartitions = generateNCPartitions(drawPOInvariants(invs,
-                        rightEventCol, gwtInvToIGridLabel));
-
+            String eventString = eventTypesList.get(i);
+            Event event = typeToEvent.get(eventString);
+            
+            int targetY = maxHeight / 2 + i *
+                    (maxHeight + MIN_VERTICAL_LABEL_BUFFER);
+            
+            double initialX = event.getX();
+            double initialY = event.getY();
+            
+            double dx = targetX - initialX;
+            double dy = targetY - initialY;
+            
+            event.translate(dx, dy);
+            
+            
+            double sy = maxHeight;// - event.getHeight();
+            double sx = maxWidth;// - event.getWidth();
+            
+            // Maintain aspect ratio by scaling with the minimum scale factor
+            if (sy < sx) {
+                event.scale(sy, sy);
+            } else {
+                event.scale(sx, sx);
             }
+            
+            
         }
-
-        /*
-         * Draws a time arrow and label below the GraphicEvents from the left
-         * column to the right column with a little magic and hard-coding to
-         * make things pretty
-         */
-        int timeArrowYCoord = TOP_MARGIN + EVENT_PADDING
-                * eventTypesList.size() - 25;
-        Arrow timeArrow = new Arrow(lX, timeArrowYCoord, rX, timeArrowYCoord,
-                paper, 0);
-        timeArrow.setStroke("green", HIGHLIGHT_STROKE_WIDTH);
-        int timeLabelYCoord = timeArrowYCoord + 25;
-        Label timeLabel = new Label(paper, mX, timeLabelYCoord, fontSize - 5,
-                "Time", DEFAULT_FILL);
         
     }
 
@@ -546,5 +526,4 @@ public class InvariantsGraph {
         return this.paper;
     }
 
-    
 }

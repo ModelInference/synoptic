@@ -69,13 +69,21 @@ public class Event implements Serializable, MouseHover {
     }
 
     /** Return's the x coordinate of this event */
-    public int getX() {
+    public double getX() {
         return label.getX();
     }
 
     /** Return's the y coordinate of this event */
-    public int getY() {
+    public double getY() {
         return label.getY();
+    }
+    
+    public double getBBoxX() {
+        return label.getCenterX();
+    }
+    
+    public double getBBoxY() {
+        return label.getCenterY();
     }
 
     public void show() {
@@ -168,6 +176,22 @@ public class Event implements Serializable, MouseHover {
          * graphical column which has no event duplicates.
          */
         return getEvent().hashCode();
+    }
+    
+    public void translate(double dx, double dy) {
+        label.translate(dx, dy);
+    }
+    
+    public void scale(double sx, double sy) {
+        label.scale(sx, sy);
+    }
+    
+    public double getHeight() {
+        return label.getHeight();
+    }
+    
+    public double getWidth() {
+        return label.getWidth();
     }
 
 }

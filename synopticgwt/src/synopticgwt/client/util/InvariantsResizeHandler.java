@@ -3,6 +3,7 @@ package synopticgwt.client.util;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.ui.TabBar;
+import com.google.gwt.user.client.ui.UIObject;
 
 import synopticgwt.client.SynopticGWT;
 import synopticgwt.client.invariants.InvariantsTab;
@@ -24,9 +25,11 @@ public class InvariantsResizeHandler implements ResizeHandler {
 
     @Override
     public void onResize(ResizeEvent event) {
-        if (tabBar.isTabEnabled(SynopticGWT.invariantsTabIndex)) {
+        /*
+        if (UIObject.isVisible(invTab.getTableAndGraphicPanel().getElement())) {
             invTab.resize();
         }
+        */
     }
 
 }

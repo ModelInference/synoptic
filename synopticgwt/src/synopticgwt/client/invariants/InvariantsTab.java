@@ -18,6 +18,7 @@ import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
@@ -57,6 +58,8 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     private List<Grid> labelColumnGrids;
     
     private Anchor exportInvsLink;
+    
+    private Button resizeButton;
 
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
@@ -67,6 +70,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         tableAndGraphicPanel = new HorizontalPanel();
         activeInvsHashes = new LinkedHashSet<Integer>();
         exportInvsLink = new Anchor("[Show invariants as text]");
+        resizeButton = new Button("Resize", new ResizeHandler());
         labelColumnGrids = new ArrayList<Grid>();
     }
 
@@ -86,6 +90,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         tableAndGraphicPanel.clear();
 
         panel.add(exportInvsLink);
+        panel.add(resizeButton);
         exportInvsLink.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -108,7 +113,8 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         labelColumnGrids.clear();
         for (String invName : invOrdering) {  
             if (invTypes.contains(invName)) {
-                addInvariantColumnToGrid(invName);
+                Grid g = addInvariantColumnToGrid(invName);
+                labelColumnGrids.add(g);
             }
         }
 
@@ -126,9 +132,9 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             throw new IllegalStateException("Invariants uninitialized");
         }
         
-        int height = Window.getClientHeight() - 150;
-        int width = Window.getClientWidth() / 2;
-        iGraph.resize(gwtInvs, INV_CANVAS_ID, gwtInvToGridLabel, height, width);
+        int height = Window.getClientHeight() - (exportInvsLink.getOffsetHeight() + 150);
+        int width = Window.getClientWidth() * 2 / 3;
+        iGraph.resize(height, width);
     }
     
     public void setInvariants(GWTInvariantSet gwtInvs) {
@@ -366,5 +372,18 @@ public class InvariantsTab extends Tab<VerticalPanel> {
                     .getSource();
             iGridLabel.mouseOut();
         }
+    }
+    
+    class ResizeHandler implements ClickHandler {
+
+        @Override
+        public void onClick(ClickEvent event) {
+            resize();
+        }
+        
+    }
+    
+    public HorizontalPanel getTableAndGraphicPanel() {
+        return tableAndGraphicPanel;
     }
 }

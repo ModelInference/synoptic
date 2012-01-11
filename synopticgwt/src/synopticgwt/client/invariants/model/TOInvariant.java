@@ -43,8 +43,8 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
          *  I use dst.getX() for srcX and src.getX() for dstX. This is a hack,
          *  but it seems to work reasonably well.
          */
-        int srcX = src.getX() + labelOffset;
-        int dstX = dst.getX() - labelOffset;
+        double srcX = src.getX();
+        double dstX = dst.getX();
         this.arrow = new Arrow(srcX, src.getY(), dstX, dst.getY(), paper);
         arrow.setMouseover(this);
         arrow.setMouseout(this);
@@ -131,4 +131,50 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
     public void mouseout() {
         highlightOffArrow();
     }
+    
+    public double getHeight() {
+        return arrow.getHeight();
+    }
+    
+    public double getWidth() {
+        return arrow.getWidth();
+    }
+    
+    public double getSrcY() {
+        return src.getY();
+    }
+    
+    public double getDstY() {
+        return dst.getY();
+    }
+    
+    public double getX() {
+        return arrow.getCenterX();
+    }
+    
+    public double getY() {
+        return arrow.getCenterY();
+    }
+    
+    /**
+     * 
+     * @return Absolute difference between event y center coordinates
+     */
+    public double getEventHeightDifference() {
+        return Math.abs(dst.getY() - src.getY());
+    }
+    
+    public void translate(double dx, double dy) {
+        arrow.translate(dx, dy);
+    }
+    
+    public void scale(double sx, double sy) {
+        arrow.scale(sx, sy);
+    }
+    
+    public boolean arrowSrcIsTopLeft() {
+        return arrow.arrowSrcIsTopLeft();
+    }
+    
+    
 }
