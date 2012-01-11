@@ -124,4 +124,138 @@ public class Path implements Serializable {
                 };
             } (hover));
     }-*/;
+    
+    /** 
+     * Translates path by dx and dy
+     * @param dx horizontal shift
+     * @param dy vertical shift
+     */
+    public native void translate(double dx, double dy) /*-{
+        var path = this.@synopticgwt.client.invariants.Path::path;
+        path.translate(dx, dy);
+        this.@synopticgwt.client.invariants.Path::x1 += dx;
+        this.@synopticgwt.client.invariants.Path::y1 += dy;
+        this.@synopticgwt.client.invariants.Path::x2 += dx;
+        this.@synopticgwt.client.invariants.Path::y2 += dy;
+    }-*/;
+    
+    /** 
+     * Scales path by cx and cy
+     * @param cx horizontal scale factor
+     * @param cy vertical scale factor
+     */
+    public void scale(double sx, double sy) {
+        // Need to eliminate endpoint data redundancy so this isn't necessary
+        double initialHeight = getBBoxHeight();
+        double initialWidth = getBBoxWidth();
+        
+        scaleJS(sx, sy);
+        
+        double finalHeight = getBBoxHeight();
+        double finalWidth = getBBoxWidth();
+        
+        double heightDiff = finalHeight - initialHeight;
+        double widthDiff = finalWidth - initialWidth;
+        
+        x1 -= widthDiff / 2;
+        x2 += widthDiff / 2;
+        
+        if (pathSrcIsTopLeft()) {
+            y1 -= heightDiff / 2;
+            y2 += heightDiff / 2;
+        } else {
+            y1 += heightDiff / 2;
+            y2 -= heightDiff / 2;
+        }
+    }
+    
+    /** 
+     * Scales path by cx and cy, scales out from center of path
+     * @param cx horizontal scale factor
+     * @param cy vertical scale factor
+     */
+    public native void scaleJS(double sx, double sy) /*-{
+        var path = this.@synopticgwt.client.invariants.Path::path;
+        var bBox = path.getBBox();
+        path.scale(sx, sy, bBox.x + bBox.width / 2, bBox.y + bBox.height / 2);
+    }-*/;
+    
+    /**
+     * 
+     * @return X value of the path's bounding box
+     */
+    public native float getBBoxX() /*-{
+        var path = this.@synopticgwt.client.invariants.Path::path;
+        var BBox = path.getBBox();
+        return BBox.x;
+    }-*/;
+    
+    /**
+     * 
+     * @return X value of the center of the path's bounding box
+     */
+    public double getCenterX() {
+        return getBBoxX() + getBBoxWidth() / 2;
+    }
+    
+    /**
+     * 
+     * @return y value of the path's bounding box
+     */
+    public native float getBBoxY() /*-{
+        var path = this.@synopticgwt.client.invariants.Path::path;
+        var BBox = path.getBBox();
+        return BBox.y;
+    }-*/;
+    
+    /**
+     * 
+     * @return Y value of the center of the path's bounding box
+     */
+    public double getCenterY() {
+        return getBBoxY() + getBBoxHeight() / 2;
+    }
+    
+    /**
+     * 
+     * @return height of path's bounding box
+     */
+    public native float getBBoxHeight() /*-{
+        var path = this.@synopticgwt.client.invariants.Path::path;
+        var BBox = path.getBBox();
+        
+        return BBox.height;
+    }-*/;
+    
+    //alert("height: " + BBox.height);
+    
+    /**
+     * 
+     * @return width of path's bounding box
+     */
+    public native float getBBoxWidth() /*-{
+        var path = this.@synopticgwt.client.invariants.Path::path;
+        var BBox = path.getBBox();
+        return BBox.width;
+    }-*/;
+    
+    public double getX1() {
+        return x1;
+    }
+    
+    public double getY1() {
+        return y1;
+    }
+    
+    public double getX2() {
+        return x2;
+    }
+    public double getY2() {
+        return y2;
+    }
+    
+    public boolean pathSrcIsTopLeft() {
+        return y1 < y2;
+    }
+    
 }

@@ -19,9 +19,9 @@ public class Label implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	/** X coordinate of label on paper */
-    private int x;
+    private double x;
     /** Y coordinate of label on paper */
-    private int y;
+    private double y;
     /** Raphael paper object label is drawn on */
     private Paper paper;
     /** Label's font size */
@@ -40,7 +40,7 @@ public class Label implements Serializable {
      * @param labelText string to present on label
      * @param color color of label text
      */
-    public Label(Paper paper, int x, int y, int fontSize, String labelText, 
+    public Label(Paper paper, double x, double y, int fontSize, String labelText, 
             String color) {
     	
         this.paper = paper;
@@ -62,7 +62,7 @@ public class Label implements Serializable {
      * @param canvas unwrapped raphael paper
      * @return unwrapped raphael text
      */
-    private native JavaScriptObject constructLabel(int xCoord, int yCoord, int font,
+    private native JavaScriptObject constructLabel(double xCoord, double yCoord, int font,
             String fillColor, String text, JavaScriptObject canvas) /*-{
 		var rLabel = canvas.text(xCoord, yCoord, text);
 		rLabel.attr({
@@ -115,21 +115,41 @@ public class Label implements Serializable {
         return this.paper;
     }
     
+    public double getX() {
+        return this.x;
+    }
+    
+    public double getY() {
+        return this.y;
+    }
+    
     /** 
      * 
      * @return x coordinate of label 
      */
-    public int getX() {
-        return this.x;
+    public double getCenterX() {
+        return getBBoxX() + getWidth() / 2;
     }
         
     /** 
      * 
      * @return y coordinate of label
      */
-    public int getY() {
-        return this.y;
+    public double getCenterY() {
+        return getBBoxY() + getHeight() / 2;
     }
+    
+    public native float getBBoxX() /*-{
+        var label = this.@synopticgwt.client.invariants.Label::label;
+        var BBox = label.getBBox();
+        return BBox.x;
+    }-*/;
+    
+    public native float getBBoxY() /*-{
+    var label = this.@synopticgwt.client.invariants.Label::label;
+    var BBox = label.getBBox();
+    return BBox.x;
+}-*/;
     
     /**
      * Returns element height, 0 if element is not rendered
@@ -184,5 +204,33 @@ public class Label implements Serializable {
 	            };
         	} (hover));
     }-*/;
+    
+    public void translate(double dx, double dy) {
+        this.x += dx;
+        this.y += dy;
+        translateJS(dx, dy);
+    }
+    
+    /**
+     * Translates label by dx and dy
+     * @param dx horizontal shift
+     * @param dy vertical shift
+     */
+    public native void translateJS(double dx, double dy) /*-{
+        var label = this.@synopticgwt.client.invariants.Label::label;
+        label.translate(dx, dy);
+    }-*/;
+    
+    /**
+     * Scales label by sx and sy, scales out from center of label
+     * @param sx horizontal scale factor
+     * @param sy vertical scale factor
+     */
+    public native void scale(double sx, double sy) /*-{
+        var label = this.@synopticgwt.client.invariants.Label::label;
+        var bBox = label.getBBox();
+        label.scale(sx, sy);
+    }-*/;
 
+    //, bBox.x + bBox.width / 2, bBox.y + bBox.height / 2
 }

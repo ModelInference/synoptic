@@ -35,19 +35,19 @@ public class Arrow implements Serializable {
      * @param targetBuffer Distance between terminal end of the arrow  and (x2, y2)
      */
 
-    public Arrow(int x1, int y1, int x2, int y2, Paper paper, int targetBuffer) {
+    public Arrow(double x1, double y1, double x2, double y2, Paper paper, int targetBuffer) {
         this.paper = paper;
         constructArrow(x1, y1, x2 - targetBuffer, y2 - targetBuffer);
         setStroke(InvariantsGraph.DEFAULT_STROKE, 
             InvariantsGraph.DEFAULT_STROKE_WIDTH);
     }
     
-    public Arrow(int x1, int y1, int x2, int y2, Paper paper) {
+    public Arrow(double x1, double y1, double x2, double y2, Paper paper) {
     	this(x1, y1, x2, y2, paper, TARGET_BUFFER);
     }
 
     /** Draws and arrow from (x1, y1) to (x2, y2) */
-    public void constructArrow(int x1, int y1, int x2, int y2) {
+    public void constructArrow(double x1, double y1, double x2, double y2) {
         /* 
          * I conceptually set (x2, y2) to (0, 0) and compute the relevant 
          * x1 and y1 values
@@ -150,5 +150,47 @@ public class Arrow implements Serializable {
     public void highlightNFby() {
     	setStroke(InvariantsGraph.NFBY_HIGHLIGHT_STROKE, 
                 InvariantsGraph.HIGHLIGHT_STROKE_WIDTH);
+    }
+    
+    public void translate(double dx, double dy) {
+        body.translate(dx, dy);
+        positiveHead.translate(dx, dy);
+        negativeHead.translate(dx, dy);
+    }
+    
+    public void scale(double cx, double cy) {
+        double initialX2 = body.getX2();
+        double initialY2 = body.getY2();
+
+        body.scale(cx, cy);
+        
+        double targetX2 = body.getX2();
+        double targetY2 = body.getY2();
+        
+        double dx = targetX2 - initialX2;
+        double dy = targetY2 - initialY2;
+        positiveHead.translate(dx, dy);
+        negativeHead.translate(dx, dy);
+
+    }
+    
+    public double getHeight() {
+        return body.getBBoxHeight();
+    }
+    
+    public double getWidth() {
+        return body.getBBoxWidth();
+    }
+    
+    public boolean arrowSrcIsTopLeft() {
+        return body.getY1() < body.getY2();
+    }
+    
+    public double getCenterX() {
+        return body.getCenterX();
+    }
+    
+    public double getCenterY() {
+        return body.getCenterY();
     }
 }
