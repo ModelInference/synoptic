@@ -147,7 +147,7 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
     }
     
     public double getDstY() {
-        return dst.getBBoxX();
+        return dst.getBBoxY();
     }
     
     public double getX() {
