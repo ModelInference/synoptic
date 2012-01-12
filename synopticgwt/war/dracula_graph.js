@@ -348,14 +348,12 @@ Graph.Renderer.Raphael.prototype = {
         var ycoord = box.y + ytrans;
         
         if (xcoord < 0) {
-        	alert(xcoord);
         	shape.translate(-xcoord, 0);
         } else if (xcoord + box.width > this.width) {
         	shape.translate(-(xcoord + box.width - this.width), 0);
         } else if (ycoord < 0) {
         	shape.translate(0, -ycoord);
         } else if (ycoord + box.height > this.height) {
-        	alert(ycoord + box.height);
         	shape.translate(0, -(ycoord + box.height - this.height));
         }
         
@@ -438,8 +436,8 @@ Graph.Layout.Spring.prototype = {
              /* EXTERNAL CHANGE TO CODE 
               * Modified offset value in maxx and minx for more appropriate
               * cushion from side edges (originally both set to 0.6) */
-            if(x > maxx) maxx = x + 2.0;
-            if(x < minx) minx = x - 1.0;
+            if(x > maxx) maxx = x + 0.6;
+            if(x < minx) minx = x - 0.6;
             if(y > maxy) maxy = y + 0.6;
             if(y < miny) miny = y - 0.6;
             
