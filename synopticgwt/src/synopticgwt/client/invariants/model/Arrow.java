@@ -183,7 +183,7 @@ public class Arrow implements Serializable {
     }
     
     public boolean arrowSrcIsTopLeft() {
-        return body.getY1() < body.getY2();
+        return body.pathSrcIsTopLeft();
     }
     
     public double getCenterX() {

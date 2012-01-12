@@ -192,13 +192,6 @@ public class SynopticGWT implements EntryPoint {
         // remove it when any one of the other tabs is clicked.
         Window.addResizeHandler(new ModelResizeHandler(tabPanel.getTabBar(),
                 modelTab, 200));
-        
-        /* 
-         * Handler for redrawing invariants when invariants tab is selected and
-         * window is resized
-         */
-        Window.addResizeHandler(new InvariantsResizeHandler(tabPanel.getTabBar(),
-                invTab));
 
         // Check whether or not to show the welcome screen.
         if (WelcomePopUp.showWelcome()) {

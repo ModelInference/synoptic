@@ -55,6 +55,9 @@ public class InvariantsGraph {
     public static final int EVENT_COLUMNS = 3;
     
     public static final int ARROW_LABEL_BUFFER = 20;
+    
+    private int resHeight;
+    private int resWidth;
 
     /** Wrapped raphael canvas */
     private Paper paper;
@@ -111,6 +114,8 @@ public class InvariantsGraph {
         this.apInvs = new ArrayList<TOInvariant>();
         this.afbyInvs = new ArrayList<TOInvariant>();
         this.nfbyInvs = new ArrayList<TOInvariant>();
+        this.resHeight = -1;
+        this.resWidth = -1;
     }
 
     /**
@@ -247,6 +252,11 @@ public class InvariantsGraph {
      * @param width
      */
     public void resize(int paperHeight, int paperWidth) {
+        if (paperHeight == resHeight && paperWidth == resWidth) {
+            return;
+        }
+        resHeight = paperHeight;
+        resWidth = paperWidth;
         
         paper.setSize(paperWidth, paperHeight);
         
@@ -302,6 +312,12 @@ public class InvariantsGraph {
             double height = inv.getHeight();
             double sx = targetWidth / width;
             double sy = targetHeight / height;
+            if (Double.isNaN(sy)) {
+                sy = 1.0;
+            }
+            System.out.println("width: " + width + ", height: " + height);
+            System.out.println("targetwidth: " + targetWidth + ", targetheight: " + targetHeight);
+            System.out.println("sx: " + sx + ", sy: " + sy);
             
             inv.scale(sx, sy);
             
@@ -334,8 +350,8 @@ public class InvariantsGraph {
             int targetY = maxHeight / 2 + i *
                     (maxHeight + MIN_VERTICAL_LABEL_BUFFER);
             
-            double initialX = event.getX();
-            double initialY = event.getY();
+            double initialX = event.getBBoxX();
+            double initialY = event.getBBoxY();
             
             double dx = targetX - initialX;
             double dy = targetY - initialY;

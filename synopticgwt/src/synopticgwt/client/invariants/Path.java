@@ -21,15 +21,8 @@ public class Path implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	/** Wrapper for canvas this path is drawn on */
+	private boolean pathSrcIsTopLeft;
     private Paper paper;
-    /** origin x coordinate */
-    private double x1;
-    /** origin y coordinate */
-    private double y1;
-    /** terminal x coordinate */
-    private double x2;
-    /** terminal y coordinate */
-    private double y2;
     /** Raphael path */
     private JavaScriptObject path;
 
@@ -43,10 +36,7 @@ public class Path implements Serializable {
      * @param paper Raphael canvas wrapper
      */
     public Path(double x1, double y1, double x2, double y2, Paper paper) {
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
+        this.pathSrcIsTopLeft = y1 < y2;
         this.paper = paper;
         this.path = constructPath(x1, y1, x2, y2, paper.getPaper());
     }
@@ -133,52 +123,19 @@ public class Path implements Serializable {
     public native void translate(double dx, double dy) /*-{
         var path = this.@synopticgwt.client.invariants.Path::path;
         path.translate(dx, dy);
-        this.@synopticgwt.client.invariants.Path::x1 += dx;
-        this.@synopticgwt.client.invariants.Path::y1 += dy;
-        this.@synopticgwt.client.invariants.Path::x2 += dx;
-        this.@synopticgwt.client.invariants.Path::y2 += dy;
     }-*/;
-    
-    /** 
-     * Scales path by cx and cy
-     * @param cx horizontal scale factor
-     * @param cy vertical scale factor
-     */
-    public void scale(double sx, double sy) {
-        // Need to eliminate endpoint data redundancy so this isn't necessary
-        double initialHeight = getBBoxHeight();
-        double initialWidth = getBBoxWidth();
-        
-        scaleJS(sx, sy);
-        
-        double finalHeight = getBBoxHeight();
-        double finalWidth = getBBoxWidth();
-        
-        double heightDiff = finalHeight - initialHeight;
-        double widthDiff = finalWidth - initialWidth;
-        
-        x1 -= widthDiff / 2;
-        x2 += widthDiff / 2;
-        
-        if (pathSrcIsTopLeft()) {
-            y1 -= heightDiff / 2;
-            y2 += heightDiff / 2;
-        } else {
-            y1 += heightDiff / 2;
-            y2 -= heightDiff / 2;
-        }
-    }
     
     /** 
      * Scales path by cx and cy, scales out from center of path
      * @param cx horizontal scale factor
      * @param cy vertical scale factor
      */
-    public native void scaleJS(double sx, double sy) /*-{
+    public native void scale(double sx, double sy) /*-{
         var path = this.@synopticgwt.client.invariants.Path::path;
         var bBox = path.getBBox();
-        path.scale(sx, sy, bBox.x + bBox.width / 2, bBox.y + bBox.height / 2);
+        path.scale(sx, sy);
     }-*/;
+    //, bBox.x + bBox.width / 2, bBox.y + bBox.height / 2
     
     /**
      * 
@@ -223,7 +180,6 @@ public class Path implements Serializable {
     public native float getBBoxHeight() /*-{
         var path = this.@synopticgwt.client.invariants.Path::path;
         var BBox = path.getBBox();
-        
         return BBox.height;
     }-*/;
     
@@ -240,22 +196,28 @@ public class Path implements Serializable {
     }-*/;
     
     public double getX1() {
-        return x1;
+        return getBBoxX();
     }
     
     public double getY1() {
-        return y1;
+        if (pathSrcIsTopLeft()) {
+            return getBBoxY();
+        }
+        return getBBoxY() + getBBoxHeight();
     }
     
     public double getX2() {
-        return x2;
+        return getBBoxX() + getBBoxWidth();
     }
     public double getY2() {
-        return y2;
+        if (pathSrcIsTopLeft()) {
+            return getBBoxY() + getBBoxHeight();
+        }
+        return getBBoxY();
     }
     
     public boolean pathSrcIsTopLeft() {
-        return y1 < y2;
+        return pathSrcIsTopLeft;
     }
     
 }

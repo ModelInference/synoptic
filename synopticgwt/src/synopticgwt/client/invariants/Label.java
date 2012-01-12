@@ -146,10 +146,10 @@ public class Label implements Serializable {
     }-*/;
     
     public native float getBBoxY() /*-{
-    var label = this.@synopticgwt.client.invariants.Label::label;
-    var BBox = label.getBBox();
-    return BBox.x;
-}-*/;
+        var label = this.@synopticgwt.client.invariants.Label::label;
+        var BBox = label.getBBox();
+        return BBox.y;
+    }-*/;
     
     /**
      * Returns element height, 0 if element is not rendered
