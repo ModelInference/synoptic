@@ -34,6 +34,16 @@ public class ModelGraphic {
         $wnd.viewLogLines = function(id) {
             modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
         };
+        
+        // Export global add/remove methods for selected nodes (moving 
+        // nodes to model tab).
+       $wnd.addSelectedNode = function(id) {
+           modelTab.@synopticgwt.client.model.ModelTab::addSelectedNode(Ljava/lang/Integer;);
+       };
+       
+       $wnd.removeSelectedNode = function(id) {
+           modelTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(Ljava/lang/Integer;);
+       };
 
         // Create the graph.
         var g = new $wnd.Graph();

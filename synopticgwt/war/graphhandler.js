@@ -15,6 +15,7 @@ var clearSelectedNodes = function() {
     for (var i in selectedDraculaNodes) {
         selectedDraculaNodes[i].attr("fill", "#fa8");
         delete selectedDraculaNodes[i];
+        removeSelectedNode(parseInt(i));
     }
 }
 
@@ -108,9 +109,11 @@ var GRAPH_HANDLER = {
                 if (selectedDraculaNodes[node.id] == undefined) {
                     rect.attr("fill", "blue");
                     selectedDraculaNodes[node.id] = rect;
+                    addSelectedNode(parseInt(node.id));
                 } else {
                     rect.attr("fill", "#fa8");
                     delete selectedDraculaNodes[node.id];
+                    removeSelectedNode(parseInt(node.id));
                 }
             }
         };

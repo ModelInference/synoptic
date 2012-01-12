@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -48,7 +49,10 @@ public class ModelTab extends Tab<DockPanel> {
     // Panels containing all relevant buttons.
     private final HorizontalPanel buttonsPanel = new HorizontalPanel();
     private final VerticalPanel controlsPanel = new VerticalPanel();
-    
+
+    // Maps event node IDs to JavaScriptObjects.
+    private final Set<Integer> selectedNodes = new HashSet<Integer>();
+
     // Model tab widgets:
     private final Button modelRefineButton = new Button("Refine");
     private final Button modelCoarsenButton = new Button("Coarsen");
@@ -94,7 +98,8 @@ public class ModelTab extends Tab<DockPanel> {
 
         // Add tool-tip to LogLineLabel
         TooltipListener tooltip = new TooltipListener(
-                "Click on a node to view log lines.  Shift+Click to select multiple nodes.", 5000, "tooltip");
+                "Click on a node to view log lines.  Shift+Click to select multiple nodes.",
+                5000, "tooltip");
         logLineLabel.addMouseOverHandler(tooltip);
         logLineLabel.addMouseOutHandler(tooltip);
         logPanel.add(logLineLabel);
@@ -436,6 +441,34 @@ public class ModelTab extends Tab<DockPanel> {
             e.printStackTrace();
         }
         // //////////////////////
+    }
+
+    /**
+     * Adds a node as being "selected" to the model tab.s
+     * 
+     * @param nodeID The ID of the selected event node.
+     */
+    public void addSelectedNode(Integer nodeID) {
+        if (nodeID == null)
+            throw new IllegalArgumentException();
+
+        // Add the selected node to the list of all selecetd
+        // nodes.
+        selectedNodes.add(nodeID);
+    }
+
+    /**
+     * Removes a node as being "selected" to the model tab.
+     * 
+     * @param nodeID The ID of the selected event node.
+     */
+    public void removeSelectedNode(Integer nodeID) {
+        if (nodeID == null)
+            throw new IllegalArgumentException();
+
+        // Add the selected node to the list of all selecetd
+        // nodes.
+        selectedNodes.remove(nodeID);
     }
 
     /**
