@@ -268,7 +268,6 @@ Graph.Renderer.Raphael.prototype = {
 
         /* if node has already been drawn, move the nodes */
         if(node.shape) {
-
         	// to move edges along with nodes
         	var updateEdges = function (graph, count, animationDuration) {
         		for (var i in graph.edges) {
@@ -334,10 +333,37 @@ Graph.Renderer.Raphael.prototype = {
         shape.mousedown(this.dragger);
 
         var box = shape.getBBox();
+              
+        var xtrans = Math.round(point[0]-(box.x+box.width/2));
+        var ytrans = Math.round(point[1]-(box.y+box.height/2));
         
-        shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)))
+        shape.translate(xtrans, ytrans);
+        
+        /*/////////////////////////////
+         * External addition to code. Translates appropriately to nodes that
+         * do not completely fit within the canvas side.
+         */////////////////////////////
+        
+        var xcoord = box.x + xtrans;
+        var ycoord = box.y + ytrans;
+        
+        if (xcoord < 0) {
+        	alert(xcoord);
+        	shape.translate(-xcoord, 0);
+        } else if (xcoord + box.width > this.width) {
+        	shape.translate(-(xcoord + box.width - this.width), 0);
+        } else if (ycoord < 0) {
+        	shape.translate(0, -ycoord);
+        } else if (ycoord + box.height > this.height) {
+        	alert(ycoord + box.height);
+        	shape.translate(0, -(ycoord + box.height - this.height));
+        }
+        
+        /*/////////////////////////////
+         * End of additional code. 
+         */////////////////////////////
+        
         //console.log(box,point);
-
         node.hidden || shape.show();
         node.shape = shape;
     },
