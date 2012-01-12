@@ -31,6 +31,9 @@
  *
  /*--------------------------------------------------------------------------*/
 
+/* Padding for self-loops to not display outside canvas bounds. */
+var SelfLoopPadding = 60;
+
 /*
  * Edge Factory
  */
@@ -347,12 +350,16 @@ Graph.Renderer.Raphael.prototype = {
         var xcoord = box.x + xtrans;
         var ycoord = box.y + ytrans;
         
+        // Node extends past left side.
         if (xcoord < 0) {
         	shape.translate(-xcoord, 0);
-        } else if (xcoord + box.width > this.width) {
-        	shape.translate(-(xcoord + box.width - this.width), 0);
+        // Node extends past right side.
+        } else if (xcoord + box.width + SelfLoopPadding > this.width) {
+        	shape.translate(-(xcoord + box.width + SelfLoopPadding - this.width), 0);
+        // Node extends above top side.
         } else if (ycoord < 0) {
         	shape.translate(0, -ycoord);
+        // Node extends below bottom.
         } else if (ycoord + box.height > this.height) {
         	shape.translate(0, -(ycoord + box.height - this.height));
         }
@@ -433,9 +440,6 @@ Graph.Layout.Spring.prototype = {
              *////////////////////////////////////////////////////
              
              // Keeps nodes away from the edges.
-             /* EXTERNAL CHANGE TO CODE 
-              * Modified offset value in maxx and minx for more appropriate
-              * cushion from side edges (originally both set to 0.6) */
             if(x > maxx) maxx = x + 0.6;
             if(x < minx) minx = x - 0.6;
             if(y > maxy) maxy = y + 0.6;
