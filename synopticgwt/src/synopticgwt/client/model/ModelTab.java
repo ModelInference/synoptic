@@ -59,6 +59,7 @@ public class ModelTab extends Tab<DockPanel> {
     private final Button modelGetFinalButton = new Button("Final Model");
     private final Button modelExportDotButton = new Button("Export DOT");
     private final Button modelExportPngButton = new Button("Export PNG");
+    private final Button modelViewPathsButton = new Button("View Paths");
     private FlowPanel graphPanel;
     private LogLinesTable logLinesTable;
     private Label logLineLabel;
@@ -83,10 +84,19 @@ public class ModelTab extends Tab<DockPanel> {
         HorizontalPanel buttonsPanelTwo = new HorizontalPanel();
         buttonsPanelTwo.add(modelExportDotButton);
         buttonsPanelTwo.add(modelExportPngButton);
+
         modelExportDotButton.setWidth("100px");
         modelExportPngButton.setWidth("100px");
         buttonsPanelTwo.setStyleName("buttonPanel");
         controlsPanel.add(buttonsPanelTwo);
+
+        // Third button panel (so far, contains the "view paths" button.
+        HorizontalPanel viewPathsButtonPanel = new HorizontalPanel();
+        viewPathsButtonPanel.add(modelViewPathsButton);
+        
+        modelViewPathsButton.setWidth("200px");
+        viewPathsButtonPanel.setStyleName("buttonPanel");
+        controlsPanel.add(viewPathsButtonPanel);
 
         VerticalPanel logPanel = new VerticalPanel();
         logPanel.setWidth("300px");
@@ -111,6 +121,10 @@ public class ModelTab extends Tab<DockPanel> {
         controlsPanel.add(logPanel);
         panel.add(controlsPanel, DockPanel.WEST);
 
+        // Keep the view paths button disabled until 
+        // nodes have been selected.
+        modelViewPathsButton.setEnabled(false);
+        
         // Coarsening is disabled until refinement is completed.
         modelCoarsenButton.setEnabled(false);
         modelRefineButton.addClickHandler(new ClickHandler() {
@@ -141,6 +155,12 @@ public class ModelTab extends Tab<DockPanel> {
             @Override
             public void onClick(ClickEvent event) {
                 exportPngButtonClick(event);
+            }
+        });
+        modelViewPathsButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                viewSelectedPathsButtonClick(event);
             }
         });
     }
@@ -396,6 +416,20 @@ public class ModelTab extends Tab<DockPanel> {
         // //////////////////////
     }
 
+    /**
+     * TODO Document me!
+     * @param event
+     */
+    public void viewSelectedPathsButtonClick(ClickEvent event) {
+        try {
+            // TODO Query the server for paths through the selected
+            // nodes.
+
+        } catch (Exception ex) {
+            // TODO Inform the user of this error if it happens.
+        }
+    }
+
     /** Called when the call to retrieve final model succeeded. */
     public void getFinalModelSuccess(GWTGraph graph) {
         showGraph(graph);
@@ -446,29 +480,39 @@ public class ModelTab extends Tab<DockPanel> {
     /**
      * Adds a node as being "selected" to the model tab.s
      * 
-     * @param nodeID The ID of the selected event node.
+     * @param nodeID
+     *            The ID of the selected event node.
      */
-    public void addSelectedNode(Integer nodeID) {
-        if (nodeID == null)
-            throw new IllegalArgumentException();
-
+    public void addSelectedNode(int nodeID) {
         // Add the selected node to the list of all selecetd
         // nodes.
         selectedNodes.add(nodeID);
+        toggleViewPathsButton();
     }
 
     /**
      * Removes a node as being "selected" to the model tab.
      * 
-     * @param nodeID The ID of the selected event node.
+     * @param nodeID
+     *            The ID of the selected event node.
      */
-    public void removeSelectedNode(Integer nodeID) {
-        if (nodeID == null)
-            throw new IllegalArgumentException();
-
+    public void removeSelectedNode(int nodeID) {
         // Add the selected node to the list of all selecetd
         // nodes.
         selectedNodes.remove(nodeID);
+        toggleViewPathsButton();
+    }
+    
+    /**
+     * A simple method that checks to see if one or more 
+     * nodes have been selected.  If so, the button for viewing
+     * paths is activated.  If not, this button is deactivated.
+     */
+    private void toggleViewPathsButton() {
+        if (selectedNodes.size() > 0)
+            modelViewPathsButton.setEnabled(true);
+        else
+            modelViewPathsButton.setEnabled(false);
     }
 
     /**

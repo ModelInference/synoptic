@@ -38,11 +38,11 @@ public class ModelGraphic {
         // Export global add/remove methods for selected nodes (moving 
         // nodes to model tab).
        $wnd.addSelectedNode = function(id) {
-           modelTab.@synopticgwt.client.model.ModelTab::addSelectedNode(Ljava/lang/Integer;);
+           modelTab.@synopticgwt.client.model.ModelTab::addSelectedNode(I)(id);
        };
        
        $wnd.removeSelectedNode = function(id) {
-           modelTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(Ljava/lang/Integer;);
+           modelTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(id);
        };
 
         // Create the graph.

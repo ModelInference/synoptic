@@ -643,4 +643,16 @@ public class SynopticService extends RemoteServiceServlet implements
                 + fileName);
         return config.modelExportsURLprefix + fileName + ".png";
     }
+    
+    
+    /**
+     * TODO Comment me (also, this is currently a void method.  It will be changed
+     * once an appropriate data structure is decided upon for exporting the paths).
+     * @param selectedNodes
+     * @throws Exception
+     */
+    public void getPathsThroughNodes(Set<Integer> selectedNodes) throws Exception {
+        retrieveSessionState();
+        // TODO Get paths through the selected nodes.
+    }
 }
