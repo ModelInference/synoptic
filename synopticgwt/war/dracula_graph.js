@@ -615,10 +615,7 @@ Graph.Layout.Stable.prototype = {
             if (node.label !== this.terminal) {
             	node.layoutPosX = 0;
             } else {
-            	/* EXTERNAL CHANGE TO ORIGINAL CODE 
-            	 * Modified this value from 10 to 20 to prevent terminal node from
-            	 * extending past right side of canvas */
-            	node.layoutPosX = 20;
+            	node.layoutPosX = 10;
             }
             node.layoutPosY = 0;
             node.layoutForceX = 0;
