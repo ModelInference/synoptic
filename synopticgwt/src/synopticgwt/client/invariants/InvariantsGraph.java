@@ -55,9 +55,6 @@ public class InvariantsGraph {
     public static final int EVENT_COLUMNS = 3;
     
     public static final int ARROW_LABEL_BUFFER = 20;
-    
-    private int resHeight;
-    private int resWidth;
 
     /** Wrapped raphael canvas */
     private Paper paper;
@@ -114,8 +111,6 @@ public class InvariantsGraph {
         this.apInvs = new ArrayList<TOInvariant>();
         this.afbyInvs = new ArrayList<TOInvariant>();
         this.nfbyInvs = new ArrayList<TOInvariant>();
-        this.resHeight = -1;
-        this.resWidth = -1;
     }
 
     /**
@@ -252,13 +247,6 @@ public class InvariantsGraph {
      * @param width
      */
     public void resize(int paperHeight, int paperWidth) {
-        if (paperHeight == resHeight && paperWidth == resWidth) {
-            return;
-        }
-        resHeight = paperHeight;
-        resWidth = paperWidth;
-        
-        paper.setSize(paperWidth, paperHeight);
         
         int arrowColumns = EVENT_COLUMNS - 1;
         int labelWidth = paperWidth / (EVENT_COLUMNS + arrowColumns);
@@ -268,20 +256,24 @@ public class InvariantsGraph {
         int arrowWidth = labelWidth;
         
         int rows = eventTypesList.size();
-        int labelHeight = (paperHeight - (rows - 1) * MIN_VERTICAL_LABEL_BUFFER) / rows;
+        int rowBuffers = rows - 1;
+        int rowBufferHeight = rowBuffers * MIN_VERTICAL_LABEL_BUFFER;
+        int labelHeight = (paperHeight - rowBufferHeight) / rows;
         if (labelHeight < MIN_LABEL_HEIGHT) {
             labelHeight = MIN_LABEL_HEIGHT;
         }
         
+        paper.setSize((arrowWidth * arrowColumns) + (labelWidth * EVENT_COLUMNS), 
+                (labelHeight * rows) + rowBufferHeight);
+        
         // Maybe the event columns should go in a data structure so we don't
         // have to do things like this
         translateAndScaleEvents(leftEventCol, labelHeight, labelWidth, 
-                labelWidth / 2 + 0 * (labelWidth + arrowWidth));
-        
+                labelWidth / 2);
         translateAndScaleEvents(midEventCol, labelHeight, labelWidth,
-                labelWidth / 2 + 1 * (labelWidth + arrowWidth));
+                (labelWidth / 2) + (labelWidth + arrowWidth));
         translateAndScaleEvents(rightEventCol, labelHeight, labelWidth,
-                labelWidth / 2 + 2 * (labelWidth + arrowWidth));
+                (labelWidth / 2) + 2 * (labelWidth + arrowWidth));
         
         translateAndScaleArrows(apInvs, arrowWidth,
                 arrowWidth / 2 + 1 * (labelWidth + ARROW_LABEL_BUFFER) +
@@ -305,6 +297,19 @@ public class InvariantsGraph {
             
             TOInvariant inv = arrows.get(i);
             
+            double targetY;
+            double eventYMidpoint = inv.getEventHeightDifference() / 2;
+            if (inv.arrowSrcIsTopLeft()) {
+                targetY = inv.getSrcY() + eventYMidpoint;
+            } else {
+                targetY = inv.getSrcY() - eventYMidpoint;
+            }
+            
+            double dx = targetX - inv.getX();
+            double dy = targetY - inv.getY();
+            inv.translate(dx, dy);
+            
+            
             double targetWidth = maxWidth - 2 * ARROW_LABEL_BUFFER;
             double targetHeight = inv.getEventHeightDifference();
             
@@ -320,18 +325,6 @@ public class InvariantsGraph {
             System.out.println("sx: " + sx + ", sy: " + sy);
             
             inv.scale(sx, sy);
-            
-            double targetY;
-            double eventYMidpoint = inv.getEventHeightDifference() / 2;
-            if (inv.arrowSrcIsTopLeft()) {
-                targetY = inv.getSrcY() + eventYMidpoint;
-            } else {
-                targetY = inv.getSrcY() - eventYMidpoint;
-            }
-            
-            double dx = targetX - inv.getX();
-            double dy = targetY - inv.getY();
-            inv.translate(dx, dy);
             
         }
         
@@ -358,7 +351,7 @@ public class InvariantsGraph {
             
             event.translate(dx, dy);
             
-            
+            /*
             double sy = maxHeight;// - event.getHeight();
             double sx = maxWidth;// - event.getWidth();
             
@@ -368,6 +361,7 @@ public class InvariantsGraph {
             } else {
                 event.scale(sx, sx);
             }
+            */
             
             
         }
