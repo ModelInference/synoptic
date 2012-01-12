@@ -132,7 +132,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             throw new IllegalStateException("Invariants uninitialized");
         }
         
-        int height = Window.getClientHeight() - (exportInvsLink.getOffsetHeight() + 150);
+        int height = Window.getClientHeight() - 150;
         int width = Window.getClientWidth() * 2 / 3;
         iGraph.resize(height, width);
     }

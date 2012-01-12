@@ -25,6 +25,8 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
     /** GWTInvariant object that this represents */
     private GWTInvariant GWTinv;
     private InvariantGridLabel iGridLabel;
+    
+    public int one = 1;
 
     private boolean visible;
 
@@ -141,11 +143,11 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
     }
     
     public double getSrcY() {
-        return src.getY();
+        return src.getBBoxY();
     }
     
     public double getDstY() {
-        return dst.getY();
+        return dst.getBBoxX();
     }
     
     public double getX() {
@@ -161,7 +163,7 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
      * @return Absolute difference between event y center coordinates
      */
     public double getEventHeightDifference() {
-        return Math.abs(dst.getY() - src.getY());
+        return Math.abs(dst.getBBoxY() - src.getBBoxY());
     }
     
     public void translate(double dx, double dy) {
