@@ -125,17 +125,21 @@ public class Path implements Serializable {
         path.translate(dx, dy);
     }-*/;
     
+    public void scale(double targetWidth, double targetHeight) {
+        scaleJS(1.0, 1.0);
+        double sx = targetWidth / getBBoxWidth();
+        double sy = targetHeight / getBBoxHeight();
+        scaleJS(sx, sy);
+    }
+    
     /** 
-     * Scales path by cx and cy, scales out from center of path
-     * @param cx horizontal scale factor
-     * @param cy vertical scale factor
+     * Scales path by cx and cy
      */
-    public native void scale(double sx, double sy) /*-{
+    private native void scaleJS(double sx, double sy) /*-{
         var path = this.@synopticgwt.client.invariants.Path::path;
         var bBox = path.getBBox();
         path.scale(sx, sy);
     }-*/;
-    //, bBox.x + bBox.width / 2, bBox.y + bBox.height / 2
     
     /**
      * 
@@ -182,8 +186,6 @@ public class Path implements Serializable {
         var BBox = path.getBBox();
         return BBox.height;
     }-*/;
-    
-    //alert("height: " + BBox.height);
     
     /**
      * 

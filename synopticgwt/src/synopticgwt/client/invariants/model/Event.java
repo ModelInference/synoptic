@@ -78,11 +78,11 @@ public class Event implements Serializable, MouseHover {
         return label.getY();
     }
     
-    public double getBBoxX() {
+    public double getCenterX() {
         return label.getCenterX();
     }
     
-    public double getBBoxY() {
+    public double getCenterY() {
         return label.getCenterY();
     }
 
@@ -182,8 +182,8 @@ public class Event implements Serializable, MouseHover {
         label.translate(dx, dy);
     }
     
-    public void scale(double sx, double sy) {
-        label.scale(sx, sy);
+    public void scale(double targetWidth, double targetHeight) {
+        label.scaleJS(targetWidth, targetHeight);
     }
     
     public double getHeight() {
@@ -192,6 +192,14 @@ public class Event implements Serializable, MouseHover {
     
     public double getWidth() {
         return label.getWidth();
+    }
+    
+    public int getFontSize() {
+        return label.getFontSize();
+    }
+
+    public void setFont(int fontSize) {
+        label.setFontSize(fontSize);
     }
 
 }
