@@ -134,28 +134,20 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
         highlightOffArrow();
     }
     
-    public double getHeight() {
-        return arrow.getHeight();
-    }
-    
-    public double getWidth() {
-        return arrow.getWidth();
-    }
-    
     public double getSrcY() {
-        return src.getBBoxY();
+        return src.getCenterY();
     }
     
     public double getDstY() {
-        return dst.getBBoxY();
+        return dst.getCenterY();
     }
     
-    public double getX() {
-        return arrow.getCenterX();
+    public double getBBoxX() {
+        return arrow.getBBoxX();
     }
     
-    public double getY() {
-        return arrow.getCenterY();
+    public double getBBoxY() {
+        return arrow.getBBoxY();
     }
     
     /**
@@ -163,15 +155,15 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
      * @return Absolute difference between event y center coordinates
      */
     public double getEventHeightDifference() {
-        return Math.abs(dst.getBBoxY() - src.getBBoxY());
+        return Math.abs(dst.getCenterY() - src.getCenterY());
     }
     
     public void translate(double dx, double dy) {
         arrow.translate(dx, dy);
     }
     
-    public void scale(double sx, double sy) {
-        arrow.scale(sx, sy);
+    public void scale(double targetWidth, double targetHeight) {
+        arrow.scale(targetWidth, targetHeight);
     }
     
     public boolean arrowSrcIsTopLeft() {

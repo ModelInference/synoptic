@@ -158,11 +158,11 @@ public class Arrow implements Serializable {
         negativeHead.translate(dx, dy);
     }
     
-    public void scale(double cx, double cy) {
+    public void scale(double targetWidth, double targetHeight) {
         double initialX2 = body.getX2();
         double initialY2 = body.getY2();
 
-        body.scale(cx, cy);
+        body.scale(targetWidth, targetHeight);
         
         double targetX2 = body.getX2();
         double targetY2 = body.getY2();
@@ -192,5 +192,13 @@ public class Arrow implements Serializable {
     
     public double getCenterY() {
         return body.getCenterY();
+    }
+    
+    public double getBBoxX() {
+        return body.getBBoxX();
+    }
+    
+    public double getBBoxY() {
+        return body.getBBoxY();
     }
 }

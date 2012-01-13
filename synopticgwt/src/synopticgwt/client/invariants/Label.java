@@ -66,7 +66,7 @@ public class Label implements Serializable {
             String fillColor, String text, JavaScriptObject canvas) /*-{
 		var rLabel = canvas.text(xCoord, yCoord, text);
 		rLabel.attr({
-			'font-size' : font + "px",
+			'font-size' : font,
 			fill : fillColor
 		});
 		return rLabel;
@@ -221,16 +221,31 @@ public class Label implements Serializable {
         label.translate(dx, dy);
     }-*/;
     
+    public void scale(double targetWidth, double targetHeight) {
+        scaleJS(1.0, 1.0);
+        double sx = targetWidth / getWidth();
+        double sy = targetHeight / getHeight();
+        scaleJS(sx, sy);
+    }
+    
     /**
      * Scales label by sx and sy, scales out from center of label
      * @param sx horizontal scale factor
      * @param sy vertical scale factor
      */
-    public native void scale(double sx, double sy) /*-{
+    public native void scaleJS(double sx, double sy) /*-{
         var label = this.@synopticgwt.client.invariants.Label::label;
         var bBox = label.getBBox();
         label.scale(sx, sy);
     }-*/;
-
-    //, bBox.x + bBox.width / 2, bBox.y + bBox.height / 2
+    
+    public native void setFontSize(int font) /*-{
+        var label = this.@synopticgwt.client.invariants.Label::label;
+        label.attr('font-size', font);
+    }-*/;
+    
+    public native int getFontSize()  /*-{
+        var label = this.@synopticgwt.client.invariants.Label::label;
+        return label.attr('font-size');
+    }-*/;
 }
