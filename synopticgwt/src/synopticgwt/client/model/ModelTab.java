@@ -424,6 +424,7 @@ public class ModelTab extends Tab<DockPanel> {
         try {
             // TODO Query the server for paths through the selected
             // nodes.
+            
 
         } catch (Exception ex) {
             // TODO Inform the user of this error if it happens.
