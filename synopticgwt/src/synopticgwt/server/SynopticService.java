@@ -10,11 +10,13 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -42,10 +44,13 @@ import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
+import synoptic.model.Transition;
 import synoptic.model.WeightedTransition;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
+import synoptic.model.interfaces.ITransition;
 import synopticgwt.client.ISynopticService;
+import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariant;
@@ -643,16 +648,76 @@ public class SynopticService extends RemoteServiceServlet implements
                 + fileName);
         return config.modelExportsURLprefix + fileName + ".png";
     }
-    
-    
+
     /**
-     * TODO Comment me (also, this is currently a void method.  It will be changed
-     * once an appropriate data structure is decided upon for exporting the paths).
+     * TODO Comment me (also, this is currently a void method. It will be
+     * changed once an appropriate data structure is decided upon for exporting
+     * the paths).
+     * 
      * @param selectedNodes
      * @throws Exception
      */
-    public void getPathsThroughNodes(Set<Integer> selectedNodes) throws Exception {
+    public void getPathsThroughNodes(Set<Integer> selectedNodes)
+            throws Exception {
         retrieveSessionState();
-        // TODO Get paths through the selected nodes.
+
+        // The list of each set of partition IDs
+        List<Set<Integer>> partitionIDs = new ArrayList<Set<Integer>>();
+        // Temporary partition IDs to be added to the overall list
+        // (built in the following for loop).
+        Set<Integer> tempIDs;
+        
+        // Loop over all the partitions, and add the 
+        // (and their respective trace IDs from events) to the overall list.
+        for (Partition p : pGraph.getNodes()) {
+            if (selectedNodes.contains(p.hashCode())) {
+                tempIDs = new HashSet<Integer>();
+                for (EventNode e : p.getEventNodes()) {
+                    if (e.getTraceID() != 0) {
+                        tempIDs.add(e.getTraceID());
+                    }
+                }
+                
+                // If there were any IDs added to tempIDs
+                // add them to the overall list.
+                if (!tempIDs.isEmpty())
+                    partitionIDs.add(tempIDs);
+            }
+        }
+        
+        if (partitionIDs.isEmpty())
+            // TODO Let the user know specifically what happened
+            // i.e. "No events observed" or something of the like.
+            return;
+        else {
+            // Filter through all of the IDs and keep only
+            // the ones that intersect with the selected nodes.
+            Set<Integer> intersectionOfIDs = partitionIDs.get(0);
+            for (int i = 1; i < partitionIDs.size(); i++) {
+                intersectionOfIDs.retainAll(partitionIDs.get(i));
+            }
+            
+            // If there are no traces through the selected
+            // partitions.
+            if (intersectionOfIDs.isEmpty()) {
+                // TODO: Do something about there not being any
+                // traces through the selected nodes.
+                // perhaps let the user know somehow.
+            } else {
+                return;
+            }
+        }
+    }
+
+    /**
+     * Gets every node ID and adds a corresponding edge to the node.
+     * @param nodeIDs
+     * @return
+     */
+    private Map<Integer, Set<GWTEdge>> getPaths(Set<Integer> eventIDs) {
+        
+        // TODO Map a the IDs to a set of edges.
+        
+        return null;
     }
 }
