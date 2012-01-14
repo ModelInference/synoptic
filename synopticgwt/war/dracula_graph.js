@@ -289,19 +289,11 @@ Graph.Renderer.Raphael.prototype = {
         	
         	shape.translate(xtrans, ytrans);
         	
-        	var xnewpos = box.x + xtrans;
-        	var ynewpos = box.y + ytrans;
-        	if (xnewpos < 0) {
-        		shape.translate(-xnewpos, 0);
-        	} else if ((xnewpos + box.width + SelfLoopPadding) > this.width) {
-        		shape.translate(-(xnewpos + box.width + SelfLoopPadding - this.width), 0);
-        	}
+        	var xnew = box.x + xtrans;
+        	var ynew = box.y + ytrans;
         	
-        	if (ynewpos < 0) {
-        		shape.translate(0, -ynewpos);
-        	} else if ((ynewpos + box.height) > this.height) {
-        		shape.translate(0, -(ynewpos + box.height - this.height));
-        	}
+        	/* Calling a function that is not a part of original library */
+            translateInsideCanvas(shape, box, xnew, ynew, this.width, this.height);
         	
         	//shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)));
 
@@ -362,31 +354,11 @@ Graph.Renderer.Raphael.prototype = {
         
         shape.translate(xtrans, ytrans);
         
-        /*/////////////////////////////
-         * External addition to code. Translates appropriately to nodes that
-         * do not completely fit within the canvas side.
-         */////////////////////////////
+        var xnew = box.x + xtrans;
+        var ynew = box.y + ytrans;
         
-        var xcoord = box.x + xtrans;
-        var ycoord = box.y + ytrans;
-
-        // Node extends past left side.
-        if (xcoord < 0) {
-        	shape.translate(-xcoord, 0);
-        // Node extends past right side.
-        } else if (xcoord + box.width + SelfLoopPadding > this.width) {
-        	shape.translate(-(xcoord + box.width + SelfLoopPadding - this.width), 0);
-        // Node extends above top side.
-        } else if (ycoord < 0) {
-        	shape.translate(0, -ycoord);
-        // Node extends below bottom.
-        } else if (ycoord + box.height > this.height) {
-        	shape.translate(0, -(ycoord + box.height - this.height));
-        }
-        
-        /*/////////////////////////////
-         * End of additional code. 
-         */////////////////////////////
+        /* Calling a function that is not a part of original library */
+        translateInsideCanvas(shape, box, xnew, ynew, this.width, this.height);
         
         //console.log(box,point);
         node.hidden || shape.show();
@@ -726,6 +698,28 @@ Graph.Layout.Ordered.prototype = {
  */
 
 function log(a) {console.log&&console.log(a);}
+
+/*
+ * External addition to library. Translates appropriately to nodes that
+ * do not completely fit within the canvas side.
+ */
+function translateInsideCanvas(shape, box, x, y, w, h) {
+	 // Node extends past left side.
+    if (x < 0) {
+    	shape.translate(-x, 0);
+    // Node extends past right side.
+    } else if ((x + box.width + SelfLoopPadding) > w) {
+    	shape.translate(-(x + box.width + SelfLoopPadding - w), 0);
+    }
+    
+    // Node extends above top side.
+    if (y < 0) {
+    	shape.translate(0, -y);
+    // Node extends below bottom.
+    } else if ((y + box.height) > h) {
+    	shape.translate(0, -(y + box.height - h));
+    }
+}
 
 /*
  * Raphael Tooltip Plugin
