@@ -283,7 +283,27 @@ Graph.Renderer.Raphael.prototype = {
         	// new destination
         	var shape = node.render(this.r, node).hide();
         	var box = shape.getBBox();
-        	shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)));
+        	        	
+        	var xtrans = Math.round(point[0]-(box.x+box.width/2));
+        	var ytrans = Math.round(point[1]-(box.y+box.height/2));
+        	
+        	shape.translate(xtrans, ytrans);
+        	
+        	var xnewpos = box.x + xtrans;
+        	var ynewpos = box.y + ytrans;
+        	if (xnewpos < 0) {
+        		shape.translate(-xnewpos, 0);
+        	} else if ((xnewpos + box.width + SelfLoopPadding) > this.width) {
+        		shape.translate(-(xnewpos + box.width + SelfLoopPadding - this.width), 0);
+        	}
+        	
+        	if (ynewpos < 0) {
+        		shape.translate(0, -ynewpos);
+        	} else if ((ynewpos + box.height) > this.height) {
+        		shape.translate(0, -(ynewpos + box.height - this.height));
+        	}
+        	
+        	//shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)));
 
         	// animate all items in this node's set
         	for (var i = 0; i < node.shape.items.length; i++) {
@@ -349,7 +369,7 @@ Graph.Renderer.Raphael.prototype = {
         
         var xcoord = box.x + xtrans;
         var ycoord = box.y + ytrans;
-        
+
         // Node extends past left side.
         if (xcoord < 0) {
         	shape.translate(-xcoord, 0);
