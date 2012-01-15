@@ -2,6 +2,7 @@ package synopticgwt.client.model;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -33,7 +34,6 @@ import synopticgwt.shared.LogLine;
  * model.
  */
 public class ModelTab extends Tab<DockPanel> {
-
     // TODO: INITIAL_LABEL and TERMINAL_LABEL should not be hardcoded. Instead,
     // the EventType class should be ported to GWT, or a mirror type should be
     // created which would have the notion of initial/terminal based on
@@ -48,7 +48,7 @@ public class ModelTab extends Tab<DockPanel> {
     // Panels containing all relevant buttons.
     private final HorizontalPanel buttonsPanel = new HorizontalPanel();
     private final VerticalPanel controlsPanel = new VerticalPanel();
-
+    
     // Model tab widgets:
     private final Button modelRefineButton = new Button("Refine");
     private final Button modelCoarsenButton = new Button("Coarsen");
@@ -94,7 +94,7 @@ public class ModelTab extends Tab<DockPanel> {
 
         // Add tool-tip to LogLineLabel
         TooltipListener tooltip = new TooltipListener(
-                "Double-click on a node to view log lines", 5000, "tooltip");
+                "Click on a node to view log lines.  Shift+Click to select multiple nodes.", 5000, "tooltip");
         logLineLabel.addMouseOverHandler(tooltip);
         logLineLabel.addMouseOutHandler(tooltip);
         logPanel.add(logLineLabel);
@@ -264,14 +264,15 @@ public class ModelTab extends Tab<DockPanel> {
     public int getModelGraphicWidth() {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
-        return Window.getClientWidth() - (logLineLabel.getOffsetWidth() + 50);
+        return Window.getClientWidth() - (logLineLabel.getOffsetWidth() + 100);
     }
 
     /** Returns the correct height for the model graphic in the model tab. */
     public int getModelGraphicHeight() {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
-        return Window.getClientHeight() - 100;
+        /* The 200 offset represents the top Synoptic header */
+        return Window.getClientHeight() - 200;
     }
 
     /**
