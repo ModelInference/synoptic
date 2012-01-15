@@ -3,10 +3,20 @@
  * display.
  */
 
-// The model node that is currently selected (has a different  color).
-// This node either has been single clicked, OR double clicked last.
-var currentSelectedRect = ""
-var currentSelectedNode = ""
+// An assocative array of event node IDs mapped to raphael rectangle objects.
+var selectedDraculaNodes = {};
+
+/*
+ * A function for clearing the state of the selected nodes.
+ * each node is set back to the default color and then removed
+ * from the set of selected nodes.
+ */
+var clearSelectedNodes = function() {
+    for (var i in selectedDraculaNodes) {
+        selectedDraculaNodes[i].attr("fill", "#fa8");
+        delete selectedDraculaNodes[i];
+    }
+}
 
 var GRAPH_HANDLER = {
     // array of graph nodes
@@ -67,30 +77,42 @@ var GRAPH_HANDLER = {
             });
         }
 
-        // Add an onclick event to the rectangle to have it change color to
-        // "blue".
-        // Also, whenever a node is made blue, the node that was clicked on
-        // previously
-        // is turned back to its original color. We keep track of previously
-        // clicked
-        // node with the currentSelectedRect var.
-        rect.node.onmouseup = function() {
-            if (currentSelectedRect != "") {
-                if (currentSelectedNode.label == "INITIAL"
-                        || currentSelectedNode.label == "TERMINAL") {
-                    currentSelectedRect.attr("fill", "#808080");
-                } else {
-                    currentSelectedRect.attr("fill", "#fa8");
+        // Adds a function to the given rectangle so that, when clicked,
+        // the associated event node is "selected" (shown as blue when clicked)
+        // and then the log lines associated with the event are shown in the
+        // the model tab (grabbed via a RPC).
+        //
+        // When clicking the same node again, the node stays selected. When
+        // clicking
+        // a different node, the previous node is deselected, and the new node
+        // is
+        // selected.
+        //
+        // The function will also detect shift events, and toggle
+        // more than one node if the shift key is being
+        // held down. If the node has been clicked without
+        // the shift key being held down all nodes except for the node clicked
+        // will be deselected. Holding shift and clicking a selected node
+        // will deselect it.
+        rect.node.onmouseup = function(event) {
+            if (node.label != "INITIAL" && node.label != "TERMINAL") {
+                // TODO: When selecting a node to view log lines that has
+                // already
+                // been selected (and the log lines are currently in view),
+                // don't bother making another RPC (since it's unnecessary).
+                if (!event.shiftKey) {
+                    clearSelectedNodes();
+                    viewLogLines(parseInt(node.id));
                 }
-
+                
+                if (selectedDraculaNodes[node.id] == undefined) {
+                    rect.attr("fill", "blue");
+                    selectedDraculaNodes[node.id] = rect;
+                } else {
+                    rect.attr("fill", "#fa8");
+                    delete selectedDraculaNodes[node.id];
+                }
             }
-            currentSelectedRect = rect;
-            currentSelectedNode = node;
-            if (currentSelectedNode.label != "INITIAL"
-            	&& currentSelectedNode.label != "TERMINAL") {
-            	viewLogLines(parseInt(node.id));
-            }
-            rect.attr("fill", "blue");
         };
 
         text = canvas.text(node.point[0] + 30, node.point[1] + 10, node.label)
