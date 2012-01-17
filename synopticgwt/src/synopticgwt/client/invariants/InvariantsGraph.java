@@ -263,10 +263,13 @@ public class InvariantsGraph {
             labelHeight = MIN_LABEL_HEIGHT;
         }
         
-        paper.setSize((arrowWidth * arrowColumns) + (labelWidth * EVENT_COLUMNS), 
+        Double widthPointer = 0.0 + labelWidth;
+        int fontSize = getMaxFontSize(labelHeight, widthPointer, leftEventCol);
+        
+        paper.setSize((arrowWidth * arrowColumns) + (widthPointer * EVENT_COLUMNS), 
                 (labelHeight * rows) + rowBufferHeight + timeArrowBuffer);
         
-        int fontSize = getMaxFontSize(labelHeight, labelWidth, leftEventCol);
+        
         
         // Maybe the event columns should go in a data structure so we don't
         // have to do things like this
@@ -284,7 +287,7 @@ public class InvariantsGraph {
         translateAndScaleArrows(nfbyInvs, arrowWidth,
                 2 * labelWidth + ARROW_LABEL_BUFFER + arrowWidth);
         
-        double timeArrowTargetX = paperWidth / 2;
+        double timeArrowTargetX = (labelWidth / 2) + (labelWidth + arrowWidth);
         double timeArrowTargetY = (labelHeight * rows) + rowBufferHeight +  timeArrowBuffer / 2;
         double timeArrowdx = timeArrowTargetX - timeArrow.getCenterX();
         double timeArrowdy = timeArrowTargetY - timeArrow.getCenterY();
@@ -299,7 +302,8 @@ public class InvariantsGraph {
     }
     
     // This is a bottleneck
-    public int getMaxFontSize(double maxHeight, double maxWidth, Map<String, Event> typeToEvent) {
+    public int getMaxFontSize(double maxHeight, Double maxWidth, Map<String, Event> typeToEvent) {
+        final int[] fonts = {20, 30, 40, 50};
         
         String longestType = "";
         
@@ -319,23 +323,36 @@ public class InvariantsGraph {
         boolean heightGreater = longestEvent.getHeight() > maxHeight;
         boolean widthGreater = longestEvent.getWidth() > maxWidth;
         
-        while (heightGreater || widthGreater) {
-            currentFont--;
-            longestEvent.setFont(currentFont);
-            heightGreater = longestEvent.getHeight() > maxHeight;
-            widthGreater = longestEvent.getWidth() > maxWidth;
+        int i = fonts.length - 1;
+        while ((heightGreater || widthGreater) && i >= 0) {
+            int testFont = fonts[i];
+            if (testFont < currentFont) {
+                currentFont = testFont;
+                longestEvent.setFont(currentFont);
+                heightGreater = longestEvent.getHeight() > maxHeight;
+                widthGreater = longestEvent.getWidth() > maxWidth;
+            }
+            i--;
         }
         
-        while (!heightGreater && !widthGreater) {
-            currentFont++;
-            longestEvent.setFont(currentFont);
-            heightGreater = longestEvent.getHeight() > maxHeight;
-            widthGreater = longestEvent.getWidth() > maxWidth;
-            if (heightGreater || widthGreater) {
-                currentFont--;
+        i = 0;
+        while (!heightGreater && !widthGreater && i < fonts.length) {
+            int testFont = fonts[i];
+            if (testFont > currentFont) {
+                int prevFont = currentFont;
+                currentFont = testFont;
                 longestEvent.setFont(currentFont);
+                heightGreater = longestEvent.getHeight() > maxHeight;
+                widthGreater = longestEvent.getWidth() > maxWidth;
+                if (heightGreater || widthGreater) {
+                    currentFont = prevFont;
+                    longestEvent.setFont(currentFont);
+                }
             }
+            i++;
         }
+        
+        maxWidth = longestEvent.getWidth();
 
         longestEvent.setFont(initialFont);
         return currentFont;

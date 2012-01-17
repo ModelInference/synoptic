@@ -77,7 +77,7 @@ public class Paper implements Serializable {
     /** 
      * Resizes paper element
      */
-    public native void setSize(int width, int height) /*-{
+    public native void setSize(double width, double height) /*-{
         var paper = this.@synopticgwt.client.util.Paper::paper;
         paper.setSize(width, height);
     }-*/;
