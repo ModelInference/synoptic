@@ -133,7 +133,10 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         }
         
         int height = Window.getClientHeight() - 150;
-        int width = Window.getClientWidth() * 2 / 3;
+        int width = Window.getClientWidth() - 50;
+        for (Grid g : labelColumnGrids) {
+            width -= g.getOffsetWidth();
+        }
         iGraph.resize(height, width);
     }
     
