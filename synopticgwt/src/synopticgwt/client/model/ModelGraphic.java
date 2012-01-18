@@ -146,6 +146,15 @@ public class ModelGraphic {
         // Draw the new graph with all of the repositioned nodes.
         rend.draw();
     }-*/;
+    
+    // This is debugging code for the model tab.
+    public static native void printTraceID(int traceID) /*-{
+        $wnd.console.log("TRACE ID: " + traceID);
+    }-*/;
+    
+    public static native void printEdge(String src, String dst) /*-{
+        $wnd.console.log("   EDGE: " + src + " -> " + dst);
+    }-*/;
 
     // </JSNI methods>
     // //////////////////////////////////////////////////////////////////////////

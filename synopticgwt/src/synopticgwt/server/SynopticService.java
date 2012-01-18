@@ -762,7 +762,8 @@ public class SynopticService extends RemoteServiceServlet implements
                     .toString(), connectingTrans.getSource().hashCode());
             GWTNode tTrg = new GWTNode(connectingTrans.getTarget().getEType()
                     .toString(), connectingTrans.getTarget().hashCode());
-            GWTEdge connectTransGWT = new GWTEdge(tSrc, tTrg, 0);
+            GWTEdge nextTransGWT = new GWTEdge(tSrc, tTrg, 0);
+            path.add(nextTransGWT);
             traverse(trans.getTarget(), path);
         }
     }

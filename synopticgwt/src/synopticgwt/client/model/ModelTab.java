@@ -438,6 +438,15 @@ public class ModelTab extends Tab<DockPanel> {
                                     // TODO Show the traces and corresponding
                                     // paths in the client window.
                                     super.onSuccess(paths);
+
+                                    // TODO Remove this debug code.
+                                    for (Integer traceID : paths.keySet()) {
+                                        Set<GWTEdge> edges = paths.get(traceID);
+                                        ModelGraphic.printTraceID(traceID);
+                                        for (GWTEdge edge : edges) {
+                                            ModelGraphic.printEdge(edge.getSrc().toString(), edge.getDst().toString());
+                                        }   
+                                    }
                                 }
                             });
         } catch (Exception ex) {
