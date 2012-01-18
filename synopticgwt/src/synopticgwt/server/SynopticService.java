@@ -650,7 +650,7 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Calculates the paths through all of the node IDs 
+     * Calculates the paths through all of the node IDs
      * 
      * @param selectedNodes
      * @throws Exception
@@ -661,23 +661,20 @@ public class SynopticService extends RemoteServiceServlet implements
 
         // The list of each set of partition IDs
         List<Set<Integer>> partitionIDs = new ArrayList<Set<Integer>>();
-        // Temporary partition IDs to be added to the overall list
-        // (built in the following for loop).
-        Set<Integer> tempIDs;
 
         // Loop over all the partitions, and add the
         // (and their respective trace IDs from events) to the overall list.
         for (Partition p : pGraph.getNodes()) {
             if (selectedNodes.contains(p.hashCode())) {
-                tempIDs = new HashSet<Integer>();
+                // Temporary partition IDs to be added to the overall list
+                // (built in the following for loop).
+                Set<Integer> tempIDs = new HashSet<Integer>();
                 for (EventNode e : p.getEventNodes()) {
                     if (e.getTraceID() != 0) {
                         tempIDs.add(e.getTraceID());
                     }
                 }
 
-                // If there were any IDs added to tempIDs
-                // add them to the overall list.
                 if (!tempIDs.isEmpty())
                     partitionIDs.add(tempIDs);
             }
@@ -709,26 +706,29 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Assigns a path to every traceID. Traverses the graph using DFS, and
-     * assigns a "path" as a set of GWTEdges that can be sent to the client.
+     * Assigns a path to every traceID. Traverses the graph and assigns a "path"
+     * as a set of GWTEdges that can be sent to the client.
      * 
      * @param nodeIDs
      * @return set of edges for each trace ID
      */
-    private Map<Integer, Set<GWTEdge>> getPaths(Set<Integer> selectedNodes) {
+    private Map<Integer, Set<GWTEdge>> getPaths(Set<Integer> intersectionOfIDs) {
         // The paths variable maps a trace ID to a set of edges (which
         // signify
         // a path).
-        Map<Integer, Set<GWTEdge>> paths = new HashMap<Integer, Set<GWTEdge>>();
+        final Map<Integer, Set<GWTEdge>> paths = new HashMap<Integer, Set<GWTEdge>>();
+
         for (Partition p : pGraph.getDummyInitialNodes()) {
             for (EventNode event : p.getEventNodes()) {
-                for (ITransition<EventNode> trans : event.getTransitions()) {
+                for (Transition<EventNode> trans : event.getTransitions()) {
                     int traceID = trans.getTarget().getTraceID();
-                    if (selectedNodes.contains(traceID)) {
+
+                    if (intersectionOfIDs.contains(traceID)) {
                         Set<GWTEdge> currentPath = new HashSet<GWTEdge>();
                         ITransition<Partition> nextTrans = p.getTransition(
                                 trans.getTarget().getParent(),
                                 trans.getRelation());
+
                         GWTNode tSrc = new GWTNode(nextTrans.getSource()
                                 .getEType().toString(), nextTrans.getSource()
                                 .hashCode());
@@ -738,7 +738,7 @@ public class SynopticService extends RemoteServiceServlet implements
                         GWTEdge connectTransGWT = new GWTEdge(tSrc, tTrg, 0);
 
                         currentPath.add(connectTransGWT);
-                        traverse(event, currentPath);
+                        traverse(trans.getTarget(), currentPath);
 
                         paths.put(traceID, currentPath);
                     }
@@ -750,7 +750,7 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Traverses the graph using DFS. Alters the path variable by adding newer
+     * Traverses the graph. Alters the path variable by adding newer
      * transitions.
      */
     private void traverse(EventNode event, Set<GWTEdge> path) {
