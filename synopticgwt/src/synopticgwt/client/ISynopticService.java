@@ -1,11 +1,13 @@
 package synopticgwt.client;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
+import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariantSet;
@@ -108,4 +110,14 @@ public interface ISynopticService extends RemoteService {
      */
     String exportPng() throws Exception;
 
+    /**
+     * Takes a set of node IDs and generates the possible paths through said
+     * nodes (mapping them by traceID).
+     * 
+     * @param selectedNodes
+     * @return
+     * @throws Exception
+     */
+    Map<Integer, Set<GWTEdge>> getPathsThroughSelectedNodes(
+            Set<Integer> selectedNodes) throws Exception;
 }

@@ -1,10 +1,12 @@
 package synopticgwt.client;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariantSet;
@@ -47,4 +49,7 @@ public interface ISynopticServiceAsync {
 
     void exportPng(AsyncCallback<String> callback) throws Exception;
 
+    void getPathsThroughSelectedNodes(Set<Integer> selectedNodes,
+            AsyncCallback<Map<Integer, Set<GWTEdge>>> callback)
+            throws Exception;
 }

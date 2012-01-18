@@ -650,15 +650,13 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * TODO Comment me (also, this is currently a void method. It will be
-     * changed once an appropriate data structure is decided upon for exporting
-     * the paths).
+     * Calculates the paths through all of the node IDs 
      * 
      * @param selectedNodes
      * @throws Exception
      */
-    public void getPathsThroughNodes(Set<Integer> selectedNodes)
-            throws Exception {
+    public Map<Integer, Set<GWTEdge>> getPathsThroughSelectedNodes(
+            Set<Integer> selectedNodes) throws Exception {
         retrieveSessionState();
 
         // The list of each set of partition IDs
@@ -666,8 +664,8 @@ public class SynopticService extends RemoteServiceServlet implements
         // Temporary partition IDs to be added to the overall list
         // (built in the following for loop).
         Set<Integer> tempIDs;
-        
-        // Loop over all the partitions, and add the 
+
+        // Loop over all the partitions, and add the
         // (and their respective trace IDs from events) to the overall list.
         for (Partition p : pGraph.getNodes()) {
             if (selectedNodes.contains(p.hashCode())) {
@@ -677,18 +675,18 @@ public class SynopticService extends RemoteServiceServlet implements
                         tempIDs.add(e.getTraceID());
                     }
                 }
-                
+
                 // If there were any IDs added to tempIDs
                 // add them to the overall list.
                 if (!tempIDs.isEmpty())
                     partitionIDs.add(tempIDs);
             }
         }
-        
+
         if (partitionIDs.isEmpty())
             // TODO Let the user know specifically what happened
             // i.e. "No events observed" or something of the like.
-            return;
+            return null;
         else {
             // Filter through all of the IDs and keep only
             // the ones that intersect with the selected nodes.
@@ -696,28 +694,76 @@ public class SynopticService extends RemoteServiceServlet implements
             for (int i = 1; i < partitionIDs.size(); i++) {
                 intersectionOfIDs.retainAll(partitionIDs.get(i));
             }
-            
+
             // If there are no traces through the selected
             // partitions.
             if (intersectionOfIDs.isEmpty()) {
                 // TODO: Do something about there not being any
                 // traces through the selected nodes.
                 // perhaps let the user know somehow.
+                return null;
             } else {
-                return;
+                return getPaths(intersectionOfIDs);
             }
         }
     }
 
     /**
-     * Gets every node ID and adds a corresponding edge to the node.
+     * Assigns a path to every traceID. Traverses the graph using DFS, and
+     * assigns a "path" as a set of GWTEdges that can be sent to the client.
+     * 
      * @param nodeIDs
-     * @return
+     * @return set of edges for each trace ID
      */
-    private Map<Integer, Set<GWTEdge>> getPaths(Set<Integer> eventIDs) {
-        
-        // TODO Map a the IDs to a set of edges.
-        
-        return null;
+    private Map<Integer, Set<GWTEdge>> getPaths(Set<Integer> selectedNodes) {
+        // The paths variable maps a trace ID to a set of edges (which
+        // signify
+        // a path).
+        Map<Integer, Set<GWTEdge>> paths = new HashMap<Integer, Set<GWTEdge>>();
+        for (Partition p : pGraph.getDummyInitialNodes()) {
+            for (EventNode event : p.getEventNodes()) {
+                for (ITransition<EventNode> trans : event.getTransitions()) {
+                    int traceID = trans.getTarget().getTraceID();
+                    if (selectedNodes.contains(traceID)) {
+                        Set<GWTEdge> currentPath = new HashSet<GWTEdge>();
+                        ITransition<Partition> nextTrans = p.getTransition(
+                                trans.getTarget().getParent(),
+                                trans.getRelation());
+                        GWTNode tSrc = new GWTNode(nextTrans.getSource()
+                                .getEType().toString(), nextTrans.getSource()
+                                .hashCode());
+                        GWTNode tTrg = new GWTNode(nextTrans.getTarget()
+                                .getEType().toString(), nextTrans.getTarget()
+                                .hashCode());
+                        GWTEdge connectTransGWT = new GWTEdge(tSrc, tTrg, 0);
+
+                        currentPath.add(connectTransGWT);
+                        traverse(event, currentPath);
+
+                        paths.put(traceID, currentPath);
+                    }
+                }
+            }
+        }
+
+        return paths;
+    }
+
+    /**
+     * Traverses the graph using DFS. Alters the path variable by adding newer
+     * transitions.
+     */
+    private void traverse(EventNode event, Set<GWTEdge> path) {
+        for (Transition<EventNode> trans : event.getTransitions()) {
+            ITransition<Partition> connectingTrans = event.getParent()
+                    .getTransition(trans.getTarget().getParent(),
+                            trans.getRelation());
+            GWTNode tSrc = new GWTNode(connectingTrans.getSource().getEType()
+                    .toString(), connectingTrans.getSource().hashCode());
+            GWTNode tTrg = new GWTNode(connectingTrans.getTarget().getEType()
+                    .toString(), connectingTrans.getTarget().hashCode());
+            GWTEdge connectTransGWT = new GWTEdge(tSrc, tTrg, 0);
+            traverse(trans.getTarget(), path);
+        }
     }
 }
