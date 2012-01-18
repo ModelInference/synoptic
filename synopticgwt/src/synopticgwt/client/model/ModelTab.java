@@ -2,6 +2,7 @@ package synopticgwt.client.model;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
@@ -50,7 +51,7 @@ public class ModelTab extends Tab<DockPanel> {
     private final HorizontalPanel buttonsPanel = new HorizontalPanel();
     private final VerticalPanel controlsPanel = new VerticalPanel();
 
-    // Maps event node IDs to JavaScriptObjects.
+    // The set of node IDs that have been selected by the user in the model.
     private final Set<Integer> selectedNodes = new HashSet<Integer>();
 
     // Model tab widgets:
@@ -90,10 +91,10 @@ public class ModelTab extends Tab<DockPanel> {
         buttonsPanelTwo.setStyleName("buttonPanel");
         controlsPanel.add(buttonsPanelTwo);
 
-        // Third button panel (so far, contains the "view paths" button.
+        // Third button panel (so far, only contains the "view paths" button).
         HorizontalPanel viewPathsButtonPanel = new HorizontalPanel();
         viewPathsButtonPanel.add(modelViewPathsButton);
-        
+
         modelViewPathsButton.setWidth("200px");
         viewPathsButtonPanel.setStyleName("buttonPanel");
         controlsPanel.add(viewPathsButtonPanel);
@@ -121,10 +122,10 @@ public class ModelTab extends Tab<DockPanel> {
         controlsPanel.add(logPanel);
         panel.add(controlsPanel, DockPanel.WEST);
 
-        // Keep the view paths button disabled until 
+        // Keep the view paths button disabled until
         // nodes have been selected.
         modelViewPathsButton.setEnabled(false);
-        
+
         // Coarsening is disabled until refinement is completed.
         modelCoarsenButton.setEnabled(false);
         modelRefineButton.addClickHandler(new ClickHandler() {
@@ -417,15 +418,28 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
-     * TODO Document me!
+     * Generates a call to the Synoptic server which then gets all of the paths
+     * through the nodes which the user has selected.
+     * 
      * @param event
      */
     public void viewSelectedPathsButtonClick(ClickEvent event) {
         try {
-            // TODO Query the server for paths through the selected
+            // Query the server for paths through the selected
             // nodes.
-            
-
+            synopticService
+                    .getPathsThroughSelectedNodes(
+                            selectedNodes,
+                            new ErrorReportingAsyncCallback<Map<Integer, Set<GWTEdge>>>(
+                                    pWheel, "get paths call") {
+                                @Override
+                                public void onSuccess(
+                                        Map<Integer, Set<GWTEdge>> paths) {
+                                    // TODO Show the traces and corresponding
+                                    // paths in the client window.
+                                    super.onSuccess(paths);
+                                }
+                            });
         } catch (Exception ex) {
             // TODO Inform the user of this error if it happens.
         }
@@ -479,7 +493,7 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
-     * Adds a node as being "selected" to the model tab.s
+     * Adds a node as being "selected" to the model tab.
      * 
      * @param nodeID
      *            The ID of the selected event node.
@@ -492,7 +506,7 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
-     * Removes a node as being "selected" to the model tab.
+     * Removes a node as being "selected" from the model tab.
      * 
      * @param nodeID
      *            The ID of the selected event node.
@@ -503,11 +517,11 @@ public class ModelTab extends Tab<DockPanel> {
         selectedNodes.remove(nodeID);
         toggleViewPathsButton();
     }
-    
+
     /**
-     * A simple method that checks to see if one or more 
-     * nodes have been selected.  If so, the button for viewing
-     * paths is activated.  If not, this button is deactivated.
+     * A simple method that checks to see if one or more nodes have been
+     * selected. If so, the button for viewing paths is activated. If not, this
+     * button is deactivated.
      */
     private void toggleViewPathsButton() {
         if (selectedNodes.size() > 0)
