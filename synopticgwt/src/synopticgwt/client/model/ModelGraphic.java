@@ -147,7 +147,7 @@ public class ModelGraphic {
         rend.draw();
     }-*/;
     
-    // This is debugging code for the model tab.
+    // This is debugging code for the model tab. (including the next method)
     public static native void printTraceID(int traceID) /*-{
         $wnd.console.log("TRACE ID: " + traceID);
     }-*/;

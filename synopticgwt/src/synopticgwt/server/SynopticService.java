@@ -729,6 +729,8 @@ public class SynopticService extends RemoteServiceServlet implements
                                 trans.getTarget().getParent(),
                                 trans.getRelation());
 
+                        // Convert the transition to a GWTEdge to be compatible
+                        // with GWT
                         GWTNode tSrc = new GWTNode(nextTrans.getSource()
                                 .getEType().toString(), nextTrans.getSource()
                                 .hashCode());
@@ -737,9 +739,10 @@ public class SynopticService extends RemoteServiceServlet implements
                                 .hashCode());
                         GWTEdge connectTransGWT = new GWTEdge(tSrc, tTrg, 0);
 
+                        // Traverse the remaining transitions and add the found 
+                        // path to the graph.
                         currentPath.add(connectTransGWT);
                         traverse(trans.getTarget(), currentPath);
-
                         paths.put(traceID, currentPath);
                     }
                 }
