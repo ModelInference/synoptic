@@ -18,7 +18,6 @@ import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
@@ -50,16 +49,14 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     public InvariantsGraph iGraph;
 
     HorizontalPanel tableAndGraphicPanel;
-    
+
     private GWTInvariantSet gwtInvs;
     private boolean invariantsInitialized;
     private static final String INV_CANVAS_ID = "invCanvasId";
     /** List of EventLabel grid columns */
     private List<Grid> labelColumnGrids;
-    
+
     private Anchor exportInvsLink;
-    
-    private Button resizeButton;
 
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
@@ -70,7 +67,6 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         tableAndGraphicPanel = new HorizontalPanel();
         activeInvsHashes = new LinkedHashSet<Integer>();
         exportInvsLink = new Anchor("[Show invariants as text]");
-        resizeButton = new Button("Resize", new ResizeHandler());
         labelColumnGrids = new ArrayList<Grid>();
     }
 
@@ -84,13 +80,12 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         if (!invariantsInitialized) {
             throw new IllegalStateException("Invariants uninitialized");
         }
-        
+
         // Clear the invariants panel of any widgets it might have.
         panel.clear();
         tableAndGraphicPanel.clear();
 
         panel.add(exportInvsLink);
-        panel.add(resizeButton);
         exportInvsLink.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -111,27 +106,29 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
         // Add the invariant type columns in a specific order.
         labelColumnGrids.clear();
-        for (String invName : invOrdering) {  
+        for (String invName : invOrdering) {
             if (invTypes.contains(invName)) {
                 Grid g = addInvariantColumnToGrid(invName);
                 labelColumnGrids.add(g);
             }
         }
 
-        
         HorizontalPanel invGraphicPanel = new HorizontalPanel();
         invGraphicPanel.getElement().setId(INV_CANVAS_ID);
         invGraphicPanel.setStylePrimaryName("modelCanvas");
         tableAndGraphicPanel.add(invGraphicPanel);
-        iGraph.createInvariantsGraphic(gwtInvs, INV_CANVAS_ID, gwtInvToGridLabel);
+        iGraph.createInvariantsGraphic(gwtInvs, INV_CANVAS_ID,
+                gwtInvToGridLabel);
     }
-    
-    // Resizes the InvariantsGraph
+
+    /**
+     * Resizes the InvariantsGraph
+     */
     public void resize() {
         if (!invariantsInitialized) {
             throw new IllegalStateException("Invariants uninitialized");
         }
-        
+
         int height = Window.getClientHeight() - 150;
         int width = Window.getClientWidth() - 50;
         for (Grid g : labelColumnGrids) {
@@ -139,16 +136,15 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         }
         iGraph.resize(height, width);
     }
-    
+
     public void setInvariants(GWTInvariantSet gwtInvs) {
         this.invariantsInitialized = true;
         this.gwtInvs = gwtInvs;
     }
 
     /**
-     * Adds a grid column of an invariant type to tableAndGraphicPanel
-     * 
-     * Returns created grid
+     * Adds a grid column of an invariant type to tableAndGraphicPanel Returns
+     * created grid
      * 
      * @param invType
      *            Invariant type of column
@@ -376,16 +372,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             iGridLabel.mouseOut();
         }
     }
-    
-    class ResizeHandler implements ClickHandler {
 
-        @Override
-        public void onClick(ClickEvent event) {
-            resize();
-        }
-        
-    }
-    
     public HorizontalPanel getTableAndGraphicPanel() {
         return tableAndGraphicPanel;
     }

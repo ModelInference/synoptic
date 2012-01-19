@@ -275,10 +275,15 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
-     * Updates the graph panel's canvas, and animates the model the fill the new
+     * Updates the graph panel's canvas, and animates the model to fill the new
      * canvas.
      */
     public void updateGraphPanel() {
+        if (graphPanel == null) {
+            // This occurs when the graphPanel is first shown -- the graphic is
+            // not yet displayed, so we skip the update in this case.
+            return;
+        }
         int width = getModelGraphicWidth();
         int height = getModelGraphicHeight();
 
