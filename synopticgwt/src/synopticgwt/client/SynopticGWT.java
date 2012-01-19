@@ -13,7 +13,6 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Cookies;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -22,6 +21,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TabPanel;
+
 import synopticgwt.client.input.InputTab;
 import synopticgwt.client.invariants.InvariantsTab;
 import synopticgwt.client.model.ModelTab;
@@ -158,7 +158,7 @@ public class SynopticGWT implements EntryPoint {
 
         // Build up a map between the tab index in the tab panel and the tab --
         // this is useful when processing events that change the selected tab.
-        tabIndexToTab.put(inputsTabIndex, inputTab); 
+        tabIndexToTab.put(inputsTabIndex, inputTab);
         tabIndexToTab.put(invariantsTabIndex, invTab);
         tabIndexToTab.put(modelTabIndex, modelTab);
 
@@ -192,6 +192,9 @@ public class SynopticGWT implements EntryPoint {
         // remove it when any one of the other tabs is clicked.
         Window.addResizeHandler(new ModelResizeHandler(tabPanel.getTabBar(),
                 modelTab, 200));
+
+        Window.addResizeHandler(new InvariantsResizeHandler(tabPanel
+                .getTabBar(), invTab, 200));
 
         // Check whether or not to show the welcome screen.
         if (WelcomePopUp.showWelcome()) {
@@ -246,49 +249,56 @@ public class SynopticGWT implements EntryPoint {
         Tab<?> t = tabIndexToTab.get(tabIndex);
         AnalyticsTracker.trackEvent(t.trackerCategoryName, "selected",
                 "navigation");
+
     }
 
     /**
-     * Fired by SynopticTabPanel whenever a tab is selected.
-     * 
-     * This code executes before the tab's associated panel is rendered.
-     * 
-     * TODO: Migrate to a SelectionHandler and use addSelectionHandler 
-     * since this is deprecated
+     * Fired by SynopticTabPanel whenever a tab is selected. This code executes
+     * before the tab's associated panel is rendered. TODO: Migrate to a
+     * SelectionHandler and use addSelectionHandler since this is deprecated
      */
     public void tabSelected(SelectionEvent<Integer> event) {
         int tabIndex = event.getSelectedItem();
-        
-        /*  Ignore non-model-tab tab selections.
-         * 
-         *  commitInvsSuccesses calls tabPanel.selectTab(modelTabIndex) and
-         *  prevents an infinite recursion of tabSelected events by setting 
-         *  invSetChanged to false
-         */
-        if (tabIndex == modelTabIndex && invSetChanged) {
-         // If we are clicking on the model tab, and the invariant set has
-            // changed, then we (1) ask the server to re-do refinement/coarsening
-            // with the new set of invariants, and (2) re-draw everything in the
-            // model tab.
 
-            // ////////////////////// Call to remote service.
-            try {
-                synopticService.commitInvariants(invTab.activeInvsHashes,
-                        new ErrorReportingAsyncCallback<GWTGraph>(
-                                "commitInvariants call") {
-                            @Override
-                            public void onSuccess(GWTGraph gwtGraph) {
-                                super.onSuccess(gwtGraph);
-                                commitInvsSuccess(gwtGraph);
-                            }
-                        });
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+        if (tabIndex == invariantsTabIndex) {
+            // Update the invariant graphic with the current window dimensions.
+            invTab.resize();
+        } else if (tabIndex == modelTabIndex) {
+            if (invSetChanged) {
+                // If we are clicking on the model tab, and the invariant set
+                // has changed, then we (1) ask the server to re-do
+                // refinement/coarsening with the new set of invariants, and (2)
+                // re-draw everything in the model tab.
+
+                // ////////////////////// Call to remote service.
+                try {
+                    synopticService.commitInvariants(invTab.activeInvsHashes,
+                            new ErrorReportingAsyncCallback<GWTGraph>(
+                                    "commitInvariants call") {
+                                @Override
+                                public void onSuccess(GWTGraph gwtGraph) {
+                                    super.onSuccess(gwtGraph);
+                                    /*
+                                     * CommitInvsSuccesses calls
+                                     * tabPanel.selectTab(modelTabIndex) and
+                                     * prevents an infinite recursion of
+                                     * tabSelected events by setting
+                                     * invSetChanged to false
+                                     */
+                                    commitInvsSuccess(gwtGraph);
+                                }
+                            });
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                // //////////////////////
+            } else {
+                // Update the graphic with the current window dimensions.
+                modelTab.updateGraphPanel();
             }
-            // //////////////////////
         }
-        
+
     }
 
     /**
