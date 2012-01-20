@@ -663,59 +663,58 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     /**
-     * Returns all possible paths through the selected partition nodes.
+     * Returns paths through a set of partition nodes in the form of a map. The
+     * returned map maps a traceID to a path that passes through the partitions.
      * 
-     * @param selectedNodeIDs
+     * @param parts
      * @return A mapping of trace IDs to a set of transitions that make up a
      *         path
      */
-    public Map<Integer, Set<ITransition<Partition>>> getPathsThroughSelectedNodeIDs(
-            Set<INode<Partition>> selectedNodes) {
+    public Map<Integer, Set<ITransition<Partition>>> getPathsThroughPartitions(
+            Set<INode<Partition>> parts) {
 
-        if (selectedNodes == null || selectedNodes.isEmpty())
+        final Map<Integer, Set<ITransition<Partition>>> paths = new HashMap<Integer, Set<ITransition<Partition>>>();
+
+        if (parts == null || parts.isEmpty()) {
             throw new IllegalArgumentException(
-                    "Expected set of selected partition nodes.");
+                    "Expected a non-null and non-empty set of partition nodes.");
+        }
 
-        // The list of each set of partition IDs
-        List<Set<Integer>> partitionIDs = new ArrayList<Set<Integer>>();
+        // The list of trace IDs that go through the selected partitions.
+        List<Set<Integer>> traceIDs = new ArrayList<Set<Integer>>();
 
-        // Loop over all the partitions, and add the
-        // (and their respective trace IDs from events) to the overall list.
-        for (INode<Partition> p : selectedNodes) {
-            // Temporary partition IDs to be added to the overall list.
+        // Loop over all the partitions, and collect the trace IDs of the events
+        // in the partitions into a list.
+        for (INode<Partition> p : parts) {
+            // Temporary trace IDs to be added to the overall list.
             Set<Integer> tempIDs = new HashSet<Integer>();
             for (EventNode e : ((Partition) p).getEventNodes()) {
                 tempIDs.add(e.getTraceID());
             }
 
-            if (!tempIDs.isEmpty())
-                partitionIDs.add(tempIDs);
+            if (!tempIDs.isEmpty()) {
+                traceIDs.add(tempIDs);
+            }
         }
 
-        if (partitionIDs.isEmpty()) {
-            // TODO Let the user know specifically what happened
-            // i.e. "No events observed" or something of the like.
-            return null;
+        if (traceIDs.isEmpty()) {
+            return paths;
         }
 
         // Filter through all of the IDs and keep only
         // the ones that intersect with the selected nodes.
-        Set<Integer> intersectionOfIDs = partitionIDs.get(0);
-        for (int i = 1; i < partitionIDs.size(); i++) {
-            intersectionOfIDs.retainAll(partitionIDs.get(i));
+        Set<Integer> intersectionOfIDs = traceIDs.get(0);
+        for (int i = 1; i < traceIDs.size(); i++) {
+            intersectionOfIDs.retainAll(traceIDs.get(i));
         }
 
-        // If there are no traces through the selected
-        // partitions.
+        // If there are no traces through the selected partitions.
         if (intersectionOfIDs.isEmpty()) {
-            // TODO: Do something about there not being any
-            // traces through the selected nodes.
-            // perhaps let the user know somehow.
-            return null;
+            return paths;
         }
 
-        final Map<Integer, Set<ITransition<Partition>>> paths = new HashMap<Integer, Set<ITransition<Partition>>>();
-
+        // For the trace IDs that are shared by all the partitions, create a map
+        // from trace ID to the path.
         for (Partition p : this.getDummyInitialNodes()) {
             for (EventNode event : p.getEventNodes()) {
                 for (Transition<EventNode> trans : event.getTransitions()) {
@@ -728,8 +727,7 @@ public class PartitionGraph implements IGraph<Partition> {
                                 trans.getRelation());
 
                         // Traverse the remaining transitions and add the
-                        // found
-                        // path to the graph.
+                        // found path to the map.
                         currentPath.add(nextTrans);
                         getPathsThroughNodesTraversal(trans.getTarget(),
                                 currentPath);
@@ -740,7 +738,6 @@ public class PartitionGraph implements IGraph<Partition> {
         }
 
         return paths;
-
     }
 
     /**
