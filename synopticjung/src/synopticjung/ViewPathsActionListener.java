@@ -51,7 +51,7 @@ public class ViewPathsActionListener implements ActionListener {
                     .showMessageDialog(jungGui.frame, "No vertices selected");
         } else {
             final Map<Integer, Set<ITransition<Partition>>> paths = jungGui.pGraph
-                    .getPathsThroughSelectedNodeIDs(pickedVertices);
+                    .getPathsThroughPartitions(pickedVertices);
 
             // Now intersectionOfIDs is a set intersection of the
             // traceIDs for the current selected vertices

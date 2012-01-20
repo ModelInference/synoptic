@@ -49,7 +49,7 @@ public interface ISynopticServiceAsync {
 
     void exportPng(AsyncCallback<String> callback) throws Exception;
 
-    void getPathsThroughSelectedNodes(Set<Integer> selectedNodes,
+    void getPathsThroughPartitionIDs(Set<Integer> selectedNodes,
             AsyncCallback<Map<Integer, Set<GWTEdge>>> callback)
             throws Exception;
 }

@@ -157,12 +157,7 @@ public class ModelTab extends Tab<DockPanel> {
                 exportPngButtonClick(event);
             }
         });
-        modelViewPathsButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                viewSelectedPathsButtonClick(event);
-            }
-        });
+        modelViewPathsButton.addClickHandler(new ViewPathsClickHandler());
     }
 
     /**
@@ -416,60 +411,6 @@ public class ModelTab extends Tab<DockPanel> {
         // //////////////////////
     }
 
-    /**
-     * Generates a call to the Synoptic server which returns all of the paths
-     * through the nodes the user has selected.
-     * 
-     * @param event
-     * @throws Exception
-     */
-    public void viewSelectedPathsButtonClick(ClickEvent event) {
-        try {
-            // ////////////////////// Call to remote service.
-            synopticService
-                    .getPathsThroughSelectedNodes(
-                            selectedNodes,
-                            new ErrorReportingAsyncCallback<Map<Integer, Set<GWTEdge>>>(
-                                    pWheel, "getPathsThroughSelectedNodes call") {
-
-                                @Override
-                                public void onFailure(Throwable caught) {
-                                    super.onFailure(caught);
-                                    // TODO: clear selected paths state.
-                                }
-
-                                @Override
-                                public void onSuccess(
-                                        Map<Integer, Set<GWTEdge>> paths) {
-                                    // TODO Show the traces and corresponding
-                                    // paths in the client window.
-                                    super.onSuccess(paths);
-
-                                    // TODO Remove this debug code.
-                                    if (paths.isEmpty()) {
-                                        ModelGraphic.printTraceID(-1);
-                                    } else {
-                                        for (Integer traceID : paths.keySet()) {
-                                            Set<GWTEdge> edges = paths
-                                                    .get(traceID);
-                                            ModelGraphic.printTraceID(traceID);
-                                            for (GWTEdge edge : edges) {
-                                                ModelGraphic.printEdge(edge
-                                                        .getSrc().toString(),
-                                                        edge.getDst()
-                                                                .toString());
-                                            }
-                                        }
-                                    }
-                                }
-                            });
-            // //////////////////////
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
     /** Called when the call to retrieve final model succeeded. */
     public void getFinalModelSuccess(GWTGraph graph) {
         showGraph(graph);
@@ -561,5 +502,21 @@ public class ModelTab extends Tab<DockPanel> {
      */
     public void setManualMode(boolean manualRefineCoarsen) {
         buttonsPanel.setVisible(manualRefineCoarsen);
+    }
+    
+    /**
+     * Class for viewing paths through selected partitions.
+     */
+    class ViewPathsClickHandler implements ClickHandler {
+
+        @Override
+        public void onClick(ClickEvent event) {
+            try {
+                synopticService.getPathsThroughPartitionIDs(selectedNodes,
+                        new ViewPathsThroughPartitionsAsyncCallback(pWheel, ModelTab.this));
+            } catch (Exception e) {
+                // TODO: Do something about the exception
+            }
+        }
     }
 }
