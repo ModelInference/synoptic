@@ -241,7 +241,7 @@ public class PartitionGraphTests extends SynopticTest {
         TOInvariantMiner miner = new ChainWalkingTOInvMiner();
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner);
 
-        pGraph.getPathsThroughSelectedNodeIDs(null);
+        pGraph.getPathsThroughPartitions(null);
     }
 
     // Creates a partition graph the format of which will be
@@ -284,10 +284,8 @@ public class PartitionGraphTests extends SynopticTest {
 
         // Grab the set of paths.
         Map<Integer, Set<ITransition<Partition>>> paths = pGraph
-                .getPathsThroughSelectedNodeIDs(selectedNodes);
+                .getPathsThroughPartitions(selectedNodes);
 
-        // Make sure the paths aren't null.
-        assertTrue("There should be one trace containing C.", paths != null);
         assertEquals("There should be one trace only.", paths.keySet().size(),
                 1);
     }
@@ -322,10 +320,8 @@ public class PartitionGraphTests extends SynopticTest {
         selectedNodes.add(cPartition);
 
         Map<Integer, Set<ITransition<Partition>>> paths = pGraph
-                .getPathsThroughSelectedNodeIDs(selectedNodes);
+                .getPathsThroughPartitions(selectedNodes);
 
-        assertTrue("There should be a trace containing these two nodes.",
-                paths != null);
         assertEquals("There should be exactly one trace",
                 paths.keySet().size(), 1);
     }
