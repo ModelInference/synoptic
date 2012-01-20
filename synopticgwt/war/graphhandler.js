@@ -134,8 +134,17 @@ var GRAPH_HANDLER = {
         	}
         };
         
+        // On a mouse hovering out, un-highlight that node and any 
+        // other nodes that are of the same type.
         rect.node.onmouseout = function(event) {
-        
+        	if (node.label != "INITIAL" && node.label != "TERMINAL") {
+        		for (var i = 0; i < allRects.length; i++) {
+        			var currRect = allRects[i];
+        			if (currRect.label == node.label) {
+        				currRect.attr("fill", "#fa8");
+        			}
+        		}
+        	}
         };
         
         text = canvas.text(node.point[0] + 30, node.point[1] + 10, node.label)
