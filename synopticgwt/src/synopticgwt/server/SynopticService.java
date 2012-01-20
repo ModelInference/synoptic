@@ -48,6 +48,7 @@ import synoptic.model.Transition;
 import synoptic.model.WeightedTransition;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
+import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTEdge;
@@ -650,124 +651,59 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Calculates the paths through all of the node IDs
+     * Calculates the paths through all of the node IDs and then converts them
+     * to narrower GWT compatible data structures.
      * 
      * @param selectedNodes
      * @throws Exception
      */
     public Map<Integer, Set<GWTEdge>> getPathsThroughSelectedNodes(
-            Set<Integer> selectedNodes) throws Exception {
+            Set<Integer> selectedNodeIDs) throws Exception {
         retrieveSessionState();
 
-        // The list of each set of partition IDs
-        List<Set<Integer>> partitionIDs = new ArrayList<Set<Integer>>();
-
-        // Loop over all the partitions, and add the
-        // (and their respective trace IDs from events) to the overall list.
-        for (Partition p : pGraph.getNodes()) {
-            if (selectedNodes.contains(p.hashCode())) {
-                // Temporary partition IDs to be added to the overall list
-                // (built in the following for loop).
-                Set<Integer> tempIDs = new HashSet<Integer>();
-                for (EventNode e : p.getEventNodes()) {
-                    if (e.getTraceID() != 0) {
-                        tempIDs.add(e.getTraceID());
-                    }
-                }
-
-                if (!tempIDs.isEmpty())
-                    partitionIDs.add(tempIDs);
-            }
-        }
-
-        if (partitionIDs.isEmpty())
-            // TODO Let the user know specifically what happened
-            // i.e. "No events observed" or something of the like.
+        if (selectedNodeIDs == null || selectedNodeIDs.isEmpty()) {
             return null;
-        else {
-            // Filter through all of the IDs and keep only
-            // the ones that intersect with the selected nodes.
-            Set<Integer> intersectionOfIDs = partitionIDs.get(0);
-            for (int i = 1; i < partitionIDs.size(); i++) {
-                intersectionOfIDs.retainAll(partitionIDs.get(i));
+        } else {
+            // Take the node IDs and create a set of partitions from them.
+            Set<INode<Partition>> selectedNodes = new HashSet<INode<Partition>>();
+            for (Integer id : selectedNodeIDs) {
+                Partition p = pGraph.getNodeByID(id);
+                if (p != null)
+                    selectedNodes.add(p);
             }
 
-            // If there are no traces through the selected
-            // partitions.
-            if (intersectionOfIDs.isEmpty()) {
-                // TODO: Do something about there not being any
-                // traces through the selected nodes.
-                // perhaps let the user know somehow.
-                return null;
-            } else {
-                return getPaths(intersectionOfIDs);
-            }
-        }
-    }
+            // Make sure all nodes were added properly to the set.
+            assert (selectedNodes.size() == selectedNodeIDs.size());
 
-    /**
-     * Assigns a path to every traceID. Traverses the graph and assigns a "path"
-     * as a set of GWTEdges that can be sent to the client.
-     * 
-     * @param nodeIDs
-     * @return set of edges for each trace ID
-     */
-    private Map<Integer, Set<GWTEdge>> getPaths(Set<Integer> intersectionOfIDs) {
-        // The paths variable maps a trace ID to a set of edges (which
-        // signify
-        // a path).
-        final Map<Integer, Set<GWTEdge>> paths = new HashMap<Integer, Set<GWTEdge>>();
+            Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+                    .getPathsThroughSelectedNodeIDs(selectedNodes);
 
-        for (Partition p : pGraph.getDummyInitialNodes()) {
-            for (EventNode event : p.getEventNodes()) {
-                for (Transition<EventNode> trans : event.getTransitions()) {
-                    int traceID = trans.getTarget().getTraceID();
+            // Convert the map from transitions to edges so as to be manageable
+            // by
+            // GWT.
+            Map<Integer, Set<GWTEdge>> gwtPaths = new HashMap<Integer, Set<GWTEdge>>();
+            for (Integer id : paths.keySet()) {
+                // Convert each transition individually into an edge, and then
+                // add them all to an individual path.
+                Set<ITransition<Partition>> transitions = paths.get(id);
+                Set<GWTEdge> gwtPath = new HashSet<GWTEdge>();
+                for (ITransition<Partition> trans : transitions) {
+                    GWTNode trgNode = new GWTNode(trans.getTarget().getEType()
+                            .toString(), trans.getTarget().hashCode());
+                    GWTNode srcNode = new GWTNode(trans.getSource().getEType()
+                            .toString(), trans.getTarget().hashCode());
 
-                    if (intersectionOfIDs.contains(traceID)) {
-                        Set<GWTEdge> currentPath = new HashSet<GWTEdge>();
-                        ITransition<Partition> nextTrans = p.getTransition(
-                                trans.getTarget().getParent(),
-                                trans.getRelation());
-
-                        // Convert the transition to a GWTEdge to be compatible
-                        // with GWT
-                        GWTNode tSrc = new GWTNode(nextTrans.getSource()
-                                .getEType().toString(), nextTrans.getSource()
-                                .hashCode());
-                        GWTNode tTrg = new GWTNode(nextTrans.getTarget()
-                                .getEType().toString(), nextTrans.getTarget()
-                                .hashCode());
-                        GWTEdge connectTransGWT = new GWTEdge(tSrc, tTrg, 0);
-
-                        // Traverse the remaining transitions and add the found 
-                        // path to the graph.
-                        currentPath.add(connectTransGWT);
-                        traverse(trans.getTarget(), currentPath);
-                        paths.put(traceID, currentPath);
-                    }
+                    // The value of zero in the construction of this edge
+                    // is simply a dummy weight, since the purpose of this edge
+                    // is for finding equivalent edges within the model tab.
+                    GWTEdge edge = new GWTEdge(srcNode, trgNode, 0);
+                    gwtPath.add(edge);
                 }
+
+                gwtPaths.put(id, gwtPath);
             }
-        }
 
-        return paths;
-    }
-
-    /**
-     * Traverses the graph. Alters the path variable by adding newer
-     * transitions.
-     */
-    private void traverse(EventNode event, Set<GWTEdge> path) {
-        for (Transition<EventNode> trans : event.getTransitions()) {
-            ITransition<Partition> connectingTrans = event.getParent()
-                    .getTransition(trans.getTarget().getParent(),
-                            trans.getRelation());
-            GWTNode tSrc = new GWTNode(connectingTrans.getSource().getEType()
-                    .toString(), connectingTrans.getSource().hashCode());
-            GWTNode tTrg = new GWTNode(connectingTrans.getTarget().getEType()
-                    .toString(), connectingTrans.getTarget().hashCode());
-            GWTEdge nextTransGWT = new GWTEdge(tSrc, tTrg, 0);
-            path.add(nextTransGWT);
-            traverse(trans.getTarget(), path);
+            return gwtPaths;
         }
     }
 }

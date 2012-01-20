@@ -439,8 +439,10 @@ public class ModelTab extends Tab<DockPanel> {
                                     // paths in the client window.
                                     super.onSuccess(paths);
 
-                                    if (paths != null) {
-                                        // TODO Remove this debug code.
+                                    // TODO Remove this debug code.
+                                    if (paths == null || paths.isEmpty()) {
+                                        ModelGraphic.printTraceID(-1);
+                                    } else {
                                         for (Integer traceID : paths.keySet()) {
                                             Set<GWTEdge> edges = paths
                                                     .get(traceID);
@@ -452,8 +454,6 @@ public class ModelTab extends Tab<DockPanel> {
                                                                 .toString());
                                             }
                                         }
-                                    } else {
-                                        ModelGraphic.printTraceID(-1);
                                     }
                                 }
                             });
