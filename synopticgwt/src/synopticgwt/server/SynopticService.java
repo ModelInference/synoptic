@@ -657,7 +657,7 @@ public class SynopticService extends RemoteServiceServlet implements
      * @param selectedNodes
      * @throws Exception
      */
-    public Map<Integer, Set<GWTEdge>> getPathsThroughSelectedNodes(
+    public Map<Integer, Set<GWTEdge>> getPathsThroughPartitionIDs(
             Set<Integer> selectedNodeIDs) throws Exception {
         retrieveSessionState();
 
