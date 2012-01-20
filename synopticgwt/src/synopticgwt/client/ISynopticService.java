@@ -111,8 +111,7 @@ public interface ISynopticService extends RemoteService {
     String exportPng() throws Exception;
 
     /**
-     * Takes a set of node IDs and generates the possible paths through said
-     * nodes (mapping them by traceID).
+     * Returns the set of all possible paths through a set of nodes.
      * 
      * @param selectedNodes
      * @return

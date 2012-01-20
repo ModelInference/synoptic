@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -418,20 +417,27 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
-     * Generates a call to the Synoptic server which then gets all of the paths
-     * through the nodes which the user has selected.
+     * Generates a call to the Synoptic server which returns all of the paths
+     * through the nodes the user has selected.
      * 
      * @param event
+     * @throws Exception
      */
     public void viewSelectedPathsButtonClick(ClickEvent event) {
         try {
-            // Query the server for paths through the selected
-            // nodes.
+            // ////////////////////// Call to remote service.
             synopticService
                     .getPathsThroughSelectedNodes(
                             selectedNodes,
                             new ErrorReportingAsyncCallback<Map<Integer, Set<GWTEdge>>>(
-                                    pWheel, "get paths call") {
+                                    pWheel, "getPathsThroughSelectedNodes call") {
+
+                                @Override
+                                public void onFailure(Throwable caught) {
+                                    super.onFailure(caught);
+                                    // TODO: clear selected paths state.
+                                }
+
                                 @Override
                                 public void onSuccess(
                                         Map<Integer, Set<GWTEdge>> paths) {
@@ -440,7 +446,7 @@ public class ModelTab extends Tab<DockPanel> {
                                     super.onSuccess(paths);
 
                                     // TODO Remove this debug code.
-                                    if (paths == null || paths.isEmpty()) {
+                                    if (paths.isEmpty()) {
                                         ModelGraphic.printTraceID(-1);
                                     } else {
                                         for (Integer traceID : paths.keySet()) {
@@ -457,8 +463,10 @@ public class ModelTab extends Tab<DockPanel> {
                                     }
                                 }
                             });
-        } catch (Exception ex) {
-            // TODO Inform the user of this error if it happens.
+            // //////////////////////
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
