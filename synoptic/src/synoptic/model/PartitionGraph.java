@@ -21,10 +21,9 @@ import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.TraceParser;
 import synoptic.model.interfaces.IGraph;
+import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
-import synopticgwt.shared.GWTEdge;
-import synopticgwt.shared.GWTNode;
 
 /**
  * This class implements a partition graph. Nodes are {@code Partition}
@@ -668,35 +667,34 @@ public class PartitionGraph implements IGraph<Partition> {
      * hash code of a node within this graph.
      * 
      * @param selectedNodeIDs
-     * @return A mapping of trace IDs
+     * @return A mapping of trace IDs to a set of transitions that make up a
+     *         path
      */
     public Map<Integer, Set<ITransition<Partition>>> getPathsThroughSelectedNodeIDs(
-            Set<Integer> selectedNodeIDs) {
+            Set<INode<Partition>> selectedNodes) {
         // The list of each set of partition IDs
         List<Set<Integer>> partitionIDs = new ArrayList<Set<Integer>>();
 
         // Loop over all the partitions, and add the
         // (and their respective trace IDs from events) to the overall list.
-        for (Partition p : this.getNodes()) {
-            if (selectedNodeIDs.contains(p.hashCode())) {
-                // Temporary partition IDs to be added to the overall list
-                // (built in the following for loop).
-                Set<Integer> tempIDs = new HashSet<Integer>();
-                for (EventNode e : p.getEventNodes()) {
-                    if (e.getTraceID() != 0) {
-                        tempIDs.add(e.getTraceID());
-                    }
+        for (INode<Partition> p : selectedNodes) {
+            // Temporary partition IDs to be added to the overall list.
+            Set<Integer> tempIDs = new HashSet<Integer>();
+            for (EventNode e : ((Partition) p).getEventNodes()) {
+                if (e.getTraceID() != 0) {
+                    tempIDs.add(e.getTraceID());
                 }
-
-                if (!tempIDs.isEmpty())
-                    partitionIDs.add(tempIDs);
             }
+
+            if (!tempIDs.isEmpty())
+                partitionIDs.add(tempIDs);
         }
 
-        if (partitionIDs.isEmpty())
+        if (partitionIDs.isEmpty()) {
             // TODO Let the user know specifically what happened
             // i.e. "No events observed" or something of the like.
             return null;
+        }
 
         // Filter through all of the IDs and keep only
         // the ones that intersect with the selected nodes.
@@ -712,34 +710,35 @@ public class PartitionGraph implements IGraph<Partition> {
             // traces through the selected nodes.
             // perhaps let the user know somehow.
             return null;
-        } else {
-            final Map<Integer, Set<ITransition<Partition>>> paths = new HashMap<Integer, Set<ITransition<Partition>>>();
+        }
 
-            for (Partition p : this.getDummyInitialNodes()) {
-                for (EventNode event : p.getEventNodes()) {
-                    for (Transition<EventNode> trans : event.getTransitions()) {
-                        int traceID = trans.getTarget().getTraceID();
+        final Map<Integer, Set<ITransition<Partition>>> paths = new HashMap<Integer, Set<ITransition<Partition>>>();
 
-                        if (intersectionOfIDs.contains(traceID)) {
-                            Set<ITransition<Partition>> currentPath = new HashSet<ITransition<Partition>>();
-                            ITransition<Partition> nextTrans = p.getTransition(
-                                    trans.getTarget().getParent(),
-                                    trans.getRelation());
+        for (Partition p : this.getDummyInitialNodes()) {
+            for (EventNode event : p.getEventNodes()) {
+                for (Transition<EventNode> trans : event.getTransitions()) {
+                    int traceID = trans.getTarget().getTraceID();
 
-                            // Traverse the remaining transitions and add the
-                            // found
-                            // path to the graph.
-                            currentPath.add(nextTrans);
-                            getPathsThroughNodesTraversal(trans.getTarget(),
-                                    currentPath);
-                            paths.put(traceID, currentPath);
-                        }
+                    if (intersectionOfIDs.contains(traceID)) {
+                        Set<ITransition<Partition>> currentPath = new HashSet<ITransition<Partition>>();
+                        ITransition<Partition> nextTrans = p.getTransition(
+                                trans.getTarget().getParent(),
+                                trans.getRelation());
+
+                        // Traverse the remaining transitions and add the
+                        // found
+                        // path to the graph.
+                        currentPath.add(nextTrans);
+                        getPathsThroughNodesTraversal(trans.getTarget(),
+                                currentPath);
+                        paths.put(traceID, currentPath);
                     }
                 }
             }
-
-            return paths;
         }
+
+        return paths;
+
     }
 
     /**
@@ -749,11 +748,22 @@ public class PartitionGraph implements IGraph<Partition> {
     private void getPathsThroughNodesTraversal(EventNode event,
             Set<ITransition<Partition>> path) {
         for (Transition<EventNode> trans : event.getTransitions()) {
-            ITransition<Partition> connectingTrans = event.getParent()
-                    .getTransition(trans.getTarget().getParent(),
-                            trans.getRelation());
-            path.add(connectingTrans);
+            path.add(event.getParent().getTransition(
+                    trans.getTarget().getParent(), trans.getRelation()));
             getPathsThroughNodesTraversal(trans.getTarget(), path);
         }
+    }
+
+    /**
+     * Returns a reference to a partition node based on the ID of the node
+     * passed.  If the node is not found within the graph, null is returned.
+     */
+    public Partition getNodeByID(int id) {
+        for (Partition p : this.getNodes()) {
+            if (p.hashCode() == id)
+                return p;
+        }
+        
+        return null;
     }
 }
