@@ -225,4 +225,17 @@ public class PartitionGraphTests extends SynopticTest {
             assertTrue(!invalidINFbys.contains(p));
         }
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void exportPathsThroughSelectedNodesNullParam() throws Exception {
+        // Some random values to parse.
+        String events[] = new String[] { "0 1 a", "0 2 a", "0 5 a" };
+        TraceParser parser = new TraceParser();
+        parser.addRegex("^(?<DTIME>)(?<nodename>)(?<TYPE>)$");
+        parser.setPartitionsMap("\\k<nodename>");
+        TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner);
+
+        pGraph.getPathsThroughSelectedNodeIDs(null);
+    }
 }

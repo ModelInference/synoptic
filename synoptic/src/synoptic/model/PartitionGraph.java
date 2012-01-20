@@ -671,6 +671,10 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     public Map<Integer, Set<ITransition<Partition>>> getPathsThroughSelectedNodeIDs(
             Set<INode<Partition>> selectedNodes) {
+        
+        if (selectedNodes == null || selectedNodes.isEmpty())
+            throw new IllegalArgumentException("Expected set of selected partition nodes.");
+        
         // The list of each set of partition IDs
         List<Set<Integer>> partitionIDs = new ArrayList<Set<Integer>>();
 
