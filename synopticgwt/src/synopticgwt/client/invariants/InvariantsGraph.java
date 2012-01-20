@@ -249,36 +249,44 @@ public class InvariantsGraph {
     public void resize(int paperHeight, int paperWidth) {
         int timeArrowBuffer = 50;
         int arrowColumns = EVENT_COLUMNS - 1;
-        int labelWidth = paperWidth / (EVENT_COLUMNS + arrowColumns);
+        double labelWidth = paperWidth / (EVENT_COLUMNS + arrowColumns);
         if (labelWidth < MIN_LABEL_WIDTH) {
             labelWidth = MIN_LABEL_WIDTH;
         }
-        int arrowWidth = labelWidth;
+        double arrowWidth = labelWidth;
         
         int rows = eventTypesList.size();
         int rowBuffers = rows - 1;
         int rowBufferHeight = rowBuffers * MIN_VERTICAL_LABEL_BUFFER;
-        int labelHeight = (paperHeight  - timeArrowBuffer - rowBufferHeight) / rows;
+        double labelHeight = (paperHeight  - timeArrowBuffer - rowBufferHeight) / rows;
         if (labelHeight < MIN_LABEL_HEIGHT) {
             labelHeight = MIN_LABEL_HEIGHT;
         }
         
-        Double widthPointer = 0.0 + labelWidth;
-        int fontSize = getMaxFontSize(labelHeight, widthPointer, leftEventCol);
+        Event initialEvent = leftEventCol.get("INITIAL");
+        int initialFontSize = initialEvent.getFontSize();
+        Event finalEvent = getMaxFontSize(labelHeight, labelWidth, leftEventCol);
+        int targetFontSize = finalEvent.getFontSize();
+        labelWidth = MIN_LABEL_WIDTH > finalEvent.getWidth() ? MIN_LABEL_WIDTH : finalEvent.getWidth() + 30;
+        labelHeight = MIN_LABEL_HEIGHT > finalEvent.getHeight() ? MIN_LABEL_HEIGHT : finalEvent.getHeight() + 30;
+        finalEvent.setFont(initialFontSize);
         
-        paper.setSize((arrowWidth * arrowColumns) + (widthPointer * EVENT_COLUMNS), 
+        paper.setSize((arrowWidth * arrowColumns) + (labelWidth * EVENT_COLUMNS), 
                 (labelHeight * rows) + rowBufferHeight + timeArrowBuffer);
         
         
         
         // Maybe the event columns should go in a data structure so we don't
         // have to do things like this
-        translateAndScaleEvents(leftEventCol, labelHeight, fontSize, 
-                labelWidth / 2);
-        translateAndScaleEvents(midEventCol, labelHeight, fontSize,
-                (labelWidth / 2) + (labelWidth + arrowWidth));
-        translateAndScaleEvents(rightEventCol, labelHeight, fontSize,
-                (labelWidth / 2) + 2 * (labelWidth + arrowWidth));
+        double leftColX = labelWidth / 2;
+        double midColX = labelWidth / 2 + labelWidth + arrowWidth;
+        double rightColX = labelWidth / 2 + 2 * (labelWidth + arrowWidth);
+        translateAndScaleEvents(leftEventCol, labelHeight, targetFontSize, 
+        		leftColX);
+        translateAndScaleEvents(midEventCol, labelHeight, targetFontSize,
+        		midColX);
+        translateAndScaleEvents(rightEventCol, labelHeight, targetFontSize,
+                rightColX);
         
         translateAndScaleArrows(apInvs, arrowWidth, 
                 labelWidth + ARROW_LABEL_BUFFER);
@@ -287,13 +295,13 @@ public class InvariantsGraph {
         translateAndScaleArrows(nfbyInvs, arrowWidth,
                 2 * labelWidth + ARROW_LABEL_BUFFER + arrowWidth);
         
-        double timeArrowTargetX = (labelWidth / 2) + (labelWidth + arrowWidth);
         double timeArrowTargetY = (labelHeight * rows) + rowBufferHeight +  timeArrowBuffer / 2;
-        double timeArrowdx = timeArrowTargetX - timeArrow.getCenterX();
+        double timeArrowdx = midColX - timeArrow.getCenterX();
         double timeArrowdy = timeArrowTargetY - timeArrow.getCenterY();
+        timeArrow.scale(rightColX - leftColX, timeArrow.getHeight());
         timeArrow.translate(timeArrowdx, timeArrowdy);
 
-        double timeLabelTargetX = timeArrowTargetX + 10;
+        double timeLabelTargetX = midColX + 10;
         double timeLabelTargetY = timeArrowTargetY + 10;
         double timeLabeldx = timeLabelTargetX - timeLabel.getCenterX();
         double timeLabeldy = timeLabelTargetY - timeLabel.getCenterY();
@@ -302,7 +310,7 @@ public class InvariantsGraph {
     }
     
     // This is a bottleneck
-    public int getMaxFontSize(double maxHeight, Double maxWidth, Map<String, Event> typeToEvent) {
+    public Event getMaxFontSize(double maxHeight, double maxWidth, Map<String, Event> typeToEvent) {
         final int[] fonts = {20, 30, 40, 50};
         
         String longestType = "";
@@ -336,7 +344,7 @@ public class InvariantsGraph {
         }
         
         i = 0;
-        while (!heightGreater && !widthGreater && i < fonts.length) {
+        while (!(heightGreater || widthGreater) && i < fonts.length) {
             int testFont = fonts[i];
             if (testFont > currentFont) {
                 int prevFont = currentFont;
@@ -352,17 +360,14 @@ public class InvariantsGraph {
             i++;
         }
         
-        maxWidth = longestEvent.getWidth();
-
-        longestEvent.setFont(initialFont);
-        return currentFont;
+        return longestEvent;
     }
     
     /* Maybe this should be in TOInvariant? I feel like I'm breaking
      * abstraction barriers here by digging at the arrow of the inv
      */
     private void translateAndScaleArrows(List<TOInvariant> arrows, 
-            int maxWidth, int targetX) {
+    		double maxWidth, double targetX) {
         
         for (int i = 0; i < arrows.size(); i++) {
             
@@ -392,13 +397,13 @@ public class InvariantsGraph {
      * some abstraction barriers here as well
      */
     private void translateAndScaleEvents(Map<String, Event> typeToEvent, 
-            int maxHeight, int fontSize, int targetX) {
+    		double maxHeight, int fontSize, double targetX) {
         
         for (int i = 0; i < eventTypesList.size(); i++) {
             String eventString = eventTypesList.get(i);
             Event event = typeToEvent.get(eventString);
             
-            int targetY = maxHeight / 2 + i *
+            double targetY = maxHeight / 2 + i *
                     (maxHeight + MIN_VERTICAL_LABEL_BUFFER);
             
             double initialX = event.getCenterX();

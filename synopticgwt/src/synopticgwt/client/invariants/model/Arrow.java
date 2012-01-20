@@ -24,6 +24,7 @@ public class Arrow implements Serializable {
     // Part of the arrowhead that has a negative angular offset from the body
     private Path negativeHead;
 	private Paper paper;
+	private double curTheta;
 
     /** 
      * Draws an arrow from (x1, y1) to (x2, y2) on paper 
@@ -45,14 +46,14 @@ public class Arrow implements Serializable {
     public Arrow(double x1, double y1, double x2, double y2, Paper paper) {
     	this(x1, y1, x2, y2, paper, TARGET_BUFFER);
     }
-
-    /** Draws and arrow from (x1, y1) to (x2, y2) */
-    public void constructArrow(double x1, double y1, double x2, double y2) {
-        /* 
+    
+    /** Computes theta with x2, y2 as the relative origin */
+    public double computeTheta(double x1, double y1, double x2, double y2) {
+    	/* 
          * I conceptually set (x2, y2) to (0, 0) and compute the relevant 
          * x1 and y1 values
          * */
-        double xRelativeZero = x1 - x2;
+    	double xRelativeZero = x1 - x2;
         double yRelativeZero = y1 - y2;
         
         /* 
@@ -63,9 +64,15 @@ public class Arrow implements Serializable {
          * In polar coordinates, I am computing theta given
          * x = xRelativeZero and y = yRelativeZero
          * */
-        double theta = Math.atan2(yRelativeZero, xRelativeZero);
-        double positiveTheta = theta + Math.PI / 4;
-        double negativeTheta = theta - Math.PI / 4;
+        return Math.atan2(yRelativeZero, xRelativeZero);
+    }
+
+    /** Draws and arrow from (x1, y1) to (x2, y2) */
+    public void constructArrow(double x1, double y1, double x2, double y2) {
+         
+        curTheta = computeTheta(x1, y1, x2, y2);
+        double positiveTheta = curTheta + Math.PI / 4;
+        double negativeTheta = curTheta - Math.PI / 4;
 
         /*
          * This computes the coodrinates for the part of the arrowhead that
@@ -158,6 +165,16 @@ public class Arrow implements Serializable {
         negativeHead.translate(dx, dy);
     }
     
+    // Assumes head is already translated to (x2, y2)
+    private void fixHeadRotation() {
+    	double targetTheta = computeTheta(getX1(), getY1(), getX2(), getY2());
+    	double thetaDiffRad = targetTheta - curTheta;
+    	double thetaDiffDeg = Math.toDegrees(thetaDiffRad);
+    	positiveHead.rotate(thetaDiffDeg, getX2(), getY2());
+    	negativeHead.rotate(thetaDiffDeg, getX2(), getY2());
+    }
+    
+    
     public void scale(double targetWidth, double targetHeight) {
         double initialX2 = body.getX2();
         double initialY2 = body.getY2();
@@ -171,6 +188,7 @@ public class Arrow implements Serializable {
         double dy = targetY2 - initialY2;
         positiveHead.translate(dx, dy);
         negativeHead.translate(dx, dy);
+        fixHeadRotation();
 
     }
     
@@ -200,5 +218,21 @@ public class Arrow implements Serializable {
     
     public double getBBoxY() {
         return body.getBBoxY();
+    }
+    
+    public double getX1() {
+    	return getBBoxX();
+    }
+    
+    public double getY1() {
+    	return arrowSrcIsTopLeft() ? getBBoxY() : getBBoxY() + getHeight();
+    }
+    
+    public double getX2() {
+    	return getBBoxX() + getWidth();
+    }
+    
+    public double getY2() {
+    	return arrowSrcIsTopLeft() ? getBBoxY() + getHeight() : getBBoxY();
     }
 }

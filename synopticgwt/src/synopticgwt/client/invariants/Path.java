@@ -202,24 +202,23 @@ public class Path implements Serializable {
     }
     
     public double getY1() {
-        if (pathSrcIsTopLeft()) {
-            return getBBoxY();
-        }
-        return getBBoxY() + getBBoxHeight();
+        return pathSrcIsTopLeft() ? getBBoxY() : getBBoxY() + getBBoxHeight();
     }
     
     public double getX2() {
         return getBBoxX() + getBBoxWidth();
     }
     public double getY2() {
-        if (pathSrcIsTopLeft()) {
-            return getBBoxY() + getBBoxHeight();
-        }
-        return getBBoxY();
+    	return pathSrcIsTopLeft() ? getBBoxY() + getBBoxHeight() : getBBoxY();
     }
     
     public boolean pathSrcIsTopLeft() {
         return pathSrcIsTopLeft;
     }
+
+	public native void rotate(double r, double cx, double cy) /*-{
+	    var path = this.@synopticgwt.client.invariants.Path::path;
+	    path.rotate(r, cx, cy);
+	}-*/;
     
 }
