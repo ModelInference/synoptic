@@ -513,7 +513,7 @@ public class ModelTab extends Tab<DockPanel> {
         public void onClick(ClickEvent event) {
             try {
                 synopticService.getPathsThroughPartitionIDs(selectedNodes,
-                        new ViewPathsThroughPartitionsAsyncCallback(pWheel, ModelTab.this));
+                        new GetPathsThroughPartitionIDsAsyncCallback(pWheel, ModelTab.this));
             } catch (Exception e) {
                 // TODO: Do something about the exception
             }

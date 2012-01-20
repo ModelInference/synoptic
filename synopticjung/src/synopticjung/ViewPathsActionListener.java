@@ -5,10 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,47 +45,48 @@ public class ViewPathsActionListener implements ActionListener {
         if (pickedVertices.isEmpty()) {
             JOptionPane
                     .showMessageDialog(jungGui.frame, "No vertices selected");
-        } else {
-            final Map<Integer, Set<ITransition<Partition>>> paths = jungGui.pGraph
-                    .getPathsThroughPartitions(pickedVertices);
-
-            // Now intersectionOfIDs is a set intersection of the
-            // traceIDs for the current selected vertices
-            if (paths == null || paths.isEmpty()) {
-                JOptionPane.showMessageDialog(jungGui.frame,
-                        "No traces observed through all selected vertices");
-            } else {
-                JFrame optionsFrame = new JFrame("Possible traces");
-                JLabel message = new JLabel("Select path to view",
-                        SwingConstants.CENTER);
-                JPanel panel = new JPanel();
-                ButtonGroup traceButtonGroup = new ButtonGroup();
-                for (final Integer trace : paths.keySet()) {
-                    JRadioButton button = new JRadioButton("Trace ID " + trace);
-                    button.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent event) {
-                            jungGui.displayPath(paths.get(trace));
-                        }
-                    });
-                    panel.add(button);
-                    traceButtonGroup.add(button);
-                    optionsFrame.addWindowListener(new WindowAdapter() {
-                        @Override
-                        public void windowClosing(WindowEvent ev) {
-                            jungGui.displayPath(null);
-                        }
-                    });
-                    optionsFrame
-                            .setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                    optionsFrame.add(message, BorderLayout.NORTH);
-                    optionsFrame.add(panel, BorderLayout.SOUTH);
-                    optionsFrame.pack();
-                    optionsFrame.setVisible(true);
-                }
-            }
+            return;
         }
 
+        final Map<Integer, Set<ITransition<Partition>>> paths = jungGui.pGraph
+                .getPathsThroughPartitions(pickedVertices);
+
+        // Now intersectionOfIDs is a set intersection of the
+        // traceIDs for the current selected vertices
+        if (paths.isEmpty()) {
+            JOptionPane.showMessageDialog(jungGui.frame,
+                    "No traces observed through selected vertices");
+            return;
+        }
+
+        JFrame optionsFrame = new JFrame("Possible traces");
+        JLabel message = new JLabel("Select path to view",
+                SwingConstants.CENTER);
+        JPanel panel = new JPanel();
+        ButtonGroup traceButtonGroup = new ButtonGroup();
+        for (final Integer trace : paths.keySet()) {
+            JRadioButton button = new JRadioButton("Trace ID " + trace);
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent event) {
+                    jungGui.displayPath(paths.get(trace));
+                }
+            });
+            panel.add(button);
+            traceButtonGroup.add(button);
+            optionsFrame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent ev) {
+                    jungGui.displayPath(null);
+                }
+            });
+            optionsFrame
+                    .setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            optionsFrame.add(message, BorderLayout.NORTH);
+            optionsFrame.add(panel, BorderLayout.SOUTH);
+            optionsFrame.pack();
+            optionsFrame.setVisible(true);
+        }
     }
 
     void traverse(EventNode event, Set<ITransition<Partition>> path) {
