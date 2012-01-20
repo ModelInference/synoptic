@@ -158,6 +158,11 @@ var GRAPH_HANDLER = {
 
         // The text, when clicked should behave as if the rectangle was clicked.
         text.node.onmouseup = rect.node.onmouseup;
+        
+        // The text, when hovering over and hovering out should behave the same
+        // as the rectangle.
+        text.node.onmouseout = rect.node.onmouseout;
+        text.node.onmouseover = rect.node.onmouseover;
         return set;
         
     },
