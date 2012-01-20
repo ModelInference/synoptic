@@ -103,9 +103,9 @@ var GRAPH_HANDLER = {
         rect.node.onmouseup = function(event) {
             if (node.label != "INITIAL" && node.label != "TERMINAL") {
                 // TODO: When selecting a node to view log lines that has
-                // already
-                // been selected (and the log lines are currently in view),
+                // already been selected (and the log lines are currently in view),
                 // don't bother making another RPC (since it's unnecessary).
+            	// (Reported in Issue 202.)
                 if (!event.shiftKey) {
                     clearSelectedNodes();
                     viewLogLines(parseInt(node.id));
