@@ -677,6 +677,9 @@ public class SynopticService extends RemoteServiceServlet implements
 
             Map<Integer, Set<ITransition<Partition>>> paths = pGraph
                     .getPathsThroughSelectedNodeIDs(selectedNodes);
+            
+            if (paths == null)
+                return null;
 
             // Convert the map from transitions to edges so as to be manageable
             // by

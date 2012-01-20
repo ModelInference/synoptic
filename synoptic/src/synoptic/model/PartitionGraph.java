@@ -663,8 +663,7 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     /**
-     * Returns all possible paths through the selected node IDs. A node ID is a
-     * hash code of a node within this graph.
+     * Returns all possible paths through the selected partition nodes.
      * 
      * @param selectedNodeIDs
      * @return A mapping of trace IDs to a set of transitions that make up a
