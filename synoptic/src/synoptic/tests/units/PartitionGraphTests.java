@@ -244,9 +244,10 @@ public class PartitionGraphTests extends SynopticTest {
         pGraph.getPathsThroughSelectedNodeIDs(null);
     }
 
-    @Test
-    public void exportPathsThroughSelecetdNodesSingleNodeSelected()
-            throws Exception {
+    // Creates a partition graph the format of which will be
+    // used for the tests dealing with grabbing paths through selected
+    // nodes.
+    private PartitionGraph getPGraphTemplate() throws Exception {
         // Abstract log with two traces (branches from Initial to c and f
         // and then merges/separates at the b/a nodes).
         String events[] = new String[] { "1 0 c", "2 0 b", "3 0 a", "4 0 d",
@@ -256,6 +257,13 @@ public class PartitionGraphTests extends SynopticTest {
         parser.setPartitionsMap("\\k<nodename>");
         TOInvariantMiner miner = new ChainWalkingTOInvMiner();
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner);
+        return pGraph;
+    }
+
+    @Test
+    public void exportPathsThroughSelecetdNodesSingleNodeSelected()
+            throws Exception {
+        PartitionGraph pGraph = getPGraphTemplate();
 
         // Grab the partition of event type 'c' from the graph.
         // This will be the "selected" node.
@@ -280,6 +288,45 @@ public class PartitionGraphTests extends SynopticTest {
 
         // Make sure the paths aren't null.
         assertTrue("There should be one trace containing C.", paths != null);
-        assertEquals("There should be one trace only.", paths.keySet().size(), 1);
+        assertEquals("There should be one trace only.", paths.keySet().size(),
+                1);
+    }
+
+    @Test
+    public void exportPathsThroughSelectedNodesMultipleNodesSelected()
+            throws Exception {
+        PartitionGraph pGraph = getPGraphTemplate();
+
+        Set<Partition> nodes = pGraph.getNodes();
+        Set<INode<Partition>> selectedNodes = new HashSet<INode<Partition>>();
+
+        // There should only be one a node and one C node, as well as one path
+        // through the two of them.
+        INode<Partition> cPartition = null;
+        INode<Partition> aPartition = null;
+        for (Partition p : nodes) {
+            String eType = p.getEType().toString();
+            if (eType.equals("c")) {
+                cPartition = p;
+            }
+
+            if (eType.equals("a")) {
+                aPartition = p;
+            }
+        }
+
+        assert (aPartition != null && cPartition != null);
+
+        // Add the "selected" partitions.
+        selectedNodes.add(aPartition);
+        selectedNodes.add(cPartition);
+
+        Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+                .getPathsThroughSelectedNodeIDs(selectedNodes);
+
+        assertTrue("There should be a trace containing these two nodes.",
+                paths != null);
+        assertEquals("There should be exactly one trace",
+                paths.keySet().size(), 1);
     }
 }

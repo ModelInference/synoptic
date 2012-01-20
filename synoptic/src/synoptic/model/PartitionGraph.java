@@ -671,10 +671,11 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     public Map<Integer, Set<ITransition<Partition>>> getPathsThroughSelectedNodeIDs(
             Set<INode<Partition>> selectedNodes) {
-        
+
         if (selectedNodes == null || selectedNodes.isEmpty())
-            throw new IllegalArgumentException("Expected set of selected partition nodes.");
-        
+            throw new IllegalArgumentException(
+                    "Expected set of selected partition nodes.");
+
         // The list of each set of partition IDs
         List<Set<Integer>> partitionIDs = new ArrayList<Set<Integer>>();
 
@@ -684,9 +685,7 @@ public class PartitionGraph implements IGraph<Partition> {
             // Temporary partition IDs to be added to the overall list.
             Set<Integer> tempIDs = new HashSet<Integer>();
             for (EventNode e : ((Partition) p).getEventNodes()) {
-                if (e.getTraceID() != 0) {
-                    tempIDs.add(e.getTraceID());
-                }
+                tempIDs.add(e.getTraceID());
             }
 
             if (!tempIDs.isEmpty())
@@ -759,14 +758,14 @@ public class PartitionGraph implements IGraph<Partition> {
 
     /**
      * Returns a reference to a partition node based on the ID of the node
-     * passed.  If the node is not found within the graph, null is returned.
+     * passed. If the node is not found within the graph, null is returned.
      */
     public Partition getNodeByID(int id) {
         for (Partition p : this.getNodes()) {
             if (p.hashCode() == id)
                 return p;
         }
-        
+
         return null;
     }
 }
