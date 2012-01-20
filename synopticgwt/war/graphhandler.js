@@ -6,6 +6,9 @@
 // An assocative array of event node IDs mapped to raphael rectangle objects.
 var selectedDraculaNodes = {};
 
+// An array containing all rectangles objects.
+var allRects = [];
+
 /*
  * A function for clearing the state of the selected nodes.
  * each node is set back to the default color and then removed
@@ -75,6 +78,9 @@ var GRAPH_HANDLER = {
                 "stroke-width" : 2,
                 r : "9px"
             });
+            // associate label with rectangle object
+            rect.label = node.label;
+            allRects[allRects.length] = rect;
         }
 
         // Adds a function to the given rectangle so that, when clicked,
@@ -114,7 +120,24 @@ var GRAPH_HANDLER = {
                 }
             }
         };
-
+        
+        // On a mouse hover, highlight that node and any other nodes
+        // that are of the same type.
+        rect.node.onmouseover = function(event) {
+        	if (node.label != "INITIAL" && node.label != "TERMINAL") {
+        		for (var i = 0; i < allRects.length; i++) {
+        			var currRect = allRects[i];
+        			if (currRect.label == node.label) {
+        				currRect.attr("fill", "blue");
+        			}
+        		}
+        	}
+        };
+        
+        rect.node.onmouseout = function(event) {
+        
+        };
+        
         text = canvas.text(node.point[0] + 30, node.point[1] + 10, node.label)
                 .attr({
                     "font-size" : "16px",
@@ -127,6 +150,7 @@ var GRAPH_HANDLER = {
         // The text, when clicked should behave as if the rectangle was clicked.
         text.node.onmouseup = rect.node.onmouseup;
         return set;
+        
     },
 
     // updates the graph by removing the node with the splitNodeID and adding
