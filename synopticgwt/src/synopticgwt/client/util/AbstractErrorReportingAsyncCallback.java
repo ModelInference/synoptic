@@ -23,7 +23,8 @@ import synopticgwt.shared.GWTServerException;
  * @param <T>
  *            The callback return value type.
  */
-public abstract class AbstractErrorReportingAsyncCallback<T> implements AsyncCallback<T> {
+public abstract class AbstractErrorReportingAsyncCallback<T> implements
+        AsyncCallback<T> {
 
     /** Progress indicator associated with the asynchronous call. */
     protected ProgressWheel pWheel;
@@ -38,7 +39,8 @@ public abstract class AbstractErrorReportingAsyncCallback<T> implements AsyncCal
      * @param pWheel
      * @param defaultErrorMsg
      */
-    public AbstractErrorReportingAsyncCallback(ProgressWheel pWheel, String defaultErrorMsg) {
+    public AbstractErrorReportingAsyncCallback(ProgressWheel pWheel,
+            String defaultErrorMsg) {
         this.defaultErrorMsg = defaultErrorMsg;
         this.pWheel = pWheel;
 

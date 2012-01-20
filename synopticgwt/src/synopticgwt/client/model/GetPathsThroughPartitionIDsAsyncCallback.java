@@ -7,14 +7,17 @@ import synopticgwt.client.util.AbstractErrorReportingAsyncCallback;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTEdge;
 
-public class ViewPathsThroughPartitionsAsyncCallback extends
+/**
+ * Callback handler for the getPathsThroughPartitionIDs() service call.
+ */
+public class GetPathsThroughPartitionIDsAsyncCallback extends
         AbstractErrorReportingAsyncCallback<Map<Integer, Set<GWTEdge>>> {
 
     private final ModelTab modelTab;
 
-    public ViewPathsThroughPartitionsAsyncCallback(ProgressWheel pWheel,
+    public GetPathsThroughPartitionIDsAsyncCallback(ProgressWheel pWheel,
             ModelTab modelPanel) {
-        super(pWheel, "view paths through partitions call");
+        super(pWheel, "getPathsThroughPartitionIDs call");
         this.modelTab = modelPanel;
         initialize();
     }
@@ -22,7 +25,6 @@ public class ViewPathsThroughPartitionsAsyncCallback extends
     @Override
     public void onFailure(Throwable caught) {
         super.onFailure(caught);
-        // TODO: Inform the user of more details about the error.
     }
 
     @Override
@@ -32,7 +34,8 @@ public class ViewPathsThroughPartitionsAsyncCallback extends
         super.onSuccess(paths);
 
         // TODO Remove the debug code after the paths are properly displayed
-        // (this is for verification.  Any static method being called to ModelGraphic
+        // (this is for verification. Any static method being called to
+        // ModelGraphic
         // is debug code at the moment).
         if (paths.isEmpty()) {
             showError("No paths through selected partitions found.", "", "");
