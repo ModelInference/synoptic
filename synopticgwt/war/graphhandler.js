@@ -3,6 +3,21 @@
  * display.
  */
 
+// Default color for nodes.
+var DEFAULT_COLOR = "#fa8";
+
+// Default color for initial and terminal nodes.
+var INIT_TERM_COLOR = "#808080";
+
+// Color used when highlighting a node.
+var HIGHLIGHT_COLOR = "blue";
+
+// Label name that indicates initial node
+var INITIAL = "INITIAL";
+
+// Label name that indicates terminal node.
+var TERMINAL = "TERMINAL";
+
 // An assocative array of event node IDs mapped to raphael rectangle objects.
 var selectedDraculaNodes = {};
 
@@ -16,7 +31,7 @@ var allRects = [];
  */
 var clearSelectedNodes = function() {
     for (var i in selectedDraculaNodes) {
-        selectedDraculaNodes[i].attr("fill", "#fa8");
+        selectedDraculaNodes[i].attr("fill", DEFAULT_COLOR);
         delete selectedDraculaNodes[i];
     }
 }
@@ -62,11 +77,11 @@ var GRAPH_HANDLER = {
     // label)
     "render" : function(canvas, node) {
         var rect;
-        if (node.label == "INITIAL" || node.label == "TERMINAL") {
+        if (node.label == INITIAL || node.label == TERMINAL) {
             // creates the rectangle to be drawn
             var rect = canvas.rect(node.point[0] - 30, node.point[1] - 13, 122,
                     46).attr({
-                "fill" : "#808080",
+                "fill" : INIT_TERM_COLOR,
                 "stroke-width" : 2,
                 r : "40px"
             });
@@ -74,7 +89,7 @@ var GRAPH_HANDLER = {
             // creates the rectangle to be drawn
             var rect = canvas.rect(node.point[0] - 30, node.point[1] - 13, 122,
                     46).attr({
-                "fill" : "#fa8",
+                "fill" : DEFAULT_COLOR,
                 "stroke-width" : 2,
                 r : "9px"
             });
@@ -101,7 +116,7 @@ var GRAPH_HANDLER = {
         // will be deselected. Holding shift and clicking a selected node
         // will deselect it.
         rect.node.onmouseup = function(event) {
-            if (node.label != "INITIAL" && node.label != "TERMINAL") {
+            if (node.label != INITIAL && node.label != TERMINAL) {
                 // TODO: When selecting a node to view log lines that has
                 // already
                 // been selected (and the log lines are currently in view),
@@ -112,10 +127,10 @@ var GRAPH_HANDLER = {
                 }
                 
                 if (selectedDraculaNodes[node.id] == undefined) {
-                    rect.attr("fill", "blue");
+                    rect.attr("fill", HIGHLIGHT_COLOR);
                     selectedDraculaNodes[node.id] = rect;
                 } else {
-                    rect.attr("fill", "#fa8");
+                    rect.attr("fill", DEFAULT_COLOR);
                     delete selectedDraculaNodes[node.id];
                 }
             }
@@ -124,11 +139,11 @@ var GRAPH_HANDLER = {
         // On a mouse hover, highlight that node and any other nodes
         // that are of the same type.
         rect.node.onmouseover = function(event) {
-        	if (node.label != "INITIAL" && node.label != "TERMINAL") {
+        	if (node.label != INITIAL && node.label != TERMINAL) {
         		for (var i = 0; i < allRects.length; i++) {
         			var currRect = allRects[i];
         			if (currRect.label == node.label) {
-        				currRect.attr("fill", "blue");
+        				currRect.attr("fill", HIGHLIGHT_COLOR);
         			}
         		}
         	}
@@ -137,11 +152,11 @@ var GRAPH_HANDLER = {
         // On a mouse hovering out, un-highlight that node and any 
         // other nodes that are of the same type.
         rect.node.onmouseout = function(event) {
-        	if (node.label != "INITIAL" && node.label != "TERMINAL") {
+        	if (node.label != INITIAL && node.label != TERMINAL) {
         		for (var i = 0; i < allRects.length; i++) {
         			var currRect = allRects[i];
         			if (currRect.label == node.label) {
-        				currRect.attr("fill", "#fa8");
+        				currRect.attr("fill", DEFAULT_COLOR);
         			}
         		}
         	}
