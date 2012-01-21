@@ -1,0 +1,34 @@
+# Use the glob syntax:
+syntax: glob
+
+# Ignore directories with auto-generated files
+synoptic/bin/*
+synoptic/junit/*
+
+# Manifest is generated automatically during build.
+synopticgwt/META-INF/MANIFEST.MF
+synopticgwt/war/WEB-INF/*
+synopticgwt/www-test/*
+synopticgwt/war/synopticgwt.SynopticGWT.JUnit/*
+synopticgwt/war/synopticgwt/
+synopticgwt/junit/
+synopticgwt/war/model-exports/*
+synopticgwt/war/uploaded-logfiles/*
+synopticgwt/war/userlogfileexport/*
+synopticgwt/.gwt/*
+synopticgwt/.settings/*
+synopticgwt/gwt-unitCache/
+
+synopticjung/bin/*
+
+InvDFAMinimization/bin/*
+InvDFAMinimization/junit/*
+
+# Ignore vim .swp files
+.*.swp
+
+# Ignore the compiled synoptic.jar file
+lib/synoptic.jar
+
+# Ignore dot/png files created by tests
+synoptic/test-output/*
