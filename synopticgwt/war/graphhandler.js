@@ -6,11 +6,17 @@
 // Default color for nodes.
 var DEFAULT_COLOR = "#fa8";
 
+// Default stroke for border of node.
+var DEFAULT_STROKE_WIDTH = 2;
+
 // Default color for initial and terminal nodes.
 var INIT_TERM_COLOR = "#808080";
 
 // Color used when highlighting a node.
 var HIGHLIGHT_COLOR = "blue";
+
+// Stroke width for border when node selected.
+var HIGHLIGHT_STROKE_WIDTH = 4;
 
 // Label name that indicates initial node
 var INITIAL = "INITIAL";
@@ -82,7 +88,7 @@ var GRAPH_HANDLER = {
             var rect = canvas.rect(node.point[0] - 30, node.point[1] - 13, 122,
                     46).attr({
                 "fill" : INIT_TERM_COLOR,
-                "stroke-width" : 2,
+                "stroke-width" : DEFAULT_STROKE_WIDTH,
                 r : "40px"
             });
         } else {
@@ -90,7 +96,7 @@ var GRAPH_HANDLER = {
             var rect = canvas.rect(node.point[0] - 30, node.point[1] - 13, 122,
                     46).attr({
                 "fill" : DEFAULT_COLOR,
-                "stroke-width" : 2,
+                "stroke-width" : DEFAULT_STROKE_WIDTH,
                 r : "9px"
             });
             // associate label with rectangle object
@@ -133,10 +139,17 @@ var GRAPH_HANDLER = {
             				currRect.attr("fill", HIGHLIGHT_COLOR);
             			} else {
             				// All nodes not same as selected node type is default color.
-            				currRect.attr("fill", DEFAULT_COLOR);
+            				currRect.attr({
+            					"fill": DEFAULT_COLOR,
+            					"stroke": "black",
+            					"stroke-width": DEFAULT_STROKE_WIDTH
+            				});
             			}
             		}
-                    //rect.attr("fill", HIGHLIGHT_COLOR);
+    				rect.attr({
+    					"stroke": "red",
+    					"stroke-width": HIGHLIGHT_STROKE_WIDTH
+    				});
                     selectedDraculaNodes[node.id] = rect;
                 } else {
                     rect.attr("fill", DEFAULT_COLOR);
