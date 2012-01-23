@@ -133,7 +133,6 @@ var GRAPH_HANDLER = {
                 }
                 
                 if (selectedDraculaNodes[node.id] == undefined) {
-              
                 	for (var i = 0; i < allRects.length; i++) {
             			var currRect = allRects[i];
             			if (currRect.label == node.label) {
