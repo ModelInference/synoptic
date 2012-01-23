@@ -33,7 +33,6 @@ var clearSelectedNodes = function() {
     for (var i in selectedDraculaNodes) {
         selectedDraculaNodes[i].attr("fill", DEFAULT_COLOR);
         delete selectedDraculaNodes[i];
-        removeSelectedNode(parseInt(i));
     }
 }
 
@@ -119,22 +118,29 @@ var GRAPH_HANDLER = {
         rect.node.onmouseup = function(event) {
             if (node.label != INITIAL && node.label != TERMINAL) {
                 // TODO: When selecting a node to view log lines that has
-                // already been selected (and the log lines are currently in view),
+                // already
+                // been selected (and the log lines are currently in view),
                 // don't bother making another RPC (since it's unnecessary).
-            	// (Reported in Issue 202.)
                 if (!event.shiftKey) {
                     clearSelectedNodes();
                     viewLogLines(parseInt(node.id));
                 }
                 
                 if (selectedDraculaNodes[node.id] == undefined) {
-                    rect.attr("fill", HIGHLIGHT_COLOR);
+                	for (var i = 0; i < allRects.length; i++) {
+            			var currRect = allRects[i];
+            			if (currRect.label == node.label) {
+            				currRect.attr("fill", HIGHLIGHT_COLOR);
+            			} else {
+            				// All nodes not same as selected node type is default color.
+            				currRect.attr("fill", DEFAULT_COLOR);
+            			}
+            		}
+                    //rect.attr("fill", HIGHLIGHT_COLOR);
                     selectedDraculaNodes[node.id] = rect;
-                    addSelectedNode(parseInt(node.id));
                 } else {
                     rect.attr("fill", DEFAULT_COLOR);
                     delete selectedDraculaNodes[node.id];
-                    removeSelectedNode(parseInt(node.id));
                 }
             }
         };
@@ -156,9 +162,17 @@ var GRAPH_HANDLER = {
         // other nodes that are of the same type.
         rect.node.onmouseout = function(event) {
         	if (node.label != INITIAL && node.label != TERMINAL) {
+        		var selectedlabel;
+        		// Get label of selected node.
+        		for (var i in selectedDraculaNodes) {
+        			selectedlabel = selectedDraculaNodes[i].label;
+        			break;
+        		}
         		for (var i = 0; i < allRects.length; i++) {
         			var currRect = allRects[i];
-        			if (currRect.label == node.label) {
+        			// Return to default color if node is same type as hovered out node
+        			// and node type is not currently selected.
+        			if (currRect.label == node.label && currRect.label != selectedlabel) {
         				currRect.attr("fill", DEFAULT_COLOR);
         			}
         		}
