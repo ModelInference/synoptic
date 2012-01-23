@@ -133,19 +133,23 @@ var GRAPH_HANDLER = {
                 }
                 
                 if (selectedDraculaNodes[node.id] == undefined) {
+              
                 	for (var i = 0; i < allRects.length; i++) {
             			var currRect = allRects[i];
             			if (currRect.label == node.label) {
             				currRect.attr("fill", HIGHLIGHT_COLOR);
             			} else {
             				// All nodes not same as selected node type is default color.
-            				currRect.attr({
-            					"fill": DEFAULT_COLOR,
-            					"stroke": "black",
-            					"stroke-width": DEFAULT_STROKE_WIDTH
-            				});
+            				currRect.attr("fill", DEFAULT_COLOR);
             			}
+            			// Set all nodes to be have default stroke width and
+            			// a black border.
+            			currRect.attr({
+            				"stroke": "black",
+            				"stroke-width": DEFAULT_STROKE_WIDTH
+            			})
             		}
+                	// Set the selected node to have red and thicker border.
     				rect.attr({
     					"stroke": "red",
     					"stroke-width": HIGHLIGHT_STROKE_WIDTH
