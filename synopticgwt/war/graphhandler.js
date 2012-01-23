@@ -43,34 +43,53 @@ var clearSelectedNodes = function() {
 }
 
 /*
+ * A function that returns true if the rectangle object
+ * being passed is currently selected or is of the same
+ * type as a node already selected. 
+ */
+var isSelectedNode = function(rect) {
+	for (var i in selectedDraculaNodes) {
+		if (selectedDraculaNodes[i] == rect ||
+				selectedDraculaNodes[i].label == rect.label) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/*
  * A function for styling nodes when a node is selected.
  * The nodes that are not of the same type as the node
  * selected is set to default styling. Nodes with same type
  * as selected are highlighted. The selected node has a red
  * border.
  */
-var styleSelectedNodes = function(node, rect) {
+var styleSelectedNodes = function(node, rect, isshiftclick) {
 	for (var i = 0; i < allRects.length; i++) {
 		var currRect = allRects[i];
 		if (currRect.label == node.label) {
 			currRect.attr("fill", HIGHLIGHT_COLOR);
-		} else {
+		} else if (!isSelectedNode(currRect)) {
 			// All nodes not same as selected node type is default color.
 			currRect.attr("fill", DEFAULT_COLOR);
 		}
-		// Set all nodes to be have default stroke width and
-		// a black border.
-		currRect.attr({
-			"stroke": "black",
-			"stroke-width": DEFAULT_STROKE_WIDTH
-		})
+		
+		if (!isshiftclick) {
+			// Change to default border in case of prior selected
+			// node.
+			currRect.attr({
+				"stroke": "black",
+				"stroke-width": DEFAULT_STROKE_WIDTH
+			});
+		}
 	}
 	// Set the selected node to have red and thicker border.
-	rect.attr({
-		"stroke": "red",
-		"stroke-width": HIGHLIGHT_STROKE_WIDTH
-	});
-    selectedDraculaNodes[node.id] = rect;
+	if (!isshiftclick) {
+		rect.attr({
+			"stroke": "red",
+			"stroke-width": HIGHLIGHT_STROKE_WIDTH
+		});
+	}
 }
 
 var GRAPH_HANDLER = {
@@ -164,7 +183,8 @@ var GRAPH_HANDLER = {
                 }
                 
                 if (selectedDraculaNodes[node.id] == undefined) {
-                	styleSelectedNodes(node, rect);
+                	styleSelectedNodes(node, rect, event.shiftKey);
+                    selectedDraculaNodes[node.id] = rect;
                 } else {
                     rect.attr("fill", DEFAULT_COLOR);
                     delete selectedDraculaNodes[node.id];
@@ -189,17 +209,11 @@ var GRAPH_HANDLER = {
         // other nodes that are of the same type.
         rect.node.onmouseout = function(event) {
         	if (node.label != INITIAL && node.label != TERMINAL) {
-        		var selectedlabel;
-        		// Get label of selected node.
-        		for (var i in selectedDraculaNodes) {
-        			selectedlabel = selectedDraculaNodes[i].label;
-        			break;
-        		}
         		for (var i = 0; i < allRects.length; i++) {
         			var currRect = allRects[i];
         			// Return to default color if node is same type as hovered out node
         			// and node type is not currently selected.
-        			if (currRect.label == node.label && currRect.label != selectedlabel) {
+        			if (currRect.label == node.label && !isSelectedNode(currRect)) {
         				currRect.attr("fill", DEFAULT_COLOR);
         			}
         		}
