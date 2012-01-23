@@ -42,6 +42,37 @@ var clearSelectedNodes = function() {
     }
 }
 
+/*
+ * A function for styling nodes when a node is selected.
+ * The nodes that are not of the same type as the node
+ * selected is set to default styling. Nodes with same type
+ * as selected are highlighted. The selected node has a red
+ * border.
+ */
+var styleSelectedNodes = function(node, rect) {
+	for (var i = 0; i < allRects.length; i++) {
+		var currRect = allRects[i];
+		if (currRect.label == node.label) {
+			currRect.attr("fill", HIGHLIGHT_COLOR);
+		} else {
+			// All nodes not same as selected node type is default color.
+			currRect.attr("fill", DEFAULT_COLOR);
+		}
+		// Set all nodes to be have default stroke width and
+		// a black border.
+		currRect.attr({
+			"stroke": "black",
+			"stroke-width": DEFAULT_STROKE_WIDTH
+		})
+	}
+	// Set the selected node to have red and thicker border.
+	rect.attr({
+		"stroke": "red",
+		"stroke-width": HIGHLIGHT_STROKE_WIDTH
+	});
+    selectedDraculaNodes[node.id] = rect;
+}
+
 var GRAPH_HANDLER = {
     // array of graph nodes
     "currentNodes" : [],
@@ -133,27 +164,7 @@ var GRAPH_HANDLER = {
                 }
                 
                 if (selectedDraculaNodes[node.id] == undefined) {
-                	for (var i = 0; i < allRects.length; i++) {
-            			var currRect = allRects[i];
-            			if (currRect.label == node.label) {
-            				currRect.attr("fill", HIGHLIGHT_COLOR);
-            			} else {
-            				// All nodes not same as selected node type is default color.
-            				currRect.attr("fill", DEFAULT_COLOR);
-            			}
-            			// Set all nodes to be have default stroke width and
-            			// a black border.
-            			currRect.attr({
-            				"stroke": "black",
-            				"stroke-width": DEFAULT_STROKE_WIDTH
-            			})
-            		}
-                	// Set the selected node to have red and thicker border.
-    				rect.attr({
-    					"stroke": "red",
-    					"stroke-width": HIGHLIGHT_STROKE_WIDTH
-    				});
-                    selectedDraculaNodes[node.id] = rect;
+                	styleSelectedNodes(node, rect);
                 } else {
                     rect.attr("fill", DEFAULT_COLOR);
                     delete selectedDraculaNodes[node.id];
