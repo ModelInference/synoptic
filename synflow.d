@@ -3,17 +3,23 @@
 /*
   Purpose:
   ========
-  Runs dtrace and captures all synoptic method calls and returns, and
-  outputs these to stdout in the format:
+  Runs dtrace and captures all method calls and returns within a
+  command-line specified Java package. Outputs these to stdout in the
+  format:
   """
   c synoptic/main/Main.main.([Ljava/lang/String;)V
   r synoptic/main/Main.main.([Ljava/lang/String;)V
   """
 
-
   Usage:
   ======
-  ./synflow.d
+  ./synflow.d <package_path>
+
+  
+  Examples:
+  ========
+  $ ./synflow.d 'synoptic/'
+  $ ./synflow.d 'synoptic/main'
 
 
   Relevant articles and source code:
@@ -38,7 +44,8 @@ self string method_name;
 self string signature;
 self int indent;
 
-inline string package_prefix_filter = "synoptic/";
+inline string package_prefix_filter = $1;
+inline int package_prefix_len = strlen(package_prefix_filter);
 
 /* Retrieve the method's package name so that we can filter on it
    below. */
@@ -62,10 +69,9 @@ hotspot*:::method-return
 
 /****************************************************************/
 
-/* Print out method ENTRY information for methods in synoptic
-   namespace only. */
+/* Print out method ENTRY information for package methods only. */
 hotspot*:::method-entry
-/substr(self->package_name,0,9) == package_prefix_filter/
+/substr(self->package_name,0,package_prefix_len) == package_prefix_filter/
 {
   self->str_ptr = (char*) copyin(arg1, arg2+1);
   self->str_ptr[arg2] = '\0';
@@ -98,10 +104,9 @@ hotspot*:::method-entry
 
 
 
-/* Print out method RETURN information for methods in synoptic
-   namespace only. */
+/* Print out method RETURN information for package methods only. */
 hotspot*:::method-return
-/substr(self->package_name,0,9) == package_prefix_filter/
+/substr(self->package_name,0,package_prefix_len) == package_prefix_filter/
 {
   self->str_ptr = (char*) copyin(arg1, arg2+1);
   self->str_ptr[arg2] = '\0';
