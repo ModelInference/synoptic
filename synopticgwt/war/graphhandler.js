@@ -201,7 +201,11 @@ var GRAPH_HANDLER = {
                     selectedDraculaNodes[node.id] = rect;
                     addSelectedNode(parseInt(node.id));
                 } else {
-                    rect.attr("fill", DEFAULT_COLOR);
+                    rect.attr({
+                    	"fill": DEFAULT_COLOR,
+                    	"stroke": "black",
+            			"stroke-width": DEFAULT_STROKE_WIDTH
+                    });
                     delete selectedDraculaNodes[node.id];
                     removeSelectedNode(parseInt(node.id));
                 }
