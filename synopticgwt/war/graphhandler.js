@@ -32,25 +32,28 @@ var allRects = [];
 
 /*
  * A function for clearing the state of the selected nodes.
- * each node is set back to the default color and then removed
- * from the set of selected nodes.
+ * Each node is set back to the default color, border color,
+ * and stroke width, and then removed from the set of 
+ * selected nodes.
  */
 var clearSelectedNodes = function() {
     for (var i in selectedDraculaNodes) {
-        selectedDraculaNodes[i].attr("fill", DEFAULT_COLOR);
+        selectedDraculaNodes[i].attr({
+        	"fill": DEFAULT_COLOR,
+        	"stroke": "black",
+			"stroke-width": DEFAULT_STROKE_WIDTH
+        });
         delete selectedDraculaNodes[i];
     }
 }
 
 /*
  * A function that returns true if the rectangle object
- * being passed is currently selected or is of the same
- * type as a node already selected. 
+ * being passed is currently selected.
  */
 var isSelectedNode = function(rect) {
 	for (var i in selectedDraculaNodes) {
-		if (selectedDraculaNodes[i] == rect ||
-				selectedDraculaNodes[i].label == rect.label) {
+		if (selectedDraculaNodes[i] == rect) {
 			return true;
 		}
 	}
@@ -67,7 +70,9 @@ var isSelectedNode = function(rect) {
 var styleSelectedNodes = function(node, rect, isshiftclick) {
 	for (var i = 0; i < allRects.length; i++) {
 		var currRect = allRects[i];
+
 		if (currRect.label == node.label) {
+
 			currRect.attr("fill", HIGHLIGHT_COLOR);
 		} else if (!isSelectedNode(currRect)) {
 			// All nodes not same as selected node type is default color.
@@ -183,7 +188,16 @@ var GRAPH_HANDLER = {
                 }
                 
                 if (selectedDraculaNodes[node.id] == undefined) {
-                	styleSelectedNodes(node, rect, event.shiftKey);
+                	// Node associated with log lines listed is
+                	// surrounded by red and thick border.
+                	if (!event.shiftKey) {
+	                	rect.attr({
+	                		"stroke": "red",
+	                		"stroke-width": HIGHLIGHT_STROKE_WIDTH
+	                	});
+                	}
+                	rect.attr("fill", "blue");
+                	//styleSelectedNodes(node, rect, event.shiftKey);
                     selectedDraculaNodes[node.id] = rect;
                     addSelectedNode(parseInt(node.id));
                 } else {
@@ -213,9 +227,9 @@ var GRAPH_HANDLER = {
         	if (node.label != INITIAL && node.label != TERMINAL) {
         		for (var i = 0; i < allRects.length; i++) {
         			var currRect = allRects[i];
-        			// Return to default color if node is same type as hovered out node
-        			// and node type is not currently selected.
-        			if (currRect.label == node.label && !isSelectedNode(currRect)) {
+        			// Return to default color if the rectangle is
+        			// not currently selected.
+        			if (!isSelectedNode(currRect)) {
         				currRect.attr("fill", DEFAULT_COLOR);
         			}
         		}
