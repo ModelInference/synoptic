@@ -16,7 +16,7 @@ var INIT_TERM_COLOR = "#808080";
 var HIGHLIGHT_COLOR = "blue";
 
 // Stroke width for border when node selected.
-var HIGHLIGHT_STROKE_WIDTH = 4;
+var SELECT_STROKE_WIDTH = 4;
 
 // Label name that indicates initial node
 var INITIAL = "INITIAL";
@@ -156,7 +156,7 @@ var GRAPH_HANDLER = {
                 	if (!event.shiftKey) {
 	                	rect.attr({
 	                		"stroke": "red",
-	                		"stroke-width": HIGHLIGHT_STROKE_WIDTH
+	                		"stroke-width": SELECT_STROKE_WIDTH
 	                	});
                 	}
                 	rect.attr("fill", "blue");
@@ -174,7 +174,7 @@ var GRAPH_HANDLER = {
             }
         };
         
-        // On a mouse hover, highlight that node and any other nodes
+        // On a mouse hover, highlight that node and other nodes
         // that are of the same type.
         rect.node.onmouseover = function(event) {
         	if (node.label != INITIAL && node.label != TERMINAL) {
