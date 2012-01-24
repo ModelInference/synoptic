@@ -185,6 +185,7 @@ var GRAPH_HANDLER = {
                 if (selectedDraculaNodes[node.id] == undefined) {
                 	styleSelectedNodes(node, rect, event.shiftKey);
                     selectedDraculaNodes[node.id] = rect;
+                    addSelectedNode(parseInt(node.id));
                 } else {
                     rect.attr("fill", DEFAULT_COLOR);
                     delete selectedDraculaNodes[node.id];
