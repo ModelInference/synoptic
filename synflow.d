@@ -18,10 +18,23 @@
   
   Examples:
   ========
-  $ ./synflow.d 'synoptic/'
-  $ ./synflow.d 'synoptic/main'
+  $ ./synflow.d '"synoptic"'
+  $ ./synflow.d '"synoptic/main"'
+
+  
+  NOTE: To escape interpretation of the argument, you have to surround
+  the <package_path> in two sets of quotes -- double quotes first, and
+  the single quotes.
 
 
+  TODOs:
+  ======
+  The D compiler allows for optional args (via "#pragma D option
+  defaultargs"). This option sets unspecified args to a default value
+  of 0. Implement a way to call synflow with no package constraints so
+  that it outputs information for all methods, regardless of package.
+
+  
   Relevant articles and source code:
   ==================================
   http://docs.oracle.com/javase/6/docs/technotes/guides/vm/dtrace.html
@@ -32,7 +45,6 @@
 
 #pragma D option quiet
 #pragma D option destructive
-#pragma D option defaultargs
 #pragma D option bufsize=16m
 #pragma D option aggrate=100ms
 
