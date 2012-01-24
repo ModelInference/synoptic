@@ -60,43 +60,6 @@ var isSelectedNode = function(rect) {
 	return false;
 }
 
-/*
- * A function for styling nodes when a node is selected.
- * The nodes that are not of the same type as the node
- * selected is set to default styling. Nodes with same type
- * as selected are highlighted. The selected node has a red
- * border.
- */
-var styleSelectedNodes = function(node, rect, isshiftclick) {
-	for (var i = 0; i < allRects.length; i++) {
-		var currRect = allRects[i];
-
-		if (currRect.label == node.label) {
-
-			currRect.attr("fill", HIGHLIGHT_COLOR);
-		} else if (!isSelectedNode(currRect)) {
-			// All nodes not same as selected node type is default color.
-			currRect.attr("fill", DEFAULT_COLOR);
-		}
-		
-		if (!isshiftclick) {
-			// Change to default border in case of prior selected
-			// node.
-			currRect.attr({
-				"stroke": "black",
-				"stroke-width": DEFAULT_STROKE_WIDTH
-			});
-		}
-	}
-	// Set the selected node to have red and thicker border.
-	if (!isshiftclick) {
-		rect.attr({
-			"stroke": "red",
-			"stroke-width": HIGHLIGHT_STROKE_WIDTH
-		});
-	}
-}
-
 var GRAPH_HANDLER = {
     // array of graph nodes
     "currentNodes" : [],
@@ -197,7 +160,6 @@ var GRAPH_HANDLER = {
 	                	});
                 	}
                 	rect.attr("fill", "blue");
-                	//styleSelectedNodes(node, rect, event.shiftKey);
                     selectedDraculaNodes[node.id] = rect;
                     addSelectedNode(parseInt(node.id));
                 } else {
