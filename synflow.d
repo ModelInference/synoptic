@@ -20,11 +20,17 @@
   ========
   $ ./synflow.d '"synoptic"'
   $ ./synflow.d '"synoptic/main"'
-
+  $ ./synflow.d '"java/lang"'
+  $ ./synflow.d '"."'
   
-  NOTE: To escape interpretation of the argument, you have to surround
-  the <package_path> in two sets of quotes -- double quotes first, and
-  the single quotes.
+
+  NOTES:
+  ======
+  1. To escape interpretation of the argument, you MUST surround the
+  <package_path> in two sets of quotes -- double quotes first, and the
+  single quotes.
+
+  2. To capture all methods within the default package, use '"."'
 
 
   TODOs:
@@ -85,6 +91,8 @@ hotspot*:::method-return
 hotspot*:::method-entry
 /substr(self->package_name,0,package_prefix_len) == package_prefix_filter/
 {
+  self->thread_id = (int) arg0;
+
   self->str_ptr = (char*) copyin(arg1, arg2+1);
   self->str_ptr[arg2] = '\0';
   self->class_name = (string) self->str_ptr;
@@ -110,8 +118,8 @@ hotspot*:::method-entry
 	 self->indent, "", "->", self->class_name,
 	 self->method_name, self->signature);
   */
-  printf("c %s.%s.%s\n",
-	 self->class_name, self->method_name, self->signature);
+  printf("%d c %s.%s.%s\n",
+         self->thread_id, self->class_name, self->method_name, self->signature);
 }
 
 
@@ -120,6 +128,8 @@ hotspot*:::method-entry
 hotspot*:::method-return
 /substr(self->package_name,0,package_prefix_len) == package_prefix_filter/
 {
+  self->thread_id = (int) arg0;
+
   self->str_ptr = (char*) copyin(arg1, arg2+1);
   self->str_ptr[arg2] = '\0';
   self->class_name = (string) self->str_ptr;
@@ -137,6 +147,31 @@ hotspot*:::method-return
   self->indent--;
   */
 
-  printf("r %s.%s.%s\n",
-	 self->class_name, self->method_name, self->signature);
+  printf("%d r %s.%s.%s\n",
+         self->thread_id, self->class_name, self->method_name, self->signature);
 }
+
+
+/****************************************************************/
+
+/*
+hotspot*:::thread-start
+{
+  self->ptr = (char*) copyin(arg0, arg1+1);
+  self->ptr[arg1] = '\0';
+  self->threadname = (string) self->ptr;
+  
+  printf("thread-start: '%s' (thread ID = %d; native thread ID = %d; is_daemon? %d)\n",
+         self->threadname, arg2, arg3, arg4);
+}
+
+hotspot*:::thread-stop
+{
+  self->ptr = (char*) copyin(arg0, arg1+1);
+  self->ptr[arg1] = '\0';
+  self->threadname = (string) self->ptr;
+  
+  printf("thread-stop: '%s' (thread ID = %d; native thread ID = %d; is_daemon? %d)\n",
+         self->threadname, arg2, arg3, arg4);
+}
+*/
