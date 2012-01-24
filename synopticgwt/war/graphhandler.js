@@ -189,6 +189,7 @@ var GRAPH_HANDLER = {
                 } else {
                     rect.attr("fill", DEFAULT_COLOR);
                     delete selectedDraculaNodes[node.id];
+                    removeSelectedNode(parseInt(node.id));
                 }
             }
         };
