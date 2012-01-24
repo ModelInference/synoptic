@@ -18,7 +18,7 @@ var HIGHLIGHT_COLOR = "blue";
 // Stroke width for border when node selected.
 var SELECT_STROKE_WIDTH = 4;
 
-// Label name that indicates initial node
+// Label name that indicates initial node.
 var INITIAL = "INITIAL";
 
 // Label name that indicates terminal node.
@@ -49,7 +49,8 @@ var clearSelectedNodes = function() {
 
 /*
  * A function that returns true if the rectangle object
- * being passed is currently selected.
+ * being passed is currently selected. Returns false if
+ * rectangle object is not selected.
  */
 var isSelectedNode = function(rect) {
 	for (var i in selectedDraculaNodes) {
@@ -187,7 +188,7 @@ var GRAPH_HANDLER = {
         	}
         };
         
-        // On a mouse hovering out, un-highlight that node and any 
+        // On a mouse hovering out, un-highlight that node and 
         // other nodes that are of the same type.
         rect.node.onmouseout = function(event) {
         	if (node.label != INITIAL && node.label != TERMINAL) {
