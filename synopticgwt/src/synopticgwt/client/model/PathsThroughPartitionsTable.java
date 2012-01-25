@@ -24,12 +24,15 @@ public class PathsThroughPartitionsTable extends FlexTable {
     public void showPaths(Map<Integer, Set<GWTEdge>> paths) {
         this.clear();
         int row = 0;
-        
+
         // Sort the traces for readability.
         Set<Integer> keys = paths.keySet();
         Integer[] traceIDs = new Integer[keys.size()];
         Arrays.sort(keys.toArray(traceIDs));
 
+        // TODO Add an action listener to the radio button so that it
+        // somehow displays the paths associated with it (perhaps create a new
+        // class).
         for (Integer trace : traceIDs) {
             RadioButton button = new RadioButton(RADIO_BUTTON_GROUP, "Trace "
                     + trace);
