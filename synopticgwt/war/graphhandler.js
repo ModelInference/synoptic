@@ -1,6 +1,6 @@
 /*
- * Stores a graph, the corresponding layout function, and its renderer for
- * manipulation of the graph's display.
+ * Stores a graph, its layouter, and its renderer for manipulation of the graph's
+ * display.
  */
 
 // Default color for nodes.
@@ -30,6 +30,8 @@ var selectedDraculaNodes = {};
 // An array containing all rectangles objects.
 var allRects = [];
 
+var selectedNodeLog;
+
 /*
  * A function for clearing the state of the selected nodes.
  * Each node is set back to the default color, border color,
@@ -44,7 +46,6 @@ var clearSelectedNodes = function() {
 			"stroke-width": DEFAULT_STROKE_WIDTH
         });
         delete selectedDraculaNodes[i];
-        removeSelectedNode(parseInt(i));
     }
 }
 
@@ -144,10 +145,10 @@ var GRAPH_HANDLER = {
         rect.node.onmouseup = function(event) {
             if (node.label != INITIAL && node.label != TERMINAL) {
                 // TODO: When selecting a node to view log lines that has
-                // already been selected (and the log lines are currently in view),
-            	// don't bother making another RPC (since it's unnecessary).
-            	// (Reported in Issue 202.)
-                if (!event.shiftKey) {
+                // already
+                // been selected (and the log lines are currently in view),
+                // don't bother making another RPC (since it's unnecessary).
+                if (!event.shiftKey && selectedNodeLog != rect) {
                     clearSelectedNodes();
                     viewLogLines(parseInt(node.id));
                 }
@@ -156,6 +157,7 @@ var GRAPH_HANDLER = {
                 	// Node associated with log lines listed is
                 	// surrounded by red and thick border.
                 	if (!event.shiftKey) {
+                		selectedNodeLog = rect;
 	                	rect.attr({
 	                		"stroke": "red",
 	                		"stroke-width": SELECT_STROKE_WIDTH
@@ -165,13 +167,15 @@ var GRAPH_HANDLER = {
                     selectedDraculaNodes[node.id] = rect;
                     addSelectedNode(parseInt(node.id));
                 } else {
-                    rect.attr({
-                    	"fill": DEFAULT_COLOR,
-                    	"stroke": "black",
-            			"stroke-width": DEFAULT_STROKE_WIDTH
-                    });
-                    delete selectedDraculaNodes[node.id];
-                    removeSelectedNode(parseInt(node.id));
+                	if (selectedNodeLog != rect) {
+	                    rect.attr({
+	                    	"fill": DEFAULT_COLOR,
+	                    	"stroke": "black",
+	            			"stroke-width": DEFAULT_STROKE_WIDTH
+	                    });
+	                    delete selectedDraculaNodes[node.id];
+	                    removeSelectedNode(parseInt(node.id));
+                	}
                 }
             }
         };
