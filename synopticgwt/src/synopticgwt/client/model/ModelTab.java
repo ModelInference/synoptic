@@ -45,6 +45,12 @@ public class ModelTab extends Tab<DockPanel> {
     /* Label of terminal node, for layout purposes */
     private static final String TERMINAL_LABEL = "TERMINAL";
 
+    // CSS Attributes of the log info label
+    public static final String LOG_INFO_PATHS_CLASS = "log-info-displaying-paths";
+    public static final String LOG_INFO_LINES_CLASS = "log-info-displaying-log-lines";
+    public static final String LOG_INFO_DEFAULT = "log-info-default";
+    public static final String LOG_INFO_LABEL_ID = "log-info-label";
+
     // Panels containing all relevant buttons.
     private final HorizontalPanel manualControlButtonsPanel = new HorizontalPanel();
     private final VerticalPanel controlsPanel = new VerticalPanel();
@@ -60,8 +66,9 @@ public class ModelTab extends Tab<DockPanel> {
     private final Button modelExportPngButton = new Button("Export PNG");
     private final Button modelViewPathsButton = new Button("View Paths");
     private FlowPanel graphPanel;
-    private LogLinesTable logLinesTable;
-    private Label logLineLabel;
+    protected LogLinesTable logLinesTable;
+    protected final PathsThroughPartitionsTable pathsThroughPartitionsTable;
+    protected Label logInfoLabel;
 
     // String representing the canvas div.
     private static final String canvasId = "canvasId";
@@ -103,17 +110,19 @@ public class ModelTab extends Tab<DockPanel> {
         logPanel.setWidth("300px");
 
         // Header
-        logLineLabel = new Label("Log Lines");
-        DOM.setElementAttribute(logLineLabel.getElement(), "id",
-                "log-line-label");
+        logInfoLabel = new Label("Log Info");
+        DOM.setElementAttribute(logInfoLabel.getElement(), "id", LOG_INFO_LABEL_ID);
 
         // Add tool-tip to LogLineLabel
         TooltipListener tooltip = new TooltipListener(
                 "Click on a node to view log lines.  Shift+Click to select multiple nodes.",
                 5000, "tooltip");
-        logLineLabel.addMouseOverHandler(tooltip);
-        logLineLabel.addMouseOutHandler(tooltip);
-        logPanel.add(logLineLabel);
+        logInfoLabel.addMouseOverHandler(tooltip);
+        logInfoLabel.addMouseOutHandler(tooltip);
+        logPanel.add(logInfoLabel);
+        
+        pathsThroughPartitionsTable = new PathsThroughPartitionsTable();
+        logPanel.add(pathsThroughPartitionsTable);
 
         // Create and add a table with log lines.
         logLinesTable = new LogLinesTable();
@@ -172,8 +181,10 @@ public class ModelTab extends Tab<DockPanel> {
         // Keep the view paths button disabled until nodes have been selected.
         modelViewPathsButton.setEnabled(false);
 
-        // Clear the log line table.
-        logLinesTable.clear();
+        // Don't show any of the log info tables.
+        logLinesTable.setVisible(false);
+        pathsThroughPartitionsTable.setVisible(false);
+        DOM.setElementAttribute(logInfoLabel.getElement(), "class", LOG_INFO_DEFAULT);
     }
 
     /**
@@ -287,7 +298,13 @@ public class ModelTab extends Tab<DockPanel> {
                     @Override
                     public void onSuccess(List<LogLine> result) {
                         super.onSuccess(result);
+
+                        logInfoLabel.setText("Log Lines");
+                        pathsThroughPartitionsTable.setVisible(false);
+                        logLinesTable.setVisible(true);
                         logLinesTable.showLines(result);
+                        DOM.setElementAttribute(logInfoLabel.getElement(),
+                                "class", LOG_INFO_LINES_CLASS);
                     }
                 });
         // //////////////////////
@@ -297,7 +314,7 @@ public class ModelTab extends Tab<DockPanel> {
     public int getModelGraphicWidth() {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
-        return Window.getClientWidth() - (logLineLabel.getOffsetWidth() + 100);
+        return Window.getClientWidth() - (logInfoLabel.getOffsetWidth() + 100);
     }
 
     /** Returns the correct height for the model graphic in the model tab. */
