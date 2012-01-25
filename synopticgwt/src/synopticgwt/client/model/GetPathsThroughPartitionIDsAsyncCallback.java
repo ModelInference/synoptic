@@ -3,6 +3,8 @@ package synopticgwt.client.model;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gwt.user.client.DOM;
+
 import synopticgwt.client.util.AbstractErrorReportingAsyncCallback;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTEdge;
@@ -49,6 +51,15 @@ public class GetPathsThroughPartitionIDsAsyncCallback extends
                             .getDst().toString());
                 }
             }
+
+            // Set the border to be blue.
+            modelTab.logInfoLabel.setText("Paths");
+            DOM.setElementAttribute(modelTab.logInfoLabel.getElement(),
+                    "class", ModelTab.LOG_INFO_PATHS_CLASS);
+
+            modelTab.logLinesTable.setVisible(false);
+            modelTab.pathsThroughPartitionsTable.setVisible(true);
+            modelTab.pathsThroughPartitionsTable.showPaths(paths);
         }
     }
 }
