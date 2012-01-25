@@ -551,10 +551,10 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Performs coarsening of the completely refined model in one single step.
+     * Performs coarsening of the completely refined model in one step.
      */
     @Override
-    public GWTGraph coarsenOneStep() throws Exception {
+    public GWTGraph coarsenCompletely() throws Exception {
         // Set up state.
         retrieveSessionState();
 
