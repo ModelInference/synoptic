@@ -30,6 +30,7 @@ var selectedDraculaNodes = {};
 // An array containing all rectangles objects.
 var allRects = [];
 
+// The selected node that has log lines displayed.
 var selectedNodeLog;
 
 /*
@@ -144,10 +145,7 @@ var GRAPH_HANDLER = {
         // will deselect it.
         rect.node.onmouseup = function(event) {
             if (node.label != INITIAL && node.label != TERMINAL) {
-                // TODO: When selecting a node to view log lines that has
-                // already
-                // been selected (and the log lines are currently in view),
-                // don't bother making another RPC (since it's unnecessary).
+            	
                 if (!event.shiftKey && selectedNodeLog != rect) {
                     clearSelectedNodes();
                     viewLogLines(parseInt(node.id));
@@ -157,6 +155,7 @@ var GRAPH_HANDLER = {
                 	// Node associated with log lines listed is
                 	// surrounded by red and thick border.
                 	if (!event.shiftKey) {
+                		// New selected node with log lines displayed.
                 		selectedNodeLog = rect;
 	                	rect.attr({
 	                		"stroke": "red",
