@@ -51,15 +51,8 @@ public class GetPathsThroughPartitionIDsAsyncCallback extends
                             .getDst().toString());
                 }
             }
-
-            // Set the border to be blue.
-            modelTab.logInfoLabel.setText("Paths");
-            DOM.setElementAttribute(modelTab.logInfoLabel.getElement(),
-                    "class", ModelTab.LOG_INFO_PATHS_CLASS);
-
-            modelTab.logLinesTable.setVisible(false);
-            modelTab.pathsThroughPartitionsTable.setVisible(true);
-            modelTab.pathsThroughPartitionsTable.showPaths(paths);
+            
+            modelTab.logInfoPanel.showPaths(paths);
         }
     }
 }
