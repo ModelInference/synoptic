@@ -1,6 +1,6 @@
 /*
- * Stores a graph, its layouter, and its renderer for manipulation of the graph's
- * display.
+ * Stores a graph, the corresponding layout function, and its renderer for
+ * manipulation of the graph's display.
  */
 
 // Default color for nodes.
@@ -144,9 +144,9 @@ var GRAPH_HANDLER = {
         rect.node.onmouseup = function(event) {
             if (node.label != INITIAL && node.label != TERMINAL) {
                 // TODO: When selecting a node to view log lines that has
-                // already
-                // been selected (and the log lines are currently in view),
-                // don't bother making another RPC (since it's unnecessary).
+                // already been selected (and the log lines are currently in view),
+            	// don't bother making another RPC (since it's unnecessary).
+            	// (Reported in Issue 202.)
                 if (!event.shiftKey) {
                     clearSelectedNodes();
                     viewLogLines(parseInt(node.id));

@@ -2,7 +2,6 @@ package synopticgwt.client.model;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -47,7 +46,7 @@ public class ModelTab extends Tab<DockPanel> {
     private static final String TERMINAL_LABEL = "TERMINAL";
 
     // Panels containing all relevant buttons.
-    private final HorizontalPanel buttonsPanel = new HorizontalPanel();
+    private final HorizontalPanel manualControlButtonsPanel = new HorizontalPanel();
     private final VerticalPanel controlsPanel = new VerticalPanel();
 
     // The set of node IDs that have been selected by the user in the model.
@@ -71,26 +70,28 @@ public class ModelTab extends Tab<DockPanel> {
         super(synopticService, pWheel, "model-tab");
         panel = new DockPanel();
 
-        buttonsPanel.add(modelRefineButton);
-        buttonsPanel.add(modelCoarsenButton);
-        buttonsPanel.add(modelGetFinalButton);
-        buttonsPanel.setStyleName("buttonPanel");
+        // Set up the buttons for controlling Synoptic manually.
+        manualControlButtonsPanel.add(modelRefineButton);
+        manualControlButtonsPanel.add(modelCoarsenButton);
+        manualControlButtonsPanel.add(modelGetFinalButton);
+        manualControlButtonsPanel.setStyleName("buttonPanel");
 
         modelRefineButton.setWidth("100px");
         modelCoarsenButton.setWidth("100px");
         modelGetFinalButton.setWidth("100px");
-        controlsPanel.add(buttonsPanel);
+        controlsPanel.add(manualControlButtonsPanel);
 
-        HorizontalPanel buttonsPanelTwo = new HorizontalPanel();
-        buttonsPanelTwo.add(modelExportDotButton);
-        buttonsPanelTwo.add(modelExportPngButton);
+        // Set up buttons for exporting models.
+        HorizontalPanel exportButtonsPanel = new HorizontalPanel();
+        exportButtonsPanel.add(modelExportDotButton);
+        exportButtonsPanel.add(modelExportPngButton);
 
         modelExportDotButton.setWidth("100px");
         modelExportPngButton.setWidth("100px");
-        buttonsPanelTwo.setStyleName("buttonPanel");
-        controlsPanel.add(buttonsPanelTwo);
+        exportButtonsPanel.setStyleName("buttonPanel");
+        controlsPanel.add(exportButtonsPanel);
 
-        // Third button panel (so far, only contains the "view paths" button).
+        // Set up the buttons for retrieving paths through selected nodes.
         HorizontalPanel viewPathsButtonPanel = new HorizontalPanel();
         viewPathsButtonPanel.add(modelViewPathsButton);
 
@@ -121,12 +122,6 @@ public class ModelTab extends Tab<DockPanel> {
         controlsPanel.add(logPanel);
         panel.add(controlsPanel, DockPanel.WEST);
 
-        // Keep the view paths button disabled until
-        // nodes have been selected.
-        modelViewPathsButton.setEnabled(false);
-
-        // Coarsening is disabled until refinement is completed.
-        modelCoarsenButton.setEnabled(false);
         modelRefineButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -158,6 +153,27 @@ public class ModelTab extends Tab<DockPanel> {
             }
         });
         modelViewPathsButton.addClickHandler(new ViewPathsClickHandler());
+
+        initializeTabState();
+    }
+
+    /**
+     * Initialize model state -- performed whenever a new model graph is
+     * displayed.
+     */
+    public void initializeTabState() {
+        // TODO: Is this a bug? Need to check if we can refine.
+        modelRefineButton.setEnabled(true);
+        // Coarsening is disabled until refinement is completed.
+        modelCoarsenButton.setEnabled(false);
+        // TODO: Is this a bug? Need to check if initial mode != final model.
+        modelGetFinalButton.setEnabled(true);
+
+        // Keep the view paths button disabled until nodes have been selected.
+        modelViewPathsButton.setEnabled(false);
+
+        // Clear the log line table.
+        logLinesTable.clear();
     }
 
     /**
@@ -165,19 +181,16 @@ public class ModelTab extends Tab<DockPanel> {
      * model tab MUST be made visible for showGraph to work.
      */
     public void showGraph(GWTGraph graph) {
-        modelRefineButton.setEnabled(true);
-        modelCoarsenButton.setEnabled(false);
-        modelGetFinalButton.setEnabled(true);
+        initializeTabState();
 
         // Clear the second (non-button ) widget model
         // panel.
+        // TODO: We need a better way to assert that the panel we are removing
+        // is indeed the panel containing the model.
         if (panel.getWidgetCount() > 1) {
             panel.remove(panel.getWidget(1));
             assert (panel.getWidgetCount() == 1);
         }
-
-        // Clear the log line table.
-        logLinesTable.clear();
 
         graphPanel = new FlowPanel();
         graphPanel.getElement().setId(canvasId);
@@ -361,22 +374,26 @@ public class ModelTab extends Tab<DockPanel> {
         }
     }
 
-    /** Generates a call to Synoptic service to coarsen the model. */
+    /**
+     * Generates a call to Synoptic service to coarsen the model.
+     * 
+     * <pre>
+     * TODO: What we really need is a coarsenOneStep counter-part to refineOneStep.
+     * </pre>
+     */
     public void coarsenModelButtonClick(ClickEvent event) {
         // ////////////////////// Call to remote service.
         modelCoarsenButton.setEnabled(false);
         try {
             synopticService
-                    .coarsenOneStep(new ErrorReportingAsyncCallback<GWTGraph>(
+                    .coarsenCompletely(new ErrorReportingAsyncCallback<GWTGraph>(
                             pWheel, "coarsenOneStep call") {
                         @SuppressWarnings("synthetic-access")
                         @Override
                         public void onSuccess(GWTGraph graph) {
                             super.onSuccess(graph);
                             showGraph(graph);
-                            modelRefineButton.setEnabled(false);
-                            modelCoarsenButton.setEnabled(false);
-                            modelGetFinalButton.setEnabled(false);
+                            disableManualControlButtons();
                         }
                     });
         } catch (Exception ex) {
@@ -388,9 +405,7 @@ public class ModelTab extends Tab<DockPanel> {
 
     /** Generates a call to Synoptic service to retrieve the final model. */
     public void getFinalModelButtonClick(ClickEvent event) {
-        modelRefineButton.setEnabled(false);
-        modelCoarsenButton.setEnabled(false);
-        modelGetFinalButton.setEnabled(false);
+        disableManualControlButtons();
 
         // ////////////////////// Call to remote service.
         try {
@@ -401,7 +416,8 @@ public class ModelTab extends Tab<DockPanel> {
                         @Override
                         public void onSuccess(GWTGraph graph) {
                             super.onSuccess(graph);
-                            getFinalModelSuccess(graph);
+                            showGraph(graph);
+                            disableManualControlButtons();
                         }
                     });
         } catch (Exception ex) {
@@ -412,8 +428,7 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /** Called when the call to retrieve final model succeeded. */
-    public void getFinalModelSuccess(GWTGraph graph) {
-        showGraph(graph);
+    public void disableManualControlButtons() {
         modelRefineButton.setEnabled(false);
         modelCoarsenButton.setEnabled(false);
         modelGetFinalButton.setEnabled(false);
@@ -501,9 +516,9 @@ public class ModelTab extends Tab<DockPanel> {
      * visible.
      */
     public void setManualMode(boolean manualRefineCoarsen) {
-        buttonsPanel.setVisible(manualRefineCoarsen);
+        manualControlButtonsPanel.setVisible(manualRefineCoarsen);
     }
-    
+
     /**
      * Class for viewing paths through selected partitions.
      */
@@ -513,7 +528,8 @@ public class ModelTab extends Tab<DockPanel> {
         public void onClick(ClickEvent event) {
             try {
                 synopticService.getPathsThroughPartitionIDs(selectedNodes,
-                        new GetPathsThroughPartitionIDsAsyncCallback(pWheel, ModelTab.this));
+                        new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
+                                ModelTab.this));
             } catch (Exception e) {
                 // TODO: Do something about the exception
             }

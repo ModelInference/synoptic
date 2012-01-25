@@ -59,12 +59,12 @@ public interface ISynopticService extends RemoteService {
     GWTGraphDelta refineOneStep() throws Exception;
 
     /**
-     * Performs coarsening of the completely refined model in one single step.
+     * Performs coarsening of the completely refined model in one step.
      * 
      * @return
      * @throws Exception
      */
-    GWTGraph coarsenOneStep() throws Exception;
+    GWTGraph coarsenCompletely() throws Exception;
 
     /**
      * Completes any refinement left to be done and then coarsens the graph into

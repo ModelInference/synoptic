@@ -16,7 +16,7 @@ public class CoarsenOneStepTests extends SynopticGWTTestCase {
     @Test
     public void testRefineWithoutParsing() {
         try {
-            service.coarsenOneStep(new AsyncCallback<GWTGraph>() {
+            service.coarsenCompletely(new AsyncCallback<GWTGraph>() {
                 @SuppressWarnings("synthetic-access")
                 @Override
                 public void onFailure(Throwable caught) {
