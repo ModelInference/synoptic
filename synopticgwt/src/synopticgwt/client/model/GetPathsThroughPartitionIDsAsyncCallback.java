@@ -13,12 +13,12 @@ import synopticgwt.shared.GWTEdge;
 public class GetPathsThroughPartitionIDsAsyncCallback extends
         AbstractErrorReportingAsyncCallback<Map<Integer, Set<GWTEdge>>> {
 
-    private final ModelTab modelTab;
+    private final LogInfoPanel infoPanel;
 
     public GetPathsThroughPartitionIDsAsyncCallback(ProgressWheel pWheel,
-            ModelTab modelPanel) {
+            LogInfoPanel infoPanel) {
         super(pWheel, "getPathsThroughPartitionIDs call");
-        this.modelTab = modelPanel;
+        this.infoPanel = infoPanel;
         initialize();
     }
 
@@ -39,7 +39,7 @@ public class GetPathsThroughPartitionIDsAsyncCallback extends
         if (paths.isEmpty()) {
             showError("No paths through selected partitions found.", "", "");
         } else {
-            modelTab.logInfoPanel.showPaths(paths);
+            infoPanel.showPaths(paths);
         }
     }
 }
