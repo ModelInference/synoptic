@@ -156,7 +156,7 @@ public class ModelTab extends Tab<DockPanel> {
         // Keep the view paths button disabled until nodes have been selected.
         modelViewPathsButton.setEnabled(false);
         
-        logInfoPanel.clear();
+        logInfoPanel.clearAll();
     }
 
     /**
