@@ -48,7 +48,7 @@ public class Event implements Serializable, MouseHover {
      *            Raphael canvas to create event on
      */
 
-    public Event(int x, int y, int fontSize, String event, Paper paper) {
+    public Event(double x, double y, int fontSize, String event, Paper paper) {
         this.invariants = new ArrayList<Invariant>();
         this.label = new Label(paper, x, y, fontSize, event,
                 InvariantsGraph.DEFAULT_FILL);
@@ -69,13 +69,21 @@ public class Event implements Serializable, MouseHover {
     }
 
     /** Return's the x coordinate of this event */
-    public int getX() {
+    public double getX() {
         return label.getX();
     }
 
     /** Return's the y coordinate of this event */
-    public int getY() {
+    public double getY() {
         return label.getY();
+    }
+    
+    public double getCenterX() {
+        return label.getCenterX();
+    }
+    
+    public double getCenterY() {
+        return label.getCenterY();
     }
 
     public void show() {
@@ -168,6 +176,36 @@ public class Event implements Serializable, MouseHover {
          * graphical column which has no event duplicates.
          */
         return getEvent().hashCode();
+    }
+    
+    public void translate(double dx, double dy) {
+        label.translate(dx, dy);
+    }
+    
+    public void scale(double targetWidth, double targetHeight) {
+        label.scaleJS(targetWidth, targetHeight);
+    }
+    
+    public double getHeight() {
+        return label.getHeight();
+    }
+    
+    public double getWidth() {
+        return label.getWidth();
+    }
+    
+    public int getFontSize() {
+        return label.getFontSize();
+    }
+
+    public void setFont(int fontSize) {
+        label.setFontSize(fontSize);
+    }
+
+    public void translateTo(double targetX, double targetY) {
+        double dx = targetX - getCenterX();
+        double dy = targetY - getCenterY();
+        translate(dx, dy);
     }
 
 }

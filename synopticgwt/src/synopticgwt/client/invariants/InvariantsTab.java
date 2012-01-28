@@ -1,5 +1,6 @@
 package synopticgwt.client.invariants;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -49,6 +50,14 @@ public class InvariantsTab extends Tab<VerticalPanel> {
 
     HorizontalPanel tableAndGraphicPanel;
 
+    private GWTInvariantSet gwtInvs;
+    private boolean invariantsInitialized;
+    private static final String INV_CANVAS_ID = "invCanvasId";
+    /** List of EventLabel grid columns */
+    private List<Grid> labelColumnGrids;
+
+    private Anchor exportInvsLink;
+
     public InvariantsTab(ISynopticServiceAsync synopticService,
             ProgressWheel pWheel) {
         super(synopticService, pWheel, "inv-tab");
@@ -57,6 +66,8 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         iGraph = new InvariantsGraph();
         tableAndGraphicPanel = new HorizontalPanel();
         activeInvsHashes = new LinkedHashSet<Integer>();
+        exportInvsLink = new Anchor("[Show invariants as text]");
+        labelColumnGrids = new ArrayList<Grid>();
     }
 
     /**
@@ -65,12 +76,15 @@ public class InvariantsTab extends Tab<VerticalPanel> {
      * @param gwtInvs
      *            The invariants mined from the log.
      */
-    public void showInvariants(final GWTInvariantSet gwtInvs) {
+    public void showInvariants() {
+        if (!invariantsInitialized) {
+            throw new IllegalStateException("Invariants uninitialized");
+        }
+
         // Clear the invariants panel of any widgets it might have.
         panel.clear();
         tableAndGraphicPanel.clear();
 
-        Anchor exportInvsLink = new Anchor("[Show invariants as text]");
         panel.add(exportInvsLink);
         exportInvsLink.addClickHandler(new ClickHandler() {
             @Override
@@ -91,29 +105,60 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         Set<String> invTypes = gwtInvs.getInvTypes();
 
         // Add the invariant type columns in a specific order.
+        labelColumnGrids.clear();
         for (String invName : invOrdering) {
             if (invTypes.contains(invName)) {
-                addInvariantColumnToGrid(invName, gwtInvs);
+                Grid g = addInvariantColumnToGrid(invName);
+                labelColumnGrids.add(g);
             }
         }
 
-        String invCanvasId = "invCanvasId";
         HorizontalPanel invGraphicPanel = new HorizontalPanel();
-        invGraphicPanel.getElement().setId(invCanvasId);
+        invGraphicPanel.getElement().setId(INV_CANVAS_ID);
         invGraphicPanel.setStylePrimaryName("modelCanvas");
         tableAndGraphicPanel.add(invGraphicPanel);
-        iGraph.createInvariantsGraphic(gwtInvs, invCanvasId, gwtInvToGridLabel);
+        
+        int height = Window.getClientHeight() - 150;
+        int width = Window.getClientWidth() - 50;
+        for (Grid g : labelColumnGrids) {
+            width -= g.getOffsetWidth();
+        }
+        
+        iGraph.createInvariantsGraphic(gwtInvs, INV_CANVAS_ID,
+                gwtInvToGridLabel, height, width);
     }
 
     /**
-     * Adds a grid column of an invariant type to tableAndGraphicPanel
+     * Resizes the InvariantsGraph
+     */
+    public void resize() {
+        if (!invariantsInitialized) {
+            throw new IllegalStateException("Invariants uninitialized");
+        }
+
+        int height = Window.getClientHeight() - 150;
+        int width = Window.getClientWidth() - 50;
+        for (Grid g : labelColumnGrids) {
+            width -= g.getOffsetWidth();
+        }
+        iGraph.resize(height, width);
+    }
+
+    public void setInvariants(GWTInvariantSet gwtInvs) {
+        this.invariantsInitialized = true;
+        this.gwtInvs = gwtInvs;
+    }
+
+    /**
+     * Adds a grid column of an invariant type to tableAndGraphicPanel Returns
+     * created grid
      * 
      * @param invType
      *            Invariant type of column
      * @param invs
      *            List of invariants
      */
-    public void addInvariantColumnToGrid(String invType, GWTInvariantSet gwtInvs) {
+    public Grid addInvariantColumnToGrid(String invType) {
         // This creates a grid for each Invariant type with one column
         // and as many rows necessary to contain all of the invariants
 
@@ -172,6 +217,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         // Add a click handler to the grid that allows users to
         // include/exclude invariants for use by Synoptic.
         grid.addClickHandler(new InvGridClickHandler(grid, invs));
+        return grid;
     }
 
     /**
@@ -332,5 +378,9 @@ public class InvariantsTab extends Tab<VerticalPanel> {
                     .getSource();
             iGridLabel.mouseOut();
         }
+    }
+
+    public HorizontalPanel getTableAndGraphicPanel() {
+        return tableAndGraphicPanel;
     }
 }
