@@ -194,7 +194,7 @@ public class SynopticGWT implements EntryPoint {
                 modelTab, 200));
 
         Window.addResizeHandler(new InvariantsResizeHandler(tabPanel
-                .getTabBar(), invTab, 200));
+                .getTabBar(), invTab, 50));
 
         // Check whether or not to show the welcome screen.
         if (WelcomePopUp.showWelcome()) {

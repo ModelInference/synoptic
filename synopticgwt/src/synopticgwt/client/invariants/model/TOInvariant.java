@@ -25,7 +25,7 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
     /** GWTInvariant object that this represents */
     private GWTInvariant GWTinv;
     private InvariantGridLabel iGridLabel;
-    
+
     public int one = 1;
 
     private boolean visible;
@@ -42,8 +42,8 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
         this.src = src;
         this.dst = dst;
         /*
-         *  I use dst.getX() for srcX and src.getX() for dstX. This is a hack,
-         *  but it seems to work reasonably well.
+         * I use dst.getX() for srcX and src.getX() for dstX. This is a hack,
+         * but it seems to work reasonably well.
          */
         double srcX = src.getX();
         double dstX = dst.getX();
@@ -133,49 +133,20 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
     public void mouseout() {
         highlightOffArrow();
     }
-    
-    public double getSrcY() {
-        return src.getCenterY();
-    }
-    
-    public double getDstY() {
-        return dst.getCenterY();
-    }
-    
-    public double getBBoxX() {
-        return arrow.getBBoxX();
-    }
-    
-    public double getBBoxY() {
-        return arrow.getBBoxY();
-    }
-    
+
     /**
-     * 
      * @return Absolute difference between event y center coordinates
      */
     public double getEventHeightDifference() {
         return Math.abs(dst.getCenterY() - src.getCenterY());
     }
-    
-    public void translate(double dx, double dy) {
-        arrow.translate(dx, dy);
-    }
-    
+
     public void scaleTo(double targetWidth, double targetHeight) {
         arrow.scale(targetWidth, targetHeight);
     }
-    
-    public boolean arrowSrcIsTopLeft() {
-        return arrow.arrowSrcIsTopLeft();
+
+    public void translateTo(double targetX) {
+        arrow.translateTo(targetX, src.getCenterY(), dst.getCenterY());
     }
 
-    public void translateTo(double targetX, double targetY) {
-        double dx = targetX - getBBoxX();
-        double dy = targetY - getBBoxY();
-        translate(dx, dy);
-        
-    }
-    
-    
 }
