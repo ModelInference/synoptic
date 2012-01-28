@@ -15,9 +15,9 @@ public class Paper implements Serializable {
 	/** Raphael paper object */
     private JavaScriptObject paper;
     /** width of canvas */
-    private int width;
+    private double width;
     /** height of canvas */
-    private int height;
+    private double height;
     /** Identifier for tag that canvas is injected into */
     private String canvasID;
 
@@ -27,7 +27,7 @@ public class Paper implements Serializable {
      * @param height Height of canvas
      * @param canvasID Identifier for tag that canvas is injected into
      */
-    public Paper(int width, int height, String canvasID) {
+    public Paper(double width, double height, String canvasID) {
         this.width = width;
         this.height = height;
         this.canvasID = canvasID;
@@ -46,7 +46,7 @@ public class Paper implements Serializable {
      * 
      * @return Width of canvas
      */
-    public int getWidth() {
+    public double getWidth() {
         return this.width;
     }
 
@@ -54,7 +54,7 @@ public class Paper implements Serializable {
      * 
      * @return Height of canvas
      */
-    public int getHeight() {
+    public double getHeight() {
         return this.height;
     }
 
@@ -90,7 +90,7 @@ public class Paper implements Serializable {
      * @param canvasId ID for document element canvas is injected into
      * @return Unwrapped canvas object
      */
-    private native JavaScriptObject constructPaper(int canvasWidth, int canvasHeight, 
+    private native JavaScriptObject constructPaper(double canvasWidth, double canvasHeight, 
             String canvasId) /*-{
 		var paper = $wnd.Raphael($doc.getElementById(canvasId), canvasWidth, canvasHeight);
         return paper;

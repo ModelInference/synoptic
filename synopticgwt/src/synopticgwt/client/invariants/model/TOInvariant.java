@@ -162,12 +162,19 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
         arrow.translate(dx, dy);
     }
     
-    public void scale(double targetWidth, double targetHeight) {
+    public void scaleTo(double targetWidth, double targetHeight) {
         arrow.scale(targetWidth, targetHeight);
     }
     
     public boolean arrowSrcIsTopLeft() {
         return arrow.arrowSrcIsTopLeft();
+    }
+
+    public void translateTo(double targetX, double targetY) {
+        double dx = targetX - getBBoxX();
+        double dy = targetY - getBBoxY();
+        translate(dx, dy);
+        
     }
     
     

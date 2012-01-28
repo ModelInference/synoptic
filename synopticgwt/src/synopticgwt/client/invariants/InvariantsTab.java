@@ -117,8 +117,15 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         invGraphicPanel.getElement().setId(INV_CANVAS_ID);
         invGraphicPanel.setStylePrimaryName("modelCanvas");
         tableAndGraphicPanel.add(invGraphicPanel);
+        
+        int height = Window.getClientHeight() - 150;
+        int width = Window.getClientWidth() - 50;
+        for (Grid g : labelColumnGrids) {
+            width -= g.getOffsetWidth();
+        }
+        
         iGraph.createInvariantsGraphic(gwtInvs, INV_CANVAS_ID,
-                gwtInvToGridLabel);
+                gwtInvToGridLabel, height, width);
     }
 
     /**

@@ -53,6 +53,7 @@ public class InvariantsGraph {
     public static final int MIN_VERTICAL_LABEL_BUFFER = 20;
     
     public static final int EVENT_COLUMNS = 3;
+    public static final int ARROW_COLUMNS = EVENT_COLUMNS - 1;
     
     public static final int ARROW_LABEL_BUFFER = 20;
 
@@ -118,10 +119,12 @@ public class InvariantsGraph {
     /**
      * Creates the invariant graphic corresponding to gwtInvs in a DIV with id
      * indicated by invCanvasId.
+     * @param graphWidth 
+     * @param graphHeight 
      */
     public void createInvariantsGraphic(GWTInvariantSet gwtInvs,
             String invCanvasId,
-            Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel) {
+            Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel, int graphHeight, int graphWidth) {
         Set<String> invTypes = gwtInvs.getInvTypes();
 
         Set<String> eventTypesSet = new LinkedHashSet<String>();
@@ -149,23 +152,22 @@ public class InvariantsGraph {
 
         eventTypesList = new ArrayList<String>(eventTypesSet);
 
-        // A little magic to size things right.
-        // int lX = (longestEType * 30) / 2 - 110;
-        int lX = (longestType.length() * 30) / 2 - 110 + 50;
-        // int mX = lX + (longestEType * 30) - 110;
-        int mX = lX + (longestType.length() * 30) - 110 + 50;
-        // int rX = mX + (longestEType * 30) - 110;
-        int rX = mX + (longestType.length() * 30) - 110 + 50;
-        int width = rX + 200;
-        // 2 is a little magical here, need it for time arrow/label
-        int height = (eventTypesList.size() + 2) * EVENT_PADDING;
+        double labelWidth = graphWidth / (EVENT_COLUMNS + ARROW_COLUMNS);
+        if (labelWidth < MIN_LABEL_WIDTH) {
+            labelWidth = MIN_LABEL_WIDTH;
+        }
+        double arrowWidth = labelWidth;
+        
+        double lX = labelWidth / 2;
+        double mX = labelWidth / 2 + arrowWidth + labelWidth; 
+        double rX = labelWidth / 2 + 2 * (arrowWidth + labelWidth); 
 
-        int fontSize = 20; // getFontSize(longestEType);
+        int fontSize = 20; 
 
         // Used to offset arrow heads and bases from overlapping event labels
         int labelOffset = 0;
 
-        this.paper = new Paper(width, height, invCanvasId);
+        this.paper = new Paper(graphWidth, graphHeight, invCanvasId);
 
         // Sort eventTypesList alphabetically
         Collections.sort(eventTypesList);
@@ -243,14 +245,30 @@ public class InvariantsGraph {
     /**
      * Resizes the InvariantsGraph to fit the input window dimensions,
      * assumes Paper is rendered
+     * 
+     * You should probably read:
+     * http://commons.oreilly.com/wiki/index.php/SVG_Essentials/Transforming_the_Coordinate_System
+     * if you are planning on refactoring this method
+     * 
+     * SVG has a coordinate system for the Paper canvas and local coordinate systems for
+     * each element.
+     * 
+     * Scaling an element scales the element's local coordinate system relative to 1, 
+     * as opposed to scaling the vales of the points that define the element and retaining a 1:1
+     * coordinate system.
+     * 
+     * Rotating an element rotates the element's local coordinate system relative to a point in the
+     * canvas's coordinate system rather than performing a rotation on the values of the points 
+     * that define the element.
      *   
      * @param height
      * @param width
      */
     public void resize(int paperHeight, int paperWidth) {
         int timeArrowBuffer = 50;
-        int arrowColumns = EVENT_COLUMNS - 1;
-        double labelWidth = paperWidth / (EVENT_COLUMNS + arrowColumns);
+        
+        // Parcels out equal amount of horizontal space for event and arrow columns
+        double labelWidth = paperWidth / (EVENT_COLUMNS + ARROW_COLUMNS);
         if (labelWidth < MIN_LABEL_WIDTH) {
             labelWidth = MIN_LABEL_WIDTH;
         }
@@ -272,7 +290,7 @@ public class InvariantsGraph {
         labelHeight = MIN_LABEL_HEIGHT > finalEvent.getHeight() ? MIN_LABEL_HEIGHT : finalEvent.getHeight() + 30;
         finalEvent.setFont(initialFontSize);
         
-        paper.setSize((arrowWidth * arrowColumns) + (labelWidth * EVENT_COLUMNS), 
+        paper.setSize((arrowWidth * ARROW_COLUMNS) + (labelWidth * EVENT_COLUMNS), 
                 (labelHeight * rows) + rowBufferHeight + timeArrowBuffer);
         
         
@@ -312,7 +330,7 @@ public class InvariantsGraph {
     
     /**
      * This resizes (and mutates) the event with the longest string length to maximally fit the
-     * maxHeight and maxWidth input parameters.
+     * maxHeight and maxWidth input parameters. It only mutates a single Event.
      * 
      * @param maxHeight
      * @param maxWidth
@@ -372,9 +390,6 @@ public class InvariantsGraph {
         return longestEvent;
     }
     
-    /* Maybe this should be in TOInvariant? I feel like I'm breaking
-     * abstraction barriers here by digging at the arrow of the inv
-     */
     private void translateAndScaleArrows(List<TOInvariant> arrows, 
     		double maxWidth, double targetX) {
         
@@ -383,47 +398,29 @@ public class InvariantsGraph {
             
             TOInvariant inv = arrows.get(i);
             
-            
             double targetHeight = inv.getEventHeightDifference();
+            inv.scaleTo(targetWidth, targetHeight);
             
-            inv.scale(targetWidth, targetHeight);
-            
-            double targetY;
-            if (inv.arrowSrcIsTopLeft()) {
-                targetY = inv.getSrcY();
-            } else {
-                targetY = inv.getDstY();
-            }
-            
-            double dx = targetX - inv.getBBoxX();
-            double dy = targetY - inv.getBBoxY();
-            inv.translate(dx, dy);
+            double targetY = inv.arrowSrcIsTopLeft() ? inv.getSrcY() : inv.getDstY();
+            inv.translateTo(targetX, targetY);
             
         }
         
     }
     
-    /* Maybe this should be in TOInvariant? I feel like I'm breaking
-     * some abstraction barriers here as well
-     */
     private void translateAndScaleEvents(Map<String, Event> typeToEvent, 
     		double maxHeight, int fontSize, double targetX) {
         
     	double halfMaxHeight = maxHeight / 2;
     	double heightAndBuffer = maxHeight + MIN_VERTICAL_LABEL_BUFFER;
+    	
         for (int i = 0; i < eventTypesList.size(); i++) {
+            
             String eventString = eventTypesList.get(i);
             Event event = typeToEvent.get(eventString);
             
             double targetY = halfMaxHeight + i * heightAndBuffer;
-            
-            double initialX = event.getCenterX();
-            double initialY = event.getCenterY();
-            
-            double dx = targetX - initialX;
-            double dy = targetY - initialY;
-            
-            event.translate(dx, dy);
+            event.translateTo(targetX, targetY);
             
             event.setFont(fontSize);
                         
