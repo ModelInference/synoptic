@@ -6,49 +6,49 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.TabBar;
 
 import synopticgwt.client.SynopticGWT;
-import synopticgwt.client.model.ModelTab;
+import synopticgwt.client.invariants.InvariantsTab;
 
 /**
- * A resize handler that updates the model graphic whenever the window is
+ * A resize handler that updates the invariant graphic whenever the window is
  * resized.
  */
-public class ModelResizeHandler implements ResizeHandler {
-
+public class InvariantsResizeHandler implements ResizeHandler {
     // Timer is used to delay unnecessary updating, as the animation becomes
     // compute intensive when rendering the canvas too frequently.
     private final Timer resizeTimer;
 
     final TabBar tabBar;
-    final ModelTab modelTab;
+    final InvariantsTab invTab;
 
     // Delay (in milliseconds) between resize event and resizing.
     private final int resizingDelay;
 
     /**
-     * A window resize handler to manage resizing of the model graphic. Upon
-     * resizing the window, after the window has remained unchanged for some
-     * time (in ms), the model graphic is updated.
+     * A window resize handler to manage resizing of the invariants graphic.
+     * Upon resizing the window, after the window has remained unchanged for
+     * some time (in ms), the invariant graphic is resized.
      * 
      * @param modelTab
      *            The instance of the model tab which will be handled by this
      *            event handler.
      * @param resizingDelay
      *            The amount of time to wait after the window has updated before
-     *            running the graphic update (in milliseconds).
+     *            running the graphic resize (in milliseconds).
      */
-    public ModelResizeHandler(TabBar tabBar, ModelTab modelTab, int resizingDelay) {
+    public InvariantsResizeHandler(TabBar tabBar, InvariantsTab invTab,
+            int resizingDelay) {
         super();
         this.tabBar = tabBar;
-        this.modelTab = modelTab;
+        this.invTab = invTab;
         this.resizingDelay = resizingDelay;
 
         resizeTimer = new Timer() {
             @Override
             public void run() {
-                // If the tab is enabled, resize the canvas
-                // and redraw the graph (with fancy animation).
-                if (ModelResizeHandler.this.tabBar.getSelectedTab() == SynopticGWT.modelTabIndex) {
-                    ModelResizeHandler.this.modelTab.updateGraphPanel();
+                // If the tab is selected, resize the canvas and redraw the
+                // invariants graph.
+                if (InvariantsResizeHandler.this.tabBar.getSelectedTab() == SynopticGWT.invariantsTabIndex) {
+                    InvariantsResizeHandler.this.invTab.resize();
                 }
             }
         };
