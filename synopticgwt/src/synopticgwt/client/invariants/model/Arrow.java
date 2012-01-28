@@ -224,18 +224,18 @@ public class Arrow implements Serializable {
 	}
 
 	public double getX1() {
-		return getBBoxX();
+		return body.getX1();
 	}
 
 	public double getY1() {
-		return arrowSrcIsTopLeft() ? getBBoxY() : getBBoxY() + getHeight();
+		return body.getY1();
 	}
 
 	public double getX2() {
-		return getBBoxX() + getWidth();
+		return body.getX2();
 	}
 
 	public double getY2() {
-		return arrowSrcIsTopLeft() ? getBBoxY() + getHeight() : getBBoxY();
+		return body.getY2();
 	}
 }

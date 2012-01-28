@@ -48,7 +48,7 @@ public class Event implements Serializable, MouseHover {
      *            Raphael canvas to create event on
      */
 
-    public Event(int x, int y, int fontSize, String event, Paper paper) {
+    public Event(double x, double y, int fontSize, String event, Paper paper) {
         this.invariants = new ArrayList<Invariant>();
         this.label = new Label(paper, x, y, fontSize, event,
                 InvariantsGraph.DEFAULT_FILL);
@@ -200,6 +200,12 @@ public class Event implements Serializable, MouseHover {
 
     public void setFont(int fontSize) {
         label.setFontSize(fontSize);
+    }
+
+    public void translateTo(double targetX, double targetY) {
+        double dx = targetX - getCenterX();
+        double dy = targetY - getCenterY();
+        translate(dx, dy);
     }
 
 }
