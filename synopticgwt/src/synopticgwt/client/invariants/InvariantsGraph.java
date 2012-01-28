@@ -73,6 +73,8 @@ public class InvariantsGraph {
     private List<TOInvariant> apInvs;
     private List<TOInvariant> afbyInvs;
     private List<TOInvariant> nfbyInvs;
+    
+    private String longestType = "";
 
     /*
      * Concurrency Partitions, as of 12/4/11 these are all currently unused,
@@ -123,7 +125,6 @@ public class InvariantsGraph {
         Set<String> invTypes = gwtInvs.getInvTypes();
 
         Set<String> eventTypesSet = new LinkedHashSet<String>();
-        int longestEType = 0;
 
         // Generate set of eTypes
         for (String invType : invTypes) {
@@ -133,15 +134,15 @@ public class InvariantsGraph {
                 String src = inv.getSource();
                 eventTypesSet.add(src);
                 int srcLen = src.length();
-                if (srcLen > longestEType) {
-                    longestEType = srcLen;
+                if (srcLen > longestType.length()) {
+                    longestType = src;
                 }
 
                 String dst = inv.getTarget();
                 eventTypesSet.add(dst);
                 int dstLen = dst.length();
-                if (dstLen > longestEType) {
-                    longestEType = dstLen;
+                if (dstLen > longestType.length()) {
+                	longestType = dst;
                 }
             }
         }
@@ -150,11 +151,11 @@ public class InvariantsGraph {
 
         // A little magic to size things right.
         // int lX = (longestEType * 30) / 2 - 110;
-        int lX = (longestEType * 30) / 2 - 110 + 50;
+        int lX = (longestType.length() * 30) / 2 - 110 + 50;
         // int mX = lX + (longestEType * 30) - 110;
-        int mX = lX + (longestEType * 30) - 110 + 50;
+        int mX = lX + (longestType.length() * 30) - 110 + 50;
         // int rX = mX + (longestEType * 30) - 110;
-        int rX = mX + (longestEType * 30) - 110 + 50;
+        int rX = mX + (longestType.length() * 30) - 110 + 50;
         int width = rX + 200;
         // 2 is a little magical here, need it for time arrow/label
         int height = (eventTypesList.size() + 2) * EVENT_PADDING;
@@ -309,11 +310,17 @@ public class InvariantsGraph {
         
     }
     
-    // This is a bottleneck
+    /**
+     * This resizes (and mutates) the event with the longest string length to maximally fit the
+     * maxHeight and maxWidth input parameters.
+     * 
+     * @param maxHeight
+     * @param maxWidth
+     * @param typeToEvent
+     * @return
+     */
     public Event getMaxFontSize(double maxHeight, double maxWidth, Map<String, Event> typeToEvent) {
         final int[] fonts = {20, 30, 40, 50};
-        
-        String longestType = "";
         
         for (int i = 0; i < eventTypesList.size(); i++) {
             String type = eventTypesList.get(i);
@@ -331,33 +338,35 @@ public class InvariantsGraph {
         boolean heightGreater = longestEvent.getHeight() > maxHeight;
         boolean widthGreater = longestEvent.getWidth() > maxWidth;
         
-        int i = fonts.length - 1;
-        while ((heightGreater || widthGreater) && i >= 0) {
-            int testFont = fonts[i];
-            if (testFont < currentFont) {
-                currentFont = testFont;
-                longestEvent.setFont(currentFont);
-                heightGreater = longestEvent.getHeight() > maxHeight;
-                widthGreater = longestEvent.getWidth() > maxWidth;
-            }
-            i--;
-        }
-        
-        i = 0;
-        while (!(heightGreater || widthGreater) && i < fonts.length) {
-            int testFont = fonts[i];
-            if (testFont > currentFont) {
-                int prevFont = currentFont;
-                currentFont = testFont;
-                longestEvent.setFont(currentFont);
-                heightGreater = longestEvent.getHeight() > maxHeight;
-                widthGreater = longestEvent.getWidth() > maxWidth;
-                if (heightGreater || widthGreater) {
-                    currentFont = prevFont;
-                    longestEvent.setFont(currentFont);
-                }
-            }
-            i++;
+        if (heightGreater || widthGreater) { // Scale font size down
+	        int i = fonts.length - 1;
+	        while ((heightGreater || widthGreater) && i >= 0) {
+	            int testFont = fonts[i];
+	            if (testFont < currentFont) {
+	                currentFont = testFont;
+	                longestEvent.setFont(currentFont);
+	                heightGreater = longestEvent.getHeight() > maxHeight;
+	                widthGreater = longestEvent.getWidth() > maxWidth;
+	            }
+	            i--;
+	        }
+        } else { // Scale font size up       
+	        int i = 0;
+	        while (!(heightGreater || widthGreater) && i < fonts.length) {
+	            int testFont = fonts[i];
+	            if (testFont > currentFont) {
+	                int prevFont = currentFont;
+	                currentFont = testFont;
+	                longestEvent.setFont(currentFont);
+	                heightGreater = longestEvent.getHeight() > maxHeight;
+	                widthGreater = longestEvent.getWidth() > maxWidth;
+	                if (heightGreater || widthGreater) {
+	                    currentFont = prevFont;
+	                    longestEvent.setFont(currentFont);
+	                }
+	            }
+	            i++;
+	        }
         }
         
         return longestEvent;
@@ -369,11 +378,12 @@ public class InvariantsGraph {
     private void translateAndScaleArrows(List<TOInvariant> arrows, 
     		double maxWidth, double targetX) {
         
+    	double targetWidth = maxWidth - 2 * ARROW_LABEL_BUFFER;
         for (int i = 0; i < arrows.size(); i++) {
             
             TOInvariant inv = arrows.get(i);
             
-            double targetWidth = maxWidth - 2 * ARROW_LABEL_BUFFER;
+            
             double targetHeight = inv.getEventHeightDifference();
             
             inv.scale(targetWidth, targetHeight);
@@ -399,12 +409,13 @@ public class InvariantsGraph {
     private void translateAndScaleEvents(Map<String, Event> typeToEvent, 
     		double maxHeight, int fontSize, double targetX) {
         
+    	double halfMaxHeight = maxHeight / 2;
+    	double heightAndBuffer = maxHeight + MIN_VERTICAL_LABEL_BUFFER;
         for (int i = 0; i < eventTypesList.size(); i++) {
             String eventString = eventTypesList.get(i);
             Event event = typeToEvent.get(eventString);
             
-            double targetY = maxHeight / 2 + i *
-                    (maxHeight + MIN_VERTICAL_LABEL_BUFFER);
+            double targetY = halfMaxHeight + i * heightAndBuffer;
             
             double initialX = event.getCenterX();
             double initialY = event.getCenterY();

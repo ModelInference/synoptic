@@ -21,8 +21,9 @@ public class Path implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	/** Wrapper for canvas this path is drawn on */
+	
 	private boolean pathSrcIsTopLeft;
+	/** Wrapper for canvas this path is drawn on */
 	private Paper paper;
 	/** Raphael path */
 	private JavaScriptObject path;
