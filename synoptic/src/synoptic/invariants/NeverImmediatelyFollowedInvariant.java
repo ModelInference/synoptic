@@ -75,9 +75,9 @@ public class NeverImmediatelyFollowedInvariant extends BinaryInvariant {
     }
 
     /**
-     * Returns a regular expressions describing this invariant. For x NIFby y,
-     * the expression is "([^x]|x[^y])*x*". The last x* allows a trace ending
-     * with x, not followed by anything.
+     * Returns a regular expressions describing this invariant for first NIFby
+     * second. The expression is "([^x]|x[^y])*x*". The last x* allows a trace
+     * ending with x, not followed by anything.
      * 
      * @param firstC
      *            a character representation of first
@@ -87,7 +87,12 @@ public class NeverImmediatelyFollowedInvariant extends BinaryInvariant {
      */
     @Override
     public String getRegex(char firstC, char secondC) {
-        return "([^" + firstC + "]|" + firstC + "[^" + secondC + "])*" + firstC
-                + "*";
+        if (firstC == secondC) {
+            return "([^" + firstC + "]|" + firstC + "[^" + firstC + "])*"
+                    + firstC + "?";
+        }
+        return "([^" + firstC + "]|" + firstC + "(" + firstC + ")" + "*" + "[^"
+                + secondC + firstC + "])*" + firstC + "*";
     }
+
 }

@@ -6,176 +6,173 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import synoptic.model.export.GraphExporter;
-
 import dk.brics.automaton.Automaton;
-import dk.brics.automaton.BasicAutomata;
 import dk.brics.automaton.BasicOperations;
+import dk.brics.automaton.MinimizationOperations;
 import dk.brics.automaton.RegExp;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 
+import synoptic.model.EventType;
+import synoptic.model.export.GraphExporter;
+
 /**
- * Wrapper class for dk.brics.automaton.Automaton which provides name encodings for building
- * Automaton with Strings rather than characters.
+ * Wrapper class for dk.brics.automaton.Automaton which provides character
+ * encodings for building Automaton with EventTypes rather than characters.
  * 
  * @author Jenny
- *
  */
-public class EncodedAutomaton {
+public abstract class EncodedAutomaton {
 
-	// The Automaton wrapped with String encodings.
-	private Automaton model;
-	
-	// Stores encodings for all characters in the model.
-	private Map<Character, String> encoding;
-	
-	// Range of possible unicode characters for encoding names.
-	private static final int UNICODE_CHARS = 0x10FFFF;
-	
-	// Whether the alphabet for this Automaton has been finalized
-	private boolean finalized;
-	
-	/**
-	 * Constructs a new EncodedAutomaton that accepts all strings.
-	 */
-	public EncodedAutomaton() {
-		this.model = BasicAutomata.makeAnyString();
-		this.encoding = new HashMap<Character, String>();
-		finalized = false;
-	}
+    // The Automaton wrapped with String encodings.
+    private Automaton model;
 
-	/**
-	 * Intersects this Automaton with a model created with the given (encoded) regular expression.
-	 */
-	public void intersectWithRE(String re) {
-		model = BasicOperations.intersection(model, new RegExp(re).toAutomaton());
-	}
-	
-	/**
-	 * Intersects this Automaton with the given Automaton, accepting all of
-	 * other's current encodings.
-	 */
-	public void intersectWith(EncodedAutomaton other) {
-		// Add other's encodings.
-		encoding.putAll(other.encoding);
-		
-		// Update this model.
-		model = BasicOperations.intersection(model, other.model);
-	}
-	
-	/* Returns a character encoding for the given name. Updates the encodings map.
-	 * TODO: Address possibility of encoding collisions */
-	protected char getEncoding(String name) {
-		char c = (char) (name.hashCode() % UNICODE_CHARS);
-		if (!encoding.containsKey(c)) {
-			encoding.put(c, name.toString());
-		}
-		return c;
-	}
-	
-	/**
-	 * Returns whether the alphabet for this model has been finalized (limited to the set
-	 * of Strings currently encoded).
-	 */
-	public boolean alphabetFinalized() {
-		return finalized;
-	}
-	
-	/**
-	 * Uses Hopcroft's algorithm to minimize this Automaton.
-	 */
-	public void minimize() {
-		model.minimize();
-	}
-	
-	/**
-	 * Exports this Builder's model as a Graphviz dot file and associated png. Limits the
-	 * alphabet of this model to currently encoded characters, such that no additional
-	 * Strings can be encoded for use in this model.
-	 * 
-	 * @param filename
-	 *            the name of the dot file
-	 * @param exportFinal
-	 * 			  whether to export the final or initial model
-	 * @throws IOException
-	 */
-	public void exportDotAndPng(String filename) throws IOException {
-		finalizeAlphabet();  // 
-		String dot = toGraphviz();
-		Writer output = new BufferedWriter(new FileWriter(new File(filename)));
-		try {
-			output.write(dot);
-		} finally {
-			output.close();
-		}
-		GraphExporter.generatePngFileFromDotFile(filename);
-	}
-	
-	/*
-	 * Limits this Automaton to names current encoded to remove extraneous characters
-	 * from the output dfa. After calling, additional characters cannot be used in this model.
-	 */
-	private void finalizeAlphabet() {
-		if (!finalized) {
-			StringBuilder alphabet = new StringBuilder();
-			for (Character character : encoding.keySet()) {
-				alphabet.append("|" + character);
-			}
-			alphabet.replace(0, 1, "(");  // Hacky fix to fence post issue.
-			alphabet.append(")*");
-			intersectWithRE(alphabet.toString());
-			}
-		finalized = true;
-	}
-	
-	/** Constructs a Graphviz dot representation of the model. */
-	public String toGraphviz() {
-		StringBuilder b = new StringBuilder("digraph {\n");
-		
-		// Assign states consecutive numbers.
-		Set<State> states = model.getStates();
-		Map<State, Integer> stateOrdering = new HashMap<State, Integer>();
-		int number = 0;
-		for (State s : states) {
-			stateOrdering.put(s, number++);
-		}
+    // The encoding scheme for the Automaton.
+    private EventTypeEncodings encodings;
 
-		for (State s : states) {
-			b.append("  ").append(stateOrdering.get(s));
-			if (s.isAccept())
-				b.append(" [shape=doublecircle,label=\"\"];\n");
-			else
-				b.append(" [shape=circle,label=\"\"];\n");
-			if (s == model.getInitialState()) {
-				b.append("  initial [shape=plaintext,label=\"\"];\n");
-				b.append("  initial -> ").append(stateOrdering.get(s))
-						.append("\n");
-			}
-			for (Transition t : s.getTransitions()) {
-				int source = stateOrdering.get(s);
-				int dest = stateOrdering.get(t.getDest());
-				char cur = t.getMin();
-				appendDotTransition(b, encoding.get(cur), source, dest);
-				while (cur < t.getMax()) {
-					cur++;
-					appendDotTransition(b, encoding.get(cur), source, dest);
-				}
-			}
-		}
-		return b.append("}\n").toString();
-	}
+    /**
+     * Constructs a new EncodedAutomaton using the given encodings. The initial
+     * model accepts any sequence of EventTypes made up of EventTypes encoded in
+     * the given encodings.
+     */
+    public EncodedAutomaton(EventTypeEncodings encodings) {
+        this.encodings = encodings;
+        model = encodings.getInitialModel();
+    }
 
-	/* Add a transition line to the given StringBuilder with the given label, from the source
-	 * to the dest nodes. */
-	private void appendDotTransition(StringBuilder b, String label, int source,
-			int dest) {
-		b.append("  ").append(source);
-		b.append(" -> ").append(dest).append(" [label=\"");
-		b.append(label);
-		b.append("\"]\n");
-	}
+    public boolean subsetOf(EncodedAutomaton other) {
+        return model.subsetOf(other.model);
+    }
+
+    /**
+     * Returns true if the given sequence of Strings are accepted by this model.
+     */
+    public boolean run(List<EventType> events) {
+        StringBuilder builder = new StringBuilder();
+        for (EventType e : events) {
+            builder.append(encodings.getEncoding(e));
+        }
+        return model.run(builder.toString());
+    }
+
+    /**
+     * Performs Hopcroft's algorithm to minimize this Automaton.
+     */
+    public void minimize() {
+        MinimizationOperations.minimizeHopcroft(model);
+    }
+
+    /**
+     * Intersects this Automaton with a model created with the given (encoded)
+     * regular expression.
+     */
+    public void intersectWithRE(String re) {
+        model = BasicOperations.intersection(model,
+                new RegExp(re).toAutomaton());
+    }
+
+    /**
+     * Intersects this Automaton with the given Automaton, such that this
+     * Automaton is the result of intersection. Visible for testing.
+     * 
+     * @throws IllegalArgumentException
+     *             if this Automaton is not using the same EventTypeEncoding as
+     *             other
+     */
+    public void intersectWith(EncodedAutomaton other) {
+        if (!this.encodings.equals(other.encodings)) {
+            throw new IllegalArgumentException(
+                    "Cannot intersect Automata using different encoding schemes");
+        }
+
+        model = BasicOperations.intersection(model, other.model);
+    }
+
+    /**
+     * Exports this Builder's model as a Graphviz dot file and associated png.
+     * Limits the alphabet of this model to currently encoded characters, such
+     * that no additional Strings can be encoded for use in this model.
+     * 
+     * @param filename
+     *            the name of the dot file
+     * @param exportFinal
+     *            whether to export the final or initial model
+     * @throws IOException
+     */
+    public void exportDotAndPng(String filename) throws IOException {
+        // finalizeAlphabet();
+        String dot = toGraphviz();
+        Writer output = new BufferedWriter(new FileWriter(new File(filename)));
+        try {
+            output.write(dot);
+        } finally {
+            output.close();
+        }
+        GraphExporter.generatePngFileFromDotFile(filename);
+    }
+
+    /** Constructs a Graphviz dot representation of the model. */
+    public String toGraphviz() {
+        StringBuilder b = new StringBuilder("digraph {\n");
+
+        // Assign states consecutive numbers.
+        Set<State> states = model.getStates();
+        Map<State, Integer> stateOrdering = new HashMap<State, Integer>();
+        int number = 0;
+        for (State s : states) {
+            stateOrdering.put(s, number++);
+        }
+
+        for (State s : states) {
+            b.append("  ").append(stateOrdering.get(s));
+            if (s.isAccept())
+                b.append(" [shape=doublecircle,label=\"\"];\n");
+            else
+                b.append(" [shape=circle,label=\"\"];\n");
+            if (s == model.getInitialState()) {
+                b.append("  initial [shape=plaintext,label=\"\"];\n");
+                b.append("  initial -> ").append(stateOrdering.get(s))
+                        .append("\n");
+            }
+            for (Transition t : s.getTransitions()) {
+                int source = stateOrdering.get(s);
+                int dest = stateOrdering.get(t.getDest());
+                char cur = t.getMin();
+                appendDotTransition(b, encodings.getString(cur), source, dest);
+                while (cur < t.getMax()) {
+                    cur++;
+                    appendDotTransition(b, encodings.getString(cur), source,
+                            dest);
+                }
+            }
+        }
+        return b.append("}\n").toString();
+    }
+
+    /**
+     * Add a transition line to the given StringBuilder with the given label,
+     * from the source to the dest nodes.
+     */
+    private void appendDotTransition(StringBuilder b, String label, int source,
+            int dest) {
+        b.append("  ").append(source);
+        b.append(" -> ").append(dest).append(" [label=\"");
+        b.append(label);
+        b.append("\"]\n");
+    }
+
+    /**
+     * Sets the initial state of the wrapped Automaton. Calls
+     * setDeterministic(false) and restoreInvariant() on the model since it has
+     * been manipulated manually. Visible for testing.
+     */
+    public void setInitialState(State initial) {
+        model.setInitialState(initial);
+        model.setDeterministic(false);
+        model.restoreInvariant();
+    }
 }
