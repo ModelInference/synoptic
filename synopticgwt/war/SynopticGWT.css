@@ -1,0 +1,304 @@
+body {
+    padding: 10px;
+}
+
+#a-logo-title {
+    font-size: 2em;
+    font-weight: bold;
+    color: #777777;
+    text-decoration: none;
+    margin: 10px 10px 0px;
+    text-align: right;
+}
+
+#div-globalContainer{
+    position:relative;
+}
+
+#div-top-bar {
+    right:0;
+    text-align:right;
+}
+
+#div-footer-bar {
+    text-align:right;
+    color: #585858;
+    font-size: 0.75em;
+    float: right;
+}
+
+#StackTraceDiv {
+    float: left;
+}
+
+#mainDiv {
+    position:relative;
+}
+
+.sendButton {
+    display: block;
+    font-size: 16pt;
+}
+
+/** Most GWT widgets already have a style name defined */
+.gwt-DialogBox {
+    width: 400px;
+}
+
+.dialogVPanel {
+    margin: 5px;
+}
+
+
+///////////
+
+.grid {
+    width: 50%;
+    height: 50px;
+    padding: 5px;
+    position: absolute;
+    left: 220px;
+    top: 350px;
+}
+
+.poLinkTable .toLinkTable {
+    border-spacing: 3px;
+}
+
+.poLinkTable {
+    margin-bottom: 10px;
+}
+
+.errorHighlight {
+	border: 3px solid #FF0000;	
+}
+.exampleLogLabel {
+    margin-bottom: 10px;
+}
+
+.logTypeLabel {
+    color: #585858;
+    font-size: 0.75em;
+}
+
+.tableCell {
+    padding: 5px;
+    background: #E8EDFF;
+}
+
+.tableCellHighlightBlue {
+    border-style: inset;
+    border-width: 2px;
+    border-color: #CFD9FF;
+    padding: 5px;
+    background: #007FFF;
+}
+
+.tableCellHighlightRed {
+    border-style: inset;
+    border-width: 2px;
+    border-color: #CFD9FF;
+    padding: 5px;
+    background: #EE2C2C;
+}
+
+/* Shapes the cells of a grid to look like
+   buttons */
+.tableCellInvActivated {
+    border-style: inset;
+    border-width: 2px;
+    border-color: #CFD9FF;
+    padding: 5px;
+    background: #E8EDFF;
+}
+
+
+/* Changes the background color of a table cell to red to
+   indicate whether it has been selected. */
+.tableCellInvDeactivated {
+    border-style: outset;
+    border-width: 2px;
+    border-color: #CFD9FF;
+    padding: 5px;
+    background: #C8C8C8; /* light grey */
+    text-decoration: line-through;
+}
+
+.tableCellTopRow {
+    padding: 5px;
+    border: 1px solid #000000;
+    background: #fa8;
+}
+
+.invariantsGrid {
+    background-color: #C3D9FF;
+    border: 1px solid #000000;
+    padding: 3px;
+    margin: 3px;
+    font-weight: normal;
+}
+
+.inputForm {
+    background-color: #C3D9FF;
+    border: 1px solid #000000;
+    padding: 3px;
+    margin: 3px;
+    font-weight: normal;
+}
+
+.buttonPanel {
+    background-color: #C3D9FF;
+    border: 1px solid #000000;
+    padding: 3px;
+    margin: 3px;
+    font-weight: normal;
+}
+
+.parseButton {
+    margin-right: 3em;
+}
+
+.modelCanvas {
+    border: 2px solid #C3D9FF;
+}
+
+#log-line-label {
+    border: 4px solid red;
+    font-weight: bold;
+    font-size: 1.25em;
+    text-align: center;
+}
+
+#log-line-instruct {
+    font-weight: normal;
+    font-size: 1em;
+}
+.tooltip {
+    background-color: rgb(249,235,88);
+    padding: 2px;
+}
+
+.TableHeader {
+    font-weight: bold;
+}
+
+.DefaultExpLabel {
+    font-size: 0.7em;
+    color: #585858;
+}
+
+.DeleteButton {
+    margin-left: 5px !important;
+}
+
+.ExtraRegExps td {
+    vertical-align: middle !important;
+}
+
+.LineNumCol {
+    width: 50px;
+}
+
+.LineCol {
+    width: 225px;
+/* width: 175px; */
+}
+
+.LogTypeRadio {
+    margin: 5px;
+}
+
+.ParseLogButton {
+    margin-right: 1em !important;
+}
+
+.FlexTable {
+    table-layout: fixed;
+}
+
+.ErrorMessage {
+    border: 1px solid red;
+    
+    margin-right: 100px;
+    margin-left: 100px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    
+    padding: 10px 20px;
+    
+    color: red;
+    background-color: #f2dbdb;
+    text-align: center;
+}
+
+.ClientExceptionTraceBack {
+    border: 1px solid red;
+    
+    margin-top: 10px;
+    margin-bottom: 0px;
+    margin-left: 5px;
+    margin-right: 5px;
+    
+    padding-top: 0px;
+    padding-bottom: 2px;
+    padding-left: 20px;
+    padding-right: 20px;
+    
+    color: red;
+    background-color: #f2dbdb;
+    text-align: left;
+}
+
+.ServerExceptionTraceBack {
+    border: 1px solid red;
+    
+    margin-top: 10px;
+    margin-bottom: 0px;
+    margin-left: 5px;
+    margin-right: 5px;
+    
+    padding-top: 0px;
+    padding-bottom: 2px;
+    padding-left: 20px;
+    padding-right: 20px;
+    
+    color: red;
+    background-color: #f2dbdb;
+    text-align: left;
+}
+
+.SpecialOptions {
+    border-left: 3px solid #e7e7e7;
+    padding: 4px 0px 4px 8px;
+    margin-left: 6px;
+}
+
+.WelcomePopUp {
+    padding: 5px;
+    font-family: "Segoe UI", "Lucida Grande", "Helvetica" , sans-serif;
+}
+
+.WelcomePopUp h2 {
+    font-size: 1.5em
+    font-weight: bold;
+}
+
+.WelcomePopUp p {
+    margin: 10px auto;
+    font-size: 11pt;
+    text-align: justify;
+    line-height: 16pt;
+}
+
+#closePopUpLink {
+    margin: 0px;
+    padding: 0px;
+}
+
+.InvariantsPopUp {
+    padding: 5px;
+}
+
+.InvariantsPopUp td {
+    padding: 5px;
+}
