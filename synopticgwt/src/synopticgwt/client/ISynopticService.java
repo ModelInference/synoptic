@@ -1,11 +1,13 @@
 package synopticgwt.client;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
+import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariantSet;
@@ -57,12 +59,12 @@ public interface ISynopticService extends RemoteService {
     GWTGraphDelta refineOneStep() throws Exception;
 
     /**
-     * Performs coarsening of the completely refined model in one single step.
+     * Performs coarsening of the completely refined model in one step.
      * 
      * @return
      * @throws Exception
      */
-    GWTGraph coarsenOneStep() throws Exception;
+    GWTGraph coarsenCompletely() throws Exception;
 
     /**
      * Completes any refinement left to be done and then coarsens the graph into
@@ -108,4 +110,13 @@ public interface ISynopticService extends RemoteService {
      */
     String exportPng() throws Exception;
 
+    /**
+     * Returns the set of all possible paths through a set of nodes.
+     * 
+     * @param selectedNodes
+     * @return
+     * @throws Exception
+     */
+    Map<Integer, Set<GWTEdge>> getPathsThroughPartitionIDs(
+            Set<Integer> selectedNodes) throws Exception;
 }

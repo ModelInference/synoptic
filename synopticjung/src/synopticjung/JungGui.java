@@ -593,7 +593,7 @@ public class JungGui extends JApplet implements Printable {
                         // Discriminate between:
                         // 1. edges in the path
                         // 2. edges not in the path
-                        return currentPath.contains(transition) ? Color.red
+                        return currentPath.contains(transition) ? Color.blue
                                 : Color.black;
                     }
                 });

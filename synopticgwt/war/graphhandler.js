@@ -3,10 +3,66 @@
  * display.
  */
 
-// The model node that is currently selected (has a different  color).
-// This node either has been single clicked, OR double clicked last.
-var currentSelectedRect = ""
-var currentSelectedNode = ""
+// Default color for nodes.
+var DEFAULT_COLOR = "#fa8";
+
+// Default stroke for border of node.
+var DEFAULT_STROKE_WIDTH = 2;
+
+// Default color for initial and terminal nodes.
+var INIT_TERM_COLOR = "#808080";
+
+// Color used when highlighting a node.
+var HIGHLIGHT_COLOR = "blue";
+
+// Stroke width for border when node selected.
+var SELECT_STROKE_WIDTH = 4;
+
+// Label name that indicates initial node.
+var INITIAL = "INITIAL";
+
+// Label name that indicates terminal node.
+var TERMINAL = "TERMINAL";
+
+// An assocative array of event node IDs mapped to raphael rectangle objects.
+var selectedDraculaNodes = {};
+
+// An array containing all rectangles objects.
+var allRects = [];
+
+// The selected node that has log lines displayed.
+var selectedNodeLog;
+
+/*
+ * A function for clearing the state of the selected nodes.
+ * Each node is set back to the default color, border color,
+ * and stroke width, and then removed from the set of 
+ * selected nodes.
+ */
+var clearSelectedNodes = function() {
+    for (var i in selectedDraculaNodes) {
+        selectedDraculaNodes[i].attr({
+        	"fill": DEFAULT_COLOR,
+        	"stroke": "black",
+			"stroke-width": DEFAULT_STROKE_WIDTH
+        });
+        delete selectedDraculaNodes[i];
+    }
+}
+
+/*
+ * A function that returns true if the rectangle object
+ * being passed is currently selected. Returns false if
+ * rectangle object is not selected.
+ */
+var isSelectedNode = function(rect) {
+	for (var i in selectedDraculaNodes) {
+		if (selectedDraculaNodes[i] == rect) {
+			return true;
+		}
+	}
+	return false;
+}
 
 var GRAPH_HANDLER = {
     // array of graph nodes
@@ -49,50 +105,108 @@ var GRAPH_HANDLER = {
     // label)
     "render" : function(canvas, node) {
         var rect;
-        if (node.label == "INITIAL" || node.label == "TERMINAL") {
+        if (node.label == INITIAL || node.label == TERMINAL) {
             // creates the rectangle to be drawn
             var rect = canvas.rect(node.point[0] - 30, node.point[1] - 13, 122,
                     46).attr({
-                "fill" : "#808080",
-                "stroke-width" : 2,
+                "fill" : INIT_TERM_COLOR,
+                "stroke-width" : DEFAULT_STROKE_WIDTH,
                 r : "40px"
             });
         } else {
             // creates the rectangle to be drawn
             var rect = canvas.rect(node.point[0] - 30, node.point[1] - 13, 122,
                     46).attr({
-                "fill" : "#fa8",
-                "stroke-width" : 2,
+                "fill" : DEFAULT_COLOR,
+                "stroke-width" : DEFAULT_STROKE_WIDTH,
                 r : "9px"
             });
+            // associate label with rectangle object
+            rect.label = node.label;
+            allRects[allRects.length] = rect;
         }
 
-        // Add an onclick event to the rectangle to have it change color to
-        // "blue".
-        // Also, whenever a node is made blue, the node that was clicked on
-        // previously
-        // is turned back to its original color. We keep track of previously
-        // clicked
-        // node with the currentSelectedRect var.
-        rect.node.onmouseup = function() {
-            if (currentSelectedRect != "") {
-                if (currentSelectedNode.label == "INITIAL"
-                        || currentSelectedNode.label == "TERMINAL") {
-                    currentSelectedRect.attr("fill", "#808080");
-                } else {
-                    currentSelectedRect.attr("fill", "#fa8");
+        // Adds a function to the given rectangle so that, when clicked,
+        // the associated event node is "selected" (shown as blue when clicked)
+        // and then the log lines associated with the event are shown in the
+        // the model tab (grabbed via a RPC).
+        //
+        // When clicking the same node again, the node stays selected. When
+        // clicking
+        // a different node, the previous node is deselected, and the new node
+        // is
+        // selected.
+        //
+        // The function will also detect shift events, and toggle
+        // more than one node if the shift key is being
+        // held down. If the node has been clicked without
+        // the shift key being held down all nodes except for the node clicked
+        // will be deselected. Holding shift and clicking a selected node
+        // will deselect it.
+        rect.node.onmouseup = function(event) {
+            if (node.label != INITIAL && node.label != TERMINAL) {
+            	
+                if (!event.shiftKey && selectedNodeLog != rect) {
+                    clearSelectedNodes();
+                    viewLogLines(parseInt(node.id));
                 }
-
+                
+                if (selectedDraculaNodes[node.id] == undefined) {
+                	// Node associated with log lines listed is
+                	// surrounded by red and thick border.
+                	if (!event.shiftKey) {
+                		// New selected node with log lines displayed.
+                		selectedNodeLog = rect;
+	                	rect.attr({
+	                		"stroke": "red",
+	                		"stroke-width": SELECT_STROKE_WIDTH
+	                	});
+                	}
+                	rect.attr("fill", "blue");
+                    selectedDraculaNodes[node.id] = rect;
+                    addSelectedNode(parseInt(node.id));
+                } else {
+                	if (selectedNodeLog != rect) {
+	                    rect.attr({
+	                    	"fill": DEFAULT_COLOR,
+	                    	"stroke": "black",
+	            			"stroke-width": DEFAULT_STROKE_WIDTH
+	                    });
+	                    delete selectedDraculaNodes[node.id];
+	                    removeSelectedNode(parseInt(node.id));
+                	}
+                }
             }
-            currentSelectedRect = rect;
-            currentSelectedNode = node;
-            if (currentSelectedNode.label != "INITIAL"
-            	&& currentSelectedNode.label != "TERMINAL") {
-            	viewLogLines(parseInt(node.id));
-            }
-            rect.attr("fill", "blue");
         };
-
+        
+        // On a mouse hover, highlight that node and other nodes
+        // that are of the same type.
+        rect.node.onmouseover = function(event) {
+        	if (node.label != INITIAL && node.label != TERMINAL) {
+        		for (var i = 0; i < allRects.length; i++) {
+        			var currRect = allRects[i];
+        			if (currRect.label == node.label) {
+        				currRect.attr("fill", HIGHLIGHT_COLOR);
+        			}
+        		}
+        	}
+        };
+        
+        // On a mouse hovering out, un-highlight that node and 
+        // other nodes that are of the same type.
+        rect.node.onmouseout = function(event) {
+        	if (node.label != INITIAL && node.label != TERMINAL) {
+        		for (var i = 0; i < allRects.length; i++) {
+        			var currRect = allRects[i];
+        			// Return to default color if the rectangle is
+        			// not currently selected.
+        			if (!isSelectedNode(currRect)) {
+        				currRect.attr("fill", DEFAULT_COLOR);
+        			}
+        		}
+        	}
+        };
+        
         text = canvas.text(node.point[0] + 30, node.point[1] + 10, node.label)
                 .attr({
                     "font-size" : "16px",
@@ -104,7 +218,13 @@ var GRAPH_HANDLER = {
 
         // The text, when clicked should behave as if the rectangle was clicked.
         text.node.onmouseup = rect.node.onmouseup;
+        
+        // The text, when hovering over and hovering out should behave the same
+        // as the rectangle.
+        text.node.onmouseout = rect.node.onmouseout;
+        text.node.onmouseover = rect.node.onmouseover;
         return set;
+        
     },
 
     // updates the graph by removing the node with the splitNodeID and adding

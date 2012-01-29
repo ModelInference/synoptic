@@ -31,6 +31,13 @@ public class InvDFAMinimizationOptions {
             aliases = { "-finalModelFile" })
     public String finalModelFile = "finalDfaModel.dot";
 
+    /**
+     * Translated Synoptic model output filename.
+     */
+    @Option(value = "-s Synoptic model output filename",
+            aliases = { "-synopticModelFile" })
+    public String synopticModelFile = "convertedSynopticModel.dot";
+
     private Options plumeOptions;
 
     public InvDFAMinimizationOptions(String[] args) {

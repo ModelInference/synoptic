@@ -10,8 +10,10 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -45,7 +47,10 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.WeightedTransition;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
+import synoptic.model.interfaces.INode;
+import synoptic.model.interfaces.ITransition;
 import synopticgwt.client.ISynopticService;
+import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTInvariant;
@@ -90,6 +95,10 @@ public class SynopticService extends RemoteServiceServlet implements
 
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods.
+
+    private GWTNode gwtNodeFromPartition(Partition p) {
+        return new GWTNode(p.getEType().toString(), p.hashCode());
+    }
 
     /**
      * Initializes the server state.
@@ -226,12 +235,11 @@ public class SynopticService extends RemoteServiceServlet implements
 
         // Iterate through all the nodes in the pGraph
         for (Partition pNode : nodeSet) {
-            String pNodeEType = pNode.getEType().toString();
             // Add the pNode to the GWTGraph
             if (nodeIds.containsKey(pNode.hashCode())) {
                 gwtPNode = nodeIds.get(pNode.hashCode());
             } else {
-                gwtPNode = new GWTNode(pNodeEType, pNode.hashCode());
+                gwtPNode = gwtNodeFromPartition(pNode);
                 nodeIds.put(pNode.hashCode(), gwtPNode);
                 graph.addNode(gwtPNode);
             }
@@ -254,8 +262,7 @@ public class SynopticService extends RemoteServiceServlet implements
                 } else {
                     // Add the node to the graph so it can be connected
                     // if it doesn't exist.
-                    adjGWTPNode = new GWTNode(adjPNode.getEType().toString(),
-                            adjPNode.hashCode());
+                    adjGWTPNode = gwtNodeFromPartition(adjPNode);
                     nodeIds.put(adjPNode.hashCode(), adjGWTPNode);
                     graph.addNode(adjGWTPNode);
                 }
@@ -531,8 +538,7 @@ public class SynopticService extends RemoteServiceServlet implements
         }
         PartitionMultiSplit last = pGraph.getMostRecentSplit();
 
-        GWTNode refinedNode = new GWTNode(last.getPartition().getEType()
-                .toString(), last.getPartition().hashCode());
+        GWTNode refinedNode = gwtNodeFromPartition(last.getPartition());
 
         // Because we've created new objects on top of older objects we need to
         // store the state explicitly.
@@ -545,10 +551,10 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Performs coarsening of the completely refined model in one single step.
+     * Performs coarsening of the completely refined model in one step.
      */
     @Override
-    public GWTGraph coarsenOneStep() throws Exception {
+    public GWTGraph coarsenCompletely() throws Exception {
         // Set up state.
         retrieveSessionState();
 
@@ -642,5 +648,56 @@ public class SynopticService extends RemoteServiceServlet implements
         GraphExporter.generatePngFileFromDotFile(config.modelExportsDir
                 + fileName);
         return config.modelExportsURLprefix + fileName + ".png";
+    }
+
+    /**
+     * Calculates and returns the paths through all of the input node IDs.
+     * Returns an empty map if no such paths exist.
+     * 
+     * @param selectedNodes
+     * @throws Exception
+     */
+    public Map<Integer, Set<GWTEdge>> getPathsThroughPartitionIDs(
+            Set<Integer> selectedNodeIDs) throws Exception {
+        retrieveSessionState();
+
+        Map<Integer, Set<GWTEdge>> gwtPaths = new HashMap<Integer, Set<GWTEdge>>();
+
+        if (selectedNodeIDs == null || selectedNodeIDs.isEmpty()) {
+            return gwtPaths;
+        }
+
+        // Take the node IDs and create a set of partitions from them.
+        Set<INode<Partition>> selectedNodes = new HashSet<INode<Partition>>();
+        for (Integer id : selectedNodeIDs) {
+            Partition p = pGraph.getNodeByID(id);
+            // Mandate that each node ID maps to a valid Partition.
+            assert (p != null);
+            selectedNodes.add(p);
+        }
+
+        Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+                .getPathsThroughPartitions(selectedNodes);
+
+        // Convert an ITransition-centric map to a GWTEdge-centric map.
+        for (Integer id : paths.keySet()) {
+            // Convert each transition individually into an edge, and then
+            // add them all to an individual path.
+            Set<ITransition<Partition>> transitions = paths.get(id);
+            Set<GWTEdge> gwtPath = new HashSet<GWTEdge>();
+            for (ITransition<Partition> trans : transitions) {
+                GWTNode trgNode = gwtNodeFromPartition(trans.getTarget());
+                GWTNode srcNode = gwtNodeFromPartition(trans.getSource());
+
+                // The value of zero in the construction of this edge
+                // is simply a dummy weight, since the purpose of this edge
+                // is for finding equivalent edges within the model tab.
+                GWTEdge edge = new GWTEdge(srcNode, trgNode, 0);
+                gwtPath.add(edge);
+            }
+
+            gwtPaths.put(id, gwtPath);
+        }
+        return gwtPaths;
     }
 }

@@ -255,9 +255,9 @@ public class SynopticOptions {
     /**
      * Dumps PNG of initial condensed partition graph to file. The file will
      * have the name <outputPathPrefix>.condensed.dot.png, where
-     * 'outputPathPrefix' is the filename of the final Synoptic output. This 
-     * option is <i>unpublicized</i>; it will not appear in the default
-     * usage message.
+     * 'outputPathPrefix' is the filename of the final Synoptic output. This
+     * option is <i>unpublicized</i>; it will not appear in the default usage
+     * message.
      */
     @Option("Dump the initial condensed partition graph")
     public boolean dumpInitialPartitionGraph = false;

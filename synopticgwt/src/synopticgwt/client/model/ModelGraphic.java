@@ -29,9 +29,23 @@ public class ModelGraphic {
     public static native void createGraph(ModelTab modelTab,
             JavaScriptObject nodes, JavaScriptObject edges, int width,
             int height, String canvasId, String initial, String terminal) /*-{
+
+		// Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
+		$wnd.Math.seedrandom($wnd.randSeed);
+
 		// Export the handleLogRequest globally.
 		$wnd.viewLogLines = function(id) {
 			modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
+		};
+
+		// Export global add/remove methods for selected nodes (moving 
+		// nodes to model tab).
+		$wnd.addSelectedNode = function(id) {
+			modelTab.@synopticgwt.client.model.ModelTab::addSelectedNode(I)(id);
+		};
+
+		$wnd.removeSelectedNode = function(id) {
+			modelTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(id);
 		};
 
 		// Create the graph.
@@ -82,6 +96,12 @@ public class ModelGraphic {
     public static native void createChangingGraph(JavaScriptObject nodes,
             JavaScriptObject edges, int refinedNode, String canvasId) /*-{
 
+		// Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
+		$wnd.Math.seedrandom($wnd.randSeed);
+
+		// Clear the selected nodes from the graph's state.
+		$wnd.clearSelectedNodes();
+
 		// update graph and fetch array of new nodes
 		var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges,
 				refinedNode);
@@ -111,6 +131,8 @@ public class ModelGraphic {
      *            The new height of the graph's canvas.
      */
     public static native void resizeGraph(int width, int height) /*-{
+		// Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
+		$wnd.Math.seedrandom($wnd.randSeed);
 
 		// Get the current layout so it can be updated.
 		var layouter = $wnd.GRAPH_HANDLER.getLayouter();
@@ -131,6 +153,15 @@ public class ModelGraphic {
 
 		// Draw the new graph with all of the repositioned nodes.
 		rend.draw();
+    }-*/;
+
+    // This is debugging code for the model tab. (including the next method)
+    public static native void printTraceID(int traceID) /*-{
+		$wnd.console.log("TRACE ID: " + traceID);
+    }-*/;
+
+    public static native void printEdge(String src, String dst) /*-{
+		$wnd.console.log("   EDGE: " + src + " -> " + dst);
     }-*/;
 
     // </JSNI methods>
