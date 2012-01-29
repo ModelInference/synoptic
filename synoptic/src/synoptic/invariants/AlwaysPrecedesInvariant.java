@@ -115,17 +115,18 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
         return "AlwaysPrecedes";
     }
 
-
-	/**
-	 * Returns a regular expressions describing this invariant for first AP second. The
-	 * expression is "[^y]*(x.*)*".
-	 * 
-	 * @param first a character representation of first
-	 * @param second a character representation of second
-	 * @return a regex for this invariant
-	 */
-	@Override
-	public String getRegex(char firstC, char secondC) {
-		return "[^" + secondC + "]*(" + firstC + ".*)*";
-	}
+    /**
+     * Returns a regular expressions describing this invariant for first AP
+     * second. The expression is "[^y]*(x.*)*".
+     * 
+     * @param first
+     *            a character representation of first
+     * @param second
+     *            a character representation of second
+     * @return a regex for this invariant
+     */
+    @Override
+    public String getRegex(char firstC, char secondC) {
+        return "[^" + secondC + "]*(" + firstC + ".*)?";
+    }
 }

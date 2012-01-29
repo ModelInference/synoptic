@@ -709,6 +709,7 @@ public class Main implements Callable<Integer> {
         }
 
         TOInvariantMiner miner;
+
         if (options.useTransitiveClosureMining) {
             miner = new TransitiveClosureInvMiner();
         } else {
