@@ -70,7 +70,7 @@ public class InputTab extends Tab<VerticalPanel> {
     final RadioButton logFileRadioButton = new RadioButton("logInputType",
             "File");
 
-    final ExtendedTextArea logTextArea = new ExtendedTextArea(
+    final TextArea logTextArea = new ExtendedTextArea(
             new ScheduledCommand() {
                 @Override
                 public void execute() {
@@ -81,7 +81,7 @@ public class InputTab extends Tab<VerticalPanel> {
                 }
             });
 
-    final ExtendedTextBox partitionRegExpTextBox = new ExtendedTextBox(
+    final TextBox partitionRegExpTextBox = new ExtendedTextBox(
             new ScheduledCommand() {
                 @Override
                 public void execute() {
