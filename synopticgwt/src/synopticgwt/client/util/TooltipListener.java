@@ -19,6 +19,10 @@
 
 package synopticgwt.client.util;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import com.google.gwt.event.dom.client.HasAllMouseHandlers;
 import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
@@ -26,9 +30,6 @@ import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Hyperlink;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -36,7 +37,7 @@ import com.google.gwt.user.client.ui.Widget;
 import synopticgwt.client.SynopticGWT;
 
 public class TooltipListener implements MouseOverHandler, MouseOutHandler {
-    private static final String DEFAULT_TOOLTIP_STYLE = "TooltipPopup";
+    // private static final String DEFAULT_TOOLTIP_STYLE = "TooltipPopup";
     private static final int DEFAULT_OFFSET_X = 10;
     private static final int DEFAULT_OFFSET_Y = 35;
     private static final int HIDE_DELAY = 1000;
@@ -49,27 +50,26 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
     private int offsetX = DEFAULT_OFFSET_X;
     private int offsetY = DEFAULT_OFFSET_Y;
 
-    public TooltipListener(String text, int delay) {
-        this(text, delay, DEFAULT_TOOLTIP_STYLE);
-    }
-
-    public TooltipListener(String text, int delay, String styleName) {
-        this(text, null, delay, styleName);
-    }
-    
-    public TooltipListener(String text, String urlLink, int delay, String styleName) {
+    public TooltipListener(String text, String urlLink, int delay,
+            String styleName) {
         this.text = text;
         this.urlLink = urlLink;
         this.delay = delay;
         this.styleName = styleName;
     }
-    
-    public static void setTooltip(Label l, String s, String urlLink) {
-        TooltipListener tooltip = new TooltipListener(s, urlLink, 5000, "tooltip");
-        l.addMouseOverHandler(tooltip);
-        l.addMouseOutHandler(tooltip);
+
+    public static void setTooltip(Widget widget, String s, String urlLink) {
+        // TODO: Use DEFAULT_TOOLTIP_STYLE or "tooltip" for style?
+        if (!(widget instanceof HasAllMouseHandlers)) {
+            return;
+        }
+        TooltipListener tooltip = new TooltipListener(s, urlLink, 5000,
+                "tooltip");
+        ((HasAllMouseHandlers) widget).addMouseOverHandler(tooltip);
+        ((HasAllMouseHandlers) widget).addMouseOutHandler(tooltip);
+
     }
-    
+
     @Override
     public void onMouseOut(MouseOutEvent event) {
         if (tooltip != null) {
@@ -93,7 +93,8 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
         Widget sender = (Widget) event.getSource();
         if (tooltip != null)
             tooltip.hide();
-        tooltip = new Tooltip(sender, offsetX, offsetY, text, urlLink, delay, styleName);
+        tooltip = new Tooltip(sender, offsetX, offsetY, text, urlLink, delay,
+                styleName);
         tooltip.show();
     }
 
@@ -123,23 +124,24 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
 
     private static class Tooltip extends PopupPanel {
         private int delay;
+        static List<Tooltip> activeTips = new LinkedList<Tooltip>();
 
         public Tooltip(Widget sender, int offsetX, int offsetY,
-                final String text, final String urlLink,
-                final int delay, final String styleName) {
+                final String text, final String urlLink, final int delay,
+                final String styleName) {
             super(true);
 
             this.delay = delay;
 
             HTML contents = new HTML(text);
             VerticalPanel vp = new VerticalPanel();
-            vp.add(contents);            
+            vp.add(contents);
 
             if (urlLink != null) {
                 Anchor link = new Anchor("More information", urlLink);
                 vp.add(link);
             }
-                       
+
             add(vp);
             int left = sender.getAbsoluteLeft() + offsetX;
             int top = sender.getAbsoluteTop() + offsetY;
@@ -149,12 +151,21 @@ public class TooltipListener implements MouseOverHandler, MouseOutHandler {
         }
 
         public void show() {
+            // Hide any actively displayed tool tips.
+            while (activeTips.size() != 0) {
+                Tooltip activeTip = activeTips.get(0);
+                activeTip.hide();
+                activeTips.remove(activeTip);
+            }
+
             super.show();
+            activeTips.add(this);
 
             Timer t = new Timer() {
 
                 public void run() {
                     Tooltip.this.hide();
+                    activeTips.remove(Tooltip.this);
                 }
 
             };

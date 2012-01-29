@@ -49,6 +49,8 @@ public class ModelTab extends Tab<DockPanel> {
     private final HorizontalPanel buttonsPanel = new HorizontalPanel();
     private final VerticalPanel controlsPanel = new VerticalPanel();
 
+    private static final String TOOLTIP_URL = "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial#Invariants_Tab";
+
     // Model tab widgets:
     private final Button modelRefineButton = new Button("Refine");
     private final Button modelCoarsenButton = new Button("Coarsen");
@@ -93,10 +95,9 @@ public class ModelTab extends Tab<DockPanel> {
                 "log-line-label");
 
         // Add tool-tip to LogLineLabel
-        TooltipListener tooltip = new TooltipListener(
-                "Double-click on a node to view log lines", 5000, "tooltip");
-        logLineLabel.addMouseOverHandler(tooltip);
-        logLineLabel.addMouseOutHandler(tooltip);
+        TooltipListener.setTooltip(logLineLabel,
+                "Click on a node to view the associated log lines.",
+                TOOLTIP_URL);
         logPanel.add(logLineLabel);
 
         // Create and add a table with log lines.
@@ -106,50 +107,63 @@ public class ModelTab extends Tab<DockPanel> {
         controlsPanel.add(logPanel);
         panel.add(controlsPanel, DockPanel.WEST);
 
-        // Coarsening is disabled until refinement is completed.
-        modelCoarsenButton.setEnabled(false);
+        TooltipListener
+                .setTooltip(
+                        modelRefineButton,
+                        "Refine the model by splitting nodes to eliminate paths that violate invariants.",
+                        TOOLTIP_URL);
         modelRefineButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 refineButtonClick(event);
             }
         });
+
+        // Coarsening is disabled until refinement is completed.
+        modelCoarsenButton.setEnabled(false);
+        TooltipListener
+                .setTooltip(
+                        modelCoarsenButton,
+                        "Coarsen the model by merging nodes. Coarsening is disabled until refinement is completed.",
+                        TOOLTIP_URL);
         modelCoarsenButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 coarsenModelButtonClick(event);
             }
         });
+
+        TooltipListener
+                .setTooltip(
+                        modelGetFinalButton,
+                        "Perform all the necessary refinement/coarsening and retrieve the final model.",
+                        TOOLTIP_URL);
         modelGetFinalButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 getFinalModelButtonClick(event);
             }
         });
+
+        TooltipListener.setTooltip(modelExportDotButton,
+                "Export the model in Graphviz DOT format.", TOOLTIP_URL);
         modelExportDotButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 exportDotButtonClick(event);
             }
         });
+
+        TooltipListener.setTooltip(modelExportPngButton,
+                "Export the model as an PNG image file.", TOOLTIP_URL);
         modelExportPngButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 exportPngButtonClick(event);
             }
         });
-        
-        initTooltips();
     }
 
-   /**
-    *  Associates controls with tooltips explaining what each control represents
-    *  or does. 
-    */
-    private void initTooltips() {
-        
-    }
-    
     /**
      * Shows the GWTGraph object on the screen in the modelPanel. NOTE: the
      * model tab MUST be made visible for showGraph to work.

@@ -27,7 +27,6 @@ import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.SynopticGWT;
 import synopticgwt.client.Tab;
 import synopticgwt.client.util.ProgressWheel;
-import synopticgwt.client.util.TooltipListener;
 import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
 
@@ -37,8 +36,7 @@ import synopticgwt.shared.GWTInvariantSet;
  * be satisfied by the model.
  */
 public class InvariantsTab extends Tab<VerticalPanel> {
-    private static final String TOOLTIP_URL = "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial?ts=1325124406&updated=DocsWebAppTutorial#Invariants_Tab";
-    
+
     public Set<Integer> activeInvsHashes;
 
     /** Relate GWTInvariants to InvariantGridLabels */
@@ -106,10 +104,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         invGraphicPanel.setStylePrimaryName("modelCanvas");
         tableAndGraphicPanel.add(invGraphicPanel);
         iGraph.createInvariantsGraphic(gwtInvs, invCanvasId, gwtInvToGridLabel);
-        initTooltips();
     }
-    
-    
 
     /**
      * Adds a grid column of an invariant type to tableAndGraphicPanel
@@ -174,32 +169,10 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             grid.getCellFormatter().setStyleName(i + 1, 0,
                     "tableCellInvActivated");
         }
-        
+
         // Add a click handler to the grid that allows users to
         // include/exclude invariants for use by Synoptic.
         grid.addClickHandler(new InvGridClickHandler(grid, invs));
-    }
-    
-    /**
-     * Initialize tooltips.
-     */
-    private void initTooltips() {
-        /* Add tooltip to invariant labels in the table */
-        for (int i = 0; i < tableAndGraphicPanel.getWidgetCount() - 1; i++) {
-            Grid g = (Grid) tableAndGraphicPanel.getWidget(i);
-            InvariantGridTitleLabel l = (InvariantGridTitleLabel) g.getWidget(0, 0);
-            if (l.getText().startsWith("AlwaysFollowedBy")) {
-                TooltipListener.setTooltip(l, "If event type a is always followed by b (a \u2192 b), then whenever the event type a appears, the event type b always appears later in the same trace. Hover over an invariant to see it highlighted in the invariant graphic. Click on an invariant to activate/de-activate it. If the log is totally ordered, click on the AlwaysFollowedBy (\u2192) header to activate/de-activate all these invariants.", TOOLTIP_URL);
-            } else if (l.getText().startsWith("AlwaysPrecedes")) {
-                TooltipListener.setTooltip(l, "If event type a always precedes event type b (a \u2190 b), then whenever the event type b appears, the event type a always appears before b in the same trace. Hover over an invariant to see it highlighted in the invariant graphic. Click on an invariant to activate/de-activate it. If the log is totally ordered, click on the AlwaysPrecedes (\u2190) header to activate/de-activate all these invariants.", TOOLTIP_URL);
-            } else if (l.getText().startsWith("NeverFollowedBy")) {
-                TooltipListener.setTooltip(l, "If event type a is never followed by b (a \u219b b), then whenever the event type a appears, the event type b never appears later in the same trace. Hover over an invariant to see it highlighted in the invariant graphic. Click on an invariant to activate/de-activate it. If the log is totally ordered, click on the NeverFollowedBy (\u219b) header to activate/de-activate all these invariants.", TOOLTIP_URL);
-            } else if (l.getText().startsWith("NeverConcurrentWith")) {
-                
-            } else if (l.getText().startsWith("AlwaysConcurrentWith")) {
-                
-            }
-        }
     }
 
     /**
