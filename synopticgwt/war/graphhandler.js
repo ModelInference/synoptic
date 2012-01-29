@@ -33,6 +33,8 @@ var allRects = [];
 // The selected node that has log lines displayed.
 var selectedNodeLog;
 
+
+
 /*
  * A function for clearing the state of the selected nodes.
  * Each node is set back to the default color, border color,
@@ -158,11 +160,12 @@ var GRAPH_HANDLER = {
                 		// New selected node with log lines displayed.
                 		selectedNodeLog = rect;
 	                	rect.attr({
+	                		"fill": DEFAULT_COLOR,
 	                		"stroke": "red",
 	                		"stroke-width": SELECT_STROKE_WIDTH
 	                	});
                 	}
-                	rect.attr("fill", "blue");
+                	//rect.attr("fill", "blue");
                     selectedDraculaNodes[node.id] = rect;
                     addSelectedNode(parseInt(node.id));
                 } else {
@@ -200,7 +203,7 @@ var GRAPH_HANDLER = {
         			var currRect = allRects[i];
         			// Return to default color if the rectangle is
         			// not currently selected.
-        			if (!isSelectedNode(currRect)) {
+        			if (!isSelectedNode(currRect) || currRect == selectedNodeLog) {
         				currRect.attr("fill", DEFAULT_COLOR);
         			}
         		}
