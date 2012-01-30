@@ -106,16 +106,34 @@ public class ModelTab extends Tab<DockPanel> {
         controlsPanel.add(viewPathsButtonPanel);
 
         // Set up model options panel.
-        final RadioButton countEdgesRadioButton = new RadioButton(
-                "countEdgesRadioButton", "Show counts on edges");
         final RadioButton probEdgesRadioButton = new RadioButton(
                 "probEdgesRadioButton", "Show probabilities on edges");
+        TooltipListener
+                .setTooltip(
+                        probEdgesRadioButton,
+                        "Annotate edges with probabilities, which indicate the fraction of traces that pass along an edge.",
+                        TOOLTIP_URL);
+        probEdgesRadioButton.addClickHandler(new EdgeViewChangeHandler(false));
+        probEdgesRadioButton.setValue(true);
+
+        final RadioButton countEdgesRadioButton = new RadioButton(
+                "countEdgesRadioButton", "Show counts on edges");
+        TooltipListener
+                .setTooltip(
+                        countEdgesRadioButton,
+                        "Annotate edges with trace counts, which indicate the number of traces that pass along an edge",
+                        TOOLTIP_URL);
+        countEdgesRadioButton.addClickHandler(new EdgeViewChangeHandler(true));
+        countEdgesRadioButton.setValue(false);
 
         DisclosurePanel modelOpts = new DisclosurePanel("Model options");
-        Grid debugOptsGrid = new Grid(2, 1);
-        debugOptsGrid.setCellSpacing(6);
-        debugOptsGrid.setWidget(0, 0, countEdgesRadioButton);
-        debugOptsGrid.setWidget(1, 0, probEdgesRadioButton);
+        Grid modelOptsGrid = new Grid(2, 1);
+        modelOptsGrid.setCellSpacing(6);
+        modelOptsGrid.setWidget(0, 0, countEdgesRadioButton);
+        modelOptsGrid.setWidget(1, 0, probEdgesRadioButton);
+        modelOpts.setContent(modelOptsGrid);
+        modelOpts.setAnimationEnabled(true);
+        modelOpts.setStyleName("SpecialOptions");
         controlsPanel.add(modelOpts);
 
         VerticalPanel logPanel = new VerticalPanel();
@@ -206,6 +224,26 @@ public class ModelTab extends Tab<DockPanel> {
                         TOOLTIP_URL);
 
         initializeTabState();
+    }
+
+    /**
+     * Changes model edges to displays counts or probabilities.
+     */
+    class EdgeViewChangeHandler implements ClickHandler {
+        boolean showCounts;
+
+        public EdgeViewChangeHandler(boolean showCounts) {
+            this.showCounts = showCounts;
+        }
+
+        @Override
+        public void onClick(ClickEvent event) {
+            if (this.showCounts) {
+                // TODO: change edges to show counts.
+            } else {
+                // TODO: change edges to show probabilities.
+            }
+        }
     }
 
     /**
