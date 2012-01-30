@@ -167,8 +167,18 @@ var GRAPH_HANDLER = {
                 if (selectedDraculaNodes[node.id] == undefined) {
                 	// Node associated with log lines listed is
                 	// surrounded by red and thick border.
-                	if (!event.shiftKey) {
-                		// New selected node with log lines displayed.
+                	if (event.shiftKey) {
+                    	rect.attr("fill", "blue");
+                    	selectedDraculaNodes[node.id] = rect;
+                        addSelectedNode(parseInt(node.id));
+                	} else {
+                		// Remove red border from previous node displaying log lines.
+                		if (selectedNodeLog != undefined) {
+                			selectedNodeLog.attr({
+                				"stroke": "black",
+                				"stroke-width": DEFAULT_STROKE_WIDTH
+                			});
+                		}
                 		selectedNodeLog = rect;
 	                	rect.attr({
 	                		"fill": DEFAULT_COLOR,
@@ -176,19 +186,21 @@ var GRAPH_HANDLER = {
 	                		"stroke-width": SELECT_STROKE_WIDTH
 	                	});
                 	}
-                	//rect.attr("fill", "blue");
-                    selectedDraculaNodes[node.id] = rect;
-                    addSelectedNode(parseInt(node.id));
+                	
                 } else {
-                	if (selectedNodeLog != rect) {
-	                    rect.attr({
+                	if (selectedNodeLog == rect) {
+                		rect.attr({
+	                    	"fill": DEFAULT_COLOR
+	                    });
+                	} else { // All nodes except for one displaying log lines.
+                		rect.attr({
 	                    	"fill": DEFAULT_COLOR,
 	                    	"stroke": "black",
 	            			"stroke-width": DEFAULT_STROKE_WIDTH
 	                    });
-	                    delete selectedDraculaNodes[node.id];
-	                    removeSelectedNode(parseInt(node.id));
                 	}
+                	delete selectedDraculaNodes[node.id];
+                	removeSelectedNode(parseInt(node.id));
                 }
             }
         };
@@ -214,7 +226,7 @@ var GRAPH_HANDLER = {
         			var currRect = allRects[i];
         			// Return to default color if the rectangle is
         			// not currently selected.
-        			if (!isSelectedNode(currRect) || currRect == selectedNodeLog) {
+        			if (!isSelectedNode(currRect)) { //|| currRect == selectedNodeLog
         				currRect.attr("fill", DEFAULT_COLOR);
         			}
         		}
