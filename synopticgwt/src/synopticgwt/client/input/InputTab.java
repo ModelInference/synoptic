@@ -35,6 +35,7 @@ import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.SynopticGWT;
 import synopticgwt.client.Tab;
 import synopticgwt.client.util.ProgressWheel;
+import synopticgwt.client.util.TooltipListener;
 import synopticgwt.shared.GWTSynOpts;
 
 /**
@@ -45,6 +46,8 @@ public class InputTab extends Tab<VerticalPanel> {
     private static final String UPLOAD_LOGFILE_URL = GWT.getModuleBaseURL()
             + "log_file_upload";
 
+    private static final String TOOLTIP_URL = "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial#Inputs_Tab";
+
     final String regExpDefault = "(?<TYPE>.*)";
     final String partitionRegExpDefault = "\\k<FILE>";
 
@@ -53,10 +56,14 @@ public class InputTab extends Tab<VerticalPanel> {
     final Grid examplesGrid = new Grid(5, 1);
     final Label exampleLogLabel = new Label("Load example logs");
     final Label parseErrorMsgLabel = new Label();
+    final Label logLabel = new Label("Log");
+    final Label regExpLabel = new Label("Regular expressions");
     final Label regExpDefaultLabel = new Label("Defaults to " + regExpDefault
             + " when empty");
+    final Label partitionRegExpLabel = new Label("Partition expression");
     final Label partitionRegExpDefaultLabel = new Label("Defaults to "
             + partitionRegExpDefault + " when empty");
+    final Label separatorRegExpLabel = new Label("Separator expression");
     final FormPanel logFileUploadForm = new FormPanel();
     final RadioButton logTextRadioButton = new RadioButton("logInputType",
             "Text");
@@ -163,7 +170,7 @@ public class InputTab extends Tab<VerticalPanel> {
 
         VerticalPanel logInputPanel = new VerticalPanel();
         grid.setWidget(0, 0, logInputPanel);
-        logInputPanel.add(new Label("Log"));
+        logInputPanel.add(logLabel);
         logInputPanel.add(logTextRadioButton);
         logInputPanel.add(logFileRadioButton);
 
@@ -172,7 +179,7 @@ public class InputTab extends Tab<VerticalPanel> {
         logTextArea.setVisibleLines(10);
         logTextArea.setName("logTextArea");
 
-        grid.setWidget(1, 0, new Label("Regular expressions"));
+        grid.setWidget(1, 0, regExpLabel);
         regExpsPanel.addStyleName("ExtraRegExps");
         regExpDefaultLabel.setStyleName("DefaultExpLabel");
 
@@ -184,18 +191,21 @@ public class InputTab extends Tab<VerticalPanel> {
         regExpsPanel.add(firstInput);
         ((Button) firstInput.getWidget(1)).setVisible(false);
         regExpsHolder.setWidget(2, 0, addRegExpButton);
+        TooltipListener.setTooltip(addRegExpButton,
+                "Add one more regular expression for matching log lines.",
+                TOOLTIP_URL);
         grid.setWidget(1, 1, regExpsHolder);
 
         VerticalPanel partitionExpPanel = new VerticalPanel();
         partitionExpPanel.add(partitionRegExpDefaultLabel);
         partitionExpPanel.add(partitionRegExpTextBox);
         partitionRegExpDefaultLabel.setStyleName("DefaultExpLabel");
-        grid.setWidget(2, 0, new Label("Partition expression"));
+        grid.setWidget(2, 0, partitionRegExpLabel);
         grid.setWidget(2, 1, partitionExpPanel);
         partitionRegExpTextBox.setVisibleLength(80);
         partitionRegExpTextBox.setName("partitionRegExpTextBox");
 
-        grid.setWidget(3, 0, new Label("Separator expression"));
+        grid.setWidget(3, 0, separatorRegExpLabel);
         grid.setWidget(3, 1, separatorRegExpTextBox);
         separatorRegExpTextBox.setVisibleLength(80);
         separatorRegExpTextBox.setName("separatorRegExpTextBox");
@@ -208,6 +218,11 @@ public class InputTab extends Tab<VerticalPanel> {
         parOptsGrid.setCellSpacing(6);
         parOptsGrid.setWidget(0, 0, ignoreNonMatchedLines);
         parOptsGrid.setHTML(0, 1, "Ignore non-matched lines");
+        TooltipListener
+                .setTooltip(
+                        ignoreNonMatchedLines,
+                        "If a log line is not matched by any regular expression, ignore it and move on.",
+                        TOOLTIP_URL);
         parOpts.setContent(parOptsGrid);
         parOpts.setStyleName("SpecialOptions");
         optsPanel.add(parOpts);
@@ -217,8 +232,17 @@ public class InputTab extends Tab<VerticalPanel> {
         debugOptsGrid.setCellSpacing(6);
         debugOptsGrid.setWidget(0, 0, manualRefineCoarsen);
         debugOptsGrid.setHTML(0, 1, "Manual refinement/coarsening");
+        TooltipListener
+                .setTooltip(
+                        manualRefineCoarsen,
+                        "Provides manual controls for stepping through refinement and coarsening.",
+                        TOOLTIP_URL);
+
         debugOptsGrid.setWidget(1, 0, onlyMineInvs);
         debugOptsGrid.setHTML(1, 1, "Only mine invariants");
+        TooltipListener.setTooltip(onlyMineInvs,
+                "Mine and show invariants, but do not show the model.",
+                TOOLTIP_URL);
 
         debugOpts.setContent(debugOptsGrid);
         debugOpts.setAnimationEnabled(true);
@@ -278,6 +302,39 @@ public class InputTab extends Tab<VerticalPanel> {
         examplesAndInputForm.add(examplesGrid);
         examplesAndInputForm.add(inputForm);
         panel.add(examplesAndInputForm);
+
+        // Set tooltips for controls.
+        initTooltips();
+    }
+
+    /**
+     * Associates controls with tooltips explaining what each control represents
+     * or does.
+     */
+    private void initTooltips() {
+        TooltipListener.setTooltip(exampleLogLabel,
+                "Select a pre-made example to populate the input fields.",
+                TOOLTIP_URL);
+        TooltipListener
+                .setTooltip(
+                        logLabel,
+                        "Select \"Text\" and paste in a log or click on \"File\" to upload a log file.",
+                        TOOLTIP_URL);
+        TooltipListener
+                .setTooltip(
+                        regExpLabel,
+                        "Input regular expression(s) to match each event instance. Click on \"+\" to input additional regular expressions.",
+                        TOOLTIP_URL);
+        TooltipListener
+                .setTooltip(
+                        partitionRegExpLabel,
+                        "Input a regular expression to associate events from the same partition.",
+                        TOOLTIP_URL);
+        TooltipListener
+                .setTooltip(
+                        separatorRegExpLabel,
+                        "Input a regular expression to indicate the boundary between sequential partitions.",
+                        TOOLTIP_URL);
     }
 
     /**
@@ -358,6 +415,8 @@ public class InputTab extends Tab<VerticalPanel> {
                 });
         setUpTextBox(newTextBox);
         Button deleteButton = new Button("-");
+        TooltipListener.setTooltip(deleteButton,
+                "Remove this regular expression.", TOOLTIP_URL);
         deleteButton.addStyleName("DeleteButton");
         deleteButton.addClickHandler(new DeleteTextBoxHandler());
         HorizontalPanel textBoxAndDeleteHolder = new HorizontalPanel();

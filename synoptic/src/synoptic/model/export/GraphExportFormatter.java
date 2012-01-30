@@ -30,6 +30,14 @@ public abstract class GraphExportFormatter {
     static final String defaultRelationColor = "black";
 
     /**
+     * Rounds off edge probability to two decimal places. Used by all edge
+     * formatters.
+     */
+    public static double truncateProbability(double prob) {
+        return Math.round(prob * 100.0) / 100.0;
+    }
+
+    /**
      * Whether or not we've printed a message stating that we've run out of
      * colors.
      */
@@ -63,6 +71,8 @@ public abstract class GraphExportFormatter {
                         + ") for the remaining relations.");
             }
             reportedColorsDeficiency = true;
+        }
+        if (possibleColors.size() == 0) {
             return defaultRelationColor;
         }
         String color = possibleColors.remove(0);
