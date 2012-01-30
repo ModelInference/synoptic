@@ -10,10 +10,13 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.client.ISynopticServiceAsync;
@@ -61,6 +64,7 @@ public class ModelTab extends Tab<DockPanel> {
     private final Button modelExportDotButton = new Button("Export DOT");
     private final Button modelExportPngButton = new Button("Export PNG");
     private final Button modelViewPathsButton = new Button("View Paths");
+
     private FlowPanel graphPanel;
     private LogLinesTable logLinesTable;
     private Label logLineLabel;
@@ -100,6 +104,19 @@ public class ModelTab extends Tab<DockPanel> {
         modelViewPathsButton.setWidth("200px");
         viewPathsButtonPanel.setStyleName("buttonPanel");
         controlsPanel.add(viewPathsButtonPanel);
+
+        // Set up model options panel.
+        final RadioButton countEdgesRadioButton = new RadioButton(
+                "countEdgesRadioButton", "Show counts on edges");
+        final RadioButton probEdgesRadioButton = new RadioButton(
+                "probEdgesRadioButton", "Show probabilities on edges");
+
+        DisclosurePanel modelOpts = new DisclosurePanel("Model options");
+        Grid debugOptsGrid = new Grid(2, 1);
+        debugOptsGrid.setCellSpacing(6);
+        debugOptsGrid.setWidget(0, 0, countEdgesRadioButton);
+        debugOptsGrid.setWidget(1, 0, probEdgesRadioButton);
+        controlsPanel.add(modelOpts);
 
         VerticalPanel logPanel = new VerticalPanel();
         logPanel.setWidth("300px");
