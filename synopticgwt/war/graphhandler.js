@@ -52,6 +52,17 @@ var clearSelectedNodes = function() {
     }
 }
 
+var setSelectedNodesBorder = function(color) {
+	for (var i in selectedDraculaNodes) {
+        selectedDraculaNodes[i].attr({
+        	"fill": DEFAULT_COLOR,
+        	"stroke": color,
+			"stroke-width": SELECT_STROKE_WIDTH
+        });
+        delete selectedDraculaNodes[i];
+    }
+}
+
 /*
  * A function that returns true if the rectangle object
  * being passed is currently selected. Returns false if

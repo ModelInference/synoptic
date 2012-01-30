@@ -569,6 +569,12 @@ public class ModelTab extends Tab<DockPanel> {
                 synopticService.getPathsThroughPartitionIDs(selectedNodes,
                         new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
                                 ModelTab.this));
+                
+               // JavaScriptObject selectedNodeIDs = JavaScriptObject.createArray();
+               // for (int id: selectedNodes) {
+                //    JsniUtil.pushArray(selectedNodeIDs, id);
+                //}
+                ModelGraphic.updateNodesBorder("blue");
             } catch (Exception e) {
                 // TODO: Do something about the exception
             }

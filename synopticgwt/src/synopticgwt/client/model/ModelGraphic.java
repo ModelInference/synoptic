@@ -154,6 +154,11 @@ public class ModelGraphic {
 		// Draw the new graph with all of the repositioned nodes.
 		rend.draw();
     }-*/;
+    
+    public static native void updateNodesBorder(String color) /*-{
+        // Get the current layout so it can be updated.
+        $wnd.setSelectedNodesBorder(color);      
+    }-*/;
 
     // This is debugging code for the model tab. (including the next method)
     public static native void printTraceID(int traceID) /*-{
@@ -163,7 +168,7 @@ public class ModelGraphic {
     public static native void printEdge(String src, String dst) /*-{
 		$wnd.console.log("   EDGE: " + src + " -> " + dst);
     }-*/;
-
+    
     // </JSNI methods>
     // //////////////////////////////////////////////////////////////////////////
 }
