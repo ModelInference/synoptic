@@ -46,6 +46,7 @@ import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 import synoptic.model.WeightedTransition;
 import synoptic.model.export.DotExportFormatter;
+import synoptic.model.export.GraphExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -267,13 +268,11 @@ public class SynopticService extends RemoteServiceServlet implements
                     graph.addNode(adjGWTPNode);
                 }
 
-                // Truncate the last three digits to make the weight more
-                // readable
-                Double transitionFrac = Math
-                        .ceil(wTransition.getFraction() * 1000) / 1000;
+                double transitionProb = GraphExportFormatter
+                        .truncateProbability(wTransition.getFraction());
 
                 // Add the complete weighted edge
-                graph.addEdge(gwtPNode, adjGWTPNode, transitionFrac);
+                graph.addEdge(gwtPNode, adjGWTPNode, transitionProb);
             }
         }
         return graph;

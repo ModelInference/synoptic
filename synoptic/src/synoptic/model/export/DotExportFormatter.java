@@ -55,7 +55,7 @@ public class DotExportFormatter extends GraphExportFormatter {
     @Override
     public String edgeToStringWithProb(int nodeSrc, int nodeDst, double prob,
             String relation) {
-        String freqStr = quote(String.format("%.2f", prob));
+        String freqStr = quote(String.format("%f", truncateProbability(prob)));
         String attributes = "label=\"" + freqStr + "\", weight=\"" + freqStr
                 + "\"";
         return edgeToString(nodeSrc, nodeDst, attributes, relation);
