@@ -7,13 +7,14 @@ import java.util.Set;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.client.ISynopticServiceAsync;
@@ -49,14 +50,21 @@ public class ModelTab extends Tab<DockPanel> {
     // NOTE: Must also change same constant in graphhandler.js if modified.
     private static final String SHIFT_CLICK_BORDER_COLOR = "blue";
 
+    // CSS Attributes of the log info label
+    public static final String LOG_INFO_PATHS_CLASS = "log-info-displaying-paths";
+    public static final String LOG_INFO_LINES_CLASS = "log-info-displaying-log-lines";
+    public static final String LOG_INFO_LABEL_ID = "log-info-label";
+
     // Panels containing all relevant buttons.
     private final HorizontalPanel manualControlButtonsPanel = new HorizontalPanel();
     private final VerticalPanel controlsPanel = new VerticalPanel();
 
+    protected final LogInfoPanel logInfoPanel;
+
     // The set of node IDs that have been selected by the user in the model.
     private final Set<Integer> selectedNodes = new HashSet<Integer>();
 
-    private static final String TOOLTIP_URL = "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial#Invariants_Tab";
+    public static final String TOOLTIP_URL = "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial#Invariants_Tab";
 
     // Model tab widgets:
     private final Button modelRefineButton = new Button("Refine");
@@ -65,9 +73,8 @@ public class ModelTab extends Tab<DockPanel> {
     private final Button modelExportDotButton = new Button("Export DOT");
     private final Button modelExportPngButton = new Button("Export PNG");
     private final Button modelViewPathsButton = new Button("View Paths");
+
     private FlowPanel graphPanel;
-    private LogLinesTable logLinesTable;
-    private Label logLineLabel;
 
     // String representing the canvas div.
     private static final String canvasId = "canvasId";
@@ -105,28 +112,41 @@ public class ModelTab extends Tab<DockPanel> {
         viewPathsButtonPanel.setStyleName("buttonPanel");
         controlsPanel.add(viewPathsButtonPanel);
 
-        VerticalPanel logPanel = new VerticalPanel();
-        logPanel.setWidth("300px");
-
-        // Header
-        logLineLabel = new Label("Log Lines");
-        DOM.setElementAttribute(logLineLabel.getElement(), "id",
-                "log-line-label");
-
-        // Add tool-tip to LogLineLabel
+        // Add a model options panel.
+        final RadioButton probEdgesRadioButton = new RadioButton(
+                "edgeLabelsRadioGroup", "Show probabilities on edges");
         TooltipListener
                 .setTooltip(
-                        logLineLabel,
-                        "Click on a node to view the associated log lines. Shift+Click to select multiple nodes to view paths through nodes.",
+                        probEdgesRadioButton,
+                        "Annotate edges with probabilities, which indicate the fraction of traces that pass along an edge.",
                         TOOLTIP_URL);
+        probEdgesRadioButton.addClickHandler(new EdgeViewChangeHandler(false));
+        probEdgesRadioButton.setValue(true);
 
-        logPanel.add(logLineLabel);
+        final RadioButton countEdgesRadioButton = new RadioButton(
+                "edgeLabelsRadioGroup", "Show counts on edges");
+        TooltipListener
+                .setTooltip(
+                        countEdgesRadioButton,
+                        "Annotate edges with trace counts, which indicate the number of traces that pass along an edge",
+                        TOOLTIP_URL);
+        countEdgesRadioButton.addClickHandler(new EdgeViewChangeHandler(true));
+        countEdgesRadioButton.setValue(false);
 
-        // Create and add a table with log lines.
-        logLinesTable = new LogLinesTable();
-        logPanel.add(logLinesTable);
+        DisclosurePanel modelOpts = new DisclosurePanel("Model options");
+        Grid modelOptsGrid = new Grid(2, 1);
+        modelOptsGrid.setCellSpacing(6);
+        modelOptsGrid.setWidget(0, 0, countEdgesRadioButton);
+        modelOptsGrid.setWidget(1, 0, probEdgesRadioButton);
+        modelOpts.setContent(modelOptsGrid);
+        modelOpts.setAnimationEnabled(true);
+        modelOpts.setStyleName("SpecialOptions");
+        controlsPanel.add(modelOpts);
 
-        controlsPanel.add(logPanel);
+        // Add log info panel.
+        logInfoPanel = new LogInfoPanel("300px");
+        controlsPanel.add(logInfoPanel);
+
         panel.add(controlsPanel, DockPanel.WEST);
 
         TooltipListener
@@ -196,6 +216,26 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
+     * Changes model edges to displays counts or probabilities.
+     */
+    class EdgeViewChangeHandler implements ClickHandler {
+        boolean showCounts;
+
+        public EdgeViewChangeHandler(boolean showCounts) {
+            this.showCounts = showCounts;
+        }
+
+        @Override
+        public void onClick(ClickEvent event) {
+            if (this.showCounts) {
+                ModelGraphic.useProbEdgeLabels();
+            } else {
+                ModelGraphic.useCountEdgeLabels();
+            }
+        }
+    }
+
+    /**
      * Initialize model state -- performed whenever a new model graph is
      * displayed.
      */
@@ -210,8 +250,7 @@ public class ModelTab extends Tab<DockPanel> {
         // Keep the view paths button disabled until nodes have been selected.
         modelViewPathsButton.setEnabled(false);
 
-        // Clear the log line table.
-        logLinesTable.clear();
+        logInfoPanel.clearAll();
     }
 
     /**
@@ -254,6 +293,7 @@ public class ModelTab extends Tab<DockPanel> {
 
             // This contains the edge's weight.
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getCount()).toString());
         }
 
         // Determine the size of the graphic.
@@ -291,6 +331,7 @@ public class ModelTab extends Tab<DockPanel> {
             JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()
                     .getPartitionNodeHashCode()).toString());
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getCount()).toString());
         }
 
         ModelGraphic.createChangingGraph(jsNodes, jsEdges,
@@ -318,24 +359,33 @@ public class ModelTab extends Tab<DockPanel> {
                         // This is expected whenever the user double clicks on
                         // an initial or
                         // terminal node, so we'll ignore it
-                        logLinesTable.clear();
+                        logInfoPanel.clear();
                     }
 
                     @SuppressWarnings("synthetic-access")
                     @Override
                     public void onSuccess(List<LogLine> result) {
                         super.onSuccess(result);
-                        logLinesTable.showLines(result);
+                        logInfoPanel.showLogLines(result);
                     }
                 });
         // //////////////////////
+    }
+
+    /**
+     * Returns true if the paths table is currently visible in the lgo
+     * information panel. Currently, if this is false, this implies the log
+     * lines table is visible.
+     */
+    public boolean pathsTableIsVisible() {
+        return logInfoPanel.pathsTableVisible();
     }
 
     /** Returns the correct width for the model graphic in the model tab. */
     public int getModelGraphicWidth() {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
-        return Window.getClientWidth() - (logLineLabel.getOffsetWidth() + 100);
+        return Window.getClientWidth() - (logInfoPanel.getOffsetWidth() + 100);
     }
 
     /** Returns the correct height for the model graphic in the model tab. */
@@ -572,7 +622,7 @@ public class ModelTab extends Tab<DockPanel> {
             try {
                 synopticService.getPathsThroughPartitionIDs(selectedNodes,
                         new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
-                                ModelTab.this));
+                                ModelTab.this.logInfoPanel));
                 
                 ModelGraphic.updateNodesBorder(SHIFT_CLICK_BORDER_COLOR);
             } catch (Exception e) {
