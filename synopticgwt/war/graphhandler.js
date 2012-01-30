@@ -46,6 +46,7 @@ var clearSelectedNodes = function() {
         	"stroke": "black",
 			"stroke-width": DEFAULT_STROKE_WIDTH
         });
+        removeSelectedNode(parseInt(i));
         delete selectedDraculaNodes[i];
     }
 }
