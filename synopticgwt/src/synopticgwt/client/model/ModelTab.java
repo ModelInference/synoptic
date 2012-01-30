@@ -19,6 +19,7 @@ import synopticgwt.client.Tab;
 import synopticgwt.client.util.ErrorReportingAsyncCallback;
 import synopticgwt.client.util.JsniUtil;
 import synopticgwt.client.util.ProgressWheel;
+import synopticgwt.client.util.TooltipListener;
 import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
@@ -55,6 +56,8 @@ public class ModelTab extends Tab<DockPanel> {
 
     // The set of node IDs that have been selected by the user in the model.
     private final Set<Integer> selectedNodes = new HashSet<Integer>();
+
+    public static final String TOOLTIP_URL = "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial#Invariants_Tab";
 
     // Model tab widgets:
     private final Button modelRefineButton = new Button("Refine");
@@ -102,9 +105,16 @@ public class ModelTab extends Tab<DockPanel> {
         controlsPanel.add(viewPathsButtonPanel);
 
         logInfoPanel = new LogInfoPanel("300px");
-
+        
+        
         controlsPanel.add(logInfoPanel);
         panel.add(controlsPanel, DockPanel.WEST);
+
+        TooltipListener
+                .setTooltip(
+                        modelRefineButton,
+                        "Refine the model by splitting nodes to eliminate paths that violate invariants.",
+                        TOOLTIP_URL);
 
         modelRefineButton.addClickHandler(new ClickHandler() {
             @Override
@@ -112,24 +122,44 @@ public class ModelTab extends Tab<DockPanel> {
                 refineButtonClick(event);
             }
         });
+
+        // Coarsening is disabled until refinement is completed.
+        modelCoarsenButton.setEnabled(false);
+        TooltipListener
+                .setTooltip(
+                        modelCoarsenButton,
+                        "Coarsen the model by merging nodes. Coarsening is disabled until refinement is completed.",
+                        TOOLTIP_URL);
         modelCoarsenButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 coarsenModelButtonClick(event);
             }
         });
+
+        TooltipListener
+                .setTooltip(
+                        modelGetFinalButton,
+                        "Perform all the necessary refinement/coarsening and retrieve the final model.",
+                        TOOLTIP_URL);
         modelGetFinalButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 getFinalModelButtonClick(event);
             }
         });
+
+        TooltipListener.setTooltip(modelExportDotButton,
+                "Export the model in Graphviz DOT format.", TOOLTIP_URL);
         modelExportDotButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 exportDotButtonClick(event);
             }
         });
+
+        TooltipListener.setTooltip(modelExportPngButton,
+                "Export the model as an PNG image file.", TOOLTIP_URL);
         modelExportPngButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -137,6 +167,11 @@ public class ModelTab extends Tab<DockPanel> {
             }
         });
         modelViewPathsButton.addClickHandler(new ViewPathsClickHandler());
+        TooltipListener
+                .setTooltip(
+                        modelViewPathsButton,
+                        "Shift+Click to select multiple nodes and then use this button to view all paths through the selected nodes.",
+                        TOOLTIP_URL);
 
         initializeTabState();
     }
@@ -301,10 +336,15 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
-     * Updates the graph panel's canvas, and animates the model the fill the new
+     * Updates the graph panel's canvas, and animates the model to fill the new
      * canvas.
      */
     public void updateGraphPanel() {
+        if (graphPanel == null) {
+            // This occurs when the graphPanel is first shown -- the graphic is
+            // not yet displayed, so we skip the update in this case.
+            return;
+        }
         int width = getModelGraphicWidth();
         int height = getModelGraphicHeight();
 

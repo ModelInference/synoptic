@@ -56,14 +56,11 @@ public class LogInfoPanel extends VerticalPanel {
         this.add(logLinesTable);
         this.add(pathsThroughPartitionsTable);
 
-        // Add tool-tip to LogLineLabel
-        TooltipListener tooltip = new TooltipListener(
-                "Click on a node to view log lines.  Shift+Click to select multiple nodes.",
-                5000, "tooltip");
-
-        this.logInfoLabel.addMouseOverHandler(tooltip);
-        this.logInfoLabel.addMouseOutHandler(tooltip);
-
+        TooltipListener.setTooltip(logInfoLabel,
+                "Click on a node to view log lines. "
+                        + " Shift+Click to select multiple nodes.",
+                ModelTab.TOOLTIP_URL);
+        
         // Set up the default CSS attributes for the table
         DOM.setElementAttribute(logInfoLabel.getElement(), "id",
                 LOG_INFO_LABEL_ID);

@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import synopticgwt.client.invariants.model.ACPartition;
 import synopticgwt.client.invariants.model.Arrow;
 import synopticgwt.client.invariants.model.Event;
-import synopticgwt.client.invariants.model.ACPartition;
 import synopticgwt.client.invariants.model.NCPartition;
 import synopticgwt.client.invariants.model.POInvariant;
 import synopticgwt.client.invariants.model.TOInvariant;
@@ -29,43 +29,53 @@ import synopticgwt.shared.GWTInvariantSet;
  */
 public class InvariantsGraph {
 
-    public static String DEFAULT_STROKE = "grey";
-    public static String AP_HIGHLIGHT_STROKE = "blue";
-    public static String AFBY_HIGHLIGHT_STROKE = "blue";
-    public static String NFBY_HIGHLIGHT_STROKE = "red";
+    public static final String DEFAULT_STROKE = "grey";
+    public static final String AP_HIGHLIGHT_STROKE = "blue";
+    public static final String AFBY_HIGHLIGHT_STROKE = "blue";
+    public static final String NFBY_HIGHLIGHT_STROKE = "red";
 
-    public static int DEFAULT_STROKE_WIDTH = 1;
-    public static int HIGHLIGHT_STROKE_WIDTH = 3;
+    public static final int DEFAULT_STROKE_WIDTH = 1;
+    public static final int HIGHLIGHT_STROKE_WIDTH = 3;
 
-    public static String DEFAULT_FILL = "grey";
-    public static String ORDERED_FILL = "black";
-    public static String CONCURRENT_FILL = "blue";
-    public static String NEVER_CONCURRENT_FILL = "red";
+    public static final String DEFAULT_FILL = "grey";
+    public static final String ORDERED_FILL = "black";
+    public static final String CONCURRENT_FILL = "blue";
+    public static final String NEVER_CONCURRENT_FILL = "red";
 
     /** Distance of invariant columns from top of paper */
     public static final int TOP_MARGIN = 20;
     /** Distance of invariant columns from top of paper */
     public static final int EVENT_PADDING = 50;
 
+    public static final int MIN_LABEL_WIDTH = 100;
+    public static final int MIN_LABEL_HEIGHT = 20;
+    public static final int MIN_HORIZONTAL_ARROW_SPACE = 100;
+    public static final int MIN_VERTICAL_LABEL_BUFFER = 20;
+
+    public static final int EVENT_COLUMNS = 3;
+    public static final int ARROW_COLUMNS = EVENT_COLUMNS - 1;
+
+    public static final int ARROW_LABEL_BUFFER = 20;
+
     /** Wrapped raphael canvas */
     private Paper paper;
 
-    /*
-     * Event columns, as of 12/4/11 these are not used but references to events
-     * are maintained here since InvariantsGraph is their primary client
-     */
+    /** Arrow indicating time axis */
+    private Arrow timeArrow;
+    /** Label for time arrow */
+    private Label timeLabel;
+
+    private List<String> eventTypesList;
+
     private Map<String, Event> leftEventCol;
     private Map<String, Event> midEventCol;
     private Map<String, Event> rightEventCol;
 
-    /*
-     * Graphic Invariants, as of 12/4/11 these are not used but references to
-     * invariants are maintained here since InvariantsGraph is their primary
-     * client
-     */
     private List<TOInvariant> apInvs;
     private List<TOInvariant> afbyInvs;
     private List<TOInvariant> nfbyInvs;
+
+    private String longestType = "";
 
     /*
      * Concurrency Partitions, as of 12/4/11 these are all currently unused,
@@ -109,55 +119,51 @@ public class InvariantsGraph {
     /**
      * Creates the invariant graphic corresponding to gwtInvs in a DIV with id
      * indicated by invCanvasId.
+     * 
+     * @param graphWidth
+     * @param graphHeight
      */
     public void createInvariantsGraphic(GWTInvariantSet gwtInvs,
             String invCanvasId,
-            Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel) {
+            Map<GWTInvariant, InvariantGridLabel> gwtInvToIGridLabel,
+            int graphHeight, int graphWidth) {
         Set<String> invTypes = gwtInvs.getInvTypes();
 
         Set<String> eventTypesSet = new LinkedHashSet<String>();
-        int longestEType = 0;
 
-        // Generate set of eTypes
+        // Generate the set of all eTypes.
         for (String invType : invTypes) {
             List<GWTInvariant> invs = gwtInvs.getInvs(invType);
-
             for (GWTInvariant inv : invs) {
-                String src = inv.getSource();
-                eventTypesSet.add(src);
-                int srcLen = src.length();
-                if (srcLen > longestEType) {
-                    longestEType = srcLen;
-                }
+                eventTypesSet.add(inv.getSource());
+                eventTypesSet.add(inv.getTarget());
+            }
+        }
+        eventTypesList = new ArrayList<String>(eventTypesSet);
 
-                String dst = inv.getTarget();
-                eventTypesSet.add(dst);
-                int dstLen = dst.length();
-                if (dstLen > longestEType) {
-                    longestEType = dstLen;
-                }
+        // Determine the longest event type, and cache it.
+        for (String eType : eventTypesList) {
+            if (eType.length() > longestType.length()) {
+                longestType = eType;
             }
         }
 
-        List<String> eventTypesList = new ArrayList<String>(eventTypesSet);
+        double labelWidth = graphWidth / (EVENT_COLUMNS + ARROW_COLUMNS);
+        if (labelWidth < MIN_LABEL_WIDTH) {
+            labelWidth = MIN_LABEL_WIDTH;
+        }
+        double arrowWidth = labelWidth;
 
-        // A little magic to size things right.
-        // int lX = (longestEType * 30) / 2 - 110;
-        int lX = (longestEType * 30) / 2 - 110 + 50;
-        // int mX = lX + (longestEType * 30) - 110;
-        int mX = lX + (longestEType * 30) - 110 + 50;
-        // int rX = mX + (longestEType * 30) - 110;
-        int rX = mX + (longestEType * 30) - 110 + 50;
-        int width = rX + 200;
-        // 2 is a little magical here, need it for time arrow/label
-        int height = (eventTypesList.size() + 2) * EVENT_PADDING;
+        double lX = labelWidth / 2;
+        double mX = labelWidth / 2 + arrowWidth + labelWidth;
+        double rX = labelWidth / 2 + 2 * (arrowWidth + labelWidth);
 
-        int fontSize = 20; // getFontSize(longestEType);
+        int fontSize = 20;
 
         // Used to offset arrow heads and bases from overlapping event labels
-        int labelOffset = longestEType * fontSize;
+        int labelOffset = 0;
 
-        this.paper = new Paper(width, height, invCanvasId);
+        this.paper = new Paper(graphWidth, graphHeight, invCanvasId);
 
         // Sort eventTypesList alphabetically
         Collections.sort(eventTypesList);
@@ -224,12 +230,190 @@ public class InvariantsGraph {
          */
         int timeArrowYCoord = TOP_MARGIN + EVENT_PADDING
                 * eventTypesList.size() - 25;
-        Arrow timeArrow = new Arrow(lX, timeArrowYCoord, rX, timeArrowYCoord,
-                paper, 0);
+        timeArrow = new Arrow(lX, timeArrowYCoord, rX, timeArrowYCoord, paper,
+                0);
         timeArrow.setStroke("green", HIGHLIGHT_STROKE_WIDTH);
         int timeLabelYCoord = timeArrowYCoord + 25;
-        Label timeLabel = new Label(paper, mX, timeLabelYCoord, fontSize - 5,
-                "Time", DEFAULT_FILL);
+        timeLabel = new Label(paper, mX, timeLabelYCoord, fontSize - 5, "Time",
+                DEFAULT_FILL);
+    }
+
+    /**
+     * Resizes the InvariantsGraph to fit the input window dimensions, assumes
+     * Paper is rendered You should probably read:
+     * http://commons.oreilly.com/wiki
+     * /index.php/SVG_Essentials/Transforming_the_Coordinate_System if you are
+     * planning on refactoring this method SVG has a coordinate system for the
+     * Paper canvas and local coordinate systems for each element. Scaling an
+     * element scales the element's local coordinate system relative to 1, as
+     * opposed to scaling the vales of the points that define the element and
+     * retaining a 1:1 coordinate system. Rotating an element rotates the
+     * element's local coordinate system relative to a point in the canvas's
+     * coordinate system rather than performing a rotation on the values of the
+     * points that define the element.
+     * 
+     * @param height
+     * @param width
+     */
+    public void resize(int paperHeight, int paperWidth) {
+        int timeArrowBuffer = 50;
+
+        // Parcels out equal amount of horizontal space for event and arrow
+        // columns
+        double labelWidth = paperWidth / (EVENT_COLUMNS + ARROW_COLUMNS);
+        if (labelWidth < MIN_LABEL_WIDTH) {
+            labelWidth = MIN_LABEL_WIDTH;
+        }
+        double arrowWidth = labelWidth;
+
+        int rows = eventTypesList.size();
+        int rowBuffers = rows - 1;
+        int rowBufferHeight = rowBuffers * MIN_VERTICAL_LABEL_BUFFER;
+        double labelHeight = (paperHeight - timeArrowBuffer - rowBufferHeight)
+                / rows;
+        if (labelHeight < MIN_LABEL_HEIGHT) {
+            labelHeight = MIN_LABEL_HEIGHT;
+        }
+
+        Event initialEvent = leftEventCol.get("INITIAL");
+        int initialFontSize = initialEvent.getFontSize();
+        Event finalEvent = getMaxFontSize(labelHeight, labelWidth, leftEventCol);
+        int targetFontSize = finalEvent.getFontSize();
+        labelWidth = MIN_LABEL_WIDTH > finalEvent.getWidth() ? MIN_LABEL_WIDTH
+                : finalEvent.getWidth() + 30;
+        labelHeight = MIN_LABEL_HEIGHT > finalEvent.getHeight() ? MIN_LABEL_HEIGHT
+                : finalEvent.getHeight() + 30;
+        finalEvent.setFont(initialFontSize);
+
+        paper.setSize((arrowWidth * ARROW_COLUMNS)
+                + (labelWidth * EVENT_COLUMNS), (labelHeight * rows)
+                + rowBufferHeight + timeArrowBuffer);
+
+        // Maybe the event columns should go in a data structure so we don't
+        // have to do things like this
+        double leftColX = labelWidth / 2;
+        double midColX = labelWidth / 2 + labelWidth + arrowWidth;
+        double rightColX = labelWidth / 2 + 2 * (labelWidth + arrowWidth);
+        translateAndScaleEvents(leftEventCol, labelHeight, targetFontSize,
+                leftColX);
+        translateAndScaleEvents(midEventCol, labelHeight, targetFontSize,
+                midColX);
+        translateAndScaleEvents(rightEventCol, labelHeight, targetFontSize,
+                rightColX);
+
+        translateAndScaleArrows(apInvs, arrowWidth, labelWidth
+                + ARROW_LABEL_BUFFER);
+        translateAndScaleArrows(afbyInvs, arrowWidth, 2 * labelWidth
+                + ARROW_LABEL_BUFFER + arrowWidth);
+        translateAndScaleArrows(nfbyInvs, arrowWidth, 2 * labelWidth
+                + ARROW_LABEL_BUFFER + arrowWidth);
+
+        double timeArrowTargetY = (labelHeight * rows) + rowBufferHeight
+                + timeArrowBuffer / 2;
+        double timeArrowdx = midColX - timeArrow.getCenterX();
+        double timeArrowdy = timeArrowTargetY - timeArrow.getCenterY();
+        timeArrow.scale(rightColX - leftColX, timeArrow.getHeight());
+        timeArrow.translate(timeArrowdx, timeArrowdy);
+
+        double timeLabelTargetX = midColX + 10;
+        double timeLabelTargetY = timeArrowTargetY + 10;
+        double timeLabeldx = timeLabelTargetX - timeLabel.getCenterX();
+        double timeLabeldy = timeLabelTargetY - timeLabel.getCenterY();
+        timeLabel.translate(timeLabeldx, timeLabeldy);
+
+    }
+
+    /**
+     * This resizes (and mutates) the event with the longest string length to
+     * maximally fit the maxHeight and maxWidth input parameters. It only
+     * mutates a single Event.
+     * 
+     * @param maxHeight
+     * @param maxWidth
+     * @param typeToEvent
+     * @return
+     */
+    public Event getMaxFontSize(double maxHeight, double maxWidth,
+            Map<String, Event> typeToEvent) {
+        final int[] fonts = { 20, 30, 40, 50 };
+        assert (!longestType.equals(""));
+
+        Event longestEvent = typeToEvent.get(longestType);
+
+        int initialFont = longestEvent.getFontSize();
+        int currentFont = initialFont;
+
+        boolean heightGreater = longestEvent.getHeight() > maxHeight;
+        boolean widthGreater = longestEvent.getWidth() > maxWidth;
+
+        if (heightGreater || widthGreater) { // Scale font size down
+            int i = fonts.length - 1;
+            while ((heightGreater || widthGreater) && i >= 0) {
+                int testFont = fonts[i];
+                if (testFont < currentFont) {
+                    currentFont = testFont;
+                    longestEvent.setFont(currentFont);
+                    heightGreater = longestEvent.getHeight() > maxHeight;
+                    widthGreater = longestEvent.getWidth() > maxWidth;
+                }
+                i--;
+            }
+        } else { // Scale font size up
+            int i = 0;
+            while (!(heightGreater || widthGreater) && i < fonts.length) {
+                int testFont = fonts[i];
+                if (testFont > currentFont) {
+                    int prevFont = currentFont;
+                    currentFont = testFont;
+                    longestEvent.setFont(currentFont);
+                    heightGreater = longestEvent.getHeight() > maxHeight;
+                    widthGreater = longestEvent.getWidth() > maxWidth;
+                    if (heightGreater || widthGreater) {
+                        currentFont = prevFont;
+                        longestEvent.setFont(currentFont);
+                    }
+                }
+                i++;
+            }
+        }
+
+        return longestEvent;
+    }
+
+    /**
+     * Translates and scales arrows to accommodate the new window size.
+     */
+    private void translateAndScaleArrows(List<TOInvariant> arrows,
+            double maxWidth, double targetX) {
+
+        double targetWidth = maxWidth - 2 * ARROW_LABEL_BUFFER;
+
+        for (TOInvariant inv : arrows) {
+            double targetHeight = inv.getEventHeightDifference();
+            inv.scaleTo(targetWidth, targetHeight);
+            inv.translateTo(targetX);
+        }
+    }
+
+    /**
+     * Translates and scales events to accommodate the new window size.
+     */
+    private void translateAndScaleEvents(Map<String, Event> typeToEvent,
+            double maxHeight, int fontSize, double targetX) {
+
+        double halfMaxHeight = maxHeight / 2;
+        double heightAndBuffer = maxHeight + MIN_VERTICAL_LABEL_BUFFER;
+
+        for (int i = 0; i < eventTypesList.size(); i++) {
+
+            String eventString = eventTypesList.get(i);
+            Event event = typeToEvent.get(eventString);
+
+            double targetY = halfMaxHeight + i * heightAndBuffer;
+            event.translateTo(targetX, targetY);
+
+            event.setFont(fontSize);
+        }
     }
 
     /**
@@ -399,4 +583,5 @@ public class InvariantsGraph {
     public Paper getGraphicPaper() {
         return this.paper;
     }
+
 }

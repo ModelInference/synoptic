@@ -70,6 +70,12 @@ public class PartitionGraph implements IGraph<Partition> {
     private final LinkedList<PartitionMultiSplit> appliedSplits = new LinkedList<PartitionMultiSplit>();
 
     /**
+     * Set of all EventTypes, initialized only after getNIFbyInvariants() is
+     * called.
+     */
+    private Set<EventType> allEvents;
+
+    /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
      * and stored. If partitionByLabel is true, all messages with identical
      * labels in {@code g} will become one partition. Otherwise, every message
@@ -533,14 +539,6 @@ public class PartitionGraph implements IGraph<Partition> {
         // Will contain all of the initial traces
         Set<List<Partition>> initialTraces = new HashSet<List<Partition>>();
 
-        // This will contain the list of all EventNodes in the PartitionGraph
-        // List<EventNode> allEvents = new ArrayList<EventNode>();
-
-        // Adding EventNodes
-        // for (Partition pNode : partitions) {
-        // allEvents.addAll(pNode.getEventNodes());
-        // }
-
         // Find initial events and add the results from each iteration to
         // initialTraces
         for (Partition pNode : getDummyInitialNodes()) {
@@ -563,8 +561,6 @@ public class PartitionGraph implements IGraph<Partition> {
      *            The event to start from
      * @param currentTrace
      *            The trace to add to
-     * @param allEvents
-     *            The pool of events from which to find the next EventNode
      * @return Returns a set containing the traces starting from
      *         currentPartition and currentEvent
      */
@@ -575,15 +571,9 @@ public class PartitionGraph implements IGraph<Partition> {
         Set<List<Partition>> traces = new HashSet<List<Partition>>();
         currentTrace.add(currentPartition);
 
-        // allEvents.remove(currentEvent);
-
         if (currentEvent.isTerminal()) {
             traces.add(currentTrace);
         } else {
-
-            // Set<EventNode> nextEvents =
-            // EventNode.getDirectSuccessors(currentEvent, allEvents,
-            // !partiallyOrderedTraces);
 
             // Gets the next event with relation to time.
             Set<EventNode> nextEvents = currentEvent.getSuccessors("t");
@@ -643,10 +633,9 @@ public class PartitionGraph implements IGraph<Partition> {
         TemporalInvariantSet neverIFbyInvariants = new TemporalInvariantSet();
 
         // canFollow.keySet() will contain all events types because each node in
-        // the partition
-        // graph is visited and added to canFollow during
+        // the partition graph is visited and added to canFollow during
         // traverseAndMineCIFbys().
-        Set<EventType> allEvents = canFollow.keySet();
+        allEvents = canFollow.keySet();
 
         for (Entry<EventType, Set<EventType>> entry : canFollow.entrySet()) {
             EventType source = entry.getKey();
@@ -764,5 +753,15 @@ public class PartitionGraph implements IGraph<Partition> {
         }
 
         return null;
+    }
+
+    /**
+     * Returns a set of all EventTypes in this PartitionGraph.
+     */
+    public Set<EventType> getEventTypes() {
+        if (allEvents == null) {
+            getNIFbyInvariants();
+        }
+        return allEvents;
     }
 }
