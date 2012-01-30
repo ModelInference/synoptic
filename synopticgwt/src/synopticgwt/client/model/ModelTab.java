@@ -44,6 +44,10 @@ public class ModelTab extends Tab<DockPanel> {
 
     /* Label of terminal node, for layout purposes */
     private static final String TERMINAL_LABEL = "TERMINAL";
+    
+    // Border color for shift+click nodes after "View paths" clicked.
+    // NOTE: Must also change same constant in graphhandler.js if modified.
+    private static final String SHIFT_CLICK_BORDER_COLOR = "blue";
 
     // Panels containing all relevant buttons.
     private final HorizontalPanel manualControlButtonsPanel = new HorizontalPanel();
@@ -570,7 +574,7 @@ public class ModelTab extends Tab<DockPanel> {
                         new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
                                 ModelTab.this));
                 
-                ModelGraphic.updateNodesBorder("blue");
+                ModelGraphic.updateNodesBorder(SHIFT_CLICK_BORDER_COLOR);
             } catch (Exception e) {
                 // TODO: Do something about the exception
             }

@@ -15,6 +15,10 @@ var INIT_TERM_COLOR = "#808080";
 // Color used when highlighting a node.
 var HIGHLIGHT_COLOR = "blue";
 
+// Border color for shift+click nodes after "View paths" clicked.
+// NOTE: Must also change same constant in ModelTab.java if modified.
+var SHIFT_CLICK_BORDER_COLOR = "blue";
+
 // Stroke width for border when node selected.
 var SELECT_STROKE_WIDTH = 4;
 
@@ -170,7 +174,7 @@ var GRAPH_HANDLER = {
                 	// Node associated with log lines listed is
                 	// surrounded by red and thick border.
                 	if (event.shiftKey) {
-                    	rect.attr("fill", "blue");
+                    	rect.attr("fill", HIGHLIGHT_COLOR);
                     	selectedDraculaNodes[node.id] = rect;
                         addSelectedNode(parseInt(node.id));
                 	} else {
@@ -227,8 +231,10 @@ var GRAPH_HANDLER = {
         		for (var i = 0; i < allRects.length; i++) {
         			var currRect = allRects[i];
         			// Return to default color if the rectangle is
-        			// not currently selected.
-        			if (!isSelectedNode(currRect)) { //|| currRect == selectedNodeLog
+        			// not currently selected. Highlight if node has
+        			// colored border after "View paths".
+        			if (!isSelectedNode(currRect) || 
+        					currRect.attr("stroke") == SHIFT_CLICK_BORDER_COLOR) {
         				currRect.attr("fill", DEFAULT_COLOR);
         			}
         		}
