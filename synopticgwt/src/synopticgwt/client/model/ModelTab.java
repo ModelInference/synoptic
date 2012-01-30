@@ -107,7 +107,7 @@ public class ModelTab extends Tab<DockPanel> {
 
         // Set up model options panel.
         final RadioButton probEdgesRadioButton = new RadioButton(
-                "probEdgesRadioButton", "Show probabilities on edges");
+                "edgeLabelsRadioGroup", "Show probabilities on edges");
         TooltipListener
                 .setTooltip(
                         probEdgesRadioButton,
@@ -117,7 +117,7 @@ public class ModelTab extends Tab<DockPanel> {
         probEdgesRadioButton.setValue(true);
 
         final RadioButton countEdgesRadioButton = new RadioButton(
-                "countEdgesRadioButton", "Show counts on edges");
+                "edgeLabelsRadioGroup", "Show counts on edges");
         TooltipListener
                 .setTooltip(
                         countEdgesRadioButton,
@@ -239,9 +239,9 @@ public class ModelTab extends Tab<DockPanel> {
         @Override
         public void onClick(ClickEvent event) {
             if (this.showCounts) {
-                // TODO: change edges to show counts.
+                ModelGraphic.useProbEdgeLabels();
             } else {
-                // TODO: change edges to show probabilities.
+                ModelGraphic.useCountEdgeLabels();
             }
         }
     }
@@ -305,6 +305,7 @@ public class ModelTab extends Tab<DockPanel> {
 
             // This contains the edge's weight.
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getCount()).toString());
         }
 
         // Determine the size of the graphic.
@@ -342,6 +343,7 @@ public class ModelTab extends Tab<DockPanel> {
             JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()
                     .getPartitionNodeHashCode()).toString());
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getCount()).toString());
         }
 
         ModelGraphic.createChangingGraph(jsNodes, jsEdges,

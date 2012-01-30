@@ -56,7 +56,7 @@ public class GWTEdge implements Serializable {
         return weight;
     }
 
-    public double getCount() {
+    public int getCount() {
         assert count != 0;
         return count;
     }
