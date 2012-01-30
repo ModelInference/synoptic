@@ -13,12 +13,12 @@ import synopticgwt.shared.GWTEdge;
 public class GetPathsThroughPartitionIDsAsyncCallback extends
         AbstractErrorReportingAsyncCallback<Map<Integer, Set<GWTEdge>>> {
 
-    private final ModelTab modelTab;
+    private final LogInfoPanel infoPanel;
 
     public GetPathsThroughPartitionIDsAsyncCallback(ProgressWheel pWheel,
-            ModelTab modelPanel) {
+            LogInfoPanel infoPanel) {
         super(pWheel, "getPathsThroughPartitionIDs call");
-        this.modelTab = modelPanel;
+        this.infoPanel = infoPanel;
         initialize();
     }
 
@@ -27,28 +27,19 @@ public class GetPathsThroughPartitionIDsAsyncCallback extends
         super.onFailure(caught);
     }
 
+    /**
+     * After acquiring the paths through the selected partitions,
+     * send the information to the model tab so that it can be properly
+     * displayed.
+     */
     @Override
     public void onSuccess(Map<Integer, Set<GWTEdge>> paths) {
-        // TODO Show the traces and corresponding
-        // paths in the client window.
         super.onSuccess(paths);
 
-        // TODO Remove the debug code after the paths are properly displayed
-        // (this is for verification. Any static method being called to
-        // ModelGraphic
-        // is debug code at the moment).
         if (paths.isEmpty()) {
             showError("No paths through selected partitions found.", "", "");
-            ModelGraphic.printTraceID(-1);
         } else {
-            for (Integer traceID : paths.keySet()) {
-                Set<GWTEdge> edges = paths.get(traceID);
-                ModelGraphic.printTraceID(traceID);
-                for (GWTEdge edge : edges) {
-                    ModelGraphic.printEdge(edge.getSrc().toString(), edge
-                            .getDst().toString());
-                }
-            }
+            infoPanel.showPaths(paths);
         }
     }
 }
