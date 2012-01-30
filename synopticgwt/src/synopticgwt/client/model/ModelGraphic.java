@@ -155,8 +155,8 @@ public class ModelGraphic {
 		rend.draw();
     }-*/;
     
+    // For all selected nodes in model, change their border to given color.
     public static native void updateNodesBorder(String color) /*-{
-        // Get the current layout so it can be updated.
         $wnd.setSelectedNodesBorder(color);      
     }-*/;
 

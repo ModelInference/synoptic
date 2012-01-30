@@ -33,8 +33,6 @@ var allRects = [];
 // The selected node that has log lines displayed.
 var selectedNodeLog;
 
-
-
 /*
  * A function for clearing the state of the selected nodes.
  * Each node is set back to the default color, border color,
@@ -52,6 +50,11 @@ var clearSelectedNodes = function() {
     }
 }
 
+/*
+ * A function for setting the border of all selected
+ * nodes to given color. Changes the background color
+ * of the nodes to the default color.
+ */
 var setSelectedNodesBorder = function(color) {
 	for (var i in selectedDraculaNodes) {
         selectedDraculaNodes[i].attr({
@@ -59,7 +62,6 @@ var setSelectedNodesBorder = function(color) {
         	"stroke": color,
 			"stroke-width": SELECT_STROKE_WIDTH
         });
-        delete selectedDraculaNodes[i];
     }
 }
 
