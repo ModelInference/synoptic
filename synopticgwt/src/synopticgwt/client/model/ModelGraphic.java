@@ -10,6 +10,21 @@ public class ModelGraphic {
     // JSNI methods -- JavaScript Native Interface methods. The method body of
     // these calls is pure JavaScript.
 
+    public static native void useProbEdgeLabels() /*-{
+        // TODO
+    }-*/;
+
+    public static native void useCountEdgeLabels() /*-{
+		// TODO: work in progress.
+		edges = $wnd.GRAPH_HANDLER.getCurrentEdges();
+		for ( var i = 0; i < edges.length; i += 1) {
+			edges[i].style.label = edges[i].style.labelCount;
+			$wnd.jQuery.extend(edges[i].edge.style, edges[i].style);
+		}
+		$wnd.GRAPH_HANDLER.getLayouter().layout()
+		$wnd.GRAPH_HANDLER.getRenderer().draw();
+    }-*/;
+
     /**
      * A JSNI method to create and display a graph.
      * 
@@ -45,14 +60,22 @@ public class ModelGraphic {
             });
         }
 
-        // Add each edge to graph.
-        for ( var i = 0; i < edges.length; i += 3) {
-            // edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
-            g.addEdge(edges[i], edges[i + 1], {
-                label : edges[i + 2],
-            });
-        }
-
+	    // Add each edge to graph.
+	     $wnd.GRAPH_HANDLER.currentEdges = [];
+		for ( var i = 0; i < edges.length; i += 4) {
+			// edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
+			style = {
+				label : edges[i + 2],
+				labelProb : edges[i + 2],
+				labelCount : edges[i + 3],
+			};
+			edge = g.addEdge(edges[i], edges[i + 1], style);
+			$wnd.GRAPH_HANDLER.currentEdges.push({
+				"edge" : edge,
+				"style" : style
+			});
+		}
+		
         // Give stable layout to graph elements.
         var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
 

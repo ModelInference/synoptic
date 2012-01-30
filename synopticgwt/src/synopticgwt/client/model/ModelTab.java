@@ -9,9 +9,12 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.client.ISynopticServiceAsync;
@@ -66,6 +69,7 @@ public class ModelTab extends Tab<DockPanel> {
     private final Button modelExportDotButton = new Button("Export DOT");
     private final Button modelExportPngButton = new Button("Export PNG");
     private final Button modelViewPathsButton = new Button("View Paths");
+
     private FlowPanel graphPanel;
 
     // String representing the canvas div.
@@ -104,10 +108,41 @@ public class ModelTab extends Tab<DockPanel> {
         viewPathsButtonPanel.setStyleName("buttonPanel");
         controlsPanel.add(viewPathsButtonPanel);
 
+        // Add a model options panel.
+        final RadioButton probEdgesRadioButton = new RadioButton(
+                "edgeLabelsRadioGroup", "Show probabilities on edges");
+        TooltipListener
+                .setTooltip(
+                        probEdgesRadioButton,
+                        "Annotate edges with probabilities, which indicate the fraction of traces that pass along an edge.",
+                        TOOLTIP_URL);
+        probEdgesRadioButton.addClickHandler(new EdgeViewChangeHandler(false));
+        probEdgesRadioButton.setValue(true);
+
+        final RadioButton countEdgesRadioButton = new RadioButton(
+                "edgeLabelsRadioGroup", "Show counts on edges");
+        TooltipListener
+                .setTooltip(
+                        countEdgesRadioButton,
+                        "Annotate edges with trace counts, which indicate the number of traces that pass along an edge",
+                        TOOLTIP_URL);
+        countEdgesRadioButton.addClickHandler(new EdgeViewChangeHandler(true));
+        countEdgesRadioButton.setValue(false);
+
+        DisclosurePanel modelOpts = new DisclosurePanel("Model options");
+        Grid modelOptsGrid = new Grid(2, 1);
+        modelOptsGrid.setCellSpacing(6);
+        modelOptsGrid.setWidget(0, 0, countEdgesRadioButton);
+        modelOptsGrid.setWidget(1, 0, probEdgesRadioButton);
+        modelOpts.setContent(modelOptsGrid);
+        modelOpts.setAnimationEnabled(true);
+        modelOpts.setStyleName("SpecialOptions");
+        controlsPanel.add(modelOpts);
+
+        // Add log info panel.
         logInfoPanel = new LogInfoPanel("300px");
-        
-        
         controlsPanel.add(logInfoPanel);
+
         panel.add(controlsPanel, DockPanel.WEST);
 
         TooltipListener
@@ -177,6 +212,26 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
+     * Changes model edges to displays counts or probabilities.
+     */
+    class EdgeViewChangeHandler implements ClickHandler {
+        boolean showCounts;
+
+        public EdgeViewChangeHandler(boolean showCounts) {
+            this.showCounts = showCounts;
+        }
+
+        @Override
+        public void onClick(ClickEvent event) {
+            if (this.showCounts) {
+                ModelGraphic.useProbEdgeLabels();
+            } else {
+                ModelGraphic.useCountEdgeLabels();
+            }
+        }
+    }
+
+    /**
      * Initialize model state -- performed whenever a new model graph is
      * displayed.
      */
@@ -234,6 +289,7 @@ public class ModelTab extends Tab<DockPanel> {
 
             // This contains the edge's weight.
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getCount()).toString());
         }
 
         // Determine the size of the graphic.
@@ -271,6 +327,7 @@ public class ModelTab extends Tab<DockPanel> {
             JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()
                     .getPartitionNodeHashCode()).toString());
             JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
+            JsniUtil.pushArray(jsEdges, ((Integer) edge.getCount()).toString());
         }
 
         ModelGraphic.createChangingGraph(jsNodes, jsEdges,
@@ -313,8 +370,8 @@ public class ModelTab extends Tab<DockPanel> {
 
     /**
      * Returns true if the paths table is currently visible in the lgo
-     * information panel.  Currently, if this is false, this implies the
-     * log lines table is visible.
+     * information panel. Currently, if this is false, this implies the log
+     * lines table is visible.
      */
     public boolean pathsTableIsVisible() {
         return logInfoPanel.pathsTableVisible();

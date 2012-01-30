@@ -70,16 +70,15 @@ public class InputTab extends Tab<VerticalPanel> {
     final RadioButton logFileRadioButton = new RadioButton("logInputType",
             "File");
 
-    final TextArea logTextArea = new ExtendedTextArea(
-            new ScheduledCommand() {
-                @Override
-                public void execute() {
-                    // Enable parse log button if pasting non-empty text.
-                    if (logTextArea.getValue().trim().length() != 0) {
-                        parseLogButton.setEnabled(true);
-                    }
-                }
-            });
+    final TextArea logTextArea = new ExtendedTextArea(new ScheduledCommand() {
+        @Override
+        public void execute() {
+            // Enable parse log button if pasting non-empty text.
+            if (logTextArea.getValue().trim().length() != 0) {
+                parseLogButton.setEnabled(true);
+            }
+        }
+    });
 
     final TextBox partitionRegExpTextBox = new ExtendedTextBox(
             new ScheduledCommand() {
