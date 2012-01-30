@@ -133,7 +133,7 @@ public class LogInfoPanel extends VerticalPanel {
      * Clears the traces from the paths display
      */
     public void clearPaths() {
-        pathsThroughPartitionsTable.clear();
+        pathsThroughPartitionsTable.clearPaths();
     }
 
     /**
