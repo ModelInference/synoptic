@@ -50,7 +50,7 @@ public class ModelTab extends Tab<DockPanel> {
     // Panels containing all relevant buttons.
     private final HorizontalPanel manualControlButtonsPanel = new HorizontalPanel();
     private final VerticalPanel controlsPanel = new VerticalPanel();
-    
+
     protected final LogInfoPanel logInfoPanel;
 
     // The set of node IDs that have been selected by the user in the model.
@@ -155,7 +155,7 @@ public class ModelTab extends Tab<DockPanel> {
 
         // Keep the view paths button disabled until nodes have been selected.
         modelViewPathsButton.setEnabled(false);
-        
+
         logInfoPanel.clearAll();
     }
 
@@ -274,6 +274,15 @@ public class ModelTab extends Tab<DockPanel> {
                     }
                 });
         // //////////////////////
+    }
+
+    /**
+     * Returns true if the paths table is currently visible in the lgo
+     * information panel.  Currently, if this is false, this implies the
+     * log lines table is visible.
+     */
+    public boolean pathsTableIsVisible() {
+        return logInfoPanel.pathsTableVisible();
     }
 
     /** Returns the correct width for the model graphic in the model tab. */

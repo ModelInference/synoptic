@@ -23,9 +23,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * 
  * The state of the table, when being switched to manually, remains the same
  * until the next RPC is initiated. For example, if one views a list of log
- * lines, and then views a set of paths.  If the user then clicks on the label
- * to switch back to displaying the list of log lines, they will remain as they were
- * until the next RPC.
+ * lines, and then views a set of paths. If the user then clicks on the label to
+ * switch back to displaying the list of log lines, they will remain as they
+ * were until the next RPC.
  */
 public class LogInfoPanel extends VerticalPanel {
 
@@ -118,22 +118,38 @@ public class LogInfoPanel extends VerticalPanel {
             toggleLogInfoDisplay();
         }
     }
-    
+
     /**
-     * Clears the log lines display from the info table.  However, this does not
-     * change the state of what is displayed.  To clear both the log lines
-     * and the paths, while setting the view back to the default state (showing
-     * the empty log lines table), use clearAll. 
+     * Clears the log lines display from the info table. However, this does not
+     * change the state of what is displayed. To clear both the log lines and
+     * the paths, while setting the view back to the default state (showing the
+     * empty log lines table), use clearAll.
      */
     public void clearLogLines() {
         logLinesTable.clear();
     }
-    
+
     /**
      * Clears the traces from the paths display
      */
     public void clearPaths() {
         pathsThroughPartitionsTable.clearPaths();
+    }
+
+    /**
+     * Returns true whenever the state of the log info panel is displaying the
+     * paths table.
+     */
+    public boolean pathsTableVisible() {
+        return this.pathsThroughPartitionsTable.isVisible();
+    }
+
+    /**
+     * Returns true whenever the state of the log info panel is displaying the
+     * log lines table.
+     */
+    public boolean logLinesTableVisible() {
+        return this.logLinesTable.isVisible();
     }
 
     /**
