@@ -190,7 +190,7 @@ public class ModelGraphic {
     
     // For all selected nodes in model, change their border to given color.
     public static native void updateNodesBorder(String color) /*-{
-        $wnd.setSelectedNodesBorder(color);      
+        $wnd.setShiftClickNodesState(color);      
     }-*/;
 
     // This is debugging code for the model tab. (including the next method)
