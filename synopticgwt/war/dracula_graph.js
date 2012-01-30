@@ -94,6 +94,7 @@ Graph.prototype = {
         this.edges.push(edge);
         // NOTE: Even directed edges are added to both nodes.
         t.edges.push(edge);
+        return edge;
     },
 
     /* TODO to be implemented

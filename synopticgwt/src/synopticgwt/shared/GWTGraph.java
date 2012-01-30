@@ -1,10 +1,9 @@
 package synopticgwt.shared;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-
-import java.util.HashSet;
 
 /**
  * A graph object communicated between the Synoptic service and the GWT client.
@@ -25,8 +24,8 @@ public class GWTGraph implements Serializable {
         nodeSet.add(node);
     }
 
-    public void addEdge(GWTNode source, GWTNode target, double weight) {
-        edges.add(new GWTEdge(source, target, weight));
+    public void addEdge(GWTNode source, GWTNode target, double weight, int count) {
+        edges.add(new GWTEdge(source, target, weight, count));
     }
 
     public HashSet<GWTNode> getNodes() {

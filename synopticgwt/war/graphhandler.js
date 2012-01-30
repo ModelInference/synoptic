@@ -46,6 +46,7 @@ var clearSelectedNodes = function() {
         	"stroke": "black",
 			"stroke-width": DEFAULT_STROKE_WIDTH
         });
+        removeSelectedNode(parseInt(i));
         delete selectedDraculaNodes[i];
     }
 }
@@ -65,8 +66,11 @@ var isSelectedNode = function(rect) {
 }
 
 var GRAPH_HANDLER = {
-    // array of graph nodes
+    // Array of graph nodes.
     "currentNodes" : [],
+    
+    // Array of graph edges.
+    "currentEdges" : [],
 
     // initializes this GRAPH_HANDLER
     "initializeStableIDs" : function(nodes, edges, renderer, layouter, g) {
@@ -86,6 +90,11 @@ var GRAPH_HANDLER = {
     // Returns all of the current nodes.
     "getCurrentNodes" : function() {
         return this.currentNodes;
+    },
+    
+    // Returns all of the current edges.
+    "getCurrentEdges" : function() {
+        return this.currentEdges;
     },
 
     // returns this graph's layouter
@@ -262,13 +271,15 @@ var GRAPH_HANDLER = {
 
         // loop over all given edges, finding ones connected to the new
         // nodes that need to be added to the graph
-        for ( var i = 0; i < edges.length; i += 3) {
+        for ( var i = 0; i < edges.length; i += 4) {
             var source = edges[i];
             var dest = edges[i + 1];
             var weight = edges[i + 2];
             if (newNodes[source] || newNodes[dest]) {
                 this.graph.addEdge(source, dest, {
-                    label : weight
+                    label : weight,
+                    labelProb : weight,
+                    labelCnt : edges[i + 3],
                 });
             }
         }

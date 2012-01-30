@@ -272,7 +272,8 @@ public class SynopticService extends RemoteServiceServlet implements
                         .truncateProbability(wTransition.getFraction());
 
                 // Add the complete weighted edge
-                graph.addEdge(gwtPNode, adjGWTPNode, transitionProb);
+                graph.addEdge(gwtPNode, adjGWTPNode, transitionProb,
+                        wTransition.getCount());
             }
         }
         return graph;
@@ -691,7 +692,7 @@ public class SynopticService extends RemoteServiceServlet implements
                 // The value of zero in the construction of this edge
                 // is simply a dummy weight, since the purpose of this edge
                 // is for finding equivalent edges within the model tab.
-                GWTEdge edge = new GWTEdge(srcNode, trgNode, 0);
+                GWTEdge edge = new GWTEdge(srcNode, trgNode, 0, 0);
                 gwtPath.add(edge);
             }
 

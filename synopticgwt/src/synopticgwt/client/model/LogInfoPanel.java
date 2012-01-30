@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import synopticgwt.client.util.TooltipListener;
-import synopticgwt.shared.GWTEdge;
-import synopticgwt.shared.LogLine;
-
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
+
+import synopticgwt.client.util.TooltipListener;
+import synopticgwt.shared.GWTEdge;
+import synopticgwt.shared.LogLine;
 
 /**
  * A panel used to display different information about the log. So far, the
@@ -19,13 +19,11 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * is going to be displayed (ex: running showPaths will switch to the path
  * displaying layout of the panel if it isn't already in said state). If the
  * user so chooses, they can toggle between states manually by clicking on the
- * label atop the panel.
- * 
- * The state of the table, when being switched to manually, remains the same
- * until the next RPC is initiated. For example, if one views a list of log
- * lines, and then views a set of paths. If the user then clicks on the label to
- * switch back to displaying the list of log lines, they will remain as they
- * were until the next RPC.
+ * label atop the panel. The state of the table, when being switched to
+ * manually, remains the same until the next RPC is initiated. For example, if
+ * one views a list of log lines, and then views a set of paths. If the user
+ * then clicks on the label to switch back to displaying the list of log lines,
+ * they will remain as they were until the next RPC.
  */
 public class LogInfoPanel extends VerticalPanel {
 
@@ -56,11 +54,12 @@ public class LogInfoPanel extends VerticalPanel {
         this.add(logLinesTable);
         this.add(pathsThroughPartitionsTable);
 
-        TooltipListener.setTooltip(logInfoLabel,
-                "Click on a node to view log lines. "
-                        + " Shift+Click to select multiple nodes.",
-                ModelTab.TOOLTIP_URL);
-        
+        TooltipListener
+                .setTooltip(
+                        logInfoLabel,
+                        "Click on a node to view the associated log lines. Shift+Click to select multiple nodes to view paths through nodes.",
+                        ModelTab.TOOLTIP_URL);
+
         // Set up the default CSS attributes for the table
         DOM.setElementAttribute(logInfoLabel.getElement(), "id",
                 LOG_INFO_LABEL_ID);
@@ -87,11 +86,9 @@ public class LogInfoPanel extends VerticalPanel {
     /**
      * Takes a set of trace IDs (each mapped to a path), and displays them on
      * the panel. If the state of the paths table is not already visible, the
-     * panel will switch to accommodate.
-     * 
-     * TODO: Explain how these will be displayed according to the
-     * pathsThroughPartitionsTable object once the full functionality is
-     * implemented.
+     * panel will switch to accommodate. TODO: Explain how these will be
+     * displayed according to the pathsThroughPartitionsTable object once the
+     * full functionality is implemented.
      * 
      * @param paths
      *            Set of trace IDs mapped to specific paths
