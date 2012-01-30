@@ -146,7 +146,7 @@ var GRAPH_HANDLER = {
         rect.node.onmouseup = function(event) {
             if (node.label != INITIAL && node.label != TERMINAL) {
             	
-                if (!event.shiftKey && selectedNodeLog != rect) {
+                if (!event.shiftKey && (selectedNodeLog != rect || infoPanelPathsVisible())) {
                     clearSelectedNodes();
                     viewLogLines(parseInt(node.id));
                 }
