@@ -1,0 +1,35 @@
+Manifest-Version: 1.0
+Implementation-Title: synoptic
+Implementation-Version: 0.0.5
+Main-Class: EmbeddedGwt
+Class-Path: 
+ lib/plume.jar \
+ lib/synoptic.jar \
+ lib/jetty-ajp-7.3.0.v20110203.jar \
+ lib/jetty-annotations-7.3.0.v20110203.jar \
+ lib/jetty-client-7.3.0.v20110203.jar \
+ lib/jetty-continuation-7.3.0.v20110203.jar \
+ lib/jetty-deploy-7.3.0.v20110203.jar \
+ lib/jetty-http-7.3.0.v20110203.jar \
+ lib/jetty-io-7.3.0.v20110203.jar \
+ lib/jetty-jmx-7.3.0.v20110203.jar \
+ lib/jetty-jndi-7.3.0.v20110203.jar \
+ lib/jetty-plus-7.3.0.v20110203.jar \
+ lib/jetty-policy-7.3.0.v20110203.jar \
+ lib/jetty-rewrite-7.3.0.v20110203.jar \
+ lib/jetty-security-7.3.0.v20110203.jar \
+ lib/jetty-server-7.3.0.v20110203.jar \
+ lib/jetty-servlet-7.3.0.v20110203.jar \
+ lib/jetty-servlets-7.3.0.v20110203.jar \
+ lib/jetty-util-7.3.0.v20110203.jar \
+ lib/jetty-webapp-7.3.0.v20110203.jar \
+ lib/jetty-websocket-7.3.0.v20110203.jar \
+ lib/jetty-xml-7.3.0.v20110203.jar \
+ lib/jsp/com.sun.el_1.0.0.v201004190952.jar \
+ lib/jsp/ecj-3.6.jar \
+ lib/jsp/javax.el_2.1.0.v201004190952.jar \
+ lib/jsp/javax.servlet.jsp.jstl_1.2.0.v201004190952.jar \
+ lib/jsp/javax.servlet.jsp_2.1.0.v201004190952.jar \
+ lib/jsp/jetty-jsp-2.1-7.4.0.v20110414.jar \
+ lib/jsp/org.apache.jasper.glassfish_2.1.0.v201007080150.jar \
+ lib/jsp/org.apache.taglibs.standard.glassfish_1.2.0.v201004190952.jar

@@ -1,0 +1,7 @@
+-o osx-login-example.png
+-r .+User info.+guest$(?<TYPE=>guest login)
+-r .+User info.+(?<TYPE=>login attempt)
+-r .+Failed to authenticate.+(?<TYPE=>failed auth)
+-r .+Login Window done$(?<TYPE=>authorized)
+-s .+Succeeded authorizing.+
+-i
