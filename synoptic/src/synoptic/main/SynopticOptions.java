@@ -241,7 +241,7 @@ public class SynopticOptions {
      * <i>unpublicized</i>; it will not appear in the default usage message
      */
     @Option("Dump the DOT file for the initial graph to file <outputPathPrefix>.initial.dot")
-    public boolean dumpInitialGraphDotFile = true;
+    public boolean dumpInitialGraphDotFile = false;
 
     /**
      * Dump PNG of graph to file. The file will have the name
@@ -250,7 +250,7 @@ public class SynopticOptions {
      * <i>unpublicized</i>; it will not appear in the default usage message
      */
     @Option("Dump the PNG for the initial graph to file <outputPathPrefix>.initial.dot.png")
-    public boolean dumpInitialGraphPngFile = true;
+    public boolean dumpInitialGraphPngFile = false;
 
     /**
      * Dumps PNG of initial condensed partition graph to file. The file will

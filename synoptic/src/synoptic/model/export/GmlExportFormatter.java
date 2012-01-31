@@ -63,9 +63,7 @@ public class GmlExportFormatter extends GraphExportFormatter {
     @Override
     public String edgeToStringWithProb(int nodeSrc, int nodeDst, double prob,
             String relation) {
-        String attributes = "  label \""
-                + quote(String.format("%f", truncateProbability(prob)))
-                + "\"\n";
+        String attributes = "  label \"" + quote(probToString(prob)) + "\"\n";
         return edgeToString(nodeSrc, nodeDst, attributes, relation);
     }
 

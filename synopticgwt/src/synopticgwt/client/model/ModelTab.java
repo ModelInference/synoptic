@@ -7,6 +7,7 @@ import java.util.Set;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -45,7 +46,7 @@ public class ModelTab extends Tab<DockPanel> {
 
     /* Label of terminal node, for layout purposes */
     private static final String TERMINAL_LABEL = "TERMINAL";
-    
+
     // Border color for shift+click nodes after "View paths" clicked.
     // NOTE: Must also change same constant in graphhandler.js if modified.
     private static final String SHIFT_CLICK_BORDER_COLOR = "blue";
@@ -254,6 +255,22 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
+     * <pre>
+     * NOTE: This method is a copy of
+     * synoptic.model.export.GraphExportFormatter.probToString()
+     * 
+     * Unfortunately, there is no way to unify these two methods without passing
+     * probabilities as both doubles and strings from the server, or as strings
+     * and then converting them to doubles. Both of alternatives are ugly enough
+     * to make this duplication ok in this case.
+     * </pre>
+     */
+    public static String probToString(double prob) {
+        return NumberFormat.getFormat("0.00").format(
+                Math.round(prob * 100.0) / 100.0);
+    }
+
+    /**
      * Shows the GWTGraph object on the screen in the modelPanel. NOTE: the
      * model tab MUST be made visible for showGraph to work.
      */
@@ -292,7 +309,7 @@ public class ModelTab extends Tab<DockPanel> {
                     .getPartitionNodeHashCode()).toString());
 
             // This contains the edge's weight.
-            JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
+            JsniUtil.pushArray(jsEdges, probToString(edge.getWeight()));
             JsniUtil.pushArray(jsEdges, ((Integer) edge.getCount()).toString());
         }
 
@@ -330,7 +347,7 @@ public class ModelTab extends Tab<DockPanel> {
                     .getPartitionNodeHashCode()).toString());
             JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()
                     .getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
+            JsniUtil.pushArray(jsEdges, probToString(edge.getWeight()));
             JsniUtil.pushArray(jsEdges, ((Integer) edge.getCount()).toString());
         }
 
@@ -623,7 +640,7 @@ public class ModelTab extends Tab<DockPanel> {
                 synopticService.getPathsThroughPartitionIDs(selectedNodes,
                         new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
                                 ModelTab.this.logInfoPanel));
-                
+
                 ModelGraphic.updateNodesBorder(SHIFT_CLICK_BORDER_COLOR);
             } catch (Exception e) {
                 // TODO: Do something about the exception
