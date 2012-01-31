@@ -31,10 +31,11 @@ public abstract class GraphExportFormatter {
 
     /**
      * Rounds off edge probability to two decimal places. Used by all edge
-     * formatters.
+     * formatters. NOTE: if this method is modified, make sure to update the
+     * synopticgwt.client.model.ModelTab.probToString() method.
      */
-    public static double truncateProbability(double prob) {
-        return Math.round(prob * 100.0) / 100.0;
+    public static String probToString(double prob) {
+        return String.format("%.2f", Math.round(prob * 100.0) / 100.0);
     }
 
     /**
