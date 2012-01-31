@@ -192,18 +192,6 @@ public class ModelGraphic {
     public static native void updateNodesBorder(String color) /*-{
         $wnd.setShiftClickNodesState(color);      
     }-*/;
-
-    // This is debugging code for the model tab. (including the next method)
-    public static native void printTraceID(int traceID) /*-{
-		$wnd.console.log("TRACE ID: " + traceID);
-    }-*/;
-
-    public static native void printEdge(String src, String dst) /*-{
-		$wnd.console.log("   EDGE: " + src + " -> " + dst);
-
-        // Draw the new graph with all of the repositioned nodes.
-        rend.draw();
-    }-*/;
     
     // </JSNI methods>
     // //////////////////////////////////////////////////////////////////////////
