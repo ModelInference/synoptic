@@ -1,9 +1,5 @@
 package synopticgwt.client.model;
 
-import java.util.Set;
-
-import synopticgwt.shared.GWTEdge;
-
 import com.google.gwt.core.client.JavaScriptObject;
 
 /**
@@ -79,7 +75,6 @@ public class ModelGraphic {
                 "style" : style
             });
         }
-
         // Give stable layout to graph elements.
         var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
 
@@ -90,6 +85,22 @@ public class ModelGraphic {
         // Store graph state.
         $wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer,
                 layouter, g);
+    }-*/;
+
+    // Clears the state of the graph's edges by setting
+    // all of the colors back to default.
+    private static native void clearEdgeState() /*-{
+        var graph = $wnd.GRAPH_HANDLER.getGraph();
+        var edges = $wnd.GRAPH_HANDLER.currentEdges;
+
+        for ( var i = 0; i < edges.length; i++) {
+            delete edges[i].edge.style["stroke"];
+            delete edges[i].edge.style["fill"];
+            delete edges[i].style["fill"];
+            delete edges[i].style["stroke"];
+            
+            graph.addEdge(edges[i].edge);
+        }
     }-*/;
 
     private static native void defineGlobalFunctions(ModelTab modelTab) /*-{
@@ -195,6 +206,39 @@ public class ModelGraphic {
     // For all selected nodes in model, change their border to given color.
     public static native void updateNodesBorder(String color) /*-{
         $wnd.setShiftClickNodesState(color);
+    }-*/;
+
+    /**
+     * Highlights a path through the model based on array of edges passed TODO
+     * Clear the previous state of the model before highlighting more edges.
+     */
+    public static native void highlightEdges(JavaScriptObject edges) /*-{
+        var g = $wnd.GRAPH_HANDLER.getGraph();
+
+        @synopticgwt.client.model.ModelGraphic::clearEdgeState()();
+
+        $wnd.console.log(g);
+        // Add each edge to graph.
+        
+        var modelEdges = g.edges;
+        for ( var i = 0; i < modelEdges.length; i++) {
+            var j = i*4;
+            if (modelEdges.target.id == edges[j] && modelEdges.source.id) {
+                
+            }
+            
+            // edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
+            style = {
+                label : edges[i + 2],
+                labelProb : edges[i + 2],
+                labelCount : edges[i + 3],
+                stroke : "#ba8",
+                fill : "#56f"
+            };
+            g.addEdge(edges[i], edges[i + 1], style);
+        }
+
+        $wnd.GRAPH_HANDLER.getRenderer().draw();
     }-*/;
 
     // </JSNI methods>
