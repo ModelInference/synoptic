@@ -7,7 +7,6 @@ import java.util.Set;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -21,10 +20,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.Tab;
 import synopticgwt.client.util.ErrorReportingAsyncCallback;
-import synopticgwt.client.util.JsniUtil;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.client.util.TooltipListener;
-import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTNode;
@@ -255,22 +252,6 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
-     * <pre>
-     * NOTE: This method is a copy of
-     * synoptic.model.export.GraphExportFormatter.probToString()
-     * 
-     * Unfortunately, there is no way to unify these two methods without passing
-     * probabilities as both doubles and strings from the server, or as strings
-     * and then converting them to doubles. Both of alternatives are ugly enough
-     * to make this duplication ok in this case.
-     * </pre>
-     */
-    public static String probToString(double prob) {
-        return NumberFormat.getFormat("0.00").format(
-                Math.round(prob * 100.0) / 100.0);
-    }
-
-    /**
      * Shows the GWTGraph object on the screen in the modelPanel. NOTE: the
      * model tab MUST be made visible for showGraph to work.
      */
@@ -293,26 +274,10 @@ public class ModelTab extends Tab<DockPanel> {
         panel.add(graphPanel, DockPanel.CENTER);
         // Create the list of graph node labels and their Ids.
         HashSet<GWTNode> nodeSet = graph.getNodes();
-        JavaScriptObject jsNodes = JavaScriptObject.createArray();
-        for (GWTNode node : nodeSet) {
-            JsniUtil.pushArray(jsNodes,
-                    ((Integer) node.getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsNodes, node.toString());
-        }
+        JavaScriptObject jsNodes = GWTToJSUtils.createJSArrayFromGWTNodes(nodeSet);
 
         // Create the list of edges, where two consecutive node Ids is an edge.
-        JavaScriptObject jsEdges = JavaScriptObject.createArray();
-        for (GWTEdge edge : graph.getEdges()) {
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()
-                    .getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()
-                    .getPartitionNodeHashCode()).toString());
-
-            // This contains the edge's weight.
-            JsniUtil.pushArray(jsEdges, probToString(edge.getWeight()));
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getCount()).toString());
-        }
-
+        JavaScriptObject jsEdges = GWTToJSUtils.createJSArrayFromGWTEdges(graph.getEdges());
         // Determine the size of the graphic.
         int width = getModelGraphicWidth();
         int height = getModelGraphicHeight();
@@ -331,25 +296,10 @@ public class ModelTab extends Tab<DockPanel> {
      *            the refined node's id
      */
     public void showChangingGraph(GWTGraph graph, GWTNode refinedNode) {
-        HashSet<GWTNode> nodeSet = graph.getNodes();
-        JavaScriptObject jsNodes = JavaScriptObject.createArray();
-        for (GWTNode node : nodeSet) {
-            JsniUtil.pushArray(jsNodes,
-                    ((Integer) node.getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsNodes, node.toString());
-        }
-
+        JavaScriptObject jsNodes = GWTToJSUtils.createJSArrayFromGWTNodes(graph.getNodes());
+        
         // Create the list of edges, where two consecutive node Ids is an edge.
-        JavaScriptObject jsEdges = JavaScriptObject.createArray();
-        List<GWTEdge> edgeList = graph.getEdges();
-        for (GWTEdge edge : edgeList) {
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()
-                    .getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()
-                    .getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsEdges, probToString(edge.getWeight()));
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getCount()).toString());
-        }
+        JavaScriptObject jsEdges = GWTToJSUtils.createJSArrayFromGWTEdges(graph.getEdges());
 
         ModelGraphic.createChangingGraph(jsNodes, jsEdges,
                 refinedNode.getPartitionNodeHashCode(), canvasId);

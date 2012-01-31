@@ -7,7 +7,6 @@ import java.util.Set;
 import synopticgwt.shared.GWTEdge;
 
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.RadioButton;
 
 /**
  * A table used to display information about paths through groups of partitions

@@ -1,5 +1,9 @@
 package synopticgwt.client.model;
 
+import java.util.Set;
+
+import synopticgwt.shared.GWTEdge;
+
 import com.google.gwt.core.client.JavaScriptObject;
 
 /**
@@ -15,14 +19,14 @@ public class ModelGraphic {
     }-*/;
 
     public static native void useCountEdgeLabels() /*-{
-		// TODO: work in progress.
-		edges = $wnd.GRAPH_HANDLER.getCurrentEdges();
-		for ( var i = 0; i < edges.length; i += 1) {
-			edges[i].style.label = edges[i].style.labelCount;
-			$wnd.jQuery.extend(edges[i].edge.style, edges[i].style);
-		}
-		$wnd.GRAPH_HANDLER.getLayouter().layout()
-		$wnd.GRAPH_HANDLER.getRenderer().draw();
+        // TODO: work in progress.
+        edges = $wnd.GRAPH_HANDLER.getCurrentEdges();
+        for ( var i = 0; i < edges.length; i += 1) {
+            edges[i].style.label = edges[i].style.labelCount;
+            $wnd.jQuery.extend(edges[i].edge.style, edges[i].style);
+        }
+        $wnd.GRAPH_HANDLER.getLayouter().layout()
+        $wnd.GRAPH_HANDLER.getRenderer().draw();
     }-*/;
 
     /**
@@ -60,22 +64,22 @@ public class ModelGraphic {
             });
         }
 
-	    // Add each edge to graph.
-	     $wnd.GRAPH_HANDLER.currentEdges = [];
-		for ( var i = 0; i < edges.length; i += 4) {
-			// edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
-			style = {
-				label : edges[i + 2],
-				labelProb : edges[i + 2],
-				labelCount : edges[i + 3],
-			};
-			edge = g.addEdge(edges[i], edges[i + 1], style);
-			$wnd.GRAPH_HANDLER.currentEdges.push({
-				"edge" : edge,
-				"style" : style
-			});
-		}
-		
+        // Add each edge to graph.
+        $wnd.GRAPH_HANDLER.currentEdges = [];
+        for ( var i = 0; i < edges.length; i += 4) {
+            // edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
+            style = {
+                label : edges[i + 2],
+                labelProb : edges[i + 2],
+                labelCount : edges[i + 3],
+            };
+            edge = g.addEdge(edges[i], edges[i + 1], style);
+            $wnd.GRAPH_HANDLER.currentEdges.push({
+                "edge" : edge,
+                "style" : style
+            });
+        }
+
         // Give stable layout to graph elements.
         var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
 
@@ -184,15 +188,15 @@ public class ModelGraphic {
         // Change the width/height of the Raphael canvas.
         rend.r.setSize(width, height);
 
-		// Draw the new graph with all of the repositioned nodes.
-		rend.draw();
+        // Draw the new graph with all of the repositioned nodes.
+        rend.draw();
     }-*/;
-    
+
     // For all selected nodes in model, change their border to given color.
     public static native void updateNodesBorder(String color) /*-{
-        $wnd.setShiftClickNodesState(color);      
+        $wnd.setShiftClickNodesState(color);
     }-*/;
-    
+
     // </JSNI methods>
     // //////////////////////////////////////////////////////////////////////////
 }
