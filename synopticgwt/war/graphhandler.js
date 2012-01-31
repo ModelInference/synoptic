@@ -59,22 +59,30 @@ var clearSelectedNodes = function() {
  * A function for setting the border of all selected
  * nodes to given color. Changes the background color
  * of the nodes to the default color. Default styling
- * to node with displayed log lines since log lines are
- * no longer present after "View paths".
+ * to node displaying log lines if not in shift+click
+ * set.
  */
 var setShiftClickNodesState = function(color) {
+	// Whether or not the node displaying log line is in
+	// shift+click set.
+	var clickNodeInSet = false;
 	for (var i in selectedDraculaNodes) {
+		if (selectedNodeLog == selectedDraculaNodes[i]) {
+			clickNodeInSet = true;
+		}
         selectedDraculaNodes[i].attr({
         	"fill": DEFAULT_COLOR,
         	"stroke": color,
 			"stroke-width": SELECT_STROKE_WIDTH
         });
     }
-	
-	selectedNodeLog.attr({
-		"stroke": "black",
-		"stroke-width": DEFAULT_STROKE_WIDTH
-	})
+	// Set node to default styling.
+	if (!clickNodeInSet) {
+		selectedNodeLog.attr({
+			"stroke": "black",
+			"stroke-width": DEFAULT_STROKE_WIDTH
+		});
+	}
 	selectedNodeLog = undefined;
 }
 
