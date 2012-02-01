@@ -1,0 +1,3 @@
+-r ^(?<TYPE>)$
+-s ^--$
+-o output/abr_p2
