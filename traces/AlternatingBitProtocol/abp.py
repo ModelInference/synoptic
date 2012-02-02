@@ -37,8 +37,10 @@ class Process(threading.Thread):
     A process with a timeout, a receive queue, an integer state value,
     and a reference to a remote endpoint.
     '''
-    def __init__(self, timeout, ok_terminal_states):
+    def __init__(self, vtime_lindex, timeout, ok_terminal_states):
         super(Process, self).__init__()
+        self.vtime = [0,0]
+        self.vtime_lindex = vtime_lindex
         self.timeout = timeout
         self.rx_queue = Queue.Queue()
         self.remote_endpoint = None
@@ -58,7 +60,19 @@ class Process(threading.Thread):
         '''
         Change the state of the process.
         '''
+        self.vtime[self.vtime_lindex] = self.vtime[self.vtime_lindex] + 1
         self.state = new_state
+
+    def update_local_vtime(self, remote_vtime):
+        '''
+        Update the local vtime based on received remote vtime.
+        '''
+        assert self.vtime[self.vtime_lindex] >= remote_vtime[self.vtime_lindex]
+        # 0->1, 1->0
+        vtime_rindex = abs(self.vtime_lindex - 1)
+        # No need to take the max of the two values, since the remote
+        # endpoint must have the most up to date clock val.
+        self.vtime[vtime_rindex] = remote_vtime[vtime_rindex]
 
     def log_event(self, e):
         '''
@@ -95,7 +109,7 @@ class Sender(Process):
     '''
     def __init__(self, timeout):
         # Ok terminal states [0,1] are just before 'send_m' is generated in gen_send()
-        super(Sender, self).__init__(timeout, [0,3])
+        super(Sender, self).__init__(0, timeout, [0,3])
         # The message we are currently sending -- either M0, or M1
         self.currently_sending = None
         # Timestamp of the last time we've sent the message.
@@ -181,7 +195,7 @@ class Receiver(Process):
     '''
     def __init__(self, timeout):
         # Ok terminal states [0,2] are just after 'recv_m' is generated
-        super(Receiver, self).__init__(timeout, [0,3])
+        super(Receiver, self).__init__(1, timeout, [0,3])
         # The ack we are currently sending -- either A0, or A1
         self.currently_sending = None
         # Timestamp of the last time we've sent the ack.
