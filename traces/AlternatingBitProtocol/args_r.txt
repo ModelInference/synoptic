@@ -1,3 +1,4 @@
 -r ^(?<TYPE>)$
+-r ^#(?<HIDE=>true).+$
 -s ^--$
--o output/abr_p2
+-o output/abr_r
