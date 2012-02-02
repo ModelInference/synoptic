@@ -29,7 +29,7 @@ def parse_arguments():
     '''
     parser = argparse.ArgumentParser(description='Run the alternating bit protocol emulator and produce logs.')
     
-    parser.add_argument('-t', dest='RUNTIME', default=60.0,
+    parser.add_argument('-t', dest='RUNTIME', default=10.0,
                         help='Approximate desired total runtime (in seconds).')
 
     parser.add_argument('-r', dest='RECEIVER_LOG_FILE', default="trace_r.txt",
@@ -67,32 +67,23 @@ def main():
     s_log_file = open(args.SENDER_LOG_FILE, 'w')
     r_log_file = open(args.RECEIVER_LOG_FILE, 'w')
 
-    # Explore the space of all timeout value pairs selected from
-    # [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09]
-    timeout_vals = map(lambda(x) : x/100.0, range(1,10))
-    timeout_pairs = [list(x) for x in itertools.combinations(timeout_vals, 2)]
-
-    # Include all the reverse combinations in timeout_pairs, doubling the list.
-    timeout_pairs = timeout_pairs + [list(x) for x in reversed(timeout_pairs)]
+    # Explore the space of sender timeout values:
+    timeout_vals = [0.01, 0.02, 0.03]
     
-    # Add one pair with equal timeouts -- just one is sufficient.
-    timeout_pairs.append([.01,.01])
-
-    # Dummy arguments class for abp.emulate()
+    # Dummy args class for abp.emulate()
     class AbpArgs:
         pass
     abp_args = AbpArgs()
     
     # Each experiment is long enough to explore all timeout pairs.
-    abp_args.RUNTIME = float(args.RUNTIME) / float(len(timeout_pairs))
+    abp_args.RUNTIME = float(args.RUNTIME) / float(len(timeout_vals))
 
-    print "run s-timeout r-timeout emulator-runtime"
+    print "run s-timeout emulator-runtime"
     run_cnt = 0
-    for (s_timeout, r_timeout) in timeout_pairs:
+    for s_timeout in timeout_vals:
         abp_args.SENDER_TIMEOUT = s_timeout
-        abp_args.RECEIVER_TIMEOUT = r_timeout
 
-        print run_cnt, abp_args.SENDER_TIMEOUT, abp_args.RECEIVER_TIMEOUT, abp_args.RUNTIME
+        print run_cnt, abp_args.SENDER_TIMEOUT, abp_args.RUNTIME
 
         #######################
         # Run the emulator.
@@ -103,7 +94,7 @@ def main():
 
         # This may happen if the runtime is set to too small a value
         # (i.e., smaller than python thread context switch time)
-        if len(s_log) == 0 || len(r_log) == 0:
+        if len(s_log) == 0 or len(r_log) == 0:
             continue
 
         append_log_to_file(s_log, s_log_file, run_cnt > 0)
