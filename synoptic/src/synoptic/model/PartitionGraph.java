@@ -75,6 +75,11 @@ public class PartitionGraph implements IGraph<Partition> {
     private Set<EventType> allEvents;
 
     /**
+     * Initial trace graph.
+     */
+    private ChainsTraceGraph traceGraph;
+
+    /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
      * and stored. If partitionByLabel is true, all messages with identical
      * labels in {@code g} will become one partition. Otherwise, every message
@@ -98,6 +103,7 @@ public class PartitionGraph implements IGraph<Partition> {
             partitionSeparately(g.getNodes());
         }
         this.invariants = invariants;
+        this.traceGraph = g;
     }
 
     public PartitionGraph(ChainsTraceGraph g,
@@ -110,6 +116,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
         partitionByIndexSetsAndLabels(g.getNodes(), partitioningIndexSets);
         this.invariants = invariants;
+        this.traceGraph = g;
     }
 
     private void addInitialMessages(EventNode initialMessage, String relation) {
@@ -675,5 +682,14 @@ public class PartitionGraph implements IGraph<Partition> {
             getNIFbyInvariants();
         }
         return allEvents;
+    }
+
+    /**
+     * Returns the initial trace graph.
+     * 
+     * @return
+     */
+    public ChainsTraceGraph getTraceGraph() {
+        return traceGraph;
     }
 }
