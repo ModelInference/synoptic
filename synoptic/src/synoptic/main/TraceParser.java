@@ -673,8 +673,9 @@ public class TraceParser {
             }
         }
 
-        logger.info("Successfully parsed " + results.size() + " events from "
-                + tName);
+        logger.info("Successfully parsed " + partitions.size()
+                + " traces, containing a total of " + results.size()
+                + " events from [" + tName + "]");
         return results;
     }
 
