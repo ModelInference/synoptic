@@ -87,6 +87,17 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         return invariants.toString();
     }
 
+    /**
+     * Prints list of invariants separated by newlines.
+     */
+    public String toPrettyString() {
+        String ret = "";
+        for (ITemporalInvariant inv : invariants) {
+            ret += (inv.toString() + "\n");
+        }
+        return ret;
+    }
+
     public void add(ITemporalInvariant inv) {
         invariants.add(inv);
     }
