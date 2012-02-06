@@ -24,13 +24,14 @@ public class EventTypeEncodings {
     private char cur;
 
     public EventTypeEncodings(Set<EventType> events) {
+        /** Maps a string representation of an event to a char. */
         eventEncodings = new HashMap<String, Character>();
+        /** The reverse eventEncodings map -- always maintained up to date. */
         charEncodings = new HashMap<Character, String>();
 
-        cur = 'a';
+        cur = 1000;
         for (EventType e : events) {
-            eventEncodings.put(e.toString(), cur);
-            charEncodings.put(cur, e.toString());
+            addEncoding(e, cur);
             cur++;
         }
 
@@ -39,9 +40,21 @@ public class EventTypeEncodings {
         for (Character c : charEncodings.keySet()) {
             chars.append("|" + c);
         }
-        chars.replace(0, 1, "("); // hacky fix to fence post issue.
+        chars.replace(0, 1, "("); // TODO: hacky fix to fence post issue.
         chars.append(")*");
         alphabet = new RegExp(chars.toString());
+    }
+
+    /**
+     * Adds a new encoding of e to c. Maintains both the forward and the reverse
+     * event to character maps.
+     */
+    private void addEncoding(EventType e, char c) {
+        assert !eventEncodings.containsKey(e.toString());
+        assert !charEncodings.containsKey(c);
+
+        eventEncodings.put(e.toString(), c);
+        charEncodings.put(c, e.toString());
     }
 
     /**
@@ -50,6 +63,7 @@ public class EventTypeEncodings {
      */
     public char getEncoding(EventType e) {
         if (!eventEncodings.containsKey(e.toString())) {
+            addEncoding(e, cur);
             char c = cur;
             cur++;
             return c;
@@ -58,6 +72,10 @@ public class EventTypeEncodings {
     }
 
     public String getString(char c) {
+        if (!charEncodings.containsKey(c)) {
+            throw new IllegalArgumentException(
+                    "The passed char has not been mapped to an event type.");
+        }
         return charEncodings.get(c);
     }
 
