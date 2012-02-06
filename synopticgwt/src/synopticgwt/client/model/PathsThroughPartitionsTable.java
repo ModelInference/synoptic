@@ -7,14 +7,12 @@ import java.util.Set;
 import synopticgwt.shared.GWTEdge;
 
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.RadioButton;
 
 /**
- * A table used to display information about paths through
- * groups of partitions that have been specified by the user.
- * When given a set of paths to display, the table will sort the
- * trace IDs and display each as a radio button, which, when clicked,
- * will highlight the edges in the model related to the specified
+ * A table used to display information about paths through groups of partitions
+ * that have been specified by the user. When given a set of paths to display,
+ * the table will sort the trace IDs and display each as a radio button, which,
+ * when clicked, will highlight the edges in the model related to the specified
  * trace ID.
  */
 public class PathsThroughPartitionsTable extends FlexTable {
@@ -55,8 +53,8 @@ public class PathsThroughPartitionsTable extends FlexTable {
         // somehow displays the paths associated with it (perhaps create a new
         // class).
         for (Integer trace : traceIDs) {
-            RadioButton button = new RadioButton(RADIO_BUTTON_GROUP, "Trace "
-                    + trace);
+            PathDisplayRadioButton button = new PathDisplayRadioButton(
+                    RADIO_BUTTON_GROUP, "Trace " + trace, paths.get(trace));
             this.setWidget(row, 0, button);
             row++;
         }

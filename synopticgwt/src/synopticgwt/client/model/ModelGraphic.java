@@ -15,14 +15,14 @@ public class ModelGraphic {
     }-*/;
 
     public static native void useCountEdgeLabels() /*-{
-		// TODO: work in progress.
-		edges = $wnd.GRAPH_HANDLER.getCurrentEdges();
-		for ( var i = 0; i < edges.length; i += 1) {
-			edges[i].style.label = edges[i].style.labelCount;
-			$wnd.jQuery.extend(edges[i].edge.style, edges[i].style);
-		}
-		$wnd.GRAPH_HANDLER.getLayouter().layout()
-		$wnd.GRAPH_HANDLER.getRenderer().draw();
+        // TODO: work in progress.
+        edges = $wnd.GRAPH_HANDLER.getCurrentEdges();
+        for ( var i = 0; i < edges.length; i += 1) {
+            edges[i].style.label = edges[i].style.labelCount;
+            $wnd.jQuery.extend(edges[i].edge.style, edges[i].style);
+        }
+        $wnd.GRAPH_HANDLER.getLayouter().layout()
+        $wnd.GRAPH_HANDLER.getRenderer().draw();
     }-*/;
 
     /**
@@ -60,22 +60,21 @@ public class ModelGraphic {
             });
         }
 
-	    // Add each edge to graph.
-	     $wnd.GRAPH_HANDLER.currentEdges = [];
-		for ( var i = 0; i < edges.length; i += 4) {
-			// edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
-			style = {
-				label : edges[i + 2],
-				labelProb : edges[i + 2],
-				labelCount : edges[i + 3],
-			};
-			edge = g.addEdge(edges[i], edges[i + 1], style);
-			$wnd.GRAPH_HANDLER.currentEdges.push({
-				"edge" : edge,
-				"style" : style
-			});
-		}
-		
+        // Add each edge to graph.
+        $wnd.GRAPH_HANDLER.currentEdges = [];
+        for ( var i = 0; i < edges.length; i += 4) {
+            // edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
+            style = {
+                label : edges[i + 2],
+                labelProb : edges[i + 2],
+                labelCount : edges[i + 3],
+            };
+            edge = g.addEdge(edges[i], edges[i + 1], style);
+            $wnd.GRAPH_HANDLER.currentEdges.push({
+                "edge" : edge,
+                "style" : style
+            });
+        }
         // Give stable layout to graph elements.
         var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
 
@@ -184,27 +183,58 @@ public class ModelGraphic {
         // Change the width/height of the Raphael canvas.
         rend.r.setSize(width, height);
 
-		// Draw the new graph with all of the repositioned nodes.
-		rend.draw();
-    }-*/;
-    
-    // For all selected nodes in model, change their border to given color.
-    public static native void updateNodesBorder(String color) /*-{
-        $wnd.setShiftClickNodesState(color);      
-    }-*/;
-
-    // This is debugging code for the model tab. (including the next method)
-    public static native void printTraceID(int traceID) /*-{
-		$wnd.console.log("TRACE ID: " + traceID);
-    }-*/;
-
-    public static native void printEdge(String src, String dst) /*-{
-		$wnd.console.log("   EDGE: " + src + " -> " + dst);
-
         // Draw the new graph with all of the repositioned nodes.
         rend.draw();
     }-*/;
-    
+
+    // For all selected nodes in model, change their border to given color.
+    public static native void updateNodesBorder(String color) /*-{
+        $wnd.setShiftClickNodesState(color);
+    }-*/;
+
+    /**
+     * Clears the state of the edges in the graph, but does not redraw the
+     * graph. this has to be done after this method is called (and any
+     * subsequent alterations to the graph that may have occurred thenceforth).
+     */
+    public static native void clearEdgeState() /*-{
+        var g = $wnd.GRAPH_HANDLER.getGraph();
+
+        var edges = g.edges;
+        for (i = 0; i < edges.length; i++) {
+            // Set the fill to none so it cannot be
+            // seen.
+            $wnd.console.log(edges[i]);
+            edges[i].connection.fg.attr({
+                stroke : "#000"
+            });
+        }
+    }-*/;
+
+    /**
+     * Highlights a path through the model based on array of edges passed TODO
+     * Clear the previous state of the model before highlighting more edges.
+     */
+    public static native void highlightEdges(JavaScriptObject edges) /*-{
+        var g = $wnd.GRAPH_HANDLER.getGraph();
+
+        @synopticgwt.client.model.ModelGraphic::clearEdgeState()();
+        var modelEdges = g.edges;
+        for ( var i = 0; i < modelEdges.length; i++) {
+            for ( var j = 0; j < edges.length; j += 4) {
+                // If this edges matches one of the ones that needs to be highlighted,
+                // then replace it with the new edge.
+                if (modelEdges[i].source.id == edges[j]
+                        && modelEdges[i].target.id == edges[j + 1]) {
+                    modelEdges[i].connection.fg.attr({
+                        stroke : "#56f"
+                    });
+                    break;
+                }
+            }
+        }
+    }-*/;
+
     // </JSNI methods>
     // //////////////////////////////////////////////////////////////////////////
 }
