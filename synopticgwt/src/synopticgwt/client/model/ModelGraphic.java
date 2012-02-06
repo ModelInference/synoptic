@@ -202,11 +202,12 @@ public class ModelGraphic {
 
         var edges = g.edges;
         for (i = 0; i < edges.length; i++) {
-            // Set the fill to none so it cannot be
-            // seen.
+            // Set the edge color back to black,
+            // and set the width back to normal.
             $wnd.console.log(edges[i]);
             edges[i].connection.fg.attr({
-                stroke : "#000"
+                stroke : "#000",
+                "stroke-width" : 1
             });
         }
     }-*/;
@@ -226,8 +227,12 @@ public class ModelGraphic {
                 // then replace it with the new edge.
                 if (modelEdges[i].source.id == edges[j]
                         && modelEdges[i].target.id == edges[j + 1]) {
+                    // Highlight the edge with the
+                    // highlighting color and set the stroke-width to
+                    // the selection stroke-width
                     modelEdges[i].connection.fg.attr({
-                        stroke : "#56f"
+                        stroke : $wnd.HIGHLIGHT_COLOR,
+                        "stroke-width" : $wnd.SELECT_STROKE_WIDTH
                     });
                     break;
                 }
