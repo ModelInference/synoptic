@@ -202,17 +202,12 @@ public class ModelGraphic {
 
         var edges = g.edges;
         for (i = 0; i < edges.length; i++) {
-            // Hide the edge and create a new one to replace it.
-            
-            
-            
-            var newEdge = edges[i].
-            edges[i].connection && edges[i].connection.label.hide();
-            edges[i].hide();
-            edges.splice(i, 1);
-            
-            delete newEdge.fill;
-            g.addEdge(newEdge);
+            // Set the fill to none so it cannot be
+            // seen.
+            $wnd.console.log(edges[i]);
+            edges[i].connection.fg.attr({
+                stroke : "#000"
+            });
         }
     }-*/;
 
@@ -223,8 +218,6 @@ public class ModelGraphic {
     public static native void highlightEdges(JavaScriptObject edges) /*-{
         var g = $wnd.GRAPH_HANDLER.getGraph();
 
-        $wnd.console.log(g);
-        
         @synopticgwt.client.model.ModelGraphic::clearEdgeState()();
         var modelEdges = g.edges;
         for ( var i = 0; i < modelEdges.length; i++) {
@@ -233,14 +226,13 @@ public class ModelGraphic {
                 // then replace it with the new edge.
                 if (modelEdges[i].source.id == edges[j]
                         && modelEdges[i].target.id == edges[j + 1]) {
-                    modelEdges[i].style.fill = "#56f";
+                    modelEdges[i].connection.fg.attr({
+                        stroke : "#56f"
+                    });
                     break;
                 }
             }
         }
-
-        $wnd.GRAPH_HANDLER.getRenderer().draw();
-
     }-*/;
 
     // </JSNI methods>
