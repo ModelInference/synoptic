@@ -419,6 +419,13 @@ public class ModelTab extends Tab<DockPanel> {
             modelCoarsenButton.setEnabled(true);
             return;
         }
+        
+        // Clear the highlighted nodes from the graph.
+        ModelGraphic.clearEdgeState();
+        
+        // Set the log lines display to default and clear
+        // any information.
+        logInfoPanel.clearAll();
 
         // Show an animation of refinement.
         showChangingGraph(graph.getGraph(), graph.getRefinedNode());
