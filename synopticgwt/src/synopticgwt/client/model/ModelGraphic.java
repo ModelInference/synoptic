@@ -87,22 +87,6 @@ public class ModelGraphic {
                 layouter, g);
     }-*/;
 
-    // Clears the state of the graph's edges by setting
-    // all of the colors back to default.
-    private static native void clearEdgeState() /*-{
-        var graph = $wnd.GRAPH_HANDLER.getGraph();
-        var edges = $wnd.GRAPH_HANDLER.currentEdges;
-
-        for ( var i = 0; i < edges.length; i++) {
-            delete edges[i].edge.style["stroke"];
-            delete edges[i].edge.style["fill"];
-            delete edges[i].style["fill"];
-            delete edges[i].style["stroke"];
-            
-            graph.addEdge(edges[i].edge);
-        }
-    }-*/;
-
     private static native void defineGlobalFunctions(ModelTab modelTab) /*-{
         // Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
         $wnd.Math.seedrandom($wnd.randSeed);
@@ -209,36 +193,54 @@ public class ModelGraphic {
     }-*/;
 
     /**
+     * Clears the state of the edges in the graph, but does not redraw the
+     * graph. this has to be done after this method is called (and any
+     * subsequent alterations to the graph that may have occurred thenceforth).
+     */
+    public static native void clearEdgeState() /*-{
+        var g = $wnd.GRAPH_HANDLER.getGraph();
+
+        var edges = g.edges;
+        for (i = 0; i < edges.length; i++) {
+            // Hide the edge and create a new one to replace it.
+            
+            
+            
+            var newEdge = edges[i].
+            edges[i].connection && edges[i].connection.label.hide();
+            edges[i].hide();
+            edges.splice(i, 1);
+            
+            delete newEdge.fill;
+            g.addEdge(newEdge);
+        }
+    }-*/;
+
+    /**
      * Highlights a path through the model based on array of edges passed TODO
      * Clear the previous state of the model before highlighting more edges.
      */
     public static native void highlightEdges(JavaScriptObject edges) /*-{
         var g = $wnd.GRAPH_HANDLER.getGraph();
 
-        @synopticgwt.client.model.ModelGraphic::clearEdgeState()();
-
         $wnd.console.log(g);
-        // Add each edge to graph.
         
+        @synopticgwt.client.model.ModelGraphic::clearEdgeState()();
         var modelEdges = g.edges;
         for ( var i = 0; i < modelEdges.length; i++) {
-            var j = i*4;
-            if (modelEdges.target.id == edges[j] && modelEdges.source.id) {
-                
+            for ( var j = 0; j < edges.length; j += 4) {
+                // If this edges matches one of the ones that needs to be highlighted,
+                // then replace it with the new edge.
+                if (modelEdges[i].source.id == edges[j]
+                        && modelEdges[i].target.id == edges[j + 1]) {
+                    modelEdges[i].style.fill = "#56f";
+                    break;
+                }
             }
-            
-            // edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
-            style = {
-                label : edges[i + 2],
-                labelProb : edges[i + 2],
-                labelCount : edges[i + 3],
-                stroke : "#ba8",
-                fill : "#56f"
-            };
-            g.addEdge(edges[i], edges[i + 1], style);
         }
 
         $wnd.GRAPH_HANDLER.getRenderer().draw();
+
     }-*/;
 
     // </JSNI methods>
