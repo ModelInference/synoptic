@@ -93,6 +93,7 @@ public class ModelGraphic {
 
         // Export the handleLogRequest globally.
         $wnd.viewLogLines = function(id) {
+            @synopticgwt.client.model.ModelGraphic::clearEdgeState()();
             modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
         };
 
