@@ -197,6 +197,19 @@ public class ModelGraphic {
      * Clears the state of the edges in the graph, but does not redraw the
      * graph. this has to be done after this method is called (and any
      * subsequent alterations to the graph that may have occurred thenceforth).
+     * <p>
+     * IMPORTANT NOTE: When changing the state of the edges in the Dracula Model
+     * make sure to change the attributes using the "attr" command to change the
+     * "connection.fg" field within each specific edge. This is because, when
+     * changing the style attributes of the edge -- for example, edge.style.fill
+     * = "#fff" -- when Dracula redraws the edge, more often than not, it
+     * creates a new field (edge.connection.bg) to fill the color behind the
+     * edge in question. This is important to note because all style changes
+     * done outside of this method currently adhere to altering only the
+     * edge.connection.fg field. So, if any changes are made to the edges where
+     * the edge.connection.bg field is introduced, this WILL NOT clear those
+     * changes from the edge's state, and may have to be appended to this code.
+     * </p>
      */
     public static native void clearEdgeState() /*-{
         var g = $wnd.GRAPH_HANDLER.getGraph();
@@ -214,8 +227,9 @@ public class ModelGraphic {
     }-*/;
 
     /**
-     * Highlights a path through the model based on array of edges passed TODO
-     * Clear the previous state of the model before highlighting more edges.
+     * Highlights a path through the model based on array of edges passed.
+     * Changes the edges' styles as to be reversible by the
+     * {@code clearEdgeState} static method
      */
     public static native void highlightEdges(JavaScriptObject edges) /*-{
         var g = $wnd.GRAPH_HANDLER.getGraph();
