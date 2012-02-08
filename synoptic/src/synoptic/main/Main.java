@@ -619,7 +619,7 @@ public class Main implements Callable<Integer> {
                 + " NeverConcurrentWith invariants");
 
         if (options.dumpInvariants) {
-            logger.info("Mined invariants: " + minedInvs);
+            logger.info("Mined invariants:\n" + minedInvs.toPrettyString());
         }
 
         if (options.outputInvariantsToFile) {
@@ -709,6 +709,7 @@ public class Main implements Callable<Integer> {
         }
 
         TOInvariantMiner miner;
+
         if (options.useTransitiveClosureMining) {
             miner = new TransitiveClosureInvMiner();
         } else {
@@ -731,7 +732,7 @@ public class Main implements Callable<Integer> {
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
 
         if (options.dumpInvariants) {
-            logger.info("Mined invariants: " + minedInvs);
+            logger.info("Mined invariants:\n" + minedInvs.toPrettyString());
         }
 
         if (options.outputInvariantsToFile) {

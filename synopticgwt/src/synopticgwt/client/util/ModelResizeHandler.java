@@ -9,8 +9,8 @@ import synopticgwt.client.SynopticGWT;
 import synopticgwt.client.model.ModelTab;
 
 /**
- * A resize handler that takes care of updating the model graphic whenever the
- * model tab is resized.
+ * A resize handler that updates the model graphic whenever the window is
+ * resized.
  */
 public class ModelResizeHandler implements ResizeHandler {
 
@@ -18,49 +18,47 @@ public class ModelResizeHandler implements ResizeHandler {
     // compute intensive when rendering the canvas too frequently.
     private final Timer resizeTimer;
 
-    private final TabBar tabBar;
-    private final ModelTab modelTab;
+    final TabBar tabBar;
+    final ModelTab modelTab;
 
-    // How often to schedule the re-animation timer (in milliseconds).
-    private final int msTimerGranularity;
+    // Delay (in milliseconds) between resize event and resizing.
+    private final int resizingDelay;
 
     /**
-     * Adds a resize handler to the window to manage resize events for the model
-     * tab. Upon resizing the window, after the window has remained unchanged
-     * for the established amount of time (in ms), the model tab's model will be
-     * updated.
+     * A window resize handler to manage resizing of the model graphic. Upon
+     * resizing the window, after the window has remained unchanged for some
+     * time (in ms), the model graphic is updated.
      * 
-     * @param mdlTab
+     * @param modelTab
      *            The instance of the model tab which will be handled by this
      *            event handler.
-     * @param milliseconds
+     * @param resizingDelay
      *            The amount of time to wait after the window has updated before
-     *            running the modelTab update.
+     *            running the graphic update (in milliseconds).
      */
-    public ModelResizeHandler(TabBar tbBar, ModelTab mdlTab, int milliseconds) {
+    public ModelResizeHandler(TabBar tabBar, ModelTab modelTab, int resizingDelay) {
         super();
-        this.tabBar = tbBar;
-        this.modelTab = mdlTab;
-        this.msTimerGranularity = milliseconds;
+        this.tabBar = tabBar;
+        this.modelTab = modelTab;
+        this.resizingDelay = resizingDelay;
 
         resizeTimer = new Timer() {
             @Override
             public void run() {
                 // If the tab is enabled, resize the canvas
                 // and redraw the graph (with fancy animation).
-                if (tabBar.isTabEnabled(SynopticGWT.modelTabIndex)) {
-                    modelTab.updateGraphPanel();
+                if (ModelResizeHandler.this.tabBar.getSelectedTab() == SynopticGWT.modelTabIndex) {
+                    ModelResizeHandler.this.modelTab.updateGraphPanel();
                 }
             }
         };
     }
 
     /**
-     * On the resize event, fires the event after a given number of milliseconds
-     * has passed.
+     * On resize, schedule a timer to resize graphic in a few ms.
      */
     @Override
     public void onResize(ResizeEvent event) {
-        resizeTimer.schedule(this.msTimerGranularity);
+        resizeTimer.schedule(this.resizingDelay);
     }
 }

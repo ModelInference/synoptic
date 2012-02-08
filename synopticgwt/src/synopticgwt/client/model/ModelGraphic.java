@@ -10,6 +10,21 @@ public class ModelGraphic {
     // JSNI methods -- JavaScript Native Interface methods. The method body of
     // these calls is pure JavaScript.
 
+    public static native void useProbEdgeLabels() /*-{
+        // TODO
+    }-*/;
+
+    public static native void useCountEdgeLabels() /*-{
+        // TODO: work in progress.
+        edges = $wnd.GRAPH_HANDLER.getCurrentEdges();
+        for ( var i = 0; i < edges.length; i += 1) {
+            edges[i].style.label = edges[i].style.labelCount;
+            $wnd.jQuery.extend(edges[i].edge.style, edges[i].style);
+        }
+        $wnd.GRAPH_HANDLER.getLayouter().layout()
+        $wnd.GRAPH_HANDLER.getRenderer().draw();
+    }-*/;
+
     /**
      * A JSNI method to create and display a graph.
      * 
@@ -30,10 +45,8 @@ public class ModelGraphic {
             JavaScriptObject nodes, JavaScriptObject edges, int width,
             int height, String canvasId, String initial, String terminal) /*-{
 
-        // Export the handleLogRequest globally.
-        $wnd.viewLogLines = function(id) {
-            modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
-        };
+        // Define all global functions.
+        @synopticgwt.client.model.ModelGraphic::defineGlobalFunctions(Lsynopticgwt/client/model/ModelTab;)(modelTab);
 
         // Create the graph.
         var g = new $wnd.Graph();
@@ -48,13 +61,20 @@ public class ModelGraphic {
         }
 
         // Add each edge to graph.
-        for ( var i = 0; i < edges.length; i += 3) {
+        $wnd.GRAPH_HANDLER.currentEdges = [];
+        for ( var i = 0; i < edges.length; i += 4) {
             // edges[i]: source, edges[i+1]: target, edges[i+2]: weight for the label.
-            g.addEdge(edges[i], edges[i + 1], {
+            style = {
                 label : edges[i + 2],
+                labelProb : edges[i + 2],
+                labelCount : edges[i + 3],
+            };
+            edge = g.addEdge(edges[i], edges[i + 1], style);
+            $wnd.GRAPH_HANDLER.currentEdges.push({
+                "edge" : edge,
+                "style" : style
             });
         }
-
         // Give stable layout to graph elements.
         var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
 
@@ -65,6 +85,32 @@ public class ModelGraphic {
         // Store graph state.
         $wnd.GRAPH_HANDLER.initializeStableIDs(nodes, edges, renderer,
                 layouter, g);
+    }-*/;
+
+    private static native void defineGlobalFunctions(ModelTab modelTab) /*-{
+        // Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
+        $wnd.Math.seedrandom($wnd.randSeed);
+
+        // Export the handleLogRequest globally.
+        $wnd.viewLogLines = function(id) {
+            @synopticgwt.client.model.ModelGraphic::clearEdgeState()();
+            modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
+        };
+
+        // Determines if the infoPanel's paths table is visible.
+        $wnd.infoPanelPathsVisible = function() {
+            return modelTab.@synopticgwt.client.model.ModelTab::pathsTableIsVisible()();
+        }
+
+        // Export global add/remove methods for selected nodes (moving 
+        // nodes to model tab).
+        $wnd.addSelectedNode = function(id) {
+            modelTab.@synopticgwt.client.model.ModelTab::addSelectedNode(I)(id);
+        };
+
+        $wnd.removeSelectedNode = function(id) {
+            modelTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(id);
+        };
     }-*/;
 
     /**
@@ -83,9 +129,12 @@ public class ModelGraphic {
     public static native void createChangingGraph(JavaScriptObject nodes,
             JavaScriptObject edges, int refinedNode, String canvasId) /*-{
 
+        // Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
+        $wnd.Math.seedrandom($wnd.randSeed);
+
         // Clear the selected nodes from the graph's state.
         $wnd.clearSelectedNodes();
-        
+
         // update graph and fetch array of new nodes
         var newNodes = $wnd.GRAPH_HANDLER.updateRefinedGraph(nodes, edges,
                 refinedNode);
@@ -115,6 +164,8 @@ public class ModelGraphic {
      *            The new height of the graph's canvas.
      */
     public static native void resizeGraph(int width, int height) /*-{
+        // Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
+        $wnd.Math.seedrandom($wnd.randSeed);
 
         // Get the current layout so it can be updated.
         var layouter = $wnd.GRAPH_HANDLER.getLayouter();
@@ -135,6 +186,73 @@ public class ModelGraphic {
 
         // Draw the new graph with all of the repositioned nodes.
         rend.draw();
+    }-*/;
+
+    // For all selected nodes in model, change their border to given color.
+    public static native void updateNodesBorder(String color) /*-{
+        $wnd.setShiftClickNodesState(color);
+    }-*/;
+
+    /**
+     * Clears the state of the edges in the graph, but does not redraw the
+     * graph. this has to be done after this method is called (and any
+     * subsequent alterations to the graph that may have occurred thenceforth).
+     * <p>
+     * IMPORTANT NOTE: When changing the state of the edges in the Dracula Model
+     * make sure to change the attributes using the "attr" command to change the
+     * "connection.fg" field within each specific edge. This is because, when
+     * changing the style attributes of the edge -- for example, edge.style.fill
+     * = "#fff" -- when Dracula redraws the edge, more often than not, it
+     * creates a new field (edge.connection.bg) to fill the color behind the
+     * edge in question. This is important to note because all style changes
+     * done outside of this method currently adhere to altering only the
+     * edge.connection.fg field. So, if any changes are made to the edges where
+     * the edge.connection.bg field is introduced, this WILL NOT clear those
+     * changes from the edge's state, and may have to be appended to this code.
+     * </p>
+     */
+    public static native void clearEdgeState() /*-{
+        var g = $wnd.GRAPH_HANDLER.getGraph();
+
+        var edges = g.edges;
+        for (i = 0; i < edges.length; i++) {
+            // Set the edge color back to black,
+            // and set the width back to normal.
+            $wnd.console.log(edges[i]);
+            edges[i].connection.fg.attr({
+                stroke : "#000",
+                "stroke-width" : 1
+            });
+        }
+    }-*/;
+
+    /**
+     * Highlights a path through the model based on array of edges passed.
+     * Changes the edges' styles as to be reversible by the
+     * {@code clearEdgeState} static method
+     */
+    public static native void highlightEdges(JavaScriptObject edges) /*-{
+        var g = $wnd.GRAPH_HANDLER.getGraph();
+
+        @synopticgwt.client.model.ModelGraphic::clearEdgeState()();
+        var modelEdges = g.edges;
+        for ( var i = 0; i < modelEdges.length; i++) {
+            for ( var j = 0; j < edges.length; j += 4) {
+                // If this edges matches one of the ones that needs to be highlighted,
+                // then replace it with the new edge.
+                if (modelEdges[i].source.id == edges[j]
+                        && modelEdges[i].target.id == edges[j + 1]) {
+                    // Highlight the edge with the
+                    // highlighting color and set the stroke-width to
+                    // the selection stroke-width
+                    modelEdges[i].connection.fg.attr({
+                        stroke : $wnd.HIGHLIGHT_COLOR,
+                        "stroke-width" : $wnd.SELECT_STROKE_WIDTH
+                    });
+                    break;
+                }
+            }
+        }
     }-*/;
 
     // </JSNI methods>

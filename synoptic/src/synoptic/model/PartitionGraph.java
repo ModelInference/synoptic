@@ -21,6 +21,7 @@ import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.TraceParser;
 import synoptic.model.interfaces.IGraph;
+import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
@@ -69,6 +70,17 @@ public class PartitionGraph implements IGraph<Partition> {
     private final LinkedList<PartitionMultiSplit> appliedSplits = new LinkedList<PartitionMultiSplit>();
 
     /**
+     * Set of all EventTypes, initialized only after getNIFbyInvariants() is
+     * called.
+     */
+    private Set<EventType> allEvents;
+
+    /**
+     * Initial trace graph.
+     */
+    private ChainsTraceGraph traceGraph;
+
+    /**
      * Construct a PartitionGraph. Invariants from {@code g} will be extracted
      * and stored. If partitionByLabel is true, all messages with identical
      * labels in {@code g} will become one partition. Otherwise, every message
@@ -92,6 +104,7 @@ public class PartitionGraph implements IGraph<Partition> {
             partitionSeparately(g.getNodes());
         }
         this.invariants = invariants;
+        this.traceGraph = g;
     }
 
     public PartitionGraph(ChainsTraceGraph g,
@@ -104,6 +117,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
         partitionByIndexSetsAndLabels(g.getNodes(), partitioningIndexSets);
         this.invariants = invariants;
+        this.traceGraph = g;
     }
 
     private void addInitialMessages(EventNode initialMessage, String relation) {
@@ -532,14 +546,6 @@ public class PartitionGraph implements IGraph<Partition> {
         // Will contain all of the initial traces
         Set<List<Partition>> initialTraces = new HashSet<List<Partition>>();
 
-        // This will contain the list of all EventNodes in the PartitionGraph
-        // List<EventNode> allEvents = new ArrayList<EventNode>();
-
-        // Adding EventNodes
-        // for (Partition pNode : partitions) {
-        // allEvents.addAll(pNode.getEventNodes());
-        // }
-
         // Find initial events and add the results from each iteration to
         // initialTraces
         for (Partition pNode : getDummyInitialNodes()) {
@@ -562,8 +568,6 @@ public class PartitionGraph implements IGraph<Partition> {
      *            The event to start from
      * @param currentTrace
      *            The trace to add to
-     * @param allEvents
-     *            The pool of events from which to find the next EventNode
      * @return Returns a set containing the traces starting from
      *         currentPartition and currentEvent
      */
@@ -574,15 +578,9 @@ public class PartitionGraph implements IGraph<Partition> {
         Set<List<Partition>> traces = new HashSet<List<Partition>>();
         currentTrace.add(currentPartition);
 
-        // allEvents.remove(currentEvent);
-
         if (currentEvent.isTerminal()) {
             traces.add(currentTrace);
         } else {
-
-            // Set<EventNode> nextEvents =
-            // EventNode.getDirectSuccessors(currentEvent, allEvents,
-            // !partiallyOrderedTraces);
 
             // Gets the next event with relation to time.
             Set<EventNode> nextEvents = currentEvent.getSuccessors("t");
@@ -600,60 +598,186 @@ public class PartitionGraph implements IGraph<Partition> {
         }
         return traces;
     }
-    
-    /* 
+
+    /*
      * Traverses the model. If the current partition has not yet been examined,
-     * updates canFollow, a mapping from EventType to the events that can immediately
-     * follow, and recurses. 
+     * updates canFollow, a mapping from EventType to the events that can
+     * immediately follow, and recurses.
      */
-    private void traverseAndMineCIFbys(Partition current, Set<Partition> seen, Map<EventType,
-    		Set<EventType>> canFollow) {
-    	if (!seen.contains(current)) {
-    		seen.add(current);
-    		EventType type = current.getEType();
-    		canFollow.put(type, new HashSet<EventType>());
-    		for (Transition<Partition> transition : current.getTransitions()) {
-    			canFollow.get(type).add(transition.getTarget().getEType());
-    			traverseAndMineCIFbys(transition.getTarget(), seen, canFollow);
-    		}
-    	}
+    private void traverseAndMineCIFbys(Partition current, Set<Partition> seen,
+            Map<EventType, Set<EventType>> canFollow) {
+        if (!seen.contains(current)) {
+            seen.add(current);
+            EventType type = current.getEType();
+            canFollow.put(type, new HashSet<EventType>());
+            for (Transition<Partition> transition : current.getTransitions()) {
+                canFollow.get(type).add(transition.getTarget().getEType());
+                traverseAndMineCIFbys(transition.getTarget(), seen, canFollow);
+            }
+        }
     }
-    
+
     /**
-     * Walks this PartitionGraph and returns a set of all of the NIFby invariants.
+     * Walks this PartitionGraph and returns a set of all of the NIFby
+     * invariants.
      */
     public TemporalInvariantSet getNIFbyInvariants() {
 
-    	// Tracks which partitions have been visited.
-    	Set<Partition> seen = new HashSet<Partition>();
-    	
-    	// Maps each EventType to the set of EventTypes that immediately follow it.
-    	Map<EventType, Set<EventType>> canFollow = new HashMap<EventType, Set<EventType>>();
-    	
-    	// Traverse the graph starting from each initial node (only one in totally-ordered case).
-    	for (Partition partition : getDummyInitialNodes()) {
-    		traverseAndMineCIFbys(partition, seen, canFollow);
-    	}
+        // Tracks which partitions have been visited.
+        Set<Partition> seen = new HashSet<Partition>();
 
-    	// Create invariants
-    	TemporalInvariantSet neverIFbyInvariants = 
-    			new TemporalInvariantSet();
-    	
-    	// canFollow.keySet() will contain all events types because each node in the partition
-    	// graph is visited and added to canFollow during traverseAndMineCIFbys().
-    	Set<EventType> allEvents = canFollow.keySet();
-    	
-    	for (Entry<EventType, Set<EventType>> entry : canFollow.entrySet()) {
-    		EventType source = entry.getKey();
-    		Set<EventType> followedBy = entry.getValue();
-    		for (EventType target : allEvents) {
-    			if (!followedBy.contains(target)) {
-    				neverIFbyInvariants.add(
-    						new NeverImmediatelyFollowedInvariant(
-    								source, target, TraceParser.defaultRelation));
-    			}
-    		}
-    	}
-    	return neverIFbyInvariants;
+        // Maps each EventType to the set of EventTypes that immediately follow
+        // it.
+        Map<EventType, Set<EventType>> canFollow = new HashMap<EventType, Set<EventType>>();
+
+        // Traverse the graph starting from each initial node (only one in
+        // totally-ordered case).
+        for (Partition partition : getDummyInitialNodes()) {
+            traverseAndMineCIFbys(partition, seen, canFollow);
+        }
+
+        // Create invariants
+        TemporalInvariantSet neverIFbyInvariants = new TemporalInvariantSet();
+
+        // canFollow.keySet() will contain all events types because each node in
+        // the partition graph is visited and added to canFollow during
+        // traverseAndMineCIFbys().
+        allEvents = canFollow.keySet();
+
+        for (Entry<EventType, Set<EventType>> entry : canFollow.entrySet()) {
+            EventType source = entry.getKey();
+            Set<EventType> followedBy = entry.getValue();
+            for (EventType target : allEvents) {
+                if (!followedBy.contains(target)) {
+                    neverIFbyInvariants
+                            .add(new NeverImmediatelyFollowedInvariant(source,
+                                    target, TraceParser.defaultRelation));
+                }
+            }
+        }
+        return neverIFbyInvariants;
+    }
+
+    /**
+     * Returns paths through a set of partition nodes in the form of a map. The
+     * returned map maps a traceID to a path that passes through the partitions.
+     * 
+     * @param parts
+     * @return A mapping of trace IDs to a set of transitions that make up a
+     *         path
+     */
+    public Map<Integer, Set<ITransition<Partition>>> getPathsThroughPartitions(
+            Set<INode<Partition>> parts) {
+
+        final Map<Integer, Set<ITransition<Partition>>> paths = new HashMap<Integer, Set<ITransition<Partition>>>();
+
+        if (parts == null || parts.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Expected a non-null and non-empty set of partition nodes.");
+        }
+
+        // The list of trace IDs that go through the selected partitions.
+        List<Set<Integer>> traceIDs = new ArrayList<Set<Integer>>();
+
+        // Loop over all the partitions, and collect the trace IDs of the events
+        // in the partitions into a list.
+        for (INode<Partition> p : parts) {
+            // Temporary trace IDs to be added to the overall list.
+            Set<Integer> tempIDs = new HashSet<Integer>();
+            for (EventNode e : ((Partition) p).getEventNodes()) {
+                tempIDs.add(e.getTraceID());
+            }
+
+            if (!tempIDs.isEmpty()) {
+                traceIDs.add(tempIDs);
+            }
+        }
+
+        if (traceIDs.isEmpty()) {
+            return paths;
+        }
+
+        // Filter through all of the IDs and keep only
+        // the ones that intersect with the selected nodes.
+        Set<Integer> intersectionOfIDs = traceIDs.get(0);
+        for (int i = 1; i < traceIDs.size(); i++) {
+            intersectionOfIDs.retainAll(traceIDs.get(i));
+        }
+
+        // If there are no traces through the selected partitions.
+        if (intersectionOfIDs.isEmpty()) {
+            return paths;
+        }
+
+        // For the trace IDs that are shared by all the partitions, create a map
+        // from trace ID to the path.
+        for (Partition p : this.getDummyInitialNodes()) {
+            for (EventNode event : p.getEventNodes()) {
+                for (Transition<EventNode> trans : event.getTransitions()) {
+                    int traceID = trans.getTarget().getTraceID();
+
+                    if (intersectionOfIDs.contains(traceID)) {
+                        Set<ITransition<Partition>> currentPath = new HashSet<ITransition<Partition>>();
+                        ITransition<Partition> nextTrans = p.getTransition(
+                                trans.getTarget().getParent(),
+                                trans.getRelation());
+
+                        // Traverse the remaining transitions and add the
+                        // found path to the map.
+                        currentPath.add(nextTrans);
+                        getPathsThroughNodesTraversal(trans.getTarget(),
+                                currentPath);
+                        paths.put(traceID, currentPath);
+                    }
+                }
+            }
+        }
+
+        return paths;
+    }
+
+    /**
+     * Helper method for getPathsThroughSelectedNodeIDs. Modifies the path
+     * variable by traversing through the graph.
+     */
+    private void getPathsThroughNodesTraversal(EventNode event,
+            Set<ITransition<Partition>> path) {
+        for (Transition<EventNode> trans : event.getTransitions()) {
+            path.add(event.getParent().getTransition(
+                    trans.getTarget().getParent(), trans.getRelation()));
+            getPathsThroughNodesTraversal(trans.getTarget(), path);
+        }
+    }
+
+    /**
+     * Returns a reference to a partition node based on the ID of the node
+     * passed. If the node is not found within the graph, null is returned.
+     */
+    public Partition getNodeByID(int id) {
+        for (Partition p : this.getNodes()) {
+            if (p.hashCode() == id)
+                return p;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns a set of all EventTypes in this PartitionGraph.
+     */
+    public Set<EventType> getEventTypes() {
+        if (allEvents == null) {
+            getNIFbyInvariants();
+        }
+        return allEvents;
+    }
+
+    /**
+     * Returns the initial trace graph.
+     * 
+     * @return
+     */
+    public ChainsTraceGraph getTraceGraph() {
+        return traceGraph;
     }
 }

@@ -673,9 +673,30 @@ public class TraceParser {
             }
         }
 
-        logger.info("Successfully parsed " + results.size() + " events from "
-                + tName);
+        logger.info("Successfully parsed " + partitions.size()
+                + " traces, containing a total of " + results.size()
+                + " events from [" + tName + "]");
         return results;
+    }
+
+    /**
+     * Builds a generic string to describe a location of an error on a line in
+     * some input file.
+     */
+    private String buildLineErrorLocString(String line, String fileName,
+            int lineNum) {
+        // Basic error location string is simply the line number.
+        String ret = "Line #" + Integer.toString(lineNum);
+        if (!fileName.equals("")) {
+            // Include filename if it is not blank.
+            ret += " from file [" + fileName + "]";
+        }
+
+        if (Main.options.logLvlVerbose || Main.options.logLvlExtraVerbose) {
+            // Include the actual line if verbose output is desired.
+            return ret + " line [" + line + "]";
+        }
+        return ret;
     }
 
     /**
@@ -788,8 +809,10 @@ public class TraceParser {
                 // Explicit case.
                 String timeField = matched.get(selectedTimeGroup);
                 if (timeField == null) {
-                    String error = "Unable to parse time type "
-                            + selectedTimeGroup + " from line " + line;
+                    String error = buildLineErrorLocString(line, fileName,
+                            lineNum)
+                            + " Unable to parse time type "
+                            + selectedTimeGroup;
                     logger.severe(error);
                     ParseException parseException = new ParseException(error);
                     parseException.setLogLine(line);
@@ -811,17 +834,20 @@ public class TraceParser {
                     } else if (selectedTimeGroup.equals("VTIME")) {
                         nextTime = new VectorTime(timeField.trim());
                     } else {
-                        String error = "Unable to recognize time type "
+                        String error = buildLineErrorLocString(line, fileName,
+                                lineNum)
+                                + " Unable to recognize time type "
                                 + selectedTimeGroup;
                         logger.severe(error);
                         throw new ParseException(error);
                     }
                 } catch (Exception e) {
-                    String errMsg = "Unable to parse time field on log line:\n"
-                            + line;
+                    String errMsg = buildLineErrorLocString(line, fileName,
+                            lineNum)
+                            + " Unable to parse time field on log line.";
                     if (Main.options.ignoreNonMatchingLines) {
                         logger.warning(errMsg
-                                + "\nIgnoring line and continuing.");
+                                + " Ignoring line and continuing.");
                         continue;
                     }
                     String error = errMsg
@@ -884,8 +910,8 @@ public class TraceParser {
         }
 
         if (Main.options.recoverFromParseErrors) {
-            logger.warning("Failed to parse trace line: \n" + line + "\n"
-                    + "Using entire line as type.");
+            logger.warning(buildLineErrorLocString(line, fileName, lineNum)
+                    + " Failed to parse trace line. Using entire line as type.");
             event = new Event(new StringEventType(line), line, fileName,
                     lineNum);
             if (selectedTimeGroup.equals(implicitTimeGroup)) {
@@ -894,7 +920,8 @@ public class TraceParser {
             } else {
                 // We can't recover with vector time -- incrementing it simply
                 // doesn't make sense.
-                String error = "Unable to recover from parse error with vector-time type.";
+                String error = buildLineErrorLocString(line, fileName, lineNum)
+                        + " Unable to recover from parse error with vector-time type.";
                 logger.severe(error);
                 throw new ParseException(error);
             }
@@ -904,20 +931,13 @@ public class TraceParser {
             return eventNode;
 
         } else if (Main.options.ignoreNonMatchingLines) {
-            logger.fine("Failed to parse trace line: \n" + line + "\n"
-                    + "Ignoring line and continuing.");
+            logger.fine(buildLineErrorLocString(line, fileName, lineNum)
+                    + " Failed to parse trace line. Ignoring line and continuing.");
             return null;
         }
 
-        String exceptionError;
-        if (fileName.equals("")) {
-            exceptionError = "Input line does not match any of the provided regular expressions:\n";
-        } else {
-            exceptionError = "Line from file ["
-                    + fileName
-                    + "] does not match any of the provided regular expressions:\n";
-        }
-        exceptionError += line;
+        String exceptionError = buildLineErrorLocString(line, fileName, lineNum)
+                + " does not match any of the provided regular expressions.";
 
         String loggerError = exceptionError + "\nTry cmd line options:\n\t"
                 + SynopticOptions.getOptDesc("ignoreNonMatchingLines") + "\n\t"

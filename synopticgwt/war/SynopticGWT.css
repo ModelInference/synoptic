@@ -162,8 +162,24 @@ body {
     border: 2px solid #C3D9FF;
 }
 
-#log-line-label {
-    border: 2px solid #C3D9FF;
+/* The following "log-info" styles
+ * Are for the different labels
+ * pertaining to the log info panel
+ * shown in the ModelTab.
+ */
+.log-info-displaying-log-lines {
+	border: 4px solid red;
+}
+
+.log-info-displaying-paths {
+	border: 4px solid blue;
+}
+
+.log-info-default {
+	border: 4px solid black;
+}
+
+#log-info-label {
     font-weight: bold;
     font-size: 1.25em;
     text-align: center;

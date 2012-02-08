@@ -30,6 +30,15 @@ public abstract class GraphExportFormatter {
     static final String defaultRelationColor = "black";
 
     /**
+     * Rounds off edge probability to two decimal places. Used by all edge
+     * formatters. NOTE: if this method is modified, make sure to update the
+     * synopticgwt.client.model.ModelTab.probToString() method.
+     */
+    public static String probToString(double prob) {
+        return String.format("%.2f", Math.round(prob * 100.0) / 100.0);
+    }
+
+    /**
      * Whether or not we've printed a message stating that we've run out of
      * colors.
      */
@@ -63,6 +72,8 @@ public abstract class GraphExportFormatter {
                         + ") for the remaining relations.");
             }
             reportedColorsDeficiency = true;
+        }
+        if (possibleColors.size() == 0) {
             return defaultRelationColor;
         }
         String color = possibleColors.remove(0);
