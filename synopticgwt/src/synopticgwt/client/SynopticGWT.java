@@ -23,6 +23,7 @@ import synopticgwt.client.invariants.InvariantsTab;
 import synopticgwt.client.model.ModelTab;
 import synopticgwt.client.util.AnalyticsTracker;
 import synopticgwt.client.util.ErrorReportingAsyncCallback;
+import synopticgwt.client.util.InvariantsResizeHandler;
 import synopticgwt.client.util.ModelResizeHandler;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.shared.GWTGraph;
@@ -188,6 +189,9 @@ public class SynopticGWT implements EntryPoint {
         Window.addResizeHandler(new ModelResizeHandler(tabPanel.getTabBar(),
                 modelTab, 200));
 
+        Window.addResizeHandler(new InvariantsResizeHandler(tabPanel
+                .getTabBar(), invTab, 50));
+
         // Check whether or not to show the welcome screen.
         if (WelcomePopUp.showWelcome()) {
             WelcomePopUp welcome = new WelcomePopUp();
@@ -241,44 +245,56 @@ public class SynopticGWT implements EntryPoint {
         Tab<?> t = tabIndexToTab.get(tabIndex);
         AnalyticsTracker.trackEvent(t.trackerCategoryName, "selected",
                 "navigation");
+
     }
 
     /**
-     * Fired by SynopticTabPanel whenever a tab is selected.
+     * Fired by SynopticTabPanel whenever a tab is selected. This code executes
+     * before the tab's associated panel is rendered. TODO: Migrate to a
+     * SelectionHandler and use addSelectionHandler since this is deprecated
      */
     public void tabSelected(SelectionEvent<Integer> event) {
         int tabIndex = event.getSelectedItem();
 
-        // Ignore non-model-tab tab selections.
-        if (tabIndex != modelTabIndex) {
-            return;
+        if (tabIndex == invariantsTabIndex) {
+            // Update the invariant graphic with the current window dimensions.
+            invTab.resize();
+        } else if (tabIndex == modelTabIndex) {
+            if (invSetChanged) {
+                // If we are clicking on the model tab, and the invariant set
+                // has changed, then we (1) ask the server to re-do
+                // refinement/coarsening with the new set of invariants, and (2)
+                // re-draw everything in the model tab.
+
+                // ////////////////////// Call to remote service.
+                try {
+                    synopticService.commitInvariants(invTab.activeInvsHashes,
+                            new ErrorReportingAsyncCallback<GWTGraph>(
+                                    "commitInvariants call") {
+                                @Override
+                                public void onSuccess(GWTGraph gwtGraph) {
+                                    super.onSuccess(gwtGraph);
+                                    /*
+                                     * CommitInvsSuccesses calls
+                                     * tabPanel.selectTab(modelTabIndex) and
+                                     * prevents an infinite recursion of
+                                     * tabSelected events by setting
+                                     * invSetChanged to false
+                                     */
+                                    commitInvsSuccess(gwtGraph);
+                                }
+                            });
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                // //////////////////////
+            } else {
+                // Update the graphic with the current window dimensions.
+                modelTab.updateGraphPanel();
+            }
         }
 
-        if (!invSetChanged) {
-            return;
-        }
-
-        // If we are clicking on the model tab, and the invariant set has
-        // changed, then we (1) ask the server to re-do refinement/coarsening
-        // with the new set of invariants, and (2) re-draw everything in the
-        // model tab.
-
-        // ////////////////////// Call to remote service.
-        try {
-            synopticService.commitInvariants(invTab.activeInvsHashes,
-                    new ErrorReportingAsyncCallback<GWTGraph>(
-                            "commitInvariants call") {
-                        @Override
-                        public void onSuccess(GWTGraph gwtGraph) {
-                            super.onSuccess(gwtGraph);
-                            commitInvsSuccess(gwtGraph);
-                        }
-                    });
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        // //////////////////////
     }
 
     /**
@@ -296,7 +312,8 @@ public class SynopticGWT implements EntryPoint {
     public void logParsed(GWTInvariantSet logInvs, GWTGraph initialModel) {
         // Enable the invariants tab, and show the invariants.
         tabPanel.getTabBar().setTabEnabled(invariantsTabIndex, true);
-        invTab.showInvariants(logInvs);
+        invTab.setInvariants(logInvs);
+        invTab.showInvariants();
 
         // TODO: Communicate whether we are processing a TO or a PO log
         // explicitly, instead of through (initialModel =?= null).

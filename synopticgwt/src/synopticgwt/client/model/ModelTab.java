@@ -7,22 +7,21 @@ import java.util.Set;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.Tab;
 import synopticgwt.client.util.ErrorReportingAsyncCallback;
-import synopticgwt.client.util.JsniUtil;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.client.util.TooltipListener;
-import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTNode;
@@ -45,19 +44,35 @@ public class ModelTab extends Tab<DockPanel> {
     /* Label of terminal node, for layout purposes */
     private static final String TERMINAL_LABEL = "TERMINAL";
 
+    // Border color for shift+click nodes after "View paths" clicked.
+    // NOTE: Must also change same constant in graphhandler.js if modified.
+    private static final String SHIFT_CLICK_BORDER_COLOR = "blue";
+
+    // CSS Attributes of the log info label
+    public static final String LOG_INFO_PATHS_CLASS = "log-info-displaying-paths";
+    public static final String LOG_INFO_LINES_CLASS = "log-info-displaying-log-lines";
+    public static final String LOG_INFO_LABEL_ID = "log-info-label";
+
     // Panels containing all relevant buttons.
-    private final HorizontalPanel buttonsPanel = new HorizontalPanel();
+    private final HorizontalPanel manualControlButtonsPanel = new HorizontalPanel();
     private final VerticalPanel controlsPanel = new VerticalPanel();
-    
+
+    protected final LogInfoPanel logInfoPanel;
+
+    // The set of node IDs that have been selected by the user in the model.
+    private final Set<Integer> selectedNodes = new HashSet<Integer>();
+
+    public static final String TOOLTIP_URL = "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial#Invariants_Tab";
+
     // Model tab widgets:
     private final Button modelRefineButton = new Button("Refine");
     private final Button modelCoarsenButton = new Button("Coarsen");
     private final Button modelGetFinalButton = new Button("Final Model");
     private final Button modelExportDotButton = new Button("Export DOT");
     private final Button modelExportPngButton = new Button("Export PNG");
+    private final Button modelViewPathsButton = new Button("View Paths");
+
     private FlowPanel graphPanel;
-    private LogLinesTable logLinesTable;
-    private Label logLineLabel;
 
     // String representing the canvas div.
     private static final String canvasId = "canvasId";
@@ -66,78 +81,174 @@ public class ModelTab extends Tab<DockPanel> {
         super(synopticService, pWheel, "model-tab");
         panel = new DockPanel();
 
-        buttonsPanel.add(modelRefineButton);
-        buttonsPanel.add(modelCoarsenButton);
-        buttonsPanel.add(modelGetFinalButton);
-        buttonsPanel.setStyleName("buttonPanel");
+        // Set up the buttons for controlling Synoptic manually.
+        manualControlButtonsPanel.add(modelRefineButton);
+        manualControlButtonsPanel.add(modelCoarsenButton);
+        manualControlButtonsPanel.add(modelGetFinalButton);
+        manualControlButtonsPanel.setStyleName("buttonPanel");
 
         modelRefineButton.setWidth("100px");
         modelCoarsenButton.setWidth("100px");
         modelGetFinalButton.setWidth("100px");
-        controlsPanel.add(buttonsPanel);
+        controlsPanel.add(manualControlButtonsPanel);
 
-        HorizontalPanel buttonsPanelTwo = new HorizontalPanel();
-        buttonsPanelTwo.add(modelExportDotButton);
-        buttonsPanelTwo.add(modelExportPngButton);
+        // Set up buttons for exporting models.
+        HorizontalPanel exportButtonsPanel = new HorizontalPanel();
+        exportButtonsPanel.add(modelExportDotButton);
+        exportButtonsPanel.add(modelExportPngButton);
+
         modelExportDotButton.setWidth("100px");
         modelExportPngButton.setWidth("100px");
-        buttonsPanelTwo.setStyleName("buttonPanel");
-        controlsPanel.add(buttonsPanelTwo);
+        exportButtonsPanel.setStyleName("buttonPanel");
+        controlsPanel.add(exportButtonsPanel);
 
-        VerticalPanel logPanel = new VerticalPanel();
-        logPanel.setWidth("300px");
+        // Set up the buttons for retrieving paths through selected nodes.
+        HorizontalPanel viewPathsButtonPanel = new HorizontalPanel();
+        viewPathsButtonPanel.add(modelViewPathsButton);
 
-        // Header
-        logLineLabel = new Label("Log Lines");
-        DOM.setElementAttribute(logLineLabel.getElement(), "id",
-                "log-line-label");
+        modelViewPathsButton.setWidth("200px");
+        viewPathsButtonPanel.setStyleName("buttonPanel");
+        controlsPanel.add(viewPathsButtonPanel);
 
-        // Add tool-tip to LogLineLabel
-        TooltipListener tooltip = new TooltipListener(
-                "Click on a node to view log lines.  Shift+Click to select multiple nodes.", 5000, "tooltip");
-        logLineLabel.addMouseOverHandler(tooltip);
-        logLineLabel.addMouseOutHandler(tooltip);
-        logPanel.add(logLineLabel);
+        // Add a model options panel.
+        final RadioButton probEdgesRadioButton = new RadioButton(
+                "edgeLabelsRadioGroup", "Show probabilities on edges");
+        TooltipListener
+                .setTooltip(
+                        probEdgesRadioButton,
+                        "Annotate edges with probabilities, which indicate the fraction of traces that pass along an edge.",
+                        TOOLTIP_URL);
+        probEdgesRadioButton.addClickHandler(new EdgeViewChangeHandler(false));
+        probEdgesRadioButton.setValue(true);
 
-        // Create and add a table with log lines.
-        logLinesTable = new LogLinesTable();
-        logPanel.add(logLinesTable);
+        final RadioButton countEdgesRadioButton = new RadioButton(
+                "edgeLabelsRadioGroup", "Show counts on edges");
+        TooltipListener
+                .setTooltip(
+                        countEdgesRadioButton,
+                        "Annotate edges with trace counts, which indicate the number of traces that pass along an edge",
+                        TOOLTIP_URL);
+        countEdgesRadioButton.addClickHandler(new EdgeViewChangeHandler(true));
+        countEdgesRadioButton.setValue(false);
 
-        controlsPanel.add(logPanel);
+        DisclosurePanel modelOpts = new DisclosurePanel("Model options");
+        Grid modelOptsGrid = new Grid(2, 1);
+        modelOptsGrid.setCellSpacing(6);
+        modelOptsGrid.setWidget(0, 0, countEdgesRadioButton);
+        modelOptsGrid.setWidget(1, 0, probEdgesRadioButton);
+        modelOpts.setContent(modelOptsGrid);
+        modelOpts.setAnimationEnabled(true);
+        modelOpts.setStyleName("SpecialOptions");
+        controlsPanel.add(modelOpts);
+
+        // Add log info panel.
+        logInfoPanel = new LogInfoPanel("300px");
+        controlsPanel.add(logInfoPanel);
+
         panel.add(controlsPanel, DockPanel.WEST);
 
-        // Coarsening is disabled until refinement is completed.
-        modelCoarsenButton.setEnabled(false);
+        TooltipListener
+                .setTooltip(
+                        modelRefineButton,
+                        "Refine the model by splitting nodes to eliminate paths that violate invariants.",
+                        TOOLTIP_URL);
+
         modelRefineButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 refineButtonClick(event);
             }
         });
+
+        // Coarsening is disabled until refinement is completed.
+        modelCoarsenButton.setEnabled(false);
+        TooltipListener
+                .setTooltip(
+                        modelCoarsenButton,
+                        "Coarsen the model by merging nodes. Coarsening is disabled until refinement is completed.",
+                        TOOLTIP_URL);
         modelCoarsenButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 coarsenModelButtonClick(event);
             }
         });
+
+        TooltipListener
+                .setTooltip(
+                        modelGetFinalButton,
+                        "Perform all the necessary refinement/coarsening and retrieve the final model.",
+                        TOOLTIP_URL);
         modelGetFinalButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 getFinalModelButtonClick(event);
             }
         });
+
+        TooltipListener.setTooltip(modelExportDotButton,
+                "Export the model in Graphviz DOT format.", TOOLTIP_URL);
         modelExportDotButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 exportDotButtonClick(event);
             }
         });
+
+        TooltipListener.setTooltip(modelExportPngButton,
+                "Export the model as an PNG image file.", TOOLTIP_URL);
         modelExportPngButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 exportPngButtonClick(event);
             }
         });
+        modelViewPathsButton.addClickHandler(new ViewPathsClickHandler());
+        TooltipListener
+                .setTooltip(
+                        modelViewPathsButton,
+                        "Shift+Click to select multiple nodes and then use this button to view all paths through the selected nodes.",
+                        TOOLTIP_URL);
+
+        initializeTabState();
+    }
+
+    /**
+     * Changes model edges to displays counts or probabilities.
+     */
+    class EdgeViewChangeHandler implements ClickHandler {
+        boolean showCounts;
+
+        public EdgeViewChangeHandler(boolean showCounts) {
+            this.showCounts = showCounts;
+        }
+
+        @Override
+        public void onClick(ClickEvent event) {
+            if (this.showCounts) {
+                ModelGraphic.useProbEdgeLabels();
+            } else {
+                ModelGraphic.useCountEdgeLabels();
+            }
+        }
+    }
+
+    /**
+     * Initialize model state -- performed whenever a new model graph is
+     * displayed.
+     */
+    public void initializeTabState() {
+        // TODO: Is this a bug? Need to check if we can refine.
+        modelRefineButton.setEnabled(true);
+        // Coarsening is disabled until refinement is completed.
+        modelCoarsenButton.setEnabled(false);
+        // TODO: Is this a bug? Need to check if initial mode != final model.
+        modelGetFinalButton.setEnabled(true);
+
+        // Keep the view paths button disabled until nodes have been selected.
+        modelViewPathsButton.setEnabled(false);
+
+        logInfoPanel.clearAll();
     }
 
     /**
@@ -145,19 +256,16 @@ public class ModelTab extends Tab<DockPanel> {
      * model tab MUST be made visible for showGraph to work.
      */
     public void showGraph(GWTGraph graph) {
-        modelRefineButton.setEnabled(true);
-        modelCoarsenButton.setEnabled(false);
-        modelGetFinalButton.setEnabled(true);
+        initializeTabState();
 
         // Clear the second (non-button ) widget model
         // panel.
+        // TODO: We need a better way to assert that the panel we are removing
+        // is indeed the panel containing the model.
         if (panel.getWidgetCount() > 1) {
             panel.remove(panel.getWidget(1));
             assert (panel.getWidgetCount() == 1);
         }
-
-        // Clear the log line table.
-        logLinesTable.clear();
 
         graphPanel = new FlowPanel();
         graphPanel.getElement().setId(canvasId);
@@ -166,25 +274,10 @@ public class ModelTab extends Tab<DockPanel> {
         panel.add(graphPanel, DockPanel.CENTER);
         // Create the list of graph node labels and their Ids.
         HashSet<GWTNode> nodeSet = graph.getNodes();
-        JavaScriptObject jsNodes = JavaScriptObject.createArray();
-        for (GWTNode node : nodeSet) {
-            JsniUtil.pushArray(jsNodes,
-                    ((Integer) node.getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsNodes, node.toString());
-        }
+        JavaScriptObject jsNodes = GWTToJSUtils.createJSArrayFromGWTNodes(nodeSet);
 
         // Create the list of edges, where two consecutive node Ids is an edge.
-        JavaScriptObject jsEdges = JavaScriptObject.createArray();
-        for (GWTEdge edge : graph.getEdges()) {
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()
-                    .getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()
-                    .getPartitionNodeHashCode()).toString());
-
-            // This contains the edge's weight.
-            JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
-        }
-
+        JavaScriptObject jsEdges = GWTToJSUtils.createJSArrayFromGWTEdges(graph.getEdges());
         // Determine the size of the graphic.
         int width = getModelGraphicWidth();
         int height = getModelGraphicHeight();
@@ -203,24 +296,10 @@ public class ModelTab extends Tab<DockPanel> {
      *            the refined node's id
      */
     public void showChangingGraph(GWTGraph graph, GWTNode refinedNode) {
-        HashSet<GWTNode> nodeSet = graph.getNodes();
-        JavaScriptObject jsNodes = JavaScriptObject.createArray();
-        for (GWTNode node : nodeSet) {
-            JsniUtil.pushArray(jsNodes,
-                    ((Integer) node.getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsNodes, node.toString());
-        }
-
+        JavaScriptObject jsNodes = GWTToJSUtils.createJSArrayFromGWTNodes(graph.getNodes());
+        
         // Create the list of edges, where two consecutive node Ids is an edge.
-        JavaScriptObject jsEdges = JavaScriptObject.createArray();
-        List<GWTEdge> edgeList = graph.getEdges();
-        for (GWTEdge edge : edgeList) {
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getSrc()
-                    .getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsEdges, ((Integer) edge.getDst()
-                    .getPartitionNodeHashCode()).toString());
-            JsniUtil.pushArray(jsEdges, ((Double) edge.getWeight()).toString());
-        }
+        JavaScriptObject jsEdges = GWTToJSUtils.createJSArrayFromGWTEdges(graph.getEdges());
 
         ModelGraphic.createChangingGraph(jsNodes, jsEdges,
                 refinedNode.getPartitionNodeHashCode(), canvasId);
@@ -247,24 +326,33 @@ public class ModelTab extends Tab<DockPanel> {
                         // This is expected whenever the user double clicks on
                         // an initial or
                         // terminal node, so we'll ignore it
-                        logLinesTable.clear();
+                        logInfoPanel.clear();
                     }
 
                     @SuppressWarnings("synthetic-access")
                     @Override
                     public void onSuccess(List<LogLine> result) {
                         super.onSuccess(result);
-                        logLinesTable.showLines(result);
+                        logInfoPanel.showLogLines(result);
                     }
                 });
         // //////////////////////
+    }
+
+    /**
+     * Returns true if the paths table is currently visible in the lgo
+     * information panel. Currently, if this is false, this implies the log
+     * lines table is visible.
+     */
+    public boolean pathsTableIsVisible() {
+        return logInfoPanel.pathsTableVisible();
     }
 
     /** Returns the correct width for the model graphic in the model tab. */
     public int getModelGraphicWidth() {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
-        return Window.getClientWidth() - (logLineLabel.getOffsetWidth() + 100);
+        return Window.getClientWidth() - (logInfoPanel.getOffsetWidth() + 100);
     }
 
     /** Returns the correct height for the model graphic in the model tab. */
@@ -276,10 +364,15 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
-     * Updates the graph panel's canvas, and animates the model the fill the new
+     * Updates the graph panel's canvas, and animates the model to fill the new
      * canvas.
      */
     public void updateGraphPanel() {
+        if (graphPanel == null) {
+            // This occurs when the graphPanel is first shown -- the graphic is
+            // not yet displayed, so we skip the update in this case.
+            return;
+        }
         int width = getModelGraphicWidth();
         int height = getModelGraphicHeight();
 
@@ -326,6 +419,13 @@ public class ModelTab extends Tab<DockPanel> {
             modelCoarsenButton.setEnabled(true);
             return;
         }
+        
+        // Clear the highlighted nodes from the graph.
+        ModelGraphic.clearEdgeState();
+        
+        // Set the log lines display to default and clear
+        // any information.
+        logInfoPanel.clearAll();
 
         // Show an animation of refinement.
         showChangingGraph(graph.getGraph(), graph.getRefinedNode());
@@ -341,22 +441,26 @@ public class ModelTab extends Tab<DockPanel> {
         }
     }
 
-    /** Generates a call to Synoptic service to coarsen the model. */
+    /**
+     * Generates a call to Synoptic service to coarsen the model.
+     * 
+     * <pre>
+     * TODO: What we really need is a coarsenOneStep counter-part to refineOneStep.
+     * </pre>
+     */
     public void coarsenModelButtonClick(ClickEvent event) {
         // ////////////////////// Call to remote service.
         modelCoarsenButton.setEnabled(false);
         try {
             synopticService
-                    .coarsenOneStep(new ErrorReportingAsyncCallback<GWTGraph>(
+                    .coarsenCompletely(new ErrorReportingAsyncCallback<GWTGraph>(
                             pWheel, "coarsenOneStep call") {
                         @SuppressWarnings("synthetic-access")
                         @Override
                         public void onSuccess(GWTGraph graph) {
                             super.onSuccess(graph);
                             showGraph(graph);
-                            modelRefineButton.setEnabled(false);
-                            modelCoarsenButton.setEnabled(false);
-                            modelGetFinalButton.setEnabled(false);
+                            disableManualControlButtons();
                         }
                     });
         } catch (Exception ex) {
@@ -368,9 +472,7 @@ public class ModelTab extends Tab<DockPanel> {
 
     /** Generates a call to Synoptic service to retrieve the final model. */
     public void getFinalModelButtonClick(ClickEvent event) {
-        modelRefineButton.setEnabled(false);
-        modelCoarsenButton.setEnabled(false);
-        modelGetFinalButton.setEnabled(false);
+        disableManualControlButtons();
 
         // ////////////////////// Call to remote service.
         try {
@@ -381,7 +483,8 @@ public class ModelTab extends Tab<DockPanel> {
                         @Override
                         public void onSuccess(GWTGraph graph) {
                             super.onSuccess(graph);
-                            getFinalModelSuccess(graph);
+                            showGraph(graph);
+                            disableManualControlButtons();
                         }
                     });
         } catch (Exception ex) {
@@ -392,8 +495,7 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /** Called when the call to retrieve final model succeeded. */
-    public void getFinalModelSuccess(GWTGraph graph) {
-        showGraph(graph);
+    public void disableManualControlButtons() {
         modelRefineButton.setEnabled(false);
         modelCoarsenButton.setEnabled(false);
         modelGetFinalButton.setEnabled(false);
@@ -439,10 +541,67 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
+     * Adds a node as being "selected" to the model tab.
+     * 
+     * @param nodeID
+     *            The ID of the selected event node.
+     */
+    public void addSelectedNode(int nodeID) {
+        // Add the selected node to the list of all selecetd
+        // nodes.
+        selectedNodes.add(nodeID);
+        toggleViewPathsButton();
+    }
+
+    /**
+     * Removes a node as being "selected" from the model tab.
+     * 
+     * @param nodeID
+     *            The ID of the selected event node.
+     */
+    public void removeSelectedNode(int nodeID) {
+        // Add the selected node to the list of all selecetd
+        // nodes.
+        selectedNodes.remove(nodeID);
+        toggleViewPathsButton();
+    }
+
+    /**
+     * A simple method that checks to see if one or more nodes have been
+     * selected. If so, the button for viewing paths is activated. If not, this
+     * button is deactivated.
+     */
+    private void toggleViewPathsButton() {
+        if (selectedNodes.size() > 0)
+            modelViewPathsButton.setEnabled(true);
+        else
+            modelViewPathsButton.setEnabled(false);
+    }
+
+    /**
      * Manual control is translated to making refine/coarsen/final model buttons
      * visible.
      */
     public void setManualMode(boolean manualRefineCoarsen) {
-        buttonsPanel.setVisible(manualRefineCoarsen);
+        manualControlButtonsPanel.setVisible(manualRefineCoarsen);
+    }
+
+    /**
+     * Class for viewing paths through selected partitions.
+     */
+    class ViewPathsClickHandler implements ClickHandler {
+
+        @Override
+        public void onClick(ClickEvent event) {
+            try {
+                synopticService.getPathsThroughPartitionIDs(selectedNodes,
+                        new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
+                                ModelTab.this.logInfoPanel));
+
+                ModelGraphic.updateNodesBorder(SHIFT_CLICK_BORDER_COLOR);
+            } catch (Exception e) {
+                // TODO: Do something about the exception
+            }
+        }
     }
 }

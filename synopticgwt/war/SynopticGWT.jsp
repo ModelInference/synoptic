@@ -9,7 +9,17 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
-
+    <script type="text/javascript" src="/seedrandom.js"></script>
+    <script type="text/javascript">Math.seedrandom("42");</script>
+    <script type="text/javascript">
+    <%
+    // Used for setting up deterministic graph layouts.
+    String randSeed = "42";
+    // TODO: for some reason, this next line causes an exception, even though the line above works fine.
+    // Math.seedrandom(randSeed);
+    %>
+    </script>
+    
     <!--                                                               -->
     <!-- Consider inlining CSS to reduce the number of requested files -->
     <!--                                                               -->
@@ -30,8 +40,6 @@
     <script type="text/javascript" src="/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="/dracula_graph.js"></script>
     <script type="text/javascript" src="/dracula_algorithms.js"></script>
-    <script type="text/javascript" src="/seedrandom.js"></script>
-    <script type="text/javascript">Math.seedrandom("any string you like, different");</script>
  	<script type="text/javascript" src="/graphhandler.js"></script>
 
     <!-- Analytics -->

@@ -26,6 +26,8 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
     private GWTInvariant GWTinv;
     private InvariantGridLabel iGridLabel;
 
+    public int one = 1;
+
     private boolean visible;
 
     /**
@@ -40,11 +42,11 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
         this.src = src;
         this.dst = dst;
         /*
-         *  I use dst.getX() for srcX and src.getX() for dstX. This is a hack,
-         *  but it seems to work reasonably well.
+         * I use dst.getX() for srcX and src.getX() for dstX. This is a hack,
+         * but it seems to work reasonably well.
          */
-        int srcX = dst.getX() - labelOffset;
-        int dstX = src.getX() + labelOffset;
+        double srcX = src.getX();
+        double dstX = dst.getX();
         this.arrow = new Arrow(srcX, src.getY(), dstX, dst.getY(), paper);
         arrow.setMouseover(this);
         arrow.setMouseout(this);
@@ -131,4 +133,20 @@ public class TOInvariant implements Serializable, MouseHover, Invariant {
     public void mouseout() {
         highlightOffArrow();
     }
+
+    /**
+     * @return Absolute difference between event y center coordinates
+     */
+    public double getEventHeightDifference() {
+        return Math.abs(dst.getCenterY() - src.getCenterY());
+    }
+
+    public void scaleTo(double targetWidth, double targetHeight) {
+        arrow.scale(targetWidth, targetHeight);
+    }
+
+    public void translateTo(double targetX) {
+        arrow.translateTo(targetX, src.getCenterY(), dst.getCenterY());
+    }
+
 }

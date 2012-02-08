@@ -31,6 +31,9 @@
  *
  /*--------------------------------------------------------------------------*/
 
+/* Padding for self-loops to not display outside canvas bounds. */
+var SelfLoopPadding = 60;
+
 /*
  * Edge Factory
  */
@@ -91,6 +94,7 @@ Graph.prototype = {
         this.edges.push(edge);
         // NOTE: Even directed edges are added to both nodes.
         t.edges.push(edge);
+        return edge;
     },
 
     /* TODO to be implemented
@@ -207,9 +211,18 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
             // TODO round the coordinates here (eg. for proper image representation)
             var newX = e.clientX - selfRef.isDrag.dx + (bBox.x + bBox.width / 2);
             var newY = e.clientY - selfRef.isDrag.dy + (bBox.y + bBox.height / 2);
+            
+            /* making changes external changes to Dracula code to fix issue 
+             * regarding nodes draggable outside the canvas space */
+            /* NOTE: offX and offY values were previously hard-coded to 20
+            /* center of shape is considered in layout, so must account for one
+             * half of the shape to not be drawn outside canvas */
+            var offX = bBox.width / 2;
+            var offY = bBox.height / 2;
+            
             /* prevent shapes from being dragged out of the canvas */
-            var clientX = e.clientX - (newX < 20 ? newX - 20 : newX > selfRef.width - 20 ? newX - selfRef.width + 20 : 0);
-            var clientY = e.clientY - (newY < 20 ? newY - 20 : newY > selfRef.height - 20 ? newY - selfRef.height + 20 : 0);
+            var clientX = e.clientX - (newX < offX ? newX - offX : newX > selfRef.width - offX ? newX - selfRef.width + offX : 0);
+            var clientY = e.clientY - (newY < offY ? newY - offY : newY > selfRef.height - offY ? newY - selfRef.height + offY : 0);
             selfRef.isDrag.set.translate(clientX - Math.round(selfRef.isDrag.dx), clientY - Math.round(selfRef.isDrag.dy));
             //            console.log(clientX - Math.round(selfRef.isDrag.dx), clientY - Math.round(selfRef.isDrag.dy));
             for (var i in selfRef.graph.edges) {
@@ -259,7 +272,6 @@ Graph.Renderer.Raphael.prototype = {
 
         /* if node has already been drawn, move the nodes */
         if(node.shape) {
-
         	// to move edges along with nodes
         	var updateEdges = function (graph, count, animationDuration) {
         		for (var i in graph.edges) {
@@ -272,7 +284,19 @@ Graph.Renderer.Raphael.prototype = {
         	// new destination
         	var shape = node.render(this.r, node).hide();
         	var box = shape.getBBox();
-        	shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)));
+        	        	
+        	var xtrans = Math.round(point[0]-(box.x+box.width/2));
+        	var ytrans = Math.round(point[1]-(box.y+box.height/2));
+        	
+        	shape.translate(xtrans, ytrans);
+        	
+        	var xnew = box.x + xtrans;
+        	var ynew = box.y + ytrans;
+        	
+        	/* NOTE: Calling this function is not a part of the original library. */
+            translateInsideCanvas(shape, box, xnew, ynew, this.width, this.height);
+        	
+        	//shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)));
 
         	// animate all items in this node's set
         	for (var i = 0; i < node.shape.items.length; i++) {
@@ -325,9 +349,19 @@ Graph.Renderer.Raphael.prototype = {
         shape.mousedown(this.dragger);
 
         var box = shape.getBBox();
-        shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)))
+              
+        var xtrans = Math.round(point[0]-(box.x+box.width/2));
+        var ytrans = Math.round(point[1]-(box.y+box.height/2));
+        
+        shape.translate(xtrans, ytrans);
+        
+        var xnew = box.x + xtrans;
+        var ynew = box.y + ytrans;
+        
+        /* NOTE: Calling this function is not a part of the original library. */
+        translateInsideCanvas(shape, box, xnew, ynew, this.width, this.height);
+        
         //console.log(box,point);
-
         node.hidden || shape.show();
         node.shape = shape;
     },
@@ -410,7 +444,7 @@ Graph.Layout.Spring.prototype = {
              * 
              *///////////////////////////////////////////////////////
         }
-
+        
         this.graph.layoutMinX = minx;
         this.graph.layoutMaxX = maxx;
         this.graph.layoutMinY = miny;
@@ -665,6 +699,28 @@ Graph.Layout.Ordered.prototype = {
  */
 
 function log(a) {console.log&&console.log(a);}
+
+/*
+ * External addition to the library. Appropriately translates nodes that
+ * do not completely fit within the canvas side.
+ */
+function translateInsideCanvas(shape, box, x, y, w, h) {
+    // Node extends past the left side of the canvas.
+    if (x < 0) {
+    	shape.translate(-x, 0);
+    } else if ((x + box.width + SelfLoopPadding) > w) {
+        // Node extends past right side of the canvas.
+    	shape.translate(-(x + box.width + SelfLoopPadding - w), 0);
+    }
+    
+    // Node extends above top side of the canvas.
+    if (y < 0) {
+    	shape.translate(0, -y);
+    } else if ((y + box.height) > h) {
+        // Node extends below bottom of the canvas.
+    	shape.translate(0, -(y + box.height - h));
+    }
+}
 
 /*
  * Raphael Tooltip Plugin

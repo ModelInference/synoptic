@@ -3,24 +3,109 @@
  * display.
  */
 
+// Default color for nodes.
+var DEFAULT_COLOR = "#fa8";
+
+// Default stroke for border of node.
+var DEFAULT_STROKE_WIDTH = 2;
+
+// Default color for initial and terminal nodes.
+var INIT_TERM_COLOR = "#808080";
+
+// Color used when highlighting a node.
+var HIGHLIGHT_COLOR = "blue";
+
+// Border color for shift+click nodes after "View paths" clicked.
+// NOTE: Must also change same constant in ModelTab.java if modified.
+var SHIFT_CLICK_BORDER_COLOR = "blue";
+
+// Stroke width for border when node selected.
+var SELECT_STROKE_WIDTH = 4;
+
+// Label name that indicates initial node.
+var INITIAL = "INITIAL";
+
+// Label name that indicates terminal node.
+var TERMINAL = "TERMINAL";
+
 // An assocative array of event node IDs mapped to raphael rectangle objects.
 var selectedDraculaNodes = {};
 
+// An array containing all rectangles objects.
+var allRects = [];
+
+// The selected node that has log lines displayed.
+var selectedNodeLog;
+
 /*
  * A function for clearing the state of the selected nodes.
- * each node is set back to the default color and then removed
- * from the set of selected nodes.
+ * Each node is set back to the default color, border color,
+ * and stroke width, and then removed from the set of 
+ * selected nodes.
  */
 var clearSelectedNodes = function() {
     for (var i in selectedDraculaNodes) {
-        selectedDraculaNodes[i].attr("fill", "#fa8");
+        selectedDraculaNodes[i].attr({
+        	"fill": DEFAULT_COLOR,
+        	"stroke": "black",
+			"stroke-width": DEFAULT_STROKE_WIDTH
+        });
+        removeSelectedNode(parseInt(i));
         delete selectedDraculaNodes[i];
     }
 }
 
+/*
+ * A function for setting the border of all selected
+ * nodes to given color. Changes the background color
+ * of the nodes to the default color. Default styling
+ * to node displaying log lines if not in shift+click
+ * set.
+ */
+var setShiftClickNodesState = function(color) {
+	// Whether or not the node displaying log line is in
+	// shift+click set.
+	var clickNodeInSet = false;
+	for (var i in selectedDraculaNodes) {
+		if (selectedNodeLog == selectedDraculaNodes[i]) {
+			clickNodeInSet = true;
+		}
+        selectedDraculaNodes[i].attr({
+        	"fill": DEFAULT_COLOR,
+        	"stroke": color,
+			"stroke-width": SELECT_STROKE_WIDTH
+        });
+    }
+	// Set node to default styling.
+	if (!clickNodeInSet) {
+		selectedNodeLog.attr({
+			"stroke": "black",
+			"stroke-width": DEFAULT_STROKE_WIDTH
+		});
+	}
+	selectedNodeLog = undefined;
+}
+
+/*
+ * A function that returns true if the rectangle object
+ * being passed is currently selected. Returns false if
+ * rectangle object is not selected.
+ */
+var isSelectedNode = function(rect) {
+	for (var i in selectedDraculaNodes) {
+		if (selectedDraculaNodes[i] == rect) {
+			return true;
+		}
+	}
+	return false;
+}
+
 var GRAPH_HANDLER = {
-    // array of graph nodes
+    // Array of graph nodes.
     "currentNodes" : [],
+    
+    // Array of graph edges.
+    "currentEdges" : [],
 
     // initializes this GRAPH_HANDLER
     "initializeStableIDs" : function(nodes, edges, renderer, layouter, g) {
@@ -41,6 +126,11 @@ var GRAPH_HANDLER = {
     "getCurrentNodes" : function() {
         return this.currentNodes;
     },
+    
+    // Returns all of the current edges.
+    "getCurrentEdges" : function() {
+        return this.currentEdges;
+    },
 
     // returns this graph's layouter
     "getLayouter" : function() {
@@ -59,22 +149,25 @@ var GRAPH_HANDLER = {
     // label)
     "render" : function(canvas, node) {
         var rect;
-        if (node.label == "INITIAL" || node.label == "TERMINAL") {
+        if (node.label == INITIAL || node.label == TERMINAL) {
             // creates the rectangle to be drawn
             var rect = canvas.rect(node.point[0] - 30, node.point[1] - 13, 122,
                     46).attr({
-                "fill" : "#808080",
-                "stroke-width" : 2,
+                "fill" : INIT_TERM_COLOR,
+                "stroke-width" : DEFAULT_STROKE_WIDTH,
                 r : "40px"
             });
         } else {
             // creates the rectangle to be drawn
             var rect = canvas.rect(node.point[0] - 30, node.point[1] - 13, 122,
                     46).attr({
-                "fill" : "#fa8",
-                "stroke-width" : 2,
+                "fill" : DEFAULT_COLOR,
+                "stroke-width" : DEFAULT_STROKE_WIDTH,
                 r : "9px"
             });
+            // associate label with rectangle object
+            rect.label = node.label;
+            allRects[allRects.length] = rect;
         }
 
         // Adds a function to the given rectangle so that, when clicked,
@@ -95,26 +188,84 @@ var GRAPH_HANDLER = {
         // will be deselected. Holding shift and clicking a selected node
         // will deselect it.
         rect.node.onmouseup = function(event) {
-            if (node.label != "INITIAL" && node.label != "TERMINAL") {
-                // TODO: When selecting a node to view log lines that has
-                // already
-                // been selected (and the log lines are currently in view),
-                // don't bother making another RPC (since it's unnecessary).
-                if (!event.shiftKey) {
+            if (node.label != INITIAL && node.label != TERMINAL) {
+            	
+                if (!event.shiftKey && (selectedNodeLog != rect || infoPanelPathsVisible())) {
                     clearSelectedNodes();
                     viewLogLines(parseInt(node.id));
                 }
                 
                 if (selectedDraculaNodes[node.id] == undefined) {
-                    rect.attr("fill", "blue");
-                    selectedDraculaNodes[node.id] = rect;
+                	// Node associated with log lines listed is
+                	// surrounded by red and thick border.
+                	if (event.shiftKey) {
+                    	rect.attr("fill", HIGHLIGHT_COLOR);
+                    	selectedDraculaNodes[node.id] = rect;
+                        addSelectedNode(parseInt(node.id));
+                	} else {
+                		// Remove red border from previous node displaying log lines.
+                		if (selectedNodeLog != undefined) {
+                			selectedNodeLog.attr({
+                				"stroke": "black",
+                				"stroke-width": DEFAULT_STROKE_WIDTH
+                			});
+                		}
+                		selectedNodeLog = rect;
+	                	rect.attr({
+	                		"fill": DEFAULT_COLOR,
+	                		"stroke": "red",
+	                		"stroke-width": SELECT_STROKE_WIDTH
+	                	});
+                	}
+                	
                 } else {
-                    rect.attr("fill", "#fa8");
-                    delete selectedDraculaNodes[node.id];
+                	if (selectedNodeLog == rect) {
+                		rect.attr({
+	                    	"fill": DEFAULT_COLOR
+	                    });
+                	} else { // All nodes except for one displaying log lines.
+                		rect.attr({
+	                    	"fill": DEFAULT_COLOR,
+	                    	"stroke": "black",
+	            			"stroke-width": DEFAULT_STROKE_WIDTH
+	                    });
+                	}
+                	delete selectedDraculaNodes[node.id];
+                	removeSelectedNode(parseInt(node.id));
                 }
             }
         };
-
+        
+        // On a mouse hover, highlight that node and other nodes
+        // that are of the same type.
+        rect.node.onmouseover = function(event) {
+        	if (node.label != INITIAL && node.label != TERMINAL) {
+        		for (var i = 0; i < allRects.length; i++) {
+        			var currRect = allRects[i];
+        			if (currRect.label == node.label) {
+        				currRect.attr("fill", HIGHLIGHT_COLOR);
+        			}
+        		}
+        	}
+        };
+        
+        // On a mouse hovering out, un-highlight that node and 
+        // other nodes that are of the same type.
+        rect.node.onmouseout = function(event) {
+        	if (node.label != INITIAL && node.label != TERMINAL) {
+        		for (var i = 0; i < allRects.length; i++) {
+        			var currRect = allRects[i];
+        			// Return to default color if the rectangle is
+        			// not currently selected. Highlight if node has
+        			// colored border after "View paths".
+        			if (!isSelectedNode(currRect) || 
+        					currRect.attr("stroke") == SHIFT_CLICK_BORDER_COLOR) {
+        				currRect.attr("fill", DEFAULT_COLOR);
+        			}
+        		}
+        	}
+        };
+        
         text = canvas.text(node.point[0] + 30, node.point[1] + 10, node.label)
                 .attr({
                     "font-size" : "16px",
@@ -126,7 +277,13 @@ var GRAPH_HANDLER = {
 
         // The text, when clicked should behave as if the rectangle was clicked.
         text.node.onmouseup = rect.node.onmouseup;
+        
+        // The text, when hovering over and hovering out should behave the same
+        // as the rectangle.
+        text.node.onmouseout = rect.node.onmouseout;
+        text.node.onmouseover = rect.node.onmouseover;
         return set;
+        
     },
 
     // updates the graph by removing the node with the splitNodeID and adding
@@ -164,13 +321,15 @@ var GRAPH_HANDLER = {
 
         // loop over all given edges, finding ones connected to the new
         // nodes that need to be added to the graph
-        for ( var i = 0; i < edges.length; i += 3) {
+        for ( var i = 0; i < edges.length; i += 4) {
             var source = edges[i];
             var dest = edges[i + 1];
             var weight = edges[i + 2];
             if (newNodes[source] || newNodes[dest]) {
                 this.graph.addEdge(source, dest, {
-                    label : weight
+                    label : weight,
+                    labelProb : weight,
+                    labelCnt : edges[i + 3],
                 });
             }
         }

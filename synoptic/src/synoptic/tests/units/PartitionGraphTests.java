@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
@@ -26,6 +28,7 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
+import synoptic.model.interfaces.ITransition;
 import synoptic.tests.SynopticTest;
 import synoptic.util.Pair;
 
@@ -224,5 +227,102 @@ public class PartitionGraphTests extends SynopticTest {
                     dstT);
             assertTrue(!invalidINFbys.contains(p));
         }
+    }
+
+    // Just to make sure an exception is thrown upon passing an invalid
+    // parameter.
+    @Test(expected = IllegalArgumentException.class)
+    public void exportPathsThroughSelectedNodesNullParam() throws Exception {
+        // Some random values to parse.
+        String events[] = new String[] { "0 1 a", "0 2 a", "0 5 a" };
+        TraceParser parser = new TraceParser();
+        parser.addRegex("^(?<DTIME>)(?<nodename>)(?<TYPE>)$");
+        parser.setPartitionsMap("\\k<nodename>");
+        TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner);
+
+        pGraph.getPathsThroughPartitions(null);
+    }
+
+    // Creates a partition graph the format of which will be
+    // used for the tests dealing with grabbing paths through selected
+    // nodes.
+    private PartitionGraph getPGraphTemplate() throws Exception {
+        // Abstract log with two traces (branches from Initial to c and f
+        // and then merges/separates at the b/a nodes).
+        String events[] = new String[] { "1 0 c", "2 0 b", "3 0 a", "4 0 d",
+                "1 1 f", "2 1 b", "3 1 a", "4 1 e" };
+        TraceParser parser = new TraceParser();
+        parser.addRegex("^(?<TIME>)(?<nodename>)(?<TYPE>)$");
+        parser.setPartitionsMap("\\k<nodename>");
+        TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner);
+        return pGraph;
+    }
+
+    @Test
+    public void exportPathsThroughSelecetdNodesSingleNodeSelected()
+            throws Exception {
+        PartitionGraph pGraph = getPGraphTemplate();
+
+        // Grab the partition of event type 'c' from the graph.
+        // This will be the "selected" node.
+        Set<Partition> nodes = pGraph.getNodes();
+        Set<INode<Partition>> selectedNodes = new HashSet<INode<Partition>>();
+        INode<Partition> cPartition = null;
+        for (Partition p : nodes) {
+            if (p.getEType().toString().equals("c")) {
+                cPartition = p;
+                break;
+            }
+        }
+
+        // Make sure cPartition was actually found.
+        assertTrue(cPartition != null);
+
+        selectedNodes.add(cPartition);
+
+        // Grab the set of paths.
+        Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+                .getPathsThroughPartitions(selectedNodes);
+
+        assertEquals("There should be one trace only.", paths.keySet().size(),
+                1);
+    }
+
+    @Test
+    public void exportPathsThroughSelectedNodesMultipleNodesSelected()
+            throws Exception {
+        PartitionGraph pGraph = getPGraphTemplate();
+
+        Set<Partition> nodes = pGraph.getNodes();
+        Set<INode<Partition>> selectedNodes = new HashSet<INode<Partition>>();
+
+        // There should only be one a node and one C node, as well as one path
+        // through the two of them.
+        INode<Partition> cPartition = null;
+        INode<Partition> aPartition = null;
+        for (Partition p : nodes) {
+            String eType = p.getEType().toString();
+            if (eType.equals("c")) {
+                cPartition = p;
+            }
+
+            if (eType.equals("a")) {
+                aPartition = p;
+            }
+        }
+
+        assert (aPartition != null && cPartition != null);
+
+        // Add the "selected" partitions.
+        selectedNodes.add(aPartition);
+        selectedNodes.add(cPartition);
+
+        Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+                .getPathsThroughPartitions(selectedNodes);
+
+        assertEquals("There should be exactly one trace",
+                paths.keySet().size(), 1);
     }
 }
