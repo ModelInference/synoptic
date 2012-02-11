@@ -1,6 +1,9 @@
 package synopticgwt.client.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,21 +43,16 @@ public class PathsThroughPartitionsTable extends FlexTable {
      *            A set of paths mapped to traceIDs. Each path is one that has
      *            been inferred from a single trace in the log.
      */
-    public void showPaths(Map<Integer, Set<GWTEdge>> paths) {
+    public void showPaths(Map<Set<GWTEdge>, Set<Integer>> paths) {
         this.clearPaths();
         int row = 0;
 
-        // Sort the traces for readability.
-        Set<Integer> keys = paths.keySet();
-        Integer[] traceIDs = new Integer[keys.size()];
-        Arrays.sort(keys.toArray(traceIDs));
+        Set<Set<GWTEdge>> keys = paths.keySet();
 
-        // TODO Add an action listener to the radio button so that it
-        // somehow displays the paths associated with it (perhaps create a new
-        // class).
-        for (Integer trace : traceIDs) {
+        // Create a set of radio buttons related to each path.
+        for (Set<GWTEdge> path : keys) {
             PathDisplayRadioButton button = new PathDisplayRadioButton(
-                    RADIO_BUTTON_GROUP, "Trace " + trace, paths.get(trace));
+                    RADIO_BUTTON_GROUP, paths.get(path), path);
             this.setWidget(row, 0, button);
             row++;
         }
