@@ -48,7 +48,6 @@ import synoptic.util.time.VectorTime;
  * @author mgsloan
  */
 public class TraceParser {
-    public final static String defaultRelation = "t";
 
     private static Logger logger = Logger.getLogger("Parser Logger");
 
@@ -800,6 +799,11 @@ public class TraceParser {
                 eType = new StringEventType(eTypeLabel);
                 event = new Event(eType, line, fileName, lineNum);
             }
+            
+            if (matched.containsKey("RELATION")) {
+            	String relation = matched.get("RELATION");
+            	event.addRelation(relation);
+            }
 
             // We have two cases for processing time on log lines:
             // (1) Implicitly: no matched field is a time field because it is
@@ -989,7 +993,8 @@ public class TraceParser {
 
     /**
      * Given a list of log events that can be totally ordered, manipulates the
-     * builder to construct the corresponding trace graph.
+     * builder to construct the corresponding trace graph. Supports multiple
+     * relations.
      * 
      * @param allEvents
      *            The list of events to process.
@@ -1013,7 +1018,9 @@ public class TraceParser {
 
             // Tag first node in the sorted list as initial.
             EventNode prevNode = group.get(0);
-            graph.tagInitial(prevNode, defaultRelation);
+            for (String relation : prevNode.getEventRelations()) {
+            	graph.tagInitial(prevNode, relation);
+            }
 
             // Create transitions to connect the nodes in the sorted trace.
             for (EventNode curNode : group.subList(1, group.size())) {
@@ -1025,12 +1032,16 @@ public class TraceParser {
                     logger.severe(error);
                     throw new ParseException(error);
                 }
-                prevNode.addTransition(curNode, defaultRelation);
+                for (String relation : curNode.getEventRelations()) {
+                	prevNode.addTransition(curNode, relation);
+                }
                 prevNode = curNode;
             }
 
             // Tag the final node as terminal:
-            graph.tagTerminal(prevNode, defaultRelation);
+            for (String relation : prevNode.getEventRelations()) {
+            	graph.tagTerminal(prevNode, relation);
+            }
         }
         return graph;
     }
@@ -1076,10 +1087,10 @@ public class TraceParser {
 
                 if (directSuccessors.size() == 0) {
                     // Tag messages without a predecessor as terminal.
-                    graph.tagTerminal(e1, defaultRelation);
+                    graph.tagTerminal(e1, Event.defaultRelation);
                 } else {
                     for (EventNode e2 : directSuccessors) {
-                        e1.addTransition(e2, defaultRelation);
+                        e1.addTransition(e2, Event.defaultRelation);
                         noPredecessor.remove(e2);
                     }
                 }
@@ -1089,7 +1100,7 @@ public class TraceParser {
 
         // Mark messages without a predecessor as initial.
         for (EventNode e : noPredecessor) {
-            graph.tagInitial(e, defaultRelation);
+            graph.tagInitial(e, Event.defaultRelation);
         }
 
         return graph;

@@ -1,5 +1,9 @@
 package synoptic.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import synoptic.util.time.ITime;
 
 /**
@@ -10,6 +14,9 @@ import synoptic.util.time.ITime;
  * @author Sigurd Schneider
  */
 public class Event {
+	
+	public final static String defaultRelation = "t";
+	
     /**
      * The event's label.
      */
@@ -34,6 +41,8 @@ public class Event {
      * The line number from where the label for this event was parsed.
      */
     private final int lineNum;
+    
+    private List<String> relations;
 
     /**
      * Create an event of a particular type, with corresponding log line,
@@ -51,6 +60,7 @@ public class Event {
         this.logLine = logLine;
         this.fileName = fileName;
         this.lineNum = lineNum;
+        this.relations = new ArrayList<String>();
     }
 
     /**
@@ -130,6 +140,9 @@ public class Event {
         result = prime * result + lineNum;
         result = prime * result + ((logLine == null) ? 0 : logLine.hashCode());
         result = prime * result + ((time == null) ? 0 : time.hashCode());
+        for (String relation : relations) {
+        	result = prime * result + relation.hashCode();
+        }
         return result;
     }
 
@@ -176,6 +189,13 @@ public class Event {
         } else if (!time.equals(other.time)) {
             return false;
         }
+        
+        for (String relation : other.getRelations()) {
+        	if (!containsRelation(relation)) {
+        		return false;
+        	}
+        }
+        
         return true;
     }
 
@@ -186,6 +206,7 @@ public class Event {
      *            the time
      */
     public void setTime(ITime t) {
+    	addRelation(defaultRelation);
         time = t;
     }
 
@@ -208,5 +229,18 @@ public class Event {
 
     public int getLineNum() {
         return lineNum;
+    }
+    
+    public boolean containsRelation(String s) {
+    	return relations.contains(s);
+    }
+    
+    public void addRelation(String s) {
+    	assert(!containsRelation(s));
+    	relations.add(s);
+    }
+    
+    public List<String> getRelations() {
+    	return Collections.unmodifiableList(relations);
     }
 }
