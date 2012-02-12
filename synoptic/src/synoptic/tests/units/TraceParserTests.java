@@ -704,7 +704,7 @@ public class TraceParserTests extends SynopticTest {
     @Test
     public void parseCallAndReturnRelations() throws ParseException {
     	String traceStr = "0 call main\n1 call foo\n2 return main";
-    	parser.addRegex("^(<?TIME>)(<?RELATION>)(<?TYPE>)$");
+    	parser.addRegex("^(?<TIME>)(?<RELATION>)(?<TYPE>)$");
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);

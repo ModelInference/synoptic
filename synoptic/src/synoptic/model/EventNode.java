@@ -263,8 +263,12 @@ public class EventNode implements INode<EventNode> {
         return event;
     }
 
-    public Set<String> getRelations() {
+    public Set<String> getNodeRelations() {
         return transitionsByRelation.keySet();
+    }
+    
+    public List<String> getEventRelations() {
+    	return event.getRelations();
     }
 
     /**
