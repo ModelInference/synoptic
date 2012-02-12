@@ -75,7 +75,7 @@ public class Main implements Callable<Integer> {
 
     /**
      * Retrieve and return the ChangesetID attribute in the manifest of the jar
-     * that contains this Main class. If not running from a jar, returns null.
+     * that contains this Main class. Returns null if not running from a jar.
      */
     public static String getHgChangesetID() {
         String changesetID = null;
@@ -87,12 +87,11 @@ public class Main implements Callable<Integer> {
             // Grab attributes from the manifest of the jar (synoptic.jar)
             Manifest mf = conn.getManifest();
             Attributes atts = mf.getMainAttributes();
-            // Extract ChangesetID from the attributes and print it out.
+            // Extract ChangesetID from the attributes and return it.
             changesetID = atts.getValue("ChangesetID");
         } catch (Exception e) {
-            // We might get an exception in the case that we're not running
-            // from inside a jar. In this case, simply don't print the
-            // ChangesetID.
+            // We get an exception when we are not running from inside a jar. In
+            // this case, return null for ChangesetID.
             return null;
         }
         return changesetID;
