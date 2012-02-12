@@ -72,7 +72,8 @@ public class ModelTab extends Tab<DockPanel> {
     private final Button modelExportPngButton = new Button("Export PNG");
     private final Button modelViewPathsButton = new Button("View Paths");
 
-    private FlowPanel graphPanel;
+    // Panel containing the model graphic.
+    private FlowPanel graphPanel = null;
 
     // String representing the canvas div.
     private static final String canvasId = "canvasId";
@@ -234,8 +235,7 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
-     * Initialize model state -- performed whenever a new model graph is
-     * displayed.
+     * Initialize model tab state, run whenever a new log is parsed.
      */
     public void initializeTabState() {
         // TODO: Is this a bug? Need to check if we can refine.
@@ -252,32 +252,35 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /**
-     * Shows the GWTGraph object on the screen in the modelPanel. NOTE: the
-     * model tab MUST be made visible for showGraph to work.
+     * Shows the GWTGraph object on the screen in the modelPanel.
+     * 
+     * <pre>
+     * NOTE: the model tab MUST be first made visible for this method to work.
+     * </pre>
      */
     public void showGraph(GWTGraph graph) {
         initializeTabState();
 
-        // Clear the second (non-button ) widget model
-        // panel.
-        // TODO: We need a better way to assert that the panel we are removing
-        // is indeed the panel containing the model.
-        if (panel.getWidgetCount() > 1) {
-            panel.remove(panel.getWidget(1));
-            assert (panel.getWidgetCount() == 1);
+        // Remove and re-create the graph panel widget.
+        if (graphPanel != null) {
+            panel.remove(graphPanel);
         }
 
+        // Create and add the a flow panel that will contain the actual model
+        // graphic.
         graphPanel = new FlowPanel();
         graphPanel.getElement().setId(canvasId);
         graphPanel.setStylePrimaryName("modelCanvas");
-        // modelPanel.addEast(graphPanel, 70);
         panel.add(graphPanel, DockPanel.CENTER);
+
         // Create the list of graph node labels and their Ids.
         HashSet<GWTNode> nodeSet = graph.getNodes();
-        JavaScriptObject jsNodes = GWTToJSUtils.createJSArrayFromGWTNodes(nodeSet);
+        JavaScriptObject jsNodes = GWTToJSUtils
+                .createJSArrayFromGWTNodes(nodeSet);
 
         // Create the list of edges, where two consecutive node Ids is an edge.
-        JavaScriptObject jsEdges = GWTToJSUtils.createJSArrayFromGWTEdges(graph.getEdges());
+        JavaScriptObject jsEdges = GWTToJSUtils.createJSArrayFromGWTEdges(graph
+                .getEdges());
         // Determine the size of the graphic.
         int width = getModelGraphicWidth();
         int height = getModelGraphicHeight();
@@ -296,10 +299,12 @@ public class ModelTab extends Tab<DockPanel> {
      *            the refined node's id
      */
     public void showChangingGraph(GWTGraph graph, GWTNode refinedNode) {
-        JavaScriptObject jsNodes = GWTToJSUtils.createJSArrayFromGWTNodes(graph.getNodes());
-        
+        JavaScriptObject jsNodes = GWTToJSUtils.createJSArrayFromGWTNodes(graph
+                .getNodes());
+
         // Create the list of edges, where two consecutive node Ids is an edge.
-        JavaScriptObject jsEdges = GWTToJSUtils.createJSArrayFromGWTEdges(graph.getEdges());
+        JavaScriptObject jsEdges = GWTToJSUtils.createJSArrayFromGWTEdges(graph
+                .getEdges());
 
         ModelGraphic.createChangingGraph(jsNodes, jsEdges,
                 refinedNode.getPartitionNodeHashCode(), canvasId);
@@ -419,10 +424,10 @@ public class ModelTab extends Tab<DockPanel> {
             modelCoarsenButton.setEnabled(true);
             return;
         }
-        
+
         // Clear the highlighted nodes from the graph.
         ModelGraphic.clearEdgeState();
-        
+
         // Set the log lines display to default and clear
         // any information.
         logInfoPanel.clearAll();

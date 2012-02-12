@@ -76,6 +76,15 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     }
 
     /**
+     * Initialize invariant tab state, run whenever a new log is parsed.
+     */
+    public void initializeTabState() {
+        // Clear the invariants panel of all widgets.
+        panel.clear();
+        tableAndGraphicPanel.clear();
+    }
+
+    /**
      * Shows the invariant graphic on the screen in the invariantsPanel.
      * 
      * @param gwtInvs
@@ -86,9 +95,7 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             throw new IllegalStateException("Invariants uninitialized");
         }
 
-        // Clear the invariants panel of any widgets it might have.
-        panel.clear();
-        tableAndGraphicPanel.clear();
+        initializeTabState();
 
         minedNoInvariants = (this.gwtInvs.count() == 0);
         if (minedNoInvariants) {

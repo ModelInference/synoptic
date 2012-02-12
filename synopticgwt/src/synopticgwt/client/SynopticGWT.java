@@ -298,6 +298,18 @@ public class SynopticGWT implements EntryPoint {
     }
 
     /**
+     * Clears out and disables the invariants and model tabs since a new log is
+     * being parsed.
+     */
+    public void parsingLog() {
+        invTab.initializeTabState();
+        tabPanel.getTabBar().setTabEnabled(invariantsTabIndex, false);
+
+        modelTab.initializeTabState();
+        tabPanel.getTabBar().setTabEnabled(modelTabIndex, false);
+    }
+
+    /**
      * Called by the InputTab whenever the server parsed the log that the user
      * submitted. This method creates the invariant/model tabs and initializes
      * them with the result of the parseLog() call to the Synoptic service --

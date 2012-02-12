@@ -715,6 +715,8 @@ public class InputTab extends Tab<VerticalPanel> {
             // Disallow the user from making concurrent Parse Log calls.
             parseLogButton.setEnabled(false);
 
+            SynopticGWT.entryPoint.parsingLog();
+
             // Reset the parse error msg.
             parseErrorMsgLabel.setText("");
 
