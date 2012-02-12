@@ -16,9 +16,12 @@ public class LogLinesTable extends FlexTable {
     /** Initialize a blank table, with a header row. */
     public LogLinesTable() {
         super();
-        this.setText(0, 0, "Line");
+        this.setText(0, 0, "Line #");
         this.setText(0, 1, "Line");
-        this.setText(0, 2, "Filename");
+
+        // TODO: as we only support either text-based or single file log
+        // uploads, the "Filename" column is not useful right now.
+        // this.setText(0, 2, "Filename");
 
         // Style the table
         this.addStyleName("FlexTable");
@@ -27,12 +30,13 @@ public class LogLinesTable extends FlexTable {
         HTMLTable.ColumnFormatter cf = this.getColumnFormatter();
         cf.addStyleName(0, "LineNumCol");
         cf.addStyleName(1, "LineCol");
-        cf.addStyleName(2, "FilenameCol");
+        // Unused. See TODO above.
+        // cf.addStyleName(2, "FilenameCol");
     }
 
     /** Removes all currently displayed log lines from the table. */
     public void clear() {
-        // Don't remove the header row.
+        // Do not remove the header row.
         while (this.getRowCount() != 1) {
             this.removeRow(1);
         }
@@ -46,7 +50,8 @@ public class LogLinesTable extends FlexTable {
         for (LogLine log : lines) {
             this.setText(row, 0, log.getLineNum() + "");
             this.setText(row, 1, log.getLine());
-            this.setText(row, 2, log.getFilename());
+            // Unused. See TODO above.
+            // this.setText(row, 2, log.getFilename());
             row++;
         }
     }
