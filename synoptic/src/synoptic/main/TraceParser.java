@@ -88,6 +88,9 @@ public class TraceParser {
     // DTIME: double time (e.g. 1234.56) -- 64 bits
     public static final List<String> validTimeGroups = Arrays.asList("TIME",
             "VTIME", "FTIME", "DTIME");
+    
+    // Regexp group representing multiple relations, call and return for now.
+    private static final String relationGroup = "RELATION";
 
     // A group that is used to capture the process ID in a PO log -- can only be
     // used in conjunction with VTIME, but is optional. However, if it used in
@@ -110,6 +113,8 @@ public class TraceParser {
     // passed reg exps to match lines. The parser allows only one type of time
     // to be used.
     private String selectedTimeGroup = null;
+    
+
 
     public TraceParser() {
         parsers = new ArrayList<NamedPattern>();
@@ -398,6 +403,7 @@ public class TraceParser {
                     throw new ParseException(error);
                 }
             }
+            
         }
 
         if (Main.options.debugParse) {

@@ -38,6 +38,15 @@ public abstract class SynopticTest extends SynopticLibTest {
      * Default relation used in invariant mining.
      */
     public static final String defRelation = "t";
+    
+    /**
+     * generic call relation for invariant mining
+     */
+    public static final String callRelation = "call";
+    /**
+     * generic return relation for invariant mining
+     */
+    public static final String returnRelation = "return";
 
     static {
         // Set up static SynopticLib state.

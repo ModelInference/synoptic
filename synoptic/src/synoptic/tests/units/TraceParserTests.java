@@ -616,6 +616,34 @@ public class TraceParserTests extends SynopticTest {
 
         return expectedGraph;
     }
+    
+    /**
+     * Generates the expected graph for the call and return multiple relations
+     * test
+     */
+	private ChainsTraceGraph genExpectedGraphForCallAndReturn(
+			ArrayList<EventNode> events) {
+		// Generate the expected Graph for "0 call main\n1 call foo\n2 return main"
+		ChainsTraceGraph expectedGraph = new ChainsTraceGraph(events);
+		assertTrue(events.size() == 3);
+		
+		EventNode cMain = events.get(0);
+		EventNode cFoo = events.get(1);
+		EventNode rMain = events.get(2);
+		
+		expectedGraph.tagInitial(cMain, defRelation);
+		expectedGraph.tagInitial(cMain, callRelation);
+		
+		cMain.addTransition(cFoo, defRelation);
+		cMain.addTransition(cFoo, callRelation);
+		
+		cFoo.addTransition(rMain, defRelation);
+		cFoo.addTransition(rMain, returnRelation);
+		
+		expectedGraph.tagTerminal(rMain, defRelation);
+		
+		return expectedGraph;
+	}
 
     /**
      * Check that we can parse a log by splitting its lines into partitions.
@@ -667,4 +695,27 @@ public class TraceParserTests extends SynopticTest {
                     }
                 }));
     }
+    
+    /**
+     * Check that we can parse call and return relations on top of time
+     * 
+     * @throws ParseException
+     */
+    @Test
+    public void parseCallAndReturnRelations() throws ParseException {
+    	String traceStr = "0 call main\n1 call foo\n2 return main";
+    	parser.addRegex("^(<?TIME>)(<?RELATION>)(<?TYPE>)$");
+        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
+                -1);
+        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForCallAndReturn(events);
+        assertTrue(expectedGraph.equalsWith(graph,
+                new IBinary<EventNode, EventNode>() {
+                    @Override
+                    public boolean eval(EventNode a, EventNode b) {
+                        return (a.getEvent().equals(b.getEvent()));
+                    }
+                }));
+    }
+
 }
