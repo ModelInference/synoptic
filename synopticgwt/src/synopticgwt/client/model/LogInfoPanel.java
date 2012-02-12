@@ -36,20 +36,17 @@ public class LogInfoPanel extends VerticalPanel {
     private final LogLinesTable logLinesTable;
     private final PathsThroughPartitionsTable pathsThroughPartitionsTable;
 
+    private static final String logInfoLabelLogLines = "Selected node log lines";
+    private static final String logInfoLabelPathTraces = "Selected path traces";
+
     public LogInfoPanel(String width) {
         super();
 
-        logInfoLabel = new Label("Log Lines");
+        logInfoLabel = new Label(logInfoLabelLogLines);
         logLinesTable = new LogLinesTable();
         pathsThroughPartitionsTable = new PathsThroughPartitionsTable();
         this.setWidth(width);
-        init();
-    }
 
-    /**
-     * Sets up the default way to display all of the components.
-     */
-    private void init() {
         this.add(logInfoLabel);
         this.add(logLinesTable);
         this.add(pathsThroughPartitionsTable);
@@ -66,7 +63,7 @@ public class LogInfoPanel extends VerticalPanel {
         DOM.setElementAttribute(logInfoLabel.getElement(), "class",
                 LOG_INFO_LINES_CLASS);
 
-        this.pathsThroughPartitionsTable.setVisible(false);
+        pathsThroughPartitionsTable.setVisible(false);
     }
 
     /**
@@ -152,11 +149,11 @@ public class LogInfoPanel extends VerticalPanel {
      */
     private void toggleLogInfoDisplay() {
         if (logLinesTable.isVisible()) {
-            logInfoLabel.setText("Paths");
+            logInfoLabel.setText(logInfoLabelPathTraces);
             DOM.setElementAttribute(logInfoLabel.getElement(), "class",
                     LOG_INFO_PATHS_CLASS);
         } else {
-            logInfoLabel.setText("Log Lines");
+            logInfoLabel.setText(logInfoLabelLogLines);
             DOM.setElementAttribute(logInfoLabel.getElement(), "class",
                     LOG_INFO_LINES_CLASS);
         }
