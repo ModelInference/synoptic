@@ -298,10 +298,10 @@ public class SynopticGWT implements EntryPoint {
     }
 
     /**
-     * Called by the InputTab whenever the user clicks a button to parse the
-     * log. This method creates the invariant/model tabs and initializes them
-     * with the result of the parseLog() call to the Synoptic service -- namely,
-     * the invariants and the initial model.
+     * Called by the InputTab whenever the server parsed the log that the user
+     * submitted. This method creates the invariant/model tabs and initializes
+     * them with the result of the parseLog() call to the Synoptic service --
+     * namely, the invariants and the initial model.
      * 
      * @param logInvs
      *            The invariants returned by the service corresponding to the
