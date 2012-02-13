@@ -1,5 +1,6 @@
 package synopticgwt.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -47,6 +48,16 @@ public class AppConfiguration {
      * project.
      */
     public String synopticChangesetID;
+    
+    /**
+     * Whether or not Derby DB exists or not.
+     */
+    public boolean derbyDBExists;
+    
+    /**
+     * The directory of Derby DB file.
+     */
+    public String derbyDBDir;
 
     /**
      * Private constructor prevents instantiation from other classes
@@ -74,7 +85,12 @@ public class AppConfiguration {
         } else {
             uploadedLogFilesDir = uploadedLogFilesDir_ + "/";
         }
-
+        
+        // Testing if location of database exists.
+        derbyDBDir = "/Users/Kevin/Desktop/DerbyTutorials/synoptictest";
+        File f = new File(derbyDBDir);
+        derbyDBExists = f.exists();
+       
         try {
             // Extract the hg changeset id from war archive MANIFEST.MF
             Properties prop = new Properties();
