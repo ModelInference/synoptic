@@ -624,6 +624,7 @@ public class TraceParserTests extends SynopticTest {
 	private ChainsTraceGraph genExpectedGraphForCallAndReturn(
 			ArrayList<EventNode> events) {
 		// Generate the expected Graph for "0 call main\n1 call foo\n2 return main"
+		// INITIAL -t,call-> main -t,call-> food -t,return-> main -t-> TERMINAL
 		ChainsTraceGraph expectedGraph = new ChainsTraceGraph(events);
 		assertTrue(events.size() == 3);
 		
