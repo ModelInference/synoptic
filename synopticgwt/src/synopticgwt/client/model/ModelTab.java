@@ -72,6 +72,17 @@ public class ModelTab extends Tab<DockPanel> {
     private final Button modelExportPngButton = new Button("Export PNG");
     private final Button modelViewPathsButton = new Button("View Paths");
 
+    // Model options widgets
+    // Whether or not to show edge transition counts (true) or transition
+    // probabilities (false).
+    private boolean showEdgeTraceCounts = false;
+    private final DisclosurePanel modelOpts = new DisclosurePanel(
+            "Model options");
+    private final RadioButton probEdgesRadioButton = new RadioButton(
+            "edgeLabelsRadioGroup", "Show probabilities on edges");
+    private final RadioButton countEdgesRadioButton = new RadioButton(
+            "edgeLabelsRadioGroup", "Show counts on edges");
+
     // Panel containing the model graphic.
     private FlowPanel graphPanel = null;
 
@@ -112,27 +123,21 @@ public class ModelTab extends Tab<DockPanel> {
         controlsPanel.add(viewPathsButtonPanel);
 
         // Add a model options panel.
-        final RadioButton probEdgesRadioButton = new RadioButton(
-                "edgeLabelsRadioGroup", "Show probabilities on edges");
         TooltipListener
                 .setTooltip(
                         probEdgesRadioButton,
                         "Annotate edges with probabilities, which indicate the fraction of traces that pass along an edge.",
                         TOOLTIP_URL);
-        probEdgesRadioButton.addClickHandler(new EdgeViewChangeHandler(false));
-        probEdgesRadioButton.setValue(true);
+        EdgeViewChangeHandler edgeOptsHandler = new EdgeViewChangeHandler(this);
+        probEdgesRadioButton.addClickHandler(edgeOptsHandler);
 
-        final RadioButton countEdgesRadioButton = new RadioButton(
-                "edgeLabelsRadioGroup", "Show counts on edges");
         TooltipListener
                 .setTooltip(
                         countEdgesRadioButton,
                         "Annotate edges with trace counts, which indicate the number of traces that pass along an edge",
                         TOOLTIP_URL);
-        countEdgesRadioButton.addClickHandler(new EdgeViewChangeHandler(true));
-        countEdgesRadioButton.setValue(false);
+        countEdgesRadioButton.addClickHandler(edgeOptsHandler);
 
-        DisclosurePanel modelOpts = new DisclosurePanel("Model options");
         Grid modelOptsGrid = new Grid(2, 1);
         modelOptsGrid.setCellSpacing(6);
         modelOptsGrid.setWidget(0, 0, countEdgesRadioButton);
@@ -161,8 +166,6 @@ public class ModelTab extends Tab<DockPanel> {
             }
         });
 
-        // Coarsening is disabled until refinement is completed.
-        modelCoarsenButton.setEnabled(false);
         TooltipListener
                 .setTooltip(
                         modelCoarsenButton,
@@ -218,20 +221,29 @@ public class ModelTab extends Tab<DockPanel> {
      * Changes model edges to displays counts or probabilities.
      */
     class EdgeViewChangeHandler implements ClickHandler {
-        boolean showCounts;
+        ModelTab modelTab;
 
-        public EdgeViewChangeHandler(boolean showCounts) {
-            this.showCounts = showCounts;
+        public EdgeViewChangeHandler(ModelTab modelTab) {
+            this.modelTab = modelTab;
         }
 
         @Override
         public void onClick(ClickEvent event) {
-            if (this.showCounts) {
-                ModelGraphic.useProbEdgeLabels();
-            } else {
+            modelTab.showEdgeTraceCounts = !modelTab.showEdgeTraceCounts;
+            if (modelTab.showEdgeTraceCounts) {
                 ModelGraphic.useCountEdgeLabels();
+            } else {
+                ModelGraphic.useProbEdgeLabels();
             }
         }
+    }
+
+    public void setShowEdgeCounts(boolean showCounts) {
+        this.showEdgeTraceCounts = showCounts;
+    }
+
+    public boolean getShowEdgeCounts() {
+        return this.showEdgeTraceCounts;
     }
 
     /**
@@ -247,6 +259,11 @@ public class ModelTab extends Tab<DockPanel> {
 
         // Keep the view paths button disabled until nodes have been selected.
         modelViewPathsButton.setEnabled(false);
+
+        // Set the initial model opts settings.
+        probEdgesRadioButton.setValue(true);
+        countEdgesRadioButton.setValue(false);
+        showEdgeTraceCounts = false;
 
         logInfoPanel.clearAll();
     }
@@ -307,7 +324,7 @@ public class ModelTab extends Tab<DockPanel> {
                 .getEdges());
 
         ModelGraphic.createChangingGraph(jsNodes, jsEdges,
-                refinedNode.getPartitionNodeHashCode(), canvasId);
+                refinedNode.getPartitionNodeHashCode(), canvasId, this);
     }
 
     /**
@@ -577,10 +594,11 @@ public class ModelTab extends Tab<DockPanel> {
      * button is deactivated.
      */
     private void toggleViewPathsButton() {
-        if (selectedNodes.size() > 0)
+        if (selectedNodes.size() > 0) {
             modelViewPathsButton.setEnabled(true);
-        else
+        } else {
             modelViewPathsButton.setEnabled(false);
+        }
     }
 
     /**

@@ -291,7 +291,7 @@ var GRAPH_HANDLER = {
     // all newly refined nodes at the position of the removed node. returns an
     // array of the
     // new nodes
-    "updateRefinedGraph" : function(nodes, edges, splitNodeID) {
+    "updateRefinedGraph" : function(nodes, edges, splitNodeID, showCounts) {
         // fetch the refined node
         var refinedNode = this.graph.nodes[splitNodeID];
 
@@ -324,12 +324,21 @@ var GRAPH_HANDLER = {
         for ( var i = 0; i < edges.length; i += 4) {
             var source = edges[i];
             var dest = edges[i + 1];
-            var weight = edges[i + 2];
             if (newNodes[source] || newNodes[dest]) {
-                this.graph.addEdge(source, dest, {
-                    label : weight,
-                    labelProb : weight,
-                    labelCnt : edges[i + 3],
+            	if (showCounts) {
+            		labelVal = edges[i + 3];
+            	} else {
+            		labelVal = edges[i + 2];
+            	}
+            	style = {
+                    label : labelVal,
+                    labelProb : edges[i + 2], 
+                    labelCount : edges[i + 3]
+                };
+            	edge = this.graph.addEdge(source, dest, style);
+                this.currentEdges.push({
+                	"edge" : edge,
+                	"style" : style
                 });
             }
         }
