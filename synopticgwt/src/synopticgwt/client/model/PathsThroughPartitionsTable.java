@@ -1,12 +1,12 @@
 package synopticgwt.client.model;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
 import synopticgwt.shared.GWTEdge;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 
 /**
@@ -48,54 +48,50 @@ public class PathsThroughPartitionsTable extends FlexTable {
         this.clearPaths();
         this.paths = paths;
         int row = 0;
+        int pathNum = 1;
 
         Set<Set<GWTEdge>> keys = paths.keySet();
-
-        PathButtonClickHandler clickHandler = new PathButtonClickHandler();
 
         // Create a set of radio buttons related to each path.
         for (Set<GWTEdge> path : keys) {
             PathDisplayRadioButton button = new PathDisplayRadioButton(
-                    RADIO_BUTTON_GROUP, "Path " + (row + 1), paths.get(path),
+                    RADIO_BUTTON_GROUP, "Path " + pathNum, paths.get(path),
                     path);
-            button.addClickHandler(clickHandler);
+            DisclosurePanel tracesPanel = new DisclosurePanel("Traces");
+
+            // Add the traces table to the panel so it can be viewed by the
+            // users.
+            tracesPanel.add(getSortedTracesTable(button));
+
             this.setWidget(row, 0, button);
             row++;
+            this.setWidget(row, 1, tracesPanel);
+            row++;
+            pathNum++;
         }
     }
 
     /**
-     * A click handler that inserts all of the trace IDs for the corresponding
-     * path displaying radio button. Any other trace IDs listed prior will be
-     * removed.
+     * Makes a list of traceIDs and adds them to a flex table. The list is
+     * sorted.
+     * 
+     * @param button
+     * @return
      */
-    private class PathButtonClickHandler implements ClickHandler {
-        public void onClick(ClickEvent event) {
-            PathDisplayRadioButton button = (PathDisplayRadioButton) event
-                    .getSource();
-
-            // TODO Clear the last table shown when a new button has been
-            // clicked.
-
-            // Create a table showing all of the traces to be inserted
-            // after the button that has been clicked.
-            // Make sure to sort it for readability.
-            FlexTable traceIDsTable = new FlexTable();
-            Integer[] traceIDs = new Integer[paths.get(button.getPath())
-                    .size()];
-            paths.get(button.getPath()).toArray(traceIDs);
-            int row = 0;
-            for (Integer traceID : traceIDs) {
-                traceIDsTable.setText(row, 0, "Trace " + traceID);
-                row++;
-            }
-
-            // Find the row in which the event took place on the table
-            // (the one housing this class), and then insert the created
-            // table right after the button.
-            int rowSource = getCellForEvent(event).getRowIndex() + 1;
-            insertRow(rowSource);
-            setWidget(rowSource, 1, traceIDsTable);
+    private FlexTable getSortedTracesTable(PathDisplayRadioButton button) {
+        // Create a table showing all of the traces to be inserted
+        // after the button that has been clicked.
+        // Make sure to sort it for readability.
+        FlexTable traceIDsTable = new FlexTable();
+        Integer[] traceIDs = new Integer[this.paths.get(button.getPath())
+                .size()];
+        Arrays.sort(paths.get(button.getPath()).toArray(traceIDs));
+        int row = 0;
+        for (Integer traceID : traceIDs) {
+            traceIDsTable.setText(row, 0, "Trace " + traceID);
+            row++;
         }
+
+        return traceIDsTable;
     }
 }
