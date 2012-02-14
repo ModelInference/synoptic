@@ -7,6 +7,8 @@ import java.util.Set;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -129,14 +131,14 @@ public class ModelTab extends Tab<DockPanel> {
                         "Annotate edges with probabilities, which indicate the fraction of traces that pass along an edge.",
                         TOOLTIP_URL);
         EdgeViewChangeHandler edgeOptsHandler = new EdgeViewChangeHandler(this);
-        probEdgesRadioButton.addClickHandler(edgeOptsHandler);
+        probEdgesRadioButton.addValueChangeHandler(edgeOptsHandler);
 
         TooltipListener
                 .setTooltip(
                         countEdgesRadioButton,
                         "Annotate edges with trace counts, which indicate the number of traces that pass along an edge",
                         TOOLTIP_URL);
-        countEdgesRadioButton.addClickHandler(edgeOptsHandler);
+        countEdgesRadioButton.addValueChangeHandler(edgeOptsHandler);
 
         Grid modelOptsGrid = new Grid(2, 1);
         modelOptsGrid.setCellSpacing(6);
@@ -220,7 +222,7 @@ public class ModelTab extends Tab<DockPanel> {
     /**
      * Changes model edges to displays counts or probabilities.
      */
-    class EdgeViewChangeHandler implements ClickHandler {
+    class EdgeViewChangeHandler implements ValueChangeHandler<Boolean> {
         ModelTab modelTab;
 
         public EdgeViewChangeHandler(ModelTab modelTab) {
@@ -228,8 +230,10 @@ public class ModelTab extends Tab<DockPanel> {
         }
 
         @Override
-        public void onClick(ClickEvent event) {
-            modelTab.showEdgeTraceCounts = !modelTab.showEdgeTraceCounts;
+        public void onValueChange(ValueChangeEvent<Boolean> event) {
+            modelTab.showEdgeTraceCounts = modelTab.countEdgesRadioButton
+                    .getValue();
+
             if (modelTab.showEdgeTraceCounts) {
                 ModelGraphic.useCountEdgeLabels();
             } else {
