@@ -1,0 +1,8 @@
+do_fail_callback neverFollowedBy(t) reverse_hops_ts
+do_measurements AlwaysPrecedes(t) check_cache
+do_measurements AlwaysPrecedes(t) reverse_hops_assume_symmetric_peek
+do_measurements AlwaysPrecedes(t) reverse_hops_rr
+do_measurements AlwaysPrecedes(t) reverse_hops_tr_to_src
+do_measurements AlwaysPrecedes(t) reverse_hops_ts
+get_next_hop AlwaysPrecedes(t) do_reach_callback
+get_next_hop AlwaysPrecedes(t) reverse_hops_ts
