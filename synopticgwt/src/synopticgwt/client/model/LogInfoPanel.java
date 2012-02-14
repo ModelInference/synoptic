@@ -90,7 +90,7 @@ public class LogInfoPanel extends VerticalPanel {
      * @param paths
      *            Set of trace IDs mapped to specific paths
      */
-    public void showPaths(Map<Integer, Set<GWTEdge>> paths) {
+    public void showPaths(Map<Set<GWTEdge>, Set<Integer>> paths) {
         this.pathsThroughPartitionsTable.showPaths(paths);
         if (!pathsThroughPartitionsTable.isVisible()) {
             this.toggleLogInfoDisplay();

@@ -14,10 +14,19 @@ public class PathDisplayRadioButton extends RadioButton {
     private final Set<GWTEdge> path;
     private volatile JavaScriptObject jsEdges;
 
-    public PathDisplayRadioButton(String group, String traceID,
-            Set<GWTEdge> path) {
-        super(group, traceID);
+    public PathDisplayRadioButton(String group, String name,
+            Set<Integer> traceIDs, Set<GWTEdge> path) {
+
+        // TODO: Come up with a better way to label the radio buttons.
+        super(group, name);
         this.path = path;
+    }
+
+    /**
+     * @return the path that this object displays.
+     */
+    public Set<GWTEdge> getPath() {
+        return this.path;
     }
 
     @Override

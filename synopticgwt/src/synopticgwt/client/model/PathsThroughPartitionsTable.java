@@ -6,6 +6,7 @@ import java.util.Set;
 
 import synopticgwt.shared.GWTEdge;
 
+import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 
 /**
@@ -19,6 +20,9 @@ public class PathsThroughPartitionsTable extends FlexTable {
 
     // The group under which to put all radio buttons.
     private static final String RADIO_BUTTON_GROUP = "traceRadioButton";
+
+    // Set whenever "showPaths" method is called.
+    private Map<Set<GWTEdge>, Set<Integer>> paths;
 
     /**
      * Clears the table of any displayed paths.
@@ -40,23 +44,54 @@ public class PathsThroughPartitionsTable extends FlexTable {
      *            A set of paths mapped to traceIDs. Each path is one that has
      *            been inferred from a single trace in the log.
      */
-    public void showPaths(Map<Integer, Set<GWTEdge>> paths) {
+    public void showPaths(Map<Set<GWTEdge>, Set<Integer>> paths) {
         this.clearPaths();
+        this.paths = paths;
         int row = 0;
+        int pathNum = 1;
 
-        // Sort the traces for readability.
-        Set<Integer> keys = paths.keySet();
-        Integer[] traceIDs = new Integer[keys.size()];
-        Arrays.sort(keys.toArray(traceIDs));
+        Set<Set<GWTEdge>> keys = paths.keySet();
 
-        // TODO Add an action listener to the radio button so that it
-        // somehow displays the paths associated with it (perhaps create a new
-        // class).
-        for (Integer trace : traceIDs) {
+        // Create a set of radio buttons related to each path.
+        for (Set<GWTEdge> path : keys) {
             PathDisplayRadioButton button = new PathDisplayRadioButton(
-                    RADIO_BUTTON_GROUP, "Trace " + trace, paths.get(trace));
+                    RADIO_BUTTON_GROUP, "Path " + pathNum, paths.get(path),
+                    path);
+            DisclosurePanel tracesPanel = new DisclosurePanel("Traces");
+
+            // Add the traces table to the panel so it can be viewed by the
+            // users.
+            tracesPanel.add(getSortedTracesTable(button));
+
             this.setWidget(row, 0, button);
             row++;
+            this.setWidget(row, 1, tracesPanel);
+            row++;
+            pathNum++;
         }
+    }
+
+    /**
+     * Makes a list of traceIDs and adds them to a flex table. The list is
+     * sorted.
+     * 
+     * @param button
+     * @return
+     */
+    private FlexTable getSortedTracesTable(PathDisplayRadioButton button) {
+        // Create a table showing all of the traces to be inserted
+        // after the button that has been clicked.
+        // Make sure to sort it for readability.
+        FlexTable traceIDsTable = new FlexTable();
+        Integer[] traceIDs = new Integer[this.paths.get(button.getPath())
+                .size()];
+        Arrays.sort(paths.get(button.getPath()).toArray(traceIDs));
+        int row = 0;
+        for (Integer traceID : traceIDs) {
+            traceIDsTable.setText(row, 0, "Trace " + traceID);
+            row++;
+        }
+
+        return traceIDsTable;
     }
 }

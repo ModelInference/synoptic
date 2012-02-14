@@ -11,7 +11,7 @@ import synopticgwt.shared.GWTEdge;
  * Callback handler for the getPathsThroughPartitionIDs() service call.
  */
 public class GetPathsThroughPartitionIDsAsyncCallback extends
-        AbstractErrorReportingAsyncCallback<Map<Integer, Set<GWTEdge>>> {
+        AbstractErrorReportingAsyncCallback<Map<Set<GWTEdge>, Set<Integer>>> {
 
     private final LogInfoPanel infoPanel;
 
@@ -33,7 +33,7 @@ public class GetPathsThroughPartitionIDsAsyncCallback extends
      * displayed.
      */
     @Override
-    public void onSuccess(Map<Integer, Set<GWTEdge>> paths) {
+    public void onSuccess(Map<Set<GWTEdge>, Set<Integer>> paths) {
         super.onSuccess(paths);
 
         if (paths.isEmpty()) {
