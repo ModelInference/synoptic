@@ -52,7 +52,8 @@ public class PathsThroughPartitionsTable extends FlexTable {
 
         Set<Set<GWTEdge>> keys = paths.keySet();
 
-        // Create a set of radio buttons related to each path.
+        // Create a set of radio buttons and related to each path,
+        // and a panel to show traces associated with said path.
         for (Set<GWTEdge> path : keys) {
             PathDisplayRadioButton button = new PathDisplayRadioButton(
                     RADIO_BUTTON_GROUP, "Path " + pathNum, paths.get(path),
@@ -61,31 +62,36 @@ public class PathsThroughPartitionsTable extends FlexTable {
 
             // Add the traces table to the panel so it can be viewed by the
             // users.
-            tracesPanel.add(getSortedTracesTable(button));
+            tracesPanel.add(getSortedTracesTable(paths.get(path)));
 
+            // Attach the widgets to the table.
             this.setWidget(row, 0, button);
-            row++;
-            this.setWidget(row, 1, tracesPanel);
-            row++;
+            this.setWidget(row + 1, 1, tracesPanel);
+            row += 2;
             pathNum++;
         }
     }
 
     /**
-     * Makes a list of traceIDs and adds them to a flex table. The list is
-     * sorted.
+     * @param traces
+     *            The set of traces that will be sorted and added to the
+     *            {@code FlexTable}
      * 
-     * @param button
-     * @return
+     * @return a {@code FlexTable} that contains a sorted list of traces.
      */
-    private FlexTable getSortedTracesTable(PathDisplayRadioButton button) {
-        // Create a table showing all of the traces to be inserted
-        // after the button that has been clicked.
-        // Make sure to sort it for readability.
+    private FlexTable getSortedTracesTable(Set<Integer> traces) {
+
+        // TODO Perhaps make this FlexTable a separate class altogether
+        // so that extra functionality can be given to each individual
+        // trace.
+
+        // Create an array and fill it with the sorted
+        // traces.
         FlexTable traceIDsTable = new FlexTable();
-        Integer[] traceIDs = new Integer[this.paths.get(button.getPath())
-                .size()];
-        Arrays.sort(paths.get(button.getPath()).toArray(traceIDs));
+        Integer[] traceIDs = new Integer[traces.size()];
+        Arrays.sort(traces.toArray(traceIDs));
+
+        // Add each trace to the table.
         int row = 0;
         for (Integer traceID : traceIDs) {
             traceIDsTable.setText(row, 0, "Trace " + traceID);
