@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
-import synopticgwt.shared.GWTEdge;
-
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlexTable;
+
+import synopticgwt.shared.GWTEdge;
 
 /**
  * A table used to display information about paths through groups of partitions
@@ -40,29 +40,33 @@ public class PathsThroughPartitionsTable extends FlexTable {
      * previous edge highlights if selected again. (TODO: Implement edge
      * highlighting functionality).
      * 
-     * @param paths
+     * @param pathsToShow
      *            A set of paths mapped to traceIDs. Each path is one that has
      *            been inferred from a single trace in the log.
      */
-    public void showPaths(Map<Set<GWTEdge>, Set<Integer>> paths) {
+    public void showPaths(Map<Set<GWTEdge>, Set<Integer>> pathsToShow) {
         this.clearPaths();
-        this.paths = paths;
+        this.paths = pathsToShow;
         int row = 0;
         int pathNum = 1;
 
-        Set<Set<GWTEdge>> keys = paths.keySet();
+        Set<Set<GWTEdge>> keys = pathsToShow.keySet();
 
         // Create a set of radio buttons and related to each path,
         // and a panel to show traces associated with said path.
         for (Set<GWTEdge> path : keys) {
             PathDisplayRadioButton button = new PathDisplayRadioButton(
-                    RADIO_BUTTON_GROUP, "Path " + pathNum, paths.get(path),
-                    path);
-            DisclosurePanel tracesPanel = new DisclosurePanel("Traces");
+                    RADIO_BUTTON_GROUP, "Path " + pathNum,
+                    pathsToShow.get(path), path);
+
+            FlexTable tracesTable = getSortedTracesTable(pathsToShow.get(path));
+
+            DisclosurePanel tracesPanel = new DisclosurePanel("Traces ("
+                    + tracesTable.getRowCount() + ")");
 
             // Add the traces table to the panel so it can be viewed by the
             // users.
-            tracesPanel.add(getSortedTracesTable(paths.get(path)));
+            tracesPanel.add(tracesTable);
 
             // Attach the widgets to the table.
             this.setWidget(row, 0, button);
@@ -76,7 +80,6 @@ public class PathsThroughPartitionsTable extends FlexTable {
      * @param traces
      *            The set of traces that will be sorted and added to the
      *            {@code FlexTable}
-     * 
      * @return a {@code FlexTable} that contains a sorted list of traces.
      */
     private FlexTable getSortedTracesTable(Set<Integer> traces) {
