@@ -32,15 +32,6 @@ public class PathsThroughPartitionsTable extends FlexTable {
     private final Map<RadioButton, Set<GWTEdge>> buttonToPathMap = new HashMap<RadioButton, Set<GWTEdge>>();
 
     /**
-     * Clears the table of any displayed paths.
-     */
-    public void clearPaths() {
-        while (this.getRowCount() > 0) {
-            this.removeRow(0);
-        }
-    }
-
-    /**
      * Accepts a set of paths mapped to traceIDs, and then adds a radio button
      * for each traceID. When a radio button is clicked, the model will
      * highlight the corresponding edges related to the trace, and clear any
@@ -51,7 +42,7 @@ public class PathsThroughPartitionsTable extends FlexTable {
      *            been inferred from a single trace in the log.
      */
     public void showPaths(Map<Set<GWTEdge>, Set<Integer>> pathsToShow) {
-        this.clearPaths();
+        this.clear();
         int row = 0;
         int pathNum = 1;
 

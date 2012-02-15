@@ -190,7 +190,7 @@ var GRAPH_HANDLER = {
         rect.node.onmouseup = function(event) {
             if (node.label != INITIAL && node.label != TERMINAL) {
             	
-                if (!event.shiftKey && (selectedNodeLog != rect || infoPanelPathsVisible())) {
+                if (!event.shiftKey && selectedNodeLog != rect) {
                     clearSelectedNodes();
                     viewLogLines(parseInt(node.id));
                 }

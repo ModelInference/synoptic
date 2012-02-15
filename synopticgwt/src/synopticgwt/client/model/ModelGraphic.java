@@ -119,11 +119,6 @@ public class ModelGraphic {
 			modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
 		};
 
-		// Determines if the infoPanel's paths table is visible.
-		$wnd.infoPanelPathsVisible = function() {
-			return modelTab.@synopticgwt.client.model.ModelTab::pathsTableIsVisible()();
-		}
-
 		// Export global add/remove methods for selected nodes (moving 
 		// nodes to model tab).
 		$wnd.addSelectedNode = function(id) {

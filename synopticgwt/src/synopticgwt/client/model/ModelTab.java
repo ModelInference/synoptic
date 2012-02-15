@@ -265,7 +265,7 @@ public class ModelTab extends Tab<DockPanel> {
         countEdgesRadioButton.setValue(false);
         showEdgeTraceCounts = false;
 
-        logInfoPanel.clearAll();
+        logInfoPanel.clear();
     }
 
     /**
@@ -361,15 +361,6 @@ public class ModelTab extends Tab<DockPanel> {
         // //////////////////////
     }
 
-    /**
-     * Returns true if the paths table is currently visible in the lgo
-     * information panel. Currently, if this is false, this implies the log
-     * lines table is visible.
-     */
-    public boolean pathsTableIsVisible() {
-        return logInfoPanel.pathsTableVisible();
-    }
-
     /** Returns the correct width for the model graphic in the model tab. */
     public int getModelGraphicWidth() {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
@@ -447,7 +438,7 @@ public class ModelTab extends Tab<DockPanel> {
 
         // Set the log lines display to default and clear
         // any information.
-        logInfoPanel.clearAll();
+        logInfoPanel.clear();
 
         // Show an animation of refinement.
         showChangingGraph(graph.getGraph(), graph.getRefinedNode());
