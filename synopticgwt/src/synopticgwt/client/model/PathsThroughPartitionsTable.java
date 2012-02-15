@@ -88,7 +88,7 @@ public class PathsThroughPartitionsTable extends FlexTable {
      *            {@code FlexTable}
      * @return a {@code FlexTable} that contains a sorted list of traces.
      */
-    private FlexTable getSortedTracesTable(Set<Integer> traces) {
+    private static FlexTable getSortedTracesTable(Set<Integer> traces) {
 
         // TODO Perhaps make this FlexTable a separate class altogether
         // so that extra functionality can be given to each individual
@@ -111,16 +111,24 @@ public class PathsThroughPartitionsTable extends FlexTable {
     }
 
     private class PathViewChangeHandler implements ValueChangeHandler<Boolean> {
+        public PathViewChangeHandler() {
+            // Simply here to please the compiler
+            // by not having to create a synthetic accessor method.
+        }
+
+        @Override
+        @SuppressWarnings("synthetic-access")
         public void onValueChange(ValueChangeEvent<Boolean> event) {
             // If the button has, in fact, changed, highlight the path
             // in the model.
             if (event.getValue()) {
                 RadioButton sourceButton = (RadioButton) event.getSource();
-                
+
                 // Convert the path to a java script array that
                 // can be displayed on top of the model.
                 JavaScriptObject jsEdges = GWTToJSUtils
-                        .createJSArrayFromGWTEdges(buttonToPathMap
+                        .createJSArrayFromGWTEdges(PathsThroughPartitionsTable
+                                .this.buttonToPathMap
                                 .get(sourceButton));
                 ModelGraphic.highlightEdges(jsEdges);
             }
