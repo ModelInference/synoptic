@@ -101,48 +101,16 @@ public class LogInfoPanel extends VerticalPanel {
      * Clears the log lines and the paths tables, and set the visibility back to
      * the log lines table (the default).
      */
-    public void clearAll() {
-        this.clearLogLines();
-        this.clearPaths();
+    @Override
+    public void clear() {
+        this.logLinesTable.clear();
+        this.pathsThroughPartitionsTable.clear();
 
         if (!logLinesTable.isVisible()) {
             toggleLogInfoDisplay();
         }
     }
-
-    /**
-     * Clears the log lines display from the info table. However, this does not
-     * change the state of what is displayed. To clear both the log lines and
-     * the paths, while setting the view back to the default state (showing the
-     * empty log lines table), use clearAll.
-     */
-    public void clearLogLines() {
-        logLinesTable.clear();
-    }
-
-    /**
-     * Clears the traces from the paths display
-     */
-    public void clearPaths() {
-        pathsThroughPartitionsTable.clear();
-    }
-
-    /**
-     * Returns true whenever the state of the log info panel is displaying the
-     * paths table.
-     */
-    public boolean pathsTableVisible() {
-        return this.pathsThroughPartitionsTable.isVisible();
-    }
-
-    /**
-     * Returns true whenever the state of the log info panel is displaying the
-     * log lines table.
-     */
-    public boolean logLinesTableVisible() {
-        return this.logLinesTable.isVisible();
-    }
-
+    
     /**
      * Toggles the info display between showing log lines and showing paths
      * through selected partitions.
