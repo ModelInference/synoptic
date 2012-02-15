@@ -124,7 +124,7 @@ public class LogInfoPanel extends VerticalPanel {
      * Clears the traces from the paths display
      */
     public void clearPaths() {
-        pathsThroughPartitionsTable.clearPaths();
+        pathsThroughPartitionsTable.clear();
     }
 
     /**
