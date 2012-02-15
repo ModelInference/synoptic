@@ -74,7 +74,7 @@ public class DerbyDB extends HttpServlet {
     private static void createUploadedLogTable() {
         try {
             stmt = conn.createStatement();
-            stmt.execute("CREATE TABLE " + UPLOADED_LOG + " (logid INT PRIMARY KEY, text CLOB, hash VARCHAR(255))");
+            stmt.execute("CREATE TABLE " + UPLOADED_LOG + " (logid INT PRIMARY KEY, text CLOB, hash VARCHAR(32))");
             stmt.close();
         } catch (SQLException sqlExcept) {
             sqlExcept.printStackTrace();
