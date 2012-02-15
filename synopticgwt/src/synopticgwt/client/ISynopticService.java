@@ -117,6 +117,6 @@ public interface ISynopticService extends RemoteService {
      * @return
      * @throws Exception
      */
-    Map<Integer, Set<GWTEdge>> getPathsThroughPartitionIDs(
+    Map<Set<GWTEdge>, Set<Integer>> getPathsThroughPartitionIDs(
             Set<Integer> selectedNodes) throws Exception;
 }

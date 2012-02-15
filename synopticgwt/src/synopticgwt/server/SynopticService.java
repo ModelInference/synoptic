@@ -655,11 +655,11 @@ public class SynopticService extends RemoteServiceServlet implements
      * @param selectedNodes
      * @throws Exception
      */
-    public Map<Integer, Set<GWTEdge>> getPathsThroughPartitionIDs(
+    public Map<Set<GWTEdge>, Set<Integer>> getPathsThroughPartitionIDs(
             Set<Integer> selectedNodeIDs) throws Exception {
         retrieveSessionState();
 
-        Map<Integer, Set<GWTEdge>> gwtPaths = new HashMap<Integer, Set<GWTEdge>>();
+        Map<Set<GWTEdge>, Set<Integer>> gwtPaths = new HashMap<Set<GWTEdge>, Set<Integer>>();
 
         if (selectedNodeIDs == null || selectedNodeIDs.isEmpty()) {
             return gwtPaths;
@@ -694,7 +694,14 @@ public class SynopticService extends RemoteServiceServlet implements
                 gwtPath.add(edge);
             }
 
-            gwtPaths.put(id, gwtPath);
+            // If there isn't already a path 
+            if (gwtPaths.get(gwtPath) == null) {
+                Set<Integer> traces = new HashSet<Integer>();
+                traces.add(id);
+                gwtPaths.put(gwtPath, traces);
+            } else {
+                gwtPaths.get(gwtPath).add(id);
+            }
         }
         return gwtPaths;
     }
