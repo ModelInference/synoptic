@@ -1,7 +1,6 @@
 package synopticgwt.shared;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,11 +11,11 @@ public class GWTGraph implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public HashSet<GWTNode> nodeSet;
+    public List<GWTNode> nodeSet;
     public List<GWTEdge> edges;
 
     public GWTGraph() {
-        nodeSet = new HashSet<GWTNode>();
+        nodeSet = new LinkedList<GWTNode>();
         edges = new LinkedList<GWTEdge>();
     }
 
@@ -28,7 +27,7 @@ public class GWTGraph implements Serializable {
         edges.add(new GWTEdge(source, target, weight, count));
     }
 
-    public HashSet<GWTNode> getNodes() {
+    public List<GWTNode> getNodes() {
         return nodeSet;
     }
 

@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -655,11 +656,11 @@ public class SynopticService extends RemoteServiceServlet implements
      * @param selectedNodes
      * @throws Exception
      */
-    public Map<Set<GWTEdge>, Set<Integer>> getPathsThroughPartitionIDs(
+    public Map<List<GWTEdge>, Set<Integer>> getPathsThroughPartitionIDs(
             Set<Integer> selectedNodeIDs) throws Exception {
         retrieveSessionState();
 
-        Map<Set<GWTEdge>, Set<Integer>> gwtPaths = new HashMap<Set<GWTEdge>, Set<Integer>>();
+        Map<List<GWTEdge>, Set<Integer>> gwtPaths = new HashMap<List<GWTEdge>, Set<Integer>>();
 
         if (selectedNodeIDs == null || selectedNodeIDs.isEmpty()) {
             return gwtPaths;
@@ -682,7 +683,7 @@ public class SynopticService extends RemoteServiceServlet implements
             // Convert each transition individually into an edge, and then
             // add them all to an individual path.
             Set<ITransition<Partition>> transitions = paths.get(id);
-            Set<GWTEdge> gwtPath = new HashSet<GWTEdge>();
+            List<GWTEdge> gwtPath = new LinkedList<GWTEdge>();
             for (ITransition<Partition> trans : transitions) {
                 GWTNode trgNode = gwtNodeFromPartition(trans.getTarget());
                 GWTNode srcNode = gwtNodeFromPartition(trans.getSource());
@@ -694,7 +695,7 @@ public class SynopticService extends RemoteServiceServlet implements
                 gwtPath.add(edge);
             }
 
-            // If there isn't already a path 
+            // If there isn't already a path
             if (gwtPaths.get(gwtPath) == null) {
                 Set<Integer> traces = new HashSet<Integer>();
                 traces.add(id);

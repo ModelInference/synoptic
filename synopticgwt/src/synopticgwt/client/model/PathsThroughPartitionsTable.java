@@ -2,10 +2,10 @@ package synopticgwt.client.model;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -29,7 +29,7 @@ public class PathsThroughPartitionsTable extends FlexTable {
     // A map of buttons to GWT-centric paths. Each button corresponds to
     // a unique path that Synoptic has inferred through the occurrence of one
     // or more corresponding traces in the log.
-    private final Map<RadioButton, Set<GWTEdge>> buttonToPathMap = new HashMap<RadioButton, Set<GWTEdge>>();
+    private final Map<RadioButton, List<GWTEdge>> buttonToPathMap = new HashMap<RadioButton, List<GWTEdge>>();
 
     /**
      * Accepts a set of paths mapped to traceIDs, and then adds a radio button
@@ -41,7 +41,7 @@ public class PathsThroughPartitionsTable extends FlexTable {
      *            A set of paths mapped to traceIDs. Each path is one that has
      *            been inferred from a single trace in the log.
      */
-    public void showPaths(Map<Set<GWTEdge>, Set<Integer>> pathsToShow) {
+    public void showPaths(Map<List<GWTEdge>, Set<Integer>> pathsToShow) {
         this.clear();
         int row = 0;
         int pathNum = 1;
@@ -50,7 +50,7 @@ public class PathsThroughPartitionsTable extends FlexTable {
 
         // Create a set of radio buttons and related to each path,
         // and a panel to show traces associated with said path.
-        for (Set<GWTEdge> path : pathsToShow.keySet()) {
+        for (List<GWTEdge> path : pathsToShow.keySet()) {
             // Create the widgets for showing info about the paths: The radio
             // button
             // that will highlight the model when selected, and the table that
@@ -124,13 +124,9 @@ public class PathsThroughPartitionsTable extends FlexTable {
             if (event.getValue()) {
                 RadioButton sourceButton = (RadioButton) event.getSource();
 
-                // Convert the path to a java script array that
-                // can be displayed on top of the model.
-                JavaScriptObject jsEdges = GWTToJSUtils
-                        .createJSArrayFromGWTEdges(PathsThroughPartitionsTable
-                                .this.buttonToPathMap
+                ModelGraphic
+                        .highlightEdges(PathsThroughPartitionsTable.this.buttonToPathMap
                                 .get(sourceButton));
-                ModelGraphic.highlightEdges(jsEdges);
             }
         }
     }

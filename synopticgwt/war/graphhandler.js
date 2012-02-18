@@ -108,10 +108,7 @@ var GRAPH_HANDLER = {
     "currentEdges" : [],
 
     // initializes this GRAPH_HANDLER
-    "initializeStableIDs" : function(nodes, edges, renderer, layouter, g) {
-        for ( var i = 0; i < nodes.length; i += 2) {
-            this.currentNodes[nodes[i]] = nodes[i + 1];
-        }
+    "initializeStableIDs" : function(renderer, layouter, g) {
         this.graph = g;
         this.rend = renderer;
         this.layouter = layouter;
@@ -286,64 +283,5 @@ var GRAPH_HANDLER = {
         
     },
 
-    // updates the graph by removing the node with the splitNodeID and adding
-    // (plus drawing)
-    // all newly refined nodes at the position of the removed node. returns an
-    // array of the
-    // new nodes
-    "updateRefinedGraph" : function(nodes, edges, splitNodeID, showCounts) {
-        // fetch the refined node
-        var refinedNode = this.graph.nodes[splitNodeID];
-
-        // remove the refined node and all its edges from the graph
-        this.graph.removeNode(splitNodeID);
-        delete this.currentNodes[splitNodeID];
-
-        // tracks which new nodes are added to update edges below
-        var newNodes = [];
-
-        // loop over all given nodes, find and add new nodes to the graph
-        for ( var i = 0; i < nodes.length; i += 2) {
-            if (!this.currentNodes[nodes[i]]) {
-                this.currentNodes[nodes[i]] = nodes[i + 1];
-                newNodes[nodes[i]] = true;
-                this.graph.addNode(nodes[i], {
-                    label : nodes[i + 1],
-                    render : this.render,
-                    layoutPosX : refinedNode.layoutPosX,
-                    layoutPosY : refinedNode.layoutPosY
-                });
-            }
-        }
-
-        // re-draw the graph, adding new nodes to the canvas
-        this.rend.draw();
-
-        // loop over all given edges, finding ones connected to the new
-        // nodes that need to be added to the graph
-        for ( var i = 0; i < edges.length; i += 4) {
-            var source = edges[i];
-            var dest = edges[i + 1];
-            if (newNodes[source] || newNodes[dest]) {
-            	if (showCounts) {
-            		labelVal = edges[i + 3];
-            	} else {
-            		labelVal = edges[i + 2];
-            	}
-            	style = {
-                    label : labelVal,
-                    labelProb : edges[i + 2], 
-                    labelCount : edges[i + 3]
-                };
-            	edge = this.graph.addEdge(source, dest, style);
-                this.currentEdges.push({
-                	"edge" : edge,
-                	"style" : style
-                });
-            }
-        }
-
-        // return the set of new nodes
-        return newNodes;
-    }
+    
 };

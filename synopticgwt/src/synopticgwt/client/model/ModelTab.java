@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -294,20 +293,13 @@ public class ModelTab extends Tab<DockPanel> {
         graphPanel.setStylePrimaryName("modelCanvas");
         panel.add(graphPanel, DockPanel.CENTER);
 
-        // Create the list of graph node labels and their Ids.
-        HashSet<GWTNode> nodeSet = graph.getNodes();
-        JavaScriptObject jsNodes = GWTToJSUtils
-                .createJSArrayFromGWTNodes(nodeSet);
-
-        // Create the list of edges, where two consecutive node Ids is an edge.
-        JavaScriptObject jsEdges = GWTToJSUtils.createJSArrayFromGWTEdges(graph
-                .getEdges());
         // Determine the size of the graphic.
         int width = getModelGraphicWidth();
         int height = getModelGraphicHeight();
         graphPanel.setPixelSize(width, height);
-        ModelGraphic.createGraph(this, jsNodes, jsEdges, width, height,
-                canvasId, INITIAL_LABEL, TERMINAL_LABEL);
+
+        ModelGraphic.createGraph(this, graph.getNodes(), graph.getEdges(),
+                width, height, canvasId, INITIAL_LABEL, TERMINAL_LABEL);
     }
 
     /**
@@ -320,14 +312,7 @@ public class ModelTab extends Tab<DockPanel> {
      *            the refined node's id
      */
     public void showChangingGraph(GWTGraph graph, GWTNode refinedNode) {
-        JavaScriptObject jsNodes = GWTToJSUtils.createJSArrayFromGWTNodes(graph
-                .getNodes());
-
-        // Create the list of edges, where two consecutive node Ids is an edge.
-        JavaScriptObject jsEdges = GWTToJSUtils.createJSArrayFromGWTEdges(graph
-                .getEdges());
-
-        ModelGraphic.createChangingGraph(jsNodes, jsEdges,
+        ModelGraphic.createChangingGraph(graph.getNodes(), graph.getEdges(),
                 refinedNode.getPartitionNodeHashCode(), canvasId, this);
     }
 
