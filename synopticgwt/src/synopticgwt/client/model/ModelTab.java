@@ -25,7 +25,6 @@ import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.client.util.TooltipListener;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTGraphDelta;
-import synopticgwt.shared.GWTNode;
 import synopticgwt.shared.LogLine;
 
 /**
@@ -90,6 +89,9 @@ public class ModelTab extends Tab<DockPanel> {
     // String representing the canvas div.
     private static final String canvasId = "canvasId";
 
+    // The model graphic object that maintains all the model graphical state.
+    private ModelGraphic modelGraphic;
+
     public ModelTab(ISynopticServiceAsync synopticService, ProgressWheel pWheel) {
         super(synopticService, pWheel, "model-tab");
         panel = new DockPanel();
@@ -149,7 +151,7 @@ public class ModelTab extends Tab<DockPanel> {
         controlsPanel.add(modelOpts);
 
         // Add log info panel.
-        logInfoPanel = new LogInfoPanel("300px");
+        logInfoPanel = new LogInfoPanel("300px", this);
         controlsPanel.add(logInfoPanel);
 
         panel.add(controlsPanel, DockPanel.WEST);
@@ -218,6 +220,10 @@ public class ModelTab extends Tab<DockPanel> {
         initializeTabState();
     }
 
+    public ModelGraphic getModelGraphic() {
+        return this.modelGraphic;
+    }
+
     /**
      * Changes model edges to displays counts or probabilities.
      */
@@ -234,9 +240,9 @@ public class ModelTab extends Tab<DockPanel> {
                     .getValue();
 
             if (modelTab.showEdgeTraceCounts) {
-                ModelGraphic.useCountEdgeLabels();
+                modelGraphic.useCountEdgeLabels();
             } else {
-                ModelGraphic.useProbEdgeLabels();
+                modelGraphic.useProbEdgeLabels();
             }
         }
     }
@@ -298,22 +304,10 @@ public class ModelTab extends Tab<DockPanel> {
         int height = getModelGraphicHeight();
         graphPanel.setPixelSize(width, height);
 
-        ModelGraphic.createGraph(this, graph.getNodes(), graph.getEdges(),
-                width, height, canvasId, INITIAL_LABEL, TERMINAL_LABEL);
-    }
+        this.modelGraphic = new ModelGraphic(this);
 
-    /**
-     * Shows the refined GWTGraph object on the screen in the modelPanel,
-     * animating transition to new positions
-     * 
-     * @param graph
-     *            the updated graph to display
-     * @param refinedNode
-     *            the refined node's id
-     */
-    public void showChangingGraph(GWTGraph graph, GWTNode refinedNode) {
-        ModelGraphic.createChangingGraph(graph.getNodes(), graph.getEdges(),
-                refinedNode.getPartitionNodeHashCode(), canvasId, this);
+        this.modelGraphic.createGraph(graph.getNodes(), graph.getEdges(),
+                width, height, canvasId, INITIAL_LABEL, TERMINAL_LABEL);
     }
 
     /**
@@ -379,7 +373,7 @@ public class ModelTab extends Tab<DockPanel> {
         int height = getModelGraphicHeight();
 
         graphPanel.setPixelSize(width, height);
-        ModelGraphic.resizeGraph(width, height);
+        modelGraphic.resizeGraph(width, height);
     }
 
     /**
@@ -415,24 +409,28 @@ public class ModelTab extends Tab<DockPanel> {
     }
 
     /** Called when a refinement call to the service succeeded. */
-    public void refineOneStepSuccess(GWTGraphDelta graph) {
-        if (graph == null) {
+    public void refineOneStepSuccess(GWTGraphDelta deltaGraph) {
+        if (deltaGraph == null) {
             // Graph is null when no refinement occurred.
             modelCoarsenButton.setEnabled(true);
             return;
         }
 
         // Clear the highlighted nodes from the graph.
-        ModelGraphic.clearEdgeState();
+        modelGraphic.clearEdgeState();
 
         // Set the log lines display to default and clear
         // any information.
         logInfoPanel.clear();
 
-        // Show an animation of refinement.
-        showChangingGraph(graph.getGraph(), graph.getRefinedNode());
+        // Shows the refined GWTGraph object on the screen in the modelPanel,
+        // animating transition to new positions.
+        GWTGraph graph = deltaGraph.getGraph();
+        this.modelGraphic.createChangingGraph(graph.getNodes(), graph
+                .getEdges(), deltaGraph.getRefinedNode()
+                .getPartitionNodeHashCode(), canvasId);
 
-        if (graph.getUnsatInvs().invs.size() == 0) {
+        if (deltaGraph.getUnsatInvs().invs.size() == 0) {
             // No further refinement is possible: disable refinement, enable
             // coarsening.
             modelRefineButton.setEnabled(false);
@@ -601,7 +599,7 @@ public class ModelTab extends Tab<DockPanel> {
                         new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
                                 ModelTab.this.logInfoPanel));
 
-                ModelGraphic.updateNodesBorder(SHIFT_CLICK_BORDER_COLOR);
+                modelGraphic.updateNodesBorder(SHIFT_CLICK_BORDER_COLOR);
             } catch (Exception e) {
                 // TODO: Do something about the exception
             }

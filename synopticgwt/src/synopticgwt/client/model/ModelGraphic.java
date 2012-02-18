@@ -11,6 +11,13 @@ import synopticgwt.shared.GWTNode;
  * Used to create the graphic representing the Synoptic model.
  */
 public class ModelGraphic {
+    // The ModelTab that this graphic is associated with.
+    private ModelTab modelTab;
+
+    public ModelGraphic(ModelTab modelTab) {
+        this.modelTab = modelTab;
+    }
+
     // //////////////////////////////////////////////////////////////////////////
     // JSNI methods -- JavaScript Native Interface methods. The method body of
     // these calls is pure JavaScript.
@@ -18,7 +25,7 @@ public class ModelGraphic {
     /**
      * Updates the model edges to display transition probabilities.
      */
-    public static native void useProbEdgeLabels() /*-{
+    public native void useProbEdgeLabels() /*-{
 		var g = $wnd.GRAPH_HANDLER.getGraph();
 
 		var edges = g.edges;
@@ -32,7 +39,7 @@ public class ModelGraphic {
     /**
      * Updates the model edges to display transition counts.
      */
-    public static native void useCountEdgeLabels() /*-{
+    public native void useCountEdgeLabels() /*-{
 		var g = $wnd.GRAPH_HANDLER.getGraph();
 
 		var edges = g.edges;
@@ -59,19 +66,37 @@ public class ModelGraphic {
      * @param canvasId
      *            the div id with which to associate the resulting graph
      */
-    public static native void createGraph(ModelTab modelTab,
-            List<GWTNode> nodes, List<GWTEdge> edges, int width, int height,
-            String canvasId, String initial, String terminal) /*-{
+    public native void createGraph(List<GWTNode> nodes, List<GWTEdge> edges,
+            int width, int height, String canvasId, String initial,
+            String terminal) /*-{
 
-		// Define all global functions.
-		@synopticgwt.client.model.ModelGraphic::defineGlobalFunctions(Lsynopticgwt/client/model/ModelTab;)(modelTab);
+		// Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
+		$wnd.Math.seedrandom($wnd.randSeed);
 
-		// Create the graph.
+		var mTab = this.@synopticgwt.client.model.ModelGraphic::modelTab;
+		var modelGraphic = this;
+
+		// Export the handleLogRequest globally.
+		$wnd.viewLogLines = function(id) {
+			modelGraphic.@synopticgwt.client.model.ModelGraphic::clearEdgeState()();
+			mTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
+		};
+
+		// Export global add/remove methods for selected nodes (moving 
+		// nodes to model tab).
+		$wnd.addSelectedNode = function(id) {
+			mTab.@synopticgwt.client.model.ModelTab::addSelectedNode(I)(id);
+		};
+
+		$wnd.removeSelectedNode = function(id) {
+			mTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(id);
+		};
+
+		// Create the Dracula graph.
 		var g = new $wnd.Graph();
 		g.edgeFactory.template.style.directed = true;
 
-		// Add each node to graph.
-		// for ( var i = 0; i < nodes.length; i += 2) {
+		// Add each node to the graph.
 		for ( var i = 0; i < nodes.@java.util.List::size()(); i++) {
 			var node = nodes.@java.util.List::get(I)(i);
 			// Store graph state.
@@ -87,10 +112,9 @@ public class ModelGraphic {
 
 		// Add each edge to graph.
 		$wnd.GRAPH_HANDLER.currentEdges = [];
-		var showCounts = modelTab.@synopticgwt.client.model.ModelTab::getShowEdgeCounts()();
 		for ( var i = 0; i < edges.@java.util.List::size()(); i++) {
 			var edge = edges.@java.util.List::get(I)(i);
-			@synopticgwt.client.model.ModelGraphic::addEdge(Lsynopticgwt/shared/GWTEdge;ZLcom/google/gwt/core/client/JavaScriptObject;)(edge, showCounts, g);
+			this.@synopticgwt.client.model.ModelGraphic::addEdge(Lsynopticgwt/shared/GWTEdge;Lcom/google/gwt/core/client/JavaScriptObject;)(edge, g);
 		}
 
 		// Give stable layout to graph elements.
@@ -101,27 +125,6 @@ public class ModelGraphic {
 				height);
 
 		$wnd.GRAPH_HANDLER.initializeStableIDs(renderer, layouter, g);
-    }-*/;
-
-    private static native void defineGlobalFunctions(ModelTab modelTab) /*-{
-		// Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
-		$wnd.Math.seedrandom($wnd.randSeed);
-
-		// Export the handleLogRequest globally.
-		$wnd.viewLogLines = function(id) {
-			@synopticgwt.client.model.ModelGraphic::clearEdgeState()();
-			modelTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
-		};
-
-		// Export global add/remove methods for selected nodes (moving 
-		// nodes to model tab).
-		$wnd.addSelectedNode = function(id) {
-			modelTab.@synopticgwt.client.model.ModelTab::addSelectedNode(I)(id);
-		};
-
-		$wnd.removeSelectedNode = function(id) {
-			modelTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(id);
-		};
     }-*/;
 
     /**
@@ -137,9 +140,8 @@ public class ModelGraphic {
      * @param canvasId
      *            the div id with which to associate the resulting graph
      */
-    public static native void createChangingGraph(List<GWTNode> nodes,
-            List<GWTEdge> edges, int refinedNode, String canvasId,
-            ModelTab modelTab) /*-{
+    public native void createChangingGraph(List<GWTNode> nodes,
+            List<GWTEdge> edges, int refinedNode, String canvasId) /*-{
 
 		// Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
 		$wnd.Math.seedrandom($wnd.randSeed);
@@ -147,10 +149,8 @@ public class ModelGraphic {
 		// Clear the selected nodes from the graph's state.
 		$wnd.clearSelectedNodes();
 
-		var showCounts = modelTab.@synopticgwt.client.model.ModelTab::getShowEdgeCounts()();
-
 		// update graph and fetch array of new nodes
-		var newNodes = @synopticgwt.client.model.ModelGraphic::updateRefinedGraph(Ljava/util/List;Ljava/util/List;IZ)(nodes,edges,refinedNode, showCounts);
+		var newNodes = this.@synopticgwt.client.model.ModelGraphic::updateRefinedGraph(Ljava/util/List;Ljava/util/List;I)(nodes,edges,refinedNode);
 
 		// fetch the current layouter
 		var layouter = $wnd.GRAPH_HANDLER.getLayouter();
@@ -170,22 +170,21 @@ public class ModelGraphic {
     // all newly refined nodes at the position of the removed node. returns an
     // array of the
     // new nodes
-    public static native JavaScriptObject updateRefinedGraph(
-            List<GWTNode> nodes, List<GWTEdge> edges, int splitNodeID,
-            boolean showCounts) /*-{
+    public native JavaScriptObject updateRefinedGraph(List<GWTNode> nodes,
+            List<GWTEdge> edges, int splitNodeID) /*-{
 
 		var gh = $wnd.GRAPH_HANDLER;
-		// fetch the refined node
+		// Retrieve the refined node.
 		var refinedNode = gh.graph.nodes[splitNodeID];
 
-		// remove the refined node and all its edges from the graph
+		// Remove the refined node and all of its edges from the graph.
 		gh.graph.removeNode(splitNodeID);
 		delete gh.currentNodes[splitNodeID];
 
-		// tracks which new nodes are added to update edges below
+		// Tracks which new nodes are added to update edges below.
 		var newNodes = [];
 
-		// loop over all given nodes, find and add new nodes to the graph
+		// Loop over all the given nodes, find and add new nodes to the graph
 		for ( var i = 0; i < nodes.@java.util.List::size()(); i++) {
 			var node = nodes.@java.util.List::get(I)(i);
 
@@ -211,14 +210,12 @@ public class ModelGraphic {
 		for ( var i = 0; i < edges.@java.util.List::size()(); i++) {
 			var edge = edges.@java.util.List::get(I)(i);
 			var sourceNode = edge.@synopticgwt.shared.GWTEdge::getSrc()();
-			var source = sourceNode
-					.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr();
+			var sourceHash = sourceNode.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr()();
 			var destNode = edge.@synopticgwt.shared.GWTEdge::getDst()();
-			var dest = destNode
-					.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr();
+			var destHash = destNode.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr()();
 
-			if (newNodes[source] || newNodes[dest]) {
-				@synopticgwt.client.model.ModelGraphic::addEdge(Lsynopticgwt/shared/GWTEdge;ZLcom/google/gwt/core/client/JavaScriptObject;)(edge, showCounts, gh.graph);
+			if (newNodes[sourceHash] || newNodes[destHash]) {
+				this.@synopticgwt.client.model.ModelGraphic::addEdge(Lsynopticgwt/shared/GWTEdge;Lcom/google/gwt/core/client/JavaScriptObject;)(edge, gh.graph);
 			}
 		}
 
@@ -226,8 +223,8 @@ public class ModelGraphic {
 		return newNodes;
     }-*/;
 
-    private static native void addEdge(GWTEdge edge, boolean showCounts,
-            JavaScriptObject graph) /*-{
+    private native void addEdge(GWTEdge edge, JavaScriptObject graph) /*-{
+
 		var sourceNode = edge.@synopticgwt.shared.GWTEdge::getSrc()();
 		var source = sourceNode.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr()();
 		var destNode = edge.@synopticgwt.shared.GWTEdge::getDst()();
@@ -236,6 +233,8 @@ public class ModelGraphic {
 		// var transProb = @synopticgwt.client.model.ModelGraphic::probToString(D)(edge.@synopticgwt.shared.GWTEdge::getWeight()());
 		var transProb = edge.@synopticgwt.shared.GWTEdge::getWeightStr()();
 		var transCount = edge.@synopticgwt.shared.GWTEdge::getCountStr()();
+		var mTab = this.@synopticgwt.client.model.ModelGraphic::modelTab;
+		var showCounts = mTab.@synopticgwt.client.model.ModelTab::getShowEdgeCounts()();
 
 		if (showCounts) {
 			labelVal = transCount;
@@ -265,7 +264,7 @@ public class ModelGraphic {
      * @param height
      *            The new height of the graph's canvas.
      */
-    public static native void resizeGraph(int width, int height) /*-{
+    public native void resizeGraph(int width, int height) /*-{
 		// Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
 		$wnd.Math.seedrandom($wnd.randSeed);
 
@@ -291,7 +290,7 @@ public class ModelGraphic {
     }-*/;
 
     // For all selected nodes in model, change their border to given color.
-    public static native void updateNodesBorder(String color) /*-{
+    public native void updateNodesBorder(String color) /*-{
 		$wnd.setShiftClickNodesState(color);
     }-*/;
 
@@ -313,14 +312,13 @@ public class ModelGraphic {
      * changes from the edge's state, and may have to be appended to this code.
      * </p>
      */
-    public static native void clearEdgeState() /*-{
+    public native void clearEdgeState() /*-{
 		var g = $wnd.GRAPH_HANDLER.getGraph();
 
 		var edges = g.edges;
 		for (i = 0; i < edges.length; i++) {
 			// Set the edge color back to black,
 			// and set the width back to normal.
-			$wnd.console.log(edges[i]);
 			edges[i].connection.fg.attr({
 				stroke : "#000",
 				"stroke-width" : 1
@@ -331,33 +329,29 @@ public class ModelGraphic {
     /**
      * Highlights a path through the model based on array of edges passed.
      * Changes the edges' styles as to be reversible by the
-     * {@code clearEdgeState} static method
+     * {@code clearEdgeState} method //
      */
-    public static native void highlightEdges(List<GWTEdge> edges) /*-{
+    public native void highlightEdges(List<GWTEdge> edges) /*-{
 		var g = $wnd.GRAPH_HANDLER.getGraph();
 
 		// TODO: Refactor this inefficient n^2 loop to loop through just the edges,
-		// and use to access the associated Dracula graph edge instance directly.  
+		// and use to access the Dracula graph edge instance associated with the
+		// GWTEdge directly.
 
-		@synopticgwt.client.model.ModelGraphic::clearEdgeState()();
+		this.@synopticgwt.client.model.ModelGraphic::clearEdgeState()();
 		var modelEdges = g.edges;
 		for ( var i = 0; i < modelEdges.length; i++) {
 			for ( var j = 0; j < edges.@java.util.List::size()(); j++) {
-				var edge = edges.@java.util.List::get(I)(i);
+				var edge = edges.@java.util.List::get(I)(j);
 				var sourceNode = edge.@synopticgwt.shared.GWTEdge::getSrc()();
-				var source = sourceNode
-						.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr();
+				var sourceHash = sourceNode.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr()();
 				var destNode = edge.@synopticgwt.shared.GWTEdge::getDst()();
-				var dest = destNode
-						.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr();
+				var destHash = destNode.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr()();
 
 				// If this edges matches one of the ones that needs to be highlighted,
-				// then replace it with the new edge.
-				if (modelEdges[i].source.id == source
-						&& modelEdges[i].target.id == dest) {
-					// Highlight the edge with the
-					// highlighting color and set the stroke-width to
-					// the selection stroke-width
+				// then highlight it by changing it's style attributes.
+				if (modelEdges[i].source.id == sourceHash
+						&& modelEdges[i].target.id == destHash) {
 					modelEdges[i].connection.fg.attr({
 						stroke : $wnd.HIGHLIGHT_COLOR,
 						"stroke-width" : $wnd.SELECT_STROKE_WIDTH

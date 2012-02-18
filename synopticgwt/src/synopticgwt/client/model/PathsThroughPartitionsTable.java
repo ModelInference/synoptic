@@ -31,6 +31,12 @@ public class PathsThroughPartitionsTable extends FlexTable {
     // or more corresponding traces in the log.
     private final Map<RadioButton, List<GWTEdge>> buttonToPathMap = new HashMap<RadioButton, List<GWTEdge>>();
 
+    private ModelTab modelTab;
+
+    public PathsThroughPartitionsTable(ModelTab modelTab) {
+        this.modelTab = modelTab;
+    }
+
     /**
      * Accepts a set of paths mapped to traceIDs, and then adds a radio button
      * for each traceID. When a radio button is clicked, the model will
@@ -112,8 +118,7 @@ public class PathsThroughPartitionsTable extends FlexTable {
 
     private class PathViewChangeHandler implements ValueChangeHandler<Boolean> {
         public PathViewChangeHandler() {
-            // Simply here to please the compiler
-            // by not having to create a synthetic accessor method.
+            // Necessary to avoid compiler warning on synthetic accessor method.
         }
 
         @Override
@@ -123,10 +128,8 @@ public class PathsThroughPartitionsTable extends FlexTable {
             // in the model.
             if (event.getValue()) {
                 RadioButton sourceButton = (RadioButton) event.getSource();
-
-                ModelGraphic
-                        .highlightEdges(PathsThroughPartitionsTable.this.buttonToPathMap
-                                .get(sourceButton));
+                List<GWTEdge> path = buttonToPathMap.get(sourceButton);
+                modelTab.getModelGraphic().highlightEdges(path);
             }
         }
     }

@@ -39,12 +39,12 @@ public class LogInfoPanel extends VerticalPanel {
     private static final String logInfoLabelLogLines = "Selected node log lines";
     private static final String logInfoLabelPathTraces = "Selected path traces";
 
-    public LogInfoPanel(String width) {
+    public LogInfoPanel(String width, ModelTab modelTab) {
         super();
 
         logInfoLabel = new Label(logInfoLabelLogLines);
         logLinesTable = new LogLinesTable();
-        pathsThroughPartitionsTable = new PathsThroughPartitionsTable();
+        pathsThroughPartitionsTable = new PathsThroughPartitionsTable(modelTab);
         this.setWidth(width);
 
         this.add(logInfoLabel);
