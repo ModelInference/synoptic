@@ -123,25 +123,6 @@ public class ModelGraphic {
         // Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
         $wnd.Math.seedrandom($wnd.randSeed);
 
-        var mTab = this.@synopticgwt.client.model.ModelGraphic::modelTab;
-        var modelGraphic = this;
-
-        // Export the handleLogRequest globally.
-        $wnd.viewLogLines = function(id) {
-            modelGraphic.@synopticgwt.client.model.ModelGraphic::clearEdgeState()();
-            mTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(id);
-        };
-
-        // Export global add/remove methods for selected nodes (moving 
-        // nodes to model tab).
-        $wnd.addSelectedNode = function(id) {
-            mTab.@synopticgwt.client.model.ModelTab::addSelectedNode(I)(id);
-        };
-
-        $wnd.removeSelectedNode = function(id) {
-            mTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(id);
-        };
-
         // Create the Dracula graph and set the instance field to point to said
         // graph.
         var g = new $wnd.Graph();
@@ -438,7 +419,8 @@ public class ModelGraphic {
                         "stroke" : "black",
                         "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH
                     });
-            removeSelectedNode(parseInt(i));
+            var mtab = this.@synopticgwt.client.model.ModelGraphic::modelTab;
+            mTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(parseInt(i));
             delete selectedDraculaNodes[i];
         }
     }-*/;
@@ -597,7 +579,7 @@ public class ModelGraphic {
                             });
                         }
                         delete selectedDraculaNodes[node.id];
-                        removeSelectedNode(parseInt(node.id));
+                        mTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(parseInt(node.id));
                     }
                 }
             };
