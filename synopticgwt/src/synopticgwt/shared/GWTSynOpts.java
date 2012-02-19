@@ -1,15 +1,14 @@
 package synopticgwt.shared;
 
-import java.io.Serializable;
 import java.util.List;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * Represents Synoptic parsing/processing options that are filled out by the
  * user on the input panel, and sent to the server for processing.
  */
-public class GWTSynOpts implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class GWTSynOpts implements IsSerializable {
     public String logLines;
     public List<String> regExps;
     public String partitionRegExp;
