@@ -26,6 +26,7 @@ public class GetPathsThroughPartitionIDsAsyncCallback extends
     @Override
     public void onFailure(Throwable caught) {
         super.onFailure(caught);
+        infoPanel.clearAndShowPathsTable();
     }
 
     /**
@@ -38,6 +39,7 @@ public class GetPathsThroughPartitionIDsAsyncCallback extends
 
         if (paths.isEmpty()) {
             showError("No paths through selected partitions found.", "", "");
+            infoPanel.clearAndShowPathsTable();
         } else {
             infoPanel.showPaths(paths);
         }
