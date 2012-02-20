@@ -95,7 +95,8 @@ public interface ISynopticService extends RemoteService {
     GWTGraph commitInvariants(Set<Integer> activeInvsHashes) throws Exception;
 
     /**
-     * Exports the current model as a .dot file. Returns the filename/directory.
+     * Exports the current model as a .dot file. Returns the contents of the
+     * generated dot file.
      * 
      * @return
      * @throws Exception
