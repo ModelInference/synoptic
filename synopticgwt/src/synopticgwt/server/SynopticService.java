@@ -614,26 +614,15 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Exports the model to a dot file and returns the dot fileName.
-     */
-    private String exportModelToDot() throws Exception {
-        Calendar now = Calendar.getInstance();
-        // Naming convention for the file can be improved
-        String fileName = now.getTimeInMillis() + ".model.dot";
-        String filePath = config.modelExportsDir + fileName;
-        GraphExporter.exportGraph(filePath, pGraph, true);
-        return fileName;
-    }
-
-    /**
      * Exports the current model as a .dot file. Returns the URL where the
      * generated file may be accessed by a client.
      */
     @Override
     public String exportDot() throws Exception {
         retrieveSessionState();
-        String fileName = exportModelToDot();
-        return config.modelExportsURLprefix + fileName;
+        StringWriter sWriter = new StringWriter();
+        GraphExporter.exportGraph(sWriter, pGraph, true);
+        return sWriter.toString();
     }
 
     /**
@@ -643,7 +632,14 @@ public class SynopticService extends RemoteServiceServlet implements
     @Override
     public String exportPng() throws Exception {
         retrieveSessionState();
-        String fileName = exportModelToDot();
+
+        // First, export the model to a dot file fileName.
+        Calendar now = Calendar.getInstance();
+        // Naming convention for the file can be improved
+        String fileName = now.getTimeInMillis() + ".model.dot";
+        String filePath = config.modelExportsDir + fileName;
+        GraphExporter.exportGraph(filePath, pGraph, true);
+
         GraphExporter.generatePngFileFromDotFile(config.modelExportsDir
                 + fileName);
         return config.modelExportsURLprefix + fileName + ".png";

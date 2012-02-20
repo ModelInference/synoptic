@@ -508,9 +508,12 @@ public class ModelTab extends Tab<DockPanel> {
             synopticService.exportDot(new ErrorReportingAsyncCallback<String>(
                     pWheel, "exportDot call") {
                 @Override
-                public void onSuccess(String fileString) {
-                    super.onSuccess(fileString);
-                    Window.open("../" + fileString, "DOT file", "Enabled");
+                public void onSuccess(String dotString) {
+                    super.onSuccess(dotString);
+                    ModelDotPopUp popUp = new ModelDotPopUp(dotString);
+                    popUp.setGlassEnabled(true);
+                    popUp.center();
+                    popUp.show();
                 }
             });
         } catch (Exception e) {
@@ -530,7 +533,10 @@ public class ModelTab extends Tab<DockPanel> {
                 @Override
                 public void onSuccess(String fileString) {
                     super.onSuccess(fileString);
-                    Window.open("../" + fileString, "PNG file", "Enabled");
+                    ModelPngPopUp popUp = new ModelPngPopUp(fileString);
+                    popUp.setGlassEnabled(true);
+                    popUp.center();
+                    popUp.show();
                 }
             });
         } catch (Exception e) {
