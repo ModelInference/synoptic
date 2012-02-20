@@ -34,6 +34,7 @@ public class LogInfoPanel extends VerticalPanel {
 
     private final Label logInfoLabel;
     private final LogLinesTable logLinesTable;
+    private final ModelTab modelTab;
     private final PathsThroughPartitionsTable pathsThroughPartitionsTable;
 
     private static final String logInfoLabelLogLines = "Selected node log lines";
@@ -44,6 +45,7 @@ public class LogInfoPanel extends VerticalPanel {
 
         logInfoLabel = new Label(logInfoLabelLogLines);
         logLinesTable = new LogLinesTable();
+        this.modelTab = modelTab;
         pathsThroughPartitionsTable = new PathsThroughPartitionsTable(modelTab);
         this.setWidth(width);
 
@@ -91,9 +93,29 @@ public class LogInfoPanel extends VerticalPanel {
      *            Set of trace IDs mapped to specific paths
      */
     public void showPaths(Map<List<GWTEdge>, Set<Integer>> paths) {
+        // We need to clear edge state if some path is currently highlighted in
+        // the graph.
+        this.modelTab.getModelGraphic().clearEdgeState();
+
         this.pathsThroughPartitionsTable.showPaths(paths);
         if (!pathsThroughPartitionsTable.isVisible()) {
             this.toggleLogInfoDisplay();
+        }
+    }
+
+    /**
+     * Like clear() below, except that it shows the paths through partitions
+     * table instead of the log lines table. Also, it clears the model edges
+     * state.
+     */
+    public void clearAndShowPathsTable() {
+        this.logLinesTable.clear();
+        this.pathsThroughPartitionsTable.clear();
+
+        this.modelTab.getModelGraphic().clearEdgeState();
+
+        if (!pathsThroughPartitionsTable.isVisible()) {
+            toggleLogInfoDisplay();
         }
     }
 
