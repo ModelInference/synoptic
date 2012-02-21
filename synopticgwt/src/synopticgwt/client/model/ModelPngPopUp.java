@@ -7,7 +7,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import synopticgwt.client.ClosingPopUp;
 
 /**
- * A pop-up window that contains the exported PNG of the model.
+ * A pop-up window that contains the exported PNG of the model. The solution to
+ * fitting the image within the height of the browser window is borrowed from
+ * here:
+ * 
+ * <pre>
+ * http://stackoverflow.com/questions/6169666/how-to-resize-an-image-to-fit-in-the-browser-window
+ * </pre>
  */
 public class ModelPngPopUp extends ClosingPopUp {
 

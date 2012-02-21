@@ -16,11 +16,11 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.RadioButton;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.Tab;
 import synopticgwt.client.util.ErrorReportingAsyncCallback;
+import synopticgwt.client.util.FlowLayoutPanel;
 import synopticgwt.client.util.ProgressWheel;
 import synopticgwt.client.util.TooltipListener;
 import synopticgwt.shared.GWTGraph;
@@ -55,7 +55,7 @@ public class ModelTab extends Tab<DockPanel> {
 
     // Panels containing all relevant buttons.
     private final HorizontalPanel manualControlButtonsPanel = new HorizontalPanel();
-    private final VerticalPanel controlsPanel = new VerticalPanel();
+    private final FlowLayoutPanel controlsPanel = new FlowLayoutPanel();
 
     protected final LogInfoPanel logInfoPanel;
 
@@ -92,6 +92,9 @@ public class ModelTab extends Tab<DockPanel> {
     // The model graphic object that maintains all the model graphical state.
     private ModelGraphic modelGraphic;
 
+    HorizontalPanel exportButtonsPanel;
+    HorizontalPanel viewPathsButtonPanel;
+
     public ModelTab(ISynopticServiceAsync synopticService, ProgressWheel pWheel) {
         super(synopticService, pWheel, "model-tab");
         panel = new DockPanel();
@@ -102,13 +105,15 @@ public class ModelTab extends Tab<DockPanel> {
         manualControlButtonsPanel.add(modelGetFinalButton);
         manualControlButtonsPanel.setStyleName("buttonPanel");
 
+        controlsPanel.setSize("300px", getModelGraphicHeight() + "px");
+
         modelRefineButton.setWidth("100px");
         modelCoarsenButton.setWidth("100px");
         modelGetFinalButton.setWidth("100px");
         controlsPanel.add(manualControlButtonsPanel);
 
         // Set up buttons for exporting models.
-        HorizontalPanel exportButtonsPanel = new HorizontalPanel();
+        exportButtonsPanel = new HorizontalPanel();
         exportButtonsPanel.add(modelExportDotButton);
         exportButtonsPanel.add(modelExportPngButton);
 
@@ -118,7 +123,7 @@ public class ModelTab extends Tab<DockPanel> {
         controlsPanel.add(exportButtonsPanel);
 
         // Set up the buttons for retrieving paths through selected nodes.
-        HorizontalPanel viewPathsButtonPanel = new HorizontalPanel();
+        viewPathsButtonPanel = new HorizontalPanel();
         viewPathsButtonPanel.add(modelViewPathsButton);
 
         modelViewPathsButton.setWidth("200px");
@@ -374,6 +379,14 @@ public class ModelTab extends Tab<DockPanel> {
 
         graphPanel.setPixelSize(width, height);
         modelGraphic.resizeGraph(width, height);
+        this.controlsPanel.setSize("300px", height + "px");
+        this.logInfoPanel.getLogLinesTable().setHeight(
+                (height - manualControlButtonsPanel.getOffsetHeight()
+                        - exportButtonsPanel.getOffsetHeight()
+                        - viewPathsButtonPanel.getOffsetHeight() - modelOpts
+                            .getOffsetHeight()) + "px");
+
+        this.controlsPanel.onResize();
     }
 
     /**
