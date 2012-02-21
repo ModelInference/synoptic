@@ -6,8 +6,8 @@ import java.util.Set;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
+import synopticgwt.client.util.FlowLayoutPanel;
 import synopticgwt.client.util.TooltipListener;
 import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.LogLine;
@@ -25,7 +25,7 @@ import synopticgwt.shared.LogLine;
  * then clicks on the label to switch back to displaying the list of log lines,
  * they will remain as they were until the next RPC.
  */
-public class LogInfoPanel extends VerticalPanel {
+public class LogInfoPanel extends FlowLayoutPanel {
 
     // CSS Attributes of the log info label
     public static final String LOG_INFO_PATHS_CLASS = "log-info-displaying-paths";
@@ -45,13 +45,14 @@ public class LogInfoPanel extends VerticalPanel {
 
         logInfoLabel = new Label(logInfoLabelLogLines);
         logLinesTable = new LogLinesTable();
+
         this.modelTab = modelTab;
         pathsThroughPartitionsTable = new PathsThroughPartitionsTable(modelTab);
         this.setWidth(width);
 
         this.add(logInfoLabel);
-        this.add(logLinesTable);
         this.add(pathsThroughPartitionsTable);
+        this.add(logLinesTable);
 
         TooltipListener
                 .setTooltip(
@@ -68,6 +69,10 @@ public class LogInfoPanel extends VerticalPanel {
         pathsThroughPartitionsTable.setVisible(false);
     }
 
+    public LogLinesTable getLogLinesTable() {
+        return logLinesTable;
+    }
+
     /**
      * Takes a list of log lines and displays them on the panel, line by line.
      * If the state of the log line table is not visible, the panel will switch
@@ -76,7 +81,7 @@ public class LogInfoPanel extends VerticalPanel {
      * @param lines
      */
     public void showLogLines(List<LogLine> lines) {
-        this.logLinesTable.showLines(lines);
+        this.logLinesTable.setRowData(lines);
         if (!logLinesTable.isVisible()) {
             this.toggleLogInfoDisplay();
         }
@@ -109,7 +114,6 @@ public class LogInfoPanel extends VerticalPanel {
      * state.
      */
     public void clearAndShowPathsTable() {
-        this.logLinesTable.clear();
         this.pathsThroughPartitionsTable.clear();
 
         this.modelTab.getModelGraphic().clearEdgeState();
@@ -125,7 +129,6 @@ public class LogInfoPanel extends VerticalPanel {
      */
     @Override
     public void clear() {
-        this.logLinesTable.clear();
         this.pathsThroughPartitionsTable.clear();
 
         if (!logLinesTable.isVisible()) {
