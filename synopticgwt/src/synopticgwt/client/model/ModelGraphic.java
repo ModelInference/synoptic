@@ -119,9 +119,13 @@ public class ModelGraphic {
         $wnd.removeSelectedNode = function(id) {
             mTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(id);
         };
-        
+
         $wnd.clearSelectedNodes = function() {
             modelGraphic.@synopticgwt.client.model.ModelGraphic::clearSelectedNodes()();
+        }
+
+        $wnd.setShiftClickNodesState = function(color) {
+            modelGraphic.@synopticgwt.client.model.ModelGraphic::setShiftClickNodesState(Ljava/lang/String;)(color);
         }
 
         // Create the Dracula graph.
@@ -395,6 +399,11 @@ public class ModelGraphic {
         }
     }-*/;
 
+    /**
+     * A function for clearing the state of the selected nodes. Each node is set
+     * back to the default color, border color, and stroke width, and then
+     * removed from the set of selected nodes.
+     */
     public native void clearSelectedNodes() /*-{
         var mTab = this.@synopticgwt.client.model.ModelGraphic::modelTab;
         
@@ -406,8 +415,40 @@ public class ModelGraphic {
                         "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH
                     });
             mTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(parseInt(i));
-            delete selectedDraculaNodes[i];
+            delete $wnd.selectedDraculaNodes[i];
         }
+    }-*/;
+
+    /*
+     * A function for setting the border of all selected nodes to given color.
+     * Changes the background color of the nodes to the default color. Default
+     * styling to node displaying log lines if not in shift+click set.
+     */
+    public native void setShiftClickNodesState(String color) /*-{
+        // Whether or not the node displaying log line is in
+        // shift+click set.
+        var clickNodeInSet = false;
+        for ( var i in $wnd.selectedDraculaNodes) {
+            if ($wnd.selectedNodeLog == $wnd.selectedDraculaNodes[i]) {
+                clickNodeInSet = true;
+            }
+            $wnd.selectedDraculaNodes[i]
+                    .attr({
+                        "fill" : @synopticgwt.client.model.ModelGraphic::DEFAULT_COLOR,
+                        "stroke" : color,
+                        "stroke-width" : @synopticgwt.client.model.ModelGraphic::SELECT_STROKE_WIDTH
+                    });
+        }
+
+        // Set node to default styling.
+        if (!clickNodeInSet) {
+            $wnd.selectedNodeLog
+                    .attr({
+                        "stroke" : "black",
+                        "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH
+                    });
+        }
+        $wnd.selectedNodeLog = undefined;
     }-*/;
 
     // </JSNI methods>
