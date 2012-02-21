@@ -38,24 +38,6 @@ var allRects = [];
 var selectedNodeLog;
 
 /*
- * A function for clearing the state of the selected nodes.
- * Each node is set back to the default color, border color,
- * and stroke width, and then removed from the set of 
- * selected nodes.
- */
-var clearSelectedNodes = function() {
-    for (var i in selectedDraculaNodes) {
-        selectedDraculaNodes[i].attr({
-        	"fill": DEFAULT_COLOR,
-        	"stroke": "black",
-			"stroke-width": DEFAULT_STROKE_WIDTH
-        });
-        removeSelectedNode(parseInt(i));
-        delete selectedDraculaNodes[i];
-    }
-}
-
-/*
  * A function for setting the border of all selected
  * nodes to given color. Changes the background color
  * of the nodes to the default color. Default styling
