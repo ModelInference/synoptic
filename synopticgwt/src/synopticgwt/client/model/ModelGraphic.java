@@ -39,6 +39,10 @@ public class ModelGraphic {
 
     private JavaScriptObject draculaGraph;
 
+    private JavaScriptObject draculaLayouter;
+
+    private JavaScriptObject draculaRenderer;
+
     // The ModelTab that this graphic is associated with.
     private ModelTab modelTab;
 
@@ -143,16 +147,14 @@ public class ModelGraphic {
             // Store graph state.
             var nodeHashCode = node.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr()();
             var nodeLabel = node.@synopticgwt.shared.GWTNode::toString()();
-            $wnd.GRAPH_HANDLER.currentNodes[nodeHashCode] = nodeLabel;
 
             g.addNode(nodeHashCode, {
                 label : nodeLabel,
-                render : $wnd.GRAPH_HANDLER.render
+                render : $wnd.nodeRenderer
             });
         }
 
         // Add each edge to graph.
-        $wnd.GRAPH_HANDLER.currentEdges = [];
         for ( var i = 0; i < edges.@java.util.List::size()(); i++) {
             var edge = edges.@java.util.List::get(I)(i);
             this.@synopticgwt.client.model.ModelGraphic::addEdge(Lsynopticgwt/shared/GWTEdge;Lcom/google/gwt/core/client/JavaScriptObject;)(edge, g);
@@ -160,12 +162,13 @@ public class ModelGraphic {
 
         // Give stable layout to graph elements.
         var layouter = new $wnd.Graph.Layout.Stable(g, initial, terminal);
+        modelGraphic.@synopticgwt.client.model.ModelGraphic::draculaLayouter = layouter;
 
         // Render the graph.
         var renderer = new $wnd.Graph.Renderer.Raphael(canvasId, g, width,
                 height);
+        modelGraphic.@synopticgwt.client.model.ModelGraphic::draculaRenderer = renderer;
 
-        $wnd.GRAPH_HANDLER.initializeStableIDs(renderer, layouter, g);
     }-*/;
 
     /**
@@ -194,13 +197,15 @@ public class ModelGraphic {
         var newNodes = this.@synopticgwt.client.model.ModelGraphic::updateRefinedGraph(Ljava/util/List;Ljava/util/List;I)(nodes,edges,refinedNode);
 
         // fetch the current layouter
-        var layouter = $wnd.GRAPH_HANDLER.getLayouter();
+        var layouter = this.@synopticgwt.client.model.ModelGraphic::draculaLayouter;
+
+        var dGraph = this.@synopticgwt.client.model.ModelGraphic::draculaGraph;
 
         // update each graph element's position, re-assigning a position
-        layouter.updateLayout($wnd.GRAPH_HANDLER.getGraph(), newNodes);
+        layouter.updateLayout(dGraph, newNodes);
 
         // fetch the renderer
-        var renderer = $wnd.GRAPH_HANDLER.getRenderer();
+        var renderer = this.@synopticgwt.client.model.ModelGraphic::draculaRenderer;
 
         // re-draw the graph, animating transitions from old to new position
         renderer.draw();
@@ -213,14 +218,13 @@ public class ModelGraphic {
     // new nodes
     public native JavaScriptObject updateRefinedGraph(List<GWTNode> nodes,
             List<GWTEdge> edges, int splitNodeID) /*-{
-
-        var gh = $wnd.GRAPH_HANDLER;
+                
+        var dGraph = this.@synopticgwt.client.model.ModelGraphic::draculaGraph;
         // Retrieve the refined node.
-        var refinedNode = gh.graph.nodes[splitNodeID];
+        var refinedNode = dGraph.nodes[splitNodeID];
 
         // Remove the refined node and all of its edges from the graph.
-        gh.graph.removeNode(splitNodeID);
-        delete gh.currentNodes[splitNodeID];
+        dGraph.removeNode(splitNodeID);
 
         // Tracks which new nodes are added to update edges below.
         var newNodes = [];
@@ -228,23 +232,24 @@ public class ModelGraphic {
         // Loop over all the given nodes, find and add new nodes to the graph
         for ( var i = 0; i < nodes.@java.util.List::size()(); i++) {
             var node = nodes.@java.util.List::get(I)(i);
-
             var nodeHashCode = node.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr()();
             var nodeLabel = node.@synopticgwt.shared.GWTNode::toString()();
-            if (!gh.currentNodes[nodeHashCode]) {
-                gh.currentNodes[nodeHashCode] = nodeLabel;
+            if (!dGraph.nodes[nodeHashCode]) {
                 newNodes[nodeHashCode] = true;
-                gh.graph.addNode(nodeHashCode, {
+                var nodyNode = dGraph.addNode(nodeHashCode, {
                     label : nodeLabel,
-                    render : gh.render,
+                    render : $wnd.nodeRenderer,
                     layoutPosX : refinedNode.layoutPosX,
                     layoutPosY : refinedNode.layoutPosY
                 });
             }
         }
-
+        
+        
         // re-draw the graph, adding new nodes to the canvas
-        gh.rend.draw();
+        var renderer = this.@synopticgwt.client.model.ModelGraphic::draculaRenderer
+        
+        renderer.draw();
 
         // loop over all given edges, finding ones connected to the new
         // nodes that need to be added to the graph
@@ -256,7 +261,7 @@ public class ModelGraphic {
             var destHash = destNode.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr()();
 
             if (newNodes[sourceHash] || newNodes[destHash]) {
-                this.@synopticgwt.client.model.ModelGraphic::addEdge(Lsynopticgwt/shared/GWTEdge;Lcom/google/gwt/core/client/JavaScriptObject;)(edge, gh.graph);
+                this.@synopticgwt.client.model.ModelGraphic::addEdge(Lsynopticgwt/shared/GWTEdge;Lcom/google/gwt/core/client/JavaScriptObject;)(edge, dGraph);
             }
         }
 
@@ -287,11 +292,8 @@ public class ModelGraphic {
             labelProb : transProb,
             labelCount : transCount
         };
-        newEdge = graph.addEdge(source, dest, style);
-        $wnd.GRAPH_HANDLER.currentEdges.push({
-            "edge" : newEdge,
-            "style" : style
-        });
+
+        graph.addEdge(source, dest, style);
     }-*/;
 
     /**
@@ -310,14 +312,14 @@ public class ModelGraphic {
         $wnd.Math.seedrandom($wnd.randSeed);
 
         // Get the current layout so it can be updated.
-        var layouter = $wnd.GRAPH_HANDLER.getLayouter();
+        var layouter = this.@synopticgwt.client.model.ModelGraphic::draculaLayouter;
 
         // Update the layout for all nodes.
-        layouter.updateLayout($wnd.GRAPH_HANDLER.getGraph(), $wnd.GRAPH_HANDLER
-                .getCurrentNodes());
+        var dGraph = this.@synopticgwt.client.model.ModelGraphic::draculaGraph;
+        layouter.updateLayout(dGraph, dGraph.nodes);
 
         // Grab a pointer to the current renderer.
-        var rend = $wnd.GRAPH_HANDLER.getRenderer();
+        var rend = this.@synopticgwt.client.model.ModelGraphic::draculaRenderer;
 
         // Change the appropriate height/width of the div.
         rend.width = width;
@@ -354,7 +356,7 @@ public class ModelGraphic {
      * </p>
      */
     public native void clearEdgeState() /*-{
-        var g = $wnd.GRAPH_HANDLER.getGraph();
+        var g = this.@synopticgwt.client.model.ModelGraphic::draculaGraph;
 
         var edges = g.edges;
         for (i = 0; i < edges.length; i++) {
@@ -373,7 +375,7 @@ public class ModelGraphic {
      * {@code clearEdgeState} method //
      */
     public native void highlightEdges(List<GWTEdge> edges) /*-{
-        var g = $wnd.GRAPH_HANDLER.getGraph();
+        var g = this.@synopticgwt.client.model.ModelGraphic::draculaGraph;
 
         // TODO: Refactor this inefficient n^2 loop to loop through just the edges,
         // and use to access the Dracula graph edge instance associated with the
