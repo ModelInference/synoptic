@@ -128,6 +128,10 @@ public class ModelGraphic {
             modelGraphic.@synopticgwt.client.model.ModelGraphic::setShiftClickNodesState(Ljava/lang/String;)(color);
         }
 
+        $wnd.isSelectedNode = function(rect) {
+            return modelGraphic.@synopticgwt.client.model.ModelGraphic::isSelectedNode(Lcom/google/gwt/core/client/JavaScriptObject;)(rect);
+        }
+
         // Create the Dracula graph.
         var g = new $wnd.Graph();
         this.@synopticgwt.client.model.ModelGraphic::draculaGraph = g;
@@ -449,6 +453,19 @@ public class ModelGraphic {
                     });
         }
         $wnd.selectedNodeLog = undefined;
+    }-*/;
+
+    /*
+     * A function that returns true if the rectangle object being passed is
+     * currently selected. Returns false if rectangle object is not selected.
+     */
+    public native boolean isSelectedNode(JavaScriptObject rect) /*-{
+        for ( var i in $wnd.selectedDraculaNodes) {
+            if ($wnd.selectedDraculaNodes[i] == rect) {
+                return true;
+            }
+        }
+        return false;
     }-*/;
 
     // </JSNI methods>

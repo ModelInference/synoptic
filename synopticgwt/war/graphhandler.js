@@ -37,20 +37,6 @@ var allRects = [];
 // The selected node that has log lines displayed.
 var selectedNodeLog;
 
-/*
- * A function that returns true if the rectangle object
- * being passed is currently selected. Returns false if
- * rectangle object is not selected.
- */
-var isSelectedNode = function(rect) {
-	for (var i in selectedDraculaNodes) {
-		if (selectedDraculaNodes[i] == rect) {
-			return true;
-		}
-	}
-	return false;
-}
-
 var GRAPH_HANDLER = {
     // Array of graph nodes.
     "currentNodes" : [],
