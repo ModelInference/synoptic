@@ -11,6 +11,34 @@ import synopticgwt.shared.GWTNode;
  * Used to create the graphic representing the Synoptic model.
  */
 public class ModelGraphic {
+    
+    // Default color for nodes.
+    private static String DEFAULT_COLOR = "#fa8";
+
+    // Default stroke for border of node.
+    private static int DEFAULT_STROKE_WIDTH = 2;
+
+    // Default color for initial and terminal nodes.
+    private static String INIT_TERM_COLOR = "#808080";
+
+    // Color used when highlighting a node.
+    private static String HIGHLIGHT_COLOR = "blue";
+
+    // Border color for shift+click nodes after "View paths" clicked.
+    // NOTE: Must also change same constant in ModelTab.java if modified.
+    private static String SHIFT_CLICK_BORDER_COLOR = "blue";
+
+    // Stroke width for border when node selected.
+    private static int SELECT_STROKE_WIDTH = 4;
+
+    // Label name that indicates initial node.
+    private static String INITIAL = "INITIAL";
+
+    // Label name that indicates terminal node.
+    private static String TERMINAL = "TERMINAL";
+    
+    private JavaScriptObject draculaGraph;
+    
     // The ModelTab that this graphic is associated with.
     private ModelTab modelTab;
 
@@ -26,7 +54,7 @@ public class ModelGraphic {
      * Updates the model edges to display transition probabilities.
      */
     public native void useProbEdgeLabels() /*-{
-		var g = $wnd.GRAPH_HANDLER.getGraph();
+		var g = this.@synopticgwt.client.model.ModelGraphic::draculaGraph;
 
 		var edges = g.edges;
 		for (i = 0; i < edges.length; i++) {
@@ -40,7 +68,7 @@ public class ModelGraphic {
      * Updates the model edges to display transition counts.
      */
     public native void useCountEdgeLabels() /*-{
-		var g = $wnd.GRAPH_HANDLER.getGraph();
+		var g = this.@synopticgwt.client.model.ModelGraphic::draculaGraph;
 
 		var edges = g.edges;
 		for (i = 0; i < edges.length; i++) {
@@ -94,6 +122,7 @@ public class ModelGraphic {
 
 		// Create the Dracula graph.
 		var g = new $wnd.Graph();
+		this.@synopticgwt.client.model.ModelGraphic::draculaGraph = g;
 		g.edgeFactory.template.style.directed = true;
 
 		// Add each node to the graph.
