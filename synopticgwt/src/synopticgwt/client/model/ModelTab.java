@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -11,7 +12,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DisclosurePanel;
-import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -32,7 +33,7 @@ import synopticgwt.shared.LogLine;
  * and find out how the input log corresponds to paths and to nodes in the
  * model.
  */
-public class ModelTab extends Tab<DockPanel> {
+public class ModelTab extends Tab<DockLayoutPanel> {
     // TODO: INITIAL_LABEL and TERMINAL_LABEL should not be hardcoded. Instead,
     // the EventType class should be ported to GWT, or a mirror type should be
     // created which would have the notion of initial/terminal based on
@@ -97,7 +98,8 @@ public class ModelTab extends Tab<DockPanel> {
 
     public ModelTab(ISynopticServiceAsync synopticService, ProgressWheel pWheel) {
         super(synopticService, pWheel, "model-tab");
-        panel = new DockPanel();
+        panel = new DockLayoutPanel(Unit.PX);
+        panel.setHeight(this.getModelGraphicHeight() + "px");
 
         // Set up the buttons for controlling Synoptic manually.
         manualControlButtonsPanel.add(modelRefineButton);
@@ -105,7 +107,7 @@ public class ModelTab extends Tab<DockPanel> {
         manualControlButtonsPanel.add(modelGetFinalButton);
         manualControlButtonsPanel.setStyleName("buttonPanel");
 
-        controlsPanel.setSize("300px", getModelGraphicHeight() + "px");
+        controlsPanel.setSize("300px", "100%");
 
         modelRefineButton.setWidth("100px");
         modelCoarsenButton.setWidth("100px");
@@ -157,9 +159,12 @@ public class ModelTab extends Tab<DockPanel> {
 
         // Add log info panel.
         logInfoPanel = new LogInfoPanel("300px", this);
+        logInfoPanel.setSize("300px",
+                Math.max(this.getModelGraphicHeight() - 200, 400) + "px");
+        this.logInfoPanel.getLogLinesTable().setHeight("100%");
         controlsPanel.add(logInfoPanel);
 
-        panel.add(controlsPanel, DockPanel.WEST);
+        panel.addWest(controlsPanel, 300);
 
         TooltipListener
                 .setTooltip(
@@ -302,7 +307,7 @@ public class ModelTab extends Tab<DockPanel> {
         graphPanel = new FlowPanel();
         graphPanel.getElement().setId(canvasId);
         graphPanel.setStylePrimaryName("modelCanvas");
-        panel.add(graphPanel, DockPanel.CENTER);
+        panel.add(graphPanel);
 
         // Determine the size of the graphic.
         int width = getModelGraphicWidth();
@@ -353,7 +358,9 @@ public class ModelTab extends Tab<DockPanel> {
     public int getModelGraphicWidth() {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
-        return Window.getClientWidth() - (logInfoPanel.getOffsetWidth() + 100);
+        return Math.max(
+                Window.getClientWidth() - controlsPanel.getOffsetWidth() + 100,
+                400);
     }
 
     /** Returns the correct height for the model graphic in the model tab. */
@@ -361,7 +368,7 @@ public class ModelTab extends Tab<DockPanel> {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
         /* The 200 offset represents the top Synoptic header */
-        return Window.getClientHeight() - 200;
+        return Math.max(Window.getClientHeight() - 200, 400);
     }
 
     /**
@@ -379,13 +386,11 @@ public class ModelTab extends Tab<DockPanel> {
 
         graphPanel.setPixelSize(width, height);
         modelGraphic.resizeGraph(width, height);
-        this.controlsPanel.setSize("300px", height + "px");
-        this.logInfoPanel.getLogLinesTable().setHeight(
-                (height - manualControlButtonsPanel.getOffsetHeight()
-                        - exportButtonsPanel.getOffsetHeight()
-                        - viewPathsButtonPanel.getOffsetHeight() - modelOpts
-                            .getOffsetHeight()) + "px");
-
+        logInfoPanel
+                .setHeight(Math.max(this.getModelGraphicHeight() - 200, 400)
+                        + "px");
+        panel.setHeight(height + "px");
+        this.panel.onResize();
         this.controlsPanel.onResize();
     }
 
