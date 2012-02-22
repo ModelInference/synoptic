@@ -88,7 +88,10 @@ public class AppConfiguration {
         }
         
         
-        String derbyDBDir = "/Users/Kevin/Desktop/DerbyTutorials/SynopticTestDB/";
+        String derbyDBDir = System.getProperty("derbyDBDir", null);
+        if (derbyDBDir == null) {
+            derbyDBDir = "/Users/Kevin/Desktop/DerbyTutorials/SynopticTestDB/";
+        }
         File f = new File(derbyDBDir);
         if (!f.exists()) {
             //TODO Set flag to disabled Derby. Remove line below, currently there

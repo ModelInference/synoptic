@@ -92,6 +92,7 @@ public class SynopticService extends RemoteServiceServlet implements
     private Set<ITemporalInvariant> activeInvs;
     private List<CExamplePath<Partition>> counterExampleTraces;
     private ChainsTraceGraph traceGraph;
+    private int vID;
 
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods.
@@ -152,12 +153,25 @@ public class SynopticService extends RemoteServiceServlet implements
         dstSession.setAttribute("traceGraph", traceGraph);
         dstSession.setAttribute("counterExampleTraces", counterExampleTraces);
     }
+    
+    /**
+     * Calls retrieveSynopticSessionState() and also sets/constructs
+     * variables for Derby DB.
+     */
+    private void retrieveSessionState() throws Exception {
+        retrieveSynopticSessionState();
+        if (session.getAttribute("vID") == null) {
+            // TODO: throw appropriate exception
+            throw new Exception();
+        }
+        vID = (Integer) session.getAttribute("vID");
+    }
 
     /**
      * Retrieves session state and sets/reconstructs the local variables.
      */
     @SuppressWarnings("unchecked")
-    private void retrieveSessionState() throws Exception {
+    private void retrieveSynopticSessionState() throws Exception {
         ServletContext context = getServletConfig().getServletContext();
         this.config = AppConfiguration.getInstance(context);
 
@@ -367,6 +381,8 @@ public class SynopticService extends RemoteServiceServlet implements
     public GWTPair<GWTInvariantSet, GWTGraph> parseLog(GWTSynOpts synOpts)
             throws Exception {
 
+        retrieveSessionState();
+            
         // Set up some static variables in Main that are necessary to use the
         // Synoptic library.
         Main.options = new SynopticOptions();
@@ -442,7 +458,7 @@ public class SynopticService extends RemoteServiceServlet implements
     public GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(
             GWTSynOpts synOpts) throws Exception {
         // Set up state.
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         // Retrieve HTTP session to access location of recent log file uploaded.
         // HttpServletRequest request = getThreadLocalRequest();
@@ -496,7 +512,7 @@ public class SynopticService extends RemoteServiceServlet implements
     public GWTGraph commitInvariants(Set<Integer> activeInvsHashes)
             throws Exception {
         // Set up current state.
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         activeInvs.clear();
         // Get the actual set of invariants to be removed.
@@ -520,7 +536,7 @@ public class SynopticService extends RemoteServiceServlet implements
     @Override
     public GWTGraphDelta refineOneStep() throws Exception {
         // Set up state.
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         if (counterExampleTraces == null) {
             // We do not need to perform refinement.
@@ -562,7 +578,7 @@ public class SynopticService extends RemoteServiceServlet implements
     @Override
     public GWTGraph coarsenCompletely() throws Exception {
         // Set up state.
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         if (unsatInvs.size() != 0) {
             return null;
@@ -579,7 +595,7 @@ public class SynopticService extends RemoteServiceServlet implements
     @Override
     public GWTGraph getFinalModel() throws Exception {
         // Set up state.
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         // Refine.
         Bisimulation.splitPartitions(pGraph);
@@ -597,7 +613,7 @@ public class SynopticService extends RemoteServiceServlet implements
     @Override
     public List<LogLine> handleLogRequest(int nodeID) throws Exception {
         // Set up state.
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         // Find partition
         Partition requested = null;
@@ -638,7 +654,7 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     @Override
     public String exportDot() throws Exception {
-        retrieveSessionState();
+        retrieveSynopticSessionState();
         String fileName = exportModelToDot();
         return config.modelExportsURLprefix + fileName;
     }
@@ -649,7 +665,7 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     @Override
     public String exportPng() throws Exception {
-        retrieveSessionState();
+        retrieveSynopticSessionState();
         String fileName = exportModelToDot();
         GraphExporter.generatePngFileFromDotFile(config.modelExportsDir
                 + fileName);
@@ -665,7 +681,7 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     public Map<Integer, Set<GWTEdge>> getPathsThroughPartitionIDs(
             Set<Integer> selectedNodeIDs) throws Exception {
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         Map<Integer, Set<GWTEdge>> gwtPaths = new HashMap<Integer, Set<GWTEdge>>();
 
