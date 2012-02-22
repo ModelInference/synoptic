@@ -2,78 +2,86 @@ package synopticgwt.server;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Logger;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServlet;
 
-public class DerbyDB extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-
+/**
+ * Derby database.
+ */
+public class DerbyDB {
     private static DerbyDB instance;
-    
-    private static AppConfiguration config;
+        
+    public static Logger logger = Logger.getLogger("DerbyDB");
     
     // The driver to use.
     private static String driver = "org.apache.derby.jdbc.EmbeddedDriver";
-       
-    // The database name along with its location on disk.
-    //private static String dbName="/Users/Kevin/Desktop/DerbyTutorials/synoptictest";
     
     // Various tables.
-    private static String VISITOR = "CREATE TABLE Visitor (vid INT PRIMARY KEY, IP INT, timestamp TIMESTAMP)";
-    private static String UPLOADED_LOG = "CREATE TABLE UploadedLog (logid INT PRIMARY KEY, text CLOB, hash VARCHAR(32))";
-    private static String RE_EXP = "CREATE TABLE ReExp (reid INT PRIMARY KEY, text CLOB, hash VARCHAR(255))";
+    private static String VISITOR = "CREATE TABLE Visitor (vid INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), IP VARCHAR(15), timestamp TIMESTAMP)";
+    private static String UPLOADED_LOG = "CREATE TABLE UploadedLog (logid INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), text CLOB, hash VARCHAR(32))";
+    private static String RE_EXP = "CREATE TABLE ReExp (reid INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), text CLOB, hash VARCHAR(255))";
     private static String LOG_RE_EXP = "CREATE TABLE LogReExp (reid INT PRIMARY KEY, text CLOB, hash VARCHAR(255))";
     private static String SPLIT_RE_EXP = "CREATE TABLE SplitReExp (reid INT PRIMARY KEY, text CLOB, hash VARCHAR(255))";
     private static String PARTITION_RE_EXP = "CREATE TABLE PartitionReExp (reid INT PRIMARY KEY, text CLOB, hash VARCHAR(255))";
-    private static String PARSE_LOG_ACTION = "CREATE TABLE ParseLogAction (vid INT PRIMARY KEY, timestamp TIMESTAMP, parseid INT, result VARCHAR(255))";
+    private static String PARSE_LOG_ACTION = "CREATE TABLE ParseLogAction (vid INT PRIMARY KEY, timestamp TIMESTAMP, parseid INT GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), result VARCHAR(255))";
 
     // The Derby connection URL.
-    private static String connectionURL = "jdbc:derby:" + config.derbyDBDir;
+    private String connectionURL;
 
-    private static Connection conn = null;
-    private static Statement stmt = null;
+    private Connection conn = null;
+    private Statement stmt = null;
     
-    private DerbyDB() {
-        ServletContext context = getServletConfig().getServletContext();
-        DerbyDB.config = AppConfiguration.getInstance(context);
-        if (config.derbyDBExists) {
-            createConnection(false); // don't create a new database.
-        } else {
-            createConnection(true);
-        }
+    private DerbyDB(String path, boolean isCreate) {
+      connectionURL = "jdbc:derby:" + path;
+      createConnection(isCreate);
+      if (isCreate) {
+          createAllTables();
+      }
     }
     
-    public static DerbyDB getInstance() {
+    public static DerbyDB getInstance(String path, boolean isCreate) {
         if (instance != null) {
             return instance;
         }
-        return new DerbyDB();
+        return new DerbyDB(path, isCreate);
     }
-
-    private static void createConnection(boolean isCreate) {
+    
+    /**
+     * Establishes a connection with the database.
+     * @param isCreate whether or not to create a new database
+     */
+    private void createConnection(boolean isCreate) {
         try {
             Class.forName(driver).newInstance();
             //Get a connection
-            conn = DriverManager.getConnection(connectionURL + ";create=" + isCreate); 
+            conn = DriverManager.getConnection(connectionURL + ";create=" + isCreate);
+            logger.info("Connecting to Derby database.");
         } catch (Exception except) {
              except.printStackTrace();
         }
     }
     
-    public static void createAllTables() {    
-        createTable(VISITOR);
-        createTable(UPLOADED_LOG);
-        createTable(RE_EXP);
-        createTable(LOG_RE_EXP);
-        createTable(SPLIT_RE_EXP);
-        createTable(PARTITION_RE_EXP);
-        createTable(PARSE_LOG_ACTION);
+    /**
+     * Create all the tables in the database.
+     */
+    private void createAllTables() {    
+        createQuery(VISITOR);
+        createQuery(UPLOADED_LOG);
+        createQuery(RE_EXP);
+        createQuery(LOG_RE_EXP);
+        createQuery(SPLIT_RE_EXP);
+        createQuery(PARTITION_RE_EXP);
+        createQuery(PARSE_LOG_ACTION);
     }
     
-    private static void createTable(String query) {
+    /**
+     * Executes a create query in database.
+     */
+    public void createQuery(String query) {
         try {
             stmt = conn.createStatement();
             stmt.execute(query);
@@ -83,7 +91,68 @@ public class DerbyDB extends HttpServlet {
         }
     }
     
-    public static void shutdown() {
+    /**
+     * Executes an update query in database.
+     */
+    public void updateQuery(String query) {
+        try {
+            stmt = conn.createStatement();
+            int n = stmt.executeUpdate(query);
+            stmt.close();
+            logger.info("Inserted " + n + " row(s) into Derby database.");
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
+        }
+    }
+    
+    /**
+     * Executes an INSERT query and returns auto incrementing identity field assigned 
+     * to newly created record.
+     * @param query
+     */
+    public int insertAndGetAutoValue(String query) {
+        int result = 0;
+        try {
+            stmt = conn.createStatement();
+            int n = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+            logger.info("Inserted " + n + " row(s) into Derby database.");
+
+            ResultSet rs = stmt.getGeneratedKeys();
+            
+            while (rs.next()) {
+                result = rs.getInt(1);
+            }
+
+            rs.close();
+            stmt.close();
+            
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
+        }
+        return result;
+    }
+    
+    /*public String getStringColumn(String query, String column) {
+        String result = "";
+        try {
+            stmt = conn.createStatement();
+            ResultSet results = stmt.executeQuery(query);
+            results.
+            while(results.next()) {
+                results.getString(column);
+            }
+            results.close();
+            stmt.close();
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
+        }
+        return result;
+    }*/
+    
+    /**
+     * Shutdown the database.
+     */
+    public void shutdown() {
         try {
             if (stmt != null) {
                 stmt.close();
@@ -91,11 +160,10 @@ public class DerbyDB extends HttpServlet {
             if (conn != null) {
                 DriverManager.getConnection(connectionURL + ";shutdown=true");
                 conn.close();
+                logger.info("Shutting down Derby database");
             }           
         } catch (SQLException sqlExcept) {  
+            sqlExcept.printStackTrace();
         }
-
     }
-  
-
 }

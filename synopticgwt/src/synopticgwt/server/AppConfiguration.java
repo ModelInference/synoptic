@@ -3,6 +3,7 @@ package synopticgwt.server;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 
@@ -50,15 +51,15 @@ public class AppConfiguration {
     public String synopticChangesetID;
     
     /**
-     * Whether or not Derby DB exists or not.
+     * Instance of Derby database.
      */
-    public boolean derbyDBExists;
+    public final DerbyDB derbyDB;
     
     /**
-     * The directory of Derby DB file.
+     * Visitor id.
      */
-    public String derbyDBDir;
-
+    public int vID;
+    
     /**
      * Private constructor prevents instantiation from other classes
      * 
@@ -86,10 +87,20 @@ public class AppConfiguration {
             uploadedLogFilesDir = uploadedLogFilesDir_ + "/";
         }
         
-        // Testing if location of database exists.
-        derbyDBDir = "/Users/Kevin/Desktop/DerbyTutorials/synoptictest";
+        
+        String derbyDBDir = "/Users/Kevin/Desktop/DerbyTutorials/SynopticTestDB/";
         File f = new File(derbyDBDir);
-        derbyDBExists = f.exists();
+        if (!f.exists()) {
+            //TODO Set flag to disabled Derby. Remove line below, currently there
+            //for testing purposes.
+            derbyDB = DerbyDB.getInstance(derbyDBDir, true);
+        } else {
+            if (f.list().length > 0) {
+                derbyDB = DerbyDB.getInstance(derbyDBDir, false);
+            } else { // Empty dir, so create new database.
+                derbyDB = DerbyDB.getInstance(derbyDBDir, true);
+            }
+        }
        
         try {
             // Extract the hg changeset id from war archive MANIFEST.MF
