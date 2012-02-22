@@ -216,6 +216,14 @@ public class SynopticService extends RemoteServiceServlet implements
         // }
         counterExampleTraces = (List<CExamplePath<Partition>>) session
                 .getAttribute("counterExampleTraces");
+        
+        //TODO testing writing to derby
+        //logger.info("ip = " + request.getRemoteAddr());
+        //String q = "insert into reexp values(10, 'test add', '12')";
+        //config.derbyDB.updateQuery(q);
+        //int a = (Integer) session.getAttribute("vID");
+        //logger.info("vid after = " + a);
+
         return;
     }
 
@@ -419,7 +427,7 @@ public class SynopticService extends RemoteServiceServlet implements
 
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(
                 !parser.logTimeTypeIsTotallyOrdered(), minedInvs.getSet());
-
+        
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
     }
 
