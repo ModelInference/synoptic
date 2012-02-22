@@ -1,7 +1,6 @@
 package synopticgwt.client.model;
 
 import java.util.List;
-
 import com.google.gwt.core.client.JavaScriptObject;
 
 import synopticgwt.shared.GWTEdge;
@@ -43,11 +42,22 @@ public class ModelGraphic {
 
     private JavaScriptObject draculaRenderer;
 
+    // An assocative array of event node IDs mapped to raphael rectangle objects.
+    private JavaScriptObject selectedDraculaNodes;
+
+    // An array containing all rectangles objects.
+    private JavaScriptObject allRects;
+
+    // The selected node that has log lines displayed.
+    private JavaScriptObject selectedNodeLog;
+
     // The ModelTab that this graphic is associated with.
     private ModelTab modelTab;
 
     public ModelGraphic(ModelTab modelTab) {
         this.modelTab = modelTab;
+        this.selectedDraculaNodes = JavaScriptObject.createObject();
+        this.allRects = JavaScriptObject.createArray();
     }
 
     // //////////////////////////////////////////////////////////////////////////
@@ -150,7 +160,7 @@ public class ModelGraphic {
 
             g.addNode(nodeHashCode, {
                 label : nodeLabel,
-                render : $wnd.nodeRenderer
+                render : this.@synopticgwt.client.model.ModelGraphic::getNodeRenderer()()
             });
         }
 
@@ -191,7 +201,7 @@ public class ModelGraphic {
         $wnd.Math.seedrandom($wnd.randSeed);
 
         // Clear the selected nodes from the graph's state.
-        $wnd.clearSelectedNodes();
+        this.@synopticgwt.client.model.ModelGraphic::clearSelectedNodes()();
 
         // update graph and fetch array of new nodes
         var newNodes = this.@synopticgwt.client.model.ModelGraphic::updateRefinedGraph(Ljava/util/List;Ljava/util/List;I)(nodes,edges,refinedNode);
@@ -218,7 +228,7 @@ public class ModelGraphic {
     // new nodes
     public native JavaScriptObject updateRefinedGraph(List<GWTNode> nodes,
             List<GWTEdge> edges, int splitNodeID) /*-{
-                
+
         var dGraph = this.@synopticgwt.client.model.ModelGraphic::draculaGraph;
         // Retrieve the refined node.
         var refinedNode = dGraph.nodes[splitNodeID];
@@ -238,17 +248,16 @@ public class ModelGraphic {
                 newNodes[nodeHashCode] = true;
                 var nodyNode = dGraph.addNode(nodeHashCode, {
                     label : nodeLabel,
-                    render : $wnd.nodeRenderer,
+                    render : this.@synopticgwt.client.model.ModelGraphic::getNodeRenderer()(),
                     layoutPosX : refinedNode.layoutPosX,
                     layoutPosY : refinedNode.layoutPosY
                 });
             }
         }
-        
-        
+
         // re-draw the graph, adding new nodes to the canvas
         var renderer = this.@synopticgwt.client.model.ModelGraphic::draculaRenderer
-        
+
         renderer.draw();
 
         // loop over all given edges, finding ones connected to the new
@@ -333,9 +342,9 @@ public class ModelGraphic {
     }-*/;
 
     // For all selected nodes in model, change their border to given color.
-    public native void updateNodesBorder(String color) /*-{
-        $wnd.setShiftClickNodesState(color);
-    }-*/;
+    public void updateNodesBorder(String color) {
+        this.setShiftClickNodesState(color);
+    }
 
     /**
      * Clears the state of the edges in the graph, but does not redraw the
@@ -396,8 +405,8 @@ public class ModelGraphic {
                 if (modelEdges[i].source.id == sourceHash
                         && modelEdges[i].target.id == destHash) {
                     modelEdges[i].connection.fg.attr({
-                        stroke : $wnd.HIGHLIGHT_COLOR,
-                        "stroke-width" : $wnd.SELECT_STROKE_WIDTH
+                        stroke : @synopticgwt.client.model.ModelGraphic::HIGHLIGHT_COLOR,
+                        "stroke-width" : @synopticgwt.client.model.ModelGraphic::SELECT_STROKE_WIDTH
                     });
                     break;
                 }
@@ -411,17 +420,19 @@ public class ModelGraphic {
      * removed from the set of selected nodes.
      */
     public native void clearSelectedNodes() /*-{
+        var selectedDraculaNodes = this.@synopticgwt.client.model.ModelGraphic::selectedDraculaNodes;
         var mTab = this.@synopticgwt.client.model.ModelGraphic::modelTab;
         
-        for ( var i in $wnd.selectedDraculaNodes) {
-            $wnd.selectedDraculaNodes[i]
+        for ( var i in selectedDraculaNodes) {
+            $wnd.console.log(selectedDraculaNodes[i]);
+            selectedDraculaNodes[i]
                     .attr({
                         "fill" : @synopticgwt.client.model.ModelGraphic::DEFAULT_COLOR,
                         "stroke" : "black",
                         "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH
                     });
             mTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(parseInt(i));
-            delete $wnd.selectedDraculaNodes[i];
+            delete selectedDraculaNodes[i];
         }
     }-*/;
 
@@ -434,11 +445,14 @@ public class ModelGraphic {
         // Whether or not the node displaying log line is in
         // shift+click set.
         var clickNodeInSet = false;
-        for ( var i in $wnd.selectedDraculaNodes) {
-            if ($wnd.selectedNodeLog == $wnd.selectedDraculaNodes[i]) {
+        var selectedDraculaNodes = this.@synopticgwt.client.model.ModelGraphic::selectedDraculaNodes;
+        var selectedNodeLog = this.@synopticgwt.client.model.ModelGraphic::selectedNodeLog;
+        
+        for ( var i in selectedDraculaNodes) {
+            if (selectedNodeLog == selectedDraculaNodes[i]) {
                 clickNodeInSet = true;
             }
-            $wnd.selectedDraculaNodes[i]
+            selectedDraculaNodes[i]
                     .attr({
                         "fill" : @synopticgwt.client.model.ModelGraphic::DEFAULT_COLOR,
                         "stroke" : color,
@@ -448,13 +462,13 @@ public class ModelGraphic {
 
         // Set node to default styling.
         if (!clickNodeInSet) {
-            $wnd.selectedNodeLog
+            selectedNodeLog
                     .attr({
                         "stroke" : "black",
                         "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH
                     });
         }
-        $wnd.selectedNodeLog = undefined;
+        selectedNodeLog = undefined;
     }-*/;
 
     /*
@@ -462,12 +476,189 @@ public class ModelGraphic {
      * currently selected. Returns false if rectangle object is not selected.
      */
     public native boolean isSelectedNode(JavaScriptObject rect) /*-{
-        for ( var i in $wnd.selectedDraculaNodes) {
-            if ($wnd.selectedDraculaNodes[i] == rect) {
+        var selectedDraculaNodes = this.@synopticgwt.client.model.ModelGraphic::selectedDraculaNodes;
+        
+        for ( var i in selectedDraculaNodes) {
+            if (selectedDraculaNodes[i] == rect) {
                 return true;
             }
         }
         return false;
+    }-*/;
+
+    /**
+     * @return A JavaScript function for rendering the dracula graph's nodes.  This
+     * also contains any event specific code for clicking on the nodes and selecting
+     * them.
+     */
+    public native JavaScriptObject getNodeRenderer() /*-{
+        return function(obj) {
+            return function(canvas, node) {
+                var mGraphic = obj;
+                var allRects = obj.@synopticgwt.client.model.ModelGraphic::allRects;
+                var selectedNodeLog = obj.@synopticgwt.client.model.ModelGraphic::selectedNodeLog;
+                var mTab = obj.@synopticgwt.client.model.ModelGraphic::modelTab;
+                
+                var rect;
+                if (node.label == @synopticgwt.client.model.ModelGraphic::INITIAL
+                        || node.label == @synopticgwt.client.model.ModelGraphic::TERMINAL) {
+                    // creates the rectangle to be drawn
+                    var rect = canvas
+                            .rect(node.point[0] - 30, node.point[1] - 13, 122, 46)
+                            .attr(
+                                    {
+                                        "fill" : @synopticgwt.client.model.ModelGraphic::INIT_TERM_COLOR,
+                                        "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH,
+                                        r : "40px"
+                                    });
+                } else {
+                    // creates the rectangle to be drawn
+                    var rect = canvas
+                            .rect(node.point[0] - 30, node.point[1] - 13, 122, 46)
+                            .attr(
+                                    {
+                                        "fill" : @synopticgwt.client.model.ModelGraphic::DEFAULT_COLOR,
+                                        "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH,
+                                        r : "9px"
+                                    });
+                    // associate label with rectangle object
+                    rect.label = node.label;
+                    allRects[allRects.length] = rect;
+                }
+        
+                // Adds a function to the given rectangle so that, when clicked,
+                // the associated event node is "selected" (shown as blue when clicked)
+                // and then the log lines associated with the event are shown in the
+                // the model tab (grabbed via a RPC).
+                //
+                // When clicking the same node again, the node stays selected. When
+                // clicking
+                // a different node, the previous node is deselected, and the new node
+                // is
+                // selected.
+                //
+                // The function will also detect shift events, and toggle
+                // more than one node if the shift key is being
+                // held down. If the node has been clicked without
+                // the shift key being held down all nodes except for the node clicked
+                // will be deselected. Holding shift and clicking a selected node
+                // will deselect it.
+                rect.node.onmouseup = function(event) {
+                    var selectedDraculaNodes = obj.@synopticgwt.client.model.ModelGraphic::selectedDraculaNodes;
+                    $wnd.console.log(selectedDraculaNodes);
+                    $wnd.console.log(allRects);
+                    if (node.label != @synopticgwt.client.model.ModelGraphic::INITIAL
+                            && node.label != @synopticgwt.client.model.ModelGraphic::TERMINAL) {
+        
+                        if (!event.shiftKey && selectedNodeLog != rect) {
+                            $wnd.console.log("About to clear nodes");
+                            mGraphic.@synopticgwt.client.model.ModelGraphic::clearSelectedNodes()();
+                            mTab.@synopticgwt.client.model.ModelTab::handleLogRequest(I)(parseInt(node.id));
+                        }
+        
+                        if (selectedDraculaNodes[node.id] == undefined) {
+                            // Node associated with log lines listed is
+                            // surrounded by red and thick border.
+                            if (event.shiftKey) {
+                                rect
+                                        .attr("fill",
+                                                @synopticgwt.client.model.ModelGraphic::HIGHLIGHT_COLOR);
+                                selectedDraculaNodes[node.id] = rect;
+                                mTab.@synopticgwt.client.model.ModelTab::addSelectedNode(I)(parseInt(node.id));
+                            } else {
+                                // Remove red border from previous node displaying log
+                                // lines.
+                                if (selectedNodeLog != undefined) {
+                                    selectedNodeLog
+                                            .attr({
+                                                "stroke" : "black",
+                                                "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH
+                                            });
+                                }
+                                selectedNodeLog = rect;
+                                rect
+                                        .attr({
+                                            "fill" : @synopticgwt.client.model.ModelGraphic::DEFAULT_COLOR,
+                                            "stroke" : "red",
+                                            "stroke-width" : @synopticgwt.client.model.ModelGraphic::SELECT_STROKE_WIDTH
+                                        });
+                            }
+        
+                        } else {
+                            if (selectedNodeLog == rect) {
+                                rect
+                                        .attr({
+                                            "fill" : @synopticgwt.client.model.ModelGraphic::DEFAULT_COLOR
+                                        });
+                            } else { // All nodes except for one displaying log lines.
+                                rect
+                                        .attr({
+                                            "fill" : @synopticgwt.client.model.ModelGraphic::DEFAULT_COLOR,
+                                            "stroke" : "black",
+                                            "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH
+                                        });
+                            }
+                            delete selectedDraculaNodes[node.id];
+                            mTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(parseInt(node.id));
+                        }
+                    }
+                };
+        
+                // On a mouse hover, highlight that node and other nodes
+                // that are of the same type.
+                rect.node.onmouseover = function(event) {
+                    if (node.label != @synopticgwt.client.model.ModelGraphic::INITIAL
+                            && node.label != @synopticgwt.client.model.ModelGraphic::TERMINAL) {
+                        for ( var i = 0; i < allRects.length; i++) {
+                            var currRect = allRects[i];
+                            if (currRect.label == node.label) {
+                                currRect
+                                        .attr("fill",
+                                                @synopticgwt.client.model.ModelGraphic::HIGHLIGHT_COLOR);
+                            }
+                        }
+                    }
+                };
+        
+                // On a mouse hovering out, un-highlight that node and
+                // other nodes that are of the same type.
+                rect.node.onmouseout = function(event) {
+                    if (node.label != @synopticgwt.client.model.ModelGraphic::INITIAL
+                            && node.label != @synopticgwt.client.model.ModelGraphic::TERMINAL) {
+                        for ( var i = 0; i < allRects.length; i++) {
+                            var currRect = allRects[i];
+                            // Return to default color if the rectangle is
+                            // not currently selected. Highlight if node has
+                            // colored border after "View paths".
+                            if (!mGraphic.@synopticgwt.client.model.ModelGraphic::isSelectedNode(Lcom/google/gwt/core/client/JavaScriptObject;)(currRect)
+                                    || currRect.attr("stroke") == @synopticgwt.client.model.ModelGraphic::SHIFT_CLICK_BORDER_COLOR) {
+                                currRect
+                                        .attr("fill",
+                                                @synopticgwt.client.model.ModelGraphic::DEFAULT_COLOR);
+                            }
+                        }
+                    }
+                };
+        
+                text = canvas.text(node.point[0] + 30, node.point[1] + 10,
+                        node.label).attr({
+                    "font-size" : "16px",
+                });
+        
+                // the Raphael set is obligatory, containing all you want to display
+                // draws this node's label
+                var set = canvas.set().push(rect).push(text);
+        
+                // The text, when clicked should behave as if the rectangle was clicked.
+                text.node.onmouseup = rect.node.onmouseup;
+        
+                // The text, when hovering over and hovering out should behave the same
+                // as the rectangle.
+                text.node.onmouseout = rect.node.onmouseout;
+                text.node.onmouseover = rect.node.onmouseover;
+                return set;
+            };
+        }(this);
     }-*/;
 
     // </JSNI methods>
