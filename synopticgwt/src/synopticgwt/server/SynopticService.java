@@ -397,12 +397,14 @@ public class SynopticService extends RemoteServiceServlet implements
         return reId;
     }
     
+    //TODO inserting loglines into database gets cutoff, data type is clob in db.
     private int getLogLinesId(String logLines) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        String hashLogLines = getHash(logLines);
+        String cleanLogLines = logLines.replace("'", "''");
+        String hashLogLines = getHash(cleanLogLines);
         int reId = config.derbyDB.getIdExistingRow("select * from UploadedLog where hash = '" + hashLogLines + "'");
         if (reId == -1) { // doesn't exist in database
             reId = config.derbyDB.insertAndGetAutoValue(
-                    "insert into UploadedLog(text, hash) values('" + logLines + "', '" + hashLogLines + "')");
+                    "insert into UploadedLog(text, hash) values('" + cleanLogLines + "', '" + hashLogLines + "')");
             logger.info("Hash for a log lines found in DerbyDB");
         }
         return reId;
@@ -494,8 +496,13 @@ public class SynopticService extends RemoteServiceServlet implements
         
         Timestamp now = new Timestamp(System.currentTimeMillis());
         String q = "insert into ParseLogAction(vid, timestamp, result) values(" + vID + ", '" + now + "', '" + parseResult + "')";
+        
         // parseID to associate with reg exps in their respective tables.
         int parseID = config.derbyDB.insertAndGetAutoValue(q);
+        
+        config.derbyDB.updateQuery("insert into SplitReExp(parseid, reid, logid) values(" + parseID + ", " + splitReId + ", " + logLineId + ")");
+        config.derbyDB.updateQuery("insert into PartitionReExp(parseid, reid, logid) values(" + parseID + ", " + partitionReId + ", " + logLineId + ")");
+
         
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
     }

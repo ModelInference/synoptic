@@ -23,11 +23,11 @@ public class DerbyDB {
     // Various tables.
     private static String VISITOR = "CREATE TABLE Visitor (vid INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), IP VARCHAR(15), timestamp TIMESTAMP)";
     private static String UPLOADED_LOG = "CREATE TABLE UploadedLog (logid INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), text CLOB, hash VARCHAR(32))";
-    private static String RE_EXP = "CREATE TABLE ReExp (reid INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), text CLOB, hash VARCHAR(32))";
-    private static String LOG_RE_EXP = "CREATE TABLE LogReExp (reid INT PRIMARY KEY, text CLOB, hash VARCHAR(255))";
-    private static String SPLIT_RE_EXP = "CREATE TABLE SplitReExp (reid INT PRIMARY KEY, text CLOB, hash VARCHAR(255))";
-    private static String PARTITION_RE_EXP = "CREATE TABLE PartitionReExp (reid INT PRIMARY KEY, text CLOB, hash VARCHAR(255))";
-    private static String PARSE_LOG_ACTION = "CREATE TABLE ParseLogAction (vid INT PRIMARY KEY, timestamp TIMESTAMP, parseid INT GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), result VARCHAR(255))";
+    private static String RE_EXP = "CREATE TABLE ReExp (reid INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), text CLOB(50000), hash VARCHAR(32))";
+    private static String LOG_RE_EXP = "CREATE TABLE LogReExp (parseid INT, reid INT, logid INT)";
+    private static String SPLIT_RE_EXP = "CREATE TABLE SplitReExp (parseid INT, reid INT, logid INT)";
+    private static String PARTITION_RE_EXP = "CREATE TABLE PartitionReExp (parseid INT, reid INT, logid INT)";
+    private static String PARSE_LOG_ACTION = "CREATE TABLE ParseLogAction (vid INT, timestamp TIMESTAMP, parseid INT GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), result VARCHAR(255))";
 
     // The Derby connection URL.
     private String connectionURL;
