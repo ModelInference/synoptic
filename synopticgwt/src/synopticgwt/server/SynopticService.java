@@ -6,7 +6,11 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -171,7 +175,6 @@ public class SynopticService extends RemoteServiceServlet implements
         }
         
         vID = (Integer) session.getAttribute("vID");
-        logger.info("vID=" + vID);
     }
 
     /**
@@ -236,13 +239,6 @@ public class SynopticService extends RemoteServiceServlet implements
         // }
         counterExampleTraces = (List<CExamplePath<Partition>>) session
                 .getAttribute("counterExampleTraces");
-        
-        //TODO testing writing to derby
-        //logger.info("ip = " + request.getRemoteAddr());
-        //String q = "insert into reexp values(10, 'test add', '12')";
-        //config.derbyDB.updateQuery(q);
-        //int a = (Integer) session.getAttribute("vID");
-        //logger.info("vid after = " + a);
 
         return;
     }
@@ -374,7 +370,21 @@ public class SynopticService extends RemoteServiceServlet implements
         }
         super.doUnexpectedFailure(t);
     }
-
+    
+    private String getHash(String message) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+       byte[] byteMessage = message.getBytes("UTF-8");
+       MessageDigest md = MessageDigest.getInstance("MD5");
+       
+       
+       md.update(byteMessage,0,byteMessage.length);
+       BigInteger i = new BigInteger(1, md.digest());
+       String result = i.toString(16);
+       while (result.length() < 2) {
+           result = "0" + result;
+       }
+       return result;
+    }
+    
     // //////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -388,9 +398,15 @@ public class SynopticService extends RemoteServiceServlet implements
             throws Exception {
 
         retrieveSessionState();
-            
-        /// writing to DerbyDB
-       // config.derbyDB.updateQuery("insert into ReExp(text, hash) values('testing', 'testhash')");
+        
+        // Writing to DerbyDB
+        String partitionReExpHash = getHash(synOpts.partitionRegExp);
+        int partitionReId = config.derbyDB.getIdExistingRow("select * from ReExp where hash = '" + partitionReExpHash + "'");
+        if (partitionReId == -1) { // doesn't exist in database
+            partitionReId = config.derbyDB.insertAndGetAutoValue(
+                    "insert into ReExp(text, hash) values('" + synOpts.partitionRegExp + "', '" + partitionReExpHash + "'");
+            logger.info("Hash for partitionReExp found in DerbyDB");
+        }
         
         // Set up some static variables in Main that are necessary to use the
         // Synoptic library.

@@ -106,6 +106,28 @@ public class DerbyDB {
     }
     
     /**
+     * Returns -1 if the row doesn't exist in database.
+     * Returns the id if it does.
+     */
+    public int getIdExistingRow(String query) {
+        int result = -1;
+        try {
+            stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                logger.info("there is a selected query");
+                result = rs.getInt(1);
+            }        
+            
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            
+        }
+        return result;
+    }
+    
+    /**
      * Executes an INSERT query and returns auto incrementing identity field assigned 
      * to newly created record.
      * @param query
