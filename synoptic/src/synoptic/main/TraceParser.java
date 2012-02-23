@@ -800,8 +800,8 @@ public class TraceParser {
                 event = new Event(eType, line, fileName, lineNum);
             }
             
-            if (matched.containsKey("RELATION")) {
-            	String relation = matched.get("RELATION");
+            if (matched.containsKey(relationGroup)) {
+            	String relation = matched.get(relationGroup);
             	event.addRelation(relation);
             }
 
@@ -1086,11 +1086,15 @@ public class TraceParser {
                 }
 
                 if (directSuccessors.size() == 0) {
-                    // Tag messages without a predecessor as terminal.
-                    graph.tagTerminal(e1, Event.defaultRelation);
+                    // Tag messages without successor as terminal.
+                    for (String relation : e1.getEventRelations()) {
+                    	graph.tagTerminal(e1, relation);
+                    }
                 } else {
                     for (EventNode e2 : directSuccessors) {
-                        e1.addTransition(e2, Event.defaultRelation);
+                    	for (String relation : e2.getEventRelations()) {
+                    		e1.addTransition(e2, relation);
+                    	}
                         noPredecessor.remove(e2);
                     }
                 }
@@ -1100,7 +1104,9 @@ public class TraceParser {
 
         // Mark messages without a predecessor as initial.
         for (EventNode e : noPredecessor) {
-            graph.tagInitial(e, Event.defaultRelation);
+        	for (String relation : e.getEventRelations()) {
+        		graph.tagInitial(e, relation);
+        	}
         }
 
         return graph;

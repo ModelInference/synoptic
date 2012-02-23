@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -621,7 +623,7 @@ public class TraceParserTests extends SynopticTest {
      * Generates the expected graph for the call and return multiple relations
      * test
      */
-	private ChainsTraceGraph genExpectedGraphForCallAndReturn(
+	private ChainsTraceGraph genExpectedGraphForBasicMultipleRelation(
 			ArrayList<EventNode> events) {
 		// Generate the expected Graph for "0 call main\n1 call foo\n2 return main"
 		// INITIAL -t,call-> main -t,call-> food -t,return-> main -t-> TERMINAL
@@ -644,6 +646,44 @@ public class TraceParserTests extends SynopticTest {
 		expectedGraph.tagTerminal(rMain, defRelation);
 		
 		return expectedGraph;
+	}
+	
+	private ChainsTraceGraph genExpectedGraphForSeparatorAndPartitionMultipleRelation(
+			ArrayList<EventNode> events) {
+		ChainsTraceGraph expectedGraph = new ChainsTraceGraph(events);
+		assertTrue(events.size() == 6);
+		
+		EventNode cMain = events.get(0);
+		EventNode cFoo = events.get(1);
+		EventNode rMain = events.get(2);
+		
+		expectedGraph.tagInitial(cMain, defRelation);
+		expectedGraph.tagInitial(cMain, callRelation);
+		
+		cMain.addTransition(cFoo, defRelation);
+		cMain.addTransition(cFoo, callRelation);
+		
+		cFoo.addTransition(rMain, defRelation);
+		cFoo.addTransition(rMain, returnRelation);
+		
+		expectedGraph.tagTerminal(rMain, defRelation);
+		
+		cMain = events.get(3);
+		cFoo = events.get(4);
+		rMain = events.get(5);
+		
+		expectedGraph.tagInitial(cMain, defRelation);
+		expectedGraph.tagInitial(cMain, callRelation);
+		
+		cMain.addTransition(cFoo, defRelation);
+		cMain.addTransition(cFoo, callRelation);
+		
+		cFoo.addTransition(rMain, defRelation);
+		cFoo.addTransition(rMain, returnRelation);
+		
+		expectedGraph.tagTerminal(rMain, defRelation);
+		
+        return expectedGraph;
 	}
 
     /**
@@ -698,18 +738,84 @@ public class TraceParserTests extends SynopticTest {
     }
     
     /**
-     * Check that we can parse call and return relations on top of time
+     * Check that we can parse a multiple relations log with each line in 
+     * total order
      * 
      * @throws ParseException
      */
     @Test
-    public void parseCallAndReturnRelations() throws ParseException {
+    public void parseBasicMultipleRelation() throws ParseException {
     	String traceStr = "0 call main\n1 call foo\n2 return main";
     	parser.addRegex("^(?<TIME>)(?<RELATION>)(?<TYPE>)$");
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
-        ChainsTraceGraph expectedGraph = genExpectedGraphForCallAndReturn(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForBasicMultipleRelation(events);
+        assertTrue(expectedGraph.equalsWith(graph,
+                new IBinary<EventNode, EventNode>() {
+                    @Override
+                    public boolean eval(EventNode a, EventNode b) {
+                        return (a.getEvent().equals(b.getEvent()));
+                    }
+                }));
+    }
+    
+    /**
+     * Check that we can parse a multiple relations log where lines are not
+     * in the total order
+     * 
+     * @throws ParseException
+     */
+    @Test
+    public void parseOutOfOrderMultipleRelation() throws ParseException {
+    	String traceStr = "1 call foo\n0 call main\n2 return main";
+    	parser.addRegex("^(?<TIME>)(?<RELATION>)(?<TYPE>)$");
+        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
+                -1);
+        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
+        Collections.sort(events, new Comparator<EventNode>() {
+            @Override
+            public int compare(EventNode e1, EventNode e2) {
+                return e1.getTime().compareTo(e2.getTime());
+            }
+        });
+        ChainsTraceGraph expectedGraph = genExpectedGraphForBasicMultipleRelation(events);
+        assertTrue(expectedGraph.equalsWith(graph,
+                new IBinary<EventNode, EventNode>() {
+                    @Override
+                    public boolean eval(EventNode a, EventNode b) {
+                        return (a.getEvent().equals(b.getEvent()));
+                    }
+                }));
+    }
+    
+    @Test
+    public void parseMultipleRelationPartitionsSeparator() throws ParseException {
+    	String traceStr = "0 call main\n1 call foo\n2 return main\n--\n0 call main\n1 call foo\n2 return main";
+    	parser.addRegex("^(?<TIME>)(?<RELATION>)(?<TYPE>)$");
+    	parser.addPartitionsSeparator("^--$");
+        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
+                -1);
+        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForSeparatorAndPartitionMultipleRelation(events);
+        assertTrue(expectedGraph.equalsWith(graph,
+                new IBinary<EventNode, EventNode>() {
+                    @Override
+                    public boolean eval(EventNode a, EventNode b) {
+                        return (a.getEvent().equals(b.getEvent()));
+                    }
+                }));
+    }
+    
+    @Test
+    public void parseMultipleRelationPartitionsMap() throws ParseException {
+    	String traceStr = "1 0 call main\n1 1 call foo\n1 2 return main\n2 0 call main\n2 1 call foo\n2 2 return main";
+    	parser.addRegex("^(?<PARTITION>)(?<TIME>)(?<RELATION>)(?<TYPE>)$");
+        parser.setPartitionsMap("\\k<PARTITION>");
+        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
+                -1);
+        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForSeparatorAndPartitionMultipleRelation(events);
         assertTrue(expectedGraph.equalsWith(graph,
                 new IBinary<EventNode, EventNode>() {
                     @Override
