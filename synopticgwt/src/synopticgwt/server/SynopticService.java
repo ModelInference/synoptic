@@ -419,7 +419,7 @@ public class SynopticService extends RemoteServiceServlet implements
             int currId = config.derbyDB.getIdExistingRow("select * from ReExp where hash = '" + hashReExp + "'");
             if (currId == -1) {
                 currId = config.derbyDB.insertAndGetAutoValue(
-                        "insert into UploadedLog(text, hash) values('" + l.get(i) + "', '" + hashReExp + "')");
+                        "insert into ReExp(text, hash) values('" + l.get(i) + "', '" + hashReExp + "')");
                 logger.info("Hash for a log lines found in DerbyDB");
             }
             result.add(currId);
