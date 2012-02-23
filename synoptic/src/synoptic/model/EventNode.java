@@ -102,10 +102,9 @@ public class EventNode implements INode<EventNode> {
         // Events in group are partially ordered. We have to do more
         // work in this case.
 
-        // The first loop runs in O(n) and the two loops below have a
-        // worst cast behavior O(m^2) where m is the length of
-        // e1AllSuccessors list. So the worst case run time is:
-        // O(n) + O(n^2) = O(n^2)
+        // The first loop runs in O(n) and the second loop runs in
+        // O(m^2) where m is the length of e1AllSuccessors list. 
+        // So the worst case run time is: O(n) + O(m^2) = O(m^2)
 
         // First find all all events that succeed e1, store this set in
         // e1AllSuccessors.
@@ -267,7 +266,7 @@ public class EventNode implements INode<EventNode> {
         return transitionsByRelation.keySet();
     }
     
-    public List<String> getEventRelations() {
+    public Set<String> getEventRelations() {
     	return event.getRelations();
     }
 

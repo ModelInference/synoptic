@@ -30,7 +30,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         TOInvariantMiner {
 
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
-        return computeInvariants(g, Event.defaultRelation);
+        return computeInvariants(g, Event.defaultTimeRelationString);
     }
 
     /**

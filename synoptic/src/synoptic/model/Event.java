@@ -2,7 +2,9 @@ package synoptic.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import synoptic.util.time.ITime;
 
@@ -15,7 +17,7 @@ import synoptic.util.time.ITime;
  */
 public class Event {
 	
-	public final static String defaultRelation = "t";
+	public final static String defaultTimeRelationString = "t";
 	
     /**
      * The event's label.
@@ -42,7 +44,7 @@ public class Event {
      */
     private final int lineNum;
     
-    private List<String> relations;
+    private Set<String> relations;
 
     /**
      * Create an event of a particular type, with corresponding log line,
@@ -60,7 +62,7 @@ public class Event {
         this.logLine = logLine;
         this.fileName = fileName;
         this.lineNum = lineNum;
-        this.relations = new ArrayList<String>();
+        this.relations = new HashSet<String>();
     }
 
     /**
@@ -190,10 +192,8 @@ public class Event {
             return false;
         }
         
-        for (String relation : other.getRelations()) {
-        	if (!containsRelation(relation)) {
-        		return false;
-        	}
+        if (!relations.equals(other.getRelations())) {
+        	return false;
         }
         
         return true;
@@ -206,7 +206,7 @@ public class Event {
      *            the time
      */
     public void setTime(ITime t) {
-    	addRelation(defaultRelation);
+    	addRelation(defaultTimeRelationString);
         time = t;
     }
 
@@ -236,11 +236,13 @@ public class Event {
     }
     
     public void addRelation(String s) {
-    	assert(!containsRelation(s));
+    	if (containsRelation(s)) {
+    		throw new IllegalArgumentException("Event already contains relation " + s);
+    	}
     	relations.add(s);
     }
     
-    public List<String> getRelations() {
-    	return Collections.unmodifiableList(relations);
+    public Set<String> getRelations() {
+    	return Collections.unmodifiableSet(relations);
     }
 }

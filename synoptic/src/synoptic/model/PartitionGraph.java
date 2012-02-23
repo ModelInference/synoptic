@@ -651,7 +651,7 @@ public class PartitionGraph implements IGraph<Partition> {
                 if (!followedBy.contains(target)) {
                     neverIFbyInvariants
                             .add(new NeverImmediatelyFollowedInvariant(source,
-                                    target, Event.defaultRelation));
+                                    target, Event.defaultTimeRelationString));
                 }
             }
         }

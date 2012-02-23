@@ -310,7 +310,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
             if (e1Entry.getValue().keySet().size() == numTraces) {
                 pathInvs.add(new AlwaysFollowedInvariant(StringEventType
                         .newInitialStringEventType(), e1,
-                        Event.defaultRelation));
+                        Event.defaultTimeRelationString));
             }
             // /////////////////
 
