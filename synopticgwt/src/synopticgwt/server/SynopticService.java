@@ -398,6 +398,7 @@ public class SynopticService extends RemoteServiceServlet implements
     }
     
     //TODO inserting loglines into database gets cutoff, data type is clob in db.
+    // refactor method to use getReId
     private int getLogLinesId(String logLines) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         String cleanLogLines = logLines.replace("'", "''");
         String hashLogLines = getHash(cleanLogLines);
@@ -408,6 +409,22 @@ public class SynopticService extends RemoteServiceServlet implements
             logger.info("Hash for a log lines found in DerbyDB");
         }
         return reId;
+    }
+    
+    //TODO refactor method to use getReId
+    private List<Integer> getLogReExp(List<String> l) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        List<Integer> result = new ArrayList<Integer>();
+        for (int i = 0; i < l.size(); i++) {
+            String hashReExp = getHash(l.get(i));
+            int currId = config.derbyDB.getIdExistingRow("select * from ReExp where hash = '" + hashReExp + "'");
+            if (currId == -1) {
+                currId = config.derbyDB.insertAndGetAutoValue(
+                        "insert into UploadedLog(text, hash) values('" + l.get(i) + "', '" + hashReExp + "')");
+                logger.info("Hash for a log lines found in DerbyDB");
+            }
+            result.add(currId);
+        }
+        return result;
     }
     
     // //////////////////////////////////////////////////////////////////////////////
@@ -486,6 +503,7 @@ public class SynopticService extends RemoteServiceServlet implements
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(
                 !parser.logTimeTypeIsTotallyOrdered(), minedInvs.getSet());
         
+        List<Integer> logReId = getLogReExp(synOpts.regExps);
         int partitionReId = getReId(synOpts.partitionRegExp);
         int splitReId = getReId(synOpts.separatorRegExp);
         int logLineId = getLogLinesId(synOpts.logLines);
@@ -497,9 +515,13 @@ public class SynopticService extends RemoteServiceServlet implements
         Timestamp now = new Timestamp(System.currentTimeMillis());
         String q = "insert into ParseLogAction(vid, timestamp, result) values(" + vID + ", '" + now + "', '" + parseResult + "')";
         
-        // parseID to associate with reg exps in their respective tables.
+        // Insert into ParseLogAction table and obtain parseID to associate with reg exps in their respective tables.
         int parseID = config.derbyDB.insertAndGetAutoValue(q);
         
+        // Inserts into reg exps tables.
+        for (int i = 0; i < logReId.size(); i++) {
+            config.derbyDB.updateQuery("insert into LogReExp(parseid, reid, logid) values(" + parseID + ", " + logReId.get(i) + ", " + logLineId + ")");
+        }
         config.derbyDB.updateQuery("insert into SplitReExp(parseid, reid, logid) values(" + parseID + ", " + splitReId + ", " + logLineId + ")");
         config.derbyDB.updateQuery("insert into PartitionReExp(parseid, reid, logid) values(" + parseID + ", " + partitionReId + ", " + logLineId + ")");
 
