@@ -391,8 +391,19 @@ public class SynopticService extends RemoteServiceServlet implements
         int reId = config.derbyDB.getIdExistingRow("select * from ReExp where hash = '" + hashReExp + "'");
         if (reId == -1) { // doesn't exist in database
             reId = config.derbyDB.insertAndGetAutoValue(
-                    "insert into ReExp(text, hash) values('" + reExp + "', '" + hashReExp + "'");
+                    "insert into ReExp(text, hash) values('" + reExp + "', '" + hashReExp + "')");
             logger.info("Hash for a reg exp found in DerbyDB");
+        }
+        return reId;
+    }
+    
+    private int getLogLinesId(String logLines) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        String hashLogLines = getHash(logLines);
+        int reId = config.derbyDB.getIdExistingRow("select * from UploadedLog where hash = '" + hashLogLines + "'");
+        if (reId == -1) { // doesn't exist in database
+            reId = config.derbyDB.insertAndGetAutoValue(
+                    "insert into UploadedLog(text, hash) values('" + logLines + "', '" + hashLogLines + "')");
+            logger.info("Hash for a log lines found in DerbyDB");
         }
         return reId;
     }
@@ -473,9 +484,10 @@ public class SynopticService extends RemoteServiceServlet implements
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(
                 !parser.logTimeTypeIsTotallyOrdered(), minedInvs.getSet());
         
-        
         int partitionReId = getReId(synOpts.partitionRegExp);
         int splitReId = getReId(synOpts.separatorRegExp);
+        int logLineId = getLogLinesId(synOpts.logLines);
+       
         String parseResult = "";
         parseResult +=  "edges:" + graph.edges.size() + ",";
         parseResult += "nodes:" + graph.nodeSet.size();
