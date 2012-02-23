@@ -11,6 +11,7 @@ import java.io.Writer;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -385,6 +386,17 @@ public class SynopticService extends RemoteServiceServlet implements
        return result;
     }
     
+    private int getReId(String reExp) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        String hashReExp = getHash(reExp);
+        int reId = config.derbyDB.getIdExistingRow("select * from ReExp where hash = '" + hashReExp + "'");
+        if (reId == -1) { // doesn't exist in database
+            reId = config.derbyDB.insertAndGetAutoValue(
+                    "insert into ReExp(text, hash) values('" + reExp + "', '" + hashReExp + "'");
+            logger.info("Hash for a reg exp found in DerbyDB");
+        }
+        return reId;
+    }
+    
     // //////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -398,16 +410,7 @@ public class SynopticService extends RemoteServiceServlet implements
             throws Exception {
 
         retrieveSessionState();
-        
-        // Writing to DerbyDB
-        String partitionReExpHash = getHash(synOpts.partitionRegExp);
-        int partitionReId = config.derbyDB.getIdExistingRow("select * from ReExp where hash = '" + partitionReExpHash + "'");
-        if (partitionReId == -1) { // doesn't exist in database
-            partitionReId = config.derbyDB.insertAndGetAutoValue(
-                    "insert into ReExp(text, hash) values('" + synOpts.partitionRegExp + "', '" + partitionReExpHash + "'");
-            logger.info("Hash for partitionReExp found in DerbyDB");
-        }
-        
+       
         // Set up some static variables in Main that are necessary to use the
         // Synoptic library.
         Main.options = new SynopticOptions();
@@ -443,6 +446,7 @@ public class SynopticService extends RemoteServiceServlet implements
         // TODO: refactor synoptic main so that it does all of this most of this
         // for the client.
         GWTGraph graph = null;
+        
 
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
@@ -468,6 +472,18 @@ public class SynopticService extends RemoteServiceServlet implements
 
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(
                 !parser.logTimeTypeIsTotallyOrdered(), minedInvs.getSet());
+        
+        
+        int partitionReId = getReId(synOpts.partitionRegExp);
+        int splitReId = getReId(synOpts.separatorRegExp);
+        String parseResult = "";
+        parseResult +=  "edges:" + graph.edges.size() + ",";
+        parseResult += "nodes:" + graph.nodeSet.size();
+        
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        String q = "insert into ParseLogAction(vid, timestamp, result) values(" + vID + ", '" + now + "', '" + parseResult + "')";
+        // parseID to associate with reg exps in their respective tables.
+        int parseID = config.derbyDB.insertAndGetAutoValue(q);
         
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
     }

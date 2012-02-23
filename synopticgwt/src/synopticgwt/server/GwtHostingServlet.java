@@ -34,6 +34,7 @@ public class GwtHostingServlet extends HttpServlet {
                 config.synopticGWTChangesetID);
         session.setAttribute("synopticChangesetID", config.synopticChangesetID);
         
+        // Insert visitor's information into DerbyDB and set vID value if vID is null.
         if (session.getAttribute("vID") == null) {
             String ipAddress = req.getRemoteAddr();
             Timestamp now = new Timestamp(System.currentTimeMillis());
