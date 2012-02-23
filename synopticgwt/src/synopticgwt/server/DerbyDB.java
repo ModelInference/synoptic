@@ -106,16 +106,16 @@ public class DerbyDB {
     }
     
     /**
-     * Returns -1 if the row doesn't exist in database.
-     * Returns the id if it does.
+     * Returns -1 if the row doesn't exist in database for select
+     * query. Returns the first column (usually id) of row if it does.
      */
     public int getIdExistingRow(String query) {
         int result = -1;
         try {
             stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
+            
             while (rs.next()) {
-                logger.info("there is a selected query");
                 result = rs.getInt(1);
             }        
             
