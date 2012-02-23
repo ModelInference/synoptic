@@ -155,16 +155,23 @@ public class SynopticService extends RemoteServiceServlet implements
     }
     
     /**
-     * Calls retrieveSynopticSessionState() and also sets/constructs
-     * variables for Derby DB.
+     * Sets up AppConfiguration file and sets variables for DerbyDB.
      */
     private void retrieveSessionState() throws Exception {
-        retrieveSynopticSessionState();
+        ServletContext context = getServletConfig().getServletContext();
+        this.config = AppConfiguration.getInstance(context);
+
+        // Retrieve HTTP session to access storage.
+        HttpServletRequest request = getThreadLocalRequest();
+        session = request.getSession();
+        
         if (session.getAttribute("vID") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+           logger.info("null viddd");
+            //throw new Exception();
         }
+        
         vID = (Integer) session.getAttribute("vID");
+        logger.info("vID=" + vID);
     }
 
     /**
@@ -172,8 +179,7 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     @SuppressWarnings("unchecked")
     private void retrieveSynopticSessionState() throws Exception {
-        ServletContext context = getServletConfig().getServletContext();
-        this.config = AppConfiguration.getInstance(context);
+        retrieveSessionState();
 
         // Retrieve HTTP session to access storage.
         HttpServletRequest request = getThreadLocalRequest();
@@ -383,6 +389,9 @@ public class SynopticService extends RemoteServiceServlet implements
 
         retrieveSessionState();
             
+        /// writing to DerbyDB
+       // config.derbyDB.updateQuery("insert into ReExp(text, hash) values('testing', 'testhash')");
+        
         // Set up some static variables in Main that are necessary to use the
         // Synoptic library.
         Main.options = new SynopticOptions();
