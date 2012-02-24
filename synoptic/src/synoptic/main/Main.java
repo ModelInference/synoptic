@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -56,7 +57,7 @@ public class Main implements Callable<Integer> {
     /**
      * The current Synoptic version.
      */
-    public static final String versionString = "0.0.5";
+    public static final String versionString = "0.1";
 
     /**
      * Global source of pseudo-random numbers.
@@ -76,24 +77,30 @@ public class Main implements Callable<Integer> {
     /**
      * Retrieve and return the ChangesetID attribute in the manifest of the jar
      * that contains this Main class. Returns null if not running from a jar.
+     * 
+     * @throws IOException
      */
-    public static String getHgChangesetID() {
+    public static String getHgChangesetID() throws IOException {
         String changesetID = null;
-        try {
-            // Find the jar corresponding to Main (this) class.
-            URL res = Main.class.getResource(Main.class.getSimpleName()
-                    + ".class");
-            JarURLConnection conn = (JarURLConnection) res.openConnection();
-            // Grab attributes from the manifest of the jar (synoptic.jar)
-            Manifest mf = conn.getManifest();
-            Attributes atts = mf.getMainAttributes();
-            // Extract ChangesetID from the attributes and return it.
-            changesetID = atts.getValue("ChangesetID");
-        } catch (Exception e) {
-            // We get an exception when we are not running from inside a jar. In
-            // this case, return null for ChangesetID.
+
+        // Find the resource corresponding to Main (this) class.
+        URL res = Main.class.getResource(Main.class.getSimpleName() + ".class");
+
+        URLConnection conn = res.openConnection();
+        if (!(conn instanceof JarURLConnection)) {
+            // We are not running from inside a jar. In this case, return null
+            // for ChangesetID.
             return null;
         }
+        JarURLConnection jarConn = (JarURLConnection) conn;
+
+        // Grab attributes from the manifest of the jar (synoptic.jar)
+        Manifest mf = jarConn.getManifest();
+        Attributes atts = mf.getMainAttributes();
+
+        // Extract ChangesetID from the attributes and return it.
+        changesetID = atts.getValue("ChangesetID");
+
         return changesetID;
     }
 

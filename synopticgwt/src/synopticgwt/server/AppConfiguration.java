@@ -98,7 +98,12 @@ public class AppConfiguration {
             synopticGWTChangesetID = "unknown";
         }
 
-        synopticChangesetID = Main.getHgChangesetID();
+        try {
+            synopticChangesetID = Main.getHgChangesetID();
+        } catch (IOException e) {
+            // TODO: log exception.
+            synopticChangesetID = null;
+        }
         if (synopticChangesetID == null) {
             synopticChangesetID = "unknown";
         }
