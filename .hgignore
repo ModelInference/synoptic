@@ -18,6 +18,7 @@ synopticgwt/war/userlogfileexport/*
 synopticgwt/.gwt/*
 synopticgwt/.settings/*
 synopticgwt/gwt-unitCache/
+synopticgwt/test/**.class
 
 synopticjung/bin/*
 
