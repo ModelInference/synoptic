@@ -1,5 +1,6 @@
 package synoptic.tests.integration;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -7,6 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import junit.framework.Assert;
 
 import synoptic.main.Main;
 import synoptic.tests.SynopticTest;
@@ -26,21 +29,50 @@ public class EndToEndMainTests extends SynopticTest {
 
     @Parameters
     public static Collection<Object[]> data() {
-        String tracesPath = "../traces/";
-
-        String[] testPaths = { "abstract/mid_branching/",
-                "abstract/osx-login-example/",
-                "abstract/shopping-cart-example/",
-                "abstract/ticket-reservation-example/" };
-
+        // Where we will find traces/args files.
+        String tracesPath;
+        // Two paths that we will test to find traces/args files.
+        String tracesPath1 = "./traces/EndToEndTests/";
+        String tracesPath2 = "../traces/EndToEndTests/";
         Collection<Object[]> argsList = new LinkedList<Object[]>();
+
+        // List of input sub-dirs that contains end-to-end test examples.
+        String[] testPaths = { "mid_branching/", "osx-login-example/",
+                "shopping-cart-example/", "ticket-reservation-example/" };
+
+        // Determine where the input traces/args are located -- try two options:
+        // tracesPath1 and tracesPath2. Test using testPaths[0].
+        File f = new File(tracesPath1 + testPaths[0] + "args.txt");
+        if (f.exists()) {
+            tracesPath = tracesPath1;
+        } else {
+            f = new File(tracesPath2 + testPaths[0] + "args.txt");
+            if (f.exists()) {
+                tracesPath = tracesPath2;
+            } else {
+                Assert.fail("Unable to find trace/argument inputs for EndtoEndMainTest");
+                return argsList;
+            }
+        }
+
+        // Compose a set of args to Synoptic for each end-to-end test case.
         for (String tPath : testPaths) {
-            // TODO: Another hidden path dependency is in the output file.
+            // Check that the specific input files for this test exists.
+            String argsFilename = tracesPath + tPath + "args.txt";
+            String traceFilename = tracesPath + tPath + "trace.txt";
+            File f1 = new File(argsFilename);
+            File f2 = new File(traceFilename);
+            if (!f1.exists() || !f2.exists()) {
+                Assert.fail("Unable to find trace/argument inputs for EndtoEndMainTest");
+                return argsList;
+            }
+
+            // TODO: A hidden path dependency is in the output file.
             // Synoptic always produces graph output, and writes it to a default
             // location, which needs to be set correctly.
+
             Object[] testCase = { new String[] { "-o", "test", "-c",
-                    tracesPath + tPath + "args.txt",
-                    tracesPath + tPath + "trace.txt" } };
+                    argsFilename, traceFilename } };
             argsList.add(testCase);
         }
 
