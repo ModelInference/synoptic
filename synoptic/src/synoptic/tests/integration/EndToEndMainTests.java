@@ -32,21 +32,25 @@ public class EndToEndMainTests extends SynopticTest {
         // Where we will find traces/args files.
         String tracesPath;
         // Two paths that we will test to find traces/args files.
-        String tracesPath1 = "./traces/EndToEndTests/";
-        String tracesPath2 = "../traces/EndToEndTests/";
+        String tracesPath1 = "." + File.separator + "traces" + File.separator
+                + "EndToEndTests" + File.separator;
+        String tracesPath2 = ".." + File.separator + "traces" + File.separator
+                + "EndToEndTests" + File.separator;
         Collection<Object[]> argsList = new LinkedList<Object[]>();
 
         // List of input sub-dirs that contains end-to-end test examples.
-        String[] testPaths = { "mid_branching/", "osx-login-example/",
-                "shopping-cart-example/", "ticket-reservation-example/" };
+        String[] testPaths = { "mid_branching", "osx-login-example",
+                "shopping-cart-example", "ticket-reservation-example" };
 
         // Determine where the input traces/args are located -- try two options:
         // tracesPath1 and tracesPath2. Test using testPaths[0].
-        File f = new File(tracesPath1 + testPaths[0] + "args.txt");
+        File f = new File(tracesPath1 + testPaths[0] + File.separator
+                + "args.txt");
         if (f.exists()) {
             tracesPath = tracesPath1;
         } else {
-            f = new File(tracesPath2 + testPaths[0] + "args.txt");
+            f = new File(tracesPath2 + testPaths[0] + File.separator
+                    + "args.txt");
             if (f.exists()) {
                 tracesPath = tracesPath2;
             } else {
@@ -58,8 +62,10 @@ public class EndToEndMainTests extends SynopticTest {
         // Compose a set of args to Synoptic for each end-to-end test case.
         for (String tPath : testPaths) {
             // Check that the specific input files for this test exists.
-            String argsFilename = tracesPath + tPath + "args.txt";
-            String traceFilename = tracesPath + tPath + "trace.txt";
+            String argsFilename = tracesPath + tPath + File.separator
+                    + "args.txt";
+            String traceFilename = tracesPath + tPath + File.separator
+                    + "trace.txt";
             File f1 = new File(argsFilename);
             File f2 = new File(traceFilename);
             if (!f1.exists() || !f2.exists()) {
