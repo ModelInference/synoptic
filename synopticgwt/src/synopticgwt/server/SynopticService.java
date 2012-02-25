@@ -32,10 +32,6 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ConcurrencyInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.POInvariantMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.SynopticOptions;
@@ -375,8 +371,8 @@ public class SynopticService extends RemoteServiceServlet implements
         ArrayList<EventNode> parsedEvents = null;
 
         try {
-            parser = synoptic.main.Main.newTraceParser(synOpts.regExps,
-                    synOpts.partitionRegExp, synOpts.separatorRegExp);
+            parser = new TraceParser(synOpts.regExps, synOpts.partitionRegExp,
+                    synOpts.separatorRegExp);
             parsedEvents = parser.parseTraceString(synOpts.logLines, "", -1);
         } catch (ParseException pe) {
             logger.info("Caught parse exception: " + pe.toString());
@@ -392,18 +388,15 @@ public class SynopticService extends RemoteServiceServlet implements
         }
 
         // Code below mines invariants, and converts them to GWTInvariants.
-        // TODO: refactor synoptic main so that it does all of this most of this
-        // for the client.
         GWTGraph graph = null;
 
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
-            TOInvariantMiner miner = new ChainWalkingTOInvMiner();
-            minedInvs = miner.computeInvariants(traceGraph);
+            minedInvs = Main.mineTOInvariants(false, traceGraph);
 
             if (!synOpts.onlyMineInvs) {
-                // Since we're in the TO case then we also initialize and store
-                // refinement state.
+                // In the TO case then we also initialize/store refinement
+                // state.
                 initializeRefinementState(minedInvs);
                 storeSessionState(getThreadLocalRequest().getSession());
                 graph = PGraphToGWTGraph(pGraph);
@@ -413,8 +406,7 @@ public class SynopticService extends RemoteServiceServlet implements
             // PO invariant miner.
             DAGsTraceGraph inputGraph = parser
                     .generateDirectPORelation(parsedEvents);
-            POInvariantMiner miner = new TransitiveClosureInvMiner();
-            minedInvs = miner.computeInvariants(inputGraph);
+            minedInvs = Main.minePOInvariants(true, inputGraph);
             graph = null;
         }
 

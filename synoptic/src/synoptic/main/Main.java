@@ -216,13 +216,13 @@ public class Main implements Callable<Integer> {
         if (opts.logFilenames.size() == 0
                 || opts.logFilenames.get(0).equals("")) {
             logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
-                    + SynopticOptions.getOptDesc("help"));
+                    + Options.getOptDesc("help"));
             return null;
         }
 
         if (opts.dumpIntermediateStages && opts.outputPathPrefix == null) {
             logger.severe("Cannot dump intermediate stages without an output path prefix. Set this prefix with:\n\t"
-                    + SynopticOptions.getOptDesc("outputPathPrefix"));
+                    + Options.getOptDesc("outputPathPrefix"));
             return null;
         }
 
@@ -441,7 +441,7 @@ public class Main implements Callable<Integer> {
 
         if (options.outputPathPrefix == null) {
             logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t"
-                    + SynopticOptions.getOptDesc("outputPathPrefix"));
+                    + Options.getOptDesc("outputPathPrefix"));
             return;
         }
 
@@ -500,83 +500,19 @@ public class Main implements Callable<Integer> {
         // TODO: initialize instance state.
     }
 
-    public static TraceParser newTraceParser(List<String> rExps,
-            String partitioningRegExp, String sepRegExp) throws ParseException {
-        assert (partitioningRegExp != null);
-
-        TraceParser parser = new TraceParser();
-
-        logger.fine("Setting up the log file parser.");
-        if (partitioningRegExp.equals(SynopticOptions.partitionRegExpDefault)) {
-            logger.info("Using the default partitions mapping regex: "
-                    + SynopticOptions.partitionRegExpDefault);
-        }
-
-        if (!rExps.isEmpty()) {
-            // The user provided custom regular expressions.
-            for (String exp : rExps) {
-                logger.fine("\taddRegex with exp:" + exp);
-                parser.addRegex(exp);
-            }
-
-            parser.setPartitionsMap(partitioningRegExp);
-        } else {
-            // No custom regular expressions provided - warn and use defaults.
-            logger.warning("Using a default regular expression to parse log-lines: "
-                    + "will map the entire log line to an event type."
-                    + "\nTo use a custom regular expressions use the option:\n\t"
-                    + SynopticOptions.getOptDesc("regExps") + "\n\t");
-            // TODO: is this next statement necessary?
-            // parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
-            parser.addRegex(SynopticOptions.regExpDefault);
-            parser.setPartitionsMap(partitioningRegExp);
-        }
-
-        if (sepRegExp != null) {
-            parser.addPartitionsSeparator(sepRegExp);
-            if (!partitioningRegExp
-                    .equals(SynopticOptions.partitionRegExpDefault)) {
-                logger.warning("Partition separator and partition mapping regex are both specified. This may result in difficult to understand parsing behavior.");
-            }
-        }
-        return parser;
-    }
-
-    public List<EventNode> parseFiles(TraceParser parser, List<String> filenames)
-            throws Exception {
-        List<EventNode> parsedEvents = new ArrayList<EventNode>();
-        for (String fileArg : filenames) {
-            logger.fine("\tprocessing fileArg: " + fileArg);
-            File[] files = getFiles(fileArg);
-            if (files.length == 0) {
-                throw new ParseException(
-                        "The set of input files is empty. Please specify a set of existing files to parse.");
-            }
-            for (File file : files) {
-                logger.fine("\tcalling parseTraceFile with file: "
-                        + file.getAbsolutePath());
-                parsedEvents.addAll(parser.parseTraceFile(file, -1));
-            }
-        }
-        return parsedEvents;
-    }
-
-    private long loggerInfoStart(String msg) {
+    static private long loggerInfoStart(String msg) {
         logger.info(msg);
         return System.currentTimeMillis();
     }
 
-    private void loggerInfoEnd(String msg, long startTime) {
+    static private void loggerInfoEnd(String msg, long startTime) {
         logger.info(msg + (System.currentTimeMillis() - startTime) + "ms");
     }
 
     private void processPOLog(TraceParser parser, List<EventNode> parsedEvents)
             throws ParseException, FileNotFoundException {
         // //////////////////
-        long startTime = loggerInfoStart("Generating inter-event temporal relation...");
-        DAGsTraceGraph inputGraph = parser
-                .generateDirectPORelation(parsedEvents);
-        loggerInfoEnd("Generating temporal relation took ", startTime);
+        DAGsTraceGraph inputGraph = genDAGsTraceGraph(parser, parsedEvents);
         // //////////////////
 
         // Parser can be garbage-collected.
@@ -596,22 +532,10 @@ public class Main implements Callable<Integer> {
             }
         }
 
-        POInvariantMiner miner;
-        if (options.useTransitiveClosureMining) {
-            miner = new TransitiveClosureInvMiner();
-        } else {
-            miner = new DAGWalkingPOInvMiner(options.mineNeverConcurrentWithInv);
-        }
-
         // //////////////////
-        startTime = loggerInfoStart("Mining invariants ["
-                + miner.getClass().getName() + "]..");
-        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
-        loggerInfoEnd("Mining took ", startTime);
+        TemporalInvariantSet minedInvs = minePOInvariants(
+                options.useTransitiveClosureMining, inputGraph);
         // //////////////////
-
-        // Miner can be garbage-collected.
-        miner = null;
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
 
@@ -644,11 +568,105 @@ public class Main implements Callable<Integer> {
      */
     @Override
     public Integer call() throws Exception {
+        Locale.setDefault(Locale.US);
+
         PartitionGraph pGraph = createInitialPartitionGraph();
         if (pGraph != null) {
             runSynoptic(pGraph);
         }
         return Integer.valueOf(0);
+    }
+
+    static public List<EventNode> parseEvents(TraceParser parser,
+            List<String> logFilenames) throws Exception {
+        // Parses all the log filenames, constructing the parsedEvents List.
+        long startTime = loggerInfoStart("Parsing input files..");
+
+        List<EventNode> parsedEvents = new ArrayList<EventNode>();
+        for (String fileArg : logFilenames) {
+            logger.fine("\tprocessing fileArg: " + fileArg);
+            File[] files = getFiles(fileArg);
+            if (files.length == 0) {
+                throw new ParseException(
+                        "The set of input files is empty. Please specify a set of existing files to parse.");
+            }
+            for (File file : files) {
+                logger.fine("\tcalling parseTraceFile with file: "
+                        + file.getAbsolutePath());
+                parsedEvents.addAll(parser.parseTraceFile(file, -1));
+            }
+        }
+        loggerInfoEnd("Parsing took ", startTime);
+
+        return parsedEvents;
+    }
+
+    static public ChainsTraceGraph genChainsTraceGraph(TraceParser parser,
+            List<EventNode> parsedEvents) throws ParseException {
+        long startTime = loggerInfoStart("Generating inter-event temporal relation...");
+        ChainsTraceGraph inputGraph = parser
+                .generateDirectTORelation(parsedEvents);
+        loggerInfoEnd("Generating temporal relation took ", startTime);
+        return inputGraph;
+    }
+
+    static public DAGsTraceGraph genDAGsTraceGraph(TraceParser parser,
+            List<EventNode> parsedEvents) throws ParseException {
+        long startTime = loggerInfoStart("Generating inter-event temporal relation...");
+        DAGsTraceGraph inputGraph = parser
+                .generateDirectPORelation(parsedEvents);
+        loggerInfoEnd("Generating temporal relation took ", startTime);
+        return inputGraph;
+    }
+
+    static public TemporalInvariantSet mineTOInvariants(
+            boolean useTransitiveClosureMining, ChainsTraceGraph inputGraph) {
+        TOInvariantMiner miner;
+
+        if (useTransitiveClosureMining) {
+            miner = new TransitiveClosureInvMiner();
+        } else {
+            miner = new ChainWalkingTOInvMiner();
+        }
+
+        long startTime = loggerInfoStart("Mining invariants ["
+                + miner.getClass().getName() + "]..");
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+
+        loggerInfoEnd("Mining took ", startTime);
+
+        // Miner can be garbage-collected.
+        miner = null;
+        return minedInvs;
+    }
+
+    static public TemporalInvariantSet minePOInvariants(
+            boolean useTransitiveClosureMining, DAGsTraceGraph inputGraph) {
+
+        POInvariantMiner miner;
+        if (useTransitiveClosureMining) {
+            miner = new TransitiveClosureInvMiner();
+        } else {
+            miner = new DAGWalkingPOInvMiner(options.mineNeverConcurrentWithInv);
+        }
+
+        long startTime = loggerInfoStart("Mining invariants ["
+                + miner.getClass().getName() + "]..");
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+        loggerInfoEnd("Mining took ", startTime);
+        // Miner can be garbage-collected.
+        miner = null;
+        return minedInvs;
+    }
+
+    static public PartitionGraph createPartitionGraph(
+            ChainsTraceGraph inputGraph, boolean partitionByLabel,
+            TemporalInvariantSet minedInvs) {
+        // Create the initial partitioning graph.
+        long startTime = loggerInfoStart("Creating initial partition graph.");
+        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, minedInvs);
+        loggerInfoEnd("Creating partition graph took ", startTime);
+        return pGraph;
     }
 
     /**
@@ -662,25 +680,17 @@ public class Main implements Callable<Integer> {
      * @throws Exception
      */
     public PartitionGraph createInitialPartitionGraph() throws Exception {
-        Locale.setDefault(Locale.US);
-        TraceParser parser = newTraceParser(options.regExps,
+        TraceParser parser = new TraceParser(options.regExps,
                 options.partitionRegExp, options.separatorRegExp);
-        long startTime;
-
-        // //////////////////
-        // Parses all the log filenames, constructing the parsedEvents List.
-        startTime = loggerInfoStart("Parsing input files..");
         List<EventNode> parsedEvents;
         try {
-            parsedEvents = parseFiles(parser, options.logFilenames);
+            parsedEvents = parseEvents(parser, options.logFilenames);
         } catch (ParseException e) {
             logger.severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
-                    + SynopticOptions.getOptDesc("help"));
+                    + Options.getOptDesc("help"));
             logger.severe(e.toString());
             return null;
         }
-        loggerInfoEnd("Parsing took ", startTime);
-        // //////////////////
 
         if (options.debugParse) {
             // Terminate since the user is interested in debugging the parser.
@@ -688,7 +698,7 @@ public class Main implements Callable<Integer> {
             return null;
         }
 
-        // PO Logs are processed separately.
+        // PO Logs are processed differently.
         if (!parser.logTimeTypeIsTotallyOrdered()) {
             logger.warning("Partially ordered log input detected. Only mining invariants since refinement/coarsening is not yet supported.");
             processPOLog(parser, parsedEvents);
@@ -701,10 +711,7 @@ public class Main implements Callable<Integer> {
         }
 
         // //////////////////
-        startTime = loggerInfoStart("Generating inter-event temporal relation...");
-        ChainsTraceGraph inputGraph = parser
-                .generateDirectTORelation(parsedEvents);
-        loggerInfoEnd("Generating temporal relation took ", startTime);
+        ChainsTraceGraph inputGraph = genChainsTraceGraph(parser, parsedEvents);
         // //////////////////
 
         if (options.dumpInitialGraphDotFile) {
@@ -714,26 +721,13 @@ public class Main implements Callable<Integer> {
                     inputGraph);
         }
 
-        TOInvariantMiner miner;
-
-        if (options.useTransitiveClosureMining) {
-            miner = new TransitiveClosureInvMiner();
-        } else {
-            miner = new ChainWalkingTOInvMiner();
-        }
-
         // Parser can be garbage-collected.
         parser = null;
 
         // //////////////////
-        startTime = loggerInfoStart("Mining invariants ["
-                + miner.getClass().getName() + "]..");
-        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
-        loggerInfoEnd("Mining took ", startTime);
+        TemporalInvariantSet minedInvs = mineTOInvariants(
+                options.useTransitiveClosureMining, inputGraph);
         // //////////////////
-
-        // Miner can be garbage-collected.
-        miner = null;
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
 
@@ -754,9 +748,8 @@ public class Main implements Callable<Integer> {
 
         // //////////////////
         // Create the initial partitioning graph.
-        startTime = loggerInfoStart("Creating initial partition graph.");
-        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, minedInvs);
-        loggerInfoEnd("Creating partition graph took ", startTime);
+        PartitionGraph pGraph = createPartitionGraph(inputGraph, true,
+                minedInvs);
         // //////////////////
 
         if (options.dumpInitialPartitionGraph) {
@@ -818,7 +811,7 @@ public class Main implements Callable<Integer> {
                     + (System.currentTimeMillis() - startTime) + "ms");
         } else {
             logger.warning("Cannot output final graph. Specify output path prefix using:\n\t"
-                    + SynopticOptions.getOptDesc("outputPathPrefix"));
+                    + Options.getOptDesc("outputPathPrefix"));
         }
     }
 }

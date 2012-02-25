@@ -3,6 +3,7 @@ package tests.units;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,8 @@ import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
 
+import tests.InvDFAMinimizationTest;
+
 /**
  * Basic tests for the SynopticModel class - checks that SynopticModels are
  * correctly translated. Models are considered correctly translated if the
@@ -25,16 +28,23 @@ import synoptic.model.StringEventType;
  * 
  * @author Jenny
  */
-public class SynopticModelTests {
+public class SynopticModelTests extends InvDFAMinimizationTest {
 
     @Test
     public void testConversion() throws Exception {
         // Testing correctness for a known model.
-        String[] args = new String[] { "--dumpInitialPartitionGraph=false",
+        String[] args = new String[] {
+                "--dumpInitialPartitionGraph=false",
                 "--dumpInitialGraphDotFile=false",
-                "--dumpInitialGraphPngFile=false", "-o",
-                "syn-model-osx-login-test.png", "-r", "(?<TYPE>.+)", "-s",
-                "--", "../traces/abstract/osx-login-example/trace.txt" };
+                "--dumpInitialGraphPngFile=false",
+                "-o",
+                testOutputDir + "syn-model-osx-login-test.png",
+                "-r",
+                "(?<TYPE>.+)",
+                "-s",
+                "--",
+                exampleTracesDir + "abstract" + File.separator
+                        + "osx-login-example" + File.separator + "trace.txt" };
 
         // Set up Synoptic.
         Main synMain = Main.processArgs(args);

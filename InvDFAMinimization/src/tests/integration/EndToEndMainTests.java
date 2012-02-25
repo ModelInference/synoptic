@@ -1,5 +1,7 @@
 package tests.integration;
 
+import java.io.File;
+
 import main.DFAMain;
 
 import org.junit.Test;
@@ -20,12 +22,13 @@ public class EndToEndMainTests extends InvDFAMinimizationTest {
      */
     @Test
     public void abstractLogFileTest() throws Exception {
-        // TODO: make the path insensitive to current location.
-        String tPath = "../traces/";
+        String tPath = ".." + File.separator + "traces" + File.separator;
+        String loginExamplePath = tPath + "abstract" + File.separator
+                + "osx-login-example" + File.separator;
 
-        String[] args = new String[] { "-c",
-                tPath + "abstract/osx-login-example/args.txt",
-                tPath + "abstract/osx-login-example/trace.txt" };
+        String[] args = new String[] { "-r", "(?<TYPE>.+)", "-s", "--", "-f",
+                testOutputDir + "osx-login-example-dfa-model.png",
+                loginExamplePath + "trace.txt" };
         DFAMain.main(args);
     }
 }
