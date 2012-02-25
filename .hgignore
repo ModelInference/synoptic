@@ -18,11 +18,13 @@ synopticgwt/war/userlogfileexport/*
 synopticgwt/.gwt/*
 synopticgwt/.settings/*
 synopticgwt/gwt-unitCache/
+synopticgwt/test/**.class
 
 synopticjung/bin/*
 
-InvDFAMinimization/bin/*
-InvDFAMinimization/junit/*
+InvariMint/bin/*
+InvariMint/junit/*
+InvariMint/test-output/*
 
 # Ignore vim .swp files
 .*.swp
