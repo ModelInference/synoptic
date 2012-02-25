@@ -14,7 +14,7 @@ import synoptic.tests.SynopticLibTest;
  * 
  * @author ivan
  */
-public class InvDFAMinimizationTest extends SynopticLibTest {
+public class InvariMintTest extends SynopticLibTest {
 
     protected static final String testOutputDir = "." + File.separator
             + "test-output" + File.separator;

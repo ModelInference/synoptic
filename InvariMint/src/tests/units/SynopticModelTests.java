@@ -19,7 +19,7 @@ import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
 
-import tests.InvDFAMinimizationTest;
+import tests.InvariMintTest;
 
 /**
  * Basic tests for the SynopticModel class - checks that SynopticModels are
@@ -28,7 +28,7 @@ import tests.InvDFAMinimizationTest;
  * 
  * @author Jenny
  */
-public class SynopticModelTests extends InvDFAMinimizationTest {
+public class SynopticModelTests extends InvariMintTest {
 
     @Test
     public void testConversion() throws Exception {
