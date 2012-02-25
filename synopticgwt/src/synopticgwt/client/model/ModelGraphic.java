@@ -38,6 +38,8 @@ public class ModelGraphic {
 
     // Label name that indicates terminal node.
     private static String TERMINAL = "TERMINAL";
+    
+    private static String DEFAULT_STROKE_COLOR = "black";
 
     private JavaScriptObject draculaGraph;
 
@@ -174,6 +176,9 @@ public class ModelGraphic {
 
         // Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
         $wnd.Math.seedrandom($wnd.randSeed);
+        
+        // Clear the edges in the model
+        this.@synopticgwt.client.model.ModelGraphic::clearEdgeState()();
 
         // Clear the selected nodes from the graph's state.
         this.@synopticgwt.client.model.ModelGraphic::clearSelectedNodes()();
@@ -317,18 +322,16 @@ public class ModelGraphic {
     }-*/;
 
     // For all selected nodes in model, change their border to given color.
-    public native void updateNodesBorder(String color) /*-{
+    public native void setPathHighlightViewState() /*-{
 
         var selectedDraculaNodes = this.@synopticgwt.client.model.ModelGraphic::selectedDraculaNodes;
         var selectedNodeLog = this.@synopticgwt.client.model.ModelGraphic::selectedNodeLog;
-        
-        
         
         // Clear out the node for  viewing log lines.
         if (selectedNodeLog) {
             selectedNodeLog
                     .attr({
-                        "stroke" : "black",
+                        "stroke" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_COLOR,
                         "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH
                     });
                     
@@ -336,6 +339,10 @@ public class ModelGraphic {
             // written in the following way.  Shortening it will likely break
             // it.
             this.@synopticgwt.client.model.ModelGraphic::selectedNodeLog = undefined;
+        } else {
+             // Clears any highlighted edges if there are no log lines being viewed
+             // (which means the graph is showing paths traces and must be cleared). 
+            this.@synopticgwt.client.model.ModelGraphic::clearEdgeState()();   
         }
         
         // Iterate over the selected set and make all the nodes highlighted
@@ -343,7 +350,7 @@ public class ModelGraphic {
         // (at the moment)).
         var highlightStyle = {
             "fill" : @synopticgwt.client.model.ModelGraphic::DEFAULT_COLOR,
-            "stroke" : color,
+            "stroke" : @synopticgwt.client.model.ModelGraphic::HIGHLIGHT_COLOR,
             "stroke-width" : @synopticgwt.client.model.ModelGraphic::SELECT_STROKE_WIDTH
         };
         
@@ -443,7 +450,7 @@ public class ModelGraphic {
             selectedRect
                     .attr({
                         "fill" : @synopticgwt.client.model.ModelGraphic::DEFAULT_COLOR,
-                        "stroke" : "black",
+                        "stroke" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_COLOR,
                         "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH
                     });
             mTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(parseInt(nextID));
@@ -552,7 +559,7 @@ public class ModelGraphic {
                                 // been clicked.
                                 if (selectedNodeLog != null) {
                                     selectedNodeLog.attr({
-                                                    "stroke" : "black",
+                                                    "stroke" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_COLOR,
                                                     "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH
                                                 });
                                 } else {
@@ -590,8 +597,13 @@ public class ModelGraphic {
                             
                             // If the node clicked has been selected, remove the highlight and also remove it from modelGraphic
                             } else {
+                                // Set the stroke and stroke width back to normal as well, as they are
+                                // still technically selected when viewing the model in edge
+                                // highlight mode.
                                 rect.attr({
-                                            "fill" : @synopticgwt.client.model.ModelGraphic::DEFAULT_COLOR
+                                            "fill" : @synopticgwt.client.model.ModelGraphic::DEFAULT_COLOR,
+                                            "stroke" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_COLOR,
+                                            "stroke-width" : @synopticgwt.client.model.ModelGraphic::DEFAULT_STROKE_WIDTH
                                         });
                                 selectedDraculaNodes.@java.util.Map::remove(Ljava/lang/Object;)(@java.lang.Integer::valueOf(I)(parseInt(node.id)));
                                 mTab.@synopticgwt.client.model.ModelTab::removeSelectedNode(I)(parseInt(node.id));
