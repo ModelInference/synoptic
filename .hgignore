@@ -33,3 +33,4 @@ lib/synoptic.jar
 
 # Ignore dot/png files created by tests
 synoptic/test-output/*
+InvDFAMinimization/test-output/*

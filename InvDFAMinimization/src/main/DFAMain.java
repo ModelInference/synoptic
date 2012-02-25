@@ -3,8 +3,14 @@ package main;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import model.EncodedAutomaton;
 import model.EventTypeEncodings;
@@ -14,17 +20,21 @@ import model.SynopticModel;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 
+import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TOInitialTerminalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
+import synoptic.main.SynopticOptions;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
+import synoptic.model.export.DotExportFormatter;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.BriefLogFormatter;
 
 /**
  * InvDFAMinimization accepts a log file and regular expression arguments and
@@ -39,6 +49,49 @@ import synoptic.model.interfaces.ITransition;
  * @author Jenny
  */
 public class DFAMain {
+    public static Logger logger = null;
+
+    public static void setUpLogging() {
+        // Get the top Logger instance
+        logger = Logger.getLogger("");
+
+        // Handler for console (reuse it if it already exists)
+        Handler consoleHandler = null;
+
+        // See if there is already a console handler
+        for (Handler handler : logger.getHandlers()) {
+            if (handler instanceof ConsoleHandler) {
+                consoleHandler = handler;
+                break;
+            }
+        }
+
+        if (consoleHandler == null) {
+            // No console handler found, create a new one
+            consoleHandler = new ConsoleHandler();
+            logger.addHandler(consoleHandler);
+        }
+
+        // The consoleHandler will write out anything the logger gives it
+        consoleHandler.setLevel(Level.ALL);
+
+        // consoleHandler.setFormatter(new CustomFormatter());
+
+        // Set the logger's log level based on command line arguments
+        if (Main.options.logLvlQuiet) {
+            logger.setLevel(Level.WARNING);
+        } else if (Main.options.logLvlVerbose) {
+            logger.setLevel(Level.FINE);
+        } else if (Main.options.logLvlExtraVerbose) {
+            logger.setLevel(Level.FINEST);
+        } else {
+            logger.setLevel(Level.INFO);
+        }
+
+        consoleHandler.setFormatter(new BriefLogFormatter());
+        return;
+    }
+
     /**
      * Main entrance into the application. Application arguments (args) are
      * processed using Synoptic's build-in argument parser, extended with a few
@@ -49,13 +102,57 @@ public class DFAMain {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
+        setUpLogging();
+
         // Set up Synoptic.
         InvDFAMinimizationOptions opts = new InvDFAMinimizationOptions(args);
-        Main synMain = Main.processArgs(args);
-        if (synMain == null) {
+
+        // Set up options in Synoptic Main that are used by the library.
+        Main.options = new SynopticOptions();
+        Main.options.logLvlExtraVerbose = false;
+        Main.options.logLvlExtraVerbose = true;
+        Main.options.internCommonStrings = true;
+        Main.options.recoverFromParseErrors = opts.recoverFromParseErrors;
+        Main.options.debugParse = opts.debugParse;
+        Main.options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
+
+        Main.setUpLogging();
+        Main.random = new Random(Main.options.randomSeed);
+        Main.graphExportFormatter = new DotExportFormatter();
+
+        // Instantiate the parser and parse the log lines.
+        TraceParser parser = new TraceParser(opts.regExps,
+                opts.partitionRegExp, opts.separatorRegExp);
+
+        List<EventNode> parsedEvents = Main.parseEvents(parser,
+                opts.logFilenames);
+
+        if (opts.debugParse) {
+            // Terminate since the user is interested in debugging the parser.
+            logger.info("Terminating. To continue further, re-run without the debugParse option.");
             return;
         }
-        PartitionGraph initialModel = synMain.createInitialPartitionGraph();
+
+        if (!parser.logTimeTypeIsTotallyOrdered()) {
+            logger.severe("Partially ordered log input detected. Stopping");
+            return;
+        }
+
+        if (parsedEvents.size() == 0) {
+            logger.severe("Did not parse any events from the input log files. Stopping.");
+            return;
+        }
+
+        // //////////////////
+        ChainsTraceGraph inputGraph = parser
+                .generateDirectTORelation(parsedEvents);
+        // //////////////////
+
+        TemporalInvariantSet minedInvs = Main.mineTOInvariants(false,
+                inputGraph);
+
+        PartitionGraph initialModel = new PartitionGraph(inputGraph, true,
+                minedInvs);
 
         // Construct initial DFA from NIFby invariants.
         TemporalInvariantSet NIFbys = initialModel.getNIFbyInvariants();
@@ -91,8 +188,7 @@ public class DFAMain {
         // Export final model.
         dfa.exportDotAndPng(opts.finalModelFile);
 
-        compareTranslatedSynopticModel(synMain, initialModel, encodings,
-                opts.synopticModelFile, dfa);
+        compareTranslatedSynopticModel(initialModel, encodings, dfa);
     }
 
     // TODO: just build the new dfa -- no seen map
@@ -201,14 +297,16 @@ public class DFAMain {
      * 
      * @throws IOException
      */
-    private static void compareTranslatedSynopticModel(Main synMain,
+    private static void compareTranslatedSynopticModel(
             PartitionGraph initialModel, EventTypeEncodings encodings,
-            String synFileName, EncodedAutomaton dfa) throws IOException {
+            EncodedAutomaton dfa) throws IOException {
 
         // To compare, we'll translate and export the Synoptic model.
         // First run synoptic on the initial model, initial model becomes final
         // model.
-        synMain.runSynoptic(initialModel);
+        Bisimulation.splitPartitions(initialModel);
+        Bisimulation.mergePartitions(initialModel);
+
         SynopticModel convertedDfa = new SynopticModel(initialModel, encodings);
 
         // This minimization step will first determinize the model -- from the

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import synoptic.main.Main;
-import synoptic.main.SynopticOptions;
+import synoptic.main.Options;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.WeightedTransition;
@@ -64,7 +64,7 @@ public class GraphExporter {
         }
         if (Main.options.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
-                    + SynopticOptions.getOptDesc("dotExecutablePath"));
+                    + Options.getOptDesc("dotExecutablePath"));
         }
         return Main.options.dotExecutablePath;
     }
