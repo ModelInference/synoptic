@@ -22,8 +22,8 @@ synopticgwt/test/**.class
 
 synopticjung/bin/*
 
-InvDFAMinimization/bin/*
-InvDFAMinimization/junit/*
+InvariMint/bin/*
+InvariMint/junit/*
 
 # Ignore vim .swp files
 .*.swp
@@ -33,4 +33,4 @@ lib/synoptic.jar
 
 # Ignore dot/png files created by tests
 synoptic/test-output/*
-InvDFAMinimization/test-output/*
+InvariMint/test-output/*
