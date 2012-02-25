@@ -9,7 +9,7 @@ import plume.OptionGroup;
 /**
  * Options relevant to the InvDFAMinimization project.
  */
-public class InvDFAMinimizationOptions extends synoptic.main.Options {
+public class InvariMintOptions extends synoptic.main.Options {
 
     // //////////////////////////////////////////////////
     /**
@@ -119,7 +119,7 @@ public class InvDFAMinimizationOptions extends synoptic.main.Options {
     /** One line synopsis of usage */
     public static final String usageString = "invarimint [options] <logfiles-to-analyze>";
 
-    public InvDFAMinimizationOptions(String[] args) throws IOException {
+    public InvariMintOptions(String[] args) throws IOException {
         plumeOptions = new plume.Options(getUsageString(), this);
         setOptions(args);
         if (randomSeed == null) {

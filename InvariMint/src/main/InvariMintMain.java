@@ -48,7 +48,7 @@ import synoptic.util.BriefLogFormatter;
  * 
  * @author Jenny
  */
-public class DFAMain {
+public class InvariMintMain {
     public static Logger logger = null;
 
     public static void setUpLogging() {
@@ -105,7 +105,7 @@ public class DFAMain {
         setUpLogging();
 
         // Set up Synoptic.
-        InvDFAMinimizationOptions opts = new InvDFAMinimizationOptions(args);
+        InvariMintOptions opts = new InvariMintOptions(args);
 
         // Set up options in Synoptic Main that are used by the library.
         Main.options = new SynopticOptions();

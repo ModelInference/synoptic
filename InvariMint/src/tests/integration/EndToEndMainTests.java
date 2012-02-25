@@ -2,18 +2,18 @@ package tests.integration;
 
 import java.io.File;
 
-import main.DFAMain;
+import main.InvariMintMain;
 
 import org.junit.Test;
 
-import tests.InvDFAMinimizationTest;
+import tests.InvariMintTest;
 
 /**
  * Runs the DFAMain project end-to-end on a different log files.
  * 
  * @author ivan
  */
-public class EndToEndMainTests extends InvDFAMinimizationTest {
+public class EndToEndMainTests extends InvariMintTest {
 
     /**
      * Test on osx-login-example in traces/abstract/.
@@ -29,6 +29,6 @@ public class EndToEndMainTests extends InvDFAMinimizationTest {
         String[] args = new String[] { "-r", "(?<TYPE>.+)", "-s", "--", "-f",
                 testOutputDir + "osx-login-example-dfa-model.png",
                 loginExamplePath + "trace.txt" };
-        DFAMain.main(args);
+        InvariMintMain.main(args);
     }
 }
