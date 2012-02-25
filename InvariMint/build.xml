@@ -6,8 +6,8 @@
 
     <property environment="env"/>
 
-   	<!-- Where to create the inv-dfa-minimization.jar file. -->
-    <property name="invarimint.jarpath" value="${util.synoptic.libdir}/inv-dfa-minimization.jar"/>
+    <!-- Where to create the invarimint.jar file. -->
+    <property name="invarimint.jarpath" value="${util.synoptic.libdir}/invarimint.jar"/>
 
 	<property name="junit.output.dir" value="junit"/>
 
@@ -16,12 +16,12 @@
 	<property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
 
-	<!-- Where to find the generated synoptic classes. -->
+    <!-- Where to find the generated synoptic classes. -->
     <path id="invarimint.classes.classpath">
         <pathelement location="bin"/>
     </path>
 
-	<!-- The set of jars synoptic depends on, in classpath format. -->
+    <!-- The set of jars synoptic depends on, in classpath format. -->
     <path id="invarimint.depjars.classpath">
         <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
         <pathelement location="${util.synoptic.libdir}/plume.jar"/>
@@ -29,7 +29,7 @@
         <pathelement location="${util.synoptic.libdir}/automaton.jar"/>
     </path>
 
-	 <!-- The complete classpath for running the compiled synoptic. -->
+    <!-- The complete classpath for running the compiled synoptic. -->
     <path id="invarimint.classpath">
         <path refid="invarimint.classes.classpath"/>
         <path refid="invarimint.depjars.classpath"/>
@@ -99,7 +99,7 @@
       </jar>
     </target>
 
-	<!--=====================================================================-->
+    <!--=====================================================================-->
     <target name="junitreport">
         <junitreport todir="${junit.output.dir}">
             <fileset dir="${junit.output.dir}">
