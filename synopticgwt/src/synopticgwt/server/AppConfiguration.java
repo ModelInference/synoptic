@@ -129,4 +129,16 @@ public class AppConfiguration {
         }
         return new AppConfiguration(context);
     }
+    
+    /**
+     * Closes DerbyDB cleanly if server process terminates.  
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            derbyDB.shutdown();
+        } finally {
+            super.finalize();
+        }
+    }
 }
