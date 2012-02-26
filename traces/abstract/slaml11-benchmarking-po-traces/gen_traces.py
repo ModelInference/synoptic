@@ -23,6 +23,7 @@ this script.)
 '''
 
 import os
+import simulator
 
 
 def clear_dir(dirname):
@@ -32,15 +33,18 @@ def clear_dir(dirname):
     os.system("rm -Rf " + dirname)
     os.system("mkdir " + dirname)
 
-
 def run_simulator(dirname, nodes, etypes, events, execs):
     '''
-    Run the simulator from the command line.
-
-    TODO: import simulator.py module and use it directly.
+    Run the parametrized simulator and store the log of simulator
+    events in a parametrized filename.
     '''
     fname = dirname + "/nodes-%d_etypes-%d_events-%d_execs-%d.txt" % (nodes, etypes, events, execs)
-    os.system("python simulator.py %d %d %d %d > %s" % (nodes, etypes, events, execs, fname))
+    f = open(f, 'w')
+    def logEventFn(e):
+        write(f + "\n")
+    # os.system("python simulator.py %d %d %d %d > %s" % (nodes, etypes, events, execs, fname))
+    simulator.main(nodes, etypes, events, execs, logEventFn)
+    f.close()
 
 def get_defaults():
     '''
@@ -76,10 +80,6 @@ def main():
     '''
     Varies parameters, calling simulator for each parameter set.
     '''
-    answer = None
-    while answer != 'y':
-        answer = raw_input("This will delete all the previously generated input files, continue? (y/n) ")
-
     # vary nodes:
     etypes, events, execs, nodes = get_defaults()
     dirname = "vary-nodes"
@@ -93,7 +93,6 @@ def main():
     clear_dir(dirname)
     for events in get_tracelen_range():
         run_simulator(dirname, nodes, etypes, events, execs)
-        
 
     # vary number of traces:
     etypes, events, execs, nodes = get_defaults()
@@ -110,5 +109,8 @@ def main():
         run_simulator(dirname, nodes, etypes, events, execs)
 
 if __name__ == "__main__":
+    answer = raw_input("This will delete all the previously generated input files, continue? (y/n) ")
+    if answer != 'y':
+        sys.exit(0)
+
     main()
-    
