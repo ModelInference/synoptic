@@ -40,7 +40,6 @@
     <script type="text/javascript" src="/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="/dracula_graph.js"></script>
     <script type="text/javascript" src="/dracula_algorithms.js"></script>
- 	<script type="text/javascript" src="/graphhandler.js"></script>
 
     
     <!-- Google analytics and user voice config -->
