@@ -235,9 +235,13 @@ public class Partition implements INode<Partition> {
      */
     private static boolean fulfillsStrong(EventNode event,
             ITransition<Partition> trans) {
+
         for (final ITransition<EventNode> t : event.getTransitions()) {
             if (t.getRelation().equals(trans.getRelation())
                     && t.getTarget().getParent().equals(trans.getTarget())) {
+                // TODO: Shouldn't this check and return true only if the
+                // condition holds for _all_ transitions t (not just some
+                // transition t) ?
                 return true;
             }
         }
@@ -323,17 +327,18 @@ public class Partition implements INode<Partition> {
 
         List<WeightedTransition<Partition>> trsWeighted = new ArrayList<WeightedTransition<Partition>>();
         for (Transition<Partition> tr : iter) {
-            // Use splitting to compute the transition probabilities\labels.
-            PartitionSplit s = getCandidateSplitBasedOnOutgoing(tr);
-            if (s == null) {
-                s = PartitionSplit.newSplitWithAllEvents(this);
+            int numOutgoing = 0;
+            for (final EventNode event : events) {
+                if (fulfillsStrong(event, tr)) {
+                    numOutgoing += 1;
+                }
             }
-            int numOutgoing = s.getSplitEvents().size();
+
             int totalAtSource = tr.getSource().getEventNodes().size();
-            double freq = (double) numOutgoing / (double) totalAtSource;
+            double probability = (double) numOutgoing / (double) totalAtSource;
             WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
-                    tr.getSource(), tr.getTarget(), tr.getRelation(), freq,
-                    numOutgoing);
+                    tr.getSource(), tr.getTarget(), tr.getRelation(),
+                    probability, numOutgoing);
             trsWeighted.add(trWeighted);
         }
         return trsWeighted;

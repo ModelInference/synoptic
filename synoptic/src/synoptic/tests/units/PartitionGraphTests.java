@@ -261,7 +261,7 @@ public class PartitionGraphTests extends SynopticTest {
     }
 
     @Test
-    public void exportPathsThroughSelecetdNodesSingleNodeSelected()
+    public void exportPathsThroughSelectedNodesSingleNodeSelected()
             throws Exception {
         PartitionGraph pGraph = getPGraphTemplate();
 

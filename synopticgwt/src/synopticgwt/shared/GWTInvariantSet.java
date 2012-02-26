@@ -75,4 +75,18 @@ public class GWTInvariantSet implements Serializable {
         return invs.get(invType);
     }
 
+    /**
+     * Returns the number of invariants (not types!) that are held by this
+     * invariant set.
+     * 
+     * @return
+     */
+    public int count() {
+        int count = 0;
+        for (String itype : invs.keySet()) {
+            count += invs.get(itype).size();
+        }
+        return count;
+    }
+
 }
