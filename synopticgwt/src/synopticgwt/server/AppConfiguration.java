@@ -93,16 +93,14 @@ public class AppConfiguration {
             derbyDBDir = "/Users/Kevin/Desktop/DerbyTutorials/SynopticTestDB/";
         }
         File f = new File(derbyDBDir);
-        if (!f.exists()) {
-            //TODO Set flag to disabled Derby. Remove line below, currently there
-            //for testing purposes.
-            derbyDB = DerbyDB.getInstance(derbyDBDir, true);
-        } else {
+        if (f.exists()) {
             if (f.list().length > 0) {
                 derbyDB = DerbyDB.getInstance(derbyDBDir, false);
             } else { // Empty dir, so create new database.
                 derbyDB = DerbyDB.getInstance(derbyDBDir, true);
             }
+        } else {
+            derbyDB = null;
         }
        
         try {
