@@ -3,20 +3,22 @@ Simulator, scripts, and input/output files for the SLAML'11 paper.
 
 Scripts:
 ========
-gen_traces.py : generates simulator traces for experiments described
-                below (varying simulator parameters). Outputs the
-                files to directories named vary-X, for different
-                parameters of type X.
 
-mine_invs.py : processes the simulator traces with Synoptic, writing
-               the output files to vary-X-results, for different
-               parameters of type X.
+gen_traces.py :
+ generates simulator traces for experiments described below (varying
+ simulator parameters). Outputs the files to directories named vary-X,
+ for different parameters of type X.
 
-process_results.py : processes the Synoptic output files to generate
-                     files that can be plotted with gnuplot.
+mine_invs.py :
+ processes the simulator traces with Synoptic, writing the output
+ files to vary-X-results, for different parameters of type X.
 
-simulator.py  : module implementing the simulator (used by gen_traces script)
+process_results.py :
+ processes the Synoptic output files to generate files that can be
+ plotted with gnuplot.
 
+simulator.py :
+ module implementing the simulator (used by gen_traces script)
 
 
 Text from paper, that describes the simulator:

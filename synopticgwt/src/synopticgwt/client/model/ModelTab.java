@@ -44,11 +44,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 
     /* Label of terminal node, for layout purposes */
     private static final String TERMINAL_LABEL = "TERMINAL";
-
-    // Border color for shift+click nodes after "View paths" clicked.
-    // NOTE: Must also change same constant in graphhandler.js if modified.
-    private static final String SHIFT_CLICK_BORDER_COLOR = "blue";
-
+    
     // CSS Attributes of the log info label
     public static final String LOG_INFO_PATHS_CLASS = "log-info-displaying-paths";
     public static final String LOG_INFO_LINES_CLASS = "log-info-displaying-log-lines";
@@ -433,10 +429,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
             modelCoarsenButton.setEnabled(true);
             return;
         }
-
-        // Clear the highlighted nodes from the graph.
-        modelGraphic.clearEdgeState();
-
+        
         // Set the log lines display to default and clear
         // any information.
         logInfoPanel.clear();
@@ -623,7 +616,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                         new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
                                 ModelTab.this.logInfoPanel));
 
-                modelGraphic.updateNodesBorder(SHIFT_CLICK_BORDER_COLOR);
+                modelGraphic.setPathHighlightViewState();
             } catch (Exception e) {
                 // TODO: Do something about the exception
             }

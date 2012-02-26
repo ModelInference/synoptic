@@ -22,8 +22,9 @@ synopticgwt/test/**.class
 
 synopticjung/bin/*
 
-InvDFAMinimization/bin/*
-InvDFAMinimization/junit/*
+InvariMint/bin/*
+InvariMint/junit/*
+InvariMint/test-output/*
 
 # Ignore vim .swp files
 .*.swp
