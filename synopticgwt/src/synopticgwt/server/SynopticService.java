@@ -372,10 +372,10 @@ public class SynopticService extends RemoteServiceServlet implements
         super.doUnexpectedFailure(t);
     }
     
+    // Returns the MD5 hash of a String.
     private String getHash(String message) throws UnsupportedEncodingException, NoSuchAlgorithmException {
        byte[] byteMessage = message.getBytes("UTF-8");
        MessageDigest md = MessageDigest.getInstance("MD5");
-       
        
        md.update(byteMessage,0,byteMessage.length);
        BigInteger i = new BigInteger(1, md.digest());
@@ -386,41 +386,26 @@ public class SynopticService extends RemoteServiceServlet implements
        return result;
     }
     
-    private int getReId(String reExp) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        String hashReExp = getHash(reExp);
-        int reId = config.derbyDB.getIdExistingRow("select * from ReExp where hash = '" + hashReExp + "'");
+    // Checks if reExp exists in the given table already. If it exists, return the row id of it in
+    // the table. If it doesn't exist, insert  reExp into table and return row id of where it was inserted.
+    private int getReId(String reExp, String tableName) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        String cleanString = reExp.replace("'", "''"); // Clean String for single quotes.
+        String hashReExp = getHash(cleanString);
+        int reId = config.derbyDB.getIdExistingRow("select * from " + tableName + " where hash = '" + hashReExp + "'");
         if (reId == -1) { // doesn't exist in database
             reId = config.derbyDB.insertAndGetAutoValue(
-                    "insert into ReExp(text, hash) values('" + reExp + "', '" + hashReExp + "')");
-            logger.info("Hash for a reg exp found in DerbyDB");
+                    "insert into " + tableName + "(text, hash) values('" + cleanString + "', '" + hashReExp + "')");
+            logger.info("Hash for a reg exp or log lines found in DerbyDB");
         }
         return reId;
     }
     
-    //TODO inserting loglines into database gets cutoff, data type is clob in db.
-    // refactor method to use getReId
-    private int getLogLinesId(String logLines) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        String hashLogLines = getHash(logLines);
-        int reId = config.derbyDB.getIdExistingRow("select * from UploadedLog where hash = '" + hashLogLines + "'");
-        if (reId == -1) { // doesn't exist in database
-            reId = config.derbyDB.insertAndGetAutoValue(
-                    "insert into UploadedLog(text, hash) values('" + logLines + "', '" + hashLogLines + "')");
-            logger.info("Hash for a log lines found in DerbyDB");
-        }
-        return reId;
-    }
-    
-    //TODO refactor method to use getReId
+    // Checks each reg exp in list if it exists in the ReExp table already. Returns list of ids 
+    // for each reg exp in the ReExp table.
     private List<Integer> getLogReExp(List<String> l) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         List<Integer> result = new ArrayList<Integer>();
         for (int i = 0; i < l.size(); i++) {
-            String hashReExp = getHash(l.get(i));
-            int currId = config.derbyDB.getIdExistingRow("select * from ReExp where hash = '" + hashReExp + "'");
-            if (currId == -1) {
-                currId = config.derbyDB.insertAndGetAutoValue(
-                        "insert into ReExp(text, hash) values('" + l.get(i) + "', '" + hashReExp + "')");
-                logger.info("Hash for a log lines found in DerbyDB");
-            }
+            int currId = getReId(l.get(i), "ReExp");
             result.add(currId);
         }
         return result;
@@ -510,10 +495,11 @@ public class SynopticService extends RemoteServiceServlet implements
          */
         if (config.derbyDB != null) {
             List<Integer> logReId = getLogReExp(synOpts.regExps);
-            int partitionReId = getReId(synOpts.partitionRegExp);
-            int splitReId = getReId(synOpts.separatorRegExp);
-            int logLineId = getLogLinesId(synOpts.logLines);
+            int partitionReId = getReId(synOpts.partitionRegExp, "ReExp");
+            int splitReId = getReId(synOpts.separatorRegExp, "ReExp");
+            int logLineId = getReId(synOpts.logLines, "UploadedLog");
             
+            // Create a result for summarizing log parsing.
             String parseResult = "";
             parseResult +=  "edges:" + graph.edges.size() + "," +
                             "nodes:" + graph.nodeSet.size() + "," +
@@ -523,13 +509,12 @@ public class SynopticService extends RemoteServiceServlet implements
                 parseResult += key + ":" + invs.invs.get(key).size() + ",";
             }
             parseResult += "miningtime:" + miningTime;
-            //TODO need to add synoptictime to parseResult (time to derive final model)
             
+            //TODO add synoptictime to parseResult (time to derive final model)
+            
+            // Insert into ParseLogAction table and obtain parseID to associate with the reg exps.
             Timestamp now = new Timestamp(System.currentTimeMillis());
-            String q = "insert into ParseLogAction(vid, timestamp, result) values(" + vID + ", '" + now + "', '" + parseResult + "')";
-            
-            // Insert into ParseLogAction table and obtain parseID to associate with reg exps in their respective tables.
-            //int parseID = config.derbyDB.insertAndGetAutoValue(q);
+            String q = "insert into ParseLogAction(vid, timestamp, result) values(" + vID + ", '" + now + "', '" + parseResult + "')"; 
             int parseID = config.derbyDB.insertAndGetAutoValue(q);
 
             // Inserts into reg exps tables.
