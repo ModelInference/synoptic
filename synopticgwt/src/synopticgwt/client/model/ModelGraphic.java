@@ -1,8 +1,8 @@
 package synopticgwt.client.model;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
@@ -38,7 +38,7 @@ public class ModelGraphic {
 
     // Label name that indicates terminal node.
     private static String TERMINAL = "TERMINAL";
-    
+
     private static String DEFAULT_STROKE_COLOR = "black";
 
     private JavaScriptObject draculaGraph;
@@ -47,7 +47,8 @@ public class ModelGraphic {
 
     private JavaScriptObject draculaRenderer;
 
-    // An assocative array of event node IDs mapped to raphael rectangle objects.
+    // An associative array of event node IDs mapped to Raphael rectangle
+    // objects.
     private Map<Integer, JavaScriptObject> selectedDraculaNodes;
 
     // An array containing all rectangles objects.
@@ -120,7 +121,6 @@ public class ModelGraphic {
         // Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
         $wnd.Math.seedrandom($wnd.randSeed);
 
-        var mTab = this.@synopticgwt.client.model.ModelGraphic::modelTab;
         var modelGraphic = this;
 
         // Create the Dracula graph.
@@ -135,10 +135,13 @@ public class ModelGraphic {
             var nodeHashCode = node.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr()();
             var nodeLabel = node.@synopticgwt.shared.GWTNode::toString()();
 
-            g.addNode(nodeHashCode, {
-                label : nodeLabel,
-                render : this.@synopticgwt.client.model.ModelGraphic::getNodeRenderer()()
-            });
+            g
+                    .addNode(
+                            nodeHashCode,
+                            {
+                                label : nodeLabel,
+                                render : this.@synopticgwt.client.model.ModelGraphic::getNodeRenderer()()
+                            });
         }
 
         // Add each edge to graph.
@@ -176,7 +179,7 @@ public class ModelGraphic {
 
         // Determinize Math.random() calls for deterministic graph layout. Relies on seedrandom.js
         $wnd.Math.seedrandom($wnd.randSeed);
-        
+
         // Clear the edges in the model
         this.@synopticgwt.client.model.ModelGraphic::clearEdgeState()();
 
@@ -226,12 +229,15 @@ public class ModelGraphic {
             var nodeLabel = node.@synopticgwt.shared.GWTNode::toString()();
             if (!dGraph.nodes[nodeHashCode]) {
                 newNodes[nodeHashCode] = true;
-                var nodyNode = dGraph.addNode(nodeHashCode, {
-                    label : nodeLabel,
-                    render : this.@synopticgwt.client.model.ModelGraphic::getNodeRenderer()(),
-                    layoutPosX : refinedNode.layoutPosX,
-                    layoutPosY : refinedNode.layoutPosY
-                });
+                var nodyNode = dGraph
+                        .addNode(
+                                nodeHashCode,
+                                {
+                                    label : nodeLabel,
+                                    render : this.@synopticgwt.client.model.ModelGraphic::getNodeRenderer()(),
+                                    layoutPosX : refinedNode.layoutPosX,
+                                    layoutPosY : refinedNode.layoutPosY
+                                });
             }
         }
 
@@ -265,7 +271,6 @@ public class ModelGraphic {
         var destNode = edge.@synopticgwt.shared.GWTEdge::getDst()();
         var dest = destNode.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr()();
 
-        // var transProb = @synopticgwt.client.model.ModelGraphic::probToString(D)(edge.@synopticgwt.shared.GWTEdge::getWeight()());
         var transProb = edge.@synopticgwt.shared.GWTEdge::getWeightStr()();
         var transCount = edge.@synopticgwt.shared.GWTEdge::getCountStr()();
         var mTab = this.@synopticgwt.client.model.ModelGraphic::modelTab;
@@ -421,11 +426,12 @@ public class ModelGraphic {
                 // then highlight it by changing it's style attributes.
                 if (modelEdges[i].source.id == sourceHash
                         && modelEdges[i].target.id == destHash) {
-                    
-                    modelEdges[i].connection.fg.attr({
-                        stroke : @synopticgwt.client.model.ModelGraphic::HIGHLIGHT_COLOR,
-                        "stroke-width" : @synopticgwt.client.model.ModelGraphic::SELECT_STROKE_WIDTH
-                    });
+
+                    modelEdges[i].connection.fg
+                            .attr({
+                                stroke : @synopticgwt.client.model.ModelGraphic::HIGHLIGHT_COLOR,
+                                "stroke-width" : @synopticgwt.client.model.ModelGraphic::SELECT_STROKE_WIDTH
+                            });
                     break;
                 }
             }
@@ -481,9 +487,9 @@ public class ModelGraphic {
     }-*/;
 
     /**
-     * @return A JavaScript function for rendering the dracula graph's nodes.  This
-     * also contains any event specific code for clicking on the nodes and selecting
-     * them.
+     * @return A JavaScript function for rendering the dracula graph's nodes.
+     *         This also contains any event specific code for clicking on the
+     *         nodes and selecting them.
      */
     public native JavaScriptObject getNodeRenderer() /*-{
         
