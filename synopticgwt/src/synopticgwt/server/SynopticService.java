@@ -454,11 +454,12 @@ public class SynopticService extends RemoteServiceServlet implements
         // Instantiate the parser and parse the log lines.
         TraceParser parser = null;
         ArrayList<EventNode> parsedEvents = null;
-
+        
         try {
             parser = synoptic.main.Main.newTraceParser(synOpts.regExps,
                     synOpts.partitionRegExp, synOpts.separatorRegExp);
             parsedEvents = parser.parseTraceString(synOpts.logLines, "", -1);
+            
         } catch (ParseException pe) {
             logger.info("Caught parse exception: " + pe.toString());
             pe.printStackTrace();
@@ -471,13 +472,13 @@ public class SynopticService extends RemoteServiceServlet implements
             e.printStackTrace();
             throw e;
         }
-
+        
         // Code below mines invariants, and converts them to GWTInvariants.
         // TODO: refactor synoptic main so that it does all of this most of this
         // for the client.
         GWTGraph graph = null;
         
-
+        int miningTime = (int) System.currentTimeMillis();
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
             TOInvariantMiner miner = new ChainWalkingTOInvMiner();
@@ -499,31 +500,45 @@ public class SynopticService extends RemoteServiceServlet implements
             minedInvs = miner.computeInvariants(inputGraph);
             graph = null;
         }
+        miningTime = (((int) System.currentTimeMillis() - miningTime) / 1000) % 60;
+
 
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(
                 !parser.logTimeTypeIsTotallyOrdered(), minedInvs.getSet());
         
-        List<Integer> logReId = getLogReExp(synOpts.regExps);
-        int partitionReId = getReId(synOpts.partitionRegExp);
-        int splitReId = getReId(synOpts.separatorRegExp);
-        int logLineId = getLogLinesId(synOpts.logLines);
-       
-        String parseResult = "";
-        parseResult +=  "edges:" + graph.edges.size() + ",";
-        parseResult += "nodes:" + graph.nodeSet.size();
-        
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        String q = "insert into ParseLogAction(vid, timestamp, result) values(" + vID + ", '" + now + "', '" + parseResult + "')";
-        
-        // Insert into ParseLogAction table and obtain parseID to associate with reg exps in their respective tables.
-        int parseID = config.derbyDB.insertAndGetAutoValue(q);
-        
-        // Inserts into reg exps tables.
-        for (int i = 0; i < logReId.size(); i++) {
-            config.derbyDB.updateQuery("insert into LogReExp(parseid, reid, logid) values(" + parseID + ", " + logReId.get(i) + ", " + logLineId + ")");
+        /**
+         * Write user information to Derby DB if the database is open.
+         */
+        if (config.derbyDB != null) {
+            List<Integer> logReId = getLogReExp(synOpts.regExps);
+            int partitionReId = getReId(synOpts.partitionRegExp);
+            int splitReId = getReId(synOpts.separatorRegExp);
+            int logLineId = getLogLinesId(synOpts.logLines);
+            
+            String parseResult = "";
+            parseResult +=  "edges:" + graph.edges.size() + "," +
+                            "nodes:" + graph.nodeSet.size() + "," +
+                            "traces:" + traceGraph.getNodes().size() + "," +
+                            "etypes:" + parsedEvents.size() + ",";
+            for (String key : invs.invs.keySet()) {
+                parseResult += key + ":" + invs.invs.get(key).size() + ",";
+            }
+            parseResult += "miningtime:" + miningTime;
+            //TODO need to add synoptictime to parseResult (time to derive final model)
+            
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            String q = "insert into ParseLogAction(vid, timestamp, result) values(" + vID + ", '" + now + "', '" + parseResult + "')";
+            
+            // Insert into ParseLogAction table and obtain parseID to associate with reg exps in their respective tables.
+            int parseID = config.derbyDB.insertAndGetAutoValue(q);
+            
+            // Inserts into reg exps tables.
+            for (int i = 0; i < logReId.size(); i++) {
+                config.derbyDB.updateQuery("insert into LogReExp(parseid, reid, logid) values(" + parseID + ", " + logReId.get(i) + ", " + logLineId + ")");
+            }
+            config.derbyDB.updateQuery("insert into SplitReExp(parseid, reid, logid) values(" + parseID + ", " + splitReId + ", " + logLineId + ")");
+            config.derbyDB.updateQuery("insert into PartitionReExp(parseid, reid, logid) values(" + parseID + ", " + partitionReId + ", " + logLineId + ")");
         }
-        config.derbyDB.updateQuery("insert into SplitReExp(parseid, reid, logid) values(" + parseID + ", " + splitReId + ", " + logLineId + ")");
-        config.derbyDB.updateQuery("insert into PartitionReExp(parseid, reid, logid) values(" + parseID + ", " + partitionReId + ", " + logLineId + ")");
 
         
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);

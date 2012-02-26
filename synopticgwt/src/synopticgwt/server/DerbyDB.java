@@ -172,7 +172,9 @@ public class DerbyDB {
     }
     
     /**
-     * Shutdown the database.
+     * Shutdown the database. 
+     * Note: A successful shutdown always results in an SQLException to indicate 
+     * that Derby has shut down and that there is no other exception.
      */
     public void shutdown() {
         try {
