@@ -17,5 +17,6 @@ public class AppConfigurationTests {
         assertTrue(conf.uploadedLogFilesDir != null);
         assertTrue(conf.synopticGWTChangesetID != null);
         assertTrue(conf.synopticChangesetID != null);
+        assertTrue(conf.derbyDB != null);
     }
 }
