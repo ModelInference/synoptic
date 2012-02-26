@@ -529,8 +529,9 @@ public class SynopticService extends RemoteServiceServlet implements
             String q = "insert into ParseLogAction(vid, timestamp, result) values(" + vID + ", '" + now + "', '" + parseResult + "')";
             
             // Insert into ParseLogAction table and obtain parseID to associate with reg exps in their respective tables.
+            //int parseID = config.derbyDB.insertAndGetAutoValue(q);
             int parseID = config.derbyDB.insertAndGetAutoValue(q);
-            
+
             // Inserts into reg exps tables.
             for (int i = 0; i < logReId.size(); i++) {
                 config.derbyDB.updateQuery("insert into LogReExp(parseid, reid, logid) values(" + parseID + ", " + logReId.get(i) + ", " + logLineId + ")");

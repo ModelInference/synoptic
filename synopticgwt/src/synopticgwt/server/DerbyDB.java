@@ -13,6 +13,7 @@ import java.util.logging.Logger;
  * Derby database.
  */
 public class DerbyDB {
+    // Singleton instance of DerbyDB
     private static DerbyDB instance;
         
     public static Logger logger = Logger.getLogger("DerbyDB");
@@ -35,6 +36,12 @@ public class DerbyDB {
     private Connection conn = null;
     private Statement stmt = null;
     
+    /**
+     * Creates a connection to the database. Builds tables if isCreate
+     * is true.
+     * @param path path of database
+     * @param isCreate whether or not to create new tables
+     */
     private DerbyDB(String path, boolean isCreate) {
       connectionURL = "jdbc:derby:" + path;
       createConnection(isCreate);
@@ -43,6 +50,12 @@ public class DerbyDB {
       }
     }
     
+    /**
+     * Returns singleton instance of DerbyDB.
+     * @param path path of database
+     * @param isCreate whether or not to create new tables
+     * @return DerbyDB instance
+     */
     public static DerbyDB getInstance(String path, boolean isCreate) {
         if (instance != null) {
             return instance;
@@ -68,46 +81,35 @@ public class DerbyDB {
     /**
      * Create all the tables in the database.
      */
-    private void createAllTables() {    
-        createQuery(VISITOR);
-        createQuery(UPLOADED_LOG);
-        createQuery(RE_EXP);
-        createQuery(LOG_RE_EXP);
-        createQuery(SPLIT_RE_EXP);
-        createQuery(PARTITION_RE_EXP);
-        createQuery(PARSE_LOG_ACTION);
+    private void createAllTables() { 
+        updateQuery(VISITOR);
+        updateQuery(UPLOADED_LOG);
+        updateQuery(RE_EXP);
+        updateQuery(LOG_RE_EXP);
+        updateQuery(SPLIT_RE_EXP);
+        updateQuery(PARTITION_RE_EXP);
+        updateQuery(PARSE_LOG_ACTION);
     }
     
     /**
-     * Executes a create query in database.
-     */
-    public void createQuery(String query) {
-        try {
-            stmt = conn.createStatement();
-            stmt.execute(query);
-            stmt.close();
-        } catch (SQLException sqlExcept) {
-            sqlExcept.printStackTrace();
-        }
-    }
-    
-    /**
-     * Executes an update query in database.
+     * Executes an update (INSERT, UPDATE, or DELETE) query in database.
      */
     public void updateQuery(String query) {
         try {
             stmt = conn.createStatement();
             int n = stmt.executeUpdate(query);
             stmt.close();
-            logger.info("Inserted " + n + " row(s) into Derby database.");
+            logger.info(n + " row(s) inserted, updated, or deleted in Derby database");
         } catch (SQLException sqlExcept) {
             sqlExcept.printStackTrace();
         }
     }
     
     /**
-     * Returns -1 if the row doesn't exist in database for select
-     * query. Returns the first column (usually id) of row if it does.
+     * Given a SELECT statement selecting a specific row, returns the first
+     * column (usually id) of row. Returns -1 if the row doesn't exist in database.
+     * @param String query to select a specific row
+     * @return int returns first column value of row
      */
     public int getIdExistingRow(String query) {
         int result = -1;
@@ -121,23 +123,23 @@ public class DerbyDB {
             
             rs.close();
             stmt.close();
-        } catch (Exception e) {
-            
+        } catch (SQLException sqlExcept) {
+            sqlExcept.printStackTrace();
         }
         return result;
     }
     
     /**
      * Executes an INSERT query and returns auto incrementing identity field assigned 
-     * to newly created record.
-     * @param query
+     * to newly created record. Returns 0 if incrementing identity field doesn't exist.
+     * @param query the insert query to use
      */
     public int insertAndGetAutoValue(String query) {
         int result = 0;
         try {
             stmt = conn.createStatement();
             int n = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
-            logger.info("Inserted " + n + " row(s) into Derby database.");
+            logger.info(n + " row(s) inserted into Derby database.");
 
             ResultSet rs = stmt.getGeneratedKeys();
             
@@ -154,14 +156,20 @@ public class DerbyDB {
         return result;
     }
     
-    
+    /**
+     * Given a SELECT query retrieving a single String type column, returns
+     * values in that column (e.g. select columnname from tablename).
+     * @param query select query
+     * @param column the column to retrieve information from
+     * @return String values selected from query
+     */
     public String getString(String query, String column) {
         String s = "";
         try {
             stmt = conn.createStatement();
             ResultSet results = stmt.executeQuery(query);
             while(results.next()) {
-                s += results.getString(column);
+                s += results.getString(column) + "\n";
             }
             results.close();
             stmt.close();
@@ -170,6 +178,7 @@ public class DerbyDB {
         }
         return s;
     }
+
     
     /**
      * Shutdown the database. 
