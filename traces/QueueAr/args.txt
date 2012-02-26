@@ -1,3 +1,0 @@
--r ^.+ c (?<TYPE>)$
--r ^.+ r (?<TYPE>)$
--o output/QueueAr

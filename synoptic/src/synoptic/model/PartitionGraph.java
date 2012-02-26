@@ -125,7 +125,6 @@ public class PartitionGraph implements IGraph<Partition> {
             initialEvents.put(relation, new LinkedHashSet<EventNode>());
         }
         initialEvents.get(relation).add(initialMessage);
-        // .addAll(initialMessages);
     }
 
     public TemporalInvariantSet getInvariants() {

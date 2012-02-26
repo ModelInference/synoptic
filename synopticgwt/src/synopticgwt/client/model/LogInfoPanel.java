@@ -6,8 +6,8 @@ import java.util.Set;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
+import synopticgwt.client.util.FlowLayoutPanel;
 import synopticgwt.client.util.TooltipListener;
 import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.LogLine;
@@ -25,7 +25,7 @@ import synopticgwt.shared.LogLine;
  * then clicks on the label to switch back to displaying the list of log lines,
  * they will remain as they were until the next RPC.
  */
-public class LogInfoPanel extends VerticalPanel {
+public class LogInfoPanel extends FlowLayoutPanel {
 
     // CSS Attributes of the log info label
     public static final String LOG_INFO_PATHS_CLASS = "log-info-displaying-paths";
@@ -34,25 +34,25 @@ public class LogInfoPanel extends VerticalPanel {
 
     private final Label logInfoLabel;
     private final LogLinesTable logLinesTable;
+    private final ModelTab modelTab;
     private final PathsThroughPartitionsTable pathsThroughPartitionsTable;
 
-    public LogInfoPanel(String width) {
+    private static final String logInfoLabelLogLines = "Selected node log lines";
+    private static final String logInfoLabelPathTraces = "Selected path traces";
+
+    public LogInfoPanel(String width, ModelTab modelTab) {
         super();
 
-        logInfoLabel = new Label("Log Lines");
+        logInfoLabel = new Label(logInfoLabelLogLines);
         logLinesTable = new LogLinesTable();
-        pathsThroughPartitionsTable = new PathsThroughPartitionsTable();
-        this.setWidth(width);
-        init();
-    }
 
-    /**
-     * Sets up the default way to display all of the components.
-     */
-    private void init() {
+        this.modelTab = modelTab;
+        pathsThroughPartitionsTable = new PathsThroughPartitionsTable(modelTab);
+        this.setWidth(width);
+
         this.add(logInfoLabel);
-        this.add(logLinesTable);
         this.add(pathsThroughPartitionsTable);
+        this.add(logLinesTable);
 
         TooltipListener
                 .setTooltip(
@@ -66,7 +66,11 @@ public class LogInfoPanel extends VerticalPanel {
         DOM.setElementAttribute(logInfoLabel.getElement(), "class",
                 LOG_INFO_LINES_CLASS);
 
-        this.pathsThroughPartitionsTable.setVisible(false);
+        pathsThroughPartitionsTable.setVisible(false);
+    }
+
+    public LogLinesTable getLogLinesTable() {
+        return logLinesTable;
     }
 
     /**
@@ -77,7 +81,7 @@ public class LogInfoPanel extends VerticalPanel {
      * @param lines
      */
     public void showLogLines(List<LogLine> lines) {
-        this.logLinesTable.showLines(lines);
+        this.logLinesTable.setRowData(lines);
         if (!logLinesTable.isVisible()) {
             this.toggleLogInfoDisplay();
         }
@@ -93,7 +97,11 @@ public class LogInfoPanel extends VerticalPanel {
      * @param paths
      *            Set of trace IDs mapped to specific paths
      */
-    public void showPaths(Map<Integer, Set<GWTEdge>> paths) {
+    public void showPaths(Map<List<GWTEdge>, Set<Integer>> paths) {
+        // We need to clear edge state if some path is currently highlighted in
+        // the graph.
+        this.modelTab.getModelGraphic().clearEdgeState();
+
         this.pathsThroughPartitionsTable.showPaths(paths);
         if (!pathsThroughPartitionsTable.isVisible()) {
             this.toggleLogInfoDisplay();
@@ -101,49 +109,31 @@ public class LogInfoPanel extends VerticalPanel {
     }
 
     /**
-     * Clears the log lines and the paths tables, and set the visibility back to
-     * the log lines table (the default).
+     * Like clear() below, except that it shows the paths through partitions
+     * table instead of the log lines table. Also, it clears the model edges
+     * state.
      */
-    public void clearAll() {
-        this.clearLogLines();
-        this.clearPaths();
+    public void clearAndShowPathsTable() {
+        this.pathsThroughPartitionsTable.clear();
 
-        if (!logLinesTable.isVisible()) {
+        this.modelTab.getModelGraphic().clearEdgeState();
+
+        if (!pathsThroughPartitionsTable.isVisible()) {
             toggleLogInfoDisplay();
         }
     }
 
     /**
-     * Clears the log lines display from the info table. However, this does not
-     * change the state of what is displayed. To clear both the log lines and
-     * the paths, while setting the view back to the default state (showing the
-     * empty log lines table), use clearAll.
+     * Clears the log lines and the paths tables, and set the visibility back to
+     * the log lines table (the default).
      */
-    public void clearLogLines() {
-        logLinesTable.clear();
-    }
+    @Override
+    public void clear() {
+        this.pathsThroughPartitionsTable.clear();
 
-    /**
-     * Clears the traces from the paths display
-     */
-    public void clearPaths() {
-        pathsThroughPartitionsTable.clearPaths();
-    }
-
-    /**
-     * Returns true whenever the state of the log info panel is displaying the
-     * paths table.
-     */
-    public boolean pathsTableVisible() {
-        return this.pathsThroughPartitionsTable.isVisible();
-    }
-
-    /**
-     * Returns true whenever the state of the log info panel is displaying the
-     * log lines table.
-     */
-    public boolean logLinesTableVisible() {
-        return this.logLinesTable.isVisible();
+        if (!logLinesTable.isVisible()) {
+            toggleLogInfoDisplay();
+        }
     }
 
     /**
@@ -152,11 +142,11 @@ public class LogInfoPanel extends VerticalPanel {
      */
     private void toggleLogInfoDisplay() {
         if (logLinesTable.isVisible()) {
-            logInfoLabel.setText("Paths");
+            logInfoLabel.setText(logInfoLabelPathTraces);
             DOM.setElementAttribute(logInfoLabel.getElement(), "class",
                     LOG_INFO_PATHS_CLASS);
         } else {
-            logInfoLabel.setText("Log Lines");
+            logInfoLabel.setText(logInfoLabelLogLines);
             DOM.setElementAttribute(logInfoLabel.getElement(), "class",
                     LOG_INFO_LINES_CLASS);
         }
