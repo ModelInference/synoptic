@@ -400,12 +400,11 @@ public class SynopticService extends RemoteServiceServlet implements
     //TODO inserting loglines into database gets cutoff, data type is clob in db.
     // refactor method to use getReId
     private int getLogLinesId(String logLines) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        String cleanLogLines = logLines.replace("'", "''");
-        String hashLogLines = getHash(cleanLogLines);
+        String hashLogLines = getHash(logLines);
         int reId = config.derbyDB.getIdExistingRow("select * from UploadedLog where hash = '" + hashLogLines + "'");
         if (reId == -1) { // doesn't exist in database
             reId = config.derbyDB.insertAndGetAutoValue(
-                    "insert into UploadedLog(text, hash) values('" + cleanLogLines + "', '" + hashLogLines + "')");
+                    "insert into UploadedLog(text, hash) values('" + logLines + "', '" + hashLogLines + "')");
             logger.info("Hash for a log lines found in DerbyDB");
         }
         return reId;
@@ -540,7 +539,6 @@ public class SynopticService extends RemoteServiceServlet implements
             config.derbyDB.updateQuery("insert into PartitionReExp(parseid, reid, logid) values(" + parseID + ", " + partitionReId + ", " + logLineId + ")");
         }
 
-        
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
     }
 
