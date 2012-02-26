@@ -485,6 +485,7 @@ public class SynopticService extends RemoteServiceServlet implements
             graph = null;
         }
         miningTime = (((int) System.currentTimeMillis() - miningTime) / 1000) % 60;
+        logger.info("Time to mine invariants: " + miningTime + " seconds");
 
 
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(
@@ -509,6 +510,7 @@ public class SynopticService extends RemoteServiceServlet implements
                 parseResult += key + ":" + invs.invs.get(key).size() + ",";
             }
             parseResult += "miningtime:" + miningTime;
+            logger.info("Result of parsed log: " + parseResult);
             
             //TODO add synoptictime to parseResult (time to derive final model)
             
