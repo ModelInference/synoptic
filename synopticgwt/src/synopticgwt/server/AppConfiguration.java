@@ -93,14 +93,12 @@ public class AppConfiguration {
             derbyDBDir = "/Users/Kevin/Desktop/DerbyTutorials/SynopticTestDB/";
         }
         File f = new File(derbyDBDir);
-        if (f.exists()) {
-            if (f.list().length > 0) {
-                derbyDB = DerbyDB.getInstance(derbyDBDir, false);
-            } else { // Empty dir, so create new database.
-                derbyDB = DerbyDB.getInstance(derbyDBDir, true);
-            }
-        } else {
-            derbyDB = null;
+        //TODO If given empty existing directory, unable to create a database, throws error.
+        //      Look further into a solution for this.
+        if (f.exists()) { // Open existing database.
+            derbyDB = DerbyDB.getInstance(derbyDBDir, false);  
+        } else { // Create new database.
+            derbyDB = DerbyDB.getInstance(derbyDBDir, true);
         }
        
         try {
