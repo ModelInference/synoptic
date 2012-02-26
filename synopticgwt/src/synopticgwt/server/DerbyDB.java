@@ -154,22 +154,22 @@ public class DerbyDB {
         return result;
     }
     
-    /*public String getStringColumn(String query, String column) {
-        String result = "";
+    
+    public String getString(String query, String column) {
+        String s = "";
         try {
             stmt = conn.createStatement();
             ResultSet results = stmt.executeQuery(query);
-            results.
             while(results.next()) {
-                results.getString(column);
+                s += results.getString(column);
             }
             results.close();
             stmt.close();
         } catch (SQLException sqlExcept) {
             sqlExcept.printStackTrace();
         }
-        return result;
-    }*/
+        return s;
+    }
     
     /**
      * Shutdown the database.
