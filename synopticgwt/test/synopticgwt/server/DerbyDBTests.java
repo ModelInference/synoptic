@@ -13,7 +13,7 @@ import org.junit.Test;
  */
 public class DerbyDBTests {
     /** Database name and path */
-    public static String dbPath = ".." + File.separator + "test-output"
+    public static String dbPath = "." + File.separator + "test-output"
             + File.separator + "DerbyDBTests.derby";
 
     /**
@@ -29,6 +29,9 @@ public class DerbyDBTests {
     @Test
     public void testNewDatabase() throws SQLException, InstantiationException,
             IllegalAccessException, ClassNotFoundException {
+        // TODO: this test should clean up after itself by deleting the created
+        // database. Otherwise, the createNewTable query fails when the test is
+        // run twice.
         DerbyDB db = DerbyDB.getInstance(dbPath, true);
         String createNewTable = "CREATE TABLE Test (id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), text VARCHAR(15))";
         db.updateQuery(createNewTable);
