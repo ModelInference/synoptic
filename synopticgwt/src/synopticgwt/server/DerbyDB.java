@@ -33,7 +33,9 @@ public class DerbyDB {
     private Connection conn = null;
     private Statement stmt = null;
 
-    private DerbyDB(String path, boolean isCreate) {
+    private DerbyDB(String path, boolean isCreate) throws SQLException,
+            InstantiationException, IllegalAccessException,
+            ClassNotFoundException {
         connectionURL = "jdbc:derby:" + path;
         createConnection(isCreate);
         if (isCreate) {
@@ -41,7 +43,9 @@ public class DerbyDB {
         }
     }
 
-    public static DerbyDB getInstance(String path, boolean isCreate) {
+    public static DerbyDB getInstance(String path, boolean isCreate)
+            throws SQLException, InstantiationException,
+            IllegalAccessException, ClassNotFoundException {
         if (instance != null) {
             return instance;
         }
@@ -53,17 +57,19 @@ public class DerbyDB {
      * 
      * @param isCreate
      *            whether or not to create a new database
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
      */
-    private void createConnection(boolean isCreate) {
-        try {
-            Class.forName(driver).newInstance();
-            // Get a connection
-            conn = DriverManager.getConnection(connectionURL + ";create="
-                    + isCreate);
-            logger.info("Connecting to Derby database.");
-        } catch (Exception except) {
-            except.printStackTrace();
-        }
+    private void createConnection(boolean isCreate) throws SQLException,
+            InstantiationException, IllegalAccessException,
+            ClassNotFoundException {
+        Class.forName(driver).newInstance();
+        // Get a connection
+        conn = DriverManager.getConnection(connectionURL + ";create="
+                + isCreate);
+        logger.info("Connecting to Derby database.");
     }
 
     /**
