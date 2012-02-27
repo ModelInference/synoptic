@@ -1,0 +1,3 @@
+-r ^(?<DTIME>)(?<nodename>)(?<TYPE>)$
+-m \\k<nodename>
+../traces/abstract/stitchings/trace.txt
