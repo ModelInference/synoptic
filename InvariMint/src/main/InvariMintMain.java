@@ -102,13 +102,13 @@ public class InvariMintMain {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        setUpLogging();
 
         // Set up Synoptic.
         InvariMintOptions opts = new InvariMintOptions(args);
 
         // Set up options in Synoptic Main that are used by the library.
         Main.options = new SynopticOptions();
+        setUpLogging();
         Main.options.logLvlExtraVerbose = false;
         Main.options.logLvlExtraVerbose = true;
         Main.options.internCommonStrings = true;
@@ -179,6 +179,7 @@ public class InvariMintMain {
         TemporalInvariantSet minedInvariants = initialModel.getInvariants();
         dfa.intersectWith(getMinModelFromInvs(minedInvariants, encodings));
         dfa.minimize();
+        dfa.exportDotAndPng("InvariMintOriginal");
 
         removeSpuriousEdges(dfa, initialModel.getTraceGraph(), encodings,
                 initialEvent, terminalEvent);
@@ -312,6 +313,7 @@ public class InvariMintMain {
         // This minimization step will first determinize the model -- from the
         // dk brics documentation.
         convertedDfa.minimize();
+        convertedDfa.exportDotAndPng("SynopticDFA");
 
         // removeSpuriousEdges(convertedDfa, initialModel.getTraceGraph(),
         // encodings, StringEventType.newInitialStringEventType(),
