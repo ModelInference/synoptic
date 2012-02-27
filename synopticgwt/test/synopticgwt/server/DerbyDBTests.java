@@ -31,7 +31,7 @@ public class DerbyDBTests {
             IllegalAccessException, ClassNotFoundException {
         DerbyDB db = DerbyDB.getInstance(dbPath, true);
         String createNewTable = "CREATE TABLE Test (id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), text VARCHAR(15))";
-        db.createQuery(createNewTable);
+        db.updateQuery(createNewTable);
         assertNotNull(db);
 
         String writeToTable = "INSERT INTO test(text) values('test insert')";

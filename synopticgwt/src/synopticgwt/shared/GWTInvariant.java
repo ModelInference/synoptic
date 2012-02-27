@@ -91,10 +91,13 @@ public class GWTInvariant implements Serializable, Comparable<GWTInvariant> {
     public boolean equals(Object other) {
         if (other instanceof GWTInvariant) {
             GWTInvariant otherGWTInv = (GWTInvariant) other;
-            boolean sourceEquality = otherGWTInv.getSource().equals(getSource());
-            boolean targetEquality = otherGWTInv.getTarget().equals(getTarget());
-            boolean transitionEquality = otherGWTInv.getTransitionType().equals(getTransitionType());
-            
+            boolean sourceEquality = otherGWTInv.getSource()
+                    .equals(getSource());
+            boolean targetEquality = otherGWTInv.getTarget()
+                    .equals(getTarget());
+            boolean transitionEquality = otherGWTInv.getTransitionType()
+                    .equals(getTransitionType());
+
             return sourceEquality && targetEquality && transitionEquality;
         }
         return false;
@@ -136,6 +139,9 @@ public class GWTInvariant implements Serializable, Comparable<GWTInvariant> {
 
     @Override
     public int compareTo(GWTInvariant o) {
+        if (o == null) {
+            throw new NullPointerException();
+        }
         int compareSource = getSource().compareTo(o.getSource());
         if (compareSource != 0) {
             return compareSource;

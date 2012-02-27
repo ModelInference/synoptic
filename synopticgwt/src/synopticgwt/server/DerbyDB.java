@@ -11,6 +11,7 @@ import java.util.logging.Logger;
  * Derby database.
  */
 public class DerbyDB {
+    // Singleton instance of DerbyDB
     private static DerbyDB instance;
 
     public static Logger logger = Logger.getLogger("DerbyDB");
@@ -33,6 +34,18 @@ public class DerbyDB {
     private Connection conn = null;
     private Statement stmt = null;
 
+    /**
+     * Creates a connection to the database. Builds tables if isCreate is true.
+     * 
+     * @param path
+     *            path of database
+     * @param isCreate
+     *            whether or not to create new tables
+     * @throws ClassNotFoundException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @throws SQLException
+     */
     private DerbyDB(String path, boolean isCreate) throws SQLException,
             InstantiationException, IllegalAccessException,
             ClassNotFoundException {
@@ -43,9 +56,19 @@ public class DerbyDB {
         }
     }
 
+    /**
+     * Returns singleton instance of DerbyDB.
+     * 
+     * @param path
+     *            path of database
+     * @param isCreate
+     *            whether or not to create new tables
+     * @return DerbyDB instance
+     */
     public static DerbyDB getInstance(String path, boolean isCreate)
             throws SQLException, InstantiationException,
             IllegalAccessException, ClassNotFoundException {
+
         if (instance != null) {
             return instance;
         }
@@ -96,19 +119,25 @@ public class DerbyDB {
 
     /**
      * Executes an update query in database.
+     * 
+     * @throws SQLException
      */
     public void updateQuery(String query) throws SQLException {
         stmt = conn.createStatement();
         int n = stmt.executeUpdate(query);
         stmt.close();
-        logger.info("Inserted " + n + " row(s) into Derby database.");
+        logger.info(n
+                + " row(s) inserted, updated, or deleted in Derby database");
     }
 
     /**
-     * Returns -1 if the row doesn't exist in database for select query. Returns
-     * the first column (usually id) of row if it does.
+     * Given a SELECT statement selecting a specific row, returns the first
+     * column (usually id) of row. Returns -1 if the row doesn't exist in
+     * database.
      * 
-     * @throws SQLException
+     * @param String
+     *            query to select a specific row
+     * @return int returns first column value of row
      */
     public int getIdExistingRow(String query) throws SQLException {
         int result = -1;
@@ -128,9 +157,11 @@ public class DerbyDB {
 
     /**
      * Executes an INSERT query and returns auto incrementing identity field
-     * assigned to newly created record.
+     * assigned to newly created record. Returns 0 if incrementing identity
+     * field doesn't exist.
      * 
      * @param query
+     *            the insert query to use
      */
     public int insertAndGetAutoValue(String query) throws SQLException {
         int result = 0;
@@ -151,6 +182,16 @@ public class DerbyDB {
         return result;
     }
 
+    /**
+     * Given a SELECT query retrieving a single String type column, returns
+     * values in that column (e.g. select columnname from tablename).
+     * 
+     * @param query
+     *            select query
+     * @param column
+     *            the column to retrieve information from
+     * @return String values selected from query
+     */
     public String getString(String query, String column) throws SQLException {
         String s = "";
 
@@ -158,6 +199,7 @@ public class DerbyDB {
         ResultSet results = stmt.executeQuery(query);
         while (results.next()) {
             s += results.getString(column);
+
         }
         results.close();
         stmt.close();
