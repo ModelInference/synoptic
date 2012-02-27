@@ -1,6 +1,7 @@
 package synopticgwt.server;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.logging.Logger;
 
@@ -49,7 +50,16 @@ public class GwtHostingServlet extends HttpServlet {
             Timestamp now = new Timestamp(System.currentTimeMillis());
             String q = "insert into Visitor(IP, timestamp) values('"
                     + ipAddress + "', '" + now + "')";
-            int n = config.derbyDB.insertAndGetAutoValue(q);
+            int n;
+            try {
+                n = config.derbyDB.insertAndGetAutoValue(q);
+            } catch (SQLException e) {
+                logger.severe("DerbyDB generated an exception: "
+                        + e.getMessage());
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                        "Database insertion error.");
+                return;
+            }
             session.setAttribute("vID", n);
         }
 
