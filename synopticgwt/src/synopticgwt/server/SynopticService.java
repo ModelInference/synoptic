@@ -11,6 +11,7 @@ import java.io.Writer;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -158,7 +159,7 @@ public class SynopticService extends RemoteServiceServlet implements
         dstSession.setAttribute("traceGraph", traceGraph);
         dstSession.setAttribute("counterExampleTraces", counterExampleTraces);
     }
-    
+
     /**
      * Sets up AppConfiguration file and sets variables for DerbyDB.
      */
@@ -169,12 +170,12 @@ public class SynopticService extends RemoteServiceServlet implements
         // Retrieve HTTP session to access storage.
         HttpServletRequest request = getThreadLocalRequest();
         session = request.getSession();
-        
+
         if (session.getAttribute("vID") == null) {
-           logger.info("null viddd");
-            //throw new Exception();
+            logger.info("null viddd");
+            // throw new Exception();
         }
-        
+
         vID = (Integer) session.getAttribute("vID");
     }
 
@@ -371,61 +372,76 @@ public class SynopticService extends RemoteServiceServlet implements
         }
         super.doUnexpectedFailure(t);
     }
-    
-    private String getHash(String message) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-       byte[] byteMessage = message.getBytes("UTF-8");
-       MessageDigest md = MessageDigest.getInstance("MD5");
-       
-       
-       md.update(byteMessage,0,byteMessage.length);
-       BigInteger i = new BigInteger(1, md.digest());
-       String result = i.toString(16);
-       while (result.length() < 2) {
-           result = "0" + result;
-       }
-       return result;
+
+    private String getHash(String message) throws UnsupportedEncodingException,
+            NoSuchAlgorithmException {
+        byte[] byteMessage = message.getBytes("UTF-8");
+        MessageDigest md = MessageDigest.getInstance("MD5");
+
+        md.update(byteMessage, 0, byteMessage.length);
+        BigInteger i = new BigInteger(1, md.digest());
+        String result = i.toString(16);
+        while (result.length() < 2) {
+            result = "0" + result;
+        }
+        return result;
     }
-    
-    private int getReId(String reExp) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+
+    private int getReId(String reExp) throws UnsupportedEncodingException,
+            NoSuchAlgorithmException, SQLException {
         String hashReExp = getHash(reExp);
-        int reId = config.derbyDB.getIdExistingRow("select * from ReExp where hash = '" + hashReExp + "'");
+        int reId = config.derbyDB
+                .getIdExistingRow("select * from ReExp where hash = '"
+                        + hashReExp + "'");
         if (reId == -1) { // doesn't exist in database
-            reId = config.derbyDB.insertAndGetAutoValue(
-                    "insert into ReExp(text, hash) values('" + reExp + "', '" + hashReExp + "')");
+            reId = config.derbyDB
+                    .insertAndGetAutoValue("insert into ReExp(text, hash) values('"
+                            + reExp + "', '" + hashReExp + "')");
             logger.info("Hash for a reg exp found in DerbyDB");
         }
         return reId;
     }
-    
-    //TODO inserting loglines into database gets cutoff, data type is clob in db.
+
+    // TODO inserting loglines into database gets cutoff, data type is clob in
+    // db.
     // refactor method to use getReId
-    private int getLogLinesId(String logLines) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    private int getLogLinesId(String logLines)
+            throws UnsupportedEncodingException, NoSuchAlgorithmException,
+            SQLException {
         String hashLogLines = getHash(logLines);
-        int reId = config.derbyDB.getIdExistingRow("select * from UploadedLog where hash = '" + hashLogLines + "'");
+        int reId = config.derbyDB
+                .getIdExistingRow("select * from UploadedLog where hash = '"
+                        + hashLogLines + "'");
         if (reId == -1) { // doesn't exist in database
-            reId = config.derbyDB.insertAndGetAutoValue(
-                    "insert into UploadedLog(text, hash) values('" + logLines + "', '" + hashLogLines + "')");
+            reId = config.derbyDB
+                    .insertAndGetAutoValue("insert into UploadedLog(text, hash) values('"
+                            + logLines + "', '" + hashLogLines + "')");
             logger.info("Hash for a log lines found in DerbyDB");
         }
         return reId;
     }
-    
-    //TODO refactor method to use getReId
-    private List<Integer> getLogReExp(List<String> l) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+
+    // TODO refactor method to use getReId
+    private List<Integer> getLogReExp(List<String> l)
+            throws UnsupportedEncodingException, NoSuchAlgorithmException,
+            SQLException {
         List<Integer> result = new ArrayList<Integer>();
         for (int i = 0; i < l.size(); i++) {
             String hashReExp = getHash(l.get(i));
-            int currId = config.derbyDB.getIdExistingRow("select * from ReExp where hash = '" + hashReExp + "'");
+            int currId = config.derbyDB
+                    .getIdExistingRow("select * from ReExp where hash = '"
+                            + hashReExp + "'");
             if (currId == -1) {
-                currId = config.derbyDB.insertAndGetAutoValue(
-                        "insert into ReExp(text, hash) values('" + l.get(i) + "', '" + hashReExp + "')");
+                currId = config.derbyDB
+                        .insertAndGetAutoValue("insert into ReExp(text, hash) values('"
+                                + l.get(i) + "', '" + hashReExp + "')");
                 logger.info("Hash for a log lines found in DerbyDB");
             }
             result.add(currId);
         }
         return result;
     }
-    
+
     // //////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -439,7 +455,7 @@ public class SynopticService extends RemoteServiceServlet implements
             throws Exception {
 
         retrieveSessionState();
-       
+
         // Set up some static variables in Main that are necessary to use the
         // Synoptic library.
         Main.options = new SynopticOptions();
@@ -453,12 +469,12 @@ public class SynopticService extends RemoteServiceServlet implements
         // Instantiate the parser and parse the log lines.
         TraceParser parser = null;
         ArrayList<EventNode> parsedEvents = null;
-        
+
         try {
             parser = synoptic.main.Main.newTraceParser(synOpts.regExps,
                     synOpts.partitionRegExp, synOpts.separatorRegExp);
             parsedEvents = parser.parseTraceString(synOpts.logLines, "", -1);
-            
+
         } catch (ParseException pe) {
             logger.info("Caught parse exception: " + pe.toString());
             pe.printStackTrace();
@@ -471,12 +487,12 @@ public class SynopticService extends RemoteServiceServlet implements
             e.printStackTrace();
             throw e;
         }
-        
+
         // Code below mines invariants, and converts them to GWTInvariants.
         // TODO: refactor synoptic main so that it does all of this most of this
         // for the client.
         GWTGraph graph = null;
-        
+
         int miningTime = (int) System.currentTimeMillis();
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
@@ -501,10 +517,9 @@ public class SynopticService extends RemoteServiceServlet implements
         }
         miningTime = (((int) System.currentTimeMillis() - miningTime) / 1000) % 60;
 
-
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(
                 !parser.logTimeTypeIsTotallyOrdered(), minedInvs.getSet());
-        
+
         /**
          * Write user information to Derby DB if the database is open.
          */
@@ -513,30 +528,53 @@ public class SynopticService extends RemoteServiceServlet implements
             int partitionReId = getReId(synOpts.partitionRegExp);
             int splitReId = getReId(synOpts.separatorRegExp);
             int logLineId = getLogLinesId(synOpts.logLines);
-            
+
             String parseResult = "";
-            parseResult +=  "edges:" + graph.edges.size() + "," +
-                            "nodes:" + graph.nodeSet.size() + "," +
-                            "traces:" + traceGraph.getNodes().size() + "," +
-                            "etypes:" + parsedEvents.size() + ",";
+            parseResult += "edges:" + graph.edges.size() + "," + "nodes:"
+                    + graph.nodeSet.size() + "," + "traces:"
+                    + traceGraph.getNodes().size() + "," + "etypes:"
+                    + parsedEvents.size() + ",";
             for (String key : invs.invs.keySet()) {
                 parseResult += key + ":" + invs.invs.get(key).size() + ",";
             }
             parseResult += "miningtime:" + miningTime;
-            //TODO need to add synoptictime to parseResult (time to derive final model)
-            
+            // TODO need to add synoptictime to parseResult (time to derive
+            // final model)
+
             Timestamp now = new Timestamp(System.currentTimeMillis());
-            String q = "insert into ParseLogAction(vid, timestamp, result) values(" + vID + ", '" + now + "', '" + parseResult + "')";
-            
-            // Insert into ParseLogAction table and obtain parseID to associate with reg exps in their respective tables.
+            String q = "insert into ParseLogAction(vid, timestamp, result) values("
+                    + vID + ", '" + now + "', '" + parseResult + "')";
+
+            // Insert into ParseLogAction table and obtain parseID to associate
+            // with reg exps in their respective tables.
             int parseID = config.derbyDB.insertAndGetAutoValue(q);
-            
+
             // Inserts into reg exps tables.
             for (int i = 0; i < logReId.size(); i++) {
-                config.derbyDB.updateQuery("insert into LogReExp(parseid, reid, logid) values(" + parseID + ", " + logReId.get(i) + ", " + logLineId + ")");
+                config.derbyDB
+                        .updateQuery("insert into LogReExp(parseid, reid, logid) values("
+                                + parseID
+                                + ", "
+                                + logReId.get(i)
+                                + ", "
+                                + logLineId + ")");
             }
-            config.derbyDB.updateQuery("insert into SplitReExp(parseid, reid, logid) values(" + parseID + ", " + splitReId + ", " + logLineId + ")");
-            config.derbyDB.updateQuery("insert into PartitionReExp(parseid, reid, logid) values(" + parseID + ", " + partitionReId + ", " + logLineId + ")");
+            config.derbyDB
+                    .updateQuery("insert into SplitReExp(parseid, reid, logid) values("
+                            + parseID
+                            + ", "
+                            + splitReId
+                            + ", "
+                            + logLineId
+                            + ")");
+            config.derbyDB
+                    .updateQuery("insert into PartitionReExp(parseid, reid, logid) values("
+                            + parseID
+                            + ", "
+                            + partitionReId
+                            + ", "
+                            + logLineId
+                            + ")");
         }
 
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
