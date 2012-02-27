@@ -18,6 +18,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -37,10 +38,6 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ConcurrencyInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.POInvariantMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.SynopticOptions;
@@ -373,6 +370,7 @@ public class SynopticService extends RemoteServiceServlet implements
         super.doUnexpectedFailure(t);
     }
 
+    // Returns the MD5 hash of a String.
     private String getHash(String message) throws UnsupportedEncodingException,
             NoSuchAlgorithmException {
         byte[] byteMessage = message.getBytes("UTF-8");
@@ -387,56 +385,37 @@ public class SynopticService extends RemoteServiceServlet implements
         return result;
     }
 
-    private int getReId(String reExp) throws UnsupportedEncodingException,
-            NoSuchAlgorithmException, SQLException {
-        String hashReExp = getHash(reExp);
-        int reId = config.derbyDB
-                .getIdExistingRow("select * from ReExp where hash = '"
-                        + hashReExp + "'");
-        if (reId == -1) { // doesn't exist in database
-            reId = config.derbyDB
-                    .insertAndGetAutoValue("insert into ReExp(text, hash) values('"
-                            + reExp + "', '" + hashReExp + "')");
-            logger.info("Hash for a reg exp found in DerbyDB");
-        }
-        return reId;
-    }
-
-    // TODO inserting loglines into database gets cutoff, data type is clob in
-    // db.
-    // refactor method to use getReId
-    private int getLogLinesId(String logLines)
+    // Checks if reExp exists in the given table already. If it exists, return
+    // the row id of it in
+    // the table. If it doesn't exist, insert reExp into table and return row id
+    // of where it was inserted.
+    private int getReId(String reExp, String tableName)
             throws UnsupportedEncodingException, NoSuchAlgorithmException,
             SQLException {
-        String hashLogLines = getHash(logLines);
-        int reId = config.derbyDB
-                .getIdExistingRow("select * from UploadedLog where hash = '"
-                        + hashLogLines + "'");
+        String cleanString = reExp.replace("'", "''"); // Clean String for
+                                                       // single quotes.
+        String hashReExp = getHash(cleanString);
+        int reId = config.derbyDB.getIdExistingRow("select * from " + tableName
+                + " where hash = '" + hashReExp + "'");
+
         if (reId == -1) { // doesn't exist in database
-            reId = config.derbyDB
-                    .insertAndGetAutoValue("insert into UploadedLog(text, hash) values('"
-                            + logLines + "', '" + hashLogLines + "')");
-            logger.info("Hash for a log lines found in DerbyDB");
+            reId = config.derbyDB.insertAndGetAutoValue("insert into "
+                    + tableName + "(text, hash) values('" + cleanString
+                    + "', '" + hashReExp + "')");
+            logger.info("Hash for a reg exp or log lines found in DerbyDB");
         }
         return reId;
     }
 
-    // TODO refactor method to use getReId
+    // Checks each reg exp in list if it exists in the ReExp table already.
+    // Returns list of ids
+    // for each reg exp in the ReExp table.
     private List<Integer> getLogReExp(List<String> l)
             throws UnsupportedEncodingException, NoSuchAlgorithmException,
             SQLException {
         List<Integer> result = new ArrayList<Integer>();
         for (int i = 0; i < l.size(); i++) {
-            String hashReExp = getHash(l.get(i));
-            int currId = config.derbyDB
-                    .getIdExistingRow("select * from ReExp where hash = '"
-                            + hashReExp + "'");
-            if (currId == -1) {
-                currId = config.derbyDB
-                        .insertAndGetAutoValue("insert into ReExp(text, hash) values('"
-                                + l.get(i) + "', '" + hashReExp + "')");
-                logger.info("Hash for a log lines found in DerbyDB");
-            }
+            int currId = getReId(l.get(i), "ReExp");
             result.add(currId);
         }
         return result;
@@ -471,8 +450,8 @@ public class SynopticService extends RemoteServiceServlet implements
         ArrayList<EventNode> parsedEvents = null;
 
         try {
-            parser = synoptic.main.Main.newTraceParser(synOpts.regExps,
-                    synOpts.partitionRegExp, synOpts.separatorRegExp);
+            parser = new TraceParser(synOpts.regExps, synOpts.partitionRegExp,
+                    synOpts.separatorRegExp);
             parsedEvents = parser.parseTraceString(synOpts.logLines, "", -1);
 
         } catch (ParseException pe) {
@@ -489,19 +468,16 @@ public class SynopticService extends RemoteServiceServlet implements
         }
 
         // Code below mines invariants, and converts them to GWTInvariants.
-        // TODO: refactor synoptic main so that it does all of this most of this
-        // for the client.
         GWTGraph graph = null;
 
         int miningTime = (int) System.currentTimeMillis();
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
-            TOInvariantMiner miner = new ChainWalkingTOInvMiner();
-            minedInvs = miner.computeInvariants(traceGraph);
+            minedInvs = Main.mineTOInvariants(false, traceGraph);
 
             if (!synOpts.onlyMineInvs) {
-                // Since we're in the TO case then we also initialize and store
-                // refinement state.
+                // In the TO case then we also initialize/store refinement
+                // state.
                 initializeRefinementState(minedInvs);
                 storeSessionState(getThreadLocalRequest().getSession());
                 graph = PGraphToGWTGraph(pGraph);
@@ -511,11 +487,11 @@ public class SynopticService extends RemoteServiceServlet implements
             // PO invariant miner.
             DAGsTraceGraph inputGraph = parser
                     .generateDirectPORelation(parsedEvents);
-            POInvariantMiner miner = new TransitiveClosureInvMiner();
-            minedInvs = miner.computeInvariants(inputGraph);
+            minedInvs = Main.minePOInvariants(true, inputGraph);
             graph = null;
         }
         miningTime = (((int) System.currentTimeMillis() - miningTime) / 1000) % 60;
+        logger.info("Time to mine invariants: " + miningTime + " seconds");
 
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(
                 !parser.logTimeTypeIsTotallyOrdered(), minedInvs.getSet());
@@ -525,10 +501,11 @@ public class SynopticService extends RemoteServiceServlet implements
          */
         if (config.derbyDB != null) {
             List<Integer> logReId = getLogReExp(synOpts.regExps);
-            int partitionReId = getReId(synOpts.partitionRegExp);
-            int splitReId = getReId(synOpts.separatorRegExp);
-            int logLineId = getLogLinesId(synOpts.logLines);
+            int partitionReId = getReId(synOpts.partitionRegExp, "ReExp");
+            int splitReId = getReId(synOpts.separatorRegExp, "ReExp");
+            int logLineId = getReId(synOpts.logLines, "UploadedLog");
 
+            // Create a result for summarizing log parsing.
             String parseResult = "";
             parseResult += "edges:" + graph.edges.size() + "," + "nodes:"
                     + graph.nodeSet.size() + "," + "traces:"
@@ -538,15 +515,15 @@ public class SynopticService extends RemoteServiceServlet implements
                 parseResult += key + ":" + invs.invs.get(key).size() + ",";
             }
             parseResult += "miningtime:" + miningTime;
-            // TODO need to add synoptictime to parseResult (time to derive
-            // final model)
+            logger.info("Result of parsed log: " + parseResult);
 
+            // TODO add synoptictime to parseResult (time to derive final model)
+
+            // Insert into ParseLogAction table and obtain parseID to associate
+            // with the reg exps.
             Timestamp now = new Timestamp(System.currentTimeMillis());
             String q = "insert into ParseLogAction(vid, timestamp, result) values("
                     + vID + ", '" + now + "', '" + parseResult + "')";
-
-            // Insert into ParseLogAction table and obtain parseID to associate
-            // with reg exps in their respective tables.
             int parseID = config.derbyDB.insertAndGetAutoValue(q);
 
             // Inserts into reg exps tables.
@@ -770,26 +747,15 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Exports the model to a dot file and returns the dot fileName.
-     */
-    private String exportModelToDot() throws Exception {
-        Calendar now = Calendar.getInstance();
-        // Naming convention for the file can be improved
-        String fileName = now.getTimeInMillis() + ".model.dot";
-        String filePath = config.modelExportsDir + fileName;
-        GraphExporter.exportGraph(filePath, pGraph, true);
-        return fileName;
-    }
-
-    /**
      * Exports the current model as a .dot file. Returns the URL where the
      * generated file may be accessed by a client.
      */
     @Override
     public String exportDot() throws Exception {
-        retrieveSynopticSessionState();
-        String fileName = exportModelToDot();
-        return config.modelExportsURLprefix + fileName;
+        retrieveSessionState();
+        StringWriter sWriter = new StringWriter();
+        GraphExporter.exportGraph(sWriter, pGraph, true);
+        return sWriter.toString();
     }
 
     /**
@@ -798,8 +764,15 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     @Override
     public String exportPng() throws Exception {
-        retrieveSynopticSessionState();
-        String fileName = exportModelToDot();
+        retrieveSessionState();
+
+        // First, export the model to a dot file fileName.
+        Calendar now = Calendar.getInstance();
+        // Naming convention for the file can be improved
+        String fileName = now.getTimeInMillis() + ".model.dot";
+        String filePath = config.modelExportsDir + fileName;
+        GraphExporter.exportGraph(filePath, pGraph, true);
+
         GraphExporter.generatePngFileFromDotFile(config.modelExportsDir
                 + fileName);
         return config.modelExportsURLprefix + fileName + ".png";
@@ -812,11 +785,11 @@ public class SynopticService extends RemoteServiceServlet implements
      * @param selectedNodes
      * @throws Exception
      */
-    public Map<Integer, Set<GWTEdge>> getPathsThroughPartitionIDs(
+    public Map<List<GWTEdge>, Set<Integer>> getPathsThroughPartitionIDs(
             Set<Integer> selectedNodeIDs) throws Exception {
         retrieveSynopticSessionState();
 
-        Map<Integer, Set<GWTEdge>> gwtPaths = new HashMap<Integer, Set<GWTEdge>>();
+        Map<List<GWTEdge>, Set<Integer>> gwtPaths = new HashMap<List<GWTEdge>, Set<Integer>>();
 
         if (selectedNodeIDs == null || selectedNodeIDs.isEmpty()) {
             return gwtPaths;
@@ -839,7 +812,7 @@ public class SynopticService extends RemoteServiceServlet implements
             // Convert each transition individually into an edge, and then
             // add them all to an individual path.
             Set<ITransition<Partition>> transitions = paths.get(id);
-            Set<GWTEdge> gwtPath = new HashSet<GWTEdge>();
+            List<GWTEdge> gwtPath = new LinkedList<GWTEdge>();
             for (ITransition<Partition> trans : transitions) {
                 GWTNode trgNode = gwtNodeFromPartition(trans.getTarget());
                 GWTNode srcNode = gwtNodeFromPartition(trans.getSource());
@@ -851,7 +824,14 @@ public class SynopticService extends RemoteServiceServlet implements
                 gwtPath.add(edge);
             }
 
-            gwtPaths.put(id, gwtPath);
+            // If there isn't already a path
+            if (gwtPaths.get(gwtPath) == null) {
+                Set<Integer> traces = new HashSet<Integer>();
+                traces.add(id);
+                gwtPaths.put(gwtPath, traces);
+            } else {
+                gwtPaths.get(gwtPath).add(id);
+            }
         }
         return gwtPaths;
     }
