@@ -3,6 +3,7 @@ package synopticgwt.server;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.File;
 import java.sql.SQLException;
 
 import org.junit.Test;
@@ -12,7 +13,8 @@ import org.junit.Test;
  */
 public class DerbyDBTests {
     /** Database name and path */
-    private static String path = "/Users/Kevin/Desktop/DerbyUnitTest";
+    public static String dbPath = ".." + File.separator + "test-output"
+            + File.separator + "DerbyDBTests.derby";
 
     /**
      * Create a new db and table. Writes to the table. Check that read data is
@@ -27,7 +29,7 @@ public class DerbyDBTests {
     @Test
     public void testNewDatabase() throws SQLException, InstantiationException,
             IllegalAccessException, ClassNotFoundException {
-        DerbyDB db = DerbyDB.getInstance(path, true);
+        DerbyDB db = DerbyDB.getInstance(dbPath, true);
         String createNewTable = "CREATE TABLE Test (id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), text VARCHAR(15))";
         db.createQuery(createNewTable);
         assertNotNull(db);
