@@ -685,6 +685,24 @@ public class TraceParserTests extends SynopticTest {
 		
         return expectedGraph;
 	}
+	
+	private ChainsTraceGraph genExpectedGraphForMultipleRelationsPerLine(
+			ArrayList<EventNode> events) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+    private ChainsTraceGraph genExpectedGraphForMultipleClosureRelationsPerLine(
+			ArrayList<EventNode> events) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private ChainsTraceGraph genExpectedGraphForMultipleClosureRelationsList(
+			ArrayList<EventNode> events) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
     /**
      * Check that we can parse a log by splitting its lines into partitions.
@@ -745,7 +763,9 @@ public class TraceParserTests extends SynopticTest {
      */
     @Test
     public void parseBasicMultipleRelation() throws ParseException {
-    	String traceStr = "0 call main\n1 call foo\n2 return main";
+    	String traceStr = "0 call main\n" +
+    			"1 call foo\n" +
+    			"2 return main";
     	parser.addRegex("^(?<TIME>)(?<RELATION>)(?<TYPE>)$");
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
@@ -768,7 +788,9 @@ public class TraceParserTests extends SynopticTest {
      */
     @Test
     public void parseOutOfOrderMultipleRelation() throws ParseException {
-    	String traceStr = "1 call foo\n0 call main\n2 return main";
+    	String traceStr = "1 call foo\n" +
+    			"0 call main\n" +
+    			"2 return main";
     	parser.addRegex("^(?<TIME>)(?<RELATION>)(?<TYPE>)$");
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
@@ -789,9 +811,19 @@ public class TraceParserTests extends SynopticTest {
                 }));
     }
     
+    /**
+     * Tests that we can parse basic multiple relations with partition separators
+     * @throws ParseException
+     */
     @Test
     public void parseMultipleRelationPartitionsSeparator() throws ParseException {
-    	String traceStr = "0 call main\n1 call foo\n2 return main\n--\n0 call main\n1 call foo\n2 return main";
+    	String traceStr = "0 call main\n" +
+    			"1 call foo\n" +
+    			"2 return main\n" +
+    			"--\n" +
+    			"0 call main\n" +
+    			"1 call foo\n" +
+    			"2 return main";
     	parser.addRegex("^(?<TIME>)(?<RELATION>)(?<TYPE>)$");
     	parser.addPartitionsSeparator("^--$");
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
@@ -807,9 +839,18 @@ public class TraceParserTests extends SynopticTest {
                 }));
     }
     
+    /**
+     * Tests that we can parse basic multiple relations with partition maps
+     * @throws ParseException
+     */
     @Test
     public void parseMultipleRelationPartitionsMap() throws ParseException {
-    	String traceStr = "1 0 call main\n1 1 call foo\n1 2 return main\n2 0 call main\n2 1 call foo\n2 2 return main";
+    	String traceStr = "1 0 call main\n" +
+    			"1 1 call foo\n" +
+    			"1 2 return main\n" +
+    			"2 0 call main\n" +
+    			"2 1 call foo\n" +
+    			"2 2 return main";
     	parser.addRegex("^(?<PARTITION>)(?<TIME>)(?<RELATION>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<PARTITION>");
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
@@ -823,6 +864,143 @@ public class TraceParserTests extends SynopticTest {
                         return (a.getEvent().equals(b.getEvent()));
                     }
                 }));
+    }
+    
+    /**
+     * Multiple relations is dependant on TO logs so throw an exception if log is
+     * Partially ordered
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void parseVTimeWithMultipleRelations () throws ParseException {
+    	String traceStr = "1,0,0 call main\n" +
+    			"0,1,0 call foo\n" +
+    			"2,1,0 return main";
+    	parser.addRegex("^(?<VTIME>)(?<RELATION>)(?<TYPE>)$");
+    	parser.parseTraceString(traceStr, "test", -1);
+    }
+    
+    /**
+     * Test that parser can parse multiple relations per log line using multiple
+     * regex fields
+     * @throws ParseException
+     */
+    @Test
+    public void parseMultipleRelationsPerLogLineMultiRegex() throws ParseException {
+    	String traceStr = "0 call static Main.main\n" +
+    			"1 call instance Main.instance\n" +
+    			"2 return static Main.main\n" +
+    			"3 call native Foo.foo\n" +
+    			"4 return static Main.main";
+    	parser.addRegex("^(?<TIME>)(?<RELATION-CallReturn>)(?<RELATION-MethodType>)(?<TYPE>)$");
+        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
+                -1);
+        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForMultipleRelationsPerLine(events);
+        assertTrue(expectedGraph.equalsWith(graph,
+                new IBinary<EventNode, EventNode>() {
+                    @Override
+                    public boolean eval(EventNode a, EventNode b) {
+                        return (a.getEvent().equals(b.getEvent()));
+                    }
+                }));
+    }
+    
+    /**
+     * Test that parser can parse a list of multiple relations per log line 
+     * with a single regex field
+     * @throws ParseException
+     */
+    @Test
+    public void parseMultipleRelationsPerLogLineSingleRegex() throws ParseException {
+    	String traceStr = "0 call static Main.main\n" +
+    			"1 call instance Main.instance\n" +
+    			"2 return static Main.main\n" +
+    			"3 call native Foo.foo\n" +
+    			"4 return static Main.main";
+    	parser.addRegex("^(?<TIME>)(?<RELATIONS>)(?<TYPE>)$");
+        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
+                -1);
+        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForMultipleRelationsPerLine(events);
+        assertTrue(expectedGraph.equalsWith(graph,
+                new IBinary<EventNode, EventNode>() {
+                    @Override
+                    public boolean eval(EventNode a, EventNode b) {
+                        return (a.getEvent().equals(b.getEvent()));
+                    }
+                }));
+    }
+    
+    /**
+     * Test that parser can parse multiple closure relations per log line using
+     * multiple regex fields
+     * @throws ParseException
+     */
+    @Test
+    public void parseMultipleClosureRelationsPerLogLineMultiRegex() throws ParseException {
+    	String traceStr = "0 call static Main.main\n" +
+    			"1 call instance Main.instance\n" +
+    			"2 return static Main.main\n" +
+    			"3 call native Foo.foo\n" +
+    			"4 return static Main.main";
+    	parser.addRegex("^(?<TIME>)(?<RELATION-CallReturn>)(?<RELATION*-MethodType>)(?<TYPE>)$");
+        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
+                -1);
+        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForMultipleClosureRelationsPerLine(events);
+        assertTrue(expectedGraph.equalsWith(graph,
+                new IBinary<EventNode, EventNode>() {
+                    @Override
+                    public boolean eval(EventNode a, EventNode b) {
+                        return (a.getEvent().equals(b.getEvent()));
+                    }
+                }));
+    }
+
+	/**
+     * Test that parser can parse a list of multiple closure relations per log 
+     * line with a single regex field
+     * @throws ParseException
+     */
+    @Test
+    public void parseMultipleClosureRelationsPerLogLineSingleRegex() throws ParseException {
+    	/*
+    	 * Need to modify this trace string or the regex
+    	String traceStr = "0 call static Main.main\n" +
+    			"1 call instance Main.instance\n" +
+    			"2 return static Main.main\n" +
+    			"3 call native Foo.foo\n" +
+    			"4 return static Main.main";
+    			
+    	parser.addRegex("^(?<TIME>)(?<RELATION-CallReturn>)(?<RELATIONS*>)(?<TYPE>)$");
+    	*/
+        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
+                -1);
+        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForMultipleClosureRelationsList(events);
+        assertTrue(expectedGraph.equalsWith(graph,
+                new IBinary<EventNode, EventNode>() {
+                    @Override
+                    public boolean eval(EventNode a, EventNode b) {
+                        return (a.getEvent().equals(b.getEvent()));
+                    }
+                }));
+    }
+
+    /**
+     * Parsing multiple anonymous relation lists should throw an error
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void parseRegularAndClosureMultipleRelationLists() throws ParseException {
+    	String traceStr = "0 call static Main.main\n" +
+		    	"1 call instance Main.instance\n" +
+		    	"2 return static Main.main\n" +
+		    	"3 call native Foo.foo\n" +
+		    	"4 return static Main.main";
+    	parser.addRegex("^(?<TIME>)(?<RELATIONS>)(?<RELATIONS*>)(?<TYPE>)$");
+    	parser.parseTraceString(traceStr, "test", -1);
     }
 
 }
