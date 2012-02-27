@@ -11,7 +11,7 @@ import org.junit.Test;
  * Tests the server-side configuration object.
  */
 public class AppConfigurationTests {
-    public static String dbPath = ".." + File.separator + "test-output"
+    public static String dbPath = "." + File.separator + "test-output"
             + File.separator + "AppConfigurationTests.derby";
 
     @Test
