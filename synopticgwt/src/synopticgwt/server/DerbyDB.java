@@ -75,7 +75,7 @@ public class DerbyDB {
     /**
      * Create all the tables in the database.
      */
-    private void createAllTables() {
+    private void createAllTables() throws SQLException {
         createQuery(VISITOR);
         createQuery(UPLOADED_LOG);
         createQuery(RE_EXP);
@@ -88,28 +88,20 @@ public class DerbyDB {
     /**
      * Executes a create query in database.
      */
-    public void createQuery(String query) {
-        try {
-            stmt = conn.createStatement();
-            stmt.execute(query);
-            stmt.close();
-        } catch (SQLException sqlExcept) {
-            sqlExcept.printStackTrace();
-        }
+    public void createQuery(String query) throws SQLException {
+        stmt = conn.createStatement();
+        stmt.execute(query);
+        stmt.close();
     }
 
     /**
      * Executes an update query in database.
      */
-    public void updateQuery(String query) {
-        try {
-            stmt = conn.createStatement();
-            int n = stmt.executeUpdate(query);
-            stmt.close();
-            logger.info("Inserted " + n + " row(s) into Derby database.");
-        } catch (SQLException sqlExcept) {
-            sqlExcept.printStackTrace();
-        }
+    public void updateQuery(String query) throws SQLException {
+        stmt = conn.createStatement();
+        int n = stmt.executeUpdate(query);
+        stmt.close();
+        logger.info("Inserted " + n + " row(s) into Derby database.");
     }
 
     /**
@@ -140,41 +132,36 @@ public class DerbyDB {
      * 
      * @param query
      */
-    public int insertAndGetAutoValue(String query) {
+    public int insertAndGetAutoValue(String query) throws SQLException {
         int result = 0;
-        try {
-            stmt = conn.createStatement();
-            int n = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
-            logger.info("Inserted " + n + " row(s) into Derby database.");
 
-            ResultSet rs = stmt.getGeneratedKeys();
+        stmt = conn.createStatement();
+        int n = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+        logger.info("Inserted " + n + " row(s) into Derby database.");
 
-            while (rs.next()) {
-                result = rs.getInt(1);
-            }
+        ResultSet rs = stmt.getGeneratedKeys();
 
-            rs.close();
-            stmt.close();
-
-        } catch (SQLException sqlExcept) {
-            sqlExcept.printStackTrace();
+        while (rs.next()) {
+            result = rs.getInt(1);
         }
+
+        rs.close();
+        stmt.close();
+
         return result;
     }
 
-    public String getString(String query, String column) {
+    public String getString(String query, String column) throws SQLException {
         String s = "";
-        try {
-            stmt = conn.createStatement();
-            ResultSet results = stmt.executeQuery(query);
-            while (results.next()) {
-                s += results.getString(column);
-            }
-            results.close();
-            stmt.close();
-        } catch (SQLException sqlExcept) {
-            sqlExcept.printStackTrace();
+
+        stmt = conn.createStatement();
+        ResultSet results = stmt.executeQuery(query);
+        while (results.next()) {
+            s += results.getString(column);
         }
+        results.close();
+        stmt.close();
+
         return s;
     }
 
