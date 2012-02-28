@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -625,8 +626,15 @@ public class TraceParserTests extends SynopticTest {
      */
 	private ChainsTraceGraph genExpectedGraphForBasicMultipleRelation(
 			ArrayList<EventNode> events) {
-		// Generate the expected Graph for "0 call main\n1 call foo\n2 return main"
-		// INITIAL -t,call-> main -t,call-> food -t,return-> main -t-> TERMINAL
+		/* Generate the expected Graph for 
+		 *  
+	       String traceStr = "0 call main\n" +
+    	       "1 call foo\n" +
+    		   "2 return main";
+		 *  
+		 * INITIAL -t,call-> main -t,call-> food -t,return-> main -t-> TERMINAL 
+		 */
+
 		ChainsTraceGraph expectedGraph = new ChainsTraceGraph(events);
 		assertTrue(events.size() == 3);
 		
@@ -634,14 +642,11 @@ public class TraceParserTests extends SynopticTest {
 		EventNode cFoo = events.get(1);
 		EventNode rMain = events.get(2);
 		
-		expectedGraph.tagInitial(cMain, defRelation);
-		expectedGraph.tagInitial(cMain, callRelation);
+		expectedGraph.tagInitial(cMain, Arrays.asList(defRelation, callRelation));
 		
-		cMain.addTransition(cFoo, defRelation);
-		cMain.addTransition(cFoo, callRelation);
+		cMain.addTransitions(cFoo, Arrays.asList(defRelation, callRelation));
 		
-		cFoo.addTransition(rMain, defRelation);
-		cFoo.addTransition(rMain, returnRelation);
+		cFoo.addTransitions(rMain, Arrays.asList(defRelation, returnRelation));
 		
 		expectedGraph.tagTerminal(rMain, defRelation);
 		
@@ -650,6 +655,21 @@ public class TraceParserTests extends SynopticTest {
 	
 	private ChainsTraceGraph genExpectedGraphForSeparatorAndPartitionMultipleRelation(
 			ArrayList<EventNode> events) {
+		/*
+		 * Generate the expected Graph for 
+		 *  
+		 * String traceStr = "0 call main\n" +
+    			"1 call foo\n" +
+    			"2 return main\n" +
+    			"--\n" +
+    			"0 call main\n" +
+    			"1 call foo\n" +
+    			"2 return main";
+		 *  
+		 * INITIAL -t,call-> main -t,call-> food -t,return-> main -t-> TERMINAL 
+		 *  
+		 */
+		
 		ChainsTraceGraph expectedGraph = new ChainsTraceGraph(events);
 		assertTrue(events.size() == 6);
 		
@@ -657,14 +677,11 @@ public class TraceParserTests extends SynopticTest {
 		EventNode cFoo = events.get(1);
 		EventNode rMain = events.get(2);
 		
-		expectedGraph.tagInitial(cMain, defRelation);
-		expectedGraph.tagInitial(cMain, callRelation);
+		expectedGraph.tagInitial(cMain, Arrays.asList(defRelation, callRelation));
 		
-		cMain.addTransition(cFoo, defRelation);
-		cMain.addTransition(cFoo, callRelation);
+		cMain.addTransitions(cFoo, Arrays.asList(defRelation, callRelation));
 		
-		cFoo.addTransition(rMain, defRelation);
-		cFoo.addTransition(rMain, returnRelation);
+		cFoo.addTransitions(rMain, Arrays.asList(defRelation, returnRelation));
 		
 		expectedGraph.tagTerminal(rMain, defRelation);
 		
@@ -672,14 +689,11 @@ public class TraceParserTests extends SynopticTest {
 		cFoo = events.get(4);
 		rMain = events.get(5);
 		
-		expectedGraph.tagInitial(cMain, defRelation);
-		expectedGraph.tagInitial(cMain, callRelation);
+		expectedGraph.tagInitial(cMain, Arrays.asList(defRelation, callRelation));
 		
-		cMain.addTransition(cFoo, defRelation);
-		cMain.addTransition(cFoo, callRelation);
+		cMain.addTransitions(cFoo, Arrays.asList(defRelation, callRelation));
 		
-		cFoo.addTransition(rMain, defRelation);
-		cFoo.addTransition(rMain, returnRelation);
+		cFoo.addTransitions(rMain, Arrays.asList(defRelation, returnRelation));
 		
 		expectedGraph.tagTerminal(rMain, defRelation);
 		
@@ -688,20 +702,162 @@ public class TraceParserTests extends SynopticTest {
 	
 	private ChainsTraceGraph genExpectedGraphForMultipleRelationsPerLine(
 			ArrayList<EventNode> events) {
-		// TODO Auto-generated method stub
-		return null;
+		/* Generate expected graph for
+		 * String traceStr = "0 call static Main.main\n" +
+		 * 		"1 call instance Main.instance\n" +
+		 * 		"2 return static Main.main\n" +
+		 * 		"3 call native Foo.foo\n" +
+		 * 		"4 return static Main.main";
+		 * 
+		 * INITIAL -t,call,static-> Main.main -t,call,instance-> Main.instance
+		 * -t,return,static-> Main.main -t,call,native-> Foo.foo 
+		 * -t,return,static-> Main.main -t-> TERMINAL
+		 */
+		
+		ChainsTraceGraph expectedGraph = new ChainsTraceGraph(events);
+		assertTrue(events.size() == 5);
+		
+		EventNode mainMain = events.get(0);
+		expectedGraph.tagInitial(mainMain, Arrays.asList(defRelation, callRelation, staticRelation));
+		
+		EventNode mainInstance = events.get(1);
+		mainMain.addTransitions(mainInstance, Arrays.asList(defRelation, callRelation, instanceRelation));
+		
+		EventNode mainMain2 = events.get(2);
+		mainInstance.addTransitions(mainMain2, Arrays.asList(defRelation, returnRelation, staticRelation));
+		
+		EventNode fooFoo = events.get(3);
+		mainMain2.addTransitions(fooFoo, Arrays.asList(defRelation, callRelation, nativeRelation));
+		
+		EventNode mainMain3 = events.get(4);
+		fooFoo.addTransitions(mainMain3, Arrays.asList(defRelation, returnRelation, staticRelation));
+		
+		expectedGraph.tagTerminal(mainMain3, defRelation);
+		
+		return expectedGraph;
 	}
 	
-    private ChainsTraceGraph genExpectedGraphForMultipleClosureRelationsPerLine(
+    private ChainsTraceGraph genExpectedGraphForClosureAndGenericMultipleRelations(
 			ArrayList<EventNode> events) {
-		// TODO Auto-generated method stub
-		return null;
+		/* Generate expected graph for
+		 * String traceStr = "0 call static Main.main\n" +
+		 * 		"1 call instance Main.instance\n" +
+		 * 		"2 return static Main.main\n" +
+		 * 		"3 call native Foo.foo\n" +
+		 * 		"4 return static Main.main";
+		 * 
+		 * 
+		 * Time/Call/Return
+		 * INITIAL -t,call-> Main.main -t,call-> Main.instance
+		 * -t,return-> Main.main -t,call-> Foo.foo 
+		 * -t,return-> Main.main -t-> TERMINAL
+		 * 
+		 * Static
+		 * INITIAL -static-> Main.main -static-> Main.main -static-> Main.main
+		 * 
+		 * Instance
+		 * INITIAL -instance-> Main.instance
+		 * 
+		 * Native
+		 * INITIAL -native-> Foo.foo
+		 */
+    	
+		ChainsTraceGraph expectedGraph = new ChainsTraceGraph(events);
+		assertTrue(events.size() == 5);
+		
+		EventNode mainMain = events.get(0);
+		expectedGraph.tagInitial(mainMain, Arrays.asList(defRelation, callRelation));
+		
+		EventNode mainInstance = events.get(1);
+		mainMain.addTransitions(mainInstance, Arrays.asList(defRelation, callRelation));
+		
+		EventNode mainMain2 = events.get(2);
+		mainInstance.addTransitions(mainMain2, Arrays.asList(defRelation, returnRelation));
+		
+		EventNode fooFoo = events.get(3);
+		mainMain2.addTransitions(fooFoo, Arrays.asList(defRelation, callRelation));
+		
+		EventNode mainMain3 = events.get(4);
+		fooFoo.addTransitions(mainMain3, Arrays.asList(defRelation, returnRelation));
+		
+		expectedGraph.tagTerminal(mainMain3, defRelation);
+		
+		expectedGraph.tagInitial(mainMain, staticRelation);
+		mainMain.addTransition(mainMain2, staticRelation);
+		mainMain2.addTransition(mainMain3, staticRelation);
+		
+		expectedGraph.tagInitial(mainInstance, instanceRelation);
+		expectedGraph.tagInitial(fooFoo, nativeRelation);
+		
+		return expectedGraph;
 	}
-
-	private ChainsTraceGraph genExpectedGraphForMultipleClosureRelationsList(
+    
+    private ChainsTraceGraph genExpectedGraphForClosureRelations(
 			ArrayList<EventNode> events) {
-		// TODO Auto-generated method stub
-		return null;
+		/* Generate expected graph for
+		 * String traceStr = "0 call static Main.main\n" +
+		 * 		"1 call instance Main.instance\n" +
+		 * 		"2 return static Main.main\n" +
+		 * 		"3 call native Foo.foo\n" +
+		 * 		"4 return static Main.main";
+		 * 
+		 * Time
+		 * INITIAL -t-> Main.main -t-> Main.instance
+		 * -t-> Main.main -t-> Foo.foo 
+		 * -t-> Main.main -t-> TERMINAL
+		 * 
+		 * Call
+		 * INITIAL -call-> Main.main -call-> Main.instance -call-> Foo.foo
+		 * 
+		 * Return 
+		 * INITIAL -return-> Main.main -return-> Main.main
+		 * 
+		 * Static
+		 * INITIAL -static-> Main.main -static-> Main.main -static-> Main.main
+		 * 
+		 * Instance
+		 * INITIAL -instance-> Main.instance
+		 * 
+		 * Native
+		 * INITIAL -native-> Foo.foo
+		 */
+    	
+		ChainsTraceGraph expectedGraph = new ChainsTraceGraph(events);
+		assertTrue(events.size() == 5);
+		
+		EventNode mainMain = events.get(0);
+		expectedGraph.tagInitial(mainMain, defRelation);
+		
+		EventNode mainInstance = events.get(1);
+		mainMain.addTransition(mainInstance, defRelation);
+		
+		EventNode mainMain2 = events.get(2);
+		mainInstance.addTransition(mainMain2, defRelation);
+		
+		EventNode fooFoo = events.get(3);
+		mainMain2.addTransition(fooFoo, defRelation);
+		
+		EventNode mainMain3 = events.get(4);
+		fooFoo.addTransition(mainMain3, defRelation);
+		
+		expectedGraph.tagTerminal(mainMain3, defRelation);
+		
+		expectedGraph.tagInitial(mainMain, callRelation);
+		mainMain.addTransition(mainInstance, callRelation);
+		mainInstance.addTransition(fooFoo, callRelation);
+		
+		expectedGraph.tagInitial(mainMain2, returnRelation);
+		mainMain2.addTransition(mainMain3, returnRelation);
+		
+		expectedGraph.tagInitial(mainMain, staticRelation);
+		mainMain.addTransition(mainMain2, staticRelation);
+		mainMain2.addTransition(mainMain3, staticRelation);
+		
+		expectedGraph.tagInitial(mainInstance, instanceRelation);
+		
+		expectedGraph.tagInitial(fooFoo, nativeRelation);
+		
+		return expectedGraph;
 	}
 
     /**
@@ -872,11 +1028,53 @@ public class TraceParserTests extends SynopticTest {
      * @throws ParseException
      */
     @Test(expected = ParseException.class)
-    public void parseVTimeWithMultipleRelations () throws ParseException {
+    public void parseVTimeWithMultipleRelations() throws ParseException {
     	String traceStr = "1,0,0 call main\n" +
     			"0,1,0 call foo\n" +
     			"2,1,0 return main";
     	parser.addRegex("^(?<VTIME>)(?<RELATION>)(?<TYPE>)$");
+    	parser.parseTraceString(traceStr, "test", -1);
+    }
+    
+    /**
+     * Multiple relations is dependant on TO logs so throw an exception if log is
+     * Partially ordered
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void parseVTimeWithNamedMultipleRelations() throws ParseException {
+    	String traceStr = "1,0,0 call main\n" +
+    			"0,1,0 call foo\n" +
+    			"2,1,0 return main";
+    	parser.addRegex("^(?<VTIME>)(?<RELATION-CallReturn>)(?<TYPE>)$");
+    	parser.parseTraceString(traceStr, "test", -1);
+    }
+    
+    /**
+     * Multiple relations is dependant on TO logs so throw an exception if log is
+     * Partially ordered
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void parseVTimeWithClosureRelations() throws ParseException {
+    	String traceStr = "1,0,0 call main\n" +
+    			"0,1,0 call foo\n" +
+    			"2,1,0 return main";
+    	parser.addRegex("^(?<VTIME>)(?<RELATION*>)(?<TYPE>)$");
+    	parser.parseTraceString(traceStr, "test", -1);
+    }
+    
+    /**
+     * Multiple relations is dependant on TO logs so throw an exception if log is
+     * Partially ordered
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void parseVTimeWithNamedClosureRelations() throws ParseException {
+    	String traceStr = "1,0,0 call main\n" +
+    			"0,1,0 call foo\n" +
+    			"2,1,0 return main";
+    	parser.addRegex("^(?<VTIME>)(?<RELATION*-CallReturn>)(?<TYPE>)$");
     	parser.parseTraceString(traceStr, "test", -1);
     }
     
@@ -886,7 +1084,7 @@ public class TraceParserTests extends SynopticTest {
      * @throws ParseException
      */
     @Test
-    public void parseMultipleRelationsPerLogLineMultiRegex() throws ParseException {
+    public void parseMultipleRelationsMultiRegex() throws ParseException {
     	String traceStr = "0 call static Main.main\n" +
     			"1 call instance Main.instance\n" +
     			"2 return static Main.main\n" +
@@ -907,22 +1105,22 @@ public class TraceParserTests extends SynopticTest {
     }
     
     /**
-     * Test that parser can parse a list of multiple relations per log line 
-     * with a single regex field
+     * Test that parser can parse multiple closure and generic relations per log line using
+     * multiple regex fields
      * @throws ParseException
      */
     @Test
-    public void parseMultipleRelationsPerLogLineSingleRegex() throws ParseException {
+    public void parseClosureAndGenericRelations() throws ParseException {
     	String traceStr = "0 call static Main.main\n" +
     			"1 call instance Main.instance\n" +
     			"2 return static Main.main\n" +
     			"3 call native Foo.foo\n" +
     			"4 return static Main.main";
-    	parser.addRegex("^(?<TIME>)(?<RELATIONS>)(?<TYPE>)$");
+    	parser.addRegex("^(?<TIME>)(?<RELATION-CallReturn>)(?<RELATION*-MethodType>)(?<TYPE>)$");
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
-        ChainsTraceGraph expectedGraph = genExpectedGraphForMultipleRelationsPerLine(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForClosureAndGenericMultipleRelations(events);
         assertTrue(expectedGraph.equalsWith(graph,
                 new IBinary<EventNode, EventNode>() {
                     @Override
@@ -933,22 +1131,22 @@ public class TraceParserTests extends SynopticTest {
     }
     
     /**
-     * Test that parser can parse multiple closure relations per log line using
+     * Test that parser can parse only closure relations in a log line using
      * multiple regex fields
      * @throws ParseException
      */
     @Test
-    public void parseMultipleClosureRelationsPerLogLineMultiRegex() throws ParseException {
+    public void parseMultipleClosureRelations() throws ParseException {
     	String traceStr = "0 call static Main.main\n" +
     			"1 call instance Main.instance\n" +
     			"2 return static Main.main\n" +
     			"3 call native Foo.foo\n" +
     			"4 return static Main.main";
-    	parser.addRegex("^(?<TIME>)(?<RELATION-CallReturn>)(?<RELATION*-MethodType>)(?<TYPE>)$");
+    	parser.addRegex("^(?<TIME>)(?<RELATION*-CallReturn>)(?<RELATION*-MethodType>)(?<TYPE>)$");
         ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
                 -1);
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
-        ChainsTraceGraph expectedGraph = genExpectedGraphForMultipleClosureRelationsPerLine(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForClosureRelations(events);
         assertTrue(expectedGraph.equalsWith(graph,
                 new IBinary<EventNode, EventNode>() {
                     @Override
@@ -956,51 +1154,6 @@ public class TraceParserTests extends SynopticTest {
                         return (a.getEvent().equals(b.getEvent()));
                     }
                 }));
-    }
-
-	/**
-     * Test that parser can parse a list of multiple closure relations per log 
-     * line with a single regex field
-     * @throws ParseException
-     */
-    @Test
-    public void parseMultipleClosureRelationsPerLogLineSingleRegex() throws ParseException {
-    	/*
-    	 * Need to modify this trace string or the regex
-    	String traceStr = "0 call static Main.main\n" +
-    			"1 call instance Main.instance\n" +
-    			"2 return static Main.main\n" +
-    			"3 call native Foo.foo\n" +
-    			"4 return static Main.main";
-    			
-    	parser.addRegex("^(?<TIME>)(?<RELATION-CallReturn>)(?<RELATIONS*>)(?<TYPE>)$");
-    	*/
-        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
-                -1);
-        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
-        ChainsTraceGraph expectedGraph = genExpectedGraphForMultipleClosureRelationsList(events);
-        assertTrue(expectedGraph.equalsWith(graph,
-                new IBinary<EventNode, EventNode>() {
-                    @Override
-                    public boolean eval(EventNode a, EventNode b) {
-                        return (a.getEvent().equals(b.getEvent()));
-                    }
-                }));
-    }
-
-    /**
-     * Parsing multiple anonymous relation lists should throw an error
-     * @throws ParseException
-     */
-    @Test(expected = ParseException.class)
-    public void parseRegularAndClosureMultipleRelationLists() throws ParseException {
-    	String traceStr = "0 call static Main.main\n" +
-		    	"1 call instance Main.instance\n" +
-		    	"2 return static Main.main\n" +
-		    	"3 call native Foo.foo\n" +
-		    	"4 return static Main.main";
-    	parser.addRegex("^(?<TIME>)(?<RELATIONS>)(?<RELATIONS*>)(?<TYPE>)$");
-    	parser.parseTraceString(traceStr, "test", -1);
     }
 
 }

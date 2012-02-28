@@ -47,6 +47,12 @@ public abstract class SynopticTest extends SynopticLibTest {
      * generic return relation for invariant mining
      */
     public static final String returnRelation = "return";
+    
+    public static final String staticRelation = "static";
+    
+    public static final String instanceRelation = "instance";
+    
+    public static final String nativeRelation = "native";
 
     static {
         // Set up static SynopticLib state.

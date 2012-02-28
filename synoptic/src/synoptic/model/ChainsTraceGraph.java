@@ -38,11 +38,35 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         createIfNotExistsDummyTerminalNode(termEvent, relation);
         super.tagTerminal(terminalNode, relation);
     }
+    
+    /**
+     * Creates transitions from terminalNode to TERMINAL for each string in 
+     * the relations collection.
+     * @param terminalNode
+     * @param relations
+     */
+    public void tagTerminal(EventNode terminalNode, Collection<String> relations) {
+    	for (String relation : relations) {
+    		tagTerminal(terminalNode, relation);
+    	}
+    }
 
     public void tagInitial(EventNode initialNode, String relation) {
         createIfNotExistsDummyInitialNode(initEvent, relation);
         super.tagInitial(initialNode, relation);
         traceIdToInitNodes.put(initialNode.getTraceID(), initialNode);
+    }
+    
+    /**
+     * Creates transitions from INITIAL to initialNode for each string in 
+     * the relations collection.
+     * @param initialNode
+     * @param relations
+     */
+    public void tagInitial(EventNode initialNode, Collection<String> relations) {
+    	for (String relation : relations) {
+    		tagInitial(initialNode, relation);
+    	}
     }
 
     /**

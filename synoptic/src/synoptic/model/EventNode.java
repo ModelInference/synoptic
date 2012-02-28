@@ -84,6 +84,12 @@ public class EventNode implements INode<EventNode> {
         assert dest != null : "Transition Target cannot be null";
         addTransition(new Transition<EventNode>(this, dest, relation));
     }
+    
+    public void addTransitions(EventNode dest, Collection<String> relations) {
+    	for (String relation : relations) {
+    		addTransition(dest, relation);
+    	}
+    }
 
     /**
      * Find all direct successors of all events. For an event e1, direct
@@ -266,7 +272,7 @@ public class EventNode implements INode<EventNode> {
         return transitionsByRelation.keySet();
     }
     
-    public Set<String> getEventRelations() {
+    public Set<Relation> getEventRelations() {
     	return event.getRelations();
     }
 
