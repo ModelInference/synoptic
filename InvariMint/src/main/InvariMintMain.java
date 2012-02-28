@@ -179,7 +179,8 @@ public class InvariMintMain {
         TemporalInvariantSet minedInvariants = initialModel.getInvariants();
         dfa.intersectWith(getMinModelFromInvs(minedInvariants, encodings));
         dfa.minimize();
-        dfa.exportDotAndPng("InvariMintOriginal");
+        // TODO: Add an option to specify this output file. DO NOT hard-code.
+        // dfa.exportDotAndPng("InvariMintOriginal");
 
         removeSpuriousEdges(dfa, initialModel.getTraceGraph(), encodings,
                 initialEvent, terminalEvent);
@@ -313,7 +314,9 @@ public class InvariMintMain {
         // This minimization step will first determinize the model -- from the
         // dk brics documentation.
         convertedDfa.minimize();
-        convertedDfa.exportDotAndPng("SynopticDFA");
+
+        // TODO: Add an option to specify this output file. DO NOT hard-code.
+        // convertedDfa.exportDotAndPng("SynopticDFA");
 
         // removeSpuriousEdges(convertedDfa, initialModel.getTraceGraph(),
         // encodings, StringEventType.newInitialStringEventType(),
