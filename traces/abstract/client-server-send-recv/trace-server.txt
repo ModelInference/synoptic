@@ -1,0 +1,16 @@
+1 +req
+2 -done
+3 -alarm
+4 +ack
+5 +req
+6 -done
+--
+1 +req
+2 -done
+3 +req
+4 -done
+--
+1 -alarm
+2 +ack
+3 -alarm
+4 +ack
