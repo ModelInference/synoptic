@@ -51,7 +51,7 @@ import synoptic.util.BriefLogFormatter;
 public class InvariMintMain {
     public static Logger logger = null;
 
-    public static void setUpLogging() {
+    public static void setUpLogging(InvariMintOptions opts) {
         // Get the top Logger instance
         logger = Logger.getLogger("");
 
@@ -77,16 +77,20 @@ public class InvariMintMain {
 
         // consoleHandler.setFormatter(new CustomFormatter());
 
+        // TODO: add options to InvariMintOptions to control verbosity.
+        //
         // Set the logger's log level based on command line arguments
-        if (Main.options.logLvlQuiet) {
-            logger.setLevel(Level.WARNING);
-        } else if (Main.options.logLvlVerbose) {
-            logger.setLevel(Level.FINE);
-        } else if (Main.options.logLvlExtraVerbose) {
-            logger.setLevel(Level.FINEST);
-        } else {
-            logger.setLevel(Level.INFO);
-        }
+        // if (opts.logLvlQuiet) {
+        // logger.setLevel(Level.WARNING);
+        // } else if (opts.logLvlVerbose) {
+        // logger.setLevel(Level.FINE);
+        // } else if (opts.logLvlExtraVerbose) {
+        // logger.setLevel(Level.FINEST);
+        // } else {
+        // logger.setLevel(Level.INFO);
+        // }
+
+        logger.setLevel(Level.INFO);
 
         consoleHandler.setFormatter(new BriefLogFormatter());
         return;
@@ -105,10 +109,29 @@ public class InvariMintMain {
 
         // Set up Synoptic.
         InvariMintOptions opts = new InvariMintOptions(args);
+        setUpLogging(opts);
+
+        // Display help for all option groups, including unpublicized ones
+        if (opts.allHelp) {
+            opts.printLongHelp();
+            return;
+        }
+
+        // Display help just for the 'publicized' option groups
+        if (opts.help) {
+            opts.printShortHelp();
+            return;
+        }
+
+        if (opts.logFilenames.size() == 0) {
+            logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
+                    + synoptic.main.Options.getOptDesc("help"));
+            return;
+        }
 
         // Set up options in Synoptic Main that are used by the library.
         Main.options = new SynopticOptions();
-        setUpLogging();
+        Main.setUpLogging();
         Main.options.logLvlExtraVerbose = false;
         Main.options.logLvlExtraVerbose = true;
         Main.options.internCommonStrings = true;

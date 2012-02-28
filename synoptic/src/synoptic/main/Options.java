@@ -67,16 +67,6 @@ public abstract class Options {
     }
 
     /**
-     * Prints help for all option groups, including unpublicized ones.
-     */
-    public void printLongHelp() {
-        System.out.println("Usage: " + getUsageString());
-        System.out.println(plumeOptions.usage("General Options",
-                "Execution Options", "Parser Options", "Input Options",
-                "Output Options", "Verbosity Options", "Debugging Options"));
-    }
-
-    /**
      * Prints the values of all the options.
      * 
      * @throws IllegalArgumentException

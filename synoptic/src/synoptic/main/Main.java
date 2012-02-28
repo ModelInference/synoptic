@@ -213,8 +213,7 @@ public class Main implements Callable<Integer> {
             runTests(testClassesUnits);
         }
 
-        if (opts.logFilenames.size() == 0
-                || opts.logFilenames.get(0).equals("")) {
+        if (opts.logFilenames.size() == 0) {
             logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
                     + Options.getOptDesc("help"));
             return null;
