@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import synoptic.util.time.ITime;
@@ -44,7 +45,7 @@ public class Event {
      */
     private final int lineNum;
     
-    private Set<String> relations;
+    private Set<Relation> relations;
 
     /**
      * Create an event of a particular type, with corresponding log line,
@@ -62,7 +63,7 @@ public class Event {
         this.logLine = logLine;
         this.fileName = fileName;
         this.lineNum = lineNum;
-        this.relations = new HashSet<String>();
+        this.relations = new HashSet<Relation>();
     }
 
     /**
@@ -142,7 +143,7 @@ public class Event {
         result = prime * result + lineNum;
         result = prime * result + ((logLine == null) ? 0 : logLine.hashCode());
         result = prime * result + ((time == null) ? 0 : time.hashCode());
-        for (String relation : relations) {
+        for (Relation relation : relations) {
         	result = prime * result + relation.hashCode();
         }
         return result;
@@ -206,7 +207,7 @@ public class Event {
      *            the time
      */
     public void setTime(ITime t) {
-    	addRelation(defaultTimeRelationString);
+    	addRelation(new Relation(defaultTimeRelationString));
         time = t;
     }
 
@@ -231,18 +232,19 @@ public class Event {
         return lineNum;
     }
     
-    public boolean containsRelation(String s) {
-    	return relations.contains(s);
+    public boolean containsRelation(Relation r) {
+    	return relations.contains(r);
     }
     
-    public void addRelation(String s) {
-    	if (containsRelation(s)) {
-    		throw new IllegalArgumentException("Event already contains relation " + s);
+    public void addRelation(Relation r) {
+    	if (containsRelation(r)) {
+    		throw new IllegalArgumentException("Event already contains relation " + r);
     	}
-    	relations.add(s);
+    	relations.add(r);
     }
     
-    public Set<String> getRelations() {
+    public Set<Relation> getRelations() {
     	return Collections.unmodifiableSet(relations);
     }
+  
 }
