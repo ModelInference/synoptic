@@ -118,12 +118,15 @@ public class InvariMintOptions extends synoptic.main.Options {
     public boolean debugParse = false;
     // end option group "Parser Options"
 
+    // //////////////////////////////////////////////////
+    @OptionGroup("Output Options")
     /**
-     * Final model output filename.
+     * Specifies the prefix of where to store the model outputs.
      */
-    @Option(value = "-f Final model output filename",
-            aliases = { "-finalModelFile" })
-    public String finalModelFile = "finalDfaModel.dot";
+    @Option(
+            value = "-o Output path prefix for generating Graphviz dot files graphics",
+            aliases = { "-output-prefix" })
+    public String outputPathPrefix = null;
 
     /**
      * Translated Synoptic model output filename.
@@ -131,6 +134,8 @@ public class InvariMintOptions extends synoptic.main.Options {
     // @Option(value = "-s Synoptic model output filename",
     // aliases = { "-synopticModelFile" })
     // public String synopticModelFile = "convertedSynopticModel.dot";
+
+    // end option group "Output Options"
 
     /** One line synopsis of usage */
     public static final String usageString = "invarimint [options] <logfiles-to-analyze>";
@@ -149,7 +154,7 @@ public class InvariMintOptions extends synoptic.main.Options {
     public void printLongHelp() {
         System.out.println("Usage: " + getUsageString());
         System.out.println(plumeOptions.usage("General Options",
-                "Parser Options", "Input Options"));
+                "Parser Options", "Input Options", "Output Options"));
     }
 
     @Override

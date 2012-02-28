@@ -25,6 +25,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TOInitialTerminalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
+import synoptic.main.Options;
 import synoptic.main.SynopticOptions;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -123,6 +124,12 @@ public class InvariMintMain {
             return;
         }
 
+        if (opts.outputPathPrefix == null) {
+            logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t"
+                    + Options.getOptDesc("outputPathPrefix"));
+            return;
+        }
+
         if (opts.logFilenames.size() == 0) {
             logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
                     + synoptic.main.Options.getOptDesc("help"));
@@ -211,7 +218,7 @@ public class InvariMintMain {
         dfa.minimize();
 
         // Export final model.
-        dfa.exportDotAndPng(opts.finalModelFile);
+        dfa.exportDotAndPng(opts.outputPathPrefix + ".invarimintDFA.dot");
 
         compareTranslatedSynopticModel(initialModel, encodings, dfa);
     }
