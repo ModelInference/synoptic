@@ -369,21 +369,6 @@ public class SynopticService extends RemoteServiceServlet implements
         super.doUnexpectedFailure(t);
     }
 
-    // Returns the MD5 hash of a String.
-    private String getHash(String message) throws UnsupportedEncodingException,
-            NoSuchAlgorithmException {
-        byte[] byteMessage = message.getBytes("UTF-8");
-        MessageDigest md = MessageDigest.getInstance("MD5");
-
-        md.update(byteMessage, 0, byteMessage.length);
-        BigInteger i = new BigInteger(1, md.digest());
-        String result = i.toString(16);
-        while (result.length() < 2) {
-            result = "0" + result;
-        }
-        return result;
-    }
-
     // Checks if reExp exists in the given table already. If it exists, return
     // the row id of it in
     // the table. If it doesn't exist, insert reExp into table and return row id
@@ -393,7 +378,7 @@ public class SynopticService extends RemoteServiceServlet implements
             SQLException {
         String cleanString = reExp.replace("'", "''"); // Clean String for
                                                        // single quotes.
-        String hashReExp = getHash(cleanString);
+        String hashReExp = DerbyDB.getHash(cleanString);
         int reId = config.derbyDB.getIdExistingRow("select * from " + tableName
                 + " where hash = '" + hashReExp + "'");
 
