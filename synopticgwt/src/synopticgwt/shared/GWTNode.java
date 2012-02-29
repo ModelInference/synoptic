@@ -85,13 +85,22 @@ public class GWTNode implements Serializable {
     public int getPartitionNodeHashCode() {
         return pNodeHash;
     }
-
+    
     /**
      * @return The hash code for the Partition Node object that this object
      *         represents.
      */
     public String getPartitionNodeHashCodeStr() {
         return ((Integer) pNodeHash).toString();
+    }
+    
+    /**
+     * Sets the instance of the JSNode.
+     * 
+     * @param node
+     */
+    public void setJSNode(JSNode node) {
+        this.jsNode = node;
     }
 
 }
