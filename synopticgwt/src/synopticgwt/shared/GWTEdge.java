@@ -2,6 +2,8 @@ package synopticgwt.shared;
 
 import java.io.Serializable;
 
+import synopticgwt.client.model.JSEdge;
+
 import com.google.gwt.i18n.client.NumberFormat;
 
 /**
@@ -18,6 +20,8 @@ public class GWTEdge implements Serializable {
 
     private GWTNode src = null;
     private GWTNode dst = null;
+    
+    private JSEdge jsEdge;
 
     // Edge weight indicates transition probability from source node to
     // destination node.
