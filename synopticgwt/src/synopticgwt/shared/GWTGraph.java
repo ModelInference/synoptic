@@ -134,17 +134,33 @@ public class GWTGraph implements Serializable, MouseEventHandler<GWTNode> {
         this.jsGraph.reDraw(width, height);
     }
 
+    /**
+     * Clears all nodes of prior state, and sets any highlighted nodes back to
+     * default display properties.
+     */
     public void clearNodeState() {
         checkInit();
         clearNodes(this.nodeSet);
+        this.selectedNodes.clear();
     }
 
+    /**
+     * Clears the selected nodes, as well as setting any highlighted nodes back
+     * to the default display properties.
+     */
     public void clearSelectedNodes() {
         checkInit();
         clearNodes(this.selectedNodes);
         this.selectedNodes.clear();
     }
 
+    /**
+     * A helper method that clears the specified collection of nodes.
+     * 
+     * @param nodes
+     *            The collection of nodes that are to be set to the default
+     *            state.
+     */
     private static void clearNodes(Collection<GWTNode> nodes) {
         for (GWTNode node : nodes) {
             if (!node.getEventType().equals(INITIAL)
@@ -154,6 +170,10 @@ public class GWTGraph implements Serializable, MouseEventHandler<GWTNode> {
         }
     }
 
+    /**
+     * Clears the display state of the edges, i.e. sets them all back to
+     * default.
+     */
     public void clearEdgeState() {
         checkInit();
         setEdgeStyle(DEFAULT_STROKE_COLOR, 1, this.edges);
@@ -185,6 +205,10 @@ public class GWTGraph implements Serializable, MouseEventHandler<GWTNode> {
             throw new IllegalStateException("Graphic has not bee initialized");
     }
 
+    /**
+     * Mouseover handler that fires when the given node is moused over. The node
+     * then sends itself through this method.
+     */
     @Override
     public void mouseover(GWTNode hoveredNode) {
         // Highlight all nodes that have the same event type.
@@ -195,11 +219,13 @@ public class GWTGraph implements Serializable, MouseEventHandler<GWTNode> {
         }
     }
 
+    /**
+     * Mouseout handler that fires when the given node is moused out. The node
+     * sends itself through this method.
+     */
     @Override
     public void mouseout(GWTNode hoveredNode) {
-        // If the node that has been hovered out of is not
-        // the initial or the terminal node, then set all but
-        // the initial and terminal nodes to the default color.
+        // Set all but the initial and terminal nodes to the default color.
         for (GWTNode node : this.nodeSet) {
             if (!node.getEventType().equals(INITIAL)
                     && !node.getEventType().equals(TERMINAL)) {
@@ -209,6 +235,9 @@ public class GWTGraph implements Serializable, MouseEventHandler<GWTNode> {
         }
     }
 
+    /**
+     * Click handler that fires when a given node is clicked.
+     */
     @Override
     public void onclick(GWTNode clickedNode, boolean shiftKey) {
 
