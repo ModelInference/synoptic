@@ -1,39 +1,23 @@
 package synopticgwt.client.invariants;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import synopticgwt.client.ClosingPopUp;
 import synopticgwt.shared.GWTInvariant;
 import synopticgwt.shared.GWTInvariantSet;
 
 /**
  * A pop-up window that contains the mined invariants as a simple text list.
  */
-public class TextualInvariantsPopUp extends PopupPanel {
+public class TextualInvariantsPopUp extends ClosingPopUp {
 
     public TextualInvariantsPopUp(GWTInvariantSet gwtInvs) {
-        // PopupPanel's constructor takes 'auto-hide' as its boolean parameter.
-        // If this is set, the panel closes itself automatically when the user
-        // clicks outside of it.
-        super(true);
+        super();
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("InvariantsPopUp");
-
-        Anchor closeLink = new Anchor("[Close]");
-        panel.add(closeLink);
-        closeLink.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                TextualInvariantsPopUp.this.hide();
-            }
-        });
-
+        panel.add(this.closeLink);
         panel.add(new HTML(invariantsToText(gwtInvs)));
-
         this.setWidget(panel);
     }
 
@@ -54,5 +38,10 @@ public class TextualInvariantsPopUp extends PopupPanel {
             }
         }
         return ret;
+    }
+
+    @Override
+    protected void closingPopUpEvent() {
+        // No-op.
     }
 }

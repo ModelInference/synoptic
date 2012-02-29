@@ -122,6 +122,9 @@ public class TraceParser {
     
 
 
+    /**
+     * Returns an un-parameterized trace parser.
+     */
     public TraceParser() {
         parsers = new ArrayList<NamedPattern>();
         constantFields = new ArrayList<LinkedHashMap<String, NamedSubstitution>>();
@@ -129,6 +132,63 @@ public class TraceParser {
         filter = new NamedSubstitution("");
         nextTraceID = 0;
         partitionNameToTraceID = new LinkedHashMap<String, Integer>();
+    }
+
+    /**
+     * Initializes and returns a new trace parser that is parameterized with
+     * regular expressions for parsing log lines/partitions/separators.
+     * 
+     * @param rExps
+     *            list of regular expressions for matching log lines
+     * @param partitioningRegExp
+     *            a partitioning regular expression -- used to map parsed event
+     *            instances to executions
+     * @param sepRegExp
+     *            a separator regular expression -- used to split the sequence
+     *            of parsed event instances into executions
+     * @return new trace parser
+     * @throws ParseException
+     */
+    public TraceParser(List<String> rExps, String partitioningRegExp,
+            String sepRegExp) throws ParseException {
+        this();
+
+        assert (rExps != null);
+        assert (partitioningRegExp != null);
+
+        logger.fine("Setting up the log file parser.");
+        if (partitioningRegExp.equals(SynopticOptions.partitionRegExpDefault)) {
+            logger.info("Using the default partitions mapping regex: "
+                    + SynopticOptions.partitionRegExpDefault);
+        }
+
+        if (!rExps.isEmpty()) {
+            // The user provided custom regular expressions.
+            for (String exp : rExps) {
+                logger.fine("\taddRegex with exp:" + exp);
+                this.addRegex(exp);
+            }
+
+            this.setPartitionsMap(partitioningRegExp);
+        } else {
+            // No custom regular expressions provided - warn and use defaults.
+            logger.warning("Using a default regular expression to parse log-lines: "
+                    + "will map the entire log line to an event type."
+                    + "\nTo use a custom regular expressions use the option:\n\t"
+                    + Options.getOptDesc("regExps") + "\n\t");
+            // TODO: is this next statement necessary?
+            // parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
+            this.addRegex(SynopticOptions.regExpDefault);
+            this.setPartitionsMap(partitioningRegExp);
+        }
+
+        if (sepRegExp != null) {
+            this.addPartitionsSeparator(sepRegExp);
+            if (!partitioningRegExp
+                    .equals(SynopticOptions.partitionRegExpDefault)) {
+                logger.warning("Partition separator and partition mapping regex are both specified. This may result in difficult to understand parsing behavior.");
+            }
+        }
     }
 
     /**
@@ -912,11 +972,9 @@ public class TraceParser {
                                 + " Ignoring line and continuing.");
                         continue;
                     }
-                    String error = errMsg
-                            + "\n\tTry cmd line options:\n\t"
-                            + SynopticOptions
-                                    .getOptDesc("ignoreNonMatchingLines")
-                            + "\n\t" + SynopticOptions.getOptDesc("debugParse");
+                    String error = errMsg + "\n\tTry cmd line options:\n\t"
+                            + Options.getOptDesc("ignoreNonMatchingLines")
+                            + "\n\t" + Options.getOptDesc("debugParse");
                     logger.severe(error);
                     logger.severe(e.toString());
                     ParseException parseException = new ParseException(errMsg);
@@ -1002,8 +1060,8 @@ public class TraceParser {
                 + " does not match any of the provided regular expressions.";
 
         String loggerError = exceptionError + "\nTry cmd line options:\n\t"
-                + SynopticOptions.getOptDesc("ignoreNonMatchingLines") + "\n\t"
-                + SynopticOptions.getOptDesc("debugParse");
+                + Options.getOptDesc("ignoreNonMatchingLines") + "\n\t"
+                + Options.getOptDesc("debugParse");
 
         logger.severe(loggerError);
         ParseException parseException = new ParseException(exceptionError);

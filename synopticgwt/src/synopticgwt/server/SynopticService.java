@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -31,10 +32,6 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ConcurrencyInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.POInvariantMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.Main;
 import synoptic.main.ParseException;
 import synoptic.main.SynopticOptions;
@@ -374,8 +371,8 @@ public class SynopticService extends RemoteServiceServlet implements
         ArrayList<EventNode> parsedEvents = null;
 
         try {
-            parser = synoptic.main.Main.newTraceParser(synOpts.regExps,
-                    synOpts.partitionRegExp, synOpts.separatorRegExp);
+            parser = new TraceParser(synOpts.regExps, synOpts.partitionRegExp,
+                    synOpts.separatorRegExp);
             parsedEvents = parser.parseTraceString(synOpts.logLines, "", -1);
         } catch (ParseException pe) {
             logger.info("Caught parse exception: " + pe.toString());
@@ -391,18 +388,15 @@ public class SynopticService extends RemoteServiceServlet implements
         }
 
         // Code below mines invariants, and converts them to GWTInvariants.
-        // TODO: refactor synoptic main so that it does all of this most of this
-        // for the client.
         GWTGraph graph = null;
 
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
-            TOInvariantMiner miner = new ChainWalkingTOInvMiner();
-            minedInvs = miner.computeInvariants(traceGraph);
+            minedInvs = Main.mineTOInvariants(false, traceGraph);
 
             if (!synOpts.onlyMineInvs) {
-                // Since we're in the TO case then we also initialize and store
-                // refinement state.
+                // In the TO case then we also initialize/store refinement
+                // state.
                 initializeRefinementState(minedInvs);
                 storeSessionState(getThreadLocalRequest().getSession());
                 graph = PGraphToGWTGraph(pGraph);
@@ -412,8 +406,7 @@ public class SynopticService extends RemoteServiceServlet implements
             // PO invariant miner.
             DAGsTraceGraph inputGraph = parser
                     .generateDirectPORelation(parsedEvents);
-            POInvariantMiner miner = new TransitiveClosureInvMiner();
-            minedInvs = miner.computeInvariants(inputGraph);
+            minedInvs = Main.minePOInvariants(true, inputGraph);
             graph = null;
         }
 
@@ -613,26 +606,15 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Exports the model to a dot file and returns the dot fileName.
-     */
-    private String exportModelToDot() throws Exception {
-        Calendar now = Calendar.getInstance();
-        // Naming convention for the file can be improved
-        String fileName = now.getTimeInMillis() + ".model.dot";
-        String filePath = config.modelExportsDir + fileName;
-        GraphExporter.exportGraph(filePath, pGraph, true);
-        return fileName;
-    }
-
-    /**
      * Exports the current model as a .dot file. Returns the URL where the
      * generated file may be accessed by a client.
      */
     @Override
     public String exportDot() throws Exception {
         retrieveSessionState();
-        String fileName = exportModelToDot();
-        return config.modelExportsURLprefix + fileName;
+        StringWriter sWriter = new StringWriter();
+        GraphExporter.exportGraph(sWriter, pGraph, true);
+        return sWriter.toString();
     }
 
     /**
@@ -642,7 +624,14 @@ public class SynopticService extends RemoteServiceServlet implements
     @Override
     public String exportPng() throws Exception {
         retrieveSessionState();
-        String fileName = exportModelToDot();
+
+        // First, export the model to a dot file fileName.
+        Calendar now = Calendar.getInstance();
+        // Naming convention for the file can be improved
+        String fileName = now.getTimeInMillis() + ".model.dot";
+        String filePath = config.modelExportsDir + fileName;
+        GraphExporter.exportGraph(filePath, pGraph, true);
+
         GraphExporter.generatePngFileFromDotFile(config.modelExportsDir
                 + fileName);
         return config.modelExportsURLprefix + fileName + ".png";
@@ -655,11 +644,11 @@ public class SynopticService extends RemoteServiceServlet implements
      * @param selectedNodes
      * @throws Exception
      */
-    public Map<Integer, Set<GWTEdge>> getPathsThroughPartitionIDs(
+    public Map<List<GWTEdge>, Set<Integer>> getPathsThroughPartitionIDs(
             Set<Integer> selectedNodeIDs) throws Exception {
         retrieveSessionState();
 
-        Map<Integer, Set<GWTEdge>> gwtPaths = new HashMap<Integer, Set<GWTEdge>>();
+        Map<List<GWTEdge>, Set<Integer>> gwtPaths = new HashMap<List<GWTEdge>, Set<Integer>>();
 
         if (selectedNodeIDs == null || selectedNodeIDs.isEmpty()) {
             return gwtPaths;
@@ -682,7 +671,7 @@ public class SynopticService extends RemoteServiceServlet implements
             // Convert each transition individually into an edge, and then
             // add them all to an individual path.
             Set<ITransition<Partition>> transitions = paths.get(id);
-            Set<GWTEdge> gwtPath = new HashSet<GWTEdge>();
+            List<GWTEdge> gwtPath = new LinkedList<GWTEdge>();
             for (ITransition<Partition> trans : transitions) {
                 GWTNode trgNode = gwtNodeFromPartition(trans.getTarget());
                 GWTNode srcNode = gwtNodeFromPartition(trans.getSource());
@@ -694,7 +683,14 @@ public class SynopticService extends RemoteServiceServlet implements
                 gwtPath.add(edge);
             }
 
-            gwtPaths.put(id, gwtPath);
+            // If there isn't already a path
+            if (gwtPaths.get(gwtPath) == null) {
+                Set<Integer> traces = new HashSet<Integer>();
+                traces.add(id);
+                gwtPaths.put(gwtPath, traces);
+            } else {
+                gwtPaths.get(gwtPath).add(id);
+            }
         }
         return gwtPaths;
     }

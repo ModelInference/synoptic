@@ -2,7 +2,6 @@ package synoptic.tests.units;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,6 +38,10 @@ import synoptic.tests.SynopticTest;
  */
 @RunWith(value = Parameterized.class)
 public class POLogInvariantMiningTests extends SynopticTest {
+
+    // This trace is equivalent to the example traces under
+    // synoptic/traces/abstract/ticket-reservation-example/
+    private static String ticketReservationTrace = "1,0,0 client-0 search\n0,1,0 client-1 search\n1,0,1 server available\n1,1,2 server available\n2,0,1 client-0 buy\n2,1,3 server sold\n1,2,2 client-1 buy\n2,2,4 server sold-out\n--\n0,1,0 client-1 search\n1,0,0 client-0 search\n0,1,1 server available\n1,1,2 server available\n0,2,1 client-1 buy\n1,2,3 server sold\n2,1,2 client-0 buy\n2,2,4 server sold-out\n--\n1,0,0 client-0 search\n1,0,1 server available\n0,1,0 client-1 search\n1,1,2 server available\n1,2,2 client-1 buy\n1,2,3 server sold\n2,0,1 client-0 buy\n2,2,4 server sold-out\n--\n1,0,0 client-0 search\n1,0,1 server available\n0,1,0 client-1 search\n1,1,2 server available\n--\n1,0,0 client-0 search\n1,0,1 server available\n2,0,1 client-0 buy\n2,0,2 server sold\n0,1,0 client-1 search\n2,1,3 server sold-out";
 
     boolean mineNCWith = true;
     POInvariantMiner miner = null;
@@ -457,13 +460,10 @@ public class POLogInvariantMiningTests extends SynopticTest {
      */
     @Test
     public void mineTicketReservationExampleTest() throws Exception {
-        String fname = ".." + File.separator + "traces" + File.separator
-                + "abstract" + File.separator + "ticket-reservation-example"
-                + File.separator + "trace.txt";
-        File file = new File(fname);
         TraceParser parser = newTraceParser();
 
-        ArrayList<EventNode> parsedEvents = parser.parseTraceFile(file, -1);
+        ArrayList<EventNode> parsedEvents = parser.parseTraceString(
+                ticketReservationTrace, "ticket-reservation-example", -1);
         DAGsTraceGraph inputGraph = parser
                 .generateDirectPORelation(parsedEvents);
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);

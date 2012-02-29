@@ -133,8 +133,8 @@ public class InputTab extends Tab<VerticalPanel> {
         InputExample[] examples = InputExample.values();
         for (int i = 0; i < examples.length; i++) {
             // Create anchor for every InputExample enum.
-            Anchor exampleLink = new Anchor(examples[i].getName());
-            exampleLink.addClickHandler(new ExampleLinkHandler());
+            Anchor exampleLink = new Anchor(examples[i].getLabel());
+            exampleLink.addClickHandler(new ExampleLinkHandler(examples[i]));
             if (examples[i].isPartiallyOrdered()) {
                 poExamplesPanel.add(exampleLink);
             } else {
@@ -527,14 +527,17 @@ public class InputTab extends Tab<VerticalPanel> {
      * content into the text areas and text boxes to the left.
      */
     class ExampleLinkHandler implements ClickHandler {
+        InputExample example;
+
+        public ExampleLinkHandler(InputExample example) {
+            this.example = example;
+        }
 
         @Override
         public void onClick(ClickEvent event) {
             // Clears all inputs and uploads.
             logFileUploadForm.reset();
-            Anchor anchorClicked = (Anchor) event.getSource();
-            InputExample example = InputExample.valueOf(anchorClicked.getText()
-                    .toUpperCase());
+
             setInputs(example.getLogText(), example.getRegExpText(),
                     example.getPartitionRegExpText(),
                     example.getSeparatorRegExpText());
@@ -711,6 +714,8 @@ public class InputTab extends Tab<VerticalPanel> {
         public void onClick(ClickEvent event) {
             // Disallow the user from making concurrent Parse Log calls.
             parseLogButton.setEnabled(false);
+
+            SynopticGWT.entryPoint.parsingLog();
 
             // Reset the parse error msg.
             parseErrorMsgLabel.setText("");
