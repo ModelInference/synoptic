@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import synopticgwt.client.model.JSNode;
 
-
 /**
  * A representation of a graph node for GWT. Overall, this is a representation
  * of a partition node which acts as a bridge between Synoptic's server and the
@@ -26,7 +25,7 @@ public class GWTNode implements Serializable {
 
     // The hashCode of the corresponding pNode.
     private int pNodeHash;
-    
+
     private JSNode jsNode;
 
     public GWTNode() {
@@ -85,7 +84,7 @@ public class GWTNode implements Serializable {
     public int getPartitionNodeHashCode() {
         return pNodeHash;
     }
-    
+
     /**
      * @return The hash code for the Partition Node object that this object
      *         represents.
@@ -93,7 +92,7 @@ public class GWTNode implements Serializable {
     public String getPartitionNodeHashCodeStr() {
         return ((Integer) pNodeHash).toString();
     }
-    
+
     /**
      * Sets the instance of the JSNode.
      * 
@@ -104,4 +103,23 @@ public class GWTNode implements Serializable {
         this.jsNode.initRenderer();
     }
 
+    /**
+     * Sets the style of the node to the following
+     * 
+     * @param fillColor
+     *            The color with which the node will be filled.
+     * @param borderColor
+     *            The color to which the border will be set.
+     * @param borderWidth
+     *            The width of the border.
+     */
+    public native void setStyle(String fillColor, String borderColor,
+            int borderWidth) /*-{
+        var node = this.@synopticgwt.shared.GWTNode::jsNode;
+        node.rect.attr({
+            "stroke" : borderColor,
+            "stroke-width" : borderWidth,
+            "fill" : fillColor
+        });
+    }-*/;
 }

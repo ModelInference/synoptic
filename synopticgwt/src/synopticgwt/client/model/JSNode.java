@@ -18,8 +18,6 @@ public class JSNode extends JavaScriptObject implements Serializable {
     protected JSNode() {
     }
 
-    // TODO Add necessary methods.
-
     public native final void initRenderer() /*-{
         this.render = function(canvas, node) {
             var rect;

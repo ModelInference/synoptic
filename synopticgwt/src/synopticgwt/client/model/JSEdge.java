@@ -17,6 +17,4 @@ public class JSEdge extends JavaScriptObject implements Serializable {
     // JSO types always have empty constructors.
     protected JSEdge() {
     }
-
-    // TODO Add necessary methods.
 }
