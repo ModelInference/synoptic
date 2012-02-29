@@ -38,18 +38,6 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         createIfNotExistsDummyTerminalNode(termEvent, relation);
         super.tagTerminal(terminalNode, relation);
     }
-    
-    /**
-     * Creates transitions from terminalNode to TERMINAL for each string in 
-     * the relations collection.
-     * @param terminalNode
-     * @param relations
-     */
-    public void tagTerminal(EventNode terminalNode, Collection<String> relations) {
-    	for (String relation : relations) {
-    		tagTerminal(terminalNode, relation);
-    	}
-    }
 
     public void tagInitial(EventNode initialNode, String relation) {
         createIfNotExistsDummyInitialNode(initEvent, relation);
