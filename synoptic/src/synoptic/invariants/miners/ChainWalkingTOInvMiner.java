@@ -136,6 +136,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
 
         // Iterate through all the traces -- each transition from the INITIAL
         // node connects\holds a single trace.
+        // This is no longer true
         for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
             EventNode curNode = initTrans.getTarget();
 
