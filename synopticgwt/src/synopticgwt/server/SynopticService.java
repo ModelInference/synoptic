@@ -369,42 +369,6 @@ public class SynopticService extends RemoteServiceServlet implements
         super.doUnexpectedFailure(t);
     }
 
-    // Checks if reExp exists in the given table already. If it exists, return
-    // the row id of it in
-    // the table. If it doesn't exist, insert reExp into table and return row id
-    // of where it was inserted.
-    private int getReId(String reExp, String tableName)
-            throws UnsupportedEncodingException, NoSuchAlgorithmException,
-            SQLException {
-        String cleanString = reExp.replace("'", "''"); // Clean String for
-                                                       // single quotes.
-        String hashReExp = DerbyDB.getHash(cleanString);
-        int reId = config.derbyDB.getIdExistingRow("select * from " + tableName
-                + " where hash = '" + hashReExp + "'");
-
-        if (reId == -1) { // doesn't exist in database
-            reId = config.derbyDB.insertAndGetAutoValue("insert into "
-                    + tableName + "(text, hash) values('" + cleanString
-                    + "', '" + hashReExp + "')");
-            logger.info("Hash for a reg exp or log lines found in DerbyDB");
-        }
-        return reId;
-    }
-
-    // Checks each reg exp in list if it exists in the ReExp table already.
-    // Returns list of ids
-    // for each reg exp in the ReExp table.
-    private List<Integer> getLogReExp(List<String> l)
-            throws UnsupportedEncodingException, NoSuchAlgorithmException,
-            SQLException {
-        List<Integer> result = new ArrayList<Integer>();
-        for (int i = 0; i < l.size(); i++) {
-            int currId = getReId(l.get(i), "ReExp");
-            result.add(currId);
-        }
-        return result;
-    }
-
     // //////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -484,58 +448,8 @@ public class SynopticService extends RemoteServiceServlet implements
          * Write user information to Derby DB if the database is open.
          */
         if (config.derbyDB != null) {
-            List<Integer> logReId = getLogReExp(synOpts.regExps);
-            int partitionReId = getReId(synOpts.partitionRegExp, "ReExp");
-            int splitReId = getReId(synOpts.separatorRegExp, "ReExp");
-            int logLineId = getReId(synOpts.logLines, "UploadedLog");
-
-            // Create a result for summarizing log parsing.
-            String parseResult = "";
-            parseResult += "edges:" + graph.edges.size() + "," + "nodes:"
-                    + graph.nodeSet.size() + "," + "traces:"
-                    + traceGraph.getNodes().size() + "," + "etypes:"
-                    + parsedEvents.size() + ",";
-            for (String key : invs.invs.keySet()) {
-                parseResult += key + ":" + invs.invs.get(key).size() + ",";
-            }
-            parseResult += "miningtime:" + miningTime;
-            logger.info("Result of parsed log: " + parseResult);
-
-            // TODO add synoptictime to parseResult (time to derive final model)
-
-            // Insert into ParseLogAction table and obtain parseID to associate
-            // with the reg exps.
-            Timestamp now = new Timestamp(System.currentTimeMillis());
-            String q = "insert into ParseLogAction(vid, timestamp, result) values("
-                    + vID + ", '" + now + "', '" + parseResult + "')";
-            int parseID = config.derbyDB.insertAndGetAutoValue(q);
-
-            // Inserts into reg exps tables.
-            for (int i = 0; i < logReId.size(); i++) {
-                config.derbyDB
-                        .updateQuery("insert into LogReExp(parseid, reid, logid) values("
-                                + parseID
-                                + ", "
-                                + logReId.get(i)
-                                + ", "
-                                + logLineId + ")");
-            }
-            config.derbyDB
-                    .updateQuery("insert into SplitReExp(parseid, reid, logid) values("
-                            + parseID
-                            + ", "
-                            + splitReId
-                            + ", "
-                            + logLineId
-                            + ")");
-            config.derbyDB
-                    .updateQuery("insert into PartitionReExp(parseid, reid, logid) values("
-                            + parseID
-                            + ", "
-                            + partitionReId
-                            + ", "
-                            + logLineId
-                            + ")");
+        	config.derbyDB.writeUserParsingInfo(vID, synOpts, graph, traceGraph, 
+        			parsedEvents, minedInvs, invs, miningTime);
         }
 
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
