@@ -3,6 +3,7 @@ package synopticgwt.shared;
 import java.io.Serializable;
 
 import synopticgwt.client.model.JSNode;
+import synopticgwt.client.util.MouseEventHandler;
 
 /**
  * A representation of a graph node for GWT. Overall, this is a representation
@@ -121,5 +122,82 @@ public class GWTNode implements Serializable {
             "stroke-width" : borderWidth,
             "fill" : fillColor
         });
+    }-*/;
+    
+    /**
+     * Sets the style of the node to the following
+     * 
+     * @param borderColor
+     *            The color to which the border will be set.
+     * @param borderWidth
+     *            The width of the border.
+     */
+    public native void setStyle(String borderColor, int borderWidth) /*-{
+        var node = this.@synopticgwt.shared.GWTNode::jsNode;
+        node.rect.attr({
+            "stroke" : borderColor,
+            "stroke-width" : borderWidth,
+        });
+    }-*/;
+
+    /**
+     * Sets the fill color of the node to the following
+     * 
+     * @param fillColor
+     *            The color with which the node will be filled.
+     */
+    public native void setStyle(String fillColor) /*-{
+        var node = this.@synopticgwt.shared.GWTNode::jsNode;
+        node.rect.attr({
+            "fill" : fillColor
+        });
+    }-*/;
+
+    /**
+     * Registers hover mouseover with the GWTNode
+     * 
+     * @param hover
+     *            object with java level mouseover function
+     */
+    public native void setMouseover(MouseEventHandler<GWTNode> hover) /*-{
+        var node = this.@synopticgwt.shared.GWTNode::jsNode;
+        node.rect.node.onmouseover = node.text.node.onmouseover = function(
+                hoverable, obj) {
+            return function(e) {
+                hoverable.@synopticgwt.client.util.MouseEventHandler::mouseover(Ljava/lang/Object;)(obj);
+            };
+        }(hover, this);
+    }-*/;
+
+    /**
+     * Registers hover mouseout with the GWTNode
+     * 
+     * @param hover
+     *            object with java level mouseout function
+     */
+    public native void setMouseout(MouseEventHandler<GWTNode> hover) /*-{
+        var node = this.@synopticgwt.shared.GWTNode::jsNode;
+        node.rect.node.onmouseout = node.text.node.onmouseout = function(
+                hoverable, obj) {
+            return function(e) {
+                hoverable.@synopticgwt.client.util.MouseEventHandler::mouseout(Ljava/lang/Object;)(obj);
+            };
+        }(hover, this);
+    }-*/;
+
+    /**
+     * Registers a click event with the GWTNode.
+     * 
+     * @param click
+     *            object with java level onclick function
+     */
+    public native void setOnClick(MouseEventHandler<GWTNode> click) /*-{
+        var node = this.@synopticgwt.shared.GWTNode::jsNode;
+        node.rect.node.onmouseup = node.text.node.onmouseup = function(
+                clickable, obj) {
+            return function(e) {
+                clickable.@synopticgwt.client.util.MouseEventHandler::onclick(Ljava/lang/Object;Z)(obj, e.shiftKey);
+            };
+        }(click, this);
     }-*/;
 }

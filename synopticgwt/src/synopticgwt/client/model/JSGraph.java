@@ -89,7 +89,8 @@ public class JSGraph extends JavaScriptObject implements Serializable {
             labelCount : transCount
         };
 
-        this.addEdge(source, dest, style);
+        var jsEdge = this.addEdge(source, dest, style);
+        return jsEdge;
     }-*/;
 
     /**

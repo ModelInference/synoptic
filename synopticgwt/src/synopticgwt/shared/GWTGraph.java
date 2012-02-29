@@ -2,17 +2,21 @@ package synopticgwt.shared;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import synopticgwt.client.model.JSEdge;
 import synopticgwt.client.model.JSGraph;
 import synopticgwt.client.model.JSNode;
+import synopticgwt.client.model.ModelTab;
+import synopticgwt.client.util.MouseEventHandler;
 
 /**
  * A graph object communicated between the Synoptic service and the GWT client.
  */
-public class GWTGraph implements Serializable {
+public class GWTGraph implements Serializable, MouseEventHandler<GWTNode> {
 
     // Default color for nodes.
     private static String DEFAULT_COLOR = "#fa8";
@@ -45,11 +49,16 @@ public class GWTGraph implements Serializable {
 
     public List<GWTNode> nodeSet;
     public List<GWTEdge> edges;
+    private Set<GWTNode> selectedNodes;
 
     // Shows whether the graph has been initialized
     // and drawn. Must be set to true in order for
     // some operations to complete successfully.
     private boolean initialized = false;
+
+    private GWTNode lastClicked = null;
+
+    // private ModelTab modelTab;
 
     // A reference to the dracula graph used by this object
     // the field also contains references central to the dracula
@@ -77,8 +86,10 @@ public class GWTGraph implements Serializable {
         return edges;
     }
 
-    public void create(int width, int height, String canvasID, String initial,
-            String terminal) {
+    public void create(int width, int height, String canvasID, ModelTab modelTab) {
+
+        this.selectedNodes = new HashSet<GWTNode>();
+        // this.modelTab = modelTab;
 
         this.jsGraph = JSGraph.create();
 
@@ -102,7 +113,18 @@ public class GWTGraph implements Serializable {
         }
 
         // Draw the graph after all the innards have been added.
-        this.jsGraph.draw(width, height, canvasID, initial, terminal);
+        this.jsGraph.draw(width, height, canvasID, INITIAL, TERMINAL);
+
+        // MUST be set after the graph is drawn at least once in order to
+        // ensure that each of the rect fields has been set properly.
+        for (GWTNode node : this.nodeSet) {
+            if (!node.getEventType().equals(INITIAL)
+                    && !node.getEventType().equals(TERMINAL)) {
+                node.setMouseover(this);
+                node.setMouseout(this);
+                node.setOnClick(this);
+            }
+        }
 
         this.initialized = true;
     }
@@ -114,9 +136,21 @@ public class GWTGraph implements Serializable {
 
     public void clearNodeState() {
         checkInit();
-        for (GWTNode node : this.nodeSet) {
-            node.setStyle(DEFAULT_COLOR, DEFAULT_STROKE_COLOR,
-                    DEFAULT_STROKE_WIDTH);
+        clearNodes(this.nodeSet);
+    }
+
+    public void clearSelectedNodes() {
+        checkInit();
+        clearNodes(this.selectedNodes);
+        this.selectedNodes.clear();
+    }
+
+    private static void clearNodes(Collection<GWTNode> nodes) {
+        for (GWTNode node : nodes) {
+            if (!node.getEventType().equals(INITIAL)
+                    && !node.getEventType().equals(TERMINAL))
+                node.setStyle(DEFAULT_COLOR, DEFAULT_STROKE_COLOR,
+                        DEFAULT_STROKE_WIDTH);
         }
     }
 
@@ -143,10 +177,111 @@ public class GWTGraph implements Serializable {
     }
 
     /**
-     * Checks to see if the graph has been initialized.
+     * Checks to see if the graph has been initialized, and throws an exception
+     * if it has not.
      */
     private void checkInit() {
         if (!this.initialized)
             throw new IllegalStateException("Graphic has not bee initialized");
+    }
+
+    @Override
+    public void mouseover(GWTNode hoveredNode) {
+        // Highlight all nodes that have the same event type.
+        for (GWTNode node : this.nodeSet) {
+            if (node.getEventType().equals(hoveredNode.getEventType())) {
+                node.setStyle(HIGHLIGHT_COLOR);
+            }
+        }
+    }
+
+    @Override
+    public void mouseout(GWTNode hoveredNode) {
+        // If the node that has been hovered out of is not
+        // the initial or the terminal node, then set all but
+        // the initial and terminal nodes to the default color.
+        for (GWTNode node : this.nodeSet) {
+            if (!node.getEventType().equals(INITIAL)
+                    && !node.getEventType().equals(TERMINAL)) {
+                if (!this.selectedNodes.contains(node))
+                    node.setStyle(DEFAULT_COLOR);
+            }
+        }
+    }
+
+    @Override
+    public void onclick(GWTNode clickedNode, boolean shiftKey) {
+
+        if (!shiftKey) {
+            if (this.lastClicked == null
+                    || !this.lastClicked.equals(clickedNode)) {
+                // Clear the selected nodes and display the log lines in the
+                // model panel.
+                // the line for clearing selected nodes could possibly be
+                // put outside of the
+                // if statement.
+                this.clearSelectedNodes();
+
+                // TODO Handle this error better.
+                // try {
+                // this.modelTab.handleLogRequest(clickedNode.getPartitionNodeHashCode());
+                // } catch (Exception e) {
+                // e.printStackTrace();
+                // }
+
+                // If the last selected node (for log lines) is not null
+                // set it to default colors before changing the current node
+                // that has
+                // been clicked.
+                if (this.lastClicked != null) {
+                    this.lastClicked.setStyle(DEFAULT_COLOR,
+                            DEFAULT_STROKE_COLOR, DEFAULT_STROKE_WIDTH);
+                } else {
+                    // If the selectedNodeLog is null, that means there may
+                    // be edges
+                    // highlighted. If not, then there must be a node
+                    // already selected
+                    // to view log lines, so the state of the graph must be
+                    // where
+                    // the highlighted edges will have to have been cleared
+                    // already.
+                    // So, this will only run when a.) the graph has just
+                    // been made, b.)
+                    // when clicking a node without intending to "select"
+                    // it, and at no
+                    // other times.
+                    this.clearEdgeState();
+                }
+
+                // The variable has to be set by accessing the instance
+                // object. It WILL NOT
+                // write to the modelGraphic instance variable if
+                // "selectedNodeLog" is rewritten (for whatever reason).
+                // be wary of this.
+                this.lastClicked = clickedNode;
+                clickedNode.setStyle(DEFAULT_COLOR, "red", SELECT_STROKE_WIDTH);
+            }
+        } else {
+            // If the node clicked (with shift held) is not equal to this
+            // one, clear
+            boolean nodeNotSelected = !this.selectedNodes.contains(clickedNode);
+            if (nodeNotSelected) {
+                // Node associated with log lines listed is
+                // surrounded by red and thick border.
+                clickedNode.setStyle(HIGHLIGHT_COLOR);
+                this.selectedNodes.add(clickedNode);
+
+                // If the node clicked has been selected, remove the
+                // highlight and also remove it from modelGraphic
+            } else {
+                // Set the stroke and stroke width back to normal as well,
+                // as they are
+                // still technically selected when viewing the model in edge
+                // highlight mode.
+                clickedNode.setStyle(DEFAULT_COLOR, DEFAULT_STROKE_COLOR,
+                        DEFAULT_STROKE_WIDTH);
+                this.selectedNodes.remove(clickedNode);
+            }
+        }
     }
 }
