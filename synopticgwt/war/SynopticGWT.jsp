@@ -40,18 +40,17 @@
     <script type="text/javascript" src="/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="/dracula_graph.js"></script>
     <script type="text/javascript" src="/dracula_algorithms.js"></script>
- 	<script type="text/javascript" src="/graphhandler.js"></script>
 
-    <!-- Analytics -->
-    <script type="text/javascript">
-
+    
+    <!-- Google analytics and user voice config -->
+	<script type="text/javascript">
     <%
-    String analyticsTrackerID = (String) session.getAttribute("analyticsTrackerID");
-
     // Retrieve the analytics tracker ID property and, if it exists,
  	// includes the appropriate analytics JS snippet and initializes tracking.
- 	// String analyticsTrackerID = System.getProperty("analyticsTrackerID");
+    String analyticsTrackerID = (String) session.getAttribute("analyticsTrackerID");
+    
  	if (analyticsTrackerID != null) {
+		// Include google analytics JS snippet.	    
  	%>
 	    var analyticsTrackerID = '<%= analyticsTrackerID %>';
 	    var _gaq = _gaq || [];
@@ -63,14 +62,30 @@
 	      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 	    })();
 	<%
-	} else {
-	    // No analytics ID specified => no tracking.
-    %>
+ 	} else {
+ 	    // No analytics ID specified => no tracking.
+	%>
 	    var analyticsTrackerID = null;
     <%
+ 	}
+ 	
+ 	// Determine whether or not user voice should be configured, and if it is then
+ 	// include the user voice JS snippet. 
+ 	Boolean userVoiceEnabled = (Boolean) session.getAttribute("userVoiceEnabled");
+	
+	if (userVoiceEnabled.booleanValue()) {
+		// Include user voice JS snippet.	    
+    %>
+	    var uvOptions = {};
+	    (function() {
+      	var uv = document.createElement('script'); uv.type = 'text/javascript'; uv.async = true;
+      	uv.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'widget.uservoice.com/9Wa845bWTCwwWxVc6IGUtw.js';
+      	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(uv, s);
+    	})();
+  	<%
 	}
- 	%>
-    </script>
+	%>
+	</script>
 
   </head>
 

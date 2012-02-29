@@ -36,7 +36,8 @@ public class ModelResizeHandler implements ResizeHandler {
      *            The amount of time to wait after the window has updated before
      *            running the graphic update (in milliseconds).
      */
-    public ModelResizeHandler(TabBar tabBar, ModelTab modelTab, int resizingDelay) {
+    public ModelResizeHandler(TabBar tabBar, ModelTab modelTab,
+            int resizingDelay) {
         super();
         this.tabBar = tabBar;
         this.modelTab = modelTab;

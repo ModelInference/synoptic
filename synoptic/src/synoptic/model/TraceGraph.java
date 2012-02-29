@@ -123,6 +123,11 @@ public abstract class TraceGraph<EType extends EventType> implements
     public void add(EventNode node) {
         nodes.add(node);
         // Invalidate the relations cache.
+        //
+        // NOTE: The reason we do not update the relations here is because the
+        // node might not be finalized yet. That is, the node's transitions
+        // might not be created/added yet, so at this point we do not know the
+        // exact set of relations associated with this node.
         cachedRelations = null;
     }
 

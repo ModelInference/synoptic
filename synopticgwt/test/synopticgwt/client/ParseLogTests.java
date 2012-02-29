@@ -1,6 +1,5 @@
 package synopticgwt.client;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -62,7 +61,7 @@ public class ParseLogTests extends SynopticGWTTestCase {
                         // 2. Check the initial model.
                         GWTGraph graph = ret.getRight();
 
-                        HashSet<GWTNode> nodes = graph.getNodes();
+                        List<GWTNode> nodes = graph.getNodes();
                         assertEquals(nodes.size(), 3);
                         GWTNode initial, event, terminal;
                         initial = event = terminal = null;

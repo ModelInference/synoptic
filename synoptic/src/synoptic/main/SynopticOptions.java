@@ -1,20 +1,13 @@
 package synoptic.main;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import plume.Option;
 import plume.OptionGroup;
-import plume.Options;
 
-import synoptic.util.InternalSynopticException;
-
-public class SynopticOptions {
+public class SynopticOptions extends Options {
     // //////////////////////////////////////////////////
     /**
      * Print the short usage message. This does not include verbosity or
@@ -364,15 +357,7 @@ public class SynopticOptions {
     // end option group "Debugging Options"
 
     /** One line synopsis of usage */
-    public static final String usage_string = "synoptic [options] <logfiles-to-analyze>";
-
-    /**
-     * Input log files to run Synoptic on. These should appear without any
-     * options as the final elements in the command line.
-     */
-    public List<String> logFilenames = null;
-
-    private Options plumeOptions;
+    public static final String usageString = "synoptic [options] <logfiles-to-analyze>";
 
     public SynopticOptions() {
         randomSeed = System.currentTimeMillis();
@@ -380,35 +365,10 @@ public class SynopticOptions {
     }
 
     public SynopticOptions(String[] args) throws IOException {
-        // Sets the fields in this class annotated with @Option
-        plumeOptions = new Options(SynopticOptions.usage_string, this);
-        String[] cmdLineArgs = plumeOptions.parse_or_usage(args);
-
+        plumeOptions = new plume.Options(getUsageString(), this);
+        setOptions(args);
         if (randomSeed == null) {
             randomSeed = System.currentTimeMillis();
-        }
-
-        if (argsFilename != null) {
-            // read program arguments from a file
-            InputStream argsStream = new FileInputStream(argsFilename);
-            ListedProperties props = new ListedProperties();
-            props.load(argsStream);
-            String[] cmdLineFileArgs = props.getCmdArgsLine();
-            // the file-based args become the default args
-            plumeOptions.parse_or_usage(cmdLineFileArgs);
-        }
-
-        // Parse the command line args to override any of the above config file
-        // args
-        plumeOptions.parse_or_usage(args);
-
-        // The remainder of the command line is treated as a list of log
-        // filenames to process
-        logFilenames = new LinkedList<String>(Arrays.asList(cmdLineArgs));
-
-        // Remove any empty string filenames in the logFilenames list.
-        while (logFilenames.contains("")) {
-            logFilenames.remove("");
         }
     }
 
@@ -416,77 +376,19 @@ public class SynopticOptions {
      * Prints help for all option groups, including unpublicized ones.
      */
     public void printLongHelp() {
-        System.out.println("Usage: " + SynopticOptions.usage_string);
+        System.out.println("Usage: " + getUsageString());
         System.out.println(plumeOptions.usage("General Options",
                 "Execution Options", "Parser Options", "Input Options",
                 "Output Options", "Verbosity Options", "Debugging Options"));
     }
 
-    /**
-     * Prints help for just the 'publicized' option groups.
-     */
-    public void printShortHelp() {
-        plumeOptions.print_usage();
+    @Override
+    public String getUsageString() {
+        return usageString;
     }
 
-    /**
-     * Prints the values of all the options.
-     * 
-     * @throws IllegalArgumentException
-     * @throws IllegalAccessException
-     */
-    public void printOptionValues() throws IllegalArgumentException,
-            IllegalAccessException {
-        StringBuffer optsString = new StringBuffer();
-        optsString.append("Synoptic options:\n");
-        for (Field field : this.getClass().getDeclaredFields()) {
-            if (field.getAnnotation(Option.class) != null) {
-                optsString.append("\t");
-                optsString.append(field.getName());
-                optsString.append(": ");
-                if (field.get(this) != null) {
-                    optsString.append(field.get(this).toString());
-                    optsString.append("\n");
-                } else {
-                    optsString.append("null\n");
-                }
-            }
-        }
-        // Append options that are not annotated with @Option:
-        optsString.append("\tlogFilenames: ");
-        optsString.append(logFilenames.toString());
-        optsString.append("\n");
-
-        System.out.println(optsString.toString());
+    @Override
+    public String getArgsFilename() {
+        return argsFilename;
     }
-
-    /**
-     * Returns a command line option description for an option name
-     * 
-     * @param optName
-     *            The option variable name
-     * @return a string description of the option
-     * @throws InternalSynopticException
-     *             if optName cannot be accessed
-     */
-    public static String getOptDesc(String optName)
-            throws InternalSynopticException {
-        Field field;
-        try {
-            field = SynopticOptions.class.getField(optName);
-        } catch (SecurityException e) {
-            throw InternalSynopticException.wrap(e);
-        } catch (NoSuchFieldException e) {
-            throw InternalSynopticException.wrap(e);
-        }
-        Option opt = field.getAnnotation(Option.class);
-        String desc = opt.value();
-        if (desc.length() > 0 && desc.charAt(0) != '-') {
-            // For options that do not have a short option form,
-            // include the long option trigger in the description.
-            desc = "--" + optName + " " + desc;
-        }
-        return desc;
-    }
-
 }
