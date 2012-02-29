@@ -7,6 +7,13 @@ import synopticgwt.shared.GWTNode;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
+/**
+ * Class for handling interaction with a dracula graph library. This class also
+ * allows GWTGraph to contain a reference to this graph that can be defined (but
+ * not instantiated) on the server and then serialized to the client.
+ * 
+ * @author andrew
+ */
 public class JSGraph extends JavaScriptObject implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -49,7 +56,6 @@ public class JSGraph extends JavaScriptObject implements Serializable {
 
     /**
      * Adds a GWTNode to the graph, and then returns a reference to said node.
-     * 
      * TODO Add renderer function.
      */
     public native final JSNode addNode(GWTNode node) /*-{
@@ -63,9 +69,8 @@ public class JSGraph extends JavaScriptObject implements Serializable {
     }-*/;
 
     /**
-     * Adds and returns an instance to the graph.
-     * 
-     * TODO Make some test as to whether to show counts or weights.
+     * Adds and returns an instance to the graph. TODO Make some test as to
+     * whether to show counts or weights.
      */
     public native final JSEdge addEdge(GWTEdge edge) /*-{
 
