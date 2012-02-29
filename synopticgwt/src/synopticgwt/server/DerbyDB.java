@@ -1,5 +1,9 @@
 package synopticgwt.server;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -11,9 +15,12 @@ import java.util.logging.Logger;
  * Derby database.
  */
 public class DerbyDB {
-    // Singleton instance of DerbyDB
+    // Singleton instance of DerbyDB.
     private static DerbyDB instance;
 
+    // Instance of MessageDigest for String hashing.
+    private static MessageDigest mdInstance;
+    
     public static Logger logger = Logger.getLogger("DerbyDB");
 
     // The driver to use.
@@ -205,6 +212,29 @@ public class DerbyDB {
         stmt.close();
 
         return s;
+    }
+    
+    /**
+     * Returns the MD5 hash of a String.
+     * @param message
+     * @return MD5 hash of given message
+     * @throws UnsupportedEncodingException
+     * @throws NoSuchAlgorithmException
+     */
+    public static String getHash(String message) throws UnsupportedEncodingException,
+            NoSuchAlgorithmException {
+        byte[] byteMessage = message.getBytes("UTF-8");
+        if (mdInstance != null) {
+        	mdInstance = MessageDigest.getInstance("MD5");
+        }
+     
+        mdInstance.update(byteMessage, 0, byteMessage.length);
+        BigInteger i = new BigInteger(1, mdInstance.digest());
+        String result = i.toString(16);
+        while (result.length() < 2) {
+            result = "0" + result;
+        }
+        return result;
     }
 
     /**
