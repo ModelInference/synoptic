@@ -1198,5 +1198,38 @@ public class TraceParserTests extends SynopticTest {
     	parser.addRegex("^(?<TIME>)(?<RELATION*>)(?<RELATION*>)(?<TYPE>)$");
         parser.parseTraceString(traceStr, "test", -1);
     }
+    
+    /**
+     * Test that parser throws an error for duplicate relation capture values
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void parseMultipleRelationsDuplicateRelationCapture() throws ParseException {
+    	String traceStr = "0 static static Main.main";
+    	parser.addRegex("^(?<TIME>)(?<RELATION-a>)(?<RELATION-b>)(?<TYPE>)$");
+        parser.parseTraceString(traceStr, "test", -1);
+    }
+    
+    /**
+     * Test that parser throws an error for duplicate closure relation capture values
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void parseMultipleRelationsDuplicateClosureRelationCapture() throws ParseException {
+    	String traceStr = "0 static static Main.main";
+    	parser.addRegex("^(?<TIME>)(?<RELATION*-a>)(?<RELATION*-b>)(?<TYPE>)$");
+        parser.parseTraceString(traceStr, "test", -1);
+    }
+    
+    /**
+     * Test that parser throws an error for duplicate relation capture values
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void parseMultipleRelationsDuplicateMixedRelationCapture() throws ParseException {
+    	String traceStr = "0 static static Main.main";
+    	parser.addRegex("^(?<TIME>)(?<RELATION>)(?<RELATION*>)(?<TYPE>)$");
+        parser.parseTraceString(traceStr, "test", -1);
+    }
 
 }

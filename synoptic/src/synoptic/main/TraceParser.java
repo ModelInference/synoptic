@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -835,9 +836,17 @@ public class TraceParser {
              * This is gross, is there a nicer way to represent a state
              * machine?
              */
+            Set<String> relationValues = new HashSet<String>();
             for (String key : matched.keySet()) {
             	if (key.startsWith(relationGroup)) {
 	            	String relationString = matched.get(key);
+	            	
+	            	if (relationValues.contains(relationString)) {
+	            		throw new ParseException("Duplicate captured relation value: " + relationString);
+	            	}
+	            	
+	            	relationValues.add(relationString);
+	            	
 	        		String name = Relation.ANONYMOUS;
 	        		boolean isClosure = false;
 	        		
