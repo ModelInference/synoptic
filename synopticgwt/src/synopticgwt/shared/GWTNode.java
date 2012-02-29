@@ -2,6 +2,9 @@ package synopticgwt.shared;
 
 import java.io.Serializable;
 
+import synopticgwt.client.model.JSNode;
+
+
 /**
  * A representation of a graph node for GWT. Overall, this is a representation
  * of a partition node which acts as a bridge between Synoptic's server and the
@@ -23,6 +26,8 @@ public class GWTNode implements Serializable {
 
     // The hashCode of the corresponding pNode.
     private int pNodeHash;
+    
+    private JSNode jsNode;
 
     public GWTNode() {
         // Default constructor to avoid serialization errors.
