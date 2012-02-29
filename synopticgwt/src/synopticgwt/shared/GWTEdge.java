@@ -20,7 +20,7 @@ public class GWTEdge implements Serializable {
 
     private GWTNode src = null;
     private GWTNode dst = null;
-    
+
     private JSEdge jsEdge;
 
     // Edge weight indicates transition probability from source node to
@@ -112,5 +112,9 @@ public class GWTEdge implements Serializable {
         result = 47 * result + (new Double(weight)).hashCode();
         result = 51 * result + (new Integer(count)).hashCode();
         return result;
+    }
+
+    public void setJSEdge(JSEdge edge) {
+        this.jsEdge = edge;
     }
 }
