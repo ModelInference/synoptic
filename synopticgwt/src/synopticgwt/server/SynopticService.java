@@ -169,11 +169,10 @@ public class SynopticService extends RemoteServiceServlet implements
         session = request.getSession();
 
         if (session.getAttribute("vID") == null) {
-            logger.info("null viddd");
-            // throw new Exception();
+            logger.info("Derby support disabled");
+        } else {
+        	vID = (Integer) session.getAttribute("vID");
         }
-
-        vID = (Integer) session.getAttribute("vID");
     }
 
     /**
