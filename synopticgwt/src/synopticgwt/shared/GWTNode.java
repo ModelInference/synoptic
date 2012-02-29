@@ -101,6 +101,7 @@ public class GWTNode implements Serializable {
      */
     public void setJSNode(JSNode node) {
         this.jsNode = node;
+        this.jsNode.initRenderer();
     }
 
 }
