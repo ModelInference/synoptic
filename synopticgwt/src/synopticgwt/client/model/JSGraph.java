@@ -16,6 +16,17 @@ public class JSGraph extends JavaScriptObject implements Serializable {
     }
 
     /**
+     * Removes the node with the corresponding ID from the graph (and does
+     * nothing if it doesn't exist).
+     * 
+     * @param nodeID
+     *            The id of the node to be removed
+     */
+    public native final void removeNode(int nodeID) /*-{
+        this.removeNode(nodeID);
+    }-*/;
+
+    /**
      * Creates and returns a JSGraph instance.
      */
     public static native JSGraph create() /*-{
@@ -47,7 +58,6 @@ public class JSGraph extends JavaScriptObject implements Serializable {
 
         var jsNode = this.addNode(nodeHashCode, {
             label : nodeLabel,
-        //  render : this.@synopticgwt.client.model.ModelGraphic::getNodeRenderer()()
         });
         return jsNode;
     }-*/;
@@ -114,9 +124,6 @@ public class JSGraph extends JavaScriptObject implements Serializable {
      */
     public native final void draw(int width, int height, String canvasId,
             String initial, String terminal) /*-{
-
-        
-
         // Give stable layout to graph elements.
         var layouter = new $wnd.Graph.Layout.Stable(this, initial, terminal);
         this.layouter = layouter;
