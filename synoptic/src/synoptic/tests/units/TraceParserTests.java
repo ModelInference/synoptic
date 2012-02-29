@@ -41,6 +41,19 @@ public class TraceParserTests extends SynopticTest {
      * The parser instance we use for testing.
      */
     TraceParser parser = null;
+    
+    /**
+     * generic relations for invariant mining
+     */
+    public static final String callRelation = "call";
+
+    public static final String returnRelation = "return";
+    
+    public static final String staticRelation = "static";
+    
+    public static final String instanceRelation = "instance";
+    
+    public static final String nativeRelation = "native";
 
     @Override
     public void setUp() throws ParseException {
@@ -1154,6 +1167,36 @@ public class TraceParserTests extends SynopticTest {
                         return (a.getEvent().equals(b.getEvent()));
                     }
                 }));
+    }
+    
+    /**
+     * Test that parser throws an error for multiple anonymous captures
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void parseMultipleRelationsMultipleAnonymousCaptures() throws ParseException {
+    	String traceStr = "0 call static Main.main\n" +
+    			"1 call instance Main.instance\n" +
+    			"2 return static Main.main\n" +
+    			"3 call native Foo.foo\n" +
+    			"4 return static Main.main";
+    	parser.addRegex("^(?<TIME>)(?<RELATION>)(?<RELATION>)(?<TYPE>)$");
+        parser.parseTraceString(traceStr, "test", -1);
+    }
+    
+    /**
+     * Test that parser throws an error for multiple anonymous closure captures
+     * @throws ParseException
+     */
+    @Test(expected = ParseException.class)
+    public void parseMultipleRelationsMultipleAnonymousClosureCaptures() throws ParseException {
+    	String traceStr = "0 call static Main.main\n" +
+    			"1 call instance Main.instance\n" +
+    			"2 return static Main.main\n" +
+    			"3 call native Foo.foo\n" +
+    			"4 return static Main.main";
+    	parser.addRegex("^(?<TIME>)(?<RELATION*>)(?<RELATION*>)(?<TYPE>)$");
+        parser.parseTraceString(traceStr, "test", -1);
     }
 
 }
