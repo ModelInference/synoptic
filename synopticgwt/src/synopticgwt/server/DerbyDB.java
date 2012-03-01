@@ -233,8 +233,9 @@ public class DerbyDB {
      */
     public static String getHash(String message) throws UnsupportedEncodingException,
             NoSuchAlgorithmException {
+    	logger.info("Generating a hash");
         byte[] byteMessage = message.getBytes("UTF-8");
-        if (mdInstance != null) {
+        if (mdInstance == null) {
         	mdInstance = MessageDigest.getInstance("MD5");
         }
      
@@ -257,6 +258,7 @@ public class DerbyDB {
         String cleanString = reExp.replace("'", "''"); // Clean String for
                                                        // single quotes.
         String hashReExp = DerbyDB.getHash(cleanString);
+
         int reId = getIdExistingRow("select * from " + tableName
                 + " where hash = '" + hashReExp + "'");
 
@@ -300,7 +302,9 @@ public class DerbyDB {
     public void writeUserParsingInfo(int vID, GWTSynOpts synOpts, 
     		GWTGraph graph, ChainsTraceGraph traceGraph, ArrayList<EventNode> parsedEvents,
     		TemporalInvariantSet minedInvs, GWTInvariantSet invs, int miningTime) throws SQLException, UnsupportedEncodingException, NoSuchAlgorithmException {
-        List<Integer> logReId = getLogReExp(synOpts.regExps);
+        logger.info("Writing information to Derby");
+    	
+    	List<Integer> logReId = getLogReExp(synOpts.regExps);
         int partitionReId = getReId(synOpts.partitionRegExp, "ReExp");
         int splitReId = getReId(synOpts.separatorRegExp, "ReExp");
         int logLineId = getReId(synOpts.logLines, "UploadedLog");
