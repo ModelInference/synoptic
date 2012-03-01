@@ -229,7 +229,7 @@ public class ModelGraphic {
             var nodeLabel = node.@synopticgwt.shared.GWTNode::toString()();
             if (!dGraph.nodes[nodeHashCode]) {
                 newNodes[nodeHashCode] = true;
-                var nodyNode = dGraph
+                dGraph
                         .addNode(
                                 nodeHashCode,
                                 {
