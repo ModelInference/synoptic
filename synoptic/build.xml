@@ -2,9 +2,8 @@
 
 <project basedir="." default="build" name="Synoptic">
     <description>
-      This build file is used to build the Synoptic project. It can
-      also be used to run the test suite, and to generate the
-      synoptic.jar file.
+      Provides targets to build, test, and package the Synoptic
+      project into a synoptic.jar archive.
     </description>
 
     <!-- Include ant xml file with shared utils. -->
@@ -44,29 +43,15 @@
     <property name="source" value="1.6"/>
 
     <!--=====================================================================-->
-    <target name="init">
-        <mkdir dir="bin"/>
-        <copy includeemptydirs="false" todir="bin">
-            <fileset dir="src">
-                <exclude name="**/*.launch"/>
-                <exclude name="**/*.java"/>
-            </fileset>
-        </copy>
-
-    </target>
-
-    <!--=====================================================================-->
     <target name="clean">
         <delete dir="bin"/>
     </target>
 
     <!--=====================================================================-->
-    <target depends="build-subprojects,build-project" name="build"/>
-
-    <!--=====================================================================-->
-    <target name="build-subprojects"/>
-
-    <target depends="init" name="build-project">
+    <target name="build">
+        <!-- Create the bin/ dir where compiled .class files will go. -->
+        <mkdir dir="bin"/>
+        
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
 	    <!-- <compilerarg value="-Xlint:unchecked" /> -->
@@ -78,13 +63,15 @@
     <!--=====================================================================-->
     <target name="jar" depends="build,util.hg-rev-extract">
       <echo message="Embedding hg changeset number ${util.hg.revision}" />
+
+      <!-- Build a jar composed of compiled .class files and the EndtoEndTests/ -->
       <jar destfile="${synoptic.jarpath}"
            basedir="./bin/"
            includes="**/*.class">
         <manifest>
 	  <attribute name="Manifest-Version" value="1.0" />
 	  <attribute name="Implementation-Title" value="synoptic" />
-	  <attribute name="Implementation-Version" value="0.0.5" />
+	  <attribute name="Implementation-Version" value="0.1" />
 	  <attribute name="Main-Class" value="synoptic.main.Main" />
 	  <attribute name="Class-Path" value="${jar.liblist}" />
 	  <attribute name="ChangesetID" value="${util.hg.revision}" />

@@ -19,6 +19,7 @@ import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -56,6 +57,9 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     private static final String INV_CANVAS_ID = "invCanvasId";
     /** List of EventLabel grid columns */
     private List<Grid> labelColumnGrids;
+    private boolean minedNoInvariants = false;
+    private static final HTML noInvsMessage = new HTML(
+            "<h2>No invariants were mined.</h2>");
 
     private Anchor exportInvsLink;
 
@@ -72,6 +76,15 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     }
 
     /**
+     * Initialize invariant tab state, run whenever a new log is parsed.
+     */
+    public void initializeTabState() {
+        // Clear the invariants panel of all widgets.
+        panel.clear();
+        tableAndGraphicPanel.clear();
+    }
+
+    /**
      * Shows the invariant graphic on the screen in the invariantsPanel.
      * 
      * @param gwtInvs
@@ -82,9 +95,13 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             throw new IllegalStateException("Invariants uninitialized");
         }
 
-        // Clear the invariants panel of any widgets it might have.
-        panel.clear();
-        tableAndGraphicPanel.clear();
+        initializeTabState();
+
+        minedNoInvariants = (this.gwtInvs.count() == 0);
+        if (minedNoInvariants) {
+            panel.add(noInvsMessage);
+            return;
+        }
 
         panel.add(exportInvsLink);
         exportInvsLink.addClickHandler(new ClickHandler() {
@@ -118,13 +135,13 @@ public class InvariantsTab extends Tab<VerticalPanel> {
         invGraphicPanel.getElement().setId(INV_CANVAS_ID);
         invGraphicPanel.setStylePrimaryName("modelCanvas");
         tableAndGraphicPanel.add(invGraphicPanel);
-        
+
         int height = Window.getClientHeight() - 150;
         int width = Window.getClientWidth() - 50;
         for (Grid g : labelColumnGrids) {
             width -= g.getOffsetWidth();
         }
-        
+
         iGraph.createInvariantsGraphic(gwtInvs, INV_CANVAS_ID,
                 gwtInvToGridLabel, height, width);
     }
@@ -135,6 +152,11 @@ public class InvariantsTab extends Tab<VerticalPanel> {
     public void resize() {
         if (!invariantsInitialized) {
             throw new IllegalStateException("Invariants uninitialized");
+        }
+
+        if (minedNoInvariants) {
+            // Do not resize the invariant graphic since it is not displayed.
+            return;
         }
 
         int height = Window.getClientHeight() - 150;

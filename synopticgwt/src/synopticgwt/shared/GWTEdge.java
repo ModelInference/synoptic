@@ -2,6 +2,8 @@ package synopticgwt.shared;
 
 import java.io.Serializable;
 
+import com.google.gwt.i18n.client.NumberFormat;
+
 /**
  * Represents an edge between two GWTNodes in GWTGraph.
  */
@@ -61,6 +63,30 @@ public class GWTEdge implements Serializable {
         // errors have been addressed.
         // assert count != 0;
         return count;
+    }
+
+    /**
+     * <pre>
+     * NOTE: This method is a copy of
+     * synoptic.model.export.GraphExportFormatter.probToString()
+     * 
+     * Unfortunately, there is no way to unify these two methods without passing
+     * probabilities as both doubles and strings from the server, or as strings
+     * and then converting them to doubles. Both of alternatives are ugly enough
+     * to make this duplication ok in this case.
+     * </pre>
+     */
+    private static String probToString(double prob) {
+        return NumberFormat.getFormat("0.00").format(
+                Math.round(prob * 100.0) / 100.0);
+    }
+
+    public String getWeightStr() {
+        return probToString(this.getWeight());
+    }
+
+    public String getCountStr() {
+        return ((Integer) this.getCount()).toString();
     }
 
     @Override

@@ -21,6 +21,11 @@ public class AppConfiguration {
     public final String analyticsTrackerID;
 
     /**
+     * Whether or not user voice should be enabled on the site.
+     */
+    public final Boolean userVoiceEnabled;
+
+    /**
      * The directory to which model dot/png files are exported.
      */
     public final String modelExportsDir;
@@ -56,6 +61,12 @@ public class AppConfiguration {
     private AppConfiguration(ServletContext context) {
         analyticsTrackerID = System.getProperty("analyticsTrackerID", null);
 
+        if (System.getProperty("userVoiceEnabled", null) != null) {
+            userVoiceEnabled = true;
+        } else {
+            userVoiceEnabled = false;
+        }
+
         String modelExportsDir_ = System.getProperty("modelExportsDir", null);
         if (modelExportsDir_ == null) {
             modelExportsDir = "model-exports/";
@@ -87,7 +98,12 @@ public class AppConfiguration {
             synopticGWTChangesetID = "unknown";
         }
 
-        synopticChangesetID = Main.getHgChangesetID();
+        try {
+            synopticChangesetID = Main.getHgChangesetID();
+        } catch (IOException e) {
+            // TODO: log exception.
+            synopticChangesetID = null;
+        }
         if (synopticChangesetID == null) {
             synopticChangesetID = "unknown";
         }

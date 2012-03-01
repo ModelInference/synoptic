@@ -95,7 +95,8 @@ public interface ISynopticService extends RemoteService {
     GWTGraph commitInvariants(Set<Integer> activeInvsHashes) throws Exception;
 
     /**
-     * Exports the current model as a .dot file. Returns the filename/directory.
+     * Exports the current model as a .dot file. Returns the contents of the
+     * generated dot file.
      * 
      * @return
      * @throws Exception
@@ -117,6 +118,6 @@ public interface ISynopticService extends RemoteService {
      * @return
      * @throws Exception
      */
-    Map<Integer, Set<GWTEdge>> getPathsThroughPartitionIDs(
+    Map<List<GWTEdge>, Set<Integer>> getPathsThroughPartitionIDs(
             Set<Integer> selectedNodes) throws Exception;
 }
