@@ -2,7 +2,7 @@ package synopticgwt.shared;
 
 import java.io.Serializable;
 
-import synopticgwt.client.model.JSNode;
+import synopticgwt.client.model.JSONode;
 import synopticgwt.client.util.MouseEventHandler;
 
 /**
@@ -26,8 +26,6 @@ public class GWTNode implements Serializable {
 
     // The hashCode of the corresponding pNode.
     private int pNodeHash;
-
-    private JSNode jsNode;
 
     public GWTNode() {
         // Default constructor to avoid serialization errors.
@@ -93,111 +91,4 @@ public class GWTNode implements Serializable {
     public String getPartitionNodeHashCodeStr() {
         return ((Integer) pNodeHash).toString();
     }
-
-    /**
-     * Sets the instance of the JSNode.
-     * 
-     * @param node
-     */
-    public void setJSNode(JSNode node) {
-        this.jsNode = node;
-        this.jsNode.initRenderer();
-    }
-
-    /**
-     * Sets the style of the node to the following
-     * 
-     * @param fillColor
-     *            The color with which the node will be filled.
-     * @param borderColor
-     *            The color to which the border will be set.
-     * @param borderWidth
-     *            The width of the border.
-     */
-    public native void setStyle(String fillColor, String borderColor,
-            int borderWidth) /*-{
-        var node = this.@synopticgwt.shared.GWTNode::jsNode;
-        node.rect.attr({
-            "stroke" : borderColor,
-            "stroke-width" : borderWidth,
-            "fill" : fillColor
-        });
-    }-*/;
-    
-    /**
-     * Sets the style of the node to the following
-     * 
-     * @param borderColor
-     *            The color to which the border will be set.
-     * @param borderWidth
-     *            The width of the border.
-     */
-    public native void setStyle(String borderColor, int borderWidth) /*-{
-        var node = this.@synopticgwt.shared.GWTNode::jsNode;
-        node.rect.attr({
-            "stroke" : borderColor,
-            "stroke-width" : borderWidth,
-        });
-    }-*/;
-
-    /**
-     * Sets the fill color of the node to the following
-     * 
-     * @param fillColor
-     *            The color with which the node will be filled.
-     */
-    public native void setStyle(String fillColor) /*-{
-        var node = this.@synopticgwt.shared.GWTNode::jsNode;
-        node.rect.attr({
-            "fill" : fillColor
-        });
-    }-*/;
-
-    /**
-     * Registers hover mouseover with the GWTNode
-     * 
-     * @param hover
-     *            object with java level mouseover function
-     */
-    public native void setMouseover(MouseEventHandler<GWTNode> hover) /*-{
-        var node = this.@synopticgwt.shared.GWTNode::jsNode;
-        node.rect.node.onmouseover = node.text.node.onmouseover = function(
-                hoverable, obj) {
-            return function(e) {
-                hoverable.@synopticgwt.client.util.MouseEventHandler::mouseover(Ljava/lang/Object;)(obj);
-            };
-        }(hover, this);
-    }-*/;
-
-    /**
-     * Registers hover mouseout with the GWTNode
-     * 
-     * @param hover
-     *            object with java level mouseout function
-     */
-    public native void setMouseout(MouseEventHandler<GWTNode> hover) /*-{
-        var node = this.@synopticgwt.shared.GWTNode::jsNode;
-        node.rect.node.onmouseout = node.text.node.onmouseout = function(
-                hoverable, obj) {
-            return function(e) {
-                hoverable.@synopticgwt.client.util.MouseEventHandler::mouseout(Ljava/lang/Object;)(obj);
-            };
-        }(hover, this);
-    }-*/;
-
-    /**
-     * Registers a click event with the GWTNode.
-     * 
-     * @param click
-     *            object with java level onclick function
-     */
-    public native void setOnClick(MouseEventHandler<GWTNode> click) /*-{
-        var node = this.@synopticgwt.shared.GWTNode::jsNode;
-        node.rect.node.onmouseup = node.text.node.onmouseup = function(
-                clickable, obj) {
-            return function(e) {
-                clickable.@synopticgwt.client.util.MouseEventHandler::onclick(Ljava/lang/Object;Z)(obj, e.shiftKey);
-            };
-        }(click, this);
-    }-*/;
 }
