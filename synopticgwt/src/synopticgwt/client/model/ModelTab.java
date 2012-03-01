@@ -34,16 +34,6 @@ import synopticgwt.shared.LogLine;
  * model.
  */
 public class ModelTab extends Tab<DockLayoutPanel> {
-    // TODO: INITIAL_LABEL and TERMINAL_LABEL should not be hardcoded. Instead,
-    // the EventType class should be ported to GWT, or a mirror type should be
-    // created which would have the notion of initial/terminal based on
-    // EventType.isInitialEventTyep and EventType.isTerminalEventType.
-
-    /* Label of initial node, for layout purposes */
-    private static final String INITIAL_LABEL = "INITIAL";
-
-    /* Label of terminal node, for layout purposes */
-    private static final String TERMINAL_LABEL = "TERMINAL";
     
     // CSS Attributes of the log info label
     public static final String LOG_INFO_PATHS_CLASS = "log-info-displaying-paths";
