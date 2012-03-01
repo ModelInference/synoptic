@@ -35,6 +35,12 @@ public class JSGraph {
     // Stroke width for border when node selected.
     private static int SELECT_STROKE_WIDTH = 4;
 
+
+    // TODO: INITIAL_LABEL and TERMINAL_LABEL should not be hardcoded. Instead,
+    // the EventType class should be ported to GWT, or a mirror type should be
+    // created which would have the notion of initial/terminal based on
+    // EventType.isInitialEventTyep and EventType.isTerminalEventType.
+    
     // Label name that indicates initial node.
     private static String INITIAL = "INITIAL";
 
