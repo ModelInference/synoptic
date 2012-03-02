@@ -146,8 +146,8 @@ public class JSGraph implements MouseEventHandler<JSONode> {
     }
 
     /**
-     * @return
-     * The set of partition node IDs that have been selected by the user.
+     * @return The set of partition node IDs that have been selected by the
+     *         user.
      */
     public Set<Integer> getSelectedNodeIDs() {
         // TODO Track selected nodes differently so this
@@ -347,8 +347,7 @@ public class JSGraph implements MouseEventHandler<JSONode> {
         } else {
             // If the node clicked (with shift held) is not equal to this
             // one, clear
-            boolean nodeNotSelected = !this.selectedNodes
-                    .contains(clickedNode);
+            boolean nodeNotSelected = !this.selectedNodes.contains(clickedNode);
             if (nodeNotSelected) {
                 // Node associated with log lines listed is
                 // surrounded by red and thick border.
