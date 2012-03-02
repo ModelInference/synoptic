@@ -142,7 +142,6 @@ public class JSONode extends JavaScriptObject {
      */
     public native final void attachRenderer() /*-{
         this.render = function(canvas, node) {
-            $wnd.console.log(node == this);
             if (node.label == @synopticgwt.client.model.JSGraph::INITIAL
                     || node.label == @synopticgwt.client.model.JSGraph::TERMINAL) {
                 // creates the rectangle to be drawn
