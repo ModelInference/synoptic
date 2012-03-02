@@ -10,15 +10,11 @@ import java.util.List;
 /**
  * Visitor table for Derby DB.
  */
-public class Visitor {
+public class Visitor extends DerbyTable {
     private static String CREATE_QUERY = "CREATE TABLE Visitor (vid INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), IP VARCHAR(15), timestamp TIMESTAMP)";
     
-    private Connection conn;
-    private Statement stmt;
-    
     public Visitor(Connection conn, Statement stmt) {
-    	this.conn = conn;
-    	this.stmt = stmt;
+    	super(conn, stmt);
     }
     
     /**
