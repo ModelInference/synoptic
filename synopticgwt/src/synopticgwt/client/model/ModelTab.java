@@ -301,6 +301,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         int height = getModelGraphicHeight();
         graphPanel.setPixelSize(width, height);
 
+        this.clearSelectedNodes();
         this.jsGraph = new JSGraph(this);
         this.jsGraph.create(graph, width, height, canvasId);
     }
@@ -426,12 +427,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 
         // Shows the refined GWTGraph object on the screen in the modelPanel,
         // animating transition to new positions.
-        GWTGraph graph = deltaGraph.getGraph();
-        
-        // TODO Implement this with JSGraph.
-//        this.modelGraphic.createChangingGraph(graph.getNodes(), graph
-//                .getEdges(), deltaGraph.getRefinedNode()
-//                .getPartitionNodeHashCode(), canvasId);
+        this.jsGraph.refineOneStep(deltaGraph);
 
         if (deltaGraph.getUnsatInvs().invs.size() == 0) {
             // No further refinement is possible: disable refinement, enable
@@ -572,6 +568,15 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         // Add the selected node to the list of all selecetd
         // nodes.
         selectedNodes.remove(nodeID);
+        toggleViewPathsButton();
+    }
+    
+    /**
+     * Clears all selected partition node IDs from
+     * the modelTab
+     */
+    public void clearSelectedNodes() {
+        this.selectedNodes.clear();
         toggleViewPathsButton();
     }
 
