@@ -5,25 +5,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class ParseLogAction {
-    private static String CREATE_QUERY = "CREATE TABLE ParseLogAction (vid INT, timestamp TIMESTAMP, parseid INT GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), result VARCHAR(255))";
+public class ParseLogAction extends DerbyTable {
+    protected String CREATE_QUERY = "CREATE TABLE ParseLogAction (vid INT, timestamp TIMESTAMP, parseid INT GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), result VARCHAR(255))";
 	    
     private Connection conn;
     private Statement stmt;
 		    
     public ParseLogAction(Connection conn, Statement stmt) {
-    	this.conn = conn;
-    	this.stmt = stmt;
+    	super(conn, stmt);
     }
     
     /**
      * Create query in database.
      */
-    public void createTable() throws SQLException {
-        stmt = conn.createStatement();
-        stmt.execute(CREATE_QUERY);
-        stmt.close();
-    }
+//    public void createTable() throws SQLException {
+//        stmt = conn.createStatement();
+//        stmt.execute(CREATE_QUERY);
+//        stmt.close();
+//    }
     
     public int insert(int vID, int time, int parseResult) throws SQLException {	
     	stmt = conn.createStatement();

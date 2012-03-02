@@ -11,12 +11,23 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
+import synopticgwt.server.table.LogReExp;
+import synopticgwt.server.table.ParseLogAction;
+import synopticgwt.server.table.PartitionReExp;
+import synopticgwt.server.table.DerbyTable;
+import synopticgwt.server.table.ReExp;
+import synopticgwt.server.table.SplitReExp;
+import synopticgwt.server.table.Table;
+import synopticgwt.server.table.UploadedLog;
+import synopticgwt.server.table.Visitor;
 import synopticgwt.shared.GWTGraph;
 import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTSynOpts;
@@ -50,6 +61,8 @@ public class DerbyDB {
 
     private Connection conn = null;
     private Statement stmt = null;
+    
+    private Map<Table, DerbyTable> m;
 
     /**
      * Creates a connection to the database. Builds tables if isCreate is true.
@@ -66,11 +79,24 @@ public class DerbyDB {
     private DerbyDB(String path, boolean isCreate) throws SQLException,
             InstantiationException, IllegalAccessException,
             ClassNotFoundException {
+    	m = new HashMap<Table, DerbyTable>();
+    	
         connectionURL = "jdbc:derby:" + path;
         createConnection(isCreate);
+        connectToTables();
         if (isCreate) {
             createAllTables();
         }
+    }
+    
+    private void connectToTables() {
+    	m.put(Table.LogRexp, new LogReExp(conn, stmt));
+    	m.put(Table.ParseLogAction, new ParseLogAction(conn, stmt));
+    	m.put(Table.PartitionReExp, new PartitionReExp(conn, stmt));
+    	m.put(Table.ReExp, new ReExp(conn, stmt));
+    	m.put(Table.SplitReExp, new SplitReExp(conn, stmt));
+    	m.put(Table.UploadedLog, new UploadedLog(conn, stmt));
+    	m.put(Table.Visitor, new Visitor(conn, stmt));
     }
 
     /**
@@ -116,13 +142,16 @@ public class DerbyDB {
      * Create all the tables in the database.
      */
     private void createAllTables() throws SQLException {
-        createQuery(VISITOR);
-        createQuery(UPLOADED_LOG);
-        createQuery(RE_EXP);
-        createQuery(LOG_RE_EXP);
-        createQuery(SPLIT_RE_EXP);
-        createQuery(PARTITION_RE_EXP);
-        createQuery(PARSE_LOG_ACTION);
+//        createQuery(VISITOR);
+//        createQuery(UPLOADED_LOG);
+//        createQuery(RE_EXP);
+//        createQuery(LOG_RE_EXP);
+//        createQuery(SPLIT_RE_EXP);
+//        createQuery(PARTITION_RE_EXP);
+//        createQuery(PARSE_LOG_ACTION);
+    	for (Table key : m.keySet()) {
+    		m.get(key).createTable();
+    	}
     }
 
     /**

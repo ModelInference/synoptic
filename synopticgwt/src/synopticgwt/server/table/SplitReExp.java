@@ -5,15 +5,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class SplitReExp {
+public class SplitReExp extends DerbyTable {
     private static String CREATE_QUERY = "CREATE TABLE SplitReExp (parseid INT, reid INT, logid INT)";
 	    
-    private Connection conn;
-    private Statement stmt;
-	    
     public SplitReExp(Connection conn, Statement stmt) {
-    	this.conn = conn;
-    	this.stmt = stmt;
+    	super(conn, stmt);
     }
     
     /**

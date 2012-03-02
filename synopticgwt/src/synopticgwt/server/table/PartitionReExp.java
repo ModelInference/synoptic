@@ -5,15 +5,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class PartitionReExp {
-    private static String CREATE_QUERY = "CREATE TABLE PartitionReExp (parseid INT, reid INT, logid INT)";
-    
-    private Connection conn;
-    private Statement stmt;
-	    
+public class PartitionReExp extends DerbyTable {
+    protected String CREATE_QUERY = "CREATE TABLE PartitionReExp (parseid INT, reid INT, logid INT)";
+
     public PartitionReExp(Connection conn, Statement stmt) {
-    	this.conn = conn;
-    	this.stmt = stmt;
+    	super(conn, stmt);
     }
     
     /**
