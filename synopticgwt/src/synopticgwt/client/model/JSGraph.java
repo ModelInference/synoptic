@@ -55,6 +55,7 @@ public class JSGraph {
 
     private Map<GWTNode, JSONode> nodes;
 
+    // Maps GWTEdge hash codes to edges.
     private Map<GWTEdge, JSOEdge> edges;
 
     // The JS Overlay class for talking to the JS implementation
@@ -169,14 +170,28 @@ public class JSGraph {
      */
     public void highlightEdges(Collection<GWTEdge> path) {
         this.clearEdgeState();
+        // for (GWTEdge edge : path) {
+        // this.edges.get(edge).setStyle(HIGHLIGHT_COLOR, SELECT_STROKE_WIDTH);
+        // }
+
+        // TODO The commented code above _should_ work, but edges.get(edge)
+        // keeps
+        // returning null, suggesting there might be so sort of discrepancy that
+        // needs to be sorted out. For now there's this horribly inefficient
+        // nested loop.
         for (GWTEdge edge : path) {
-            JSOEdge highlightEdge = this.edges.get(edge);
-            
-            // TODO find out why this is always null.
-            if (highlightEdge != null) {
-                highlightEdge.setStyle(HIGHLIGHT_COLOR, SELECT_STROKE_WIDTH);
-            }
+            for (GWTEdge key : this.edges.keySet())
+                if (key.getSrc().getPartitionNodeHashCode() == edge.getSrc()
+                        .getPartitionNodeHashCode()
+                        && key.getDst().getPartitionNodeHashCode() == edge
+                                .getDst().getPartitionNodeHashCode()) {
+
+                    this.edges.get(key).setStyle(HIGHLIGHT_COLOR,
+                            SELECT_STROKE_WIDTH);
+                    break;
+                }
         }
+
     }
 
     /**
