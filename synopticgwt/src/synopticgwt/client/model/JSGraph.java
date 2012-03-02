@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.gwt.user.client.Window;
-
 import synopticgwt.client.util.MouseEventHandler;
 import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
@@ -148,6 +146,20 @@ public class JSGraph implements MouseEventHandler<JSONode> {
     }
 
     /**
+     * @return
+     * The set of partition node IDs that have been selected by the user.
+     */
+    public Set<Integer> getSelectedNodeIDs() {
+        // TODO Track selected nodes differently so this
+        // loop doesn't need to be made (unnecessary creation of a new
+        // object).
+        Set<Integer> nodeIDs = new HashSet<Integer>();
+        for (JSONode node : this.selectedNodes)
+            nodeIDs.add(node.getNodeID());
+        return nodeIDs;
+    }
+
+    /**
      * Clears the display state of the edges, i.e. sets them all back to
      * default.
      */
@@ -218,7 +230,7 @@ public class JSGraph implements MouseEventHandler<JSONode> {
         // needs to be sorted out. For now there's this horribly inefficient
         // nested loop.
         for (GWTEdge edge : path) {
-            for (GWTEdge key : this.edges.keySet())
+            for (GWTEdge key : this.edges.keySet()) {
                 if (key.getSrc().getPartitionNodeHashCode() == edge.getSrc()
                         .getPartitionNodeHashCode()
                         && key.getDst().getPartitionNodeHashCode() == edge
@@ -228,8 +240,8 @@ public class JSGraph implements MouseEventHandler<JSONode> {
                             SELECT_STROKE_WIDTH);
                     break;
                 }
+            }
         }
-
     }
 
     /**
@@ -291,6 +303,7 @@ public class JSGraph implements MouseEventHandler<JSONode> {
                 // put outside of the
                 // if statement.
                 this.clearSelectedNodes();
+                this.modelTab.updateViewPathsButton();
 
                 // TODO Handle this error better.
                 try {
@@ -334,13 +347,14 @@ public class JSGraph implements MouseEventHandler<JSONode> {
         } else {
             // If the node clicked (with shift held) is not equal to this
             // one, clear
-            boolean nodeNotSelected = !this.selectedNodes.contains(clickedNode);
+            boolean nodeNotSelected = !this.selectedNodes
+                    .contains(clickedNode);
             if (nodeNotSelected) {
                 // Node associated with log lines listed is
                 // surrounded by red and thick border.
                 clickedNode.setStyle(HIGHLIGHT_COLOR);
                 this.selectedNodes.add(clickedNode);
-                this.modelTab.addSelectedNode(clickedNode.getNodeID());
+                this.modelTab.updateViewPathsButton();
 
                 // If the node clicked has been selected, remove the
                 // highlight and also remove it from modelGraphic
@@ -352,7 +366,7 @@ public class JSGraph implements MouseEventHandler<JSONode> {
                 clickedNode.setStyle(DEFAULT_COLOR, DEFAULT_STROKE_COLOR,
                         DEFAULT_STROKE_WIDTH);
                 this.selectedNodes.remove(clickedNode);
-                this.modelTab.removeSelectedNode(clickedNode.getNodeID());
+                this.modelTab.updateViewPathsButton();
             }
         }
     }
