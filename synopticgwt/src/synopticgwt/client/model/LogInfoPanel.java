@@ -90,9 +90,7 @@ public class LogInfoPanel extends FlowLayoutPanel {
     /**
      * Takes a set of trace IDs (each mapped to a path), and displays them on
      * the panel. If the state of the paths table is not already visible, the
-     * panel will switch to accommodate. TODO: Explain how these will be
-     * displayed according to the pathsThroughPartitionsTable object once the
-     * full functionality is implemented.
+     * panel will switch to accommodate.
      * 
      * @param paths
      *            Set of trace IDs mapped to specific paths
@@ -100,7 +98,7 @@ public class LogInfoPanel extends FlowLayoutPanel {
     public void showPaths(Map<List<GWTEdge>, Set<Integer>> paths) {
         // We need to clear edge state if some path is currently highlighted in
         // the graph.
-        this.modelTab.getModelGraphic().clearEdgeState();
+        this.modelTab.getJSGraph().clearEdgeState();
 
         this.pathsThroughPartitionsTable.showPaths(paths);
         if (!pathsThroughPartitionsTable.isVisible()) {
@@ -116,7 +114,7 @@ public class LogInfoPanel extends FlowLayoutPanel {
     public void clearAndShowPathsTable() {
         this.pathsThroughPartitionsTable.clear();
 
-        this.modelTab.getModelGraphic().clearEdgeState();
+        this.modelTab.getJSGraph().clearEdgeState();
 
         if (!pathsThroughPartitionsTable.isVisible()) {
             toggleLogInfoDisplay();

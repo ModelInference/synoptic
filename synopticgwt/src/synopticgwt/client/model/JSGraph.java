@@ -2,9 +2,11 @@ package synopticgwt.client.model;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+
+import com.google.gwt.user.client.Window;
 
 import synopticgwt.client.util.MouseEventHandler;
 import synopticgwt.shared.GWTEdge;
@@ -51,9 +53,9 @@ public class JSGraph {
     // The set of selected nodes.
     private Set<JSONode> selectedNodes;
 
-    private List<JSONode> nodeSet;
+    private Map<GWTNode, JSONode> nodes;
 
-    private List<JSOEdge> edges;
+    private Map<GWTEdge, JSOEdge> edges;
 
     // The JS Overlay class for talking to the JS implementation
     // of the graph.
@@ -73,26 +75,26 @@ public class JSGraph {
 
     public void create(GWTGraph graph, int width, int height, String canvasID) {
         this.selectedNodes = new HashSet<JSONode>();
-        this.nodeSet = new LinkedList<JSONode>();
-        this.edges = new LinkedList<JSOEdge>();
+        this.nodes = new HashMap<GWTNode, JSONode>();
+        this.edges = new HashMap<GWTEdge, JSOEdge>();
 
         this.jsoGraph = JSOGraph.create();
         // For each node, add the node to the jsGraph,
         // and then add the reference to said node to this
         // graph's list of nodes.
         for (GWTNode node : graph.nodeSet) {
-            JSONode JSONode = this.jsoGraph.addNode(node);
+            JSONode jsoNode = this.jsoGraph.addNode(node);
             // Make sure to attach the custom renderer.
-            JSONode.attachRenderer();
-            this.nodeSet.add(JSONode);
+            jsoNode.attachRenderer();
+            this.nodes.put(node, jsoNode);
         }
 
         // For each edge in the graph, add the corresponding edge to
         // the jsGraph, and then add the reference to said edge to
         // this graph.
         for (GWTEdge edge : graph.edges) {
-            JSOEdge jsEdge = this.jsoGraph.addEdge(edge);
-            this.edges.add(jsEdge);
+            JSOEdge jsoEdge = this.jsoGraph.addEdge(edge);
+            this.edges.put(edge, jsoEdge);
         }
 
         // Draw the graph after all the innards have been added.
@@ -101,7 +103,7 @@ public class JSGraph {
         // MUST be set after the graph is drawn at least once in order to
         // ensure that each of the rect fields has been set properly.
         JSONodeEventHandler eventHandler = new JSONodeEventHandler();
-        for (JSONode node : this.nodeSet) {
+        for (JSONode node : this.nodes.values()) {
             if (!node.getEventType().equals(INITIAL)
                     && !node.getEventType().equals(TERMINAL)) {
                 node.setMouseover(eventHandler);
@@ -120,7 +122,7 @@ public class JSGraph {
      * default display properties.
      */
     public void clearNodeState() {
-        clearNodes(this.nodeSet);
+        clearNodes(this.nodes.values());
         this.selectedNodes.clear();
     }
 
@@ -154,23 +156,52 @@ public class JSGraph {
      * default.
      */
     public void clearEdgeState() {
-        setEdgeStyle(this.edges, DEFAULT_STROKE_COLOR, 1);
+        for (JSOEdge edge : this.edges.values()) {
+            edge.setStyle(DEFAULT_STROKE_COLOR, 1);
+        }
     }
 
     /**
-     * Sets the style of a given collection of edges.
+     * Highlights the edges within the graph according to the specified path.
      * 
-     * @param color
-     *            The color to which the edges will be set.
-     * @param strokeWidth
-     *            The stroke width to which the edges will be set
-     * @param edgeColl
-     *            The collection of edges.
+     * @param path
+     *            The list of edges to be highlighted.
      */
-    public static void setEdgeStyle(Collection<JSOEdge> edgeColl, String color,
-            int strokeWidth) {
-        for (JSOEdge edge : edgeColl) {
-            edge.setStyle(color, strokeWidth);
+    public void highlightEdges(Collection<GWTEdge> path) {
+        this.clearEdgeState();
+        for (GWTEdge edge : path) {
+            JSOEdge highlightEdge = this.edges.get(edge);
+            
+            // TODO find out why this is always null.
+            if (highlightEdge != null) {
+                highlightEdge.setStyle(HIGHLIGHT_COLOR, SELECT_STROKE_WIDTH);
+            }
+        }
+    }
+
+    /**
+     * Changes the nodes that have been selected to the highlighted border
+     * color.
+     */
+    public void setPathHighlightViewState() {
+        // Clear the node whose log lines are being shown (if they've been
+        // selected).
+        if (this.lastClicked != null) {
+            this.lastClicked.setStyle(DEFAULT_STROKE_COLOR,
+                    DEFAULT_STROKE_WIDTH);
+            this.lastClicked = null;
+        } else {
+            // Clears any highlighted edges if there are no log lines being
+            // viewed
+            // (which means the graph is showing paths traces and must be
+            // cleared).
+            this.clearEdgeState();
+        }
+
+        // Set all the borders to the highlight color.
+        for (JSONode selectedNode : this.selectedNodes) {
+            selectedNode.setStyle(DEFAULT_COLOR, HIGHLIGHT_COLOR,
+                    SELECT_STROKE_WIDTH);
         }
     }
 
@@ -194,7 +225,7 @@ public class JSGraph {
         @Override
         public void mouseover(JSONode eventNode) {
             // Highlight all nodes that have the same event type.
-            for (JSONode node : JSGraph.this.nodeSet) {
+            for (JSONode node : JSGraph.this.nodes.values()) {
                 if (node.getEventType().equals(eventNode.getEventType())) {
                     node.setStyle(JSGraph.HIGHLIGHT_COLOR);
                 }
@@ -205,7 +236,7 @@ public class JSGraph {
         @Override
         public void mouseout(JSONode t) {
             // Set all but the initial and terminal nodes to the default color.
-            for (JSONode node : JSGraph.this.nodeSet) {
+            for (JSONode node : JSGraph.this.nodes.values()) {
                 if (!node.getEventType().equals(JSGraph.INITIAL)
                         && !node.getEventType().equals(JSGraph.TERMINAL)) {
                     if (!JSGraph.this.selectedNodes.contains(node))
@@ -278,6 +309,8 @@ public class JSGraph {
                     // surrounded by red and thick border.
                     clickedNode.setStyle(HIGHLIGHT_COLOR);
                     JSGraph.this.selectedNodes.add(clickedNode);
+                    JSGraph.this.modelTab.addSelectedNode(clickedNode
+                            .getNodeID());
 
                     // If the node clicked has been selected, remove the
                     // highlight and also remove it from modelGraphic
@@ -289,6 +322,8 @@ public class JSGraph {
                     clickedNode.setStyle(DEFAULT_COLOR, DEFAULT_STROKE_COLOR,
                             DEFAULT_STROKE_WIDTH);
                     JSGraph.this.selectedNodes.remove(clickedNode);
+                    JSGraph.this.modelTab.removeSelectedNode(clickedNode
+                            .getNodeID());
                 }
             }
         }

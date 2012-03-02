@@ -75,9 +75,6 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 
     // String representing the canvas div.
     private static final String canvasId = "canvasId";
-
-    // The model graphic object that maintains all the model graphical state.
-    private ModelGraphic modelGraphic;
     
     // The JS representation of the GWTGraph.  Handles events on the graph,
     // and maintains the graphical state.
@@ -220,8 +217,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         initializeTabState();
     }
 
-    public ModelGraphic getModelGraphic() {
-        return this.modelGraphic;
+    public JSGraph getJSGraph() {
+        return this.jsGraph;
     }
 
     /**
@@ -240,9 +237,9 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                     .getValue();
 
             if (modelTab.showEdgeTraceCounts) {
-                modelGraphic.useCountEdgeLabels();
+//                modelGraphic.useCountEdgeLabels();
             } else {
-                modelGraphic.useProbEdgeLabels();
+//                modelGraphic.useProbEdgeLabels();
             }
         }
     }
@@ -304,12 +301,6 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         int height = getModelGraphicHeight();
         graphPanel.setPixelSize(width, height);
 
-        this.modelGraphic = new ModelGraphic(this);
-
-        // TODO This is test code.  Remove this once testing is finished.
-//        this.modelGraphic.createGraph(graph.getNodes(), graph.getEdges(),
-//                width, height, canvasId, INITIAL_LABEL, TERMINAL_LABEL);
-        
         this.jsGraph = new JSGraph(this);
         this.jsGraph.create(graph, width, height, canvasId);
     }
@@ -436,9 +427,11 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         // Shows the refined GWTGraph object on the screen in the modelPanel,
         // animating transition to new positions.
         GWTGraph graph = deltaGraph.getGraph();
-        this.modelGraphic.createChangingGraph(graph.getNodes(), graph
-                .getEdges(), deltaGraph.getRefinedNode()
-                .getPartitionNodeHashCode(), canvasId);
+        
+        // TODO Implement this with JSGraph.
+//        this.modelGraphic.createChangingGraph(graph.getNodes(), graph
+//                .getEdges(), deltaGraph.getRefinedNode()
+//                .getPartitionNodeHashCode(), canvasId);
 
         if (deltaGraph.getUnsatInvs().invs.size() == 0) {
             // No further refinement is possible: disable refinement, enable
@@ -615,7 +608,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                         new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
                                 ModelTab.this.logInfoPanel));
 
-                modelGraphic.setPathHighlightViewState();
+                jsGraph.setPathHighlightViewState();
             } catch (Exception e) {
                 // TODO: Do something about the exception
             }
