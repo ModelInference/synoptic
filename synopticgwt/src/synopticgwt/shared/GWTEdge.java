@@ -2,8 +2,6 @@ package synopticgwt.shared;
 
 import java.io.Serializable;
 
-import synopticgwt.client.model.JSOEdge;
-
 import com.google.gwt.i18n.client.NumberFormat;
 
 /**

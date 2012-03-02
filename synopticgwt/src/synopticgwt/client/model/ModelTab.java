@@ -306,7 +306,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 //        this.modelGraphic.createGraph(graph.getNodes(), graph.getEdges(),
 //                width, height, canvasId, INITIAL_LABEL, TERMINAL_LABEL);
         
-        JSGraph jsGraph = new JSGraph(graph, width, height, canvasId);
+        JSGraph jsGraph = new JSGraph(this);
+        jsGraph.create(graph, width, height, canvasId);
     }
 
     /**
