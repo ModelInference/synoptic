@@ -35,12 +35,11 @@ public class JSGraph {
     // Stroke width for border when node selected.
     private static int SELECT_STROKE_WIDTH = 4;
 
-
     // TODO: INITIAL_LABEL and TERMINAL_LABEL should not be hardcoded. Instead,
     // the EventType class should be ported to GWT, or a mirror type should be
     // created which would have the notion of initial/terminal based on
     // EventType.isInitialEventTyep and EventType.isTerminalEventType.
-    
+
     // Label name that indicates initial node.
     private static String INITIAL = "INITIAL";
 
@@ -48,10 +47,6 @@ public class JSGraph {
     private static String TERMINAL = "TERMINAL";
 
     private static String DEFAULT_STROKE_COLOR = "black";
-
-    // The graph containing the main
-    // information.
-    private GWTGraph gwtGraph;
 
     // The set of selected nodes.
     private Set<JSONode> selectedNodes;
@@ -68,8 +63,15 @@ public class JSGraph {
     // viewing log lines).
     private JSONode lastClicked;
 
-    public JSGraph(GWTGraph graph, int width, int height, String canvasID) {
-        this.gwtGraph = graph;
+    // Instance of the model tab (mainly for running RPCs to the
+    // server).
+    private final ModelTab modelTab;
+
+    public JSGraph(ModelTab modelTab) {
+        this.modelTab = modelTab;
+    }
+    
+    public void create(GWTGraph graph, int width, int height, String canvasID) {
         this.selectedNodes = new HashSet<JSONode>();
         this.nodeSet = new LinkedList<JSONode>();
         this.edges = new LinkedList<JSOEdge>();
@@ -78,7 +80,7 @@ public class JSGraph {
         // For each node, add the node to the jsGraph,
         // and then add the reference to said node to this
         // graph's list of nodes.
-        for (GWTNode node : this.gwtGraph.nodeSet) {
+        for (GWTNode node : graph.nodeSet) {
             JSONode JSONode = this.jsoGraph.addNode(node);
             // Make sure to attach the custom renderer.
             JSONode.attachRenderer();
@@ -88,7 +90,7 @@ public class JSGraph {
         // For each edge in the graph, add the corresponding edge to
         // the jsGraph, and then add the reference to said edge to
         // this graph.
-        for (GWTEdge edge : this.gwtGraph.edges) {
+        for (GWTEdge edge : graph.edges) {
             JSOEdge jsEdge = this.jsoGraph.addEdge(edge);
             this.edges.add(jsEdge);
         }
@@ -173,8 +175,8 @@ public class JSGraph {
     }
 
     /**
-     * Event handler for JSONodes.  This handles any event that occurs
-     * over the graphical representation of the JSONode in question.
+     * Event handler for JSONodes. This handles any event that occurs over the
+     * graphical representation of the JSONode in question.
      */
     private class JSONodeEventHandler implements MouseEventHandler<JSONode> {
 
@@ -220,11 +222,12 @@ public class JSGraph {
                     JSGraph.this.clearSelectedNodes();
 
                     // TODO Handle this error better.
-                    // try {
-                    // this.modelTab.handleLogRequest(clickedNode.getPartitionNodeHashCode());
-                    // } catch (Exception e) {
-                    // e.printStackTrace();
-                    // }
+                    try {
+                        JSGraph.this.modelTab.handleLogRequest(clickedNode
+                                .getNodeID());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                     // If the last selected node (for log lines) is not null
                     // set it to default colors before changing the current node
