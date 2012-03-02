@@ -46,9 +46,6 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 
     protected final LogInfoPanel logInfoPanel;
 
-    // The set of node IDs that have been selected by the user in the model.
-    private final Set<Integer> selectedNodes = new HashSet<Integer>();
-
     public static final String TOOLTIP_URL = "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial#Invariants_Tab";
 
     // Model tab widgets:
@@ -301,7 +298,6 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         int height = getModelGraphicHeight();
         graphPanel.setPixelSize(width, height);
 
-        this.clearSelectedNodes();
         this.jsGraph = new JSGraph(this);
         this.jsGraph.create(graph, width, height, canvasId);
     }
@@ -544,49 +540,14 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         }
         // //////////////////////
     }
-
-    /**
-     * Adds a node as being "selected" to the model tab.
-     * 
-     * @param nodeID
-     *            The ID of the selected event node.
-     */
-    public void addSelectedNode(int nodeID) {
-        // Add the selected node to the list of all selecetd
-        // nodes.
-        selectedNodes.add(nodeID);
-        toggleViewPathsButton();
-    }
-
-    /**
-     * Removes a node as being "selected" from the model tab.
-     * 
-     * @param nodeID
-     *            The ID of the selected event node.
-     */
-    public void removeSelectedNode(int nodeID) {
-        // Add the selected node to the list of all selecetd
-        // nodes.
-        selectedNodes.remove(nodeID);
-        toggleViewPathsButton();
-    }
     
-    /**
-     * Clears all selected partition node IDs from
-     * the modelTab
-     */
-    public void clearSelectedNodes() {
-        this.selectedNodes.clear();
-        toggleViewPathsButton();
-    }
-
     /**
      * A simple method that checks to see if one or more nodes have been
      * selected. If so, the button for viewing paths is activated. If not, this
      * button is deactivated.
      */
-    private void toggleViewPathsButton() {
-        if (selectedNodes.size() > 0) {
+    public void updateViewPathsButton() {
+        if (jsGraph.getSelectedNodeIDs().size() > 0) {
             modelViewPathsButton.setEnabled(true);
         } else {
             modelViewPathsButton.setEnabled(false);
@@ -609,7 +570,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         @Override
         public void onClick(ClickEvent event) {
             try {
-                synopticService.getPathsThroughPartitionIDs(selectedNodes,
+                synopticService.getPathsThroughPartitionIDs(jsGraph.getSelectedNodeIDs(),
                         new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
                                 ModelTab.this.logInfoPanel));
 
