@@ -78,6 +78,10 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 
     // The model graphic object that maintains all the model graphical state.
     private ModelGraphic modelGraphic;
+    
+    // The JS representation of the GWTGraph.  Handles events on the graph,
+    // and maintains the graphical state.
+    private JSGraph jsGraph;
 
     HorizontalPanel exportButtonsPanel;
     HorizontalPanel viewPathsButtonPanel;
@@ -306,8 +310,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 //        this.modelGraphic.createGraph(graph.getNodes(), graph.getEdges(),
 //                width, height, canvasId, INITIAL_LABEL, TERMINAL_LABEL);
         
-        JSGraph jsGraph = new JSGraph(this);
-        jsGraph.create(graph, width, height, canvasId);
+        this.jsGraph = new JSGraph(this);
+        this.jsGraph.create(graph, width, height, canvasId);
     }
 
     /**
@@ -375,7 +379,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         int height = getModelGraphicHeight();
 
         graphPanel.setPixelSize(width, height);
-        modelGraphic.resizeGraph(width, height);
+        this.jsGraph.resize(width, height);
+        
         logInfoPanel
                 .setHeight(Math.max(this.getModelGraphicHeight() - 200, 400)
                         + "px");

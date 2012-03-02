@@ -70,7 +70,7 @@ public class JSGraph {
     public JSGraph(ModelTab modelTab) {
         this.modelTab = modelTab;
     }
-    
+
     public void create(GWTGraph graph, int width, int height, String canvasID) {
         this.selectedNodes = new HashSet<JSONode>();
         this.nodeSet = new LinkedList<JSONode>();
@@ -176,7 +176,13 @@ public class JSGraph {
 
     /**
      * Event handler for JSONodes. This handles any event that occurs over the
-     * graphical representation of the JSONode in question.
+     * graphical representation of the JSONode in question. As of now, when
+     * hovering over a node, the node (and any other nodes of of the same event
+     * type) are highlighted. When the mouse is taken away, the nodes are all
+     * returned to their default color.
+     * 
+     * When a node is clicked, it is highlighted and the corresponding log lines
+     * that relate to that specific event are shown.
      */
     private class JSONodeEventHandler implements MouseEventHandler<JSONode> {
 
