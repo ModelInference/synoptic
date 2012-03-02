@@ -141,59 +141,52 @@ public class JSONode extends JavaScriptObject {
      * instantiates the function that allows the node to be drawn.
      */
     public native final void attachRenderer() /*-{
-        this.render = function(instance) {
-            return function(canvas, node) {
-                var rect;
-                if (node.label == @synopticgwt.client.model.JSGraph::INITIAL
-                        || node.label == @synopticgwt.client.model.JSGraph::TERMINAL) {
-                    // creates the rectangle to be drawn
-                    var rect = canvas
-                            .rect(node.point[0] - 30, node.point[1] - 13, 122,
-                                    46)
-                            .attr(
-                                    {
-                                        "fill" : @synopticgwt.client.model.JSGraph::INIT_TERM_COLOR,
-                                        "stroke-width" : @synopticgwt.client.model.JSGraph::DEFAULT_STROKE_WIDTH,
-                                        r : "40px"
-                                    });
-                } else {
-                    // creates the rectangle to be drawn
-                    var rect = canvas
-                            .rect(node.point[0] - 30, node.point[1] - 13, 122,
-                                    46)
-                            .attr(
-                                    {
-                                        "fill" : @synopticgwt.client.model.JSGraph::DEFAULT_COLOR,
-                                        "stroke-width" : @synopticgwt.client.model.JSGraph::DEFAULT_STROKE_WIDTH,
-                                        r : "9px"
-                                    });
-                    // associate label with rectangle object
-                    rect.label = node.label;
-                }
-
-                text = canvas.text(node.point[0] + 30, node.point[1] + 10,
-                        node.label).attr({
-                    "font-size" : "16px",
-                });
-
-                // Attach the instances event handlers to the actual renderers.
-                // may take up a little more memory as there is duplication
-                // (one function in the instance, and one in the text/rect), but
-                // it allows the event handlers to be attached before the node
-                // is actually drawn.
-                rect.node.onmouseup = text.node.onmouseup = instance.onmouseup;
-                rect.node.onmouseover = text.node.onmouseover = instance.onmouseover;
-                rect.node.onmouseout = text.node.onmouseout = instance.onmouseout;
-
-                instance.rect = rect;
-                instance.text = text;
-
-                // the Raphael set is obligatory, containing all you want to display
-                // draws this node's label
-                var set = canvas.set().push(rect).push(text);
-
-                return set;
+        this.render = function(canvas, node) {
+            $wnd.console.log(node == this);
+            if (node.label == @synopticgwt.client.model.JSGraph::INITIAL
+                    || node.label == @synopticgwt.client.model.JSGraph::TERMINAL) {
+                // creates the rectangle to be drawn
+                node.rect = canvas
+                        .rect(node.point[0] - 30, node.point[1] - 13, 122, 46)
+                        .attr(
+                                {
+                                    "fill" : @synopticgwt.client.model.JSGraph::INIT_TERM_COLOR,
+                                    "stroke-width" : @synopticgwt.client.model.JSGraph::DEFAULT_STROKE_WIDTH,
+                                    r : "40px"
+                                });
+            } else {
+                // creates the rectangle to be drawn
+                node.rect = canvas
+                        .rect(node.point[0] - 30, node.point[1] - 13, 122, 46)
+                        .attr(
+                                {
+                                    "fill" : @synopticgwt.client.model.JSGraph::DEFAULT_COLOR,
+                                    "stroke-width" : @synopticgwt.client.model.JSGraph::DEFAULT_STROKE_WIDTH,
+                                    r : "9px"
+                                });
+                // associate label with rectangle object
+                node.rect.label = node.label;
             }
-        }(this);
+
+            node.text = canvas.text(node.point[0] + 30, node.point[1] + 10,
+                    node.label).attr({
+                "font-size" : "16px",
+            });
+
+            // Attach the instances event handlers to the actual renderers.
+            // may take up a little more memory as there is duplication
+            // (one function in the instance, and one in the text/rect), but
+            // it allows the event handlers to be attached before the node
+            // is actually drawn.
+            node.rect.node.onmouseup = node.text.node.onmouseup = node.onmouseup;
+            node.rect.node.onmouseover = node.text.node.onmouseover = node.onmouseover;
+            node.rect.node.onmouseout = node.text.node.onmouseout = node.onmouseout;
+
+            // the Raphael set is obligatory, containing all you want to display
+            // draws this node's label
+            var set = canvas.set().push(node.rect).push(node.text);
+
+            return set;
+        };
     }-*/;
 }
