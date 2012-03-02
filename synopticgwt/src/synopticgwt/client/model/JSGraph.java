@@ -11,12 +11,13 @@ import com.google.gwt.user.client.Window;
 import synopticgwt.client.util.MouseEventHandler;
 import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
+import synopticgwt.shared.GWTGraphDelta;
 import synopticgwt.shared.GWTNode;
 
 /**
  * A class used to talk to GWTGraph for client side operations.
  */
-public class JSGraph {
+public class JSGraph implements MouseEventHandler<JSONode> {
 
     // Default color for nodes.
     private static String DEFAULT_COLOR = "#fa8";
@@ -87,6 +88,12 @@ public class JSGraph {
             JSONode jsoNode = this.jsoGraph.addNode(node);
             // Make sure to attach the custom renderer.
             jsoNode.attachRenderer();
+
+            // Attach the event handler.
+            if (!jsoNode.getEventType().equals(INITIAL)
+                    && !jsoNode.getEventType().equals(TERMINAL)) {
+                jsoNode.attachEventHandler(this);
+            }
             this.nodes.put(node, jsoNode);
         }
 
@@ -100,18 +107,6 @@ public class JSGraph {
 
         // Draw the graph after all the innards have been added.
         this.jsoGraph.draw(width, height, canvasID, INITIAL, TERMINAL);
-
-        // MUST be set after the graph is drawn at least once in order to
-        // ensure that each of the rect fields has been set properly.
-        JSONodeEventHandler eventHandler = new JSONodeEventHandler();
-        for (JSONode node : this.nodes.values()) {
-            if (!node.getEventType().equals(INITIAL)
-                    && !node.getEventType().equals(TERMINAL)) {
-                node.setMouseover(eventHandler);
-                node.setMouseout(eventHandler);
-                node.setOnClick(eventHandler);
-            }
-        }
     }
 
     public void resize(int width, int height) {
@@ -160,6 +155,49 @@ public class JSGraph {
         for (JSOEdge edge : this.edges.values()) {
             edge.setStyle(DEFAULT_STROKE_COLOR, 1);
         }
+    }
+
+    /**
+     * A method to update and display a refined graph, animating the transition
+     * to a new layout.
+     * 
+     * @param refinedGraph
+     *            The step of refinement this model will go through.
+     */
+    public void refineOneStep(GWTGraphDelta refinedGraph) {
+        this.clearEdgeState();
+        this.clearSelectedNodes();
+
+        JSONode refinedNode = this.jsoGraph.getNode(refinedGraph
+                .getRefinedNode());
+        this.jsoGraph.removeNode(refinedGraph.getRefinedNode());
+
+        // Add any new nodes to the graph, and then
+        // add any new edges to the graph. When that's all done,
+        // redraw the graph.
+        Set<GWTNode> newNodes = new HashSet<GWTNode>();
+        for (GWTNode node : refinedGraph.getGraph().getNodes()) {
+            if (!this.jsoGraph.containsNode(node)) {
+                newNodes.add(node);
+
+                // Add the nodes in the position where the refined node
+                // had been removed.
+                JSONode newJSONode = this.jsoGraph.addNode(node,
+                        refinedNode.getLayoutPosX(),
+                        refinedNode.getLayoutPosY());
+                newJSONode.attachRenderer();
+                newJSONode.attachEventHandler(this);
+                this.nodes.put(node, newJSONode);
+            }
+        }
+
+        for (GWTEdge edge : refinedGraph.getGraph().getEdges()) {
+            if (newNodes.contains(edge.getSrc())
+                    || newNodes.contains(edge.getDst()))
+                this.edges.put(edge, this.jsoGraph.addEdge(edge));
+        }
+
+        this.jsoGraph.reDraw(newNodes);
     }
 
     /**
@@ -220,127 +258,103 @@ public class JSGraph {
         }
     }
 
-    /**
-     * Event handler for JSONodes. This handles any event that occurs over the
-     * graphical representation of the JSONode in question. As of now, when
-     * hovering over a node, the node (and any other nodes of of the same event
-     * type) are highlighted. When the mouse is taken away, the nodes are all
-     * returned to their default color.
-     * 
-     * When a node is clicked, it is highlighted and the corresponding log lines
-     * that relate to that specific event are shown.
-     */
-    private class JSONodeEventHandler implements MouseEventHandler<JSONode> {
-
-        // Empty constructor to please the compiler.
-        public JSONodeEventHandler() {
-        }
-
-        @SuppressWarnings("synthetic-access")
-        @Override
-        public void mouseover(JSONode eventNode) {
-            // Highlight all nodes that have the same event type.
-            for (JSONode node : JSGraph.this.nodes.values()) {
-                if (node.getEventType().equals(eventNode.getEventType())) {
-                    node.setStyle(JSGraph.HIGHLIGHT_COLOR);
-                }
-            }
-        }
-
-        @SuppressWarnings("synthetic-access")
-        @Override
-        public void mouseout(JSONode t) {
-            // Set all but the initial and terminal nodes to the default color.
-            for (JSONode node : JSGraph.this.nodes.values()) {
-                if (!node.getEventType().equals(JSGraph.INITIAL)
-                        && !node.getEventType().equals(JSGraph.TERMINAL)) {
-                    if (!JSGraph.this.selectedNodes.contains(node))
-                        node.setStyle(JSGraph.DEFAULT_COLOR);
-                }
-            }
-        }
-
-        @SuppressWarnings("synthetic-access")
-        @Override
-        public void onclick(JSONode clickedNode, boolean shiftKey) {
-            if (!shiftKey) {
-                if (JSGraph.this.lastClicked == null
-                        || !JSGraph.this.lastClicked.equals(clickedNode)) {
-                    // Clear the selected nodes and display the log lines in the
-                    // model panel.
-                    // the line for clearing selected nodes could possibly be
-                    // put outside of the
-                    // if statement.
-                    JSGraph.this.clearSelectedNodes();
-
-                    // TODO Handle this error better.
-                    try {
-                        JSGraph.this.modelTab.handleLogRequest(clickedNode
-                                .getNodeID());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    // If the last selected node (for log lines) is not null
-                    // set it to default colors before changing the current node
-                    // that has
-                    // been clicked.
-                    if (JSGraph.this.lastClicked != null) {
-                        JSGraph.this.lastClicked.setStyle(DEFAULT_COLOR,
-                                DEFAULT_STROKE_COLOR, DEFAULT_STROKE_WIDTH);
-                    } else {
-                        // If the selectedNodeLog is null, that means there may
-                        // be edges
-                        // highlighted. If not, then there must be a node
-                        // already selected
-                        // to view log lines, so the state of the graph must be
-                        // where
-                        // the highlighted edges will have to have been cleared
-                        // already.
-                        // So, this will only run when a.) the graph has just
-                        // been made, b.)
-                        // when clicking a node without intending to "select"
-                        // it, and at no
-                        // other times.
-                        JSGraph.this.clearEdgeState();
-                    }
-
-                    // The variable has to be set by accessing the instance
-                    // object. It WILL NOT
-                    // write to the modelGraphic instance variable if
-                    // "selectedNodeLog" is rewritten (for whatever reason).
-                    // be wary of this.
-                    JSGraph.this.lastClicked = clickedNode;
-                    clickedNode.setStyle(DEFAULT_COLOR, "red",
-                            SELECT_STROKE_WIDTH);
-                }
-            } else {
-                // If the node clicked (with shift held) is not equal to this
-                // one, clear
-                boolean nodeNotSelected = !JSGraph.this.selectedNodes
-                        .contains(clickedNode);
-                if (nodeNotSelected) {
-                    // Node associated with log lines listed is
-                    // surrounded by red and thick border.
-                    clickedNode.setStyle(HIGHLIGHT_COLOR);
-                    JSGraph.this.selectedNodes.add(clickedNode);
-                    JSGraph.this.modelTab.addSelectedNode(clickedNode
-                            .getNodeID());
-
-                    // If the node clicked has been selected, remove the
-                    // highlight and also remove it from modelGraphic
-                } else {
-                    // Set the stroke and stroke width back to normal as well,
-                    // as they are
-                    // still technically selected when viewing the model in edge
-                    // highlight mode.
-                    clickedNode.setStyle(DEFAULT_COLOR, DEFAULT_STROKE_COLOR,
-                            DEFAULT_STROKE_WIDTH);
-                    JSGraph.this.selectedNodes.remove(clickedNode);
-                    JSGraph.this.modelTab.removeSelectedNode(clickedNode
-                            .getNodeID());
-                }
+    @Override
+    public void mouseover(JSONode eventNode) {
+        // Highlight all nodes that have the same event type.
+        for (JSONode node : this.nodes.values()) {
+            if (node.getEventType().equals(eventNode.getEventType())) {
+                node.setStyle(HIGHLIGHT_COLOR);
             }
         }
     }
+
+    @Override
+    public void mouseout(JSONode t) {
+        // Set all but the initial and terminal nodes to the default color.
+        for (JSONode node : this.nodes.values()) {
+            if (!node.getEventType().equals(INITIAL)
+                    && !node.getEventType().equals(TERMINAL)) {
+                if (!this.selectedNodes.contains(node))
+                    node.setStyle(DEFAULT_COLOR);
+            }
+        }
+    }
+
+    @Override
+    public void onclick(JSONode clickedNode, boolean shiftKey) {
+        if (!shiftKey) {
+            if (this.lastClicked == null
+                    || !this.lastClicked.equals(clickedNode)) {
+                // Clear the selected nodes and display the log lines in the
+                // model panel.
+                // the line for clearing selected nodes could possibly be
+                // put outside of the
+                // if statement.
+                this.clearSelectedNodes();
+
+                // TODO Handle this error better.
+                try {
+                    this.modelTab.handleLogRequest(clickedNode.getNodeID());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                // If the last selected node (for log lines) is not null
+                // set it to default colors before changing the current node
+                // that has
+                // been clicked.
+                if (this.lastClicked != null) {
+                    this.lastClicked.setStyle(DEFAULT_COLOR,
+                            DEFAULT_STROKE_COLOR, DEFAULT_STROKE_WIDTH);
+                } else {
+                    // If the selectedNodeLog is null, that means there may
+                    // be edges
+                    // highlighted. If not, then there must be a node
+                    // already selected
+                    // to view log lines, so the state of the graph must be
+                    // where
+                    // the highlighted edges will have to have been cleared
+                    // already.
+                    // So, this will only run when a.) the graph has just
+                    // been made, b.)
+                    // when clicking a node without intending to "select"
+                    // it, and at no
+                    // other times.
+                    this.clearEdgeState();
+                }
+
+                // The variable has to be set by accessing the instance
+                // object. It WILL NOT
+                // write to the modelGraphic instance variable if
+                // "selectedNodeLog" is rewritten (for whatever reason).
+                // be wary of this.
+                this.lastClicked = clickedNode;
+                clickedNode.setStyle(DEFAULT_COLOR, "red", SELECT_STROKE_WIDTH);
+            }
+        } else {
+            // If the node clicked (with shift held) is not equal to this
+            // one, clear
+            boolean nodeNotSelected = !this.selectedNodes.contains(clickedNode);
+            if (nodeNotSelected) {
+                // Node associated with log lines listed is
+                // surrounded by red and thick border.
+                clickedNode.setStyle(HIGHLIGHT_COLOR);
+                this.selectedNodes.add(clickedNode);
+                this.modelTab.addSelectedNode(clickedNode.getNodeID());
+
+                // If the node clicked has been selected, remove the
+                // highlight and also remove it from modelGraphic
+            } else {
+                // Set the stroke and stroke width back to normal as well,
+                // as they are
+                // still technically selected when viewing the model in edge
+                // highlight mode.
+                clickedNode.setStyle(DEFAULT_COLOR, DEFAULT_STROKE_COLOR,
+                        DEFAULT_STROKE_WIDTH);
+                this.selectedNodes.remove(clickedNode);
+                this.modelTab.removeSelectedNode(clickedNode.getNodeID());
+            }
+        }
+    }
+
 }
