@@ -41,6 +41,9 @@ public class RelationPath {
 		this.precedesCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
 	}
 	
+	/**
+	 * Assumes tracegraph is already constructed
+	 */
 	public void count() {
 		EventNode curNode = eNode;
 		List<Transition<EventNode>> transitions = curNode.getTransitions();
@@ -143,6 +146,6 @@ public class RelationPath {
     }
     
     public String getRelation() {
-    	return relation;
+        return relation;
     }
 }
