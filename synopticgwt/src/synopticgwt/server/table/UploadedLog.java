@@ -12,14 +12,14 @@ public class UploadedLog extends DerbyTable {
     	super(conn, stmt);
     }
     
-//    /**
-//     * Create query in database.
-//     */
-//    public void createTable() throws SQLException {
-//        stmt = conn.createStatement();
-//        stmt.execute(CREATE_QUERY);
-//        stmt.close();
-//    }
+    /**
+     * Create query in database.
+     */
+    public void createTable() throws SQLException {
+        stmt = conn.createStatement();
+        stmt.execute(CREATE_QUERY);
+        stmt.close();
+    }
     
     /**
      * TODO comment
@@ -50,4 +50,29 @@ public class UploadedLog extends DerbyTable {
         
         return result;
     }  
+    
+    /**
+  	 *TODO comment
+     * 
+     * @param String
+     *            query to select a specific row
+     * @return int returns first column value of row
+     */
+    public int getIdExistingHash(String hash) throws SQLException {
+        int result = -1;
+
+        stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery("select * from  UploadedLog where hash = '" 
+        		+ hash 
+        		+ "'");
+
+        while (rs.next()) {
+            result = rs.getInt(1);
+        }
+
+        rs.close();
+        stmt.close();
+
+        return result;
+    }
 }

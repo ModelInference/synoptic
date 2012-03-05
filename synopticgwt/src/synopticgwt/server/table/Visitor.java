@@ -11,7 +11,7 @@ import java.util.List;
  * Visitor table for Derby DB.
  */
 public class Visitor extends DerbyTable {
-    private static String CREATE_QUERY = "CREATE TABLE Visitor (vid INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), IP VARCHAR(15), timestamp TIMESTAMP)";
+    protected static String CREATE_QUERY = "CREATE TABLE Visitor (vid INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), IP VARCHAR(15), timestamp TIMESTAMP)";
     
     public Visitor(Connection conn, Statement stmt) {
     	super(conn, stmt);

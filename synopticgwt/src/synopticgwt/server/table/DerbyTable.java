@@ -4,8 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DerbyTable {
-		protected String CREATE_QUERY = "";
+public abstract class DerbyTable {
 	
 	 	protected Connection conn;
 	    protected Statement stmt;
@@ -15,12 +14,5 @@ public class DerbyTable {
 	    	this.stmt = stmt;
 	    }
 	    
-	    /**
-	     * Create query in database.
-	     */
-	    public void createTable() throws SQLException {
-	        stmt = conn.createStatement();
-	        stmt.execute(CREATE_QUERY);
-	        stmt.close();
-	    }
+	    public abstract void createTable() throws SQLException;
 }

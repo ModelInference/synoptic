@@ -8,10 +8,19 @@ import java.sql.Timestamp;
 
 //TODO comment
 public class ReExp extends DerbyTable {
-    private static String CREATE_QUERY = "CREATE TABLE ReExp (reid INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), text CLOB, hash VARCHAR(32))";
+    protected static String CREATE_QUERY = "CREATE TABLE ReExp (reid INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), text CLOB, hash VARCHAR(32))";
     
     public ReExp(Connection conn, Statement stmt) {
     	super(conn, stmt);
+    }
+    
+    /**
+     * Create query in database.
+     */
+    public void createTable() throws SQLException {
+        stmt = conn.createStatement();
+        stmt.execute(CREATE_QUERY);
+        stmt.close();
     }
      
     /**

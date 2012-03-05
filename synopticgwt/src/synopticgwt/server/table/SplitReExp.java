@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class SplitReExp extends DerbyTable {
-    private static String CREATE_QUERY = "CREATE TABLE SplitReExp (parseid INT, reid INT, logid INT)";
+    protected static String CREATE_QUERY = "CREATE TABLE SplitReExp (parseid INT, reid INT, logid INT)";
 	    
     public SplitReExp(Connection conn, Statement stmt) {
     	super(conn, stmt);

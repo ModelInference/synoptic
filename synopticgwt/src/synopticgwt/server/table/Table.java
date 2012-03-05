@@ -4,7 +4,7 @@ public enum Table {
 	Visitor,
 	UploadedLog,
 	ReExp,
-	LogRexp,
+	LogReExp,
 	PartitionReExp,
 	SplitReExp,
 	ParseLogAction;
