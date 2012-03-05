@@ -11,6 +11,7 @@ import java.util.Set;
  */
 public class Trace {
 
+    /** Relation string -> Representative relation path. */
     private Map<String, RelationPath> paths;
 
     public Trace() {

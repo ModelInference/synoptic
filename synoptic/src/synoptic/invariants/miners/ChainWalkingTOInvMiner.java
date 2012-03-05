@@ -121,34 +121,24 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         // Tracks which events were observed across all traces.
         Set<EventType> AlwaysFollowsINITIALSet = null;
 
+        /* Iterates over each trace in the graph and aggregates the individual 
+         * Occurrences, Follows, and Precedes counts from the specified relation
+         * in each trace.
+         */
         for (Trace trace : g.getTraces()) {
 
-        	Map<EventType, Map<EventType, Integer>> tracePrecedesCounts = trace.getPrecedesCounts(relation);
-            for (EventType a : tracePrecedesCounts.keySet()) {
-            	Map<EventType, Integer> traceBValues = tracePrecedesCounts.get(a);
-            	Map<EventType, Integer> globalBValues = gPrecedesCnts.get(a);
-                for (EventType b : traceBValues.keySet()) {
-                	int count = traceBValues.get(b);
-                	if (globalBValues.containsKey(b)) {
-                		count += globalBValues.get(b);
-                	}
-                	globalBValues.put(b, count);
-                }
-                        
-            }
             
+            /* Adds the Precedes count from the trace into the graph global 
+             * count
+             */
+        	Map<EventType, Map<EventType, Integer>> tracePrecedesCounts = trace.getPrecedesCounts(relation);
+            addCounts(tracePrecedesCounts, gPrecedesCnts);
+            
+            /* Adds the FollowedBy count from the trace into the graph global
+             * count
+             */
             Map<EventType, Map<EventType, Integer>> traceFollowedByCounts = trace.getFollowedByCounts(relation);
-            for (EventType a : traceFollowedByCounts.keySet()) {
-            	Map<EventType, Integer> traceBValues = traceFollowedByCounts.get(a);
-            	Map<EventType, Integer> globalBValues = gFollowedByCnts.get(a);
-            	for (EventType b : traceBValues.keySet()) {
-            		int count = traceBValues.get(b);
-            		if (globalBValues.containsKey(b)) {
-            			count += globalBValues.get(b);
-            		}
-            		globalBValues.put(b, count);
-            	}
-            }
+            addCounts(traceFollowedByCounts, gFollowedByCnts);
 
             // Update the AlwaysFollowsINITIALSet set of events by
             // intersecting it with all events seen in this partition.
@@ -167,5 +157,29 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         return new TemporalInvariantSet(extractPathInvariantsFromWalkCounts(
                 relation, gEventCnts, gFollowedByCnts, gPrecedesCnts, null,
                 AlwaysFollowsINITIALSet));
+    }
+    
+    /**
+     * Adds the values from src into dst where the input maps have the form
+     * 
+     * XCounts[a][b] = count
+     * 
+     * @param src
+     * @param dst
+     */
+    private void addCounts(Map<EventType, Map<EventType, Integer>> src, 
+            Map<EventType, Map<EventType, Integer>> dst) {
+        
+        for (EventType a : src.keySet()) {
+            Map<EventType, Integer> srcBValues = src.get(a);
+            Map<EventType, Integer> dstBValues = dst.get(a);
+            for (EventType b : srcBValues.keySet()) {
+                int count = srcBValues.get(b);
+                if (dstBValues.containsKey(b)) {
+                    count += dstBValues.get(b);
+                }
+                dstBValues.put(b, count);
+            }
+        }
     }
 }
