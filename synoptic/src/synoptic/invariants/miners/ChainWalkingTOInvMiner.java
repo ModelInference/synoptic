@@ -80,7 +80,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
 
         // Tracks event counts globally -- across all traces.
         Map<EventType, Integer> gEventCnts = new LinkedHashMap<EventType, Integer>();
-        
+
         // Build the set of all event types in the graph. We will use this set
         // to pre-seed the various maps below. Also, since we're iterating over
         // all nodes, we might as well count up the total counts of instances
@@ -121,23 +121,27 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         // Tracks which events were observed across all traces.
         Set<EventType> AlwaysFollowsINITIALSet = null;
 
-        /* Iterates over each trace in the graph and aggregates the individual 
+        /*
+         * Iterates over each trace in the graph and aggregates the individual
          * Occurrences, Follows, and Precedes counts from the specified relation
          * in each trace.
          */
         for (Trace trace : g.getTraces()) {
 
-            
-            /* Adds the Precedes count from the trace into the graph global 
+            /*
+             * Adds the Precedes count from the trace into the graph global
              * count
              */
-        	Map<EventType, Map<EventType, Integer>> tracePrecedesCounts = trace.getPrecedesCounts(relation);
+            Map<EventType, Map<EventType, Integer>> tracePrecedesCounts = trace
+                    .getPrecedesCounts(relation);
             addCounts(tracePrecedesCounts, gPrecedesCnts);
-            
-            /* Adds the FollowedBy count from the trace into the graph global
+
+            /*
+             * Adds the FollowedBy count from the trace into the graph global
              * count
              */
-            Map<EventType, Map<EventType, Integer>> traceFollowedByCounts = trace.getFollowedByCounts(relation);
+            Map<EventType, Map<EventType, Integer>> traceFollowedByCounts = trace
+                    .getFollowedByCounts(relation);
             addCounts(traceFollowedByCounts, gFollowedByCnts);
 
             // Update the AlwaysFollowsINITIALSet set of events by
@@ -145,7 +149,8 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
             Set<EventType> traceSeen = trace.getSeen(relation);
             if (AlwaysFollowsINITIALSet == null) {
                 // This is the first trace we've processed.
-                AlwaysFollowsINITIALSet = new LinkedHashSet<EventType>(traceSeen);
+                AlwaysFollowsINITIALSet = new LinkedHashSet<EventType>(
+                        traceSeen);
             } else {
                 AlwaysFollowsINITIALSet.retainAll(traceSeen);
             }
@@ -158,18 +163,17 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
                 relation, gEventCnts, gFollowedByCnts, gPrecedesCnts, null,
                 AlwaysFollowsINITIALSet));
     }
-    
+
     /**
      * Adds the values from src into dst where the input maps have the form
-     * 
      * XCounts[a][b] = count
      * 
      * @param src
      * @param dst
      */
-    private void addCounts(Map<EventType, Map<EventType, Integer>> src, 
+    private void addCounts(Map<EventType, Map<EventType, Integer>> src,
             Map<EventType, Map<EventType, Integer>> dst) {
-        
+
         for (EventType a : src.keySet()) {
             Map<EventType, Integer> srcBValues = src.get(a);
             Map<EventType, Integer> dstBValues = dst.get(a);
