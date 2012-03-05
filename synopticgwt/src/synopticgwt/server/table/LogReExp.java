@@ -15,11 +15,11 @@ public class LogReExp extends DerbyTable {
     /**
      * Create query in database.
      */
-//    public void createTable() throws SQLException {
-//        stmt = conn.createStatement();
-//        stmt.execute(CREATE_QUERY);
-//        stmt.close();
-//    }
+    public void createTable() throws SQLException {
+        stmt = conn.createStatement();
+        stmt.execute(CREATE_QUERY);
+        stmt.close();
+    }
     
     public int insert(int parseID, int reID, int logID) throws SQLException {	
     	stmt = conn.createStatement();
