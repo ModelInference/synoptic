@@ -1,6 +1,10 @@
 package synoptic.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -9,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.main.ParseException;
 
 /**
  * This structure holds all the totally ordered executions extracted from the
@@ -16,6 +21,12 @@ import synoptic.algorithms.graph.TransitiveClosure;
  * ChainsTraceGraph contains a root node INITIAL, which has an edge to the first
  * node in each of these chain traces. It also contains a TERMINAL node that has
  * an edge from the last node in each of the chain traces.
+ * 
+ * With the addition of multiple relations, there can be chains composed of
+ * disconnected graphs over non-temporal relations that are transitively closed
+ * and made connected through the time relation.
+ * 
+ * Multiple relations are interposed with existing connected time chains.
  */
 public class ChainsTraceGraph extends TraceGraph<StringEventType> {
     static Event initEvent = Event.newInitialStringEvent();
@@ -25,6 +36,8 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
      * Maintains a map of trace id to the set of initial nodes in the trace.
      */
     private final Map<Integer, EventNode> traceIdToInitNodes = new LinkedHashMap<Integer, EventNode>();
+    
+    private final List<Trace> traces = new ArrayList<Trace>();
 
     public ChainsTraceGraph(Collection<EventNode> nodes) {
         super(nodes);
@@ -55,6 +68,64 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
     	for (String relation : relations) {
     		tagInitial(initialNode, relation);
     	}
+    }
+    
+    public void addTrace(List<EventNode> events) throws ParseException {
+    	// Sort the events in this group/trace.
+        Collections.sort(events, new Comparator<EventNode>() {
+            @Override
+            public int compare(EventNode e1, EventNode e2) {
+                return e1.getTime().compareTo(e2.getTime());
+            }
+        });
+        
+        Trace trace = new Trace();
+        traces.add(trace);
+
+        Map<Relation, EventNode> closureMap = new HashMap<Relation, EventNode>();
+        // Tag first node in the sorted list as initial.
+        EventNode prevNode = events.get(0);
+        for (Relation relation : prevNode.getEventRelations()) {
+        	tagInitial(prevNode, relation.getRelation());
+        	closureMap.put(relation,  prevNode);
+        	trace.addRelationPath(relation.getRelation() , prevNode);
+        }
+
+        // Create transitions to connect the nodes in the sorted trace.
+        for (EventNode curNode : events.subList(1, events.size())) {
+            if (prevNode.getTime().equals(curNode.getTime())) {
+                String error = "Found two events with identical timestamps: (1) "
+                        + prevNode.toString()
+                        + " (2) "
+                        + curNode.toString();
+                logger.severe(error);
+                throw new ParseException(error);
+            }
+            for (Relation relation : curNode.getEventRelations()) {
+            	if (relation.isClosure()) {
+            		EventNode prevClosureNode = closureMap.get(relation);
+            		/* This is a little gross. If the initial node could be
+            		 * pulled out of the graph and treated as an independent
+            		 * event node, then this would be a lot nicer.
+            		 */
+            		if (prevClosureNode == null) {
+            			tagInitial(curNode, relation.getRelation());
+            			trace.addRelationPath(relation.getRelation() , prevNode);
+            		} else {
+            			prevClosureNode.addTransition(curNode, relation.getRelation());
+            		}
+            	} else {
+            		prevNode.addTransition(curNode, relation.getRelation());
+            	}
+            	closureMap.put(relation,  curNode);
+            }
+            prevNode = curNode;
+        }
+
+        // Tag the final node as terminal:
+        for (Relation relation : prevNode.getEventRelations()) {
+        	tagTerminal(prevNode, relation.getRelation());
+        }
     }
 
     /**
@@ -118,6 +189,10 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
             map.put(k, set);
         }
         return map;
+    }
+    
+    public List<Trace> getTraces() {
+    	return Collections.unmodifiableList(traces);
     }
 
 }

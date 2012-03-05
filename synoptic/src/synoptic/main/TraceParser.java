@@ -9,9 +9,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -1130,57 +1127,7 @@ public class TraceParser {
 
         ChainsTraceGraph graph = new ChainsTraceGraph(allEvents);
         for (List<EventNode> group : partitions.values()) {
-
-            // Sort the events in this group/trace.
-            Collections.sort(group, new Comparator<EventNode>() {
-                @Override
-                public int compare(EventNode e1, EventNode e2) {
-                    return e1.getTime().compareTo(e2.getTime());
-                }
-            });
-
-            Map<Relation, EventNode> closureMap = new HashMap<Relation, EventNode>();
-            // Tag first node in the sorted list as initial.
-            EventNode prevNode = group.get(0);
-            for (Relation relation : prevNode.getEventRelations()) {
-            	graph.tagInitial(prevNode, relation.getRelation());
-            	closureMap.put(relation,  prevNode);
-            }
-
-            // Create transitions to connect the nodes in the sorted trace.
-            for (EventNode curNode : group.subList(1, group.size())) {
-                if (prevNode.getTime().equals(curNode.getTime())) {
-                    String error = "Found two events with identical timestamps: (1) "
-                            + prevNode.toString()
-                            + " (2) "
-                            + curNode.toString();
-                    logger.severe(error);
-                    throw new ParseException(error);
-                }
-                for (Relation relation : curNode.getEventRelations()) {
-                	if (relation.isClosure()) {
-                		EventNode prevClosureNode = closureMap.get(relation);
-                		/* This is a little gross. If the initial node could be
-                		 * pulled out of the graph and treated as an independent
-                		 * event node, then this would be a lot nicer.
-                		 */
-                		if (prevClosureNode == null) {
-                			graph.tagInitial(curNode, relation.getRelation());
-                		} else {
-                			prevClosureNode.addTransition(curNode, relation.getRelation());
-                		}
-                	} else {
-                		prevNode.addTransition(curNode, relation.getRelation());
-                	}
-                	closureMap.put(relation,  curNode);
-                }
-                prevNode = curNode;
-            }
-
-            // Tag the final node as terminal:
-            for (Relation relation : prevNode.getEventRelations()) {
-            	graph.tagTerminal(prevNode, relation.getRelation());
-            }
+            graph.addTrace(group);
         }
         return graph;
     }
