@@ -47,9 +47,10 @@ public class RelationPath {
     private Set<EventType> seen;
     /** Maintains the current event count in the path. */
     private Map<EventType, Integer> eventCounts;
-    /** Maintains the current FollowedBy count for the path. 
-     * followedByCounts[a][b] = count iff the number of a's that appeared
-     * before this b is count.
+    /**
+     * Maintains the current FollowedBy count for the path.
+     * followedByCounts[a][b] = count iff the number of a's that appeared before
+     * this b is count.
      */
     private Map<EventType, Map<EventType, Integer>> followedByCounts;
     /** Maintains the current precedes count for the path. 
