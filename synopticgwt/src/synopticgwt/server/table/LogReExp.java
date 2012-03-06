@@ -13,7 +13,7 @@ public class LogReExp extends DerbyTable {
     }
     
     /**
-     * Create query in database.
+     * Create the table in database connected to.
      */
     public void createTable() throws SQLException {
         stmt = conn.createStatement();
@@ -21,6 +21,14 @@ public class LogReExp extends DerbyTable {
         stmt.close();
     }
     
+    /**
+     * Executes an INSERT query and returns auto incrementing identity field
+     * assigned to newly created record. Returns 0 if incrementing identity
+     * field doesn't exist.
+     * 
+     * @param query
+     *            the insert query to use
+     */
     public int insert(int parseID, int reID, int logID) throws SQLException {	
     	stmt = conn.createStatement();
         stmt.executeUpdate("insert into LogReExp(parseid, reid, logid) values("
