@@ -6,7 +6,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -54,6 +53,7 @@ public class DerbyDB {
     private Connection conn = null;
     private Statement stmt = null;
     
+    /** Keeps track of all the tables. */
     private Map<Table, DerbyTable> m;
 
     /**
@@ -138,83 +138,6 @@ public class DerbyDB {
     		m.get(key).createTable();
     	}
     }
-
-    /**
-     * Given a SELECT statement selecting a specific row, returns the first
-     * column (usually id) of row. Returns -1 if the row doesn't exist in
-     * database.
-     * 
-     * @param String
-     *            query to select a specific row
-     * @return int returns first column value of row
-     */
-//    public int getIdExistingRow(String query) throws SQLException {
-//        int result = -1;
-//
-//        stmt = conn.createStatement();
-//        ResultSet rs = stmt.executeQuery(query);
-//
-//        while (rs.next()) {
-//            result = rs.getInt(1);
-//        }
-//
-//        rs.close();
-//        stmt.close();
-//
-//        return result;
-//    }
-
-    /**
-     * Executes an INSERT query and returns auto incrementing identity field
-     * assigned to newly created record. Returns 0 if incrementing identity
-     * field doesn't exist.
-     * 
-     * @param query
-     *            the insert query to use
-     */
-//    public int insertAndGetAutoValue(String query) throws SQLException {
-//        int result = 0;
-//
-//        stmt = conn.createStatement();
-//        int n = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
-//        logger.info("Inserted " + n + " row(s) into Derby database.");
-//
-//        ResultSet rs = stmt.getGeneratedKeys();
-//
-//        while (rs.next()) {
-//            result = rs.getInt(1);
-//        }
-//
-//        rs.close();
-//        stmt.close();
-//
-//        return result;
-//    }
-
-    /**
-     * Given a SELECT query retrieving a single String type column, returns
-     * values in that column (e.g. select columnname from tablename).
-     * 
-     * @param query
-     *            select query
-     * @param column
-     *            the column to retrieve information from
-     * @return String values selected from query
-     */
-//    public String getString(String query, String column) throws SQLException {
-//        String s = "";
-//
-//        stmt = conn.createStatement();
-//        ResultSet results = stmt.executeQuery(query);
-//        while (results.next()) {
-//            s += results.getString(column);
-//
-//        }
-//        results.close();
-//        stmt.close();
-//
-//        return s;
-//    }
     
     /**
      * Returns the MD5 hash of a String.
@@ -240,15 +163,14 @@ public class DerbyDB {
         return result;
     }
     
- // Checks if reExp exists in the given table already. If it exists, return
-    // the row id of it in
-    // the table. If it doesn't exist, insert reExp into table and return row id
-    // of where it was inserted.
+    // Checks if reExp exists in the given table already. If it exists, return
+    // the row id of it in the table. If it doesn't exist, insert reExp into 
+    // table and return row id of where it was inserted.
     private int getReId(String reExp)
             throws UnsupportedEncodingException, NoSuchAlgorithmException,
             SQLException {
-        String cleanString = reExp.replace("'", "''"); // Clean String for
-                                                       // single quotes.
+    	// Clean String for single quotes.
+        String cleanString = reExp.replace("'", "''"); 
         String hashReExp = DerbyDB.getHash(cleanString);
         
         ReExp r = (ReExp) m.get(Table.ReExp);
@@ -262,41 +184,9 @@ public class DerbyDB {
         return reId;
     }
     
-
-    // Checks each reg exp in list if it exists in the ReExp table already.
-    // Returns list of ids
-    // for each reg exp in the ReExp table.
-    private List<Integer> getLogReExp(List<String> l)
-            throws UnsupportedEncodingException, NoSuchAlgorithmException,
-            SQLException {
-        List<Integer> result = new ArrayList<Integer>();
-        for (int i = 0; i < l.size(); i++) {
-            int currId = getReId(l.get(i));
-            result.add(currId);
-        }
-        return result;
-    }
-    
-    private int getUploadedLogId(String logLines) throws UnsupportedEncodingException, NoSuchAlgorithmException, SQLException {
-    	// Clean String for single quotes.
-    	String cleanString = logLines.replace("'", "''"); 
-		String hashReExp = DerbyDB.getHash(cleanString);
-		
-		UploadedLog u = (UploadedLog) m.get(Table.UploadedLog);
-		
-		int reId = u.getIdExistingHash(hashReExp);
-
-		if (reId == -1) { // doesn't exist in database
-			reId = u.insert(cleanString, hashReExp);
-			logger.info("Hash for a reg exp or log lines found in DerbyDB");
-		}
-		return reId;
-    }
-    
     public Map<Table, DerbyTable> getTables() {
     	return Collections.unmodifiableMap(m);
     }
-    
     
     /**
      * Writes to database user's SynopticGWT usage after parsing a log.
@@ -314,7 +204,8 @@ public class DerbyDB {
      */
     public void writeUserParsingInfo(int vID, GWTSynOpts synOpts, 
     		GWTGraph graph, ChainsTraceGraph traceGraph, ArrayList<EventNode> parsedEvents,
-    		TemporalInvariantSet minedInvs, GWTInvariantSet invs, int miningTime) throws SQLException, UnsupportedEncodingException, NoSuchAlgorithmException {
+    		TemporalInvariantSet minedInvs, GWTInvariantSet invs, int miningTime) 
+    			throws SQLException, UnsupportedEncodingException, NoSuchAlgorithmException {
         logger.info("Writing information to Derby");
     	
     	List<Integer> logReId = getLogReExp(synOpts.regExps);
@@ -353,7 +244,41 @@ public class DerbyDB {
 
     	PartitionReExp p = (PartitionReExp) m.get(Table.PartitionReExp);
     	p.insert(parseID, partitionReId, logLineId);
-    }	
+    }
+    
+    // Checks each reg exp in list if it exists in the ReExp table already.
+    // Returns list of ids for each reg exp in the ReExp table.
+    private List<Integer> getLogReExp(List<String> l)
+            throws UnsupportedEncodingException, NoSuchAlgorithmException,
+            SQLException {
+        List<Integer> result = new ArrayList<Integer>();
+        for (int i = 0; i < l.size(); i++) {
+            int currId = getReId(l.get(i));
+            result.add(currId);
+        }
+        return result;
+    }
+    
+    // Given a string of log lines, checks if log lines exists in the database.
+    // If it exists, get the id of existing log from database. If it doesn't
+    // exist, inserts the log lines into the database and return the id.
+    private int getUploadedLogId(String logLines) 
+    		throws UnsupportedEncodingException, NoSuchAlgorithmException,
+    		SQLException {
+    	// Clean String for single quotes.
+    	String cleanString = logLines.replace("'", "''"); 
+		String hashReExp = DerbyDB.getHash(cleanString);
+		
+		UploadedLog u = (UploadedLog) m.get(Table.UploadedLog);
+		
+		int reId = u.getIdExistingHash(hashReExp);
+
+		if (reId == -1) { // doesn't exist in database
+			reId = u.insert(cleanString, hashReExp);
+			logger.info("Hash for a reg exp or log lines found in DerbyDB");
+		}
+		return reId;
+    }
 
     /**
      * Shutdown the database. Note: A successful shutdown always results in an
