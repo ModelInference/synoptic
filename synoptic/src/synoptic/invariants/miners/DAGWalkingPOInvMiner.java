@@ -14,6 +14,7 @@ import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.DistEventType;
+import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.TraceGraph;
@@ -192,12 +193,12 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
 
     public TemporalInvariantSet computeInvariants(DAGsTraceGraph g) {
         mineConcurrencyInvariants = true;
-        return computeInvariants(g, TraceParser.defaultRelation);
+        return computeInvariants(g, Event.defaultTimeRelationString);
     }
 
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
         mineConcurrencyInvariants = false;
-        return computeInvariants(g, TraceParser.defaultRelation);
+        return computeInvariants(g, Event.defaultTimeRelationString);
     }
 
     /**

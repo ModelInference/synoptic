@@ -146,18 +146,19 @@ public class VectorTime implements ITime {
         if (!(t instanceof VectorTime)) {
             throw new NonComparableTimesException(this, t);
         }
-
+        VectorTime vTime = (VectorTime) t;
+        
         boolean foundStrictlyLess = false;
 
-        if (vector.size() != ((VectorTime) t).vector.size()) {
+        if (vector.size() != vTime.vector.size()) {
             // Two vectors are only comparable if they have the same length.
             throw new NotComparableVectorsException(this, t);
         }
 
         for (int i = 0; i < vector.size(); ++i) {
-            if (vector.get(i) < ((VectorTime) t).vector.get(i)) {
+            if (vector.get(i) < vTime.vector.get(i)) {
                 foundStrictlyLess = true;
-            } else if (vector.get(i) > ((VectorTime) t).vector.get(i)) {
+            } else if (vector.get(i) > vTime.vector.get(i)) {
                 return false;
             }
         }

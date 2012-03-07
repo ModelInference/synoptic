@@ -9,6 +9,7 @@ import java.util.Set;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
+import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.interfaces.ITransition;
@@ -29,7 +30,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         TOInvariantMiner {
 
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
-        return computeInvariants(g, TraceParser.defaultRelation);
+        return computeInvariants(g, Event.defaultTimeRelationString);
     }
 
     /**

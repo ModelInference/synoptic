@@ -126,6 +126,7 @@ def main():
 
     # Copy other, non-essential files and scripts into the distro dir.
     runcmd("cp synoptic-jar.sh " + dist_dir)
+    runcmd("cp synoptic-jar.bat " + dist_dir)
     runcmd("cp RELEASE-README.txt " + dist_dir + "README.txt")
 
     # Remove the extracted META-INF

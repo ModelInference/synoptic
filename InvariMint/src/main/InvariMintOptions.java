@@ -13,6 +13,22 @@ public class InvariMintOptions extends synoptic.main.Options {
 
     // //////////////////////////////////////////////////
     /**
+     * Print the short usage message. This does not include verbosity or
+     * debugging options.
+     */
+    @OptionGroup("General Options")
+    @Option(value = "-h Print short usage message", aliases = { "-help" })
+    public boolean help = false;
+
+    /**
+     * Print the extended usage message. This includes verbosity and debugging
+     * options but not internal options.
+     */
+    @Option("-H Print extended usage message (includes debugging options)")
+    public boolean allHelp = false;
+
+    // //////////////////////////////////////////////////
+    /**
      * Command line arguments input filename to use.
      */
     @OptionGroup("Input Options")
@@ -125,6 +141,15 @@ public class InvariMintOptions extends synoptic.main.Options {
         if (randomSeed == null) {
             randomSeed = System.currentTimeMillis();
         }
+    }
+
+    /**
+     * Prints help for all option groups, including unpublicized ones.
+     */
+    public void printLongHelp() {
+        System.out.println("Usage: " + getUsageString());
+        System.out.println(plumeOptions.usage("General Options",
+                "Parser Options", "Input Options"));
     }
 
     @Override

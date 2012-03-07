@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -27,6 +28,7 @@ import synoptic.model.DistEventType;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
+import synoptic.model.Relation;
 import synoptic.model.StringEventType;
 import synoptic.model.TraceGraph;
 import synoptic.util.InternalSynopticException;
@@ -48,7 +50,6 @@ import synoptic.util.time.VectorTime;
  * @author mgsloan
  */
 public class TraceParser {
-    public final static String defaultRelation = "t";
 
     private static Logger logger = Logger.getLogger("Parser Logger");
 
@@ -75,7 +76,7 @@ public class TraceParser {
     private static final Pattern matchPostIncrement = Pattern
             .compile("\\(\\?<(\\w*)\\+\\+>\\)");
     private static final Pattern matchDefault = Pattern
-            .compile("\\(\\?<(\\w*)>\\)");
+            .compile("\\(\\?<((\\w|\\*|\\-)*)>\\)");
 
     // All line-matching regexps will be checked to include the following set of
     // required regexp groups.
@@ -88,6 +89,14 @@ public class TraceParser {
     // DTIME: double time (e.g. 1234.56) -- 64 bits
     public static final List<String> validTimeGroups = Arrays.asList("TIME",
             "VTIME", "FTIME", "DTIME");
+    
+    // Regexp group representing multiple relations
+    private static final String relationGroup = "RELATION";
+    private static final String namedRelationGroup = "RELATION-";
+    
+    // Regexp group representing closure relations, call and return for now.
+    private static final String closureRelationGroup = "RELATION*";
+    private static final String namedclosureRelationGroup = "RELATION*-";
 
     // A group that is used to capture the process ID in a PO log -- can only be
     // used in conjunction with VTIME, but is optional. However, if it used in
@@ -110,6 +119,8 @@ public class TraceParser {
     // passed reg exps to match lines. The parser allows only one type of time
     // to be used.
     private String selectedTimeGroup = null;
+    
+
 
     /**
      * Returns an un-parameterized trace parser.
@@ -458,6 +469,31 @@ public class TraceParser {
                     throw new ParseException(error);
                 }
             }
+            
+            
+            for (String group : groups) {
+            	if (group.startsWith(relationGroup)) {
+            		
+            		// Check to see if relation capture group strings are well-formed
+            		Pattern relation = Pattern.compile("RELATION\\*?(-\\w*)?");
+            		Matcher fieldMatcher = relation.matcher(group);
+            		if (!fieldMatcher.matches()) {
+            			String error = "Relation field: " + group + " is malformed." +
+            					"Accepts: RELATION*?(-\\w*)?";
+            			logger.severe(error);
+            			throw new ParseException(error);
+            		}
+            		
+            		// Check if VTIME is used with relation   
+            		if (selectedTimeGroup.equals("VTIME")) {
+            			String error = "RELATION and VTIME groups cannot be mixed since multiple" +
+            					"relations requires a totally ordered log.";
+            			logger.severe(error);
+            			throw new ParseException(error);
+            		}
+            	}
+            }
+            
         }
 
         if (Main.options.debugParse) {
@@ -854,6 +890,32 @@ public class TraceParser {
                 eType = new StringEventType(eTypeLabel);
                 event = new Event(eType, line, fileName, lineNum);
             }
+            
+            /* Tag event nodes with relation fields.
+             * This is gross, is there a nicer way to represent a state
+             * machine?
+             */
+            for (String key : matched.keySet()) {
+            	if (key.startsWith(relationGroup)) {
+	            	String relationString = matched.get(key);
+	        		String name = Relation.ANONYMOUS;
+	        		boolean isClosure = false;
+	        		
+	        		if (key.startsWith(closureRelationGroup)) {
+	        			isClosure = true;
+	        			
+	        			if (key.startsWith(namedclosureRelationGroup)) {
+	        				name = key.substring(namedclosureRelationGroup.length());
+	        			}
+	        			
+	        		} else if (key.startsWith(namedRelationGroup)) {
+	        			name = key.substring(namedRelationGroup.length());
+	        		}
+	
+	    			Relation relation = new Relation(name, relationString, isClosure);
+	    			event.addRelation(relation);
+        		}
+            }	
 
             // We have two cases for processing time on log lines:
             // (1) Implicitly: no matched field is a time field because it is
@@ -1041,7 +1103,8 @@ public class TraceParser {
 
     /**
      * Given a list of log events that can be totally ordered, manipulates the
-     * builder to construct the corresponding trace graph.
+     * builder to construct the corresponding trace graph. Supports multiple
+     * relations.
      * 
      * @param allEvents
      *            The list of events to process.
@@ -1063,9 +1126,13 @@ public class TraceParser {
                 }
             });
 
+            Map<Relation, EventNode> closureMap = new HashMap<Relation, EventNode>();
             // Tag first node in the sorted list as initial.
             EventNode prevNode = group.get(0);
-            graph.tagInitial(prevNode, defaultRelation);
+            for (Relation relation : prevNode.getEventRelations()) {
+            	graph.tagInitial(prevNode, relation.getRelation());
+            	closureMap.put(relation,  prevNode);
+            }
 
             // Create transitions to connect the nodes in the sorted trace.
             for (EventNode curNode : group.subList(1, group.size())) {
@@ -1077,12 +1144,30 @@ public class TraceParser {
                     logger.severe(error);
                     throw new ParseException(error);
                 }
-                prevNode.addTransition(curNode, defaultRelation);
+                for (Relation relation : curNode.getEventRelations()) {
+                	if (relation.isClosure()) {
+                		EventNode prevClosureNode = closureMap.get(relation);
+                		/* This is a little gross. If the initial node could be
+                		 * pulled out of the graph and treated as an independent
+                		 * event node, then this would be a lot nicer.
+                		 */
+                		if (prevClosureNode == null) {
+                			graph.tagInitial(curNode, relation.getRelation());
+                		} else {
+                			prevClosureNode.addTransition(curNode, relation.getRelation());
+                		}
+                	} else {
+                		prevNode.addTransition(curNode, relation.getRelation());
+                	}
+                	closureMap.put(relation,  curNode);
+                }
                 prevNode = curNode;
             }
 
             // Tag the final node as terminal:
-            graph.tagTerminal(prevNode, defaultRelation);
+            for (Relation relation : prevNode.getEventRelations()) {
+            	graph.tagTerminal(prevNode, relation.getRelation());
+            }
         }
         return graph;
     }
@@ -1127,11 +1212,15 @@ public class TraceParser {
                 }
 
                 if (directSuccessors.size() == 0) {
-                    // Tag messages without a predecessor as terminal.
-                    graph.tagTerminal(e1, defaultRelation);
+                    // Tag messages without successor as terminal.
+                    for (Relation relation : e1.getEventRelations()) {
+                    	graph.tagTerminal(e1, relation.getRelation());
+                    }
                 } else {
                     for (EventNode e2 : directSuccessors) {
-                        e1.addTransition(e2, defaultRelation);
+                    	for (Relation relation : e2.getEventRelations()) {
+                    		e1.addTransition(e2, relation.getRelation());
+                    	}
                         noPredecessor.remove(e2);
                     }
                 }
@@ -1141,7 +1230,9 @@ public class TraceParser {
 
         // Mark messages without a predecessor as initial.
         for (EventNode e : noPredecessor) {
-            graph.tagInitial(e, defaultRelation);
+        	for (Relation relation : e.getEventRelations()) {
+        		graph.tagInitial(e, relation.getRelation());
+        	}
         }
 
         return graph;
