@@ -81,6 +81,7 @@ public class DerbyDB {
         }
     }
     
+    // Stores a collection of DerbyTable ojects.
     private void connectToTables() {
     	m.put(Table.LogReExp, new LogReExp(conn, stmt));
     	m.put(Table.ParseLogAction, new ParseLogAction(conn, stmt));
@@ -184,12 +185,17 @@ public class DerbyDB {
         return reId;
     }
     
+    /**
+     * Returns a map containing all DerbyTables.
+     * @return collection of DerbyTables.
+     */
     public Map<Table, DerbyTable> getTables() {
     	return Collections.unmodifiableMap(m);
     }
     
     /**
-     * Writes to database user's SynopticGWT usage after parsing a log.
+     * Writes data about user's SynopticGWT usage after parsing a log
+     * into database.
      * @param vID
      * @param synOpts
      * @param graph
