@@ -1,10 +1,8 @@
 package synopticgwt.server;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import java.io.File;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
@@ -92,7 +90,7 @@ public class DerbyDBTests extends TestCase {
     }
     
     /**
-     * Tests writing to the database.
+     * Writes to 
      * 
      * @throws ClassNotFoundException
      * @throws IllegalAccessException
@@ -100,25 +98,135 @@ public class DerbyDBTests extends TestCase {
      * @throws SQLException
      */
     @Test
-    public void testWrite() throws SQLException, InstantiationException,
+    public void testWriteAndRead() throws SQLException, InstantiationException,
             IllegalAccessException, ClassNotFoundException {
     	
-    	Timestamp now = new Timestamp(System.currentTimeMillis());
-    	int vid = visitor.insert("24.22.234.22", now);
-    	assertEquals(1, vid);
+    	///// INSERTING INTO TABLES /////
+    	String expected_ip = "24.22.234.22";
+    	Timestamp expected_time = new Timestamp(System.currentTimeMillis());
+    	int expected_vid = visitor.insert(expected_ip, expected_time);
+    	assertEquals(1, expected_vid);
     	
-    	int reid = reExp.insert("test", "hash");
-    	assertEquals(1, reid);
+    	String expected_text = "test text";
+    	String expected_hash = "test hash";
+    	int expected_reid = reExp.insert(expected_text, expected_hash);
+    	assertEquals(1, expected_reid);
     	
-    	int logid = uploadedLog.insert("test log", "hash");
-    	assertEquals(1, logid);
+    	int expected_logid = uploadedLog.insert(expected_text, expected_hash);
+    	assertEquals(1, expected_logid);
     	
-    	String parseResult = "test parsing";
-    	int parseid = parseLogAction.insert(vid, now, parseResult);
-    	assertEquals(1, parseid);
+    	String expected_result = "test parse result";
+    	int expected_parseid = parseLogAction.insert(expected_vid, expected_time, expected_result);
+    	assertEquals(1, expected_parseid);
     	
-    	logReExp.insert(parseid, reid, logid);
+    	logReExp.insert(expected_parseid, expected_reid, expected_logid);
+    	splitReExp.insert(expected_parseid, expected_reid, expected_logid);
+    	partitionReExp.insert(expected_parseid, expected_reid, expected_logid);
     	
+    	///// READING FROM TABLES /////
     	
+    	// Reading Visitor table
+    	ResultSet rs_Visitor = visitor.getSelect();
+    	int vid_Visitor = 0;
+    	String ip_Visitor = null;
+    	String time_Visitor = null;
+    	while (rs_Visitor.next()) {
+    		vid_Visitor = rs_Visitor.getInt("vid");
+    		ip_Visitor = rs_Visitor.getString("IP");
+            time_Visitor = rs_Visitor.getString("timestamp");
+        }
+    	rs_Visitor.close();
+    	assertEquals(expected_vid, vid_Visitor);
+    	assertEquals(expected_ip, ip_Visitor);
+    	assertEquals(expected_time.toString(), time_Visitor);
+    	// Reading ReExp table
+    	ResultSet rs_ReExp = reExp.getSelect();
+    	int reid_ReExp = 0;
+    	String text_ReExp = null;
+    	String hash_ReExp = null;
+    	while (rs_ReExp.next()) {
+            reid_ReExp = rs_ReExp.getInt("reid");
+    		text_ReExp = rs_ReExp.getString("text");
+            hash_ReExp = rs_ReExp.getString("hash");
+        }
+    	rs_ReExp.close();
+    	assertEquals(expected_reid, reid_ReExp);
+    	assertEquals(expected_text, text_ReExp);
+    	assertEquals(expected_hash, hash_ReExp);
+    	
+    	// Reading UploadedLog table
+    	ResultSet rs_UploadedLog = uploadedLog.getSelect();
+    	int logid_UploadedLog = 0;
+    	String text_UploadedLog = null;
+    	String hash_UploadedLog = null;
+    	while (rs_UploadedLog.next()) {
+    		logid_UploadedLog = rs_UploadedLog.getInt("logid");
+    		text_UploadedLog = rs_UploadedLog.getString("text");
+            hash_UploadedLog = rs_UploadedLog.getString("hash");
+        }
+    	rs_UploadedLog.close();
+    	assertEquals(expected_logid, logid_UploadedLog);
+    	assertEquals(expected_text, text_UploadedLog);
+    	assertEquals(expected_hash, hash_UploadedLog);
+    	
+    	// Reading ParseLogAction table
+    	ResultSet rs_ParseLogAction = parseLogAction.getSelect();
+    	int vid_ParseLogAction = 0;
+    	String time_ParseLogAction = null;
+    	int parseid_ParseLogAction = 0;
+    	String result_ParseLogAction = null;
+    	while (rs_ParseLogAction.next()) {
+    		vid_ParseLogAction = rs_ParseLogAction.getInt("vid");
+            time_ParseLogAction = rs_ParseLogAction.getString("timestamp");
+            parseid_ParseLogAction = rs_ParseLogAction.getInt("parseid");
+    		result_ParseLogAction = rs_ParseLogAction.getString("result");
+        }
+    	rs_ParseLogAction.close();
+    	assertEquals(expected_vid, vid_ParseLogAction);
+    	assertEquals(expected_parseid, parseid_ParseLogAction);
+    	assertEquals(expected_time.toString(), time_ParseLogAction);
+    	assertEquals(expected_result, result_ParseLogAction);
+    	
+    	// Reading LogReExp table
+    	ResultSet rs_LogReExp = logReExp.getSelect();
+    	int parseid_LogReExp = 0;
+    	int reid_LogReExp = 0;
+    	int logid_LogReExp = 0;
+    	while(rs_LogReExp.next()) {
+    		parseid_LogReExp = rs_LogReExp.getInt("parseid");
+    		reid_LogReExp = rs_LogReExp.getInt("reid");
+    		logid_LogReExp = rs_LogReExp.getInt("logid");
+    	}
+    	assertEquals(expected_parseid, parseid_LogReExp);
+    	assertEquals(expected_reid, reid_LogReExp);
+    	assertEquals(expected_logid, logid_LogReExp);
+    	
+    	// Reading SplitReExp table
+    	ResultSet rs6 = logReExp.getSelect();
+    	int parseid_SplitReExp = 0;
+    	int reid_SplitReExp = 0;
+    	int logid_SplitReExp = 0;
+    	while(rs6.next()) {
+    		parseid_SplitReExp = rs6.getInt("parseid");
+    		reid_SplitReExp = rs6.getInt("reid");
+    		logid_SplitReExp = rs6.getInt("logid");
+    	}
+    	assertEquals(expected_parseid, parseid_SplitReExp);
+    	assertEquals(expected_reid, reid_SplitReExp);
+    	assertEquals(expected_logid, logid_SplitReExp);
+    	
+    	// Reading PartitionReExp table
+    	ResultSet rs7 = logReExp.getSelect();
+    	int parseid_PartitionReExp = 0;
+    	int reid_PartitionReExp = 0;
+    	int logid_PartitionReExp = 0;
+    	while(rs7.next()) {
+    		parseid_PartitionReExp = rs7.getInt("parseid");
+    		reid_PartitionReExp = rs7.getInt("reid");
+    		logid_PartitionReExp = rs7.getInt("logid");
+    	}
+    	assertEquals(expected_parseid, parseid_PartitionReExp);
+    	assertEquals(expected_reid, reid_PartitionReExp);
+    	assertEquals(expected_logid, logid_PartitionReExp);
     }
 }
