@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.NoSuchElementException;
 
 /**
  * UploadedLog table.
@@ -59,12 +60,13 @@ public class UploadedLog extends DerbyTable {
 
     /**
      * If hash exists in table already, return the id of that row.
-  	 * Else, return -1 if hash doesn't exist in table.
+  	 * Else, throw NoSuchElementException if hash doesn't exist in table.
      * @param hash
-     * @return
+     * @throws NoSuchElementException
      * @throws SQLException
      */
-    public int getIdExistingHash(String hash) throws SQLException {
+    public int getIdExistingHash(String hash) throws 
+    			SQLException, NoSuchElementException {
         int result = -1;
 
         stmt = conn.createStatement();
@@ -76,6 +78,11 @@ public class UploadedLog extends DerbyTable {
             result = rs.getInt(1);
         }
 
+        if (result == -1) {
+        	throw new NoSuchElementException("Hash doesn't exist in " +
+        			"UploadedLog table");
+        }
+        
         rs.close();
         stmt.close();
 
