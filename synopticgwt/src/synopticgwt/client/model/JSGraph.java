@@ -69,14 +69,44 @@ public class JSGraph implements MouseEventHandler<JSONode> {
     // server).
     private final ModelTab modelTab;
 
-    public JSGraph(ModelTab modelTab) {
-        this.modelTab = modelTab;
+    // Shows which type of label the edges will have.
+    private EdgeLabelType edgeLabelType;
+
+    // The different available edge labels.
+    public enum EdgeLabelType {
+        WEIGHT, COUNT;
+
+        public static String getEdgeLabelString(GWTEdge edge,
+                EdgeLabelType labelType) {
+            String label;
+            switch (labelType) {
+            case WEIGHT:
+                label = edge.getWeightStr();
+                break;
+            case COUNT:
+                label = edge.getCountStr();
+                break;
+            default:
+                // If it isn't one of the above, it's
+                // null.
+                throw new IllegalArgumentException();
+            }
+            return label;
+        }
     }
 
-    public void create(GWTGraph graph, int width, int height, String canvasID) {
+    public JSGraph(ModelTab modelTab, GWTGraph graph, int width, int height,
+            String canvasID) {
+        this.modelTab = modelTab;
         this.selectedNodes = new HashSet<JSONode>();
         this.nodes = new HashMap<GWTNode, JSONode>();
         this.edges = new HashMap<GWTEdge, JSOEdge>();
+
+        // Show edge weights by default
+        // TODO Perhaps this should be set in the constructor, so if
+        // the default radio button that has been selected is different
+        // from this, there won't be any confusion.
+        this.edgeLabelType = EdgeLabelType.WEIGHT;
 
         this.jsoGraph = JSOGraph.create();
         // For each node, add the node to the jsGraph,
@@ -99,7 +129,7 @@ public class JSGraph implements MouseEventHandler<JSONode> {
         // the jsGraph, and then add the reference to said edge to
         // this graph.
         for (GWTEdge edge : graph.edges) {
-            JSOEdge jsoEdge = this.jsoGraph.addEdge(edge);
+            JSOEdge jsoEdge = this.jsoGraph.addEdge(edge, this.edgeLabelType);
             this.edges.put(edge, jsoEdge);
         }
 
@@ -109,6 +139,13 @@ public class JSGraph implements MouseEventHandler<JSONode> {
 
     public void resize(int width, int height) {
         this.jsoGraph.reDraw(width, height);
+    }
+
+    public void setEdgeLabelType(EdgeLabelType labelType) {
+        for (GWTEdge edge : this.edges.keySet()) {
+            String label = EdgeLabelType.getEdgeLabelString(edge, labelType);
+            this.edges.get(edge).setLabel(label);
+        }
     }
 
     /**
@@ -206,7 +243,8 @@ public class JSGraph implements MouseEventHandler<JSONode> {
         for (GWTEdge edge : refinedGraph.getGraph().getEdges()) {
             if (newNodes.contains(edge.getSrc())
                     || newNodes.contains(edge.getDst()))
-                this.edges.put(edge, this.jsoGraph.addEdge(edge));
+                this.edges.put(edge,
+                        this.jsoGraph.addEdge(edge, this.edgeLabelType));
         }
 
         this.jsoGraph.reDraw(newNodes);

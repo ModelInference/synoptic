@@ -13,7 +13,19 @@ public class JSOEdge extends JavaScriptObject {
     // JSO types always have empty constructors.
     protected JSOEdge() {
     }
-    
+
+    /**
+     * Sets the edge's label to the following
+     * 
+     * @param label
+     *            The label to which the edge's label will be set.
+     */
+    public native final void setLabel(String label) /*-{
+        this.connection.label.attr({
+            "text" : label
+        });
+    }-*/;
+
     /**
      * Sets the style of the displayed edge
      * 
