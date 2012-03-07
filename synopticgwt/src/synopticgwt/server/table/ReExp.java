@@ -24,9 +24,10 @@ public class ReExp extends DerbyTable {
     }
      
     /**
-     * TODO comment
-     * @param ipAddress
-     * @param time
+     * Inserts text and hash into the table. Returns id of auto-incremented
+     * field if exists. Else, return -1.
+     * @param text
+     * @param hash
      * @throws SQLException 
      */
     public int insert(String text, String hash) throws SQLException {
@@ -54,17 +55,17 @@ public class ReExp extends DerbyTable {
     }
     
     /**
-  	 *TODO comment
-     * 
-     * @param String
-     *            query to select a specific row
-     * @return int returns first column value of row
+     * If hash exists in table already, return the id of that row.
+  	 * Else, return -1 if hash doesn't exist in table.
+     * @param hash
+     * @return
+     * @throws SQLException
      */
     public int getIdExistingHash(String hash) throws SQLException {
         int result = -1;
 
         stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("select * from  ReExp where hash = '" 
+        ResultSet rs = stmt.executeQuery("select * from ReExp where hash = '" 
         		+ hash 
         		+ "'");
 
@@ -76,5 +77,21 @@ public class ReExp extends DerbyTable {
         stmt.close();
 
         return result;
+    }
+    
+    /**
+     * Returns ResultSet of "SELECT * from ReExp" query.
+     * Note: must call close() on ResultSet after done using it.
+     * @param field
+     * @param value
+     * @return ResultSet of query
+     * @throws SQLException
+     */
+    public ResultSet getSelect() 
+    			throws SQLException {        
+        stmt = conn.createStatement();      
+        String q = "select * from ReExp";
+        ResultSet rs = stmt.executeQuery(q);   
+        return rs;
     }
 }
