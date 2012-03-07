@@ -128,7 +128,7 @@ public class DerbyDB {
         // Get a connection
         conn = DriverManager.getConnection(connectionURL + ";create="
                 + isCreate);
-        logger.info("Connecting to Derby database.");
+        logger.info("Connecting to Derby database");
     }
 
     /**
@@ -138,6 +138,7 @@ public class DerbyDB {
     	for (Table key : m.keySet()) {
     		m.get(key).createTable();
     	}
+    	logger.info("Created all tables in Derby db");
     }
     
     /**
@@ -149,7 +150,6 @@ public class DerbyDB {
      */
     public static String getHash(String message) throws UnsupportedEncodingException,
             NoSuchAlgorithmException {
-    	logger.info("Generating a hash");
         byte[] byteMessage = message.getBytes("UTF-8");
         if (mdInstance == null) {
         	mdInstance = MessageDigest.getInstance("MD5");
@@ -162,27 +162,6 @@ public class DerbyDB {
             result = "0" + result;
         }
         return result;
-    }
-    
-    // Checks if reExp exists in the given table already. If it exists, return
-    // the row id of it in the table. If it doesn't exist, insert reExp into 
-    // table and return row id of where it was inserted.
-    private int getReId(String reExp)
-            throws UnsupportedEncodingException, NoSuchAlgorithmException,
-            SQLException {
-    	// Clean String for single quotes.
-        String cleanString = reExp.replace("'", "''"); 
-        String hashReExp = DerbyDB.getHash(cleanString);
-        
-        ReExp r = (ReExp) m.get(Table.ReExp);
-        
-        int reId = r.getIdExistingHash(hashReExp);
-
-        if (reId == -1) { // doesn't exist in database
-        	reId = r.insert(cleanString, hashReExp);
-            logger.info("Hash for a reg exp or log lines found in DerbyDB");
-        }
-        return reId;
     }
     
     /**
@@ -212,7 +191,6 @@ public class DerbyDB {
     		GWTGraph graph, ChainsTraceGraph traceGraph, ArrayList<EventNode> parsedEvents,
     		TemporalInvariantSet minedInvs, GWTInvariantSet invs, int miningTime) 
     			throws SQLException, UnsupportedEncodingException, NoSuchAlgorithmException {
-        logger.info("Writing information to Derby");
     	
     	List<Integer> logReId = getLogReExp(synOpts.regExps);
         int partitionReId = getReId(synOpts.partitionRegExp);
@@ -238,18 +216,21 @@ public class DerbyDB {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         ParseLogAction parseLogActionTable = (ParseLogAction) m.get(Table.ParseLogAction);
         int parseID = parseLogActionTable.insert(vID, now, parseResult);
+        logger.info("Inserted data in ParseLogAction table");
 
         // Inserts into reg exps tables.
         for (int i = 0; i < logReId.size(); i++) {
         	LogReExp l = (LogReExp) m.get(Table.LogReExp);
         	l.insert(parseID, logReId.get(i), logLineId);
-
+        	logger.info("Inserted data in LogReExp table");
 		}
         SplitReExp s = (SplitReExp) m.get(Table.SplitReExp);
         s.insert(parseID, splitReId, logLineId);
+        logger.info("Inserted data in SplitReExp table");
 
     	PartitionReExp p = (PartitionReExp) m.get(Table.PartitionReExp);
     	p.insert(parseID, partitionReId, logLineId);
+    	logger.info("Inserted data in PartitionReExp table");
     }
     
     // Checks each reg exp in list if it exists in the ReExp table already.
@@ -265,6 +246,28 @@ public class DerbyDB {
         return result;
     }
     
+    // Checks if reExp exists in the given table already. If it exists, return
+    // the row id of it in the table. If it doesn't exist, insert reExp into 
+    // table and return row id of where it was inserted.
+    private int getReId(String reExp)
+            throws UnsupportedEncodingException, NoSuchAlgorithmException,
+            SQLException {
+    	// Clean String for single quotes.
+        String cleanString = reExp.replace("'", "''"); 
+        String hashReExp = DerbyDB.getHash(cleanString);
+        
+        ReExp r = (ReExp) m.get(Table.ReExp);
+        int reId = r.getIdExistingHash(hashReExp);
+
+        if (reId == -1) { // doesn't exist in database
+        	reId = r.insert(cleanString, hashReExp);
+			logger.info("Inserted data into ReExp table");
+        } else {
+            logger.info("Hash for a reg exp or log lines found in DerbyDB");
+        }
+        return reId;
+    }
+    
     // Given a string of log lines, checks if log lines exists in the database.
     // If it exists, get the id of existing log from database. If it doesn't
     // exist, inserts the log lines into the database and return the id.
@@ -275,13 +278,14 @@ public class DerbyDB {
     	String cleanString = logLines.replace("'", "''"); 
 		String hashReExp = DerbyDB.getHash(cleanString);
 		
-		UploadedLog u = (UploadedLog) m.get(Table.UploadedLog);
-		
+		UploadedLog u = (UploadedLog) m.get(Table.UploadedLog);	
 		int reId = u.getIdExistingHash(hashReExp);
 
 		if (reId == -1) { // doesn't exist in database
 			reId = u.insert(cleanString, hashReExp);
-			logger.info("Hash for a reg exp or log lines found in DerbyDB");
+			logger.info("Inserted data into UploadedLog table");
+		} else {
+			logger.info("Hash found in UploaedLog table");
 		}
 		return reId;
     }
