@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 
 import synoptic.invariants.TemporalInvariantSet;
@@ -257,14 +258,16 @@ public class DerbyDB {
         String hashReExp = DerbyDB.getHash(cleanString);
         
         ReExp r = (ReExp) m.get(Table.ReExp);
-        int reId = r.getIdExistingHash(hashReExp);
-
-        if (reId == -1) { // doesn't exist in database
+        
+        int reId;
+        try{
+        	reId = r.getIdExistingHash(hashReExp);
+        	logger.info("Hash found in ReExp table");
+        } catch (NoSuchElementException e) {
         	reId = r.insert(cleanString, hashReExp);
 			logger.info("Inserted data into ReExp table");
-        } else {
-            logger.info("Hash for a reg exp or log lines found in DerbyDB");
         }
+        
         return reId;
     }
     
@@ -279,13 +282,14 @@ public class DerbyDB {
 		String hashReExp = DerbyDB.getHash(cleanString);
 		
 		UploadedLog u = (UploadedLog) m.get(Table.UploadedLog);	
-		int reId = u.getIdExistingHash(hashReExp);
-
-		if (reId == -1) { // doesn't exist in database
+		
+		int reId;
+		try {
+			reId = u.getIdExistingHash(hashReExp);
+			logger.info("Hash found in UploadedLog table");
+		} catch (NoSuchElementException e) {
 			reId = u.insert(cleanString, hashReExp);
 			logger.info("Inserted data into UploadedLog table");
-		} else {
-			logger.info("Hash found in UploaedLog table");
 		}
 		return reId;
     }
