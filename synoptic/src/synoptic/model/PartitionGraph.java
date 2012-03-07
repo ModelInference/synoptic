@@ -387,7 +387,7 @@ public class PartitionGraph implements IGraph<Partition> {
     @Override
     public void add(Partition node) {
         for (EventNode m : node.getEventNodes()) {
-            relations.addAll(m.getRelations());
+            relations.addAll(m.getNodeRelations());
         }
         partitions.add(node);
 
@@ -650,7 +650,7 @@ public class PartitionGraph implements IGraph<Partition> {
                 if (!followedBy.contains(target)) {
                     neverIFbyInvariants
                             .add(new NeverImmediatelyFollowedInvariant(source,
-                                    target, TraceParser.defaultRelation));
+                                    target, Event.defaultTimeRelationString));
                 }
             }
         }

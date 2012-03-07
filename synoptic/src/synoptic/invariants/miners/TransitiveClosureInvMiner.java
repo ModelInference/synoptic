@@ -24,6 +24,7 @@ import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.DistEventType;
+import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.StringEventType;
@@ -309,7 +310,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
             if (e1Entry.getValue().keySet().size() == numTraces) {
                 pathInvs.add(new AlwaysFollowedInvariant(StringEventType
                         .newInitialStringEventType(), e1,
-                        TraceParser.defaultRelation));
+                        Event.defaultTimeRelationString));
             }
             // /////////////////
 

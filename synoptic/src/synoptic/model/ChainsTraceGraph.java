@@ -44,6 +44,18 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         super.tagInitial(initialNode, relation);
         traceIdToInitNodes.put(initialNode.getTraceID(), initialNode);
     }
+    
+    /**
+     * Creates transitions from INITIAL to initialNode for each string in 
+     * the relations collection.
+     * @param initialNode
+     * @param relations
+     */
+    public void tagInitial(EventNode initialNode, Collection<String> relations) {
+    	for (String relation : relations) {
+    		tagInitial(initialNode, relation);
+    	}
+    }
 
     /**
      * Returns the number of trace ids that are immediately reachable from the
