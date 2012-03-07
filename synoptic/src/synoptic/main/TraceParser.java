@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -891,31 +892,43 @@ public class TraceParser {
                 event = new Event(eType, line, fileName, lineNum);
             }
             
-            /* Tag event nodes with relation fields.
-             * This is gross, is there a nicer way to represent a state
-             * machine?
-             */
-            for (String key : matched.keySet()) {
-            	if (key.startsWith(relationGroup)) {
-	            	String relationString = matched.get(key);
-	        		String name = Relation.ANONYMOUS;
-	        		boolean isClosure = false;
-	        		
-	        		if (key.startsWith(closureRelationGroup)) {
-	        			isClosure = true;
-	        			
-	        			if (key.startsWith(namedclosureRelationGroup)) {
-	        				name = key.substring(namedclosureRelationGroup.length());
-	        			}
-	        			
-	        		} else if (key.startsWith(namedRelationGroup)) {
-	        			name = key.substring(namedRelationGroup.length());
-	        		}
-	
-	    			Relation relation = new Relation(name, relationString, isClosure);
-	    			event.addRelation(relation);
-        		}
-            }	
+			/*
+			 * Tag event nodes with relation fields. This is gross, is there a
+			 * nicer way to represent a state machine?
+			 */
+			Set<String> relationValues = new HashSet<String>();
+			for (String key : matched.keySet()) {
+				if (key.startsWith(relationGroup)) {
+					String relationString = matched.get(key);
+
+					if (relationValues.contains(relationString)) {
+						throw new ParseException(
+								"Duplicate captured relation value: "
+										+ relationString);
+					}
+
+					relationValues.add(relationString);
+
+					String name = Relation.ANONYMOUS;
+					boolean isClosure = false;
+
+					if (key.startsWith(closureRelationGroup)) {
+						isClosure = true;
+
+						if (key.startsWith(namedclosureRelationGroup)) {
+							name = key.substring(namedclosureRelationGroup
+									.length());
+						}
+
+					} else if (key.startsWith(namedRelationGroup)) {
+						name = key.substring(namedRelationGroup.length());
+					}
+
+					Relation relation = new Relation(name, relationString,
+							isClosure);
+					event.addRelation(relation);
+				}
+			}
 
             // We have two cases for processing time on log lines:
             // (1) Implicitly: no matched field is a time field because it is
