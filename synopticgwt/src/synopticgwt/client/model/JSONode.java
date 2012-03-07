@@ -98,12 +98,12 @@ public class JSONode extends JavaScriptObject {
      * @param hover
      *            object with java level mouseover function
      */
-    private native final void setMouseover(MouseEventHandler<JSONode> hover) /*-{
+    private native final void setMouseover(MouseEventHandler<JSONode> mOver) /*-{
         this.onmouseover = function(hoverable, obj) {
             return function(e) {
                 hoverable.@synopticgwt.client.util.MouseEventHandler::mouseover(Ljava/lang/Object;)(obj);
             };
-        }(hover, this);
+        }(mOver, this);
     }-*/;
 
     /**
@@ -112,12 +112,12 @@ public class JSONode extends JavaScriptObject {
      * @param hover
      *            object with java level mouseout function
      */
-    private native final void setMouseout(MouseEventHandler<JSONode> hover) /*-{
+    private native final void setMouseout(MouseEventHandler<JSONode> mOut) /*-{
         this.onmouseout = function(hoverable, obj) {
             return function(e) {
                 hoverable.@synopticgwt.client.util.MouseEventHandler::mouseout(Ljava/lang/Object;)(obj);
             };
-        }(hover, this);
+        }(mOut, this);
     }-*/;
 
     /**
@@ -142,10 +142,11 @@ public class JSONode extends JavaScriptObject {
      */
     public native final void attachRenderer() /*-{
         this.render = function(canvas, node) {
-            if (node.label == @synopticgwt.client.model.JSGraph::INITIAL
-                    || node.label == @synopticgwt.client.model.JSGraph::TERMINAL) {
+            var rect;
+            if (this.label == @synopticgwt.client.model.JSGraph::INITIAL
+                    || this.label == @synopticgwt.client.model.JSGraph::TERMINAL) {
                 // creates the rectangle to be drawn
-                node.rect = canvas
+                rect = canvas
                         .rect(node.point[0] - 30, node.point[1] - 13, 122, 46)
                         .attr(
                                 {
@@ -155,7 +156,7 @@ public class JSONode extends JavaScriptObject {
                                 });
             } else {
                 // creates the rectangle to be drawn
-                node.rect = canvas
+                rect = canvas
                         .rect(node.point[0] - 30, node.point[1] - 13, 122, 46)
                         .attr(
                                 {
@@ -163,27 +164,34 @@ public class JSONode extends JavaScriptObject {
                                     "stroke-width" : @synopticgwt.client.model.JSGraph::DEFAULT_STROKE_WIDTH,
                                     r : "9px"
                                 });
-                // associate label with rectangle object
-                node.rect.label = node.label;
             }
 
-            node.text = canvas.text(node.point[0] + 30, node.point[1] + 10,
+            var text = canvas.text(node.point[0] + 30, node.point[1] + 10,
                     node.label).attr({
                 "font-size" : "16px",
             });
+
+            // For some strange reason, setting the rect and text object
+            // only once solves any event-related issues when redrawing
+            // the graph.  Make sure not to remove this unless you know
+            // what you're doing!
+            if (!this.rect && !this.text) {
+                this.text = text;
+                this.rect = rect;
+            }
 
             // Attach the instances event handlers to the actual renderers.
             // may take up a little more memory as there is duplication
             // (one function in the instance, and one in the text/rect), but
             // it allows the event handlers to be attached before the node
             // is actually drawn.
-            node.rect.node.onmouseup = node.text.node.onmouseup = node.onmouseup;
-            node.rect.node.onmouseover = node.text.node.onmouseover = node.onmouseover;
-            node.rect.node.onmouseout = node.text.node.onmouseout = node.onmouseout;
+            rect.node.onmouseout = text.node.onmouseout = this.onmouseout;
+            rect.node.onmouseup = text.node.onmouseup = this.onmouseup;
+            rect.node.onmouseover = text.node.onmouseover = this.onmouseover;
 
             // the Raphael set is obligatory, containing all you want to display
             // draws this node's label
-            var set = canvas.set().push(node.rect).push(node.text);
+            var set = canvas.set().push(rect).push(text);
 
             return set;
         };
