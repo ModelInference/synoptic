@@ -84,28 +84,25 @@ public class JSOGraph extends JavaScriptObject {
     }-*/;
 
     /**
-     * Adds and returns an instance to the graph.
+     * Adds an edge to the graph and returns an instance of said edge.
      * 
-     * TODO Make some test as to whether to show counts or weights.
+     * @param edge
+     *            The edge to be added to the graph.
+     * 
+     * @param edgeLabelType
+     *            The type of label to use on this edge.
      */
-    public native final JSOEdge addEdge(GWTEdge edge) /*-{
-
+    public native final JSOEdge addEdge(GWTEdge edge,
+            JSGraph.EdgeLabelType labelType) /*-{
         var sourceNode = edge.@synopticgwt.shared.GWTEdge::getSrc()();
         var source = sourceNode.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr()();
         var destNode = edge.@synopticgwt.shared.GWTEdge::getDst()();
         var dest = destNode.@synopticgwt.shared.GWTNode::getPartitionNodeHashCodeStr()();
         var transProb = edge.@synopticgwt.shared.GWTEdge::getWeightStr()();
         var transCount = edge.@synopticgwt.shared.GWTEdge::getCountStr()();
-        //        var mTab = this.@synopticgwt.client.model.ModelGraphic::modelTab;
-        //        var showCounts = mTab.@synopticgwt.client.model.ModelTab::getShowEdgeCounts()();
-        //        if (showCounts) {
-        //            labelVal = transCount;
-        //        } else {
-        //            labelVal = transProb;
-        //        }
-
+        var label = @synopticgwt.client.model.JSGraph.EdgeLabelType::getEdgeLabelString(Lsynopticgwt/shared/GWTEdge;Lsynopticgwt/client/model/JSGraph$EdgeLabelType;)(edge, labelType)
         style = {
-            label : transProb,
+            "label" : label,
             labelProb : transProb,
             labelCount : transCount
         };

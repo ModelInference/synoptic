@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.RadioButton;
 
 import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.Tab;
+import synopticgwt.client.model.JSGraph.EdgeLabelType;
 import synopticgwt.client.util.ErrorReportingAsyncCallback;
 import synopticgwt.client.util.FlowLayoutPanel;
 import synopticgwt.client.util.ProgressWheel;
@@ -34,7 +35,7 @@ import synopticgwt.shared.LogLine;
  * model.
  */
 public class ModelTab extends Tab<DockLayoutPanel> {
-    
+
     // CSS Attributes of the log info label
     public static final String LOG_INFO_PATHS_CLASS = "log-info-displaying-paths";
     public static final String LOG_INFO_LINES_CLASS = "log-info-displaying-log-lines";
@@ -72,8 +73,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 
     // String representing the canvas div.
     private static final String canvasId = "canvasId";
-    
-    // The JS representation of the GWTGraph.  Handles events on the graph,
+
+    // The JS representation of the GWTGraph. Handles events on the graph,
     // and maintains the graphical state.
     private JSGraph jsGraph;
 
@@ -234,9 +235,9 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                     .getValue();
 
             if (modelTab.showEdgeTraceCounts) {
-//                modelGraphic.useCountEdgeLabels();
+                jsGraph.setEdgeLabelType(EdgeLabelType.COUNT);
             } else {
-//                modelGraphic.useProbEdgeLabels();
+                jsGraph.setEdgeLabelType(EdgeLabelType.WEIGHT);
             }
         }
     }
@@ -298,8 +299,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         int height = getModelGraphicHeight();
         graphPanel.setPixelSize(width, height);
 
-        this.jsGraph = new JSGraph(this);
-        this.jsGraph.create(graph, width, height, canvasId);
+        this.jsGraph = new JSGraph(this, graph, width, height, canvasId);
     }
 
     /**
@@ -368,7 +368,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 
         graphPanel.setPixelSize(width, height);
         this.jsGraph.resize(width, height);
-        
+
         logInfoPanel
                 .setHeight(Math.max(this.getModelGraphicHeight() - 200, 400)
                         + "px");
@@ -416,7 +416,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
             modelCoarsenButton.setEnabled(true);
             return;
         }
-        
+
         // Set the log lines display to default and clear
         // any information.
         logInfoPanel.clear();
@@ -540,7 +540,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         }
         // //////////////////////
     }
-    
+
     /**
      * A simple method that checks to see if one or more nodes have been
      * selected. If so, the button for viewing paths is activated. If not, this
@@ -570,7 +570,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         @Override
         public void onClick(ClickEvent event) {
             try {
-                synopticService.getPathsThroughPartitionIDs(jsGraph.getSelectedNodeIDs(),
+                synopticService.getPathsThroughPartitionIDs(jsGraph
+                        .getSelectedNodeIDs(),
                         new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
                                 ModelTab.this.logInfoPanel));
 
