@@ -34,7 +34,16 @@ import synopticgwt.shared.GWTInvariantSet;
 import synopticgwt.shared.GWTSynOpts;
 
 /**
- * Derby database.
+ * Derby database that stores the following tables:
+ * Visitor, UploadedLog, ReExp, LogReExp, SplitReExp, 
+ * PartitionReExp, ParseLogAction
+ *
+ * Contains method writeUserParsingInfo that SynopticService
+ * uses to write user data to all the tables.
+ * 
+ * Tables can be manipulated individually by getting
+ * a map of all the tables. Casting of a table is
+ * required to access all its methods.
  */
 public class DerbyDB {
     // Singleton instance of DerbyDB.
