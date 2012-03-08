@@ -1,5 +1,6 @@
 package synoptic.model;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -19,8 +20,16 @@ public class Trace {
     }
 
     public void addRelationPath(String relation, EventNode eNode) {
+    	if (paths.containsKey(relation)) {
+    		throw new IllegalArgumentException("Trace already contains path");
+    	}
         paths.put(relation, new RelationPath(eNode, relation,
                 Event.defaultTimeRelationString));
+    }
+    
+    public void markRelationPathFinalNode(String relation, EventNode eNode) {
+    	RelationPath path = paths.get(relation);
+    	path.setFinalNode(eNode);
     }
 
     public Set<EventType> getSeen(String relation) {
@@ -57,6 +66,14 @@ public class Trace {
                     + relation + " relation");
         }
         return paths.get(relation).getPrecedesCounts();
+    }
+    
+    public boolean hasRelation(String relation) {
+    	return paths.containsKey(relation);
+    }
+    
+    public Set<String> getRelations() {
+    	return Collections.unmodifiableSet(paths.keySet());
     }
 
 }

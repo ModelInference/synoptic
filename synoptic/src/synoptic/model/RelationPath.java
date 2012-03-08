@@ -34,6 +34,8 @@ public class RelationPath {
 
     /** First non-INITIAL node in this relation path */
     private EventNode eNode;
+    /** Final non-TERMINAL node in this relation path */
+    private EventNode eFinal;
     /** Relation this path is over */
     private String relation;
     /** Relation this path uses for transitivity, usually "t" */
@@ -81,14 +83,13 @@ public class RelationPath {
      */
     public void count() {
         EventNode curNode = eNode;
-        List<Transition<EventNode>> transitions = curNode.getTransitions();
+        List<Transition<EventNode>> transitions = curNode.getTransitions(relation);
+        
+        if (transitions.isEmpty()) {
+        	transitions = curNode.getTransitions(transitiveRelation);
+        }
 
         while (!transitions.isEmpty()) {
-
-            if (transitions.size() != 1) {
-                throw new InternalSynopticException(
-                        "SpecializedInvariantMiner does not work on partially ordered traces.");
-            }
 
             // The current event is 'b', and all prior events are 'a' --
             // this notation indicates that an 'a' always occur prior to a
@@ -146,8 +147,17 @@ public class RelationPath {
                 searchTransitions = curNode.getTransitions(transitiveRelation);
             }
 
+            if (curNode.equals(eFinal)) {
+            	break;
+            }
+            
             curNode = searchTransitions.get(0).getTarget();
-            transitions = curNode.getTransitions();
+            
+            transitions = curNode.getTransitions(relation);
+            
+            if (transitions.isEmpty()) {
+            	transitions = curNode.getTransitions(transitiveRelation);
+            }
         }
 
         counted = true;
@@ -196,4 +206,8 @@ public class RelationPath {
     public String getRelation() {
         return relation;
     }
+
+	public void setFinalNode(EventNode eNode2) {
+		this.eFinal = eNode2;
+	}
 }
