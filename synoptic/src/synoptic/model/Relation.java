@@ -72,7 +72,7 @@ public class Relation {
 		String result = "";
 		
 		if (!name.equals(ANONYMOUS)) {
-			result += " : ";
+			result += name + " : ";
 		}
 		
 		result += relation;
