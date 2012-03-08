@@ -7,8 +7,6 @@ import java.util.Set;
 
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.Event;
-import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.Trace;
 
@@ -27,7 +25,12 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         TOInvariantMiner {
 
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
-        return computeInvariants(g, Event.defaultTimeRelationString);
+    	TemporalInvariantSet result = new TemporalInvariantSet();
+		for (String r : g.getRelations()) {
+			TemporalInvariantSet tmp = computeInvariants(g, r);
+			result.add(tmp);
+		}
+        return result;
     }
 
     /**
@@ -86,18 +89,18 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         // all nodes, we might as well count up the total counts of instances
         // for each event type.
         Set<EventType> eTypes = new LinkedHashSet<EventType>();
-        for (EventNode node : g.getNodes()) {
-            EventType e = node.getEType();
-            if (e.isSpecialEventType()) {
-                continue;
-            }
-
-            eTypes.add(e);
-            if (!gEventCnts.containsKey(e)) {
-                gEventCnts.put(e, 1);
-            } else {
-                gEventCnts.put(e, gEventCnts.get(e) + 1);
-            }
+        for (Trace trace : g.getTraces()) {
+    		eTypes.addAll(trace.getSeen(relation));
+    		Map<EventType, Integer> traceEventCounts = trace.getEventCounts(relation);
+    		for (EventType eventType : traceEventCounts.keySet()) {
+    			int count = traceEventCounts.get(eventType);
+    			
+    			if (gEventCnts.containsKey(eventType)) {
+    				count += gEventCnts.get(eventType);
+    			}
+    			
+    			gEventCnts.put(eventType, count);
+    		}
         }
 
         // Tracks followed-by counts.

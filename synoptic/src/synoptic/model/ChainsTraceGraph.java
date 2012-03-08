@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -82,12 +83,15 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         Trace trace = new Trace();
         traces.add(trace);
 
-        Map<Relation, EventNode> closureMap = new HashMap<Relation, EventNode>();
+        Map<String, EventNode> closureMap = new HashMap<String, EventNode>();
+        Set<String> relations = new HashSet<String>();
         // Tag first node in the sorted list as initial.
-        EventNode prevNode = events.get(0);
+        EventNode firstNode = events.get(0);
+        EventNode prevNode = firstNode;
         for (Relation relation : prevNode.getEventRelations()) {
+        	relations.add(relation.getRelation());
         	tagInitial(prevNode, relation.getRelation());
-        	closureMap.put(relation,  prevNode);
+        	closureMap.put(relation.getRelation(),  prevNode);
         	trace.addRelationPath(relation.getRelation() , prevNode);
         }
 
@@ -102,29 +106,44 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
                 throw new ParseException(error);
             }
             for (Relation relation : curNode.getEventRelations()) {
+            	relations.add(relation.getRelation());
             	if (relation.isClosure()) {
-            		EventNode prevClosureNode = closureMap.get(relation);
+            		EventNode prevClosureNode = closureMap.get(relation.getRelation());
             		/* This is a little gross. If the initial node could be
             		 * pulled out of the graph and treated as an independent
             		 * event node, then this would be a lot nicer.
             		 */
             		if (prevClosureNode == null) {
             			tagInitial(curNode, relation.getRelation());
-            			trace.addRelationPath(relation.getRelation() , prevNode);
+            			trace.addRelationPath(relation.getRelation() , curNode);
             		} else {
             			prevClosureNode.addTransition(curNode, relation.getRelation());
             		}
             	} else {
             		prevNode.addTransition(curNode, relation.getRelation());
             	}
-            	closureMap.put(relation,  curNode);
+            	closureMap.put(relation.getRelation(),  curNode);
             }
             prevNode = curNode;
         }
 
         // Tag the final node as terminal:
         for (Relation relation : prevNode.getEventRelations()) {
+        	relations.add(relation.getRelation());
         	tagTerminal(prevNode, relation.getRelation());
+        }
+        
+        
+        for (String relation : relations) {
+        	if (!trace.hasRelation(relation)) {
+        		trace.addRelationPath(relation, firstNode);
+        	}
+        }
+        
+        
+        for(String relation : closureMap.keySet()) {
+        	EventNode finalNode = closureMap.get(relation);
+        	trace.markRelationPathFinalNode(relation, finalNode);
         }
     }
 
