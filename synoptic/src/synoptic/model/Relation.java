@@ -69,10 +69,18 @@ public class Relation {
 	
 	@Override
 	public String toString() {
-		if (name.equals(ANONYMOUS)) {
-			return relation;
-		} else {
-			return name + " : " + relation;
+		String result = "";
+		
+		if (!name.equals(ANONYMOUS)) {
+			result += " : ";
 		}
+		
+		result += relation;
+		
+		if (isClosure()) {
+			result += "*";
+		}
+		
+		return result;
 	}
 }
