@@ -3,7 +3,6 @@ package synopticgwt.server;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
@@ -11,10 +10,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import synopticgwt.server.table.DerbyTable;
-import synopticgwt.server.table.Table;
-import synopticgwt.server.table.Visitor;
 
 /**
  * Servlet serving the main page of the Synoptic web app.
@@ -54,11 +49,10 @@ public class GwtHostingServlet extends HttpServlet {
         if (session.getAttribute("vID") == null && config.derbyDB != null) {
             String ipAddress = req.getRemoteAddr();
             Timestamp now = new Timestamp(System.currentTimeMillis());
-        	Map<Table, DerbyTable> m = config.derbyDB.getTables();
-        	Visitor v = (Visitor) m.get(Table.Visitor);
-            int n;
+
+            int vID;
             try {
-            	n = v.insert(ipAddress, now);
+                vID = config.derbyDB.addNewVisitor(ipAddress, now);
             } catch (SQLException e) {
                 logger.severe("DerbyDB generated an exception: "
                         + e.getMessage());
@@ -66,7 +60,8 @@ public class GwtHostingServlet extends HttpServlet {
                         "Database insertion error.");
                 return;
             }
-            session.setAttribute("vID", n);
+
+            session.setAttribute("vID", vID);
         }
 
         // Forward to the main JSP page for content synthesis.

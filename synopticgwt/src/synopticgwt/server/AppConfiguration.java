@@ -8,6 +8,7 @@ import java.util.Properties;
 import javax.servlet.ServletContext;
 
 import synoptic.main.Main;
+import synopticgwt.server.db.DerbyDB;
 
 /**
  * Singleton class that takes care of loading in all of the application
