@@ -906,22 +906,22 @@ public class TraceParser {
 
 					relationValues.add(relationString);
 
-					String name = Relation.ANONYMOUS;
+					String relName = Relation.anonName;
 					boolean isClosure = false;
 
 					if (key.startsWith(closureRelationGroup)) {
 						isClosure = true;
 
 						if (key.startsWith(namedclosureRelationGroup)) {
-							name = key.substring(namedclosureRelationGroup
+							relName = key.substring(namedclosureRelationGroup
 									.length());
 						}
 
 					} else if (key.startsWith(namedRelationGroup)) {
-						name = key.substring(namedRelationGroup.length());
+						relName = key.substring(namedRelationGroup.length());
 					}
 
-					Relation relation = new Relation(name, relationString,
+					Relation relation = new Relation(relName, relationString,
 							isClosure);
 					event.addRelation(relation);
 				}
