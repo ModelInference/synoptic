@@ -1,10 +1,7 @@
 package synoptic.model;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import synoptic.util.time.ITime;
@@ -17,9 +14,9 @@ import synoptic.util.time.ITime;
  * @author Sigurd Schneider
  */
 public class Event {
-	
-	public final static String defaultTimeRelationString = "t";
-	
+
+    public final static String defaultTimeRelationString = "t";
+
     /**
      * The event's label.
      */
@@ -44,7 +41,7 @@ public class Event {
      * The line number from where the label for this event was parsed.
      */
     private final int lineNum;
-    
+
     private Set<Relation> relations;
 
     /**
@@ -144,7 +141,7 @@ public class Event {
         result = prime * result + ((logLine == null) ? 0 : logLine.hashCode());
         result = prime * result + ((time == null) ? 0 : time.hashCode());
         for (Relation relation : relations) {
-        	result = prime * result + relation.hashCode();
+            result = prime * result + relation.hashCode();
         }
         return result;
     }
@@ -192,22 +189,23 @@ public class Event {
         } else if (!time.equals(other.time)) {
             return false;
         }
-        
+
         if (!relations.equals(other.getRelations())) {
-        	return false;
+            return false;
         }
-        
+
         return true;
     }
 
     /**
-     * Set the time when this event occurred.
+     * Set the time when this event occurred
      * 
      * @param t
      *            the time
      */
     public void setTime(ITime t) {
-    	addRelation(new Relation(defaultTimeRelationString));
+        addRelation(new Relation("time-relation", defaultTimeRelationString,
+                false));
         time = t;
     }
 
@@ -231,20 +229,21 @@ public class Event {
     public int getLineNum() {
         return lineNum;
     }
-    
+
     public boolean containsRelation(Relation r) {
-    	return relations.contains(r);
+        return relations.contains(r);
     }
-    
+
     public void addRelation(Relation r) {
-    	if (containsRelation(r)) {
-    		throw new IllegalArgumentException("Event already contains relation " + r);
-    	}
-    	relations.add(r);
+        if (containsRelation(r)) {
+            throw new IllegalArgumentException(
+                    "Event already contains relation " + r);
+        }
+        relations.add(r);
     }
-    
+
     public Set<Relation> getRelations() {
-    	return Collections.unmodifiableSet(relations);
+        return Collections.unmodifiableSet(relations);
     }
-  
+
 }
