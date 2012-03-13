@@ -21,13 +21,11 @@ import synoptic.main.ParseException;
  * input log(s). Each of these executions is a linear "chain" graph. The
  * ChainsTraceGraph contains a root node INITIAL, which has an edge to the first
  * node in each of these chain traces. It also contains a TERMINAL node that has
- * an edge from the last node in each of the chain traces.
- * 
- * With the addition of multiple relations, there can be chains composed of
- * disconnected graphs over non-temporal relations that are transitively closed
- * and made connected through the time relation.
- * 
- * Multiple relations are interposed with existing connected time chains.
+ * an edge from the last node in each of the chain traces. With the addition of
+ * multiple relations, there can be chains composed of disconnected graphs over
+ * non-temporal relations that are transitively closed and made connected
+ * through the time relation. Multiple relations are interposed with existing
+ * connected time chains.
  */
 public class ChainsTraceGraph extends TraceGraph<StringEventType> {
     static Event initEvent = Event.newInitialStringEvent();
@@ -37,7 +35,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
      * Maintains a map of trace id to the set of initial nodes in the trace.
      */
     private final Map<Integer, EventNode> traceIdToInitNodes = new LinkedHashMap<Integer, EventNode>();
-    
+
     private final List<Trace> traces = new ArrayList<Trace>();
 
     public ChainsTraceGraph(Collection<EventNode> nodes) {
@@ -58,28 +56,29 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         super.tagInitial(initialNode, relation);
         traceIdToInitNodes.put(initialNode.getTraceID(), initialNode);
     }
-    
+
     /**
-     * Creates transitions from INITIAL to initialNode for each string in 
-     * the relations collection.
+     * Creates transitions from INITIAL to initialNode for each string in the
+     * relations collection.
+     * 
      * @param initialNode
      * @param relations
      */
     public void tagInitial(EventNode initialNode, Collection<String> relations) {
-    	for (String relation : relations) {
-    		tagInitial(initialNode, relation);
-    	}
+        for (String relation : relations) {
+            tagInitial(initialNode, relation);
+        }
     }
-    
+
     public void addTrace(List<EventNode> events) throws ParseException {
-    	// Sort the events in this group/trace.
+        // Sort the events in this group/trace.
         Collections.sort(events, new Comparator<EventNode>() {
             @Override
             public int compare(EventNode e1, EventNode e2) {
                 return e1.getTime().compareTo(e2.getTime());
             }
         });
-        
+
         Trace trace = new Trace();
         traces.add(trace);
 
@@ -89,61 +88,60 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         EventNode firstNode = events.get(0);
         EventNode prevNode = firstNode;
         for (Relation relation : prevNode.getEventRelations()) {
-        	relations.add(relation.getRelation());
-        	tagInitial(prevNode, relation.getRelation());
-        	closureMap.put(relation.getRelation(),  prevNode);
-        	trace.addRelationPath(relation.getRelation() , prevNode);
+            relations.add(relation.getRelation());
+            tagInitial(prevNode, relation.getRelation());
+            closureMap.put(relation.getRelation(), prevNode);
+            trace.addRelationPath(relation.getRelation(), prevNode);
         }
 
         // Create transitions to connect the nodes in the sorted trace.
         for (EventNode curNode : events.subList(1, events.size())) {
             if (prevNode.getTime().equals(curNode.getTime())) {
                 String error = "Found two events with identical timestamps: (1) "
-                        + prevNode.toString()
-                        + " (2) "
-                        + curNode.toString();
+                        + prevNode.toString() + " (2) " + curNode.toString();
                 logger.severe(error);
                 throw new ParseException(error);
             }
             for (Relation relation : curNode.getEventRelations()) {
-            	relations.add(relation.getRelation());
-            	if (relation.isClosure()) {
-            		EventNode prevClosureNode = closureMap.get(relation.getRelation());
-            		/* This is a little gross. If the initial node could be
-            		 * pulled out of the graph and treated as an independent
-            		 * event node, then this would be a lot nicer.
-            		 */
-            		if (prevClosureNode == null) {
-            			tagInitial(curNode, relation.getRelation());
-            			trace.addRelationPath(relation.getRelation() , curNode);
-            		} else {
-            			prevClosureNode.addTransition(curNode, relation.getRelation());
-            		}
-            	} else {
-            		prevNode.addTransition(curNode, relation.getRelation());
-            	}
-            	closureMap.put(relation.getRelation(),  curNode);
+                relations.add(relation.getRelation());
+                if (relation.isClosure()) {
+                    EventNode prevClosureNode = closureMap.get(relation
+                            .getRelation());
+                    /*
+                     * TODO: This is a little gross. If the initial node could
+                     * be pulled out of the graph and treated as an independent
+                     * event node, then this would be a lot nicer.
+                     */
+                    if (prevClosureNode == null) {
+                        tagInitial(curNode, relation.getRelation());
+                        trace.addRelationPath(relation.getRelation(), curNode);
+                    } else {
+                        prevClosureNode.addTransition(curNode,
+                                relation.getRelation());
+                    }
+                } else {
+                    prevNode.addTransition(curNode, relation.getRelation());
+                }
+                closureMap.put(relation.getRelation(), curNode);
             }
             prevNode = curNode;
         }
 
         // Tag the final node as terminal:
         for (Relation relation : prevNode.getEventRelations()) {
-        	relations.add(relation.getRelation());
-        	tagTerminal(prevNode, relation.getRelation());
+            relations.add(relation.getRelation());
+            tagTerminal(prevNode, relation.getRelation());
         }
-        
-        
+
         for (String relation : relations) {
-        	if (!trace.hasRelation(relation)) {
-        		trace.addRelationPath(relation, firstNode);
-        	}
+            if (!trace.hasRelation(relation)) {
+                trace.addRelationPath(relation, firstNode);
+            }
         }
-        
-        
-        for(String relation : closureMap.keySet()) {
-        	EventNode finalNode = closureMap.get(relation);
-        	trace.markRelationPathFinalNode(relation, finalNode);
+
+        for (String relation : closureMap.keySet()) {
+            EventNode finalNode = closureMap.get(relation);
+            trace.markRelationPathFinalNode(relation, finalNode);
         }
     }
 
@@ -209,9 +207,9 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         }
         return map;
     }
-    
+
     public List<Trace> getTraces() {
-    	return Collections.unmodifiableList(traces);
+        return Collections.unmodifiableList(traces);
     }
 
 }

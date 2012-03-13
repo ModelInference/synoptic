@@ -90,7 +90,7 @@ public class EndToEndMainTests extends SynopticTest {
     }
 
     @Test
-    public void argsTest() throws Exception {
+    public void mainTest() throws Exception {
         Main.main(args);
     }
 
