@@ -25,11 +25,11 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         TOInvariantMiner {
 
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
-    	TemporalInvariantSet result = new TemporalInvariantSet();
-		for (String r : g.getRelations()) {
-			TemporalInvariantSet tmp = computeInvariants(g, r);
-			result.add(tmp);
-		}
+        TemporalInvariantSet result = new TemporalInvariantSet();
+        for (String r : g.getRelations()) {
+            TemporalInvariantSet tmp = computeInvariants(g, r);
+            result.add(tmp);
+        }
         return result;
     }
 
@@ -70,7 +70,9 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
      * </p>
      * 
      * @param g
-     *            the graph of nodes of type LogEvent
+     *            a chain trace graph of nodes of type LogEvent
+     * @param relation
+     *            the relation for which to mine invariants
      * @return the set of temporal invariants that g satisfies
      */
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
@@ -90,17 +92,18 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         // for each event type.
         Set<EventType> eTypes = new LinkedHashSet<EventType>();
         for (Trace trace : g.getTraces()) {
-    		eTypes.addAll(trace.getSeen(relation));
-    		Map<EventType, Integer> traceEventCounts = trace.getEventCounts(relation);
-    		for (EventType eventType : traceEventCounts.keySet()) {
-    			int count = traceEventCounts.get(eventType);
-    			
-    			if (gEventCnts.containsKey(eventType)) {
-    				count += gEventCnts.get(eventType);
-    			}
-    			
-    			gEventCnts.put(eventType, count);
-    		}
+            eTypes.addAll(trace.getSeen(relation));
+            Map<EventType, Integer> traceEventCounts = trace
+                    .getEventCounts(relation);
+            for (EventType eventType : traceEventCounts.keySet()) {
+                int count = traceEventCounts.get(eventType);
+
+                if (gEventCnts.containsKey(eventType)) {
+                    count += gEventCnts.get(eventType);
+                }
+
+                gEventCnts.put(eventType, count);
+            }
         }
 
         // Tracks followed-by counts.
