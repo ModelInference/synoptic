@@ -88,5 +88,4 @@ public class GWTNode implements Serializable {
     public String getPartitionNodeHashCodeStr() {
         return ((Integer) pNodeHash).toString();
     }
-
 }
