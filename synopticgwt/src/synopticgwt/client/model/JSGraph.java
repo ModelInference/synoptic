@@ -1,8 +1,8 @@
 package synopticgwt.client.model;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -74,13 +74,13 @@ public class JSGraph implements MouseEventHandler<JSONode> {
 
     // The different available edge labels.
     public enum EdgeLabelType {
-        WEIGHT, COUNT;
+        PROBABILITY, COUNT;
 
         public static String getEdgeLabelString(GWTEdge edge,
                 EdgeLabelType labelType) {
             String label;
             switch (labelType) {
-            case WEIGHT:
+            case PROBABILITY:
                 label = edge.getWeightStr();
                 break;
             case COUNT:
@@ -106,7 +106,7 @@ public class JSGraph implements MouseEventHandler<JSONode> {
         // TODO Perhaps this should be set in the constructor, so if
         // the default radio button that has been selected is different
         // from this, there won't be any confusion.
-        this.edgeLabelType = EdgeLabelType.WEIGHT;
+        this.edgeLabelType = EdgeLabelType.PROBABILITY;
 
         this.jsoGraph = JSOGraph.create();
         // For each node, add the node to the jsGraph,
@@ -187,9 +187,7 @@ public class JSGraph implements MouseEventHandler<JSONode> {
      *         user.
      */
     public Set<Integer> getSelectedNodeIDs() {
-        // TODO Track selected nodes differently so this
-        // loop doesn't need to be made (unnecessary creation of a new
-        // object).
+        // TODO Track selected nodes so that this loop is not necessary.
         Set<Integer> nodeIDs = new HashSet<Integer>();
         for (JSONode node : this.selectedNodes)
             nodeIDs.add(node.getNodeID());
@@ -295,8 +293,7 @@ public class JSGraph implements MouseEventHandler<JSONode> {
             this.lastClicked = null;
         } else {
             // Clears any highlighted edges if there are no log lines being
-            // viewed
-            // (which means the graph is showing paths traces and must be
+            // viewed (which means the graph is showing paths traces and must be
             // cleared).
             this.clearEdgeState();
         }
@@ -336,19 +333,11 @@ public class JSGraph implements MouseEventHandler<JSONode> {
             if (this.lastClicked == null
                     || !this.lastClicked.equals(clickedNode)) {
                 // Clear the selected nodes and display the log lines in the
-                // model panel.
-                // the line for clearing selected nodes could possibly be
-                // put outside of the
-                // if statement.
+                // model panel. The line for clearing selected nodes could be
+                // outside of the if statement.
                 this.clearSelectedNodes();
                 this.modelTab.updateViewPathsButton();
-
-                // TODO Handle this error better.
-                try {
-                    this.modelTab.handleLogRequest(clickedNode.getNodeID());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                this.modelTab.handleLogRequest(clickedNode.getNodeID());
 
                 // If the last selected node (for log lines) is not null
                 // set it to default colors before changing the current node
