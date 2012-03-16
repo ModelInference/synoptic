@@ -1,8 +1,6 @@
 package synopticgwt.client.model;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -237,7 +235,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
             if (modelTab.showEdgeTraceCounts) {
                 jsGraph.setEdgeLabelType(EdgeLabelType.COUNT);
             } else {
-                jsGraph.setEdgeLabelType(EdgeLabelType.WEIGHT);
+                jsGraph.setEdgeLabelType(EdgeLabelType.PROBABILITY);
             }
         }
     }
@@ -306,33 +304,38 @@ public class ModelTab extends Tab<DockLayoutPanel> {
      * Requests the log lines for the Partition with the given nodeID. This
      * method is called from JavaScript when model nodes are double clicked.
      */
-    public void handleLogRequest(int nodeID) throws Exception {
+    public void handleLogRequest(int nodeID) {
         // ////////////////////// Call to remote service.
-        synopticService.handleLogRequest(nodeID,
-                new ErrorReportingAsyncCallback<List<LogLine>>(pWheel,
-                        "handleLogRequest call") {
+        try {
+            synopticService.handleLogRequest(nodeID,
+                    new ErrorReportingAsyncCallback<List<LogLine>>(pWheel,
+                            "handleLogRequest call") {
 
-                    @SuppressWarnings("synthetic-access")
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        super.onFailure(caught);
-                        // TODO: differentiate between clicks on
-                        // initial/terminal nodes and
-                        // other nodes.
+                        @SuppressWarnings("synthetic-access")
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            super.onFailure(caught);
+                            // TODO: differentiate between clicks on
+                            // initial/terminal nodes and
+                            // other nodes.
 
-                        // This is expected whenever the user double clicks on
-                        // an initial or
-                        // terminal node, so we'll ignore it
-                        logInfoPanel.clear();
-                    }
+                            // This is expected whenever the user double clicks
+                            // on
+                            // an initial or
+                            // terminal node, so we'll ignore it
+                            logInfoPanel.clear();
+                        }
 
-                    @SuppressWarnings("synthetic-access")
-                    @Override
-                    public void onSuccess(List<LogLine> result) {
-                        super.onSuccess(result);
-                        logInfoPanel.showLogLines(result);
-                    }
-                });
+                        @SuppressWarnings("synthetic-access")
+                        @Override
+                        public void onSuccess(List<LogLine> result) {
+                            super.onSuccess(result);
+                            logInfoPanel.showLogLines(result);
+                        }
+                    });
+        } catch (Exception ex) {
+            // Exceptions are handled by callback.
+        }
         // //////////////////////
     }
 
@@ -403,8 +406,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                         }
                     });
         } catch (Exception ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -459,8 +461,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                         }
                     });
         } catch (Exception ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -483,8 +484,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                         }
                     });
         } catch (Exception ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -512,8 +512,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                 }
             });
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -535,8 +534,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                 }
             });
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -577,7 +575,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 
                 jsGraph.setPathHighlightViewState();
             } catch (Exception e) {
-                // TODO: Do something about the exception
+                // Exceptions are handled by callback.
             }
         }
     }

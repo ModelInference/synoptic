@@ -1,14 +1,13 @@
 package synopticgwt.client.model;
 
-import synopticgwt.client.util.MouseEventHandler;
-
 import com.google.gwt.core.client.JavaScriptObject;
+
+import synopticgwt.client.util.MouseEventHandler;
 
 /**
  * A class used to interface directly with an instance of a dracula graph edge
  * 
  * @author andrew
- * 
  */
 public class JSONode extends JavaScriptObject {
 
@@ -135,9 +134,9 @@ public class JSONode extends JavaScriptObject {
     }-*/;
 
     /**
-     * Attaches the renderer function for to given node. This doesn't
-     * necessarily draw the node right away (drawing this node is required in
-     * order to instantiate the JSONode fields text and rect, however), but it
+     * Attaches the renderer function to given node. This doesn't necessarily
+     * draw the node right away (drawing this node is required in order to
+     * instantiate the JSONode fields text and rect, however), but it
      * instantiates the function that allows the node to be drawn.
      */
     public native final void attachRenderer() /*-{

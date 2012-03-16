@@ -166,39 +166,33 @@ public class SynopticService extends RemoteServiceServlet implements
         // throw an error since we can't continue with refinement.
 
         if (session.getAttribute("partitionGraph") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+            throw new Exception("session attribute 'partitionGraph' missing");
         }
         pGraph = (PartitionGraph) session.getAttribute("partitionGraph");
 
         if (session.getAttribute("numSplitSteps") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+            throw new Exception("session attribute 'numSplitSteps' missing");
         }
         numSplitSteps = (Integer) session.getAttribute("numSplitSteps");
 
         if (session.getAttribute("unsatInvs") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+            throw new Exception("session attribute 'unsatInvs' missing");
         }
         unsatInvs = (Set<ITemporalInvariant>) session.getAttribute("unsatInvs");
 
         if (session.getAttribute("minedInvs") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+            throw new Exception("session attribute 'minedInvs' missing");
         }
         minedInvs = (TemporalInvariantSet) session.getAttribute("minedInvs");
 
         if (session.getAttribute("activeInvs") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+            throw new Exception("session attribute 'activeInvs' missing");
         }
         activeInvs = (Set<ITemporalInvariant>) session
                 .getAttribute("activeInvs");
 
         if (session.getAttribute("traceGraph") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+            throw new Exception("session attribute 'traceGraph' missing");
         }
         traceGraph = (ChainsTraceGraph) session.getAttribute("traceGraph");
 
