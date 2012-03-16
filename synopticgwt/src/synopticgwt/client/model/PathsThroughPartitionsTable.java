@@ -129,7 +129,8 @@ public class PathsThroughPartitionsTable extends FlexTable {
             if (event.getValue()) {
                 RadioButton sourceButton = (RadioButton) event.getSource();
                 List<GWTEdge> path = buttonToPathMap.get(sourceButton);
-                modelTab.getModelGraphic().highlightEdges(path);
+//                modelTab.getJSGraph().highlightEdges(path);
+                modelTab.getJSGraph().highlightEdges(path);
             }
         }
     }
