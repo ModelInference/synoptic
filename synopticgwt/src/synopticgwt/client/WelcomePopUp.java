@@ -4,8 +4,8 @@ import java.util.Date;
 
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
  * A pop-up window that contains the welcome page.
@@ -28,12 +28,14 @@ public class WelcomePopUp extends ClosingPopUp {
         doNotShowAgain = new CheckBox("Do not show this again");
         closeLink.addStyleName("closePopUpLink");
 
-        FlowPanel panel = new FlowPanel();
+        VerticalPanel panel = new VerticalPanel();
+        panel.setWidth("300px");
         panel.setStyleName("WelcomePopUp");
         panel.add(closeLink);
         panel.add(new HTML(
-                "<h2>Welcome!</h2><p>If you are a new user, then we recommend<br/> that you <a href=\"http://synoptic.googlecode.com/\">learn more</a> about Synoptic and <a href=\"http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial\">this website</a>.</p><br/>"));
+                "<h2>Welcome!</h2><p>If you are a new user, then you might want to <a href=\"http://synoptic.googlecode.com/\">learn more</a> about Synoptic and read through our <a href=\"http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial\">tutorial</a>.</p><br/>"));
         panel.add(doNotShowAgain);
+
         this.setWidget(panel);
     }
 
