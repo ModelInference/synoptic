@@ -91,6 +91,18 @@ public class RelationPath {
 
         while (!transitions.isEmpty()) {
 
+        	/* 
+        	 * For now let's use the defaultTimeRelationString, this will need to be changed
+        	 * if the traceGraph specification is parameterized to not have time relations.
+        	 * 
+        	 * Maybe this should be changed to use the transitiveRelation field, however as
+        	 * of now whether or not the transitive relation is totally ordered is undefined.
+        	 */
+            if (curNode.getTransitions(Event.defaultTimeRelationString).size() != 1) {
+            	throw new InternalSynopticException(
+            				"SpecializedInvariantMiner does not work on partially ordered traces.");
+            }
+        	
             // The current event is 'b', and all prior events are 'a' --
             // this notation indicates that an 'a' always occur prior to a
             // 'b' in the path.
