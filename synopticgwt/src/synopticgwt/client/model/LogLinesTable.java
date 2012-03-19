@@ -2,6 +2,7 @@ package synopticgwt.client.model;
 
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 
@@ -36,6 +37,9 @@ public class LogLinesTable extends DataGrid<LogLine> {
             }
         };
         this.addColumn(lineCol, "Line");
+        this.setWidth("100%");
+        this.setColumnWidth(lineNumCol, 70, Unit.PX);
+        this.setColumnWidth(lineCol, 100, Unit.PCT);
     }
 
     /**
