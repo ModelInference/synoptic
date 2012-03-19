@@ -37,4 +37,11 @@ public class LogLinesTable extends DataGrid<LogLine> {
         };
         this.addColumn(lineCol, "Line");
     }
+
+    /**
+     * Clears the current data from the table.
+     */
+    public void clear() {
+        this.setRowCount(0);
+    }
 }

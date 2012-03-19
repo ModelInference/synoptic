@@ -128,7 +128,7 @@ public class LogInfoPanel extends FlowLayoutPanel {
     @Override
     public void clear() {
         this.pathsThroughPartitionsTable.clear();
-
+        this.logLinesTable.clear();
         if (!logLinesTable.isVisible()) {
             toggleLogInfoDisplay();
         }
