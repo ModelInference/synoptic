@@ -1,0 +1,509 @@
+Gathering traceroutes to srcs planetlab3.csail.mit.edu planetlab02.cs.washington.edu planet1.scs.stanford.edu planetlab2.cs.uit.no planetlab2.sfc.wide.ad.jp planetlab2.uta.edu planetlab6.cs.cornell.edu planetlab2.ics.forth.gr planet3.prakinf.tu-ilmenau.de planetlab-2.ssvl.kth.se planetlab3.upc.es
+2010/02/27.1907.04 Connecting to tr_server druby://bouncer.cs.washington.edu:59317
+2010/02/27.1907.04 Issuing traceroutes: 2010.0227.1907.04 1
+2010/02/27.1907.04 Connecting to controller druby://128.208.2.159:49174
+2010/02/27.1907.09 Traceroutes for planetlab3.csail.mit.edu
+2010/02/27.1907.09 Traceroute to 128.112.128.114 reaches for planetlab3.csail.mit.edu 128.112.128.114
+2010/02/27.1907.09 Trying to find 1 hops from [0.0.0.0 216.27.100.53 192.5.89.222 192.5.89.238 207.210.143.109 18.168.0.50 18.4.7.1 128.30.0.245 128.31.1.2 planetlab3.csail.mit.edu]
+2010/02/27.1907.09 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1907.09 Fwd planetlab3.csail.mit.edu to 128.112.128.114: 128.31.1.2 128.30.0.245 18.4.7.1 18.168.0.50 207.210.143.109 192.5.89.238 192.5.89.222 216.27.100.53 0.0.0.0 128.112.128.114
+2010/02/27.1907.09 Checking planetlab3.csail.mit.edu 128.112.128.114 128.112.128.114 for traceroutes to source
+2010/02/27.1907.09 Initializing RR VPs in a batch for 1
+2010/02/27.1907.10 Total VPs: 215
+2010/02/27.1907.10 Total spoofers: 164 at 75 sites
+2010/02/27.1907.10 Total up spoofers: 132 at 58 sites
+2010/02/27.1907.10 Final total spoofers to use: 1 each at 58 sites
+2010/02/27.1907.10 Connecting to vp_server druby://bouncer.cs.washington.edu:38051
+2010/02/27.1907.10 Found 14 spoofers of 46 for 128.112.128.114: mlab2.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab3.lga02.measurement-lab.org mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab1.williams.edu plnode-01.gpolab.bbn.com mlab2.ams01.measurement-lab.org planetlab2.cis.upenn.edu planetlab1.pc.cis.udel.edu mlab3.lhr01.measurement-lab.org mlab4.nuq01.measurement-lab.org planetlab2.uta.edu mlab1.lax01.measurement-lab.org
+2010/02/27.1907.10 planetlab3.csail.mit.edu 128.112.128.114 128.112.128.114 15 RR VPs left to try
+2010/02/27.1907.10 planetlab3.csail.mit.edu 128.112.128.114 128.112.128.114 using non_spoofed
+2010/02/27.1907.10 Issuing recordroutes: 2010.0227.1907.10 1
+2010/02/27.1907.13 planetlab3.csail.mit.edu 128.112.128.114 128.112.128.114 14 RR VPs left to try
+2010/02/27.1907.13 planetlab3.csail.mit.edu 128.112.128.114 128.112.128.114 using mlab2.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab3.lga02.measurement-lab.org
+2010/02/27.1907.13 Issuing spoofed recordroutes: 2010.0227.1907.13
+2010/02/27.1907.24 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/27.1907.24 planetlab3.csail.mit.edu 128.112.128.114 128.112.128.114 11 RR VPs left to try
+2010/02/27.1907.24 planetlab3.csail.mit.edu 128.112.128.114 128.112.128.114 using mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab1.williams.edu
+2010/02/27.1907.24 Issuing spoofed recordroutes: 2010.0227.1907.24
+2010/02/27.1907.34 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/27.1907.35 planetlab3.csail.mit.edu 128.112.128.114 128.112.128.114 8 RR VPs left to try
+2010/02/27.1907.35 planetlab3.csail.mit.edu 128.112.128.114 128.112.128.114 using plnode-01.gpolab.bbn.com mlab2.ams01.measurement-lab.org planetlab2.cis.upenn.edu
+2010/02/27.1907.35 Issuing spoofed recordroutes: 2010.0227.1907.35
+2010/02/27.1907.45 planetlab3.csail.mit.edu received 0 total responses from 
+2010/02/27.1907.45 Current hop 128.112.128.114/128.112.128.114 seems to be unresponsive for planetlab3.csail.mit.edu 128.112.128.114
+2010/02/27.1907.45 Connecting to adjacency_server druby://bouncer.cs.washington.edu:43430
+2010/02/27.1907.45 planetlab3.csail.mit.edu 128.112.128.114 128.112.128.114 0 TS adjacents left to try
+2010/02/27.1907.45 No adjacents to 128.112.128.114 left to test for planetlab3.csail.mit.edu 128.112.128.114
+2010/02/27.1907.46 Traceroute to 128.112.128.114 reaches for planetlab3.csail.mit.edu 128.112.128.114
+2010/02/27.1907.46 Trying to find 1 hops from [0.0.0.0 216.27.100.53 192.5.89.222 192.5.89.238 207.210.143.109 18.168.0.50 18.4.7.1 128.30.0.245 128.31.1.2 planetlab3.csail.mit.edu]
+2010/02/27.1907.46 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1907.46 REACHED
+2010/02/27.1907.46 FOUND
+2010/02/27.1907.46 RevPath_D128.112.128.114_Splanetlab3.csail.mit.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym
+2010/02/27.1907.46 NONE
+2010/02/27.1907.46 FAILED
+2010/02/27.1907.46 --------
+2010/02/27.1907.46 Checking planetlab3.csail.mit.edu 128.112.128.114 216.27.100.53 for traceroutes to source
+2010/02/27.1907.46 REACHED
+2010/02/27.1907.47 RevPath_D128.112.128.114_Splanetlab3.csail.mit.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 192.5.89.221 192.5.89.237 207.210.143.110 18.168.1.23 18.4.7.65 128.30.0.246 128.31.1.13]_TRtoSrc
+2010/02/27.1907.47 FOUND
+2010/02/27.1907.47 NONE
+2010/02/27.1907.47 FAILED
+2010/02/27.1907.47 --------
+2010/02/27.1907.47 Total time: 43
+2010/02/27.1907.47 Total probes: rr=1 spoof-rr=9 tr=1
+RevPath_D128.112.128.114_Splanetlab3.csail.mit.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 192.5.89.221 192.5.89.237 207.210.143.110 18.168.1.23 18.4.7.65 128.30.0.246 128.31.1.13]_TRtoSrc
+2010/02/27.1907.51 Issuing traceroutes: 2010.0227.1907.51 1
+2010/02/27.1907.55 Traceroutes for planetlab02.cs.washington.edu
+2010/02/27.1907.56 Traceroute to 128.112.128.114 reaches for planetlab02.cs.washington.edu 128.112.128.114
+2010/02/27.1907.56 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.73 64.57.28.37 64.57.28.25 64.57.28.104 64.57.28.53 64.57.28.54 209.124.181.134 205.175.102.2 205.175.102.117 205.175.109.21 128.208.4.102 planetlab02.cs.washington.edu]
+2010/02/27.1907.56 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1907.56 Fwd planetlab02.cs.washington.edu to 128.112.128.114: 128.208.4.102 205.175.109.21 205.175.102.117 205.175.102.2 209.124.181.134 64.57.28.54 64.57.28.53 64.57.28.104 64.57.28.25 64.57.28.37 64.57.28.73 216.27.100.53 0.0.0.0 128.112.128.114
+2010/02/27.1907.56 Checking planetlab02.cs.washington.edu 128.112.128.114 128.112.128.114 for traceroutes to source
+2010/02/27.1907.56 Initializing RR VPs in a batch for 1
+2010/02/27.1907.56 Total VPs: 215
+2010/02/27.1907.56 Total spoofers: 164 at 75 sites
+2010/02/27.1907.56 Total up spoofers: 132 at 58 sites
+2010/02/27.1907.56 Final total spoofers to use: 1 each at 58 sites
+2010/02/27.1907.57 Found 14 spoofers of 46 for 128.112.128.114: mlab2.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga01.measurement-lab.org mlab2.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3.williams.edu plnode-02.gpolab.bbn.com mlab2.ams01.measurement-lab.org planetlab1.cis.upenn.edu planetlab1.pc.cis.udel.edu mlab3.lhr01.measurement-lab.org mlab2.nuq01.measurement-lab.org planetlab2.uta.edu mlab2.lax01.measurement-lab.org
+2010/02/27.1907.57 planetlab02.cs.washington.edu 128.112.128.114 128.112.128.114 15 RR VPs left to try
+2010/02/27.1907.57 planetlab02.cs.washington.edu 128.112.128.114 128.112.128.114 using non_spoofed
+2010/02/27.1907.57 Issuing recordroutes: 2010.0227.1907.57 1
+2010/02/27.1907.59 planetlab02.cs.washington.edu 128.112.128.114 128.112.128.114 14 RR VPs left to try
+2010/02/27.1907.59 planetlab02.cs.washington.edu 128.112.128.114 128.112.128.114 using mlab2.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga01.measurement-lab.org
+2010/02/27.1908.00 Issuing spoofed recordroutes: 2010.0227.1907.59
+2010/02/27.1908.09 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/27.1908.09 planetlab02.cs.washington.edu 128.112.128.114 128.112.128.114 11 RR VPs left to try
+2010/02/27.1908.09 planetlab02.cs.washington.edu 128.112.128.114 128.112.128.114 using mlab2.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3.williams.edu
+2010/02/27.1908.09 Issuing spoofed recordroutes: 2010.0227.1908.09
+2010/02/27.1908.19 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/27.1908.19 planetlab02.cs.washington.edu 128.112.128.114 128.112.128.114 8 RR VPs left to try
+2010/02/27.1908.20 planetlab02.cs.washington.edu 128.112.128.114 128.112.128.114 using plnode-02.gpolab.bbn.com mlab2.ams01.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/27.1908.20 Issuing spoofed recordroutes: 2010.0227.1908.20
+2010/02/27.1908.29 planetlab02.cs.washington.edu received 0 total responses from 
+2010/02/27.1908.29 Current hop 128.112.128.114/128.112.128.114 seems to be unresponsive for planetlab02.cs.washington.edu 128.112.128.114
+2010/02/27.1908.29 planetlab02.cs.washington.edu 128.112.128.114 128.112.128.114 0 TS adjacents left to try
+2010/02/27.1908.29 No adjacents to 128.112.128.114 left to test for planetlab02.cs.washington.edu 128.112.128.114
+2010/02/27.1908.30 Traceroute to 128.112.128.114 reaches for planetlab02.cs.washington.edu 128.112.128.114
+2010/02/27.1908.30 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.73 64.57.28.37 64.57.28.25 64.57.28.104 64.57.28.53 64.57.28.54 209.124.181.134 205.175.102.2 205.175.102.117 205.175.109.21 128.208.4.102 planetlab02.cs.washington.edu]
+2010/02/27.1908.30 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1908.30 REACHED
+2010/02/27.1908.30 FOUND
+2010/02/27.1908.30 RevPath_D128.112.128.114_Splanetlab02.cs.washington.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym
+2010/02/27.1908.30 NONE
+2010/02/27.1908.30 FAILED
+2010/02/27.1908.30 --------
+2010/02/27.1908.30 Checking planetlab02.cs.washington.edu 128.112.128.114 216.27.100.53 for traceroutes to source
+2010/02/27.1908.30 REACHED
+2010/02/27.1908.31 RevPath_D128.112.128.114_Splanetlab02.cs.washington.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 64.57.28.72 64.57.28.36 64.57.28.24 64.57.28.105 64.57.28.54 209.124.181.134 209.124.181.135 205.175.102.1 205.175.102.118 205.175.109.22 128.208.4.198]_TRtoSrc
+2010/02/27.1908.31 FOUND
+2010/02/27.1908.31 NONE
+2010/02/27.1908.31 FAILED
+2010/02/27.1908.31 --------
+2010/02/27.1908.31 Total time: 41
+2010/02/27.1908.31 Total probes: rr=1 spoof-rr=9 tr=1
+RevPath_D128.112.128.114_Splanetlab02.cs.washington.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 64.57.28.72 64.57.28.36 64.57.28.24 64.57.28.105 64.57.28.54 209.124.181.134 209.124.181.135 205.175.102.1 205.175.102.118 205.175.109.22 128.208.4.198]_TRtoSrc
+2010/02/27.1908.36 Issuing traceroutes: 2010.0227.1908.36 1
+2010/02/27.1908.42 Traceroutes for planet1.scs.stanford.edu
+2010/02/27.1908.42 Traceroute to 128.112.128.114 reaches for planet1.scs.stanford.edu 128.112.128.114
+2010/02/27.1908.42 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.18 64.57.28.7 64.57.28.42 64.57.28.97 137.164.26.134 137.164.25.37 137.164.27.161 171.67.255.132 171.66.3.2 planet1.scs.stanford.edu]
+2010/02/27.1908.42 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1908.42 Fwd planet1.scs.stanford.edu to 128.112.128.114: 171.66.3.2 171.67.255.132 137.164.27.161 137.164.25.37 137.164.26.134 64.57.28.97 64.57.28.42 64.57.28.7 64.57.28.18 216.27.100.53 0.0.0.0 128.112.128.114
+2010/02/27.1908.42 Checking planet1.scs.stanford.edu 128.112.128.114 128.112.128.114 for traceroutes to source
+2010/02/27.1908.42 Initializing RR VPs in a batch for 1
+2010/02/27.1908.42 Total VPs: 215
+2010/02/27.1908.42 Total spoofers: 164 at 75 sites
+2010/02/27.1908.42 Total up spoofers: 132 at 58 sites
+2010/02/27.1908.42 Final total spoofers to use: 1 each at 58 sites
+2010/02/27.1908.43 Found 14 spoofers of 46 for 128.112.128.114: mlab1.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga02.measurement-lab.org mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab1.williams.edu plnode-01.gpolab.bbn.com mlab1.ams01.measurement-lab.org planetlab1.cis.upenn.edu planetlab1.pc.cis.udel.edu mlab1.lhr01.measurement-lab.org mlab2.nuq01.measurement-lab.org planetlab2.uta.edu mlab3.lax01.measurement-lab.org
+2010/02/27.1908.43 planet1.scs.stanford.edu 128.112.128.114 128.112.128.114 15 RR VPs left to try
+2010/02/27.1908.43 planet1.scs.stanford.edu 128.112.128.114 128.112.128.114 using non_spoofed
+2010/02/27.1908.43 Issuing recordroutes: 2010.0227.1908.43 1
+2010/02/27.1908.46 planet1.scs.stanford.edu 128.112.128.114 128.112.128.114 14 RR VPs left to try
+2010/02/27.1908.46 planet1.scs.stanford.edu 128.112.128.114 128.112.128.114 using mlab1.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga02.measurement-lab.org
+2010/02/27.1908.46 Issuing spoofed recordroutes: 2010.0227.1908.46
+2010/02/27.1908.57 planet1.scs.stanford.edu received 0 total responses from 
+2010/02/27.1908.57 planet1.scs.stanford.edu 128.112.128.114 128.112.128.114 11 RR VPs left to try
+2010/02/27.1908.57 planet1.scs.stanford.edu 128.112.128.114 128.112.128.114 using mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab1.williams.edu
+2010/02/27.1908.57 Issuing spoofed recordroutes: 2010.0227.1908.57
+2010/02/27.1909.08 planet1.scs.stanford.edu received 0 total responses from 
+2010/02/27.1909.08 planet1.scs.stanford.edu 128.112.128.114 128.112.128.114 8 RR VPs left to try
+2010/02/27.1909.08 planet1.scs.stanford.edu 128.112.128.114 128.112.128.114 using plnode-01.gpolab.bbn.com mlab1.ams01.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/27.1909.08 Issuing spoofed recordroutes: 2010.0227.1909.08
+2010/02/27.1909.38 Current hop 128.112.128.114/128.112.128.114 seems to be unresponsive for planet1.scs.stanford.edu 128.112.128.114
+2010/02/27.1909.39 planet1.scs.stanford.edu 128.112.128.114 128.112.128.114 0 TS adjacents left to try
+2010/02/27.1909.39 No adjacents to 128.112.128.114 left to test for planet1.scs.stanford.edu 128.112.128.114
+2010/02/27.1909.39 Traceroute to 128.112.128.114 reaches for planet1.scs.stanford.edu 128.112.128.114
+2010/02/27.1909.39 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.18 64.57.28.7 64.57.28.42 64.57.28.97 137.164.26.134 137.164.25.37 137.164.27.161 171.67.255.132 171.66.3.2 planet1.scs.stanford.edu]
+2010/02/27.1909.39 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1909.39 REACHED
+2010/02/27.1909.39 FOUND
+2010/02/27.1909.39 RevPath_D128.112.128.114_Splanet1.scs.stanford.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym
+2010/02/27.1909.39 NONE
+2010/02/27.1909.39 FAILED
+2010/02/27.1909.39 --------
+2010/02/27.1909.39 Checking planet1.scs.stanford.edu 128.112.128.114 216.27.100.53 for traceroutes to source
+2010/02/27.1909.40 Removing loopy hops 0.0.0.0 from RevSegment_[216.27.100.54 64.57.28.19 64.57.28.6 64.57.28.43 64.57.28.96 137.164.26.133 137.164.25.38 137.164.27.162 0.0.0.0 171.66.3.181]_S171.66.3.181_H216.27.98.81_TRtoSrc
+2010/02/27.1909.40 REACHED
+2010/02/27.1909.40 RevPath_D128.112.128.114_Splanet1.scs.stanford.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 64.57.28.19 64.57.28.6 64.57.28.43 64.57.28.96 137.164.26.133 137.164.25.38 137.164.27.162 171.66.3.181]_TRtoSrc
+2010/02/27.1909.40 FOUND
+2010/02/27.1909.40 NONE
+2010/02/27.1909.40 FAILED
+2010/02/27.1909.40 --------
+2010/02/27.1909.40 Total time: 64
+2010/02/27.1909.40 Total probes: rr=1 spoof-rr=9 tr=1
+RevPath_D128.112.128.114_Splanet1.scs.stanford.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 64.57.28.19 64.57.28.6 64.57.28.43 64.57.28.96 137.164.26.133 137.164.25.38 137.164.27.162 171.66.3.181]_TRtoSrc
+2010/02/27.1909.56 Issuing traceroutes: 2010.0227.1909.56 1
+2010/02/27.1910.01 Traceroutes for planetlab2.cs.uit.no
+2010/02/27.1910.01 Traceroute to 128.112.128.114 reaches for planetlab2.cs.uit.no 128.112.128.114
+2010/02/27.1910.01 Trying to find 1 hops from [0.0.0.0 216.27.100.53 109.105.98.10 109.105.97.45 109.105.97.6 109.105.97.1 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/27.1910.02 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1910.02 Fwd planetlab2.cs.uit.no to 128.112.128.114: 129.242.19.193 129.242.222.1 129.242.1.9 128.39.47.217 128.39.65.73 109.105.102.21 109.105.97.1 109.105.97.6 109.105.97.45 109.105.98.10 216.27.100.53 0.0.0.0 128.112.128.114
+2010/02/27.1910.02 Checking planetlab2.cs.uit.no 128.112.128.114 128.112.128.114 for traceroutes to source
+2010/02/27.1910.02 Initializing RR VPs in a batch for 1
+2010/02/27.1910.02 Total VPs: 215
+2010/02/27.1910.02 Total spoofers: 164 at 75 sites
+2010/02/27.1910.03 Total up spoofers: 132 at 58 sites
+2010/02/27.1910.03 Final total spoofers to use: 1 each at 58 sites
+2010/02/27.1910.03 Found 14 spoofers of 46 for 128.112.128.114: mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab1.lga02.measurement-lab.org mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab5.williams.edu plnode-02.gpolab.bbn.com mlab2.ams02.measurement-lab.org planetlab2.cis.upenn.edu planetlab1.pc.cis.udel.edu mlab1.lhr01.measurement-lab.org mlab4.nuq01.measurement-lab.org planetlab2.uta.edu mlab2.lax01.measurement-lab.org
+2010/02/27.1910.03 planetlab2.cs.uit.no 128.112.128.114 128.112.128.114 15 RR VPs left to try
+2010/02/27.1910.03 planetlab2.cs.uit.no 128.112.128.114 128.112.128.114 using non_spoofed
+2010/02/27.1910.03 Issuing recordroutes: 2010.0227.1910.03 1
+2010/02/27.1910.07 planetlab2.cs.uit.no 128.112.128.114 128.112.128.114 14 RR VPs left to try
+2010/02/27.1910.07 planetlab2.cs.uit.no 128.112.128.114 128.112.128.114 using mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab1.lga02.measurement-lab.org
+2010/02/27.1910.07 Issuing spoofed recordroutes: 2010.0227.1910.07
+2010/02/27.1910.17 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/27.1910.17 planetlab2.cs.uit.no 128.112.128.114 128.112.128.114 11 RR VPs left to try
+2010/02/27.1910.17 planetlab2.cs.uit.no 128.112.128.114 128.112.128.114 using mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab5.williams.edu
+2010/02/27.1910.18 Issuing spoofed recordroutes: 2010.0227.1910.17
+2010/02/27.1910.28 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/27.1910.28 planetlab2.cs.uit.no 128.112.128.114 128.112.128.114 8 RR VPs left to try
+2010/02/27.1910.28 planetlab2.cs.uit.no 128.112.128.114 128.112.128.114 using plnode-02.gpolab.bbn.com mlab2.ams02.measurement-lab.org planetlab2.cis.upenn.edu
+2010/02/27.1910.28 Issuing spoofed recordroutes: 2010.0227.1910.28
+2010/02/27.1910.39 planetlab2.cs.uit.no received 0 total responses from 
+2010/02/27.1910.39 Current hop 128.112.128.114/128.112.128.114 seems to be unresponsive for planetlab2.cs.uit.no 128.112.128.114
+2010/02/27.1910.39 planetlab2.cs.uit.no 128.112.128.114 128.112.128.114 0 TS adjacents left to try
+2010/02/27.1910.39 No adjacents to 128.112.128.114 left to test for planetlab2.cs.uit.no 128.112.128.114
+2010/02/27.1910.39 Traceroute to 128.112.128.114 reaches for planetlab2.cs.uit.no 128.112.128.114
+2010/02/27.1910.39 Trying to find 1 hops from [0.0.0.0 216.27.100.53 109.105.98.10 109.105.97.45 109.105.97.6 109.105.97.1 109.105.102.21 128.39.65.73 128.39.47.217 129.242.1.9 129.242.222.1 129.242.19.193 planetlab2.cs.uit.no]
+2010/02/27.1910.39 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1910.39 REACHED
+2010/02/27.1910.39 FOUND
+2010/02/27.1910.39 RevPath_D128.112.128.114_Splanetlab2.cs.uit.no_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym
+2010/02/27.1910.39 NONE
+2010/02/27.1910.40 FAILED
+2010/02/27.1910.40 --------
+2010/02/27.1910.40 Checking planetlab2.cs.uit.no 128.112.128.114 216.27.100.53 for traceroutes to source
+2010/02/27.1910.40 REACHED
+2010/02/27.1910.40 RevPath_D128.112.128.114_Splanetlab2.cs.uit.no_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 109.105.98.9 109.105.97.46 109.105.97.14 109.105.102.26 128.39.65.21 128.39.65.74 128.39.47.218 129.242.1.14 129.242.222.2 129.242.19.197]_TRtoSrc
+2010/02/27.1910.40 FOUND
+2010/02/27.1910.40 NONE
+2010/02/27.1910.40 FAILED
+2010/02/27.1910.40 --------
+2010/02/27.1910.40 Total time: 45
+2010/02/27.1910.40 Total probes: rr=1 spoof-rr=9 tr=1
+RevPath_D128.112.128.114_Splanetlab2.cs.uit.no_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 109.105.98.9 109.105.97.46 109.105.97.14 109.105.102.26 128.39.65.21 128.39.65.74 128.39.47.218 129.242.1.14 129.242.222.2 129.242.19.197]_TRtoSrc
+2010/02/27.1910.46 Issuing traceroutes: 2010.0227.1910.46 1
+2010/02/27.1910.52 Traceroutes for planetlab2.sfc.wide.ad.jp
+2010/02/27.1910.52 Traceroute to 128.112.128.114 reaches for planetlab2.sfc.wide.ad.jp 128.112.128.114
+2010/02/27.1910.52 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.18 64.57.28.7 64.57.28.42 64.57.28.97 207.231.240.131 192.203.116.145 203.178.133.141 203.178.141.142 203.178.136.65 203.178.136.73 203.178.136.93 203.178.137.75 203.178.143.1 planetlab2.sfc.wide.ad.jp]
+2010/02/27.1910.52 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1910.52 Fwd planetlab2.sfc.wide.ad.jp to 128.112.128.114: 203.178.143.1 203.178.137.75 203.178.136.93 203.178.136.73 203.178.136.65 203.178.141.142 203.178.133.141 192.203.116.145 207.231.240.131 64.57.28.97 64.57.28.42 64.57.28.7 64.57.28.18 216.27.100.53 0.0.0.0 128.112.128.114
+2010/02/27.1910.52 Checking planetlab2.sfc.wide.ad.jp 128.112.128.114 128.112.128.114 for traceroutes to source
+2010/02/27.1910.52 Initializing RR VPs in a batch for 1
+2010/02/27.1910.53 Total VPs: 215
+2010/02/27.1910.53 Total spoofers: 164 at 75 sites
+2010/02/27.1910.53 Total up spoofers: 132 at 58 sites
+2010/02/27.1910.53 Final total spoofers to use: 1 each at 58 sites
+2010/02/27.1910.53 Found 14 spoofers of 46 for 128.112.128.114: mlab2.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga01.measurement-lab.org mlab1.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab4.williams.edu plnode-02.gpolab.bbn.com mlab2.ams01.measurement-lab.org planetlab1.cis.upenn.edu planetlab2.pc.cis.udel.edu mlab2.lhr01.measurement-lab.org mlab2.nuq01.measurement-lab.org planetlab1.uta.edu mlab1.lax01.measurement-lab.org
+2010/02/27.1910.53 planetlab2.sfc.wide.ad.jp 128.112.128.114 128.112.128.114 15 RR VPs left to try
+2010/02/27.1910.53 planetlab2.sfc.wide.ad.jp 128.112.128.114 128.112.128.114 using non_spoofed
+2010/02/27.1910.53 Issuing recordroutes: 2010.0227.1910.53 1
+2010/02/27.1910.56 planetlab2.sfc.wide.ad.jp 128.112.128.114 128.112.128.114 14 RR VPs left to try
+2010/02/27.1910.56 planetlab2.sfc.wide.ad.jp 128.112.128.114 128.112.128.114 using mlab2.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga01.measurement-lab.org
+2010/02/27.1910.56 Issuing spoofed recordroutes: 2010.0227.1910.56
+2010/02/27.1911.06 planetlab2.sfc.wide.ad.jp received 0 total responses from 
+2010/02/27.1911.06 planetlab2.sfc.wide.ad.jp 128.112.128.114 128.112.128.114 11 RR VPs left to try
+2010/02/27.1911.06 planetlab2.sfc.wide.ad.jp 128.112.128.114 128.112.128.114 using mlab1.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab4.williams.edu
+2010/02/27.1911.06 Issuing spoofed recordroutes: 2010.0227.1911.06
+2010/02/27.1911.17 planetlab2.sfc.wide.ad.jp received 0 total responses from 
+2010/02/27.1911.17 planetlab2.sfc.wide.ad.jp 128.112.128.114 128.112.128.114 8 RR VPs left to try
+2010/02/27.1911.17 planetlab2.sfc.wide.ad.jp 128.112.128.114 128.112.128.114 using plnode-02.gpolab.bbn.com mlab2.ams01.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/27.1911.17 Issuing spoofed recordroutes: 2010.0227.1911.17
+2010/02/27.1911.29 planetlab2.sfc.wide.ad.jp received 0 total responses from 
+2010/02/27.1911.30 Current hop 128.112.128.114/128.112.128.114 seems to be unresponsive for planetlab2.sfc.wide.ad.jp 128.112.128.114
+2010/02/27.1911.30 planetlab2.sfc.wide.ad.jp 128.112.128.114 128.112.128.114 0 TS adjacents left to try
+2010/02/27.1911.30 No adjacents to 128.112.128.114 left to test for planetlab2.sfc.wide.ad.jp 128.112.128.114
+2010/02/27.1911.30 Traceroute to 128.112.128.114 reaches for planetlab2.sfc.wide.ad.jp 128.112.128.114
+2010/02/27.1911.30 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.18 64.57.28.7 64.57.28.42 64.57.28.97 207.231.240.131 192.203.116.145 203.178.133.141 203.178.141.142 203.178.136.65 203.178.136.73 203.178.136.93 203.178.137.75 203.178.143.1 planetlab2.sfc.wide.ad.jp]
+2010/02/27.1911.30 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1911.30 REACHED
+2010/02/27.1911.30 FOUND
+2010/02/27.1911.30 RevPath_D128.112.128.114_Splanetlab2.sfc.wide.ad.jp_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym
+2010/02/27.1911.30 NONE
+2010/02/27.1911.30 FAILED
+2010/02/27.1911.30 --------
+2010/02/27.1911.31 Checking planetlab2.sfc.wide.ad.jp 128.112.128.114 216.27.100.53 for traceroutes to source
+2010/02/27.1911.31 REACHED
+2010/02/27.1911.31 RevPath_D128.112.128.114_Splanetlab2.sfc.wide.ad.jp_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 64.57.28.19 64.57.28.6 64.57.28.43 64.57.28.96 207.231.240.136 192.203.116.146 203.178.133.142 203.178.141.141 203.178.136.66 203.178.136.74 203.178.136.94 203.178.137.67 203.178.143.28]_TRtoSrc
+2010/02/27.1911.31 FOUND
+2010/02/27.1911.31 NONE
+2010/02/27.1911.31 FAILED
+2010/02/27.1911.31 --------
+2010/02/27.1911.31 Total time: 45
+2010/02/27.1911.31 Total probes: rr=1 spoof-rr=9 tr=1
+RevPath_D128.112.128.114_Splanetlab2.sfc.wide.ad.jp_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 64.57.28.19 64.57.28.6 64.57.28.43 64.57.28.96 207.231.240.136 192.203.116.146 203.178.133.142 203.178.141.141 203.178.136.66 203.178.136.74 203.178.136.94 203.178.137.67 203.178.143.28]_TRtoSrc
+2010/02/27.1911.37 Issuing traceroutes: 2010.0227.1911.37 1
+2010/02/27.1911.42 Traceroutes for planetlab2.uta.edu
+2010/02/27.1911.42 Traceroute to 128.112.128.114 reaches for planetlab2.uta.edu 128.112.128.114
+2010/02/27.1911.42 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.18 64.57.28.7 64.57.28.42 74.200.187.5 74.200.187.37 74.200.187.21 129.107.35.97 129.107.35.129 planetlab2.uta.edu]
+2010/02/27.1911.42 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1911.42 Fwd planetlab2.uta.edu to 128.112.128.114: 129.107.35.129 129.107.35.97 74.200.187.21 74.200.187.37 74.200.187.5 64.57.28.42 64.57.28.7 64.57.28.18 216.27.100.53 0.0.0.0 128.112.128.114
+2010/02/27.1911.42 Checking planetlab2.uta.edu 128.112.128.114 128.112.128.114 for traceroutes to source
+2010/02/27.1911.42 Initializing RR VPs in a batch for 1
+2010/02/27.1911.42 Total VPs: 215
+2010/02/27.1911.42 Total spoofers: 164 at 75 sites
+2010/02/27.1911.42 Total up spoofers: 132 at 58 sites
+2010/02/27.1911.43 Final total spoofers to use: 1 each at 58 sites
+2010/02/27.1911.43 Found 14 spoofers of 46 for 128.112.128.114: mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga02.measurement-lab.org mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3.williams.edu plnode-02.gpolab.bbn.com mlab2.ams01.measurement-lab.org planetlab1.cis.upenn.edu planetlab1.pc.cis.udel.edu mlab1.lhr01.measurement-lab.org mlab2.nuq01.measurement-lab.org planetlab2.uta.edu mlab3.lax01.measurement-lab.org
+2010/02/27.1911.43 planetlab2.uta.edu 128.112.128.114 128.112.128.114 14 RR VPs left to try
+2010/02/27.1911.43 planetlab2.uta.edu 128.112.128.114 128.112.128.114 using non_spoofed
+2010/02/27.1911.43 Issuing recordroutes: 2010.0227.1911.43 1
+2010/02/27.1911.46 planetlab2.uta.edu 128.112.128.114 128.112.128.114 13 RR VPs left to try
+2010/02/27.1911.46 planetlab2.uta.edu 128.112.128.114 128.112.128.114 using mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga02.measurement-lab.org
+2010/02/27.1911.46 Issuing spoofed recordroutes: 2010.0227.1911.46
+2010/02/27.1911.56 planetlab2.uta.edu received 0 total responses from 
+2010/02/27.1911.56 planetlab2.uta.edu 128.112.128.114 128.112.128.114 10 RR VPs left to try
+2010/02/27.1911.56 planetlab2.uta.edu 128.112.128.114 128.112.128.114 using mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3.williams.edu
+2010/02/27.1911.56 Issuing spoofed recordroutes: 2010.0227.1911.56
+2010/02/27.1912.06 planetlab2.uta.edu received 0 total responses from 
+2010/02/27.1912.06 planetlab2.uta.edu 128.112.128.114 128.112.128.114 7 RR VPs left to try
+2010/02/27.1912.06 planetlab2.uta.edu 128.112.128.114 128.112.128.114 using plnode-02.gpolab.bbn.com mlab2.ams01.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/27.1912.06 Issuing spoofed recordroutes: 2010.0227.1912.06
+2010/02/27.1912.16 planetlab2.uta.edu received 0 total responses from 
+2010/02/27.1912.16 Current hop 128.112.128.114/128.112.128.114 seems to be unresponsive for planetlab2.uta.edu 128.112.128.114
+2010/02/27.1912.16 planetlab2.uta.edu 128.112.128.114 128.112.128.114 0 TS adjacents left to try
+2010/02/27.1912.16 No adjacents to 128.112.128.114 left to test for planetlab2.uta.edu 128.112.128.114
+2010/02/27.1912.16 Traceroute to 128.112.128.114 reaches for planetlab2.uta.edu 128.112.128.114
+2010/02/27.1912.16 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.18 64.57.28.7 64.57.28.42 74.200.187.5 74.200.187.37 74.200.187.21 129.107.35.97 129.107.35.129 planetlab2.uta.edu]
+2010/02/27.1912.17 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1912.17 REACHED
+2010/02/27.1912.17 FOUND
+2010/02/27.1912.17 RevPath_D128.112.128.114_Splanetlab2.uta.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym
+2010/02/27.1912.17 NONE
+2010/02/27.1912.17 FAILED
+2010/02/27.1912.17 --------
+2010/02/27.1912.17 Checking planetlab2.uta.edu 128.112.128.114 216.27.100.53 for traceroutes to source
+2010/02/27.1912.17 REACHED
+2010/02/27.1912.17 RevPath_D128.112.128.114_Splanetlab2.uta.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 64.57.28.19 64.57.28.6 64.57.28.43 74.200.187.6 74.200.187.18 74.200.187.22 208.76.227.239 129.107.35.46 129.107.35.132]_TRtoSrc
+2010/02/27.1912.17 FOUND
+2010/02/27.1912.18 NONE
+2010/02/27.1912.18 FAILED
+2010/02/27.1912.18 --------
+2010/02/27.1912.18 Total time: 41
+2010/02/27.1912.18 Total probes: rr=1 spoof-rr=9 tr=1
+RevPath_D128.112.128.114_Splanetlab2.uta.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 64.57.28.19 64.57.28.6 64.57.28.43 74.200.187.6 74.200.187.18 74.200.187.22 208.76.227.239 129.107.35.46 129.107.35.132]_TRtoSrc
+2010/02/27.1912.21 Issuing traceroutes: 2010.0227.1912.21 1
+2010/02/27.1912.26 Traceroutes for planetlab6.cs.cornell.edu
+2010/02/27.1912.26 Traceroute to 128.112.128.114 reaches for planetlab6.cs.cornell.edu 128.112.128.114
+2010/02/27.1912.26 Trying to find 1 hops from [0.0.0.0 216.27.100.53 199.109.4.154 199.109.7.78 199.109.9.25 132.236.222.2 132.236.222.161 128.84.154.1 planetlab6.cs.cornell.edu]
+2010/02/27.1912.26 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1912.26 Fwd planetlab6.cs.cornell.edu to 128.112.128.114: 128.84.154.1 132.236.222.161 132.236.222.2 199.109.9.25 199.109.7.78 199.109.4.154 216.27.100.53 0.0.0.0 128.112.128.114
+2010/02/27.1912.26 Checking planetlab6.cs.cornell.edu 128.112.128.114 128.112.128.114 for traceroutes to source
+2010/02/27.1912.27 Initializing RR VPs in a batch for 1
+2010/02/27.1912.27 Total VPs: 215
+2010/02/27.1912.27 Total spoofers: 164 at 75 sites
+2010/02/27.1912.27 Total up spoofers: 132 at 58 sites
+2010/02/27.1912.27 Final total spoofers to use: 1 each at 58 sites
+2010/02/27.1912.27 Found 14 spoofers of 46 for 128.112.128.114: mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab1.lga02.measurement-lab.org mlab2.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab4.williams.edu plnode-01.gpolab.bbn.com mlab3.ams02.measurement-lab.org planetlab1.cis.upenn.edu planetlab1.pc.cis.udel.edu mlab1.lhr01.measurement-lab.org mlab4.nuq01.measurement-lab.org planetlab1.uta.edu mlab3.lax01.measurement-lab.org
+2010/02/27.1912.27 planetlab6.cs.cornell.edu 128.112.128.114 128.112.128.114 15 RR VPs left to try
+2010/02/27.1912.27 planetlab6.cs.cornell.edu 128.112.128.114 128.112.128.114 using non_spoofed
+2010/02/27.1912.28 Issuing recordroutes: 2010.0227.1912.27 1
+2010/02/27.1912.30 planetlab6.cs.cornell.edu 128.112.128.114 128.112.128.114 14 RR VPs left to try
+2010/02/27.1912.30 planetlab6.cs.cornell.edu 128.112.128.114 128.112.128.114 using mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab1.lga02.measurement-lab.org
+2010/02/27.1912.30 Issuing spoofed recordroutes: 2010.0227.1912.30
+2010/02/27.1912.42 planetlab6.cs.cornell.edu received 0 total responses from 
+2010/02/27.1912.42 planetlab6.cs.cornell.edu 128.112.128.114 128.112.128.114 11 RR VPs left to try
+2010/02/27.1912.42 planetlab6.cs.cornell.edu 128.112.128.114 128.112.128.114 using mlab2.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab4.williams.edu
+2010/02/27.1912.42 Issuing spoofed recordroutes: 2010.0227.1912.42
+2010/02/27.1912.52 planetlab6.cs.cornell.edu received 0 total responses from 
+2010/02/27.1912.52 planetlab6.cs.cornell.edu 128.112.128.114 128.112.128.114 8 RR VPs left to try
+2010/02/27.1912.52 planetlab6.cs.cornell.edu 128.112.128.114 128.112.128.114 using plnode-01.gpolab.bbn.com mlab3.ams02.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/27.1912.53 Issuing spoofed recordroutes: 2010.0227.1912.52
+2010/02/27.1913.02 planetlab6.cs.cornell.edu received 0 total responses from 
+2010/02/27.1913.02 Current hop 128.112.128.114/128.112.128.114 seems to be unresponsive for planetlab6.cs.cornell.edu 128.112.128.114
+2010/02/27.1913.02 planetlab6.cs.cornell.edu 128.112.128.114 128.112.128.114 0 TS adjacents left to try
+2010/02/27.1913.02 No adjacents to 128.112.128.114 left to test for planetlab6.cs.cornell.edu 128.112.128.114
+2010/02/27.1913.03 Traceroute to 128.112.128.114 reaches for planetlab6.cs.cornell.edu 128.112.128.114
+2010/02/27.1913.03 Trying to find 1 hops from [0.0.0.0 216.27.100.53 199.109.4.154 199.109.7.78 199.109.9.25 132.236.222.2 132.236.222.161 128.84.154.1 planetlab6.cs.cornell.edu]
+2010/02/27.1913.03 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1913.03 REACHED
+2010/02/27.1913.03 FOUND
+2010/02/27.1913.03 RevPath_D128.112.128.114_Splanetlab6.cs.cornell.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym
+2010/02/27.1913.03 NONE
+2010/02/27.1913.03 FAILED
+2010/02/27.1913.03 --------
+2010/02/27.1913.03 Checking planetlab6.cs.cornell.edu 128.112.128.114 216.27.100.53 for traceroutes to source
+2010/02/27.1913.04 REACHED
+2010/02/27.1913.04 RevPath_D128.112.128.114_Splanetlab6.cs.cornell.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 199.109.4.153 199.109.7.77 199.109.9.26 132.236.222.6 132.236.222.162 128.84.154.45]_TRtoSrc
+2010/02/27.1913.04 FOUND
+2010/02/27.1913.04 NONE
+2010/02/27.1913.04 FAILED
+2010/02/27.1913.04 --------
+2010/02/27.1913.04 Total time: 43
+2010/02/27.1913.04 Total probes: rr=1 spoof-rr=9 tr=1
+RevPath_D128.112.128.114_Splanetlab6.cs.cornell.edu_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 199.109.4.153 199.109.7.77 199.109.9.26 132.236.222.6 132.236.222.162 128.84.154.45]_TRtoSrc
+2010/02/27.1913.07 Issuing traceroutes: 2010.0227.1913.07 1
+2010/02/27.1913.13 Traceroutes for planetlab2.ics.forth.gr
+2010/02/27.1913.13 Traceroute to 128.112.128.114 reaches for planetlab2.ics.forth.gr 128.112.128.114
+2010/02/27.1913.13 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.18 62.40.125.18 62.40.112.38 62.40.112.6 62.40.112.165 62.40.124.89 195.251.27.54 195.251.24.173 139.91.34.85 139.91.90.253 planetlab2.ics.forth.gr]
+2010/02/27.1913.13 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1913.13 Fwd planetlab2.ics.forth.gr to 128.112.128.114: 139.91.90.253 139.91.34.85 195.251.24.173 195.251.27.54 62.40.124.89 62.40.112.165 62.40.112.6 62.40.112.38 62.40.125.18 64.57.28.18 216.27.100.53 0.0.0.0 128.112.128.114
+2010/02/27.1913.13 Checking planetlab2.ics.forth.gr 128.112.128.114 128.112.128.114 for traceroutes to source
+2010/02/27.1913.14 Initializing RR VPs in a batch for 1
+2010/02/27.1913.14 Total VPs: 215
+2010/02/27.1913.14 Total spoofers: 164 at 75 sites
+2010/02/27.1913.14 Total up spoofers: 132 at 58 sites
+2010/02/27.1913.14 Final total spoofers to use: 1 each at 58 sites
+2010/02/27.1913.14 Found 14 spoofers of 46 for 128.112.128.114: mlab1.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga02.measurement-lab.org mlab2.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3.williams.edu plnode-01.gpolab.bbn.com mlab3.ams02.measurement-lab.org planetlab1.cis.upenn.edu planetlab2.pc.cis.udel.edu mlab3.lhr01.measurement-lab.org mlab2.nuq01.measurement-lab.org planetlab1.uta.edu mlab3.lax01.measurement-lab.org
+2010/02/27.1913.14 planetlab2.ics.forth.gr 128.112.128.114 128.112.128.114 15 RR VPs left to try
+2010/02/27.1913.14 planetlab2.ics.forth.gr 128.112.128.114 128.112.128.114 using non_spoofed
+2010/02/27.1913.15 Issuing recordroutes: 2010.0227.1913.14 1
+2010/02/27.1913.17 planetlab2.ics.forth.gr 128.112.128.114 128.112.128.114 14 RR VPs left to try
+2010/02/27.1913.17 planetlab2.ics.forth.gr 128.112.128.114 128.112.128.114 using mlab1.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga02.measurement-lab.org
+2010/02/27.1913.17 Issuing spoofed recordroutes: 2010.0227.1913.17
+2010/02/27.1913.27 planetlab2.ics.forth.gr received 0 total responses from 
+2010/02/27.1913.27 planetlab2.ics.forth.gr 128.112.128.114 128.112.128.114 11 RR VPs left to try
+2010/02/27.1913.28 planetlab2.ics.forth.gr 128.112.128.114 128.112.128.114 using mlab2.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab3.williams.edu
+2010/02/27.1913.28 Issuing spoofed recordroutes: 2010.0227.1913.28
+2010/02/27.1913.38 planetlab2.ics.forth.gr received 0 total responses from 
+2010/02/27.1913.38 planetlab2.ics.forth.gr 128.112.128.114 128.112.128.114 8 RR VPs left to try
+2010/02/27.1913.38 planetlab2.ics.forth.gr 128.112.128.114 128.112.128.114 using plnode-01.gpolab.bbn.com mlab3.ams02.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/27.1913.38 Issuing spoofed recordroutes: 2010.0227.1913.38
+2010/02/27.1913.48 planetlab2.ics.forth.gr received 0 total responses from 
+2010/02/27.1913.48 Current hop 128.112.128.114/128.112.128.114 seems to be unresponsive for planetlab2.ics.forth.gr 128.112.128.114
+2010/02/27.1913.48 planetlab2.ics.forth.gr 128.112.128.114 128.112.128.114 0 TS adjacents left to try
+2010/02/27.1913.49 No adjacents to 128.112.128.114 left to test for planetlab2.ics.forth.gr 128.112.128.114
+2010/02/27.1913.49 Traceroute to 128.112.128.114 reaches for planetlab2.ics.forth.gr 128.112.128.114
+2010/02/27.1913.49 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.18 62.40.125.18 62.40.112.38 62.40.112.6 62.40.112.165 62.40.124.89 195.251.27.54 195.251.24.173 139.91.34.85 139.91.90.253 planetlab2.ics.forth.gr]
+2010/02/27.1913.49 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1913.49 REACHED
+2010/02/27.1913.49 FOUND
+2010/02/27.1913.49 RevPath_D128.112.128.114_Splanetlab2.ics.forth.gr_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym
+2010/02/27.1913.49 NONE
+2010/02/27.1913.49 FAILED
+2010/02/27.1913.49 --------
+2010/02/27.1913.49 Checking planetlab2.ics.forth.gr 128.112.128.114 216.27.100.53 for traceroutes to source
+2010/02/27.1913.50 REACHED
+2010/02/27.1913.50 RevPath_D128.112.128.114_Splanetlab2.ics.forth.gr_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 198.32.11.51 62.40.112.57 62.40.112.37 62.40.112.5 62.40.112.166 62.40.124.90 195.251.27.45 195.251.24.174 139.91.34.82 139.91.90.239]_TRtoSrc
+2010/02/27.1913.50 FOUND
+2010/02/27.1913.50 NONE
+2010/02/27.1913.50 FAILED
+2010/02/27.1913.50 --------
+2010/02/27.1913.50 Total time: 43
+2010/02/27.1913.50 Total probes: rr=1 spoof-rr=9 tr=1
+RevPath_D128.112.128.114_Splanetlab2.ics.forth.gr_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 198.32.11.51 62.40.112.57 62.40.112.37 62.40.112.5 62.40.112.166 62.40.124.90 195.251.27.45 195.251.24.174 139.91.34.82 139.91.90.239]_TRtoSrc
+2010/02/27.1913.56 Issuing traceroutes: 2010.0227.1913.56 1
+2010/02/27.1914.01 Traceroutes for planet3.prakinf.tu-ilmenau.de
+2010/02/27.1914.01 Traceroute to 128.112.128.114 reaches for planet3.prakinf.tu-ilmenau.de 128.112.128.114
+2010/02/27.1914.01 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.18 62.40.125.18 62.40.124.33 188.1.145.198 188.1.144.198 188.1.238.1 141.24.35.253 planet3.prakinf.tu-ilmenau.de]
+2010/02/27.1914.02 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1914.02 Fwd planet3.prakinf.tu-ilmenau.de to 128.112.128.114: 141.24.35.253 188.1.238.1 188.1.144.198 188.1.145.198 62.40.124.33 62.40.125.18 64.57.28.18 216.27.100.53 0.0.0.0 128.112.128.114
+2010/02/27.1914.02 Checking planet3.prakinf.tu-ilmenau.de 128.112.128.114 128.112.128.114 for traceroutes to source
+2010/02/27.1914.02 Initializing RR VPs in a batch for 1
+2010/02/27.1914.02 Total VPs: 215
+2010/02/27.1914.02 Total spoofers: 164 at 75 sites
+2010/02/27.1914.02 Total up spoofers: 132 at 58 sites
+2010/02/27.1914.02 Final total spoofers to use: 1 each at 58 sites
+2010/02/27.1914.03 Found 14 spoofers of 46 for 128.112.128.114: mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga02.measurement-lab.org mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab4.williams.edu plnode-02.gpolab.bbn.com mlab2.ams02.measurement-lab.org planetlab1.cis.upenn.edu planetlab1.pc.cis.udel.edu mlab1.lhr01.measurement-lab.org mlab4.nuq01.measurement-lab.org planetlab2.uta.edu mlab1.lax01.measurement-lab.org
+2010/02/27.1914.03 planet3.prakinf.tu-ilmenau.de 128.112.128.114 128.112.128.114 15 RR VPs left to try
+2010/02/27.1914.03 planet3.prakinf.tu-ilmenau.de 128.112.128.114 128.112.128.114 using non_spoofed
+2010/02/27.1914.03 Issuing recordroutes: 2010.0227.1914.03 1
+2010/02/27.1914.05 planet3.prakinf.tu-ilmenau.de 128.112.128.114 128.112.128.114 14 RR VPs left to try
+2010/02/27.1914.05 planet3.prakinf.tu-ilmenau.de 128.112.128.114 128.112.128.114 using mlab3.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga02.measurement-lab.org
+2010/02/27.1914.06 Issuing spoofed recordroutes: 2010.0227.1914.06
+2010/02/27.1914.16 planet3.prakinf.tu-ilmenau.de received 0 total responses from 
+2010/02/27.1914.16 planet3.prakinf.tu-ilmenau.de 128.112.128.114 128.112.128.114 11 RR VPs left to try
+2010/02/27.1914.16 planet3.prakinf.tu-ilmenau.de 128.112.128.114 128.112.128.114 using mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab4.williams.edu
+2010/02/27.1914.16 Issuing spoofed recordroutes: 2010.0227.1914.16
+2010/02/27.1914.26 planet3.prakinf.tu-ilmenau.de received 0 total responses from 
+2010/02/27.1914.26 planet3.prakinf.tu-ilmenau.de 128.112.128.114 128.112.128.114 8 RR VPs left to try
+2010/02/27.1914.26 planet3.prakinf.tu-ilmenau.de 128.112.128.114 128.112.128.114 using plnode-02.gpolab.bbn.com mlab2.ams02.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/27.1914.26 Issuing spoofed recordroutes: 2010.0227.1914.26
+2010/02/27.1914.37 planet3.prakinf.tu-ilmenau.de received 0 total responses from 
+2010/02/27.1914.37 Current hop 128.112.128.114/128.112.128.114 seems to be unresponsive for planet3.prakinf.tu-ilmenau.de 128.112.128.114
+2010/02/27.1914.37 planet3.prakinf.tu-ilmenau.de 128.112.128.114 128.112.128.114 0 TS adjacents left to try
+2010/02/27.1914.37 No adjacents to 128.112.128.114 left to test for planet3.prakinf.tu-ilmenau.de 128.112.128.114
+2010/02/27.1914.37 Traceroute to 128.112.128.114 reaches for planet3.prakinf.tu-ilmenau.de 128.112.128.114
+2010/02/27.1914.37 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.18 62.40.125.18 62.40.124.33 188.1.145.198 188.1.144.198 188.1.238.1 141.24.35.253 planet3.prakinf.tu-ilmenau.de]
+2010/02/27.1914.37 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1914.37 REACHED
+2010/02/27.1914.37 FOUND
+2010/02/27.1914.37 RevPath_D128.112.128.114_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym
+2010/02/27.1914.37 NONE
+2010/02/27.1914.37 FAILED
+2010/02/27.1914.38 --------
+2010/02/27.1914.38 Checking planet3.prakinf.tu-ilmenau.de 128.112.128.114 216.27.100.53 for traceroutes to source
+2010/02/27.1914.38 REACHED
+2010/02/27.1914.38 RevPath_D128.112.128.114_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 198.32.11.51 62.40.112.57 62.40.124.34 188.1.145.142 188.1.144.197 188.1.238.2 141.24.33.192]_TRtoSrc
+2010/02/27.1914.38 FOUND
+2010/02/27.1914.38 NONE
+2010/02/27.1914.38 FAILED
+2010/02/27.1914.38 --------
+2010/02/27.1914.38 Total time: 42
+2010/02/27.1914.38 Total probes: rr=1 spoof-rr=9 tr=1
+RevPath_D128.112.128.114_Splanet3.prakinf.tu-ilmenau.de_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 198.32.11.51 62.40.112.57 62.40.124.34 188.1.145.142 188.1.144.197 188.1.238.2 141.24.33.192]_TRtoSrc
+2010/02/27.1914.44 Issuing traceroutes: 2010.0227.1914.44 1
+2010/02/27.1914.47 Total time: 3
+2010/02/27.1914.47 Total probes: tr=1
+2010/02/27.1914.47 Issuing traceroutes: 2010.0227.1914.47 1
+2010/02/27.1914.53 Traceroutes for planetlab3.upc.es
+2010/02/27.1914.53 Traceroute to 128.112.128.114 reaches for planetlab3.upc.es 128.112.128.114
+2010/02/27.1914.53 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.18 62.40.125.18 62.40.112.70 62.40.112.25 62.40.124.53 130.206.250.2 130.206.250.25 130.206.202.29 84.88.18.17 10.10.124.14 10.10.124.50 10.10.100.13 147.83.30.130 planetlab3.upc.es]
+2010/02/27.1914.53 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1914.53 Fwd planetlab3.upc.es to 128.112.128.114: 147.83.30.130 10.10.100.13 10.10.124.50 10.10.124.14 84.88.18.17 130.206.202.29 130.206.250.25 130.206.250.2 62.40.124.53 62.40.112.25 62.40.112.70 62.40.125.18 64.57.28.18 216.27.100.53 0.0.0.0 128.112.128.114
+2010/02/27.1914.53 Checking planetlab3.upc.es 128.112.128.114 128.112.128.114 for traceroutes to source
+2010/02/27.1914.54 Initializing RR VPs in a batch for 1
+2010/02/27.1914.54 Total VPs: 215
+2010/02/27.1914.54 Total spoofers: 164 at 75 sites
+2010/02/27.1914.54 Total up spoofers: 132 at 58 sites
+2010/02/27.1914.54 Final total spoofers to use: 1 each at 58 sites
+2010/02/27.1914.54 Found 14 spoofers of 46 for 128.112.128.114: mlab1.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga01.measurement-lab.org mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab4.williams.edu plnode-02.gpolab.bbn.com mlab2.ams01.measurement-lab.org planetlab1.cis.upenn.edu planetlab1.pc.cis.udel.edu mlab2.lhr01.measurement-lab.org mlab2.nuq01.measurement-lab.org planetlab1.uta.edu mlab2.lax01.measurement-lab.org
+2010/02/27.1914.54 planetlab3.upc.es 128.112.128.114 128.112.128.114 15 RR VPs left to try
+2010/02/27.1914.54 planetlab3.upc.es 128.112.128.114 128.112.128.114 using non_spoofed
+2010/02/27.1914.55 Issuing recordroutes: 2010.0227.1914.55 1
+2010/02/27.1914.58 planetlab3.upc.es 128.112.128.114 128.112.128.114 14 RR VPs left to try
+2010/02/27.1914.58 planetlab3.upc.es 128.112.128.114 128.112.128.114 using mlab1.dfw01.measurement-lab.org pl1.bit.uoit.ca mlab2.lga01.measurement-lab.org
+2010/02/27.1914.58 Issuing spoofed recordroutes: 2010.0227.1914.58
+2010/02/27.1915.08 planetlab3.upc.es received 0 total responses from 
+2010/02/27.1915.08 planetlab3.upc.es 128.112.128.114 128.112.128.114 11 RR VPs left to try
+2010/02/27.1915.08 planetlab3.upc.es 128.112.128.114 128.112.128.114 using mlab3.ham01.measurement-lab.org 75-130-96-13.static.oxfr.ma.charter.com planetlab4.williams.edu
+2010/02/27.1915.08 Issuing spoofed recordroutes: 2010.0227.1915.08
+2010/02/27.1915.19 planetlab3.upc.es received 0 total responses from 
+2010/02/27.1915.19 planetlab3.upc.es 128.112.128.114 128.112.128.114 8 RR VPs left to try
+2010/02/27.1915.19 planetlab3.upc.es 128.112.128.114 128.112.128.114 using plnode-02.gpolab.bbn.com mlab2.ams01.measurement-lab.org planetlab1.cis.upenn.edu
+2010/02/27.1915.19 Issuing spoofed recordroutes: 2010.0227.1915.19
+2010/02/27.1915.29 planetlab3.upc.es received 0 total responses from 
+2010/02/27.1915.30 Current hop 128.112.128.114/128.112.128.114 seems to be unresponsive for planetlab3.upc.es 128.112.128.114
+2010/02/27.1915.30 planetlab3.upc.es 128.112.128.114 128.112.128.114 0 TS adjacents left to try
+2010/02/27.1915.30 No adjacents to 128.112.128.114 left to test for planetlab3.upc.es 128.112.128.114
+2010/02/27.1915.30 Traceroute to 128.112.128.114 reaches for planetlab3.upc.es 128.112.128.114
+2010/02/27.1915.30 Trying to find 1 hops from [0.0.0.0 216.27.100.53 64.57.28.18 62.40.125.18 62.40.112.70 62.40.112.25 62.40.124.53 130.206.250.2 130.206.250.25 130.206.202.29 84.88.18.17 10.10.124.14 10.10.124.50 10.10.100.13 147.83.30.130 planetlab3.upc.es]
+2010/02/27.1915.30 Rev Seg is 0.0.0.0 216.27.100.53
+2010/02/27.1915.30 REACHED
+2010/02/27.1915.30 FOUND
+2010/02/27.1915.30 RevPath_D128.112.128.114_Splanetlab3.upc.es_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym
+2010/02/27.1915.30 NONE
+2010/02/27.1915.30 FAILED
+2010/02/27.1915.30 --------
+2010/02/27.1915.31 Checking planetlab3.upc.es 128.112.128.114 216.27.100.53 for traceroutes to source
+2010/02/27.1915.31 Removing loopy hops 0.0.0.0 from RevSegment_[216.27.100.54 198.32.11.51 62.40.112.57 62.40.112.21 62.40.112.26 62.40.124.54 130.206.250.1 130.206.250.26 130.206.202.30 84.88.18.18 0.0.0.0 0.0.0.0 0.0.0.0 147.83.30.164]_S147.83.30.164_H216.27.98.81_TRtoSrc
+2010/02/27.1915.31 REACHED
+2010/02/27.1915.31 RevPath_D128.112.128.114_Splanetlab3.upc.es_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 198.32.11.51 62.40.112.57 62.40.112.21 62.40.112.26 62.40.124.54 130.206.250.1 130.206.250.26 130.206.202.30 84.88.18.18 147.83.30.164]_TRtoSrc
+2010/02/27.1915.31 FOUND
+2010/02/27.1915.31 NONE
+2010/02/27.1915.31 FAILED
+2010/02/27.1915.31 --------
+2010/02/27.1915.31 Total time: 44
+2010/02/27.1915.31 Total probes: rr=1 spoof-rr=9 tr=1
+RevPath_D128.112.128.114_Splanetlab3.upc.es_RevSegment_[128.112.128.114]_Dst,RevSegment_[0.0.0.0 216.27.100.53]_Dst_AssumeSym,RevSegment_[216.27.100.54 198.32.11.51 62.40.112.57 62.40.112.21 62.40.112.26 62.40.124.54 130.206.250.1 130.206.250.26 130.206.202.30 84.88.18.18 147.83.30.164]_TRtoSrc
