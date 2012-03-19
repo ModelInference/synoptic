@@ -71,12 +71,14 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
     }
 
     /**
-     * Adds the event nodes to the graph and creates appropriate transitions
-     * for regular and closure relations. Also generates Trace and
-     * RelationPath data structures.
+     * Adds the event nodes to the graph and creates appropriate transitions for
+     * regular and closure relations. Also generates Trace and RelationPath data
+     * structures.
      * 
-     * @param events List of EventNodes in trace order
-     * @throws ParseException if two events have identical timestamp.
+     * @param events
+     *            List of EventNodes in trace order
+     * @throws ParseException
+     *             if two events have identical timestamp.
      */
     public void addTrace(List<EventNode> events) throws ParseException {
         // Sort the events in this group/trace.
@@ -94,12 +96,11 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         Set<String> relations = new HashSet<String>();
         EventNode firstNode = events.get(0);
         EventNode prevNode = firstNode;
-        
-        /* Process first node's relations:
-         * - Adds relation to list of relations
-         * - Tags node as initial over relation
-         * - Marks node as the last node seen over the relation
-         * - Adds a RelationPath to the Trace
+
+        /*
+         * Process first node's relations: - Adds relation to list of relations
+         * - Tags node as initial over relation - Marks node as the last node
+         * seen over the relation - Adds a RelationPath to the Trace
          */
         for (Relation relation : prevNode.getEventRelations()) {
             relations.add(relation.getRelation());
@@ -110,57 +111,60 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
 
         // Create transitions to connect the nodes in the sorted trace.
         for (EventNode curNode : events.subList(1, events.size())) {
-        	
+
             if (prevNode.getTime().equals(curNode.getTime())) {
                 String error = "Found two events with identical timestamps: (1) "
                         + prevNode.toString() + " (2) " + curNode.toString();
                 logger.severe(error);
                 throw new ParseException(error);
             }
-            
+
             // Process node's relations:
             for (Relation relation : curNode.getEventRelations()) {
                 relations.add(relation.getRelation());
-                
-                /* Closure relations create transitions between the current node
+
+                /*
+                 * Closure relations create transitions between the current node
                  * and the last seen node for the relation.
                  */
                 if (relation.isClosure()) {
-                    EventNode prevClosureNode = 
-                    		lastSeenNodeForRelation.get(relation.getRelation());
+                    EventNode prevClosureNode = lastSeenNodeForRelation
+                            .get(relation.getRelation());
                     /*
                      * TODO: This is a little gross. If the initial node could
                      * be pulled out of the graph and treated as an independent
                      * event node, then this would be a lot nicer.
                      */
-                    
-                    /* 
-                     * This is the first time we've seen this relation and it 
-                     * is a closure relation so we have to mark the node as 
-                     * initial and create a relation path.
+
+                    /*
+                     * This is the first time we've seen this relation and it is
+                     * a closure relation so we have to mark the node as initial
+                     * and create a relation path.
                      */
-                    if (prevClosureNode == null) { 
+                    if (prevClosureNode == null) {
                         tagInitial(curNode, relation.getRelation());
                         trace.addRelationPath(relation.getRelation(), curNode);
-                    } else { 
-                    	/* We've already encountered this relation, so hook it
-                    	 * up to the previous node over the relation.
-                    	 */
+                    } else {
+                        /*
+                         * We've already encountered this relation, so hook it
+                         * up to the previous node over the relation.
+                         */
                         prevClosureNode.addTransition(curNode,
                                 relation.getRelation());
                     }
-                } else { 
-                	/* Non-closure relation, create transition to previous
-                	 * node in graph.
-                	 */
+                } else {
+                    /*
+                     * Non-closure relation, create transition to previous node
+                     * in graph.
+                     */
                     prevNode.addTransition(curNode, relation.getRelation());
                 }
-                
+
                 lastSeenNodeForRelation.put(relation.getRelation(), curNode);
             }
-            
+
             prevNode = curNode;
-            
+
         }
 
         // Tag the final node as terminal:
@@ -169,12 +173,12 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
             tagTerminal(prevNode, relation.getRelation());
         }
 
-        /* If trace doesn't contain a relation path for a relation r,
-         * then r was seen while the trace was traversed, and there 
-         * are no closure relations of type r. This means there are
-         * subgraphs of r which are transitively connected to the
-         * initial node. Currently, these relations are transitively
-         * connected over time.
+        /*
+         * If trace doesn't contain a relation path for a relation r, then r was
+         * seen while the trace was traversed, and there are no closure
+         * relations of type r. This means there are subgraphs of r which are
+         * transitively connected to the initial node. Currently, these
+         * relations are transitively connected over time.
          */
         for (String relation : relations) {
             if (!trace.hasRelation(relation)) {
@@ -182,10 +186,10 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
             }
         }
 
-        /* Bound existing traces. Some relation paths are not
-         * non-transitively connected to the terminal node
-         * and do not need to be counted beyond the last node
-         * containing the given relation type.
+        /*
+         * Bound existing traces. Some relation paths are not non-transitively
+         * connected to the terminal node and do not need to be counted beyond
+         * the last node containing the given relation type.
          */
         for (String relation : lastSeenNodeForRelation.keySet()) {
             EventNode finalNode = lastSeenNodeForRelation.get(relation);
