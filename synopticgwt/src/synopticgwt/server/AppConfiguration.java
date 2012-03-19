@@ -1,11 +1,14 @@
 package synopticgwt.server;
 
+import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
 import synoptic.main.Main;
+import synopticgwt.server.db.DerbyDB;
 
 /**
  * Singleton class that takes care of loading in all of the application
@@ -54,11 +57,27 @@ public class AppConfiguration {
     public String synopticChangesetID;
 
     /**
+     * Instance of Derby database.
+     */
+    public final DerbyDB derbyDB;
+
+    /**
+     * Visitor id.
+     */
+    public int vID;
+
+    /**
      * Private constructor prevents instantiation from other classes
      * 
+     * @throws ClassNotFoundException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @throws SQLException
      * @throws IOException
      */
-    private AppConfiguration(ServletContext context) {
+    private AppConfiguration(ServletContext context) throws SQLException,
+            InstantiationException, IllegalAccessException,
+            ClassNotFoundException {
         analyticsTrackerID = System.getProperty("analyticsTrackerID", null);
 
         if (System.getProperty("userVoiceEnabled", null) != null) {
@@ -86,6 +105,23 @@ public class AppConfiguration {
             uploadedLogFilesDir = uploadedLogFilesDir_ + "/";
         }
 
+        String derbyDBDir = System.getProperty("derbyDBDir", null);
+        if (derbyDBDir == null) {
+            // Disabled DerbyDB support.
+            derbyDB = null;
+        } else {
+            File f = new File(derbyDBDir);
+            // TODO If given empty existing directory, unable to create a
+            // database, throws error. Look further into a solution for this.
+            if (f.exists()) {
+                // Open existing database.
+                derbyDB = DerbyDB.getInstance(derbyDBDir, false);
+            } else {
+                // Create new database.
+                derbyDB = DerbyDB.getInstance(derbyDBDir, true);
+            }
+        }
+
         try {
             // Extract the hg changeset id from war archive MANIFEST.MF
             Properties prop = new Properties();
@@ -109,10 +145,24 @@ public class AppConfiguration {
         }
     }
 
-    public static AppConfiguration getInstance(ServletContext context) {
+    public static AppConfiguration getInstance(ServletContext context)
+            throws SQLException, InstantiationException,
+            IllegalAccessException, ClassNotFoundException {
         if (instance != null) {
             return instance;
         }
         return new AppConfiguration(context);
+    }
+
+    /**
+     * Closes DerbyDB cleanly if server process terminates.
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            derbyDB.shutdown();
+        } finally {
+            super.finalize();
+        }
     }
 }
