@@ -6,15 +6,17 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Represents all of the relation paths through a single trace.
+ * Maintains the set of all relation paths (a path corresponding to a particular
+ * relation) part of a single input trace. If a relation exists in a trace, then
+ * there is a single unique relation path corresponding to the relation.
  * 
  * @author timjv
  */
 public class Trace {
     /*
-     * A relation String and EventNode uniquely specify a relation path.
-     * 
-     * Each relation has a single path within the trace.
+     * A relation string and an EventNode uniquely specify a relation path
+     * because we can simply walk the event nodes using their internal
+     * transitions along edges labeled with the relation string.
      */
 
     /** Relation string -> Representative relation path. */
@@ -25,7 +27,7 @@ public class Trace {
     }
 
     /**
-     * Adds the relation path specified by relation and eNode to this trace if
+     * Adds the relation path specified by relation and eNode to this trace, if
      * there is no pre-existing relation path specified for the relation.
      * 
      * @param relation
@@ -36,12 +38,8 @@ public class Trace {
     public void addRelationPath(String relation, EventNode eNode) {
         if (paths.containsKey(relation)) {
             /*
-             * A relation path has already been specified for relation. Check
-             * the client logic to ensure relation paths are not being created
-             * when they already exist.
-             * 
-             * This is to prevent bugs caused by assumptions that the trace does
-             * not contain a relation path for relation.
+             * A relation path has been specified for relation. Check that
+             * relation paths are not being created when they already exist.
              */
             throw new IllegalArgumentException("Trace already contains path");
         }
