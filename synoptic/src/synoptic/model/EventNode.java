@@ -41,7 +41,7 @@ public class EventNode implements INode<EventNode> {
 
     // TODO: For totally ordered traces, the transitions becomes a single
     // element, and transitionsByEvents becomes superfluous.
-    
+
     private Set<String> transitionRelations;
 
     List<Transition<EventNode>> transitions = new ArrayList<Transition<EventNode>>();
@@ -89,16 +89,16 @@ public class EventNode implements INode<EventNode> {
     public void addTransition(EventNode dest, String relation) {
         assert dest != null : "Transition Target cannot be null";
         if (transitionRelations.contains(relation)) {
-        	throw new InternalSynopticException(
-        			"Duplicate transition relation: " + relation);
+            throw new InternalSynopticException(
+                    "Duplicate transition relation: " + relation);
         }
         addTransition(new Transition<EventNode>(this, dest, relation));
     }
-    
+
     public void addTransitions(EventNode dest, Collection<String> relations) {
-    	for (String relation : relations) {
-    		addTransition(dest, relation);
-    	}
+        for (String relation : relations) {
+            addTransition(dest, relation);
+        }
     }
 
     /**
@@ -119,7 +119,7 @@ public class EventNode implements INode<EventNode> {
         // work in this case.
 
         // The first loop runs in O(n) and the second loop runs in
-        // O(m^2) where m is the length of e1AllSuccessors list. 
+        // O(m^2) where m is the length of e1AllSuccessors list.
         // So the worst case run time is: O(n) + O(m^2) = O(m^2)
 
         // First find all all events that succeed e1, store this set in
@@ -281,9 +281,9 @@ public class EventNode implements INode<EventNode> {
     public Set<String> getNodeRelations() {
         return transitionsByRelation.keySet();
     }
-    
+
     public Set<Relation> getEventRelations() {
-    	return event.getRelations();
+        return event.getRelations();
     }
 
     /**
