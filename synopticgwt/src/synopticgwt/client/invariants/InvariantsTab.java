@@ -109,9 +109,11 @@ public class InvariantsTab extends Tab<VerticalPanel> {
             public void onClick(ClickEvent event) {
                 TextualInvariantsPopUp popUp = new TextualInvariantsPopUp(
                         gwtInvs);
-                popUp.setHeight("" + (Window.getClientHeight() / 2) + "px");
                 popUp.setGlassEnabled(true);
                 popUp.center();
+                // Move the pop-up just 10px below top to fit contents in
+                // viewing area.
+                popUp.setPopupPosition(popUp.getAbsoluteLeft(), 10);
                 popUp.show();
             }
 

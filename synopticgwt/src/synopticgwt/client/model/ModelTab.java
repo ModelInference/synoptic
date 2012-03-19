@@ -285,7 +285,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
             panel.remove(graphPanel);
         }
 
-        // Create and add the a flow panel that will contain the actual model
+        // Create and add a flow panel that will contain the actual model
         // graphic.
         graphPanel = new FlowPanel();
         graphPanel.getElement().setId(canvasId);
@@ -508,6 +508,9 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                     ModelDotPopUp popUp = new ModelDotPopUp(dotString);
                     popUp.setGlassEnabled(true);
                     popUp.center();
+                    // Move the pop-up just 10px below top to fit contents in
+                    // viewing area.
+                    popUp.setPopupPosition(popUp.getAbsoluteLeft(), 10);
                     popUp.show();
                 }
             });
@@ -530,6 +533,9 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                     ModelPngPopUp popUp = new ModelPngPopUp(fileString);
                     popUp.setGlassEnabled(true);
                     popUp.center();
+                    // Move the pop-up just 10px below top to fit contents in
+                    // viewing area.
+                    popUp.setPopupPosition(popUp.getAbsoluteLeft(), 10);
                     popUp.show();
                 }
             });
