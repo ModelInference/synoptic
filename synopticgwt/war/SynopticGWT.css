@@ -302,7 +302,7 @@ body {
 .WelcomePopUp p {
     margin: 10px auto;
     font-size: 11pt;
-    text-align: justify;
+    text-align: left;
     line-height: 16pt;
 }
 
