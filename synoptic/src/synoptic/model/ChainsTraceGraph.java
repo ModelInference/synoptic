@@ -97,10 +97,14 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         EventNode firstNode = events.get(0);
         EventNode prevNode = firstNode;
 
-        /*
-         * Process first node's relations: - Adds relation to list of relations
-         * - Tags node as initial over relation - Marks node as the last node
-         * seen over the relation - Adds a RelationPath to the Trace
+        /**
+         * <pre>
+         * Process first node's relations:
+         * - Adds relation to list of relations
+         * - Tags node as initial over relation
+         * - Marks node as the last node seen over the relation
+         * - Adds a RelationPath to the Trace
+         * </pre>
          */
         for (Relation relation : prevNode.getEventRelations()) {
             relations.add(relation.getRelation());
