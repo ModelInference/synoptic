@@ -1,5 +1,7 @@
 package synopticgwt.client.model;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,6 +83,14 @@ public class LogInfoPanel extends FlowLayoutPanel {
      * @param lines
      */
     public void showLogLines(List<LogLine> lines) {
+        // Sort log lines in line number order.
+        Collections.sort(lines, new Comparator<LogLine>() {
+            @Override
+            public int compare(LogLine a, LogLine b) {
+                return ((Integer) a.getLineNum()).compareTo(b.getLineNum());
+            }
+        });
+
         this.logLinesTable.setRowData(lines);
         if (!logLinesTable.isVisible()) {
             this.toggleLogInfoDisplay();
