@@ -6,7 +6,13 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -89,6 +95,7 @@ public class SynopticService extends RemoteServiceServlet implements
     private Set<ITemporalInvariant> activeInvs;
     private List<CExamplePath<Partition>> counterExampleTraces;
     private ChainsTraceGraph traceGraph;
+    private int vID;
 
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods.
@@ -151,12 +158,29 @@ public class SynopticService extends RemoteServiceServlet implements
     }
 
     /**
-     * Retrieves session state and sets/reconstructs the local variables.
+     * Sets up AppConfiguration file and sets variables for DerbyDB.
      */
-    @SuppressWarnings("unchecked")
     private void retrieveSessionState() throws Exception {
         ServletContext context = getServletConfig().getServletContext();
         this.config = AppConfiguration.getInstance(context);
+
+        // Retrieve HTTP session to access storage.
+        HttpServletRequest request = getThreadLocalRequest();
+        session = request.getSession();
+
+        if (session.getAttribute("vID") == null) {
+            logger.info("Derby support disabled");
+        } else {
+        	vID = (Integer) session.getAttribute("vID");
+        }
+    }
+
+    /**
+     * Retrieves session state and sets/reconstructs the local variables.
+     */
+    @SuppressWarnings("unchecked")
+    private void retrieveSynopticSessionState() throws Exception {
+        retrieveSessionState();
 
         // Retrieve HTTP session to access storage.
         HttpServletRequest request = getThreadLocalRequest();
@@ -166,39 +190,33 @@ public class SynopticService extends RemoteServiceServlet implements
         // throw an error since we can't continue with refinement.
 
         if (session.getAttribute("partitionGraph") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+            throw new Exception("session attribute 'partitionGraph' missing");
         }
         pGraph = (PartitionGraph) session.getAttribute("partitionGraph");
 
         if (session.getAttribute("numSplitSteps") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+            throw new Exception("session attribute 'numSplitSteps' missing");
         }
         numSplitSteps = (Integer) session.getAttribute("numSplitSteps");
 
         if (session.getAttribute("unsatInvs") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+            throw new Exception("session attribute 'unsatInvs' missing");
         }
         unsatInvs = (Set<ITemporalInvariant>) session.getAttribute("unsatInvs");
 
         if (session.getAttribute("minedInvs") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+            throw new Exception("session attribute 'minedInvs' missing");
         }
         minedInvs = (TemporalInvariantSet) session.getAttribute("minedInvs");
 
         if (session.getAttribute("activeInvs") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+            throw new Exception("session attribute 'activeInvs' missing");
         }
         activeInvs = (Set<ITemporalInvariant>) session
                 .getAttribute("activeInvs");
 
         if (session.getAttribute("traceGraph") == null) {
-            // TODO: throw appropriate exception
-            throw new Exception();
+            throw new Exception("session attribute 'traceGraph' missing");
         }
         traceGraph = (ChainsTraceGraph) session.getAttribute("traceGraph");
 
@@ -213,6 +231,7 @@ public class SynopticService extends RemoteServiceServlet implements
         // }
         counterExampleTraces = (List<CExamplePath<Partition>>) session
                 .getAttribute("counterExampleTraces");
+
         return;
     }
 
@@ -356,6 +375,8 @@ public class SynopticService extends RemoteServiceServlet implements
     public GWTPair<GWTInvariantSet, GWTGraph> parseLog(GWTSynOpts synOpts)
             throws Exception {
 
+        retrieveSessionState();
+
         // Set up some static variables in Main that are necessary to use the
         // Synoptic library.
         Main.options = new SynopticOptions();
@@ -374,6 +395,7 @@ public class SynopticService extends RemoteServiceServlet implements
             parser = new TraceParser(synOpts.regExps, synOpts.partitionRegExp,
                     synOpts.separatorRegExp);
             parsedEvents = parser.parseTraceString(synOpts.logLines, "", -1);
+
         } catch (ParseException pe) {
             logger.info("Caught parse exception: " + pe.toString());
             pe.printStackTrace();
@@ -390,6 +412,7 @@ public class SynopticService extends RemoteServiceServlet implements
         // Code below mines invariants, and converts them to GWTInvariants.
         GWTGraph graph = null;
 
+        int miningTime = (int) System.currentTimeMillis();
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
             minedInvs = Main.mineTOInvariants(false, traceGraph);
@@ -409,9 +432,19 @@ public class SynopticService extends RemoteServiceServlet implements
             minedInvs = Main.minePOInvariants(true, inputGraph);
             graph = null;
         }
+        miningTime = (((int) System.currentTimeMillis() - miningTime) / 1000) % 60;
+        logger.info("Time to mine invariants: " + miningTime + " seconds");
 
         GWTInvariantSet invs = TemporalInvariantSetToGWTInvariants(
                 !parser.logTimeTypeIsTotallyOrdered(), minedInvs.getSet());
+
+        /**
+         * Write user information to Derby DB if the database is open.
+         */
+        if (config.derbyDB != null) {
+        	config.derbyDB.writeUserParsingInfo(vID, synOpts, graph, traceGraph, 
+        			parsedEvents, minedInvs, invs, miningTime);
+        }
 
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);
     }
@@ -427,7 +460,7 @@ public class SynopticService extends RemoteServiceServlet implements
     public GWTPair<GWTInvariantSet, GWTGraph> parseUploadedLog(
             GWTSynOpts synOpts) throws Exception {
         // Set up state.
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         // Retrieve HTTP session to access location of recent log file uploaded.
         // HttpServletRequest request = getThreadLocalRequest();
@@ -481,7 +514,7 @@ public class SynopticService extends RemoteServiceServlet implements
     public GWTGraph commitInvariants(Set<Integer> activeInvsHashes)
             throws Exception {
         // Set up current state.
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         activeInvs.clear();
         // Get the actual set of invariants to be removed.
@@ -505,7 +538,7 @@ public class SynopticService extends RemoteServiceServlet implements
     @Override
     public GWTGraphDelta refineOneStep() throws Exception {
         // Set up state.
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         if (counterExampleTraces == null) {
             // We do not need to perform refinement.
@@ -547,7 +580,7 @@ public class SynopticService extends RemoteServiceServlet implements
     @Override
     public GWTGraph coarsenCompletely() throws Exception {
         // Set up state.
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         if (unsatInvs.size() != 0) {
             return null;
@@ -564,7 +597,7 @@ public class SynopticService extends RemoteServiceServlet implements
     @Override
     public GWTGraph getFinalModel() throws Exception {
         // Set up state.
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         // Refine.
         Bisimulation.splitPartitions(pGraph);
@@ -582,7 +615,7 @@ public class SynopticService extends RemoteServiceServlet implements
     @Override
     public List<LogLine> handleLogRequest(int nodeID) throws Exception {
         // Set up state.
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         // Find partition
         Partition requested = null;
@@ -646,7 +679,7 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     public Map<List<GWTEdge>, Set<Integer>> getPathsThroughPartitionIDs(
             Set<Integer> selectedNodeIDs) throws Exception {
-        retrieveSessionState();
+        retrieveSynopticSessionState();
 
         Map<List<GWTEdge>, Set<Integer>> gwtPaths = new HashMap<List<GWTEdge>, Set<Integer>>();
 

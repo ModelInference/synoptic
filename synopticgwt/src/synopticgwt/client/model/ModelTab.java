@@ -1,8 +1,6 @@
 package synopticgwt.client.model;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -20,6 +18,7 @@ import com.google.gwt.user.client.ui.RadioButton;
 
 import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.Tab;
+import synopticgwt.client.model.JSGraph.EdgeLabelType;
 import synopticgwt.client.util.ErrorReportingAsyncCallback;
 import synopticgwt.client.util.FlowLayoutPanel;
 import synopticgwt.client.util.ProgressWheel;
@@ -34,17 +33,7 @@ import synopticgwt.shared.LogLine;
  * model.
  */
 public class ModelTab extends Tab<DockLayoutPanel> {
-    // TODO: INITIAL_LABEL and TERMINAL_LABEL should not be hardcoded. Instead,
-    // the EventType class should be ported to GWT, or a mirror type should be
-    // created which would have the notion of initial/terminal based on
-    // EventType.isInitialEventTyep and EventType.isTerminalEventType.
 
-    /* Label of initial node, for layout purposes */
-    private static final String INITIAL_LABEL = "INITIAL";
-
-    /* Label of terminal node, for layout purposes */
-    private static final String TERMINAL_LABEL = "TERMINAL";
-    
     // CSS Attributes of the log info label
     public static final String LOG_INFO_PATHS_CLASS = "log-info-displaying-paths";
     public static final String LOG_INFO_LINES_CLASS = "log-info-displaying-log-lines";
@@ -55,9 +44,6 @@ public class ModelTab extends Tab<DockLayoutPanel> {
     private final FlowLayoutPanel controlsPanel = new FlowLayoutPanel();
 
     protected final LogInfoPanel logInfoPanel;
-
-    // The set of node IDs that have been selected by the user in the model.
-    private final Set<Integer> selectedNodes = new HashSet<Integer>();
 
     public static final String TOOLTIP_URL = "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial#Invariants_Tab";
 
@@ -86,8 +72,9 @@ public class ModelTab extends Tab<DockLayoutPanel> {
     // String representing the canvas div.
     private static final String canvasId = "canvasId";
 
-    // The model graphic object that maintains all the model graphical state.
-    private ModelGraphic modelGraphic;
+    // The JS representation of the GWTGraph. Handles events on the graph,
+    // and maintains the graphical state.
+    private JSGraph jsGraph;
 
     HorizontalPanel exportButtonsPanel;
     HorizontalPanel viewPathsButtonPanel;
@@ -226,8 +213,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         initializeTabState();
     }
 
-    public ModelGraphic getModelGraphic() {
-        return this.modelGraphic;
+    public JSGraph getJSGraph() {
+        return this.jsGraph;
     }
 
     /**
@@ -246,9 +233,9 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                     .getValue();
 
             if (modelTab.showEdgeTraceCounts) {
-                modelGraphic.useCountEdgeLabels();
+                jsGraph.setEdgeLabelType(EdgeLabelType.COUNT);
             } else {
-                modelGraphic.useProbEdgeLabels();
+                jsGraph.setEdgeLabelType(EdgeLabelType.PROBABILITY);
             }
         }
     }
@@ -310,43 +297,45 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         int height = getModelGraphicHeight();
         graphPanel.setPixelSize(width, height);
 
-        this.modelGraphic = new ModelGraphic(this);
-
-        this.modelGraphic.createGraph(graph.getNodes(), graph.getEdges(),
-                width, height, canvasId, INITIAL_LABEL, TERMINAL_LABEL);
+        this.jsGraph = new JSGraph(this, graph, width, height, canvasId);
     }
 
     /**
      * Requests the log lines for the Partition with the given nodeID. This
      * method is called from JavaScript when model nodes are double clicked.
      */
-    public void handleLogRequest(int nodeID) throws Exception {
+    public void handleLogRequest(int nodeID) {
         // ////////////////////// Call to remote service.
-        synopticService.handleLogRequest(nodeID,
-                new ErrorReportingAsyncCallback<List<LogLine>>(pWheel,
-                        "handleLogRequest call") {
+        try {
+            synopticService.handleLogRequest(nodeID,
+                    new ErrorReportingAsyncCallback<List<LogLine>>(pWheel,
+                            "handleLogRequest call") {
 
-                    @SuppressWarnings("synthetic-access")
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        super.onFailure(caught);
-                        // TODO: differentiate between clicks on
-                        // initial/terminal nodes and
-                        // other nodes.
+                        @SuppressWarnings("synthetic-access")
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            super.onFailure(caught);
+                            // TODO: differentiate between clicks on
+                            // initial/terminal nodes and
+                            // other nodes.
 
-                        // This is expected whenever the user double clicks on
-                        // an initial or
-                        // terminal node, so we'll ignore it
-                        logInfoPanel.clear();
-                    }
+                            // This is expected whenever the user double clicks
+                            // on
+                            // an initial or
+                            // terminal node, so we'll ignore it
+                            logInfoPanel.clear();
+                        }
 
-                    @SuppressWarnings("synthetic-access")
-                    @Override
-                    public void onSuccess(List<LogLine> result) {
-                        super.onSuccess(result);
-                        logInfoPanel.showLogLines(result);
-                    }
-                });
+                        @SuppressWarnings("synthetic-access")
+                        @Override
+                        public void onSuccess(List<LogLine> result) {
+                            super.onSuccess(result);
+                            logInfoPanel.showLogLines(result);
+                        }
+                    });
+        } catch (Exception ex) {
+            // Exceptions are handled by callback.
+        }
         // //////////////////////
     }
 
@@ -381,7 +370,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         int height = getModelGraphicHeight();
 
         graphPanel.setPixelSize(width, height);
-        modelGraphic.resizeGraph(width, height);
+        this.jsGraph.resize(width, height);
+
         logInfoPanel
                 .setHeight(Math.max(this.getModelGraphicHeight() - 200, 400)
                         + "px");
@@ -416,8 +406,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                         }
                     });
         } catch (Exception ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -429,17 +418,14 @@ public class ModelTab extends Tab<DockLayoutPanel> {
             modelCoarsenButton.setEnabled(true);
             return;
         }
-        
+
         // Set the log lines display to default and clear
         // any information.
         logInfoPanel.clear();
 
         // Shows the refined GWTGraph object on the screen in the modelPanel,
         // animating transition to new positions.
-        GWTGraph graph = deltaGraph.getGraph();
-        this.modelGraphic.createChangingGraph(graph.getNodes(), graph
-                .getEdges(), deltaGraph.getRefinedNode()
-                .getPartitionNodeHashCode(), canvasId);
+        this.jsGraph.refineOneStep(deltaGraph);
 
         if (deltaGraph.getUnsatInvs().invs.size() == 0) {
             // No further refinement is possible: disable refinement, enable
@@ -475,8 +461,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                         }
                     });
         } catch (Exception ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -499,8 +484,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                         }
                     });
         } catch (Exception ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -528,8 +512,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                 }
             });
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -551,36 +534,9 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                 }
             });
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
-    }
-
-    /**
-     * Adds a node as being "selected" to the model tab.
-     * 
-     * @param nodeID
-     *            The ID of the selected event node.
-     */
-    public void addSelectedNode(int nodeID) {
-        // Add the selected node to the list of all selecetd
-        // nodes.
-        selectedNodes.add(nodeID);
-        toggleViewPathsButton();
-    }
-
-    /**
-     * Removes a node as being "selected" from the model tab.
-     * 
-     * @param nodeID
-     *            The ID of the selected event node.
-     */
-    public void removeSelectedNode(int nodeID) {
-        // Add the selected node to the list of all selecetd
-        // nodes.
-        selectedNodes.remove(nodeID);
-        toggleViewPathsButton();
     }
 
     /**
@@ -588,8 +544,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
      * selected. If so, the button for viewing paths is activated. If not, this
      * button is deactivated.
      */
-    private void toggleViewPathsButton() {
-        if (selectedNodes.size() > 0) {
+    public void updateViewPathsButton() {
+        if (jsGraph.getSelectedNodeIDs().size() > 0) {
             modelViewPathsButton.setEnabled(true);
         } else {
             modelViewPathsButton.setEnabled(false);
@@ -612,13 +568,14 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         @Override
         public void onClick(ClickEvent event) {
             try {
-                synopticService.getPathsThroughPartitionIDs(selectedNodes,
+                synopticService.getPathsThroughPartitionIDs(jsGraph
+                        .getSelectedNodeIDs(),
                         new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
                                 ModelTab.this.logInfoPanel));
 
-                modelGraphic.setPathHighlightViewState();
+                jsGraph.setPathHighlightViewState();
             } catch (Exception e) {
-                // TODO: Do something about the exception
+                // Exceptions are handled by callback.
             }
         }
     }
