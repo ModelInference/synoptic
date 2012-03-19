@@ -122,11 +122,12 @@ public class InputTab extends Tab<VerticalPanel> {
         poLabel.setStyleName("logTypeLabel");
         toLabel.setStyleName("logTypeLabel");
 
-        examplesGrid.setWidget(1, 0, poLabel);
-        examplesGrid.setWidget(3, 0, toLabel);
+        examplesGrid.setWidget(1, 0, toLabel);
+        examplesGrid.setWidget(2, 0, toExamplesPanel);
 
-        examplesGrid.setWidget(2, 0, poExamplesPanel);
-        examplesGrid.setWidget(4, 0, toExamplesPanel);
+        examplesGrid.setWidget(3, 0, poLabel);
+        examplesGrid.setWidget(4, 0, poExamplesPanel);
+
         poExamplesPanel.setStyleName("poLinkTable");
         toExamplesPanel.setStyleName("toLinkTable");
 
