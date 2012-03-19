@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Set;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.IIterableIterator;
+import synoptic.util.InternalSynopticException;
 import synoptic.util.IterableAdapter;
 import synoptic.util.time.EqualVectorTimestampsException;
 import synoptic.util.time.ITime;
@@ -39,6 +41,8 @@ public class EventNode implements INode<EventNode> {
 
     // TODO: For totally ordered traces, the transitions becomes a single
     // element, and transitionsByEvents becomes superfluous.
+    
+    private Set<String> transitionRelations;
 
     List<Transition<EventNode>> transitions = new ArrayList<Transition<EventNode>>();
     LinkedHashMap<String, List<Transition<EventNode>>> transitionsByRelation = new LinkedHashMap<String, List<Transition<EventNode>>>();
@@ -48,6 +52,7 @@ public class EventNode implements INode<EventNode> {
 
         parent = copyFrom.parent;
         event = copyFrom.event;
+        transitionRelations = new HashSet<String>();
     }
 
     public EventNode(Event eventArg) {
@@ -55,6 +60,7 @@ public class EventNode implements INode<EventNode> {
 
         event = eventArg;
         parent = null;
+        transitionRelations = new HashSet<String>();
     }
 
     @Override
@@ -82,6 +88,10 @@ public class EventNode implements INode<EventNode> {
      */
     public void addTransition(EventNode dest, String relation) {
         assert dest != null : "Transition Target cannot be null";
+        if (transitionRelations.contains(relation)) {
+        	throw new InternalSynopticException(
+        			"Duplicate transition relation: " + relation);
+        }
         addTransition(new Transition<EventNode>(this, dest, relation));
     }
     
