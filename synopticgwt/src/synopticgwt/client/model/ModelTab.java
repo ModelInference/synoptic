@@ -106,9 +106,12 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 
         topControlsPanel.setWidth(CONTROLS_PANEL_WIDTH_PX_STR);
 
-        modelRefineButton.setWidth("100px");
-        modelCoarsenButton.setWidth("100px");
-        modelGetFinalButton.setWidth("100px");
+        int buttonWidth = 98;
+        String buttonWidthStr = buttonWidth + "px";
+
+        modelRefineButton.setWidth(buttonWidthStr);
+        modelCoarsenButton.setWidth(buttonWidthStr);
+        modelGetFinalButton.setWidth(buttonWidthStr);
         topControlsPanel.add(manualControlButtonsPanel);
 
         // Set up buttons for exporting models.
@@ -116,8 +119,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         exportButtonsPanel.add(modelExportDotButton);
         exportButtonsPanel.add(modelExportPngButton);
 
-        modelExportDotButton.setWidth("100px");
-        modelExportPngButton.setWidth("100px");
+        modelExportDotButton.setWidth(buttonWidthStr);
+        modelExportPngButton.setWidth(buttonWidthStr);
         exportButtonsPanel.setStyleName("buttonPanel");
         topControlsPanel.add(exportButtonsPanel);
 
@@ -125,7 +128,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         viewPathsButtonPanel = new HorizontalPanel();
         viewPathsButtonPanel.add(modelViewPathsButton);
 
-        modelViewPathsButton.setWidth("200px");
+        modelViewPathsButton.setWidth((buttonWidth * 2) + "px");
         viewPathsButtonPanel.setStyleName("buttonPanel");
         topControlsPanel.add(viewPathsButtonPanel);
 
@@ -184,7 +187,9 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         updateLogInfoPanelSize();
         controlsPanel.add(logInfoPanel);
 
-        panel.addWest(controlsPanel, CONTROLS_PANEL_WIDTH_PX);
+        panel.addWest(controlsPanel, CONTROLS_PANEL_WIDTH_PX + 8);
+        // controlsPanel.getOffsetWidth());
+        // CONTROLS_PANEL_WIDTH_PX);
 
         TooltipListener
                 .setTooltip(
@@ -381,8 +386,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
         return Math.max(
-                Window.getClientWidth() - topControlsPanel.getOffsetWidth()
-                        - 40, MIN_MODEL_HEIGHT_PX);
+                Window.getClientWidth() - controlsPanel.getOffsetWidth() - 40,
+                MIN_MODEL_HEIGHT_PX);
     }
 
     /** Returns the correct height for the model graphic in the model tab. */
