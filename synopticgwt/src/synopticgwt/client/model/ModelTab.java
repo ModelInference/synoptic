@@ -90,13 +90,17 @@ public class ModelTab extends Tab<DockLayoutPanel> {
     final private String CONTROLS_PANEL_WIDTH_PX_STR = CONTROLS_PANEL_WIDTH_PX
             + "px";
 
+    // Height of borders and other CSS elements pertaining to the panel
+    // containing the model.
+    final private int GRAPH_PANEL_STYLE_HEIGHT = 6;
+
     HorizontalPanel exportButtonsPanel;
     HorizontalPanel viewPathsButtonPanel;
 
     public ModelTab(ISynopticServiceAsync synopticService, ProgressWheel pWheel) {
         super(synopticService, pWheel, "model-tab");
         panel = new DockLayoutPanel(Unit.PX);
-        panel.setHeight(this.getModelGraphicHeight() + "px");
+        panel.setHeight(this.getModelPanelHeight() + "px");
 
         // Set up the buttons for controlling Synoptic manually.
         manualControlButtonsPanel.add(modelRefineButton);
@@ -335,11 +339,14 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         panel.add(graphPanel);
 
         // Determine the size of the graphic.
-        int width = getModelGraphicWidth();
-        int height = getModelGraphicHeight();
-        graphPanel.setPixelSize(width, height);
+        int modelWidth = getModelGraphicWidth();
+        int modelHeight = getModelGraphicHeight();
+        // Make the height slightly smaller to allow for a border around the
+        // graphPanel.
+        graphPanel.setPixelSize(modelWidth, modelHeight);
 
-        this.jsGraph = new JSGraph(this, graph, width, height, canvasId);
+        this.jsGraph = new JSGraph(this, graph, modelWidth, modelHeight,
+                canvasId);
     }
 
     /**
@@ -381,8 +388,11 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         // //////////////////////
     }
 
-    /** Returns the correct width for the model graphic in the model tab. */
-    public int getModelGraphicWidth() {
+    /**
+     * Returns the correct width for the panel containing the model graphic in
+     * the model tab.
+     */
+    public int getModelPanelWidth() {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
         return Math.max(
@@ -390,12 +400,29 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                 MIN_MODEL_HEIGHT_PX);
     }
 
-    /** Returns the correct height for the model graphic in the model tab. */
-    public int getModelGraphicHeight() {
-        // TODO: make this more robust -- perhaps, by hard-coding the percentage
-        // area that the model can take up.
+    /**
+     * Returns the correct height for the panel containing the model graphic in
+     * the model tab.
+     */
+    public int getModelPanelHeight() {
+        // TODO: make this more robust by computing the actual height of the
+        // header.
         /* The 200 offset represents the top Synoptic header */
         return Math.max(Window.getClientHeight() - 200, MIN_MODEL_HEIGHT_PX);
+    }
+
+    /**
+     * Returns the height of the actual model svg container.
+     */
+    public int getModelGraphicHeight() {
+        return getModelPanelHeight() - GRAPH_PANEL_STYLE_HEIGHT;
+    }
+
+    /**
+     * Returns the height of the actual model svg container.
+     */
+    public int getModelGraphicWidth() {
+        return getModelPanelWidth();
     }
 
     /**
@@ -405,7 +432,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         logInfoPanel.setSize(
                 CONTROLS_PANEL_WIDTH_PX_STR,
                 Math.max(
-                        getModelGraphicHeight()
+                        getModelPanelHeight()
                                 - topControlsPanel.getOffsetHeight()
                                 - logInfoPanel.getTopLabelHeight(),
                         MIN_MODEL_HEIGHT_PX
@@ -427,15 +454,17 @@ public class ModelTab extends Tab<DockLayoutPanel> {
             // not yet displayed, so we skip the update in this case.
             return;
         }
-        int width = getModelGraphicWidth();
-        int height = getModelGraphicHeight();
 
-        graphPanel.setPixelSize(width, height);
-        this.jsGraph.resize(width, height);
+        int graphicWidth = getModelGraphicWidth();
+        int graphicHeight = getModelGraphicHeight();
+
+        graphPanel.setPixelSize(graphicWidth, graphicHeight);
+        this.jsGraph.resize(graphicWidth, graphicHeight);
 
         updateLogInfoPanelSize();
 
-        panel.setHeight(height + "px");
+        int panelHeight = getModelPanelHeight();
+        panel.setHeight(panelHeight + "px");
         this.panel.onResize();
     }
 
