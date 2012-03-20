@@ -17,8 +17,8 @@ public class LogLinesTable extends DataGrid<LogLine> {
     Column<LogLine, String> lineCol;
 
     /** Initialize a blank table, with a header row. */
-    public LogLinesTable() {
-        super();
+    public LogLinesTable(int pageSize, DataGrid.Resources resources) {
+        super(pageSize, resources);
         this.setHeight("100%");
         Cell<String> lineNumCell = new TextCell();
         lineNumCol = new Column<LogLine, String>(lineNumCell) {
