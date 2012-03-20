@@ -35,7 +35,7 @@ public class Trace {
      * @param eNode
      *            First node in the relation path.
      */
-    public void addRelationPath(String relation, EventNode eNode) {
+    public void addRelationPath(String relation, EventNode eNode, boolean initialConnected) {
         if (paths.containsKey(relation)) {
             /*
              * A relation path has been specified for relation. Check that
@@ -44,7 +44,7 @@ public class Trace {
             throw new IllegalArgumentException("Trace already contains path");
         }
         paths.put(relation, new RelationPath(eNode, relation,
-                Event.defaultTimeRelationString));
+                Event.defaultTimeRelationString, initialConnected));
     }
 
     public void markRelationPathFinalNode(String relation, EventNode eNode) {
