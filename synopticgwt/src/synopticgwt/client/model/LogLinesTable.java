@@ -19,7 +19,7 @@ public class LogLinesTable extends DataGrid<LogLine> {
     /** Initialize a blank table, with a header row. */
     public LogLinesTable() {
         super();
-
+        this.setHeight("100%");
         Cell<String> lineNumCell = new TextCell();
         lineNumCol = new Column<LogLine, String>(lineNumCell) {
             @Override
@@ -38,7 +38,9 @@ public class LogLinesTable extends DataGrid<LogLine> {
         };
         this.addColumn(lineCol, "Line");
         this.setWidth("100%");
+        // The log line number column is 70px wide
         this.setColumnWidth(lineNumCol, 70, Unit.PX);
+        // The log line text column is 100% wide (rest of table width)
         this.setColumnWidth(lineCol, 100, Unit.PCT);
     }
 
