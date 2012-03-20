@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Label;
 
@@ -46,7 +48,10 @@ public class LogInfoPanel extends FlowLayoutPanel {
         super();
 
         logInfoLabel = new Label(logInfoLabelLogLines);
-        logLinesTable = new LogLinesTable();
+
+        DataGrid.Resources resources = GWT
+                .create(LogLinesDataGridResources.class);
+        logLinesTable = new LogLinesTable(50, resources);
 
         this.modelTab = modelTab;
         pathsThroughPartitionsTable = new PathsThroughPartitionsTable(modelTab);
