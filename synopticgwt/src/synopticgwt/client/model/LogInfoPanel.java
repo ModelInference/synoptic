@@ -163,4 +163,19 @@ public class LogInfoPanel extends FlowLayoutPanel {
         pathsThroughPartitionsTable.setVisible(!pathsThroughPartitionsTable
                 .isVisible());
     }
+
+    /**
+     * Returns the offset height(s) corresponding to visible top-level labels
+     * that are part of this panel.
+     */
+    public int getTopLabelHeight() {
+        int h = 0;
+        if (logInfoLabel.isVisible()) {
+            h += logInfoLabel.getOffsetHeight();
+        }
+        if (pathsThroughPartitionsTable.isVisible()) {
+            h += pathsThroughPartitionsTable.getOffsetHeight();
+        }
+        return h;
+    }
 }

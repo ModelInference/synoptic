@@ -5,8 +5,13 @@ import java.util.List;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.event.logical.shared.OpenEvent;
+import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -42,6 +47,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
     // Panels containing all relevant buttons.
     private final HorizontalPanel manualControlButtonsPanel = new HorizontalPanel();
     private final FlowLayoutPanel controlsPanel = new FlowLayoutPanel();
+    private final FlowLayoutPanel topControlsPanel = new FlowLayoutPanel();
 
     protected final LogInfoPanel logInfoPanel;
 
@@ -76,6 +82,14 @@ public class ModelTab extends Tab<DockLayoutPanel> {
     // and maintains the graphical state.
     private JSGraph jsGraph;
 
+    // The absolute minimum height of the displayed model.
+    final private int MIN_MODEL_HEIGHT_PX = 400;
+
+    // The absolute width of the controls panel.
+    final private int CONTROLS_PANEL_WIDTH_PX = 300;
+    final private String CONTROLS_PANEL_WIDTH_PX_STR = CONTROLS_PANEL_WIDTH_PX
+            + "px";
+
     HorizontalPanel exportButtonsPanel;
     HorizontalPanel viewPathsButtonPanel;
 
@@ -90,12 +104,12 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         manualControlButtonsPanel.add(modelGetFinalButton);
         manualControlButtonsPanel.setStyleName("buttonPanel");
 
-        controlsPanel.setSize("300px", "100%");
+        topControlsPanel.setWidth(CONTROLS_PANEL_WIDTH_PX_STR);
 
         modelRefineButton.setWidth("100px");
         modelCoarsenButton.setWidth("100px");
         modelGetFinalButton.setWidth("100px");
-        controlsPanel.add(manualControlButtonsPanel);
+        topControlsPanel.add(manualControlButtonsPanel);
 
         // Set up buttons for exporting models.
         exportButtonsPanel = new HorizontalPanel();
@@ -105,7 +119,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         modelExportDotButton.setWidth("100px");
         modelExportPngButton.setWidth("100px");
         exportButtonsPanel.setStyleName("buttonPanel");
-        controlsPanel.add(exportButtonsPanel);
+        topControlsPanel.add(exportButtonsPanel);
 
         // Set up the buttons for retrieving paths through selected nodes.
         viewPathsButtonPanel = new HorizontalPanel();
@@ -113,7 +127,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 
         modelViewPathsButton.setWidth("200px");
         viewPathsButtonPanel.setStyleName("buttonPanel");
-        controlsPanel.add(viewPathsButtonPanel);
+        topControlsPanel.add(viewPathsButtonPanel);
 
         // Add a model options panel.
         TooltipListener
@@ -138,16 +152,39 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         modelOpts.setContent(modelOptsGrid);
         modelOpts.setAnimationEnabled(true);
         modelOpts.setStyleName("SpecialOptions");
-        controlsPanel.add(modelOpts);
+
+        // Used to update the size of the log info panel whenever the modelOpts
+        // panel is opened/closed.
+        final Timer resizeLogInfoPanel = new Timer() {
+            public void run() {
+                updateLogInfoPanelSize();
+            }
+        };
+        modelOpts.addCloseHandler(new CloseHandler<DisclosurePanel>() {
+            @Override
+            public void onClose(CloseEvent<DisclosurePanel> event) {
+                resizeLogInfoPanel.schedule(500);
+            }
+        });
+        modelOpts.addOpenHandler(new OpenHandler<DisclosurePanel>() {
+            @Override
+            public void onOpen(OpenEvent<DisclosurePanel> event) {
+                resizeLogInfoPanel.schedule(500);
+            }
+        });
+
+        topControlsPanel.add(modelOpts);
+
+        controlsPanel.setSize(CONTROLS_PANEL_WIDTH_PX_STR, "100%");
+        controlsPanel.add(topControlsPanel);
 
         // Add log info panel.
-        logInfoPanel = new LogInfoPanel("300px", this);
-        logInfoPanel.setSize("300px",
-                Math.max(this.getModelGraphicHeight() - 200, 400) + "px");
-        this.logInfoPanel.getLogLinesTable().setHeight("100%");
+        logInfoPanel = new LogInfoPanel(CONTROLS_PANEL_WIDTH_PX_STR, this);
+
+        updateLogInfoPanelSize();
         controlsPanel.add(logInfoPanel);
 
-        panel.addWest(controlsPanel, 300);
+        panel.addWest(controlsPanel, CONTROLS_PANEL_WIDTH_PX);
 
         TooltipListener
                 .setTooltip(
@@ -344,8 +381,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
         return Math.max(
-                Window.getClientWidth() - controlsPanel.getOffsetWidth() + 100,
-                400);
+                Window.getClientWidth() - topControlsPanel.getOffsetWidth()
+                        - 40, MIN_MODEL_HEIGHT_PX);
     }
 
     /** Returns the correct height for the model graphic in the model tab. */
@@ -353,7 +390,26 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
         /* The 200 offset represents the top Synoptic header */
-        return Math.max(Window.getClientHeight() - 200, 400);
+        return Math.max(Window.getClientHeight() - 200, MIN_MODEL_HEIGHT_PX);
+    }
+
+    /**
+     * Recomputes and sets the size of logInfoPanel
+     */
+    public void updateLogInfoPanelSize() {
+        logInfoPanel.setSize(
+                CONTROLS_PANEL_WIDTH_PX_STR,
+                Math.max(
+                        getModelGraphicHeight()
+                                - topControlsPanel.getOffsetHeight()
+                                - logInfoPanel.getTopLabelHeight(),
+                        MIN_MODEL_HEIGHT_PX
+                                - topControlsPanel.getOffsetHeight()
+                                - logInfoPanel.getTopLabelHeight())
+                        + "px");
+        logInfoPanel.onResize();
+        topControlsPanel.onResize();
+        controlsPanel.onResize();
     }
 
     /**
@@ -372,12 +428,10 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         graphPanel.setPixelSize(width, height);
         this.jsGraph.resize(width, height);
 
-        logInfoPanel
-                .setHeight(Math.max(this.getModelGraphicHeight() - 200, 400)
-                        + "px");
+        updateLogInfoPanelSize();
+
         panel.setHeight(height + "px");
         this.panel.onResize();
-        this.controlsPanel.onResize();
     }
 
     /**
