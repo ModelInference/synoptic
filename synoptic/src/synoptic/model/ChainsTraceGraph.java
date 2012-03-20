@@ -110,7 +110,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
             relations.add(relation.getRelation());
             tagInitial(prevNode, relation.getRelation());
             lastSeenNodeForRelation.put(relation.getRelation(), prevNode);
-            trace.addRelationPath(relation.getRelation(), prevNode);
+            trace.addRelationPath(relation.getRelation(), prevNode, true);
         }
 
         // Create transitions to connect the nodes in the sorted trace.
@@ -147,7 +147,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
                      */
                     if (prevClosureNode == null) {
                         tagInitial(curNode, relation.getRelation());
-                        trace.addRelationPath(relation.getRelation(), curNode);
+                        trace.addRelationPath(relation.getRelation(), curNode, true);
                     } else {
                         /*
                          * We've already encountered this relation, so hook it
@@ -186,7 +186,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
          */
         for (String relation : relations) {
             if (!trace.hasRelation(relation)) {
-                trace.addRelationPath(relation, firstNode);
+                trace.addRelationPath(relation, firstNode, false);
             }
         }
 

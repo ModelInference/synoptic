@@ -44,6 +44,9 @@ public class RelationPath {
      * precedesCounts. True if these data structures are populated.
      */
     private boolean counted;
+    
+    /** Whether or not initial has an outgoing relation edge */
+    private boolean initialConnected;
 
     /** The set of nodes seen prior to some point in the trace. */
     private Set<EventType> seen;
@@ -62,7 +65,7 @@ public class RelationPath {
     private Map<EventType, Map<EventType, Integer>> precedesCounts;
 
     public RelationPath(EventNode eNode, String relation,
-            String transitiveRelation) {
+            String transitiveRelation, boolean initialConnected) {
         this.eNode = eNode;
         this.relation = relation;
         this.transitiveRelation = transitiveRelation;
@@ -71,6 +74,7 @@ public class RelationPath {
         this.eventCounts = new LinkedHashMap<EventType, Integer>();
         this.followedByCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         this.precedesCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
+        this.initialConnected = initialConnected;
     }
 
     /**
@@ -81,8 +85,9 @@ public class RelationPath {
      */
     public void count() {
         EventNode curNode = eNode;
-        List<Transition<EventNode>> transitions = curNode
-                .getTransitions(relation);
+        
+        boolean hasNonTransitiveIncomingRelation = initialConnected;
+        List<Transition<EventNode>> transitions = curNode.getTransitions(relation);
 
         if (transitions.isEmpty()) {
             transitions = curNode.getTransitions(transitiveRelation);
@@ -103,7 +108,34 @@ public class RelationPath {
                 throw new InternalSynopticException(
                         "SpecializedInvariantMiner does not work on partially ordered traces.");
             }
+            
+            boolean hasNonTransitiveOutgoingRelation = curNode.getTransitions(relation).size() == 1;
+            
+            if (!(hasNonTransitiveOutgoingRelation || hasNonTransitiveIncomingRelation)) {
+                // Move on to the next node in the trace.
+                List<Transition<EventNode>> searchTransitions = curNode
+                        .getTransitions(relation);
 
+                if (searchTransitions.isEmpty()) {
+                    searchTransitions = curNode.getTransitions(transitiveRelation);
+                }
+
+                if (curNode.equals(eFinal)) {
+                    break;
+                }
+
+                curNode = searchTransitions.get(0).getTarget();
+
+                transitions = curNode.getTransitions(relation);
+
+                if (transitions.isEmpty()) {
+                    transitions = curNode.getTransitions(transitiveRelation);
+                }
+                continue;
+            }
+            
+            hasNonTransitiveIncomingRelation = hasNonTransitiveOutgoingRelation;
+              
             // The current event is 'b', and all prior events are 'a' --
             // this notation indicates that an 'a' always occur prior to a
             // 'b' in the path.

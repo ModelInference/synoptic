@@ -34,6 +34,8 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
 	public final String[] relationSubgraphIsolatedFromTerminal = {"1 r w", "2 x"};
 	public final String[] relationSubgraphIsolatedFromSpecialNodes = {"1 w", "2 r x", "3 y"};
 	public final String[] multipleIsolatedRelationSubgraphs = {"1 v", "2 r w", "3 x", "4 r y", "5 z"};
+	public final String[] eventPairSubgraphIsolatedFromInitial =  {"1 w", "2 x", "3 r y"};
+	public final String[] multipleIsolatedEventPairSubgraphs =  {"1 u", "2 v", "3 r w", "4 x", "5 y", "6 r z"};
 	
 	// Single trace, closure, variable relation subgraphs
 	public final String[] singleClosureElement = {"1 r cl w"};
@@ -41,6 +43,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
 	public final String[] doubleNonTimeClosure = {"1 v", "2 r cl w", "3 x", "4 r cl y"};
 	public final String[] closureIntoAndOutOfRegular = {"1 r v", "2 w", "3 r cl x", "4 r y"};
 	public final String[] disjointClosureAndRegularSubgraphs = {"1 v", "2 r cl w", "3 x", "4 r y"};
+	public final String[] disjointClosureAndEventPairSubgraphs = {"1 v", "2 r cl w", "3 x", "4 y", "5 r z"};
 	
 	public final String r = "r";
 	
@@ -188,10 +191,8 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
 				defRelation));
 		
 		trueInvs.add(new AlwaysFollowedInvariant(
-        		StringEventType.newInitialStringEventType(), "w", 
-        		r));
-		trueInvs.add(new NeverFollowedInvariant("w", "w", 
-				r));
+        		StringEventType.newInitialStringEventType(), "w", r));
+		trueInvs.add(new NeverFollowedInvariant("w", "w", r));
         
         assertTrue(trueInvs.sameInvariants(minedInvs));
 	}
@@ -359,6 +360,162 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
 		trueInvs.add(new NeverFollowedInvariant("w", "w", r));
 		trueInvs.add(new NeverFollowedInvariant("x", "x", r));
 		trueInvs.add(new NeverFollowedInvariant("y", "y", r));
+        
+        assertTrue(trueInvs.sameInvariants(minedInvs));
+	}
+	
+	@Test
+	public void eventPairSubgraphIsolatedFromInitial() throws Exception {
+	    // "1 w", "2 x", "3 r y"
+	    
+        TemporalInvariantSet minedInvs = genInvariants(eventPairSubgraphIsolatedFromInitial);
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+        
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "w", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "x", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "y", defRelation));
+        
+        trueInvs.add(new AlwaysFollowedInvariant("w", "x", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("w", "y", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("x", "y", defRelation));
+        
+        trueInvs.add(new AlwaysPrecedesInvariant("w", "x", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("w", "y", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("x", "y", defRelation));
+        
+        trueInvs.add(new NeverFollowedInvariant("w", "w", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("x", "x", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("y", "y", defRelation));
+        
+        trueInvs.add(new NeverFollowedInvariant("x", "w", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("y", "w", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("y", "x", defRelation));
+        
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "x", r));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "y", r));
+        trueInvs.add(new AlwaysFollowedInvariant("x", "y", r));
+        trueInvs.add(new AlwaysPrecedesInvariant("x", "y", r));
+        trueInvs.add(new NeverFollowedInvariant("x", "x", r));
+        trueInvs.add(new NeverFollowedInvariant("y", "y", r));
+        trueInvs.add(new NeverFollowedInvariant("y", "x", r));
+        
+        assertTrue(trueInvs.sameInvariants(minedInvs));
+	}
+	
+	@Test 
+	public void multipleIsolatedEventPairSubgraphs() throws Exception {
+	    // "1 u", "2 v", "3 r w", "4 x", "5 y", "6 r z"
+	    
+	    TemporalInvariantSet minedInvs = genInvariants(multipleIsolatedEventPairSubgraphs);
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+        
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "u", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "v", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "w", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "x", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "y", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "z", defRelation));
+        
+        trueInvs.add(new AlwaysFollowedInvariant("u", "v", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("u", "w", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("u", "x", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("u", "y", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("u", "z", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("v", "w", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("v", "x", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("v", "y", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("v", "z", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("w", "x", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("w", "y", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("w", "z", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("x", "y", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("x", "z", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("y", "z", defRelation));
+        
+        trueInvs.add(new AlwaysPrecedesInvariant("u", "v", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("u", "w", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("u", "x", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("u", "y", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("u", "z", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("v", "w", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("v", "x", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("v", "y", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("v", "z", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("w", "x", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("w", "y", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("w", "z", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("x", "y", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("x", "z", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("y", "z", defRelation));
+        
+        trueInvs.add(new NeverFollowedInvariant("u", "u", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("v", "v", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("w", "w", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("x", "x", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("y", "y", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("z", "z", defRelation));
+        
+        trueInvs.add(new NeverFollowedInvariant("v", "u", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("w", "u", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("x", "u", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("y", "u", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("z", "u", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("w", "v", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("x", "v", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("y", "v", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("z", "v", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("x", "w", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("y", "w", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("z", "w", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("y", "x", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("z", "x", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("z", "y", defRelation));
+        
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "v", r));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "w", r));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "y", r));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "z", r));
+        
+        trueInvs.add(new AlwaysFollowedInvariant("v", "w", r));
+        trueInvs.add(new AlwaysFollowedInvariant("v", "y", r));
+        trueInvs.add(new AlwaysFollowedInvariant("v", "z", r));
+        trueInvs.add(new AlwaysFollowedInvariant("w", "y", r));
+        trueInvs.add(new AlwaysFollowedInvariant("w", "z", r));
+        trueInvs.add(new AlwaysFollowedInvariant("y", "z", r));
+        
+        trueInvs.add(new AlwaysPrecedesInvariant("v", "w", r));
+        trueInvs.add(new AlwaysPrecedesInvariant("v", "y", r));
+        trueInvs.add(new AlwaysPrecedesInvariant("v", "z", r));
+        trueInvs.add(new AlwaysPrecedesInvariant("w", "y", r));
+        trueInvs.add(new AlwaysPrecedesInvariant("w", "z", r));
+        trueInvs.add(new AlwaysPrecedesInvariant("y", "z", r));
+        
+        trueInvs.add(new NeverFollowedInvariant("v", "v", r));
+        trueInvs.add(new NeverFollowedInvariant("w", "w", r));
+        trueInvs.add(new NeverFollowedInvariant("y", "y", r));
+        trueInvs.add(new NeverFollowedInvariant("z", "z", r));
+        
+        trueInvs.add(new NeverFollowedInvariant("w", "v", r));
+        trueInvs.add(new NeverFollowedInvariant("y", "v", r));
+        trueInvs.add(new NeverFollowedInvariant("z", "v", r));
+        trueInvs.add(new NeverFollowedInvariant("y", "w", r));
+        trueInvs.add(new NeverFollowedInvariant("z", "w", r));
+        trueInvs.add(new NeverFollowedInvariant("z", "y", r));
         
         assertTrue(trueInvs.sameInvariants(minedInvs));
 	}
@@ -623,4 +780,87 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
 		
         assertTrue(trueInvs.sameInvariants(minedInvs));
 	}
+	
+	@Test
+	public void disjointClosureAndEventPairSubgraphs() throws Exception {
+	    // "1 v", "2 r cl w", "3 x", "4 y", "5 r z"
+	    TemporalInvariantSet minedInvs = genInvariants(disjointClosureAndEventPairSubgraphs);
+        TemporalInvariantSet trueInvs = new TemporalInvariantSet();
+        
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "v", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "w", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "x", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "y", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "z", defRelation));
+        
+        trueInvs.add(new AlwaysFollowedInvariant("v", "w", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("v", "x", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("v", "y", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("v", "z", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("w", "x", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("w", "y", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("w", "z", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("x", "y", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("x", "z", defRelation));
+        trueInvs.add(new AlwaysFollowedInvariant("y", "z", defRelation));
+        
+        trueInvs.add(new AlwaysPrecedesInvariant("v", "w", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("v", "x", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("v", "y", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("v", "z", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("w", "x", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("w", "y", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("w", "z", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("x", "y", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("x", "z", defRelation));
+        trueInvs.add(new AlwaysPrecedesInvariant("y", "z", defRelation));
+        
+        trueInvs.add(new NeverFollowedInvariant("v", "v", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("w", "w", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("x", "x", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("y", "y", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("z", "z", defRelation));
+        
+        trueInvs.add(new NeverFollowedInvariant("w", "v", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("x", "v", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("y", "v", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("z", "v", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("x", "w", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("y", "w", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("z", "w", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("y", "x", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("z", "x", defRelation));
+        trueInvs.add(new NeverFollowedInvariant("z", "y", defRelation));
+        
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "w", r));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "y", r));
+        trueInvs.add(new AlwaysFollowedInvariant(
+                StringEventType.newInitialStringEventType(), "z", r));
+        
+        trueInvs.add(new AlwaysFollowedInvariant("w", "y", r));
+        trueInvs.add(new AlwaysFollowedInvariant("w", "z", r));
+        trueInvs.add(new AlwaysFollowedInvariant("y", "z", r));
+        
+        trueInvs.add(new AlwaysPrecedesInvariant("w", "y", r));
+        trueInvs.add(new AlwaysPrecedesInvariant("w", "z", r));
+        trueInvs.add(new AlwaysPrecedesInvariant("y", "z", r));
+        
+        trueInvs.add(new NeverFollowedInvariant("w", "w", r));
+        trueInvs.add(new NeverFollowedInvariant("y", "y", r));
+        trueInvs.add(new NeverFollowedInvariant("z", "z", r));
+        
+        trueInvs.add(new NeverFollowedInvariant("y", "w", r));
+        trueInvs.add(new NeverFollowedInvariant("z", "w", r));
+        trueInvs.add(new NeverFollowedInvariant("z", "y", r));
+        
+        assertTrue(trueInvs.sameInvariants(minedInvs));
+	}  
+	   
 }
