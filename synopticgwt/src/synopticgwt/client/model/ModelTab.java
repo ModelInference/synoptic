@@ -344,7 +344,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
         return Math.max(
-                Window.getClientWidth() - controlsPanel.getOffsetWidth() + 100,
+                Window.getClientWidth() - controlsPanel.getOffsetWidth() - 40,
                 400);
     }
 
