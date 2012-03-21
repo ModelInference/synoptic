@@ -94,6 +94,11 @@ public class ModelTab extends Tab<DockLayoutPanel> {
     // containing the model.
     final private int GRAPH_PANEL_STYLE_HEIGHT = 6;
 
+    // Whether or not to update the sizes of widget elements when the tab is
+    // selected. This is set to true whenever the window is resized but the
+    // model tab is not selected.
+    public boolean updateSizeOnTabSelection = false;
+
     HorizontalPanel exportButtonsPanel;
     HorizontalPanel viewPathsButtonPanel;
 
@@ -347,6 +352,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 
         this.jsGraph = new JSGraph(this, graph, modelWidth, modelHeight,
                 canvasId);
+        updateGraphPanel();
     }
 
     /**
@@ -450,8 +456,12 @@ public class ModelTab extends Tab<DockLayoutPanel> {
      */
     public void updateGraphPanel() {
         if (graphPanel == null) {
-            // This occurs when the graphPanel is first shown -- the graphic is
-            // not yet displayed, so we skip the update in this case.
+            // This occurs when the window is resized before a model is
+            // generated -- the resize event is cached for when the tab is
+            // selected. But, prior to showing the graph the tab is first
+            // selected, therefore this method is triggered but we cannot resize
+            // the model because it hasn't been generated yet. In this case,
+            // there is a call to this method from the showGraph() method.
             return;
         }
 
@@ -461,11 +471,11 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         graphPanel.setPixelSize(graphicWidth, graphicHeight);
         this.jsGraph.resize(graphicWidth, graphicHeight);
 
-        updateLogInfoPanelSize();
-
         int panelHeight = getModelPanelHeight();
         panel.setHeight(panelHeight + "px");
         this.panel.onResize();
+
+        updateLogInfoPanelSize();
     }
 
     /**
