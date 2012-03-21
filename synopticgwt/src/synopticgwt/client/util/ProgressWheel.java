@@ -40,10 +40,10 @@ public class ProgressWheel {
         // Get the RootPanel containing the progress wheel based on divPanelId
         // and hide it since the progress wheel isn't scheduled yet.
         divPanel = RootPanel.get(divPanelId);
-        divPanel.setVisible(false);
 
         // Add the progress wheel to the DIV.
         addProgressWheel(divPanelId, radius, r1, r2);
+        hideWheel();
 
         // Create the timer, but do not schedule it.
         timer = new Timer() {
@@ -51,7 +51,7 @@ public class ProgressWheel {
             public void run() {
                 // Whenever the timer fires, it animates the progress wheel by
                 // one step.
-                animateProgressWheel();
+                animateProgressWheelOneStep();
             }
         };
     }
@@ -60,7 +60,7 @@ public class ProgressWheel {
      * Starts the wheel animation.
      */
     public void startAnimation() {
-        divPanel.setVisible(true);
+        showWheel();
         timer.scheduleRepeating(100);
     }
 
@@ -69,6 +69,14 @@ public class ProgressWheel {
      */
     public void stopAnimation() {
         timer.cancel();
+        hideWheel();
+    }
+
+    private void showWheel() {
+        divPanel.setVisible(true);
+    }
+
+    private void hideWheel() {
         divPanel.setVisible(false);
     }
 
@@ -80,11 +88,11 @@ public class ProgressWheel {
      * A JSNI method to animate the progress wheel by one step, by changing
      * opacity of all the sectors making up the wheel.
      */
-    native static void animateProgressWheel() /*-{
-		$wnd.opacity.unshift($wnd.opacity.pop());
-		for ( var i = 0; i < $wnd.sectorsCount; i++) {
-			$wnd.sectors[i].attr("opacity", $wnd.opacity[i]);
-		}
+    native static void animateProgressWheelOneStep() /*-{
+        $wnd.opacity.unshift($wnd.opacity.pop());
+        for ( var i = 0; i < $wnd.sectorsCount; i++) {
+            $wnd.sectors[i].attr("opacity", $wnd.opacity[i]);
+        }
     }-*/;
 
     /**
@@ -100,35 +108,35 @@ public class ProgressWheel {
      */
     private native static void addProgressWheel(String divPanelId, int radius,
             int r1, int r2) /*-{
-		var r = $wnd.Raphael($doc.getElementById(divPanelId), radius * 2,
-				radius * 2);
-		r.clear();
-		$wnd.sectorsCount = 12;
-		var color = "#000";
-		var width = 1;
-		var cx = radius;
-		var cy = radius;
-		$wnd.sectors = [];
-		$wnd.opacity = [];
-		var beta = 2 * $wnd.Math.PI / $wnd.sectorsCount,
+        var r = $wnd.Raphael($doc.getElementById(divPanelId), radius * 2,
+                radius * 2);
+        r.clear();
+        $wnd.sectorsCount = 12;
+        var color = "#000";
+        var width = 1;
+        var cx = radius;
+        var cy = radius;
+        $wnd.sectors = [];
+        $wnd.opacity = [];
+        var beta = 2 * $wnd.Math.PI / $wnd.sectorsCount,
 
-		pathParams = {
-			stroke : color,
-			"stroke-width" : width,
-			"stroke-linecap" : "round"
-		};
+        pathParams = {
+            stroke : color,
+            "stroke-width" : width,
+            "stroke-linecap" : "round"
+        };
 
-		for ( var i = 0; i < $wnd.sectorsCount; i++) {
-			var alpha = (beta * i);
-			var cos = $wnd.Math.cos(alpha);
-			var sin = $wnd.Math.sin(alpha);
-			$wnd.opacity[i] = 1 / $wnd.sectorsCount * i;
+        for ( var i = 0; i < $wnd.sectorsCount; i++) {
+            var alpha = (beta * i);
+            var cos = $wnd.Math.cos(alpha);
+            var sin = $wnd.Math.sin(alpha);
+            $wnd.opacity[i] = 1 / $wnd.sectorsCount * i;
 
-			$wnd.sectors[i] = r.path("M" + (cx + r1 * cos) + " "
-					+ (cy + r1 * sin) + "L" + (cx + r2 * cos) + " "
-					+ (cy + r2 * sin));
-			$wnd.sectors[i].attr(pathParams);
-		}
+            $wnd.sectors[i] = r.path("M" + (cx + r1 * cos) + " "
+                    + (cy + r1 * sin) + "L" + (cx + r2 * cos) + " "
+                    + (cy + r2 * sin));
+            $wnd.sectors[i].attr(pathParams);
+        }
     }-*/;
 
     // </JSNI methods>
