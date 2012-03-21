@@ -35,6 +35,11 @@ body {
     position:relative;
 }
 
+#progressWheelDiv {
+	position: absolute;
+	top: 47px;
+}
+
 .sendButton {
     display: block;
     font-size: 16pt;
