@@ -29,7 +29,7 @@ public class LogFileUploadServlet extends HttpServlet {
 
     public static Logger logger = Logger.getLogger("LogFileUploadServlet");
 
-    AppConfiguration config;
+    static AppConfiguration config = null;
 
     /**
      * Handles POST request. Retrieves file uploaded in form from request and
@@ -44,14 +44,17 @@ public class LogFileUploadServlet extends HttpServlet {
             HttpServletResponse response) throws IOException {
 
         ServletContext context = getServletConfig().getServletContext();
-        try {
-            this.config = AppConfiguration.getInstance(context);
-        } catch (Exception e) {
-            logger.severe("AppConfiguration generated an exception: "
-                    + e.getMessage());
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    "Error during AppConfiguration construction.");
-            return;
+        if (config == null) {
+            try {
+                config = AppConfiguration.getInstance(context);
+            } catch (Exception e) {
+                logger.severe("AppConfiguration generated an exception: "
+                        + e.getMessage());
+                response.sendError(
+                        HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                        "Error during AppConfiguration construction.");
+                return;
+            }
         }
 
         response.setContentType("text/plain");
