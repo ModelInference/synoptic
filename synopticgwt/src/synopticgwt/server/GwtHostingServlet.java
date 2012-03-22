@@ -19,21 +19,23 @@ public class GwtHostingServlet extends HttpServlet {
 
     public static Logger logger = Logger.getLogger("GwtHostingServlet");
 
-    AppConfiguration config;
+    static AppConfiguration config = null;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         // Retrieve the configuration.
         ServletContext context = getServletConfig().getServletContext();
-        try {
-            this.config = AppConfiguration.getInstance(context);
-        } catch (Exception e) {
-            logger.severe("AppConfiguration generated an exception: "
-                    + e.getMessage());
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    "Error during AppConfiguration construction.");
-            return;
+        if (config == null) {
+            try {
+                config = AppConfiguration.getInstance(context);
+            } catch (Exception e) {
+                logger.severe("AppConfiguration generated an exception: "
+                        + e.getMessage());
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                        "Error during AppConfiguration construction.");
+                return;
+            }
         }
 
         // Make certain configuration parameters accessible from within JSP.

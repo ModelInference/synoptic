@@ -78,7 +78,7 @@ public class SynopticService extends RemoteServiceServlet implements
     // Session attribute name storing path of client's uploaded log file.
     static final String logFileSessionAttribute = "logFilePath";
 
-    AppConfiguration config;
+    static AppConfiguration config = null;
     HttpSession session;
 
     // Variables corresponding to session state.
@@ -156,7 +156,9 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     private void retrieveSessionState() throws Exception {
         ServletContext context = getServletConfig().getServletContext();
-        this.config = AppConfiguration.getInstance(context);
+        if (config == null) {
+            config = AppConfiguration.getInstance(context);
+        }
 
         // Retrieve HTTP session to access storage.
         HttpServletRequest request = getThreadLocalRequest();
