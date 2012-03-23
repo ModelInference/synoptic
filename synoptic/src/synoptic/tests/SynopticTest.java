@@ -37,7 +37,7 @@ public abstract class SynopticTest extends SynopticLibTest {
     /**
      * Default relation used in invariant mining.
      */
-    public static final String defRelation = "t";
+    public static final String defRelation = Event.defaultTimeRelationString;
 
     static {
         // Set up static SynopticLib state.

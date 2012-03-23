@@ -19,7 +19,6 @@ import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.TraceParser;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -582,7 +581,8 @@ public class PartitionGraph implements IGraph<Partition> {
         } else {
 
             // Gets the next event with relation to time.
-            Set<EventNode> nextEvents = currentEvent.getSuccessors("t");
+            Set<EventNode> nextEvents = currentEvent
+                    .getSuccessors(Event.defaultTimeRelationString);
             // Finds the next partition to enter with the correct event.
             for (Partition pNode : getAdjacentNodes(currentPartition)) {
                 for (EventNode possibleNextEvent : pNode.getEventNodes()) {
