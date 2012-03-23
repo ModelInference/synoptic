@@ -38,10 +38,10 @@ public class RelationPath {
     /** Relation this path is over */
     private String relation;
     /**
-     * Relation this path uses for transitivity, usually
+     * The relation this path uses for ordered traversal, defaults to
      * Event.defaultTimeRelationString, or "t"
      */
-    private String transitiveRelation;
+    private String orderingRelation;
     /**
      * Keeps track of the state of seen, eventcounts, followedByCounts, and
      * precedesCounts. True if these data structures are populated.
@@ -68,10 +68,10 @@ public class RelationPath {
     private Map<EventType, Map<EventType, Integer>> precedesCounts;
 
     public RelationPath(EventNode eNode, String relation,
-            String transitiveRelation, boolean initialConnected) {
+            boolean initialConnected) {
         this.eNode = eNode;
         this.relation = relation;
-        this.transitiveRelation = transitiveRelation;
+        this.orderingRelation = Event.defaultTimeRelationString;
         this.counted = false;
         this.seen = new LinkedHashSet<EventType>();
         this.eventCounts = new LinkedHashMap<EventType, Integer>();
@@ -81,66 +81,61 @@ public class RelationPath {
     }
 
     /**
-     * Assumes tracegraph is already constructed Walks over the tracegraph that
+     * Assumes tracegraph is already constructed. Walks over the tracegraph that
      * eNode is part of to populate seen, eventcounts, followedByCounts, and
-     * precedesCounts throws an error if a node has multiple transitions for a
-     * single relation
+     * precedesCounts. Throws an error if a node has multiple transitions for a
+     * single relation (i.e., not a totally ordered relation path).
      */
-    public void count() {
+    private void count() {
         EventNode curNode = eNode;
 
-        boolean hasNonTransitiveIncomingRelation = initialConnected;
+        boolean hasImmediateIncomingRelation = initialConnected;
         List<Transition<EventNode>> transitions = curNode
                 .getTransitions(relation);
 
         if (transitions.isEmpty()) {
-            transitions = curNode.getTransitions(transitiveRelation);
+            transitions = curNode.getTransitions(orderingRelation);
         }
 
         while (!transitions.isEmpty()) {
 
-            /*
-             * For now let's use the defaultTimeRelationString, this will need
-             * to be changed if the traceGraph specification is parameterized to
-             * not have time relations.
-             * 
-             * Maybe this should be changed to use the transitiveRelation field,
-             * however as of now whether or not the transitive relation is
-             * totally ordered is undefined.
-             */
-            if (curNode.getTransitions(Event.defaultTimeRelationString).size() != 1) {
+            // Each node we traverse must have exactly one transition with the
+            // ordering relation.
+            if (curNode.getTransitions(orderingRelation).size() != 1) {
                 throw new InternalSynopticException(
-                        "SpecializedInvariantMiner does not work on partially ordered traces.");
+                        "There should be exactly one transition with an ordering relation.");
             }
 
-            boolean hasNonTransitiveOutgoingRelation = curNode.getTransitions(
+            // Each node we traverse must have at most 1 transition with
+            // a relation.
+            if (curNode.getTransitions(relation).size() > 1) {
+                throw new InternalSynopticException(
+                        "There should be exactly one transition with a relation.");
+            }
+
+            boolean hasImmediateOutgoingRelation = curNode.getTransitions(
                     relation).size() == 1;
 
-            if (!(hasNonTransitiveOutgoingRelation || hasNonTransitiveIncomingRelation)) {
+            if (!hasImmediateOutgoingRelation && !hasImmediateIncomingRelation) {
                 // Move on to the next node in the trace.
-                List<Transition<EventNode>> searchTransitions = curNode
-                        .getTransitions(relation);
-
-                if (searchTransitions.isEmpty()) {
-                    searchTransitions = curNode
-                            .getTransitions(transitiveRelation);
-                }
-
                 if (curNode.equals(eFinal)) {
                     break;
                 }
 
-                curNode = searchTransitions.get(0).getTarget();
+                curNode = curNode.getTransitions(orderingRelation).get(0)
+                        .getTarget();
 
                 transitions = curNode.getTransitions(relation);
 
                 if (transitions.isEmpty()) {
-                    transitions = curNode.getTransitions(transitiveRelation);
+                    transitions = curNode.getTransitions(orderingRelation);
                 }
+
+                hasImmediateIncomingRelation = false;
                 continue;
             }
 
-            hasNonTransitiveIncomingRelation = hasNonTransitiveOutgoingRelation;
+            hasImmediateIncomingRelation = hasImmediateOutgoingRelation;
 
             // The current event is 'b', and all prior events are 'a' --
             // this notation indicates that an 'a' always occur prior to a
@@ -195,7 +190,7 @@ public class RelationPath {
                     .getTransitions(relation);
 
             if (searchTransitions.isEmpty()) {
-                searchTransitions = curNode.getTransitions(transitiveRelation);
+                searchTransitions = curNode.getTransitions(orderingRelation);
             }
 
             if (curNode.equals(eFinal)) {
@@ -207,7 +202,7 @@ public class RelationPath {
             transitions = curNode.getTransitions(relation);
 
             if (transitions.isEmpty()) {
-                transitions = curNode.getTransitions(transitiveRelation);
+                transitions = curNode.getTransitions(orderingRelation);
             }
         }
 

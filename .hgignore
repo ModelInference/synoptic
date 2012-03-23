@@ -19,6 +19,8 @@ synopticgwt/.gwt/*
 synopticgwt/.settings/*
 synopticgwt/gwt-unitCache/
 synopticgwt/test/**.class
+synopticgwt/test-output/*
+synopticgwt/derby/*
 
 synopticjung/bin/*
 
