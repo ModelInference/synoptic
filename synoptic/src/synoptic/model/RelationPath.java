@@ -48,8 +48,8 @@ public class RelationPath {
      */
     private boolean counted;
 
-    /** Whether or not initial has an outgoing relation edge */
-    private boolean initialConnected;
+    /** Whether or not INITIAL is directly or transitively connected to the relation subgraph */
+    private boolean initialTransitivelyConnected;
 
     /** The set of nodes seen prior to some point in the trace. */
     private Set<EventType> seen;
@@ -67,8 +67,14 @@ public class RelationPath {
      */
     private Map<EventType, Map<EventType, Integer>> precedesCounts;
 
+    /**
+     * 
+     * @param eNode First non-INITIAL node in this relation path
+     * @param relation Relation this path is over
+     * @param initialTransitivelyConnected Whether INITIAL is directly or transitively connected to the relation subgraph
+     */
     public RelationPath(EventNode eNode, String relation,
-            boolean initialConnected) {
+            boolean initialTransitivelyConnected) {
         this.eNode = eNode;
         this.relation = relation;
         this.orderingRelation = Event.defaultTimeRelationString;
@@ -77,7 +83,7 @@ public class RelationPath {
         this.eventCounts = new LinkedHashMap<EventType, Integer>();
         this.followedByCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         this.precedesCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
-        this.initialConnected = initialConnected;
+        this.initialTransitivelyConnected = initialTransitivelyConnected;
     }
 
     /**
@@ -89,7 +95,7 @@ public class RelationPath {
     private void count() {
         EventNode curNode = eNode;
 
-        boolean hasImmediateIncomingRelation = initialConnected;
+        boolean hasImmediateIncomingRelation = !initialTransitivelyConnected;
         List<Transition<EventNode>> transitions = curNode
                 .getTransitions(relation);
 

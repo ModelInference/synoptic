@@ -104,13 +104,16 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
          * - Tags node as initial over relation
          * - Marks node as the last node seen over the relation
          * - Adds a RelationPath to the Trace
+         * 
+         * In this case, there is an edge of type relation from INITIAL
+         * to curNode
          * </pre>
          */
         for (Relation relation : prevNode.getEventRelations()) {
             relations.add(relation.getRelation());
             tagInitial(prevNode, relation.getRelation());
             lastSeenNodeForRelation.put(relation.getRelation(), prevNode);
-            trace.addRelationPath(relation.getRelation(), prevNode, true);
+            trace.addRelationPath(relation.getRelation(), prevNode, false);
         }
 
         // Create transitions to connect the nodes in the sorted trace.
@@ -144,10 +147,13 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
                      * This is the first time we've seen this relation and it is
                      * a closure relation so we have to mark the node as initial
                      * and create a relation path.
+                     * 
+                     * In this case, there is an edge of type relation from INITIAL
+                     * to curNode
                      */
                     if (prevClosureNode == null) {
                         tagInitial(curNode, relation.getRelation());
-                        trace.addRelationPath(relation.getRelation(), curNode, true);
+                        trace.addRelationPath(relation.getRelation(), curNode, false);
                     } else {
                         /*
                          * We've already encountered this relation, so hook it
@@ -181,12 +187,16 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
          * If trace doesn't contain a relation path for a relation r, then r was
          * seen while the trace was traversed, and there are no closure
          * relations of type r. This means there are subgraphs of r which are
-         * transitively connected to the initial node. Currently, these
-         * relations are transitively connected over time.
+         * transitively connected, as opposed to directly connected, 
+         * to the initial node. Currently, these relations are transitively 
+         * connected over time.
+         * 
+         * In other words, there isn't an edge of type relation from INITIAL
+         * to the first node in the relation subgraph.
          */
         for (String relation : relations) {
             if (!trace.hasRelation(relation)) {
-                trace.addRelationPath(relation, firstNode, false);
+                trace.addRelationPath(relation, firstNode, true);
             }
         }
 
