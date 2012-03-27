@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionSplit;
+import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
@@ -217,8 +218,8 @@ public class PartitionGraphTests extends SynopticTest {
             assertTrue(inv instanceof NeverImmediatelyFollowedInvariant);
 
             // 1. Check that both event types are valid.
-            EventType srcT = inv.getFirst();
-            EventType dstT = inv.getSecond();
+            EventType srcT = ((BinaryInvariant) inv).getFirst();
+            EventType dstT = ((BinaryInvariant) inv).getSecond();
             assertTrue(eTypes.contains(srcT));
             assertTrue(eTypes.contains(dstT));
 
