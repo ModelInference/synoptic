@@ -35,6 +35,13 @@ public class InvariMintOptions extends synoptic.main.Options {
     @Option(value = "-c Command line arguments input filename",
             aliases = { "-argsfile" })
     public String argsFilename = null;
+
+    /**
+     * Length of KTails.
+     */
+    @Option(value = "Length of tails when performing InvariMint kTails")
+    public int kTailLength = 0;
+
     // end option group "Input Options"
 
     /**

@@ -35,6 +35,7 @@ import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
+import synoptic.invariants.miners.KTailInvariantMiner;
 import synoptic.invariants.miners.POInvariantMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
@@ -622,7 +623,9 @@ public class Main implements Callable<Integer> {
             boolean useTransitiveClosureMining, ChainsTraceGraph inputGraph) {
         TOInvariantMiner miner;
 
-        if (useTransitiveClosureMining) {
+        if (options.performKTails) {
+            miner = new KTailInvariantMiner(options.kTailLength);
+        } else if (useTransitiveClosureMining) {
             miner = new TransitiveClosureInvMiner();
         } else {
             miner = new ChainWalkingTOInvMiner();
