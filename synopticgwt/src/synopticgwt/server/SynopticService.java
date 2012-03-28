@@ -6,13 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -84,7 +78,7 @@ public class SynopticService extends RemoteServiceServlet implements
     // Session attribute name storing path of client's uploaded log file.
     static final String logFileSessionAttribute = "logFilePath";
 
-    AppConfiguration config;
+    static AppConfiguration config = null;
     HttpSession session;
 
     // Variables corresponding to session state.
@@ -162,7 +156,9 @@ public class SynopticService extends RemoteServiceServlet implements
      */
     private void retrieveSessionState() throws Exception {
         ServletContext context = getServletConfig().getServletContext();
-        this.config = AppConfiguration.getInstance(context);
+        if (config == null) {
+            config = AppConfiguration.getInstance(context);
+        }
 
         // Retrieve HTTP session to access storage.
         HttpServletRequest request = getThreadLocalRequest();
@@ -171,7 +167,7 @@ public class SynopticService extends RemoteServiceServlet implements
         if (session.getAttribute("vID") == null) {
             logger.info("Derby support disabled");
         } else {
-        	vID = (Integer) session.getAttribute("vID");
+            vID = (Integer) session.getAttribute("vID");
         }
     }
 
@@ -442,8 +438,8 @@ public class SynopticService extends RemoteServiceServlet implements
          * Write user information to Derby DB if the database is open.
          */
         if (config.derbyDB != null) {
-        	config.derbyDB.writeUserParsingInfo(vID, synOpts, graph, traceGraph, 
-        			parsedEvents, minedInvs, invs, miningTime);
+            config.derbyDB.writeUserParsingInfo(vID, synOpts, graph,
+                    traceGraph, parsedEvents, minedInvs, invs, miningTime);
         }
 
         return new GWTPair<GWTInvariantSet, GWTGraph>(invs, graph);

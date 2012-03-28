@@ -11,6 +11,18 @@ import synopticgwt.client.util.MouseEventHandler;
  */
 public class JSONode extends JavaScriptObject {
 
+    private static final int RECT_WIDTH = 122;
+
+    // The minimum font size for the text graphic
+    // TODO: Experiment to find a good value for this.
+    private static final int MIN_FONT_SIZE = 11;
+
+    // Default font size for the node text label.
+    // NOTE: Whenever setting the JS font size, make sure
+    // to add "px" to the end. This is an integer solely
+    // to make comparisons simpler.
+    private static final int DEFAULT_FONT_SIZE = 16;
+
     // Default JSO constructor
     protected JSONode() {
     }
@@ -142,6 +154,7 @@ public class JSONode extends JavaScriptObject {
     public native final void attachRenderer() /*-{
         this.render = function(canvas, node) {
             var rect;
+
             if (this.label == @synopticgwt.client.model.JSGraph::INITIAL
                     || this.label == @synopticgwt.client.model.JSGraph::TERMINAL) {
                 // creates the rectangle to be drawn
@@ -167,8 +180,42 @@ public class JSONode extends JavaScriptObject {
 
             var text = canvas.text(node.point[0] + 30, node.point[1] + 10,
                     node.label).attr({
-                "font-size" : "16px",
+                "font-size" : @synopticgwt.client.model.JSONode::DEFAULT_FONT_SIZE + "px",
             });
+
+            // Scale the text if it doesn't fit well.
+            if (text.getBBox().width > @synopticgwt.client.model.JSONode::RECT_WIDTH) {
+                // Keep shrinking the text until it fits, then set the node's field to the size
+                // and whether it should be shortened so this doesn't ever have to be run again.
+                var maxWidth = @synopticgwt.client.model.JSONode::RECT_WIDTH;
+                var fontSize = parseInt(text.attrs['font-size']);
+                while (fontSize > @synopticgwt.client.model.JSONode::MIN_FONT_SIZE) {
+                    fontSize -= 1;
+                    text.attr({
+                        'font-size' : fontSize + "px"
+                    });
+                    
+                    // If the text is now small enough to fit, then exit the loop.
+                    if (text.getBBox().width < maxWidth) {
+                        break;
+                    }
+                }
+
+                // If the text is at the min font size and it STILL doesn't fit, then
+                // make the text small enough to fit within the rectangle, and set it to the default
+                // font size again.
+                if (text.getBBox().width > maxWidth) {
+                    var newText = text.attrs['text'];
+                    
+                    // Set the text to be the first three character followed by ellipses, followed by the last three
+                    // letters.
+                    newText = newText.substring(0, 3) + " . . . " + newText.substring(newText.length - 3);
+                    text.attr({
+                        "text" : newText,
+                        "font-size" : @synopticgwt.client.model.JSONode::DEFAULT_FONT_SIZE + "px"
+                    });
+                }
+            }
 
             // For some strange reason, setting the rect and text object
             // only once solves any event-related issues when redrawing
