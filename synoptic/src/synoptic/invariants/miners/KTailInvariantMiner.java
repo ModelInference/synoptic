@@ -36,7 +36,7 @@ public class KTailInvariantMiner implements TOInvariantMiner {
         // k equal to 0 or 1 handled by immediate invariants
         if (k > 1) {
 
-            Set<KTail> tails = new HashSet<KTail>();
+            Set<KTailInvariant> tails = new HashSet<KTailInvariant>();
             EventNode initNode = g
                     .getDummyInitialNode(TraceParser.defaultRelation);
 
@@ -57,7 +57,7 @@ public class KTailInvariantMiner implements TOInvariantMiner {
                     // transition.
                     if (curNode.getTransitions().size() != 1) {
                         throw new InternalSynopticException(
-                                "SpecializedInvariantMiner does not work on partially ordered traces.");
+                                "KTailInvariantMiner does not work on partially ordered traces.");
                     }
                     eventWindow.add(curNode.getEType());
                     count++;
@@ -73,8 +73,8 @@ public class KTailInvariantMiner implements TOInvariantMiner {
                 // and then sliding down the eventWindow by 1
                 while (curNode.getTransitions().size() != 0) {
                     // Add tail to the tails set
-                    KTail tail = KTail.getTail(eventWindow, curNode.getEType());
-                    tails.add(tail);
+                    tails.add(KTailInvariant.getInvariant(eventWindow,
+                            curNode.getEType()));
 
                     // Update window
                     eventWindow.remove(0);
@@ -85,10 +85,9 @@ public class KTailInvariantMiner implements TOInvariantMiner {
 
             // Add tails that occurred more than once to the set of mined
             // invariants.
-            for (KTail tail : tails) {
+            for (KTailInvariant tail : tails) {
                 if (tail.getInstances() > 1) {
-                    invars.add(new KTailInvariant(tail,
-                            TraceParser.defaultRelation));
+                    invars.add(tail);
                 }
             }
         }
