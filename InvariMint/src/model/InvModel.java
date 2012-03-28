@@ -1,11 +1,11 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.KTailInvariant;
-import synoptic.invariants.miners.KTail;
 import synoptic.model.EventType;
 
 /**
@@ -37,29 +37,21 @@ public class InvModel extends EncodedAutomaton {
             char second = encodings.getEncoding(invar.getSecond());
             re = invar.getRegex(first, second);
         } else if (invariant instanceof KTailInvariant) {
-            KTail tail = ((KTailInvariant) inv).getTail();
-            StringBuilder expression = new StringBuilder("(");
+            KTailInvariant tail = ((KTailInvariant) inv);
 
             List<EventType> tailEvents = tail.getTailEvents();
-            String last = "";
-            last += encodings.getEncoding(tailEvents.get(0));
-            expression.append("[^" + last + "]");
-            for (int i = 1; i < tailEvents.size(); i++) {
-                char next = encodings.getEncoding(tailEvents.get(i));
-                expression.append("|" + last + "[^" + next + "]");
-                last += next;
+            List<Character> tailEncodings = new ArrayList<Character>();
+            for (EventType event : tailEvents) {
+                tailEncodings.add(encodings.getEncoding(event));
             }
 
             List<EventType> followEvents = tail.getFollowEvents();
-            expression.append("|" + last + "("
-                    + encodings.getEncoding(followEvents.get(0)));
-            for (int i = 1; i < followEvents.size(); i++) {
-                expression.append("|"
-                        + encodings.getEncoding(followEvents.get(i)));
+            List<Character> followEncodings = new ArrayList<Character>();
+            for (EventType event : followEvents) {
+                followEncodings.add(encodings.getEncoding(event));
             }
 
-            expression.append("))*");
-            re = expression.toString();
+            re = KTailInvariant.getRegex(tailEncodings, followEncodings);
         }
 
         super.intersectWithRE(re);
