@@ -1,5 +1,7 @@
 package main;
 
+import java.util.logging.Logger;
+
 import model.EventTypeEncodings;
 import model.InvsModel;
 
@@ -20,9 +22,13 @@ import synoptic.model.PartitionGraph;
  */
 public class KTailInvariMintMain {
 
+    public static Logger logger = null;
+
     public static void main(String[] args) throws Exception {
         InvariMintOptions opts = new InvariMintOptions(args);
         InvariMintMain.setUpLogging(opts);
+        logger = Logger.getLogger("KTailInvariMintMain"); // InvariMintMain.logger;
+
         InvariMintMain.handleOptions(opts);
         ChainsTraceGraph inputGraph = InvariMintMain.setUpSynoptic(opts);
 
@@ -34,6 +40,10 @@ public class KTailInvariMintMain {
         TemporalInvariantSet minedInvs = Main.mineTOInvariants(false,
                 inputGraph);
 
+        logger.fine("Mined " + minedInvs.numInvariants()
+                + " kTail invariant(s).");
+        logger.fine(minedInvs.toPrettyString());
+
         // Construct initial model
         PartitionGraph initialModel = new PartitionGraph(inputGraph, true,
                 minedInvs);
@@ -41,12 +51,17 @@ public class KTailInvariMintMain {
         // Mine immediate invariants
         TemporalInvariantSet NIFbys = initialModel.getNIFbyInvariants();
 
+        logger.fine("Mined " + minedInvs.numInvariants()
+                + " NIFby invariant(s).");
+        logger.fine(NIFbys.toPrettyString());
+
         // Generate encodings
         EventTypeEncodings encodings = new EventTypeEncodings(
                 initialModel.getEventTypes());
 
         // Construct initial DFA from NIFby invariants.
-        InvsModel dfa = InvariMintMain.getMinModelFromInvs(NIFbys, encodings);
+        InvsModel dfa = InvariMintMain.getIntersectedModelFromInvs(NIFbys,
+                encodings, true);
 
         // Intersect initial/terminal invariant
         InvariMintMain.applyInitialTerminalCondition(dfa, encodings);
@@ -54,8 +69,8 @@ public class KTailInvariMintMain {
         dfa.exportDotAndPng(opts.outputPathPrefix + ".initial.dot");
 
         // Intersect mined kTail invariants.
-        dfa.intersectWith(InvariMintMain.getMinModelFromInvs(minedInvs,
-                encodings));
+        dfa.intersectWith(InvariMintMain.getIntersectedModelFromInvs(minedInvs,
+                encodings, true));
 
         dfa.minimize();
 

@@ -133,7 +133,7 @@ public class KTailInvariant implements ITemporalInvariant {
 
     @Override
     public String toString() {
-        return tail + " tail follow by " + following;
+        return tail + " tail followed by " + following;
     }
 
     @Override

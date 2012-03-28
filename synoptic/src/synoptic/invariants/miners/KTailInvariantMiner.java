@@ -31,6 +31,8 @@ public class KTailInvariantMiner implements TOInvariantMiner {
 
     @Override
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
+        // Logger logger = Logger.getLogger("KTailInvariantMiner");
+
         TemporalInvariantSet invars = new TemporalInvariantSet();
 
         // k equal to 0 or 1 handled by immediate invariants
@@ -40,16 +42,20 @@ public class KTailInvariantMiner implements TOInvariantMiner {
             EventNode initNode = g
                     .getDummyInitialNode(TraceParser.defaultRelation);
 
+            List<EventType> eventWindow = new ArrayList<EventType>();
+
             // Iterate through all the traces -- each transition from the
             // INITIAL node connects\holds a single trace.
             for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
                 EventNode curNode = initTrans.getTarget();
 
-                List<EventType> eventWindow = new ArrayList<EventType>();
+                eventWindow.clear();
 
-                // Start by initializing event window, if there are enough
-                // events to do so.
-                int count = 0;
+                // Start by initializing event window with INITIAL node and the
+                // next k nodes (if there are enough events to do so).
+                int count = 1;
+                eventWindow.add(initNode.getEType());
+
                 while (curNode.getTransitions().size() != 0 && count <= k) {
 
                     // NOTE: this invariant miner only works for totally ordered
@@ -69,26 +75,31 @@ public class KTailInvariantMiner implements TOInvariantMiner {
                     continue;
                 }
 
+                // logger.info(curNode.toString());
+
                 // Explore the rest of this trace, iteratively creating a tail
                 // and then sliding down the eventWindow by 1
-                while (curNode.getTransitions().size() != 0) {
+                while (true) {
                     // Add tail to the tails set
                     tails.add(KTailInvariant.getInvariant(eventWindow,
                             curNode.getEType()));
+
+                    if (curNode.getTransitions().size() == 0) {
+                        break;
+                    }
 
                     // Update window
                     eventWindow.remove(0);
                     eventWindow.add(curNode.getEType());
                     curNode = curNode.getTransitions().get(0).getTarget();
+                    // logger.info(curNode.toString());
                 }
+                // logger.info("--");
             }
 
-            // Add tails that occurred more than once to the set of mined
-            // invariants.
+            // Add tails to the set of mined invariants.
             for (KTailInvariant tail : tails) {
-                if (tail.getInstances() > 1) {
-                    invars.add(tail);
-                }
+                invars.add(tail);
             }
         }
         return invars;
