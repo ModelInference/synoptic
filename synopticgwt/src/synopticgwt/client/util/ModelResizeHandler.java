@@ -50,6 +50,8 @@ public class ModelResizeHandler implements ResizeHandler {
                 // and redraw the graph (with fancy animation).
                 if (ModelResizeHandler.this.tabBar.getSelectedTab() == SynopticGWT.modelTabIndex) {
                     ModelResizeHandler.this.modelTab.updateGraphPanel();
+                } else {
+                    ModelResizeHandler.this.modelTab.updateSizeOnTabSelection = true;
                 }
             }
         };

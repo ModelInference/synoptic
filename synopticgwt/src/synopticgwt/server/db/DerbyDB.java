@@ -76,7 +76,7 @@ public class DerbyDB {
         // Get a connection
         conn = DriverManager.getConnection(connectionURL + ";create="
                 + isCreate);
-        logger.info("Connecting to Derby database");
+        logger.info("Connecting to Derby database: " + connectionURL);
 
         // Create all the tables.
         logReExpTable = new LogReExpTable(conn);
@@ -276,11 +276,13 @@ public class DerbyDB {
      * other exception.
      */
     public void shutdown() {
+        logger.info("Shutting down Derby database");
         try {
             if (conn != null) {
                 DriverManager.getConnection(connectionURL + ";shutdown=true");
                 conn.close();
-                logger.info("Shutting down Derby database");
+            } else {
+                logger.info("Derby already shut down");
             }
         } catch (SQLException sqlExcept) {
             sqlExcept.printStackTrace();
