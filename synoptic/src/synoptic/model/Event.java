@@ -42,6 +42,8 @@ public class Event {
      */
     private final int lineNum;
 
+    // TODO: refactor this out of Event (they are only used for trace graph
+    // construction). Documented in issue 237.
     private Set<Relation> relations;
 
     /**
