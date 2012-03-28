@@ -51,7 +51,7 @@ public class InvariMintMain {
 
     public static void setUpLogging(InvariMintOptions opts) {
         // Get the top Logger instance
-        logger = Logger.getLogger("");
+        logger = Logger.getLogger("InvariMintMain");
 
         // Handler for console (reuse it if it already exists)
         Handler consoleHandler = null;
@@ -196,12 +196,13 @@ public class InvariMintMain {
                 initialModel.getEventTypes());
 
         EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
-        InvsModel dfa = getMinModelFromInvs(NIFbys, encodings);
+        InvsModel dfa = getIntersectedModelFromInvs(NIFbys, encodings, true);
 
         applyInitialTerminalCondition(dfa, encodings);
 
         // Intersect with mined invariants.
-        dfa.intersectWith(getMinModelFromInvs(minedInvs, encodings));
+        dfa.intersectWith(getIntersectedModelFromInvs(minedInvs, encodings,
+                true));
         dfa.minimize();
 
         // removeSpuriousEdges(dfa, initialModel.getTraceGraph(), encodings,
@@ -230,21 +231,34 @@ public class InvariMintMain {
      * 
      * @param invariants
      *            a set of TemporalInvariants
+     * @param minimize
+     *            whether or not to minimize the model before returning.
      * @return the intersected InvsModel
      */
-    public static InvsModel getMinModelFromInvs(
-            TemporalInvariantSet invariants, EventTypeEncodings encodings) {
+    public static InvsModel getIntersectedModelFromInvs(
+            TemporalInvariantSet invariants, EventTypeEncodings encodings,
+            boolean minimize) {
         // Initial model will accept all Strings.
         InvsModel model = new InvsModel(encodings);
 
         // Intersect provided invariants.
         for (ITemporalInvariant invariant : invariants) {
-            InvModel current = new InvModel(invariant, encodings);
-            model.intersectWith(current);
+            InvModel invDFA = new InvModel(invariant, encodings);
+            // if (invariant instanceof KTailInvariant) {
+            // try {
+            // invDFA.exportDotAndPng("/Users/ivan/synoptic/InvariMint/test-output/inv.dot");
+            // } catch (IOException e) {
+            // TODO Auto-generated catch block
+            // e.printStackTrace();
+            // }
+            // }
+            model.intersectWith(invDFA);
         }
 
-        // Optimize by minimizing the model.
-        model.minimize();
+        if (minimize) {
+            // Optimize by minimizing the model.
+            model.minimize();
+        }
 
         return model;
     }
