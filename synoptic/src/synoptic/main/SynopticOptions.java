@@ -128,6 +128,13 @@ public class SynopticOptions extends Options {
     public boolean ignoreNonMatchingLines = false;
 
     /**
+     * This option allows the user to debug their system in terms of performance.
+     */
+    @Option(
+    		value = "-p Enable performance debugging support")
+    public boolean enablePerfDebugging = false;
+    
+    /**
      * This allows users to get away with sloppy\incorrect regular expressions
      * that might not fully cover the range of log lines appearing in the log
      * files.
