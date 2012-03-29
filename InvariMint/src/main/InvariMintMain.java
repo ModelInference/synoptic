@@ -28,6 +28,7 @@ import synoptic.main.Main;
 import synoptic.main.SynopticOptions;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
+import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
@@ -195,7 +196,7 @@ public class InvariMintMain {
         EventType terminalEvent = StringEventType.newTerminalStringEventType();
         InvModel initialTerminalInv = new InvModel(
                 new TOInitialTerminalInvariant(initialEvent, terminalEvent,
-                        TraceParser.defaultRelation), encodings);
+                        Event.defaultTimeRelationString), encodings);
         dfa.intersectWith(initialTerminalInv);
 
         // Intersect with mined invariants.
@@ -222,7 +223,8 @@ public class InvariMintMain {
             EventType initialEvent, EventType terminalEvent) {
 
         Map<Pair, Set<Character>> seenTransitions = new HashMap<Pair, Set<Character>>();
-        EventNode initNode = g.getDummyInitialNode(TraceParser.defaultRelation);
+        EventNode initNode = g
+                .getDummyInitialNode(Event.defaultTimeRelationString);
 
         // Iterate through all the traces -- each transition from the INITIAL
         // node connects\holds a single trace.
