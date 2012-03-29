@@ -92,38 +92,45 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     public PartitionGraph(ChainsTraceGraph g, boolean partitionByLabel,
             TemporalInvariantSet invariants) {
-        for (String relation : g.getRelations()) {
-            addInitialMessages(g.getDummyInitialNode(relation), relation);
-            relations.add(relation);
-        }
+        this(g, invariants);
 
         if (partitionByLabel) {
             partitionByLabels(g.getNodes());
         } else {
             partitionSeparately(g.getNodes());
         }
-        this.invariants = invariants;
-        this.traceGraph = g;
     }
 
     public PartitionGraph(ChainsTraceGraph g,
             List<LinkedHashSet<Integer>> partitioningIndexSets,
             TemporalInvariantSet invariants) {
+        this(g, invariants);
+
+        partitionByIndexSetsAndLabels(g.getNodes(), partitioningIndexSets);
+    }
+
+    /**
+     * Creates a partition graph without any partitions. Takes care of setting
+     * up the internal initialEvents, invariants, and traceGraph data
+     * structures.
+     * 
+     * @param g
+     * @param invariants
+     */
+    private PartitionGraph(ChainsTraceGraph g, TemporalInvariantSet invariants) {
         for (String relation : g.getRelations()) {
-            addInitialMessages(g.getDummyInitialNode(relation), relation);
+            EventNode initialMessage = g.getDummyInitialNode(relation);
+
+            if (!initialEvents.containsKey(relation)) {
+                initialEvents.put(relation, new LinkedHashSet<EventNode>());
+            }
+            initialEvents.get(relation).add(initialMessage);
+
             relations.add(relation);
         }
 
-        partitionByIndexSetsAndLabels(g.getNodes(), partitioningIndexSets);
         this.invariants = invariants;
         this.traceGraph = g;
-    }
-
-    private void addInitialMessages(EventNode initialMessage, String relation) {
-        if (!initialEvents.containsKey(relation)) {
-            initialEvents.put(relation, new LinkedHashSet<EventNode>());
-        }
-        initialEvents.get(relation).add(initialMessage);
     }
 
     public TemporalInvariantSet getInvariants() {
