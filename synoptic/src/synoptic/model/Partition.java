@@ -242,7 +242,7 @@ public class Partition implements INode<Partition> {
             ITransition<Partition> trans) {
 
         for (final ITransition<EventNode> t : event.getTransitions()) {
-            if (t.getRelation().equals(trans.getRelation())
+            if (t.getRelations().equals(trans.getRelations())
                     && t.getTarget().getParent().equals(trans.getTarget())) {
                 // TODO: Shouldn't this check and return true only if the
                 // condition holds for _all_ transitions t (not just some
@@ -251,6 +251,12 @@ public class Partition implements INode<Partition> {
             }
         }
         return false;
+    }
+
+    public PartitionSplit getCandidateSplitBasedOnIncoming(Partition previous,
+            Set<String> relation) {
+        throw new NotImplementedException(
+                "Multi-relational support missing in method getCandidateSplitBasedOnIncoming()");
     }
 
     /**
@@ -367,7 +373,7 @@ public class Partition implements INode<Partition> {
                 double probability = (double) numOutgoing
                         / (double) totalChildren;
                 WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
-                        this, tr.getTarget(), tr.getRelation(), probability,
+                        this, tr.getTarget(), tr.getRelations(), probability,
                         numOutgoing);
                 trsWeighted.add(trWeighted);
             }
@@ -387,7 +393,7 @@ public class Partition implements INode<Partition> {
                 double probability = (double) numOutgoing
                         / (double) totalAtSource;
                 WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
-                        this, tr.getTarget(), tr.getRelation(), probability,
+                        this, tr.getTarget(), tr.getRelations(), probability,
                         numOutgoing);
                 trsWeighted.add(trWeighted);
             }
@@ -450,7 +456,7 @@ public class Partition implements INode<Partition> {
                         final Transition<Partition> transToPart = new Transition<Partition>(
                                 found.getSource().getParent(), found
                                         .getTarget().getParent(),
-                                found.getRelation());
+                                found.getRelations());
                         if (seen.add(transToPart)) {
                             return transToPart;
                         }
@@ -499,13 +505,14 @@ public class Partition implements INode<Partition> {
     }
 
     @Override
-    public ITransition<Partition> getTransition(Partition iNode, String action) {
+    public ITransition<Partition> getTransition(Partition p,
+            Set<String> relations) {
         assert initialized;
 
-        for (Iterator<Transition<Partition>> iter = getTransitionsIterator(action); iter
+        for (Iterator<Transition<Partition>> iter = getTransitionsIterator(relations); iter
                 .hasNext();) {
             ITransition<Partition> t = iter.next();
-            if (t.getTarget().equals(iNode)) {
+            if (t.getTarget().equals(p)) {
                 return t;
             }
         }

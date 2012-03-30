@@ -39,35 +39,20 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
     private final List<Trace> traces = new ArrayList<Trace>();
 
     public ChainsTraceGraph(Collection<EventNode> nodes) {
-        super(nodes);
+        super(nodes, initEvent, termEvent);
     }
 
     public ChainsTraceGraph() {
-        super();
+        super(initEvent, termEvent);
     }
 
-    public void tagTerminal(EventNode terminalNode, String relation) {
-        createIfNotExistsDummyTerminalNode(termEvent, relation);
-        super.tagTerminal(terminalNode, relation);
+    public void tagTerminal(EventNode terminalNode, Set<String> relations) {
+        super.tagTerminal(terminalNode, relations);
     }
 
-    public void tagInitial(EventNode initialNode, String relation) {
-        createIfNotExistsDummyInitialNode(initEvent, relation);
-        super.tagInitial(initialNode, relation);
+    public void tagInitial(EventNode initialNode, Set<String> relations) {
+        super.tagInitial(initialNode, relations);
         traceIdToInitNodes.put(initialNode.getTraceID(), initialNode);
-    }
-
-    /**
-     * Creates transitions from INITIAL to initialNode for each string in the
-     * relations collection.
-     * 
-     * @param initialNode
-     * @param relations
-     */
-    public void tagInitial(EventNode initialNode, Collection<String> relations) {
-        for (String relation : relations) {
-            tagInitial(initialNode, relation);
-        }
     }
 
     /**
@@ -110,10 +95,10 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
          * </pre>
          */
         for (Relation relation : prevNode.getEventRelations()) {
-            relations.add(relation.getRelation());
-            tagInitial(prevNode, relation.getRelation());
-            lastSeenNodeForRelation.put(relation.getRelation(), prevNode);
-            trace.addRelationPath(relation.getRelation(), prevNode, false);
+            relations.add(relation.getRelations());
+            tagInitial(prevNode, relation.getRelations());
+            lastSeenNodeForRelation.put(relation.getRelations(), prevNode);
+            trace.addRelationPath(relation.getRelations(), prevNode, false);
         }
 
         // Create transitions to connect the nodes in the sorted trace.
@@ -128,7 +113,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
 
             // Process node's relations:
             for (Relation relation : curNode.getEventRelations()) {
-                relations.add(relation.getRelation());
+                relations.add(relation.getRelations());
 
                 /*
                  * Closure relations create transitions between the current node
@@ -136,7 +121,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
                  */
                 if (relation.isClosure()) {
                     EventNode prevClosureNode = lastSeenNodeForRelation
-                            .get(relation.getRelation());
+                            .get(relation.getRelations());
                     /*
                      * TODO: This is a little gross. If the initial node could
                      * be pulled out of the graph and treated as an independent
@@ -152,8 +137,8 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
                      * INITIAL to curNode
                      */
                     if (prevClosureNode == null) {
-                        tagInitial(curNode, relation.getRelation());
-                        trace.addRelationPath(relation.getRelation(), curNode,
+                        tagInitial(curNode, relation.getRelations());
+                        trace.addRelationPath(relation.getRelations(), curNode,
                                 false);
                     } else {
                         /*
@@ -161,7 +146,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
                          * up to the previous node over the relation.
                          */
                         prevClosureNode.addTransition(curNode,
-                                relation.getRelation());
+                                relation.getRelations());
                     }
                 } else {
                     /*
@@ -171,10 +156,10 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
                     // TODO: Create a single transition for the set of all
                     // relations, instead of a single transition per relation.
                     // Documented in Issue 238.
-                    prevNode.addTransition(curNode, relation.getRelation());
+                    prevNode.addTransition(curNode, relation.getRelations());
                 }
 
-                lastSeenNodeForRelation.put(relation.getRelation(), curNode);
+                lastSeenNodeForRelation.put(relation.getRelations(), curNode);
             }
 
             prevNode = curNode;
@@ -231,22 +216,19 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
      * NOTE: an assumption of this code is that although there might be multiple
      * relations, the graph remains a linear chain.
      */
-    public TransitiveClosure getTransitiveClosure(String relation) {
-        assert super.dummyInitialNodes.size() != 0;
-        assert super.dummyTerminalNodes.size() != 0;
-
-        TransitiveClosure transClosure = new TransitiveClosure(relation);
+    public TransitiveClosure getTransitiveClosure(Set<String> relations) {
+        TransitiveClosure transClosure = new TransitiveClosure(relations);
         List<EventNode> prevNodes = new LinkedList<EventNode>();
         for (EventNode firstNode : traceIdToInitNodes.values()) {
             EventNode curNode = firstNode;
 
             while (!curNode.isTerminal()) {
-                while (curNode.getTransitions(relation).size() != 0) {
+                while (curNode.getTransitions(relations).size() != 0) {
                     for (EventNode prevNode : prevNodes) {
                         transClosure.addReachable(prevNode, curNode);
                     }
                     prevNodes.add(curNode);
-                    curNode = curNode.getTransitions(relation).get(0)
+                    curNode = curNode.getTransitions(relations).get(0)
                             .getTarget();
                 }
 

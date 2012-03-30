@@ -47,8 +47,8 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
 
     @Override
     public String toString() {
-        return first.toString() + " AlwaysPrecedes(" + relation + ") "
-                + second.toString();
+        return first.toString() + " AlwaysPrecedes(" + relations.toString()
+                + ") " + second.toString();
     }
 
     @Override

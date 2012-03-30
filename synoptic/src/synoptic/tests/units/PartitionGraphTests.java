@@ -73,8 +73,8 @@ public class PartitionGraphTests extends SynopticTest {
 
         // The set of nodes is now: INITIAL, a, a', TERMINAL
         assertTrue(pGraph.getNodes().size() == 4);
-        assertTrue(pGraph.getDummyInitialNodes().size() == 1);
-        Partition pInitial = pGraph.getDummyInitialNodes().iterator().next();
+        assertTrue(pGraph.getDummyInitialNode().size() == 1);
+        Partition pInitial = pGraph.getDummyInitialNode().iterator().next();
         assertTrue(pInitial.getTransitions().size() == 2);
         Partition pA1 = pInitial.getTransitions().get(0).getTarget();
         assertTrue(pA1.getEType().equals(new StringEventType("a")));

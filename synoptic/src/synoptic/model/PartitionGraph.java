@@ -190,7 +190,7 @@ public class PartitionGraph implements IGraph<Partition> {
             // Update the set of known relations based on transitions from the
             // event node.
             for (ITransition<EventNode> t : e.getTransitions()) {
-                relations.add(t.getRelation());
+                relations.add(t.getRelations());
             }
             // Add the event node to a set corresponding to it's event type.
             EventType eType = e.getEType();
@@ -278,7 +278,7 @@ public class PartitionGraph implements IGraph<Partition> {
         final Map<EventType, Partition> prepartitions = new LinkedHashMap<EventType, Partition>();
         for (EventNode message : events) {
             for (ITransition<EventNode> t : message.getTransitions()) {
-                relations.add(t.getRelation());
+                relations.add(t.getRelations());
             }
             if (!prepartitions.containsKey(message.getEType())) {
                 final Partition partition = new Partition(
@@ -355,7 +355,7 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     @Override
-    public Set<Partition> getDummyInitialNodes() {
+    public Set<Partition> getDummyInitialNode() {
         return getEventNodePartitions(initialEvents);
     }
 
@@ -483,7 +483,7 @@ public class PartitionGraph implements IGraph<Partition> {
         // This will contain all the traces
         Set<List<Partition>> allTraces = new HashSet<List<Partition>>();
         // Constructs the set of all traces
-        for (Partition pNode : getDummyInitialNodes()) {
+        for (Partition pNode : getDummyInitialNode()) {
             recursivelyAddTracesToSet(pNode, allTraces,
                     new ArrayList<Partition>());
         }
@@ -553,7 +553,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
         // Find initial events and add the results from each iteration to
         // initialTraces
-        for (Partition pNode : getDummyInitialNodes()) {
+        for (Partition pNode : getDummyInitialNode()) {
             for (EventNode event : pNode.getEventNodes()) {
                 if (event.isInitial()) {
                     initialTraces
@@ -638,7 +638,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
         // Traverse the graph starting from each initial node (only one in
         // totally-ordered case).
-        for (Partition partition : getDummyInitialNodes()) {
+        for (Partition partition : getDummyInitialNode()) {
             traverseAndMineCIFbys(partition, seen, canFollow);
         }
 
@@ -717,7 +717,7 @@ public class PartitionGraph implements IGraph<Partition> {
 
         // For the trace IDs that are shared by all the partitions, create a map
         // from trace ID to the path.
-        for (Partition p : this.getDummyInitialNodes()) {
+        for (Partition p : this.getDummyInitialNode()) {
             for (EventNode event : p.getEventNodes()) {
                 for (Transition<EventNode> trans : event.getTransitions()) {
                     int traceID = trans.getTarget().getTraceID();
@@ -726,7 +726,7 @@ public class PartitionGraph implements IGraph<Partition> {
                         Set<ITransition<Partition>> currentPath = new HashSet<ITransition<Partition>>();
                         ITransition<Partition> nextTrans = p.getTransition(
                                 trans.getTarget().getParent(),
-                                trans.getRelation());
+                                trans.getRelations());
 
                         // Traverse the remaining transitions and add the
                         // found path to the map.
@@ -750,7 +750,7 @@ public class PartitionGraph implements IGraph<Partition> {
             Set<ITransition<Partition>> path) {
         for (Transition<EventNode> trans : event.getTransitions()) {
             path.add(event.getParent().getTransition(
-                    trans.getTarget().getParent(), trans.getRelation()));
+                    trans.getTarget().getParent(), trans.getRelations()));
             getPathsThroughNodesTraversal(trans.getTarget(), path);
         }
     }

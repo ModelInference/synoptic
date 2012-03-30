@@ -43,7 +43,7 @@ public interface ITemporalInvariant {
      * 
      * @return the relation occurring in this invariant
      */
-    String getRelation();
+    Set<String> getRelations();
 
     /**
      * Get the set of predicates occurring in this property. Predicates are here
@@ -66,21 +66,22 @@ public interface ITemporalInvariant {
      * @return a long invariant name string
      */
     String getLongName();
-    
+
     /**
-     * Returns a regular expression defining the relationship between first and second given this
-     * invariant.
+     * Returns a regular expression defining the relationship between first and
+     * second given this invariant.
      * 
-     * @param firstC a character representing this invariant's first predicate
-     * @param secondC a character representing this invariant's second predicate
+     * @param firstC
+     *            a character representing this invariant's first predicate
+     * @param secondC
+     *            a character representing this invariant's second predicate
      * @return a regex expressing this invariant using first and second
      */
     String getRegex(char firstC, char secondC);
-    
-    
-    /**  Returns the first invariant predicate. */
+
+    /** Returns the first invariant predicate. */
     public EventType getFirst();
-    
+
     /** Returns the second invariant predicate. */
     public EventType getSecond();
 }

@@ -45,8 +45,8 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
 
     @Override
     public String toString() {
-        return first.toString() + " AlwaysFollowedBy(" + relation + ") "
-                + second.toString();
+        return first.toString() + " AlwaysFollowedBy(" + relations.toString()
+                + ") " + second.toString();
     }
 
     @Override
@@ -110,17 +110,20 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
     public String getLongName() {
         return "AlwaysFollowedBy";
     }
-    
-	/**
-	 * Returns a regular expressions describing this invariant for first AFby second. The
-	 * expression is "([^x]*|(x[^y]*y))*".
-	 * 
-	 * @param firstC a character representation of first
-	 * @param secondC a character representation of second
-	 * @return a regex for this invariant
-	 */
-	@Override
-	public String getRegex(char firstC, char secondC) {
-		return "([^" + firstC + "]*|(" + firstC + "[^" + secondC + "]*" + secondC + "))*";
-	}
+
+    /**
+     * Returns a regular expressions describing this invariant for first AFby
+     * second. The expression is "([^x]*|(x[^y]*y))*".
+     * 
+     * @param firstC
+     *            a character representation of first
+     * @param secondC
+     *            a character representation of second
+     * @return a regex for this invariant
+     */
+    @Override
+    public String getRegex(char firstC, char secondC) {
+        return "([^" + firstC + "]*|(" + firstC + "[^" + secondC + "]*"
+                + secondC + "))*";
+    }
 }

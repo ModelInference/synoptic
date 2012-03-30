@@ -230,18 +230,18 @@ public class GraphExporter {
                         s = Main.graphExportFormatter.edgeToStringWithTraceId(
                                 nodeSrc, nodeDst,
                                 ((EventNode) ((INode<?>) trans.getSource()))
-                                        .getTraceID(), trans.getRelation());
+                                        .getTraceID(), trans.getRelations());
                     } else {
                         if (outputEdgeLabels) {
                             double prob = ((WeightedTransition<T>) trans)
                                     .getFraction();
                             s = Main.graphExportFormatter
                                     .edgeToStringWithProb(nodeSrc, nodeDst,
-                                            prob, trans.getRelation());
+                                            prob, trans.getRelations());
                         } else {
                             s = Main.graphExportFormatter
                                     .edgeToStringWithNoProb(nodeSrc, nodeDst,
-                                            trans.getRelation());
+                                            trans.getRelations());
                         }
                     }
                     writer.write(s);

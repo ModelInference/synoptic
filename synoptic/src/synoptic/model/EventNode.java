@@ -86,19 +86,13 @@ public class EventNode implements INode<EventNode> {
      * @param relation
      *            The relation for which this transition is valid
      */
-    public void addTransition(EventNode dest, String relation) {
+    public void addTransition(EventNode dest, Set<String> relations) {
         assert dest != null : "Transition Target cannot be null";
-        if (transitionRelations.contains(relation)) {
+        if (transitionRelations.contains(relations)) {
             throw new InternalSynopticException(
-                    "Duplicate transition relation: " + relation);
+                    "Duplicate transition relation: " + relations);
         }
-        addTransition(new Transition<EventNode>(this, dest, relation));
-    }
-
-    public void addTransitions(EventNode dest, Collection<String> relations) {
-        for (String relation : relations) {
-            addTransition(dest, relation);
-        }
+        addTransition(new Transition<EventNode>(this, dest, relations));
     }
 
     /**
@@ -162,13 +156,15 @@ public class EventNode implements INode<EventNode> {
 
     public void addTransition(Transition<EventNode> transition) {
         transitions.add(transition);
-        String eventLabel = transition.getRelation();
-        List<Transition<EventNode>> ref = transitionsByRelation.get(eventLabel);
-        if (ref == null) {
-            ref = new ArrayList<Transition<EventNode>>();
-            transitionsByRelation.put(eventLabel, ref);
+        Set<String> relations = transition.getRelations();
+        for (String r : relations) {
+            List<Transition<EventNode>> ref = transitionsByRelation.get(r);
+            if (ref == null) {
+                ref = new ArrayList<Transition<EventNode>>();
+                transitionsByRelation.put(r, ref);
+            }
+            ref.add(transition);
         }
-        ref.add(transition);
     }
 
     // public void removeTransitions(List<Transition<LogEvent>> transitions) {
@@ -198,13 +194,22 @@ public class EventNode implements INode<EventNode> {
     }
 
     @Override
-    public List<Transition<EventNode>> getTransitions(String relation) {
+    public List<Transition<EventNode>> getTransitions(Set<String> relations) {
         // checkConsistency();
-        List<Transition<EventNode>> res = transitionsByRelation.get(relation);
-        if (res == null) {
+        List<Transition<EventNode>> ret = null;
+        for (String r : relations) {
+            if (transitionsByRelation.containsKey(r)) {
+                if (ret == null) {
+                    ret = new ArrayList<Transition<EventNode>>();
+                }
+                ret.addAll(transitionsByRelation.get(r));
+            }
+
+        }
+        if (ret == null) {
             return Collections.emptyList();
         }
-        return res;
+        return ret;
     }
 
     /**
@@ -212,7 +217,7 @@ public class EventNode implements INode<EventNode> {
      */
     public void checkConsistency() {
         for (ITransition<EventNode> t : transitions) {
-            assert (transitionsByRelation.get(t.getRelation()).contains(t)) : "inconsistent transitions in message";
+            assert (transitionsByRelation.get(t.getRelations()).contains(t)) : "inconsistent transitions in message";
         }
     }
 
@@ -270,7 +275,7 @@ public class EventNode implements INode<EventNode> {
 
     @Override
     public IIterableIterator<Transition<EventNode>> getTransitionsIterator(
-            String relation) {
+            Set<String> relation) {
         return IterableAdapter.make(getTransitions(relation).iterator());
     }
 
@@ -284,6 +289,14 @@ public class EventNode implements INode<EventNode> {
 
     public Set<Relation> getEventRelations() {
         return event.getRelations();
+    }
+
+    public Set<String> getEventStringRelations() {
+        Set<String> relations = new LinkedHashSet<String>();
+        for (Relation r : event.getRelations()) {
+            relations.add(r.getName());
+        }
+        return relations;
     }
 
     /**
@@ -301,10 +314,10 @@ public class EventNode implements INode<EventNode> {
         return event.getEType();
     }
 
-    public Set<EventNode> getSuccessors(String relation) {
+    public Set<EventNode> getSuccessors(Set<String> relations) {
         // TODO: avoid creating a new LinkedHashSet here
         Set<EventNode> successors = new LinkedHashSet<EventNode>();
-        for (Transition<EventNode> e : getTransitionsIterator(relation)) {
+        for (Transition<EventNode> e : getTransitionsIterator(relations)) {
             successors.add(e.getTarget());
         }
         return successors;
@@ -401,7 +414,7 @@ public class EventNode implements INode<EventNode> {
         for (Transition<EventNode> tr : trans) {
             double freq = (double) 1 / (double) totalTrans;
             WeightedTransition<EventNode> trWeighted = new WeightedTransition<EventNode>(
-                    tr.getSource(), tr.getTarget(), tr.getRelation(), freq, 1);
+                    tr.getSource(), tr.getTarget(), tr.getRelations(), freq, 1);
             result.add(trWeighted);
         }
         return result;
@@ -412,15 +425,16 @@ public class EventNode implements INode<EventNode> {
         return getWeightedTransitions(getTransitions());
     }
 
-    @Override
-    public List<WeightedTransition<EventNode>> getWeightedTransitions(
-            String relation) {
-        return getWeightedTransitions(getTransitions(relation));
-    }
+    // @Override
+    // public List<WeightedTransition<EventNode>> getWeightedTransitions(
+    // Set<String> relations) {
+    // return getWeightedTransitions(getTransitions(relations));
+    // }
 
     @Override
-    public ITransition<EventNode> getTransition(EventNode node, String relation) {
-        for (ITransition<EventNode> t : getTransitions(relation)) {
+    public ITransition<EventNode> getTransition(EventNode node,
+            Set<String> relations) {
+        for (ITransition<EventNode> t : getTransitions(relations)) {
             if (t.getTarget().equals(node)) {
                 return t;
             }

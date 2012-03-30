@@ -87,11 +87,11 @@ public class TraceParser {
     // DTIME: double time (e.g. 1234.56) -- 64 bits
     public static final List<String> validTimeGroups = Arrays.asList("TIME",
             "VTIME", "FTIME", "DTIME");
-    
+
     // Regexp group representing multiple relations
     private static final String relationGroup = "RELATION";
     private static final String namedRelationGroup = "RELATION-";
-    
+
     // Regexp group representing closure relations, call and return for now.
     private static final String closureRelationGroup = "RELATION*";
     private static final String namedclosureRelationGroup = "RELATION*-";
@@ -117,8 +117,6 @@ public class TraceParser {
     // passed reg exps to match lines. The parser allows only one type of time
     // to be used.
     private String selectedTimeGroup = null;
-    
-
 
     /**
      * Returns an un-parameterized trace parser.
@@ -467,31 +465,32 @@ public class TraceParser {
                     throw new ParseException(error);
                 }
             }
-            
-            
+
             for (String group : groups) {
-            	if (group.startsWith(relationGroup)) {
-            		
-            		// Check to see if relation capture group strings are well-formed
-            		Pattern relation = Pattern.compile("RELATION\\*?(-\\w*)?");
-            		Matcher fieldMatcher = relation.matcher(group);
-            		if (!fieldMatcher.matches()) {
-            			String error = "Relation field: " + group + " is malformed." +
-            					"Accepts: RELATION*?(-\\w*)?";
-            			logger.severe(error);
-            			throw new ParseException(error);
-            		}
-            		
-            		// Check if VTIME is used with relation   
-            		if (selectedTimeGroup.equals("VTIME")) {
-            			String error = "RELATION and VTIME groups cannot be mixed since multiple" +
-            					"relations requires a totally ordered log.";
-            			logger.severe(error);
-            			throw new ParseException(error);
-            		}
-            	}
+                if (group.startsWith(relationGroup)) {
+
+                    // Check to see if relation capture group strings are
+                    // well-formed
+                    Pattern relation = Pattern.compile("RELATION\\*?(-\\w*)?");
+                    Matcher fieldMatcher = relation.matcher(group);
+                    if (!fieldMatcher.matches()) {
+                        String error = "Relation field: " + group
+                                + " is malformed."
+                                + "Accepts: RELATION*?(-\\w*)?";
+                        logger.severe(error);
+                        throw new ParseException(error);
+                    }
+
+                    // Check if VTIME is used with relation
+                    if (selectedTimeGroup.equals("VTIME")) {
+                        String error = "RELATION and VTIME groups cannot be mixed since multiple"
+                                + "relations requires a totally ordered log.";
+                        logger.severe(error);
+                        throw new ParseException(error);
+                    }
+                }
             }
-            
+
         }
 
         if (Main.options.debugParse) {
@@ -888,44 +887,44 @@ public class TraceParser {
                 eType = new StringEventType(eTypeLabel);
                 event = new Event(eType, line, fileName, lineNum);
             }
-            
-			/*
-			 * Tag event nodes with relation fields. This is gross, is there a
-			 * nicer way to represent a state machine?
-			 */
-			Set<String> relationValues = new HashSet<String>();
-			for (String key : matched.keySet()) {
-				if (key.startsWith(relationGroup)) {
-					String relationString = matched.get(key);
 
-					if (relationValues.contains(relationString)) {
-						throw new ParseException(
-								"Duplicate captured relation value: "
-										+ relationString);
-					}
+            /*
+             * Tag event nodes with relation fields. This is gross, is there a
+             * nicer way to represent a state machine?
+             */
+            Set<String> relationValues = new HashSet<String>();
+            for (String key : matched.keySet()) {
+                if (key.startsWith(relationGroup)) {
+                    String relationString = matched.get(key);
 
-					relationValues.add(relationString);
+                    if (relationValues.contains(relationString)) {
+                        throw new ParseException(
+                                "Duplicate captured relation value: "
+                                        + relationString);
+                    }
 
-					String relName = Relation.anonName;
-					boolean isClosure = false;
+                    relationValues.add(relationString);
 
-					if (key.startsWith(closureRelationGroup)) {
-						isClosure = true;
+                    String relName = Relation.anonName;
+                    boolean isClosure = false;
 
-						if (key.startsWith(namedclosureRelationGroup)) {
-							relName = key.substring(namedclosureRelationGroup
-									.length());
-						}
+                    if (key.startsWith(closureRelationGroup)) {
+                        isClosure = true;
 
-					} else if (key.startsWith(namedRelationGroup)) {
-						relName = key.substring(namedRelationGroup.length());
-					}
+                        if (key.startsWith(namedclosureRelationGroup)) {
+                            relName = key.substring(namedclosureRelationGroup
+                                    .length());
+                        }
 
-					Relation relation = new Relation(relName, relationString,
-							isClosure);
-					event.addRelation(relation);
-				}
-			}
+                    } else if (key.startsWith(namedRelationGroup)) {
+                        relName = key.substring(namedRelationGroup.length());
+                    }
+
+                    Relation relation = new Relation(relName, relationString,
+                            isClosure);
+                    event.addRelation(relation);
+                }
+            }
 
             // We have two cases for processing time on log lines:
             // (1) Implicitly: no matched field is a time field because it is
@@ -1173,14 +1172,14 @@ public class TraceParser {
 
                 if (directSuccessors.size() == 0) {
                     // Tag messages without successor as terminal.
-                    for (Relation relation : e1.getEventRelations()) {
-                    	graph.tagTerminal(e1, relation.getRelation());
-                    }
+                    // Set<String> relations = e1.getEventStringRelations();
+                    assert e1.getEventStringRelations().size() == 1;
+                    graph.tagTerminal(e1, e1.getEventStringRelations());
                 } else {
                     for (EventNode e2 : directSuccessors) {
-                    	for (Relation relation : e2.getEventRelations()) {
-                    		e1.addTransition(e2, relation.getRelation());
-                    	}
+                        for (Relation relation : e2.getEventRelations()) {
+                            e1.addTransition(e2, relation.getRelations());
+                        }
                         noPredecessor.remove(e2);
                     }
                 }
@@ -1190,9 +1189,11 @@ public class TraceParser {
 
         // Mark messages without a predecessor as initial.
         for (EventNode e : noPredecessor) {
-        	for (Relation relation : e.getEventRelations()) {
-        		graph.tagInitial(e, relation.getRelation());
-        	}
+            assert e.getEventStringRelations().size() == 1;
+            graph.tagInitial(e, e.getEventStringRelations());
+            // for (Relation relation : e.getEventRelations()) {
+            // graph.tagInitial(e, relation.getRelation());
+            // }
         }
 
         return graph;

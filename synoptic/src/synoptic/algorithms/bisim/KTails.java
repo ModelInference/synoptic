@@ -184,7 +184,7 @@ public class KTails {
 
             boolean kEqual = false;
             // Make sure to get transitions of the same relation.
-            i2 = n2.getTransitionsIterator(t1.getRelation());
+            i2 = n2.getTransitionsIterator(t1.getRelations());
             while (i2.hasNext()) {
                 NodeType c2 = i2.next().getTarget();
                 // Skip c2 if it was visited by this method earlier.
