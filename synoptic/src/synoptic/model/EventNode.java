@@ -310,6 +310,15 @@ public class EventNode implements INode<EventNode> {
         return successors;
     }
 
+    public Set<EventNode> getSuccessors() {
+        // TODO: avoid creating a new LinkedHashSet here
+        Set<EventNode> successors = new LinkedHashSet<EventNode>();
+        for (Transition<EventNode> e : getTransitionsIterator()) {
+            successors.add(e.getTarget());
+        }
+        return successors;
+    }
+
     @Override
     public boolean isTerminal() {
         return event.getEType().isTerminalEventType();
