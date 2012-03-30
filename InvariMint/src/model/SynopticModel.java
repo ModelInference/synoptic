@@ -27,7 +27,7 @@ public class SynopticModel extends EncodedAutomaton {
         State initial = new State();
 
         // Convert all partitions starting from the INITIAL node.
-        for (Partition initialPartition : synoptic.getDummyInitialNodes()) {
+        for (Partition initialPartition : synoptic.getDummyInitialNode()) {
             convert(initialPartition, initial, preEventStates, encodings);
         }
 

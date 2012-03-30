@@ -1,5 +1,8 @@
 package synoptic.model;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * Represents named and anonymous relations
  * 
@@ -9,13 +12,14 @@ public class Relation {
 
     public static final String anonName = "anon-relation";
 
-    private String relation;
+    private Set<String> relations;
     private String name;
     private boolean isClosure;
 
     public Relation(String name, String relation, boolean isClosure) {
         this.name = name;
-        this.relation = relation;
+        this.relations = new LinkedHashSet<String>();
+        this.relations.add(relation);
         this.isClosure = isClosure;
     }
 
@@ -31,8 +35,8 @@ public class Relation {
         return name;
     }
 
-    public String getRelation() {
-        return relation;
+    public Set<String> getRelations() {
+        return relations;
     }
 
     @Override
@@ -42,7 +46,7 @@ public class Relation {
         }
         Relation oRelation = (Relation) o;
         return name.equals(oRelation.getName())
-                && relation.equals(oRelation.getRelation())
+                && relations.equals(oRelation.getRelations())
                 && isClosure == oRelation.isClosure();
     }
 
@@ -50,7 +54,7 @@ public class Relation {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + relation.hashCode();
+        result = prime * result + relations.hashCode();
         result = prime * result + name.hashCode();
         if (isClosure) {
             result = prime * result + prime;
@@ -60,7 +64,7 @@ public class Relation {
 
     @Override
     public String toString() {
-        String result = name + " : " + relation;
+        String result = name + " : " + relations.toString();
 
         if (isClosure()) {
             result += "*";

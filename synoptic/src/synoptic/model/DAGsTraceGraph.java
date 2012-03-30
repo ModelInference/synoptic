@@ -25,25 +25,25 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
     private final Map<Integer, Set<EventNode>> traceIdToInitNodes = new LinkedHashMap<Integer, Set<EventNode>>();
 
     public DAGsTraceGraph(Collection<EventNode> nodes) {
-        super(nodes);
+        super(nodes, initEvent, termEvent);
     }
 
     public DAGsTraceGraph() {
-        super();
+        super(initEvent, termEvent);
     }
 
     public Map<Integer, Set<EventNode>> getTraceIdToInitNodes() {
         return traceIdToInitNodes;
     }
 
-    public void tagTerminal(EventNode terminalNode, String relation) {
-        createIfNotExistsDummyTerminalNode(termEvent, relation);
-        super.tagTerminal(terminalNode, relation);
-    }
+    // public void tagTerminal(EventNode terminalNode, String relation) {
+    // createIfNotExistsDummyTerminalNode(termEvent, relations);
+    // super.tagTerminal(terminalNode, relations);
+    // }
 
-    public void tagInitial(EventNode initialNode, String relation) {
-        createIfNotExistsDummyInitialNode(initEvent, relation);
-        super.tagInitial(initialNode, relation);
+    public void tagInitial(EventNode initialNode, Set<String> relations) {
+        // createIfNotExistsDummyInitialNode(initEvent, relation);
+        super.tagInitial(initialNode, relations);
 
         /**
          * Build a map of trace id to the set of initial nodes in the trace.

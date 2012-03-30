@@ -1,6 +1,7 @@
 package synoptic.model.interfaces;
 
 import java.util.List;
+import java.util.Set;
 
 import synoptic.model.EventType;
 import synoptic.model.Partition;
@@ -37,16 +38,16 @@ public interface INode<NodeType> extends Comparable<NodeType> {
     IIterableIterator<? extends ITransition<NodeType>> getTransitionsIterator();
 
     /**
-     * Returns an {@code IIterableIterator} those outgoing transitions of this
-     * node that are labeled with {@code relation}.An implementation may delay
-     * computation of the transitions until {@code next} is called on the
-     * returned iterator.
+     * Returns an {@code IIterableIterator} of those outgoing transitions of
+     * this node that have a set of relations that are in the argument set of
+     * {@code relations}.An implementation may delay computation of the
+     * transitions until {@code next} is called on the returned iterator.
      * 
      * @return an {@code IIterableIterator} over all outgoing transitions of
      *         this node
      */
     IIterableIterator<? extends ITransition<NodeType>> getTransitionsIterator(
-            String relation);
+            Set<String> relations);
 
     /**
      * Check to see if a transition to node {@code node} exists that is labeled
@@ -58,7 +59,7 @@ public interface INode<NodeType> extends Comparable<NodeType> {
      *            the transition label
      * @return null if no such transition exists, the transition otherwise
      */
-    ITransition<NodeType> getTransition(NodeType node, String relation);
+    ITransition<NodeType> getTransition(NodeType node, Set<String> relation);
 
     /**
      * Returns the set of all outgoing transitions of this node (across all
@@ -70,13 +71,13 @@ public interface INode<NodeType> extends Comparable<NodeType> {
     List<? extends ITransition<NodeType>> getTransitions();
 
     /**
-     * Returns the set of outgoing transitions of this node for a specific
+     * Returns the set of outgoing transitions of this node for a set of
      * relation. The difference to {@code getTransitionsIterator} is that this
      * call forces all transitions to be pre-computed.
      * 
      * @return the set of outgoing transitions for relation
      */
-    List<? extends ITransition<NodeType>> getTransitions(String relation);
+    List<? extends ITransition<NodeType>> getTransitions(Set<String> relations);
 
     /**
      * Returns the set of all outgoing transitions of this node (across all
@@ -95,7 +96,8 @@ public interface INode<NodeType> extends Comparable<NodeType> {
      * @return list of weighted outgoing transition for relation corresponding
      *         to this node
      */
-    List<WeightedTransition<NodeType>> getWeightedTransitions(String relation);
+    // List<WeightedTransition<NodeType>> getWeightedTransitions(String
+    // relation);
 
     /**
      * Set the parent partition of this node.

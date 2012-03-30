@@ -130,7 +130,7 @@ public class ModelCheckersTests extends SynopticTest {
             ParseException {
         // Create the graph.
         ChainsTraceGraph g = genInitialLinearGraph(events);
-        Set<EventNode> initNodes = g.getDummyInitialNodes();
+        Set<EventNode> initNodes = g.getDummyInitialNode();
 
         if (!cExampleExists) {
             // Don't bother constructing the counter-example path.
@@ -190,7 +190,7 @@ public class ModelCheckersTests extends SynopticTest {
         }
 
         // There should be just one initial node.
-        Set<Partition> initNodes = pGraph.getDummyInitialNodes();
+        Set<Partition> initNodes = pGraph.getDummyInitialNode();
         assertTrue(initNodes.size() == 1);
 
         LinkedList<Partition> expectedPath = new LinkedList<Partition>();

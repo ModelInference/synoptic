@@ -10,7 +10,6 @@ import java.util.Set;
 
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.DistEventType;
@@ -213,7 +212,10 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
      */
     public TemporalInvariantSet computeInvariants(TraceGraph<?> g,
             String relation) {
-        EventNode initNode = g.getDummyInitialNode(relation);
+        EventNode initNode = g.getDummyInitialNode(); // relation);
+
+        // TODO: we have to make sure to traverse just those edges that are
+        // marked with relation arg.
 
         gEventCnts.clear();
 
