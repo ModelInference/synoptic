@@ -3,6 +3,7 @@ package synoptic.algorithms.bisim;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -111,7 +112,11 @@ public class KTails {
         // NOTE: this comparison considers all relations simultaneously. For
         // efficiency we could also check for matching transition counts for
         // each relation.
-        if (n1.getTransitions().size() != n2.getTransitions().size()) {
+
+        List<? extends ITransition<NodeType>> n1Trans = n1.getAllTransitions();
+        List<? extends ITransition<NodeType>> n2Trans = n2.getAllTransitions();
+
+        if (n1Trans.size() != n2Trans.size()) {
             return false;
         }
 

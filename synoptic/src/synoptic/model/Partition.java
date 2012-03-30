@@ -306,7 +306,7 @@ public class Partition implements INode<Partition> {
      * information about frequency and number of observation.
      */
     @Override
-    public List<Transition<Partition>> getTransitions(String relation) {
+    public List<Transition<Partition>> getTransitions(Set<String> relations) {
         assert initialized;
 
         List<Transition<Partition>> result = new ArrayList<Transition<Partition>>();

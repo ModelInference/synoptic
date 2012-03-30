@@ -444,9 +444,10 @@ public abstract class Bisimulation {
             }
             // Compute the valid successor messages in the original trace.
             LinkedHashSet<EventNode> successorEvents = new LinkedHashSet<EventNode>();
-            Set<String> relation = counterexampleTrace.invariant.getRelations();
+            Set<String> relations = counterexampleTrace.invariant
+                    .getRelations();
             for (EventNode m : hot) {
-                successorEvents.addAll(m.getSuccessors(relation));
+                successorEvents.addAll(m.getSuccessors(relations));
             }
             hot = successorEvents;
         }

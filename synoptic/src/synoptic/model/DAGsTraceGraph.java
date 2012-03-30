@@ -78,17 +78,18 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
      * transitive closure using Floyd Warshall algorithm (if useFloydWarshall ==
      * true), otherwise uses the more optimized Goralcikova algorithm.
      */
-    public TransitiveClosure getTransitiveClosure(String relation,
+    public TransitiveClosure getTransitiveClosure(Set<String> relations,
             boolean useFloydWarshall) {
         if (useFloydWarshall) {
-            return FloydWarshall.warshallAlg(this, relation);
+            return FloydWarshall.warshallAlg(this, relations);
         }
-        return goralcikovaAlg(relation);
+
+        return goralcikovaAlg(relations);
     }
 
     @Override
-    public TransitiveClosure getTransitiveClosure(String relation) {
-        return getTransitiveClosure(relation, true);
+    public TransitiveClosure getTransitiveClosure(Set<String> relations) {
+        return getTransitiveClosure(relations, true);
     }
 
     /**
@@ -145,8 +146,8 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
      * </pre>
      */
     @SuppressWarnings("unused")
-    private TransitiveClosure goralcikovaAlg(String relation) {
-        TransitiveClosure transClosure = new TransitiveClosure(relation);
+    private TransitiveClosure goralcikovaAlg(Set<String> relations) {
+        TransitiveClosure transClosure = new TransitiveClosure(relations);
         Map<EventNode, Set<EventNode>> tc = transClosure.getTC();
 
         List<EventNode> sortedNodes = new LinkedList<EventNode>();
