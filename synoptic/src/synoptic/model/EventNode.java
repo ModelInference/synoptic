@@ -12,9 +12,7 @@ import java.util.Set;
 
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.IIterableIterator;
 import synoptic.util.InternalSynopticException;
-import synoptic.util.IterableAdapter;
 import synoptic.util.time.EqualVectorTimestampsException;
 import synoptic.util.time.ITime;
 
@@ -45,7 +43,13 @@ public class EventNode implements INode<EventNode> {
     private Set<String> transitionRelations;
 
     List<Transition<EventNode>> transitions = new ArrayList<Transition<EventNode>>();
-    LinkedHashMap<String, List<Transition<EventNode>>> transitionsByRelation = new LinkedHashMap<String, List<Transition<EventNode>>>();
+
+    /**
+     * A map from a relation to a list of transitions that are associated with
+     * the relation. A transition may be associated with multiple relations, and
+     * may therefore appear in multiple sets.
+     */
+    LinkedHashMap<String, Set<Transition<EventNode>>> transitionsWithRelation = new LinkedHashMap<String, Set<Transition<EventNode>>>();
 
     public EventNode(EventNode copyFrom) {
         assert copyFrom != null;
@@ -154,14 +158,18 @@ public class EventNode implements INode<EventNode> {
         return e1DirectSuccessors;
     }
 
+    /**
+     * Adds a new transition to the event node.
+     */
     public void addTransition(Transition<EventNode> transition) {
         transitions.add(transition);
-        Set<String> relations = transition.getRelations();
-        for (String r : relations) {
-            List<Transition<EventNode>> ref = transitionsByRelation.get(r);
+        for (String r : transition.getRelations()) {
+            // For each relation associated with the new transition update the
+            // mapping of relations to transitions that carry those relations.
+            Set<Transition<EventNode>> ref = transitionsWithRelation.get(r);
             if (ref == null) {
-                ref = new ArrayList<Transition<EventNode>>();
-                transitionsByRelation.put(r, ref);
+                ref = new LinkedHashSet<Transition<EventNode>>();
+                transitionsWithRelation.put(r, ref);
             }
             ref.add(transition);
         }
@@ -188,36 +196,12 @@ public class EventNode implements INode<EventNode> {
     //
     // }
 
-    @Override
-    public final List<Transition<EventNode>> getTransitions() {
-        return transitions;
-    }
-
-    @Override
-    public List<Transition<EventNode>> getTransitions(Set<String> relations) {
-        // checkConsistency();
-        List<Transition<EventNode>> ret = null;
-        for (String r : relations) {
-            if (transitionsByRelation.containsKey(r)) {
-                if (ret == null) {
-                    ret = new ArrayList<Transition<EventNode>>();
-                }
-                ret.addAll(transitionsByRelation.get(r));
-            }
-
-        }
-        if (ret == null) {
-            return Collections.emptyList();
-        }
-        return ret;
-    }
-
     /**
      * Check that all transitions are in local cache.
      */
     public void checkConsistency() {
         for (ITransition<EventNode> t : transitions) {
-            assert (transitionsByRelation.get(t.getRelations()).contains(t)) : "inconsistent transitions in message";
+            assert (transitionsWithRelation.get(t.getRelations()).contains(t)) : "inconsistent transitions in message";
         }
     }
 
@@ -268,23 +252,24 @@ public class EventNode implements INode<EventNode> {
         return "[EventNode: " + getEvent() + " (" + hashCode() + ")" + "]";
     }
 
-    @Override
-    public IIterableIterator<Transition<EventNode>> getTransitionsIterator() {
-        return IterableAdapter.make(getTransitions().iterator());
-    }
-
-    @Override
-    public IIterableIterator<Transition<EventNode>> getTransitionsIterator(
-            Set<String> relation) {
-        return IterableAdapter.make(getTransitions(relation).iterator());
-    }
+    // @Override
+    // public IIterableIterator<Transition<EventNode>> getTransitionsIterator()
+    // {
+    // return IterableAdapter.make(getTransitions().iterator());
+    // }
+    //
+    // @Override
+    // public IIterableIterator<Transition<EventNode>> getTransitionsIterator(
+    // Set<String> relation) {
+    // return IterableAdapter.make(getTransitions(relation).iterator());
+    // }
 
     public Event getEvent() {
         return event;
     }
 
     public Set<String> getNodeRelations() {
-        return transitionsByRelation.keySet();
+        return transitionsWithRelation.keySet();
     }
 
     public Set<Relation> getEventRelations() {
@@ -314,19 +299,19 @@ public class EventNode implements INode<EventNode> {
         return event.getEType();
     }
 
-    public Set<EventNode> getSuccessors(Set<String> relations) {
-        // TODO: avoid creating a new LinkedHashSet here
-        Set<EventNode> successors = new LinkedHashSet<EventNode>();
-        for (Transition<EventNode> e : getTransitionsIterator(relations)) {
-            successors.add(e.getTarget());
-        }
-        return successors;
-    }
+    // public Set<EventNode> getSuccessors(Set<String> relations) {
+    // // TODO: avoid creating a new LinkedHashSet here
+    // Set<EventNode> successors = new LinkedHashSet<EventNode>();
+    // for (Transition<EventNode> e : getTransitionsIterator(relations)) {
+    // successors.add(e.getTarget());
+    // }
+    // return successors;
+    // }
 
-    public Set<EventNode> getSuccessors() {
-        // TODO: avoid creating a new LinkedHashSet here
+    @Override
+    public Set<EventNode> getAllSuccessors() {
         Set<EventNode> successors = new LinkedHashSet<EventNode>();
-        for (Transition<EventNode> e : getTransitionsIterator()) {
+        for (Transition<EventNode> e : transitions) {
             successors.add(e.getTarget());
         }
         return successors;
@@ -403,15 +388,32 @@ public class EventNode implements INode<EventNode> {
         return event.getLineNum();
     }
 
+    // private List<WeightedTransition<EventNode>> getWeightedTransitions(
+    // List<Transition<EventNode>> trans) {
+    // List<WeightedTransition<EventNode>> result = new
+    // ArrayList<WeightedTransition<EventNode>>();
+    // int totalTrans = trans.size();
+    // for (Transition<EventNode> tr : trans) {
+    // double freq = (double) 1 / (double) totalTrans;
+    // WeightedTransition<EventNode> trWeighted = new
+    // WeightedTransition<EventNode>(
+    // tr.getSource(), tr.getTarget(), tr.getRelations(), freq, 1);
+    // result.add(trWeighted);
+    // }
+    // return result;
+    // }
+
     /**
      * This method returns the set of transitions augmenting each transition
      * with information about frequency and number of observations.
      */
-    private List<WeightedTransition<EventNode>> getWeightedTransitions(
-            List<Transition<EventNode>> trans) {
+    @Override
+    public List<WeightedTransition<EventNode>> getWeightedTransitions() {
+        // return getWeightedTransitions(getAllTransitions());
+        // List<Transition<EventNode>> trans
         List<WeightedTransition<EventNode>> result = new ArrayList<WeightedTransition<EventNode>>();
-        int totalTrans = trans.size();
-        for (Transition<EventNode> tr : trans) {
+        int totalTrans = transitions.size();
+        for (Transition<EventNode> tr : transitions) {
             double freq = (double) 1 / (double) totalTrans;
             WeightedTransition<EventNode> trWeighted = new WeightedTransition<EventNode>(
                     tr.getSource(), tr.getTarget(), tr.getRelations(), freq, 1);
@@ -420,25 +422,83 @@ public class EventNode implements INode<EventNode> {
         return result;
     }
 
-    @Override
-    public List<WeightedTransition<EventNode>> getWeightedTransitions() {
-        return getWeightedTransitions(getTransitions());
-    }
-
     // @Override
     // public List<WeightedTransition<EventNode>> getWeightedTransitions(
     // Set<String> relations) {
     // return getWeightedTransitions(getTransitions(relations));
     // }
 
+    // @Override
+    // public ITransition<EventNode> getTransition(EventNode node,
+    // Set<String> relations) {
+    // for (ITransition<EventNode> t : getTransitions(relations)) {
+    // if (t.getTarget().equals(node)) {
+    // return t;
+    // }
+    // }
+    // return null;
+    // }
+
     @Override
-    public ITransition<EventNode> getTransition(EventNode node,
+    public List<Transition<EventNode>> getAllTransitions() {
+        return transitions;
+    }
+
+    @Override
+    public List<? extends ITransition<EventNode>> getTransitionsWithExactRelations(
             Set<String> relations) {
-        for (ITransition<EventNode> t : getTransitions(relations)) {
-            if (t.getTarget().equals(node)) {
-                return t;
+        Set<Transition<EventNode>> ret = null;
+        // Iterate through all transitions, adding those to ret that have
+        // exactly the input relations associated with them.
+        for (Transition<EventNode> t : transitions) {
+            if (t.getRelations().equals(relations)) {
+                if (ret == null) {
+                    ret = new LinkedHashSet<Transition<EventNode>>();
+                }
+                ret.add(t);
             }
         }
-        return null;
+        if (ret == null) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<Transition<EventNode>>(ret);
+    }
+
+    @Override
+    public List<? extends ITransition<EventNode>> getTransitionsWithSubsetRelations(
+            Set<String> relations) {
+        Set<Transition<EventNode>> ret = null;
+        // Iterate through all transitions, adding those to ret that have
+        // exactly a subset of relations associated with them.
+        for (Transition<EventNode> t : transitions) {
+            if (relations.containsAll(t.getRelations())) {
+                if (ret == null) {
+                    ret = new LinkedHashSet<Transition<EventNode>>();
+                }
+                ret.add(t);
+            }
+        }
+        if (ret == null) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<Transition<EventNode>>(ret);
+    }
+
+    @Override
+    public List<? extends ITransition<EventNode>> getTransitionsWithIntersectingRelations(
+            Set<String> relations) {
+        Set<Transition<EventNode>> ret = null;
+        for (String r : relations) {
+            if (transitionsWithRelation.containsKey(r)) {
+                if (ret == null) {
+                    ret = new LinkedHashSet<Transition<EventNode>>();
+                }
+                ret.addAll(transitionsWithRelation.get(r));
+            }
+        }
+        if (ret == null) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<Transition<EventNode>>(ret);
     }
 }

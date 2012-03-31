@@ -2,14 +2,12 @@ package synoptic.algorithms.graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import synoptic.model.EventNode;
 import synoptic.model.interfaces.IGraph;
-import synoptic.model.interfaces.ITransition;
 
 public class FloydWarshall {
     /**
@@ -38,8 +36,6 @@ public class FloydWarshall {
 
             // logger.fine("tc map is: " + tc.toString());
             // logger.fine("Handling node " + m.toString());
-            Iterator<? extends ITransition<EventNode>> transIter = m
-                    .getTransitionsIterator(relations);
             /**
              * Iterate through all children of m and for each child do 2 things:
              * 
@@ -49,9 +45,7 @@ public class FloydWarshall {
              *    linked to in tc and add m to tcParents[n]
              * </pre>
              */
-            while (transIter.hasNext()) {
-                EventNode child = transIter.next().getTarget();
-
+            for (EventNode child : m.getAllSuccessors()) {
                 // ////////////////
                 // Ignore initial/terminal child events:
                 if (child.getEType().isSpecialEventType()) {

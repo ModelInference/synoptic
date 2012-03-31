@@ -48,12 +48,16 @@ public class PartitionGraph implements IGraph<Partition> {
      * track of the initial messages but we need to do this for every relation,
      * which is specified by the first argument to the hash-map.
      */
-    private final LinkedHashMap<String, Set<EventNode>> initialEvents = new LinkedHashMap<String, Set<EventNode>>();
+    // private final LinkedHashMap<String, Set<EventNode>> initialEvents = new
+    // LinkedHashMap<String, Set<EventNode>>();
+    private final Set<EventNode> initialEvents = new LinkedHashSet<EventNode>();
 
     /**
      * Holds the terminal messages in this graph. Like the initialMessages
      * above, this hash-map maintains them w.r.t the relations.
      */
+    // private final LinkedHashMap<String, Set<EventNode>> terminalEvents = new
+    // LinkedHashMap<String, Set<EventNode>>();
     private final LinkedHashMap<String, Set<EventNode>> terminalEvents = new LinkedHashMap<String, Set<EventNode>>();
 
     /** Holds synoptic.invariants that were mined when the graph was created. */
@@ -119,7 +123,7 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     private PartitionGraph(ChainsTraceGraph g, TemporalInvariantSet invariants) {
         for (String relation : g.getRelations()) {
-            EventNode initialMessage = g.getDummyInitialNode(relation);
+            EventNode initialMessage = g.getDummyInitialNode();
 
             if (!initialEvents.containsKey(relation)) {
                 initialEvents.put(relation, new LinkedHashSet<EventNode>());
@@ -334,14 +338,14 @@ public class PartitionGraph implements IGraph<Partition> {
      * Returns a set of partitions that corresponds to EventNodes in the union
      * of the sets of the input map.values.
      */
-    private Set<Partition> getEventNodePartitions(
-            LinkedHashMap<String, Set<EventNode>> map) {
-        Set<Partition> ret = new LinkedHashSet<Partition>();
-        for (Set<EventNode> eNodes : map.values()) {
-            ret.addAll(getEventNodePartitions(eNodes));
-        }
-        return ret;
-    }
+    // private Set<Partition> getEventNodePartitions(
+    // LinkedHashMap<String, Set<EventNode>> map) {
+    // Set<Partition> ret = new LinkedHashSet<Partition>();
+    // for (Set<EventNode> eNodes : map.values()) {
+    // ret.addAll(getEventNodePartitions(eNodes));
+    // }
+    // return ret;
+    // }
 
     /**
      * Returns a set of partitions that corresponds to the input eNodes.
@@ -355,15 +359,17 @@ public class PartitionGraph implements IGraph<Partition> {
     }
 
     @Override
-    public Set<Partition> getDummyInitialNode() {
-        return getEventNodePartitions(initialEvents);
+    public Partition getDummyInitialNode() {
+        // return getEventNodePartitions(initialEvents);
+        assert initialEvents.size > 0;
+        return initialEvents.get(0).getParent();
     }
 
-    @Override
-    public Partition getDummyInitialNode(String relation) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    // @Override
+    // public Partition getDummyInitialNode(String relation) {
+    // TODO Auto-generated method stub
+    // return null;
+    // }
 
     public Set<Partition> getTerminalNodes() {
         return getEventNodePartitions(terminalEvents);
@@ -724,9 +730,10 @@ public class PartitionGraph implements IGraph<Partition> {
 
                     if (intersectionOfIDs.contains(traceID)) {
                         Set<ITransition<Partition>> currentPath = new HashSet<ITransition<Partition>>();
-                        ITransition<Partition> nextTrans = p.getTransition(
-                                trans.getTarget().getParent(),
-                                trans.getRelations());
+                        ITransition<Partition> nextTrans = p
+                                .getTransitionWithExactRelation(trans
+                                        .getTarget().getParent(), trans
+                                        .getRelations());
 
                         // Traverse the remaining transitions and add the
                         // found path to the map.
@@ -748,8 +755,8 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     private void getPathsThroughNodesTraversal(EventNode event,
             Set<ITransition<Partition>> path) {
-        for (Transition<EventNode> trans : event.getTransitions()) {
-            path.add(event.getParent().getTransition(
+        for (Transition<EventNode> trans : event.getAllTransitions()) {
+            path.add(event.getParent().getTransitionWithExactRelation(
                     trans.getTarget().getParent(), trans.getRelations()));
             getPathsThroughNodesTraversal(trans.getTarget(), path);
         }

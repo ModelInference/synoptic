@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -164,7 +163,7 @@ public class GraphLTLChecker<T extends INode<T>> {
      *            The set of relations to consider in the sourceGraph.
      * @return The transition-based target graph
      */
-    private Graph convertGraph(IGraph<T> sourceGraph, Set<String> relation) {
+    private Graph convertGraph(IGraph<T> sourceGraph, Set<String> relations) {
         Graph targetGraph = new Graph();
 
         // Set<T> initialMessages = sourceGraph.getDummyInitialNode();
@@ -190,9 +189,8 @@ public class GraphLTLChecker<T extends INode<T>> {
         }
 
         for (T m : allNodes) {
-            for (Iterator<? extends ITransition<T>> i = m
-                    .getTransitionsIterator(relation); i.hasNext();) {
-                ITransition<T> t = i.next();
+            for (ITransition<T> t : m
+                    .getTransitionsWithIntersectingRelations(relations)) {
                 T n = t.getTarget();
                 if (!prevStates.containsKey(n)) {
                     prevStates.put(n, new LinkedHashSet<Node>());

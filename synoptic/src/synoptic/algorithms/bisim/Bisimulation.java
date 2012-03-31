@@ -447,15 +447,19 @@ public abstract class Bisimulation {
             Set<String> relations = counterexampleTrace.invariant
                     .getRelations();
             for (EventNode m : hot) {
-                successorEvents.addAll(m.getSuccessors(relations));
+                for (ITransition<EventNode> t : m
+                        .getTransitionsWithIntersectingRelations(relations)) {
+                    // successorEvents.addAll(m.getSuccessors(relations));
+                    successorEvents.add(t.getTarget());
+                }
             }
             hot = successorEvents;
         }
-        ITransition<Partition> outgoingTransition = curPartition.getTransition(
+        ITransition<Partition> outgoingTransition = curPartition.getTransitionWithExactRelation(
                 nextPartition, counterexampleTrace.invariant.getRelations());
         ITransition<Partition> incomingTransition = null;
         if (prevPartition != null) {
-            incomingTransition = prevPartition.getTransition(curPartition,
+            incomingTransition = prevPartition.getTransitionWithExactRelation(curPartition,
                     counterexampleTrace.invariant.getRelations());
         }
         if (outgoingTransition != null) {
@@ -476,7 +480,7 @@ public abstract class Bisimulation {
             if (relations.size() == 1) {
                 // Single relation case.
                 newSplit = curPartition.getCandidateSplitBasedOnIncoming(
-                        prevPartition, relations.iterator().next());
+                        prevPartition, relations);
             } else {
                 // Multi-relational case.
                 newSplit = curPartition.getCandidateSplitBasedOnIncoming(

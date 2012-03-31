@@ -1,6 +1,7 @@
 package synoptic.model.interfaces;
 
 import java.util.List;
+import java.util.Set;
 
 import synoptic.model.EventType;
 import synoptic.model.Partition;
@@ -61,6 +62,8 @@ public interface INode<NodeType> extends Comparable<NodeType> {
      */
     // ITransition<NodeType> getTransition(NodeType node, Set<String> relation);
 
+    public Set<NodeType> getAllSuccessors();
+
     /**
      * Returns the set of all outgoing transitions of this node (across all
      * relations). The difference to {@code getTransitionsIterator} is that this
@@ -70,11 +73,14 @@ public interface INode<NodeType> extends Comparable<NodeType> {
      */
     List<? extends ITransition<NodeType>> getAllTransitions();
 
-    List<? extends ITransition<NodeType>> getTransitionsWithExactRelations();
+    List<? extends ITransition<NodeType>> getTransitionsWithExactRelations(
+            Set<String> relations);
 
-    List<? extends ITransition<NodeType>> getTransitionsWithSubsetRelations();
+    List<? extends ITransition<NodeType>> getTransitionsWithSubsetRelations(
+            Set<String> relations);
 
-    List<? extends ITransition<NodeType>> getTransitionsWithIntersectingRelations();
+    List<? extends ITransition<NodeType>> getTransitionsWithIntersectingRelations(
+            Set<String> relations);
 
     /**
      * Returns the set of outgoing transitions of this node for a set of
