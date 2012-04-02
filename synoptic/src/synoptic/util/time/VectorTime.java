@@ -285,4 +285,9 @@ public class VectorTime implements ITime {
         }
         return 0;
     }
+
+	@Override
+	public ITime computeDelta(ITime other) {
+		return null;
+	}
 }

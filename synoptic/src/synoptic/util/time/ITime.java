@@ -28,6 +28,8 @@ public interface ITime {
      * @return true if (this < t), otherwise false
      */
     int compareTo(ITime t);
+    
+    ITime computeDelta(ITime other);
 
     @Override
     int hashCode();
