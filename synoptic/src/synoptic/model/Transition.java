@@ -1,5 +1,8 @@
 package synoptic.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.time.ITime;
@@ -15,6 +18,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     protected NodeType target;
     protected final String relation;
     protected ITime delta;
+    protected List<ITime> allDeltas = new ArrayList<ITime>();
 
     /**
      * Create a new transition.
@@ -58,6 +62,10 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     
     public ITime getDelta() {
     	return delta;
+    }
+    
+    public List<ITime> getAllDeltas() {
+    	return allDeltas;
     }
 
     @Override
