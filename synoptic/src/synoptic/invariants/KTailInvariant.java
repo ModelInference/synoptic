@@ -43,9 +43,6 @@ public class KTailInvariant implements ITemporalInvariant {
     // The set of events that immediately follow this tail
     private Set<EventType> following;
 
-    // The number of instances of this tail
-    private int instances;
-
     private KTailInvariant(List<EventType> eventTail, String relation) {
         this.relation = relation;
         this.tail = Collections.unmodifiableList(new ArrayList<EventType>(
@@ -65,7 +62,6 @@ public class KTailInvariant implements ITemporalInvariant {
             tails.put(theTail.tail, theTail);
         }
         theTail.following.add(follow);
-        theTail.instances++;
         return theTail;
     }
 
@@ -107,13 +103,6 @@ public class KTailInvariant implements ITemporalInvariant {
 
         expression.append("))*");
         return expression.toString();
-    }
-
-    /**
-     * Returns the number of mined instances of this tail.
-     */
-    public int getInstances() {
-        return instances;
     }
 
     @Override

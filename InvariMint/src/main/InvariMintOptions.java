@@ -37,10 +37,16 @@ public class InvariMintOptions extends synoptic.main.Options {
     public String argsFilename = null;
 
     /**
-     * Length of KTails.
+     * Mine kTail invariants instead of Synoptic invariants.
      */
-    @Option(value = "Length of tails when performing InvariMint kTails")
-    public int kTailLength = 0;
+    @Option("Perform kTails instead of Synoptic")
+    public boolean performKTails = false;
+
+    /**
+     * Size of tail when performing kTails.
+     */
+    @Option("Size of tail when performing kTails")
+    public int kTailLength = 2;
 
     // end option group "Input Options"
 

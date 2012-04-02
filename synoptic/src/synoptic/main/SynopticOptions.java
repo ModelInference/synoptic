@@ -285,18 +285,6 @@ public class SynopticOptions extends Options {
     public boolean useTransitiveClosureMining = false;
 
     /**
-     * Mine kTail invariants instead of Synoptic invariants.
-     */
-    @Option("Perform kTails instead of Synoptic")
-    public boolean performKTails = false;
-
-    /**
-     * Size of tail when performing kTails.
-     */
-    @Option("Size of tail when performing kTails")
-    public int kTailLength = 2;
-
-    /**
      * Tell Synoptic to mine/not mine the NeverConcurrentWith invariant. When
      * false, this option changes mining behavior when
      * useTransitiveClosureMining = false (i.e., it only works for the DAG
