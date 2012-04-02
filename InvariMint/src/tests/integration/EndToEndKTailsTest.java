@@ -2,7 +2,7 @@ package tests.integration;
 
 import java.io.File;
 
-import main.KTailInvariMintMain;
+import main.InvariMintMain;
 
 import org.junit.Test;
 
@@ -19,9 +19,10 @@ public class EndToEndKTailsTest extends InvariMintTest {
         String tPath = ".." + File.separator + "traces" + File.separator
                 + "abstract" + File.separator + "ktails-test" + File.separator;
 
-        String[] args = new String[] { "--kTailLength", "2", "-r",
-                "^(?<DTIME>)(?<nodename>)(?<TYPE>)$", "-m", "\\k<nodename>",
-                "-o", testOutputDir + "ktails-example", tPath + "trace.txt" };
-        KTailInvariMintMain.main(args);
+        String[] args = new String[] { "--performKTails=true", "--kTailLength",
+                "2", "-r", "^(?<DTIME>)(?<nodename>)(?<TYPE>)$", "-m",
+                "\\k<nodename>", "-o", testOutputDir + "ktails-example",
+                tPath + "trace.txt" };
+        InvariMintMain.main(args);
     }
 }

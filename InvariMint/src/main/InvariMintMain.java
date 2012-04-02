@@ -24,6 +24,10 @@ import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TOInitialTerminalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.invariants.miners.ImmediateInvariantMiner;
+import synoptic.invariants.miners.KTailInvariantMiner;
+import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.main.Main;
 import synoptic.main.Options;
 import synoptic.main.SynopticOptions;
@@ -38,16 +42,68 @@ import synoptic.model.interfaces.ITransition;
 import synoptic.util.BriefLogFormatter;
 
 /**
- * InvariMint accepts a log file and regular expression arguments and uses
- * Synoptic to parse the log and mine invariants. Implicit NIFby invariants
- * along with an Initial/Terminal invariant are used to construct an initial DFA
- * model. The initial model is then intersected with each of Synoptic's mined
- * invariants to construct and export a final model.
+ * InvariMint accepts a log file and regular expression arguments and constructs
+ * a DFA model of the system which generated the input log. InvariMint relies on
+ * Synoptic for log parsing and invariant mining. Default behavior is to mine
+ * traditional Synoptic invariants, though the --performKTails and --
+ * kTailLength options allow users to specify that kTail invariants should be
+ * mined instead. In either case, implicit NIFby invariants along with an
+ * Initial/Terminal invariant are used to construct an initial DFA model. The
+ * initial model is then intersected with each of the mined invariants to
+ * construct and export a final model.
  * 
  * @author Jenny
  */
 public class InvariMintMain {
     public static Logger logger = null;
+
+    /**
+     * Main entrance into the application. Application arguments (args) are
+     * processed using Synoptic's build-in argument parser, extended with a few
+     * InvDFAMinimization-specific arguments. For more information, see
+     * InvDFAMinimizationOptions class.
+     * 
+     * @param args
+     * @throws Exception
+     */
+    public static void main(String[] args) throws Exception {
+
+        // Set up Synoptic.
+        InvariMintOptions opts = new InvariMintOptions(args);
+        setUpLogging(opts);
+        handleOptions(opts);
+        ChainsTraceGraph inputGraph = setUpSynoptic(opts);
+
+        // Mine invariants -- will be Synoptic invariants or kTail invariants
+        // depending on opts.
+        TemporalInvariantSet minedInvs = mineInvariants(opts, inputGraph);
+
+        // Construct initial DFA from NIFby invariants.
+        ImmediateInvariantMiner miner = new ImmediateInvariantMiner(inputGraph);
+        TemporalInvariantSet NIFbys = miner.getNIFbyInvariants();
+        Set<EventType> allEvents = new HashSet<EventType>(miner.getEventTypes());
+        logger.fine("Mined " + minedInvs.numInvariants()
+                + " NIFby invariant(s).");
+        logger.fine(NIFbys.toPrettyString());
+
+        EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
+        InvsModel dfa = getIntersectedModelFromInvs(NIFbys, encodings, true);
+
+        applyInitialTerminalCondition(dfa, encodings);
+
+        // Intersect with mined invariants.
+        dfa.intersectWith(getIntersectedModelFromInvs(minedInvs, encodings,
+                true));
+        dfa.minimize();
+
+        // removeSpuriousEdges(dfa, initialModel.getTraceGraph(), encodings,
+        // initialEvent, terminalEvent);
+
+        // Export final model.
+        dfa.exportDotAndPng(opts.outputPathPrefix + ".invarimintDFA.dot");
+
+        // compareTranslatedSynopticModel(initialModel, encodings, dfa);
+    }
 
     public static void setUpLogging(InvariMintOptions opts) {
         // Get the top Logger instance
@@ -167,51 +223,28 @@ public class InvariMintMain {
         return inputGraph;
     }
 
-    /**
-     * Main entrance into the application. Application arguments (args) are
-     * processed using Synoptic's build-in argument parser, extended with a few
-     * InvDFAMinimization-specific arguments. For more information, see
-     * InvDFAMinimizationOptions class.
-     * 
-     * @param args
-     * @throws Exception
-     */
-    public static void main(String[] args) throws Exception {
+    private static TemporalInvariantSet mineInvariants(InvariMintOptions opts,
+            ChainsTraceGraph inputGraph) {
+        TOInvariantMiner miner;
+        if (opts.performKTails) {
+            miner = new KTailInvariantMiner(opts.kTailLength);
+        } else {
+            miner = new ChainWalkingTOInvMiner();
+        }
 
-        // Set up Synoptic.
-        InvariMintOptions opts = new InvariMintOptions(args);
-        setUpLogging(opts);
-        handleOptions(opts);
-        ChainsTraceGraph inputGraph = setUpSynoptic(opts);
+        logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
+        long startTime = System.currentTimeMillis();
 
-        TemporalInvariantSet minedInvs = Main.mineTOInvariants(false,
-                inputGraph);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
 
-        PartitionGraph initialModel = new PartitionGraph(inputGraph, true,
-                minedInvs);
+        long endTime = System.currentTimeMillis();
+        logger.info("Mining took " + (endTime - startTime));
 
-        // Construct initial DFA from NIFby invariants.
-        TemporalInvariantSet NIFbys = initialModel.getNIFbyInvariants();
-        Set<EventType> allEvents = new HashSet<EventType>(
-                initialModel.getEventTypes());
+        logger.fine("Mined " + minedInvs.numInvariants()
+                + " kTail invariant(s).");
+        logger.fine(minedInvs.toPrettyString());
 
-        EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
-        InvsModel dfa = getIntersectedModelFromInvs(NIFbys, encodings, true);
-
-        applyInitialTerminalCondition(dfa, encodings);
-
-        // Intersect with mined invariants.
-        dfa.intersectWith(getIntersectedModelFromInvs(minedInvs, encodings,
-                true));
-        dfa.minimize();
-
-        // removeSpuriousEdges(dfa, initialModel.getTraceGraph(), encodings,
-        // initialEvent, terminalEvent);
-
-        // Export final model.
-        dfa.exportDotAndPng(opts.outputPathPrefix + ".invarimintDFA.dot");
-
-        // compareTranslatedSynopticModel(initialModel, encodings, dfa);
+        return minedInvs;
     }
 
     public static void applyInitialTerminalCondition(EncodedAutomaton dfa,
