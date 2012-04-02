@@ -28,7 +28,6 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
 import synoptic.tests.SynopticTest;
 import synoptic.util.Pair;
 
@@ -283,7 +282,7 @@ public class PartitionGraphTests extends SynopticTest {
         selectedNodes.add(cPartition);
 
         // Grab the set of paths.
-        Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+        Map<Integer, List<Partition>> paths = pGraph
                 .getPathsThroughPartitions(selectedNodes);
 
         assertEquals("There should be one trace only.", paths.keySet().size(),
@@ -319,7 +318,7 @@ public class PartitionGraphTests extends SynopticTest {
         selectedNodes.add(aPartition);
         selectedNodes.add(cPartition);
 
-        Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+        Map<Integer, List<Partition>> paths = pGraph
                 .getPathsThroughPartitions(selectedNodes);
 
         assertEquals("There should be exactly one trace",
