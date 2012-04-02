@@ -67,4 +67,12 @@ public class ITotalTime implements ITime {
         }
         return Integer.valueOf(time).compareTo(((ITotalTime) t).time);
     }
+
+	@Override
+	public ITime computeDelta(ITime other) {
+		 if (!(other instanceof ITotalTime)) {
+	            throw new NonComparableTimesException(this, other);
+		 }
+		 return new ITotalTime(this.time - ((ITotalTime) other).time);
+	}
 }

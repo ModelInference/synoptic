@@ -70,4 +70,12 @@ public class DTotalTime implements ITime {
         }
         return new Double(time).compareTo(((DTotalTime) t).time);
     }
+
+	@Override
+	public ITime computeDelta(ITime other) {
+		if (!(other instanceof DTotalTime)) {
+            throw new NonComparableTimesException(this, other);
+        }
+		return new DTotalTime(this.time - ((DTotalTime) other).time);
+	}
 }
