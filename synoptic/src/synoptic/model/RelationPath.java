@@ -115,6 +115,9 @@ public class RelationPath {
                     .getTransitionsWithIntersectingRelations(orderingRelationSet);
         }
 
+        // TODO: Refactor this loop -- there is a lot of redundancy in acquiring
+        // transitions, checking if the transitions set is empty, etc.
+
         while (!transitions.isEmpty()) {
 
             // Each node we traverse must have exactly one transition with the
@@ -222,10 +225,11 @@ public class RelationPath {
 
             curNode = searchTransitions.get(0).getTarget();
 
-            transitions = curNode.getTransitions(relation);
+            transitions = curNode.getTransitionsWithExactRelations(relations);
 
             if (transitions.isEmpty()) {
-                transitions = curNode.getTransitions(orderingRelation);
+                transitions = curNode
+                        .getTransitionsWithExactRelations(orderingRelationSet);
             }
         }
 
@@ -270,8 +274,8 @@ public class RelationPath {
         return Collections.unmodifiableMap(precedesCounts);
     }
 
-    public String getRelation() {
-        return relation;
+    public Set<String> getRelation() {
+        return relations;
     }
 
     public void setFinalNode(EventNode eNode2) {

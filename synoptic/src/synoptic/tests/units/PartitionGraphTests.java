@@ -73,17 +73,17 @@ public class PartitionGraphTests extends SynopticTest {
         // The set of nodes is now: INITIAL, a, a', TERMINAL
         assertTrue(pGraph.getNodes().size() == 4);
         assertTrue(pGraph.getDummyInitialNode().size() == 1);
-        Partition pInitial = pGraph.getDummyInitialNode().iterator().next();
-        assertTrue(pInitial.getTransitions().size() == 2);
-        Partition pA1 = pInitial.getTransitions().get(0).getTarget();
+        Partition pInitial = pGraph.getDummyInitialNode();
+        assertTrue(pInitial.getAllTransitions().size() == 2);
+        Partition pA1 = pInitial.getAllTransitions().get(0).getTarget();
         assertTrue(pA1.getEType().equals(new StringEventType("a")));
-        assertTrue(pA1.getTransitions().size() == 1);
-        assertTrue(pA1.getTransitions().get(0).getTarget().getEType()
+        assertTrue(pA1.getAllTransitions().size() == 1);
+        assertTrue(pA1.getAllTransitions().get(0).getTarget().getEType()
                 .isTerminalEventType());
-        Partition pA2 = pInitial.getTransitions().get(1).getTarget();
+        Partition pA2 = pInitial.getAllTransitions().get(1).getTarget();
         assertTrue(pA2.getEType().equals(new StringEventType("a")));
-        assertTrue(pA2.getTransitions().size() == 1);
-        assertTrue(pA2.getTransitions().get(0).getTarget().getEType()
+        assertTrue(pA2.getAllTransitions().size() == 1);
+        assertTrue(pA2.getAllTransitions().get(0).getTarget().getEType()
                 .isTerminalEventType());
 
         // Undo the split.

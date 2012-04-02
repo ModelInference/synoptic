@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -50,6 +49,16 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         super.tagTerminal(terminalNode, relations);
     }
 
+    public void tagTerminal(EventNode terminalNode, String relation) {
+        super.tagTerminal(terminalNode, relation);
+    }
+
+    public void tagInitial(EventNode initialNode, String relation) {
+        Set<String> relations = new LinkedHashSet<String>();
+        relations.add(relation);
+        this.tagInitial(initialNode, relations);
+    }
+
     public void tagInitial(EventNode initialNode, Set<String> relations) {
         super.tagInitial(initialNode, relations);
         traceIdToInitNodes.put(initialNode.getTraceID(), initialNode);
@@ -78,9 +87,8 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         traces.add(trace);
 
         Map<String, EventNode> lastSeenNodeForRelation = new HashMap<String, EventNode>();
-        Set<String> relations = new HashSet<String>();
         EventNode firstNode = events.get(0);
-        EventNode prevNode = firstNode;
+        EventNode prevNode = null;
 
         /**
          * <pre>
@@ -94,15 +102,15 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
          * to curNode
          * </pre>
          */
-        for (Relation relation : prevNode.getEventRelations()) {
-            relations.add(relation.getRelations());
-            tagInitial(prevNode, relation.getRelations());
-            lastSeenNodeForRelation.put(relation.getRelations(), prevNode);
-            trace.addRelationPath(relation.getRelations(), prevNode, false);
-        }
+        // for (Relation relation : prevNode.getEventRelations()) {
+        // lastSeenNodeForRelation.put(relation.getRelation(), prevNode);
+        // trace.addRelationPath(relation.getRelation(), prevNode, false);
+        // }
+        // tagInitial(prevNode, prevNode.getEventStringRelations());
 
         // Create transitions to connect the nodes in the sorted trace.
-        for (EventNode curNode : events.subList(1, events.size())) {
+        // for (EventNode curNode : events.subList(1, events.size())) {
+        for (EventNode curNode : events) {
 
             if (prevNode.getTime().equals(curNode.getTime())) {
                 String error = "Found two events with identical timestamps: (1) "
@@ -112,65 +120,66 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
             }
 
             // Process node's relations:
+            Map<EventNode, Set<String>> srcNodeToTxRelations = new LinkedHashMap<EventNode, Set<String>>();
+
             for (Relation relation : curNode.getEventRelations()) {
-                relations.add(relation.getRelations());
 
-                /*
-                 * Closure relations create transitions between the current node
-                 * and the last seen node for the relation.
-                 */
+                EventNode txNode;
                 if (relation.isClosure()) {
-                    EventNode prevClosureNode = lastSeenNodeForRelation
-                            .get(relation.getRelations());
-                    /*
-                     * TODO: This is a little gross. If the initial node could
-                     * be pulled out of the graph and treated as an independent
-                     * event node, then this would be a lot nicer.
-                     */
-
-                    /*
-                     * This is the first time we've seen this relation and it is
-                     * a closure relation so we have to mark the node as initial
-                     * and create a relation path.
-                     * 
-                     * In this case, there is an edge of type relation from
-                     * INITIAL to curNode
-                     */
-                    if (prevClosureNode == null) {
-                        tagInitial(curNode, relation.getRelations());
-                        trace.addRelationPath(relation.getRelations(), curNode,
-                                false);
-                    } else {
-                        /*
-                         * We've already encountered this relation, so hook it
-                         * up to the previous node over the relation.
-                         */
-                        prevClosureNode.addTransition(curNode,
-                                relation.getRelations());
-                    }
+                    // Closure relations create transitions between the current
+                    // node and the last seen node for the relation.
+                    txNode = lastSeenNodeForRelation
+                            .get(relation.getRelation());
                 } else {
-                    /*
-                     * Non-closure relation, create transition to previous node
-                     * in graph.
-                     */
-                    // TODO: Create a single transition for the set of all
-                    // relations, instead of a single transition per relation.
-                    // Documented in Issue 238.
-                    prevNode.addTransition(curNode, relation.getRelations());
+                    // Otherwise, the transition is from the previous node in
+                    // the chain.
+                    txNode = prevNode;
                 }
 
-                lastSeenNodeForRelation.put(relation.getRelations(), curNode);
+                // Add the relation to set of relations associated with the
+                // transition from txNode (if one exists). If one doesn't exist,
+                // then create a new set of relations.
+                Set<String> txRelations;
+                if (!srcNodeToTxRelations.containsKey(txNode)) {
+                    txRelations = new LinkedHashSet<String>();
+                    srcNodeToTxRelations.put(txNode, txRelations);
+                } else {
+                    txRelations = srcNodeToTxRelations.get(txNode);
+                }
+                txRelations.add(relation.getRelation());
             }
 
-            prevNode = curNode;
+            // Create a transition for each node that should be connected to
+            // curNode.
+            for (EventNode srcNode : srcNodeToTxRelations.keySet()) {
+                Set<String> relations = srcNodeToTxRelations.get(srcNode);
 
+                if (srcNode == null) {
+                    // In this case, the srcNode is considered to be INITIAL, so
+                    // we tag curNode as initial and add a new relation path to
+                    // the trace.
+                    tagInitial(curNode, relations);
+                    boolean initialConnected = (curNode == firstNode);
+
+                    for (String r : relations) {
+                        trace.addRelationPath(r, curNode, initialConnected);
+                    }
+                } else {
+                    // Otherwise, there is a specific previous srcNode, and we
+                    // connect curNode to this node.
+                    srcNode.addTransition(curNode, relations);
+                }
+
+                // Update the lastSeednNodeForRelation map.
+                for (String r : relations) {
+                    lastSeenNodeForRelation.put(r, curNode);
+                }
+            }
+            prevNode = curNode;
         }
 
         // Tag the final node as terminal:
-        for (Relation relation : prevNode.getEventRelations()) {
-            relations.add(relation.getRelation());
-            tagTerminal(prevNode, relation.getRelation());
-        }
+        tagTerminal(prevNode, prevNode.getEventStringRelations());
 
         /*
          * If trace doesn't contain a relation path for a relation r, then r was
@@ -183,11 +192,11 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
          * In other words, there isn't an edge of type relation from INITIAL to
          * the first node in the relation subgraph.
          */
-        for (String relation : relations) {
-            if (!trace.hasRelation(relation)) {
-                trace.addRelationPath(relation, firstNode, true);
-            }
-        }
+        // for (String relation : relations) {
+        // if (!trace.hasRelation(relation)) {
+        // trace.addRelationPath(relation, firstNode, true);
+        // }
+        // }
 
         /*
          * Bound existing traces. Some relation paths are not non-transitively
@@ -217,18 +226,22 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
      * relations, the graph remains a linear chain.
      */
     public TransitiveClosure getTransitiveClosure(Set<String> relations) {
+        assert relations != null;
+
         TransitiveClosure transClosure = new TransitiveClosure(relations);
         List<EventNode> prevNodes = new LinkedList<EventNode>();
         for (EventNode firstNode : traceIdToInitNodes.values()) {
             EventNode curNode = firstNode;
 
             while (!curNode.isTerminal()) {
-                while (curNode.getTransitions(relations).size() != 0) {
+                while (curNode.getTransitionsWithExactRelations(relations)
+                        .size() != 0) {
                     for (EventNode prevNode : prevNodes) {
                         transClosure.addReachable(prevNode, curNode);
                     }
                     prevNodes.add(curNode);
-                    curNode = curNode.getTransitions(relations).get(0)
+                    curNode = curNode
+                            .getTransitionsWithExactRelations(relations).get(0)
                             .getTarget();
                 }
 
@@ -241,7 +254,9 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
                 prevNodes.clear();
 
                 if (!curNode.isTerminal()) {
-                    curNode = curNode.getTransitions().get(0).getTarget();
+                    curNode = curNode
+                            .getTransitionsWithExactRelations(relations).get(0)
+                            .getTarget();
                 }
             }
         }
