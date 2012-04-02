@@ -2,6 +2,7 @@ package synoptic.model;
 
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.time.ITime;
 
 /**
  * An implementation of a transition.
@@ -13,6 +14,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     protected NodeType source;
     protected NodeType target;
     protected final String relation;
+    protected ITime delta;
 
     /**
      * Create a new transition.
@@ -25,6 +27,10 @@ public class Transition<NodeType> implements ITransition<NodeType> {
      *            the label of the transition
      */
     public Transition(NodeType source, NodeType target, String relation) {
+    	this(source, target, relation, null);
+    }
+    
+    public Transition(NodeType source, NodeType target, String relation, ITime delta) {
         assert source != null;
         assert target != null;
         assert relation != null;
@@ -32,6 +38,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         this.source = source;
         this.target = target;
         this.relation = relation;
+        this.delta = delta;
     }
 
     @Override
