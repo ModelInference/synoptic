@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.Set;
 
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.InternalSynopticException;
 import synoptic.util.time.EqualVectorTimestampsException;
 import synoptic.util.time.ITime;
 
@@ -40,7 +38,7 @@ public class EventNode implements INode<EventNode> {
     // TODO: For totally ordered traces, the transitions becomes a single
     // element, and transitionsByEvents becomes superfluous.
 
-    private Set<String> transitionRelations;
+    // private Set<String> transitionRelations;
 
     List<Transition<EventNode>> transitions = new ArrayList<Transition<EventNode>>();
 
@@ -56,7 +54,7 @@ public class EventNode implements INode<EventNode> {
 
         parent = copyFrom.parent;
         event = copyFrom.event;
-        transitionRelations = new HashSet<String>();
+        // transitionRelations = new HashSet<String>();
     }
 
     public EventNode(Event eventArg) {
@@ -64,7 +62,7 @@ public class EventNode implements INode<EventNode> {
 
         event = eventArg;
         parent = null;
-        transitionRelations = new HashSet<String>();
+        // transitionRelations = new HashSet<String>();
     }
 
     @Override
@@ -83,7 +81,7 @@ public class EventNode implements INode<EventNode> {
     }
 
     /**
-     * Add a transition from this node to node dest.
+     * Add a transition from this node to node dest with multiple relations.
      * 
      * @param dest
      *            The destination of the transition.
@@ -92,10 +90,23 @@ public class EventNode implements INode<EventNode> {
      */
     public void addTransition(EventNode dest, Set<String> relations) {
         assert dest != null : "Transition Target cannot be null";
-        if (transitionRelations.contains(relations)) {
-            throw new InternalSynopticException(
-                    "Duplicate transition relation: " + relations);
-        }
+
+        addTransition(new Transition<EventNode>(this, dest, relations));
+    }
+
+    /**
+     * Add a transition from this node to node dest, with a single relation.
+     * 
+     * @param dest
+     *            The destination of the transition.
+     * @param relation
+     *            The relation for which this transition is valid
+     */
+    public void addTransition(EventNode dest, String relation) {
+        assert dest != null : "Transition Target cannot be null";
+
+        Set<String> relations = new LinkedHashSet<String>();
+        relations.add(relation);
         addTransition(new Transition<EventNode>(this, dest, relations));
     }
 
@@ -162,6 +173,20 @@ public class EventNode implements INode<EventNode> {
      * Adds a new transition to the event node.
      */
     public void addTransition(Transition<EventNode> transition) {
+        // Check if transitionRelations and relations of the transition
+        // intersect. If yes, then throw an exception since we do not allow a
+        // node to have multiple transitions with same relation.
+        //
+        // NOTE: this doesn't work since transitionRelations are Relation
+        // instances, not String instances.
+        //
+        // for (String r : transition.getRelations()) {
+        // if (transitionRelations.contains(r)) {
+        // throw new InternalSynopticException(
+        // "Duplicate transition relation: " + r);
+        // }
+        // }
+
         transitions.add(transition);
         for (String r : transition.getRelations()) {
             // For each relation associated with the new transition update the

@@ -247,5 +247,4 @@ public class Event {
     public Set<Relation> getRelations() {
         return Collections.unmodifiableSet(relations);
     }
-
 }

@@ -200,7 +200,7 @@ public class GraphExporter {
                 if (outputEdgeLabels) {
                     transitions = node.getWeightedTransitions();
                 } else {
-                    transitions = node.getTransitions();
+                    transitions = node.getAllTransitions();
                 }
                 // Sort the transitions for canonical output.
                 Collections.sort(transitions);
@@ -235,9 +235,9 @@ public class GraphExporter {
                         if (outputEdgeLabels) {
                             double prob = ((WeightedTransition<T>) trans)
                                     .getFraction();
-                            s = Main.graphExportFormatter
-                                    .edgeToStringWithProb(nodeSrc, nodeDst,
-                                            prob, trans.getRelations());
+                            s = Main.graphExportFormatter.edgeToStringWithProb(
+                                    nodeSrc, nodeDst, prob,
+                                    trans.getRelations());
                         } else {
                             s = Main.graphExportFormatter
                                     .edgeToStringWithNoProb(nodeSrc, nodeDst,

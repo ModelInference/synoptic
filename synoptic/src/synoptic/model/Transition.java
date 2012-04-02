@@ -1,9 +1,6 @@
 package synoptic.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import synoptic.model.interfaces.INode;
@@ -19,10 +16,18 @@ import synoptic.util.MultipleRelations;
 public class Transition<NodeType> implements ITransition<NodeType> {
     protected NodeType source;
     protected NodeType target;
-    protected final Set<String> relations;
+    protected Set<String> relations;
+
+    private Transition(NodeType source, NodeType target) {
+        assert source != null;
+        assert target != null;
+
+        this.source = source;
+        this.target = target;
+    }
 
     /**
-     * Create a new transition.
+     * Create a new transition with multiple relations.
      * 
      * @param source
      *            source node
@@ -32,13 +37,25 @@ public class Transition<NodeType> implements ITransition<NodeType> {
      *            the label of the transition
      */
     public Transition(NodeType source, NodeType target, Set<String> relations) {
-        assert source != null;
-        assert target != null;
+        this(source, target);
         assert relations != null;
-
-        this.source = source;
-        this.target = target;
         this.relations = relations;
+    }
+
+    /**
+     * Create a new transition with a single relation.
+     * 
+     * @param source
+     *            source node
+     * @param target
+     *            target node
+     * @param relation
+     *            the label of the transition
+     */
+    public Transition(NodeType source, NodeType target, String relation) {
+        this(source, target);
+        this.relations = new LinkedHashSet<String>();
+        this.relations.add(relation);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package synoptic.model;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,22 +35,10 @@ public abstract class TraceGraph<EType extends EventType> implements
      */
     protected final Set<EventNode> nodes = new LinkedHashSet<EventNode>();
 
-    /**
-     * Maintains a 1-1 map between relation strings and artificial TERMINAL
-     * nodes. Every terminal node in a trace maintains exactly one transition to
-     * such a TERMINAL node to indicate that the source node is a terminal. We
-     * must have these TERMINAL nodes in this graph, and not just in partition
-     * graph because invariants are mined over this graph.
-     */
     protected EventNode dummyTerminalNode = null;
 
-    /**
-     * Maintains a 1-1 map between relation strings and artificial INITIAL
-     * nodes. Each initial node in a trace has a one of these INITIAL nodes as a
-     * parent.
-     */
-
     protected EventNode dummyInitialNode = null;
+
     private Set<String> cachedRelations = null;
 
     /**
@@ -102,10 +89,7 @@ public abstract class TraceGraph<EType extends EventType> implements
         }
         cachedRelations = new LinkedHashSet<String>();
         for (EventNode node : nodes) {
-            for (Iterator<? extends ITransition<EventNode>> iter = node
-                    .getTransitionsIterator(); iter.hasNext();) {
-                cachedRelations.addAll(iter.next().getRelations());
-            }
+            cachedRelations.addAll(node.getNodeRelations());
         }
         return cachedRelations;
     }
@@ -134,6 +118,12 @@ public abstract class TraceGraph<EType extends EventType> implements
     }
 
     public abstract int getNumTraces();
+
+    public void tagTerminal(EventNode terminalNode, String relation) {
+        Set<String> relations = new LinkedHashSet<String>();
+        relations.add(relation);
+        this.tagTerminal(terminalNode, relations);
+    }
 
     /**
      * Mark {@code terminalNode} as terminal with respect to {@code relation} by
@@ -212,10 +202,11 @@ public abstract class TraceGraph<EType extends EventType> implements
         while (!toVisit.isEmpty()) {
             Pair<EventNode, EventNode> tv = toVisit.pop();
             visited.add(tv.getLeft());
-            for (ITransition<EventNode> trans1 : tv.getLeft().getTransitions()) {
+            for (ITransition<EventNode> trans1 : tv.getLeft()
+                    .getAllTransitions()) {
                 boolean foundMatch = false;
                 for (ITransition<EventNode> trans2 : tv.getRight()
-                        .getTransitions()) {
+                        .getAllTransitions()) {
                     if (rp.eval(trans1.getRelations(), trans2.getRelations())
                             && np.eval(trans1.getTarget(), trans2.getTarget())) {
                         if (!visited.contains(trans1.getTarget())) {
@@ -239,11 +230,12 @@ public abstract class TraceGraph<EType extends EventType> implements
     @Override
     public Set<EventNode> getAdjacentNodes(EventNode node) {
         Set<EventNode> result = new LinkedHashSet<EventNode>();
-        for (ITransition<EventNode> trans : node.getTransitions()) {
+        for (ITransition<EventNode> trans : node.getAllTransitions()) {
             result.add(trans.getTarget());
         }
         return result;
     }
 
     public abstract Map<Integer, Set<EventNode>> getTraceIdToInitNodes();
+
 }

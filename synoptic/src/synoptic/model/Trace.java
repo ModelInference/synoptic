@@ -2,6 +2,7 @@ package synoptic.model;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,7 +45,10 @@ public class Trace {
              */
             throw new IllegalArgumentException("Trace already contains path");
         }
-        paths.put(relation, new RelationPath(eNode, relation, initialConnected));
+        Set<String> relations = new LinkedHashSet<String>();
+        relations.add(relation);
+        paths.put(relation,
+                new RelationPath(eNode, relations, initialConnected));
     }
 
     public void markRelationPathFinalNode(String relation, EventNode eNode) {

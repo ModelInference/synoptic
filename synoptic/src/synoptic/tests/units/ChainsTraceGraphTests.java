@@ -100,13 +100,6 @@ public class ChainsTraceGraphTests extends SynopticTest {
         assertTrue(g.getNumTraces() == 1);
     }
 
-    @Test
-    public void tcNullRelationTest() {
-        g = buildFourNodeGraph();
-        TransitiveClosure tc = g.getTransitiveClosure(null);
-        assertTrue(tc.getTC().isEmpty());
-    }
-
     /**
      * Tests that a chain graph of a->b->c->d yields a TransitiveClosure of:
      * a->b, b->c, c->d, a->c, b->d, a->d.

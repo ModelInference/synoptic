@@ -164,9 +164,10 @@ public class KTailsTests extends SynopticTest {
         // This returns a set with one node -- INITIAL. It will have two
         // children -- the two "a" nodes, which should be k-equivalent for all
         // k.
-        assertFalse(inputGraph.getDummyInitialNode().isEmpty());
-        List<Transition<EventNode>> initNodeTransitions = inputGraph
-                .getDummyInitialNode().iterator().next().getTransitions();
+        EventNode initNode = inputGraph.getDummyInitialNode();
+
+        List<Transition<EventNode>> initNodeTransitions = initNode
+                .getAllTransitions();
         EventNode firstA = initNodeTransitions.get(0).getTarget();
         EventNode secondA = initNodeTransitions.get(1).getTarget();
         for (int k = 0; k < 3; k++) {
@@ -184,8 +185,8 @@ public class KTailsTests extends SynopticTest {
         inputGraph = parser.generateDirectPORelation(parsedEvents);
         exportTestGraph(inputGraph, 1);
 
-        initNodeTransitions = inputGraph.getDummyInitialNode().iterator()
-                .next().getTransitions();
+        initNode = inputGraph.getDummyInitialNode();
+        initNodeTransitions = initNode.getAllTransitions();
         firstA = initNodeTransitions.get(0).getTarget();
         secondA = initNodeTransitions.get(1).getTarget();
         testTrueBothSubsumingAndNotSubsuming(firstA, secondA, 0);
@@ -210,7 +211,7 @@ public class KTailsTests extends SynopticTest {
         exportTestGraph(g1, 0);
 
         List<Transition<EventNode>> initNodeTransitions = g1
-                .getDummyInitialNode().iterator().next().getTransitions();
+                .getDummyInitialNode().getAllTransitions();
         EventNode firstA, secondA;
         firstA = initNodeTransitions.get(0).getTarget();
         secondA = initNodeTransitions.get(1).getTarget();
@@ -229,13 +230,16 @@ public class KTailsTests extends SynopticTest {
         DAGsTraceGraph g2 = parser.generateDirectPORelation(parsedEvents);
         exportTestGraph(g2, 1);
 
-        EventNode initG1 = g1.getDummyInitialNode().iterator().next();
-        EventNode initG2 = g2.getDummyInitialNode().iterator().next();
+        initNodeTransitions = g1.getDummyInitialNode().getAllTransitions();
+        firstA = initNodeTransitions.get(0).getTarget();
+        secondA = initNodeTransitions.get(1).getTarget();
+        // EventNode initG1 = g1.getDummyInitialNode().iterator().next();
+        // EventNode initG2 = g2.getDummyInitialNode().iterator().next();
         for (int k = 0; k < 3; k++) {
-            testTrueBothSubsumingAndNotSubsuming(initG1, initG2, k);
+            testTrueBothSubsumingAndNotSubsuming(firstA, secondA, k);
         }
         // The 'd' in g2 makes it different from g1 at k=3.
-        testFalseBothSubsumingAndNotSubsuming(initG1, initG2, 3);
+        testFalseBothSubsumingAndNotSubsuming(firstA, secondA, 3);
     }
 
     /**

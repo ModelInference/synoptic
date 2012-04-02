@@ -1178,7 +1178,7 @@ public class TraceParser {
                 } else {
                     for (EventNode e2 : directSuccessors) {
                         for (Relation relation : e2.getEventRelations()) {
-                            e1.addTransition(e2, relation.getRelations());
+                            e1.addTransition(e2, relation.getRelation());
                         }
                         noPredecessor.remove(e2);
                     }
