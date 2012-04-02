@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import synoptic.main.Main;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.IIterableIterator;
@@ -92,7 +93,13 @@ public class EventNode implements INode<EventNode> {
             throw new InternalSynopticException(
                     "Duplicate transition relation: " + relation);
         }
-        addTransition(new Transition<EventNode>(this, dest, relation));
+        
+        if (Main.options.enablePerfDebugging) {
+        	ITime delta = dest.getTime().computeDelta(dest.getTime());
+        	addTransition(new Transition<EventNode>(this, dest, relation, delta));
+        } else {
+        	addTransition(new Transition<EventNode>(this, dest, relation));
+        }
     }
 
     public void addTransitions(EventNode dest, Collection<String> relations) {
