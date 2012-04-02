@@ -55,6 +55,10 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     public String getRelation() {
         return relation;
     }
+    
+    public ITime getDelta() {
+    	return delta;
+    }
 
     @Override
     public int hashCode() {
