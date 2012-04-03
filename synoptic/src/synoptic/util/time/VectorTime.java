@@ -287,7 +287,7 @@ public class VectorTime implements ITime {
     }
     
     /**
-     * @throwsthrows NotComparableVectorsException
+     * @throws NotComparableVectorsException
      */
 	@Override
 	public ITime computeDelta(ITime other) {
