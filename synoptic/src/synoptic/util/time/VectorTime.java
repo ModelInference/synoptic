@@ -287,6 +287,9 @@ public class VectorTime implements ITime {
     }
     
     /**
+     * VectorTime is only partially ordered, therefore a delta time cannot be 
+     * computed for performance analysis. Throws an exception if this method
+     * is called.
      * @throws NotComparableVectorsException
      */
 	@Override
