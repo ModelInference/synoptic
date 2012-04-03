@@ -169,7 +169,16 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         return getRelation();
     }
     
+    /**
+     * @return 
+     * 		mode delta time for transition, null if transition has zero delta times.
+     */
     public ITime computeModeDelta() {
+    	
+    	if (this.allDeltas.isEmpty()) {
+            return null;
+        }
+    	
         Map<ITime, Integer> counts = new HashMap<ITime, Integer>();
         ITime mostCommon = null;
         int max = 1;
@@ -193,6 +202,10 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         return mostCommon;
     }
     
+    /**
+     * @return 
+     * 		median delta time for transition, null if transition has zero delta times.
+     */
     public ITime computeMedianDelta() {
         
         if (this.allDeltas.isEmpty()) {
@@ -222,6 +235,55 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         }
         
         return this.allDeltas.get((this.allDeltas.size() / 2));
+    }
+    
+    /**
+     * @return
+     * 		mean delta time for transition, null if transition has zero delta times.
+     */
+    //TODO hackish implementation, improve
+    public ITime computeMeanDelta() {
+    	
+    	if (this.allDeltas.isEmpty()) {
+            return null;
+        }
+    	
+    	boolean isDTotalTime = false;
+    	boolean isFTotalTime = false;
+    	boolean isITotalTime = false;
+    	
+    	ITime t1 = allDeltas.get(0);
+    	
+    	if (t1 instanceof DTotalTime) {
+    		isDTotalTime = true;
+    	} else if (t1 instanceof FTotalTime) {
+    		isFTotalTime = true;
+    	} else if (t1 instanceof ITotalTime) {
+    		isITotalTime = true;
+    	} 
+    	
+    	double d = 0;
+    	float f = 0;
+    	int i = 0;
+    	
+    	for (ITime t : allDeltas) {
+    		if (isDTotalTime) {
+    			d += ((DTotalTime) t).time;
+    		} else if (isFTotalTime) {
+    			f += ((FTotalTime) t).time;
+    		} else if (isITotalTime) {
+    			i += ((ITotalTime) t).time;
+    		}
+    	}
+    	
+    	if (isDTotalTime) {
+    		return new DTotalTime(d / allDeltas.size());
+    	} else if (isFTotalTime) {
+    		return new FTotalTime(f / allDeltas.size());
+    	} else {
+    		return new ITotalTime(i / allDeltas.size());
+    	}
+    		
     }
 
     @Override
