@@ -285,9 +285,12 @@ public class VectorTime implements ITime {
         }
         return 0;
     }
-
+    
+    /**
+     * @throwsthrows NotComparableVectorsException
+     */
 	@Override
 	public ITime computeDelta(ITime other) {
-		return null;
+		throw new NotComparableVectorsException(this, other);
 	}
 }
