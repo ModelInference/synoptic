@@ -5,7 +5,7 @@ package synoptic.util.time;
  * the values of the time used -- vector clocks/integer/float/etc. And exposes
  * the very basic operations on time, such as comparison for ordering.
  */
-public interface ITime {
+public interface ITime extends Comparable<ITime> {
 
     /**
      * Used to compare two time values. Note that (x < y) || (y < x) is only
