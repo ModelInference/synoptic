@@ -48,7 +48,10 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         this.target = target;
         this.relation = relation;
         this.delta = delta;
-        this.allDeltas.add(delta);
+
+        if (delta != null) {
+            this.allDeltas.add(delta);
+        }
     }
 
     /**
@@ -157,26 +160,36 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         int max = 1;
         for (ITime delta : this.allDeltas) {
             Integer count = counts.get(delta);
+
             if (count == null) {
-                counts.put(delta, 1);
+                count = 1;
             } else {
                 count++;
-                if (count > max) {
-                    mostCommon = delta;
-                    max = count;
-                    counts.put(delta, count);
-                }
             }
+
+            if (count >= max) {
+                mostCommon = delta;
+                max = count;
+            }
+
+            counts.put(delta, count);
         }
 
         return mostCommon;
     }
-    
+
     public ITime computeMedianDelta() {
+        
+        if (this.allDeltas.isEmpty()) {
+            return null;
+        }
+        
         Collections.sort(this.allDeltas);
 
         // Simple case of picking about the middle every time.
-        return this.allDeltas.get(this.allDeltas.size() / 2 - 1);
+        // TODO Calculate between the halfway values if the size
+        // of the list is even.
+        return this.allDeltas.get((this.allDeltas.size() / 2));
     }
 
     @Override
