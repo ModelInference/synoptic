@@ -1,7 +1,10 @@
 package synoptic.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -18,7 +21,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     protected NodeType target;
     protected final String relation;
     protected ITime delta;
-    protected List<ITime> allDeltas = new ArrayList<ITime>();
+    protected final List<ITime> allDeltas = new ArrayList<ITime>();
 
     /**
      * Create a new transition.
@@ -31,10 +34,11 @@ public class Transition<NodeType> implements ITransition<NodeType> {
      *            the label of the transition
      */
     public Transition(NodeType source, NodeType target, String relation) {
-    	this(source, target, relation, null);
+        this(source, target, relation, null);
     }
-    
-    public Transition(NodeType source, NodeType target, String relation, ITime delta) {
+
+    public Transition(NodeType source, NodeType target, String relation,
+            ITime delta) {
         assert source != null;
         assert target != null;
         assert relation != null;
@@ -43,6 +47,21 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         this.target = target;
         this.relation = relation;
         this.delta = delta;
+    }
+
+    /**
+     * Adds a change in time (delta) to the total list.
+     * 
+     * @param delta
+     */
+    public void addDelta(ITime delta) {
+        assert delta != null;
+        this.allDeltas.add(delta);
+    }
+
+    public void addAllDeltas(Collection<ITime> deltas) {
+        assert deltas != null;
+        this.allDeltas.addAll(deltas);
     }
 
     @Override
@@ -59,13 +78,13 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     public String getRelation() {
         return relation;
     }
-    
+
     public ITime getDelta() {
-    	return delta;
+        return delta;
     }
-    
+
     public List<ITime> getAllDeltas() {
-    	return allDeltas;
+        return allDeltas;
     }
 
     @Override
@@ -128,6 +147,27 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     @Override
     public String toStringConcise() {
         return getRelation();
+    }
+
+    public ITime computeMedianDelta() {
+        Map<ITime, Integer> counts = new HashMap<ITime, Integer>();
+        ITime mostCommon = null;
+        int max = 1;
+        for (ITime delta : this.allDeltas) {
+            Integer count = counts.get(delta);
+            if (count == null) {
+                counts.put(delta, 1);
+            } else {
+                count++;
+                if (count > max) {
+                    mostCommon = delta;
+                    max = count;
+                    counts.put(delta, count);
+                }
+            }
+        }
+        
+        return mostCommon;
     }
 
     @Override
