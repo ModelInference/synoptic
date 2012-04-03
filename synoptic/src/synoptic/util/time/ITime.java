@@ -29,6 +29,12 @@ public interface ITime extends Comparable<ITime> {
      */
     int compareTo(ITime t);
     
+    /**
+     * Computes the time difference between this ITime and another ITime instance. 
+     * @param other
+     * 			  the other ITime instance
+     * @return delta time between this ITime and other ITime instance
+     */
     ITime computeDelta(ITime other);
 
     @Override
