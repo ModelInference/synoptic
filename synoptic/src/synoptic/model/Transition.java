@@ -9,7 +9,10 @@ import java.util.Map;
 
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.time.DTotalTime;
+import synoptic.util.time.FTotalTime;
 import synoptic.util.time.ITime;
+import synoptic.util.time.ITotalTime;
 
 /**
  * An implementation of a transition.
@@ -38,6 +41,18 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         this(source, target, relation, null);
     }
 
+    /**
+     * Create a new transition.
+     * 
+     * @param source
+     *            source node
+     * @param target
+     *            target node
+     * @param relation
+     *            the label of the transition
+     * @param delta
+     * 			  an associated time delta for transition
+     */
     public Transition(NodeType source, NodeType target, String relation,
             ITime delta) {
         assert source != null;
@@ -153,7 +168,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     public String toStringConcise() {
         return getRelation();
     }
-
+    
     public ITime computeModeDelta() {
         Map<ITime, Integer> counts = new HashMap<ITime, Integer>();
         ITime mostCommon = null;
@@ -167,7 +182,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
                 count++;
             }
 
-            if (count >= max) {
+            if (count > max) {
                 mostCommon = delta;
                 max = count;
             }
@@ -177,7 +192,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
 
         return mostCommon;
     }
-
+    
     public ITime computeMedianDelta() {
         
         if (this.allDeltas.isEmpty()) {
@@ -187,8 +202,25 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         Collections.sort(this.allDeltas);
 
         // Simple case of picking about the middle every time.
-        // TODO Calculate between the halfway values if the size
+        // Calculate between the halfway values if the size
         // of the list is even.
+        if (this.allDeltas.size() % 2 == 0) {
+        	int mid = this.allDeltas.size() / 2;
+        	ITime t1 = allDeltas.get(mid - 1);
+        	ITime t2 = allDeltas.get(mid);
+        	
+        	if (t1 instanceof DTotalTime) {
+        		double d = (((DTotalTime) t1).time - ((DTotalTime) t2).time) / 2;
+        		return new DTotalTime(d);
+        	} else if (t1 instanceof FTotalTime) {
+        		float f = (((FTotalTime) t1).time - ((FTotalTime) t2).time) / 2;
+        		return new FTotalTime(f);
+        	} else if (t1 instanceof ITotalTime) {
+        		int i = (((ITotalTime) t1).time - ((ITotalTime) t2).time) / 2;
+        		return new ITotalTime(i);
+        	}
+        }
+        
         return this.allDeltas.get((this.allDeltas.size() / 2));
     }
 
