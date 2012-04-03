@@ -2,6 +2,7 @@ package synoptic.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         this.target = target;
         this.relation = relation;
         this.delta = delta;
+        this.allDeltas.add(delta);
     }
 
     /**
@@ -168,6 +170,13 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         }
 
         return mostCommon;
+    }
+    
+    public ITime computeMedianDelta() {
+        Collections.sort(this.allDeltas);
+
+        // Simple case of picking about the middle every time.
+        return this.allDeltas.get(this.allDeltas.size() / 2 - 1);
     }
 
     @Override
