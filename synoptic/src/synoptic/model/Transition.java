@@ -149,7 +149,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         return getRelation();
     }
 
-    public ITime computeMedianDelta() {
+    public ITime computeModeDelta() {
         Map<ITime, Integer> counts = new HashMap<ITime, Integer>();
         ITime mostCommon = null;
         int max = 1;
@@ -166,7 +166,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
                 }
             }
         }
-        
+
         return mostCommon;
     }
 

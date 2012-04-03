@@ -1,5 +1,11 @@
 package synoptic.model.interfaces;
 
+import java.util.Collection;
+
+import com.sun.accessibility.internal.resources.accessibility;
+
+import synoptic.util.time.ITime;
+
 /**
  * A generic interface for a transition. This interface provides method to
  * modify the transition.
@@ -38,6 +44,22 @@ public interface ITransition<NodeType> extends
      *            the new target node
      */
     void setTarget(NodeType target);
+
+    /**
+     * Adds a time for the transition between the source and target nodes.
+     * 
+     * @param delta
+     *            The time between nodes.
+     */
+    void addDelta(ITime delta);
+
+    /**
+     * Adds a collection of times for transition between source and target
+     * nodes.
+     * 
+     * @param deltas
+     */
+    void addAllDeltas(Collection<ITime> deltas);
 
     /**
      * Set the source node.
