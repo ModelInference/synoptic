@@ -75,6 +75,8 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
      *             if two events have identical timestamp.
      */
     public void addTrace(List<EventNode> events) throws ParseException {
+        assert events.size() > 0;
+
         // Sort the events in this group/trace.
         Collections.sort(events, new Comparator<EventNode>() {
             @Override
@@ -112,7 +114,8 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         // for (EventNode curNode : events.subList(1, events.size())) {
         for (EventNode curNode : events) {
 
-            if (prevNode.getTime().equals(curNode.getTime())) {
+            if (prevNode != null
+                    && prevNode.getTime().equals(curNode.getTime())) {
                 String error = "Found two events with identical timestamps: (1) "
                         + prevNode.toString() + " (2) " + curNode.toString();
                 logger.severe(error);
