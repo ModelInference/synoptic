@@ -46,22 +46,6 @@ public interface ITransition<NodeType> extends
     void setTarget(NodeType target);
 
     /**
-     * Adds a time for the transition between the source and target nodes.
-     * 
-     * @param delta
-     *            The time between nodes.
-     */
-    void addDelta(ITime delta);
-
-    /**
-     * Adds a collection of times for transition between source and target
-     * nodes.
-     * 
-     * @param deltas
-     */
-    void addAllDeltas(Collection<ITime> deltas);
-
-    /**
      * Set the source node.
      * 
      * @param source

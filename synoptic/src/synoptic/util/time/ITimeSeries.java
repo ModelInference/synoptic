@@ -1,6 +1,7 @@
 package synoptic.util.time;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -81,4 +82,32 @@ public class ITimeSeries<TimeType extends ITime> {
     	
     	return null;
     }
+    
+    public List<TimeType> getTimes() {
+    	return times;
+    }
+    
+    /**
+     * Adds a time for the transition between the source and target nodes.
+     * 
+     * @param delta
+     *            The time between nodes.
+     */
+    public void addDelta(TimeType t) {
+    	assert t != null;
+    	times.add(t);
+    }
+    
+    /**
+     * Adds a collection of times for transition between source and target
+     * nodes.
+     * 
+     * @param deltas
+     */
+    public void addAllDeltas(Collection<TimeType> deltas) {
+        assert deltas != null;
+       times.addAll(deltas);
+    }
+    
+    
 }

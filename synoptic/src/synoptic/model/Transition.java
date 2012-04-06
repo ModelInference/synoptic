@@ -26,7 +26,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     protected NodeType target;
     protected final String relation;
     protected ITime delta;
-    protected final List<ITime> allDeltas = new ArrayList<ITime>();
+    protected final ITimeSeries<ITime> allDeltas = new ITimeSeries<ITime>();
 
     /**
      * Create a new transition.
@@ -66,23 +66,8 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         this.delta = delta;
 
         if (delta != null) {
-            this.allDeltas.add(delta);
+            allDeltas.addDelta(delta);
         }
-    }
-
-    /**
-     * Adds a change in time (delta) to the total list.
-     * 
-     * @param delta
-     */
-    public void addDelta(ITime delta) {
-        assert delta != null;
-        this.allDeltas.add(delta);
-    }
-
-    public void addAllDeltas(Collection<ITime> deltas) {
-        assert deltas != null;
-        this.allDeltas.addAll(deltas);
     }
 
     @Override
@@ -102,10 +87,6 @@ public class Transition<NodeType> implements ITransition<NodeType> {
 
     public ITime getDelta() {
         return delta;
-    }
-
-    public List<ITime> getAllDeltas() {
-        return allDeltas;
     }
 
     @Override
