@@ -12,6 +12,7 @@ import synoptic.model.interfaces.ITransition;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.FTotalTime;
 import synoptic.util.time.ITime;
+import synoptic.util.time.ITimeSeries;
 import synoptic.util.time.ITotalTime;
 
 /**
@@ -167,123 +168,6 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     @Override
     public String toStringConcise() {
         return getRelation();
-    }
-    
-    /**
-     * @return 
-     * 		mode delta time for transition, null if transition has zero delta times.
-     */
-    public ITime computeModeDelta() {
-    	
-    	if (this.allDeltas.isEmpty()) {
-            return null;
-        }
-    	
-        Map<ITime, Integer> counts = new HashMap<ITime, Integer>();
-        ITime mostCommon = null;
-        int max = 1;
-        for (ITime delta : this.allDeltas) {
-            Integer count = counts.get(delta);
-
-            if (count == null) {
-                count = 1;
-            } else {
-                count++;
-            }
-
-            if (count > max) {
-                mostCommon = delta;
-                max = count;
-            }
-
-            counts.put(delta, count);
-        }
-
-        return mostCommon;
-    }
-    
-    /**
-     * @return 
-     * 		median delta time for transition, null if transition has zero delta times.
-     */
-    public ITime computeMedianDelta() {
-        
-        if (this.allDeltas.isEmpty()) {
-            return null;
-        }
-        
-        Collections.sort(this.allDeltas);
-
-        // Simple case of picking about the middle every time.
-        // Calculate between the halfway values if the size
-        // of the list is even.
-        if (this.allDeltas.size() % 2 == 0) {
-        	int mid = this.allDeltas.size() / 2;
-        	ITime t1 = allDeltas.get(mid - 1);
-        	ITime t2 = allDeltas.get(mid);
-        	
-        	if (t1 instanceof DTotalTime) {
-        		double d = (((DTotalTime) t1).time - ((DTotalTime) t2).time) / 2;
-        		return new DTotalTime(d);
-        	} else if (t1 instanceof FTotalTime) {
-        		float f = (((FTotalTime) t1).time - ((FTotalTime) t2).time) / 2;
-        		return new FTotalTime(f);
-        	} else if (t1 instanceof ITotalTime) {
-        		int i = (((ITotalTime) t1).time - ((ITotalTime) t2).time) / 2;
-        		return new ITotalTime(i);
-        	}
-        }
-        
-        return this.allDeltas.get((this.allDeltas.size() / 2));
-    }
-    
-    /**
-     * @return
-     * 		mean delta time for transition, null if transition has zero delta times.
-     */
-    //TODO hackish implementation, improve
-    public ITime computeMeanDelta() {
-    	
-    	if (this.allDeltas.isEmpty()) {
-            return null;
-        }
-    	
-    	boolean isDTotalTime = false;
-    	boolean isFTotalTime = false;
-    	boolean isITotalTime = false;
-    	
-    	ITime t1 = allDeltas.get(0);
-    	
-    	if (t1 instanceof DTotalTime) {
-    		isDTotalTime = true;
-    	} else if (t1 instanceof FTotalTime) {
-    		isFTotalTime = true;
-    	} else if (t1 instanceof ITotalTime) {
-    		isITotalTime = true;
-    	} 
-    	
-    	double d = 0;
-    	float f = 0;
-    	int i = 0;
-    	
-    	for (ITime t : allDeltas) {
-    		if (isDTotalTime) {
-    			d += ((DTotalTime) t).time;
-    		} else if (isFTotalTime) {
-    			f += ((FTotalTime) t).time;
-    		} else if (isITotalTime) {
-    			i += ((ITotalTime) t).time;
-    		}
-    	}
-    	
-    	if (isDTotalTime) {
-    		return new DTotalTime(d / allDeltas.size());
-    	} else if (isFTotalTime) {
-    		return new FTotalTime(f / allDeltas.size());
-    	} else {
-    		return new ITotalTime(i / allDeltas.size());
-    	}
-    		
     }
 
     @Override
