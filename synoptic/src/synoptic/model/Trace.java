@@ -9,17 +9,15 @@ import java.util.Set;
 /**
  * Maintains the set of all relation paths (a path corresponding to a particular
  * relation) part of a single input trace. If a relation exists in a trace, then
- * there is a single unique relation path corresponding to the relation.
+ * there is a single unique relation path corresponding to the relation. <br />
+ * <br />
+ * A relation string and an EventNode uniquely specify a relation path because
+ * we can simply walk the event nodes using their internal transitions along
+ * edges labeled with the relation string.
  * 
  * @author timjv
  */
 public class Trace {
-    /*
-     * A relation string and an EventNode uniquely specify a relation path
-     * because we can simply walk the event nodes using their internal
-     * transitions along edges labeled with the relation string.
-     */
-
     /** Relation string -> Representative relation path. */
     private Map<String, RelationPath> paths;
 
@@ -38,12 +36,11 @@ public class Trace {
      */
     public void addRelationPath(String relation, EventNode eNode,
             boolean initialConnected) {
-        if (paths.containsKey(relation)) {
-            /*
-             * A relation path has been specified for relation. Check that
-             * relation paths are not being created when they already exist.
-             */
-            throw new IllegalArgumentException("Trace already contains path");
+        if (hasRelation(relation)) {
+            // A relation path has been specified for relation. Check that
+            // relation paths are not being created when they already exist.
+            throw new IllegalArgumentException(
+                    "Trace already contains path for relation " + relation);
         }
         Set<String> relations = new LinkedHashSet<String>();
         relations.add(relation);
@@ -57,38 +54,26 @@ public class Trace {
     }
 
     public Set<EventType> getSeen(String relation) {
-        if (!paths.containsKey(relation)) {
-            throw new IllegalArgumentException("Trace doesn't contain the "
-                    + relation + " relation");
-        }
+        checkRelationContainment(relation);
         return paths.get(relation).getSeen();
     }
 
     public Map<EventType, Integer> getEventCounts(String relation) {
-        if (!paths.containsKey(relation)) {
-            throw new IllegalArgumentException("Trace doesn't contain the "
-                    + relation + " relation");
-        }
+        checkRelationContainment(relation);
         return paths.get(relation).getEventCounts();
     }
 
     // TODO: Make the return type deeply unmodifiable
     public Map<EventType, Map<EventType, Integer>> getFollowedByCounts(
             String relation) {
-        if (!paths.containsKey(relation)) {
-            throw new IllegalArgumentException("Trace doesn't contain the "
-                    + relation + " relation");
-        }
+        checkRelationContainment(relation);
         return paths.get(relation).getFollowedByCounts();
     }
 
     // TODO: Make the return type deeply unmodifiable
     public Map<EventType, Map<EventType, Integer>> getPrecedesCounts(
             String relation) {
-        if (!paths.containsKey(relation)) {
-            throw new IllegalArgumentException("Trace doesn't contain the "
-                    + relation + " relation");
-        }
+        checkRelationContainment(relation);
         return paths.get(relation).getPrecedesCounts();
     }
 
@@ -100,4 +85,10 @@ public class Trace {
         return Collections.unmodifiableSet(paths.keySet());
     }
 
+    private void checkRelationContainment(String relation) {
+        if (!hasRelation(relation)) {
+            throw new IllegalArgumentException("Trace doesn't contain the "
+                    + relation + " relation");
+        }
+    }
 }

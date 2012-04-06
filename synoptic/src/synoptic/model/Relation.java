@@ -1,17 +1,19 @@
 package synoptic.model;
 
-
 /**
  * Represents named and anonymous relations
  * 
  * @author timjv
  */
 public class Relation {
-
+    // The name used to describe an anonymous relation.
     public static final String anonName = "anon-relation";
 
+    // A short descriptive and unique string representing this relation.
     private String relation;
+    // Used to document the purpose of the relation.
     private String name;
+    // Whether or not this relation is a closure relation (?)
     private boolean isClosure;
 
     public Relation(String name, String relation, boolean isClosure) {
