@@ -125,7 +125,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
             // Process node's relations:
             Map<EventNode, Set<String>> srcNodeToTxRelations = new LinkedHashMap<EventNode, Set<String>>();
 
-            for (Relation relation : curNode.getEventRelations()) {
+            for (Relation relation : curNode.getEventRelationsObjects()) {
 
                 EventNode txNode;
                 if (relation.isClosure()) {
@@ -182,7 +182,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         }
 
         // Tag the final node as terminal:
-        tagTerminal(prevNode, prevNode.getEventStringRelations());
+        tagTerminal(prevNode, prevNode.getEventRelationsStrings());
 
         /*
          * If trace doesn't contain a relation path for a relation r, then r was

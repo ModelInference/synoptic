@@ -272,7 +272,7 @@ public class Partition implements INode<Partition> {
         Set<EventNode> eventsReachableFromPrevious = new LinkedHashSet<EventNode>();
         for (EventNode prevEvent : previous.events) {
             for (EventNode e : prevEvent.getAllSuccessors()) {
-                if (e.getEventRelations().equals(relations)) {
+                if (e.getEventRelationsObjects().equals(relations)) {
                     eventsReachableFromPrevious.add(e);
                 }
             }

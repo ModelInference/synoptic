@@ -92,6 +92,9 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         // for each event type.
         Set<EventType> eTypes = new LinkedHashSet<EventType>();
         for (Trace trace : g.getTraces()) {
+            if (!trace.hasRelation(relation)) {
+                continue;
+            }
             eTypes.addAll(trace.getSeen(relation));
             Map<EventType, Integer> traceEventCounts = trace
                     .getEventCounts(relation);
@@ -127,25 +130,24 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         // Tracks which events were observed across all traces.
         Set<EventType> AlwaysFollowsINITIALSet = null;
 
-        /*
-         * Iterates over each trace in the graph and aggregates the individual
-         * Occurrences, Follows, and Precedes counts from the specified relation
-         * in each trace.
-         */
+        // Iterates over each trace in the graph and aggregates the individual
+        // Occurrences, Follows, and Precedes counts from the specified relation
+        // in each trace.
         for (Trace trace : g.getTraces()) {
+            if (!trace.hasRelation(relation)) {
+                continue;
+            }
 
-            /*
-             * Adds the Precedes count from the trace into the graph global
-             * count
-             */
+            // Adds the Precedes count from the trace into the graph global
+            // count.
+
             Map<EventType, Map<EventType, Integer>> tracePrecedesCounts = trace
                     .getPrecedesCounts(relation);
             addCounts(tracePrecedesCounts, gPrecedesCnts);
 
-            /*
-             * Adds the FollowedBy count from the trace into the graph global
-             * count
-             */
+            // Adds the FollowedBy count from the trace into the graph global
+            // count.
+
             Map<EventType, Map<EventType, Integer>> traceFollowedByCounts = trace
                     .getFollowedByCounts(relation);
             addCounts(traceFollowedByCounts, gFollowedByCnts);

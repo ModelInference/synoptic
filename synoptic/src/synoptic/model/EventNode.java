@@ -297,14 +297,14 @@ public class EventNode implements INode<EventNode> {
         return transitionsWithRelation.keySet();
     }
 
-    public Set<Relation> getEventRelations() {
+    public Set<Relation> getEventRelationsObjects() {
         return event.getRelations();
     }
 
-    public Set<String> getEventStringRelations() {
+    public Set<String> getEventRelationsStrings() {
         Set<String> relations = new LinkedHashSet<String>();
         for (Relation r : event.getRelations()) {
-            relations.add(r.getName());
+            relations.add(r.getRelation());
         }
         return relations;
     }
