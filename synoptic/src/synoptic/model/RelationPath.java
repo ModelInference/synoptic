@@ -44,8 +44,8 @@ public class RelationPath {
      */
     private Set<String> orderingRelationSet;
     /**
-     * Keeps track of the state of seen, eventcounts, followedByCounts, and
-     * precedesCounts. True if these data structures are populated.
+     * Caching indicator -- whether or not the various counts have already been
+     * computed.
      */
     private boolean counted;
 
@@ -103,6 +103,10 @@ public class RelationPath {
      * single relation (i.e., not a totally ordered relation path).
      */
     private void count() {
+        if (counted) {
+            return;
+        }
+
         EventNode curNode = eNode;
 
         boolean hasImmediateIncomingRelation = !initialTransitivelyConnected;
@@ -237,16 +241,12 @@ public class RelationPath {
     }
 
     public Set<EventType> getSeen() {
-        if (!counted) {
-            count();
-        }
+        count();
         return Collections.unmodifiableSet(seen);
     }
 
     public Map<EventType, Integer> getEventCounts() {
-        if (!counted) {
-            count();
-        }
+        count();
         return Collections.unmodifiableMap(eventCounts);
     }
 
@@ -255,9 +255,7 @@ public class RelationPath {
      * is count.
      */
     public Map<EventType, Map<EventType, Integer>> getFollowedByCounts() {
-        if (!counted) {
-            count();
-        }
+        count();
         // TODO: Make the return type deeply unmodifiable
         return Collections.unmodifiableMap(followedByCounts);
     }
@@ -267,9 +265,7 @@ public class RelationPath {
      * count.
      */
     public Map<EventType, Map<EventType, Integer>> getPrecedesCounts() {
-        if (!counted) {
-            count();
-        }
+        count();
         // TODO: Make the return type deeply unmodifiable
         return Collections.unmodifiableMap(precedesCounts);
     }
