@@ -85,12 +85,14 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
             }
         });
 
-        Trace trace = new Trace();
-        traces.add(trace);
+
 
         Map<String, EventNode> lastSeenNodeForRelation = new HashMap<String, EventNode>();
         EventNode firstNode = events.get(0);
         EventNode prevNode = null;
+        
+        Trace trace = new Trace();
+        traces.add(trace);
 
         /**
          * <pre>
@@ -162,11 +164,11 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
                     // we tag curNode as initial and add a new relation path to
                     // the trace.
                     tagInitial(curNode, relations);
-                    boolean initialConnected = (curNode == firstNode);
-
-                    for (String r : relations) {
-                        trace.addRelationPath(r, curNode, initialConnected);
-                    }
+//                    boolean initialConnected = (curNode == firstNode);
+//
+//                    for (String r : relations) {
+//                        trace.addRelationPath(r, curNode, initialConnected);
+//                    }
                 } else {
                     // Otherwise, there is a specific previous srcNode, and we
                     // connect curNode to this node.
@@ -206,10 +208,10 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
          * connected to the terminal node and do not need to be counted beyond
          * the last node containing the given relation type.
          */
-        for (String relation : lastSeenNodeForRelation.keySet()) {
-            EventNode finalNode = lastSeenNodeForRelation.get(relation);
-            trace.markRelationPathFinalNode(relation, finalNode);
-        }
+//        for (String relation : lastSeenNodeForRelation.keySet()) {
+//            EventNode finalNode = lastSeenNodeForRelation.get(relation);
+//            trace.markRelationPathFinalNode(relation, finalNode);
+//        }
     }
 
     /**
