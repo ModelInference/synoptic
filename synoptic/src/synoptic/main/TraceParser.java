@@ -1037,6 +1037,10 @@ public class TraceParser {
                 logger.info(msg.toString());
             }
             event.setTime(nextTime);
+            
+            Relation timeRelation = new Relation("time-relation", Event.defaultTimeRelationString,
+                    false);
+            eventRelations.add(timeRelation);
 
             String partitionName = filter.substitute(eventStringArgs);
             EventNode eventNode = addEventNodeToPartition(event, partitionName);
