@@ -77,10 +77,11 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
      * 
      * @param events
      *            List of EventNodes in trace order
+     * @param eventRelation 
      * @throws ParseException
      *             if two events have identical timestamp.
      */
-    public void addTrace(List<EventNode> events) throws ParseException {
+    public void addTrace(List<EventNode> events, Map<EventNode, Set<Relation>> eventRelation) throws ParseException {
         // Sort the events in this group/trace.
         Collections.sort(events, new Comparator<EventNode>() {
             @Override
@@ -109,7 +110,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
          * to curNode
          * </pre>
          */
-        for (Relation relation : prevNode.getEventRelations()) {
+        for (Relation relation : eventRelation.get(prevNode)) {
             relations.add(relation.getRelation());
             tagInitial(prevNode, relation.getRelation());
             lastSeenNodeForRelation.put(relation.getRelation(), prevNode);
@@ -127,7 +128,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
             }
 
             // Process node's relations:
-            for (Relation relation : curNode.getEventRelations()) {
+            for (Relation relation : eventRelation.get(curNode)) {
                 relations.add(relation.getRelation());
 
                 /*
@@ -182,7 +183,7 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         }
 
         // Tag the final node as terminal:
-        for (Relation relation : prevNode.getEventRelations()) {
+        for (Relation relation : eventRelation.get(prevNode)) {
             relations.add(relation.getRelation());
             tagTerminal(prevNode, relation.getRelation());
         }

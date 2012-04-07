@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -63,6 +64,9 @@ public class TraceParser {
     // Partitioning based on filter expressions -- maps a unique partition
     // string to a set of parsed events corresponding to that partition.
     Map<String, ArrayList<EventNode>> partitions = new LinkedHashMap<String, ArrayList<EventNode>>();
+    
+    // Partition -> EventNode -> Relation
+    Map<String, Map<EventNode, Set<Relation>>> partitionEventRelations = new HashMap<String, Map<EventNode, Set<Relation>>>();
 
     // Patterns used to pre-process regular expressions
     private static final Pattern matchEscapedSeparator = Pattern
@@ -894,6 +898,7 @@ public class TraceParser {
 			 * nicer way to represent a state machine?
 			 */
 			Set<String> relationValues = new HashSet<String>();
+			Set<Relation> eventRelations = new HashSet<Relation>();
 			for (String key : matched.keySet()) {
 				if (key.startsWith(relationGroup)) {
 					String relationString = matched.get(key);
@@ -923,7 +928,7 @@ public class TraceParser {
 
 					Relation relation = new Relation(relName, relationString,
 							isClosure);
-					event.addRelation(relation);
+					eventRelations.add(relation);
 				}
 			}
 
@@ -1033,8 +1038,9 @@ public class TraceParser {
             }
             event.setTime(nextTime);
 
-            EventNode eventNode = addEventNodeToPartition(event,
-                    filter.substitute(eventStringArgs));
+            String partitionName = filter.substitute(eventStringArgs);
+            EventNode eventNode = addEventNodeToPartition(event, partitionName);
+            addRelationsToEventNode(partitionName, eventNode, eventRelations);
             eventStringArgs = null;
             return eventNode;
         }
@@ -1077,6 +1083,36 @@ public class TraceParser {
         ParseException parseException = new ParseException(exceptionError);
         parseException.setLogLine(line);
         throw parseException;
+    }
+
+    /**
+     * Creates mapping in partitionEventRelations for
+     * partitionName -> eventNode -> eventRelations
+     * 
+     * @param partitionName
+     * @param eventNode
+     * @param eventRelations
+     */
+    private void addRelationsToEventNode(String partitionName, EventNode eventNode,
+            Set<Relation> eventRelations) {
+        
+        if (!partitionEventRelations.containsKey(partitionName)) {
+            partitionEventRelations.put(partitionName, new HashMap<EventNode, Set<Relation>>());
+        }
+        
+        Map<EventNode, Set<Relation>> eventNodeRelations = partitionEventRelations.get(partitionName);
+        
+        if (!eventNodeRelations.containsKey(eventNode)) {
+            eventNodeRelations.put(eventNode, new HashSet<Relation>());
+        }
+        
+        Set<Relation> relations = eventNodeRelations.get(eventNode);
+        
+        /* Relations are immutable so we don't have to worry about representation
+         * exposure.
+         */
+        relations.addAll(eventRelations);
+        
     }
 
     /**
@@ -1126,8 +1162,8 @@ public class TraceParser {
         assert logTimeTypeIsTotallyOrdered();
 
         ChainsTraceGraph graph = new ChainsTraceGraph(allEvents);
-        for (List<EventNode> group : partitions.values()) {
-            graph.addTrace(group);
+        for (String partition : partitions.keySet()) {
+            graph.addTrace(partitions.get(partition), partitionEventRelations.get(partition));
         }
         return graph;
     }
@@ -1151,7 +1187,8 @@ public class TraceParser {
         Set<EventNode> noPredecessor = new LinkedHashSet<EventNode>(allEvents);
 
         Set<EventNode> directSuccessors;
-        for (List<EventNode> group : partitions.values()) {
+        for (String partition : partitions.keySet()) {
+            List<EventNode> group = partitions.get(partition);
             for (EventNode e1 : group) {
                 // In partially ordered case there may be multiple direct
                 // successors.
@@ -1173,12 +1210,12 @@ public class TraceParser {
 
                 if (directSuccessors.size() == 0) {
                     // Tag messages without successor as terminal.
-                    for (Relation relation : e1.getEventRelations()) {
+                    for (Relation relation : partitionEventRelations.get(partition).get(e1)) {
                     	graph.tagTerminal(e1, relation.getRelation());
                     }
                 } else {
                     for (EventNode e2 : directSuccessors) {
-                    	for (Relation relation : e2.getEventRelations()) {
+                    	for (Relation relation : partitionEventRelations.get(partition).get(e2)) {
                     		e1.addTransition(e2, relation.getRelation());
                     	}
                         noPredecessor.remove(e2);
@@ -1187,14 +1224,33 @@ public class TraceParser {
             }
 
         }
+        
+        Map<EventNode, String> eventPartitions = inverPartitionEvents(partitionEventRelations);
 
         // Mark messages without a predecessor as initial.
         for (EventNode e : noPredecessor) {
-        	for (Relation relation : e.getEventRelations()) {
+            String partition = eventPartitions.get(e);
+        	for (Relation relation : partitionEventRelations.get(partition).get(e)) {
         		graph.tagInitial(e, relation.getRelation());
         	}
         }
 
         return graph;
+    }
+
+    private static Map<EventNode, String> inverPartitionEvents(
+            Map<String, Map<EventNode, Set<Relation>>> partitionEventRelations) {
+        
+        Map<EventNode, String> eventPartitions = new HashMap<EventNode, String>();
+        
+        for (String partition : partitionEventRelations.keySet()) {
+            Map<EventNode, Set<Relation>> eventRelations = partitionEventRelations.get(partition);
+            
+            for (EventNode eventNode : eventRelations.keySet()) {
+                eventPartitions.put(eventNode, partition);
+            }
+        }
+        
+        return eventPartitions;
     }
 }

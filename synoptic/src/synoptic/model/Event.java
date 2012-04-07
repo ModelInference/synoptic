@@ -42,10 +42,6 @@ public class Event {
      */
     private final int lineNum;
 
-    // TODO: refactor this out of Event (they are only used for trace graph
-    // construction). Documented in issue 237.
-    private Set<Relation> relations;
-
     /**
      * Create an event of a particular type, with corresponding log line,
      * filename and line number where the event originated.
@@ -62,7 +58,6 @@ public class Event {
         this.logLine = logLine;
         this.fileName = fileName;
         this.lineNum = lineNum;
-        this.relations = new HashSet<Relation>();
     }
 
     /**
@@ -142,9 +137,6 @@ public class Event {
         result = prime * result + lineNum;
         result = prime * result + ((logLine == null) ? 0 : logLine.hashCode());
         result = prime * result + ((time == null) ? 0 : time.hashCode());
-        for (Relation relation : relations) {
-            result = prime * result + relation.hashCode();
-        }
         return result;
     }
 
@@ -192,10 +184,6 @@ public class Event {
             return false;
         }
 
-        if (!relations.equals(other.getRelations())) {
-            return false;
-        }
-
         return true;
     }
 
@@ -206,8 +194,6 @@ public class Event {
      *            the time
      */
     public void setTime(ITime t) {
-        addRelation(new Relation("time-relation", defaultTimeRelationString,
-                false));
         time = t;
     }
 
@@ -231,21 +217,4 @@ public class Event {
     public int getLineNum() {
         return lineNum;
     }
-
-    public boolean containsRelation(Relation r) {
-        return relations.contains(r);
-    }
-
-    public void addRelation(Relation r) {
-        if (containsRelation(r)) {
-            throw new IllegalArgumentException(
-                    "Event already contains relation " + r);
-        }
-        relations.add(r);
-    }
-
-    public Set<Relation> getRelations() {
-        return Collections.unmodifiableSet(relations);
-    }
-
 }

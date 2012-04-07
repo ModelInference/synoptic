@@ -39,11 +39,6 @@ public class EventNode implements INode<EventNode> {
      */
     private int traceID = 0;
 
-    // TODO: For totally ordered traces, the transitions becomes a single
-    // element, and transitionsByEvents becomes superfluous.
-
-    private Set<String> transitionRelations;
-
     List<Transition<EventNode>> transitions = new ArrayList<Transition<EventNode>>();
     LinkedHashMap<String, List<Transition<EventNode>>> transitionsByRelation = new LinkedHashMap<String, List<Transition<EventNode>>>();
 
@@ -52,7 +47,6 @@ public class EventNode implements INode<EventNode> {
 
         parent = copyFrom.parent;
         event = copyFrom.event;
-        transitionRelations = new HashSet<String>();
     }
 
     public EventNode(Event eventArg) {
@@ -60,7 +54,6 @@ public class EventNode implements INode<EventNode> {
 
         event = eventArg;
         parent = null;
-        transitionRelations = new HashSet<String>();
     }
 
     @Override
@@ -88,10 +81,6 @@ public class EventNode implements INode<EventNode> {
      */
     public void addTransition(EventNode dest, String relation) {
         assert dest != null : "Transition Target cannot be null";
-        if (transitionRelations.contains(relation)) {
-            throw new InternalSynopticException(
-                    "Duplicate transition relation: " + relation);
-        }
         addTransition(new Transition<EventNode>(this, dest, relation));
     }
 
@@ -280,10 +269,6 @@ public class EventNode implements INode<EventNode> {
 
     public Set<String> getNodeRelations() {
         return transitionsByRelation.keySet();
-    }
-
-    public Set<Relation> getEventRelations() {
-        return event.getRelations();
     }
 
     /**
