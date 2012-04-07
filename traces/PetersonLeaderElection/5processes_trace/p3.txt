@@ -1,0 +1,16 @@
+# p3, uid3
+0,0,1,0,0 active uid3
+0,0,2,0,0 send1 uid3
+0,2,3,0,0 recv1 uid4
+0,2,4,0,0 send2 uid4
+2,4,5,0,0 recv2 uid1
+2,4,6,0,0 active uid4
+2,4,7,0,0 send1 uid4
+7,8,8,2,4 recv1 uid5
+7,8,9,2,4 send2 uid5
+9,10,10,8,8 recv2 uid4
+9,10,11,8,8 active uid5
+9,10,12,8,8 send1 uid5
+13,12,13,12,12 recv1 uid5
+13,12,14,12,12 leader
+
