@@ -76,7 +76,8 @@ public class ITimeSeries<TimeType extends ITime> {
         }
 
         // Create a zero valued starting point.
-        // TODO create some sort of method to construct
+        // TODO create some sort of method to construct a zero valued time
+        // as this is rather confusing.
         TimeType initial = this.times.get(0);
         initial = (TimeType) initial.computeDelta(initial);
         int count = 1;
