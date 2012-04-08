@@ -78,4 +78,20 @@ public class DTotalTime implements ITime {
         }
 		return new DTotalTime(this.time - ((DTotalTime) other).time);
 	}
+	
+	@Override
+	public ITime incrBy(ITime other) {
+	    if (!(other instanceof DTotalTime)) {
+	        throw new NonComparableTimesException(this, other);
+	    }
+	    return new DTotalTime(this.time + ((DTotalTime) other).time);
+	}
+	
+	@Override
+	public ITime divBy(int divisor) {
+	    if (divisor < 1) {
+	        throw new IllegalArgumentException();
+	    }
+	    return new DTotalTime(this.time / divisor);
+	}
 }

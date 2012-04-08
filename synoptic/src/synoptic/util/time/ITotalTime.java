@@ -75,4 +75,23 @@ public class ITotalTime implements ITime {
 		 }
 		 return new ITotalTime(this.time - ((ITotalTime) other).time);
 	}
+	
+	@Override
+	public ITime incrBy(ITime other) {
+	    if (!(other instanceof ITotalTime)) {
+	        throw new NonComparableTimesException(this, other);
+	    }
+	    return new ITotalTime(this.time + ((ITotalTime) other).time);
+	}
+	
+	@Override
+	public ITime divBy(int divisor) {
+	    // Cannot divide this number by zero or a negative number,
+	    // since time cannot be negative.
+	    if (divisor < 1) {
+	        throw new IllegalArgumentException();
+	    }
+	    
+	    return new ITotalTime(this.time / divisor);
+	}
 }

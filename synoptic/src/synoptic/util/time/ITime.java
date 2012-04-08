@@ -28,14 +28,33 @@ public interface ITime extends Comparable<ITime> {
      * @return true if (this < t), otherwise false
      */
     int compareTo(ITime t);
-    
+
     /**
-     * Computes the time difference between this ITime and another ITime instance. 
+     * Computes the time difference between this ITime and another ITime
+     * instance.
+     * 
      * @param other
-     * 			  the other ITime instance
+     *            the other ITime instance
      * @return delta time between this ITime and other ITime instance
      */
     ITime computeDelta(ITime other);
+
+    /**
+     * Increments the ITime object by the specified amount, and then returns it.
+     * 
+     * @param other
+     *            The ITime object with which to increment.
+     * @return The incremented ITime object.
+     */
+    ITime incrBy(ITime other);
+
+    /**
+     * Divides the ITime object by the specified divisor.
+     * 
+     * @param divisor
+     * @return The ITime object after division has occurred.
+     */
+    ITime divBy(int divisor);
 
     @Override
     int hashCode();
