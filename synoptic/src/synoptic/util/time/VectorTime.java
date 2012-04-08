@@ -147,7 +147,7 @@ public class VectorTime implements ITime {
             throw new NonComparableTimesException(this, t);
         }
         VectorTime vTime = (VectorTime) t;
-        
+
         boolean foundStrictlyLess = false;
 
         if (vector.size() != vTime.vector.size()) {
@@ -285,15 +285,39 @@ public class VectorTime implements ITime {
         }
         return 0;
     }
-    
+
     /**
-     * VectorTime is only partially ordered, therefore a delta time cannot be 
-     * computed for performance analysis. Throws an exception if this method
-     * is called.
+     * VectorTime is only partially ordered, therefore a delta time cannot be
+     * computed for performance analysis. Throws an exception if this method is
+     * called.
+     * 
      * @throws NotComparableVectorsException
      */
-	@Override
-	public ITime computeDelta(ITime other) {
-		throw new NotComparableVectorsException(this, other);
-	}
+    @Override
+    public ITime computeDelta(ITime other) {
+        throw new NotComparableVectorsException(this, other);
+    }
+
+    /**
+     * Given that vector time is partially ordered, vector times cannot
+     * increment each other. This throws an exception when called.
+     */
+    @Override
+    public ITime incrBy(ITime other) {
+        throw new NotComparableVectorsException(this, other);
+    }
+
+    @Override
+    public ITime divBy(int divisor) {
+        // TODO There doesn't seem to be any real reason
+        // as to why one would want to do this, but the code
+        // is here.
+
+        VectorTime retVal = new VectorTime(this.vector);
+        for (Integer time : retVal.vector) {
+            time /= divisor;
+        }
+
+        return retVal;
+    }
 }

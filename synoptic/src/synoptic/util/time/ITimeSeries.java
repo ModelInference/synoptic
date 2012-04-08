@@ -77,7 +77,7 @@ public class ITimeSeries<TimeType extends ITime> {
         }
     
     	for (TimeType t : times) {
-    	
+    	    
     	}
     	
     	return null;

@@ -75,4 +75,20 @@ public class FTotalTime implements ITime {
         }
 		return new FTotalTime(this.time - ((FTotalTime) other).time);
 	}
+	
+	@Override
+	public ITime incrBy(ITime other) {
+	    if (!(other instanceof FTotalTime)) {
+	        throw new NonComparableTimesException(this, other);
+	    }
+	    return new FTotalTime(this.time + ((FTotalTime) other).time);
+	}
+	
+	@Override
+	public ITime divBy(int divisor) {
+	    if (divisor < 1) {
+	        throw new IllegalArgumentException();
+	    }
+	    return new FTotalTime(this.time / divisor);
+	}
 }
