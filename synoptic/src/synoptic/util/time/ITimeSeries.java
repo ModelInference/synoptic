@@ -26,7 +26,7 @@ public class ITimeSeries<TimeType extends ITime> {
 
         Map<TimeType, Integer> counts = new HashMap<TimeType, Integer>();
         TimeType mostCommon = null;
-        int max = 1;
+        int max = 0;
         for (TimeType delta : times) {
             Integer count = counts.get(delta);
 
