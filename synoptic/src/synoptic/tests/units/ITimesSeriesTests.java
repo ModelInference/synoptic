@@ -8,7 +8,7 @@ import org.junit.Test;
 import synoptic.util.time.ITimeSeries;
 import synoptic.util.time.ITotalTime;
 
-public class TransitionTests {
+public class ITimesSeriesTests {
 
     private ITimeSeries<ITotalTime> times;
 
