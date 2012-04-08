@@ -40,7 +40,8 @@ public interface ITime extends Comparable<ITime> {
     ITime computeDelta(ITime other);
 
     /**
-     * Increments the ITime object by the specified amount, and then returns it.
+     * Increments the ITime object by the specified amount, and returns the
+     * incremented time as a new object.
      * 
      * @param other
      *            The ITime object with which to increment.

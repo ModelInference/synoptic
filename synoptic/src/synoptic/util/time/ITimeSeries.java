@@ -8,22 +8,22 @@ import java.util.List;
 import java.util.Map;
 
 public class ITimeSeries<TimeType extends ITime> {
-	List<TimeType> times;
-	
-	public ITimeSeries() {
-		times = new ArrayList<TimeType>();
-	}
-	
-	/**
-     * @return 
-     * 		mode delta time for transition, null if transition has zero delta times.
+    List<TimeType> times;
+
+    public ITimeSeries() {
+        times = new ArrayList<TimeType>();
+    }
+
+    /**
+     * @return mode delta time for transition, null if transition has zero delta
+     *         times.
      */
     public TimeType computeMode() {
-    	
-    	if (this.times.isEmpty()) {
+
+        if (this.times.isEmpty()) {
             return null;
         }
-    	
+
         Map<TimeType, Integer> counts = new HashMap<TimeType, Integer>();
         TimeType mostCommon = null;
         int max = 1;
@@ -46,47 +46,53 @@ public class ITimeSeries<TimeType extends ITime> {
 
         return mostCommon;
     }
-	
+
     /**
-     * @return 
-     * 		median delta time for transition, null if transition has zero delta times.
+     * @return median delta time for transition, null if transition has zero
+     *         delta times.
      */
     public TimeType computeMedian() {
-        
+
         if (this.times.isEmpty()) {
             return null;
         }
-        
+
         Collections.sort(this.times);
 
         // Simple case of picking about the middle every time.
         // TODO Calculate between the halfway values if the size
         // of the list is even.
-       
+
         return times.get((times.size() / 2));
     }
-    
+
     /**
-     * @return
-     * 		mean delta time for transition, null if transition has zero delta times.
+     * @return mean delta time for transition, null if transition has zero delta
+     *         times.
      */
-    //TODO implement function
-    public TimeType computeMean() {	
-    	if (times.isEmpty()) {
+    public TimeType computeMean() {
+        if (times.isEmpty()) {
             return null;
         }
-    
-    	for (TimeType t : times) {
-    	    
-    	}
-    	
-    	return null;
+
+        // Create a zero valued starting point.
+        // TODO create some sort of method to construct
+        TimeType initial = this.times.get(0);
+        initial = (TimeType) initial.computeDelta(initial);
+        int count = 1;
+
+        for (TimeType t : times) {
+            initial = (TimeType) initial.incrBy(t);
+            ++count;
+        }
+
+        return (TimeType) initial.divBy(count);
     }
-    
+
     public List<TimeType> getTimes() {
-    	return times;
+        return times;
     }
-    
+
     /**
      * Adds a time for the transition between the source and target nodes.
      * 
@@ -94,10 +100,10 @@ public class ITimeSeries<TimeType extends ITime> {
      *            The time between nodes.
      */
     public void addDelta(TimeType t) {
-    	assert t != null;
-    	times.add(t);
+        assert t != null;
+        times.add(t);
     }
-    
+
     /**
      * Adds a collection of times for transition between source and target
      * nodes.
@@ -106,8 +112,7 @@ public class ITimeSeries<TimeType extends ITime> {
      */
     public void addAllDeltas(Collection<TimeType> deltas) {
         assert deltas != null;
-       times.addAll(deltas);
+        times.addAll(deltas);
     }
-    
-    
+
 }
