@@ -73,7 +73,8 @@ public class ITimeSeries<TimeType extends ITime> {
      * @return mean delta time for transition, null if transition has zero delta
      *         times.
      */
-    public TimeType computeMean() {
+    @SuppressWarnings("unchecked")
+	public TimeType computeMean() {
         if (times.isEmpty()) {
             return null;
         }
@@ -83,14 +84,12 @@ public class ITimeSeries<TimeType extends ITime> {
         // as this is rather confusing.
         TimeType initial = this.times.get(0);
         initial = (TimeType) initial.computeDelta(initial);
-        int count = 1;
 
         for (TimeType t : times) {
             initial = (TimeType) initial.incrBy(t);
-            ++count;
         }
-
-        return (TimeType) initial.divBy(count);
+      
+        return (TimeType) initial.divBy(times.size());
     }
 
     public List<TimeType> getTimes() {
