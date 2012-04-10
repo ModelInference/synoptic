@@ -85,8 +85,14 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         return relation;
     }
 
+    @Override
     public ITime getDelta() {
         return delta;
+    }
+    
+    @Override
+    public ITimeSeries<ITime> getAllDeltas() {
+    	return allDeltas;
     }
 
     @Override

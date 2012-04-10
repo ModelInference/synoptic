@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.sun.accessibility.internal.resources.accessibility;
 
 import synoptic.util.time.ITime;
+import synoptic.util.time.ITimeSeries;
 
 /**
  * A generic interface for a transition. This interface provides method to
@@ -53,6 +54,21 @@ public interface ITransition<NodeType> extends
      */
     void setSource(NodeType source);
 
+    /**
+     * Get the delta time of the transition
+     * 
+     * @return delta time
+     */
+    ITime getDelta();
+    
+    
+    /**
+     * Get all the delta times for (partition) transition
+     * 
+     * @return all delta times
+     */
+    ITimeSeries<ITime> getAllDeltas();	
+  
     /**
      * Get a short description of the transition
      * 
