@@ -5,10 +5,11 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import synoptic.tests.SynopticTest;
 import synoptic.util.time.ITimeSeries;
 import synoptic.util.time.ITotalTime;
 
-public class ITimesSeriesTests {
+public class ITimesSeriesTests extends SynopticTest {
 
     private ITimeSeries<ITotalTime> times;
 
