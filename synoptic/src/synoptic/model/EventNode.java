@@ -95,7 +95,7 @@ public class EventNode implements INode<EventNode> {
         }
         
         if (Main.options.enablePerfDebugging) {
-        	ITime delta = dest.getTime().computeDelta(dest.getTime());
+        	ITime delta = event.getTime().computeDelta(dest.getTime());
         	addTransition(new Transition<EventNode>(this, dest, relation, delta));
         } else {
         	addTransition(new Transition<EventNode>(this, dest, relation));
