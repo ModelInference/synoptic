@@ -10,10 +10,12 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import synoptic.algorithms.graph.PartitionSplit;
+import synoptic.main.Main;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.IIterableIterator;
 import synoptic.util.NotImplementedException;
+import synoptic.util.time.ITime;
 
 /**
  * Implements a partition in a partition graph. Partitions are nodes, but they
@@ -396,12 +398,31 @@ public class Partition implements INode<Partition> {
                 while (transItr.hasNext() || msgItr.hasNext()) {
                     if (transItr.hasNext()) {
                         final ITransition<EventNode> found = transItr.next();
-                        final Transition<Partition> transToPart = new Transition<Partition>(
-                                found.getSource().getParent(), found
-                                        .getTarget().getParent(),
-                                found.getRelation());
+                        final Transition<Partition> transToPart;
+                        ITime d = null;
+                        
+                        if (Main.options.enablePerfDebugging) {
+                        	
+                        	d = found.getSource().getTime().computeDelta(
+                        							found.getTarget().getTime());
+                        	
+                        	transToPart = new Transition<Partition>(
+                                    found.getSource().getParent(), found
+                                    	.getTarget().getParent(),
+                                    found.getRelation(), d);
+                        } else {
+                        	transToPart = new Transition<Partition>(
+                                    found.getSource().getParent(), found
+                                            .getTarget().getParent(),
+                                    found.getRelation());
+                        }
+                        
                         if (seen.add(transToPart)) {
                             return transToPart;
+                        } else {
+                        	if (Main.options.enablePerfDebugging) {
+                        		transToPart.allDeltas.addDelta(d);
+                        	}
                         }
                     } else {
                         if (relation == null) {
