@@ -14,7 +14,7 @@ public class ITimesSeriesTests {
 
     @Before
     public void resettimes() {
-        times = new ITimeSeries();
+        times = new ITimeSeries<ITotalTime>();
     }
 
     // Does it compute the mode with only one value?
@@ -67,5 +67,25 @@ public class ITimesSeriesTests {
         }
 
         assertEquals(new ITotalTime(3), times.computeMedian());
+    }
+    
+    @Test
+    public void meanTestOneValue() {
+    	times.addDelta(new ITotalTime(1));
+    	assertEquals(new ITotalTime(1), times.computeMean());
+    }
+    
+    @Test
+    public void meanTestEmpty() {
+    	assertNull(times.computeMean());
+    }
+    
+    @Test
+    public void meanTestManyValues() {
+    	times.addDelta(new ITotalTime(1));
+    	times.addDelta(new ITotalTime(2));
+    	times.addDelta(new ITotalTime(5));
+    	times.addDelta(new ITotalTime(8));
+    	assertEquals(new ITotalTime(4), times.computeMean());
     }
 }
