@@ -7,8 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Encapsulates a series of objects extending ITime.
+ */
 public class ITimeSeries<TimeType extends ITime> {
-    List<TimeType> times;
+    private List<TimeType> times;
 
     public ITimeSeries() {
         times = new ArrayList<TimeType>();
@@ -115,5 +118,4 @@ public class ITimeSeries<TimeType extends ITime> {
         assert deltas != null;
         times.addAll(deltas);
     }
-
 }
