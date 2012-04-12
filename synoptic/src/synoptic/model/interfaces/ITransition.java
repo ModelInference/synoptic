@@ -61,13 +61,20 @@ public interface ITransition<NodeType> extends
      */
     ITime getDelta();
     
+    /**
+     * Set the delta.
+     * 
+     * @param d
+     * 			  the new delta time
+     */
+    void setDelta(ITime d);
     
     /**
      * Get all the delta times for (partition) transition
      * 
      * @return all delta times
      */
-    ITimeSeries<ITime> getAllDeltas();	
+    ITimeSeries<ITime> getDeltaSeries();	
   
     /**
      * Get a short description of the transition

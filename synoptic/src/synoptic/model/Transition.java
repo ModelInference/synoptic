@@ -25,8 +25,8 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     protected NodeType source;
     protected NodeType target;
     protected final String relation;
-    protected ITime delta;
-    protected final ITimeSeries<ITime> allDeltas = new ITimeSeries<ITime>();
+    protected ITime delta = null;
+    protected ITimeSeries<ITime> series = null;
 
     /**
      * Create a new transition.
@@ -39,23 +39,6 @@ public class Transition<NodeType> implements ITransition<NodeType> {
      *            the label of the transition
      */
     public Transition(NodeType source, NodeType target, String relation) {
-        this(source, target, relation, null);
-    }
-
-    /**
-     * Create a new transition.
-     * 
-     * @param source
-     *            source node
-     * @param target
-     *            target node
-     * @param relation
-     *            the label of the transition
-     * @param delta
-     * 			  an associated time delta for transition
-     */
-    public Transition(NodeType source, NodeType target, String relation,
-            ITime delta) {
         assert source != null;
         assert target != null;
         assert relation != null;
@@ -63,11 +46,6 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         this.source = source;
         this.target = target;
         this.relation = relation;
-        this.delta = delta;
-
-        if (delta != null) {
-            allDeltas.addDelta(delta);
-        }
     }
 
     @Override
@@ -86,13 +64,35 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     }
 
     @Override
-    public ITime getDelta() {
+    public ITime getDelta() {	
         return delta;
     }
     
     @Override
-    public ITimeSeries<ITime> getAllDeltas() {
-    	return allDeltas;
+    public void setDelta(ITime d) {
+    	assert d != null;
+    	delta = d;
+    }
+    
+    @Override
+    public ITimeSeries<ITime> getDeltaSeries() {
+    	if (series != null) {
+    		return series;
+    	} else if (!(source instanceof Partition)) {
+    		return null;
+    	} else if (((Partition) source).events.iterator().next().getTransitions().get(0).getDelta() != null) {
+    		series = new ITimeSeries<ITime>();
+    		return series;
+    	} else {
+    		return null;
+    	}
+    }
+    
+    public void addDeltaToSeries(ITime d) {
+    	assert d != null;
+    	if (series != null) {
+    		series.addDelta(d);
+    	}
     }
 
     @Override
