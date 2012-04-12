@@ -1,6 +1,7 @@
 package synoptic.model.export;
 
 import synoptic.model.interfaces.INode;
+import synoptic.util.time.ITime;
 
 /**
  * Implements a GML (graph modeling language) export for graphs:
@@ -64,6 +65,13 @@ public class GmlExportFormatter extends GraphExportFormatter {
     public String edgeToStringWithProb(int nodeSrc, int nodeDst, double prob,
             String relation) {
         String attributes = "  label \"" + quote(probToString(prob)) + "\"\n";
+        return edgeToString(nodeSrc, nodeDst, attributes, relation);
+    }
+    
+    @Override
+    public String edgeToStringWithITime(int nodeSrc, int nodeDst, ITime time,
+            String relation) {
+        String attributes = "  label \"" + quote(time.toString()) + "\"\n";
         return edgeToString(nodeSrc, nodeDst, attributes, relation);
     }
 

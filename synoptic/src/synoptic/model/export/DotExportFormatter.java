@@ -1,6 +1,7 @@
 package synoptic.model.export;
 
 import synoptic.model.interfaces.INode;
+import synoptic.util.time.ITime;
 
 /**
  * Implements a GraphViz exporter (DOT language) for graphs:
@@ -57,6 +58,15 @@ public class DotExportFormatter extends GraphExportFormatter {
             String relation) {
         String probStr = quote(probToString(prob));
         String attributes = "label=\"" + probStr + "\", weight=\"" + probStr
+                + "\"";
+        return edgeToString(nodeSrc, nodeDst, attributes, relation);
+    }
+    
+    @Override
+    public String edgeToStringWithITime(int nodeSrc, int nodeDst, ITime time,
+            String relation) {
+        String timeStr = time != null ? quote(time.toString()) : "";
+        String attributes = "label=\"" + timeStr + "\", weight=\"" + timeStr
                 + "\"";
         return edgeToString(nodeSrc, nodeDst, attributes, relation);
     }

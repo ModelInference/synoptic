@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import synoptic.model.Event;
 import synoptic.model.interfaces.INode;
+import synoptic.util.time.ITime;
 
 /**
  * Base class representing possible exported/serializing formats for graphs.
@@ -143,6 +144,23 @@ public abstract class GraphExportFormatter {
      * @return
      */
     public abstract String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
+            String relation);
+    
+    /**
+     * Serializes a single node edge in a graph to a string that represents this
+     * edge, along with the latency of the time between the source and dest events.
+     * 
+     * @param nodeSrc
+     *            the unique identifier for the source node
+     * @param nodeDst
+     *            the unique identifier for the target node
+     * @param freq
+     *            the frequency value to be used as a label on the edge
+     * @param relation
+     *            a string representing the relation (e.g., "t")
+     * @return
+     */
+    public abstract String edgeToStringWithITime(int nodeSrc, int nodeDst, ITime time,
             String relation);
 
     /**
