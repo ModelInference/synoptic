@@ -77,13 +77,6 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     		return null;
     	}
     }
-    
-    public void addDeltaToSeries(ITime d) {
-    	assert d != null;
-    	if (series != null) {
-    		series.addDelta(d);
-    	}
-    }
 
     @Override
     public int hashCode() {

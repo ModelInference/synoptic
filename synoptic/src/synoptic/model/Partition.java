@@ -411,9 +411,10 @@ public class Partition implements INode<Partition> {
                             if (targTime != null) {
                                 d = found.getTarget().getTime().computeDelta(
                                                         found.getSource().getTime());
-                                transToPart.addDeltaToSeries(d);
+                                transToPart.getDeltaSeries().addDelta(d);
                             }
                     	}
+                    	
                         if (seen.add(transToPart)) {
                             return transToPart;
                         }

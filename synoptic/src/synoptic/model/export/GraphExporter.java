@@ -28,6 +28,7 @@ import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
+import synoptic.util.time.ITime;
 
 /**
  * Used to export a graph object to a file.
@@ -197,7 +198,9 @@ public class GraphExporter {
             // Export all the edges corresponding to the nodes in the graph.
             for (INode<T> node : nodes) {
                 List<? extends ITransition<T>> transitions;
-                if (outputEdgeLabels) {
+                // If perf debugging isn't enabled, then output weights, else
+                // add the edge labels later.
+                if (outputEdgeLabels && !Main.options.enablePerfDebugging) {
                     transitions = node.getWeightedTransitions();
                 } else {
                     transitions = node.getTransitions();
@@ -233,11 +236,25 @@ public class GraphExporter {
                                         .getTraceID(), trans.getRelation());
                     } else {
                         if (outputEdgeLabels) {
-                            double prob = ((WeightedTransition<T>) trans)
-                                    .getFraction();
-                            s = Main.graphExportFormatter
-                                    .edgeToStringWithProb(nodeSrc, nodeDst,
-                                            prob, trans.getRelation());
+                            if (Main.options.enablePerfDebugging) {
+                                // TODO Simply calculate the mean for now, but
+                                // this should be more robust and conform to what the
+                                // user wants in particular.
+                                ITime time = null;
+                                if (trans.getDeltaSeries() != null) {
+                                    time = trans.getDeltaSeries().computeMean();
+                                }
+                                s = Main.graphExportFormatter
+                                        .edgeToStringWithITime(nodeSrc, nodeDst, 
+                                                time, trans.getRelation());
+                                
+                            } else {
+                                double prob = ((WeightedTransition<T>) trans)
+                                        .getFraction();
+                                s = Main.graphExportFormatter
+                                        .edgeToStringWithProb(nodeSrc, nodeDst,
+                                                prob, trans.getRelation());
+                            }
                         } else {
                             s = Main.graphExportFormatter
                                     .edgeToStringWithNoProb(nodeSrc, nodeDst,
