@@ -64,9 +64,9 @@ public class TraceParser {
     // Partitioning based on filter expressions -- maps a unique partition
     // string to a set of parsed events corresponding to that partition.
     Map<String, ArrayList<EventNode>> partitions = new LinkedHashMap<String, ArrayList<EventNode>>();
-    
-    // Partition -> EventNode -> Relation
-    Map<String, Map<EventNode, Set<Relation>>> partitionEventRelations = new HashMap<String, Map<EventNode, Set<Relation>>>();
+
+    // EventNode -> Relation associated with this event node.
+    Map<EventNode, Set<Relation>> AllEventRelations = new HashMap<EventNode, Set<Relation>>();
 
     // Patterns used to pre-process regular expressions
     private static final Pattern matchEscapedSeparator = Pattern
@@ -91,11 +91,11 @@ public class TraceParser {
     // DTIME: double time (e.g. 1234.56) -- 64 bits
     public static final List<String> validTimeGroups = Arrays.asList("TIME",
             "VTIME", "FTIME", "DTIME");
-    
+
     // Regexp group representing multiple relations
     private static final String relationGroup = "RELATION";
     private static final String namedRelationGroup = "RELATION-";
-    
+
     // Regexp group representing closure relations, call and return for now.
     private static final String closureRelationGroup = "RELATION*";
     private static final String namedclosureRelationGroup = "RELATION*-";
@@ -121,8 +121,6 @@ public class TraceParser {
     // passed reg exps to match lines. The parser allows only one type of time
     // to be used.
     private String selectedTimeGroup = null;
-    
-
 
     /**
      * Returns an un-parameterized trace parser.
@@ -471,31 +469,32 @@ public class TraceParser {
                     throw new ParseException(error);
                 }
             }
-            
-            
+
             for (String group : groups) {
-            	if (group.startsWith(relationGroup)) {
-            		
-            		// Check to see if relation capture group strings are well-formed
-            		Pattern relation = Pattern.compile("RELATION\\*?(-\\w*)?");
-            		Matcher fieldMatcher = relation.matcher(group);
-            		if (!fieldMatcher.matches()) {
-            			String error = "Relation field: " + group + " is malformed." +
-            					"Accepts: RELATION*?(-\\w*)?";
-            			logger.severe(error);
-            			throw new ParseException(error);
-            		}
-            		
-            		// Check if VTIME is used with relation   
-            		if (selectedTimeGroup.equals("VTIME")) {
-            			String error = "RELATION and VTIME groups cannot be mixed since multiple" +
-            					"relations requires a totally ordered log.";
-            			logger.severe(error);
-            			throw new ParseException(error);
-            		}
-            	}
+                if (group.startsWith(relationGroup)) {
+
+                    // Check to see if relation capture group strings are
+                    // well-formed
+                    Pattern relation = Pattern.compile("RELATION\\*?(-\\w*)?");
+                    Matcher fieldMatcher = relation.matcher(group);
+                    if (!fieldMatcher.matches()) {
+                        String error = "Relation field: " + group
+                                + " is malformed."
+                                + "Accepts: RELATION*?(-\\w*)?";
+                        logger.severe(error);
+                        throw new ParseException(error);
+                    }
+
+                    // Check if VTIME is used with relation
+                    if (selectedTimeGroup.equals("VTIME")) {
+                        String error = "RELATION and VTIME groups cannot be mixed since multiple"
+                                + "relations requires a totally ordered log.";
+                        logger.severe(error);
+                        throw new ParseException(error);
+                    }
+                }
             }
-            
+
         }
 
         if (Main.options.debugParse) {
@@ -892,45 +891,45 @@ public class TraceParser {
                 eType = new StringEventType(eTypeLabel);
                 event = new Event(eType, line, fileName, lineNum);
             }
-            
-			/*
-			 * Tag event nodes with relation fields. This is gross, is there a
-			 * nicer way to represent a state machine?
-			 */
-			Set<String> relationValues = new HashSet<String>();
-			Set<Relation> eventRelations = new HashSet<Relation>();
-			for (String key : matched.keySet()) {
-				if (key.startsWith(relationGroup)) {
-					String relationString = matched.get(key);
 
-					if (relationValues.contains(relationString)) {
-						throw new ParseException(
-								"Duplicate captured relation value: "
-										+ relationString);
-					}
+            /*
+             * Tag event nodes with relation fields. This is gross, is there a
+             * nicer way to represent a state machine?
+             */
+            Set<String> relationValues = new HashSet<String>();
+            Set<Relation> eventRelations = new HashSet<Relation>();
+            for (String key : matched.keySet()) {
+                if (key.startsWith(relationGroup)) {
+                    String relationString = matched.get(key);
 
-					relationValues.add(relationString);
+                    if (relationValues.contains(relationString)) {
+                        throw new ParseException(
+                                "Duplicate captured relation value: "
+                                        + relationString);
+                    }
 
-					String relName = Relation.anonName;
-					boolean isClosure = false;
+                    relationValues.add(relationString);
 
-					if (key.startsWith(closureRelationGroup)) {
-						isClosure = true;
+                    String relName = Relation.anonName;
+                    boolean isClosure = false;
 
-						if (key.startsWith(namedclosureRelationGroup)) {
-							relName = key.substring(namedclosureRelationGroup
-									.length());
-						}
+                    if (key.startsWith(closureRelationGroup)) {
+                        isClosure = true;
 
-					} else if (key.startsWith(namedRelationGroup)) {
-						relName = key.substring(namedRelationGroup.length());
-					}
+                        if (key.startsWith(namedclosureRelationGroup)) {
+                            relName = key.substring(namedclosureRelationGroup
+                                    .length());
+                        }
 
-					Relation relation = new Relation(relName, relationString,
-							isClosure);
-					eventRelations.add(relation);
-				}
-			}
+                    } else if (key.startsWith(namedRelationGroup)) {
+                        relName = key.substring(namedRelationGroup.length());
+                    }
+
+                    Relation relation = new Relation(relName, relationString,
+                            isClosure);
+                    eventRelations.add(relation);
+                }
+            }
 
             // We have two cases for processing time on log lines:
             // (1) Implicitly: no matched field is a time field because it is
@@ -1037,14 +1036,24 @@ public class TraceParser {
                 logger.info(msg.toString());
             }
             event.setTime(nextTime);
-            
-            Relation timeRelation = new Relation("time-relation", Event.defaultTimeRelationString,
-                    false);
+
+            Relation timeRelation = new Relation("time-relation",
+                    Event.defaultTimeRelationString, false);
             eventRelations.add(timeRelation);
 
             String partitionName = filter.substitute(eventStringArgs);
             EventNode eventNode = addEventNodeToPartition(event, partitionName);
-            addRelationsToEventNode(partitionName, eventNode, eventRelations);
+
+            if (!AllEventRelations.containsKey(eventNode)) {
+                AllEventRelations.put(eventNode, new HashSet<Relation>());
+            }
+
+            Set<Relation> relations = AllEventRelations.get(eventNode);
+
+            // Relations are immutable so we don't have to worry about
+            // representation exposure.
+            relations.addAll(eventRelations);
+
             eventStringArgs = null;
             return eventNode;
         }
@@ -1087,36 +1096,6 @@ public class TraceParser {
         ParseException parseException = new ParseException(exceptionError);
         parseException.setLogLine(line);
         throw parseException;
-    }
-
-    /**
-     * Creates mapping in partitionEventRelations for
-     * partitionName -> eventNode -> eventRelations
-     * 
-     * @param partitionName
-     * @param eventNode
-     * @param eventRelations
-     */
-    private void addRelationsToEventNode(String partitionName, EventNode eventNode,
-            Set<Relation> eventRelations) {
-        
-        if (!partitionEventRelations.containsKey(partitionName)) {
-            partitionEventRelations.put(partitionName, new HashMap<EventNode, Set<Relation>>());
-        }
-        
-        Map<EventNode, Set<Relation>> eventNodeRelations = partitionEventRelations.get(partitionName);
-        
-        if (!eventNodeRelations.containsKey(eventNode)) {
-            eventNodeRelations.put(eventNode, new HashSet<Relation>());
-        }
-        
-        Set<Relation> relations = eventNodeRelations.get(eventNode);
-        
-        /* Relations are immutable so we don't have to worry about representation
-         * exposure.
-         */
-        relations.addAll(eventRelations);
-        
     }
 
     /**
@@ -1167,7 +1146,7 @@ public class TraceParser {
 
         ChainsTraceGraph graph = new ChainsTraceGraph(allEvents);
         for (String partition : partitions.keySet()) {
-            graph.addTrace(partitions.get(partition), partitionEventRelations.get(partition));
+            graph.addTrace(partitions.get(partition), AllEventRelations);
         }
         return graph;
     }
@@ -1214,47 +1193,28 @@ public class TraceParser {
 
                 if (directSuccessors.size() == 0) {
                     // Tag messages without successor as terminal.
-                    for (Relation relation : partitionEventRelations.get(partition).get(e1)) {
-                    	graph.tagTerminal(e1, relation.getRelation());
+                    for (Relation relation : AllEventRelations.get(e1)) {
+                        graph.tagTerminal(e1, relation.getRelation());
                     }
                 } else {
                     for (EventNode e2 : directSuccessors) {
-                    	for (Relation relation : partitionEventRelations.get(partition).get(e2)) {
-                    		e1.addTransition(e2, relation.getRelation());
-                    	}
+                        for (Relation relation : AllEventRelations.get(e2)) {
+                            e1.addTransition(e2, relation.getRelation());
+                        }
                         noPredecessor.remove(e2);
                     }
                 }
             }
 
         }
-        
-        Map<EventNode, String> eventPartitions = inverPartitionEvents(partitionEventRelations);
 
         // Mark messages without a predecessor as initial.
         for (EventNode e : noPredecessor) {
-            String partition = eventPartitions.get(e);
-        	for (Relation relation : partitionEventRelations.get(partition).get(e)) {
-        		graph.tagInitial(e, relation.getRelation());
-        	}
+            for (Relation relation : AllEventRelations.get(e)) {
+                graph.tagInitial(e, relation.getRelation());
+            }
         }
 
         return graph;
-    }
-
-    private static Map<EventNode, String> inverPartitionEvents(
-            Map<String, Map<EventNode, Set<Relation>>> partitionEventRelations) {
-        
-        Map<EventNode, String> eventPartitions = new HashMap<EventNode, String>();
-        
-        for (String partition : partitionEventRelations.keySet()) {
-            Map<EventNode, Set<Relation>> eventRelations = partitionEventRelations.get(partition);
-            
-            for (EventNode eventNode : eventRelations.keySet()) {
-                eventPartitions.put(eventNode, partition);
-            }
-        }
-        
-        return eventPartitions;
     }
 }
