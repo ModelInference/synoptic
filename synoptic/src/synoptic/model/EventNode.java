@@ -96,9 +96,6 @@ public class EventNode implements INode<EventNode> {
         
     	Transition<EventNode> t = new Transition<EventNode>(this, dest, relation);   
         if (Main.options.enablePerfDebugging) {
-            // TODO Remove these two debug lines.
-            System.out.println("DELTA SRC: " + this.getTime());
-            System.out.println("DELTA DST: " + dest.getTime());
             if (dest.getTime() != null) {
                 ITime delta = dest.getTime().computeDelta(this.getTime());
                 t.setDelta(delta);

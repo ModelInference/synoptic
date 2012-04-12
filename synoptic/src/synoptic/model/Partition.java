@@ -401,23 +401,19 @@ public class Partition implements INode<Partition> {
                         final Transition<Partition> transToPart;
                         ITime d = null;
                         
-                        if (Main.options.enablePerfDebugging) {
+                    	transToPart = new Transition<Partition>(
+                                found.getSource().getParent(), found
+                                	.getTarget().getParent(),
+                                found.getRelation());
                         	
-                        	d = found.getSource().getTime().computeDelta(
-                        							found.getTarget().getTime());
-                        	
-                        	transToPart = new Transition<Partition>(
-                                    found.getSource().getParent(), found
-                                    	.getTarget().getParent(),
-                                    found.getRelation());
-                        	transToPart.addDeltaToSeries(d);
-                        } else {
-                        	transToPart = new Transition<Partition>(
-                                    found.getSource().getParent(), found
-                                            .getTarget().getParent(),
-                                    found.getRelation());
-                        }
-                        
+                    	if (Main.options.enablePerfDebugging) {
+                            ITime targTime = found.getTarget().getTime();
+                            if (targTime != null) {
+                                d = found.getTarget().getTime().computeDelta(
+                                                        found.getSource().getTime());
+                                transToPart.addDeltaToSeries(d);
+                            }
+                    	}
                         if (seen.add(transToPart)) {
                             return transToPart;
                         }
