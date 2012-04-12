@@ -94,12 +94,12 @@ public class EventNode implements INode<EventNode> {
                     "Duplicate transition relation: " + relation);
         }
         
+    	Transition<EventNode> t = new Transition<EventNode>(this, dest, relation);   
         if (Main.options.enablePerfDebugging) {
         	ITime delta = dest.getTime().computeDelta(event.getTime());
-        	addTransition(new Transition<EventNode>(this, dest, relation, delta));
-        } else {
-        	addTransition(new Transition<EventNode>(this, dest, relation));
+        	t.setDelta(delta);
         }
+        addTransition(t);
     }
 
     public void addTransitions(EventNode dest, Collection<String> relations) {
