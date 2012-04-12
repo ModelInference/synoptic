@@ -73,6 +73,10 @@ public class DTotalTime implements ITime {
 
 	@Override
 	public ITime computeDelta(ITime other) {
+	    if (other == null) {
+	        return this;
+	    }
+	    
 		if (!(other instanceof DTotalTime)) {
             throw new NonComparableTimesException(this, other);
         }
@@ -81,6 +85,10 @@ public class DTotalTime implements ITime {
 	
 	@Override
 	public ITime incrBy(ITime other) {
+	    if (other == null) {
+            return this;
+        }
+	    
 	    if (!(other instanceof DTotalTime)) {
 	        throw new NonComparableTimesException(this, other);
 	    }

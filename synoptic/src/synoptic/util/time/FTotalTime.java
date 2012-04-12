@@ -68,27 +68,35 @@ public class FTotalTime implements ITime {
         return new Float(time).compareTo(((FTotalTime) t).time);
     }
 
-	@Override
-	public ITime computeDelta(ITime other) {
-		if (!(other instanceof FTotalTime)) {
+    @Override
+    public ITime computeDelta(ITime other) {
+        if (other == null) {
+            return this;
+        }
+
+        if (!(other instanceof FTotalTime)) {
             throw new NonComparableTimesException(this, other);
         }
-		return new FTotalTime(this.time - ((FTotalTime) other).time);
-	}
-	
-	@Override
-	public ITime incrBy(ITime other) {
-	    if (!(other instanceof FTotalTime)) {
-	        throw new NonComparableTimesException(this, other);
-	    }
-	    return new FTotalTime(this.time + ((FTotalTime) other).time);
-	}
-	
-	@Override
-	public ITime divBy(int divisor) {
-	    if (divisor < 1) {
-	        throw new IllegalArgumentException();
-	    }
-	    return new FTotalTime(this.time / divisor);
-	}
+        return new FTotalTime(this.time - ((FTotalTime) other).time);
+    }
+
+    @Override
+    public ITime incrBy(ITime other) {
+        if (other == null) {
+            return this;
+        }
+        
+        if (!(other instanceof FTotalTime)) {
+            throw new NonComparableTimesException(this, other);
+        }
+        return new FTotalTime(this.time + ((FTotalTime) other).time);
+    }
+
+    @Override
+    public ITime divBy(int divisor) {
+        if (divisor < 1) {
+            throw new IllegalArgumentException();
+        }
+        return new FTotalTime(this.time / divisor);
+    }
 }

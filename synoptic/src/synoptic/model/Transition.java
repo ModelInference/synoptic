@@ -1,19 +1,9 @@
 package synoptic.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.time.DTotalTime;
-import synoptic.util.time.FTotalTime;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITimeSeries;
-import synoptic.util.time.ITotalTime;
 
 /**
  * An implementation of a transition.

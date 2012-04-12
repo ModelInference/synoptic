@@ -409,7 +409,8 @@ public class Partition implements INode<Partition> {
                         	transToPart = new Transition<Partition>(
                                     found.getSource().getParent(), found
                                     	.getTarget().getParent(),
-                                    found.getRelation(), d);
+                                    found.getRelation());
+                        	transToPart.addDeltaToSeries(d);
                         } else {
                         	transToPart = new Transition<Partition>(
                                     found.getSource().getParent(), found
@@ -419,10 +420,6 @@ public class Partition implements INode<Partition> {
                         
                         if (seen.add(transToPart)) {
                             return transToPart;
-                        } else {
-                        	if (Main.options.enablePerfDebugging) {
-                        		transToPart.allDeltas.addDelta(d);
-                        	}
                         }
                     } else {
                         if (relation == null) {
