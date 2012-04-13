@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.main.TraceParser;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -107,6 +108,17 @@ public class PartitionGraph implements IGraph<Partition> {
 
         partitionByIndexSetsAndLabels(g.getNodes(), partitioningIndexSets);
         this.invariants = invariants;
+        this.traceGraph = g;
+    }
+
+    // TODO: comment this
+    public PartitionGraph(ChainsTraceGraph g, Partition initial,
+            Partition terminal, Set<Partition> partitions) {
+        initialEvents.put(TraceParser.defaultRelation, initial.getEventNodes());
+        terminalEvents.put(TraceParser.defaultRelation,
+                terminal.getEventNodes());
+        relations.add(TraceParser.defaultRelation);
+        this.partitions = new LinkedHashSet<Partition>(partitions);
         this.traceGraph = g;
     }
 
