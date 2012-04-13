@@ -66,7 +66,7 @@ public class TraceParser {
     Map<String, ArrayList<EventNode>> partitions = new LinkedHashMap<String, ArrayList<EventNode>>();
 
     // EventNode -> Relation associated with this event node.
-    Map<EventNode, Set<Relation>> AllEventRelations = new HashMap<EventNode, Set<Relation>>();
+    Map<EventNode, Set<Relation>> allEventRelations = new HashMap<EventNode, Set<Relation>>();
 
     // Patterns used to pre-process regular expressions
     private static final Pattern matchEscapedSeparator = Pattern
@@ -192,40 +192,6 @@ public class TraceParser {
     }
 
     /**
-     * Checks whether lst contains duplicates. If so, it logs an error using
-     * regex for information and throws a ParseException.
-     * 
-     * @param lst
-     *            the list to check for duplicates
-     * @param regex
-     *            the associated regex string to use when printing out an error
-     * @throws ParseException
-     */
-    public static void detectListDuplicates(List<String> lst, String regex)
-            throws ParseException {
-        // Check for group duplicates.
-        Set<String> lstSet = new LinkedHashSet<String>(lst);
-        if (lstSet.size() == lst.size()) {
-            return;
-        }
-
-        // We have duplicates in list, which means some fields are
-        // defined multiple times. We find these by removing each set
-        // element from the list, then converting the list to a set (to remove
-        // groups that have more than 3+ occurrences) and throw an exception.
-        for (String e : lstSet) {
-            lst.remove(e);
-        }
-
-        String error = "The fields: " + new LinkedHashSet<String>(lst)
-                + " appear more than once in regex: " + regex;
-        logger.severe(error);
-        ParseException parseException = new ParseException(error);
-        parseException.setRegex(regex);
-        throw parseException;
-    }
-
-    /**
      * Returns whether or not the time type used to parse the log(s) has a
      * canonical total order or not.
      * 
@@ -273,13 +239,23 @@ public class TraceParser {
         LinkedHashMap<String, NamedSubstitution> cmap = new LinkedHashMap<String, NamedSubstitution>();
 
         // A list of all the fields that were assigned in the regex.
-        List<String> fields = new LinkedList<String>();
+        // List<String> fields = new LinkedList<String>();
+        Set<String> fields = new LinkedHashSet<String>();
 
         // Indicates whether this regexp sets the HIDE field to true or not.
         boolean isHidden = false;
         while (matcher.find()) {
             String field = matcher.group(1);
             String value = matcher.group(2);
+
+            if (fields.contains(field)) {
+                String error = "The field: " + field
+                        + " already appears in regex: " + regex;
+                logger.severe(error);
+                ParseException parseException = new ParseException(error);
+                parseException.setRegex(regex);
+                throw parseException;
+            }
             fields.add(field);
 
             cmap.put(field, new NamedSubstitution(value));
@@ -316,8 +292,6 @@ public class TraceParser {
                 isHidden = true;
             }
         }
-        // Check for field duplicates.
-        detectListDuplicates(fields, regex);
 
         constantFields.add(parsers.size(), cmap);
 
@@ -373,9 +347,6 @@ public class TraceParser {
         }
         parsers.add(parser);
         List<String> groups = parser.groupNames();
-
-        // Check for group duplicates.
-        detectListDuplicates(groups, regex);
 
         // Check that special/internal field names do not appear.
         // Currently this is just LTIME.
@@ -1044,11 +1015,11 @@ public class TraceParser {
             String partitionName = filter.substitute(eventStringArgs);
             EventNode eventNode = addEventNodeToPartition(event, partitionName);
 
-            if (!AllEventRelations.containsKey(eventNode)) {
-                AllEventRelations.put(eventNode, new HashSet<Relation>());
+            if (!allEventRelations.containsKey(eventNode)) {
+                allEventRelations.put(eventNode, new HashSet<Relation>());
             }
 
-            Set<Relation> relations = AllEventRelations.get(eventNode);
+            Set<Relation> relations = allEventRelations.get(eventNode);
 
             // Relations are immutable so we don't have to worry about
             // representation exposure.
@@ -1146,7 +1117,7 @@ public class TraceParser {
 
         ChainsTraceGraph graph = new ChainsTraceGraph(allEvents);
         for (String partition : partitions.keySet()) {
-            graph.addTrace(partitions.get(partition), AllEventRelations);
+            graph.addTrace(partitions.get(partition), allEventRelations);
         }
         return graph;
     }
@@ -1193,14 +1164,14 @@ public class TraceParser {
 
                 if (directSuccessors.size() == 0) {
                     // Tag messages without successor as terminal.
-                    assert AllEventRelations.get(e1).size() == 1;
-                    String r = AllEventRelations.get(e1).iterator().next()
+                    assert allEventRelations.get(e1).size() == 1;
+                    String r = allEventRelations.get(e1).iterator().next()
                             .getRelation();
                     graph.tagTerminal(e1, r);
                 } else {
                     for (EventNode e2 : directSuccessors) {
-                        assert AllEventRelations.get(e2).size() == 1;
-                        String r = AllEventRelations.get(e1).iterator().next()
+                        assert allEventRelations.get(e2).size() == 1;
+                        String r = allEventRelations.get(e1).iterator().next()
                                 .getRelation();
                         e1.addTransition(e2, r);
                         noPredecessor.remove(e2);
@@ -1213,8 +1184,8 @@ public class TraceParser {
         // Mark messages without a predecessor as initial.
 
         for (EventNode e : noPredecessor) {
-            assert AllEventRelations.get(e).size() == 1;
-            String r = AllEventRelations.get(e).iterator().next().getRelation();
+            assert allEventRelations.get(e).size() == 1;
+            String r = allEventRelations.get(e).iterator().next().getRelation();
             graph.tagInitial(e, r);
         }
 
