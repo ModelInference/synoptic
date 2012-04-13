@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -60,6 +61,9 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
     }
 
     public void tagInitial(EventNode initialNode, Set<String> relations) {
+        if (relations == null) {
+            throw new NullPointerException("Null relation set");
+        }
         super.tagInitial(initialNode, relations);
         traceIdToInitNodes.put(initialNode.getTraceID(), initialNode);
     }
@@ -142,6 +146,15 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
                     // In this case, the srcNode is considered to be INITIAL, so
                     // we tag curNode as initial and add a new relation path to
                     // the trace.
+                    relations = new HashSet<String>();
+                    Set<Relation> wrappedRelations = eventRelations.get(curNode);
+                    for (Relation relation : wrappedRelations) {
+                        String relationString = relation.getRelation();
+                        if (!trace.containsRelation(relationString)) {
+                            trace.addInitialNode(relationString, curNode);
+                        }
+                        relations.add(relationString);
+                    }    
                     tagInitial(curNode, relations);
                 } else {
                     // Otherwise, there is a specific previous srcNode, and we

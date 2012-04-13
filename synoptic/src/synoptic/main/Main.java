@@ -630,7 +630,7 @@ public class Main implements Callable<Integer> {
 
         long startTime = loggerInfoStart("Mining invariants ["
                 + miner.getClass().getName() + "]..");
-        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph, options.multipleRelations);
 
         loggerInfoEnd("Mining took ", startTime);
 

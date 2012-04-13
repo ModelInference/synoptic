@@ -174,7 +174,7 @@ public class ModelCheckersTests extends SynopticTest {
         parser.addRegex("^(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser,
-                new TransitiveClosureInvMiner());
+                new TransitiveClosureInvMiner(), false);
 
         exportTestGraph(pGraph, 1);
 

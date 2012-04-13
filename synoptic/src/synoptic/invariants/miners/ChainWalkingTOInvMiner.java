@@ -26,11 +26,11 @@ import synoptic.model.Trace;
  */
 public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         TOInvariantMiner {
-
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
+    
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, boolean multipleRelations) {
         TemporalInvariantSet result = new TemporalInvariantSet();
         for (String r : g.getRelations()) {
-            TemporalInvariantSet tmp = computeInvariants(g, r);
+            TemporalInvariantSet tmp = computeInvariants(g, r, multipleRelations);
             result.add(tmp);
         }
         return result;
@@ -79,7 +79,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
      * @return the set of temporal invariants that g satisfies
      */
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            String relation) {
+            String relation, boolean multipleRelations) {
 
         // TODO: we can set the initial capacity of the following HashMaps more
         // optimally, e.g. (N / 0.75) + 1 where N is the total number of event
@@ -100,8 +100,18 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
          */
         Set<EventType> eTypes = new LinkedHashSet<EventType>();
         for (Trace trace : g.getTraces()) {
-            RelationPath relationPath = trace.getBiRelationalPath(relation,
-                    Event.defaultTimeRelationString);
+            RelationPath relationPath = null;
+            
+            if (multipleRelations) {
+                relationPath = trace.getBiRelationalPath(relation, Event.defaultTimeRelationString);
+            } else {
+                Set<RelationPath> single = trace.getSingleRelationPaths(relation);
+                if (relation.equals(Event.defaultTimeRelationString) && single.size() != 1) {
+                    throw new IllegalStateException("Multiple relation subraphs for single relation graph");
+                }
+                relationPath = single.toArray(new RelationPath[1])[0];
+            }
+                    
 
             if (relationPath == null) {
                 continue;
