@@ -70,9 +70,9 @@ public interface ITransition<NodeType> extends
     void setDelta(ITime d);
     
     /**
-     * Get all the delta times for (partition) transition.
-     * Be warned that this can and will return null if the transition
-     * type is not of partition.
+     * Get all the delta times for transition.
+     * Be warned will erase the individual delta value and insert it into
+     * a series.
      * 
      * @return all delta times
      */

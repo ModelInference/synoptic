@@ -408,7 +408,8 @@ public class Partition implements INode<Partition> {
                         	
                     	if (Main.options.enablePerfDebugging) {
                             ITime targTime = found.getTarget().getTime();
-                            if (targTime != null) {
+                            ITime srcTime = found.getSource().getTime();
+                            if (targTime != null && srcTime != null) {
                                 d = found.getTarget().getTime().computeDelta(
                                                         found.getSource().getTime());
                                 transToPart.getDeltaSeries().addDelta(d);
