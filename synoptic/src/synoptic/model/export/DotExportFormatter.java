@@ -1,5 +1,7 @@
 package synoptic.model.export;
 
+import java.util.Set;
+
 import synoptic.model.interfaces.INode;
 
 /**
@@ -34,37 +36,37 @@ public class DotExportFormatter extends GraphExportFormatter {
     }
 
     private String edgeToString(int nodeSrc, int nodeDst, String attributes,
-            String relation) {
+            Set<String> relations) {
         assert (attributes != null);
 
         String s = nodeSrc + "->" + nodeDst + " [";
         if (!attributes.equals("")) {
             s += attributes + ",";
         }
-        s += "color=" + getRelationColor(relation);
+        // s += "color=" + getRelationColor(relations);
         return s + "];" + "\n";
     }
 
     @Override
     public String edgeToStringWithTraceId(int nodeSrc, int nodeDst,
-            int traceId, String relation) {
+            int traceId, Set<String> relations) {
         String attributes = "label=\"" + traceId + "t\"";
-        return edgeToString(nodeSrc, nodeDst, attributes, relation);
+        return edgeToString(nodeSrc, nodeDst, attributes, relations);
     }
 
     @Override
     public String edgeToStringWithProb(int nodeSrc, int nodeDst, double prob,
-            String relation) {
+            Set<String> relations) {
         String probStr = quote(probToString(prob));
         String attributes = "label=\"" + probStr + "\", weight=\"" + probStr
                 + "\"";
-        return edgeToString(nodeSrc, nodeDst, attributes, relation);
+        return edgeToString(nodeSrc, nodeDst, attributes, relations);
     }
 
     @Override
     public String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
-            String relation) {
-        return edgeToString(nodeSrc, nodeDst, "", relation);
+            Set<String> relations) {
+        return edgeToString(nodeSrc, nodeDst, "", relations);
     }
 
 }

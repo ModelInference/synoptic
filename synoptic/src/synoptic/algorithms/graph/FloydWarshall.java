@@ -2,14 +2,12 @@ package synoptic.algorithms.graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import synoptic.model.EventNode;
 import synoptic.model.interfaces.IGraph;
-import synoptic.model.interfaces.ITransition;
 
 public class FloydWarshall {
     /**
@@ -21,10 +19,10 @@ public class FloydWarshall {
      * </pre>
      */
     public static TransitiveClosure warshallAlg(IGraph<EventNode> graph,
-            String relation) {
+            Set<String> relations) {
         Set<EventNode> allNodes = graph.getNodes();
 
-        TransitiveClosure transClosure = new TransitiveClosure(relation);
+        TransitiveClosure transClosure = new TransitiveClosure(relations);
         Map<EventNode, Set<EventNode>> tc = transClosure.getTC();
 
         // Maps a node to its parents in the transitive closure.
@@ -38,8 +36,6 @@ public class FloydWarshall {
 
             // logger.fine("tc map is: " + tc.toString());
             // logger.fine("Handling node " + m.toString());
-            Iterator<? extends ITransition<EventNode>> transIter = m
-                    .getTransitionsIterator(relation);
             /**
              * Iterate through all children of m and for each child do 2 things:
              * 
@@ -49,9 +45,7 @@ public class FloydWarshall {
              *    linked to in tc and add m to tcParents[n]
              * </pre>
              */
-            while (transIter.hasNext()) {
-                EventNode child = transIter.next().getTarget();
-
+            for (EventNode child : m.getAllSuccessors()) {
                 // ////////////////
                 // Ignore initial/terminal child events:
                 if (child.getEType().isSpecialEventType()) {

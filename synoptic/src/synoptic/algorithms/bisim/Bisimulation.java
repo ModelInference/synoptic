@@ -444,18 +444,23 @@ public abstract class Bisimulation {
             }
             // Compute the valid successor messages in the original trace.
             LinkedHashSet<EventNode> successorEvents = new LinkedHashSet<EventNode>();
-            String relation = counterexampleTrace.invariant.getRelation();
+            Set<String> relations = counterexampleTrace.invariant
+                    .getRelations();
             for (EventNode m : hot) {
-                successorEvents.addAll(m.getSuccessors(relation));
+                for (ITransition<EventNode> t : m
+                        .getTransitionsWithIntersectingRelations(relations)) {
+                    // successorEvents.addAll(m.getSuccessors(relations));
+                    successorEvents.add(t.getTarget());
+                }
             }
             hot = successorEvents;
         }
-        ITransition<Partition> outgoingTransition = curPartition.getTransition(
-                nextPartition, counterexampleTrace.invariant.getRelation());
+        ITransition<Partition> outgoingTransition = curPartition.getTransitionWithExactRelation(
+                nextPartition, counterexampleTrace.invariant.getRelations());
         ITransition<Partition> incomingTransition = null;
         if (prevPartition != null) {
-            incomingTransition = prevPartition.getTransition(curPartition,
-                    counterexampleTrace.invariant.getRelation());
+            incomingTransition = prevPartition.getTransitionWithExactRelation(curPartition,
+                    counterexampleTrace.invariant.getRelations());
         }
         if (outgoingTransition != null) {
             // logger.fine("outgoingTrans:" + outgoingTransition);
@@ -469,9 +474,19 @@ public abstract class Bisimulation {
         }
         if (incomingTransition != null && incomingTransitionSplit) {
             // logger.fine("incomingTrans:" + incomingTransition);
-            PartitionSplit newSplit = curPartition
-                    .getCandidateSplitBasedOnIncoming(prevPartition,
-                            incomingTransition.getRelation());
+
+            Set<String> relations = incomingTransition.getRelations();
+            PartitionSplit newSplit;
+            if (relations.size() == 1) {
+                // Single relation case.
+                newSplit = curPartition.getCandidateSplitBasedOnIncoming(
+                        prevPartition, relations);
+            } else {
+                // Multi-relational case.
+                newSplit = curPartition.getCandidateSplitBasedOnIncoming(
+                        prevPartition, relations);
+            }
+
             // logger.fine("incomingSplit:" + newSplit);
             if (newSplit != null) {
                 candidateSplits.add(newSplit);

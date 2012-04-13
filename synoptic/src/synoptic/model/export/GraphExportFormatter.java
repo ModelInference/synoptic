@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import synoptic.model.Event;
@@ -124,7 +125,7 @@ public abstract class GraphExportFormatter {
      * @return
      */
     public abstract String edgeToStringWithProb(int nodeSrc, int nodeDst,
-            double freq, String relation);
+            double freq, Set<String> relation);
 
     /**
      * Serializes a single node edge in a graph to a string that represents this
@@ -143,7 +144,7 @@ public abstract class GraphExportFormatter {
      * @return
      */
     public abstract String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
-            String relation);
+            Set<String> relation);
 
     /**
      * Serializes a single node edge in a graph to a string. Also, outputs a
@@ -162,7 +163,7 @@ public abstract class GraphExportFormatter {
      * @return
      */
     public abstract String edgeToStringWithTraceId(int nodeSrc, int nodeDst,
-            int traceId, String relation);
+            int traceId, Set<String> relations);
 
     /**
      * Returns a string with escaped forward slashes and double quotes.
