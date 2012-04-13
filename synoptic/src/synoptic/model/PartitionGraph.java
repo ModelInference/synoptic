@@ -48,18 +48,12 @@ public class PartitionGraph implements IGraph<Partition> {
      * track of the initial messages but we need to do this for every relation,
      * which is specified by the first argument to the hash-map.
      */
-    // private final LinkedHashMap<String, Set<EventNode>> initialEvents = new
-    // LinkedHashMap<String, Set<EventNode>>();
-    // private final Set<EventNode> initialEvents = new
-    // LinkedHashSet<EventNode>();
     private EventNode dummyInitialNode = null;
 
     /**
      * Holds the terminal messages in this graph. Like the initialMessages
      * above, this hash-map maintains them w.r.t the relations.
      */
-    // private final LinkedHashMap<String, Set<EventNode>> terminalEvents = new
-    // LinkedHashMap<String, Set<EventNode>>();
     private final LinkedHashMap<String, Set<EventNode>> terminalEvents = new LinkedHashMap<String, Set<EventNode>>();
 
     /** Holds synoptic.invariants that were mined when the graph was created. */
@@ -403,15 +397,6 @@ public class PartitionGraph implements IGraph<Partition> {
     public void removePartition(Partition node) {
         partitions.remove(node);
     }
-
-    // TODO: unused -- delete?
-    // public Set<EventNode> getInitialMessages() {
-    // Set<EventNode> initial = new LinkedHashSet<EventNode>();
-    // for (Set<EventNode> set : initialEvents.values()) {
-    // initial.addAll(set);
-    // }
-    // return initial;
-    // }
 
     /**
      * Check that all partitions are non-empty and disjunct.
