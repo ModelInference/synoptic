@@ -66,18 +66,13 @@ public class Transition<NodeType> implements ITransition<NodeType> {
 
     @Override
     public ITimeSeries<ITime> getDeltaSeries() {
-        
-        // If this is a partition, then return the ITimeSeries.
+
         // If the series has not been initialized, then do so.
-        if (this.source instanceof Partition) {
-            if (this.series == null) {
-                this.series = new ITimeSeries<ITime>();
-            }
-            
-            return this.series;
+        if (this.series == null) {
+            this.series = new ITimeSeries<ITime>();
         }
-        
-        return null;
+
+        return this.series;
 
         // TODO Restore the general functionality of this code.
         // for now, simply return the series.
