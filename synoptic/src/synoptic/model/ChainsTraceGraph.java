@@ -240,10 +240,13 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
             EventNode curNode = firstNode;
 
             while (!curNode.isTerminal()) {
+                prevNodes.clear();
+
                 while (curNode.getTransitionsWithExactRelations(relations)
-                        .size() != 0) {
+                        .size() == 1) {
                     for (EventNode prevNode : prevNodes) {
-                        transClosure.addReachable(prevNode, curNode);
+                        transClosure.recordTransitiveReachability(prevNode,
+                                curNode);
                     }
                     prevNodes.add(curNode);
                     curNode = curNode
@@ -253,16 +256,12 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
 
                 if (!curNode.isTerminal()) {
                     for (EventNode prevNode : prevNodes) {
-                        transClosure.addReachable(prevNode, curNode);
+                        transClosure.recordTransitiveReachability(prevNode,
+                                curNode);
                     }
-                }
 
-                prevNodes.clear();
-
-                if (!curNode.isTerminal()) {
-                    curNode = curNode
-                            .getTransitionsWithExactRelations(relations).get(0)
-                            .getTarget();
+                    assert curNode.getAllSuccessors().size() == 1;
+                    curNode = curNode.getAllSuccessors().iterator().next();
                 }
             }
         }

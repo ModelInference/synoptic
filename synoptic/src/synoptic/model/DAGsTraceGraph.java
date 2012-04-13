@@ -242,7 +242,7 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
                         // corresponding to m does not exist initially and
                         // mergeReachables does not check for existence of this
                         // set (should it?)
-                        transClosure.addReachable(m, child);
+                        transClosure.recordTransitiveReachability(m, child);
                         transClosure.mergeReachables(child, m);
                     }
                 }
