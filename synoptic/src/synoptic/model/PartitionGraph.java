@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMultiSplit;
-import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -68,15 +67,7 @@ public class PartitionGraph implements IGraph<Partition> {
     /** An ordered list of all partition splits applied to the graph so far. */
     private final LinkedList<PartitionMultiSplit> appliedSplits = new LinkedList<PartitionMultiSplit>();
 
-    /**
-     * Set of all EventTypes, initialized only after getNIFbyInvariants() is
-     * called.
-     */
-    private Set<EventType> allEvents;
-
-    /**
-     * Initial trace graph.
-     */
+    /** Initial trace graph. */
     private ChainsTraceGraph traceGraph;
 
     /**
@@ -130,6 +121,18 @@ public class PartitionGraph implements IGraph<Partition> {
         }
 
         this.invariants = invariants;
+        this.traceGraph = g;
+    }
+
+    // PartitionGraph constructor used by KTail implementation
+    public PartitionGraph(ChainsTraceGraph g, Partition initial,
+            Partition terminal, Set<Partition> partitions) {
+        initialEvents.put(Event.defaultTimeRelationString,
+                initial.getEventNodes());
+        terminalEvents.put(Event.defaultTimeRelationString,
+                terminal.getEventNodes());
+        relations.add(Event.defaultTimeRelationString);
+        this.partitions = new LinkedHashSet<Partition>(partitions);
         this.traceGraph = g;
     }
 
@@ -605,65 +608,6 @@ public class PartitionGraph implements IGraph<Partition> {
         return traces;
     }
 
-    /*
-     * Traverses the model. If the current partition has not yet been examined,
-     * updates canFollow, a mapping from EventType to the events that can
-     * immediately follow, and recurses.
-     */
-    private void traverseAndMineCIFbys(Partition current, Set<Partition> seen,
-            Map<EventType, Set<EventType>> canFollow) {
-        if (!seen.contains(current)) {
-            seen.add(current);
-            EventType type = current.getEType();
-            canFollow.put(type, new HashSet<EventType>());
-            for (Transition<Partition> transition : current.getTransitions()) {
-                canFollow.get(type).add(transition.getTarget().getEType());
-                traverseAndMineCIFbys(transition.getTarget(), seen, canFollow);
-            }
-        }
-    }
-
-    /**
-     * Walks this PartitionGraph and returns a set of all of the NIFby
-     * invariants.
-     */
-    public TemporalInvariantSet getNIFbyInvariants() {
-
-        // Tracks which partitions have been visited.
-        Set<Partition> seen = new HashSet<Partition>();
-
-        // Maps each EventType to the set of EventTypes that immediately follow
-        // it.
-        Map<EventType, Set<EventType>> canFollow = new HashMap<EventType, Set<EventType>>();
-
-        // Traverse the graph starting from each initial node (only one in
-        // totally-ordered case).
-        for (Partition partition : getDummyInitialNodes()) {
-            traverseAndMineCIFbys(partition, seen, canFollow);
-        }
-
-        // Create invariants
-        TemporalInvariantSet neverIFbyInvariants = new TemporalInvariantSet();
-
-        // canFollow.keySet() will contain all events types because each node in
-        // the partition graph is visited and added to canFollow during
-        // traverseAndMineCIFbys().
-        allEvents = canFollow.keySet();
-
-        for (Entry<EventType, Set<EventType>> entry : canFollow.entrySet()) {
-            EventType source = entry.getKey();
-            Set<EventType> followedBy = entry.getValue();
-            for (EventType target : allEvents) {
-                if (!followedBy.contains(target)) {
-                    neverIFbyInvariants
-                            .add(new NeverImmediatelyFollowedInvariant(source,
-                                    target, Event.defaultTimeRelationString));
-                }
-            }
-        }
-        return neverIFbyInvariants;
-    }
-
     /**
      * Returns paths through a set of partition nodes in the form of a map. The
      * returned map maps a traceID to a path that passes through the partitions.
@@ -768,21 +712,7 @@ public class PartitionGraph implements IGraph<Partition> {
         return null;
     }
 
-    /**
-     * Returns a set of all EventTypes in this PartitionGraph.
-     */
-    public Set<EventType> getEventTypes() {
-        if (allEvents == null) {
-            getNIFbyInvariants();
-        }
-        return allEvents;
-    }
-
-    /**
-     * Returns the initial trace graph.
-     * 
-     * @return
-     */
+    /** Returns the initial trace graph. */
     public ChainsTraceGraph getTraceGraph() {
         return traceGraph;
     }
