@@ -300,43 +300,6 @@ public class Partition implements INode<Partition> {
     }
 
     /**
-     * This method returns the set of transitions. It augments the edges with
-     * information about frequency and number of observation.
-     */
-    // @Override
-    // public List<Transition<Partition>> getTransitions(Set<String> relations)
-    // {
-    // assert initialized;
-    //
-    // List<Transition<Partition>> result = new
-    // ArrayList<Transition<Partition>>();
-    // for (Transition<Partition> tr : getTransitionsIterator(relation)) {
-    // result.add(tr);
-    // }
-    // return result;
-    // }
-
-    // @Override
-    // public List<Transition<Partition>> getTransitions() {
-    // assert initialized;
-    //
-    // List<Transition<Partition>> result = new
-    // ArrayList<Transition<Partition>>();
-    // for (Transition<Partition> tr : getTransitionsIterator(null)) {
-    // result.add(tr);
-    // }
-    // return result;
-    // }
-
-    // @Override
-    // public List<WeightedTransition<Partition>> getWeightedTransitions(
-    // String relation) {
-    // assert initialized;
-    //
-    // return getWeightedTransitions(getTransitionsIterator(relation));
-    // }
-
-    /**
      * This method returns the set of transitions accessible through iterator
      * iter, augmenting each transition with information about frequency and
      * number of observations.
@@ -412,98 +375,6 @@ public class Partition implements INode<Partition> {
         return trsWeighted;
     }
 
-    /**
-     * Transitions between partitions are not stored but generated on demand
-     * using this iterator
-     */
-    // @Override
-    // public IIterableIterator<Transition<Partition>> getTransitionsIterator()
-    // {
-    // assert initialized;
-    //
-    // return getTransitionsIterator(null);
-    // }
-
-    /**
-     * Generate Edges on the fly. We examine all contained messages and find the
-     * appropriate successor messages. We then check to which partition the
-     * successor messages belong and create an edge between the partitions.
-     * Duplicates are eliminated.
-     */
-    // @Override
-    // public IIterableIterator<Transition<Partition>> getTransitionsIterator(
-    // final String relation) {
-    // assert initialized;
-    //
-    // return new IIterableIterator<Transition<Partition>>() {
-    //
-    // private final Set<ITransition<Partition>> seen = new
-    // LinkedHashSet<ITransition<Partition>>();
-    // private final Iterator<EventNode> msgItr = events.iterator();
-    //
-    // private Iterator<? extends ITransition<EventNode>> transItr = (relation
-    // == null) ? msgItr
-    // .next().getTransitions().iterator()
-    // : msgItr.next().getTransitions(relation).iterator();
-    //
-    // private Transition<Partition> next = null;
-    //
-    // private Transition<Partition> getNext() {
-    // while (transItr.hasNext() || msgItr.hasNext()) {
-    // if (transItr.hasNext()) {
-    // final ITransition<EventNode> found = transItr.next();
-    // final Transition<Partition> transToPart = new Transition<Partition>(
-    // found.getSource().getParent(), found
-    // .getTarget().getParent(),
-    // found.getRelations());
-    // if (seen.add(transToPart)) {
-    // return transToPart;
-    // }
-    // } else {
-    // if (relation == null) {
-    // transItr = msgItr.next().getTransitions()
-    // .iterator();
-    // } else {
-    // transItr = msgItr.next().getTransitions(relation)
-    // .iterator();
-    // }
-    // }
-    // }
-    //
-    // return null;
-    // }
-    //
-    // @Override
-    // public void remove() {
-    // throw new UnsupportedOperationException();
-    // }
-    //
-    // @Override
-    // public Transition<Partition> next() {
-    // if (!hasNext()) {
-    // throw new NoSuchElementException();
-    // }
-    // final Transition<Partition> oldNext = next;
-    // next = null;
-    // return oldNext;
-    // }
-    //
-    // @Override
-    // public boolean hasNext() {
-    // if (next == null) {
-    // next = getNext();
-    // }
-    // return next != null;
-    // }
-    //
-    // @Override
-    // public Iterator<Transition<Partition>> iterator() {
-    // return this;
-    // }
-    // };
-    // }
-
-    // @Override
     public ITransition<Partition> getTransitionWithExactRelation(Partition p,
             Set<String> relations) {
         assert initialized;
@@ -609,10 +480,4 @@ public class Partition implements INode<Partition> {
         throw new NotImplementedException();
     }
 
-    /*
-     * @Override public void addTransition(Partition dest, String relation) {
-     * throw new InternalSynopticException(
-     * "Partitions manipulate edges implicitly through LogEvent instances they maintain. Cannot modify Partition transition directly."
-     * ); }
-     */
 }
