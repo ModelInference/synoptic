@@ -46,6 +46,7 @@ import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.time.ITime;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
@@ -280,10 +281,16 @@ public class SynopticService extends RemoteServiceServlet implements
                 }
 
                 double transitionProb = wTransition.getFraction();
+                ITime mean = wTransition
+                        .getDeltaSeries().computeMean();
+                if (mean == null)
+//                    double latency = Double.parseDouble(wTransition
+//                            .getDeltaSeries().computeMedian().toString());
+                    transitionProb = 42.0;
 
                 // Add the complete weighted edge
                 graph.addEdge(gwtPNode, adjGWTPNode, transitionProb,
-                        wTransition.getCount());
+                        wTransition.getCount(), transitionProb);
             }
         }
         return graph;
@@ -379,6 +386,7 @@ public class SynopticService extends RemoteServiceServlet implements
         // Output as much internal Synoptic information as possible.
         Main.options.logLvlExtraVerbose = true;
         Main.options.ignoreNonMatchingLines = synOpts.ignoreNonMatchedLines;
+        Main.options.enablePerfDebugging = true;
         synoptic.main.Main.setUpLogging();
         Main.random = new Random(Main.options.randomSeed);
         Main.graphExportFormatter = new DotExportFormatter();
@@ -708,7 +716,7 @@ public class SynopticService extends RemoteServiceServlet implements
                 // The value of zero in the construction of this edge
                 // is simply a dummy weight, since the purpose of this edge
                 // is for finding equivalent edges within the model tab.
-                GWTEdge edge = new GWTEdge(srcNode, trgNode, 0, 0);
+                GWTEdge edge = new GWTEdge(srcNode, trgNode, 0, 0, 0);
                 gwtPath.add(edge);
             }
 

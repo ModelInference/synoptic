@@ -23,8 +23,9 @@ public class GWTGraph implements Serializable {
         nodeSet.add(node);
     }
 
-    public void addEdge(GWTNode source, GWTNode target, double weight, int count) {
-        edges.add(new GWTEdge(source, target, weight, count));
+    public void addEdge(GWTNode source, GWTNode target, double weight,
+            int count, double latency) {
+        edges.add(new GWTEdge(source, target, weight, count, latency));
     }
 
     public List<GWTNode> getNodes() {
