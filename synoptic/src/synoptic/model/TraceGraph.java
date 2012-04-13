@@ -11,7 +11,6 @@ import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.Pair;
-import synoptic.util.Predicate.BinaryTrue;
 import synoptic.util.Predicate.IBinary;
 
 /**
@@ -26,7 +25,7 @@ import synoptic.util.Predicate.IBinary;
 public abstract class TraceGraph<EType extends EventType> implements
         IGraph<EventNode> {
 
-    public static Logger logger = Logger.getLogger("TransitiveClosure Logger");
+    public static Logger logger = Logger.getLogger("TraceGraph Logger");
 
     /**
      * The nodes of the graph. The edges between nodes are managed by the nodes.
@@ -154,48 +153,26 @@ public abstract class TraceGraph<EType extends EventType> implements
     }
 
     /**
-     * Tests for generic graph equality.
+     * Tests for trace graph equality.
      */
     public boolean equalsWith(TraceGraph<?> other,
-            IBinary<EventNode, EventNode> np) {
-        return equalsWith(other, np, new BinaryTrue<Set<String>, Set<String>>());
-    }
+            IBinary<EventNode, EventNode> pred) {
 
-    public boolean equalsWith(TraceGraph<?> other,
-            IBinary<EventNode, EventNode> np,
-            IBinary<Set<String>, Set<String>> rp) {
-        // Set<EventNode> unusedOther = other.getDummyInitialNode();
         EventNode unusedOther = other.getDummyInitialNode();
-        // for (EventNode n1 : this.getDummyInitialNode()) {
         EventNode n1 = this.getDummyInitialNode();
-        boolean foundMatch = false;
         EventNode n2 = unusedOther;
 
-        // TODO: If this works, then clean this by removing the various
-        // comments.
-
-        // logger.fine("Comparing " + n1 + " against " + n2);
-        if (np.eval(n1, n2) && transitionEquality(n1, n2, np, rp)) {
-            foundMatch = true;
-            // unusedOther.remove(n2);
-            // break;
+        if (pred.eval(n1, n2) && transitionEquality(n1, n2, pred)) {
+            return true;
         }
-        // }
-        if (!foundMatch) {
-            // logger.fine("Could not find a match for node " +
-            // n1.toString());
-            return false;
-        }
-        // }
-        return true;
+        return false;
     }
 
     /**
      * Helper for equalsWith.
      */
     private boolean transitionEquality(EventNode a, EventNode b,
-            IBinary<EventNode, EventNode> np,
-            IBinary<Set<String>, Set<String>> rp) {
+            IBinary<EventNode, EventNode> pred) {
         Set<EventNode> visited = new LinkedHashSet<EventNode>();
         Stack<synoptic.util.Pair<EventNode, EventNode>> toVisit = new Stack<synoptic.util.Pair<EventNode, EventNode>>();
         toVisit.push(new Pair<EventNode, EventNode>(a, b));
@@ -207,8 +184,7 @@ public abstract class TraceGraph<EType extends EventType> implements
                 boolean foundMatch = false;
                 for (ITransition<EventNode> trans2 : tv.getRight()
                         .getAllTransitions()) {
-                    if (rp.eval(trans1.getRelations(), trans2.getRelations())
-                            && np.eval(trans1.getTarget(), trans2.getTarget())) {
+                    if (pred.eval(trans1.getTarget(), trans2.getTarget())) {
                         if (!visited.contains(trans1.getTarget())) {
                             toVisit.push(new Pair<EventNode, EventNode>(trans1
                                     .getTarget(), trans2.getTarget()));
@@ -218,8 +194,6 @@ public abstract class TraceGraph<EType extends EventType> implements
                     }
                 }
                 if (!foundMatch) {
-                    // logger.fine("Could not find a match for transition: " +
-                    // trans1.toString());
                     return false;
                 }
             }
@@ -237,5 +211,4 @@ public abstract class TraceGraph<EType extends EventType> implements
     }
 
     public abstract Map<Integer, Set<EventNode>> getTraceIdToInitNodes();
-
 }
