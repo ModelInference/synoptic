@@ -70,11 +70,24 @@ public interface ITransition<NodeType> extends
     void setDelta(ITime d);
     
     /**
-     * Get all the delta times for (partition) transition
+     * Get all the delta times for (partition) transition.
+     * Be warned that this can and will return null if the transition
+     * type is not of partition.
      * 
      * @return all delta times
      */
     ITimeSeries<ITime> getDeltaSeries();	
+    
+    /**
+     * Adds a delta to the series.  If there is not a contained
+     * series of deltas, then one will be created.
+     * 
+     * If a delta has already been set by set delta, it will be
+     * added to the series along with "d."
+     * 
+     * @param d  The delta to be added to the series.
+     */
+    void addDelta(ITime d);
   
     /**
      * Get a short description of the transition

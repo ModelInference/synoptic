@@ -54,28 +54,66 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     }
 
     @Override
-    public ITime getDelta() {	
+    public ITime getDelta() {
         return delta;
     }
-    
+
     @Override
     public void setDelta(ITime d) {
-    	assert d != null;
-    	delta = d;
+        assert d != null;
+        delta = d;
     }
-    
+
     @Override
     public ITimeSeries<ITime> getDeltaSeries() {
-    	if (series != null) {
-    		return series;
-    	} else if (!(source instanceof Partition)) {
-    		return null;
-    	} else if (((Partition) source).events.iterator().next().getTransitions().get(0).getDelta() != null) {
-    		series = new ITimeSeries<ITime>();
-    		return series;
-    	} else {
-    		return null;
-    	}
+        
+        // If this is a partition, then return the ITimeSeries.
+        // If the series has not been initialized, then do so.
+        if (this.source instanceof Partition) {
+            if (this.series == null) {
+                this.series = new ITimeSeries<ITime>();
+            }
+            
+            return this.series;
+        }
+        
+        return null;
+
+        // TODO Restore the general functionality of this code.
+        // for now, simply return the series.
+        //
+        // if (series != null) {
+        // return series;
+        // } else if (!(source instanceof Partition)) {
+        // return null;
+        // } else if (((Partition)
+        // source).events.iterator().next().getTransitions().get(0).getDelta()
+        // != null) {
+        // series = new ITimeSeries<ITime>();
+        // return series;
+        // } else {
+        // return null;
+        // }
+    }
+
+    @Override
+    public void addDelta(ITime delta) {
+        // If delta is null, simply don't add anything.
+        if (delta == null) {
+            return;
+        }
+
+        // If there is already a series, simply add the delta
+        // to the series, then set the delta field to nunll.
+        if (this.series == null) {
+            this.series = new ITimeSeries<ITime>();
+            if (this.delta != null) {
+                this.series.addDelta(this.delta);
+                this.delta = null;
+            }
+        }
+
+        this.series.addDelta(delta);
     }
 
     @Override
