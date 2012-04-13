@@ -1,5 +1,7 @@
 package synoptic.invariants;
 
+import java.util.Set;
+
 import synoptic.model.DistEventType;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.NotImplementedException;
@@ -17,6 +19,12 @@ import synoptic.util.NotImplementedException;
  * </pre>
  */
 public class NeverConcurrentInvariant extends ConcurrencyInvariant {
+
+    public NeverConcurrentInvariant(DistEventType typeFirst,
+            DistEventType typeSecond, Set<String> relations) {
+        super(typeFirst, typeSecond, relations);
+    }
+
     public NeverConcurrentInvariant(DistEventType typeFirst,
             DistEventType typeSecond, String relation) {
         super(typeFirst, typeSecond, relation);
@@ -27,9 +35,10 @@ public class NeverConcurrentInvariant extends ConcurrencyInvariant {
         String f = first.toString();
         String s = second.toString();
         if (f.hashCode() <= s.hashCode()) {
-            return f + " NeverConcurrentWith(" + relation + ") " + s;
+            return f + " NeverConcurrentWith(" + relations.toString() + ") "
+                    + s;
         }
-        return s + " NeverConcurrentWith(" + relation + ") " + f;
+        return s + " NeverConcurrentWith(" + relations.toString() + ") " + f;
 
     }
 
@@ -49,8 +58,8 @@ public class NeverConcurrentInvariant extends ConcurrencyInvariant {
                 "LTL string cannot be composed for concurrency invariants");
     }
 
-	@Override
-	public String getRegex(char firstC, char secondC) {
-		throw new NotImplementedException();
-	}
+    @Override
+    public String getRegex(char firstC, char secondC) {
+        throw new NotImplementedException();
+    }
 }

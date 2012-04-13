@@ -1,8 +1,6 @@
 package synoptic.model;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -37,21 +35,9 @@ public abstract class TraceGraph<EType extends EventType> implements
      */
     protected final Set<EventNode> nodes = new LinkedHashSet<EventNode>();
 
-    /**
-     * Maintains a 1-1 map between relation strings and artificial TERMINAL
-     * nodes. Every terminal node in a trace maintains exactly one transition to
-     * such a TERMINAL node to indicate that the source node is a terminal. We
-     * must have these TERMINAL nodes in this graph, and not just in partition
-     * graph because invariants are mined over this graph.
-     */
-    protected final Map<String, EventNode> dummyTerminalNodes = new LinkedHashMap<String, EventNode>();
+    protected EventNode dummyTerminalNode = null;
 
-    /**
-     * Maintains a 1-1 map between relation strings and artificial INITIAL
-     * nodes. Each initial node in a trace has a one of these INITIAL nodes as a
-     * parent.
-     */
-    protected final Map<String, EventNode> dummyInitialNodes = new LinkedHashMap<String, EventNode>();
+    protected EventNode dummyInitialNode = null;
 
     private Set<String> cachedRelations = null;
 
@@ -61,15 +47,20 @@ public abstract class TraceGraph<EType extends EventType> implements
      * @param nodes
      *            the nodes of the graph
      */
-    public TraceGraph(Collection<EventNode> nodes) {
-        this();
+    public TraceGraph(Collection<EventNode> nodes, Event initEvent,
+            Event termEvent) {
+        this(initEvent, termEvent);
         this.nodes.addAll(nodes);
     }
 
     /**
      * Create an empty graph.
      */
-    public TraceGraph() {
+    public TraceGraph(Event initEvent, Event termEvent) {
+        dummyInitialNode = new EventNode(initEvent);
+        dummyTerminalNode = new EventNode(termEvent);
+        nodes.add(dummyInitialNode);
+        nodes.add(dummyTerminalNode);
         cachedRelations = null;
     }
 
@@ -82,20 +73,10 @@ public abstract class TraceGraph<EType extends EventType> implements
     }
 
     /**
-     * Returns all the initial nodes in this graph.
+     * Returns the INITIAL node for this graph.
      */
-    public Set<EventNode> getDummyInitialNodes() {
-        return new LinkedHashSet<EventNode>(dummyInitialNodes.values());
-    }
-
-    /**
-     * Returns all the initial nodes in this graph that are initial in the given
-     * relation.
-     */
-    @Override
-    public EventNode getDummyInitialNode(String relation) {
-        assert dummyInitialNodes.containsKey(relation);
-        return dummyInitialNodes.get(relation);
+    public EventNode getDummyInitialNode() {
+        return dummyInitialNode;
     }
 
     /**
@@ -108,10 +89,7 @@ public abstract class TraceGraph<EType extends EventType> implements
         }
         cachedRelations = new LinkedHashSet<String>();
         for (EventNode node : nodes) {
-            for (Iterator<? extends ITransition<EventNode>> iter = node
-                    .getTransitionsIterator(); iter.hasNext();) {
-                cachedRelations.add(iter.next().getRelation());
-            }
+            cachedRelations.addAll(node.getNodeRelations());
         }
         return cachedRelations;
     }
@@ -131,9 +109,21 @@ public abstract class TraceGraph<EType extends EventType> implements
         cachedRelations = null;
     }
 
-    public abstract TransitiveClosure getTransitiveClosure(String relation);
+    public abstract TransitiveClosure getTransitiveClosure(Set<String> relation);
+
+    public TransitiveClosure getTransitiveClosure(String relation) {
+        Set<String> relations = new LinkedHashSet<String>();
+        relations.add(relation);
+        return getTransitiveClosure(relations);
+    }
 
     public abstract int getNumTraces();
+
+    public void tagTerminal(EventNode terminalNode, String relation) {
+        Set<String> relations = new LinkedHashSet<String>();
+        relations.add(relation);
+        this.tagTerminal(terminalNode, relations);
+    }
 
     /**
      * Mark {@code terminalNode} as terminal with respect to {@code relation} by
@@ -144,11 +134,9 @@ public abstract class TraceGraph<EType extends EventType> implements
      * @param relation
      *            the relation with respect to which the node should be terminal
      */
-    protected void tagTerminal(EventNode terminalNode, String relation) {
-        assert dummyTerminalNodes.containsKey(relation) : "A dummy terminal node for the relation must exist prior tagTerminal().";
+    public void tagTerminal(EventNode terminalNode, Set<String> relations) {
         assert nodes.contains(terminalNode) : "Node tagged as terminal must be added to the TraceGraph first.";
-
-        terminalNode.addTransition(dummyTerminalNodes.get(relation), relation);
+        terminalNode.addTransition(dummyTerminalNode, relations);
     }
 
     /**
@@ -160,30 +148,9 @@ public abstract class TraceGraph<EType extends EventType> implements
      * @param relation
      *            the relation with respect to which the node should be initial
      */
-    protected void tagInitial(EventNode initialNode, String relation) {
-        assert dummyInitialNodes.containsKey(relation) : "A dummy initial node for the relation must exist prior tagInitial().";
+    public void tagInitial(EventNode initialNode, Set<String> relations) {
         assert nodes.contains(initialNode) : "Node tagged as initial must be added to the TraceGraph first.";
-
-        dummyInitialNodes.get(relation).addTransition(initialNode, relation);
-    }
-
-    protected void createIfNotExistsDummyTerminalNode(Event termEvent,
-            String relation) {
-        createIfNotExistsSpecialNode(termEvent, relation, dummyTerminalNodes);
-    }
-
-    protected void createIfNotExistsDummyInitialNode(Event initEvent,
-            String relation) {
-        createIfNotExistsSpecialNode(initEvent, relation, dummyInitialNodes);
-    }
-
-    private void createIfNotExistsSpecialNode(Event event, String relation,
-            Map<String, EventNode> specialNodes) {
-        if (!specialNodes.containsKey(relation)) {
-            EventNode node = new EventNode(event);
-            specialNodes.put(relation, node);
-            nodes.add(node);
-        }
+        dummyInitialNode.addTransition(initialNode, relations);
     }
 
     /**
@@ -191,28 +158,35 @@ public abstract class TraceGraph<EType extends EventType> implements
      */
     public boolean equalsWith(TraceGraph<?> other,
             IBinary<EventNode, EventNode> np) {
-        return equalsWith(other, np, new BinaryTrue<String, String>());
+        return equalsWith(other, np, new BinaryTrue<Set<String>, Set<String>>());
     }
 
     public boolean equalsWith(TraceGraph<?> other,
-            IBinary<EventNode, EventNode> np, IBinary<String, String> rp) {
-        Set<EventNode> unusedOther = other.getDummyInitialNodes();
-        for (EventNode n1 : this.getDummyInitialNodes()) {
-            boolean foundMatch = false;
-            for (EventNode n2 : unusedOther) {
-                // logger.fine("Comparing " + n1 + " against " + n2);
-                if (np.eval(n1, n2) && transitionEquality(n1, n2, np, rp)) {
-                    foundMatch = true;
-                    unusedOther.remove(n2);
-                    break;
-                }
-            }
-            if (!foundMatch) {
-                // logger.fine("Could not find a match for node " +
-                // n1.toString());
-                return false;
-            }
+            IBinary<EventNode, EventNode> np,
+            IBinary<Set<String>, Set<String>> rp) {
+        // Set<EventNode> unusedOther = other.getDummyInitialNode();
+        EventNode unusedOther = other.getDummyInitialNode();
+        // for (EventNode n1 : this.getDummyInitialNode()) {
+        EventNode n1 = this.getDummyInitialNode();
+        boolean foundMatch = false;
+        EventNode n2 = unusedOther;
+
+        // TODO: If this works, then clean this by removing the various
+        // comments.
+
+        // logger.fine("Comparing " + n1 + " against " + n2);
+        if (np.eval(n1, n2) && transitionEquality(n1, n2, np, rp)) {
+            foundMatch = true;
+            // unusedOther.remove(n2);
+            // break;
         }
+        // }
+        if (!foundMatch) {
+            // logger.fine("Could not find a match for node " +
+            // n1.toString());
+            return false;
+        }
+        // }
         return true;
     }
 
@@ -220,18 +194,20 @@ public abstract class TraceGraph<EType extends EventType> implements
      * Helper for equalsWith.
      */
     private boolean transitionEquality(EventNode a, EventNode b,
-            IBinary<EventNode, EventNode> np, IBinary<String, String> rp) {
+            IBinary<EventNode, EventNode> np,
+            IBinary<Set<String>, Set<String>> rp) {
         Set<EventNode> visited = new LinkedHashSet<EventNode>();
         Stack<synoptic.util.Pair<EventNode, EventNode>> toVisit = new Stack<synoptic.util.Pair<EventNode, EventNode>>();
         toVisit.push(new Pair<EventNode, EventNode>(a, b));
         while (!toVisit.isEmpty()) {
             Pair<EventNode, EventNode> tv = toVisit.pop();
             visited.add(tv.getLeft());
-            for (ITransition<EventNode> trans1 : tv.getLeft().getTransitions()) {
+            for (ITransition<EventNode> trans1 : tv.getLeft()
+                    .getAllTransitions()) {
                 boolean foundMatch = false;
                 for (ITransition<EventNode> trans2 : tv.getRight()
-                        .getTransitions()) {
-                    if (rp.eval(trans1.getRelation(), trans2.getRelation())
+                        .getAllTransitions()) {
+                    if (rp.eval(trans1.getRelations(), trans2.getRelations())
                             && np.eval(trans1.getTarget(), trans2.getTarget())) {
                         if (!visited.contains(trans1.getTarget())) {
                             toVisit.push(new Pair<EventNode, EventNode>(trans1
@@ -254,11 +230,12 @@ public abstract class TraceGraph<EType extends EventType> implements
     @Override
     public Set<EventNode> getAdjacentNodes(EventNode node) {
         Set<EventNode> result = new LinkedHashSet<EventNode>();
-        for (ITransition<EventNode> trans : node.getTransitions()) {
+        for (ITransition<EventNode> trans : node.getAllTransitions()) {
             result.add(trans.getTarget());
         }
         return result;
     }
 
     public abstract Map<Integer, Set<EventNode>> getTraceIdToInitNodes();
+
 }

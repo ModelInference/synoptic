@@ -28,7 +28,6 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
 import synoptic.tests.SynopticTest;
 import synoptic.util.Pair;
 
@@ -73,18 +72,18 @@ public class PartitionGraphTests extends SynopticTest {
 
         // The set of nodes is now: INITIAL, a, a', TERMINAL
         assertTrue(pGraph.getNodes().size() == 4);
-        assertTrue(pGraph.getDummyInitialNodes().size() == 1);
-        Partition pInitial = pGraph.getDummyInitialNodes().iterator().next();
-        assertTrue(pInitial.getTransitions().size() == 2);
-        Partition pA1 = pInitial.getTransitions().get(0).getTarget();
+        assertTrue(pGraph.getDummyInitialNode().size() == 1);
+        Partition pInitial = pGraph.getDummyInitialNode();
+        assertTrue(pInitial.getAllTransitions().size() == 2);
+        Partition pA1 = pInitial.getAllTransitions().get(0).getTarget();
         assertTrue(pA1.getEType().equals(new StringEventType("a")));
-        assertTrue(pA1.getTransitions().size() == 1);
-        assertTrue(pA1.getTransitions().get(0).getTarget().getEType()
+        assertTrue(pA1.getAllTransitions().size() == 1);
+        assertTrue(pA1.getAllTransitions().get(0).getTarget().getEType()
                 .isTerminalEventType());
-        Partition pA2 = pInitial.getTransitions().get(1).getTarget();
+        Partition pA2 = pInitial.getAllTransitions().get(1).getTarget();
         assertTrue(pA2.getEType().equals(new StringEventType("a")));
-        assertTrue(pA2.getTransitions().size() == 1);
-        assertTrue(pA2.getTransitions().get(0).getTarget().getEType()
+        assertTrue(pA2.getAllTransitions().size() == 1);
+        assertTrue(pA2.getAllTransitions().get(0).getTarget().getEType()
                 .isTerminalEventType());
 
         // Undo the split.
@@ -283,7 +282,7 @@ public class PartitionGraphTests extends SynopticTest {
         selectedNodes.add(cPartition);
 
         // Grab the set of paths.
-        Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+        Map<Integer, List<Partition>> paths = pGraph
                 .getPathsThroughPartitions(selectedNodes);
 
         assertEquals("There should be one trace only.", paths.keySet().size(),
@@ -319,7 +318,7 @@ public class PartitionGraphTests extends SynopticTest {
         selectedNodes.add(aPartition);
         selectedNodes.add(cPartition);
 
-        Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+        Map<Integer, List<Partition>> paths = pGraph
                 .getPathsThroughPartitions(selectedNodes);
 
         assertEquals("There should be exactly one trace",

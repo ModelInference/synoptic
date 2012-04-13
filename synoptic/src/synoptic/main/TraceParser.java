@@ -1193,14 +1193,16 @@ public class TraceParser {
 
                 if (directSuccessors.size() == 0) {
                     // Tag messages without successor as terminal.
-                    for (Relation relation : AllEventRelations.get(e1)) {
-                        graph.tagTerminal(e1, relation.getRelation());
-                    }
+                    assert AllEventRelations.get(e1).size() == 1;
+                    String r = AllEventRelations.get(e1).iterator().next()
+                            .getRelation();
+                    graph.tagTerminal(e1, r);
                 } else {
                     for (EventNode e2 : directSuccessors) {
-                        for (Relation relation : AllEventRelations.get(e2)) {
-                            e1.addTransition(e2, relation.getRelation());
-                        }
+                        assert AllEventRelations.get(e2).size() == 1;
+                        String r = AllEventRelations.get(e1).iterator().next()
+                                .getRelation();
+                        e1.addTransition(e2, r);
                         noPredecessor.remove(e2);
                     }
                 }
@@ -1209,10 +1211,11 @@ public class TraceParser {
         }
 
         // Mark messages without a predecessor as initial.
+
         for (EventNode e : noPredecessor) {
-            for (Relation relation : AllEventRelations.get(e)) {
-                graph.tagInitial(e, relation.getRelation());
-            }
+            assert AllEventRelations.get(e).size() == 1;
+            String r = AllEventRelations.get(e).iterator().next().getRelation();
+            graph.tagInitial(e, r);
         }
 
         return graph;

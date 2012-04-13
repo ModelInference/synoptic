@@ -1,9 +1,5 @@
 package synoptic.model;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import synoptic.util.time.ITime;
 
 /**
@@ -217,4 +213,5 @@ public class Event {
     public int getLineNum() {
         return lineNum;
     }
+
 }
