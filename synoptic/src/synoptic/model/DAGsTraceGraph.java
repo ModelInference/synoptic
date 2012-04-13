@@ -36,11 +36,6 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
         return traceIdToInitNodes;
     }
 
-    // public void tagTerminal(EventNode terminalNode, String relation) {
-    // createIfNotExistsDummyTerminalNode(termEvent, relations);
-    // super.tagTerminal(terminalNode, relations);
-    // }
-
     public void tagInitial(EventNode initialNode, String relation) {
         Set<String> relations = new LinkedHashSet<String>();
         relations.add(relation);
@@ -48,7 +43,6 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
     }
 
     public void tagInitial(EventNode initialNode, Set<String> relations) {
-        // createIfNotExistsDummyInitialNode(initEvent, relation);
         super.tagInitial(initialNode, relations);
 
         /**

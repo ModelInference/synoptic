@@ -88,26 +88,12 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
         });
 
         Map<String, EventNode> lastSeenNodeForRelation = new HashMap<String, EventNode>();
-        EventNode firstNode = events.get(0);
         EventNode prevNode = null;
 
         Trace trace = new Trace();
         traces.add(trace);
 
-        /**
-         * <pre>
-         * Process first node's relations:
-         * - Adds relation to list of relations
-         * - Tags node as initial over relation
-         * - Marks node as the last node seen over the relation
-         * - Adds a RelationPath to the Trace
-         * 
-         * In this case, there is an edge of type relation from INITIAL
-         * to curNode
-         * </pre>
-         */
         // Create transitions to connect the nodes in the sorted trace.
-        // for (EventNode curNode : events.subList(1, events.size())) {
         for (EventNode curNode : events) {
 
             if (prevNode != null
@@ -120,10 +106,6 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
 
             // Process node's relations:
             Map<EventNode, Set<String>> srcNodeToTxRelations = new LinkedHashMap<EventNode, Set<String>>();
-
-            // for (Relation relation : eventRelation.get(curNode)) {
-            // relations.add(relation.getRelation());
-
             for (Relation relation : eventRelations.get(curNode)) {
 
                 EventNode txNode;
@@ -161,11 +143,6 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
                     // we tag curNode as initial and add a new relation path to
                     // the trace.
                     tagInitial(curNode, relations);
-                    // boolean initialConnected = (curNode == firstNode);
-                    //
-                    // for (String r : relations) {
-                    // trace.addRelationPath(r, curNode, initialConnected);
-                    // }
                 } else {
                     // Otherwise, there is a specific previous srcNode, and we
                     // connect curNode to this node.
@@ -186,33 +163,6 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
             s.add(r.getRelation());
         }
         tagTerminal(prevNode, s);
-
-        /*
-         * If trace doesn't contain a relation path for a relation r, then r was
-         * seen while the trace was traversed, and there are no closure
-         * relations of type r. This means there are subgraphs of r which are
-         * transitively connected, as opposed to directly connected, to the
-         * initial node. Currently, these relations are transitively connected
-         * over time.
-         * 
-         * In other words, there isn't an edge of type relation from INITIAL to
-         * the first node in the relation subgraph.
-         */
-        // for (String relation : relations) {
-        // if (!trace.hasRelation(relation)) {
-        // trace.addRelationPath(relation, firstNode, true);
-        // }
-        // }
-
-        /*
-         * Bound existing traces. Some relation paths are not non-transitively
-         * connected to the terminal node and do not need to be counted beyond
-         * the last node containing the given relation type.
-         */
-        // for (String relation : lastSeenNodeForRelation.keySet()) {
-        // EventNode finalNode = lastSeenNodeForRelation.get(relation);
-        // trace.markRelationPathFinalNode(relation, finalNode);
-        // }
     }
 
     /**

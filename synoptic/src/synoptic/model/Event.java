@@ -71,14 +71,6 @@ public class Event {
     }
 
     /**
-     * Create an event with DistEvent type, without needing to know the hostId.
-     */
-    // public static Event newDistEvent(String label, String logLine,
-    // String fileName, int lineNum) {
-    // return new Event(new DistEventType(label), logLine, fileName, lineNum);
-    // }
-
-    /**
      * Returns the special INITIAL event of String type.
      */
     public static Event newInitialStringEvent() {
