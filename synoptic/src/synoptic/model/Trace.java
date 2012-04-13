@@ -68,6 +68,8 @@ public class Trace {
             curNode = relationToInitialNodes
                     .get(Event.defaultTimeRelationString);
         }
+        
+        EventNode prevNode = curNode;
 
         // Iterate through the trace chain and construct zero or more
         // RelationPaths
@@ -108,8 +110,16 @@ public class Trace {
                         .getTransitionsWithIntersectingRelations(defaultTimeRelationStringSet);
             }
 
+            prevNode = curNode;
+            
             ITransition<EventNode> transition = relationTransitions.get(0);
             curNode = transition.getTarget();
+        }
+        
+        // Last relation path is
+        if (pendingPath != null) {
+            pendingPath.setFinalNode(prevNode);
+            results.add(pendingPath);
         }
 
         return results;
@@ -132,13 +142,13 @@ public class Trace {
 
         Set<String> relationSet = new HashSet<String>();
         relationSet.add(relation);
-        relationSet.add(transitiveRelation);
 
         // birelational path is connected to the initial node by the primary
         // relation
         if (relationToInitialNodes.containsKey(relation)) {
-            firstNode = relationToInitialNodes.get(relationSet);
+            firstNode = relationToInitialNodes.get(relation);
             initialTransitivelyConnected = false;
+            finalNode = firstNode;
         } else { // birelational path is connected to the initial node by the
                  // transitive relation
             firstNode = relationToInitialNodes
@@ -152,7 +162,7 @@ public class Trace {
             List<? extends ITransition<EventNode>> relationTransitions = curNode
                     .getTransitionsWithIntersectingRelations(relationSet);
 
-            if (relationTransitions.size() > 1) {
+            if (relationTransitions.size() > relationSet.size()) {
                 throw new InternalSynopticException(
                         "Multiple transitions exist for relation: " + relation);
             }
@@ -174,11 +184,12 @@ public class Trace {
                 relationTransitions = curNode
                         .getTransitionsWithIntersectingRelations(defaultTimeRelationStringSet);
             }
-
+            
             ITransition<EventNode> transition = relationTransitions.get(0);
             curNode = transition.getTarget();
         }
 
+        // Close the relation path with the pre-terminal node.
         if (finalNode != null) {
             RelationPath result = new RelationPath(firstNode, relationSet,
                     initialTransitivelyConnected);
@@ -187,5 +198,9 @@ public class Trace {
         }
 
         return null;
+    }
+    
+    public boolean containsRelation(String relation) {
+        return relationToInitialNodes.containsKey(relation);
     }
 }

@@ -195,7 +195,8 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
         return computeInvariants(g, Event.defaultTimeRelationString);
     }
 
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, 
+            boolean multipleRelations) {
         mineConcurrencyInvariants = false;
         return computeInvariants(g, Event.defaultTimeRelationString);
     }

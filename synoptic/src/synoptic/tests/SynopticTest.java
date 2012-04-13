@@ -195,11 +195,12 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @throws Exception
      */
     public static PartitionGraph genInitialPartitionGraph(String[] events,
-            TraceParser parser, TOInvariantMiner miner) throws Exception {
+            TraceParser parser, TOInvariantMiner miner, 
+            boolean multipleRelations) throws Exception {
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, parser);
         return new PartitionGraph(inputGraph, true,
-                miner.computeInvariants(inputGraph));
+                miner.computeInvariants(inputGraph, multipleRelations));
     }
 
     /**

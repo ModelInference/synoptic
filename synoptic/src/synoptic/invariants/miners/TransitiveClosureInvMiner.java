@@ -48,13 +48,14 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
     }
 
     @Override
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
-        return computeInvariants(g, false);
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, 
+            boolean multipleRelations) {
+        return computeTransClosureInvariants(g, false);
     }
 
     @Override
     public TemporalInvariantSet computeInvariants(DAGsTraceGraph g) {
-        return computeInvariants(g, true);
+        return computeTransClosureInvariants(g, true);
     }
 
     /**
@@ -70,7 +71,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
      *            whether or not to also mine concurrency invariants
      * @return the set of temporal invariants the graph satisfies
      */
-    public TemporalInvariantSet computeInvariants(TraceGraph<?> g,
+    public TemporalInvariantSet computeTransClosureInvariants(TraceGraph<?> g,
             boolean mineConcurrencyInvariants) {
 
         TimedTask mineInvariants = PerformanceMetrics.createTask(

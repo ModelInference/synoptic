@@ -140,7 +140,7 @@ public class RelationPath {
             }
 
             boolean hasImmediateOutgoingRelation = curNode
-                    .getTransitionsWithExactRelations(relations).size() == 1;
+                    .getTransitionsWithIntersectingRelations(relations).size() == 1;
 
             if (!hasImmediateOutgoingRelation && !hasImmediateIncomingRelation) {
                 // Move on to the next node in the trace.
@@ -233,7 +233,7 @@ public class RelationPath {
 
             if (transitions.isEmpty()) {
                 transitions = curNode
-                        .getTransitionsWithExactRelations(orderingRelationSet);
+                        .getTransitionsWithIntersectingRelations(orderingRelationSet);
             }
         }
 
