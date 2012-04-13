@@ -66,16 +66,9 @@ public class TransitiveClosure {
     }
 
     /**
-     * Check whether there is an edge in the transitive closure between
-     * {@code m} and {@code n}.
-     * 
-     * @param m
-     *            a node
-     * @param n
-     *            a node
-     * @return true if {@code m} can reach {@code n}
+     * Records the fact that m can transitively reach n.
      */
-    public void addReachable(EventNode m, EventNode n) {
+    public void recordTransitiveReachability(EventNode m, EventNode n) {
         Set<EventNode> r;
         if (!tc.containsKey(m)) {
             r = new LinkedHashSet<EventNode>();

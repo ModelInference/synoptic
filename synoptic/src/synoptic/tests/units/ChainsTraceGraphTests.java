@@ -28,7 +28,6 @@ import synoptic.tests.SynopticTest;
 public class ChainsTraceGraphTests extends SynopticTest {
 
     ChainsTraceGraph g;
-    ChainsTraceGraph g2;
     EventNode a = new EventNode(new Event("a"));
     EventNode b = new EventNode(new Event("b"));
     EventNode c = new EventNode(new Event("c"));
@@ -42,7 +41,7 @@ public class ChainsTraceGraphTests extends SynopticTest {
     /**
      * Helper: builds and returns a graph of four nodes: a->b->c->d.
      */
-    private ChainsTraceGraph buildFourNodeGraph() {
+    private ChainsTraceGraph buildFourNodeGraph1() {
         ChainsTraceGraph newG = new ChainsTraceGraph();
 
         a.addTransition(new Transition<EventNode>(a, b, "followed by"));
@@ -106,7 +105,7 @@ public class ChainsTraceGraphTests extends SynopticTest {
      */
     @Test
     public void fourNodeGraphTCTest() {
-        g = buildFourNodeGraph();
+        g = buildFourNodeGraph1();
 
         TransitiveClosure tc = g.getTransitiveClosure("followed by");
 
@@ -155,54 +154,6 @@ public class ChainsTraceGraphTests extends SynopticTest {
 
             assertEquals(tc.getReachableNodes(n1), reachables);
         }
-    }
-
-    /**
-     * Tests that two identical graphs have identical transitive closures.
-     */
-    @Test
-    public void equalGraphsEqualTCsTest() {
-        g = buildFourNodeGraph();
-        g2 = buildFourNodeGraph();
-
-        TransitiveClosure tc = g.getTransitiveClosure("followed by");
-        TransitiveClosure tc2 = g2.getTransitiveClosure("followed by");
-        assertTrue(tc.isEqual(tc2));
-    }
-
-    /**
-     * Tests that two identical graphs with different relation string do _not_
-     * have identical transitive closures.
-     */
-    @Test
-    public void diffRelationsDiffTCsTest() {
-        a.addTransition(new Transition<EventNode>(a, b, "followed by"));
-        b.addTransition(new Transition<EventNode>(b, c, "followed by"));
-        c.addTransition(new Transition<EventNode>(c, d, "followed by"));
-
-        a.addTransition(new Transition<EventNode>(a, b, "after"));
-        b.addTransition(new Transition<EventNode>(b, c, "after"));
-        c.addTransition(new Transition<EventNode>(c, d, "after"));
-
-        g = new ChainsTraceGraph();
-        g.add(a);
-        g.add(b);
-        g.add(c);
-        g.add(d);
-        g.tagInitial(a, "followed by");
-        g.tagTerminal(d, "followed by");
-        TransitiveClosure tc = g.getTransitiveClosure("followed by");
-
-        g2 = new ChainsTraceGraph();
-        g2.add(a);
-        g2.add(b);
-        g2.add(c);
-        g2.add(d);
-        g2.tagInitial(a, "after");
-        g2.tagTerminal(d, "after");
-        TransitiveClosure tc2 = g2.getTransitiveClosure("after");
-
-        assertFalse(tc2.isEqual(tc));
     }
 
     /**
