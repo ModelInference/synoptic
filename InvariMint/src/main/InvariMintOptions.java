@@ -24,8 +24,16 @@ public class InvariMintOptions extends synoptic.main.Options {
      * Print the extended usage message. This includes verbosity and debugging
      * options but not internal options.
      */
-    @Option("-H Print extended usage message (includes debugging options)")
+    @Option(
+            value = "-H Print extended usage message (includes debugging options)")
     public boolean allHelp = false;
+
+    /**
+     * Sets the random seed for Synoptic's source of pseudo-random numbers.
+     */
+    @Option(
+            value = "Use a specific random seed for pseudo-random number generator")
+    public Long randomSeed = null;
 
     // //////////////////////////////////////////////////
     /**
@@ -36,26 +44,36 @@ public class InvariMintOptions extends synoptic.main.Options {
             aliases = { "-argsfile" })
     public String argsFilename = null;
 
+    // end option group "Input Options"
+
+    // //////////////////////////////////////////////////
     /**
      * Mine kTail invariants instead of Synoptic invariants.
      */
-    @Option("Perform kTails instead of Synoptic")
+    @OptionGroup("Inference Options")
+    @Option(value = "Perform kTails instead of Synoptic")
     public boolean performKTails = false;
 
     /**
      * Size of tail when performing kTails.
      */
-    @Option("Size of tail when performing kTails")
+    @Option(value = "Size of tail when performing kTails")
     public int kTailLength = 2;
 
-    // end option group "Input Options"
+    /**
+     * Whether to remove spurious edges from the InvariMint model.
+     */
+    @Option(value = "Remove spurious edges from InvariMint model")
+    public boolean removeSpuriousEdges = false;
 
     /**
-     * Sets the random seed for Synoptic's source of pseudo-random numbers.
+     * Whether to minimize every intermediate model during invariant
+     * intersections.
      */
-    @Option(
-            value = "Use a specific random seed for pseudo-random number generator")
-    public Long randomSeed = null;
+    @Option(value = "Minimize on afer each intersection")
+    public boolean minimizeIntersections = true;
+
+    // end option group "Inference Options"
 
     /**
      * Regular expression separator string. When lines are found which match
@@ -142,11 +160,36 @@ public class InvariMintOptions extends synoptic.main.Options {
     public String outputPathPrefix = null;
 
     /**
-     * Translated Synoptic model output filename.
+     * Whether to export the corresponding Synoptic model
      */
-    // @Option(value = "-s Synoptic model output filename",
-    // aliases = { "-synopticModelFile" })
-    // public String synopticModelFile = "convertedSynopticModel.dot";
+    @Option(value = "Export corresponding Synoptic NFA model")
+    public boolean exportSynopticNFA = false;
+
+    /**
+     * Whether to export the corresponding Synoptic model
+     */
+    @Option(value = "Export corresponding Synoptic DFA model")
+    public boolean exportSynopticDFA = false;
+
+    /**
+     * Whether to export every mined invariant DFA
+     */
+    @Option(value = "Export every mined invariant DFA")
+    public boolean exportMinedInvariantDFAs = false;
+
+    protected int invIDCounter = 0;
+
+    /**
+     * What level of logging to use.
+     */
+    @Option(value = "Quietest logging, warnings only")
+    public boolean logLvlQuiet = false;
+
+    @Option(value = "Verbose logging")
+    public boolean logLvlVerbose = false;
+
+    @Option(value = "Extra verbose logging")
+    public boolean logLvlExtraVerbose = false;
 
     // end option group "Output Options"
 

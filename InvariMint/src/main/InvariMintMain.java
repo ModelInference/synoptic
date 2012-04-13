@@ -21,7 +21,9 @@ import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 
 import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.algorithms.graph.KTails;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TOInitialTerminalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
@@ -38,6 +40,7 @@ import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
 import synoptic.model.export.DotExportFormatter;
+import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.BriefLogFormatter;
 
@@ -87,22 +90,40 @@ public class InvariMintMain {
         logger.fine(NIFbys.toPrettyString());
 
         EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
-        InvsModel dfa = getIntersectedModelFromInvs(NIFbys, encodings, true);
+        InvsModel dfa = getIntersectedModelFromInvs(NIFbys, encodings, opts);
 
-        applyInitialTerminalCondition(dfa, encodings);
+        // Apply initial/terminal condition
+        EventType initialEvent = StringEventType.newInitialStringEventType();
+        EventType terminalEvent = StringEventType.newTerminalStringEventType();
+        InvModel initialTerminalInv = new InvModel(
+                new TOInitialTerminalInvariant(initialEvent, terminalEvent,
+                        TraceParser.defaultRelation), encodings);
+        dfa.intersectWith(initialTerminalInv);
 
         // Intersect with mined invariants.
         dfa.intersectWith(getIntersectedModelFromInvs(minedInvs, encodings,
-                true));
+                opts));
         dfa.minimize();
 
-        // removeSpuriousEdges(dfa, initialModel.getTraceGraph(), encodings,
-        // initialEvent, terminalEvent);
+        // Remove paths from the model not found in any input trace
+        if (opts.removeSpuriousEdges) {
+            removeSpuriousEdges(dfa, inputGraph, encodings, initialEvent,
+                    terminalEvent);
+        }
 
         // Export final model.
         dfa.exportDotAndPng(opts.outputPathPrefix + ".invarimintDFA.dot");
 
-        // compareTranslatedSynopticModel(initialModel, encodings, dfa);
+        PartitionGraph pGraph = null;
+        if (opts.performKTails) {
+            pGraph = KTails.performKTails(inputGraph, opts.kTailLength);
+        } else {
+            pGraph = new PartitionGraph(inputGraph, true, minedInvs);
+            Bisimulation.splitPartitions(pGraph);
+            Bisimulation.mergePartitions(pGraph);
+        }
+
+        compareTranslatedModel(pGraph, encodings, dfa, opts);
     }
 
     public static void setUpLogging(InvariMintOptions opts) {
@@ -131,20 +152,16 @@ public class InvariMintMain {
 
         // consoleHandler.setFormatter(new CustomFormatter());
 
-        // TODO: add options to InvariMintOptions to control verbosity.
-        //
         // Set the logger's log level based on command line arguments
-        // if (opts.logLvlQuiet) {
-        // logger.setLevel(Level.WARNING);
-        // } else if (opts.logLvlVerbose) {
-        // logger.setLevel(Level.FINE);
-        // } else if (opts.logLvlExtraVerbose) {
-        // logger.setLevel(Level.FINEST);
-        // } else {
-        // logger.setLevel(Level.INFO);
-        // }
-
-        logger.setLevel(Level.INFO);
+        if (opts.logLvlQuiet) {
+            logger.setLevel(Level.WARNING);
+        } else if (opts.logLvlVerbose) {
+            logger.setLevel(Level.FINE);
+        } else if (opts.logLvlExtraVerbose) {
+            logger.setLevel(Level.FINEST);
+        } else {
+            logger.setLevel(Level.INFO);
+        }
 
         consoleHandler.setFormatter(new BriefLogFormatter());
         return;
@@ -181,8 +198,6 @@ public class InvariMintMain {
 
         // Set up options in Synoptic Main that are used by the library.
         Main.options = new SynopticOptions();
-        Main.setUpLogging();
-        Main.options.logLvlExtraVerbose = false;
         Main.options.logLvlExtraVerbose = true;
         Main.options.internCommonStrings = true;
         Main.options.recoverFromParseErrors = opts.recoverFromParseErrors;
@@ -247,17 +262,6 @@ public class InvariMintMain {
         return minedInvs;
     }
 
-    public static void applyInitialTerminalCondition(EncodedAutomaton dfa,
-            EventTypeEncodings encodings) {
-        // Intersect with initial/terminal InvModel.
-        EventType initialEvent = StringEventType.newInitialStringEventType();
-        EventType terminalEvent = StringEventType.newTerminalStringEventType();
-        InvModel initialTerminalInv = new InvModel(
-                new TOInitialTerminalInvariant(initialEvent, terminalEvent,
-                        TraceParser.defaultRelation), encodings);
-        dfa.intersectWith(initialTerminalInv);
-    }
-
     /**
      * Constructs an InvsModel by intersecting InvModels for each of the given
      * temporal invariants.
@@ -270,25 +274,30 @@ public class InvariMintMain {
      */
     public static InvsModel getIntersectedModelFromInvs(
             TemporalInvariantSet invariants, EventTypeEncodings encodings,
-            boolean minimize) {
+            InvariMintOptions opts) {
         // Initial model will accept all Strings.
         InvsModel model = new InvsModel(encodings);
 
         // Intersect provided invariants.
         for (ITemporalInvariant invariant : invariants) {
             InvModel invDFA = new InvModel(invariant, encodings);
-            // if (invariant instanceof KTailInvariant) {
-            // try {
-            // invDFA.exportDotAndPng("/Users/ivan/synoptic/InvariMint/test-output/inv.dot");
-            // } catch (IOException e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
-            // }
-            // }
+
             model.intersectWith(invDFA);
+
+            if (opts.exportMinedInvariantDFAs
+                    && !(invariant instanceof NeverImmediatelyFollowedInvariant)) {
+                try {
+                    invDFA.exportDotAndPng(opts.outputPathPrefix + ".InvDFA"
+                            + opts.invIDCounter + ".dot");
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                opts.invIDCounter++;
+            }
         }
 
-        if (minimize) {
+        if (opts.minimizeIntersections) {
             // Optimize by minimizing the model.
             model.minimize();
         }
@@ -402,29 +411,33 @@ public class InvariMintMain {
      * 
      * @throws IOException
      */
-    private static void compareTranslatedSynopticModel(
-            PartitionGraph initialModel, EventTypeEncodings encodings,
-            EncodedAutomaton dfa) throws IOException {
+    private static void compareTranslatedModel(PartitionGraph pGraph,
+            EventTypeEncodings encodings, EncodedAutomaton dfa,
+            InvariMintOptions opts) throws IOException {
 
-        // To compare, we'll translate and export the Synoptic model.
-        // First run synoptic on the initial model, initial model becomes final
-        // model.
-        Bisimulation.splitPartitions(initialModel);
-        Bisimulation.mergePartitions(initialModel);
+        if (opts.exportSynopticNFA) {
+            GraphExporter.exportGraph(opts.outputPathPrefix
+                    + ".synopticNFA.dot", pGraph, false);
+            GraphExporter.generatePngFileFromDotFile(opts.outputPathPrefix
+                    + ".synopticNFA.dot");
+        }
 
-        SynopticModel convertedDfa = new SynopticModel(initialModel, encodings);
+        SynopticModel convertedDfa = new SynopticModel(pGraph, encodings);
 
         // This minimization step will first determinize the model -- from the
         // dk brics documentation.
         convertedDfa.minimize();
 
+        if (opts.exportSynopticDFA) {
+            convertedDfa.exportDotAndPng(opts.outputPathPrefix
+                    + ".synopticDFA.dot");
+        }
+
         // Print whether the language accepted by dfa is a subset of the
         // language accepted by synDfa and vice versa.
-        System.out
-                .println("Translated Synoptic DFA language a subset of DFAmin language: "
-                        + convertedDfa.subsetOf(dfa));
-        System.out
-                .println("DFAmin language a subset of translated Synoptic DFA language: "
-                        + dfa.subsetOf(convertedDfa));
+        logger.info("Translated Synoptic DFA language a subset of DFAmin language: "
+                + convertedDfa.subsetOf(dfa));
+        logger.info("DFAmin language a subset of translated Synoptic DFA language: "
+                + dfa.subsetOf(convertedDfa));
     }
 }
