@@ -8,8 +8,8 @@ import java.util.Set;
 
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
+import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.interfaces.ITransition;
@@ -32,7 +32,8 @@ public class ImmediateInvariantMiner {
     }
 
     private Map<EventType, Set<EventType>> getCIFbyMap() {
-        EventNode initNode = g.getDummyInitialNode(TraceParser.defaultRelation);
+        EventNode initNode = g
+                .getDummyInitialNode(Event.defaultTimeRelationString);
 
         // Maps each EventType to the set of EventTypes that immediately follow
         // it.
@@ -80,7 +81,7 @@ public class ImmediateInvariantMiner {
                 if (!followedBy.contains(target)) {
                     neverIFbyInvariants
                             .add(new NeverImmediatelyFollowedInvariant(source,
-                                    target, TraceParser.defaultRelation));
+                                    target, Event.defaultTimeRelationString));
                 }
             }
         }

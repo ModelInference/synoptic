@@ -29,7 +29,7 @@ public class LogFileUploadServlet extends HttpServlet {
 
     public static Logger logger = Logger.getLogger("LogFileUploadServlet");
 
-    AppConfiguration config;
+    static AppConfiguration config = null;
 
     /**
      * Handles POST request. Retrieves file uploaded in form from request and
@@ -44,7 +44,18 @@ public class LogFileUploadServlet extends HttpServlet {
             HttpServletResponse response) throws IOException {
 
         ServletContext context = getServletConfig().getServletContext();
-        this.config = AppConfiguration.getInstance(context);
+        if (config == null) {
+            try {
+                config = AppConfiguration.getInstance(context);
+            } catch (Exception e) {
+                logger.severe("AppConfiguration generated an exception: "
+                        + e.getMessage());
+                response.sendError(
+                        HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                        "Error during AppConfiguration construction.");
+                return;
+            }
+        }
 
         response.setContentType("text/plain");
 
@@ -113,7 +124,6 @@ public class LogFileUploadServlet extends HttpServlet {
     }
 
     // Returns uploaded file from given request.
-    @SuppressWarnings("unchecked")
     private FileItem getFileItem(HttpServletRequest request,
             HttpServletResponse response) throws FileUploadException {
         // Create a factory for disk-based file items

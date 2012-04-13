@@ -1,11 +1,16 @@
 package synopticgwt.client.model;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
 
 import synopticgwt.client.util.FlowLayoutPanel;
 import synopticgwt.client.util.TooltipListener;
@@ -35,23 +40,31 @@ public class LogInfoPanel extends FlowLayoutPanel {
     private final Label logInfoLabel;
     private final LogLinesTable logLinesTable;
     private final ModelTab modelTab;
-    private final PathsThroughPartitionsTable pathsThroughPartitionsTable;
+    private final PathsThroughPartitionsTable pathsTable;
 
     private static final String logInfoLabelLogLines = "Selected node log lines";
     private static final String logInfoLabelPathTraces = "Selected path traces";
 
+    ScrollPanel pathsPanel;
+
     public LogInfoPanel(String width, ModelTab modelTab) {
         super();
 
-        logInfoLabel = new Label(logInfoLabelLogLines);
-        logLinesTable = new LogLinesTable();
-
-        this.modelTab = modelTab;
-        pathsThroughPartitionsTable = new PathsThroughPartitionsTable(modelTab);
         this.setWidth(width);
+        this.modelTab = modelTab;
 
+        logInfoLabel = new Label(logInfoLabelLogLines);
         this.add(logInfoLabel);
-        this.add(pathsThroughPartitionsTable);
+
+        // Placing pathsTable inside of a ScrollPanel adds scrolls bars when its
+        // content is too wide/long.
+        pathsTable = new PathsThroughPartitionsTable(modelTab);
+        pathsPanel = new ScrollPanel(pathsTable);
+        this.add(pathsPanel);
+
+        DataGrid.Resources resources = GWT
+                .create(LogLinesDataGridResources.class);
+        logLinesTable = new LogLinesTable(50, resources);
         this.add(logLinesTable);
 
         TooltipListener
@@ -66,7 +79,14 @@ public class LogInfoPanel extends FlowLayoutPanel {
         DOM.setElementAttribute(logInfoLabel.getElement(), "class",
                 LOG_INFO_LINES_CLASS);
 
-        pathsThroughPartitionsTable.setVisible(false);
+        pathsPanel.setVisible(false);
+        pathsTable.setHeight("100%");
+    }
+
+    @Override
+    public void setSize(String width, String height) {
+        super.setSize(width, height);
+        pathsPanel.setSize(width, height);
     }
 
     public LogLinesTable getLogLinesTable() {
@@ -81,6 +101,14 @@ public class LogInfoPanel extends FlowLayoutPanel {
      * @param lines
      */
     public void showLogLines(List<LogLine> lines) {
+        // Sort log lines in line number order.
+        Collections.sort(lines, new Comparator<LogLine>() {
+            @Override
+            public int compare(LogLine a, LogLine b) {
+                return ((Integer) a.getLineNum()).compareTo(b.getLineNum());
+            }
+        });
+
         this.logLinesTable.setRowData(lines);
         if (!logLinesTable.isVisible()) {
             this.toggleLogInfoDisplay();
@@ -90,9 +118,7 @@ public class LogInfoPanel extends FlowLayoutPanel {
     /**
      * Takes a set of trace IDs (each mapped to a path), and displays them on
      * the panel. If the state of the paths table is not already visible, the
-     * panel will switch to accommodate. TODO: Explain how these will be
-     * displayed according to the pathsThroughPartitionsTable object once the
-     * full functionality is implemented.
+     * panel will switch to accommodate.
      * 
      * @param paths
      *            Set of trace IDs mapped to specific paths
@@ -100,10 +126,10 @@ public class LogInfoPanel extends FlowLayoutPanel {
     public void showPaths(Map<List<GWTEdge>, Set<Integer>> paths) {
         // We need to clear edge state if some path is currently highlighted in
         // the graph.
-        this.modelTab.getModelGraphic().clearEdgeState();
+        this.modelTab.getJSGraph().clearEdgeState();
 
-        this.pathsThroughPartitionsTable.showPaths(paths);
-        if (!pathsThroughPartitionsTable.isVisible()) {
+        this.pathsTable.showPaths(paths);
+        if (!pathsPanel.isVisible()) {
             this.toggleLogInfoDisplay();
         }
     }
@@ -114,11 +140,11 @@ public class LogInfoPanel extends FlowLayoutPanel {
      * state.
      */
     public void clearAndShowPathsTable() {
-        this.pathsThroughPartitionsTable.clear();
+        this.pathsTable.clear();
 
-        this.modelTab.getModelGraphic().clearEdgeState();
+        this.modelTab.getJSGraph().clearEdgeState();
 
-        if (!pathsThroughPartitionsTable.isVisible()) {
+        if (!pathsTable.isVisible()) {
             toggleLogInfoDisplay();
         }
     }
@@ -129,8 +155,8 @@ public class LogInfoPanel extends FlowLayoutPanel {
      */
     @Override
     public void clear() {
-        this.pathsThroughPartitionsTable.clear();
-
+        this.pathsTable.clear();
+        this.logLinesTable.clear();
         if (!logLinesTable.isVisible()) {
             toggleLogInfoDisplay();
         }
@@ -152,7 +178,14 @@ public class LogInfoPanel extends FlowLayoutPanel {
         }
 
         logLinesTable.setVisible(!logLinesTable.isVisible());
-        pathsThroughPartitionsTable.setVisible(!pathsThroughPartitionsTable
-                .isVisible());
+
+        pathsPanel.setVisible(!pathsPanel.isVisible());
+    }
+
+    /**
+     * Returns the offset height of the label at top.
+     */
+    public int getTopLabelHeight() {
+        return logInfoLabel.getOffsetHeight();
     }
 }

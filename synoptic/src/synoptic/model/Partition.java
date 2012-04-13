@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -37,12 +39,15 @@ public class Partition implements INode<Partition> {
     /**
      * Partitions can be initialized (belong to a partition graph) or be
      * uninitialized (do not belong to any partition graph, but possibly cached
-     * and re-used later). This variable inidicates whether or not this
-     * partition has been initialized.
+     * and re-used later). This variable indicates whether or not this partition
+     * has been initialized.
      */
     private boolean initialized = false;
 
-    /** The EvenType of this partition -- all events MUST be of this type. */
+    /**
+     * The EvenType of this partition -- all EventNode instances MUST contain
+     * Event instances that contains this type of event.
+     */
     private EventType eType = null;
 
     /**
@@ -326,20 +331,66 @@ public class Partition implements INode<Partition> {
         assert initialized;
 
         List<WeightedTransition<Partition>> trsWeighted = new ArrayList<WeightedTransition<Partition>>();
-        for (Transition<Partition> tr : iter) {
-            int numOutgoing = 0;
-            for (final EventNode event : events) {
-                if (fulfillsStrong(event, tr)) {
-                    numOutgoing += 1;
+
+        if (this.isInitial()) {
+            // We handle INITIAL partitions differently because we optimized the
+            // code by including just a single EventNode with type INITIAL for
+            // all traces (instead of one maintaining one per trace). This one
+            // INITIAL EventNode contains transitions to all first nodes of
+            // traces.
+            assert (this.getEventNodes().size() == 1);
+
+            // The _EventNode_ (child) instances that the one EventNode
+            // in this partition contains transitions to.
+            Set<EventNode> children = this.getEventNodes().iterator().next()
+                    .getSuccessors();
+
+            int totalChildren = children.size();
+
+            // Iterate through all children, building up the map of number of
+            // transitions per (child) partition.
+            Map<Partition, Integer> transitionsPerChildPartition = new LinkedHashMap<Partition, Integer>();
+            for (EventNode child : children) {
+                Partition childP = child.getParent();
+                if (transitionsPerChildPartition.containsKey(childP)) {
+                    transitionsPerChildPartition.put(childP,
+                            transitionsPerChildPartition.get(childP) + 1);
+                } else {
+                    transitionsPerChildPartition.put(childP, 1);
                 }
             }
 
-            int totalAtSource = tr.getSource().getEventNodes().size();
-            double probability = (double) numOutgoing / (double) totalAtSource;
-            WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
-                    tr.getSource(), tr.getTarget(), tr.getRelation(),
-                    probability, numOutgoing);
-            trsWeighted.add(trWeighted);
+            // Now, use the map to determine transition probabilities.
+            for (Transition<Partition> tr : iter) {
+                int numOutgoing = transitionsPerChildPartition.get(tr
+                        .getTarget());
+                double probability = (double) numOutgoing
+                        / (double) totalChildren;
+                WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
+                        this, tr.getTarget(), tr.getRelation(), probability,
+                        numOutgoing);
+                trsWeighted.add(trWeighted);
+            }
+
+        } else {
+            // Non-INITIAL partition case.
+
+            int totalAtSource = events.size();
+            for (Transition<Partition> tr : iter) {
+                int numOutgoing = 0;
+                for (final EventNode event : events) {
+                    if (fulfillsStrong(event, tr)) {
+                        numOutgoing += 1;
+                    }
+                }
+
+                double probability = (double) numOutgoing
+                        / (double) totalAtSource;
+                WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
+                        this, tr.getTarget(), tr.getRelation(), probability,
+                        numOutgoing);
+                trsWeighted.add(trWeighted);
+            }
         }
         return trsWeighted;
     }

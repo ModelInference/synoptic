@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Set;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.IIterableIterator;
+import synoptic.util.InternalSynopticException;
 import synoptic.util.IterableAdapter;
 import synoptic.util.time.EqualVectorTimestampsException;
 import synoptic.util.time.ITime;
@@ -36,9 +38,6 @@ public class EventNode implements INode<EventNode> {
      * A Unique trace identifier
      */
     private int traceID = 0;
-
-    // TODO: For totally ordered traces, the transitions becomes a single
-    // element, and transitionsByEvents becomes superfluous.
 
     List<Transition<EventNode>> transitions = new ArrayList<Transition<EventNode>>();
     LinkedHashMap<String, List<Transition<EventNode>>> transitionsByRelation = new LinkedHashMap<String, List<Transition<EventNode>>>();
@@ -85,6 +84,12 @@ public class EventNode implements INode<EventNode> {
         addTransition(new Transition<EventNode>(this, dest, relation));
     }
 
+    public void addTransitions(EventNode dest, Collection<String> relations) {
+        for (String relation : relations) {
+            addTransition(dest, relation);
+        }
+    }
+
     /**
      * Find all direct successors of all events. For an event e1, direct
      * successors are successors (in terms of vector-clock) that are not
@@ -102,10 +107,9 @@ public class EventNode implements INode<EventNode> {
         // Events in group are partially ordered. We have to do more
         // work in this case.
 
-        // The first loop runs in O(n) and the two loops below have a
-        // worst cast behavior O(m^2) where m is the length of
-        // e1AllSuccessors list. So the worst case run time is:
-        // O(n) + O(n^2) = O(n^2)
+        // The first loop runs in O(n) and the second loop runs in
+        // O(m^2) where m is the length of e1AllSuccessors list.
+        // So the worst case run time is: O(n) + O(m^2) = O(m^2)
 
         // First find all all events that succeed e1, store this set in
         // e1AllSuccessors.
@@ -263,7 +267,7 @@ public class EventNode implements INode<EventNode> {
         return event;
     }
 
-    public Set<String> getRelations() {
+    public Set<String> getNodeRelations() {
         return transitionsByRelation.keySet();
     }
 
@@ -286,6 +290,15 @@ public class EventNode implements INode<EventNode> {
         // TODO: avoid creating a new LinkedHashSet here
         Set<EventNode> successors = new LinkedHashSet<EventNode>();
         for (Transition<EventNode> e : getTransitionsIterator(relation)) {
+            successors.add(e.getTarget());
+        }
+        return successors;
+    }
+
+    public Set<EventNode> getSuccessors() {
+        // TODO: avoid creating a new LinkedHashSet here
+        Set<EventNode> successors = new LinkedHashSet<EventNode>();
+        for (Transition<EventNode> e : getTransitionsIterator()) {
             successors.add(e.getTarget());
         }
         return successors;

@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class NamedPattern {
 
     private static final Pattern NAMED_GROUP_PATTERN = Pattern
-            .compile("\\(\\?<(\\w+)>");
+            .compile("\\(\\?<((\\w|\\*|\\-)+)>");
     private static final Pattern NAMED_GROUP_PREFIX = Pattern
             .compile("\\(\\?<");
 

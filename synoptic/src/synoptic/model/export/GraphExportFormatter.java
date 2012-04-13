@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import synoptic.model.Event;
 import synoptic.model.interfaces.INode;
 
 /**
@@ -52,7 +53,8 @@ public abstract class GraphExportFormatter {
                 "indigo", "yellow1", "thistle"));
 
         relationColors = new LinkedHashMap<String, String>();
-        relationColors.put("t", defaultRelationColor);
+        relationColors.put(Event.defaultTimeRelationString,
+                defaultRelationColor);
     }
 
     /**

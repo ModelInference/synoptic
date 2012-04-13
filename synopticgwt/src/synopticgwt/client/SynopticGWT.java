@@ -291,7 +291,10 @@ public class SynopticGWT implements EntryPoint {
                 // //////////////////////
             } else {
                 // Update the graphic with the current window dimensions.
-                modelTab.updateGraphPanel();
+                if (modelTab.updateSizeOnTabSelection) {
+                    modelTab.updateGraphPanel();
+                    modelTab.updateSizeOnTabSelection = false;
+                }
             }
         }
 
@@ -310,10 +313,10 @@ public class SynopticGWT implements EntryPoint {
     }
 
     /**
-     * Called by the InputTab whenever the server parsed the log that the user
-     * submitted. This method creates the invariant/model tabs and initializes
-     * them with the result of the parseLog() call to the Synoptic service --
-     * namely, the invariants and the initial model.
+     * Called by ParseLogAsyncCallback once the server parsed the log that the
+     * user submitted. This method creates the invariant/model tabs and
+     * initializes them with the result of the parseLog() call to the Synoptic
+     * service -- namely, the invariants and the initial model.
      * 
      * @param logInvs
      *            The invariants returned by the service corresponding to the
@@ -336,7 +339,7 @@ public class SynopticGWT implements EntryPoint {
 
             modelTab.setManualMode(manualRefineCoarsen);
 
-            // The modelTab MUST be selected before calling showGraph().
+            // The modelTab MUST be selected BEFORE calling showGraph().
             tabPanel.selectTab(modelTabIndex);
             modelTab.showGraph(initialModel);
 

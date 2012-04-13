@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 import synoptic.algorithms.graph.IOperation;
 import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.TraceParser;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -84,49 +83,57 @@ public class PartitionGraph implements IGraph<Partition> {
      */
     public PartitionGraph(ChainsTraceGraph g, boolean partitionByLabel,
             TemporalInvariantSet invariants) {
-        for (String relation : g.getRelations()) {
-            addInitialMessages(g.getDummyInitialNode(relation), relation);
-            relations.add(relation);
-        }
+        this(g, invariants);
 
         if (partitionByLabel) {
             partitionByLabels(g.getNodes());
         } else {
             partitionSeparately(g.getNodes());
         }
-        this.invariants = invariants;
-        this.traceGraph = g;
     }
 
     public PartitionGraph(ChainsTraceGraph g,
             List<LinkedHashSet<Integer>> partitioningIndexSets,
             TemporalInvariantSet invariants) {
+        this(g, invariants);
+
+        partitionByIndexSetsAndLabels(g.getNodes(), partitioningIndexSets);
+    }
+
+    /**
+     * Creates a partition graph without any partitions. Takes care of setting
+     * up the internal initialEvents, invariants, and traceGraph data
+     * structures.
+     * 
+     * @param g
+     * @param invariants
+     */
+    private PartitionGraph(ChainsTraceGraph g, TemporalInvariantSet invariants) {
         for (String relation : g.getRelations()) {
-            addInitialMessages(g.getDummyInitialNode(relation), relation);
+            EventNode initialMessage = g.getDummyInitialNode(relation);
+
+            if (!initialEvents.containsKey(relation)) {
+                initialEvents.put(relation, new LinkedHashSet<EventNode>());
+            }
+            initialEvents.get(relation).add(initialMessage);
+
             relations.add(relation);
         }
 
-        partitionByIndexSetsAndLabels(g.getNodes(), partitioningIndexSets);
         this.invariants = invariants;
         this.traceGraph = g;
     }
 
-    // TODO: comment this
+    // PartitionGraph constructor used by KTail implementation
     public PartitionGraph(ChainsTraceGraph g, Partition initial,
             Partition terminal, Set<Partition> partitions) {
-        initialEvents.put(TraceParser.defaultRelation, initial.getEventNodes());
-        terminalEvents.put(TraceParser.defaultRelation,
+        initialEvents.put(Event.defaultTimeRelationString,
+                initial.getEventNodes());
+        terminalEvents.put(Event.defaultTimeRelationString,
                 terminal.getEventNodes());
-        relations.add(TraceParser.defaultRelation);
+        relations.add(Event.defaultTimeRelationString);
         this.partitions = new LinkedHashSet<Partition>(partitions);
         this.traceGraph = g;
-    }
-
-    private void addInitialMessages(EventNode initialMessage, String relation) {
-        if (!initialEvents.containsKey(relation)) {
-            initialEvents.put(relation, new LinkedHashSet<EventNode>());
-        }
-        initialEvents.get(relation).add(initialMessage);
     }
 
     public TemporalInvariantSet getInvariants() {
@@ -389,7 +396,7 @@ public class PartitionGraph implements IGraph<Partition> {
     @Override
     public void add(Partition node) {
         for (EventNode m : node.getEventNodes()) {
-            relations.addAll(m.getRelations());
+            relations.addAll(m.getNodeRelations());
         }
         partitions.add(node);
 
@@ -584,7 +591,8 @@ public class PartitionGraph implements IGraph<Partition> {
         } else {
 
             // Gets the next event with relation to time.
-            Set<EventNode> nextEvents = currentEvent.getSuccessors("t");
+            Set<EventNode> nextEvents = currentEvent
+                    .getSuccessors(Event.defaultTimeRelationString);
             // Finds the next partition to enter with the correct event.
             for (Partition pNode : getAdjacentNodes(currentPartition)) {
                 for (EventNode possibleNextEvent : pNode.getEventNodes()) {

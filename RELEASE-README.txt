@@ -25,34 +25,42 @@ Synoptic is known to work on OSX, Linux, and Windows platforms with
 JRE 6 or higher.
 
 
-Testing your installation
+Running Synoptic
 =========================
 
 The Synoptic release you unpacked (which includes this file) is
 composed of a set of jar files. Synoptic is written in Java and to
-start it you must invoke some commands from the command line. As a
-test of your installation make sure that you can do the following:
+start it you must invoke some commands from the command line.
 
-Show command line arguments help by running:
-> java -jar synoptic.jar -h
+The release includes two scripts: synoptic-jar.sh (for *nix platforms)
+and synoptic-jar.bat (for Windows). Run the script for your platform
+with -h or -H options to see more usage help. For example:
 
-Successfully run the Synoptic unit tests with:
-> java -jar synoptic.jar --runTests
+> ./synoptic-jar.sh -H
+
+If the scripts do not work for you, then invoke java directly:
+
+> java -jar ./lib/synoptic.jar -H
 
 
-References
-============
+Testing your installation
+=========================
+
+As a test of your installation make sure that you can successfully run
+the Synoptic unit tests with:
+
+> ./synoptic-jar.sh --runTests
+
+
+Documentation and help
+=======================
 
 For help with the installation see:
 http://code.google.com/p/synoptic/wiki/DocsInstallation
 
 For usage information see:
-http://code.google.com/p/synoptic/wiki/DocsTutorial
-http://code.google.com/p/synoptic/wiki/DocsUsage
-
-You may also want to read the command line arguments help, which can
-by displayed by running:
-> java -jar synoptic.jar -h
+http://code.google.com/p/synoptic/wiki/DocsCmdLineTutorial
+http://code.google.com/p/synoptic/wiki/DocsCmdLineUsage
 
 
 Contact

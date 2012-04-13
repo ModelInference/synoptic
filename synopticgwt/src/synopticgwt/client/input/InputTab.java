@@ -122,11 +122,12 @@ public class InputTab extends Tab<VerticalPanel> {
         poLabel.setStyleName("logTypeLabel");
         toLabel.setStyleName("logTypeLabel");
 
-        examplesGrid.setWidget(1, 0, poLabel);
-        examplesGrid.setWidget(3, 0, toLabel);
+        examplesGrid.setWidget(1, 0, toLabel);
+        examplesGrid.setWidget(2, 0, toExamplesPanel);
 
-        examplesGrid.setWidget(2, 0, poExamplesPanel);
-        examplesGrid.setWidget(4, 0, toExamplesPanel);
+        examplesGrid.setWidget(3, 0, poLabel);
+        examplesGrid.setWidget(4, 0, poExamplesPanel);
+
         poExamplesPanel.setStyleName("poLinkTable");
         toExamplesPanel.setStyleName("toLinkTable");
 
@@ -551,7 +552,7 @@ public class InputTab extends Tab<VerticalPanel> {
             } else {
                 partitionRegExpDefaultLabel.setVisible(true);
             }
-            parseLogButton.setEnabled(true);
+            toggleToParseTextArea();
         }
     }
 
@@ -678,6 +679,32 @@ public class InputTab extends Tab<VerticalPanel> {
     }
 
     /**
+     * Responds to toggle of radio button to parse log in text area.
+     */
+    private void toggleToParseTextArea() {
+        logTextArea.setVisible(true);
+        uploadLogFileButton.setVisible(false);
+        if (logTextArea.getValue().trim().length() == 0) {
+            parseLogButton.setEnabled(false);
+        } else {
+            parseLogButton.setEnabled(true);
+        }
+    }
+
+    /**
+     * Responds to toggle of radio button to parse uploaded log.
+     */
+    private void toggleToParseUploadedFile() {
+        logTextArea.setVisible(false);
+        uploadLogFileButton.setVisible(true);
+        if (!uploadLogFileButton.getFilename().isEmpty()) {
+            parseLogButton.setEnabled(true);
+        } else {
+            parseLogButton.setEnabled(false);
+        }
+    }
+
+    /**
      * Handles enabling/disabling of text area or file upload button when log
      * type radio buttons are changed.
      */
@@ -685,22 +712,9 @@ public class InputTab extends Tab<VerticalPanel> {
         @Override
         public void onValueChange(ValueChangeEvent<Boolean> event) {
             if (event.getSource() == logTextRadioButton) {
-                logTextArea.setVisible(true);
-                uploadLogFileButton.setVisible(false);
-                if (logTextArea.getValue().trim().length() == 0) {
-                    parseLogButton.setEnabled(false);
-                } else {
-                    parseLogButton.setEnabled(true);
-                }
+                toggleToParseTextArea();
             } else { // logFileRadioButton
-                logTextArea.setVisible(false);
-                uploadLogFileButton.setVisible(true);
-                clearInputValues();
-                if (!uploadLogFileButton.getFilename().isEmpty()) {
-                    parseLogButton.setEnabled(true);
-                } else {
-                    parseLogButton.setEnabled(false);
-                }
+                toggleToParseUploadedFile();
             }
         }
     }

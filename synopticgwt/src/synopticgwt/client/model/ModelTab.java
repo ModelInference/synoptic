@@ -1,14 +1,17 @@
 package synopticgwt.client.model;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.event.logical.shared.OpenEvent;
+import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -20,6 +23,7 @@ import com.google.gwt.user.client.ui.RadioButton;
 
 import synopticgwt.client.ISynopticServiceAsync;
 import synopticgwt.client.Tab;
+import synopticgwt.client.model.JSGraph.EdgeLabelType;
 import synopticgwt.client.util.ErrorReportingAsyncCallback;
 import synopticgwt.client.util.FlowLayoutPanel;
 import synopticgwt.client.util.ProgressWheel;
@@ -34,17 +38,7 @@ import synopticgwt.shared.LogLine;
  * model.
  */
 public class ModelTab extends Tab<DockLayoutPanel> {
-    // TODO: INITIAL_LABEL and TERMINAL_LABEL should not be hardcoded. Instead,
-    // the EventType class should be ported to GWT, or a mirror type should be
-    // created which would have the notion of initial/terminal based on
-    // EventType.isInitialEventTyep and EventType.isTerminalEventType.
 
-    /* Label of initial node, for layout purposes */
-    private static final String INITIAL_LABEL = "INITIAL";
-
-    /* Label of terminal node, for layout purposes */
-    private static final String TERMINAL_LABEL = "TERMINAL";
-    
     // CSS Attributes of the log info label
     public static final String LOG_INFO_PATHS_CLASS = "log-info-displaying-paths";
     public static final String LOG_INFO_LINES_CLASS = "log-info-displaying-log-lines";
@@ -53,11 +47,9 @@ public class ModelTab extends Tab<DockLayoutPanel> {
     // Panels containing all relevant buttons.
     private final HorizontalPanel manualControlButtonsPanel = new HorizontalPanel();
     private final FlowLayoutPanel controlsPanel = new FlowLayoutPanel();
+    private final FlowLayoutPanel topControlsPanel = new FlowLayoutPanel();
 
     protected final LogInfoPanel logInfoPanel;
-
-    // The set of node IDs that have been selected by the user in the model.
-    private final Set<Integer> selectedNodes = new HashSet<Integer>();
 
     public static final String TOOLTIP_URL = "http://code.google.com/p/synoptic/wiki/DocsWebAppTutorial#Invariants_Tab";
 
@@ -86,8 +78,26 @@ public class ModelTab extends Tab<DockLayoutPanel> {
     // String representing the canvas div.
     private static final String canvasId = "canvasId";
 
-    // The model graphic object that maintains all the model graphical state.
-    private ModelGraphic modelGraphic;
+    // The JS representation of the GWTGraph. Handles events on the graph,
+    // and maintains the graphical state.
+    private JSGraph jsGraph;
+
+    // The absolute minimum height of the displayed model.
+    final private int MIN_MODEL_HEIGHT_PX = 400;
+
+    // The absolute width of the controls panel.
+    final private int CONTROLS_PANEL_WIDTH_PX = 300;
+    final private String CONTROLS_PANEL_WIDTH_PX_STR = CONTROLS_PANEL_WIDTH_PX
+            + "px";
+
+    // Height of borders and other CSS elements pertaining to the panel
+    // containing the model.
+    final private int GRAPH_PANEL_STYLE_HEIGHT = 6;
+
+    // Whether or not to update the sizes of widget elements when the tab is
+    // selected. This is set to true whenever the window is resized but the
+    // model tab is not selected.
+    public boolean updateSizeOnTabSelection = false;
 
     HorizontalPanel exportButtonsPanel;
     HorizontalPanel viewPathsButtonPanel;
@@ -95,7 +105,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
     public ModelTab(ISynopticServiceAsync synopticService, ProgressWheel pWheel) {
         super(synopticService, pWheel, "model-tab");
         panel = new DockLayoutPanel(Unit.PX);
-        panel.setHeight(this.getModelGraphicHeight() + "px");
+        panel.setHeight(this.getModelPanelHeight() + "px");
 
         // Set up the buttons for controlling Synoptic manually.
         manualControlButtonsPanel.add(modelRefineButton);
@@ -103,30 +113,33 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         manualControlButtonsPanel.add(modelGetFinalButton);
         manualControlButtonsPanel.setStyleName("buttonPanel");
 
-        controlsPanel.setSize("300px", "100%");
+        topControlsPanel.setWidth(CONTROLS_PANEL_WIDTH_PX_STR);
 
-        modelRefineButton.setWidth("100px");
-        modelCoarsenButton.setWidth("100px");
-        modelGetFinalButton.setWidth("100px");
-        controlsPanel.add(manualControlButtonsPanel);
+        int buttonWidth = 98;
+        String buttonWidthStr = buttonWidth + "px";
+
+        modelRefineButton.setWidth(buttonWidthStr);
+        modelCoarsenButton.setWidth(buttonWidthStr);
+        modelGetFinalButton.setWidth(buttonWidthStr);
+        topControlsPanel.add(manualControlButtonsPanel);
 
         // Set up buttons for exporting models.
         exportButtonsPanel = new HorizontalPanel();
         exportButtonsPanel.add(modelExportDotButton);
         exportButtonsPanel.add(modelExportPngButton);
 
-        modelExportDotButton.setWidth("100px");
-        modelExportPngButton.setWidth("100px");
+        modelExportDotButton.setWidth(buttonWidthStr);
+        modelExportPngButton.setWidth(buttonWidthStr);
         exportButtonsPanel.setStyleName("buttonPanel");
-        controlsPanel.add(exportButtonsPanel);
+        topControlsPanel.add(exportButtonsPanel);
 
         // Set up the buttons for retrieving paths through selected nodes.
         viewPathsButtonPanel = new HorizontalPanel();
         viewPathsButtonPanel.add(modelViewPathsButton);
 
-        modelViewPathsButton.setWidth("200px");
+        modelViewPathsButton.setWidth((buttonWidth * 2) + "px");
         viewPathsButtonPanel.setStyleName("buttonPanel");
-        controlsPanel.add(viewPathsButtonPanel);
+        topControlsPanel.add(viewPathsButtonPanel);
 
         // Add a model options panel.
         TooltipListener
@@ -151,16 +164,41 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         modelOpts.setContent(modelOptsGrid);
         modelOpts.setAnimationEnabled(true);
         modelOpts.setStyleName("SpecialOptions");
-        controlsPanel.add(modelOpts);
+
+        // Used to update the size of the log info panel whenever the modelOpts
+        // panel is opened/closed.
+        final Timer resizeLogInfoPanel = new Timer() {
+            public void run() {
+                updateLogInfoPanelSize();
+            }
+        };
+        modelOpts.addCloseHandler(new CloseHandler<DisclosurePanel>() {
+            @Override
+            public void onClose(CloseEvent<DisclosurePanel> event) {
+                resizeLogInfoPanel.schedule(500);
+            }
+        });
+        modelOpts.addOpenHandler(new OpenHandler<DisclosurePanel>() {
+            @Override
+            public void onOpen(OpenEvent<DisclosurePanel> event) {
+                resizeLogInfoPanel.schedule(500);
+            }
+        });
+
+        topControlsPanel.add(modelOpts);
+
+        controlsPanel.setSize(CONTROLS_PANEL_WIDTH_PX_STR, "100%");
+        controlsPanel.add(topControlsPanel);
 
         // Add log info panel.
-        logInfoPanel = new LogInfoPanel("300px", this);
-        logInfoPanel.setSize("300px",
-                Math.max(this.getModelGraphicHeight() - 200, 400) + "px");
-        this.logInfoPanel.getLogLinesTable().setHeight("100%");
+        logInfoPanel = new LogInfoPanel(CONTROLS_PANEL_WIDTH_PX_STR, this);
+
+        updateLogInfoPanelSize();
         controlsPanel.add(logInfoPanel);
 
-        panel.addWest(controlsPanel, 300);
+        panel.addWest(controlsPanel, CONTROLS_PANEL_WIDTH_PX + 8);
+        // controlsPanel.getOffsetWidth());
+        // CONTROLS_PANEL_WIDTH_PX);
 
         TooltipListener
                 .setTooltip(
@@ -226,8 +264,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         initializeTabState();
     }
 
-    public ModelGraphic getModelGraphic() {
-        return this.modelGraphic;
+    public JSGraph getJSGraph() {
+        return this.jsGraph;
     }
 
     /**
@@ -246,9 +284,9 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                     .getValue();
 
             if (modelTab.showEdgeTraceCounts) {
-                modelGraphic.useCountEdgeLabels();
+                jsGraph.setEdgeLabelType(EdgeLabelType.COUNT);
             } else {
-                modelGraphic.useProbEdgeLabels();
+                jsGraph.setEdgeLabelType(EdgeLabelType.PROBABILITY);
             }
         }
     }
@@ -298,7 +336,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
             panel.remove(graphPanel);
         }
 
-        // Create and add the a flow panel that will contain the actual model
+        // Create and add a flow panel that will contain the actual model
         // graphic.
         graphPanel = new FlowPanel();
         graphPanel.getElement().setId(canvasId);
@@ -306,65 +344,110 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         panel.add(graphPanel);
 
         // Determine the size of the graphic.
-        int width = getModelGraphicWidth();
-        int height = getModelGraphicHeight();
-        graphPanel.setPixelSize(width, height);
+        int modelWidth = getModelGraphicWidth();
+        int modelHeight = getModelGraphicHeight();
+        // Make the height slightly smaller to allow for a border around the
+        // graphPanel.
+        graphPanel.setPixelSize(modelWidth, modelHeight);
 
-        this.modelGraphic = new ModelGraphic(this);
-
-        this.modelGraphic.createGraph(graph.getNodes(), graph.getEdges(),
-                width, height, canvasId, INITIAL_LABEL, TERMINAL_LABEL);
+        this.jsGraph = new JSGraph(this, graph, modelWidth, modelHeight,
+                canvasId);
+        updateGraphPanel();
     }
 
     /**
      * Requests the log lines for the Partition with the given nodeID. This
      * method is called from JavaScript when model nodes are double clicked.
      */
-    public void handleLogRequest(int nodeID) throws Exception {
+    public void handleLogRequest(int nodeID) {
         // ////////////////////// Call to remote service.
-        synopticService.handleLogRequest(nodeID,
-                new ErrorReportingAsyncCallback<List<LogLine>>(pWheel,
-                        "handleLogRequest call") {
+        try {
+            synopticService.handleLogRequest(nodeID,
+                    new ErrorReportingAsyncCallback<List<LogLine>>(pWheel,
+                            "handleLogRequest call") {
 
-                    @SuppressWarnings("synthetic-access")
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        super.onFailure(caught);
-                        // TODO: differentiate between clicks on
-                        // initial/terminal nodes and
-                        // other nodes.
+                        @SuppressWarnings("synthetic-access")
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            super.onFailure(caught);
+                            // TODO: differentiate between clicks on
+                            // initial/terminal nodes and
+                            // other nodes.
 
-                        // This is expected whenever the user double clicks on
-                        // an initial or
-                        // terminal node, so we'll ignore it
-                        logInfoPanel.clear();
-                    }
+                            // This is expected whenever the user double clicks
+                            // on
+                            // an initial or
+                            // terminal node, so we'll ignore it
+                            logInfoPanel.clear();
+                        }
 
-                    @SuppressWarnings("synthetic-access")
-                    @Override
-                    public void onSuccess(List<LogLine> result) {
-                        super.onSuccess(result);
-                        logInfoPanel.showLogLines(result);
-                    }
-                });
+                        @SuppressWarnings("synthetic-access")
+                        @Override
+                        public void onSuccess(List<LogLine> result) {
+                            super.onSuccess(result);
+                            logInfoPanel.showLogLines(result);
+                        }
+                    });
+        } catch (Exception ex) {
+            // Exceptions are handled by callback.
+        }
         // //////////////////////
     }
 
-    /** Returns the correct width for the model graphic in the model tab. */
-    public int getModelGraphicWidth() {
+    /**
+     * Returns the correct width for the panel containing the model graphic in
+     * the model tab.
+     */
+    public int getModelPanelWidth() {
         // TODO: make this more robust -- perhaps, by hard-coding the percentage
         // area that the model can take up.
         return Math.max(
-                Window.getClientWidth() - controlsPanel.getOffsetWidth() + 100,
-                400);
+                Window.getClientWidth() - controlsPanel.getOffsetWidth() - 40,
+                MIN_MODEL_HEIGHT_PX);
     }
 
-    /** Returns the correct height for the model graphic in the model tab. */
-    public int getModelGraphicHeight() {
-        // TODO: make this more robust -- perhaps, by hard-coding the percentage
-        // area that the model can take up.
+    /**
+     * Returns the correct height for the panel containing the model graphic in
+     * the model tab.
+     */
+    public int getModelPanelHeight() {
+        // TODO: make this more robust by computing the actual height of the
+        // header.
         /* The 200 offset represents the top Synoptic header */
-        return Math.max(Window.getClientHeight() - 200, 400);
+        return Math.max(Window.getClientHeight() - 200, MIN_MODEL_HEIGHT_PX);
+    }
+
+    /**
+     * Returns the height of the actual model svg container.
+     */
+    public int getModelGraphicHeight() {
+        return getModelPanelHeight() - GRAPH_PANEL_STYLE_HEIGHT;
+    }
+
+    /**
+     * Returns the height of the actual model svg container.
+     */
+    public int getModelGraphicWidth() {
+        return getModelPanelWidth();
+    }
+
+    /**
+     * Recomputes and sets the size of logInfoPanel
+     */
+    public void updateLogInfoPanelSize() {
+        logInfoPanel.setSize(
+                CONTROLS_PANEL_WIDTH_PX_STR,
+                Math.max(
+                        getModelPanelHeight()
+                                - topControlsPanel.getOffsetHeight()
+                                - logInfoPanel.getTopLabelHeight(),
+                        MIN_MODEL_HEIGHT_PX
+                                - topControlsPanel.getOffsetHeight()
+                                - logInfoPanel.getTopLabelHeight())
+                        + "px");
+        logInfoPanel.onResize();
+        topControlsPanel.onResize();
+        controlsPanel.onResize();
     }
 
     /**
@@ -373,21 +456,26 @@ public class ModelTab extends Tab<DockLayoutPanel> {
      */
     public void updateGraphPanel() {
         if (graphPanel == null) {
-            // This occurs when the graphPanel is first shown -- the graphic is
-            // not yet displayed, so we skip the update in this case.
+            // This occurs when the window is resized before a model is
+            // generated -- the resize event is cached for when the tab is
+            // selected. But, prior to showing the graph the tab is first
+            // selected, therefore this method is triggered but we cannot resize
+            // the model because it hasn't been generated yet. In this case,
+            // there is a call to this method from the showGraph() method.
             return;
         }
-        int width = getModelGraphicWidth();
-        int height = getModelGraphicHeight();
 
-        graphPanel.setPixelSize(width, height);
-        modelGraphic.resizeGraph(width, height);
-        logInfoPanel
-                .setHeight(Math.max(this.getModelGraphicHeight() - 200, 400)
-                        + "px");
-        panel.setHeight(height + "px");
+        int graphicWidth = getModelGraphicWidth();
+        int graphicHeight = getModelGraphicHeight();
+
+        graphPanel.setPixelSize(graphicWidth, graphicHeight);
+        this.jsGraph.resize(graphicWidth, graphicHeight);
+
+        int panelHeight = getModelPanelHeight();
+        panel.setHeight(panelHeight + "px");
         this.panel.onResize();
-        this.controlsPanel.onResize();
+
+        updateLogInfoPanelSize();
     }
 
     /**
@@ -416,8 +504,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                         }
                     });
         } catch (Exception ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -429,17 +516,14 @@ public class ModelTab extends Tab<DockLayoutPanel> {
             modelCoarsenButton.setEnabled(true);
             return;
         }
-        
+
         // Set the log lines display to default and clear
         // any information.
         logInfoPanel.clear();
 
         // Shows the refined GWTGraph object on the screen in the modelPanel,
         // animating transition to new positions.
-        GWTGraph graph = deltaGraph.getGraph();
-        this.modelGraphic.createChangingGraph(graph.getNodes(), graph
-                .getEdges(), deltaGraph.getRefinedNode()
-                .getPartitionNodeHashCode(), canvasId);
+        this.jsGraph.refineOneStep(deltaGraph);
 
         if (deltaGraph.getUnsatInvs().invs.size() == 0) {
             // No further refinement is possible: disable refinement, enable
@@ -475,8 +559,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                         }
                     });
         } catch (Exception ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -499,8 +582,7 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                         }
                     });
         } catch (Exception ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -524,12 +606,14 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                     ModelDotPopUp popUp = new ModelDotPopUp(dotString);
                     popUp.setGlassEnabled(true);
                     popUp.center();
+                    // Move the pop-up just 10px below top to fit contents in
+                    // viewing area.
+                    popUp.setPopupPosition(popUp.getAbsoluteLeft(), 10);
                     popUp.show();
                 }
             });
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
     }
@@ -547,40 +631,16 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                     ModelPngPopUp popUp = new ModelPngPopUp(fileString);
                     popUp.setGlassEnabled(true);
                     popUp.center();
+                    // Move the pop-up just 10px below top to fit contents in
+                    // viewing area.
+                    popUp.setPopupPosition(popUp.getAbsoluteLeft(), 10);
                     popUp.show();
                 }
             });
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            // Exceptions are handled by callback.
         }
         // //////////////////////
-    }
-
-    /**
-     * Adds a node as being "selected" to the model tab.
-     * 
-     * @param nodeID
-     *            The ID of the selected event node.
-     */
-    public void addSelectedNode(int nodeID) {
-        // Add the selected node to the list of all selecetd
-        // nodes.
-        selectedNodes.add(nodeID);
-        toggleViewPathsButton();
-    }
-
-    /**
-     * Removes a node as being "selected" from the model tab.
-     * 
-     * @param nodeID
-     *            The ID of the selected event node.
-     */
-    public void removeSelectedNode(int nodeID) {
-        // Add the selected node to the list of all selecetd
-        // nodes.
-        selectedNodes.remove(nodeID);
-        toggleViewPathsButton();
     }
 
     /**
@@ -588,8 +648,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
      * selected. If so, the button for viewing paths is activated. If not, this
      * button is deactivated.
      */
-    private void toggleViewPathsButton() {
-        if (selectedNodes.size() > 0) {
+    public void updateViewPathsButton() {
+        if (jsGraph.getSelectedNodeIDs().size() > 0) {
             modelViewPathsButton.setEnabled(true);
         } else {
             modelViewPathsButton.setEnabled(false);
@@ -612,13 +672,14 @@ public class ModelTab extends Tab<DockLayoutPanel> {
         @Override
         public void onClick(ClickEvent event) {
             try {
-                synopticService.getPathsThroughPartitionIDs(selectedNodes,
+                synopticService.getPathsThroughPartitionIDs(jsGraph
+                        .getSelectedNodeIDs(),
                         new GetPathsThroughPartitionIDsAsyncCallback(pWheel,
                                 ModelTab.this.logInfoPanel));
 
-                modelGraphic.setPathHighlightViewState();
+                jsGraph.setPathHighlightViewState();
             } catch (Exception e) {
-                // TODO: Do something about the exception
+                // Exceptions are handled by callback.
             }
         }
     }

@@ -663,7 +663,8 @@ public class Main implements Callable<Integer> {
             TemporalInvariantSet minedInvs) {
         // Create the initial partitioning graph.
         long startTime = loggerInfoStart("Creating initial partition graph.");
-        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, minedInvs);
+        PartitionGraph pGraph = new PartitionGraph(inputGraph,
+                partitionByLabel, minedInvs);
         loggerInfoEnd("Creating partition graph took ", startTime);
         return pGraph;
     }

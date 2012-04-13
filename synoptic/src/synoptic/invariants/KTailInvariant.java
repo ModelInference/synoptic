@@ -10,7 +10,7 @@ import java.util.Set;
 
 import gov.nasa.ltl.graph.Graph;
 
-import synoptic.main.TraceParser;
+import synoptic.model.Event;
 import synoptic.model.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.util.NotImplementedException;
@@ -58,7 +58,8 @@ public class KTailInvariant implements ITemporalInvariant {
             EventType follow) {
         KTailInvariant theTail = tails.get(events);
         if (theTail == null) {
-            theTail = new KTailInvariant(events, TraceParser.defaultRelation);
+            theTail = new KTailInvariant(events,
+                    Event.defaultTimeRelationString);
             tails.put(theTail.tail, theTail);
         }
         theTail.following.add(follow);

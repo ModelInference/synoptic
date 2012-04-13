@@ -3,16 +3,12 @@ package synoptic.invariants.miners;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.EventNode;
 import synoptic.model.EventType;
-import synoptic.model.interfaces.ITransition;
-import synoptic.util.InternalSynopticException;
+import synoptic.model.Trace;
 
 /**
  * Implements a temporal invariant mining algorithm whose running time is linear
@@ -29,7 +25,12 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         TOInvariantMiner {
 
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
-        return computeInvariants(g, TraceParser.defaultRelation);
+        TemporalInvariantSet result = new TemporalInvariantSet();
+        for (String r : g.getRelations()) {
+            TemporalInvariantSet tmp = computeInvariants(g, r);
+            result.add(tmp);
+        }
+        return result;
     }
 
     /**
@@ -53,7 +54,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
      * </p>
      * <p>
      * (3) To check a AP b it is sufficient to count across all partitions the
-     * number of times an b instance in a partition was preceded transitively by
+     * number of times a b instance in a partition was preceded transitively by
      * an a in the same partition, and declare a AP b true iff this count equals
      * the number of b's seen across all partitions.
      * </p>
@@ -69,7 +70,9 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
      * </p>
      * 
      * @param g
-     *            the graph of nodes of type LogEvent
+     *            a chain trace graph of nodes of type LogEvent
+     * @param relation
+     *            the relation for which to mine invariants
      * @return the set of temporal invariants that g satisfies
      */
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
@@ -88,17 +91,18 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         // all nodes, we might as well count up the total counts of instances
         // for each event type.
         Set<EventType> eTypes = new LinkedHashSet<EventType>();
-        for (EventNode node : g.getNodes()) {
-            EventType e = node.getEType();
-            if (e.isSpecialEventType()) {
-                continue;
-            }
+        for (Trace trace : g.getTraces()) {
+            eTypes.addAll(trace.getSeen(relation));
+            Map<EventType, Integer> traceEventCounts = trace
+                    .getEventCounts(relation);
+            for (EventType eventType : traceEventCounts.keySet()) {
+                int count = traceEventCounts.get(eventType);
 
-            eTypes.add(e);
-            if (!gEventCnts.containsKey(e)) {
-                gEventCnts.put(e, 1);
-            } else {
-                gEventCnts.put(e, gEventCnts.get(e) + 1);
+                if (gEventCnts.containsKey(eventType)) {
+                    count += gEventCnts.get(eventType);
+                }
+
+                gEventCnts.put(eventType, count);
             }
         }
 
@@ -122,95 +126,40 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
 
         // Tracks which events were observed across all traces.
         Set<EventType> AlwaysFollowsINITIALSet = null;
-        EventNode initNode = g.getDummyInitialNode(relation);
 
-        // The set of nodes seen prior to some point in the trace.
-        Set<EventType> tSeen = new LinkedHashSet<EventType>();
-        // Maintains the current event count in the trace.
-        Map<EventType, Integer> tEventCnts = new LinkedHashMap<EventType, Integer>();
-        // Maintains the current FollowedBy count for the trace.
-        // tFollowedByCnts[a][b] = cnt iff the number of a's that appeared
-        // before this b is cnt.
-        Map<EventType, Map<EventType, Integer>> tFollowedByCnts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
+        /*
+         * Iterates over each trace in the graph and aggregates the individual
+         * Occurrences, Follows, and Precedes counts from the specified relation
+         * in each trace.
+         */
+        for (Trace trace : g.getTraces()) {
 
-        // Iterate through all the traces -- each transition from the INITIAL
-        // node connects\holds a single trace.
-        for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
-            EventNode curNode = initTrans.getTarget();
+            /*
+             * Adds the Precedes count from the trace into the graph global
+             * count
+             */
+            Map<EventType, Map<EventType, Integer>> tracePrecedesCounts = trace
+                    .getPrecedesCounts(relation);
+            addCounts(tracePrecedesCounts, gPrecedesCnts);
 
-            while (curNode.getTransitions().size() != 0) {
-                // NOTE: this invariant miner only works for totally ordered
-                // traces, so each node must have no more than 1 out-going
-                // transition.
-                if (curNode.getTransitions().size() != 1) {
-                    throw new InternalSynopticException(
-                            "SpecializedInvariantMiner does not work on partially ordered traces.");
-                }
-
-                // The current event is 'b', and all prior events are 'a' --
-                // this notation indicates that an 'a' always occur prior to a
-                // 'b' in the trace.
-                EventType b = curNode.getEType();
-
-                // Update the global precedes counts based on the a events that
-                // preceded the current b event in this trace.
-                for (EventType a : tSeen) {
-                    gPrecedesCnts.get(a)
-                            .put(b, gPrecedesCnts.get(a).get(b) + 1);
-                }
-
-                // Update the followed by counts for this trace: the number of a
-                // FollowedBy b at this point in this trace is exactly the
-                // number of a's that we've seen so far.
-                for (EventType a : tSeen) {
-                    Map<EventType, Integer> tmp;
-                    if (!tFollowedByCnts.containsKey(a)) {
-                        tmp = new LinkedHashMap<EventType, Integer>();
-                        tFollowedByCnts.put(a, tmp);
-                    } else {
-                        tmp = tFollowedByCnts.get(a);
-                    }
-
-                    tmp.put(b, tEventCnts.get(a));
-                }
-                tSeen.add(b);
-
-                // Update the trace event counts.
-                if (!tEventCnts.containsKey(b)) {
-                    tEventCnts.put(b, 1);
-                } else {
-                    tEventCnts.put(b, tEventCnts.get(b) + 1);
-                }
-
-                // Move on to the next node in the trace.
-                curNode = curNode.getTransitions().get(0).getTarget();
-            }
-
-            // Update the global event followed by counts based on followed by
-            // counts collected in this trace. We merge the counts with
-            // addition.
-            for (Entry<EventType, Map<EventType, Integer>> tAEntry : tFollowedByCnts
-                    .entrySet()) {
-                Map<EventType, Integer> gAEntry = gFollowedByCnts.get(tAEntry
-                        .getKey());
-                for (EventType b : tAEntry.getValue().keySet()) {
-                    gAEntry.put(b, gAEntry.get(b) + tAEntry.getValue().get(b));
-                }
-            }
+            /*
+             * Adds the FollowedBy count from the trace into the graph global
+             * count
+             */
+            Map<EventType, Map<EventType, Integer>> traceFollowedByCounts = trace
+                    .getFollowedByCounts(relation);
+            addCounts(traceFollowedByCounts, gFollowedByCnts);
 
             // Update the AlwaysFollowsINITIALSet set of events by
             // intersecting it with all events seen in this partition.
+            Set<EventType> traceSeen = trace.getSeen(relation);
             if (AlwaysFollowsINITIALSet == null) {
                 // This is the first trace we've processed.
-                AlwaysFollowsINITIALSet = new LinkedHashSet<EventType>(tSeen);
+                AlwaysFollowsINITIALSet = new LinkedHashSet<EventType>(
+                        traceSeen);
             } else {
-                AlwaysFollowsINITIALSet.retainAll(tSeen);
+                AlwaysFollowsINITIALSet.retainAll(traceSeen);
             }
-
-            // Clear all the per-trace structures to prepare for the next trace.
-            tSeen.clear();
-            tEventCnts.clear();
-            tFollowedByCnts.clear();
 
             // At this point, we've completed all counts computation for the
             // current trace.
@@ -219,5 +168,28 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         return new TemporalInvariantSet(extractPathInvariantsFromWalkCounts(
                 relation, gEventCnts, gFollowedByCnts, gPrecedesCnts, null,
                 AlwaysFollowsINITIALSet));
+    }
+
+    /**
+     * Adds the values from src into dst where the input maps have the form
+     * XCounts[a][b] = count
+     * 
+     * @param src
+     * @param dst
+     */
+    private void addCounts(Map<EventType, Map<EventType, Integer>> src,
+            Map<EventType, Map<EventType, Integer>> dst) {
+
+        for (EventType a : src.keySet()) {
+            Map<EventType, Integer> srcBValues = src.get(a);
+            Map<EventType, Integer> dstBValues = dst.get(a);
+            for (EventType b : srcBValues.keySet()) {
+                int count = srcBValues.get(b);
+                if (dstBValues.containsKey(b)) {
+                    count += dstBValues.get(b);
+                }
+                dstBValues.put(b, count);
+            }
+        }
     }
 }

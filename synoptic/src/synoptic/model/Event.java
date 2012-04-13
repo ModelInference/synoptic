@@ -1,5 +1,9 @@
 package synoptic.model;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import synoptic.util.time.ITime;
 
 /**
@@ -10,6 +14,9 @@ import synoptic.util.time.ITime;
  * @author Sigurd Schneider
  */
 public class Event {
+
+    public final static String defaultTimeRelationString = "t";
+
     /**
      * The event's label.
      */
@@ -176,11 +183,12 @@ public class Event {
         } else if (!time.equals(other.time)) {
             return false;
         }
+
         return true;
     }
 
     /**
-     * Set the time when this event occurred.
+     * Set the time when this event occurred
      * 
      * @param t
      *            the time

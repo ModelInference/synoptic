@@ -7,8 +7,8 @@ import java.util.Set;
 
 import synoptic.invariants.KTailInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
+import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.EventType;
 import synoptic.model.interfaces.ITransition;
@@ -40,7 +40,7 @@ public class KTailInvariantMiner implements TOInvariantMiner {
 
             Set<KTailInvariant> tails = new HashSet<KTailInvariant>();
             EventNode initNode = g
-                    .getDummyInitialNode(TraceParser.defaultRelation);
+                    .getDummyInitialNode(Event.defaultTimeRelationString);
 
             List<EventType> eventWindow = new ArrayList<EventType>();
 

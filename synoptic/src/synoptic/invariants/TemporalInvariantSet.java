@@ -12,6 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import synoptic.benchmarks.PerformanceMetrics;
@@ -33,6 +34,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 
     public TemporalInvariantSet() {
         // Empty constructor for use by unit tests.
+    	logger.setLevel(Level.FINE);
     }
 
     /**

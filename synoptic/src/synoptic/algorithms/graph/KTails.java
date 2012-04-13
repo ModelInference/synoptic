@@ -3,8 +3,8 @@ package synoptic.algorithms.graph;
 import java.util.HashSet;
 import java.util.Set;
 
-import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
+import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -16,7 +16,8 @@ public class KTails {
 
         Set<Partition> partitions = new HashSet<Partition>();
 
-        EventNode initNode = g.getDummyInitialNode(TraceParser.defaultRelation);
+        EventNode initNode = g
+                .getDummyInitialNode(Event.defaultTimeRelationString);
         Partition initial = new Partition(initNode);
         partitions.add(initial);
 
