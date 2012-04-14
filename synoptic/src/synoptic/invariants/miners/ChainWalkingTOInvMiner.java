@@ -10,8 +10,9 @@ import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.Event;
 import synoptic.model.EventType;
-import synoptic.model.RelationPath;
+import synoptic.model.TransitiveRelationPath;
 import synoptic.model.Trace;
+import synoptic.model.interfaces.RelationPath;
 
 /**
  * Implements a temporal invariant mining algorithm whose running time is linear

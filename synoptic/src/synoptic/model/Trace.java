@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import synoptic.model.interfaces.ITransition;
+import synoptic.model.interfaces.RelationPath;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -87,7 +88,7 @@ public class Trace {
                 // curNode does not have an outgoing edge with the input
                 // parameter relation type
                 if (relationTransitions.isEmpty()) {
-                    RelationPath relationPath = new RelationPath(pendingInitial, curNode, relationSet, false);
+                    RelationPath relationPath = new ChainRelationPath(pendingInitial, curNode, relation);
                     results.add(relationPath);
                     pendingInitial = null;
                 }
@@ -117,7 +118,7 @@ public class Trace {
         }
         
         if (pendingInitial != null) {
-            RelationPath relationPath = new RelationPath(pendingInitial, prevNode, relationSet, false);
+            RelationPath relationPath = new ChainRelationPath(pendingInitial, prevNode, relation);
             results.add(relationPath);
         }
 
@@ -190,8 +191,8 @@ public class Trace {
         }
 
         if (finalNode != null) {
-            return new RelationPath(firstNode, finalNode, relationSet,
-                    initialTransitivelyConnected);
+            return new TransitiveRelationPath(firstNode, finalNode, relation,
+                    transitiveRelation, initialTransitivelyConnected);
         }
 
         return null;
