@@ -80,7 +80,7 @@ public class RelationPath {
      *            Whether INITIAL is directly or transitively connected to the
      *            relation subgraph
      */
-    public RelationPath(EventNode eNode, Set<String> relations,
+    public RelationPath(EventNode eNode, EventNode eFinal, Set<String> relations,
             boolean initialTransitivelyConnected) {
         this.eNode = eNode;
         this.relations = relations;
@@ -274,7 +274,4 @@ public class RelationPath {
         return relations;
     }
 
-    public void setFinalNode(EventNode eNode2) {
-        this.eFinal = eNode2;
-    }
 }

@@ -55,15 +55,15 @@ public class Trace {
         // Relation paths only get added to results when they are terminated
         Set<RelationPath> results = new HashSet<RelationPath>();
 
+        EventNode pendingInitial = null;
         EventNode curNode;
-        RelationPath pendingPath = null;
 
         Set<String> relationSet = new HashSet<String>();
         relationSet.add(relation);
 
         if (relationToInitialNodes.containsKey(relation)) {
             curNode = relationToInitialNodes.get(relation);
-            pendingPath = new RelationPath(curNode, relationSet, false);
+            pendingInitial = curNode;
         } else {
             curNode = relationToInitialNodes
                     .get(Event.defaultTimeRelationString);
@@ -83,13 +83,13 @@ public class Trace {
             }
 
             // We are in the middle of construction a RelationPath
-            if (pendingPath != null) {
+            if (pendingInitial != null) {
                 // curNode does not have an outgoing edge with the input
                 // parameter relation type
                 if (relationTransitions.isEmpty()) {
-                    pendingPath.setFinalNode(curNode);
-                    results.add(pendingPath);
-                    pendingPath = null;
+                    RelationPath relationPath = new RelationPath(pendingInitial, curNode, relationSet, false);
+                    results.add(relationPath);
+                    pendingInitial = null;
                 }
             } else { // A RelationPath is not being constructed.
                 /*
@@ -97,7 +97,7 @@ public class Trace {
                  * relation so begin constructing a relation path
                  */
                 if (!relationTransitions.isEmpty()) {
-                    pendingPath = new RelationPath(curNode, relationSet, false);
+                    pendingInitial = curNode;
                 }
             }
 
@@ -116,10 +116,9 @@ public class Trace {
             curNode = transition.getTarget();
         }
         
-        // Last relation path is
-        if (pendingPath != null) {
-            pendingPath.setFinalNode(prevNode);
-            results.add(pendingPath);
+        if (pendingInitial != null) {
+            RelationPath relationPath = new RelationPath(pendingInitial, prevNode, relationSet, false);
+            results.add(relationPath);
         }
 
         return results;
@@ -136,6 +135,7 @@ public class Trace {
      */
     public RelationPath getBiRelationalPath(String relation,
             String transitiveRelation) {
+        
         EventNode firstNode;
         EventNode finalNode = null;
         boolean initialTransitivelyConnected;
@@ -189,12 +189,9 @@ public class Trace {
             curNode = transition.getTarget();
         }
 
-        // Close the relation path with the pre-terminal node.
         if (finalNode != null) {
-            RelationPath result = new RelationPath(firstNode, relationSet,
+            return new RelationPath(firstNode, finalNode, relationSet,
                     initialTransitivelyConnected);
-            result.setFinalNode(finalNode);
-            return result;
         }
 
         return null;
