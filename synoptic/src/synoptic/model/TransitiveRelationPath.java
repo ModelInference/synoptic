@@ -1,6 +1,7 @@
 package synoptic.model;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import synoptic.model.interfaces.ITransition;
+import synoptic.model.interfaces.RelationPath;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -17,7 +19,7 @@ import synoptic.util.InternalSynopticException;
  * 
  * @author timjv
  */
-public class RelationPath {
+public class TransitiveRelationPath implements RelationPath {
 
     /*
      * The representation for a relation path is the first non initial node in a
@@ -37,12 +39,12 @@ public class RelationPath {
     /** Final non-TERMINAL node in this relation path */
     private EventNode eFinal;
     /** Relation this path is over */
-    private Set<String> relations;
+    private String relation;
     /**
      * The relation this path uses for ordered traversal, defaults to
      * Event.defaultTimeRelationString, or "t"
      */
-    private Set<String> orderingRelationSet;
+    private String orderingRelation = Event.defaultTimeRelationString;
     /**
      * Caching indicator -- whether or not the various counts have already been
      * computed.
@@ -80,14 +82,12 @@ public class RelationPath {
      *            Whether INITIAL is directly or transitively connected to the
      *            relation subgraph
      */
-    public RelationPath(EventNode eNode, EventNode eFinal, Set<String> relations,
+    public TransitiveRelationPath(EventNode eNode, EventNode eFinal, 
+            String relation, String transitiveRelation,
             boolean initialTransitivelyConnected) {
         this.eNode = eNode;
-        this.relations = relations;
-
-        this.orderingRelationSet = new LinkedHashSet<String>();
-        this.orderingRelationSet.add(Event.defaultTimeRelationString);
-
+        this.eFinal = eFinal;
+        this.relation = relation;
         this.counted = false;
         this.seen = new LinkedHashSet<EventType>();
         this.eventCounts = new LinkedHashMap<EventType, Integer>();
@@ -106,12 +106,17 @@ public class RelationPath {
         if (counted) {
             return;
         }
+        
+        Set<String> orderingRelationSet = new HashSet<String>();
+        orderingRelationSet.add(orderingRelation);
+        Set<String> relationSet = new HashSet<String>();
+        relationSet.add(relation);
 
         EventNode curNode = eNode;
 
         boolean hasImmediateIncomingRelation = !initialTransitivelyConnected;
         List<? extends ITransition<EventNode>> transitions = curNode
-                .getTransitionsWithExactRelations(relations);
+                .getTransitionsWithExactRelations(relationSet);
         // .getTransitions(relation);
 
         if (transitions.isEmpty()) {
@@ -124,6 +129,7 @@ public class RelationPath {
 
         while (!transitions.isEmpty()) {
 
+            // TODO: Refactor this well formed transition test into Trace
             // Each node we traverse must have exactly one transition with the
             // ordering relation.
             if (curNode.getTransitionsWithIntersectingRelations(
@@ -134,13 +140,14 @@ public class RelationPath {
 
             // Each node we traverse must have at most 1 transition with
             // a relation.
-            if (curNode.getTransitionsWithExactRelations(relations).size() > 1) {
+            if (curNode.getTransitionsWithExactRelations(relationSet).size() > 1) {
                 throw new InternalSynopticException(
-                        "There should be exactly one transition with a relation.");
+                        "There should be not be more than one transition with the " +
+                        relation + " relation.");
             }
 
             boolean hasImmediateOutgoingRelation = curNode
-                    .getTransitionsWithIntersectingRelations(relations).size() == 1;
+                    .getTransitionsWithIntersectingRelations(relationSet).size() == 1;
 
             if (!hasImmediateOutgoingRelation && !hasImmediateIncomingRelation) {
                 // Move on to the next node in the trace.
@@ -153,7 +160,7 @@ public class RelationPath {
                                 orderingRelationSet).get(0).getTarget();
 
                 transitions = curNode
-                        .getTransitionsWithExactRelations(relations);
+                        .getTransitionsWithExactRelations(relationSet);
 
                 if (transitions.isEmpty()) {
                     transitions = curNode
@@ -216,7 +223,7 @@ public class RelationPath {
 
             // Move on to the next node in the trace.
             List<? extends ITransition<EventNode>> searchTransitions = curNode
-                    .getTransitionsWithExactRelations(relations);
+                    .getTransitionsWithExactRelations(relationSet);
 
             if (searchTransitions.isEmpty()) {
                 searchTransitions = curNode
@@ -229,7 +236,7 @@ public class RelationPath {
 
             curNode = searchTransitions.get(0).getTarget();
 
-            transitions = curNode.getTransitionsWithExactRelations(relations);
+            transitions = curNode.getTransitionsWithExactRelations(relationSet);
 
             if (transitions.isEmpty()) {
                 transitions = curNode
@@ -268,10 +275,6 @@ public class RelationPath {
         count();
         // TODO: Make the return type deeply unmodifiable
         return Collections.unmodifiableMap(precedesCounts);
-    }
-
-    public Set<String> getRelation() {
-        return relations;
     }
 
 }
