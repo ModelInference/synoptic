@@ -49,7 +49,7 @@ public class InvsModel extends EncodedAutomaton {
      */
     public void intersectWith(InvsModel other) {
         this.invariants.addAll(other.invariants);
-        super.intersectWith(other);
+        super.intersectWith(other, "Intersecting two InvsModels");
     }
 
     /**
@@ -58,6 +58,7 @@ public class InvsModel extends EncodedAutomaton {
      */
     public void intersectWith(InvModel inv) {
         invariants.add(inv.getInvariant());
-        super.intersectWith(inv);
+        super.intersectWith(inv,
+                "Intersecting model with " + inv.getInvariant());
     }
 }

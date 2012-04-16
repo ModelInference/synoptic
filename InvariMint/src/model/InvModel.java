@@ -54,7 +54,7 @@ public class InvModel extends EncodedAutomaton {
             re = KTailInvariant.getRegex(tailEncodings, followEncodings);
         }
 
-        super.intersectWithRE(re);
+        super.intersectWithRE(re, "Intersecting model with " + invariant);
     }
 
     /** Returns this model's invariant. */

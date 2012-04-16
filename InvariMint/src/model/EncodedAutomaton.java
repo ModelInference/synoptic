@@ -69,10 +69,27 @@ public abstract class EncodedAutomaton {
     /**
      * Intersects this Automaton with a model created with the given (encoded)
      * regular expression.
+     * 
+     * @throws IllegalStateException
+     *             if this intersection generates a DFA accepting only the empty
+     *             string
      */
     public void intersectWithRE(String re) {
+        intersectWithRE(re, null);
+    }
+
+    /**
+     * Intersects this Automaton with a model created with the given (encoded)
+     * regular expression.
+     * 
+     * @throws IllegalStateException
+     *             if this intersection generates a DFA accepting only the empty
+     *             string, exception contains the errorHint message
+     */
+    public void intersectWithRE(String re, String errorHint) {
         model = BasicOperations.intersection(model,
                 new RegExp(re).toAutomaton());
+        checkEmptyLanguage(errorHint);
     }
 
     /**
@@ -82,14 +99,45 @@ public abstract class EncodedAutomaton {
      * @throws IllegalArgumentException
      *             if this Automaton is not using the same EventTypeEncoding as
      *             other
+     * @throws IllegalStateException
+     *             if this intersection generates a DFA accepting only the empty
+     *             string
      */
     public void intersectWith(EncodedAutomaton other) {
+        intersectWith(other, null);
+    }
+
+    /**
+     * Intersects this Automaton with the given Automaton, such that this
+     * Automaton is the result of intersection. Visible for testing.
+     * 
+     * @throws IllegalArgumentException
+     *             if this Automaton is not using the same EventTypeEncoding as
+     *             other
+     * @throws IllegalStateException
+     *             if this intersection generates a DFA accepting only the empty
+     *             string, exception contains the errorHint message
+     */
+    public void intersectWith(EncodedAutomaton other, String errorHint) {
         if (!this.encodings.equals(other.encodings)) {
             throw new IllegalArgumentException(
                     "Cannot intersect Automata using different encoding schemes");
         }
 
         model = BasicOperations.intersection(model, other.model);
+        checkEmptyLanguage(errorHint);
+    }
+
+    /*
+     * Throws an IllegalStateException if model is empty, attaches errorHint to
+     * the exception if errorHint != null
+     */
+    private void checkEmptyLanguage(String errorHint) {
+        if (model.isEmpty()) {
+            throw new IllegalStateException(
+                    "DFA intersection generated the empty language"
+                            + (errorHint == null ? "" : ": " + errorHint));
+        }
     }
 
     /**
