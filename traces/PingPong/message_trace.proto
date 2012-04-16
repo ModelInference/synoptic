@@ -1,0 +1,24 @@
+package trace;
+
+option java_package = "trace";
+option java_outer_classname = "MessageTrace";
+
+// A single generic message between two nodes
+message WrappedMessage {
+  optional fixed32 src = 1; // IP source of message
+  optional fixed32 dst = 2; // IP destination of message      
+  optional int64 timestamp = 3;  // arbitrary timestamp, large enough to be milliseconds since epoch
+  optional string type = 4;
+  optional bytes the_message = 5;  //actual protobuf message from system
+}
+
+
+// The trace is a list of messages
+message FullTrace {
+  repeated WrappedMessage wrapped_message = 1;
+}
+
+// Multiple distinct traces combined into one!
+message TraceSet {
+	repeated FullTrace full_trace = 1;
+}
