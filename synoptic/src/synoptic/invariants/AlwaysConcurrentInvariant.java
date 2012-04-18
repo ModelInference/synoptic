@@ -1,5 +1,7 @@
 package synoptic.invariants;
 
+import java.util.Set;
+
 import synoptic.model.DistEventType;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.NotImplementedException;
@@ -18,6 +20,11 @@ import synoptic.util.NotImplementedException;
  */
 public class AlwaysConcurrentInvariant extends ConcurrencyInvariant {
     public AlwaysConcurrentInvariant(DistEventType typeFirst,
+            DistEventType typeSecond, Set<String> relations) {
+        super(typeFirst, typeSecond, relations);
+    }
+
+    public AlwaysConcurrentInvariant(DistEventType typeFirst,
             DistEventType typeSecond, String relation) {
         super(typeFirst, typeSecond, relation);
     }
@@ -27,9 +34,10 @@ public class AlwaysConcurrentInvariant extends ConcurrencyInvariant {
         String f = first.toString();
         String s = second.toString();
         if (f.hashCode() <= s.hashCode()) {
-            return f + " AlwaysConcurrentWith(" + relation + ") " + s;
+            return f + " AlwaysConcurrentWith(" + relations.toString() + ") "
+                    + s;
         }
-        return s + " AlwaysConcurrentWith(" + relation + ") " + f;
+        return s + " AlwaysConcurrentWith(" + relations.toString() + ") " + f;
     }
 
     @Override
@@ -48,8 +56,8 @@ public class AlwaysConcurrentInvariant extends ConcurrencyInvariant {
                 "LTL string cannot be composed for concurrency invariants");
     }
 
-	@Override
-	public String getRegex(char firstC, char secondC) {
-		throw new NotImplementedException();
-	}
+    @Override
+    public String getRegex(char firstC, char secondC) {
+        throw new NotImplementedException();
+    }
 }

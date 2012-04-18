@@ -4,10 +4,12 @@
 
 package synoptic.util;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import synoptic.main.ParseException;
 
 public class NamedPattern {
 
@@ -18,7 +20,7 @@ public class NamedPattern {
 
     private final Pattern pattern;
     private final String namedPattern;
-    private final List<String> groupNames;
+    private final List<String> groupNames = new LinkedList<String>();
 
     public static NamedPattern compile(String regex) throws Exception {
         return new NamedPattern(regex, 0);
@@ -32,7 +34,19 @@ public class NamedPattern {
     private NamedPattern(String regex, int i) throws Exception {
         namedPattern = regex;
         pattern = buildStandardPattern(regex);
-        groupNames = extractGroupNames(regex);
+
+        Matcher matcher = NAMED_GROUP_PATTERN.matcher(namedPattern);
+        while (matcher.find()) {
+            String g = matcher.group(1);
+            if (groupNames.contains(g)) {
+                String error = "The group name " + g
+                        + " already appears in a regex: " + regex;
+                ParseException parseException = new ParseException(error);
+                parseException.setRegex(regex);
+                throw parseException;
+            }
+            groupNames.add(g);
+        }
     }
 
     public int flags() {
@@ -70,15 +84,6 @@ public class NamedPattern {
     @Override
     public String toString() {
         return namedPattern;
-    }
-
-    static List<String> extractGroupNames(String namedPattern) {
-        List<String> groupNames = new ArrayList<String>();
-        Matcher matcher = NAMED_GROUP_PATTERN.matcher(namedPattern);
-        while (matcher.find()) {
-            groupNames.add(matcher.group(1));
-        }
-        return groupNames;
     }
 
     private static String repeatString(String str, int reps) {

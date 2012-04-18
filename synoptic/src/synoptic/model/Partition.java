@@ -3,17 +3,16 @@ package synoptic.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.Set;
 
 import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.main.Main;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.IIterableIterator;
 import synoptic.util.NotImplementedException;
 import synoptic.util.time.ITime;
 
@@ -39,12 +38,15 @@ public class Partition implements INode<Partition> {
     /**
      * Partitions can be initialized (belong to a partition graph) or be
      * uninitialized (do not belong to any partition graph, but possibly cached
-     * and re-used later). This variable inidicates whether or not this
-     * partition has been initialized.
+     * and re-used later). This variable indicates whether or not this partition
+     * has been initialized.
      */
     private boolean initialized = false;
 
-    /** The EvenType of this partition -- all events MUST be of this type. */
+    /**
+     * The EvenType of this partition -- all EventNode instances MUST contain
+     * Event instances that contains this type of event.
+     */
     private EventType eType = null;
 
     /**
@@ -238,8 +240,8 @@ public class Partition implements INode<Partition> {
     private static boolean fulfillsStrong(EventNode event,
             ITransition<Partition> trans) {
 
-        for (final ITransition<EventNode> t : event.getTransitions()) {
-            if (t.getRelation().equals(trans.getRelation())
+        for (ITransition<EventNode> t : event.getAllTransitions()) {
+            if (t.getRelations().equals(trans.getRelations())
                     && t.getTarget().getParent().equals(trans.getTarget())) {
                 // TODO: Shouldn't this check and return true only if the
                 // condition holds for _all_ transitions t (not just some
@@ -261,13 +263,20 @@ public class Partition implements INode<Partition> {
      * @return returns the resulting split
      */
     public PartitionSplit getCandidateSplitBasedOnIncoming(Partition previous,
-            String relation) {
+            Set<String> relations) {
         assert initialized;
 
+        if (relations.size() != 1) {
+            throw new NotImplementedException(
+                    "Multi-relational support missing in method getCandidateSplitBasedOnIncoming()");
+        }
+
         Set<EventNode> eventsReachableFromPrevious = new LinkedHashSet<EventNode>();
-        for (final EventNode prevEvent : previous.events) {
-            eventsReachableFromPrevious.addAll(prevEvent
-                    .getSuccessors(relation));
+        for (EventNode prevEvent : previous.events) {
+            for (ITransition<EventNode> t : prevEvent
+                    .getTransitionsWithExactRelations(relations)) {
+                eventsReachableFromPrevious.add(t.getTarget());
+            }
         }
 
         // Intersect the set of events that follows events from previous
@@ -293,184 +302,88 @@ public class Partition implements INode<Partition> {
     }
 
     /**
-     * This method returns the set of transitions. It augments the edges with
-     * information about frequency and number of observation.
-     */
-    @Override
-    public List<Transition<Partition>> getTransitions(String relation) {
-        assert initialized;
-
-        List<Transition<Partition>> result = new ArrayList<Transition<Partition>>();
-        for (Transition<Partition> tr : getTransitionsIterator(relation)) {
-            result.add(tr);
-        }
-        return result;
-    }
-
-    @Override
-    public List<Transition<Partition>> getTransitions() {
-        assert initialized;
-
-        List<Transition<Partition>> result = new ArrayList<Transition<Partition>>();
-        for (Transition<Partition> tr : getTransitionsIterator(null)) {
-            result.add(tr);
-        }
-        return result;
-    }
-
-    /**
      * This method returns the set of transitions accessible through iterator
      * iter, augmenting each transition with information about frequency and
      * number of observations.
      */
-    private List<WeightedTransition<Partition>> getWeightedTransitions(
-            IIterableIterator<Transition<Partition>> iter) {
-        assert initialized;
-
-        List<WeightedTransition<Partition>> trsWeighted = new ArrayList<WeightedTransition<Partition>>();
-        for (Transition<Partition> tr : iter) {
-            int numOutgoing = 0;
-            for (final EventNode event : events) {
-                if (fulfillsStrong(event, tr)) {
-                    numOutgoing += 1;
-                }
-            }
-
-            int totalAtSource = tr.getSource().getEventNodes().size();
-            double probability = (double) numOutgoing / (double) totalAtSource;
-            WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
-                    tr.getSource(), tr.getTarget(), tr.getRelation(),
-                    probability, numOutgoing);
-            trsWeighted.add(trWeighted);
-        }
-        return trsWeighted;
-    }
-
-    @Override
-    public List<WeightedTransition<Partition>> getWeightedTransitions(
-            String relation) {
-        assert initialized;
-
-        return getWeightedTransitions(getTransitionsIterator(relation));
-    }
-
     @Override
     public List<WeightedTransition<Partition>> getWeightedTransitions() {
         assert initialized;
 
-        return getWeightedTransitions(getTransitionsIterator(null));
-    }
+        List<? extends ITransition<Partition>> transitions = getAllTransitions();
 
-    /**
-     * Transitions between partitions are not stored but generated on demand
-     * using this iterator
-     */
-    @Override
-    public IIterableIterator<Transition<Partition>> getTransitionsIterator() {
-        assert initialized;
+        List<WeightedTransition<Partition>> trsWeighted = new ArrayList<WeightedTransition<Partition>>();
 
-        return getTransitionsIterator(null);
-    }
+        if (this.isInitial()) {
+            // We handle INITIAL partitions differently because we optimized the
+            // code by including just a single EventNode with type INITIAL for
+            // all traces (instead of one maintaining one per trace). This one
+            // INITIAL EventNode contains transitions to all first nodes of
+            // traces.
+            assert (this.getEventNodes().size() == 1);
 
-    /**
-     * Generate Edges on the fly. We examine all contained messages and find the
-     * appropriate successor messages. We then check to which partition the
-     * successor messages belong and create an edge between the partitions.
-     * Duplicates are eliminated.
-     */
-    @Override
-    public IIterableIterator<Transition<Partition>> getTransitionsIterator(
-            final String relation) {
-        assert initialized;
+            // The _EventNode_ (child) instances that the one EventNode
+            // in this partition contains transitions to.
+            Set<EventNode> children = this.getEventNodes().iterator().next()
+                    .getAllSuccessors();
 
-        return new IIterableIterator<Transition<Partition>>() {
+            int totalChildren = children.size();
 
-            private final Set<ITransition<Partition>> seen = new LinkedHashSet<ITransition<Partition>>();
-            private final Iterator<EventNode> msgItr = events.iterator();
+            // Iterate through all children, building up the map of number of
+            // transitions per (child) partition.
+            Map<Partition, Integer> transitionsPerChildPartition = new LinkedHashMap<Partition, Integer>();
+            for (EventNode child : children) {
+                Partition childP = child.getParent();
+                if (transitionsPerChildPartition.containsKey(childP)) {
+                    transitionsPerChildPartition.put(childP,
+                            transitionsPerChildPartition.get(childP) + 1);
+                } else {
+                    transitionsPerChildPartition.put(childP, 1);
 
-            private Iterator<? extends ITransition<EventNode>> transItr = (relation == null) ? msgItr
-                    .next().getTransitions().iterator()
-                    : msgItr.next().getTransitions(relation).iterator();
+                }
+            }
 
-            private Transition<Partition> next = null;
+            // Now, use the map to determine transition probabilities.
+            for (ITransition<Partition> tr : transitions) {
+                int numOutgoing = transitionsPerChildPartition.get(tr
+                        .getTarget());
+                double probability = (double) numOutgoing
+                        / (double) totalChildren;
+                WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
+                        this, tr.getTarget(), tr.getRelations(), probability,
+                        numOutgoing);
+                trsWeighted.add(trWeighted);
+            }
 
-            private Transition<Partition> getNext() {
-                while (transItr.hasNext() || msgItr.hasNext()) {
-                    if (transItr.hasNext()) {
-                        final ITransition<EventNode> found = transItr.next();
-                        final Transition<Partition> transToPart;
-                        ITime d = null;
-                        
-                    	transToPart = new Transition<Partition>(
-                                found.getSource().getParent(), found
-                                	.getTarget().getParent(),
-                                found.getRelation());
-                        	
-                    	if (Main.options.enablePerfDebugging) {
-                            ITime targTime = found.getTarget().getTime();
-                            ITime srcTime = found.getSource().getTime();
-                            if (targTime != null && srcTime != null) {
-                                d = found.getTarget().getTime().computeDelta(
-                                                        found.getSource().getTime());
-                                transToPart.getDeltaSeries().addDelta(d);
-                            }
-                    	}
-                    	
-                        if (seen.add(transToPart)) {
-                            return transToPart;
-                        }
-                    } else {
-                        if (relation == null) {
-                            transItr = msgItr.next().getTransitions()
-                                    .iterator();
-                        } else {
-                            transItr = msgItr.next().getTransitions(relation)
-                                    .iterator();
-                        }
+        } else {
+            // Non-INITIAL partition case.
+
+            int totalAtSource = events.size();
+            for (ITransition<Partition> tr : transitions) {
+                int numOutgoing = 0;
+                for (final EventNode event : events) {
+                    if (fulfillsStrong(event, tr)) {
+                        numOutgoing += 1;
                     }
                 }
 
-                return null;
+                double probability = (double) numOutgoing
+                        / (double) totalAtSource;
+                WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
+                        this, tr.getTarget(), tr.getRelations(), probability,
+                        numOutgoing);
+                trsWeighted.add(trWeighted);
             }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public Transition<Partition> next() {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
-                final Transition<Partition> oldNext = next;
-                next = null;
-                return oldNext;
-            }
-
-            @Override
-            public boolean hasNext() {
-                if (next == null) {
-                    next = getNext();
-                }
-                return next != null;
-            }
-
-            @Override
-            public Iterator<Transition<Partition>> iterator() {
-                return this;
-            }
-        };
+        }
+        return trsWeighted;
     }
 
-    @Override
-    public ITransition<Partition> getTransition(Partition iNode, String action) {
+    public ITransition<Partition> getTransitionWithExactRelation(Partition p,
+            Set<String> relations) {
         assert initialized;
 
-        for (Iterator<Transition<Partition>> iter = getTransitionsIterator(action); iter
-                .hasNext();) {
-            ITransition<Partition> t = iter.next();
-            if (t.getTarget().equals(iNode)) {
+        for (ITransition<Partition> t : getTransitionsWithExactRelations(relations)) {
+            if (t.getTarget().equals(p)) {
                 return t;
             }
         }
@@ -528,10 +441,79 @@ public class Partition implements INode<Partition> {
         throw new NotImplementedException();
     }
 
-    /*
-     * @Override public void addTransition(Partition dest, String relation) {
-     * throw new InternalSynopticException(
-     * "Partitions manipulate edges implicitly through LogEvent instances they maintain. Cannot modify Partition transition directly."
-     * ); }
-     */
+    private void updateTransitionDeltas(EventNode srcENode,
+            EventNode targetENode, ITransition<Partition> tx) {
+        if (!Main.options.enablePerfDebugging) {
+            return;
+        }
+        ITime targTime = targetENode.getTime();
+        ITime srcTime = srcENode.getTime();
+        if (targTime != null && srcTime != null) {
+            ITime d = targTime.computeDelta(srcTime);
+            tx.getDeltaSeries().addDelta(d);
+        }
+    }
+
+    @Override
+    public List<? extends ITransition<Partition>> getAllTransitions() {
+        // TODO: implement a transition cache optimization.
+        List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>();
+        for (EventNode e : events) {
+            for (ITransition<EventNode> tr : e.getAllTransitions()) {
+                // TODO: calling updateTransitionDeltas() is a fragile kind of
+                // initialization -- we have to remember to call this method
+                // whenever creating a new ITransition<Partition> instance.
+                // Refactor this into a new kind of Transition constructor? Or a
+                // helper method.
+                Transition<Partition> tx = new Transition<Partition>(this, tr
+                        .getTarget().getParent(), tr.getRelations());
+                updateTransitionDeltas(e, tr.getTarget(), tx);
+                ret.add(tx);
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public Set<Partition> getAllSuccessors() {
+        Set<Partition> successors = new LinkedHashSet<Partition>();
+        for (EventNode e : events) {
+            for (EventNode eSucc : e.getAllSuccessors()) {
+                successors.add(eSucc.getParent());
+            }
+        }
+        return successors;
+    }
+
+    // TODO: this code is very similar to getAllTransitions(), refactor it.
+    @Override
+    public List<? extends ITransition<Partition>> getTransitionsWithExactRelations(
+            Set<String> relations) {
+        List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>();
+        for (EventNode e : events) {
+            for (ITransition<EventNode> tr : e
+                    .getTransitionsWithExactRelations(relations)) {
+                Transition<Partition> tx = new Transition<Partition>(this, tr
+                        .getTarget().getParent(), tr.getRelations());
+                updateTransitionDeltas(e, tr.getTarget(), tx);
+                ret.add(tx);
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public List<? extends ITransition<Partition>> getTransitionsWithSubsetRelations(
+            Set<String> relations) {
+        // TODO Auto-generated method stub
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public List<? extends ITransition<Partition>> getTransitionsWithIntersectingRelations(
+            Set<String> relations) {
+        // TODO Auto-generated method stub
+        throw new NotImplementedException();
+    }
+
 }

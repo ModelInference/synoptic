@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -45,7 +46,6 @@ import synoptic.model.WeightedTransition;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
 import synoptic.util.time.ITime;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTEdge;
@@ -281,11 +281,10 @@ public class SynopticService extends RemoteServiceServlet implements
                 }
 
                 double transitionProb = wTransition.getFraction();
-                ITime mean = wTransition
-                        .getDeltaSeries().computeMean();
+                ITime mean = wTransition.getDeltaSeries().computeMean();
                 if (mean == null)
-//                    double latency = Double.parseDouble(wTransition
-//                            .getDeltaSeries().computeMedian().toString());
+                    // double latency = Double.parseDouble(wTransition
+                    // .getDeltaSeries().computeMedian().toString());
                     transitionProb = 42.0;
 
                 // Add the complete weighted edge
@@ -700,24 +699,28 @@ public class SynopticService extends RemoteServiceServlet implements
             selectedNodes.add(p);
         }
 
-        Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+        Map<Integer, List<Partition>> paths = pGraph
                 .getPathsThroughPartitions(selectedNodes);
 
         // Convert an ITransition-centric map to a GWTEdge-centric map.
         for (Integer id : paths.keySet()) {
             // Convert each transition individually into an edge, and then
             // add them all to an individual path.
-            Set<ITransition<Partition>> transitions = paths.get(id);
+            List<Partition> transitions = paths.get(id);
             List<GWTEdge> gwtPath = new LinkedList<GWTEdge>();
-            for (ITransition<Partition> trans : transitions) {
-                GWTNode trgNode = gwtNodeFromPartition(trans.getTarget());
-                GWTNode srcNode = gwtNodeFromPartition(trans.getSource());
+            Partition prevP = transitions.get(0);
+            ListIterator<Partition> lIter = transitions.listIterator(1);
+            while (lIter.hasNext()) {
+                Partition currP = lIter.next();
+                GWTNode trgNode = gwtNodeFromPartition(currP);
+                GWTNode srcNode = gwtNodeFromPartition(prevP);
 
                 // The value of zero in the construction of this edge
                 // is simply a dummy weight, since the purpose of this edge
                 // is for finding equivalent edges within the model tab.
                 GWTEdge edge = new GWTEdge(srcNode, trgNode, 0, 0, 0);
                 gwtPath.add(edge);
+                prevP = currP;
             }
 
             // If there isn't already a path
