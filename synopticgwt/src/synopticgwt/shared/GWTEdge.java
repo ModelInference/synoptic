@@ -23,8 +23,10 @@ public class GWTEdge implements Serializable {
     // destination node.
     double weight = -1;
 
+    public static double DEFAULT_EMPTY_LATENCY = -1.0;
+
     // The latency between the src node and the dst node.
-    double latency = -1;
+    double latency;
 
     // Edge count indicates the total number of transitions from source node to
     // destination node.
@@ -46,6 +48,14 @@ public class GWTEdge implements Serializable {
         this.weight = weight;
         this.count = count;
         this.latency = latency;
+    }
+
+    public GWTEdge(GWTNode src, GWTNode dst, double weight, int count) {
+        this.src = src;
+        this.dst = dst;
+        this.weight = weight;
+        this.count = count;
+        this.latency = DEFAULT_EMPTY_LATENCY;
     }
 
     public GWTNode getSrc() {
@@ -96,7 +106,7 @@ public class GWTEdge implements Serializable {
     public String getCountStr() {
         return ((Integer) this.getCount()).toString();
     }
-    
+
     public String getLatencyString() {
         return probToString(this.getLatency());
     }

@@ -91,40 +91,23 @@ public class Transition<NodeType> implements ITransition<NodeType> {
 
     @Override
     public ITimeSeries<ITime> getDeltaSeries() {
-
         // If the series has not been initialized, then do so.
         if (this.series == null) {
             this.series = new ITimeSeries<ITime>();
         }
 
         return this.series;
-
-        // TODO Restore the general functionality of this code.
-        // for now, simply return the series.
-        //
-        // if (series != null) {
-        // return series;
-        // } else if (!(source instanceof Partition)) {
-        // return null;
-        // } else if (((Partition)
-        // source).events.iterator().next().getTransitions().get(0).getDelta()
-        // != null) {
-        // series = new ITimeSeries<ITime>();
-        // return series;
-        // } else {
-        // return null;
-        // }
     }
 
     @Override
     public void addDelta(ITime newDelta) {
-        // If delta is null, simply don't add anything.
+        // If delta is null, do not add anything.
         if (newDelta == null) {
             return;
         }
 
-        // If there is already a series, simply add the delta
-        // to the series, then set the delta field to nunll.
+        // If there is already a series, add the delta
+        // to the series, then set the delta field to null.
         if (this.series == null) {
             this.series = new ITimeSeries<ITime>();
             if (this.delta != null) {
