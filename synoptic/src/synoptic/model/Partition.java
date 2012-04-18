@@ -464,8 +464,15 @@ public class Partition implements INode<Partition> {
     @Override
     public List<? extends ITransition<Partition>> getTransitionsWithExactRelations(
             Set<String> relations) {
-        // TODO Auto-generated method stub
-        throw new NotImplementedException();
+        List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>();
+        for (EventNode e : events) {
+            for (ITransition<EventNode> tr : e
+                    .getTransitionsWithExactRelations(relations)) {
+                ret.add(new Transition<Partition>(this, tr.getTarget()
+                        .getParent(), tr.getRelations()));
+            }
+        }
+        return ret;
     }
 
     @Override
