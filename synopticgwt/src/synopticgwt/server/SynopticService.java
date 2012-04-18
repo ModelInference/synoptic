@@ -283,19 +283,18 @@ public class SynopticService extends RemoteServiceServlet implements
                 double transitionProb = wTransition.getFraction();
                 ITime mean = wTransition.getDeltaSeries().computeMean();
 
-                // TODO:
-                // 1. Fix this, so that there is a sensible default (and not 42)
-                // 2. Uncomment the code so that the actual mean is called.
-                // 3. Fix the test to check for sensible value of latency
-
-                if (mean == null)
-                    // double latency = Double.parseDouble(wTransition
-                    // .getDeltaSeries().computeMedian().toString());
-                    transitionProb = 42.0;
+                GWTEdge edge;
+                if (mean == null) {
+                    edge = new GWTEdge(gwtPNode, adjGWTPNode, transitionProb,
+                            wTransition.getCount());
+                } else {
+                    double meanLatency = Double.parseDouble(mean.toString());
+                    edge = new GWTEdge(gwtPNode, adjGWTPNode, transitionProb,
+                            wTransition.getCount(), meanLatency);
+                }
 
                 // Add the complete weighted edge
-                graph.addEdge(gwtPNode, adjGWTPNode, transitionProb,
-                        wTransition.getCount(), transitionProb);
+                graph.addEdge(edge);
             }
         }
         return graph;
@@ -722,8 +721,12 @@ public class SynopticService extends RemoteServiceServlet implements
                 GWTNode srcNode = gwtNodeFromPartition(prevP);
 
                 // The value of zero in the construction of this edge
-                // is simply a dummy weight, since the purpose of this edge
-                // is for finding equivalent edges within the model tab.
+                // is a dummy weight, since the purpose of this edge
+                // is to find equivalent edges within the model tab.
+
+                // TODO: the above indicates that the return data type is
+                // inappropriate -- we need something lighter-weight than a
+                // GWTEdge.
                 GWTEdge edge = new GWTEdge(srcNode, trgNode, 0, 0, 0);
                 gwtPath.add(edge);
                 prevP = currP;
