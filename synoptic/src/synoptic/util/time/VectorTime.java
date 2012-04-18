@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import synoptic.model.EventNode;
+import synoptic.util.NotImplementedException;
 
 public class VectorTime implements ITime {
     ArrayList<Integer> vector = new ArrayList<Integer>();
@@ -287,37 +288,21 @@ public class VectorTime implements ITime {
     }
 
     /**
-     * VectorTime is only partially ordered, therefore a delta time cannot be
-     * computed for performance analysis. Throws an exception if this method is
-     * called.
-     * 
-     * @throws NotComparableVectorsException
+     * Delta computation, incrementing, and division are undefined for vector
+     * timestamps.
      */
     @Override
     public ITime computeDelta(ITime other) {
-        throw new NotComparableVectorsException(this, other);
+        throw new NotImplementedException();
     }
 
-    /**
-     * Given that vector time is partially ordered, vector times cannot
-     * increment each other. This throws an exception when called.
-     */
     @Override
     public ITime incrBy(ITime other) {
-        throw new NotComparableVectorsException(this, other);
+        throw new NotImplementedException();
     }
 
     @Override
     public ITime divBy(int divisor) {
-        // TODO There doesn't seem to be any real reason
-        // as to why one would want to do this, but the code
-        // is here.
-
-        VectorTime retVal = new VectorTime(this.vector);
-        for (Integer time : retVal.vector) {
-            time /= divisor;
-        }
-
-        return retVal;
+        throw new NotImplementedException();
     }
 }

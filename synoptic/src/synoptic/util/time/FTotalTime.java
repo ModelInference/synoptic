@@ -85,7 +85,7 @@ public class FTotalTime implements ITime {
         if (other == null) {
             return this;
         }
-        
+
         if (!(other instanceof FTotalTime)) {
             throw new NonComparableTimesException(this, other);
         }
