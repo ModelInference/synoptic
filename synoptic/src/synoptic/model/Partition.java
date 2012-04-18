@@ -454,7 +454,9 @@ public class Partition implements INode<Partition> {
     public Set<Partition> getAllSuccessors() {
         Set<Partition> successors = new LinkedHashSet<Partition>();
         for (EventNode e : events) {
-            successors.add(e.getParent());
+            for (EventNode eSucc : e.getAllSuccessors()) {
+                successors.add(eSucc.getParent());
+            }
         }
         return successors;
     }
