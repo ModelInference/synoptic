@@ -44,7 +44,8 @@ public class StronglyConnectedComponents<NodeType extends INode<NodeType>>
     }
 
     /**
-     * The synoptic.main worker function. See documentation at <a href="http://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm"
+     * The synoptic.main worker function. See documentation at <a href=
+     * "http://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm"
      * >Tarjan's algorithm</a>.
      * 
      * @param n
@@ -54,14 +55,15 @@ public class StronglyConnectedComponents<NodeType extends INode<NodeType>>
         lowlink.put(n, currentIndex);
         ++currentIndex;
         stack.push(n);
-        for (ITransition<NodeType> t : n.getTransitionsIterator()) {
+        // for (ITransition<NodeType> t : n.getTransitionsIterator()) {
+        for (ITransition<NodeType> t : n.getAllTransitions()) {
             if (!index.containsKey(t.getTarget())) {
                 tarjan(t.getTarget());
-                lowlink.put(n, Math.min(lowlink.get(n), lowlink.get(t
-                        .getTarget())));
+                lowlink.put(n,
+                        Math.min(lowlink.get(n), lowlink.get(t.getTarget())));
             } else if (stack.contains(t.getTarget())) {
-                lowlink.put(n, Math.min(lowlink.get(n), index
-                        .get(t.getTarget())));
+                lowlink.put(n,
+                        Math.min(lowlink.get(n), index.get(t.getTarget())));
             }
         }
         if (lowlink.get(n) == index.get(n)) {

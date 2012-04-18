@@ -1,7 +1,9 @@
 package synoptic.tests;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.rules.TestName;
@@ -38,10 +40,14 @@ public abstract class SynopticTest extends SynopticLibTest {
      * Default relation used in invariant mining.
      */
     public static final String defRelation = Event.defaultTimeRelationString;
+    public static final Set<String> defRelationSet;
 
     static {
         // Set up static SynopticLib state.
         SynopticLibTest.initialize("SynopticTest Logger");
+
+        defRelationSet = new LinkedHashSet<String>();
+        defRelationSet.add(defRelation);
     }
 
     /**
@@ -189,11 +195,12 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @throws Exception
      */
     public static PartitionGraph genInitialPartitionGraph(String[] events,
-            TraceParser parser, TOInvariantMiner miner) throws Exception {
+            TraceParser parser, TOInvariantMiner miner, 
+            boolean multipleRelations) throws Exception {
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, parser);
         return new PartitionGraph(inputGraph, true,
-                miner.computeInvariants(inputGraph));
+                miner.computeInvariants(inputGraph, multipleRelations));
     }
 
     /**

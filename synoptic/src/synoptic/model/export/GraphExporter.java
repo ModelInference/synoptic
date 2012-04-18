@@ -203,7 +203,7 @@ public class GraphExporter {
                 if (outputEdgeLabels && !Main.options.enablePerfDebugging) {
                     transitions = node.getWeightedTransitions();
                 } else {
-                    transitions = node.getTransitions();
+                    transitions = node.getAllTransitions();
                 }
                 // Sort the transitions for canonical output.
                 Collections.sort(transitions);
@@ -233,32 +233,35 @@ public class GraphExporter {
                         s = Main.graphExportFormatter.edgeToStringWithTraceId(
                                 nodeSrc, nodeDst,
                                 ((EventNode) ((INode<?>) trans.getSource()))
-                                        .getTraceID(), trans.getRelation());
+                                        .getTraceID(), trans.getRelations());
                     } else {
                         if (outputEdgeLabels) {
+
                             if (Main.options.enablePerfDebugging) {
                                 // TODO Simply calculate the mean for now, but
-                                // this should be more robust and conform to what the
+                                // this should be more robust and conform to
+                                // what the
                                 // user wants in particular.
                                 ITime time = null;
                                 if (trans.getDeltaSeries() != null) {
                                     time = trans.getDeltaSeries().computeMean();
                                 }
                                 s = Main.graphExportFormatter
-                                        .edgeToStringWithITime(nodeSrc, nodeDst, 
-                                                time, trans.getRelation());
-                                
+                                        .edgeToStringWithITime(nodeSrc,
+                                                nodeDst, time,
+                                                trans.getRelations());
+
                             } else {
                                 double prob = ((WeightedTransition<T>) trans)
                                         .getFraction();
                                 s = Main.graphExportFormatter
                                         .edgeToStringWithProb(nodeSrc, nodeDst,
-                                                prob, trans.getRelation());
+                                                prob, trans.getRelations());
                             }
                         } else {
                             s = Main.graphExportFormatter
                                     .edgeToStringWithNoProb(nodeSrc, nodeDst,
-                                            trans.getRelation());
+                                            trans.getRelations());
                         }
                     }
                     writer.write(s);

@@ -1,7 +1,11 @@
 package synoptic.model;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
+import synoptic.util.MultipleRelations;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITimeSeries;
 
@@ -14,12 +18,37 @@ import synoptic.util.time.ITimeSeries;
 public class Transition<NodeType> implements ITransition<NodeType> {
     protected NodeType source;
     protected NodeType target;
-    protected final String relation;
     protected ITime delta = null;
     protected ITimeSeries<ITime> series = null;
 
+    protected Set<String> relations;
+
+    private Transition(NodeType source, NodeType target) {
+        assert source != null;
+        assert target != null;
+
+        this.source = source;
+        this.target = target;
+    }
+
     /**
-     * Create a new transition.
+     * Create a new transition with multiple relations.
+     * 
+     * @param source
+     *            source node
+     * @param target
+     *            target node
+     * @param relation
+     *            the label of the transition
+     */
+    public Transition(NodeType source, NodeType target, Set<String> relations) {
+        this(source, target);
+        assert relations != null;
+        this.relations = relations;
+    }
+
+    /**
+     * Create a new transition with a single relation.
      * 
      * @param source
      *            source node
@@ -29,13 +58,9 @@ public class Transition<NodeType> implements ITransition<NodeType> {
      *            the label of the transition
      */
     public Transition(NodeType source, NodeType target, String relation) {
-        assert source != null;
-        assert target != null;
-        assert relation != null;
-
-        this.source = source;
-        this.target = target;
-        this.relation = relation;
+        this(source, target);
+        this.relations = new LinkedHashSet<String>();
+        this.relations.add(relation);
     }
 
     @Override
@@ -49,8 +74,8 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     }
 
     @Override
-    public String getRelation() {
-        return relation;
+    public Set<String> getRelations() {
+        return relations;
     }
 
     @Override
@@ -115,7 +140,8 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (relation == null ? 0 : relation.hashCode());
+        result = prime * result
+                + (relations == null ? 0 : relations.hashCode());
         result = prime * result + (source == null ? 0 : source.hashCode());
         result = prime * result + (target == null ? 0 : target.hashCode());
         return result;
@@ -134,11 +160,11 @@ public class Transition<NodeType> implements ITransition<NodeType> {
             return false;
         }
         Transition<NodeType> other = (Transition<NodeType>) obj;
-        if (relation == null) {
-            if (other.relation != null) {
+        if (relations == null) {
+            if (other.relations != null) {
                 return false;
             }
-        } else if (!relation.equals(other.relation)) {
+        } else if (!relations.equals(other.relations)) {
             return false;
         }
         if (source == null) {
@@ -170,7 +196,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
 
     @Override
     public String toStringConcise() {
-        return getRelation();
+        return getRelations().toString();
     }
 
     @Override
@@ -190,6 +216,8 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         }
         // If both the sources and the targets are equal then we use the
         // relations for possible disambiguation.
-        return this.relation.compareTo(other.getRelation());
+
+        return MultipleRelations.compareMultipleRelations(this.relations,
+                other.getRelations());
     }
 }

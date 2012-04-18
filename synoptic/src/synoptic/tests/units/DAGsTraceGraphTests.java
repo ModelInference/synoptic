@@ -27,7 +27,8 @@ public class DAGsTraceGraphTests extends DAGsTraceGraphBaseTest {
     @Test
     public void forkDAGTopoOrderTest() {
         dag = buildForkDAG();
-        List<EventNode> order = dag.computeTopologicalOrder(0);
+        List<EventNode> order = dag.computeTopologicalOrder(0,
+                FollowedByRelationsSet);
 
         List<List<EventNode>> trueOrders = new LinkedList<List<EventNode>>();
         trueOrders.add(Arrays.asList(new EventNode[] { a, b, c, d }));
@@ -47,7 +48,8 @@ public class DAGsTraceGraphTests extends DAGsTraceGraphBaseTest {
     @Test
     public void complexForkDAGTopoOrderTest() {
         dag = buildComplexForkDAG();
-        List<EventNode> order = dag.computeTopologicalOrder(0);
+        List<EventNode> order = dag.computeTopologicalOrder(0,
+                FollowedByRelationsSet);
 
         List<List<EventNode>> trueOrders = new LinkedList<List<EventNode>>();
         trueOrders.add(Arrays.asList(new EventNode[] { a, b, c, d, e, f }));
@@ -72,7 +74,8 @@ public class DAGsTraceGraphTests extends DAGsTraceGraphBaseTest {
     @Test
     public void twoSourcesDAGTopoOrderTest() {
         dag = buildTwoSourcesDAG();
-        List<EventNode> order = dag.computeTopologicalOrder(0);
+        List<EventNode> order = dag.computeTopologicalOrder(0,
+                FollowedByRelationsSet);
         List<List<EventNode>> trueOrders = new LinkedList<List<EventNode>>();
         trueOrders.add(Arrays.asList(new EventNode[] { a, b, c, d }));
         assertTrue(trueOrders.contains(order));
@@ -92,7 +95,8 @@ public class DAGsTraceGraphTests extends DAGsTraceGraphBaseTest {
     @Test
     public void twoSourcesComplexDAGTopoOrderTest() {
         dag = buildTwoSourcesComplexDAG();
-        List<EventNode> order = dag.computeTopologicalOrder(0);
+        List<EventNode> order = dag.computeTopologicalOrder(0,
+                FollowedByRelationsSet);
 
         List<List<EventNode>> trueOrders = new LinkedList<List<EventNode>>();
         // a, b

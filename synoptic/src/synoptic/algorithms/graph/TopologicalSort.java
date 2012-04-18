@@ -34,21 +34,21 @@ public class TopologicalSort<NodeType extends INode<NodeType>> {
         return lattice;
     }
 
-    private void visit(NodeType n, Set<NodeType> seen, int level) {
-        if (!seen.add(n)) {
-            return;
-        }
-
-        if (!lattice.containsKey(level)) {
-            lattice.put(level, new LinkedHashSet<NodeType>());
-        }
-        lattice.get(level).add(n);
-
-        for (ITransition<NodeType> t : n.getTransitionsIterator()) {
-            visit(t.getTarget(), seen, level + 1);
-        }
-        sort.add(0, n);
-    }
+    // private void visit(NodeType n, Set<NodeType> seen, int level) {
+    // if (!seen.add(n)) {
+    // return;
+    // }
+    //
+    // if (!lattice.containsKey(level)) {
+    // lattice.put(level, new LinkedHashSet<NodeType>());
+    // }
+    // lattice.get(level).add(n);
+    //
+    // for (ITransition<NodeType> t : n.getTransitionsIterator()) {
+    // visit(t.getTarget(), seen, level + 1);
+    // }
+    // sort.add(0, n);
+    // }
 
     private void sort(IGraph<NodeType> graph) {
         // Pair is parameterized with <int, NodeType> = <level, node>
@@ -72,8 +72,7 @@ public class TopologicalSort<NodeType extends INode<NodeType>> {
                 lattice.put(pair.getLeft(), new LinkedHashSet<NodeType>());
             }
             lattice.get(pair.getLeft()).add(pair.getRight());
-            for (ITransition<NodeType> t : pair.getRight()
-                    .getTransitionsIterator()) {
+            for (ITransition<NodeType> t : pair.getRight().getAllTransitions()) {
                 if (!seen.add(t)) {
                     continue;
                 }
@@ -88,7 +87,7 @@ public class TopologicalSort<NodeType extends INode<NodeType>> {
     private boolean containsAllIncommingTransitions(IGraph<NodeType> graph,
             LinkedHashSet<ITransition<NodeType>> seen, NodeType target) {
         for (NodeType node : graph.getNodes()) {
-            for (ITransition<NodeType> t : node.getTransitionsIterator()) {
+            for (ITransition<NodeType> t : node.getAllTransitions()) {
                 if (!seen.contains(t) && t.getTarget() == target) {
                     return false;
                 }
@@ -100,7 +99,7 @@ public class TopologicalSort<NodeType extends INode<NodeType>> {
     public static <T extends INode<T>> Set<T> getSourceNodes(IGraph<T> graph) {
         Set<T> sources = new LinkedHashSet<T>(graph.getNodes());
         for (T node : graph.getNodes()) {
-            for (ITransition<T> t : node.getTransitionsIterator()) {
+            for (ITransition<T> t : node.getAllTransitions()) {
                 sources.remove(t.getTarget());
             }
         }

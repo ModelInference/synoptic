@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import synoptic.model.Event;
@@ -125,7 +126,7 @@ public abstract class GraphExportFormatter {
      * @return
      */
     public abstract String edgeToStringWithProb(int nodeSrc, int nodeDst,
-            double freq, String relation);
+            double freq, Set<String> relation);
 
     /**
      * Serializes a single node edge in a graph to a string that represents this
@@ -144,24 +145,7 @@ public abstract class GraphExportFormatter {
      * @return
      */
     public abstract String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
-            String relation);
-    
-    /**
-     * Serializes a single node edge in a graph to a string that represents this
-     * edge, along with the latency of the time between the source and dest events.
-     * 
-     * @param nodeSrc
-     *            the unique identifier for the source node
-     * @param nodeDst
-     *            the unique identifier for the target node
-     * @param freq
-     *            the frequency value to be used as a label on the edge
-     * @param relation
-     *            a string representing the relation (e.g., "t")
-     * @return
-     */
-    public abstract String edgeToStringWithITime(int nodeSrc, int nodeDst, ITime time,
-            String relation);
+            Set<String> relations);
 
     /**
      * Serializes a single node edge in a graph to a string. Also, outputs a
@@ -180,7 +164,10 @@ public abstract class GraphExportFormatter {
      * @return
      */
     public abstract String edgeToStringWithTraceId(int nodeSrc, int nodeDst,
-            int traceId, String relation);
+            int traceId, Set<String> relations);
+
+    public abstract String edgeToStringWithITime(int nodeSrc, int nodeDst,
+            ITime time, Set<String> relations);
 
     /**
      * Returns a string with escaped forward slashes and double quotes.

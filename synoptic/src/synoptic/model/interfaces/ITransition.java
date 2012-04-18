@@ -1,5 +1,7 @@
 package synoptic.model.interfaces;
 
+import java.util.Set;
+
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITimeSeries;
 
@@ -32,7 +34,7 @@ public interface ITransition<NodeType> extends
      * 
      * @return the name of the relation
      */
-    String getRelation();
+    Set<String> getRelations();
 
     /**
      * Set the target node.

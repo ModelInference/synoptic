@@ -1,8 +1,8 @@
 package synoptic.algorithms.bisim;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -111,34 +111,38 @@ public class KTails {
         // NOTE: this comparison considers all relations simultaneously. For
         // efficiency we could also check for matching transition counts for
         // each relation.
-        if (n1.getTransitions().size() != n2.getTransitions().size()) {
+
+        List<? extends ITransition<NodeType>> n1Trans = n1.getAllTransitions();
+        List<? extends ITransition<NodeType>> n2Trans = n2.getAllTransitions();
+
+        if (n1Trans.size() != n2Trans.size()) {
             return false;
         }
 
         // Here we will match up children of n1 with children of n2 based
         // on whether or not they are kEqual with k=k-1. We keep track of
-        // n2 children that we've already matched some children of n1. We skip
-        // these matched children of n2 since we can't re-use matches for
+        // n2 children that we've already matched to some children of n1. We
+        // skip these matched children of n2 since we can't reuse matches for
         // children of n1.
 
         // If any of the children of n1 have been previously visited, then check
         // that each visited child of n1 corresponds to some visited child of
         // n2. And that no visited child of n2 is visited otherwise.
-        Iterator<? extends ITransition<NodeType>> i1, i2;
+        // Iterator<? extends ITransition<NodeType>> i1, i2;
         LinkedHashSet<NodeType> visitedN1Children = new LinkedHashSet<NodeType>();
         LinkedHashSet<NodeType> visitedN2Children = new LinkedHashSet<NodeType>();
-        i1 = n1.getTransitionsIterator();
-        while (i1.hasNext()) {
-            NodeType c1 = i1.next().getTarget();
+
+        for (ITransition<NodeType> t : n1Trans) {
+            NodeType c1 = t.getTarget();
             if (allVisitedMatches.containsKey(c1)) {
                 visitedN1Children.add(c1);
                 visitedN2Children.add(allVisitedMatches.get(c1));
             }
         }
-        i2 = n2.getTransitionsIterator();
+
         int numVisitedN2ChildrenFound = 0;
-        while (i2.hasNext()) {
-            NodeType c2 = i2.next().getTarget();
+        for (ITransition<NodeType> t : n2Trans) {
+            NodeType c2 = t.getTarget();
             if (allVisitedMatches.containsValue(c2)) {
                 if (!visitedN2Children.contains(c2)) {
                     // c2 has been visited but doesn't map to a visited child of
@@ -173,9 +177,7 @@ public class KTails {
         // and n2 as visited after determining that they are kEqual).
         allVisitedMatches.put(n1, n2);
 
-        i1 = n1.getTransitionsIterator();
-        while (i1.hasNext()) {
-            ITransition<NodeType> t1 = i1.next();
+        for (ITransition<NodeType> t1 : n1Trans) {
             NodeType c1 = t1.getTarget();
             // Skip c1 if it was visited by this method earlier.
             if (visitedN1Children.contains(c1)) {
@@ -183,10 +185,12 @@ public class KTails {
             }
 
             boolean kEqual = false;
+
             // Make sure to get transitions of the same relation.
-            i2 = n2.getTransitionsIterator(t1.getRelation());
-            while (i2.hasNext()) {
-                NodeType c2 = i2.next().getTarget();
+            for (ITransition<NodeType> t2 : n2
+                    .getTransitionsWithExactRelations(t1.getRelations())) {
+                NodeType c2 = t2.getTarget();
+
                 // Skip c2 if it was visited by this method earlier.
                 if (visitedN2Children.contains(c2)) {
                     continue;

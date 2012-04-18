@@ -18,7 +18,7 @@ public class TransitiveClosure {
     // otherwise tc.get(x).contains(y) == false
     Map<EventNode, Set<EventNode>> tc = new LinkedHashMap<EventNode, Set<EventNode>>();
 
-    private final String relation;
+    private final Set<String> relations;
 
     /**
      * Create the transitive closure of {@code graph} for the Relation
@@ -32,8 +32,8 @@ public class TransitiveClosure {
      * @param useWarshall
      *            whether or not to use Warshall's algorithm
      */
-    public TransitiveClosure(String relation) {
-        this.relation = relation;
+    public TransitiveClosure(Set<String> relation) {
+        this.relations = relation;
     }
 
     /**
@@ -66,16 +66,9 @@ public class TransitiveClosure {
     }
 
     /**
-     * Check whether there is an edge in the transitive closure between
-     * {@code m} and {@code n}.
-     * 
-     * @param m
-     *            a node
-     * @param n
-     *            a node
-     * @return true if {@code m} can reach {@code n}
+     * Records the fact that m can transitively reach n.
      */
-    public void addReachable(EventNode m, EventNode n) {
+    public void recordTransitiveReachability(EventNode m, EventNode n) {
         Set<EventNode> r;
         if (!tc.containsKey(m)) {
             r = new LinkedHashSet<EventNode>();
@@ -103,7 +96,7 @@ public class TransitiveClosure {
      * @return if {@code o} describes the same relation is {@code this}
      */
     public boolean isEqual(TransitiveClosure other) {
-        if (!this.relation.equals(other.relation)) {
+        if (!this.relations.equals(other.relations)) {
             return false;
         }
 

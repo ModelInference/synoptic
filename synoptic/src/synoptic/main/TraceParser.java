@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -64,6 +65,9 @@ public class TraceParser {
     // string to a set of parsed events corresponding to that partition.
     Map<String, ArrayList<EventNode>> partitions = new LinkedHashMap<String, ArrayList<EventNode>>();
 
+    // EventNode -> Relation associated with this event node.
+    Map<EventNode, Set<Relation>> allEventRelations = new HashMap<EventNode, Set<Relation>>();
+
     // Patterns used to pre-process regular expressions
     private static final Pattern matchEscapedSeparator = Pattern
             .compile("\\\\;\\\\;");
@@ -87,11 +91,11 @@ public class TraceParser {
     // DTIME: double time (e.g. 1234.56) -- 64 bits
     public static final List<String> validTimeGroups = Arrays.asList("TIME",
             "VTIME", "FTIME", "DTIME");
-    
+
     // Regexp group representing multiple relations
     private static final String relationGroup = "RELATION";
     private static final String namedRelationGroup = "RELATION-";
-    
+
     // Regexp group representing closure relations, call and return for now.
     private static final String closureRelationGroup = "RELATION*";
     private static final String namedclosureRelationGroup = "RELATION*-";
@@ -117,8 +121,6 @@ public class TraceParser {
     // passed reg exps to match lines. The parser allows only one type of time
     // to be used.
     private String selectedTimeGroup = null;
-    
-
 
     /**
      * Returns an un-parameterized trace parser.
@@ -190,40 +192,6 @@ public class TraceParser {
     }
 
     /**
-     * Checks whether lst contains duplicates. If so, it logs an error using
-     * regex for information and throws a ParseException.
-     * 
-     * @param lst
-     *            the list to check for duplicates
-     * @param regex
-     *            the associated regex string to use when printing out an error
-     * @throws ParseException
-     */
-    public static void detectListDuplicates(List<String> lst, String regex)
-            throws ParseException {
-        // Check for group duplicates.
-        Set<String> lstSet = new LinkedHashSet<String>(lst);
-        if (lstSet.size() == lst.size()) {
-            return;
-        }
-
-        // We have duplicates in list, which means some fields are
-        // defined multiple times. We find these by removing each set
-        // element from the list, then converting the list to a set (to remove
-        // groups that have more than 3+ occurrences) and throw an exception.
-        for (String e : lstSet) {
-            lst.remove(e);
-        }
-
-        String error = "The fields: " + new LinkedHashSet<String>(lst)
-                + " appear more than once in regex: " + regex;
-        logger.severe(error);
-        ParseException parseException = new ParseException(error);
-        parseException.setRegex(regex);
-        throw parseException;
-    }
-
-    /**
      * Returns whether or not the time type used to parse the log(s) has a
      * canonical total order or not.
      * 
@@ -271,13 +239,23 @@ public class TraceParser {
         LinkedHashMap<String, NamedSubstitution> cmap = new LinkedHashMap<String, NamedSubstitution>();
 
         // A list of all the fields that were assigned in the regex.
-        List<String> fields = new LinkedList<String>();
+        // List<String> fields = new LinkedList<String>();
+        Set<String> fields = new LinkedHashSet<String>();
 
         // Indicates whether this regexp sets the HIDE field to true or not.
         boolean isHidden = false;
         while (matcher.find()) {
             String field = matcher.group(1);
             String value = matcher.group(2);
+
+            if (fields.contains(field)) {
+                String error = "The field: " + field
+                        + " already appears in regex: " + regex;
+                logger.severe(error);
+                ParseException parseException = new ParseException(error);
+                parseException.setRegex(regex);
+                throw parseException;
+            }
             fields.add(field);
 
             cmap.put(field, new NamedSubstitution(value));
@@ -314,8 +292,6 @@ public class TraceParser {
                 isHidden = true;
             }
         }
-        // Check for field duplicates.
-        detectListDuplicates(fields, regex);
 
         constantFields.add(parsers.size(), cmap);
 
@@ -371,9 +347,6 @@ public class TraceParser {
         }
         parsers.add(parser);
         List<String> groups = parser.groupNames();
-
-        // Check for group duplicates.
-        detectListDuplicates(groups, regex);
 
         // Check that special/internal field names do not appear.
         // Currently this is just LTIME.
@@ -467,31 +440,32 @@ public class TraceParser {
                     throw new ParseException(error);
                 }
             }
-            
-            
+
             for (String group : groups) {
-            	if (group.startsWith(relationGroup)) {
-            		
-            		// Check to see if relation capture group strings are well-formed
-            		Pattern relation = Pattern.compile("RELATION\\*?(-\\w*)?");
-            		Matcher fieldMatcher = relation.matcher(group);
-            		if (!fieldMatcher.matches()) {
-            			String error = "Relation field: " + group + " is malformed." +
-            					"Accepts: RELATION*?(-\\w*)?";
-            			logger.severe(error);
-            			throw new ParseException(error);
-            		}
-            		
-            		// Check if VTIME is used with relation   
-            		if (selectedTimeGroup.equals("VTIME")) {
-            			String error = "RELATION and VTIME groups cannot be mixed since multiple" +
-            					"relations requires a totally ordered log.";
-            			logger.severe(error);
-            			throw new ParseException(error);
-            		}
-            	}
+                if (group.startsWith(relationGroup)) {
+
+                    // Check to see if relation capture group strings are
+                    // well-formed
+                    Pattern relation = Pattern.compile("RELATION\\*?(-\\w*)?");
+                    Matcher fieldMatcher = relation.matcher(group);
+                    if (!fieldMatcher.matches()) {
+                        String error = "Relation field: " + group
+                                + " is malformed."
+                                + "Accepts: RELATION*?(-\\w*)?";
+                        logger.severe(error);
+                        throw new ParseException(error);
+                    }
+
+                    // Check if VTIME is used with relation
+                    if (selectedTimeGroup.equals("VTIME")) {
+                        String error = "RELATION and VTIME groups cannot be mixed since multiple"
+                                + "relations requires a totally ordered log.";
+                        logger.severe(error);
+                        throw new ParseException(error);
+                    }
+                }
             }
-            
+
         }
 
         if (Main.options.debugParse) {
@@ -888,44 +862,45 @@ public class TraceParser {
                 eType = new StringEventType(eTypeLabel);
                 event = new Event(eType, line, fileName, lineNum);
             }
-            
-			/*
-			 * Tag event nodes with relation fields. This is gross, is there a
-			 * nicer way to represent a state machine?
-			 */
-			Set<String> relationValues = new HashSet<String>();
-			for (String key : matched.keySet()) {
-				if (key.startsWith(relationGroup)) {
-					String relationString = matched.get(key);
 
-					if (relationValues.contains(relationString)) {
-						throw new ParseException(
-								"Duplicate captured relation value: "
-										+ relationString);
-					}
+            /*
+             * Tag event nodes with relation fields. This is gross, is there a
+             * nicer way to represent a state machine?
+             */
+            Set<String> relationValues = new HashSet<String>();
+            Set<Relation> eventRelations = new HashSet<Relation>();
+            for (String key : matched.keySet()) {
+                if (key.startsWith(relationGroup)) {
+                    String relationString = matched.get(key);
 
-					relationValues.add(relationString);
+                    if (relationValues.contains(relationString)) {
+                        throw new ParseException(
+                                "Duplicate captured relation value: "
+                                        + relationString);
+                    }
 
-					String relName = Relation.anonName;
-					boolean isClosure = false;
+                    relationValues.add(relationString);
 
-					if (key.startsWith(closureRelationGroup)) {
-						isClosure = true;
+                    String relName = Relation.anonName;
+                    boolean isClosure = false;
 
-						if (key.startsWith(namedclosureRelationGroup)) {
-							relName = key.substring(namedclosureRelationGroup
-									.length());
-						}
+                    if (key.startsWith(closureRelationGroup)) {
+                        isClosure = true;
 
-					} else if (key.startsWith(namedRelationGroup)) {
-						relName = key.substring(namedRelationGroup.length());
-					}
+                        if (key.startsWith(namedclosureRelationGroup)) {
+                            relName = key.substring(namedclosureRelationGroup
+                                    .length());
+                        }
 
-					Relation relation = new Relation(relName, relationString,
-							isClosure);
-					event.addRelation(relation);
-				}
-			}
+                    } else if (key.startsWith(namedRelationGroup)) {
+                        relName = key.substring(namedRelationGroup.length());
+                    }
+
+                    Relation relation = new Relation(relName, relationString,
+                            isClosure);
+                    eventRelations.add(relation);
+                }
+            }
 
             // We have two cases for processing time on log lines:
             // (1) Implicitly: no matched field is a time field because it is
@@ -1033,8 +1008,23 @@ public class TraceParser {
             }
             event.setTime(nextTime);
 
-            EventNode eventNode = addEventNodeToPartition(event,
-                    filter.substitute(eventStringArgs));
+            Relation timeRelation = new Relation("time-relation",
+                    Event.defaultTimeRelationString, false);
+            eventRelations.add(timeRelation);
+
+            String partitionName = filter.substitute(eventStringArgs);
+            EventNode eventNode = addEventNodeToPartition(event, partitionName);
+
+            if (!allEventRelations.containsKey(eventNode)) {
+                allEventRelations.put(eventNode, new HashSet<Relation>());
+            }
+
+            Set<Relation> relations = allEventRelations.get(eventNode);
+
+            // Relations are immutable so we don't have to worry about
+            // representation exposure.
+            relations.addAll(eventRelations);
+
             eventStringArgs = null;
             return eventNode;
         }
@@ -1126,8 +1116,8 @@ public class TraceParser {
         assert logTimeTypeIsTotallyOrdered();
 
         ChainsTraceGraph graph = new ChainsTraceGraph(allEvents);
-        for (List<EventNode> group : partitions.values()) {
-            graph.addTrace(group);
+        for (String partition : partitions.keySet()) {
+            graph.addTrace(partitions.get(partition), allEventRelations);
         }
         return graph;
     }
@@ -1151,7 +1141,8 @@ public class TraceParser {
         Set<EventNode> noPredecessor = new LinkedHashSet<EventNode>(allEvents);
 
         Set<EventNode> directSuccessors;
-        for (List<EventNode> group : partitions.values()) {
+        for (String partition : partitions.keySet()) {
+            List<EventNode> group = partitions.get(partition);
             for (EventNode e1 : group) {
                 // In partially ordered case there may be multiple direct
                 // successors.
@@ -1173,14 +1164,16 @@ public class TraceParser {
 
                 if (directSuccessors.size() == 0) {
                     // Tag messages without successor as terminal.
-                    for (Relation relation : e1.getEventRelations()) {
-                    	graph.tagTerminal(e1, relation.getRelation());
-                    }
+                    assert allEventRelations.get(e1).size() == 1;
+                    String r = allEventRelations.get(e1).iterator().next()
+                            .getRelation();
+                    graph.tagTerminal(e1, r);
                 } else {
                     for (EventNode e2 : directSuccessors) {
-                    	for (Relation relation : e2.getEventRelations()) {
-                    		e1.addTransition(e2, relation.getRelation());
-                    	}
+                        assert allEventRelations.get(e2).size() == 1;
+                        String r = allEventRelations.get(e1).iterator().next()
+                                .getRelation();
+                        e1.addTransition(e2, r);
                         noPredecessor.remove(e2);
                     }
                 }
@@ -1189,10 +1182,11 @@ public class TraceParser {
         }
 
         // Mark messages without a predecessor as initial.
+
         for (EventNode e : noPredecessor) {
-        	for (Relation relation : e.getEventRelations()) {
-        		graph.tagInitial(e, relation.getRelation());
-        	}
+            assert allEventRelations.get(e).size() == 1;
+            String r = allEventRelations.get(e).iterator().next().getRelation();
+            graph.tagInitial(e, r);
         }
 
         return graph;
