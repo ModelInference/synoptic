@@ -255,12 +255,12 @@ public class KTailsTests extends SynopticTest {
     }
 
     /**
-     * Tests k-equivalence of nodes in two DAG graphs.
+     * Tests k-equivalence of nodes in two equivalent DAGs.
      * 
      * @throws Exception
      */
     @Test
-    public void dagGraphsTest() throws Exception {
+    public void equalDagGraphsTest() throws Exception {
         // Generate two identical DAGs
         String traceStr = "1,0 a\n" + "2,1 b\n" + "1,2 c\n" + "2,3 d\n"
                 + "--\n" + "1,0 a\n" + "2,1 b\n" + "1,2 c\n" + "2,3 d\n";
@@ -273,33 +273,41 @@ public class KTailsTests extends SynopticTest {
 
         List<Transition<EventNode>> initNodeTransitions = g1
                 .getDummyInitialNode().getAllTransitions();
-        EventNode firstA, secondA;
-        firstA = initNodeTransitions.get(0).getTarget();
-        secondA = initNodeTransitions.get(1).getTarget();
+        EventNode firstA = initNodeTransitions.get(0).getTarget();
+        EventNode secondA = initNodeTransitions.get(1).getTarget();
         for (int k = 0; k < 3; k++) {
             testTrueBothSubsumingAndNotSubsuming(firstA, secondA, k);
         }
+    }
 
-        // Switch temporal order of b and c nodes in one DAG (non-topological
-        // change).
-        traceStr = "1,0 a\n" + "2,1 c\n" + "1,2 b\n" + "2,3 d\n" + "--\n"
-                + "1,0 a\n" + "2,1 b\n" + "1,2 c\n";
+    /**
+     * Tests k-equivalence of nodes in two slightly different DAGs.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void diffDagGraphsTest() throws Exception {
+        // NOTE: unlike equalDagGraphsTest(), the second trace in this example
+        // omits a "d" event.
+        String traceStr = "1,0 a\n" + "2,1 c\n" + "1,2 b\n" + "2,3 d\n"
+                + "--\n" + "1,0 a\n" + "2,1 b\n" + "1,2 c\n";
 
-        parser = genParser();
-        parsedEvents = parser.parseTraceString(traceStr,
+        TraceParser parser = genParser();
+        ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
         DAGsTraceGraph g2 = parser.generateDirectPORelation(parsedEvents);
         exportTestGraph(g2, 1);
 
-        initNodeTransitions = g1.getDummyInitialNode().getAllTransitions();
-        firstA = initNodeTransitions.get(0).getTarget();
-        secondA = initNodeTransitions.get(1).getTarget();
-        // EventNode initG1 = g1.getDummyInitialNode().iterator().next();
-        // EventNode initG2 = g2.getDummyInitialNode().iterator().next();
-        for (int k = 0; k < 3; k++) {
-            testTrueBothSubsumingAndNotSubsuming(firstA, secondA, k);
-        }
-        // The 'd' in g2 makes it different from g1 at k=3.
+        List<Transition<EventNode>> initNodeTransitions = g2
+                .getDummyInitialNode().getAllTransitions();
+        EventNode firstA = initNodeTransitions.get(0).getTarget();
+        EventNode secondA = initNodeTransitions.get(1).getTarget();
+
+        testTrueBothSubsumingAndNotSubsuming(firstA, secondA, 0);
+        testTrueBothSubsumingAndNotSubsuming(firstA, secondA, 1);
+
+        // The 'd' in g2 makes it different from g1 at k >= 2.
+        testFalseBothSubsumingAndNotSubsuming(firstA, secondA, 2);
         testFalseBothSubsumingAndNotSubsuming(firstA, secondA, 3);
     }
 
