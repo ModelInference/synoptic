@@ -72,7 +72,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
                 if (checkPath && cur.previous != null) {
                     T prev = cur.previous.node;
                     boolean found = false;
-                    for (ITransition<T> trans : prev.getTransitions()) {
+                    for (ITransition<T> trans : prev.getAllTransitions()) {
                         if (trans.getTarget().equals(cur.node)) {
                             found = true;
                             break;

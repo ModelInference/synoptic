@@ -131,7 +131,7 @@ public class PerformanceTests extends SynopticTest {
 
             String[] traces = partitionTrace(structure1Trace());
             PartitionGraph g = genInitialPartitionGraph(traces, parser,
-                    new ChainWalkingTOInvMiner());
+                    new ChainWalkingTOInvMiner(), false);
 
             long startTime = System.currentTimeMillis();
             Bisimulation.splitPartitions(g);
@@ -150,7 +150,7 @@ public class PerformanceTests extends SynopticTest {
 
             String[] traces = partitionTrace(structure1Trace());
             genInitialPartitionGraph(traces, parser,
-                    new ChainWalkingTOInvMiner());
+                    new ChainWalkingTOInvMiner(), false);
 
             long startTime = System.currentTimeMillis();
             // TODO: call our k-Tail

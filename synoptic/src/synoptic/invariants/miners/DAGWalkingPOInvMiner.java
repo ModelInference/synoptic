@@ -10,7 +10,6 @@ import java.util.Set;
 
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.DistEventType;
@@ -196,7 +195,8 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
         return computeInvariants(g, Event.defaultTimeRelationString);
     }
 
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, 
+            boolean multipleRelations) {
         mineConcurrencyInvariants = false;
         return computeInvariants(g, Event.defaultTimeRelationString);
     }
@@ -213,7 +213,10 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
      */
     public TemporalInvariantSet computeInvariants(TraceGraph<?> g,
             String relation) {
-        EventNode initNode = g.getDummyInitialNode(relation);
+        EventNode initNode = g.getDummyInitialNode(); // relation);
+
+        // TODO: we have to make sure to traverse just those edges that are
+        // marked with relation arg.
 
         gEventCnts.clear();
 
@@ -502,7 +505,8 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
             // Store the total number of children that this node has.
             if (!tNodeToNumChildrenMap.containsKey(node)) {
                 // If we haven't visited this node yet...
-                tNodeToNumChildrenMap.put(node, node.getTransitions().size());
+                tNodeToNumChildrenMap
+                        .put(node, node.getAllTransitions().size());
                 // Also, increment the count of the corresponding event types.
                 if (tEventCnts.containsKey(a)) {
                     tEventCnts.put(a, tEventCnts.get(a) + 1);
@@ -528,7 +532,7 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
             }
 
             // We've hit a TERMINAL node, stop.
-            if (node.getTransitions().size() == 0) {
+            if (node.getAllTransitions().size() == 0) {
                 // TODO: Why doesn't this work -- if (node.isTerminal()) ?
                 return node;
             }
@@ -539,14 +543,14 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
 
             // curNode has multiple children -- handle them
             // outside of the while loop.
-            if (node.getTransitions().size() != 1) {
+            if (node.getAllTransitions().size() != 1) {
                 break;
             }
 
             // Save the parent-child relationship between this node and the
             // immediately next node (based on the above condition that is just
             // one).
-            childNode = node.getTransitions().get(0).getTarget();
+            childNode = node.getAllTransitions().get(0).getTarget();
             if (!tNodeParentsMap.containsKey(childNode)) {
                 parentNodes = new ArrayList<EventNode>();
                 tNodeParentsMap.put(childNode, parentNodes);
@@ -562,7 +566,7 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
 
         // Handle each of the node's child branches recursively.
         EventNode termNode = null;
-        for (ITransition<EventNode> trans : node.getTransitions()) {
+        for (ITransition<EventNode> trans : node.getAllTransitions()) {
             childNode = trans.getTarget();
 
             // Build up the parents map for all the children.
@@ -776,21 +780,21 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
             tPrecedingNodesNew.add(node);
 
             // Nodes with multiple children are handled outside the loop.
-            if (node.getTransitions().size() != 1) {
+            if (node.getAllTransitions().size() != 1) {
                 break;
             }
 
             // Move on to the next node in the trace without recursion.
-            node = node.getTransitions().get(0).getTarget();
+            node = node.getAllTransitions().get(0).getTarget();
 
             // We've hit a TERMINAL node, stop.
-            if (node.getTransitions().size() == 0) {
+            if (node.getAllTransitions().size() == 0) {
                 return;
             }
         }
 
         // Handle each of the node's child branches recursively.
-        List<Transition<EventNode>> transitions = node.getTransitions();
+        List<Transition<EventNode>> transitions = node.getAllTransitions();
         for (int i = 0; i < transitions.size(); i++) {
             ITransition<EventNode> trans = transitions.get(i);
             EventNode childNode = trans.getTarget();
@@ -800,7 +804,7 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
             // tNodePrecedesSetMap (built in preTraverseTrace()).
 
             // Only process children that are not TERMINAL nodes.
-            if (childNode.getTransitions().size() > 0) {
+            if (childNode.getAllTransitions().size() > 0) {
                 forwardTraverseTrace(childNode, tPrecedingNodesNew);
             }
         }
@@ -968,28 +972,28 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
             }
 
             // Nodes with multiple children are handled outside the loop.
-            if (curNode.getTransitions().size() != 1) {
+            if (curNode.getAllTransitions().size() != 1) {
                 break;
             }
 
             // Move on to the next node in the trace without recursion.
-            curNode = curNode.getTransitions().get(0).getTarget();
+            curNode = curNode.getAllTransitions().get(0).getTarget();
 
             // We've hit a TERMINAL node, stop.
-            if (curNode.getTransitions().size() == 0) {
+            if (curNode.getAllTransitions().size() == 0) {
                 return;
             }
         }
 
         // Handle each of the node's child branches recursively.
-        for (ITransition<EventNode> trans : curNode.getTransitions()) {
+        for (ITransition<EventNode> trans : curNode.getAllTransitions()) {
             EventNode childNode = trans.getTarget();
             // We do not create a new copy of preceding types for each child,
             // because each child already has its own -- maintained as part of
             // tNodePrecedesSetMap (built in preTraverseTrace()).
 
             // Only process children that are not TERMINAL nodes.
-            if (childNode.getTransitions().size() > 0) {
+            if (childNode.getAllTransitions().size() > 0) {
                 forwardTraverseTraceWithoutNeverConcurrent(childNode,
                         tPrecedingTypeCnts);
             }

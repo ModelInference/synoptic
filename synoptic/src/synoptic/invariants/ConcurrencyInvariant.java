@@ -1,6 +1,7 @@
 package synoptic.invariants;
 
 import java.util.List;
+import java.util.Set;
 
 import synoptic.model.EventType;
 import synoptic.model.interfaces.INode;
@@ -11,6 +12,11 @@ import synoptic.model.interfaces.INode;
  * Relying on this observation this class implements hashCode() and equals().
  */
 public abstract class ConcurrencyInvariant extends BinaryInvariant {
+
+    public ConcurrencyInvariant(EventType typeFirst, EventType typeSecond,
+            Set<String> relations) {
+        super(typeFirst, typeSecond, relations);
+    }
 
     public ConcurrencyInvariant(EventType typeFirst, EventType typeSecond,
             String relation) {
@@ -42,7 +48,8 @@ public abstract class ConcurrencyInvariant extends BinaryInvariant {
         int s = (second == null ? 0 : second.hashCode());
 
         result = prime * result + (f + s);
-        result = prime * result + (relation == null ? 0 : relation.hashCode());
+        result = prime * result
+                + (relations == null ? 0 : relations.hashCode());
         return result;
     }
 
@@ -83,11 +90,11 @@ public abstract class ConcurrencyInvariant extends BinaryInvariant {
             return false;
         }
 
-        if (relation == null) {
-            if (other.relation != null) {
+        if (relations == null) {
+            if (other.relations != null) {
                 return false;
             }
-        } else if (!relation.equals(other.relation)) {
+        } else if (!relations.equals(other.relations)) {
             return false;
         }
 
