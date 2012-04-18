@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,7 +41,6 @@ import synoptic.model.StringEventType;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.BriefLogFormatter;
 
 /**
  * InvariMint accepts a log file and regular expression arguments and constructs
@@ -131,28 +128,6 @@ public class InvariMintMain {
         // Get the top Logger instance
         logger = Logger.getLogger("InvariMintMain");
 
-        // Handler for console (reuse it if it already exists)
-        Handler consoleHandler = null;
-
-        // See if there is already a console handler
-        for (Handler handler : logger.getHandlers()) {
-            if (handler instanceof ConsoleHandler) {
-                consoleHandler = handler;
-                break;
-            }
-        }
-
-        if (consoleHandler == null) {
-            // No console handler found, create a new one
-            consoleHandler = new ConsoleHandler();
-            logger.addHandler(consoleHandler);
-        }
-
-        // The consoleHandler will write out anything the logger gives it
-        consoleHandler.setLevel(Level.ALL);
-
-        // consoleHandler.setFormatter(new CustomFormatter());
-
         // Set the logger's log level based on command line arguments
         if (opts.logLvlQuiet) {
             logger.setLevel(Level.WARNING);
@@ -163,8 +138,6 @@ public class InvariMintMain {
         } else {
             logger.setLevel(Level.INFO);
         }
-
-        consoleHandler.setFormatter(new BriefLogFormatter());
         return;
     }
 
