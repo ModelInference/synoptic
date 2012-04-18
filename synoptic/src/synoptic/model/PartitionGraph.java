@@ -124,18 +124,6 @@ public class PartitionGraph implements IGraph<Partition> {
         this.traceGraph = g;
     }
 
-    // PartitionGraph constructor used by KTail implementation
-    public PartitionGraph(ChainsTraceGraph g, Partition initial,
-            Partition terminal, Set<Partition> partitions) {
-        initialEvents.put(Event.defaultTimeRelationString,
-                initial.getEventNodes());
-        terminalEvents.put(Event.defaultTimeRelationString,
-                terminal.getEventNodes());
-        relations.add(Event.defaultTimeRelationString);
-        this.partitions = new LinkedHashSet<Partition>(partitions);
-        this.traceGraph = g;
-    }
-
     public TemporalInvariantSet getInvariants() {
         return invariants;
     }
