@@ -282,6 +282,12 @@ public class SynopticService extends RemoteServiceServlet implements
 
                 double transitionProb = wTransition.getFraction();
                 ITime mean = wTransition.getDeltaSeries().computeMean();
+
+                // TODO:
+                // 1. Fix this, so that there is a sensible default (and not 42)
+                // 2. Uncomment the code so that the actual mean is called.
+                // 3. Fix the test to check for sensible value of latency
+
                 if (mean == null)
                     // double latency = Double.parseDouble(wTransition
                     // .getDeltaSeries().computeMedian().toString());

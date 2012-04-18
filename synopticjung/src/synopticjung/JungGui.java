@@ -22,10 +22,11 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -72,6 +73,7 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.Main;
+import synoptic.main.Options;
 import synoptic.main.SynopticOptions;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
@@ -124,7 +126,7 @@ public class JungGui extends JApplet implements Printable {
     /**
      * The currently selected path to highlight
      */
-    private Set<ITransition<Partition>> currentPath;
+    private List<Partition> currentPath;
 
     Set<ITemporalInvariant> unsatisfiedInvariants;
     int numSplitSteps = 0;
@@ -171,7 +173,7 @@ public class JungGui extends JApplet implements Printable {
         }
         oldPartitions = newPartitions;
 
-        currentPath = new HashSet<ITransition<Partition>>();
+        currentPath = new LinkedList<Partition>();
 
         jGraph = getJGraph();
 
@@ -306,7 +308,7 @@ public class JungGui extends JApplet implements Printable {
                                         "Cannot output "
                                                 + filename
                                                 + "graph. Specify output path prefix using:\n\t"
-                                                + SynopticOptions
+                                                + Options
                                                         .getOptDesc("outputPathPrefix"));
                     }
                 }
@@ -487,7 +489,7 @@ public class JungGui extends JApplet implements Printable {
         }
 
         for (INode<Partition> node : pGraph.getNodes()) {
-            for (ITransition<Partition> t : node.getTransitionsIterator()) {
+            for (ITransition<Partition> t : node.getAllTransitions()) {
                 newGraph.addEdge(t, t.getSource(), t.getTarget(),
                         EdgeType.DIRECTED);
             }
@@ -593,8 +595,18 @@ public class JungGui extends JApplet implements Printable {
                         // Discriminate between:
                         // 1. edges in the path
                         // 2. edges not in the path
-                        return currentPath.contains(transition) ? Color.blue
-                                : Color.black;
+                        Partition prevP = currentPath.get(0);
+                        ListIterator<Partition> listIter = currentPath
+                                .listIterator(1);
+                        while (listIter.hasNext()) {
+                            Partition nextP = listIter.next();
+                            if (transition.getSource() == prevP
+                                    && transition.getTarget() == nextP) {
+                                return Color.blue;
+                            }
+                            prevP = nextP;
+                        }
+                        return Color.black;
                     }
                 });
 
@@ -645,7 +657,7 @@ public class JungGui extends JApplet implements Printable {
         }
     }
 
-    public void displayPath(Set<ITransition<Partition>> path) {
+    public void displayPath(List<Partition> path) {
         if (path == null) {
             currentPath.clear();
         } else {
