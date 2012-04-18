@@ -92,9 +92,9 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     }
 
     @Override
-    public void addDelta(ITime delta) {
+    public void addDelta(ITime newDelta) {
         // If delta is null, simply don't add anything.
-        if (delta == null) {
+        if (newDelta == null) {
             return;
         }
 
@@ -108,7 +108,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
             }
         }
 
-        this.series.addDelta(delta);
+        this.series.addDelta(newDelta);
     }
 
     @Override

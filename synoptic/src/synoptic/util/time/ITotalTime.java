@@ -94,8 +94,6 @@ public class ITotalTime implements ITime {
 
     @Override
     public ITime divBy(int divisor) {
-        // Cannot divide this number by zero or a negative number,
-        // since time cannot be negative.
         if (divisor < 1) {
             throw new IllegalArgumentException();
         }

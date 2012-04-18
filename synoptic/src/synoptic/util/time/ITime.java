@@ -52,6 +52,11 @@ public interface ITime extends Comparable<ITime> {
     /**
      * Divides the ITime object by the specified divisor.
      * 
+     * <pre>
+     * NOTE: Cannot divide time by zero or a negative number, since
+     *       time cannot be negative.
+     * </pre>
+     * 
      * @param divisor
      * @return The ITime object after division has occurred.
      */

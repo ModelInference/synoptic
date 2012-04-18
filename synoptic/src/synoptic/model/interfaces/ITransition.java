@@ -1,9 +1,5 @@
 package synoptic.model.interfaces;
 
-import java.util.Collection;
-
-import com.sun.accessibility.internal.resources.accessibility;
-
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITimeSeries;
 
@@ -60,35 +56,33 @@ public interface ITransition<NodeType> extends
      * @return delta time
      */
     ITime getDelta();
-    
+
     /**
      * Set the delta.
      * 
      * @param d
-     * 			  the new delta time
+     *            the new delta time
      */
     void setDelta(ITime d);
-    
+
     /**
-     * Get all the delta times for transition.
-     * Be warned will erase the individual delta value and insert it into
-     * a series.
+     * Get all the delta times for transition. This erases the individual delta
+     * value and insert it into a series.
      * 
      * @return all delta times
      */
-    ITimeSeries<ITime> getDeltaSeries();	
-    
+    ITimeSeries<ITime> getDeltaSeries();
+
     /**
-     * Adds a delta to the series.  If there is not a contained
-     * series of deltas, then one will be created.
+     * Adds a delta to the series. If the series of deltas is missing, then one
+     * will be created. If a delta has already been set by setDelta(), it will
+     * be added to the series along with the new delta "d".
      * 
-     * If a delta has already been set by set delta, it will be
-     * added to the series along with "d."
-     * 
-     * @param d  The delta to be added to the series.
+     * @param d
+     *            The delta to be added to the series.
      */
     void addDelta(ITime d);
-  
+
     /**
      * Get a short description of the transition
      * 

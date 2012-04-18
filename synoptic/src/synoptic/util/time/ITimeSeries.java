@@ -62,10 +62,8 @@ public class ITimeSeries<TimeType extends ITime> {
 
         Collections.sort(this.times);
 
-        // Simple case of picking about the middle every time.
-        // TODO Calculate between the halfway values if the size
-        // of the list is even.
-
+        // TODO: Calculate between the halfway values if the size
+        // of the list is odd.
         return times.get((times.size() / 2));
     }
 
@@ -74,7 +72,7 @@ public class ITimeSeries<TimeType extends ITime> {
      *         times.
      */
     @SuppressWarnings("unchecked")
-	public TimeType computeMean() {
+    public TimeType computeMean() {
         if (times.isEmpty()) {
             return null;
         }
@@ -88,7 +86,7 @@ public class ITimeSeries<TimeType extends ITime> {
         for (TimeType t : times) {
             initial = (TimeType) initial.incrBy(t);
         }
-      
+
         return (TimeType) initial.divBy(times.size());
     }
 

@@ -71,35 +71,35 @@ public class DTotalTime implements ITime {
         return new Double(time).compareTo(((DTotalTime) t).time);
     }
 
-	@Override
-	public ITime computeDelta(ITime other) {
-	    if (other == null) {
-	        return this;
-	    }
-	    
-		if (!(other instanceof DTotalTime)) {
-            throw new NonComparableTimesException(this, other);
-        }
-		return new DTotalTime(this.time - ((DTotalTime) other).time);
-	}
-	
-	@Override
-	public ITime incrBy(ITime other) {
-	    if (other == null) {
+    @Override
+    public ITime computeDelta(ITime other) {
+        if (other == null) {
             return this;
         }
-	    
-	    if (!(other instanceof DTotalTime)) {
-	        throw new NonComparableTimesException(this, other);
-	    }
-	    return new DTotalTime(this.time + ((DTotalTime) other).time);
-	}
-	
-	@Override
-	public ITime divBy(int divisor) {
-	    if (divisor < 1) {
-	        throw new IllegalArgumentException();
-	    }
-	    return new DTotalTime(this.time / divisor);
-	}
+
+        if (!(other instanceof DTotalTime)) {
+            throw new NonComparableTimesException(this, other);
+        }
+        return new DTotalTime(this.time - ((DTotalTime) other).time);
+    }
+
+    @Override
+    public ITime incrBy(ITime other) {
+        if (other == null) {
+            return this;
+        }
+
+        if (!(other instanceof DTotalTime)) {
+            throw new NonComparableTimesException(this, other);
+        }
+        return new DTotalTime(this.time + ((DTotalTime) other).time);
+    }
+
+    @Override
+    public ITime divBy(int divisor) {
+        if (divisor < 1) {
+            throw new IllegalArgumentException();
+        }
+        return new DTotalTime(this.time / divisor);
+    }
 }
