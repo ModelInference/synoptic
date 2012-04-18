@@ -190,7 +190,7 @@ public class GraphLTLChecker<T extends INode<T>> {
 
         for (T m : allNodes) {
             for (ITransition<T> t : m
-                    .getTransitionsWithIntersectingRelations(relations)) {
+                    .getTransitionsWithExactRelations(relations)) {
                 T n = t.getTarget();
                 if (!prevStates.containsKey(n)) {
                     prevStates.put(n, new LinkedHashSet<Node>());
