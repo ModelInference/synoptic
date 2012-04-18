@@ -121,8 +121,8 @@ public class KTails {
 
         // Here we will match up children of n1 with children of n2 based
         // on whether or not they are kEqual with k=k-1. We keep track of
-        // n2 children that we've already matched some children of n1. We skip
-        // these matched children of n2 since we can't re-use matches for
+        // n2 children that we've already matched to some children of n1. We
+        // skip these matched children of n2 since we can't reuse matches for
         // children of n1.
 
         // If any of the children of n1 have been previously visited, then check
@@ -187,7 +187,7 @@ public class KTails {
             boolean kEqual = false;
 
             // Make sure to get transitions of the same relation.
-            for (ITransition<NodeType> t2 : n1
+            for (ITransition<NodeType> t2 : n2
                     .getTransitionsWithExactRelations(t1.getRelations())) {
                 NodeType c2 = t2.getTarget();
 
