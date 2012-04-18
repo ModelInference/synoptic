@@ -11,5 +11,5 @@ public interface TOInvariantMiner {
      *            input graph over which to mine invariants
      * @return
      */
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g);
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, boolean multipleRelations);
 }

@@ -22,7 +22,7 @@ public class FloydWarshallTests extends SynopticTest {
     @Test
     public void listConstructorTest() {
         IGraph<EventNode> g = new ChainsTraceGraph();
-        TransitiveClosure tc = FloydWarshall.warshallAlg(g, defRelation);
+        TransitiveClosure tc = FloydWarshall.warshallAlg(g, defRelationSet);
         assertTrue(tc.getTC().keySet().size() == 0);
     }
 

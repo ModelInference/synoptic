@@ -69,6 +69,12 @@ public class SynopticOptions extends Options {
     @Option(
             value = "Vector time index sets for partitioning the graph by system node type, e.g. '1,2;3,4'")
     public String separateVTimeIndexSets = null;
+    
+    /**
+     * Mine multiple-relations
+     */
+    @Option("Mine multiple relations from the trace graph")
+    public boolean multipleRelations = false;
     // end option group "Execution Options"
 
     // //////////////////////////////////////////////////

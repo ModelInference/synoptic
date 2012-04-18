@@ -1,5 +1,7 @@
 package synoptic.model.interfaces;
 
+import java.util.Set;
+
 /**
  * A generic interface for a transition. This interface provides method to
  * modify the transition.
@@ -29,7 +31,7 @@ public interface ITransition<NodeType> extends
      * 
      * @return the name of the relation
      */
-    String getRelation();
+    Set<String> getRelations();
 
     /**
      * Set the target node.

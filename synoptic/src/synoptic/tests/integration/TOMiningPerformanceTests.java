@@ -105,7 +105,7 @@ public class TOMiningPerformanceTests extends SynopticTest {
 
             // /////////////
             startTime = System.currentTimeMillis();
-            miner.computeInvariants(inputGraph);
+            miner.computeInvariants(inputGraph, false);
             total_delta += System.currentTimeMillis() - startTime;
             // /////////////
         }

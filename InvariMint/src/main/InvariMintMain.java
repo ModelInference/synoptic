@@ -34,7 +34,6 @@ import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
 import synoptic.model.StringEventType;
 import synoptic.model.export.DotExportFormatter;
-import synoptic.model.interfaces.ITransition;
 import synoptic.util.BriefLogFormatter;
 
 /**
@@ -223,21 +222,19 @@ public class InvariMintMain {
             EventType initialEvent, EventType terminalEvent) {
 
         Map<Pair, Set<Character>> seenTransitions = new HashMap<Pair, Set<Character>>();
-        EventNode initNode = g
-                .getDummyInitialNode(Event.defaultTimeRelationString);
+        EventNode initNode = g.getDummyInitialNode();
 
         // Iterate through all the traces -- each transition from the INITIAL
         // node connects\holds a single trace.
-        for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
-            EventNode curNode = initTrans.getTarget();
-
+        // for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
+        for (EventNode curNode : initNode.getAllSuccessors()) {
             // Set curState to the state immediately following the INITIAL
             // transition.
             State curState = dfa.getInitialState();
             curState = fetchDestination(curState, encodings, initialEvent,
                     seenTransitions);
 
-            while (curNode.getTransitions().size() != 0) {
+            while (curNode.getAllTransitions().size() != 0) {
 
                 curState = fetchDestination(curState, encodings,
                         curNode.getEType(), seenTransitions);
@@ -248,7 +245,8 @@ public class InvariMintMain {
                 }
 
                 // Move on to the next node in the trace.
-                curNode = curNode.getTransitions().get(0).getTarget();
+                assert (curNode.getAllTransitions().size() > 0);
+                curNode = curNode.getAllTransitions().get(0).getTarget();
             }
 
             fetchDestination(curState, encodings, terminalEvent,

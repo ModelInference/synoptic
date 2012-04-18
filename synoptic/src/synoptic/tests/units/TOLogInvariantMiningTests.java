@@ -93,9 +93,9 @@ public class TOLogInvariantMiningTests extends SynopticTest {
      * @return an invariant set for the input log
      * @throws Exception
      */
-    public TemporalInvariantSet genInvariants(String[] events) throws Exception {
+    public TemporalInvariantSet genInvariants(String[] events, boolean multipleRelations) throws Exception {
         ChainsTraceGraph inputGraph = genInitialLinearGraph(events);
-        return miner.computeInvariants(inputGraph);
+        return miner.computeInvariants(inputGraph, multipleRelations);
     }
 
     /**
@@ -165,7 +165,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
     @Test
     public void mineBasicTest() throws Exception {
         String[] log = new String[] { "a", "b", "--" };
-        TemporalInvariantSet minedInvs = genInvariants(log);
+        TemporalInvariantSet minedInvs = genInvariants(log, false);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -194,7 +194,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
     @Test
     public void mineAFbyTest() throws Exception {
         String[] log = new String[] { "a", "a", "b", "--", "b", "a", "b", "--" };
-        TemporalInvariantSet minedInvs = genInvariants(log);
+        TemporalInvariantSet minedInvs = genInvariants(log, false);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -215,7 +215,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
     public void mineNFbyTest() throws Exception {
         String[] log = new String[] { "a", "a", "--", "a", "--", "b", "a",
                 "--", "b", "b", "--", "b", "--" };
-        TemporalInvariantSet minedInvs = genInvariants(log);
+        TemporalInvariantSet minedInvs = genInvariants(log, false);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new NeverFollowedInvariant("a", "b",
@@ -234,7 +234,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
     public void mineAPTest() throws Exception {
         String[] log = new String[] { "a", "a", "b", "--", "a", "--", "a", "b",
                 "a", "b", "--" };
-        TemporalInvariantSet minedInvs = genInvariants(log);
+        TemporalInvariantSet minedInvs = genInvariants(log, false);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -257,9 +257,9 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         String[] log2 = new String[] { "x", "y", "--" };
         String[] log3 = new String[] { "a", "b", "--", "x", "y", "--" };
 
-        TemporalInvariantSet minedInvs1 = genInvariants(log1);
-        TemporalInvariantSet minedInvs2 = genInvariants(log2);
-        TemporalInvariantSet minedInvs3 = genInvariants(log3);
+        TemporalInvariantSet minedInvs1 = genInvariants(log1, false);
+        TemporalInvariantSet minedInvs2 = genInvariants(log2, false);
+        TemporalInvariantSet minedInvs3 = genInvariants(log3, false);
 
         // Mined log3 invariants should be the UNION of invariants mined form
         // log1 and log2, as well as a few invariants that relate events between
@@ -329,7 +329,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         String[] log = genRandomLog(eventTypes);
 
         ChainsTraceGraph inputGraph = genInitialLinearGraph(log);
-        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph, false);
 
         // Test with FSM checker.
         Main.options.useFSMChecker = true;

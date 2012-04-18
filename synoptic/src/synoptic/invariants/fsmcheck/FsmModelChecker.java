@@ -14,9 +14,9 @@ import java.util.Set;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
+import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.invariants.CExamplePath;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
@@ -59,11 +59,12 @@ public class FsmModelChecker {
 
         // Populate the worklist with the initial nodes, and set the initial
         // path history on each.
-        for (T node : graph.getDummyInitialNodes()) {
-            onWorkList.add(node);
-            workList.add(node);
-            states.get(node).setInitial(node);
-        }
+        // for (T node : graph.getDummyInitialNode()) {
+        T node = graph.getDummyInitialNode();
+        onWorkList.add(node);
+        workList.add(node);
+        states.get(node).setInitial(node);
+        // }
 
         // Actual model checking step - takes an item off the worklist, and
         // transitions the state found at that node, using the labels of all
@@ -74,7 +75,7 @@ public class FsmModelChecker {
         // merge performed and the destination node added to the worklist
         // (the changed states need to be propagated).
         while (!workList.isEmpty()) {
-            T node = workList.remove();
+            node = workList.remove();
             onWorkList.remove(node);
             S current = states.get(node);
             /*

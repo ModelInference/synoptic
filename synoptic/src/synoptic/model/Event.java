@@ -1,9 +1,5 @@
 package synoptic.model;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import synoptic.util.time.ITime;
 
 /**
@@ -73,14 +69,6 @@ public class Event {
     public Event(EventType label) {
         this(label, null, null, 0);
     }
-
-    /**
-     * Create an event with DistEvent type, without needing to know the hostId.
-     */
-    // public static Event newDistEvent(String label, String logLine,
-    // String fileName, int lineNum) {
-    // return new Event(new DistEventType(label), logLine, fileName, lineNum);
-    // }
 
     /**
      * Returns the special INITIAL event of String type.
@@ -217,4 +205,5 @@ public class Event {
     public int getLineNum() {
         return lineNum;
     }
+
 }
