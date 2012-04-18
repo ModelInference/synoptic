@@ -4,18 +4,21 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
-import synoptic.algorithms.bisim.KTails;
+import synoptic.algorithms.graph.KTails;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
+import synoptic.model.PartitionGraph;
 import synoptic.model.Transition;
 import synoptic.tests.SynopticTest;
 
@@ -57,6 +60,33 @@ public class KTailsTests extends SynopticTest {
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
         return parser;
+    }
+
+    /**
+     * Tests performKTails with k = 0
+     */
+    @Test
+    public void baseCasePerformTest() {
+        Set<EventNode> nodes = new HashSet<EventNode>();
+
+        EventNode e1 = new EventNode(new Event("a"));
+        EventNode e2 = new EventNode(new Event("b"));
+        e1.addTransition(e1, Event.defaultTimeRelationString);
+
+        EventNode e3 = new EventNode(new Event("a"));
+        EventNode e4 = new EventNode(new Event("b"));
+        e3.addTransition(e4, Event.defaultTimeRelationString);
+
+        nodes.add(e1);
+        nodes.add(e2);
+        nodes.add(e3);
+        nodes.add(e4);
+
+        ChainsTraceGraph g = new ChainsTraceGraph(nodes);
+
+        PartitionGraph pGraph = KTails.performKTails(g, 0);
+
+        assertTrue(pGraph.getNodes().size() == 2);
     }
 
     /**
