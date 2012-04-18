@@ -1,10 +1,8 @@
 package synoptic.algorithms.graph;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.Partition;
@@ -22,31 +20,19 @@ public class KTails {
     public static PartitionGraph performKTails(ChainsTraceGraph g, int k) {
         PartitionGraph pGraph = new PartitionGraph(g, false, null);
 
-        // Since we'll be modifying the partitions in pGraph by performing
-        // merges, need a copy of the set of nodes (else we'll get a concurrent
-        // modification exception)
-        Set<Partition> nodes = new HashSet<Partition>(pGraph.getNodes());
-
+        attemptMerge:
         // Attempt to merge all pairs of partitions in the current graph.
-        for (Partition p : nodes) {
-
-            if (p.size() == 0) {
-                // It's possible that we merged p with another partition on an
-                // earlier iteration -- this updates pGraph, but not the set
-                // of nodes we initially asked for
-                continue;
-            }
-
-            for (Partition q : nodes) {
-                if (p == q || q.size() == 0) {
-                    // Can't merge a partition with itself or a partition no
-                    // longer in pGraph
+        for (Partition p : pGraph.getNodes()) {
+            for (Partition q : pGraph.getNodes()) {
+                if (p == q) {
+                    // Can't merge a partition with itself
                     continue;
                 }
 
                 if (kEquals(p, q, k, false)) {
                     // Merge partitions that are k-equivalent
                     pGraph.apply(new PartitionMerge(p, q));
+                    break attemptMerge;
                 }
             }
         }
