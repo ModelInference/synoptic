@@ -12,6 +12,12 @@ import plume.Option;
 
 import synoptic.util.InternalSynopticException;
 
+/**
+ * This class defines generic functionality relating to parsing and maintaining
+ * a program's command line options. This class is extended/specialized by
+ * Synoptic, and InvariMint, which define the specific plume options they
+ * expect.
+ */
 public abstract class Options {
 
     /**
@@ -20,40 +26,54 @@ public abstract class Options {
      */
     public List<String> logFilenames = null;
 
+    /**
+     * The instance of plume.Options that we use for parsing the arguments,
+     * generating usage strings, etc.
+     */
     protected plume.Options plumeOptions = null;
 
     public Options() {
         //
     }
 
+    /**
+     * Returns a string that describes how to use the program at the high level,
+     * e.g.: "synoptic [options] <logfiles-to-analyze>"
+     */
     abstract public String getUsageString();
 
+    /**
+     * Users may specify a filename that contains command line arguments to use
+     * (in addition to any arguments on the command line). This function returns
+     * this filename. The return value may be 'null', if such a filename was not
+     * specified.
+     */
     abstract public String getArgsFilename();
 
     public void setOptions(String[] args) throws IOException {
-        // Sets the fields in this class annotated with @Option
+        // Sets the fields in this class annotated with @Option.
         plumeOptions = new plume.Options(getUsageString(), this);
         String[] cmdLineArgs = plumeOptions.parse_or_usage(args);
 
         if (getArgsFilename() != null) {
-            // read program arguments from a file
+            // Read program arguments from a file.
             InputStream argsStream = new FileInputStream(getArgsFilename());
             ListedProperties props = new ListedProperties();
             props.load(argsStream);
             String[] cmdLineFileArgs = props.getCmdArgsLine();
-            // the file-based args become the default args
+            // The file-based arguments become the default arguments.
             plumeOptions.parse_or_usage(cmdLineFileArgs);
         }
 
-        // Parse the command line args to override any of the above config file
-        // args
+        // Parse the command line arguments, overriding any of the above config
+        // file arguments.
         plumeOptions.parse_or_usage(args);
 
         // The remainder of the command line is treated as a list of non
         // optional arguments.
         logFilenames = new LinkedList<String>(Arrays.asList(cmdLineArgs));
 
-        // Remove any empty string non-opt args.
+        // Remove any empty string non-opt arguments.
         while (logFilenames.contains("")) {
             logFilenames.remove("");
         }
@@ -125,5 +145,4 @@ public abstract class Options {
         }
         return desc;
     }
-
 }
