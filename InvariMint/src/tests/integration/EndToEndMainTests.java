@@ -26,8 +26,8 @@ public class EndToEndMainTests extends InvariMintTest {
         String loginExamplePath = tPath + "abstract" + File.separator
                 + "osx-login-example" + File.separator;
 
-        String[] args = new String[] { "-r", "(?<TYPE>.+)", "-s", "--", "-f",
-                testOutputDir + "osx-login-example-dfa-model.png",
+        String[] args = new String[] { "-r", "(?<TYPE>.+)", "-s", "--", "-o",
+                testOutputDir + "osx-login-example",
                 loginExamplePath + "trace.txt" };
         InvariMintMain.main(args);
     }

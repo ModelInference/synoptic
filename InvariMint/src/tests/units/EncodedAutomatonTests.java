@@ -20,6 +20,7 @@ import dk.brics.automaton.Transition;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.model.EventType;
 
@@ -190,7 +191,7 @@ public class EncodedAutomatonTests {
         // Intersect with the regex for a AFby b
         ITemporalInvariant alwaysFollowed = new AlwaysFollowedInvariant("a",
                 "b", "t");
-        model.intersectWithRE(alwaysFollowed.getRegex(
+        model.intersectWithRE(((BinaryInvariant) alwaysFollowed).getRegex(
                 encodings.getEncoding(EncodingTests.aEvent),
                 encodings.getEncoding(EncodingTests.bEvent)));
 

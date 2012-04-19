@@ -7,7 +7,7 @@ import plume.Option;
 import plume.OptionGroup;
 
 /**
- * Options relevant to the InvDFAMinimization project.
+ * Options relevant to the InvariMint project.
  */
 public class InvariMintOptions extends synoptic.main.Options {
 
@@ -24,8 +24,16 @@ public class InvariMintOptions extends synoptic.main.Options {
      * Print the extended usage message. This includes verbosity and debugging
      * options but not internal options.
      */
-    @Option("-H Print extended usage message (includes debugging options)")
+    @Option(
+            value = "-H Print extended usage message (includes debugging options)")
     public boolean allHelp = false;
+
+    /**
+     * Sets the random seed for Synoptic's source of pseudo-random numbers.
+     */
+    @Option(
+            value = "Use a specific random seed for pseudo-random number generator")
+    public Long randomSeed = null;
 
     // //////////////////////////////////////////////////
     /**
@@ -35,14 +43,37 @@ public class InvariMintOptions extends synoptic.main.Options {
     @Option(value = "-c Command line arguments input filename",
             aliases = { "-argsfile" })
     public String argsFilename = null;
+
     // end option group "Input Options"
 
+    // //////////////////////////////////////////////////
     /**
-     * Sets the random seed for Synoptic's source of pseudo-random numbers.
+     * Mine kTail invariants instead of Synoptic invariants.
      */
-    @Option(
-            value = "Use a specific random seed for pseudo-random number generator")
-    public Long randomSeed = null;
+    @OptionGroup("Inference Options")
+    @Option(value = "Perform kTails instead of Synoptic")
+    public boolean performKTails = false;
+
+    /**
+     * Size of tail when performing kTails.
+     */
+    @Option(value = "Size of tail when performing kTails")
+    public int kTailLength = 2;
+
+    /**
+     * Whether to remove spurious edges from the InvariMint model.
+     */
+    @Option(value = "Remove spurious edges from InvariMint model")
+    public boolean removeSpuriousEdges = false;
+
+    /**
+     * Whether to minimize every intermediate model during invariant
+     * intersections.
+     */
+    @Option(value = "Minimize on afer each intersection")
+    public boolean minimizeIntersections = true;
+
+    // end option group "Inference Options"
 
     /**
      * Regular expression separator string. When lines are found which match
@@ -118,19 +149,49 @@ public class InvariMintOptions extends synoptic.main.Options {
     public boolean debugParse = false;
     // end option group "Parser Options"
 
+    // //////////////////////////////////////////////////
+    @OptionGroup("Output Options")
     /**
-     * Final model output filename.
+     * Specifies the prefix of where to store the model outputs.
      */
-    @Option(value = "-f Final model output filename",
-            aliases = { "-finalModelFile" })
-    public String finalModelFile = "finalDfaModel.dot";
+    @Option(
+            value = "-o Output path prefix for generating Graphviz dot files graphics",
+            aliases = { "-output-prefix" })
+    public String outputPathPrefix = null;
 
     /**
-     * Translated Synoptic model output filename.
+     * Whether to export the corresponding Synoptic model
      */
-    // @Option(value = "-s Synoptic model output filename",
-    // aliases = { "-synopticModelFile" })
-    // public String synopticModelFile = "convertedSynopticModel.dot";
+    @Option(value = "Export corresponding Synoptic NFA model")
+    public boolean exportSynopticNFA = false;
+
+    /**
+     * Whether to export the corresponding Synoptic model
+     */
+    @Option(value = "Export corresponding Synoptic DFA model")
+    public boolean exportSynopticDFA = false;
+
+    /**
+     * Whether to export every mined invariant DFA
+     */
+    @Option(value = "Export every mined invariant DFA")
+    public boolean exportMinedInvariantDFAs = false;
+
+    protected int invIDCounter = 0;
+
+    /**
+     * What level of logging to use.
+     */
+    @Option(value = "Quietest logging, warnings only")
+    public boolean logLvlQuiet = false;
+
+    @Option(value = "Verbose logging")
+    public boolean logLvlVerbose = false;
+
+    @Option(value = "Extra verbose logging")
+    public boolean logLvlExtraVerbose = false;
+
+    // end option group "Output Options"
 
     /** One line synopsis of usage */
     public static final String usageString = "invarimint [options] <logfiles-to-analyze>";
@@ -149,7 +210,7 @@ public class InvariMintOptions extends synoptic.main.Options {
     public void printLongHelp() {
         System.out.println("Usage: " + getUsageString());
         System.out.println(plumeOptions.usage("General Options",
-                "Parser Options", "Input Options"));
+                "Parser Options", "Input Options", "Output Options"));
     }
 
     @Override

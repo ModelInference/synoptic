@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import synoptic.algorithms.graph.IOperation;
+import synoptic.algorithms.graph.KTails;
 import synoptic.algorithms.graph.PartitionMerge;
 import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.algorithms.graph.PartitionSplit;

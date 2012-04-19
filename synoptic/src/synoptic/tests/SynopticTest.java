@@ -103,7 +103,7 @@ public abstract class SynopticTest extends SynopticLibTest {
      * Constructs the default parser used by tests. Note: the parser may not be
      * re-used for parsing different traces (it is stateful).
      */
-    public TraceParser genDefParser() {
+    public static TraceParser genDefParser() {
         TraceParser parser = new TraceParser();
         try {
             parser.addRegex("^(?<TYPE>)$");
@@ -147,12 +147,10 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    // public static ChainsTraceGraph genChainsTraceGraph(String[] events,
     public static TraceGraph<?> genChainsTraceGraph(String[] events,
             TraceParser parser) throws ParseException,
             InternalSynopticException {
         ArrayList<EventNode> parsedEvents = parseLogEvents(events, parser);
-        // return parser.generateDirectTORelation(parsedEvents);
         return parser.generateDefaultOrderRelation(parsedEvents);
     }
 
@@ -195,12 +193,12 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @throws Exception
      */
     public static PartitionGraph genInitialPartitionGraph(String[] events,
-            TraceParser parser, TOInvariantMiner miner, 
+            TraceParser parser, TOInvariantMiner miner,
             boolean multipleRelations) throws Exception {
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, parser);
-        return new PartitionGraph(inputGraph, true,
-                miner.computeInvariants(inputGraph, multipleRelations));
+        return new PartitionGraph(inputGraph, true, miner.computeInvariants(
+                inputGraph, multipleRelations));
     }
 
     /**

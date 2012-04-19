@@ -10,15 +10,17 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import synoptic.algorithms.bisim.KTails;
+import synoptic.algorithms.graph.KTails;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.Event;
 import synoptic.model.EventNode;
+import synoptic.model.PartitionGraph;
 import synoptic.model.Transition;
 import synoptic.tests.SynopticTest;
+import synoptic.util.InternalSynopticException;
 
 /**
  * Tests the KTails algorithm in synoptic.algorithms.bisim.KTails <br />
@@ -62,6 +64,81 @@ public class KTailsTests extends SynopticTest {
 
     /**
      * Tests the k=0 case, and the case with two graphs with one node each.
+     * Tests performKTails with k = 0
+     * 
+     * @throws ParseException
+     * @throws InternalSynopticException
+     */
+    @Test
+    public void performKTails0Test() throws InternalSynopticException,
+            ParseException {
+        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 0);
+        // All a's and b's should be merged.
+        assertTrue(pGraph.getNodes().size() == 4);
+    }
+
+    /**
+     * Tests performKTails with k = 1
+     * 
+     * @throws ParseException
+     * @throws InternalSynopticException
+     */
+    @Test
+    public void performKTails1Test() throws InternalSynopticException,
+            ParseException {
+        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 1);
+        // Only the two b nodes should be merged.
+        assertTrue(pGraph.getNodes().size() == 6);
+    }
+
+    /**
+     * Tests performKTails with k = 2
+     * 
+     * @throws ParseException
+     * @throws InternalSynopticException
+     */
+    @Test
+    public void performKTails2Test() throws InternalSynopticException,
+            ParseException {
+        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 2);
+        // Only the b nodes should be merged.
+        assertTrue(pGraph.getNodes().size() == 6);
+    }
+
+    /**
+     * Returns a simple trace graph with two chains, both just a --> b
+     * 
+     * @throws ParseException
+     * @throws InternalSynopticException
+     */
+    private static ChainsTraceGraph makeSimpleGraph()
+            throws InternalSynopticException, ParseException {
+
+        String[] logArr = new String[] { "a", "a", "--", "b", "--", "a", "b" };
+        TraceParser defParser = SynopticTest.genDefParser();
+
+        ChainsTraceGraph ret = (ChainsTraceGraph) genChainsTraceGraph(logArr,
+                defParser);
+        return ret;
+        /*
+         * Set<EventNode> nodes = new HashSet<EventNode>();
+         * 
+         * EventNode e1 = new EventNode(new Event("a")); EventNode e2 = new
+         * EventNode(new Event("b")); e1.addTransition(e1,
+         * Event.defaultTimeRelationString);
+         * 
+         * EventNode e3 = new EventNode(new Event("a")); EventNode e4 = new
+         * EventNode(new Event("b")); e3.addTransition(e4,
+         * Event.defaultTimeRelationString);
+         * 
+         * nodes.add(e1); nodes.add(e2); nodes.add(e3); nodes.add(e4);
+         * 
+         * return new ChainsTraceGraph(nodes);
+         */
+    }
+
+    /**
+     * Tests the k=0 case.
      */
     @Test
     public void baseCaseTest() {

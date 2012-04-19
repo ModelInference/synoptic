@@ -25,6 +25,9 @@ public class Transition<NodeType> implements ITransition<NodeType> {
 
     private Transition(NodeType source, NodeType target) {
         assert source != null;
+        if (target == null) {
+            return;
+        }
         assert target != null;
 
         this.source = source;
