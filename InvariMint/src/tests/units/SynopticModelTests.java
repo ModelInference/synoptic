@@ -14,6 +14,7 @@ import model.SynopticModel;
 
 import org.junit.Test;
 
+import synoptic.invariants.miners.ImmediateInvariantMiner;
 import synoptic.main.Main;
 import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
@@ -49,9 +50,13 @@ public class SynopticModelTests extends InvariMintTest {
         // Set up Synoptic.
         Main synMain = Main.processArgs(args);
         PartitionGraph pGraph = synMain.createInitialPartitionGraph();
-        Set<EventType> allEvents = pGraph.getEventTypes();
-        EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
         synMain.runSynoptic(pGraph);
+
+        // Set up InvariMint
+        ImmediateInvariantMiner miner = new ImmediateInvariantMiner(
+                pGraph.getTraceGraph());
+        Set<EventType> allEvents = miner.getEventTypes();
+        EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
         EncodedAutomaton convertedDfa = new SynopticModel(pGraph, encodings);
 
         List<EventType> validSequence = new ArrayList<EventType>();

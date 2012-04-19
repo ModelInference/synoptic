@@ -57,7 +57,6 @@ public class Partition implements INode<Partition> {
     public Partition(Set<EventNode> eNodes) {
         assert eNodes.size() > 0;
         events = new LinkedHashSet<EventNode>();
-        initialize(eNodes.iterator().next());
         addEventNodes(eNodes);
     }
 
@@ -68,7 +67,6 @@ public class Partition implements INode<Partition> {
      */
     public Partition(EventNode eNode) {
         events = new LinkedHashSet<EventNode>();
-        initialize(eNode);
         addOneEventNode(eNode);
     }
 
@@ -109,8 +107,8 @@ public class Partition implements INode<Partition> {
             initialize(eNode);
         } else {
             assert eType.equals(eNode.getEType());
-            eNode.setParent(this);
         }
+        eNode.setParent(this);
         events.add(eNode);
     }
 
