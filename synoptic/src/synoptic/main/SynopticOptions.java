@@ -167,13 +167,12 @@ public class SynopticOptions extends Options {
 
     // //////////////////////////////////////////////////
     /**
-     * Command line arguments input filename to use. Declared as private because
-     * the getArgsFilename() method below mediates access to this field.
+     * Command line arguments input filename to use.
      */
     @OptionGroup("Input Options")
     @Option(value = "-c Command line arguments input filename",
             aliases = { "-argsfile" })
-    private String argsFilename = null;
+    public String argsFilename = null;
     // end option group "Input Options"
 
     // //////////////////////////////////////////////////
