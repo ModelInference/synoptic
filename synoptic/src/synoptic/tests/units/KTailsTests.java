@@ -66,7 +66,36 @@ public class KTailsTests extends SynopticTest {
      * Tests performKTails with k = 0
      */
     @Test
-    public void baseCasePerformTest() {
+    public void performKTails0Test() {
+        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 0);
+        // Both pairs of a and b nodes should be merged
+        assertTrue(pGraph.getNodes().size() == 2);
+    }
+
+    /**
+     * Tests performKTails with k = 1
+     */
+    @Test
+    public void performKTails1Test() {
+        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 1);
+        // Only the a nodes should be merged
+        assertTrue(pGraph.getNodes().size() == 3);
+    }
+
+    /**
+     * Tests performKTails with k = 2
+     */
+    @Test
+    public void performKTails2Test() {
+        PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 2);
+        // No nodes should be merged
+        assertTrue(pGraph.getNodes().size() == 4);
+    }
+
+    /*
+     * Returns a simple trace graph with two chains, both just a --> b
+     */
+    private static ChainsTraceGraph makeSimpleGraph() {
         Set<EventNode> nodes = new HashSet<EventNode>();
 
         EventNode e1 = new EventNode(new Event("a"));
@@ -82,11 +111,7 @@ public class KTailsTests extends SynopticTest {
         nodes.add(e3);
         nodes.add(e4);
 
-        ChainsTraceGraph g = new ChainsTraceGraph(nodes);
-
-        PartitionGraph pGraph = KTails.performKTails(g, 0);
-
-        assertTrue(pGraph.getNodes().size() == 2);
+        return new ChainsTraceGraph(nodes);
     }
 
     /**

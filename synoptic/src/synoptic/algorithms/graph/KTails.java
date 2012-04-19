@@ -19,24 +19,32 @@ public class KTails {
      */
     public static PartitionGraph performKTails(ChainsTraceGraph g, int k) {
         PartitionGraph pGraph = new PartitionGraph(g, false, null);
+        attemptMerge(pGraph, k);
+        return pGraph;
+    }
 
-        attemptMerge:
-        // Attempt to merge all pairs of partitions in the current graph.
+    /*
+     * Finds all possible merges in pGraph. Requires making a new call to
+     * attemptMerge after every merge in case previously un-merge-able pairs
+     * become merge-able.
+     */
+    private static void attemptMerge(PartitionGraph pGraph, int k) {
         for (Partition p : pGraph.getNodes()) {
             for (Partition q : pGraph.getNodes()) {
                 if (p == q) {
                     // Can't merge a partition with itself
                     continue;
                 }
-
                 if (kEquals(p, q, k, false)) {
                     // Merge partitions that are k-equivalent
                     pGraph.apply(new PartitionMerge(p, q));
-                    break attemptMerge;
+
+                    // Now attempt merges in modified graph
+                    attemptMerge(pGraph, k);
+                    return;
                 }
             }
         }
-        return pGraph;
     }
 
     /**
