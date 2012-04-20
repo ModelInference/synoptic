@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Encapsulates a series of objects extending ITime.
+ * Encapsulates a list of time instances that extend ITime.
  */
 public class ITimeSeries<TimeType extends ITime> {
     private List<TimeType> times;

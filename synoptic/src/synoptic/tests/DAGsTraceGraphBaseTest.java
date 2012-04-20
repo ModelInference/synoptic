@@ -14,7 +14,7 @@ import synoptic.model.event.Event;
  * methods for generating topologically interesting trace graphs. These are then
  * checked by derived test classes (e.g., DAGsTraceGraphTCTests).
  */
-public class DAGsTraceGraphBaseTest extends SynopticTest {
+public abstract class DAGsTraceGraphBaseTest extends SynopticTest {
 
     protected Set<String> FollowedByRelationsSet;
 

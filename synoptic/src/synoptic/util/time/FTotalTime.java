@@ -1,7 +1,7 @@
 package synoptic.util.time;
 
 /**
- * A wrapper for a totally ordered time type with a float value.
+ * A totally ordered time type with a float value.
  */
 public class FTotalTime implements ITime {
     /** Time value */
