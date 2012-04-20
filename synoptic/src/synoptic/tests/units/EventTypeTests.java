@@ -5,8 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import synoptic.model.DistEventType;
-import synoptic.model.StringEventType;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 
 /**

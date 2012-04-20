@@ -12,8 +12,8 @@ import org.junit.Test;
 
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
+import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;

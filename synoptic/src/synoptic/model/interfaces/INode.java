@@ -3,9 +3,9 @@ package synoptic.model.interfaces;
 import java.util.List;
 import java.util.Set;
 
-import synoptic.model.EventType;
 import synoptic.model.Partition;
 import synoptic.model.WeightedTransition;
+import synoptic.model.event.EventType;
 
 /**
  * The interface all nodes must implement. The interface does not contain

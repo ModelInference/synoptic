@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Set;
 
 import synoptic.main.SynopticMain;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.time.EqualVectorTimestampsException;

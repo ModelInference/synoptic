@@ -9,7 +9,7 @@ import synoptic.invariants.KTailInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 

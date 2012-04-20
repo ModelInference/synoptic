@@ -17,9 +17,9 @@ import org.junit.Test;
 import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.main.ParseException;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.Transition;
+import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
 
 /**

@@ -1,4 +1,4 @@
-package synoptic.model;
+package synoptic.model.event;
 
 import synoptic.util.time.ITime;
 

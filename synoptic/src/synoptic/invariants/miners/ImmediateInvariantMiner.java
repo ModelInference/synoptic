@@ -9,9 +9,9 @@ import java.util.Set;
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.ITransition;
 
 public class ImmediateInvariantMiner {

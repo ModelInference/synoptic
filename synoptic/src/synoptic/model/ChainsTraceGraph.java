@@ -15,6 +15,8 @@ import java.util.Set;
 
 import synoptic.algorithms.graph.TransitiveClosure;
 import synoptic.main.ParseException;
+import synoptic.model.event.Event;
+import synoptic.model.event.StringEventType;
 
 /**
  * This structure holds all the totally ordered executions extracted from the

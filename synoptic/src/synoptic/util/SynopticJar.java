@@ -21,6 +21,11 @@ import synoptic.main.SynopticMain;
  */
 public class SynopticJar {
 
+    /** Suppress default constructor for non-instantiability */
+    private SynopticJar() {
+        throw new AssertionError();
+    }
+
     /**
      * Retrieve and return the ChangesetID attribute in the manifest of the jar
      * that contains the Synoptic Main class. Returns null if not running from a
@@ -32,7 +37,8 @@ public class SynopticJar {
         String changesetID = null;
 
         // Find the resource corresponding to the Synoptic Main class.
-        URL res = SynopticMain.class.getResource(SynopticMain.class.getSimpleName() + ".class");
+        URL res = SynopticMain.class.getResource(SynopticMain.class
+                .getSimpleName() + ".class");
 
         URLConnection conn = res.openConnection();
         if (!(conn instanceof JarURLConnection)) {
@@ -70,8 +76,8 @@ public class SynopticJar {
         // If we are running from within a jar, then jarName contains the path
         // to the jar. Otherwise, it contains the path to where Main.class is
         // located on the filesystem
-        String jarName = SynopticMain.class.getProtectionDomain().getCodeSource()
-                .getLocation().toURI().getPath();
+        String jarName = SynopticMain.class.getProtectionDomain()
+                .getCodeSource().getLocation().toURI().getPath();
         System.out.println("Looking for tests in: " + jarName);
 
         // We assume that the tests we want to run are classes within

@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import synoptic.model.event.Event;
 import synoptic.model.interfaces.ITransition;
-import synoptic.model.interfaces.RelationPath;
+import synoptic.model.interfaces.IRelationPath;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -45,7 +46,7 @@ public class Trace {
      * @param relation
      * @return
      */
-    public Set<RelationPath> getSingleRelationPaths(String relation) {
+    public Set<IRelationPath> getSingleRelationPaths(String relation) {
         /*
          * the initialTransitivelyConnected parameter is always false when
          * constructing relation paths in this method because the constructed
@@ -54,7 +55,7 @@ public class Trace {
          */
 
         // Relation paths only get added to results when they are terminated
-        Set<RelationPath> results = new HashSet<RelationPath>();
+        Set<IRelationPath> results = new HashSet<IRelationPath>();
 
         EventNode pendingInitial = null;
         EventNode curNode;
@@ -88,7 +89,7 @@ public class Trace {
                 // curNode does not have an outgoing edge with the input
                 // parameter relation type
                 if (relationTransitions.isEmpty()) {
-                    RelationPath relationPath = new ChainRelationPath(pendingInitial, curNode, relation);
+                    IRelationPath relationPath = new ChainRelationPath(pendingInitial, curNode, relation);
                     results.add(relationPath);
                     pendingInitial = null;
                 }
@@ -118,7 +119,7 @@ public class Trace {
         }
         
         if (pendingInitial != null) {
-            RelationPath relationPath = new ChainRelationPath(pendingInitial, prevNode, relation);
+            IRelationPath relationPath = new ChainRelationPath(pendingInitial, prevNode, relation);
             results.add(relationPath);
         }
 
@@ -134,7 +135,7 @@ public class Trace {
      * @param transitiveRelation
      * @return
      */
-    public RelationPath getBiRelationalPath(String relation,
+    public IRelationPath getBiRelationalPath(String relation,
             String transitiveRelation) {
         
         EventNode firstNode;

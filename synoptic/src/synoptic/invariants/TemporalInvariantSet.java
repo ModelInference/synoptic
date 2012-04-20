@@ -20,7 +20,7 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.SynopticMain;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 

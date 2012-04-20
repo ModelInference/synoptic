@@ -18,7 +18,7 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 
 /**
  * Basic tests for the InvModel class - checks that the invariant is used and

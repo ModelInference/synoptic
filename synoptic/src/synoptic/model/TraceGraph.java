@@ -8,6 +8,8 @@ import java.util.Stack;
 import java.util.logging.Logger;
 
 import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.Pair;

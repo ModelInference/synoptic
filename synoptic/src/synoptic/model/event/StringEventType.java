@@ -1,4 +1,4 @@
-package synoptic.model;
+package synoptic.model.event;
 
 /**
  * Implements an EventType for a totally ordered log. In this case an event type

@@ -22,7 +22,7 @@ import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Predicate.IBinary;

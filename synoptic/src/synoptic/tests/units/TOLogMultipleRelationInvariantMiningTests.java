@@ -21,7 +21,7 @@ import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.StringEventType;
+import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 
 @RunWith(value = Parameterized.class)

@@ -1,4 +1,4 @@
-package synoptic.model;
+package synoptic.model.event;
 
 /**
  * A class to encapsulate the abstract notion of an event type. This depends on
