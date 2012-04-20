@@ -30,7 +30,6 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.SynopticMain;
-import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -92,7 +91,7 @@ public abstract class Bisimulation {
      * @return true if the split makes the graph satisfy the invariant, and
      *         false otherwise.
      */
-    public static boolean tryAndRecordSplitOp(ITemporalInvariant inv,
+    private static boolean tryAndRecordSplitOp(ITemporalInvariant inv,
             PartitionGraph pGraph,
             HashMap<Partition, PartitionMultiSplit> splitsToDoByPartition,
             Partition partitionBeingSplit, PartitionMultiSplit splitOp) {
@@ -148,7 +147,8 @@ public abstract class Bisimulation {
                     counterexampleTrace, pGraph);
 
             // Permute the list of candidates.
-            Collections.shuffle(candidateSplits, SynopticMain.getInstance().random);
+            Collections.shuffle(candidateSplits,
+                    SynopticMain.getInstance().random);
 
             logger.fine("candidateSplits are: " + candidateSplits.toString());
 
@@ -196,9 +196,7 @@ public abstract class Bisimulation {
                 // candidate split?
 
                 // (mostly performance, but also sub-optimality) BUG: I think I
-                // understand -- this is
-                // used to try all
-                // potential
+                // understand -- this is used to try all potential
                 // splits in the case that one of them makes the invariant true.
                 // BUT, we don't need to incorporate multiple ones if they both
                 // result in making the invariant true!
@@ -246,7 +244,8 @@ public abstract class Bisimulation {
 
         // Permute the counter-examples, but do so deterministically for the
         // same random seed argument.
-        Collections.shuffle(counterExampleTraces, SynopticMain.getInstance().random);
+        Collections.shuffle(counterExampleTraces,
+                SynopticMain.getInstance().random);
 
         logger.fine("" + counterExampleTraces.size()
                 + " unsatisfied invariants and counter-examples: "
@@ -325,8 +324,8 @@ public abstract class Bisimulation {
 
         if (SynopticMain.getInstance().options.dumpIntermediateStages) {
             SynopticMain.getInstance().exportNonInitialGraph(
-                    SynopticMain.getInstance().getIntermediateDumpFilename("r", 0),
-                    pGraph);
+                    SynopticMain.getInstance().getIntermediateDumpFilename("r",
+                            0), pGraph);
         }
 
         int numSplitSteps = 0;
@@ -499,50 +498,14 @@ public abstract class Bisimulation {
     }
 
     /**
-     * Construct a partition graph from {@code graph} (by partitioning by
-     * label), calls {@code splitPartitions} on it, and returns the refined
-     * graph.
-     * 
-     * @param graph
-     *            the graph from which should be used as initial graph
-     * @return the refined graph
-     */
-    public static PartitionGraph getSplitGraph(ChainsTraceGraph graph,
-            TemporalInvariantSet invariants) {
-        PartitionGraph g = new PartitionGraph(graph, true, invariants);
-        splitPartitions(g);
-        return g;
-    }
-
-    /**
-     * Works as {@code mergePartitions} but fixes synoptic.invariants to
-     * {@code pGraph.getInvariants()}
+     * Merge partitions in pGraph that are k-equal (kTails equality), with k=0
+     * without unsatisfying any of the pGraph invariants..
      * 
      * @param pGraph
      */
     public static void mergePartitions(PartitionGraph pGraph) {
         TemporalInvariantSet invariants = pGraph.getInvariants();
-        mergePartitions(pGraph, invariants);
-    }
-
-    /**
-     * Works as {@code mergePartitions} but fixes k to 0.
-     */
-    public static void mergePartitions(PartitionGraph pGraph,
-            TemporalInvariantSet invariants) {
         mergePartitions(pGraph, invariants, 0);
-    }
-
-    /**
-     * Wrapper to mergePartitions without invariant preservation.
-     * 
-     * @param pGraph
-     *            the graph to reduce (merge {@code k}-equivalent partitions)
-     * @param k
-     *            parameter for equality
-     */
-    public static void kReduce(PartitionGraph pGraph, int k) {
-        mergePartitions(pGraph, null, k);
     }
 
     /**
@@ -572,8 +535,8 @@ public abstract class Bisimulation {
 
             if (SynopticMain.getInstance().options.dumpIntermediateStages) {
                 SynopticMain.getInstance().exportNonInitialGraph(
-                        SynopticMain.getInstance().getIntermediateDumpFilename("c",
-                                outerItters), pGraph);
+                        SynopticMain.getInstance().getIntermediateDumpFilename(
+                                "c", outerItters), pGraph);
             }
             outerItters++;
 
