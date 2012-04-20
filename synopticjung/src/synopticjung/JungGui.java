@@ -296,8 +296,9 @@ public class JungGui extends JApplet implements Printable {
                 if (filename != null && filename.length() > 0) {
                     if (options.outputPathPrefix != null) {
                         try {
-                            Main.exportNonInitialGraph(options.outputPathPrefix
-                                    + "." + filename, pGraph);
+                            Main.getInstance().exportNonInitialGraph(
+                                    options.outputPathPrefix + "." + filename,
+                                    pGraph);
                         } catch (Exception e1) {
                             e1.printStackTrace();
                         }
