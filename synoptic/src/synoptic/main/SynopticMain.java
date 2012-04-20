@@ -49,13 +49,13 @@ import synoptic.util.SynopticJar;
  * singleton that maintains Synoptic options, and other state for a single run
  * of Synoptic.
  */
-public class Main {
+public class SynopticMain {
     public static Logger logger = null;
 
     /**
      * Singleton instance of this class.
      */
-    public static Main instance = null;
+    public static SynopticMain instance = null;
 
     /**
      * The current Synoptic version.
@@ -77,7 +77,7 @@ public class Main {
      */
     public SynopticOptions options = null;
 
-    public static Main getInstance() {
+    public static SynopticMain getInstance() {
         assert (instance != null);
         return instance;
     }
@@ -90,7 +90,7 @@ public class Main {
      *            Command-line options
      */
     public static void main(String[] args) throws Exception {
-        Main mainInstance = processArgs(args);
+        SynopticMain mainInstance = processArgs(args);
         if (mainInstance == null) {
             return;
         }
@@ -125,7 +125,7 @@ public class Main {
      * @throws IllegalAccessException
      * @throws ParseException
      */
-    public static Main processArgs(String[] args) throws IOException,
+    public static SynopticMain processArgs(String[] args) throws IOException,
             URISyntaxException, IllegalArgumentException,
             IllegalAccessException, ParseException {
         SynopticOptions opts = new SynopticOptions(args);
@@ -146,8 +146,8 @@ public class Main {
      * @throws IllegalAccessException
      * @throws ParseException
      */
-    public static Main processArgs(SynopticOptions opts) throws IOException,
-            URISyntaxException, IllegalArgumentException,
+    public static SynopticMain processArgs(SynopticOptions opts)
+            throws IOException, URISyntaxException, IllegalArgumentException,
             IllegalAccessException {
 
         setUpLogging(opts);
@@ -165,7 +165,8 @@ public class Main {
         }
 
         if (opts.version) {
-            System.out.println("Synoptic version " + Main.versionString);
+            System.out
+                    .println("Synoptic version " + SynopticMain.versionString);
             String changesetID = SynopticJar.getHgChangesetID();
             if (changesetID != null) {
                 System.out.println("Synoptic changeset " + changesetID);
@@ -209,7 +210,7 @@ public class Main {
             opts.printOptionValues();
         }
 
-        Main mainInstance = new Main(opts, graphExportFormatter);
+        SynopticMain mainInstance = new SynopticMain(opts, graphExportFormatter);
         return mainInstance;
     }
 
@@ -309,10 +310,11 @@ public class Main {
     /**
      * Main instance methods below.
      */
-    public Main(SynopticOptions opts, GraphExportFormatter graphExportFormatter) {
+    public SynopticMain(SynopticOptions opts,
+            GraphExportFormatter graphExportFormatter) {
         setUpLogging(opts);
 
-        if (Main.instance != null) {
+        if (SynopticMain.instance != null) {
             throw new RuntimeException(
                     "Cannot create multiple instance of singleton synoptic.main.Main");
         }
@@ -320,7 +322,7 @@ public class Main {
         this.graphExportFormatter = graphExportFormatter;
         this.random = new Random(opts.randomSeed);
         logger.info("Using random seed: " + opts.randomSeed);
-        Main.instance = this;
+        SynopticMain.instance = this;
     }
 
     /**

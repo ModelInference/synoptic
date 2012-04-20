@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.logging.Logger;
 
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 
 /**
  * A class to record performance metrics. It is a key value store, that keeps
@@ -81,7 +81,7 @@ public class PerformanceMetrics {
     public void record(String key, long value) {
         if (!getAccumulativity(key)) {
             // Print all recorded values.
-            if (Main.getInstance().options.doBenchmarking) {
+            if (SynopticMain.getInstance().options.doBenchmarking) {
                 logger.fine(key + " = " + value);
             }
         }

@@ -14,7 +14,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 
 /**
  * Contains useful functionality for dealing with synoptic.jar
@@ -32,7 +32,7 @@ public class SynopticJar {
         String changesetID = null;
 
         // Find the resource corresponding to the Synoptic Main class.
-        URL res = Main.class.getResource(Main.class.getSimpleName() + ".class");
+        URL res = SynopticMain.class.getResource(SynopticMain.class.getSimpleName() + ".class");
 
         URLConnection conn = res.openConnection();
         if (!(conn instanceof JarURLConnection)) {
@@ -70,7 +70,7 @@ public class SynopticJar {
         // If we are running from within a jar, then jarName contains the path
         // to the jar. Otherwise, it contains the path to where Main.class is
         // located on the filesystem
-        String jarName = Main.class.getProtectionDomain().getCodeSource()
+        String jarName = SynopticMain.class.getProtectionDomain().getCodeSource()
                 .getLocation().toURI().getPath();
         System.out.println("Looking for tests in: " + jarName);
 

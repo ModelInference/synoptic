@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import synoptic.algorithms.graph.PartitionSplit;
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.NotImplementedException;
@@ -441,7 +441,7 @@ public class Partition implements INode<Partition> {
 
     private void updateTransitionDeltas(EventNode srcENode,
             EventNode targetENode, ITransition<Partition> tx) {
-        if (!Main.getInstance().options.enablePerfDebugging) {
+        if (!SynopticMain.getInstance().options.enablePerfDebugging) {
             return;
         }
         ITime targTime = targetENode.getTime();
