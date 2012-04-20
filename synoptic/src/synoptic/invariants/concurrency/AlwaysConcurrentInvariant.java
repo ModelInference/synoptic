@@ -2,7 +2,7 @@ package synoptic.invariants.concurrency;
 
 import java.util.Set;
 
-import synoptic.model.DistEventType;
+import synoptic.model.event.DistEventType;
 import synoptic.util.InternalSynopticException;
 
 /**

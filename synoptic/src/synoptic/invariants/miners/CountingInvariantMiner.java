@@ -10,9 +10,9 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.concurrency.AlwaysConcurrentInvariant;
 import synoptic.invariants.concurrency.NeverConcurrentInvariant;
-import synoptic.model.DistEventType;
-import synoptic.model.EventType;
-import synoptic.model.StringEventType;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.util.InternalSynopticException;
 
 public class CountingInvariantMiner extends InvariantMiner {

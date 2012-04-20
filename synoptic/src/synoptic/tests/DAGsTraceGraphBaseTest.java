@@ -5,9 +5,9 @@ import java.util.Set;
 
 import synoptic.main.ParseException;
 import synoptic.model.DAGsTraceGraph;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.Transition;
+import synoptic.model.event.Event;
 
 /**
  * Base test class for testing trace graph generation. This class provides a few

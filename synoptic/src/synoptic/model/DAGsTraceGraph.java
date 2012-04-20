@@ -13,6 +13,8 @@ import java.util.Set;
 
 import synoptic.algorithms.graph.FloydWarshall;
 import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
 import synoptic.model.interfaces.ITransition;
 
 public class DAGsTraceGraph extends TraceGraph<DistEventType> {

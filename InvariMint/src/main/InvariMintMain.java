@@ -32,11 +32,11 @@ import synoptic.main.Options;
 import synoptic.main.SynopticOptions;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
-import synoptic.model.StringEventType;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
 

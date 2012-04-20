@@ -3,7 +3,7 @@ package synoptic.invariants.miners;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 
 /**
  * Mines constrained invariants from totally ordered traces. Uses other totally

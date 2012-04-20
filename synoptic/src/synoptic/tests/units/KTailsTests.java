@@ -15,10 +15,10 @@ import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.PartitionGraph;
 import synoptic.model.Transition;
+import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 

@@ -25,9 +25,9 @@ import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.DAGsTraceGraph;
-import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
-import synoptic.model.StringEventType;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 
 /**

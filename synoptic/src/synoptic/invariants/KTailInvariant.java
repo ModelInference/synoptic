@@ -11,8 +11,8 @@ import java.util.Set;
 
 import gov.nasa.ltl.graph.Graph;
 
-import synoptic.model.Event;
-import synoptic.model.EventType;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
 /**

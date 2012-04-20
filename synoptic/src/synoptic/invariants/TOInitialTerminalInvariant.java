@@ -2,7 +2,7 @@ package synoptic.invariants;
 
 import java.util.List;
 
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
 /**

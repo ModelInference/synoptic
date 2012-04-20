@@ -3,9 +3,9 @@ package synoptic.model.interfaces;
 import java.util.Map;
 import java.util.Set;
 
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 
-public interface RelationPath {
+public interface IRelationPath {
 
     public Set<EventType> getSeen();
 
@@ -22,5 +22,5 @@ public interface RelationPath {
      * count.
      */
     public Map<EventType, Map<EventType, Integer>> getPrecedesCounts();
-    
+
 }

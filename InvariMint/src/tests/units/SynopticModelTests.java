@@ -16,9 +16,9 @@ import org.junit.Test;
 
 import synoptic.invariants.miners.ImmediateInvariantMiner;
 import synoptic.main.SynopticMain;
-import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
-import synoptic.model.StringEventType;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 
 import tests.InvariMintTest;
 

@@ -11,6 +11,7 @@ import java.util.Set;
 
 import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.main.SynopticMain;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.NotImplementedException;
@@ -145,7 +146,7 @@ public class Partition implements INode<Partition> {
     @Override
     public boolean isTerminal() {
         assert initialized;
-        return eType.isTerminalEventType;
+        return eType.isTerminalEventType();
     }
 
     /**
@@ -154,7 +155,7 @@ public class Partition implements INode<Partition> {
     @Override
     public boolean isInitial() {
         assert initialized;
-        return eType.isInitialEventType;
+        return eType.isInitialEventType();
     }
 
     /**
