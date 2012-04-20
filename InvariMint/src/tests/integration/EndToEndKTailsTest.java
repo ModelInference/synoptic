@@ -6,7 +6,7 @@ import main.InvariMintMain;
 
 import org.junit.Test;
 
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 
 import tests.InvariMintTest;
 
@@ -25,7 +25,7 @@ public class EndToEndKTailsTest extends InvariMintTest {
                 "2", "-r", "^(?<DTIME>)(?<nodename>)(?<TYPE>)$", "-m",
                 "\\k<nodename>", "-o", testOutputDir + "ktails-example",
                 tPath + "trace.txt" };
-        Main.instance = null;
+        SynopticMain.instance = null;
         InvariMintMain.main(args);
     }
 }

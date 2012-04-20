@@ -27,7 +27,7 @@ import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ImmediateInvariantMiner;
 import synoptic.invariants.miners.KTailInvariantMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.main.Options;
 import synoptic.main.SynopticOptions;
 import synoptic.main.TraceParser;
@@ -176,13 +176,13 @@ public class InvariMintMain {
         options.debugParse = opts.debugParse;
         options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
 
-        Main synMain = new Main(options, new DotExportFormatter());
+        SynopticMain synMain = new SynopticMain(options, new DotExportFormatter());
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = new TraceParser(opts.regExps,
                 opts.partitionRegExp, opts.separatorRegExp);
 
-        List<EventNode> parsedEvents = Main.parseEvents(parser,
+        List<EventNode> parsedEvents = SynopticMain.parseEvents(parser,
                 opts.logFilenames);
 
         if (opts.debugParse) {

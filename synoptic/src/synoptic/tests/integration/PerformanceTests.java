@@ -11,7 +11,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.PartitionGraph;
@@ -51,15 +51,15 @@ public class PerformanceTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        Main.getInstance().options.useFSMChecker = this.useFSMChecker;
-        synoptic.main.Main.getInstance().options.logLvlExtraVerbose = false;
-        synoptic.main.Main.getInstance().options.logLvlQuiet = true;
+        SynopticMain.getInstance().options.useFSMChecker = this.useFSMChecker;
+        synoptic.main.SynopticMain.getInstance().options.logLvlExtraVerbose = false;
+        synoptic.main.SynopticMain.getInstance().options.logLvlQuiet = true;
     }
 
     public void reportTime(long msTime) {
         System.out.println(testName.getMethodName() + ":"
                 + "\n\tuseFSMChecker "
-                + Main.getInstance().options.useFSMChecker + "\n\tType "
+                + SynopticMain.getInstance().options.useFSMChecker + "\n\tType "
                 + traceType + "\n\ttotalEvents " + totalEvents
                 + "\n\tnumPartitions " + numPartitions + "\n\tnumEventTypes "
                 + numEventTypes + "\n\twithInvariants " + withInvariants

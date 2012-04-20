@@ -29,7 +29,7 @@ import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
@@ -148,7 +148,7 @@ public abstract class Bisimulation {
                     counterexampleTrace, pGraph);
 
             // Permute the list of candidates.
-            Collections.shuffle(candidateSplits, Main.getInstance().random);
+            Collections.shuffle(candidateSplits, SynopticMain.getInstance().random);
 
             logger.fine("candidateSplits are: " + candidateSplits.toString());
 
@@ -204,7 +204,7 @@ public abstract class Bisimulation {
                 // result in making the invariant true!
 
                 for (PartitionSplit candidateSplit : candidateSplits) {
-                    if (Main.getInstance().options.performExtraChecks) {
+                    if (SynopticMain.getInstance().options.performExtraChecks) {
                         // getSplits() should never generate invalid splits.
                         if (!candidateSplit.isValid()) {
                             throw new InternalSynopticException(
@@ -246,7 +246,7 @@ public abstract class Bisimulation {
 
         // Permute the counter-examples, but do so deterministically for the
         // same random seed argument.
-        Collections.shuffle(counterExampleTraces, Main.getInstance().random);
+        Collections.shuffle(counterExampleTraces, SynopticMain.getInstance().random);
 
         logger.fine("" + counterExampleTraces.size()
                 + " unsatisfied invariants and counter-examples: "
@@ -300,9 +300,9 @@ public abstract class Bisimulation {
 
         logger.fine(logStr);
 
-        if (Main.getInstance().options.dumpIntermediateStages) {
-            Main.getInstance().exportNonInitialGraph(
-                    Main.getInstance().getIntermediateDumpFilename("r",
+        if (SynopticMain.getInstance().options.dumpIntermediateStages) {
+            SynopticMain.getInstance().exportNonInitialGraph(
+                    SynopticMain.getInstance().getIntermediateDumpFilename("r",
                             numSplitSteps + 1), pGraph);
         }
 
@@ -323,9 +323,9 @@ public abstract class Bisimulation {
         TimedTask refinement = PerformanceMetrics.createTask("refinement",
                 false);
 
-        if (Main.getInstance().options.dumpIntermediateStages) {
-            Main.getInstance().exportNonInitialGraph(
-                    Main.getInstance().getIntermediateDumpFilename("r", 0),
+        if (SynopticMain.getInstance().options.dumpIntermediateStages) {
+            SynopticMain.getInstance().exportNonInitialGraph(
+                    SynopticMain.getInstance().getIntermediateDumpFilename("r", 0),
                     pGraph);
         }
 
@@ -390,9 +390,9 @@ public abstract class Bisimulation {
 
         }
 
-        if (Main.getInstance().options.dumpIntermediateStages) {
-            Main.getInstance().exportNonInitialGraph(
-                    Main.getInstance().getIntermediateDumpFilename("r",
+        if (SynopticMain.getInstance().options.dumpIntermediateStages) {
+            SynopticMain.getInstance().exportNonInitialGraph(
+                    SynopticMain.getInstance().getIntermediateDumpFilename("r",
                             numSplitSteps), pGraph);
         }
 
@@ -570,9 +570,9 @@ public abstract class Bisimulation {
         outerWhile:
         while (true) {
 
-            if (Main.getInstance().options.dumpIntermediateStages) {
-                Main.getInstance().exportNonInitialGraph(
-                        Main.getInstance().getIntermediateDumpFilename("c",
+            if (SynopticMain.getInstance().options.dumpIntermediateStages) {
+                SynopticMain.getInstance().exportNonInitialGraph(
+                        SynopticMain.getInstance().getIntermediateDumpFilename("c",
                                 outerItters), pGraph);
             }
             outerItters++;
@@ -626,7 +626,7 @@ public abstract class Bisimulation {
                         // Undo the merge.
                         pGraph.apply(rewindOperation);
 
-                        if (Main.getInstance().options.performExtraChecks) {
+                        if (SynopticMain.getInstance().options.performExtraChecks) {
                             pGraph.checkSanity();
                         }
 
@@ -652,9 +652,9 @@ public abstract class Bisimulation {
             break;
         }
 
-        if (Main.getInstance().options.dumpIntermediateStages) {
-            Main.getInstance().exportNonInitialGraph(
-                    Main.getInstance().getIntermediateDumpFilename("c",
+        if (SynopticMain.getInstance().options.dumpIntermediateStages) {
+            SynopticMain.getInstance().exportNonInitialGraph(
+                    SynopticMain.getInstance().getIntermediateDumpFilename("c",
                             outerItters), pGraph);
         }
 

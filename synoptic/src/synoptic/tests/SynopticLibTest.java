@@ -9,7 +9,7 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.junit.runner.JUnitCore;
 
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.main.ParseException;
 import synoptic.main.SynopticOptions;
 import synoptic.model.export.DotExportFormatter;
@@ -73,8 +73,8 @@ public abstract class SynopticLibTest {
      */
     @Before
     public void setUp() throws ParseException {
-        if (Main.instance == null) {
-            Main synopticMain = new Main(new SynopticOptions(),
+        if (SynopticMain.instance == null) {
+            SynopticMain synopticMain = new SynopticMain(new SynopticOptions(),
                     new DotExportFormatter());
         }
     }
@@ -111,12 +111,12 @@ public abstract class SynopticLibTest {
     protected static <T extends INode<T>> void exportTestGraph(IGraph<T> g,
             String title) {
         // Only export test graphs we were told to be verbose.
-        if (!Main.getInstance().options.logLvlVerbose
-                && !Main.getInstance().options.logLvlExtraVerbose) {
+        if (!SynopticMain.getInstance().options.logLvlVerbose
+                && !SynopticMain.getInstance().options.logLvlExtraVerbose) {
             return;
         }
         String path = "test-output" + File.separator + testName.getMethodName()
                 + title + ".dot";
-        Main.getInstance().exportInitialGraph(path, g);
+        SynopticMain.getInstance().exportInitialGraph(path, g);
     }
 }

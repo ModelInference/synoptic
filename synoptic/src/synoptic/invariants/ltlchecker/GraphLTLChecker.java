@@ -21,7 +21,7 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.ltlcheck.Counterexample;
 import synoptic.invariants.ltlcheck.LtlModelChecker;
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -87,7 +87,7 @@ public class GraphLTLChecker<T extends INode<T>> {
         }
         transToMC.stop();
         if (DEBUG) {
-            Main.getInstance().exportNonInitialGraph(
+            SynopticMain.getInstance().exportNonInitialGraph(
                     "output/sourceGraph-" + relation, sourceGraph);
             writeDot(targetGraph, "output/targetGraph-" + relation + ".dot");
         }

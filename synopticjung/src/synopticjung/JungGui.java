@@ -72,7 +72,7 @@ import synoptic.algorithms.graph.PartitionSplit;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.main.Options;
 import synoptic.main.SynopticOptions;
 import synoptic.model.EventNode;
@@ -296,7 +296,7 @@ public class JungGui extends JApplet implements Printable {
                 if (filename != null && filename.length() > 0) {
                     if (options.outputPathPrefix != null) {
                         try {
-                            Main.getInstance().exportNonInitialGraph(
+                            SynopticMain.getInstance().exportNonInitialGraph(
                                     options.outputPathPrefix + "." + filename,
                                     pGraph);
                         } catch (Exception e1) {

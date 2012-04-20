@@ -72,7 +72,7 @@
 	  <attribute name="Manifest-Version" value="1.0" />
 	  <attribute name="Implementation-Title" value="synoptic" />
 	  <attribute name="Implementation-Version" value="0.1" />
-	  <attribute name="Main-Class" value="synoptic.main.Main" />
+	  <attribute name="Main-Class" value="synoptic.main.SynopticMain" />
 	  <attribute name="Class-Path" value="${jar.liblist}" />
 	  <attribute name="ChangesetID" value="${util.hg.revision}" />
 	</manifest>

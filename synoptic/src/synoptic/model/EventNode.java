@@ -9,7 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.time.EqualVectorTimestampsException;
@@ -180,7 +180,7 @@ public class EventNode implements INode<EventNode> {
         }
 
         EventNode dest = transition.getTarget();
-        if (Main.getInstance().options.enablePerfDebugging) {
+        if (SynopticMain.getInstance().options.enablePerfDebugging) {
             if (dest.getTime() != null) {
                 ITime delta = dest.getTime().computeDelta(this.getTime());
                 transition.setDelta(delta);
