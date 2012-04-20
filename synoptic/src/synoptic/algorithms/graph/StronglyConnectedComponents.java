@@ -55,7 +55,6 @@ public class StronglyConnectedComponents<NodeType extends INode<NodeType>>
         lowlink.put(n, currentIndex);
         ++currentIndex;
         stack.push(n);
-        // for (ITransition<NodeType> t : n.getTransitionsIterator()) {
         for (ITransition<NodeType> t : n.getAllTransitions()) {
             if (!index.containsKey(t.getTarget())) {
                 tarjan(t.getTarget());

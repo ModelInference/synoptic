@@ -10,6 +10,7 @@ import synoptic.model.PartitionGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
+import synoptic.util.NotImplementedException;
 
 /**
  * Implements the KTails algorithm as defined in Biermann & Feldman '72.
@@ -82,7 +83,7 @@ public class KTails {
     static private <NodeType extends INode<NodeType>> boolean kEqualsWithSubsumption(
             NodeType n1, NodeType n2, int k) {
 
-        throw new InternalSynopticException(
+        throw new NotImplementedException(
                 "kTails with Subsumption unimplemented.");
 
         // // The labels must match.

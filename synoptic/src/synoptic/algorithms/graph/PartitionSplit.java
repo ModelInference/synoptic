@@ -79,8 +79,6 @@ public class PartitionSplit implements IOperation {
 
         // //////////////
 
-        // g.transitionCache.clear();
-
         return new PartitionMerge(partitionToSplit, newPartition);
     }
 

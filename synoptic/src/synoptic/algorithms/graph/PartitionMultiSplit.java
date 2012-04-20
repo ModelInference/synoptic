@@ -67,8 +67,6 @@ public class PartitionMultiSplit implements IOperation {
             g.checkSanity();
         }
 
-        // g.transitionCache.clear();
-
         return new PartitionMultiMerge(partition, newPartitions);
     }
 
