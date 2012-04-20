@@ -651,7 +651,7 @@ public class SynopticMain {
 
         // //////////////////
         startTime = loggerInfoStart("Refining (Splitting)...");
-        Bisimulation.splitPartitions(pGraph);
+        Bisimulation.splitUntilAllInvsSatisfied(pGraph);
         loggerInfoEnd("Splitting took ", startTime);
         // //////////////////
 

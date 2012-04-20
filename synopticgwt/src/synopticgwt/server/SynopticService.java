@@ -557,7 +557,7 @@ public class SynopticService extends RemoteServiceServlet implements
         assert (counterExampleTraces.size() > 0);
 
         // Perform a single refinement step.
-        numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
+        numSplitSteps = Bisimulation.splitOnce(
                 numSplitSteps, pGraph, counterExampleTraces);
 
         // Recompute the counter-examples for the unsatisfied invariants.
@@ -610,7 +610,7 @@ public class SynopticService extends RemoteServiceServlet implements
         retrieveSynopticSessionState();
 
         // Refine.
-        Bisimulation.splitPartitions(pGraph);
+        Bisimulation.splitUntilAllInvsSatisfied(pGraph);
         unsatInvs.clear();
 
         // Coarsen.
