@@ -3,7 +3,7 @@ package synopticjung;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.model.PartitionGraph;
 import synoptic.util.InternalSynopticException;
 
@@ -83,10 +83,10 @@ public class SynopticJungMain implements Callable<Integer> {
     /***********************************************************/
 
     /**
-     * We instantiate an instance of Synoptic Main class to create the initla
+     * We instantiate an instance of Synoptic Main class to create the initial
      * partition graph based on the command line options.
      */
-    Main synopticMainInstance;
+    SynopticMain synopticMainInstance;
 
     /**
      * This is used to store the initial graph model.
@@ -94,7 +94,7 @@ public class SynopticJungMain implements Callable<Integer> {
     PartitionGraph pGraph;
 
     public SynopticJungMain(String[] args) throws Exception {
-        synopticMainInstance = Main.processArgs(args);
+        synopticMainInstance = SynopticMain.processArgs(args);
         if (synopticMainInstance == null) {
             throw new RuntimeException(
                     "Problem parsing command line arguments.");
@@ -105,7 +105,7 @@ public class SynopticJungMain implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        JungGui gui = new JungGui(pGraph, Main.options);
+        JungGui gui = new JungGui(pGraph, SynopticMain.getInstance().options);
         gui.init();
         synchronized (gui) {
             gui.wait();

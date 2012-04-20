@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import synoptic.model.EventNode;
-import synoptic.util.NotImplementedException;
 
 public class VectorTime implements ITime {
     ArrayList<Integer> vector = new ArrayList<Integer>();
@@ -293,16 +292,16 @@ public class VectorTime implements ITime {
      */
     @Override
     public ITime computeDelta(ITime other) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public ITime incrBy(ITime other) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public ITime divBy(int divisor) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 }

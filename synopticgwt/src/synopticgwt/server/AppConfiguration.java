@@ -7,7 +7,7 @@ import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
-import synoptic.main.Main;
+import synoptic.util.SynopticJar;
 import synopticgwt.server.db.DerbyDB;
 
 /**
@@ -135,7 +135,7 @@ public class AppConfiguration {
         }
 
         try {
-            synopticChangesetID = Main.getHgChangesetID();
+            synopticChangesetID = SynopticJar.getHgChangesetID();
         } catch (IOException e) {
             // TODO: log exception.
             synopticChangesetID = null;

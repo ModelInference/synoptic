@@ -21,7 +21,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -70,7 +70,7 @@ public class ModelCheckersTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        synoptic.main.Main.options.useFSMChecker = this.useFSMChecker;
+        synoptic.main.SynopticMain.getInstance().options.useFSMChecker = this.useFSMChecker;
     }
 
     /**
@@ -319,7 +319,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         List<EventType> cExampleLabels = null;
 
-        if (Main.options.useFSMChecker) {
+        if (SynopticMain.getInstance().options.useFSMChecker) {
             cExampleLabels = stringsToStringEventTypes(new String[] { "a", "c",
                     "d", "b" });
         } else {

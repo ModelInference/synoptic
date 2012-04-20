@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,7 +27,7 @@ import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ImmediateInvariantMiner;
 import synoptic.invariants.miners.KTailInvariantMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.main.Options;
 import synoptic.main.SynopticOptions;
 import synoptic.main.TraceParser;
@@ -170,22 +169,20 @@ public class InvariMintMain {
             throws Exception {
 
         // Set up options in Synoptic Main that are used by the library.
-        Main.options = new SynopticOptions();
-        Main.options.logLvlExtraVerbose = true;
-        Main.options.internCommonStrings = true;
-        Main.options.recoverFromParseErrors = opts.recoverFromParseErrors;
-        Main.options.debugParse = opts.debugParse;
-        Main.options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
+        SynopticOptions options = new SynopticOptions();
+        options.logLvlExtraVerbose = true;
+        options.internCommonStrings = true;
+        options.recoverFromParseErrors = opts.recoverFromParseErrors;
+        options.debugParse = opts.debugParse;
+        options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
 
-        Main.setUpLogging();
-        Main.random = new Random(Main.options.randomSeed);
-        Main.graphExportFormatter = new DotExportFormatter();
+        SynopticMain synMain = new SynopticMain(options, new DotExportFormatter());
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = new TraceParser(opts.regExps,
                 opts.partitionRegExp, opts.separatorRegExp);
 
-        List<EventNode> parsedEvents = Main.parseEvents(parser,
+        List<EventNode> parsedEvents = SynopticMain.parseEvents(parser,
                 opts.logFilenames);
 
         if (opts.debugParse) {
