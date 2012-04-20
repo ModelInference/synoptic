@@ -10,8 +10,8 @@ import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.main.SynopticMain;
 import synoptic.main.ParseException;
+import synoptic.main.SynopticMain;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
@@ -104,8 +104,9 @@ public class BisimulationTests extends SynopticTest {
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph,
                 false);
 
-        PartitionGraph pGraph = Bisimulation.getSplitGraph(inputGraph,
-                invariants);
+        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
+        Bisimulation.splitPartitions(pGraph);
+
         exportTestGraph(pGraph, 1);
 
         boolean hasInitial = false;
