@@ -1,8 +1,9 @@
-package synoptic.invariants;
+package synoptic.invariants.concurrency;
 
 import java.util.List;
 import java.util.Set;
 
+import synoptic.invariants.BinaryInvariant;
 import synoptic.model.EventType;
 import synoptic.model.interfaces.INode;
 
@@ -75,26 +76,28 @@ public abstract class ConcurrencyInvariant extends BinaryInvariant {
 
         BinaryInvariant other = (BinaryInvariant) obj;
         if (first == null) {
-            if (other.first != null) {
+            if (other.getFirst() != null) {
                 return false;
             }
         }
         if (second == null) {
-            if (other.second != null) {
+            if (other.getSecond() != null) {
                 return false;
             }
         }
 
-        if (!(first.equals(other.first) && second.equals(other.second))
-                && !(second.equals(other.first) && first.equals(other.second))) {
+        if (!(first.equals(other.getFirst()) && second
+                .equals(other.getSecond()))
+                && !(second.equals(other.getFirst()) && first.equals(other
+                        .getSecond()))) {
             return false;
         }
 
         if (relations == null) {
-            if (other.relations != null) {
+            if (other.getRelations() != null) {
                 return false;
             }
-        } else if (!relations.equals(other.relations)) {
+        } else if (!relations.equals(other.getRelations())) {
             return false;
         }
 
