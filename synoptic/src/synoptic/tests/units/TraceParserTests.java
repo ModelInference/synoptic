@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import junit.framework.Assert;
 
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -60,7 +60,7 @@ public class TraceParserTests extends SynopticTest {
     public void setUp() throws ParseException {
         super.setUp();
         parser = new TraceParser();
-        Main.options.debugParse = true;
+        SynopticMain.getInstance().options.debugParse = true;
     }
 
     // //////////////////////////////////////////////////////////////////////////

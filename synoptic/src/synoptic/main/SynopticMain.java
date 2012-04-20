@@ -2,24 +2,15 @@ package synoptic.main;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.JarURLConnection;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
-import java.util.jar.Manifest;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -27,7 +18,6 @@ import java.util.logging.Logger;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.junit.runner.JUnitCore;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.invariants.ITemporalInvariant;
@@ -48,11 +38,24 @@ import synoptic.model.export.GraphExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
+import synoptic.tests.SynopticLibTest;
 import synoptic.util.BriefLogFormatter;
 import synoptic.util.InternalSynopticException;
+import synoptic.util.SynopticJar;
 
-public class Main implements Callable<Integer> {
+/**
+ * Contains entry points for command line version of Synoptic, as well as for
+ * libraries that want to use Synoptic from a jar. The instance of Main is a
+ * singleton that maintains Synoptic options, and other state for a single run
+ * of Synoptic.
+ */
+public class SynopticMain {
     public static Logger logger = null;
+
+    /**
+     * Singleton instance of this class.
+     */
+    public static SynopticMain instance = null;
 
     /**
      * The current Synoptic version.
@@ -62,46 +65,21 @@ public class Main implements Callable<Integer> {
     /**
      * Global source of pseudo-random numbers.
      */
-    public static Random random;
+    public Random random;
 
     /**
      * Formatter to use for exporting graphs (DOT/GML formatter).
      */
-    public static GraphExportFormatter graphExportFormatter = null;
+    public GraphExportFormatter graphExportFormatter = null;
 
     /**
      * Synoptic options parsed from the command line or set in some other way.
      */
-    public static SynopticOptions options = null;
+    public SynopticOptions options = null;
 
-    /**
-     * Retrieve and return the ChangesetID attribute in the manifest of the jar
-     * that contains this Main class. Returns null if not running from a jar.
-     * 
-     * @throws IOException
-     */
-    public static String getHgChangesetID() throws IOException {
-        String changesetID = null;
-
-        // Find the resource corresponding to Main (this) class.
-        URL res = Main.class.getResource(Main.class.getSimpleName() + ".class");
-
-        URLConnection conn = res.openConnection();
-        if (!(conn instanceof JarURLConnection)) {
-            // We are not running from inside a jar. In this case, return null
-            // for ChangesetID.
-            return null;
-        }
-        JarURLConnection jarConn = (JarURLConnection) conn;
-
-        // Grab attributes from the manifest of the jar (synoptic.jar)
-        Manifest mf = jarConn.getManifest();
-        Attributes atts = mf.getMainAttributes();
-
-        // Extract ChangesetID from the attributes and return it.
-        changesetID = atts.getValue("ChangesetID");
-
-        return changesetID;
+    public static SynopticMain getInstance() {
+        assert (instance != null);
+        return instance;
     }
 
     /**
@@ -112,29 +90,30 @@ public class Main implements Callable<Integer> {
      *            Command-line options
      */
     public static void main(String[] args) throws Exception {
-        Main mainInstance = processArgs(args);
+        SynopticMain mainInstance = processArgs(args);
         if (mainInstance == null) {
             return;
         }
 
-        Integer ret;
         try {
-            ret = mainInstance.call();
+            Locale.setDefault(Locale.US);
+
+            PartitionGraph pGraph = mainInstance.createInitialPartitionGraph();
+            if (pGraph != null) {
+                mainInstance.runSynoptic(pGraph);
+            }
         } catch (ParseException e) {
             throw e;
         } catch (Exception e) {
             throw InternalSynopticException.wrap(e);
         }
-
-        logger.fine("Main.call() returned " + ret.toString());
-
     }
 
     /**
-     * Parses the set of arguments (args) to the program, to set up static state
-     * in Main. This state includes everything necessary to run Synoptic --
-     * input log files, regular expressions, etc. Returns null if there is a
-     * problem with the parsed options.
+     * Parses the set of arguments to the program, to set up static state in
+     * Main. This state includes everything necessary to run Synoptic -- input
+     * log files, regular expressions, etc. Returns null if there is a problem
+     * with the parsed options.
      * 
      * @param args
      *            Command line arguments that specify how Synoptic should
@@ -146,7 +125,7 @@ public class Main implements Callable<Integer> {
      * @throws IllegalAccessException
      * @throws ParseException
      */
-    public static Main processArgs(String[] args) throws IOException,
+    public static SynopticMain processArgs(String[] args) throws IOException,
             URISyntaxException, IllegalArgumentException,
             IllegalAccessException, ParseException {
         SynopticOptions opts = new SynopticOptions(args);
@@ -167,13 +146,11 @@ public class Main implements Callable<Integer> {
      * @throws IllegalAccessException
      * @throws ParseException
      */
-    public static Main processArgs(SynopticOptions opts) throws IOException,
-            URISyntaxException, IllegalArgumentException,
+    public static SynopticMain processArgs(SynopticOptions opts)
+            throws IOException, URISyntaxException, IllegalArgumentException,
             IllegalAccessException {
 
-        Main.options = opts;
-
-        setUpLogging();
+        setUpLogging(opts);
 
         // Display help for all option groups, including unpublicized ones
         if (opts.allHelp) {
@@ -188,8 +165,9 @@ public class Main implements Callable<Integer> {
         }
 
         if (opts.version) {
-            System.out.println("Synoptic version " + Main.versionString);
-            String changesetID = getHgChangesetID();
+            System.out
+                    .println("Synoptic version " + SynopticMain.versionString);
+            String changesetID = SynopticJar.getHgChangesetID();
             if (changesetID != null) {
                 System.out.println("Synoptic changeset " + changesetID);
             }
@@ -197,6 +175,7 @@ public class Main implements Callable<Integer> {
         }
 
         // Setup the appropriate graph export formatter object.
+        GraphExportFormatter graphExportFormatter;
         if (opts.exportAsGML) {
             graphExportFormatter = new GmlExportFormatter();
         } else {
@@ -204,13 +183,15 @@ public class Main implements Callable<Integer> {
         }
 
         if (opts.runAllTests) {
-            List<String> testClasses = getTestsInPackage("synoptic.tests.units.");
-            testClasses
-                    .addAll(getTestsInPackage("synoptic.tests.integration."));
-            runTests(testClasses);
+            List<String> testClasses = SynopticJar
+                    .getTestsInPackage("synoptic.tests.units.");
+            testClasses.addAll(SynopticJar
+                    .getTestsInPackage("synoptic.tests.integration."));
+            SynopticLibTest.runTests(testClasses);
         } else if (opts.runTests) {
-            List<String> testClassesUnits = getTestsInPackage("synoptic.tests.units.");
-            runTests(testClassesUnits);
+            List<String> testClassesUnits = SynopticJar
+                    .getTestsInPackage("synoptic.tests.units.");
+            SynopticLibTest.runTests(testClassesUnits);
         }
 
         if (opts.logFilenames.size() == 0) {
@@ -229,105 +210,17 @@ public class Main implements Callable<Integer> {
             opts.printOptionValues();
         }
 
-        Main.random = new Random(opts.randomSeed);
-        logger.info("Using random seed: " + opts.randomSeed);
-
-        Main mainInstance = new Main();
+        SynopticMain mainInstance = new SynopticMain(opts, graphExportFormatter);
         return mainInstance;
     }
 
-    /**
-     * Runs all the synoptic unit tests
-     * 
-     * @throws URISyntaxException
-     *             if Main.class can't be located
-     * @throws IOException
-     */
-    public static List<String> getTestsInPackage(String packageName)
-            throws URISyntaxException, IOException {
-        // TODO: Create a unit test for this method that would run Synoptic as a
-        // jar.
-
-        // If we are running from within a jar, then jarName contains the path
-        // to the jar. Otherwise, it contains the path to where Main.class is
-        // located on the filesystem
-        String jarName = Main.class.getProtectionDomain().getCodeSource()
-                .getLocation().toURI().getPath();
-        System.out.println("Looking for tests in: " + jarName);
-
-        // We assume that the tests we want to run are classes within
-        // packageName, which can be found with the corresponding packagePath
-        // filesystem offset
-        String packagePath = packageName.replace('.', '/');
-
-        ArrayList<String> testClasses = new ArrayList<String>();
-
-        JarInputStream jarFile = null;
-        try {
-            // Case1: running from within a jar.
-            // Open the jar file and locate the tests by their path.
-            jarFile = new JarInputStream(new FileInputStream(jarName));
-            JarEntry jarEntry;
-            while (true) {
-                jarEntry = jarFile.getNextJarEntry();
-                if (jarEntry == null) {
-                    break;
-                }
-                System.out.println("jarEntry : " + jarEntry.toString());
-
-                String className = jarEntry.getName();
-                if (className.startsWith(packagePath)
-                        && className.endsWith(".class")) {
-                    int endIndex = className.lastIndexOf(".class");
-                    className = className.substring(0, endIndex);
-                    testClasses.add(className.replace('/', '.'));
-                }
-            }
-        } catch (java.io.FileNotFoundException e) {
-            // Case2: not running from within a jar.
-            // Find the tests by walking through the directory structure.
-            File folder = new File(jarName + packagePath);
-            File[] listOfFiles = folder.listFiles();
-            for (int i = 0; i < listOfFiles.length; i++) {
-                String className = listOfFiles[i].getName();
-                if (listOfFiles[i].isFile() && className.endsWith(".class")) {
-                    int endIndex = className.lastIndexOf(".class");
-                    className = className.substring(0, endIndex);
-                    testClasses.add(packageName + className);
-                }
-            }
-        } catch (Exception e) {
-            throw InternalSynopticException.wrap(e);
-        } finally {
-            if (jarFile != null) {
-                jarFile.close();
-            }
-        }
-
-        // Remove anonymous inner classes from the list, these look like
-        // 'TraceParserTests$1.class'
-        ArrayList<String> anonClasses = new ArrayList<String>();
-        for (String testClass : testClasses) {
-            if (testClass.contains("$")) {
-                anonClasses.add(testClass);
-            }
-        }
-        testClasses.removeAll(anonClasses);
-
-        return testClasses;
+    static private long loggerInfoStart(String msg) {
+        logger.info(msg);
+        return System.currentTimeMillis();
     }
 
-    /**
-     * Takes a list of paths that point to JUnit test classes and executes them
-     * using JUnitCore runner.
-     * 
-     * @param testClasses
-     */
-    public static void runTests(List<String> testClasses) {
-        System.out.println("Running tests: " + testClasses);
-        String[] testClassesAr = new String[testClasses.size()];
-        testClassesAr = testClasses.toArray(testClassesAr);
-        JUnitCore.main(testClassesAr);
+    static private void loggerInfoEnd(String msg, long startTime) {
+        logger.info(msg + (System.currentTimeMillis() - startTime) + "ms");
     }
 
     /**
@@ -338,7 +231,10 @@ public class Main implements Callable<Integer> {
      * Assumes that Main.options is initialized.
      * </pre>
      */
-    public static void setUpLogging() {
+    public static void setUpLogging(SynopticOptions opts) {
+        if (logger != null) {
+            return;
+        }
         // Get the top Logger instance
         logger = Logger.getLogger("");
 
@@ -365,11 +261,11 @@ public class Main implements Callable<Integer> {
         // consoleHandler.setFormatter(new CustomFormatter());
 
         // Set the logger's log level based on command line arguments
-        if (Main.options.logLvlQuiet) {
+        if (opts.logLvlQuiet) {
             logger.setLevel(Level.WARNING);
-        } else if (Main.options.logLvlVerbose) {
+        } else if (opts.logLvlVerbose) {
             logger.setLevel(Level.FINE);
-        } else if (Main.options.logLvlExtraVerbose) {
+        } else if (opts.logLvlExtraVerbose) {
             logger.setLevel(Level.FINEST);
         } else {
             logger.setLevel(Level.INFO);
@@ -410,6 +306,25 @@ public class Main implements Callable<Integer> {
         return results;
     }
 
+    /******************************************************************************/
+    /**
+     * Main instance methods below.
+     */
+    public SynopticMain(SynopticOptions opts,
+            GraphExportFormatter graphExportFormatter) {
+        setUpLogging(opts);
+
+        if (SynopticMain.instance != null) {
+            throw new RuntimeException(
+                    "Cannot create multiple instance of singleton synoptic.main.Main");
+        }
+        this.options = opts;
+        this.graphExportFormatter = graphExportFormatter;
+        this.random = new Random(opts.randomSeed);
+        logger.info("Using random seed: " + opts.randomSeed);
+        SynopticMain.instance = this;
+    }
+
     /**
      * Returns the filename for an intermediate dot file based on the given
      * stage name and round number. Adheres to the convention specified above in
@@ -422,10 +337,9 @@ public class Main implements Callable<Integer> {
      *            Round number within the stage
      * @return string filename for an intermediate dot file
      */
-    public static String getIntermediateDumpFilename(String stageName,
-            int roundNum) {
-        return Main.options.outputPathPrefix + ".stage-" + stageName
-                + ".round-" + roundNum;
+    public String getIntermediateDumpFilename(String stageName, int roundNum) {
+        return options.outputPathPrefix + ".stage-" + stageName + ".round-"
+                + roundNum;
     }
 
     /**
@@ -434,7 +348,7 @@ public class Main implements Callable<Integer> {
      * 
      * @throws IOException
      */
-    private static <T extends INode<T>> void exportGraph(String baseFilename,
+    private <T extends INode<T>> void exportGraph(String baseFilename,
             IGraph<T> g, boolean outputEdgeLabelsCondition,
             boolean imageGenCondition) {
 
@@ -465,47 +379,31 @@ public class Main implements Callable<Integer> {
     /**
      * Export g as an initial graph.
      */
-    public static <T extends INode<T>> void exportInitialGraph(
-            String baseFilename, IGraph<T> g) {
+    public <T extends INode<T>> void exportInitialGraph(String baseFilename,
+            IGraph<T> g) {
         // false below : never include edge labels on exported initial graphs
 
         // Main.dumpInitialGraphPngFile && !exportAsGML below : whether to
         // convert exported graph to a png file -- the user must have explicitly
         // requested this and the export must be in non-GML format (i.e., dot
         // format).
-        exportGraph(baseFilename, g, false,
-                Main.options.dumpInitialGraphPngFile
-                        && !Main.options.exportAsGML);
+        exportGraph(baseFilename, g, false, options.dumpInitialGraphPngFile
+                && !options.exportAsGML);
     }
 
     /**
      * Export g as a non-initial graph.
      */
-    public static <T extends INode<T>> void exportNonInitialGraph(
-            String baseFilename, IGraph<T> g) {
+    public <T extends INode<T>> void exportNonInitialGraph(String baseFilename,
+            IGraph<T> g) {
         // Main.outputEdgeLabels below : the condition for including edge labels
         // on exported graphs.
 
         // !exportAsGML below : the condition for exporting an image to png file
         // is that it is not in GML format (i.e., it is in dot format so we can
         // use the 'dot' command).
-        exportGraph(baseFilename, g, Main.options.outputEdgeLabels,
-                !Main.options.exportAsGML);
-    }
-
-    /***********************************************************/
-
-    private Main() {
-        // TODO: initialize instance state.
-    }
-
-    static private long loggerInfoStart(String msg) {
-        logger.info(msg);
-        return System.currentTimeMillis();
-    }
-
-    static private void loggerInfoEnd(String msg, long startTime) {
-        logger.info(msg + (System.currentTimeMillis() - startTime) + "ms");
+        exportGraph(baseFilename, g, options.outputEdgeLabels,
+                !options.exportAsGML);
     }
 
     private void processPOLog(TraceParser parser, List<EventNode> parsedEvents)
@@ -559,23 +457,6 @@ public class Main implements Callable<Integer> {
         }
     }
 
-    /**
-     * The top-level method that uses TraceParser to parse the input files, and
-     * calls the primary Synoptic functions to perform refinement\coarsening and
-     * then to output the final graph to the output file (specified as a command
-     * line option).
-     */
-    @Override
-    public Integer call() throws Exception {
-        Locale.setDefault(Locale.US);
-
-        PartitionGraph pGraph = createInitialPartitionGraph();
-        if (pGraph != null) {
-            runSynoptic(pGraph);
-        }
-        return Integer.valueOf(0);
-    }
-
     static public List<EventNode> parseEvents(TraceParser parser,
             List<String> logFilenames) throws Exception {
         // Parses all the log filenames, constructing the parsedEvents List.
@@ -618,7 +499,7 @@ public class Main implements Callable<Integer> {
         return inputGraph;
     }
 
-    static public TemporalInvariantSet mineTOInvariants(
+    public TemporalInvariantSet mineTOInvariants(
             boolean useTransitiveClosureMining, ChainsTraceGraph inputGraph) {
         TOInvariantMiner miner;
 
@@ -630,7 +511,8 @@ public class Main implements Callable<Integer> {
 
         long startTime = loggerInfoStart("Mining invariants ["
                 + miner.getClass().getName() + "]..");
-        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph, options.multipleRelations);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph,
+                options.multipleRelations);
 
         loggerInfoEnd("Mining took ", startTime);
 
@@ -639,7 +521,7 @@ public class Main implements Callable<Integer> {
         return minedInvs;
     }
 
-    static public TemporalInvariantSet minePOInvariants(
+    public TemporalInvariantSet minePOInvariants(
             boolean useTransitiveClosureMining, DAGsTraceGraph inputGraph) {
 
         POInvariantMiner miner;
@@ -656,17 +538,6 @@ public class Main implements Callable<Integer> {
         // Miner can be garbage-collected.
         miner = null;
         return minedInvs;
-    }
-
-    static public PartitionGraph createPartitionGraph(
-            ChainsTraceGraph inputGraph, boolean partitionByLabel,
-            TemporalInvariantSet minedInvs) {
-        // Create the initial partitioning graph.
-        long startTime = loggerInfoStart("Creating initial partition graph.");
-        PartitionGraph pGraph = new PartitionGraph(inputGraph,
-                partitionByLabel, minedInvs);
-        loggerInfoEnd("Creating partition graph took ", startTime);
-        return pGraph;
     }
 
     /**
@@ -748,8 +619,9 @@ public class Main implements Callable<Integer> {
 
         // //////////////////
         // Create the initial partitioning graph.
-        PartitionGraph pGraph = createPartitionGraph(inputGraph, true,
-                minedInvs);
+        long startTime = loggerInfoStart("Creating initial partition graph.");
+        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, minedInvs);
+        loggerInfoEnd("Creating partition graph took ", startTime);
         // //////////////////
 
         if (options.dumpInitialPartitionGraph) {

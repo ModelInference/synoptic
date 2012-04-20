@@ -10,7 +10,7 @@ import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -30,7 +30,7 @@ public class BisimulationTests extends SynopticTest {
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
         // Main.dumpIntermediateStages = true;
-        Main.options.useFSMChecker = true;
+        SynopticMain.getInstance().options.useFSMChecker = true;
     }
 
     /**

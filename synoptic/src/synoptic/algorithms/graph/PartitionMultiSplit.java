@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -63,7 +63,7 @@ public class PartitionMultiSplit implements IOperation {
 
         // //////////////
 
-        if (Main.options.performExtraChecks) {
+        if (SynopticMain.getInstance().options.performExtraChecks) {
             g.checkSanity();
         }
 

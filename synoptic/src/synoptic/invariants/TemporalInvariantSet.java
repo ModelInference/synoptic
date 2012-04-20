@@ -19,7 +19,7 @@ import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.model.EventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -34,7 +34,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
 
     public TemporalInvariantSet() {
         // Empty constructor for use by unit tests.
-    	logger.setLevel(Level.FINE);
+        logger.setLevel(Level.FINE);
     }
 
     /**
@@ -121,7 +121,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         TimedTask refinement = PerformanceMetrics.createTask(
                 "getCounterExample", true);
         try {
-            if (Main.options.useFSMChecker) {
+            if (SynopticMain.getInstance().options.useFSMChecker) {
                 return FsmModelChecker.getCounterExample((BinaryInvariant) inv,
                         g);
             }
@@ -148,7 +148,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
                 "getAllCounterExamples", false);
         try {
             List<CExamplePath<T>> paths = null;
-            if (Main.options.useFSMChecker) {
+            if (SynopticMain.getInstance().options.useFSMChecker) {
                 paths = new ArrayList<CExamplePath<T>>();
                 for (ITemporalInvariant tinv : invariants) {
                     CExamplePath<T> path = FsmModelChecker.getCounterExample(
@@ -186,7 +186,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             return paths;
         } finally {
             violations.stop();
-            if (Main.options.doBenchmarking) {
+            if (SynopticMain.getInstance().options.doBenchmarking) {
                 logger.info("BENCHM: " + violations.toString());
             }
         }
@@ -207,7 +207,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         TimedTask violations = PerformanceMetrics.createTask(
                 "getFirstCounterExample", false);
         try {
-            if (Main.options.useFSMChecker) {
+            if (SynopticMain.getInstance().options.useFSMChecker) {
                 for (ITemporalInvariant tinv : invariants) {
                     CExamplePath<T> path = FsmModelChecker.getCounterExample(
                             (BinaryInvariant) tinv, g);
@@ -271,7 +271,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
         int percentReduction = possibleInvariants == 0 ? 0 : 100
                 - overapproximatedInvariantsSetSize * 100 / possibleInvariants;
 
-        if (Main.options.doBenchmarking) {
+        if (SynopticMain.getInstance().options.doBenchmarking) {
             logger.info("BENCHM: "
                     + overapproximatedInvariantsSet.numInvariants()
                     + " true invariants, approximation guessed "

@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import org.junit.Test;
 
 import synoptic.tests.SynopticTest;
-import synoptic.util.NotImplementedException;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
@@ -44,7 +43,7 @@ public class ITimeTests extends SynopticTest {
      * Delta computation between two vector timestamps is not supported. Uses
      * integer vtime constructor.
      */
-    @Test(expected = NotImplementedException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testExceptionVectorTimeIntConstructor() {
         VectorTime v1 = new VectorTime(1);
         VectorTime v2 = new VectorTime(2);
@@ -55,7 +54,7 @@ public class ITimeTests extends SynopticTest {
      * Delta computation between two vector timestamps is not supported. Uses
      * list of integers vtime constructor.
      */
-    @Test(expected = NotImplementedException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testExceptionVectorTimeVectorConstructor() {
         LinkedList<Integer> l1 = new LinkedList<Integer>();
         LinkedList<Integer> l2 = new LinkedList<Integer>();
@@ -109,7 +108,7 @@ public class ITimeTests extends SynopticTest {
     /**
      * Vector timestamps do not support incrementing.
      */
-    @Test(expected = NotImplementedException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testExceptionVectorTimeIncr() {
         VectorTime v1 = new VectorTime(1);
         VectorTime v2 = new VectorTime(2);
