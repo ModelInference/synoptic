@@ -4,7 +4,6 @@ import java.util.Set;
 
 import synoptic.model.DistEventType;
 import synoptic.util.InternalSynopticException;
-import synoptic.util.NotImplementedException;
 
 /**
  * Represents the "x is always concurrent with y" invariant for some two
@@ -58,6 +57,6 @@ public class AlwaysConcurrentInvariant extends ConcurrencyInvariant {
 
     @Override
     public String getRegex(char firstC, char secondC) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 }
