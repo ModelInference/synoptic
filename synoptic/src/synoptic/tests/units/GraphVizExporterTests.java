@@ -39,7 +39,7 @@ public class GraphVizExporterTests extends SynopticTest {
         // Randomize the order in which we add events to the graph
         List<EventNode> pathCopy = new ArrayList<EventNode>();
         pathCopy.addAll(path);
-        Collections.shuffle(pathCopy, Main.random);
+        Collections.shuffle(pathCopy, Main.getInstance().random);
         for (EventNode event : pathCopy) {
             g.add(event);
         }

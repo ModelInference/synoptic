@@ -468,7 +468,7 @@ public class TraceParser {
 
         }
 
-        if (Main.options.debugParse) {
+        if (Main.getInstance().options.debugParse) {
             logger.info("input: " + input_regex);
             logger.info("processed: " + regex);
             logger.info("standard: " + parser.standardPattern());
@@ -627,7 +627,7 @@ public class TraceParser {
         String strLine = null;
 
         String tName = traceName;
-        if (Main.options.internCommonStrings) {
+        if (Main.getInstance().options.internCommonStrings) {
             tName = tName.intern();
         }
 
@@ -760,7 +760,8 @@ public class TraceParser {
             ret += " from file [" + fileName + "]";
         }
 
-        if (Main.options.logLvlVerbose || Main.options.logLvlExtraVerbose) {
+        if (Main.getInstance().options.logLvlVerbose
+                || Main.getInstance().options.logLvlExtraVerbose) {
             // Include the actual line if verbose output is desired.
             return ret + " line [" + line + "]";
         }
@@ -837,7 +838,7 @@ public class TraceParser {
 
             String eTypeLabel;
             EventType eType;
-            if (Main.options.internCommonStrings) {
+            if (Main.getInstance().options.internCommonStrings) {
                 eTypeLabel = matched.get("TYPE").intern();
             } else {
                 eTypeLabel = matched.get("TYPE");
@@ -952,7 +953,7 @@ public class TraceParser {
                     String errMsg = buildLineErrorLocString(line, fileName,
                             lineNum)
                             + " Unable to parse time field on log line.";
-                    if (Main.options.ignoreNonMatchingLines) {
+                    if (Main.getInstance().options.ignoreNonMatchingLines) {
                         logger.warning(errMsg
                                 + " Ignoring line and continuing.");
                         continue;
@@ -977,7 +978,7 @@ public class TraceParser {
                 }
             }
 
-            if (Main.options.partitionRegExp.equals("\\k<FILE>")) {
+            if (Main.getInstance().options.partitionRegExp.equals("\\k<FILE>")) {
                 // These logs are to be partitioned via file
                 eventStringArgs.put("FILE", fileName);
                 // "" + traceNameToTraceID.get(fileName));
@@ -991,7 +992,7 @@ public class TraceParser {
                 }
             }
 
-            if (Main.options.debugParse) {
+            if (Main.getInstance().options.debugParse) {
                 // TODO: include partition name in the list of field values
                 logger.info("input: " + line);
                 StringBuilder msg = new StringBuilder("{");
@@ -1029,7 +1030,7 @@ public class TraceParser {
             return eventNode;
         }
 
-        if (Main.options.recoverFromParseErrors) {
+        if (Main.getInstance().options.recoverFromParseErrors) {
             logger.warning(buildLineErrorLocString(line, fileName, lineNum)
                     + " Failed to parse trace line. Using entire line as type.");
             event = new Event(new StringEventType(line), line, fileName,
@@ -1050,7 +1051,7 @@ public class TraceParser {
                     filter.substitute(new LinkedHashMap<String, String>()));
             return eventNode;
 
-        } else if (Main.options.ignoreNonMatchingLines) {
+        } else if (Main.getInstance().options.ignoreNonMatchingLines) {
             logger.fine(buildLineErrorLocString(line, fileName, lineNum)
                     + " Failed to parse trace line. Ignoring line and continuing.");
             return null;

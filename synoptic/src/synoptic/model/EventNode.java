@@ -180,7 +180,7 @@ public class EventNode implements INode<EventNode> {
         }
 
         EventNode dest = transition.getTarget();
-        if (Main.options.enablePerfDebugging) {
+        if (Main.getInstance().options.enablePerfDebugging) {
             if (dest.getTime() != null) {
                 ITime delta = dest.getTime().computeDelta(this.getTime());
                 transition.setDelta(delta);

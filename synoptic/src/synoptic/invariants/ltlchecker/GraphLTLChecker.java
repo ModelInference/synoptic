@@ -87,8 +87,8 @@ public class GraphLTLChecker<T extends INode<T>> {
         }
         transToMC.stop();
         if (DEBUG) {
-            Main.exportNonInitialGraph("output/sourceGraph-" + relation,
-                    sourceGraph);
+            Main.getInstance().exportNonInitialGraph(
+                    "output/sourceGraph-" + relation, sourceGraph);
             writeDot(targetGraph, "output/targetGraph-" + relation + ".dot");
         }
         // Run the LTL model-checker on this graph structure.

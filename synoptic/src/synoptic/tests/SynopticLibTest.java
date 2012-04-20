@@ -1,12 +1,13 @@
 package synoptic.tests;
 
 import java.io.File;
-import java.util.Random;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.junit.runner.JUnitCore;
 
 import synoptic.main.Main;
 import synoptic.main.ParseException;
@@ -52,6 +53,19 @@ public abstract class SynopticLibTest {
     }
 
     /**
+     * Takes a list of paths that point to JUnit test classes and executes them
+     * using JUnitCore runner.
+     * 
+     * @param testClasses
+     */
+    public static void runTests(List<String> testClasses) {
+        System.out.println("Running tests: " + testClasses);
+        String[] testClassesAr = new String[testClasses.size()];
+        testClassesAr = testClasses.toArray(testClassesAr);
+        JUnitCore.main(testClassesAr);
+    }
+
+    /**
      * Sets up the Synoptic state that is necessary for running tests that
      * depend on the Synoptic library.
      * 
@@ -59,10 +73,10 @@ public abstract class SynopticLibTest {
      */
     @Before
     public void setUp() throws ParseException {
-        Main.options = new SynopticOptions();
-        Main.setUpLogging();
-        Main.random = new Random(Main.options.randomSeed);
-        Main.graphExportFormatter = new DotExportFormatter();
+        if (Main.instance == null) {
+            Main synopticMain = new Main(new SynopticOptions(),
+                    new DotExportFormatter());
+        }
     }
 
     // //////////////////////////////////////////////
@@ -97,11 +111,12 @@ public abstract class SynopticLibTest {
     protected static <T extends INode<T>> void exportTestGraph(IGraph<T> g,
             String title) {
         // Only export test graphs we were told to be verbose.
-        if (!Main.options.logLvlVerbose && !Main.options.logLvlExtraVerbose) {
+        if (!Main.getInstance().options.logLvlVerbose
+                && !Main.getInstance().options.logLvlExtraVerbose) {
             return;
         }
         String path = "test-output" + File.separator + testName.getMethodName()
                 + title + ".dot";
-        Main.exportInitialGraph(path, g);
+        Main.getInstance().exportInitialGraph(path, g);
     }
 }

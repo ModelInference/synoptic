@@ -16,7 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -384,16 +383,16 @@ public class SynopticService extends RemoteServiceServlet implements
 
         retrieveSessionState();
 
-        // Set up some static variables in Main that are necessary to use the
-        // Synoptic library.
-        Main.options = new SynopticOptions();
-        // Output as much internal Synoptic information as possible.
-        Main.options.logLvlExtraVerbose = true;
-        Main.options.ignoreNonMatchingLines = synOpts.ignoreNonMatchedLines;
-        Main.options.enablePerfDebugging = true;
-        synoptic.main.Main.setUpLogging();
-        Main.random = new Random(Main.options.randomSeed);
-        Main.graphExportFormatter = new DotExportFormatter();
+        if (Main.instance == null) {
+            // Set up some static variables in Main that are necessary to use
+            // the Synoptic library.
+            SynopticOptions options = new SynopticOptions();
+            // Output as much internal Synoptic information as possible.
+            options.logLvlExtraVerbose = true;
+            options.ignoreNonMatchingLines = synOpts.ignoreNonMatchedLines;
+            options.enablePerfDebugging = true;
+            Main synopticMain = new Main(options, new DotExportFormatter());
+        }
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = null;
@@ -423,7 +422,7 @@ public class SynopticService extends RemoteServiceServlet implements
         int miningTime = (int) System.currentTimeMillis();
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
-            minedInvs = Main.mineTOInvariants(false, traceGraph);
+            minedInvs = Main.getInstance().mineTOInvariants(false, traceGraph);
 
             if (!synOpts.onlyMineInvs) {
                 // In the TO case then we also initialize/store refinement
@@ -437,7 +436,7 @@ public class SynopticService extends RemoteServiceServlet implements
             // PO invariant miner.
             DAGsTraceGraph inputGraph = parser
                     .generateDirectPORelation(parsedEvents);
-            minedInvs = Main.minePOInvariants(true, inputGraph);
+            minedInvs = Main.getInstance().minePOInvariants(true, inputGraph);
             graph = null;
         }
         miningTime = (((int) System.currentTimeMillis() - miningTime) / 1000) % 60;

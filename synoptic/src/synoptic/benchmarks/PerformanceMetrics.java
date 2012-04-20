@@ -81,7 +81,7 @@ public class PerformanceMetrics {
     public void record(String key, long value) {
         if (!getAccumulativity(key)) {
             // Print all recorded values.
-            if (Main.options.doBenchmarking) {
+            if (Main.getInstance().options.doBenchmarking) {
                 logger.fine(key + " = " + value);
             }
         }

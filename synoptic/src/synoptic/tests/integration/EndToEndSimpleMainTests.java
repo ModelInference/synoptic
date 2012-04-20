@@ -9,6 +9,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.main.Main;
+import synoptic.main.ParseException;
 import synoptic.tests.SynopticTest;
 
 /**
@@ -19,6 +20,12 @@ import synoptic.tests.SynopticTest;
 @RunWith(value = Parameterized.class)
 public class EndToEndSimpleMainTests extends SynopticTest {
     String[] args;
+
+    @Override
+    public void setUp() throws ParseException {
+        // Do not call to super, so that a new Synoptic Main is not allocated.
+        return;
+    }
 
     @Parameters
     public static Collection<Object[]> data() {

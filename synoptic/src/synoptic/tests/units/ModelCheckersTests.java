@@ -70,7 +70,7 @@ public class ModelCheckersTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        synoptic.main.Main.options.useFSMChecker = this.useFSMChecker;
+        synoptic.main.Main.getInstance().options.useFSMChecker = this.useFSMChecker;
     }
 
     /**
@@ -319,7 +319,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         List<EventType> cExampleLabels = null;
 
-        if (Main.options.useFSMChecker) {
+        if (Main.getInstance().options.useFSMChecker) {
             cExampleLabels = stringsToStringEventTypes(new String[] { "a", "c",
                     "d", "b" });
         } else {
