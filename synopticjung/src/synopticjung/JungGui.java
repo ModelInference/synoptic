@@ -409,7 +409,7 @@ public class JungGui extends JApplet implements Printable {
 
     private void refine(List<CExamplePath<Partition>> counterExampleTraces) {
         // Perform a single refinement step.
-        numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
+        numSplitSteps = Bisimulation.splitOnce(
                 numSplitSteps, pGraph, counterExampleTraces);
 
         // Update the old\new partition maps.
