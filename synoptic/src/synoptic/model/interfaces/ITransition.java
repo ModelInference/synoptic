@@ -68,12 +68,12 @@ public interface ITransition<NodeType> extends
     void setDelta(ITime d);
 
     /**
-     * Returns the series of times contained within the Transition.
-     * However, if there is no series contained within the transition yet,
-     * one will be created (If a delta has already been set, it will be
-     * contained within the newly created series).
-     *
-     * @return all delta times
+     * Returns the series of times contained within the Transition. If there is
+     * no series contained within the transition, one will be created (if a
+     * delta has already been set, it will be contained within the newly created
+     * series).
+     * 
+     * @return the delta time series corresponding to this transition.
      */
     ITimeSeries<ITime> getDeltaSeries();
 

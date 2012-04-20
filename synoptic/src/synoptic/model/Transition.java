@@ -94,7 +94,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
 
     @Override
     public ITimeSeries<ITime> getDeltaSeries() {
-		createSeriesIfEmpty();
+        createSeriesIfEmpty();
         return this.series;
     }
 
@@ -105,27 +105,24 @@ public class Transition<NodeType> implements ITransition<NodeType> {
             return;
         }
 
-		createSeriesIfEmpty();
+        createSeriesIfEmpty();
         this.series.addDelta(newDelta);
     }
 
-	/**
-	 * This method is here to create the series if one does not exist
-	 * already.  If the series is then created, this will add the already
-	 * existing delta contained within the object into the series and then
-	 * set it to null.
-	 */
-	private void createSeriesIfEmpty() {
-		// If there is already a series, add the delta
-        // to the series, then set the delta field to null.
-		if (this.series == null) {
-			this.series = new ITimeSeries<ITime>();
-			if (this.delta != null) {
-				this.series.addDelta(this.delta);
-				this.delta = null;
-			}
-		}
-	}
+    /**
+     * Create the series if one does not exist. If the series is created, this
+     * will also add the existing delta to the series and set the delta to null.
+     */
+    private void createSeriesIfEmpty() {
+        // If the series exists, add the delta to series, set delta to null.
+        if (this.series == null) {
+            this.series = new ITimeSeries<ITime>();
+            if (this.delta != null) {
+                this.series.addDelta(this.delta);
+                this.delta = null;
+            }
+        }
+    }
 
     @Override
     public int hashCode() {
