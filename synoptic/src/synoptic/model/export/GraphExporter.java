@@ -63,11 +63,11 @@ public class GraphExporter {
                 return dotCommand;
             }
         }
-        if (Main.options.dotExecutablePath == null) {
+        if (Main.getInstance().options.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
                     + Options.getOptDesc("dotExecutablePath"));
         }
-        return Main.options.dotExecutablePath;
+        return Main.getInstance().options.dotExecutablePath;
     }
 
     /**
@@ -153,7 +153,8 @@ public class GraphExporter {
 
         try {
             // Begin graph.
-            writer.write(Main.graphExportFormatter.beginGraphString());
+            writer.write(Main.getInstance().graphExportFormatter
+                    .beginGraphString());
 
             // ////////////////////////// Write out graph body.
 
@@ -176,8 +177,10 @@ public class GraphExporter {
                 T node = nodesIter.next();
 
                 // On user request, do not show the initial/terminal nodes.
-                if ((!Main.options.showInitialNode && node.isInitial())
-                        || (!Main.options.showTerminalNode && node.isTerminal())) {
+                if ((!Main.getInstance().options.showInitialNode && node
+                        .isInitial())
+                        || (!Main.getInstance().options.showTerminalNode && node
+                                .isTerminal())) {
                     // Remove the node from nodes to export (so that we do not
                     // show the edges corresponding to the nodes).
                     nodesIter.remove();
@@ -185,8 +188,9 @@ public class GraphExporter {
                 }
 
                 // Output the node record -- its id along with its attributes.
-                writer.write(Main.graphExportFormatter.nodeToString(nodeCnt,
-                        node, node.isInitial(), node.isTerminal()));
+                writer.write(Main.getInstance().graphExportFormatter
+                        .nodeToString(nodeCnt, node, node.isInitial(),
+                                node.isTerminal()));
                 // Remember the identifier assigned to this node (used for
                 // outputting transitions between nodes).
                 nodeToInt.put(node, nodeCnt);
@@ -200,7 +204,8 @@ public class GraphExporter {
                 List<? extends ITransition<T>> transitions;
                 // If perf debugging isn't enabled, then output weights, else
                 // add the edge labels later.
-                if (outputEdgeLabels && !Main.options.enablePerfDebugging) {
+                if (outputEdgeLabels
+                        && !Main.getInstance().options.enablePerfDebugging) {
                     transitions = node.getWeightedTransitions();
                 } else {
                     transitions = node.getAllTransitions();
@@ -230,14 +235,15 @@ public class GraphExporter {
                         // in Java 1.6, see here:
                         // http://bugs.sun.com/view_bug.do?bug_id=6932571
                         assert (((INode<?>) (trans.getSource())) instanceof EventNode);
-                        s = Main.graphExportFormatter.edgeToStringWithTraceId(
-                                nodeSrc, nodeDst,
-                                ((EventNode) ((INode<?>) trans.getSource()))
-                                        .getTraceID(), trans.getRelations());
+                        s = Main.getInstance().graphExportFormatter
+                                .edgeToStringWithTraceId(nodeSrc, nodeDst,
+                                        ((EventNode) ((INode<?>) trans
+                                                .getSource())).getTraceID(),
+                                        trans.getRelations());
                     } else {
                         if (outputEdgeLabels) {
 
-                            if (Main.options.enablePerfDebugging) {
+                            if (Main.getInstance().options.enablePerfDebugging) {
                                 // TODO Simply calculate the mean for now, but
                                 // this should be more robust and conform to
                                 // what the
@@ -246,7 +252,7 @@ public class GraphExporter {
                                 if (trans.getDeltaSeries() != null) {
                                     time = trans.getDeltaSeries().computeMean();
                                 }
-                                s = Main.graphExportFormatter
+                                s = Main.getInstance().graphExportFormatter
                                         .edgeToStringWithITime(nodeSrc,
                                                 nodeDst, time,
                                                 trans.getRelations());
@@ -254,12 +260,12 @@ public class GraphExporter {
                             } else {
                                 double prob = ((WeightedTransition<T>) trans)
                                         .getFraction();
-                                s = Main.graphExportFormatter
+                                s = Main.getInstance().graphExportFormatter
                                         .edgeToStringWithProb(nodeSrc, nodeDst,
                                                 prob, trans.getRelations());
                             }
                         } else {
-                            s = Main.graphExportFormatter
+                            s = Main.getInstance().graphExportFormatter
                                     .edgeToStringWithNoProb(nodeSrc, nodeDst,
                                             trans.getRelations());
                         }
@@ -272,7 +278,8 @@ public class GraphExporter {
             // //////////////////////////
 
             // End graph.
-            writer.write(Main.graphExportFormatter.endGraphString());
+            writer.write(Main.getInstance().graphExportFormatter
+                    .endGraphString());
 
         } catch (IOException e) {
             throw new RuntimeException(

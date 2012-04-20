@@ -148,7 +148,7 @@ public abstract class Bisimulation {
                     counterexampleTrace, pGraph);
 
             // Permute the list of candidates.
-            Collections.shuffle(candidateSplits, Main.random);
+            Collections.shuffle(candidateSplits, Main.getInstance().random);
 
             logger.fine("candidateSplits are: " + candidateSplits.toString());
 
@@ -204,7 +204,7 @@ public abstract class Bisimulation {
                 // result in making the invariant true!
 
                 for (PartitionSplit candidateSplit : candidateSplits) {
-                    if (Main.options.performExtraChecks) {
+                    if (Main.getInstance().options.performExtraChecks) {
                         // getSplits() should never generate invalid splits.
                         if (!candidateSplit.isValid()) {
                             throw new InternalSynopticException(
@@ -246,7 +246,7 @@ public abstract class Bisimulation {
 
         // Permute the counter-examples, but do so deterministically for the
         // same random seed argument.
-        Collections.shuffle(counterExampleTraces, Main.random);
+        Collections.shuffle(counterExampleTraces, Main.getInstance().random);
 
         logger.fine("" + counterExampleTraces.size()
                 + " unsatisfied invariants and counter-examples: "
@@ -300,10 +300,10 @@ public abstract class Bisimulation {
 
         logger.fine(logStr);
 
-        if (Main.options.dumpIntermediateStages) {
-            Main.exportNonInitialGraph(
-                    Main.getIntermediateDumpFilename("r", numSplitSteps + 1),
-                    pGraph);
+        if (Main.getInstance().options.dumpIntermediateStages) {
+            Main.getInstance().exportNonInitialGraph(
+                    Main.getInstance().getIntermediateDumpFilename("r",
+                            numSplitSteps + 1), pGraph);
         }
 
         return numSplitSteps + 1;
@@ -323,9 +323,10 @@ public abstract class Bisimulation {
         TimedTask refinement = PerformanceMetrics.createTask("refinement",
                 false);
 
-        if (Main.options.dumpIntermediateStages) {
-            Main.exportNonInitialGraph(
-                    Main.getIntermediateDumpFilename("r", 0), pGraph);
+        if (Main.getInstance().options.dumpIntermediateStages) {
+            Main.getInstance().exportNonInitialGraph(
+                    Main.getInstance().getIntermediateDumpFilename("r", 0),
+                    pGraph);
         }
 
         int numSplitSteps = 0;
@@ -389,10 +390,10 @@ public abstract class Bisimulation {
 
         }
 
-        if (Main.options.dumpIntermediateStages) {
-            Main.exportNonInitialGraph(
-                    Main.getIntermediateDumpFilename("r", numSplitSteps),
-                    pGraph);
+        if (Main.getInstance().options.dumpIntermediateStages) {
+            Main.getInstance().exportNonInitialGraph(
+                    Main.getInstance().getIntermediateDumpFilename("r",
+                            numSplitSteps), pGraph);
         }
 
         PerformanceMetrics.get().record("numOfSplitSteps", numSplitSteps);
@@ -456,12 +457,13 @@ public abstract class Bisimulation {
             }
             hot = successorEvents;
         }
-        ITransition<Partition> outgoingTransition = curPartition.getTransitionWithExactRelation(
-                nextPartition, counterexampleTrace.invariant.getRelations());
+        ITransition<Partition> outgoingTransition = curPartition
+                .getTransitionWithExactRelation(nextPartition,
+                        counterexampleTrace.invariant.getRelations());
         ITransition<Partition> incomingTransition = null;
         if (prevPartition != null) {
-            incomingTransition = prevPartition.getTransitionWithExactRelation(curPartition,
-                    counterexampleTrace.invariant.getRelations());
+            incomingTransition = prevPartition.getTransitionWithExactRelation(
+                    curPartition, counterexampleTrace.invariant.getRelations());
         }
         if (outgoingTransition != null) {
             // logger.fine("outgoingTrans:" + outgoingTransition);
@@ -568,10 +570,10 @@ public abstract class Bisimulation {
         outerWhile:
         while (true) {
 
-            if (Main.options.dumpIntermediateStages) {
-                Main.exportNonInitialGraph(
-                        Main.getIntermediateDumpFilename("c", outerItters),
-                        pGraph);
+            if (Main.getInstance().options.dumpIntermediateStages) {
+                Main.getInstance().exportNonInitialGraph(
+                        Main.getInstance().getIntermediateDumpFilename("c",
+                                outerItters), pGraph);
             }
             outerItters++;
 
@@ -624,7 +626,7 @@ public abstract class Bisimulation {
                         // Undo the merge.
                         pGraph.apply(rewindOperation);
 
-                        if (Main.options.performExtraChecks) {
+                        if (Main.getInstance().options.performExtraChecks) {
                             pGraph.checkSanity();
                         }
 
@@ -650,9 +652,10 @@ public abstract class Bisimulation {
             break;
         }
 
-        if (Main.options.dumpIntermediateStages) {
-            Main.exportNonInitialGraph(
-                    Main.getIntermediateDumpFilename("c", outerItters), pGraph);
+        if (Main.getInstance().options.dumpIntermediateStages) {
+            Main.getInstance().exportNonInitialGraph(
+                    Main.getInstance().getIntermediateDumpFilename("c",
+                            outerItters), pGraph);
         }
 
         PerformanceMetrics.get().record("numOfMergeSteps", numAttemptedMerges);
