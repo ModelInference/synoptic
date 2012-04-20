@@ -1,0 +1,3 @@
+--kTailLength=2
+-r ^(?<DTIME>)(?<nodename>)(?<TYPE>)$
+-o ktails-test.png
