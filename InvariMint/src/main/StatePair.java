@@ -9,20 +9,20 @@ import dk.brics.automaton.State;
  * 
  * @author Jenny
  */
-public class Pair {
+public class StatePair {
 
     private final State first;
     private final State second;
 
-    public Pair(State first, State second) {
+    public StatePair(State first, State second) {
         this.first = first;
         this.second = second;
     }
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof Pair) {
-            Pair o = (Pair) other;
+        if (other instanceof StatePair) {
+            StatePair o = (StatePair) other;
             return first.equals(o.first) && second.equals(o.second);
         }
         return false;
