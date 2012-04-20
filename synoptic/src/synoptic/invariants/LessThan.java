@@ -2,10 +2,10 @@ package synoptic.invariants;
 
 import synoptic.util.time.ITime;
 
-public class GreaterThan implements IInequality {
+public class LessThan implements IInequality {
 	private ITime time;
 	
-	public GreaterThan(ITime constraint) {
+	public LessThan(ITime constraint) {
 		this.time = constraint;
 	}
 	
@@ -16,6 +16,7 @@ public class GreaterThan implements IInequality {
 	
 	@Override
 	public boolean isSatisfyConstraint(ITime t) {
-		return !this.time.lessThan(t);
+		return this.time.lessThan(t);
 	}
+	
 }
