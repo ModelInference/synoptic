@@ -83,7 +83,7 @@ public class SynopticJungMain implements Callable<Integer> {
     /***********************************************************/
 
     /**
-     * We instantiate an instance of Synoptic Main class to create the initla
+     * We instantiate an instance of Synoptic Main class to create the initial
      * partition graph based on the command line options.
      */
     Main synopticMainInstance;
@@ -105,7 +105,7 @@ public class SynopticJungMain implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        JungGui gui = new JungGui(pGraph, Main.options);
+        JungGui gui = new JungGui(pGraph, Main.getInstance().options);
         gui.init();
         synchronized (gui) {
             gui.wait();

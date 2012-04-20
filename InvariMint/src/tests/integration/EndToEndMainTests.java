@@ -6,6 +6,8 @@ import main.InvariMintMain;
 
 import org.junit.Test;
 
+import synoptic.main.Main;
+
 import tests.InvariMintTest;
 
 /**
@@ -29,6 +31,7 @@ public class EndToEndMainTests extends InvariMintTest {
         String[] args = new String[] { "-r", "(?<TYPE>.+)", "-s", "--", "-o",
                 testOutputDir + "osx-login-example",
                 loginExamplePath + "trace.txt" };
+        Main.instance = null;
         InvariMintMain.main(args);
     }
 }
