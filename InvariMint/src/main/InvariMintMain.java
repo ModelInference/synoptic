@@ -115,7 +115,7 @@ public class InvariMintMain {
             pGraph = KTails.performKTails(inputGraph, opts.kTailLength);
         } else {
             pGraph = new PartitionGraph(inputGraph, true, minedInvs);
-            Bisimulation.splitPartitions(pGraph);
+            Bisimulation.splitUntilAllInvsSatisfied(pGraph);
             Bisimulation.mergePartitions(pGraph);
         }
 

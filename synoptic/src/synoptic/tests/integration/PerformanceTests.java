@@ -135,7 +135,7 @@ public class PerformanceTests extends SynopticTest {
                     new ChainWalkingTOInvMiner(), false);
 
             long startTime = System.currentTimeMillis();
-            Bisimulation.splitPartitions(g);
+            Bisimulation.splitUntilAllInvsSatisfied(g);
             total_delta += System.currentTimeMillis() - startTime;
             // exportTestGraph(g, 1);
         }

@@ -105,7 +105,7 @@ public class BisimulationTests extends SynopticTest {
                 false);
 
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
-        Bisimulation.splitPartitions(pGraph);
+        Bisimulation.splitUntilAllInvsSatisfied(pGraph);
 
         exportTestGraph(pGraph, 1);
 
