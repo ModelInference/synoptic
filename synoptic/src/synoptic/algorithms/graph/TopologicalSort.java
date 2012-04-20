@@ -34,22 +34,6 @@ public class TopologicalSort<NodeType extends INode<NodeType>> {
         return lattice;
     }
 
-    // private void visit(NodeType n, Set<NodeType> seen, int level) {
-    // if (!seen.add(n)) {
-    // return;
-    // }
-    //
-    // if (!lattice.containsKey(level)) {
-    // lattice.put(level, new LinkedHashSet<NodeType>());
-    // }
-    // lattice.get(level).add(n);
-    //
-    // for (ITransition<NodeType> t : n.getTransitionsIterator()) {
-    // visit(t.getTarget(), seen, level + 1);
-    // }
-    // sort.add(0, n);
-    // }
-
     private void sort(IGraph<NodeType> graph) {
         // Pair is parameterized with <int, NodeType> = <level, node>
         PriorityQueue<Pair<Integer, NodeType>> active = new PriorityQueue<Pair<Integer, NodeType>>(

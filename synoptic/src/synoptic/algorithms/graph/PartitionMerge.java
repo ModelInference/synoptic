@@ -51,18 +51,6 @@ public class PartitionMerge implements IOperation {
         // //////////////
         // Invalidate the appropriate elements in the graph's transitionCache
 
-        // g.mergeAdjacentsCache(removed, retained);
-
-        // if (g.transitionCache.get(removed) == null
-        // || g.transitionCache.get(retained) == null) {
-        // g.transitionCache.remove(retained);
-        // } else {
-        // g.transitionCache.get(retained).addAll(
-        // g.transitionCache.get(removed));
-        // }
-
-        // g.transitionCache.remove(removed);
-
         g.clearNodeAdjacentsCache(retained);
         g.clearNodeAdjacentsCache(removed);
 

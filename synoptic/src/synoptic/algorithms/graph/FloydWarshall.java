@@ -28,14 +28,11 @@ public class FloydWarshall {
         // Maps a node to its parents in the transitive closure.
         HashMap<EventNode, HashSet<EventNode>> tcParents = new HashMap<EventNode, HashSet<EventNode>>();
 
-        // Logger logger = Logger.getLogger("TransitiveClosure Logger");
         for (EventNode m : allNodes) {
             if (m.getEType().isSpecialEventType()) {
                 continue;
             }
 
-            // logger.fine("tc map is: " + tc.toString());
-            // logger.fine("Handling node " + m.toString());
             /**
              * Iterate through all children of m and for each child do 2 things:
              * 
@@ -104,7 +101,6 @@ public class FloydWarshall {
                 }
             }
         }
-        // logger.fine("FINAL tc map is: " + tc.toString());
         return transClosure;
     }
 }
