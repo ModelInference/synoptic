@@ -14,7 +14,6 @@ import gov.nasa.ltl.graph.Graph;
 import synoptic.model.Event;
 import synoptic.model.EventType;
 import synoptic.model.interfaces.INode;
-import synoptic.util.NotImplementedException;
 
 /**
  * Temporal Invariant representing a kTail for some length k. Not a binary
@@ -137,7 +136,7 @@ public class KTailInvariant implements ITemporalInvariant {
      */
     @Override
     public String getLTLString() {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -146,6 +145,6 @@ public class KTailInvariant implements ITemporalInvariant {
      */
     @Override
     public Graph getAutomaton() {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 }

@@ -430,13 +430,13 @@ public class Partition implements INode<Partition> {
     }
 
     @Override
-    public Partition getParent() throws NotImplementedException {
-        throw new NotImplementedException();
+    public Partition getParent() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public void setParent(Partition parent) throws NotImplementedException {
-        throw new NotImplementedException();
+    public void setParent(Partition parent) {
+        throw new UnsupportedOperationException();
     }
 
     private void updateTransitionDeltas(EventNode srcENode,
@@ -503,14 +503,14 @@ public class Partition implements INode<Partition> {
     @Override
     public List<? extends ITransition<Partition>> getTransitionsWithSubsetRelations(
             Set<String> relations) {
-        // TODO Auto-generated method stub
+        // TODO: implement.
         throw new NotImplementedException();
     }
 
     @Override
     public List<? extends ITransition<Partition>> getTransitionsWithIntersectingRelations(
             Set<String> relations) {
-        // TODO Auto-generated method stub
+        // TODO: implement.
         throw new NotImplementedException();
     }
 
