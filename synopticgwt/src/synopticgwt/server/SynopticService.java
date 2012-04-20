@@ -29,11 +29,11 @@ import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.algorithms.graph.PartitionMultiSplit;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
-import synoptic.invariants.ConcurrencyInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.SynopticMain;
+import synoptic.invariants.concurrency.ConcurrencyInvariant;
 import synoptic.main.ParseException;
+import synoptic.main.SynopticMain;
 import synoptic.main.SynopticOptions;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -391,7 +391,8 @@ public class SynopticService extends RemoteServiceServlet implements
             options.logLvlExtraVerbose = true;
             options.ignoreNonMatchingLines = synOpts.ignoreNonMatchedLines;
             options.enablePerfDebugging = true;
-            SynopticMain synopticMain = new SynopticMain(options, new DotExportFormatter());
+            SynopticMain synopticMain = new SynopticMain(options,
+                    new DotExportFormatter());
         }
 
         // Instantiate the parser and parse the log lines.
@@ -422,7 +423,8 @@ public class SynopticService extends RemoteServiceServlet implements
         int miningTime = (int) System.currentTimeMillis();
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
-            minedInvs = SynopticMain.getInstance().mineTOInvariants(false, traceGraph);
+            minedInvs = SynopticMain.getInstance().mineTOInvariants(false,
+                    traceGraph);
 
             if (!synOpts.onlyMineInvs) {
                 // In the TO case then we also initialize/store refinement
@@ -436,7 +438,8 @@ public class SynopticService extends RemoteServiceServlet implements
             // PO invariant miner.
             DAGsTraceGraph inputGraph = parser
                     .generateDirectPORelation(parsedEvents);
-            minedInvs = SynopticMain.getInstance().minePOInvariants(true, inputGraph);
+            minedInvs = SynopticMain.getInstance().minePOInvariants(true,
+                    inputGraph);
             graph = null;
         }
         miningTime = (((int) System.currentTimeMillis() - miningTime) / 1000) % 60;

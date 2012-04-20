@@ -21,8 +21,8 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 
 import synoptic.algorithms.bisim.Bisimulation;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.concurrency.NeverConcurrentInvariant;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.POInvariantMiner;

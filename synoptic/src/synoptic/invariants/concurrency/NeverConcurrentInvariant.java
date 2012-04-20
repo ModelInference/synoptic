@@ -1,4 +1,4 @@
-package synoptic.invariants;
+package synoptic.invariants.concurrency;
 
 import java.util.Set;
 
