@@ -11,6 +11,9 @@ import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
+/**
+ * Implements the KTails algorithm as defined in Biermann & Feldman '72.
+ */
 public class KTails {
 
     /**
@@ -23,7 +26,7 @@ public class KTails {
         return pGraph;
     }
 
-    /*
+    /**
      * Finds all possible merges in pGraph. Requires making a new call to
      * attemptMerge after every merge in case previously un-merge-able pairs
      * become merge-able.

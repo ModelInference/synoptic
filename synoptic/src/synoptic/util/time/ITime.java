@@ -2,8 +2,8 @@ package synoptic.util.time;
 
 /**
  * An interface that all Synoptic time types must implement. It abstract away
- * the values of the time used -- vector clocks/integer/float/etc. And exposes
- * the very basic operations on time, such as comparison for ordering.
+ * the type of time used -- vector clocks/integer/float/etc. And exposes the
+ * very basic operations on time, such as comparison for ordering.
  */
 public interface ITime extends Comparable<ITime> {
 

@@ -6,6 +6,12 @@ import java.util.List;
 
 import synoptic.model.EventNode;
 
+/**
+ * A vector timestamps is a fixed array of integer "clocks". Typically, an
+ * integer clock at index i represents the local time of process i. If the
+ * system is distributed, then a process is a host. Therefore, the vector
+ * represents a point in time in a multiprocess (or distributed) execution.
+ */
 public class VectorTime implements ITime {
     ArrayList<Integer> vector = new ArrayList<Integer>();
 

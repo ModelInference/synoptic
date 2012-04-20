@@ -1,4 +1,4 @@
-package synoptic.util;
+package synoptic.util.matching;
 
 import java.util.ArrayList;
 import java.util.List;

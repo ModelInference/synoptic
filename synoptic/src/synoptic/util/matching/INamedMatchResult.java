@@ -2,7 +2,7 @@
 // http://code.google.com/p/named-regexp/
 // Apache License 2.0
 
-package synoptic.util;
+package synoptic.util.matching;
 
 import java.util.List;
 import java.util.Map;
