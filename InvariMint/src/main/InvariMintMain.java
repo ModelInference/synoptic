@@ -281,7 +281,7 @@ public class InvariMintMain {
             ChainsTraceGraph g, EventTypeEncodings encodings,
             EventType initialEvent, EventType terminalEvent) {
 
-        Map<Pair, Set<Character>> seenTransitions = new HashMap<Pair, Set<Character>>();
+        Map<StatePair, Set<Character>> seenTransitions = new HashMap<StatePair, Set<Character>>();
         EventNode initNode = g.getDummyInitialNode();
 
         // Iterate through all the traces -- each transition from the INITIAL
@@ -323,7 +323,7 @@ public class InvariMintMain {
      * Recursively replicates the given automata starting from the current state
      * but eliminates transitions that were not 'seen'.
      */
-    private static State replicate(Map<Pair, Set<Character>> seenTransitions,
+    private static State replicate(Map<StatePair, Set<Character>> seenTransitions,
             State current, Map<State, State> visited,
             EventTypeEncodings encodings) {
 
@@ -337,7 +337,7 @@ public class InvariMintMain {
 
         for (Transition t : current.getTransitions()) {
             for (char c = t.getMin(); c <= t.getMax(); c++) {
-                Pair curTransition = new Pair(current, t.getDest());
+                StatePair curTransition = new StatePair(current, t.getDest());
                 if (seenTransitions.containsKey(curTransition)
                         && seenTransitions.get(curTransition).contains(
                                 new Character(c))) {
@@ -357,12 +357,12 @@ public class InvariMintMain {
      */
     private static State fetchDestination(State source,
             EventTypeEncodings encodings, EventType currentEvent,
-            Map<Pair, Set<Character>> seenTransitions) {
+            Map<StatePair, Set<Character>> seenTransitions) {
 
         for (Transition t : source.getTransitions()) {
             for (char c = t.getMin(); c <= t.getMax(); c++) {
                 if (currentEvent.toString().equals(encodings.getString(c))) {
-                    Pair curTransition = new Pair(source, t.getDest());
+                    StatePair curTransition = new StatePair(source, t.getDest());
                     if (!seenTransitions.containsKey(curTransition)) {
                         seenTransitions.put(curTransition,
                                 new HashSet<Character>());
