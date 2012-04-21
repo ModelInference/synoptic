@@ -1,4 +1,4 @@
-package synoptic.main;
+package synoptic.main.parser;
 
 /**
  * Represents a problem parsing the input log.

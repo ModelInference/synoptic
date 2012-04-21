@@ -1,4 +1,4 @@
-package synoptic.main;
+package synoptic.main.parser;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,6 +21,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import synoptic.main.SynopticMain;
+import synoptic.main.options.Options;
+import synoptic.main.options.SynopticOptions;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
@@ -978,7 +981,8 @@ public class TraceParser {
                 }
             }
 
-            if (SynopticMain.getInstance().options.partitionRegExp.equals("\\k<FILE>")) {
+            if (SynopticMain.getInstance().options.partitionRegExp
+                    .equals("\\k<FILE>")) {
                 // These logs are to be partitioned via file
                 eventStringArgs.put("FILE", fileName);
                 // "" + traceNameToTraceID.get(fileName));

@@ -12,7 +12,7 @@ import org.junit.runners.Parameterized.Parameters;
 import junit.framework.Assert;
 
 import synoptic.main.SynopticMain;
-import synoptic.main.ParseException;
+import synoptic.main.parser.ParseException;
 import synoptic.tests.SynopticTest;
 
 /**

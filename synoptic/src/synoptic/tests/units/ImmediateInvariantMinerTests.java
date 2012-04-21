@@ -13,7 +13,7 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ImmediateInvariantMiner;
-import synoptic.main.TraceParser;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;

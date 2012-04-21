@@ -23,7 +23,7 @@ import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.SynopticMain;
-import synoptic.main.ParseException;
+import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.event.StringEventType;

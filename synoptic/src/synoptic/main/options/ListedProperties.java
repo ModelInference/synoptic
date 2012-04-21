@@ -1,4 +1,4 @@
-package synoptic.main;
+package synoptic.main.options;
 
 import java.util.Enumeration;
 import java.util.Iterator;

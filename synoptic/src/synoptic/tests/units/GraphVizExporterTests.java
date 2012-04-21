@@ -11,7 +11,7 @@ import java.util.List;
 import org.junit.Test;
 
 import synoptic.main.SynopticMain;
-import synoptic.main.ParseException;
+import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.export.GraphExporter;

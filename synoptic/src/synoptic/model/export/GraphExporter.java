@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import synoptic.main.SynopticMain;
-import synoptic.main.Options;
+import synoptic.main.options.Options;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.WeightedTransition;

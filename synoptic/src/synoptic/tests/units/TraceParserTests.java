@@ -18,8 +18,8 @@ import org.junit.Test;
 import junit.framework.Assert;
 
 import synoptic.main.SynopticMain;
-import synoptic.main.ParseException;
-import synoptic.main.TraceParser;
+import synoptic.main.parser.ParseException;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.event.EventType;
