@@ -83,23 +83,43 @@ public class Transition<NodeType> implements ITransition<NodeType> {
 
     @Override
     public ITime getDelta() {
+        if (this.series != null) {
+            throw new IllegalStateException("Series initialized");
+        }
         return delta;
     }
 
     @Override
     public void setDelta(ITime d) {
-        assert d != null;
+        if (d == null) {
+            throw new IllegalArgumentException();
+        }
+        
+        if (this.series != null) {
+            throw new IllegalStateException("Series initialized.");
+        }
+        
         delta = d;
     }
 
     @Override
     public ITimeSeries<ITime> getDeltaSeries() {
+        if (this.delta != null) {
+            throw new IllegalStateException("Delta already set.");
+        }
+        
         createSeriesIfEmpty();
         return this.series;
     }
 
     @Override
     public void addDelta(ITime newDelta) {
+        // Should not be able to have a delta and a series at the same
+        // time.
+        if (this.delta != null) {
+            throw new IllegalStateException("Delta already set.");
+        }
+        
         // If delta is null, do not add anything.
         if (newDelta == null) {
             return;
@@ -110,17 +130,11 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     }
 
     /**
-     * Create the series if one does not exist. If the series is created, this
-     * will also add the existing delta to the series and set the delta to null.
+     * Create the series if one does not exist.
      */
     private void createSeriesIfEmpty() {
-        // If the series exists, add the delta to series, set delta to null.
         if (this.series == null) {
             this.series = new ITimeSeries<ITime>();
-            if (this.delta != null) {
-                this.series.addDelta(this.delta);
-                this.delta = null;
-            }
         }
     }
 

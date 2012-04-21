@@ -53,37 +53,50 @@ public interface ITransition<NodeType> extends
     void setSource(NodeType source);
 
     /**
-     * Get the delta time of the transition
+     * Get the delta time of the transition.  Cannot be called after a delta series
+     * has been successfully set via the getDeltaSeries or addDelta methods.
      * 
      * @return delta time
+     * 
+     * @throws IllegalStateException
+     *          if called after a delta series has been set.
      */
     ITime getDelta();
 
     /**
-     * Set the delta.
+     * Set the delta.  Cannot be called after the delta series has been
+     * successfully set via the getDeltaSeries or addDelta methods.
      * 
      * @param d
      *            the new delta time
+     * @throws IllegalStateException
+     *            if called after a delta series has been set. 
      */
     void setDelta(ITime d);
 
     /**
      * Returns the series of times contained within the Transition. If there is
-     * no series contained within the transition, one will be created (if a
-     * delta has already been set, it will be contained within the newly created
-     * series).
+     * no series yet (and there is no single delta set), then an empty one will
+     * be created. Cannot be called after a single delta has been successully
+     * set via the setDelta method.
      * 
      * @return the delta time series corresponding to this transition.
+     *
+     * @throws IllegalStateException 
+     *          if called after a single delta has been set.
      */
     ITimeSeries<ITime> getDeltaSeries();
 
     /**
      * Adds a delta to the series. If the series of deltas is missing, then one
-     * will be created. If a delta has already been set by setDelta(), it will
-     * be added to the series along with the new delta "d".
+     * will be created. Cannot be called after a single delta has
+     * been successfully set via the setDelta method.
      * 
      * @param d
      *            The delta to be added to the series.
+     *
+     * @throws IllegalStateException
+     *          if called after a single delta has been set.
      */
     void addDelta(ITime d);
 

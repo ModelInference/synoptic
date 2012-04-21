@@ -8,7 +8,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.model.Transition;
+import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
+import synoptic.util.time.DTotalTime;
 
 /**
  * Tests for verifying proper state when adding/mutating the innards of the
@@ -37,7 +39,25 @@ public class TransitionDeltaTests {
     public void addDeltaToSeries() {
         sTrans.addDelta(new ITotalTime(1));
         assertNotNull(sTrans.getDeltaSeries());
-        assertEquals((ITotalTime) sTrans.getDeltaSeries().computeMode(),
+        assertEquals(sTrans.getDeltaSeries().computeMode(),
                 new ITotalTime(1));
+    }
+
+    // Should not be able to add a delta after the delta
+    // has been set.
+    @Test (expected = IllegalStateException.class)
+    public void stateExceptionOnAddDeltaAfterSet() {
+        ITime t = new DTotalTime(2);
+        sTrans.setDelta(t);
+        sTrans.addDelta(t);
+    }
+
+    // Should not be able to set the delta after the
+    // ITimeSeries has been initialized.
+    @Test (expected = IllegalStateException.class)
+    public void stateExceptionOnSetDelta() {
+        ITime t = new DTotalTime(2);
+        sTrans.addDelta(t);
+        sTrans.setDelta(t);
     }
 }
