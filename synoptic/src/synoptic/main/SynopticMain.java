@@ -25,8 +25,8 @@ import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.concurrency.NeverConcurrentInvariant;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
-import synoptic.invariants.miners.POInvariantMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
+import synoptic.invariants.miners.IPOInvariantMiner;
+import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.options.Options;
 import synoptic.main.options.SynopticOptions;
@@ -505,7 +505,7 @@ public class SynopticMain {
 
     public TemporalInvariantSet mineTOInvariants(
             boolean useTransitiveClosureMining, ChainsTraceGraph inputGraph) {
-        TOInvariantMiner miner;
+        ITOInvariantMiner miner;
 
         if (useTransitiveClosureMining) {
             miner = new TransitiveClosureInvMiner();
@@ -528,7 +528,7 @@ public class SynopticMain {
     public TemporalInvariantSet minePOInvariants(
             boolean useTransitiveClosureMining, DAGsTraceGraph inputGraph) {
 
-        POInvariantMiner miner;
+        IPOInvariantMiner miner;
         if (useTransitiveClosureMining) {
             miner = new TransitiveClosureInvMiner();
         } else {

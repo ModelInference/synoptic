@@ -26,7 +26,7 @@ import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ImmediateInvariantMiner;
 import synoptic.invariants.miners.KTailInvariantMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
+import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.main.SynopticMain;
 import synoptic.main.options.Options;
 import synoptic.main.options.SynopticOptions;
@@ -210,7 +210,7 @@ public class InvariMintMain {
 
     private static TemporalInvariantSet mineInvariants(InvariMintOptions opts,
             ChainsTraceGraph inputGraph) {
-        TOInvariantMiner miner;
+        ITOInvariantMiner miner;
         if (opts.performKTails) {
             miner = new KTailInvariantMiner(opts.kTailLength);
         } else {

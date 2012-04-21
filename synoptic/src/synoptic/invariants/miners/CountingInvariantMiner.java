@@ -15,7 +15,11 @@ import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 import synoptic.util.InternalSynopticException;
 
-public class CountingInvariantMiner extends InvariantMiner {
+/**
+ * Contains useful methods that can be used by invariant miners that collect
+ * event pair counts to generate invariants.
+ */
+abstract public class CountingInvariantMiner extends InvariantMiner {
 
     /**
      * Builds a set of local invariants (those that hold between events at the

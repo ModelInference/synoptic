@@ -15,7 +15,7 @@ import synoptic.algorithms.graphops.IOperation;
 import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
+import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
@@ -42,7 +42,7 @@ public class PartitionGraphTests extends SynopticTest {
         ChainsTraceGraph inputGraph = parser
                 .generateDirectTORelation(parsedEvents);
 
-        TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        ITOInvariantMiner miner = new ChainWalkingTOInvMiner();
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph,
                 false);
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
@@ -121,7 +121,7 @@ public class PartitionGraphTests extends SynopticTest {
         parser.addRegex("^(?<TIME>)(?<nodename>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<nodename>");
 
-        TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        ITOInvariantMiner miner = new ChainWalkingTOInvMiner();
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner,
                 false);
 
@@ -161,7 +161,7 @@ public class PartitionGraphTests extends SynopticTest {
         TraceParser parser = new TraceParser();
         parser.addRegex("^(?<DTIME>)(?<nodename>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<nodename>");
-        TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        ITOInvariantMiner miner = new ChainWalkingTOInvMiner();
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner,
                 false);
 
@@ -179,7 +179,7 @@ public class PartitionGraphTests extends SynopticTest {
         TraceParser parser = new TraceParser();
         parser.addRegex("^(?<TIME>)(?<nodename>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<nodename>");
-        TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        ITOInvariantMiner miner = new ChainWalkingTOInvMiner();
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner,
                 false);
         return pGraph;

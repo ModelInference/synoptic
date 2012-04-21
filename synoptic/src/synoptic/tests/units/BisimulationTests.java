@@ -9,7 +9,7 @@ import org.junit.Test;
 import synoptic.algorithms.Bisimulation;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
+import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
@@ -100,7 +100,7 @@ public class BisimulationTests extends SynopticTest {
 
         exportTestGraph(inputGraph, 0);
 
-        TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        ITOInvariantMiner miner = new ChainWalkingTOInvMiner();
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph,
                 false);
 

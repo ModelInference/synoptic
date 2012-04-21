@@ -29,12 +29,20 @@ import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 
+/**
+ * Implements an invariant miner for both totally and partially ordered traces
+ * that first creates a transitive closure of the TraceGraph, and then considers
+ * the edges in the transitive closure to mine invariants. For example, if every
+ * instance of EventNode of type "a" has an edge in the transitive closure to an
+ * EventNode of type "b", then a AlwaysFollowedBy b is an invariant of the
+ * TraceGraph.
+ */
 public class TransitiveClosureInvMiner extends InvariantMiner implements
-        POInvariantMiner, TOInvariantMiner {
+        IPOInvariantMiner, ITOInvariantMiner {
 
     /**
      * Whether or not to use iterative version of warshall's algorithm for TC
-     * computation. Yes by default.
+     * computation. Yes/true by default.
      */
     public boolean useWarshall = true;
 

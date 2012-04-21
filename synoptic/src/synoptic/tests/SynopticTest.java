@@ -10,7 +10,7 @@ import org.junit.rules.TestName;
 
 import junit.framework.Assert;
 
-import synoptic.invariants.miners.TOInvariantMiner;
+import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -193,7 +193,7 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @throws Exception
      */
     public static PartitionGraph genInitialPartitionGraph(String[] events,
-            TraceParser parser, TOInvariantMiner miner,
+            TraceParser parser, ITOInvariantMiner miner,
             boolean multipleRelations) throws Exception {
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, parser);

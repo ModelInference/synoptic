@@ -6,14 +6,14 @@ import synoptic.model.ChainsTraceGraph;
 import synoptic.model.event.EventType;
 
 /**
- * Mines constrained invariants from totally ordered traces. Uses other totally
- * ordered invariant miners to first mine the unconstrained invariants (if not
- * given these explicitly), and then mines the constrains on these invariants by
- * walking the trace directly.
+ * <b>Work in progress.</b> Mines constrained invariants from totally ordered
+ * traces. Uses other totally ordered invariant miners to first mine the
+ * unconstrained invariants (if not given these explicitly), and then mines the
+ * constrains on these invariants by walking the trace directly.
  */
 public class ConstrainedInvMiner extends InvariantMiner implements
-        TOInvariantMiner {
-    private TOInvariantMiner miner;
+        ITOInvariantMiner {
+    private ITOInvariantMiner miner;
 
     public ConstrainedInvMiner(boolean useTransitiveClosureMining) {
         if (useTransitiveClosureMining) {
