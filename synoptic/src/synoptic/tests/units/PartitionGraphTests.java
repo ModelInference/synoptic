@@ -16,7 +16,7 @@ import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.main.TraceParser;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import synoptic.main.ParseException;
+import synoptic.main.parser.ParseException;
 
 public class NamedPattern {
 

@@ -11,8 +11,8 @@ import org.junit.rules.TestName;
 import junit.framework.Assert;
 
 import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.main.ParseException;
-import synoptic.main.TraceParser;
+import synoptic.main.parser.ParseException;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;

@@ -3,7 +3,7 @@ package synoptic.tests;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import synoptic.main.ParseException;
+import synoptic.main.parser.ParseException;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Transition;

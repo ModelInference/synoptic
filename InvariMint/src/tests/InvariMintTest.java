@@ -5,7 +5,7 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.rules.TestName;
 
-import synoptic.main.ParseException;
+import synoptic.main.parser.ParseException;
 import synoptic.tests.SynopticLibTest;
 
 /**

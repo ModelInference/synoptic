@@ -10,8 +10,8 @@ import org.junit.rules.TestName;
 import org.junit.runner.JUnitCore;
 
 import synoptic.main.SynopticMain;
-import synoptic.main.ParseException;
-import synoptic.main.SynopticOptions;
+import synoptic.main.options.SynopticOptions;
+import synoptic.main.parser.ParseException;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;

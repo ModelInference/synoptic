@@ -28,9 +28,9 @@ import synoptic.invariants.miners.ImmediateInvariantMiner;
 import synoptic.invariants.miners.KTailInvariantMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.main.SynopticMain;
-import synoptic.main.Options;
-import synoptic.main.SynopticOptions;
-import synoptic.main.TraceParser;
+import synoptic.main.options.Options;
+import synoptic.main.options.SynopticOptions;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.PartitionGraph;
@@ -160,7 +160,7 @@ public class InvariMintMain {
 
         if (opts.logFilenames.size() == 0) {
             logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
-                    + synoptic.main.Options.getOptDesc("help"));
+                    + synoptic.main.options.Options.getOptDesc("help"));
             System.exit(0);
         }
     }

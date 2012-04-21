@@ -9,7 +9,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.main.SynopticMain;
-import synoptic.main.ParseException;
+import synoptic.main.parser.ParseException;
 import synoptic.tests.SynopticTest;
 
 /**
