@@ -16,10 +16,10 @@ import synoptic.invariants.fsmcheck.AFbyInvFsms;
 import synoptic.invariants.fsmcheck.APInvFsms;
 import synoptic.invariants.fsmcheck.FsmStateSet;
 import synoptic.invariants.fsmcheck.NFbyInvFsms;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
-import synoptic.model.StringEventType;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 
 public class FsmStateSetTests extends SynopticTest {

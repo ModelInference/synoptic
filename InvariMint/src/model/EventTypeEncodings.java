@@ -7,7 +7,7 @@ import java.util.Set;
 import dk.brics.automaton.Automaton;
 import dk.brics.automaton.RegExp;
 
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 
 /**
  * Encodes the EventTypes to be used by an EncodedAutomaton to characters. All

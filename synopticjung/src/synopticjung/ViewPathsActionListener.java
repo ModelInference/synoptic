@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,11 +20,8 @@ import javax.swing.WindowConstants;
 
 import edu.uci.ics.jung.visualization.picking.PickedState;
 
-import synoptic.model.EventNode;
 import synoptic.model.Partition;
-import synoptic.model.Transition;
 import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
 
 /**
  * Responsible for responding to user selection of paths from the view-paths
@@ -48,7 +46,7 @@ public class ViewPathsActionListener implements ActionListener {
             return;
         }
 
-        final Map<Integer, Set<ITransition<Partition>>> paths = jungGui.pGraph
+        final Map<Integer, List<Partition>> paths = jungGui.pGraph
                 .getPathsThroughPartitions(pickedVertices);
 
         // Now intersectionOfIDs is a set intersection of the
@@ -64,12 +62,12 @@ public class ViewPathsActionListener implements ActionListener {
                 SwingConstants.CENTER);
         JPanel panel = new JPanel();
         ButtonGroup traceButtonGroup = new ButtonGroup();
-        for (final Integer trace : paths.keySet()) {
-            JRadioButton button = new JRadioButton("Trace ID " + trace);
+        for (final Integer traceID : paths.keySet()) {
+            JRadioButton button = new JRadioButton("Trace ID " + traceID);
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent event) {
-                    jungGui.displayPath(paths.get(trace));
+                    jungGui.displayPath(paths.get(traceID));
                 }
             });
             panel.add(button);
@@ -86,16 +84,6 @@ public class ViewPathsActionListener implements ActionListener {
             optionsFrame.add(panel, BorderLayout.SOUTH);
             optionsFrame.pack();
             optionsFrame.setVisible(true);
-        }
-    }
-
-    void traverse(EventNode event, Set<ITransition<Partition>> path) {
-        // Should be a single transition for totally ordered logs
-        for (Transition<EventNode> transition : event.getTransitions()) {
-            path.add(event.getParent().getTransition(
-                    transition.getTarget().getParent(),
-                    transition.getRelation()));
-            traverse(transition.getTarget(), path);
         }
     }
 }

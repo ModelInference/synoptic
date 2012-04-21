@@ -19,7 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.main.Options;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
@@ -28,6 +28,7 @@ import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
+import synoptic.util.time.ITime;
 
 /**
  * Used to export a graph object to a file.
@@ -62,11 +63,11 @@ public class GraphExporter {
                 return dotCommand;
             }
         }
-        if (Main.options.dotExecutablePath == null) {
+        if (SynopticMain.getInstance().options.dotExecutablePath == null) {
             logger.severe("Unable to locate the dot command executable, use cmd line option:\n\t"
                     + Options.getOptDesc("dotExecutablePath"));
         }
-        return Main.options.dotExecutablePath;
+        return SynopticMain.getInstance().options.dotExecutablePath;
     }
 
     /**
@@ -152,7 +153,8 @@ public class GraphExporter {
 
         try {
             // Begin graph.
-            writer.write(Main.graphExportFormatter.beginGraphString());
+            writer.write(SynopticMain.getInstance().graphExportFormatter
+                    .beginGraphString());
 
             // ////////////////////////// Write out graph body.
 
@@ -175,8 +177,10 @@ public class GraphExporter {
                 T node = nodesIter.next();
 
                 // On user request, do not show the initial/terminal nodes.
-                if ((!Main.options.showInitialNode && node.isInitial())
-                        || (!Main.options.showTerminalNode && node.isTerminal())) {
+                if ((!SynopticMain.getInstance().options.showInitialNode && node
+                        .isInitial())
+                        || (!SynopticMain.getInstance().options.showTerminalNode && node
+                                .isTerminal())) {
                     // Remove the node from nodes to export (so that we do not
                     // show the edges corresponding to the nodes).
                     nodesIter.remove();
@@ -184,8 +188,9 @@ public class GraphExporter {
                 }
 
                 // Output the node record -- its id along with its attributes.
-                writer.write(Main.graphExportFormatter.nodeToString(nodeCnt,
-                        node, node.isInitial(), node.isTerminal()));
+                writer.write(SynopticMain.getInstance().graphExportFormatter
+                        .nodeToString(nodeCnt, node, node.isInitial(),
+                                node.isTerminal()));
                 // Remember the identifier assigned to this node (used for
                 // outputting transitions between nodes).
                 nodeToInt.put(node, nodeCnt);
@@ -197,10 +202,13 @@ public class GraphExporter {
             // Export all the edges corresponding to the nodes in the graph.
             for (INode<T> node : nodes) {
                 List<? extends ITransition<T>> transitions;
-                if (outputEdgeLabels) {
+                // If perf debugging isn't enabled, then output weights, else
+                // add the edge labels later.
+                if (outputEdgeLabels
+                        && !SynopticMain.getInstance().options.enablePerfDebugging) {
                     transitions = node.getWeightedTransitions();
                 } else {
-                    transitions = node.getTransitions();
+                    transitions = node.getAllTransitions();
                 }
                 // Sort the transitions for canonical output.
                 Collections.sort(transitions);
@@ -227,21 +235,39 @@ public class GraphExporter {
                         // in Java 1.6, see here:
                         // http://bugs.sun.com/view_bug.do?bug_id=6932571
                         assert (((INode<?>) (trans.getSource())) instanceof EventNode);
-                        s = Main.graphExportFormatter.edgeToStringWithTraceId(
-                                nodeSrc, nodeDst,
-                                ((EventNode) ((INode<?>) trans.getSource()))
-                                        .getTraceID(), trans.getRelation());
+                        s = SynopticMain.getInstance().graphExportFormatter
+                                .edgeToStringWithTraceId(nodeSrc, nodeDst,
+                                        ((EventNode) ((INode<?>) trans
+                                                .getSource())).getTraceID(),
+                                        trans.getRelations());
                     } else {
                         if (outputEdgeLabels) {
-                            double prob = ((WeightedTransition<T>) trans)
-                                    .getFraction();
-                            s = Main.graphExportFormatter
-                                    .edgeToStringWithProb(nodeSrc, nodeDst,
-                                            prob, trans.getRelation());
+
+                            if (SynopticMain.getInstance().options.enablePerfDebugging) {
+                                // TODO Simply calculate the mean for now, but
+                                // this should be more robust and conform to
+                                // what the
+                                // user wants in particular.
+                                ITime time = null;
+                                if (trans.getDeltaSeries() != null) {
+                                    time = trans.getDeltaSeries().computeMean();
+                                }
+                                s = SynopticMain.getInstance().graphExportFormatter
+                                        .edgeToStringWithITime(nodeSrc,
+                                                nodeDst, time,
+                                                trans.getRelations());
+
+                            } else {
+                                double prob = ((WeightedTransition<T>) trans)
+                                        .getFraction();
+                                s = SynopticMain.getInstance().graphExportFormatter
+                                        .edgeToStringWithProb(nodeSrc, nodeDst,
+                                                prob, trans.getRelations());
+                            }
                         } else {
-                            s = Main.graphExportFormatter
+                            s = SynopticMain.getInstance().graphExportFormatter
                                     .edgeToStringWithNoProb(nodeSrc, nodeDst,
-                                            trans.getRelation());
+                                            trans.getRelations());
                         }
                     }
                     writer.write(s);
@@ -252,7 +278,8 @@ public class GraphExporter {
             // //////////////////////////
 
             // End graph.
-            writer.write(Main.graphExportFormatter.endGraphString());
+            writer.write(SynopticMain.getInstance().graphExportFormatter
+                    .endGraphString());
 
         } catch (IOException e) {
             throw new RuntimeException(

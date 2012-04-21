@@ -1,5 +1,10 @@
 package synoptic.util.time;
 
+/**
+ * To be comparable, two vector timestamps must have the same length. This
+ * exception is thrown when attempting to compare two vector timestamps that
+ * have different vector lengths.
+ */
 public class NotComparableVectorsException extends RuntimeException {
     /**
      * Unique version uid

@@ -11,21 +11,20 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import synoptic.algorithms.graph.IOperation;
-import synoptic.algorithms.graph.PartitionSplit;
+import synoptic.algorithms.graphops.IOperation;
+import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.StringEventType;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
 import synoptic.tests.SynopticTest;
 
 public class PartitionGraphTests extends SynopticTest {
@@ -44,7 +43,8 @@ public class PartitionGraphTests extends SynopticTest {
                 .generateDirectTORelation(parsedEvents);
 
         TOInvariantMiner miner = new ChainWalkingTOInvMiner();
-        TemporalInvariantSet invariants = miner.computeInvariants(inputGraph);
+        TemporalInvariantSet invariants = miner.computeInvariants(inputGraph,
+                false);
         PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
 
         // The set of nodes should be: INITIAL, a, TERMINAL
@@ -69,18 +69,18 @@ public class PartitionGraphTests extends SynopticTest {
 
         // The set of nodes is now: INITIAL, a, a', TERMINAL
         assertTrue(pGraph.getNodes().size() == 4);
-        assertTrue(pGraph.getDummyInitialNodes().size() == 1);
-        Partition pInitial = pGraph.getDummyInitialNodes().iterator().next();
-        assertTrue(pInitial.getTransitions().size() == 2);
-        Partition pA1 = pInitial.getTransitions().get(0).getTarget();
+        assertTrue(pGraph.getDummyInitialNode().size() == 1);
+        Partition pInitial = pGraph.getDummyInitialNode();
+        assertTrue(pInitial.getAllTransitions().size() == 2);
+        Partition pA1 = pInitial.getAllTransitions().get(0).getTarget();
         assertTrue(pA1.getEType().equals(new StringEventType("a")));
-        assertTrue(pA1.getTransitions().size() == 1);
-        assertTrue(pA1.getTransitions().get(0).getTarget().getEType()
+        assertTrue(pA1.getAllTransitions().size() == 1);
+        assertTrue(pA1.getAllTransitions().get(0).getTarget().getEType()
                 .isTerminalEventType());
-        Partition pA2 = pInitial.getTransitions().get(1).getTarget();
+        Partition pA2 = pInitial.getAllTransitions().get(1).getTarget();
         assertTrue(pA2.getEType().equals(new StringEventType("a")));
-        assertTrue(pA2.getTransitions().size() == 1);
-        assertTrue(pA2.getTransitions().get(0).getTarget().getEType()
+        assertTrue(pA2.getAllTransitions().size() == 1);
+        assertTrue(pA2.getAllTransitions().get(0).getTarget().getEType()
                 .isTerminalEventType());
 
         // Undo the split.
@@ -104,13 +104,17 @@ public class PartitionGraphTests extends SynopticTest {
 
     /**
      * Creates a partition graph and and checks to see if all synthetic traces
-     * are exported properly (based on what they "should" be). TODO: Test for
-     * cycles (when cycle functionality has been properly implemented).
+     * are exported properly.
+     * 
+     * <pre>
+     * TODO: Test for cycles (when cycle functionality has been properly implemented).
+     * </pre>
      */
     @Test
     public void exportSyntheticTracesTest() throws Exception {
-
-        // This should create two synthetic traces: I a b c T, I q a b T.
+        // This creates two synthetic traces:
+        // INITIAL->a->b->TERMINAL
+        // INITIAL->q->a->b->c->TERMINAL
         String[] events = new String[] { "1 0 a", "2 0 b", "3 1 q", "4 1 a",
                 "5 1 b", "6 1 c" };
         TraceParser parser = new TraceParser();
@@ -118,9 +122,10 @@ public class PartitionGraphTests extends SynopticTest {
         parser.setPartitionsMap("\\k<nodename>");
 
         TOInvariantMiner miner = new ChainWalkingTOInvMiner();
-        PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner);
+        PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner,
+                false);
 
-        // Prepare the output with what it should be (as mentioned above).
+        // Get all the synthetic traces from an initial partitioning.
         Set<List<Partition>> pTraces = pGraph.getSyntheticTraces();
 
         // Should only have 2 synthetic traces.
@@ -144,8 +149,11 @@ public class PartitionGraphTests extends SynopticTest {
         }
     }
 
-    // Just to make sure an exception is thrown upon passing an invalid
-    // parameter.
+    /**
+     * Make sure an exception is thrown upon passing an invalid parameter.
+     * 
+     * @throws Exception
+     */
     @Test(expected = IllegalArgumentException.class)
     public void exportPathsThroughSelectedNodesNullParam() throws Exception {
         // Some random values to parse.
@@ -154,7 +162,8 @@ public class PartitionGraphTests extends SynopticTest {
         parser.addRegex("^(?<DTIME>)(?<nodename>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<nodename>");
         TOInvariantMiner miner = new ChainWalkingTOInvMiner();
-        PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner);
+        PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner,
+                false);
 
         pGraph.getPathsThroughPartitions(null);
     }
@@ -171,7 +180,8 @@ public class PartitionGraphTests extends SynopticTest {
         parser.addRegex("^(?<TIME>)(?<nodename>)(?<TYPE>)$");
         parser.setPartitionsMap("\\k<nodename>");
         TOInvariantMiner miner = new ChainWalkingTOInvMiner();
-        PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner);
+        PartitionGraph pGraph = genInitialPartitionGraph(events, parser, miner,
+                false);
         return pGraph;
     }
 
@@ -198,7 +208,7 @@ public class PartitionGraphTests extends SynopticTest {
         selectedNodes.add(cPartition);
 
         // Grab the set of paths.
-        Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+        Map<Integer, List<Partition>> paths = pGraph
                 .getPathsThroughPartitions(selectedNodes);
 
         assertEquals("There should be one trace only.", paths.keySet().size(),
@@ -234,7 +244,7 @@ public class PartitionGraphTests extends SynopticTest {
         selectedNodes.add(aPartition);
         selectedNodes.add(cPartition);
 
-        Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+        Map<Integer, List<Partition>> paths = pGraph
                 .getPathsThroughPartitions(selectedNodes);
 
         assertEquals("There should be exactly one trace",

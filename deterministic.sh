@@ -7,7 +7,7 @@ numRuns=200
 # run synoptic numRuns times
 for (( i = 1; i <= $numRuns ; i++ ))
 do
-    java -ea -cp ./lib/plume.jar:./synoptic/bin/ synoptic.main.Main -o output/mid_branching/trace$i --randomSeed=19580427 --dumpInitialGraph=false --dumpPNG=false ./traces/abstract/mid_branching/trace.txt -c ./traces/abstract/mid_branching/determineArgs.txt 
+    java -ea -cp ./lib/plume.jar:./synoptic/bin/ synoptic.main.SynopticMain -o output/mid_branching/trace$i --randomSeed=19580427 --dumpInitialGraph=false --dumpPNG=false ./traces/abstract/mid_branching/trace.txt -c ./traces/abstract/mid_branching/determineArgs.txt 
 done
 
 

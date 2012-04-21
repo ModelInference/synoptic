@@ -55,8 +55,8 @@ public class TOMiningPerformanceTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        synoptic.main.Main.options.logLvlExtraVerbose = false;
-        synoptic.main.Main.options.logLvlQuiet = true;
+        synoptic.main.SynopticMain.getInstance().options.logLvlExtraVerbose = false;
+        synoptic.main.SynopticMain.getInstance().options.logLvlQuiet = true;
     }
 
     public void reportTime(long msTime) {
@@ -105,7 +105,7 @@ public class TOMiningPerformanceTests extends SynopticTest {
 
             // /////////////
             startTime = System.currentTimeMillis();
-            miner.computeInvariants(inputGraph);
+            miner.computeInvariants(inputGraph, false);
             total_delta += System.currentTimeMillis() - startTime;
             // /////////////
         }

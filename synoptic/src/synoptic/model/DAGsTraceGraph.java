@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import synoptic.algorithms.graph.FloydWarshall;
-import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.algorithms.FloydWarshall;
+import synoptic.algorithms.TransitiveClosure;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
 import synoptic.model.interfaces.ITransition;
 
 public class DAGsTraceGraph extends TraceGraph<DistEventType> {
@@ -25,25 +27,25 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
     private final Map<Integer, Set<EventNode>> traceIdToInitNodes = new LinkedHashMap<Integer, Set<EventNode>>();
 
     public DAGsTraceGraph(Collection<EventNode> nodes) {
-        super(nodes);
+        super(nodes, initEvent, termEvent);
     }
 
     public DAGsTraceGraph() {
-        super();
+        super(initEvent, termEvent);
     }
 
     public Map<Integer, Set<EventNode>> getTraceIdToInitNodes() {
         return traceIdToInitNodes;
     }
 
-    public void tagTerminal(EventNode terminalNode, String relation) {
-        createIfNotExistsDummyTerminalNode(termEvent, relation);
-        super.tagTerminal(terminalNode, relation);
+    public void tagInitial(EventNode initialNode, String relation) {
+        Set<String> relations = new LinkedHashSet<String>();
+        relations.add(relation);
+        tagInitial(initialNode, relations);
     }
 
-    public void tagInitial(EventNode initialNode, String relation) {
-        createIfNotExistsDummyInitialNode(initEvent, relation);
-        super.tagInitial(initialNode, relation);
+    public void tagInitial(EventNode initialNode, Set<String> relations) {
+        super.tagInitial(initialNode, relations);
 
         /**
          * Build a map of trace id to the set of initial nodes in the trace.
@@ -73,22 +75,30 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
         return traceIdToInitNodes.size();
     }
 
+    public TransitiveClosure getTransitiveClosure(String relation,
+            boolean useFloydWarshall) {
+        Set<String> relations = new LinkedHashSet<String>();
+        relations.add(relation);
+        return this.getTransitiveClosure(relations, useFloydWarshall);
+    }
+
     /**
      * Returns the transitive closure of the DAG trace graph. Computes the
      * transitive closure using Floyd Warshall algorithm (if useFloydWarshall ==
      * true), otherwise uses the more optimized Goralcikova algorithm.
      */
-    public TransitiveClosure getTransitiveClosure(String relation,
+    public TransitiveClosure getTransitiveClosure(Set<String> relations,
             boolean useFloydWarshall) {
         if (useFloydWarshall) {
-            return FloydWarshall.warshallAlg(this, relation);
+            return FloydWarshall.warshallAlg(this, relations);
         }
-        return goralcikovaAlg(relation);
+
+        return goralcikovaAlg(relations);
     }
 
     @Override
-    public TransitiveClosure getTransitiveClosure(String relation) {
-        return getTransitiveClosure(relation, true);
+    public TransitiveClosure getTransitiveClosure(Set<String> relations) {
+        return getTransitiveClosure(relations, true);
     }
 
     /**
@@ -113,11 +123,11 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
     // 2. Sort subList using a comparator that uses the relative position of
     // elements in the orderedSuperList for computing the order of elements.
     public List<EventNode> getSubSortedList(
-            Collection<Transition<EventNode>> unorderedTrans,
+            Collection<? extends ITransition<EventNode>> unorderedTrans,
             List<EventNode> orderedSuperList) {
         List<EventNode> subList = new LinkedList<EventNode>();
         Set<EventNode> unorderedNodes = new LinkedHashSet<EventNode>();
-        for (Transition<EventNode> trans : unorderedTrans) {
+        for (ITransition<EventNode> trans : unorderedTrans) {
             unorderedNodes.add(trans.getTarget());
         }
 
@@ -145,8 +155,8 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
      * </pre>
      */
     @SuppressWarnings("unused")
-    private TransitiveClosure goralcikovaAlg(String relation) {
-        TransitiveClosure transClosure = new TransitiveClosure(relation);
+    private TransitiveClosure goralcikovaAlg(Set<String> relations) {
+        TransitiveClosure transClosure = new TransitiveClosure(relations);
         Map<EventNode, Set<EventNode>> tc = transClosure.getTC();
 
         List<EventNode> sortedNodes = new LinkedList<EventNode>();
@@ -173,7 +183,7 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
         for (Set<EventNode> dagInits : traceIdToInitNodes.values()) {
 
             // 1. Get the nodes sorted in some topological order.
-            topoOrder = computeTopologicalOrder(dagInits);
+            topoOrder = computeTopologicalOrder(dagInits, relations);
 
             // TODO: Potential optimization
             // 2. Build the order map -- this maps a node from the topological
@@ -192,7 +202,8 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
             bfsPerimeter.addAll(dagInits);
             while (bfsPerimeter.size() != 0) {
                 for (EventNode m : bfsPerimeter) {
-                    addToBFSPerimeter(bfsPerimeter, m, null, parentsMap);
+                    addToBFSPerimeter(bfsPerimeter, m, null, parentsMap,
+                            relations);
                     bfsPerimeter.remove(m);
                     break;
                 }
@@ -216,7 +227,9 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
 
                 // Retrieve a sorted list of m's children based on the topoOrder
                 // that was computed earlier for all the nodes in the graph.
-                subSortedList = getSubSortedList(m.getTransitions(), topoOrder);
+                subSortedList = getSubSortedList(
+                        m.getTransitionsWithExactRelations(relations),
+                        topoOrder);
 
                 for (EventNode child : subSortedList) {
                     if (!transClosure.isReachable(m, child)) {
@@ -225,7 +238,7 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
                         // corresponding to m does not exist initially and
                         // mergeReachables does not check for existence of this
                         // set (should it?)
-                        transClosure.addReachable(m, child);
+                        transClosure.recordTransitiveReachability(m, child);
                         transClosure.mergeReachables(child, m);
                     }
                 }
@@ -249,9 +262,11 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
      * 
      * @param traceid
      */
-    public List<EventNode> computeTopologicalOrder(int traceid) {
+    public List<EventNode> computeTopologicalOrder(int traceid,
+            Set<String> relations) {
         assert traceIdToInitNodes.containsKey(traceid);
-        return computeTopologicalOrder(traceIdToInitNodes.get(traceid));
+        return computeTopologicalOrder(traceIdToInitNodes.get(traceid),
+                relations);
     }
 
     /**
@@ -260,7 +275,8 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
      * 
      * @param dagInits
      */
-    public List<EventNode> computeTopologicalOrder(Set<EventNode> dagInits) {
+    public List<EventNode> computeTopologicalOrder(Set<EventNode> dagInits,
+            Set<String> relations) {
         Map<EventNode, Integer> parentsCountMap = new LinkedHashMap<EventNode, Integer>();
         Set<EventNode> bfsPerimeter = new LinkedHashSet<EventNode>();
         List<EventNode> topoOrder = new LinkedList<EventNode>();
@@ -270,7 +286,8 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
         bfsPerimeter.addAll(dagInits);
         while (bfsPerimeter.size() != 0) {
             for (EventNode m : bfsPerimeter) {
-                addToBFSPerimeter(bfsPerimeter, m, parentsCountMap, null);
+                addToBFSPerimeter(bfsPerimeter, m, parentsCountMap, null,
+                        relations);
                 bfsPerimeter.remove(m);
                 break;
             }
@@ -280,16 +297,16 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
         // Traverse the trace, respecting topological order, and build up
         // topoOrder list.
         for (EventNode m : dagInits) {
-            addToTopoOrder(topoOrder, m, parentsCountMap);
-            addToBFSPerimeter(bfsPerimeter, m);
+            addToTopoOrder(topoOrder, m, parentsCountMap, relations);
+            addToBFSPerimeter(bfsPerimeter, m, relations);
         }
 
         while (bfsPerimeter.size() != 0) {
             for (EventNode m : bfsPerimeter) {
                 if (parentsCountMap.get(m) == 0) {
-                    addToTopoOrder(topoOrder, m, parentsCountMap);
+                    addToTopoOrder(topoOrder, m, parentsCountMap, relations);
                     bfsPerimeter.remove(m);
-                    addToBFSPerimeter(bfsPerimeter, m);
+                    addToBFSPerimeter(bfsPerimeter, m, relations);
                     break;
                 }
             }
@@ -314,9 +331,10 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
      */
     private void addToBFSPerimeter(Set<EventNode> bfsPerimeter, EventNode node,
             Map<EventNode, Integer> parentsCountMap,
-            Map<EventNode, Set<EventNode>> parentsMap) {
+            Map<EventNode, Set<EventNode>> parentsMap, Set<String> relations) {
         // Iterate through all the transitions from the node.
-        for (ITransition<EventNode> trans : node.getTransitions()) {
+        for (ITransition<EventNode> trans : node
+                .getTransitionsWithExactRelations(relations)) {
             EventNode dest = trans.getTarget();
             if (dest.isTerminal()) {
                 continue;
@@ -348,8 +366,10 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
         }
     }
 
-    private void addToBFSPerimeter(Set<EventNode> bfsPerimeter, EventNode node) {
-        for (ITransition<EventNode> trans : node.getTransitions()) {
+    private void addToBFSPerimeter(Set<EventNode> bfsPerimeter, EventNode node,
+            Set<String> relations) {
+        for (ITransition<EventNode> trans : node
+                .getTransitionsWithExactRelations(relations)) {
             EventNode dest = trans.getTarget();
             if (dest.isTerminal()) {
                 continue;
@@ -359,9 +379,10 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
     }
 
     private void addToTopoOrder(List<EventNode> topoOrder, EventNode node,
-            Map<EventNode, Integer> parentsCountMap) {
+            Map<EventNode, Integer> parentsCountMap, Set<String> relations) {
         topoOrder.add(node);
-        for (ITransition<EventNode> trans : node.getTransitions()) {
+        for (ITransition<EventNode> trans : node
+                .getTransitionsWithExactRelations(relations)) {
             EventNode dest = trans.getTarget();
             if (dest.isTerminal()) {
                 continue;

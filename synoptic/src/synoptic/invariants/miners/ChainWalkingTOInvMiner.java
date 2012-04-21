@@ -1,5 +1,6 @@
 package synoptic.invariants.miners;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -7,8 +8,11 @@ import java.util.Set;
 
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.EventType;
+import synoptic.model.TransitiveRelationPath;
 import synoptic.model.Trace;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
+import synoptic.model.interfaces.IRelationPath;
 
 /**
  * Implements a temporal invariant mining algorithm whose running time is linear
@@ -23,11 +27,11 @@ import synoptic.model.Trace;
  */
 public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         TOInvariantMiner {
-
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
+    
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, boolean multipleRelations) {
         TemporalInvariantSet result = new TemporalInvariantSet();
         for (String r : g.getRelations()) {
-            TemporalInvariantSet tmp = computeInvariants(g, r);
+            TemporalInvariantSet tmp = computeInvariants(g, r, multipleRelations);
             result.add(tmp);
         }
         return result;
@@ -76,27 +80,51 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
      * @return the set of temporal invariants that g satisfies
      */
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            String relation) {
+            String relation, boolean multipleRelations) {
 
         // TODO: we can set the initial capacity of the following HashMaps more
         // optimally, e.g. (N / 0.75) + 1 where N is the total number of event
         // types. See:
         // http://stackoverflow.com/questions/434989/hashmap-intialization-parameters-load-initialcapacity
 
+        // Stores generated RelationPaths
+        Set<IRelationPath> relationPaths = new HashSet<IRelationPath>();
+
         // Tracks event counts globally -- across all traces.
         Map<EventType, Integer> gEventCnts = new LinkedHashMap<EventType, Integer>();
 
-        // Build the set of all event types in the graph. We will use this set
-        // to pre-seed the various maps below. Also, since we're iterating over
-        // all nodes, we might as well count up the total counts of instances
-        // for each event type.
+        /*
+         * Build the set of all event types in the RelationPaths. We will use
+         * this set to pre-seed the various maps below. Also, since we're
+         * iterating over all nodes, we might as well count up the total counts
+         * of instances for each event type.
+         */
         Set<EventType> eTypes = new LinkedHashSet<EventType>();
         for (Trace trace : g.getTraces()) {
-            eTypes.addAll(trace.getSeen(relation));
-            Map<EventType, Integer> traceEventCounts = trace
-                    .getEventCounts(relation);
-            for (EventType eventType : traceEventCounts.keySet()) {
-                int count = traceEventCounts.get(eventType);
+            IRelationPath relationPath = null;
+            
+            if (multipleRelations && !relation.equals(Event.defaultTimeRelationString)) {
+                relationPath = trace.getBiRelationalPath(relation, Event.defaultTimeRelationString);
+            } else {
+                Set<IRelationPath> single = trace.getSingleRelationPaths(relation);
+                if (relation.equals(Event.defaultTimeRelationString) && single.size() != 1) {
+                    throw new IllegalStateException("Multiple relation subraphs for single relation graph");
+                }
+                relationPath = single.toArray(new IRelationPath[1])[0];
+            }
+                    
+
+            if (relationPath == null) {
+                continue;
+            }
+
+            relationPaths.add(relationPath);
+
+            eTypes.addAll(relationPath.getSeen());
+            Map<EventType, Integer> relationPathEventCounts = relationPath
+                    .getEventCounts();
+            for (EventType eventType : relationPathEventCounts.keySet()) {
+                int count = relationPathEventCounts.get(eventType);
 
                 if (gEventCnts.containsKey(eventType)) {
                     count += gEventCnts.get(eventType);
@@ -124,45 +152,46 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
             }
         }
 
-        // Tracks which events were observed across all traces.
+        // Tracks which events were observed across all RelationPaths.
         Set<EventType> AlwaysFollowsINITIALSet = null;
 
         /*
-         * Iterates over each trace in the graph and aggregates the individual
-         * Occurrences, Follows, and Precedes counts from the specified relation
-         * in each trace.
+         * Iterates over each RelationPath in the graph and aggregates the
+         * individual Occurrences, Follows, and Precedes counts.
          */
-        for (Trace trace : g.getTraces()) {
+        for (IRelationPath relationPath : relationPaths) {
 
             /*
-             * Adds the Precedes count from the trace into the graph global
-             * count
+             * Adds the Precedes count from the RelationPath into the graph
+             * global count.
              */
-            Map<EventType, Map<EventType, Integer>> tracePrecedesCounts = trace
-                    .getPrecedesCounts(relation);
-            addCounts(tracePrecedesCounts, gPrecedesCnts);
+
+            Map<EventType, Map<EventType, Integer>> relationPathPrecedesCounts = relationPath
+                    .getPrecedesCounts();
+            addCounts(relationPathPrecedesCounts, gPrecedesCnts);
 
             /*
-             * Adds the FollowedBy count from the trace into the graph global
-             * count
+             * Adds the FollowedBy count from the RelationPath into the graph
+             * global count.
              */
-            Map<EventType, Map<EventType, Integer>> traceFollowedByCounts = trace
-                    .getFollowedByCounts(relation);
-            addCounts(traceFollowedByCounts, gFollowedByCnts);
+
+            Map<EventType, Map<EventType, Integer>> relationPathFollowedByCounts = relationPath
+                    .getFollowedByCounts();
+            addCounts(relationPathFollowedByCounts, gFollowedByCnts);
 
             // Update the AlwaysFollowsINITIALSet set of events by
-            // intersecting it with all events seen in this partition.
-            Set<EventType> traceSeen = trace.getSeen(relation);
+            // intersecting it with all events seen in this RelationPath.
+            Set<EventType> relationPathSeen = relationPath.getSeen();
             if (AlwaysFollowsINITIALSet == null) {
-                // This is the first trace we've processed.
+                // This is the first RelationPath we are processing.
                 AlwaysFollowsINITIALSet = new LinkedHashSet<EventType>(
-                        traceSeen);
+                        relationPathSeen);
             } else {
-                AlwaysFollowsINITIALSet.retainAll(traceSeen);
+                AlwaysFollowsINITIALSet.retainAll(relationPathSeen);
             }
 
             // At this point, we've completed all counts computation for the
-            // current trace.
+            // current RelationPath.
         }
 
         return new TemporalInvariantSet(extractPathInvariantsFromWalkCounts(
@@ -177,7 +206,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
      * @param src
      * @param dst
      */
-    private void addCounts(Map<EventType, Map<EventType, Integer>> src,
+    private static void addCounts(Map<EventType, Map<EventType, Integer>> src,
             Map<EventType, Map<EventType, Integer>> dst) {
 
         for (EventType a : src.keySet()) {

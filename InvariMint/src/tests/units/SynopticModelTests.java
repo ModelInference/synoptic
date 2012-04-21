@@ -15,10 +15,10 @@ import model.SynopticModel;
 import org.junit.Test;
 
 import synoptic.invariants.miners.ImmediateInvariantMiner;
-import synoptic.main.Main;
-import synoptic.model.EventType;
+import synoptic.main.SynopticMain;
 import synoptic.model.PartitionGraph;
-import synoptic.model.StringEventType;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 
 import tests.InvariMintTest;
 
@@ -48,7 +48,7 @@ public class SynopticModelTests extends InvariMintTest {
                         + "osx-login-example" + File.separator + "trace.txt" };
 
         // Set up Synoptic.
-        Main synMain = Main.processArgs(args);
+        SynopticMain synMain = SynopticMain.processArgs(args);
         PartitionGraph pGraph = synMain.createInitialPartitionGraph();
         synMain.runSynoptic(pGraph);
 

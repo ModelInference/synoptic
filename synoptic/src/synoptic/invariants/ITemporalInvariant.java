@@ -3,7 +3,7 @@ package synoptic.invariants;
 import java.util.List;
 import java.util.Set;
 
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
 /**
@@ -43,7 +43,7 @@ public interface ITemporalInvariant {
      * 
      * @return the relation occurring in this invariant
      */
-    String getRelation();
+    Set<String> getRelations();
 
     /**
      * Get the set of predicates occurring in this property. Predicates are here

@@ -4,8 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import synoptic.algorithms.graph.FloydWarshall;
-import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.algorithms.FloydWarshall;
+import synoptic.algorithms.TransitiveClosure;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.interfaces.IGraph;
@@ -22,7 +22,7 @@ public class FloydWarshallTests extends SynopticTest {
     @Test
     public void listConstructorTest() {
         IGraph<EventNode> g = new ChainsTraceGraph();
-        TransitiveClosure tc = FloydWarshall.warshallAlg(g, defRelation);
+        TransitiveClosure tc = FloydWarshall.warshallAlg(g, defRelationSet);
         assertTrue(tc.getTC().keySet().size() == 0);
     }
 

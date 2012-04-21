@@ -9,9 +9,9 @@ import java.util.Set;
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.ITransition;
 
 public class ImmediateInvariantMiner {
@@ -32,8 +32,7 @@ public class ImmediateInvariantMiner {
     }
 
     private Map<EventType, Set<EventType>> getCIFbyMap() {
-        EventNode initNode = g
-                .getDummyInitialNode(Event.defaultTimeRelationString);
+        EventNode initNode = g.getDummyInitialNode();
 
         // Maps each EventType to the set of EventTypes that immediately follow
         // it.
@@ -41,7 +40,7 @@ public class ImmediateInvariantMiner {
 
         // Iterate through all the traces -- each transition from the
         // INITIAL node connects\holds a single trace.
-        for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
+        for (ITransition<EventNode> initTrans : initNode.getAllTransitions()) {
 
             EventNode cur = initTrans.getTarget();
             EventType first = initNode.getEType();
@@ -52,7 +51,7 @@ public class ImmediateInvariantMiner {
                     canFollow.put(first, new HashSet<EventType>());
                 }
                 canFollow.get(first).add(second);
-                if (cur.getTransitions().size() == 0) {
+                if (cur.getAllTransitions().size() == 0) {
 
                     // Add terminal event to the canFollow set
                     if (!canFollow.containsKey(second)) {
@@ -60,7 +59,7 @@ public class ImmediateInvariantMiner {
                     }
                     break;
                 }
-                cur = cur.getTransitions().get(0).getTarget();
+                cur = cur.getAllTransitions().get(0).getTarget();
                 first = second;
                 second = cur.getEType();
             }

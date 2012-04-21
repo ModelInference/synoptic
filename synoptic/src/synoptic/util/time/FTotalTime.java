@@ -1,7 +1,7 @@
 package synoptic.util.time;
 
 /**
- * A wrapper for a totally ordered time type with a float value.
+ * A totally ordered time type with a float value.
  */
 public class FTotalTime implements ITime {
     /** Time value */
@@ -66,5 +66,37 @@ public class FTotalTime implements ITime {
             throw new NonComparableTimesException(this, t);
         }
         return new Float(time).compareTo(((FTotalTime) t).time);
+    }
+
+    @Override
+    public ITime computeDelta(ITime other) {
+        if (other == null) {
+            return this;
+        }
+
+        if (!(other instanceof FTotalTime)) {
+            throw new NonComparableTimesException(this, other);
+        }
+        return new FTotalTime(this.time - ((FTotalTime) other).time);
+    }
+
+    @Override
+    public ITime incrBy(ITime other) {
+        if (other == null) {
+            return this;
+        }
+
+        if (!(other instanceof FTotalTime)) {
+            throw new NonComparableTimesException(this, other);
+        }
+        return new FTotalTime(this.time + ((FTotalTime) other).time);
+    }
+
+    @Override
+    public ITime divBy(int divisor) {
+        if (divisor < 1) {
+            throw new IllegalArgumentException();
+        }
+        return new FTotalTime(this.time / divisor);
     }
 }

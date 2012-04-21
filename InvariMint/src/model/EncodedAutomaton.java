@@ -17,7 +17,7 @@ import dk.brics.automaton.RegExp;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 import synoptic.model.export.GraphExporter;
 
 /**

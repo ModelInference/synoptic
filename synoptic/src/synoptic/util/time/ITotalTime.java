@@ -1,7 +1,7 @@
 package synoptic.util.time;
 
 /**
- * A wrapper for a totally ordered time type with an integer value.
+ * A totally ordered time type with an integer value.
  */
 public class ITotalTime implements ITime {
     /** Time value */
@@ -66,5 +66,38 @@ public class ITotalTime implements ITime {
             throw new NonComparableTimesException(this, t);
         }
         return Integer.valueOf(time).compareTo(((ITotalTime) t).time);
+    }
+
+    @Override
+    public ITime computeDelta(ITime other) {
+        if (other == null) {
+            return this;
+        }
+
+        if (!(other instanceof ITotalTime)) {
+            throw new NonComparableTimesException(this, other);
+        }
+        return new ITotalTime(this.time - ((ITotalTime) other).time);
+    }
+
+    @Override
+    public ITime incrBy(ITime other) {
+        if (other == null) {
+            return this;
+        }
+
+        if (!(other instanceof ITotalTime)) {
+            throw new NonComparableTimesException(this, other);
+        }
+        return new ITotalTime(this.time + ((ITotalTime) other).time);
+    }
+
+    @Override
+    public ITime divBy(int divisor) {
+        if (divisor < 1) {
+            throw new IllegalArgumentException();
+        }
+
+        return new ITotalTime(this.time / divisor);
     }
 }

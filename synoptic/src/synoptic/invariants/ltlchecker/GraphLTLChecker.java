@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -22,7 +21,7 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.ltlcheck.Counterexample;
 import synoptic.invariants.ltlcheck.LtlModelChecker;
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -36,12 +35,12 @@ public class GraphLTLChecker<T extends INode<T>> {
     /**
      * Cache for that last target graphs.
      */
-    private final LinkedHashMap<String, Graph> lastTargetGraph = new LinkedHashMap<String, Graph>();
+    private final LinkedHashMap<Set<String>, Graph> lastTargetGraph = new LinkedHashMap<Set<String>, Graph>();
     // CACHE:
     /**
      * Cache for the last source graphs.
      */
-    private final LinkedHashMap<String, IGraph<T>> lastSourceGraph = new LinkedHashMap<String, IGraph<T>>();
+    private final LinkedHashMap<Set<String>, IGraph<T>> lastSourceGraph = new LinkedHashMap<Set<String>, IGraph<T>>();
 
     // CACHE:
 
@@ -64,7 +63,7 @@ public class GraphLTLChecker<T extends INode<T>> {
         TimedTask transToMC = PerformanceMetrics.createTask("transToMC");
 
         Graph targetGraph = null;
-        String relation = invariant.getRelation();
+        Set<String> relation = invariant.getRelations();
         // If we've already converted this source graph before then just look up
         // the target in the cache.
         if (lastSourceGraph.containsKey(relation)
@@ -88,8 +87,8 @@ public class GraphLTLChecker<T extends INode<T>> {
         }
         transToMC.stop();
         if (DEBUG) {
-            Main.exportNonInitialGraph("output/sourceGraph-" + relation,
-                    sourceGraph);
+            SynopticMain.getInstance().exportNonInitialGraph(
+                    "output/sourceGraph-" + relation, sourceGraph);
             writeDot(targetGraph, "output/targetGraph-" + relation + ".dot");
         }
         // Run the LTL model-checker on this graph structure.
@@ -161,26 +160,27 @@ public class GraphLTLChecker<T extends INode<T>> {
      * @param sourceGraph
      *            The sourceGraph to convert
      * @param relation
-     *            The relation to consider in the sourceGraph (in the case there
-     *            are multiple).
+     *            The set of relations to consider in the sourceGraph.
      * @return The transition-based target graph
      */
-    private Graph convertGraph(IGraph<T> sourceGraph, String relation) {
+    private Graph convertGraph(IGraph<T> sourceGraph, Set<String> relations) {
         Graph targetGraph = new Graph();
 
-        Set<T> initialMessages = sourceGraph.getDummyInitialNodes();
+        // Set<T> initialMessages = sourceGraph.getDummyInitialNode();
+        T initialMessage = sourceGraph.getDummyInitialNode();
+
         Set<T> allNodes = sourceGraph.getNodes();
         Node initialState = new Node(targetGraph);
         initialState.setAttribute("post", "P:initial");
         LinkedHashMap<T, Node> nextState = new LinkedHashMap<T, Node>();
         LinkedHashMap<T, Set<Node>> prevStates = new LinkedHashMap<T, Set<Node>>();
 
-        for (T initialMessage : initialMessages) {
-            if (!prevStates.containsKey(initialMessage)) {
-                prevStates.put(initialMessage, new LinkedHashSet<Node>());
-            }
-            prevStates.get(initialMessage).add(initialState);
+        // for (T initialMessage : initialMessages) {
+        if (!prevStates.containsKey(initialMessage)) {
+            prevStates.put(initialMessage, new LinkedHashSet<Node>());
         }
+        prevStates.get(initialMessage).add(initialState);
+        // }
 
         for (T m : allNodes) {
             Node n = new Node(targetGraph);
@@ -189,9 +189,8 @@ public class GraphLTLChecker<T extends INode<T>> {
         }
 
         for (T m : allNodes) {
-            for (Iterator<? extends ITransition<T>> i = m
-                    .getTransitionsIterator(relation); i.hasNext();) {
-                ITransition<T> t = i.next();
+            for (ITransition<T> t : m
+                    .getTransitionsWithExactRelations(relations)) {
                 T n = t.getTarget();
                 if (!prevStates.containsKey(n)) {
                     prevStates.put(n, new LinkedHashSet<Node>());

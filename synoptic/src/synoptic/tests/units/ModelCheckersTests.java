@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,18 +21,18 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
-import synoptic.main.Main;
+import synoptic.main.SynopticMain;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.StringEventType;
-import synoptic.model.Transition;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
+import synoptic.model.interfaces.ITransition;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 
@@ -71,7 +70,7 @@ public class ModelCheckersTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        synoptic.main.Main.options.useFSMChecker = this.useFSMChecker;
+        synoptic.main.SynopticMain.getInstance().options.useFSMChecker = this.useFSMChecker;
     }
 
     /**
@@ -130,7 +129,6 @@ public class ModelCheckersTests extends SynopticTest {
             ParseException {
         // Create the graph.
         ChainsTraceGraph g = genInitialLinearGraph(events);
-        Set<EventNode> initNodes = g.getDummyInitialNodes();
 
         if (!cExampleExists) {
             // Don't bother constructing the counter-example path.
@@ -138,15 +136,12 @@ public class ModelCheckersTests extends SynopticTest {
             return;
         }
 
-        // There should be just one initial node.
-        assertTrue(initNodes.size() == 1);
-
         // Build the expectedPath by traversing the entire graph.
         LinkedList<EventNode> expectedPath = new LinkedList<EventNode>();
-        EventNode nextNode = initNodes.iterator().next();
+        EventNode nextNode = g.getDummyInitialNode();
         expectedPath.add(nextNode);
         for (int i = 1; i <= lastCExampleIndex; i++) {
-            nextNode = nextNode.getTransitions().get(0).getTarget();
+            nextNode = nextNode.getAllTransitions().get(0).getTarget();
             expectedPath.add(nextNode);
         }
         testCExamplePath(g, inv, cExampleExists, expectedPath);
@@ -179,7 +174,7 @@ public class ModelCheckersTests extends SynopticTest {
         parser.addRegex("^(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser,
-                new TransitiveClosureInvMiner());
+                new TransitiveClosureInvMiner(), false);
 
         exportTestGraph(pGraph, 1);
 
@@ -189,12 +184,8 @@ public class ModelCheckersTests extends SynopticTest {
             return;
         }
 
-        // There should be just one initial node.
-        Set<Partition> initNodes = pGraph.getDummyInitialNodes();
-        assertTrue(initNodes.size() == 1);
-
         LinkedList<Partition> expectedPath = new LinkedList<Partition>();
-        Partition nextNode = initNodes.iterator().next();
+        Partition nextNode = pGraph.getDummyInitialNode();
 
         // Build the expectedPath by traversing the graph, starting from the
         // initial node by finding the appropriate partition at each hop by
@@ -203,7 +194,8 @@ public class ModelCheckersTests extends SynopticTest {
         nextCExampleHop:
         for (int i = 0; i < cExampleLabels.size(); i++) {
             EventType nextLabel = cExampleLabels.get(i);
-            for (Transition<Partition> transition : nextNode.getTransitions()) {
+            for (ITransition<Partition> transition : nextNode
+                    .getAllTransitions()) {
                 for (EventNode event : transition.getTarget().getEventNodes()) {
                     if (event.getEType().equals(nextLabel)) {
                         nextNode = transition.getTarget();
@@ -327,7 +319,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         List<EventType> cExampleLabels = null;
 
-        if (Main.options.useFSMChecker) {
+        if (SynopticMain.getInstance().options.useFSMChecker) {
             cExampleLabels = stringsToStringEventTypes(new String[] { "a", "c",
                     "d", "b" });
         } else {

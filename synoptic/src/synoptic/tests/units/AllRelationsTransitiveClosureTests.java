@@ -9,14 +9,15 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.algorithms.TransitiveClosure;
 import synoptic.invariants.miners.AllRelationsTransitiveClosure;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.Transition;
+import synoptic.model.event.Event;
+import synoptic.tests.SynopticTest;
 
-public class AllRelationsTransitiveClosureTests {
+public class AllRelationsTransitiveClosureTests extends SynopticTest {
 
     ChainsTraceGraph g = new ChainsTraceGraph();
     EventNode a = new EventNode(new Event("a"));

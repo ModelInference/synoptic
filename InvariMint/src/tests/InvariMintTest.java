@@ -34,8 +34,7 @@ public class InvariMintTest extends SynopticLibTest {
      */
     @Before
     public void setUp() throws ParseException {
-        // Set up SynopticLib state.
-        super.setUp();
+        // Avoid setting up SynopticLib state.
     }
 
     // //////////////////////////////////////////////

@@ -9,7 +9,7 @@ import gov.nasa.ltl.trans.LTL2Buchi;
 import gov.nasa.ltl.trans.ParseErrorException;
 
 import synoptic.invariants.ltlchecker.LTLFormula;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -31,15 +31,26 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     protected int firstRoleId = 0;
     protected int secondRoleId = 0;
 
-    protected String relation;
+    protected Set<String> relations;
     // CACHE:
     private Graph automaton;
 
-    public BinaryInvariant(EventType typeFirst, EventType typeSecond,
-            String relation) {
+    private BinaryInvariant(EventType typeFirst, EventType typeSecond) {
         first = typeFirst;
         second = typeSecond;
-        this.relation = relation;
+    }
+
+    public BinaryInvariant(EventType typeFirst, EventType typeSecond,
+            Set<String> relations) {
+        this(typeFirst, typeSecond);
+        this.relations = relations;
+    }
+
+    public BinaryInvariant(EventType typeFirst, EventType typeSecond,
+            String relation) {
+        this(typeFirst, typeSecond);
+        this.relations = new LinkedHashSet<String>();
+        relations.add(relation);
     }
 
     @Override
@@ -48,8 +59,8 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     }
 
     @Override
-    public String getRelation() {
-        return relation;
+    public Set<String> getRelations() {
+        return relations;
     }
 
     // /**
@@ -113,7 +124,8 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
         final int prime = 31;
         int result = getClass().hashCode();
         result = prime * result + (first == null ? 0 : first.hashCode());
-        result = prime * result + (relation == null ? 0 : relation.hashCode());
+        result = prime * result
+                + (relations == null ? 0 : relations.hashCode());
         result = prime * result + (second == null ? 0 : second.hashCode());
         return result;
     }
@@ -137,13 +149,15 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
         } else if (!first.equals(other.first)) {
             return false;
         }
-        if (relation == null) {
-            if (other.relation != null) {
+
+        if (relations == null) {
+            if (other.relations != null) {
                 return false;
             }
-        } else if (!relation.equals(other.relation)) {
+        } else if (!relations.equals(other.relations)) {
             return false;
         }
+
         if (second == null) {
             if (other.second != null) {
                 return false;

@@ -1,11 +1,11 @@
 package synoptic.model.interfaces;
 
 import java.util.List;
+import java.util.Set;
 
-import synoptic.model.EventType;
 import synoptic.model.Partition;
 import synoptic.model.WeightedTransition;
-import synoptic.util.IIterableIterator;
+import synoptic.model.event.EventType;
 
 /**
  * The interface all nodes must implement. The interface does not contain
@@ -26,39 +26,7 @@ public interface INode<NodeType> extends Comparable<NodeType> {
      */
     EventType getEType();
 
-    /**
-     * Returns an {@code IIterableIterator} over all outgoing transitions of
-     * this node. An implementation may delay computation of the transitions
-     * until {@code next} is called on the returned iterator.
-     * 
-     * @return an {@code IIterableIterator} over all outgoing transitions of
-     *         this node
-     */
-    IIterableIterator<? extends ITransition<NodeType>> getTransitionsIterator();
-
-    /**
-     * Returns an {@code IIterableIterator} those outgoing transitions of this
-     * node that are labeled with {@code relation}.An implementation may delay
-     * computation of the transitions until {@code next} is called on the
-     * returned iterator.
-     * 
-     * @return an {@code IIterableIterator} over all outgoing transitions of
-     *         this node
-     */
-    IIterableIterator<? extends ITransition<NodeType>> getTransitionsIterator(
-            String relation);
-
-    /**
-     * Check to see if a transition to node {@code node} exists that is labeled
-     * by {@code relation}
-     * 
-     * @param node
-     *            the target node
-     * @param relation
-     *            the transition label
-     * @return null if no such transition exists, the transition otherwise
-     */
-    ITransition<NodeType> getTransition(NodeType node, String relation);
+    public Set<NodeType> getAllSuccessors();
 
     /**
      * Returns the set of all outgoing transitions of this node (across all
@@ -67,16 +35,16 @@ public interface INode<NodeType> extends Comparable<NodeType> {
      * 
      * @return the set of all outgoing transitions
      */
-    List<? extends ITransition<NodeType>> getTransitions();
+    List<? extends ITransition<NodeType>> getAllTransitions();
 
-    /**
-     * Returns the set of outgoing transitions of this node for a specific
-     * relation. The difference to {@code getTransitionsIterator} is that this
-     * call forces all transitions to be pre-computed.
-     * 
-     * @return the set of outgoing transitions for relation
-     */
-    List<? extends ITransition<NodeType>> getTransitions(String relation);
+    List<? extends ITransition<NodeType>> getTransitionsWithExactRelations(
+            Set<String> relations);
+
+    List<? extends ITransition<NodeType>> getTransitionsWithSubsetRelations(
+            Set<String> relations);
+
+    List<? extends ITransition<NodeType>> getTransitionsWithIntersectingRelations(
+            Set<String> relations);
 
     /**
      * Returns the set of all outgoing transitions of this node (across all
@@ -86,16 +54,6 @@ public interface INode<NodeType> extends Comparable<NodeType> {
      * @return list of weighted outgoing transition corresponding to this node
      */
     List<WeightedTransition<NodeType>> getWeightedTransitions();
-
-    /**
-     * Returns the set of outgoing transitions of this node for a specific
-     * relation, each of which is "weighted." That is, the transition is
-     * annotated with the number of events that take the transition.
-     * 
-     * @return list of weighted outgoing transition for relation corresponding
-     *         to this node
-     */
-    List<WeightedTransition<NodeType>> getWeightedTransitions(String relation);
 
     /**
      * Set the parent partition of this node.

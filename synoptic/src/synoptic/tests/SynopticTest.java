@@ -1,7 +1,9 @@
 package synoptic.tests;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.rules.TestName;
@@ -13,13 +15,13 @@ import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
-import synoptic.model.DistEventType;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
-import synoptic.model.StringEventType;
 import synoptic.model.TraceGraph;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -38,10 +40,14 @@ public abstract class SynopticTest extends SynopticLibTest {
      * Default relation used in invariant mining.
      */
     public static final String defRelation = Event.defaultTimeRelationString;
+    public static final Set<String> defRelationSet;
 
     static {
         // Set up static SynopticLib state.
         SynopticLibTest.initialize("SynopticTest Logger");
+
+        defRelationSet = new LinkedHashSet<String>();
+        defRelationSet.add(defRelation);
     }
 
     /**
@@ -97,7 +103,7 @@ public abstract class SynopticTest extends SynopticLibTest {
      * Constructs the default parser used by tests. Note: the parser may not be
      * re-used for parsing different traces (it is stateful).
      */
-    public TraceParser genDefParser() {
+    public static TraceParser genDefParser() {
         TraceParser parser = new TraceParser();
         try {
             parser.addRegex("^(?<TYPE>)$");
@@ -141,12 +147,10 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @throws ParseException
      * @throws InternalSynopticException
      */
-    // public static ChainsTraceGraph genChainsTraceGraph(String[] events,
     public static TraceGraph<?> genChainsTraceGraph(String[] events,
             TraceParser parser) throws ParseException,
             InternalSynopticException {
         ArrayList<EventNode> parsedEvents = parseLogEvents(events, parser);
-        // return parser.generateDirectTORelation(parsedEvents);
         return parser.generateDefaultOrderRelation(parsedEvents);
     }
 
@@ -189,11 +193,12 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @throws Exception
      */
     public static PartitionGraph genInitialPartitionGraph(String[] events,
-            TraceParser parser, TOInvariantMiner miner) throws Exception {
+            TraceParser parser, TOInvariantMiner miner,
+            boolean multipleRelations) throws Exception {
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, parser);
-        return new PartitionGraph(inputGraph, true,
-                miner.computeInvariants(inputGraph));
+        return new PartitionGraph(inputGraph, true, miner.computeInvariants(
+                inputGraph, multipleRelations));
     }
 
     /**

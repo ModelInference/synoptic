@@ -7,7 +7,6 @@ import dk.brics.automaton.State;
 
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.Transition;
 
 /**
  * Translates a Synoptic model from PartitionGraph to EncodedAutomaton DFA.
@@ -27,9 +26,8 @@ public class SynopticModel extends EncodedAutomaton {
         State initial = new State();
 
         // Convert all partitions starting from the INITIAL node.
-        for (Partition initialPartition : synoptic.getDummyInitialNodes()) {
-            convert(initialPartition, initial, preEventStates, encodings);
-        }
+        Partition initialPartition = synoptic.getDummyInitialNode();
+        convert(initialPartition, initial, preEventStates, encodings);
 
         // Set the automaton to our newly constructed model.
         super.setInitialState(initial);
@@ -74,8 +72,8 @@ public class SynopticModel extends EncodedAutomaton {
 
             // Convert child partitions, who should transition from the 'next'
             // state.
-            for (Transition<Partition> synTrans : eventNode.getTransitions()) {
-                convert(synTrans.getTarget(), next, preEventStates, encodings);
+            for (Partition target : eventNode.getAllSuccessors()) {
+                convert(target, next, preEventStates, encodings);
             }
         }
     }

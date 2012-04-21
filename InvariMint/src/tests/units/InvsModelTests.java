@@ -18,7 +18,7 @@ import org.junit.Test;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 
 /**
  * Basic tests for the InvsModel class -- checks that invariants are used and
