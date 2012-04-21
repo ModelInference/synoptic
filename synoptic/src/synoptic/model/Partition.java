@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import synoptic.algorithms.graph.PartitionSplit;
+import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.main.SynopticMain;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;

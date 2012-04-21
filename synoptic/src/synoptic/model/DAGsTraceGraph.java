@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import synoptic.algorithms.graph.FloydWarshall;
-import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.algorithms.FloydWarshall;
+import synoptic.algorithms.TransitiveClosure;
 import synoptic.model.event.DistEventType;
 import synoptic.model.event.Event;
 import synoptic.model.interfaces.ITransition;

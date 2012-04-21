@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.logging.Logger;
 
-import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.algorithms.TransitiveClosure;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IGraph;

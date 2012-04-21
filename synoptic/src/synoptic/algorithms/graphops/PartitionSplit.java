@@ -1,4 +1,4 @@
-package synoptic.algorithms.graph;
+package synoptic.algorithms.graphops;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -8,7 +8,7 @@ import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 
 /**
- * A operation for a partition split.
+ * A operation that splits a partition into two -- creating one new partition.
  * 
  * @author Sigurd Schneider
  */

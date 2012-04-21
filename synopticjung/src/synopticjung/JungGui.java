@@ -67,8 +67,8 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
-import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.algorithms.graph.PartitionSplit;
+import synoptic.algorithms.Bisimulation;
+import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;

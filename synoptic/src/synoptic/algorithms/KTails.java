@@ -1,9 +1,10 @@
-package synoptic.algorithms.graph;
+package synoptic.algorithms;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import synoptic.algorithms.graphops.PartitionMerge;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;

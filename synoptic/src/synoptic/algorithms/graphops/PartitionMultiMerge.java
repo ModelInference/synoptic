@@ -1,4 +1,4 @@
-package synoptic.algorithms.graph;
+package synoptic.algorithms.graphops;
 
 import java.util.ArrayList;
 

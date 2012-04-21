@@ -1,4 +1,4 @@
-package synoptic.algorithms.graph;
+package synoptic.algorithms;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,7 +13,7 @@ import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 
 /**
- * An implementation of tarjans algorithm for finding the SCC of a graph.
+ * An implementation of Tarjan's algorithm for finding the SCC of a graph.
  * Description available at http://en.wikipedia.org/wiki/Tarjan%27
  * s_strongly_connected_components_algorithm
  * 

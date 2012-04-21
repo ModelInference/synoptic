@@ -11,8 +11,8 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import synoptic.algorithms.graph.IOperation;
-import synoptic.algorithms.graph.PartitionSplit;
+import synoptic.algorithms.graphops.IOperation;
+import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.TOInvariantMiner;

@@ -14,7 +14,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.algorithms.TransitiveClosure;
 import synoptic.main.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;

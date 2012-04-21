@@ -25,8 +25,8 @@ import javax.servlet.http.HttpSession;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
-import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.algorithms.graph.PartitionMultiSplit;
+import synoptic.algorithms.Bisimulation;
+import synoptic.algorithms.graphops.PartitionMultiSplit;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;

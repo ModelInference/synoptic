@@ -1,4 +1,4 @@
-package synoptic.algorithms.graph;
+package synoptic.algorithms.graphops;
 
 import synoptic.model.EventNode;
 import synoptic.model.Partition;

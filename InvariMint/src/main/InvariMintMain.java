@@ -17,8 +17,8 @@ import model.SynopticModel;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 
-import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.algorithms.graph.KTails;
+import synoptic.algorithms.Bisimulation;
+import synoptic.algorithms.KTails;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TOInitialTerminalInvariant;
