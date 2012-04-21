@@ -82,6 +82,7 @@ public class InvariMintMain {
         ImmediateInvariantMiner miner = new ImmediateInvariantMiner(inputGraph);
         TemporalInvariantSet NIFbys = miner.getNIFbyInvariants();
         Set<EventType> allEvents = new HashSet<EventType>(miner.getEventTypes());
+
         logger.fine("Mined " + minedInvs.numInvariants()
                 + " NIFby invariant(s).");
         logger.fine(NIFbys.toPrettyString());
@@ -111,6 +112,7 @@ public class InvariMintMain {
         // Export final model.
         dfa.exportDotAndPng(opts.outputPathPrefix + ".invarimintDFA.dot");
 
+        // Run Synoptic to compare models
         PartitionGraph pGraph = null;
         if (opts.performKTails) {
             pGraph = KTails.performKTails(inputGraph, opts.kTailLength);
@@ -210,6 +212,10 @@ public class InvariMintMain {
         return inputGraph;
     }
 
+    /**
+     * Mines invariants from the given input graph. These are either Synoptic or
+     * kTail invariants depending on command line options stored in opts.
+     */
     private static TemporalInvariantSet mineInvariants(InvariMintOptions opts,
             ChainsTraceGraph inputGraph) {
         TOInvariantMiner miner;
@@ -278,17 +284,20 @@ public class InvariMintMain {
         return model;
     }
 
-    // TODO: just build the new dfa -- no seen map
+    /**
+     * Removes edges from the provided dfa that cannot be mapped to any trace in
+     * the input trace graph g.
+     */
     private static void removeSpuriousEdges(EncodedAutomaton dfa,
             ChainsTraceGraph g, EventTypeEncodings encodings,
             EventType initialEvent, EventType terminalEvent) {
+        // TODO: just build the new dfa -- no seen map
 
         Map<StatePair, Set<Character>> seenTransitions = new HashMap<StatePair, Set<Character>>();
         EventNode initNode = g.getDummyInitialNode();
 
         // Iterate through all the traces -- each transition from the INITIAL
-        // node connects\holds a single trace.
-        // for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
+        // node holds a single trace.
         for (EventNode curNode : initNode.getAllSuccessors()) {
             // Set curState to the state immediately following the INITIAL
             // transition.
@@ -303,7 +312,7 @@ public class InvariMintMain {
 
                 if (curState == null) {
                     throw new IllegalStateException(
-                            "Something bad has happened");
+                            "Unable to fetch valid destination for ");
                 }
 
                 // Move on to the next node in the trace.
