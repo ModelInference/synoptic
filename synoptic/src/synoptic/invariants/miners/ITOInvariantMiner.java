@@ -3,7 +3,11 @@ package synoptic.invariants.miners;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
 
-public interface TOInvariantMiner {
+/**
+ * Interface that all invariant miners that process totally ordered (TO) input
+ * logs should support. Such logs are represented as ChainsTraceGraph instances.
+ */
+public interface ITOInvariantMiner {
     /**
      * Computes and returns the temporal invariants that hold for the graph g.
      * 

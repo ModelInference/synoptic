@@ -26,7 +26,7 @@ import synoptic.model.interfaces.IRelationPath;
  * @author ivan
  */
 public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
-        TOInvariantMiner {
+        ITOInvariantMiner {
     
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, boolean multipleRelations) {
         TemporalInvariantSet result = new TemporalInvariantSet();

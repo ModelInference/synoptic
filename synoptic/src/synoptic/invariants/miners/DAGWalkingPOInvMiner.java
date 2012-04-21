@@ -36,7 +36,7 @@ import synoptic.model.interfaces.ITransition;
  * into valid temporal invariants.
  */
 public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
-        POInvariantMiner, TOInvariantMiner {
+        IPOInvariantMiner, ITOInvariantMiner {
 
     // TODO: we can set the initial capacity of the following HashMaps more
     // optimally, e.g. (N / 0.75) + 1 where N is the total number of event

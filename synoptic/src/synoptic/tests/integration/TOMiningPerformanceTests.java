@@ -11,7 +11,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
+import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
@@ -22,7 +22,7 @@ import synoptic.tests.SynopticTest;
 @RunWith(value = Parameterized.class)
 public class TOMiningPerformanceTests extends SynopticTest {
 
-    TOInvariantMiner miner = null;
+    ITOInvariantMiner miner = null;
     int numIterations;
     int totalEvents;
     int numPartitions;
@@ -42,7 +42,7 @@ public class TOMiningPerformanceTests extends SynopticTest {
         return Arrays.asList(data);
     }
 
-    public TOMiningPerformanceTests(TOInvariantMiner minerToUse,
+    public TOMiningPerformanceTests(ITOInvariantMiner minerToUse,
             int numIterations, int totalEvents, int numPartitions,
             int numEventTypes) {
         miner = minerToUse;

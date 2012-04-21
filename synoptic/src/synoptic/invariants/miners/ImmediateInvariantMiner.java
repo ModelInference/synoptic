@@ -14,6 +14,11 @@ import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.ITransition;
 
+/**
+ * Mines the NeverImmediatelyFollowedyBy invariants, which are the basis for the
+ * initial PartitionGraph that Synoptic starts with, and which are a form of
+ * implicit invariants in Synoptic. This miner is used by InvariMint.
+ */
 public class ImmediateInvariantMiner {
 
     private final ChainsTraceGraph g;

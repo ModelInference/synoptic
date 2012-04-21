@@ -16,7 +16,7 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
+import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -56,7 +56,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
 
     public final String r = "r";
 
-    private TOInvariantMiner miner = null;
+    private ITOInvariantMiner miner = null;
     private TraceParser parser = null;
 
     /**
@@ -72,7 +72,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
         return Arrays.asList(data);
     }
 
-    public TOLogMultipleRelationInvariantMiningTests(TOInvariantMiner minerToUse) {
+    public TOLogMultipleRelationInvariantMiningTests(ITOInvariantMiner minerToUse) {
         miner = minerToUse;
     }
 

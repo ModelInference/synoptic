@@ -20,7 +20,7 @@ import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
+import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
@@ -39,7 +39,7 @@ import synoptic.util.InternalSynopticException;
 @RunWith(value = Parameterized.class)
 public class TOLogInvariantMiningTests extends SynopticTest {
 
-    TOInvariantMiner miner = null;
+    ITOInvariantMiner miner = null;
 
     /**
      * Generates parameters for this unit test. The only parameter right now is
@@ -57,7 +57,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         return Arrays.asList(data);
     }
 
-    public TOLogInvariantMiningTests(TOInvariantMiner minerToUse) {
+    public TOLogInvariantMiningTests(ITOInvariantMiner minerToUse) {
         miner = minerToUse;
     }
 
