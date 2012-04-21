@@ -15,6 +15,7 @@ import model.InvModel;
 import model.InvsModel;
 import model.SynopticModel;
 import dk.brics.automaton.State;
+import dk.brics.automaton.StatePair;
 import dk.brics.automaton.Transition;
 
 import synoptic.algorithms.Bisimulation;
@@ -27,8 +28,8 @@ import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ImmediateInvariantMiner;
 import synoptic.invariants.miners.KTailInvariantMiner;
 import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.main.SynopticMain;
 import synoptic.main.Options;
+import synoptic.main.SynopticMain;
 import synoptic.main.SynopticOptions;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -176,7 +177,8 @@ public class InvariMintMain {
         options.debugParse = opts.debugParse;
         options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
 
-        SynopticMain synMain = new SynopticMain(options, new DotExportFormatter());
+        SynopticMain synMain = new SynopticMain(options,
+                new DotExportFormatter());
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = new TraceParser(opts.regExps,
@@ -323,9 +325,9 @@ public class InvariMintMain {
      * Recursively replicates the given automata starting from the current state
      * but eliminates transitions that were not 'seen'.
      */
-    private static State replicate(Map<StatePair, Set<Character>> seenTransitions,
-            State current, Map<State, State> visited,
-            EventTypeEncodings encodings) {
+    private static State replicate(
+            Map<StatePair, Set<Character>> seenTransitions, State current,
+            Map<State, State> visited, EventTypeEncodings encodings) {
 
         if (visited.containsKey(current)) {
             return visited.get(current);
