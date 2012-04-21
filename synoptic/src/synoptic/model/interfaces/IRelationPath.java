@@ -5,6 +5,10 @@ import java.util.Set;
 
 import synoptic.model.event.EventType;
 
+/**
+ * Represents a path through the TraceGraph for some set of relations. This
+ * handles both multi-relational and uni-relational inputs logs.
+ */
 public interface IRelationPath {
 
     public Set<EventType> getSeen();
