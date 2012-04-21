@@ -1,4 +1,4 @@
-package synoptic.algorithms.graph;
+package synoptic.algorithms;
 
 import java.util.HashMap;
 import java.util.HashSet;

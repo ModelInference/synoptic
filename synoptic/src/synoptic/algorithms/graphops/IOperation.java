@@ -1,9 +1,9 @@
-package synoptic.algorithms.graph;
+package synoptic.algorithms.graphops;
 
 import synoptic.model.PartitionGraph;
 
 /**
- * Interface for operations on PartitionGraphs
+ * Interface for mutating operations on PartitionGraphs
  * 
  * @author sigurd
  */

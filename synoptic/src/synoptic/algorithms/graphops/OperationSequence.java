@@ -1,11 +1,11 @@
-package synoptic.algorithms.graph;
+package synoptic.algorithms.graphops;
 
 import java.util.LinkedList;
 
 import synoptic.model.PartitionGraph;
 
 /**
- * Links a couple of operation as a sequence together.
+ * Links a series of operation into a sequence.
  * 
  * @author Sigurd Schneider
  */

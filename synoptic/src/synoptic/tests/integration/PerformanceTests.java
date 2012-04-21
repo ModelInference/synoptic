@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.algorithms.Bisimulation;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.main.SynopticMain;
 import synoptic.main.ParseException;

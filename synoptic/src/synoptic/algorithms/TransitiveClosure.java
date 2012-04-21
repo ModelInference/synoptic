@@ -1,4 +1,4 @@
-package synoptic.algorithms.graph;
+package synoptic.algorithms;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;

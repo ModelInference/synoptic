@@ -8,7 +8,7 @@
  * License: Eclipse Public License v1.0.
  */
 
-package synoptic.algorithms.bisim;
+package synoptic.algorithms;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,11 +20,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import synoptic.algorithms.graph.IOperation;
-import synoptic.algorithms.graph.KTails;
-import synoptic.algorithms.graph.PartitionMerge;
-import synoptic.algorithms.graph.PartitionMultiSplit;
-import synoptic.algorithms.graph.PartitionSplit;
+import synoptic.algorithms.graphops.IOperation;
+import synoptic.algorithms.graphops.PartitionMerge;
+import synoptic.algorithms.graphops.PartitionMultiSplit;
+import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
 import synoptic.invariants.CExamplePath;
@@ -38,10 +37,12 @@ import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
 /**
- * This class implements the algorithm BisimH (
- * {@code Bisimulation.splitPartitions}), and a modified version of the
- * algorithm kTail ({@code Bisimulation.mergePartitions}) that considers state
- * labels instead of state transitions.
+ * Partition graphs can be transformed using two algorithms -- coarsening and
+ * refinement. This class implements refinement using the Bisim algorithm (
+ * {@code Bisimulation.splitUntilAllInvsSatisfied}). Coarsening is implemented
+ * with a modified version of the kTails algorithm (
+ * {@code Bisimulation.mergePartitions}). This algorithm merges partitions in
+ * the partition graph without unsatisfying invariants that are satisfied.
  */
 public class Bisimulation {
     public static Logger logger = Logger.getLogger("Bisimulation");

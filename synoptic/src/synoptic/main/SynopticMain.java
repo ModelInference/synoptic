@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
-import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.algorithms.Bisimulation;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.concurrency.NeverConcurrentInvariant;

@@ -10,7 +10,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import synoptic.algorithms.graph.KTails;
+import synoptic.algorithms.KTails;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
