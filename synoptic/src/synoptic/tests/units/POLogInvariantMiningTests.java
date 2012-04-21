@@ -12,22 +12,22 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import synoptic.invariants.AlwaysConcurrentInvariant;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.concurrency.AlwaysConcurrentInvariant;
+import synoptic.invariants.concurrency.NeverConcurrentInvariant;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.POInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.DAGsTraceGraph;
-import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
-import synoptic.model.StringEventType;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 
 /**

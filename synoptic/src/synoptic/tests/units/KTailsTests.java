@@ -4,23 +4,23 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
 
-import synoptic.algorithms.graph.KTails;
+import synoptic.algorithms.KTails;
 import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.PartitionGraph;
 import synoptic.model.Transition;
+import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
+import synoptic.util.InternalSynopticException;
 
 /**
  * Tests the KTails algorithm in synoptic.algorithms.bisim.KTails <br />
@@ -63,55 +63,78 @@ public class KTailsTests extends SynopticTest {
     }
 
     /**
+     * Tests the k=0 case, and the case with two graphs with one node each.
      * Tests performKTails with k = 0
+     * 
+     * @throws ParseException
+     * @throws InternalSynopticException
      */
     @Test
-    public void performKTails0Test() {
+    public void performKTails0Test() throws InternalSynopticException,
+            ParseException {
         PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 0);
-        // Both pairs of a and b nodes should be merged
-        assertTrue(pGraph.getNodes().size() == 2);
+        // All a's and b's should be merged.
+        assertTrue(pGraph.getNodes().size() == 4);
     }
 
     /**
      * Tests performKTails with k = 1
+     * 
+     * @throws ParseException
+     * @throws InternalSynopticException
      */
     @Test
-    public void performKTails1Test() {
+    public void performKTails1Test() throws InternalSynopticException,
+            ParseException {
         PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 1);
-        // Only the a nodes should be merged
-        assertTrue(pGraph.getNodes().size() == 3);
+        // Only the two b nodes should be merged.
+        assertTrue(pGraph.getNodes().size() == 6);
     }
 
     /**
      * Tests performKTails with k = 2
+     * 
+     * @throws ParseException
+     * @throws InternalSynopticException
      */
     @Test
-    public void performKTails2Test() {
+    public void performKTails2Test() throws InternalSynopticException,
+            ParseException {
         PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 2);
-        // No nodes should be merged
-        assertTrue(pGraph.getNodes().size() == 4);
+        // Only the b nodes should be merged.
+        assertTrue(pGraph.getNodes().size() == 6);
     }
 
-    /*
+    /**
      * Returns a simple trace graph with two chains, both just a --> b
+     * 
+     * @throws ParseException
+     * @throws InternalSynopticException
      */
-    private static ChainsTraceGraph makeSimpleGraph() {
-        Set<EventNode> nodes = new HashSet<EventNode>();
+    private static ChainsTraceGraph makeSimpleGraph()
+            throws InternalSynopticException, ParseException {
 
-        EventNode e1 = new EventNode(new Event("a"));
-        EventNode e2 = new EventNode(new Event("b"));
-        e1.addTransition(e1, Event.defaultTimeRelationString);
+        String[] logArr = new String[] { "a", "a", "--", "b", "--", "a", "b" };
+        TraceParser defParser = SynopticTest.genDefParser();
 
-        EventNode e3 = new EventNode(new Event("a"));
-        EventNode e4 = new EventNode(new Event("b"));
-        e3.addTransition(e4, Event.defaultTimeRelationString);
-
-        nodes.add(e1);
-        nodes.add(e2);
-        nodes.add(e3);
-        nodes.add(e4);
-
-        return new ChainsTraceGraph(nodes);
+        ChainsTraceGraph ret = (ChainsTraceGraph) genChainsTraceGraph(logArr,
+                defParser);
+        return ret;
+        /*
+         * Set<EventNode> nodes = new HashSet<EventNode>();
+         * 
+         * EventNode e1 = new EventNode(new Event("a")); EventNode e2 = new
+         * EventNode(new Event("b")); e1.addTransition(e1,
+         * Event.defaultTimeRelationString);
+         * 
+         * EventNode e3 = new EventNode(new Event("a")); EventNode e4 = new
+         * EventNode(new Event("b")); e3.addTransition(e4,
+         * Event.defaultTimeRelationString);
+         * 
+         * nodes.add(e1); nodes.add(e2); nodes.add(e3); nodes.add(e4);
+         * 
+         * return new ChainsTraceGraph(nodes);
+         */
     }
 
     /**
@@ -135,12 +158,10 @@ public class KTailsTests extends SynopticTest {
     }
 
     /**
-     * Tests k-equivalence of nodes in two linear graphs (chains).
-     * 
-     * @throws Exception
+     * Tests two identical graphs of one node.
      */
     @Test
-    public void linearGraphsTest() throws Exception {
+    public void baseCaseTriviallyIdenticalGraphsTest() {
         Event a1 = new Event("label1");
         Event a2 = new Event("label1");
 
@@ -151,22 +172,27 @@ public class KTailsTests extends SynopticTest {
         testTrueBothSubsumingAndNotSubsuming(e1, e2, 100);
         // A node should always be k-equivalent to itself.
         testTrueBothSubsumingAndNotSubsuming(e1, e1, 100);
+    }
 
-        String[] events = new String[] { "a", "b", "c", "d" };
-        ChainsTraceGraph g1 = genInitialLinearGraph(events);
-        ChainsTraceGraph g2 = genInitialLinearGraph(events);
-        exportTestGraph(g1, 0);
-        exportTestGraph(g2, 1);
-        EventNode[] g1Nodes = new EventNode[g1.getNodes().size()];
-        g1.getNodes().toArray(g1Nodes);
-        EventNode[] g2Nodes = new EventNode[g2.getNodes().size()];
-        g2.getNodes().toArray(g2Nodes);
-        // g1 and g2 should be equivalent for all k at every corresponding node,
-        // regardless of subsumption.
+    /**
+     * Tests k-equivalence of nodes in two identical linear (chains) graphs.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void identicalLinearGraphsTest() throws Exception {
+        // Create two a->b->c->d graphs
+        String events[] = new String[] { "a", "b", "c", "d" };
+        EventNode[] g1Nodes = getChainTraceGraphNodesInOrder(events);
+        EventNode[] g2Nodes = getChainTraceGraphNodesInOrder(events);
+
+        // Check that g1 and g2 are equivalent for all k at every corresponding
+        // node, regardless of subsumption.
 
         // NOTE: both graphs have an additional INITIAL and TERMINAL nodes, thus
-        // the + 2 in the loop condition.
-        for (int i = 0; i < events.length + 2; i++) {
+        // the +2 in the loop condition.
+        EventNode e1, e2;
+        for (int i = 0; i < (events.length + 2); i++) {
             e1 = g1Nodes[i];
             e2 = g2Nodes[i];
             for (int k = 0; k < 5; k++) {
@@ -174,28 +200,85 @@ public class KTailsTests extends SynopticTest {
                 testTrueBothSubsumingAndNotSubsuming(e1, e1, k);
             }
         }
+    }
 
-        events = new String[] { "a", "b", "c", "e" };
-        g2 = genInitialLinearGraph(events);
-        exportTestGraph(g2, 2);
-        g2.getNodes().toArray(g2Nodes);
-        // g1 and g2 are k-equivalent at first three nodes for k=3,2,1
+    public EventNode[] getChainTraceGraphNodesInOrder(String[] events)
+            throws Exception {
+        ChainsTraceGraph g = genInitialLinearGraph(events);
+        EventNode[] gNodes = new EventNode[g.getNodes().size()];
+
+        EventNode node = g.getDummyInitialNode();
+        // gNodes[0] = initNode;
+        Set<EventNode> successors;// = initNode.getAllSuccessors();
+        // assertTrue(successors.size() == 1);
+
+        // EventNode node = successors.iterator().next();
+        // int index = 1;
+
+        int index = 0;
+        while (true) {
+            gNodes[index] = node;
+            index += 1;
+            successors = node.getAllSuccessors();
+            if (successors.size() == 0) {
+                break;
+            }
+            assertTrue(successors.size() == 1);
+            node = successors.iterator().next();
+        }
+
+        return gNodes;
+    }
+
+    /**
+     * Tests for lack of k-equivalence of nodes in two linear (chains) graphs
+     * that differ in just one node:
+     * 
+     * <pre>
+     * graph 1: a->b->c->d
+     * graph 2: a->b->c->e
+     * </pre>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void differentLinearGraphsTest() throws Exception {
+        EventNode[] g1Nodes = getChainTraceGraphNodesInOrder(new String[] {
+                "a", "b", "c", "d" });
+
+        EventNode[] g2Nodes = getChainTraceGraphNodesInOrder(new String[] {
+                "a", "b", "c", "e" });
+
+        // ///////////////////
+        // g1 and g2 are k-equivalent at first three nodes for k=1,2,3
         // respectively, but no further. Subsumption follows the same pattern.
+
+        // "INITIAL" not at root:
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 0);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 1);
         testTrueBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 2);
-        testFalseBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 3);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 3);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 4);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[0], g2Nodes[0], 5);
 
+        // "a" node at root:
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[1], g2Nodes[1], 0);
         testTrueBothSubsumingAndNotSubsuming(g1Nodes[1], g2Nodes[1], 1);
-        testFalseBothSubsumingAndNotSubsuming(g1Nodes[1], g2Nodes[1], 2);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[1], g2Nodes[1], 2);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[1], g2Nodes[1], 3);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[1], g2Nodes[1], 4);
 
+        // "b" node at root:
         testTrueBothSubsumingAndNotSubsuming(g1Nodes[2], g2Nodes[2], 0);
-        testFalseBothSubsumingAndNotSubsuming(g1Nodes[2], g2Nodes[2], 1);
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[2], g2Nodes[2], 1);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[2], g2Nodes[2], 2);
 
-        events = new String[] { "a", "a", "a" };
-        g2 = genInitialLinearGraph(events);
-        exportTestGraph(g2, 3);
-        g2.getNodes().toArray(g2Nodes);
-        // The last node in g2 should not be 1-equivalent to first node.
-        testFalseBothSubsumingAndNotSubsuming(g2Nodes[0], g2Nodes[2], 1);
+        // "c" node at root:
+        testTrueBothSubsumingAndNotSubsuming(g1Nodes[3], g2Nodes[3], 0);
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[3], g2Nodes[3], 1);
+
+        // "d" and "e" nodes at root:
+        testFalseBothSubsumingAndNotSubsuming(g1Nodes[4], g2Nodes[4], 0);
     }
 
     /**
@@ -219,9 +302,10 @@ public class KTailsTests extends SynopticTest {
         // This returns a set with one node -- INITIAL. It will have two
         // children -- the two "a" nodes, which should be k-equivalent for all
         // k.
-        assertFalse(inputGraph.getDummyInitialNodes().isEmpty());
-        List<Transition<EventNode>> initNodeTransitions = inputGraph
-                .getDummyInitialNodes().iterator().next().getTransitions();
+        EventNode initNode = inputGraph.getDummyInitialNode();
+
+        List<Transition<EventNode>> initNodeTransitions = initNode
+                .getAllTransitions();
         EventNode firstA = initNodeTransitions.get(0).getTarget();
         EventNode secondA = initNodeTransitions.get(1).getTarget();
         for (int k = 0; k < 3; k++) {
@@ -239,8 +323,8 @@ public class KTailsTests extends SynopticTest {
         inputGraph = parser.generateDirectPORelation(parsedEvents);
         exportTestGraph(inputGraph, 1);
 
-        initNodeTransitions = inputGraph.getDummyInitialNodes().iterator()
-                .next().getTransitions();
+        initNode = inputGraph.getDummyInitialNode();
+        initNodeTransitions = initNode.getAllTransitions();
         firstA = initNodeTransitions.get(0).getTarget();
         secondA = initNodeTransitions.get(1).getTarget();
         testTrueBothSubsumingAndNotSubsuming(firstA, secondA, 0);
@@ -248,12 +332,12 @@ public class KTailsTests extends SynopticTest {
     }
 
     /**
-     * Tests k-equivalence of nodes in two DAG graphs.
+     * Tests k-equivalence of nodes in two equivalent DAGs.
      * 
      * @throws Exception
      */
     @Test
-    public void dagGraphsTest() throws Exception {
+    public void equalDagGraphsTest() throws Exception {
         // Generate two identical DAGs
         String traceStr = "1,0 a\n" + "2,1 b\n" + "1,2 c\n" + "2,3 d\n"
                 + "--\n" + "1,0 a\n" + "2,1 b\n" + "1,2 c\n" + "2,3 d\n";
@@ -265,32 +349,43 @@ public class KTailsTests extends SynopticTest {
         exportTestGraph(g1, 0);
 
         List<Transition<EventNode>> initNodeTransitions = g1
-                .getDummyInitialNodes().iterator().next().getTransitions();
-        EventNode firstA, secondA;
-        firstA = initNodeTransitions.get(0).getTarget();
-        secondA = initNodeTransitions.get(1).getTarget();
+                .getDummyInitialNode().getAllTransitions();
+        EventNode firstA = initNodeTransitions.get(0).getTarget();
+        EventNode secondA = initNodeTransitions.get(1).getTarget();
         for (int k = 0; k < 3; k++) {
             testTrueBothSubsumingAndNotSubsuming(firstA, secondA, k);
         }
+    }
 
-        // Switch temporal order of b and c nodes in one DAG (non-topological
-        // change).
-        traceStr = "1,0 a\n" + "2,1 c\n" + "1,2 b\n" + "2,3 d\n" + "--\n"
-                + "1,0 a\n" + "2,1 b\n" + "1,2 c\n";
+    /**
+     * Tests k-equivalence of nodes in two slightly different DAGs.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void diffDagGraphsTest() throws Exception {
+        // NOTE: unlike equalDagGraphsTest(), the second trace in this example
+        // omits a "d" event.
+        String traceStr = "1,0 a\n" + "2,1 c\n" + "1,2 b\n" + "2,3 d\n"
+                + "--\n" + "1,0 a\n" + "2,1 b\n" + "1,2 c\n";
 
-        parser = genParser();
-        parsedEvents = parser.parseTraceString(traceStr,
+        TraceParser parser = genParser();
+        ArrayList<EventNode> parsedEvents = parser.parseTraceString(traceStr,
                 testName.getMethodName(), -1);
         DAGsTraceGraph g2 = parser.generateDirectPORelation(parsedEvents);
         exportTestGraph(g2, 1);
 
-        EventNode initG1 = g1.getDummyInitialNodes().iterator().next();
-        EventNode initG2 = g2.getDummyInitialNodes().iterator().next();
-        for (int k = 0; k < 3; k++) {
-            testTrueBothSubsumingAndNotSubsuming(initG1, initG2, k);
-        }
-        // The 'd' in g2 makes it different from g1 at k=3.
-        testFalseBothSubsumingAndNotSubsuming(initG1, initG2, 3);
+        List<Transition<EventNode>> initNodeTransitions = g2
+                .getDummyInitialNode().getAllTransitions();
+        EventNode firstA = initNodeTransitions.get(0).getTarget();
+        EventNode secondA = initNodeTransitions.get(1).getTarget();
+
+        testTrueBothSubsumingAndNotSubsuming(firstA, secondA, 0);
+        testTrueBothSubsumingAndNotSubsuming(firstA, secondA, 1);
+
+        // The 'd' in g2 makes it different from g1 at k >= 2.
+        testFalseBothSubsumingAndNotSubsuming(firstA, secondA, 2);
+        testFalseBothSubsumingAndNotSubsuming(firstA, secondA, 3);
     }
 
     /**

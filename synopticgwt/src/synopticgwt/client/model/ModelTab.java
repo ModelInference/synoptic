@@ -71,6 +71,8 @@ public class ModelTab extends Tab<DockLayoutPanel> {
             "edgeLabelsRadioGroup", "Show probabilities on edges");
     private final RadioButton countEdgesRadioButton = new RadioButton(
             "edgeLabelsRadioGroup", "Show counts on edges");
+    private final RadioButton latencyEdgesRadioButton = new RadioButton(
+            "edgeLabelsRadioGroup", "Show latency between edges");
 
     // Panel containing the model graphic.
     private FlowPanel graphPanel = null;
@@ -156,11 +158,20 @@ public class ModelTab extends Tab<DockLayoutPanel> {
                         "Annotate edges with trace counts, which indicate the number of traces that pass along an edge",
                         TOOLTIP_URL);
         countEdgesRadioButton.addValueChangeHandler(edgeOptsHandler);
+        
+        TooltipListener
+        .setTooltip(
+                countEdgesRadioButton,
+                "Annotate edges with trace counts, which indicate the number of traces that pass along an edge",
+                TOOLTIP_URL);
+        latencyEdgesRadioButton.addValueChangeHandler(edgeOptsHandler);
 
-        Grid modelOptsGrid = new Grid(2, 1);
+        Grid modelOptsGrid = new Grid(3, 1);
         modelOptsGrid.setCellSpacing(6);
         modelOptsGrid.setWidget(0, 0, countEdgesRadioButton);
         modelOptsGrid.setWidget(1, 0, probEdgesRadioButton);
+        modelOptsGrid.setWidget(2, 0, latencyEdgesRadioButton);
+        
         modelOpts.setContent(modelOptsGrid);
         modelOpts.setAnimationEnabled(true);
         modelOpts.setStyleName("SpecialOptions");
@@ -280,13 +291,19 @@ public class ModelTab extends Tab<DockLayoutPanel> {
 
         @Override
         public void onValueChange(ValueChangeEvent<Boolean> event) {
-            modelTab.showEdgeTraceCounts = modelTab.countEdgesRadioButton
-                    .getValue();
-
-            if (modelTab.showEdgeTraceCounts) {
+            if (modelTab.countEdgesRadioButton.getValue()) {
                 jsGraph.setEdgeLabelType(EdgeLabelType.COUNT);
-            } else {
+                return;
+            }
+
+            if (modelTab.probEdgesRadioButton.getValue()) {
                 jsGraph.setEdgeLabelType(EdgeLabelType.PROBABILITY);
+                return;
+            }
+            
+            if (modelTab.latencyEdgesRadioButton.getValue()){
+                jsGraph.setEdgeLabelType(EdgeLabelType.LATENCY);
+                return;
             }
         }
     }

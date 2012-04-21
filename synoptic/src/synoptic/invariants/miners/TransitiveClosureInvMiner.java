@@ -8,27 +8,26 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.algorithms.TransitiveClosure;
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
-import synoptic.invariants.AlwaysConcurrentInvariant;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.concurrency.AlwaysConcurrentInvariant;
+import synoptic.invariants.concurrency.NeverConcurrentInvariant;
 import synoptic.invariants.ltlcheck.Pair;
-import synoptic.main.Main;
-import synoptic.main.TraceParser;
+import synoptic.main.SynopticMain;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
-import synoptic.model.DistEventType;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
-import synoptic.model.StringEventType;
 import synoptic.model.TraceGraph;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 
 public class TransitiveClosureInvMiner extends InvariantMiner implements
         POInvariantMiner, TOInvariantMiner {
@@ -48,13 +47,14 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
     }
 
     @Override
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
-        return computeInvariants(g, false);
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+            boolean multipleRelations) {
+        return computeTransClosureInvariants(g, false);
     }
 
     @Override
     public TemporalInvariantSet computeInvariants(DAGsTraceGraph g) {
-        return computeInvariants(g, true);
+        return computeTransClosureInvariants(g, true);
     }
 
     /**
@@ -70,7 +70,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
      *            whether or not to also mine concurrency invariants
      * @return the set of temporal invariants the graph satisfies
      */
-    public TemporalInvariantSet computeInvariants(TraceGraph<?> g,
+    public TemporalInvariantSet computeTransClosureInvariants(TraceGraph<?> g,
             boolean mineConcurrencyInvariants) {
 
         TimedTask mineInvariants = PerformanceMetrics.createTask(
@@ -89,7 +89,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
 
             // Get the over-approximation.
             itc.stop();
-            if (Main.options.doBenchmarking) {
+            if (SynopticMain.getInstance().options.doBenchmarking) {
                 logger.info("BENCHM: " + itc);
             }
             TimedTask io = PerformanceMetrics.createTask(
@@ -106,7 +106,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
             }
 
             io.stop();
-            if (Main.options.doBenchmarking) {
+            if (SynopticMain.getInstance().options.doBenchmarking) {
                 logger.info("BENCHM: " + io);
             }
             // logger.info("Over-approx set: "

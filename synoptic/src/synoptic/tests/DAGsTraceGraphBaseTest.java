@@ -1,21 +1,28 @@
 package synoptic.tests;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import synoptic.main.ParseException;
 import synoptic.model.DAGsTraceGraph;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
 import synoptic.model.Transition;
+import synoptic.model.event.Event;
 
 /**
  * Base test class for testing trace graph generation. This class provides a few
  * methods for generating topologically interesting trace graphs. These are then
  * checked by derived test classes (e.g., DAGsTraceGraphTCTests).
  */
-public class DAGsTraceGraphBaseTest extends SynopticTest {
+public abstract class DAGsTraceGraphBaseTest extends SynopticTest {
+
+    protected Set<String> FollowedByRelationsSet;
 
     @Override
     public void setUp() throws ParseException {
         super.setUp();
+        FollowedByRelationsSet = new LinkedHashSet<String>();
+        FollowedByRelationsSet.add("followed by");
     }
 
     protected DAGsTraceGraph dag;

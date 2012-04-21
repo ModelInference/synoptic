@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import gov.nasa.ltl.graph.Graph;
 
-import synoptic.model.Event;
-import synoptic.model.EventType;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
-import synoptic.util.NotImplementedException;
 
 /**
  * Temporal Invariant representing a kTail for some length k. Not a binary
@@ -23,19 +23,12 @@ import synoptic.util.NotImplementedException;
  * 
  * @author jennyabrahamson
  */
-/**
- * Storage of k tails for KTailInvariantMiner. Creates a KTail for each unique
- * series of events, and tracks number of instances of each tail as well as the
- * set of possible following events.
- * 
- * @author jennyabrahamson
- */
 public class KTailInvariant implements ITemporalInvariant {
 
     // Set of all kTail invariants already created
     private static Map<List<EventType>, KTailInvariant> tails = new HashMap<List<EventType>, KTailInvariant>();
 
-    private final String relation;
+    private final Set<String> relations;
 
     // This tail's list of events
     private final List<EventType> tail;
@@ -44,7 +37,8 @@ public class KTailInvariant implements ITemporalInvariant {
     private Set<EventType> following;
 
     private KTailInvariant(List<EventType> eventTail, String relation) {
-        this.relation = relation;
+        this.relations = new LinkedHashSet<String>();
+        this.relations.add(relation);
         this.tail = Collections.unmodifiableList(new ArrayList<EventType>(
                 eventTail));
         this.following = new HashSet<EventType>();
@@ -127,8 +121,8 @@ public class KTailInvariant implements ITemporalInvariant {
     }
 
     @Override
-    public String getRelation() {
-        return relation;
+    public Set<String> getRelations() {
+        return relations;
     }
 
     @Override
@@ -142,7 +136,7 @@ public class KTailInvariant implements ITemporalInvariant {
      */
     @Override
     public String getLTLString() {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -151,6 +145,6 @@ public class KTailInvariant implements ITemporalInvariant {
      */
     @Override
     public Graph getAutomaton() {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 }

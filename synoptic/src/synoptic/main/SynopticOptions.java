@@ -7,6 +7,12 @@ import java.util.List;
 import plume.Option;
 import plume.OptionGroup;
 
+/**
+ * This class defines and maintains command line arguments to the Synoptic
+ * process. It uses plume-lib for defining command line options, their types,
+ * and the corresponding help messages. This library also provides support for
+ * parsing and populating instances of these options.
+ */
 public class SynopticOptions extends Options {
     // //////////////////////////////////////////////////
     /**
@@ -69,6 +75,12 @@ public class SynopticOptions extends Options {
     @Option(
             value = "Vector time index sets for partitioning the graph by system node type, e.g. '1,2;3,4'")
     public String separateVTimeIndexSets = null;
+
+    /**
+     * Mine multiple-relations
+     */
+    @Option("Mine multiple relations from the trace graph")
+    public boolean multipleRelations = false;
     // end option group "Execution Options"
 
     // //////////////////////////////////////////////////
@@ -126,6 +138,13 @@ public class SynopticOptions extends Options {
     @Option(
             value = "-i Ignore lines that do not match any of the passed regular expressions")
     public boolean ignoreNonMatchingLines = false;
+
+    /**
+     * This option allows the user to debug their system in terms of
+     * performance.
+     */
+    @Option(value = "-p Enable performance debugging support")
+    public boolean enablePerfDebugging = false;
 
     /**
      * This allows users to get away with sloppy\incorrect regular expressions
@@ -357,13 +376,27 @@ public class SynopticOptions extends Options {
     // end option group "Debugging Options"
 
     /** One line synopsis of usage */
-    public static final String usageString = "synoptic [options] <logfiles-to-analyze>";
+    private static final String usageString = "synoptic [options] <logfiles-to-analyze>";
 
+    /**
+     * Use this constructor to create a blank set of options, that can then be
+     * populated manually, one at a time. This is useful when Synoptic is used
+     * as a library, and options do not come from the command line.
+     */
     public SynopticOptions() {
         randomSeed = System.currentTimeMillis();
         logFilenames = new LinkedList<String>();
     }
 
+    /**
+     * This constructor is used to actually process input command line
+     * arguments. If the randomSeed option is not specified, this constructor
+     * initializes it.
+     * 
+     * @param args
+     *            an array of command line arguments
+     * @throws IOException
+     */
     public SynopticOptions(String[] args) throws IOException {
         plumeOptions = new plume.Options(getUsageString(), this);
         setOptions(args);

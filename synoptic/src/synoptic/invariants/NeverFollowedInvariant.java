@@ -2,8 +2,8 @@ package synoptic.invariants;
 
 import java.util.List;
 
-import synoptic.model.EventType;
-import synoptic.model.StringEventType;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.model.interfaces.INode;
 
 public class NeverFollowedInvariant extends BinaryInvariant {
@@ -42,8 +42,8 @@ public class NeverFollowedInvariant extends BinaryInvariant {
 
     @Override
     public String toString() {
-        return first.toString() + " NeverFollowedBy(" + relation + ") "
-                + second.toString();
+        return first.toString() + " NeverFollowedBy(" + relations.toString()
+                + ") " + second.toString();
     }
 
     @Override

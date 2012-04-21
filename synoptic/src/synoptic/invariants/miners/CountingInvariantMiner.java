@@ -4,15 +4,15 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import synoptic.invariants.AlwaysConcurrentInvariant;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.model.DistEventType;
-import synoptic.model.EventType;
-import synoptic.model.StringEventType;
+import synoptic.invariants.concurrency.AlwaysConcurrentInvariant;
+import synoptic.invariants.concurrency.NeverConcurrentInvariant;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.util.InternalSynopticException;
 
 public class CountingInvariantMiner extends InvariantMiner {

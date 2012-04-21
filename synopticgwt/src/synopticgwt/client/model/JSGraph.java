@@ -74,7 +74,7 @@ public class JSGraph implements MouseEventHandler<JSONode> {
 
     // The different available edge labels.
     public enum EdgeLabelType {
-        PROBABILITY, COUNT;
+        PROBABILITY, COUNT, LATENCY;
 
         public static String getEdgeLabelString(GWTEdge edge,
                 EdgeLabelType labelType) {
@@ -85,6 +85,10 @@ public class JSGraph implements MouseEventHandler<JSONode> {
                 break;
             case COUNT:
                 label = edge.getCountStr();
+                break;
+            case LATENCY:
+                // TODO This should be latency!
+                label = edge.getWeightStr();
                 break;
             default:
                 // If it isn't one of the above, it's

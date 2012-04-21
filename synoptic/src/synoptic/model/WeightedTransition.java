@@ -1,5 +1,7 @@
 package synoptic.model;
 
+import java.util.Set;
+
 import synoptic.model.interfaces.ITransition;
 
 /**
@@ -30,8 +32,8 @@ public class WeightedTransition<NodeType> extends Transition<NodeType> {
      *            number of events that take this transition
      */
     public WeightedTransition(NodeType source, NodeType target,
-            String relation, double fraction, int count) {
-        super(source, target, relation);
+            Set<String> relations, double fraction, int count) {
+        super(source, target, relations);
         this.fraction = fraction;
         this.count = count;
     }

@@ -1,99 +1,205 @@
 package synoptic.model;
 
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import synoptic.model.event.Event;
+import synoptic.model.interfaces.ITransition;
+import synoptic.model.interfaces.IRelationPath;
+import synoptic.util.InternalSynopticException;
+
 /**
- * Maintains the set of all relation paths (a path corresponding to a particular
- * relation) part of a single input trace. If a relation exists in a trace, then
- * there is a single unique relation path corresponding to the relation.
+ * Provides access to all of the relation paths within this trace. Relations can
+ * be associated with zero or more relation paths.
  * 
  * @author timjv
  */
 public class Trace {
-    /*
-     * A relation string and an EventNode uniquely specify a relation path
-     * because we can simply walk the event nodes using their internal
-     * transitions along edges labeled with the relation string.
-     */
 
-    /** Relation string -> Representative relation path. */
-    private Map<String, RelationPath> paths;
+    /** Relations -> First non-INITIAL node for each relation in this trace */
+    private Map<String, EventNode> relationToInitialNodes;
+    // TODO: Is there a way to statically define this set?
+    private Set<String> defaultTimeRelationStringSet;
 
     public Trace() {
-        this.paths = new HashMap<String, RelationPath>();
+        this.relationToInitialNodes = new HashMap<String, EventNode>();
+        defaultTimeRelationStringSet = new HashSet<String>();
+        defaultTimeRelationStringSet.add(Event.defaultTimeRelationString);
+    }
+
+    public void addInitialNode(String relation, EventNode eNode) {
+        if (relationToInitialNodes.containsKey(relation)) {
+            throw new IllegalArgumentException(
+                    "Trace already contains initial node for " + relation);
+        }
+
+        relationToInitialNodes.put(relation, eNode);
     }
 
     /**
-     * Adds the relation path specified by relation and eNode to this trace, if
-     * there is no pre-existing relation path specified for the relation.
+     * Returns zero or more RelationPaths for every subgraph of the relation
+     * type.
      * 
      * @param relation
-     *            Type of relation for the path.
-     * @param eNode
-     *            First node in the relation path.
+     * @return
      */
-    public void addRelationPath(String relation, EventNode eNode,
-            boolean initialConnected) {
-        if (paths.containsKey(relation)) {
+    public Set<IRelationPath> getSingleRelationPaths(String relation) {
+        /*
+         * the initialTransitivelyConnected parameter is always false when
+         * constructing relation paths in this method because the constructed
+         * relation paths never have transitive connections. Each relation path
+         * is either an island or the full trace.
+         */
+
+        // Relation paths only get added to results when they are terminated
+        Set<IRelationPath> results = new HashSet<IRelationPath>();
+
+        EventNode pendingInitial = null;
+        EventNode curNode;
+
+        Set<String> relationSet = new HashSet<String>();
+        relationSet.add(relation);
+
+        if (relationToInitialNodes.containsKey(relation)) {
+            curNode = relationToInitialNodes.get(relation);
+            pendingInitial = curNode;
+        } else {
+            curNode = relationToInitialNodes
+                    .get(Event.defaultTimeRelationString);
+        }
+        
+        EventNode prevNode = curNode;
+
+        // Iterate through the trace chain and construct zero or more
+        // RelationPaths
+        while (!curNode.isTerminal()) {
+            List<? extends ITransition<EventNode>> relationTransitions = curNode
+                    .getTransitionsWithIntersectingRelations(relationSet);
+
+            if (relationTransitions.size() > 1) {
+                throw new InternalSynopticException(
+                        "Multiple transitions exist for relation: " + relation);
+            }
+
+            // We are in the middle of construction a RelationPath
+            if (pendingInitial != null) {
+                // curNode does not have an outgoing edge with the input
+                // parameter relation type
+                if (relationTransitions.isEmpty()) {
+                    IRelationPath relationPath = new ChainRelationPath(pendingInitial, curNode, relation);
+                    results.add(relationPath);
+                    pendingInitial = null;
+                }
+            } else { // A RelationPath is not being constructed.
+                /*
+                 * This node has an outgoing edge containing the input parameter
+                 * relation so begin constructing a relation path
+                 */
+                if (!relationTransitions.isEmpty()) {
+                    pendingInitial = curNode;
+                }
+            }
+
             /*
-             * A relation path has been specified for relation. Check that
-             * relation paths are not being created when they already exist.
+             * There are no transitions containing the input parameter relation,
+             * so use the defaultTimeRelation transition to traverse the trace
              */
-            throw new IllegalArgumentException("Trace already contains path");
+            if (relationTransitions.isEmpty()) {
+                relationTransitions = curNode
+                        .getTransitionsWithIntersectingRelations(defaultTimeRelationStringSet);
+            }
+
+            prevNode = curNode;
+            
+            ITransition<EventNode> transition = relationTransitions.get(0);
+            curNode = transition.getTarget();
         }
-        paths.put(relation, new RelationPath(eNode, relation, initialConnected));
-    }
-
-    public void markRelationPathFinalNode(String relation, EventNode eNode) {
-        RelationPath path = paths.get(relation);
-        path.setFinalNode(eNode);
-    }
-
-    public Set<EventType> getSeen(String relation) {
-        if (!paths.containsKey(relation)) {
-            throw new IllegalArgumentException("Trace doesn't contain the "
-                    + relation + " relation");
+        
+        if (pendingInitial != null) {
+            IRelationPath relationPath = new ChainRelationPath(pendingInitial, prevNode, relation);
+            results.add(relationPath);
         }
-        return paths.get(relation).getSeen();
+
+        return results;
     }
 
-    public Map<EventType, Integer> getEventCounts(String relation) {
-        if (!paths.containsKey(relation)) {
-            throw new IllegalArgumentException("Trace doesn't contain the "
-                    + relation + " relation");
+    /**
+     * Returns a single RelationPath where each subgraph of the relation type is
+     * transitively connected through the transitiveRelation. Returns null if no
+     * such path exists.
+     * 
+     * @param relation
+     * @param transitiveRelation
+     * @return
+     */
+    public IRelationPath getBiRelationalPath(String relation,
+            String transitiveRelation) {
+        
+        EventNode firstNode;
+        EventNode finalNode = null;
+        boolean initialTransitivelyConnected;
+
+        Set<String> relationSet = new HashSet<String>();
+        relationSet.add(relation);
+
+        // birelational path is connected to the initial node by the primary
+        // relation
+        if (relationToInitialNodes.containsKey(relation)) {
+            firstNode = relationToInitialNodes.get(relation);
+            initialTransitivelyConnected = false;
+            finalNode = firstNode;
+        } else { // birelational path is connected to the initial node by the
+                 // transitive relation
+            firstNode = relationToInitialNodes
+                    .get(Event.defaultTimeRelationString);
+            initialTransitivelyConnected = true;
         }
-        return paths.get(relation).getEventCounts();
-    }
 
-    // TODO: Make the return type deeply unmodifiable
-    public Map<EventType, Map<EventType, Integer>> getFollowedByCounts(
-            String relation) {
-        if (!paths.containsKey(relation)) {
-            throw new IllegalArgumentException("Trace doesn't contain the "
-                    + relation + " relation");
+        EventNode curNode = firstNode;
+
+        while (!curNode.isTerminal()) {
+            List<? extends ITransition<EventNode>> relationTransitions = curNode
+                    .getTransitionsWithIntersectingRelations(relationSet);
+
+            if (relationTransitions.size() > relationSet.size()) {
+                throw new InternalSynopticException(
+                        "Multiple transitions exist for relation: " + relation);
+            }
+
+            // If a transition exists for the primary relation, mark the target
+            // as the pending final node.
+            if (!relationTransitions.isEmpty()) {
+                ITransition<EventNode> transition = relationTransitions.get(0);
+                finalNode = transition.getTarget();
+            }
+
+            /*
+             * I have a redundant test here because what happens in the previous
+             * block is conceptually separate from what happens in the next
+             * block
+             */
+            // Begin the process of moving to the next node
+            if (relationTransitions.isEmpty()) {
+                relationTransitions = curNode
+                        .getTransitionsWithIntersectingRelations(defaultTimeRelationStringSet);
+            }
+            
+            ITransition<EventNode> transition = relationTransitions.get(0);
+            curNode = transition.getTarget();
         }
-        return paths.get(relation).getFollowedByCounts();
-    }
 
-    // TODO: Make the return type deeply unmodifiable
-    public Map<EventType, Map<EventType, Integer>> getPrecedesCounts(
-            String relation) {
-        if (!paths.containsKey(relation)) {
-            throw new IllegalArgumentException("Trace doesn't contain the "
-                    + relation + " relation");
+        if (finalNode != null) {
+            return new TransitiveRelationPath(firstNode, finalNode, relation,
+                    transitiveRelation, initialTransitivelyConnected);
         }
-        return paths.get(relation).getPrecedesCounts();
-    }
 
-    public boolean hasRelation(String relation) {
-        return paths.containsKey(relation);
+        return null;
     }
-
-    public Set<String> getRelations() {
-        return Collections.unmodifiableSet(paths.keySet());
+    
+    public boolean containsRelation(String relation) {
+        return relationToInitialNodes.containsKey(relation);
     }
-
 }

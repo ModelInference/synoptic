@@ -5,10 +5,12 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
-import synoptic.model.Event;
+import synoptic.model.event.Event;
 import synoptic.model.interfaces.INode;
+import synoptic.util.time.ITime;
 
 /**
  * Base class representing possible exported/serializing formats for graphs.
@@ -124,7 +126,7 @@ public abstract class GraphExportFormatter {
      * @return
      */
     public abstract String edgeToStringWithProb(int nodeSrc, int nodeDst,
-            double freq, String relation);
+            double freq, Set<String> relation);
 
     /**
      * Serializes a single node edge in a graph to a string that represents this
@@ -143,7 +145,7 @@ public abstract class GraphExportFormatter {
      * @return
      */
     public abstract String edgeToStringWithNoProb(int nodeSrc, int nodeDst,
-            String relation);
+            Set<String> relations);
 
     /**
      * Serializes a single node edge in a graph to a string. Also, outputs a
@@ -162,7 +164,10 @@ public abstract class GraphExportFormatter {
      * @return
      */
     public abstract String edgeToStringWithTraceId(int nodeSrc, int nodeDst,
-            int traceId, String relation);
+            int traceId, Set<String> relations);
+
+    public abstract String edgeToStringWithITime(int nodeSrc, int nodeDst,
+            ITime time, Set<String> relations);
 
     /**
      * Returns a string with escaped forward slashes and double quotes.

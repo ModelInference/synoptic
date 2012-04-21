@@ -7,7 +7,7 @@ import plume.Option;
 import plume.OptionGroup;
 
 /**
- * Options relevant to the InvDFAMinimization project.
+ * Options relevant to the InvariMint project.
  */
 public class InvariMintOptions extends synoptic.main.Options {
 

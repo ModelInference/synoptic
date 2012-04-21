@@ -81,8 +81,10 @@ public class ParseLogTests extends SynopticGWTTestCase {
                         assertTrue(terminal != null);
 
                         List<GWTEdge> edges = graph.getEdges();
-                        GWTEdge e1 = new GWTEdge(initial, event, 1, 1);
-                        GWTEdge e2 = new GWTEdge(event, terminal, 1, 1);
+                        GWTEdge e1 = new GWTEdge(initial, event, 1, 1,
+                                GWTEdge.DEFAULT_EMPTY_LATENCY);
+                        GWTEdge e2 = new GWTEdge(event, terminal, 1, 1,
+                                GWTEdge.DEFAULT_EMPTY_LATENCY);
                         assertEquals(edges.size(), 2);
                         assertTrue(edges.contains(e1));
                         assertTrue(edges.contains(e2));

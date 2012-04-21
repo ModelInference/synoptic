@@ -8,9 +8,8 @@ import java.util.Set;
 import synoptic.invariants.KTailInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
@@ -29,7 +28,16 @@ public class KTailInvariantMiner implements TOInvariantMiner {
         this.k = k;
     }
 
+    /**
+     * NOTE: multiple-relations mining of KTail invariants is not supported.
+     */
     @Override
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+            boolean multipleRelations) {
+        assert multipleRelations == false;
+        return computeInvariants(g);
+    }
+
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
         // Logger logger = Logger.getLogger("KTailInvariantMiner");
 
@@ -39,14 +47,14 @@ public class KTailInvariantMiner implements TOInvariantMiner {
         if (k > 1) {
 
             Set<KTailInvariant> tails = new HashSet<KTailInvariant>();
-            EventNode initNode = g
-                    .getDummyInitialNode(Event.defaultTimeRelationString);
+            EventNode initNode = g.getDummyInitialNode();
 
             List<EventType> eventWindow = new ArrayList<EventType>();
 
             // Iterate through all the traces -- each transition from the
             // INITIAL node connects\holds a single trace.
-            for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
+            for (ITransition<EventNode> initTrans : initNode
+                    .getAllTransitions()) {
                 EventNode curNode = initTrans.getTarget();
 
                 eventWindow.clear();
@@ -56,18 +64,18 @@ public class KTailInvariantMiner implements TOInvariantMiner {
                 int count = 1;
                 eventWindow.add(initNode.getEType());
 
-                while (curNode.getTransitions().size() != 0 && count <= k) {
+                while (curNode.getAllTransitions().size() != 0 && count <= k) {
 
                     // NOTE: this invariant miner only works for totally ordered
                     // traces, so each node must have no more than 1 out-going
                     // transition.
-                    if (curNode.getTransitions().size() != 1) {
+                    if (curNode.getAllTransitions().size() != 1) {
                         throw new InternalSynopticException(
                                 "KTailInvariantMiner does not work on partially ordered traces.");
                     }
                     eventWindow.add(curNode.getEType());
                     count++;
-                    curNode = curNode.getTransitions().get(0).getTarget();
+                    curNode = curNode.getAllTransitions().get(0).getTarget();
                 }
 
                 if (count != k + 1) {
@@ -84,14 +92,14 @@ public class KTailInvariantMiner implements TOInvariantMiner {
                     tails.add(KTailInvariant.getInvariant(eventWindow,
                             curNode.getEType()));
 
-                    if (curNode.getTransitions().size() == 0) {
+                    if (curNode.getAllTransitions().size() == 0) {
                         break;
                     }
 
                     // Update window
                     eventWindow.remove(0);
                     eventWindow.add(curNode.getEType());
-                    curNode = curNode.getTransitions().get(0).getTarget();
+                    curNode = curNode.getAllTransitions().get(0).getTarget();
                     // logger.info(curNode.toString());
                 }
                 // logger.info("--");

@@ -11,8 +11,8 @@ import model.EventTypeEncodings;
 
 import org.junit.Test;
 
-import synoptic.model.EventType;
-import synoptic.model.StringEventType;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 
 public class EncodingTests {
 

@@ -14,8 +14,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -25,15 +25,15 @@ import javax.servlet.http.HttpSession;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
-import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.algorithms.graph.PartitionMultiSplit;
+import synoptic.algorithms.Bisimulation;
+import synoptic.algorithms.graphops.PartitionMultiSplit;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
-import synoptic.invariants.ConcurrencyInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.Main;
+import synoptic.invariants.concurrency.ConcurrencyInvariant;
 import synoptic.main.ParseException;
+import synoptic.main.SynopticMain;
 import synoptic.main.SynopticOptions;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -45,7 +45,7 @@ import synoptic.model.WeightedTransition;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.INode;
-import synoptic.model.interfaces.ITransition;
+import synoptic.util.time.ITime;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTEdge;
 import synopticgwt.shared.GWTGraph;
@@ -280,10 +280,20 @@ public class SynopticService extends RemoteServiceServlet implements
                 }
 
                 double transitionProb = wTransition.getFraction();
+                ITime mean = wTransition.getDeltaSeries().computeMean();
+
+                GWTEdge edge;
+                if (mean == null) {
+                    edge = new GWTEdge(gwtPNode, adjGWTPNode, transitionProb,
+                            wTransition.getCount());
+                } else {
+                    double meanLatency = Double.parseDouble(mean.toString());
+                    edge = new GWTEdge(gwtPNode, adjGWTPNode, transitionProb,
+                            wTransition.getCount(), meanLatency);
+                }
 
                 // Add the complete weighted edge
-                graph.addEdge(gwtPNode, adjGWTPNode, transitionProb,
-                        wTransition.getCount());
+                graph.addEdge(edge);
             }
         }
         return graph;
@@ -373,15 +383,17 @@ public class SynopticService extends RemoteServiceServlet implements
 
         retrieveSessionState();
 
-        // Set up some static variables in Main that are necessary to use the
-        // Synoptic library.
-        Main.options = new SynopticOptions();
-        // Output as much internal Synoptic information as possible.
-        Main.options.logLvlExtraVerbose = true;
-        Main.options.ignoreNonMatchingLines = synOpts.ignoreNonMatchedLines;
-        synoptic.main.Main.setUpLogging();
-        Main.random = new Random(Main.options.randomSeed);
-        Main.graphExportFormatter = new DotExportFormatter();
+        if (SynopticMain.instance == null) {
+            // Set up some static variables in Main that are necessary to use
+            // the Synoptic library.
+            SynopticOptions options = new SynopticOptions();
+            // Output as much internal Synoptic information as possible.
+            options.logLvlExtraVerbose = true;
+            options.ignoreNonMatchingLines = synOpts.ignoreNonMatchedLines;
+            options.enablePerfDebugging = true;
+            SynopticMain synopticMain = new SynopticMain(options,
+                    new DotExportFormatter());
+        }
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = null;
@@ -411,7 +423,8 @@ public class SynopticService extends RemoteServiceServlet implements
         int miningTime = (int) System.currentTimeMillis();
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
-            minedInvs = Main.mineTOInvariants(false, traceGraph);
+            minedInvs = SynopticMain.getInstance().mineTOInvariants(false,
+                    traceGraph);
 
             if (!synOpts.onlyMineInvs) {
                 // In the TO case then we also initialize/store refinement
@@ -425,7 +438,8 @@ public class SynopticService extends RemoteServiceServlet implements
             // PO invariant miner.
             DAGsTraceGraph inputGraph = parser
                     .generateDirectPORelation(parsedEvents);
-            minedInvs = Main.minePOInvariants(true, inputGraph);
+            minedInvs = SynopticMain.getInstance().minePOInvariants(true,
+                    inputGraph);
             graph = null;
         }
         miningTime = (((int) System.currentTimeMillis() - miningTime) / 1000) % 60;
@@ -543,7 +557,7 @@ public class SynopticService extends RemoteServiceServlet implements
         assert (counterExampleTraces.size() > 0);
 
         // Perform a single refinement step.
-        numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
+        numSplitSteps = Bisimulation.splitOnce(
                 numSplitSteps, pGraph, counterExampleTraces);
 
         // Recompute the counter-examples for the unsatisfied invariants.
@@ -596,7 +610,7 @@ public class SynopticService extends RemoteServiceServlet implements
         retrieveSynopticSessionState();
 
         // Refine.
-        Bisimulation.splitPartitions(pGraph);
+        Bisimulation.splitUntilAllInvsSatisfied(pGraph);
         unsatInvs.clear();
 
         // Coarsen.
@@ -692,24 +706,32 @@ public class SynopticService extends RemoteServiceServlet implements
             selectedNodes.add(p);
         }
 
-        Map<Integer, Set<ITransition<Partition>>> paths = pGraph
+        Map<Integer, List<Partition>> paths = pGraph
                 .getPathsThroughPartitions(selectedNodes);
 
         // Convert an ITransition-centric map to a GWTEdge-centric map.
         for (Integer id : paths.keySet()) {
             // Convert each transition individually into an edge, and then
             // add them all to an individual path.
-            Set<ITransition<Partition>> transitions = paths.get(id);
+            List<Partition> transitions = paths.get(id);
             List<GWTEdge> gwtPath = new LinkedList<GWTEdge>();
-            for (ITransition<Partition> trans : transitions) {
-                GWTNode trgNode = gwtNodeFromPartition(trans.getTarget());
-                GWTNode srcNode = gwtNodeFromPartition(trans.getSource());
+            Partition prevP = transitions.get(0);
+            ListIterator<Partition> lIter = transitions.listIterator(1);
+            while (lIter.hasNext()) {
+                Partition currP = lIter.next();
+                GWTNode trgNode = gwtNodeFromPartition(currP);
+                GWTNode srcNode = gwtNodeFromPartition(prevP);
 
                 // The value of zero in the construction of this edge
-                // is simply a dummy weight, since the purpose of this edge
-                // is for finding equivalent edges within the model tab.
-                GWTEdge edge = new GWTEdge(srcNode, trgNode, 0, 0);
+                // is a dummy weight, since the purpose of this edge
+                // is to find equivalent edges within the model tab.
+
+                // TODO: the above indicates that the return data type is
+                // inappropriate -- we need something lighter-weight than a
+                // GWTEdge.
+                GWTEdge edge = new GWTEdge(srcNode, trgNode, 0, 0, 0);
                 gwtPath.add(edge);
+                prevP = currP;
             }
 
             // If there isn't already a path

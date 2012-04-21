@@ -21,7 +21,7 @@ import synoptic.main.ParseException;
 import synoptic.main.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.StringEventType;
+import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 
 @RunWith(value = Parameterized.class)
@@ -109,7 +109,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
 
         List<EventNode> events = parser.parseTraceString(traceStr, "test", -1);
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
-        return miner.computeInvariants(graph);
+        return miner.computeInvariants(graph, true);
     }
 
     @Test
