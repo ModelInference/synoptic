@@ -21,33 +21,38 @@ import synoptic.util.time.DTotalTime;
 public class TransitionDeltaTests {
 
     private Transition<String> sTrans;
+    private ITime t;
 
     @Before
     public void createTransitions() {
+        t = new ITotalTime(1);
         sTrans = new Transition<String>("node1", "node2", "");
     }
 
     // TODO: Is a delta series created on call?
+    @Test
+    public void generateDeltaSeries() {
+        assertNotNull(sTrans.getDeltaSeries());
+    }
+
     // is the single delta now null?
     @Test
     public void generateDelta() {
-        assertNotNull(sTrans.getDeltaSeries());
         assertNull(sTrans.getDelta());
     }
 
     @Test
     public void addDeltaToSeries() {
-        sTrans.addDelta(new ITotalTime(1));
+        sTrans.addDelta(t);
         assertNotNull(sTrans.getDeltaSeries());
         assertEquals(sTrans.getDeltaSeries().computeMode(),
-                new ITotalTime(1));
+                t);
     }
 
     // Should not be able to add a delta after the delta
     // has been set.
     @Test (expected = IllegalStateException.class)
     public void stateExceptionOnAddDeltaAfterSet() {
-        ITime t = new DTotalTime(2);
         sTrans.setDelta(t);
         sTrans.addDelta(t);
     }
@@ -56,8 +61,19 @@ public class TransitionDeltaTests {
     // ITimeSeries has been initialized.
     @Test (expected = IllegalStateException.class)
     public void stateExceptionOnSetDelta() {
-        ITime t = new DTotalTime(2);
         sTrans.addDelta(t);
         sTrans.setDelta(t);
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void stateExceptionOnGetDelta() {
+        sTrans.addDelta(t);
+        sTrans.getDelta();
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void stateExceptionOnGetDeltaSeries() {
+        sTrans.setDelta(t);
+        sTrans.getDeltaSeries();
     }
 }
