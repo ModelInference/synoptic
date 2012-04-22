@@ -78,7 +78,21 @@
 	</manifest>
       </jar>
     </target>
+    <!--====================================================================-->
+    <target name="test" depends="build">
+        <mkdir dir="${junit.output.dir}"/>
+        <echo message="${junit.include}" />
+        <junit fork="no" printsummary="withOutAndErr" showoutput="true">
+            <classpath refid="synoptic.classpath"/>
+            <formatter type="xml"/>
 
+            <batchtest fork="no" todir="${junit.output.dir}">
+                <fileset dir="bin/">
+                    <include name="${junit.include}.class"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
     <!--=====================================================================-->
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
