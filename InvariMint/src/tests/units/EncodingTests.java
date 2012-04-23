@@ -3,11 +3,16 @@ package tests.units;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import model.EncodedAutomaton;
 import model.EventTypeEncodings;
+import model.InvsModel;
 
 import org.junit.Test;
 
@@ -76,5 +81,20 @@ public class EncodingTests {
         EventTypeEncodings encodings = getBasicEncodings();
         char aEncoding = encodings.getEncoding(aEvent);
         assertSame(encodings.getString(aEncoding), aEvent.toString());
+    }
+
+    @Test
+    public void testGetInitialModel() {
+        EventTypeEncodings encoding = getBasicEncodings();
+        EncodedAutomaton model = new InvsModel(encoding);
+        List<EventType> events = new ArrayList<EventType>();
+        events.add(bEvent);
+        events.add(bEvent);
+        events.add(aEvent);
+        events.add(dEvent);
+        assertTrue(model.run(events));
+
+        events.add(new StringEventType("fakeEvent"));
+        assertFalse(model.run(events));
     }
 }

@@ -80,6 +80,10 @@ public class EventTypeEncodings {
         return charEncodings.get(c);
     }
 
+    /**
+     * Returns an Automaton that accepts Strings containing only the EventTypes
+     * with known encodings
+     */
     protected Automaton getInitialModel() {
         return alphabet.toAutomaton();
     }
