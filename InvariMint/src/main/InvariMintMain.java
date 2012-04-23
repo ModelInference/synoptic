@@ -68,8 +68,17 @@ public class InvariMintMain {
      */
     public static void main(String[] args) throws Exception {
 
-        // Set up Synoptic.
         InvariMintOptions opts = new InvariMintOptions(args);
+        EncodedAutomaton dfa = runInvariMint(opts);
+
+        // Export final model.
+        dfa.exportDotAndPng(opts.outputPathPrefix + ".invarimintDFA.dot");
+    }
+
+    public static EncodedAutomaton runInvariMint(InvariMintOptions opts)
+            throws Exception {
+
+        // Set up Synoptic.
         setUpLogging(opts);
         handleOptions(opts);
         ChainsTraceGraph inputGraph = setUpSynoptic(opts);
@@ -109,20 +118,21 @@ public class InvariMintMain {
                     terminalEvent);
         }
 
-        // Export final model.
-        dfa.exportDotAndPng(opts.outputPathPrefix + ".invarimintDFA.dot");
-
         // Run Synoptic to compare models
-        PartitionGraph pGraph = null;
-        if (opts.performKTails) {
-            pGraph = KTails.performKTails(inputGraph, opts.kTailLength);
-        } else {
-            pGraph = new PartitionGraph(inputGraph, true, minedInvs);
-            Bisimulation.splitUntilAllInvsSatisfied(pGraph);
-            Bisimulation.mergePartitions(pGraph);
+        if (opts.runSynoptic) {
+            PartitionGraph pGraph = null;
+            if (opts.performKTails) {
+                pGraph = KTails.performKTails(inputGraph, opts.kTailLength);
+            } else {
+                pGraph = new PartitionGraph(inputGraph, true, minedInvs);
+                Bisimulation.splitUntilAllInvsSatisfied(pGraph);
+                Bisimulation.mergePartitions(pGraph);
+            }
+
+            compareTranslatedModel(pGraph, encodings, dfa, opts);
         }
 
-        compareTranslatedModel(pGraph, encodings, dfa, opts);
+        return dfa;
     }
 
     public static void setUpLogging(InvariMintOptions opts) {
