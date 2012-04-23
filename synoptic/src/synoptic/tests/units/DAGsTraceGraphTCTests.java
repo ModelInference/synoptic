@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.algorithms.TransitiveClosure;
 import synoptic.model.EventNode;
 import synoptic.tests.DAGsTraceGraphBaseTest;
 

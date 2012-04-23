@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.ITransition;
-import synoptic.model.interfaces.RelationPath;
+import synoptic.model.interfaces.IRelationPath;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -19,7 +21,7 @@ import synoptic.util.InternalSynopticException;
  * 
  * @author timjv
  */
-public class TransitiveRelationPath implements RelationPath {
+public class TransitiveRelationPath implements IRelationPath {
 
     /*
      * The representation for a relation path is the first non initial node in a

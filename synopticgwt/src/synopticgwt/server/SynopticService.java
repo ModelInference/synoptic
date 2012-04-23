@@ -16,7 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -26,17 +25,17 @@ import javax.servlet.http.HttpSession;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
-import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.algorithms.graph.PartitionMultiSplit;
+import synoptic.algorithms.Bisimulation;
+import synoptic.algorithms.graphops.PartitionMultiSplit;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
-import synoptic.invariants.ConcurrencyInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.Main;
-import synoptic.main.ParseException;
-import synoptic.main.SynopticOptions;
-import synoptic.main.TraceParser;
+import synoptic.invariants.concurrency.ConcurrencyInvariant;
+import synoptic.main.SynopticMain;
+import synoptic.main.options.SynopticOptions;
+import synoptic.main.parser.ParseException;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
@@ -384,16 +383,17 @@ public class SynopticService extends RemoteServiceServlet implements
 
         retrieveSessionState();
 
-        // Set up some static variables in Main that are necessary to use the
-        // Synoptic library.
-        Main.options = new SynopticOptions();
-        // Output as much internal Synoptic information as possible.
-        Main.options.logLvlExtraVerbose = true;
-        Main.options.ignoreNonMatchingLines = synOpts.ignoreNonMatchedLines;
-        Main.options.enablePerfDebugging = true;
-        synoptic.main.Main.setUpLogging();
-        Main.random = new Random(Main.options.randomSeed);
-        Main.graphExportFormatter = new DotExportFormatter();
+        if (SynopticMain.instance == null) {
+            // Set up some static variables in Main that are necessary to use
+            // the Synoptic library.
+            SynopticOptions options = new SynopticOptions();
+            // Output as much internal Synoptic information as possible.
+            options.logLvlExtraVerbose = true;
+            options.ignoreNonMatchingLines = synOpts.ignoreNonMatchedLines;
+            options.enablePerfDebugging = true;
+            SynopticMain synopticMain = new SynopticMain(options,
+                    new DotExportFormatter());
+        }
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = null;
@@ -423,7 +423,8 @@ public class SynopticService extends RemoteServiceServlet implements
         int miningTime = (int) System.currentTimeMillis();
         if (parser.logTimeTypeIsTotallyOrdered()) {
             traceGraph = parser.generateDirectTORelation(parsedEvents);
-            minedInvs = Main.mineTOInvariants(false, traceGraph);
+            minedInvs = SynopticMain.getInstance().mineTOInvariants(false,
+                    traceGraph);
 
             if (!synOpts.onlyMineInvs) {
                 // In the TO case then we also initialize/store refinement
@@ -437,7 +438,8 @@ public class SynopticService extends RemoteServiceServlet implements
             // PO invariant miner.
             DAGsTraceGraph inputGraph = parser
                     .generateDirectPORelation(parsedEvents);
-            minedInvs = Main.minePOInvariants(true, inputGraph);
+            minedInvs = SynopticMain.getInstance().minePOInvariants(true,
+                    inputGraph);
             graph = null;
         }
         miningTime = (((int) System.currentTimeMillis() - miningTime) / 1000) % 60;
@@ -555,7 +557,7 @@ public class SynopticService extends RemoteServiceServlet implements
         assert (counterExampleTraces.size() > 0);
 
         // Perform a single refinement step.
-        numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
+        numSplitSteps = Bisimulation.splitOnce(
                 numSplitSteps, pGraph, counterExampleTraces);
 
         // Recompute the counter-examples for the unsatisfied invariants.
@@ -608,7 +610,7 @@ public class SynopticService extends RemoteServiceServlet implements
         retrieveSynopticSessionState();
 
         // Refine.
-        Bisimulation.splitPartitions(pGraph);
+        Bisimulation.splitUntilAllInvsSatisfied(pGraph);
         unsatInvs.clear();
 
         // Coarsen.

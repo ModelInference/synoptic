@@ -7,6 +7,12 @@ import java.util.List;
 import java.util.Set;
 
 public class MultipleRelations {
+
+    /** Suppress default constructor for non-instantiability */
+    private MultipleRelations() {
+        throw new AssertionError();
+    }
+
     /**
      * Implements a comparator of to sets of relation strings.
      */

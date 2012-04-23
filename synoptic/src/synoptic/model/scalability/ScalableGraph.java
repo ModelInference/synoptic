@@ -6,6 +6,7 @@ import java.util.Set;
 import synoptic.model.PartitionGraph;
 import synoptic.util.InternalSynopticException;
 
+// TODO: It's unclear if this is used for anything.
 public class ScalableGraph {
     Set<PartitionGraph> graphs = new LinkedHashSet<PartitionGraph>();
 

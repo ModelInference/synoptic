@@ -9,7 +9,7 @@ import gov.nasa.ltl.trans.LTL2Buchi;
 import gov.nasa.ltl.trans.ParseErrorException;
 
 import synoptic.invariants.ltlchecker.LTLFormula;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 import synoptic.util.InternalSynopticException;
 
 /**

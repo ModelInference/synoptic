@@ -5,7 +5,7 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.rules.TestName;
 
-import synoptic.main.ParseException;
+import synoptic.main.parser.ParseException;
 import synoptic.tests.SynopticLibTest;
 
 /**
@@ -34,8 +34,7 @@ public class InvariMintTest extends SynopticLibTest {
      */
     @Before
     public void setUp() throws ParseException {
-        // Set up SynopticLib state.
-        super.setUp();
+        // Avoid setting up SynopticLib state.
     }
 
     // //////////////////////////////////////////////

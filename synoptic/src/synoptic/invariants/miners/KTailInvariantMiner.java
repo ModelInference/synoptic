@@ -9,17 +9,18 @@ import synoptic.invariants.KTailInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
 /**
- * Mines tails occurring at least twice of some length k for a given
- * ChainsTraceGraph.
+ * Mines KTailInvariants from a totally ordered log. Mines tails occurring at
+ * least twice of some length k for a given ChainsTraceGraph (TODO: is this
+ * "at least twice" constraint true?).
  * 
  * @author jennyabrahamson
  */
-public class KTailInvariantMiner implements TOInvariantMiner {
+public class KTailInvariantMiner implements ITOInvariantMiner {
 
     // Length of tails to mine
     private int k;

@@ -1,7 +1,7 @@
 package synoptic.util.time;
 
 /**
- * A wrapper for a totally ordered time type with a double value.
+ * A totally ordered time type with a double value.
  */
 public class DTotalTime implements ITime {
     /** Time value */

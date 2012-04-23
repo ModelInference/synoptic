@@ -8,11 +8,11 @@ import java.util.Set;
 
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.Event;
-import synoptic.model.EventType;
 import synoptic.model.TransitiveRelationPath;
 import synoptic.model.Trace;
-import synoptic.model.interfaces.RelationPath;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
+import synoptic.model.interfaces.IRelationPath;
 
 /**
  * Implements a temporal invariant mining algorithm whose running time is linear
@@ -26,7 +26,7 @@ import synoptic.model.interfaces.RelationPath;
  * @author ivan
  */
 public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
-        TOInvariantMiner {
+        ITOInvariantMiner {
     
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g, boolean multipleRelations) {
         TemporalInvariantSet result = new TemporalInvariantSet();
@@ -88,7 +88,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         // http://stackoverflow.com/questions/434989/hashmap-intialization-parameters-load-initialcapacity
 
         // Stores generated RelationPaths
-        Set<RelationPath> relationPaths = new HashSet<RelationPath>();
+        Set<IRelationPath> relationPaths = new HashSet<IRelationPath>();
 
         // Tracks event counts globally -- across all traces.
         Map<EventType, Integer> gEventCnts = new LinkedHashMap<EventType, Integer>();
@@ -101,16 +101,16 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
          */
         Set<EventType> eTypes = new LinkedHashSet<EventType>();
         for (Trace trace : g.getTraces()) {
-            RelationPath relationPath = null;
+            IRelationPath relationPath = null;
             
             if (multipleRelations && !relation.equals(Event.defaultTimeRelationString)) {
                 relationPath = trace.getBiRelationalPath(relation, Event.defaultTimeRelationString);
             } else {
-                Set<RelationPath> single = trace.getSingleRelationPaths(relation);
+                Set<IRelationPath> single = trace.getSingleRelationPaths(relation);
                 if (relation.equals(Event.defaultTimeRelationString) && single.size() != 1) {
                     throw new IllegalStateException("Multiple relation subraphs for single relation graph");
                 }
-                relationPath = single.toArray(new RelationPath[1])[0];
+                relationPath = single.toArray(new IRelationPath[1])[0];
             }
                     
 
@@ -159,7 +159,7 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
          * Iterates over each RelationPath in the graph and aggregates the
          * individual Occurrences, Follows, and Precedes counts.
          */
-        for (RelationPath relationPath : relationPaths) {
+        for (IRelationPath relationPath : relationPaths) {
 
             /*
              * Adds the Precedes count from the RelationPath into the graph

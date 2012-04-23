@@ -1,7 +1,7 @@
 package synoptic.invariants.fsmcheck;
 
 import synoptic.invariants.BinaryInvariant;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
 /**

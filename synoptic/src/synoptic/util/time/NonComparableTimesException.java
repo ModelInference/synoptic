@@ -1,5 +1,9 @@
 package synoptic.util.time;
 
+/**
+ * Time operations are constrained to operate on the same types of time. This
+ * exception is thrown if two types of time are different, or incomparable.
+ */
 public class NonComparableTimesException extends RuntimeException {
     /**
      * Unique version uid

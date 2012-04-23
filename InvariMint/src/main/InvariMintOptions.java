@@ -9,7 +9,7 @@ import plume.OptionGroup;
 /**
  * Options relevant to the InvariMint project.
  */
-public class InvariMintOptions extends synoptic.main.Options {
+public class InvariMintOptions extends synoptic.main.options.Options {
 
     // //////////////////////////////////////////////////
     /**
