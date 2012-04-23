@@ -3,6 +3,9 @@ package tests.units;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
 import dk.brics.automaton.Automaton;
@@ -10,6 +13,7 @@ import dk.brics.automaton.RegExp;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.KTailInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 
@@ -94,5 +98,42 @@ public class InvariantRegexTests {
         assertFalse(model.run("aa"));
         assertFalse(model.run("abaa"));
 
+    }
+
+    @Test
+    public void testKTailRegex() {
+
+        List<Character> tailEvents = new ArrayList<Character>();
+        List<Character> followEvents = new ArrayList<Character>();
+
+        tailEvents.add('a');
+        tailEvents.add('b');
+        tailEvents.add('c');
+
+        followEvents.add('x');
+
+        Automaton model = new RegExp(KTailInvariant.getRegex(tailEvents,
+                followEvents)).toAutomaton();
+        model.minimize();
+
+        assertTrue(model.run("abcx"));
+        assertFalse(model.run("abc"));
+
+        followEvents.add('a');
+        model = new RegExp(KTailInvariant.getRegex(tailEvents, followEvents))
+                .toAutomaton();
+        model.minimize();
+
+        assertTrue(model.run("abca"));
+        assertFalse(model.run("abcb"));
+
+        followEvents.clear();
+        followEvents.add('c');
+        model = new RegExp(KTailInvariant.getRegex(tailEvents, followEvents))
+                .toAutomaton();
+        model.minimize();
+
+        assertTrue(model.run("abcc"));
+        assertFalse(model.run("abc"));
     }
 }
