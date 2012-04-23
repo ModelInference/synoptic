@@ -8,7 +8,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.model.Transition;
+import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
+import synoptic.util.time.DTotalTime;
 
 /**
  * Tests for verifying proper state when adding/mutating the innards of the
@@ -19,25 +21,59 @@ import synoptic.util.time.ITotalTime;
 public class TransitionDeltaTests {
 
     private Transition<String> sTrans;
+    private ITime t;
 
     @Before
     public void createTransitions() {
+        t = new ITotalTime(1);
         sTrans = new Transition<String>("node1", "node2", "");
     }
 
     // TODO: Is a delta series created on call?
+    @Test
+    public void generateDeltaSeries() {
+        assertNotNull(sTrans.getDeltaSeries());
+    }
+
     // is the single delta now null?
     @Test
     public void generateDelta() {
-        assertNotNull(sTrans.getDeltaSeries());
         assertNull(sTrans.getDelta());
     }
 
     @Test
     public void addDeltaToSeries() {
-        sTrans.addDelta(new ITotalTime(1));
+        sTrans.addDelta(t);
         assertNotNull(sTrans.getDeltaSeries());
-        assertEquals((ITotalTime) sTrans.getDeltaSeries().computeMode(),
-                new ITotalTime(1));
+        assertEquals(sTrans.getDeltaSeries().computeMode(),
+                t);
+    }
+
+    // Should not be able to add a delta after the delta
+    // has been set.
+    @Test (expected = IllegalStateException.class)
+    public void stateExceptionOnAddDeltaAfterSet() {
+        sTrans.setDelta(t);
+        sTrans.addDelta(t);
+    }
+
+    // Should not be able to set the delta after the
+    // ITimeSeries has been initialized.
+    @Test (expected = IllegalStateException.class)
+    public void stateExceptionOnSetDelta() {
+        sTrans.addDelta(t);
+        sTrans.setDelta(t);
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void stateExceptionOnGetDelta() {
+        sTrans.addDelta(t);
+        sTrans.getDelta();
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void stateExceptionOnGetDeltaSeries() {
+        sTrans.setDelta(t);
+        sTrans.getDeltaSeries();
     }
 }

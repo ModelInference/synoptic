@@ -285,7 +285,7 @@ public class InputTab extends Tab<VerticalPanel> {
         partitionRegExpTextBox.addKeyUpHandler(new KeyUpInputHandler());
 
         // Associate handler with the Parse Log button.
-        parseLogButton.addClickHandler(new ParseLogHandler());
+        parseLogButton.addClickHandler(new ParseLogHandler(this));
         parseLogButton.addStyleName("ParseLogButton");
 
         // Associate handler with the Clear Inputs button.
@@ -382,7 +382,7 @@ public class InputTab extends Tab<VerticalPanel> {
     /**
      * Extracts all regular expressions into a list.
      */
-    private List<String> extractAllRegExps() {
+    List<String> extractAllRegExps() {
         String currRegExp;
         List<String> result = new LinkedList<String>();
         for (int i = 0; i < regExpsPanel.getWidgetCount(); i++) {
@@ -428,7 +428,7 @@ public class InputTab extends Tab<VerticalPanel> {
     /**
      * Extracts expression from text box for log parsing.
      */
-    private String getTextBoxRegExp(TextBox textBox) {
+    String getTextBoxRegExp(TextBox textBox) {
         String expression = textBox.getText();
         if (expression == null) {
             return "";
@@ -715,47 +715,6 @@ public class InputTab extends Tab<VerticalPanel> {
                 toggleToParseTextArea();
             } else { // logFileRadioButton
                 toggleToParseUploadedFile();
-            }
-        }
-    }
-
-    /**
-     * Handles parse log button clicks.
-     */
-    class ParseLogHandler implements ClickHandler {
-        @SuppressWarnings("synthetic-access")
-        @Override
-        public void onClick(ClickEvent event) {
-            // Disallow the user from making concurrent Parse Log calls.
-            parseLogButton.setEnabled(false);
-
-            SynopticGWT.entryPoint.parsingLog();
-
-            // Reset the parse error msg.
-            parseErrorMsgLabel.setText("");
-
-            if (logFileRadioButton.getValue()) { // log file
-                logFileUploadForm.submit();
-
-            } else { // log in text area
-                // Extract arguments for parseLog call.
-                String logLines = logTextArea.getText();
-                List<String> regExps = extractAllRegExps();
-                String partitionRegExp = getTextBoxRegExp(partitionRegExpTextBox);
-                String separatorRegExp = getTextBoxRegExp(separatorRegExpTextBox);
-
-                // TODO: validate the arguments to parseLog.
-                SynopticGWT.entryPoint.manualRefineCoarsen = manualRefineCoarsen
-                        .getValue();
-
-                GWTSynOpts synOpts = new GWTSynOpts(logLines, regExps,
-                        partitionRegExp, separatorRegExp,
-                        ignoreNonMatchedLines.getValue(),
-                        manualRefineCoarsen.getValue(), onlyMineInvs.getValue());
-                // ////////////////////// Call to remote service.
-                synopticService.parseLog(synOpts, new ParseLogAsyncCallback(
-                        pWheel, InputTab.this));
-                // //////////////////////
             }
         }
     }

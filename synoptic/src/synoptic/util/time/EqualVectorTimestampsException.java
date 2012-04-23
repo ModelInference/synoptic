@@ -1,6 +1,10 @@
 package synoptic.util.time;
 
-
+/**
+ * Typically, vector timestamps are considered to be unique -- there is one per
+ * event in the entire system. This exception is thrown when we have found two
+ * vector timestamps to be equivalent.
+ */
 public class EqualVectorTimestampsException extends RuntimeException {
     /**
      * Unique version uid

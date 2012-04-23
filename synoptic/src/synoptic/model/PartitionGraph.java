@@ -15,9 +15,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import synoptic.algorithms.graph.IOperation;
-import synoptic.algorithms.graph.PartitionMultiSplit;
+import synoptic.algorithms.graphops.IOperation;
+import synoptic.algorithms.graphops.PartitionMultiSplit;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;

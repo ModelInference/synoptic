@@ -20,13 +20,13 @@ import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
+import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
-import synoptic.main.Main;
-import synoptic.main.ParseException;
+import synoptic.main.SynopticMain;
+import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.StringEventType;
+import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
 
@@ -39,7 +39,7 @@ import synoptic.util.InternalSynopticException;
 @RunWith(value = Parameterized.class)
 public class TOLogInvariantMiningTests extends SynopticTest {
 
-    TOInvariantMiner miner = null;
+    ITOInvariantMiner miner = null;
 
     /**
      * Generates parameters for this unit test. The only parameter right now is
@@ -57,7 +57,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         return Arrays.asList(data);
     }
 
-    public TOLogInvariantMiningTests(TOInvariantMiner minerToUse) {
+    public TOLogInvariantMiningTests(ITOInvariantMiner minerToUse) {
         miner = minerToUse;
     }
 
@@ -74,7 +74,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
 
         // Generate a random log.
         while (numPartitions != 0) {
-            int rndIndex = Main.random.nextInt(eventTypes.length);
+            int rndIndex = SynopticMain.getInstance().random.nextInt(eventTypes.length);
             log.add(eventTypes[rndIndex]);
             if (rndIndex == 0) {
                 numPartitions -= 1;
@@ -93,7 +93,8 @@ public class TOLogInvariantMiningTests extends SynopticTest {
      * @return an invariant set for the input log
      * @throws Exception
      */
-    public TemporalInvariantSet genInvariants(String[] events, boolean multipleRelations) throws Exception {
+    public TemporalInvariantSet genInvariants(String[] events,
+            boolean multipleRelations) throws Exception {
         ChainsTraceGraph inputGraph = genInitialLinearGraph(events);
         return miner.computeInvariants(inputGraph, multipleRelations);
     }
@@ -329,10 +330,11 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         String[] log = genRandomLog(eventTypes);
 
         ChainsTraceGraph inputGraph = genInitialLinearGraph(log);
-        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph, false);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph,
+                false);
 
         // Test with FSM checker.
-        Main.options.useFSMChecker = true;
+        SynopticMain.getInstance().options.useFSMChecker = true;
         List<CExamplePath<EventNode>> cExamples = minedInvs
                 .getAllCounterExamples(inputGraph);
         if (cExamples != null) {
@@ -343,7 +345,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         assertTrue(cExamples == null);
 
         // Test with LTL checker.
-        Main.options.useFSMChecker = false;
+        SynopticMain.getInstance().options.useFSMChecker = false;
         cExamples = minedInvs.getAllCounterExamples(inputGraph);
         if (cExamples != null) {
             logger.fine("log: " + Arrays.toString(log));

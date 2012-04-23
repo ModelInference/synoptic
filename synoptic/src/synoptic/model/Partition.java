@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import synoptic.algorithms.graph.PartitionSplit;
-import synoptic.main.Main;
+import synoptic.algorithms.graphops.PartitionSplit;
+import synoptic.main.SynopticMain;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.NotImplementedException;
@@ -145,7 +146,7 @@ public class Partition implements INode<Partition> {
     @Override
     public boolean isTerminal() {
         assert initialized;
-        return eType.isTerminalEventType;
+        return eType.isTerminalEventType();
     }
 
     /**
@@ -154,7 +155,7 @@ public class Partition implements INode<Partition> {
     @Override
     public boolean isInitial() {
         assert initialized;
-        return eType.isInitialEventType;
+        return eType.isInitialEventType();
     }
 
     /**
@@ -430,18 +431,18 @@ public class Partition implements INode<Partition> {
     }
 
     @Override
-    public Partition getParent() throws NotImplementedException {
-        throw new NotImplementedException();
+    public Partition getParent() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public void setParent(Partition parent) throws NotImplementedException {
-        throw new NotImplementedException();
+    public void setParent(Partition parent) {
+        throw new UnsupportedOperationException();
     }
 
     private void updateTransitionDeltas(EventNode srcENode,
             EventNode targetENode, ITransition<Partition> tx) {
-        if (!Main.options.enablePerfDebugging) {
+        if (!SynopticMain.getInstance().options.enablePerfDebugging) {
             return;
         }
         ITime targTime = targetENode.getTime();
@@ -503,14 +504,14 @@ public class Partition implements INode<Partition> {
     @Override
     public List<? extends ITransition<Partition>> getTransitionsWithSubsetRelations(
             Set<String> relations) {
-        // TODO Auto-generated method stub
+        // TODO: implement.
         throw new NotImplementedException();
     }
 
     @Override
     public List<? extends ITransition<Partition>> getTransitionsWithIntersectingRelations(
             Set<String> relations) {
-        // TODO Auto-generated method stub
+        // TODO: implement.
         throw new NotImplementedException();
     }
 

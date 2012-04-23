@@ -11,10 +11,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
+import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
-import synoptic.main.ParseException;
-import synoptic.main.TraceParser;
+import synoptic.main.parser.ParseException;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.tests.SynopticTest;
@@ -22,7 +22,7 @@ import synoptic.tests.SynopticTest;
 @RunWith(value = Parameterized.class)
 public class TOMiningPerformanceTests extends SynopticTest {
 
-    TOInvariantMiner miner = null;
+    ITOInvariantMiner miner = null;
     int numIterations;
     int totalEvents;
     int numPartitions;
@@ -42,7 +42,7 @@ public class TOMiningPerformanceTests extends SynopticTest {
         return Arrays.asList(data);
     }
 
-    public TOMiningPerformanceTests(TOInvariantMiner minerToUse,
+    public TOMiningPerformanceTests(ITOInvariantMiner minerToUse,
             int numIterations, int totalEvents, int numPartitions,
             int numEventTypes) {
         miner = minerToUse;
@@ -55,8 +55,8 @@ public class TOMiningPerformanceTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        synoptic.main.Main.options.logLvlExtraVerbose = false;
-        synoptic.main.Main.options.logLvlQuiet = true;
+        synoptic.main.SynopticMain.getInstance().options.logLvlExtraVerbose = false;
+        synoptic.main.SynopticMain.getInstance().options.logLvlQuiet = true;
     }
 
     public void reportTime(long msTime) {

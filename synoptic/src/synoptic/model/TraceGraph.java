@@ -7,11 +7,13 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.logging.Logger;
 
-import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.algorithms.TransitiveClosure;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.Pair;
-import synoptic.util.Predicate.IBinary;
+import synoptic.util.Predicate.IBoolBinary;
 
 /**
  * A graph implementation that provides a merge operation to merge another graph
@@ -156,7 +158,7 @@ public abstract class TraceGraph<EType extends EventType> implements
      * Tests for trace graph equality.
      */
     public boolean equalsWith(TraceGraph<?> other,
-            IBinary<EventNode, EventNode> pred) {
+            IBoolBinary<EventNode, EventNode> pred) {
 
         EventNode unusedOther = other.getDummyInitialNode();
         EventNode n1 = this.getDummyInitialNode();
@@ -172,7 +174,7 @@ public abstract class TraceGraph<EType extends EventType> implements
      * Helper for equalsWith.
      */
     private boolean transitionEquality(EventNode a, EventNode b,
-            IBinary<EventNode, EventNode> pred) {
+            IBoolBinary<EventNode, EventNode> pred) {
         Set<EventNode> visited = new LinkedHashSet<EventNode>();
         Stack<synoptic.util.Pair<EventNode, EventNode>> toVisit = new Stack<synoptic.util.Pair<EventNode, EventNode>>();
         toVisit.push(new Pair<EventNode, EventNode>(a, b));

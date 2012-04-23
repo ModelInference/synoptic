@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import synoptic.main.ListedProperties;
+import synoptic.main.options.ListedProperties;
 import synoptic.tests.SynopticTest;
 
 /**

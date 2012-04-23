@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,8 +17,8 @@ import model.SynopticModel;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 
-import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.algorithms.graph.KTails;
+import synoptic.algorithms.Bisimulation;
+import synoptic.algorithms.KTails;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TOInitialTerminalInvariant;
@@ -27,17 +26,17 @@ import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ImmediateInvariantMiner;
 import synoptic.invariants.miners.KTailInvariantMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.main.Main;
-import synoptic.main.Options;
-import synoptic.main.SynopticOptions;
-import synoptic.main.TraceParser;
+import synoptic.invariants.miners.ITOInvariantMiner;
+import synoptic.main.SynopticMain;
+import synoptic.main.options.Options;
+import synoptic.main.options.SynopticOptions;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
-import synoptic.model.StringEventType;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
 
@@ -116,7 +115,7 @@ public class InvariMintMain {
             pGraph = KTails.performKTails(inputGraph, opts.kTailLength);
         } else {
             pGraph = new PartitionGraph(inputGraph, true, minedInvs);
-            Bisimulation.splitPartitions(pGraph);
+            Bisimulation.splitUntilAllInvsSatisfied(pGraph);
             Bisimulation.mergePartitions(pGraph);
         }
 
@@ -161,7 +160,7 @@ public class InvariMintMain {
 
         if (opts.logFilenames.size() == 0) {
             logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
-                    + synoptic.main.Options.getOptDesc("help"));
+                    + synoptic.main.options.Options.getOptDesc("help"));
             System.exit(0);
         }
     }
@@ -170,22 +169,20 @@ public class InvariMintMain {
             throws Exception {
 
         // Set up options in Synoptic Main that are used by the library.
-        Main.options = new SynopticOptions();
-        Main.options.logLvlExtraVerbose = true;
-        Main.options.internCommonStrings = true;
-        Main.options.recoverFromParseErrors = opts.recoverFromParseErrors;
-        Main.options.debugParse = opts.debugParse;
-        Main.options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
+        SynopticOptions options = new SynopticOptions();
+        options.logLvlExtraVerbose = true;
+        options.internCommonStrings = true;
+        options.recoverFromParseErrors = opts.recoverFromParseErrors;
+        options.debugParse = opts.debugParse;
+        options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
 
-        Main.setUpLogging();
-        Main.random = new Random(Main.options.randomSeed);
-        Main.graphExportFormatter = new DotExportFormatter();
+        SynopticMain synMain = new SynopticMain(options, new DotExportFormatter());
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = new TraceParser(opts.regExps,
                 opts.partitionRegExp, opts.separatorRegExp);
 
-        List<EventNode> parsedEvents = Main.parseEvents(parser,
+        List<EventNode> parsedEvents = SynopticMain.parseEvents(parser,
                 opts.logFilenames);
 
         if (opts.debugParse) {
@@ -213,7 +210,7 @@ public class InvariMintMain {
 
     private static TemporalInvariantSet mineInvariants(InvariMintOptions opts,
             ChainsTraceGraph inputGraph) {
-        TOInvariantMiner miner;
+        ITOInvariantMiner miner;
         if (opts.performKTails) {
             miner = new KTailInvariantMiner(opts.kTailLength);
         } else {
@@ -284,7 +281,7 @@ public class InvariMintMain {
             ChainsTraceGraph g, EventTypeEncodings encodings,
             EventType initialEvent, EventType terminalEvent) {
 
-        Map<Pair, Set<Character>> seenTransitions = new HashMap<Pair, Set<Character>>();
+        Map<StatePair, Set<Character>> seenTransitions = new HashMap<StatePair, Set<Character>>();
         EventNode initNode = g.getDummyInitialNode();
 
         // Iterate through all the traces -- each transition from the INITIAL
@@ -326,7 +323,7 @@ public class InvariMintMain {
      * Recursively replicates the given automata starting from the current state
      * but eliminates transitions that were not 'seen'.
      */
-    private static State replicate(Map<Pair, Set<Character>> seenTransitions,
+    private static State replicate(Map<StatePair, Set<Character>> seenTransitions,
             State current, Map<State, State> visited,
             EventTypeEncodings encodings) {
 
@@ -340,7 +337,7 @@ public class InvariMintMain {
 
         for (Transition t : current.getTransitions()) {
             for (char c = t.getMin(); c <= t.getMax(); c++) {
-                Pair curTransition = new Pair(current, t.getDest());
+                StatePair curTransition = new StatePair(current, t.getDest());
                 if (seenTransitions.containsKey(curTransition)
                         && seenTransitions.get(curTransition).contains(
                                 new Character(c))) {
@@ -360,12 +357,12 @@ public class InvariMintMain {
      */
     private static State fetchDestination(State source,
             EventTypeEncodings encodings, EventType currentEvent,
-            Map<Pair, Set<Character>> seenTransitions) {
+            Map<StatePair, Set<Character>> seenTransitions) {
 
         for (Transition t : source.getTransitions()) {
             for (char c = t.getMin(); c <= t.getMax(); c++) {
                 if (currentEvent.toString().equals(encodings.getString(c))) {
-                    Pair curTransition = new Pair(source, t.getDest());
+                    StatePair curTransition = new StatePair(source, t.getDest());
                     if (!seenTransitions.containsKey(curTransition)) {
                         seenTransitions.put(curTransition,
                                 new HashSet<Character>());

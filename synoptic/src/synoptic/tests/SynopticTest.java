@@ -10,18 +10,18 @@ import org.junit.rules.TestName;
 
 import junit.framework.Assert;
 
-import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.main.ParseException;
-import synoptic.main.TraceParser;
+import synoptic.invariants.miners.ITOInvariantMiner;
+import synoptic.main.parser.ParseException;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
-import synoptic.model.DistEventType;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
 import synoptic.model.PartitionGraph;
-import synoptic.model.StringEventType;
 import synoptic.model.TraceGraph;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -193,7 +193,7 @@ public abstract class SynopticTest extends SynopticLibTest {
      * @throws Exception
      */
     public static PartitionGraph genInitialPartitionGraph(String[] events,
-            TraceParser parser, TOInvariantMiner miner,
+            TraceParser parser, ITOInvariantMiner miner,
             boolean multipleRelations) throws Exception {
         ChainsTraceGraph inputGraph = (ChainsTraceGraph) genChainsTraceGraph(
                 events, parser);

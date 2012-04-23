@@ -6,13 +6,13 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.algorithms.Bisimulation;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.invariants.miners.TOInvariantMiner;
-import synoptic.main.Main;
-import synoptic.main.ParseException;
-import synoptic.main.TraceParser;
+import synoptic.invariants.miners.ITOInvariantMiner;
+import synoptic.main.SynopticMain;
+import synoptic.main.parser.ParseException;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
@@ -30,7 +30,7 @@ public class BisimulationTests extends SynopticTest {
         parser.addRegex("^(?<VTIME>)(?<TYPE>)$");
         parser.addPartitionsSeparator("^--$");
         // Main.dumpIntermediateStages = true;
-        Main.options.useFSMChecker = true;
+        SynopticMain.getInstance().options.useFSMChecker = true;
     }
 
     /**
@@ -100,12 +100,13 @@ public class BisimulationTests extends SynopticTest {
 
         exportTestGraph(inputGraph, 0);
 
-        TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+        ITOInvariantMiner miner = new ChainWalkingTOInvMiner();
         TemporalInvariantSet invariants = miner.computeInvariants(inputGraph,
                 false);
 
-        PartitionGraph pGraph = Bisimulation.getSplitGraph(inputGraph,
-                invariants);
+        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, invariants);
+        Bisimulation.splitUntilAllInvsSatisfied(pGraph);
+
         exportTestGraph(pGraph, 1);
 
         boolean hasInitial = false;

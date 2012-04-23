@@ -5,8 +5,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import synoptic.model.EventNode;
-import synoptic.util.NotImplementedException;
 
+/**
+ * A vector timestamps is a fixed array of integer "clocks". Typically, an
+ * integer clock at index i represents the local time of process i. If the
+ * system is distributed, then a process is a host. Therefore, the vector
+ * represents a point in time in a multiprocess (or distributed) execution.
+ */
 public class VectorTime implements ITime {
     ArrayList<Integer> vector = new ArrayList<Integer>();
 
@@ -293,16 +298,16 @@ public class VectorTime implements ITime {
      */
     @Override
     public ITime computeDelta(ITime other) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public ITime incrBy(ITime other) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public ITime divBy(int divisor) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 }

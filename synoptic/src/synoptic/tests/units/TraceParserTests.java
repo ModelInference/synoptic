@@ -17,15 +17,15 @@ import org.junit.Test;
 
 import junit.framework.Assert;
 
-import synoptic.main.Main;
-import synoptic.main.ParseException;
-import synoptic.main.TraceParser;
+import synoptic.main.SynopticMain;
+import synoptic.main.parser.ParseException;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
-import synoptic.util.Predicate.IBinary;
+import synoptic.util.Predicate.IBoolBinary;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.FTotalTime;
 import synoptic.util.time.ITime;
@@ -60,7 +60,7 @@ public class TraceParserTests extends SynopticTest {
     public void setUp() throws ParseException {
         super.setUp();
         parser = new TraceParser();
-        Main.options.debugParse = true;
+        SynopticMain.getInstance().options.debugParse = true;
     }
 
     // //////////////////////////////////////////////////////////////////////////
@@ -932,7 +932,7 @@ public class TraceParserTests extends SynopticTest {
         ChainsTraceGraph expectedGraph = genExpectedGraphForTotalOrder(events);
         // Test graph equality.
         assertTrue(expectedGraph.equalsWith(graph,
-                new IBinary<EventNode, EventNode>() {
+                new IBoolBinary<EventNode, EventNode>() {
                     @Override
                     public boolean eval(EventNode a, EventNode b) {
                         return (a.getEvent().equals(b.getEvent()));
@@ -956,7 +956,7 @@ public class TraceParserTests extends SynopticTest {
         ChainsTraceGraph expectedGraph = genExpectedGraphForTotalOrder(events);
         // Test graph equality.
         assertTrue(expectedGraph.equalsWith(graph,
-                new IBinary<EventNode, EventNode>() {
+                new IBoolBinary<EventNode, EventNode>() {
                     @Override
                     public boolean eval(EventNode a, EventNode b) {
                         return (a.getEvent().equals(b.getEvent()));
@@ -979,7 +979,7 @@ public class TraceParserTests extends SynopticTest {
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
         ChainsTraceGraph expectedGraph = genExpectedGraphForBasicMultipleRelation(events);
         assertTrue(expectedGraph.equalsWith(graph,
-                new IBinary<EventNode, EventNode>() {
+                new IBoolBinary<EventNode, EventNode>() {
                     @Override
                     public boolean eval(EventNode a, EventNode b) {
                         return (a.getEvent().equals(b.getEvent()));
@@ -1008,7 +1008,7 @@ public class TraceParserTests extends SynopticTest {
         });
         ChainsTraceGraph expectedGraph = genExpectedGraphForBasicMultipleRelation(events);
         assertTrue(expectedGraph.equalsWith(graph,
-                new IBinary<EventNode, EventNode>() {
+                new IBoolBinary<EventNode, EventNode>() {
                     @Override
                     public boolean eval(EventNode a, EventNode b) {
                         return (a.getEvent().equals(b.getEvent()));
@@ -1034,7 +1034,7 @@ public class TraceParserTests extends SynopticTest {
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
         ChainsTraceGraph expectedGraph = genExpectedGraphForSeparatorAndPartitionMultipleRelation(events);
         assertTrue(expectedGraph.equalsWith(graph,
-                new IBinary<EventNode, EventNode>() {
+                new IBoolBinary<EventNode, EventNode>() {
                     @Override
                     public boolean eval(EventNode a, EventNode b) {
                         return (a.getEvent().equals(b.getEvent()));
@@ -1059,7 +1059,7 @@ public class TraceParserTests extends SynopticTest {
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
         ChainsTraceGraph expectedGraph = genExpectedGraphForSeparatorAndPartitionMultipleRelation(events);
         assertTrue(expectedGraph.equalsWith(graph,
-                new IBinary<EventNode, EventNode>() {
+                new IBoolBinary<EventNode, EventNode>() {
                     @Override
                     public boolean eval(EventNode a, EventNode b) {
                         return (a.getEvent().equals(b.getEvent()));
@@ -1141,7 +1141,7 @@ public class TraceParserTests extends SynopticTest {
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
         ChainsTraceGraph expectedGraph = genExpectedGraphForMultipleRelationsPerLine(events);
         assertTrue(expectedGraph.equalsWith(graph,
-                new IBinary<EventNode, EventNode>() {
+                new IBoolBinary<EventNode, EventNode>() {
                     @Override
                     public boolean eval(EventNode a, EventNode b) {
                         return (a.getEvent().equals(b.getEvent()));
@@ -1167,7 +1167,7 @@ public class TraceParserTests extends SynopticTest {
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
         ChainsTraceGraph expectedGraph = genExpectedGraphForClosureAndGenericMultipleRelations(events);
         assertTrue(expectedGraph.equalsWith(graph,
-                new IBinary<EventNode, EventNode>() {
+                new IBoolBinary<EventNode, EventNode>() {
                     @Override
                     public boolean eval(EventNode a, EventNode b) {
                         return (a.getEvent().equals(b.getEvent()));
@@ -1193,7 +1193,7 @@ public class TraceParserTests extends SynopticTest {
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
         ChainsTraceGraph expectedGraph = genExpectedGraphForClosureRelations(events);
         assertTrue(expectedGraph.equalsWith(graph,
-                new IBinary<EventNode, EventNode>() {
+                new IBoolBinary<EventNode, EventNode>() {
                     @Override
                     public boolean eval(EventNode a, EventNode b) {
                         return (a.getEvent().equals(b.getEvent()));

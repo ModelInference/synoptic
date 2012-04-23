@@ -3,7 +3,7 @@ package synoptic.invariants.miners;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import synoptic.algorithms.graph.TransitiveClosure;
+import synoptic.algorithms.TransitiveClosure;
 import synoptic.model.EventNode;
 import synoptic.model.TraceGraph;
 

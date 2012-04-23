@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.ITransition;
-import synoptic.model.interfaces.RelationPath;
+import synoptic.model.interfaces.IRelationPath;
 import synoptic.util.InternalSynopticException;
 
-public class ChainRelationPath implements RelationPath {
+public class ChainRelationPath implements IRelationPath {
 
     /** First non-INITIAL node in this relation path */
     private EventNode eNode;

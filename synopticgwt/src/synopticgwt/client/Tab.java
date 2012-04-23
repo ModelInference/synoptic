@@ -29,6 +29,21 @@ public abstract class Tab<T extends Panel> {
     /** Tracker event category name. */
     public String trackerCategoryName;
 
+    /** Returns the service this tab communicates with. */
+    public ISynopticServiceAsync getService() {
+        return synopticService;
+    }
+
+    /** Returns the progress wheel associated with this tab. */
+    public ProgressWheel getProgressWheel() {
+        return pWheel;
+    }
+
+    /** This call returns the tab's Panel widget that holds the tab's contents. */
+    public T getPanel() {
+        return panel;
+    }
+
     public Tab(ISynopticServiceAsync synopticService, ProgressWheel pWheel,
             String trackerCategoryName) {
         this.synopticService = synopticService;
@@ -41,8 +56,4 @@ public abstract class Tab<T extends Panel> {
         this.pWheel = null;
     }
 
-    /** This call returns the tab's Panel widget that holds the tab's contents. */
-    public T getPanel() {
-        return panel;
-    }
 }

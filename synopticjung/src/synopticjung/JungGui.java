@@ -67,14 +67,14 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.renderers.BasicVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
-import synoptic.algorithms.bisim.Bisimulation;
-import synoptic.algorithms.graph.PartitionSplit;
+import synoptic.algorithms.Bisimulation;
+import synoptic.algorithms.graphops.PartitionSplit;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
-import synoptic.main.Main;
-import synoptic.main.Options;
-import synoptic.main.SynopticOptions;
+import synoptic.main.SynopticMain;
+import synoptic.main.options.Options;
+import synoptic.main.options.SynopticOptions;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -296,8 +296,9 @@ public class JungGui extends JApplet implements Printable {
                 if (filename != null && filename.length() > 0) {
                     if (options.outputPathPrefix != null) {
                         try {
-                            Main.exportNonInitialGraph(options.outputPathPrefix
-                                    + "." + filename, pGraph);
+                            SynopticMain.getInstance().exportNonInitialGraph(
+                                    options.outputPathPrefix + "." + filename,
+                                    pGraph);
                         } catch (Exception e1) {
                             e1.printStackTrace();
                         }
@@ -408,7 +409,7 @@ public class JungGui extends JApplet implements Printable {
 
     private void refine(List<CExamplePath<Partition>> counterExampleTraces) {
         // Perform a single refinement step.
-        numSplitSteps = Bisimulation.performOneSplitPartitionsStep(
+        numSplitSteps = Bisimulation.splitOnce(
                 numSplitSteps, pGraph, counterExampleTraces);
 
         // Update the old\new partition maps.

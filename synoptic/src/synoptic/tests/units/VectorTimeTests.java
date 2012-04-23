@@ -10,10 +10,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import synoptic.main.ParseException;
-import synoptic.main.TraceParser;
-import synoptic.model.Event;
+import synoptic.main.parser.ParseException;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.EventNode;
+import synoptic.model.event.Event;
 import synoptic.tests.SynopticTest;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;

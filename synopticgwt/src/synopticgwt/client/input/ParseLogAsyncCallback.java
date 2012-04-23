@@ -78,24 +78,26 @@ final class ParseLogAsyncCallback extends
      * searchString is not found in string with the previous conditions. Throws
      * a NullPointerException if string or searchString is null.
      */
-    public int indexOf(String string, String searchString) {
-        if (string == null || searchString == null) {
+    public int indexOf(String str, String searchString) {
+        if (str == null || searchString == null) {
             throw new NullPointerException();
         }
 
-        int movingPosition = string.indexOf(searchString);
+        int movingPosition = str.indexOf(searchString);
         int cumulativePosition = movingPosition;
 
         if (movingPosition == -1) {
             return movingPosition;
         }
 
-        while (movingPosition + searchString.length() < string.length()
-                && !(string.charAt(movingPosition + searchString.length()) == '\r' || string
+        String strCopy = str;
+
+        while (movingPosition + searchString.length() < strCopy.length()
+                && !(strCopy.charAt(movingPosition + searchString.length()) == '\r' || strCopy
                         .charAt(movingPosition + searchString.length()) == '\n')) {
 
-            string = string.substring(movingPosition + searchString.length());
-            movingPosition = string.indexOf(searchString);
+            strCopy = strCopy.substring(movingPosition + searchString.length());
+            movingPosition = strCopy.indexOf(searchString);
 
             if (movingPosition == -1) {
                 return movingPosition;

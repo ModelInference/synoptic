@@ -12,12 +12,12 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.DAGsTraceGraph;
-import synoptic.model.DistEventType;
-import synoptic.model.Event;
 import synoptic.model.EventNode;
-import synoptic.model.EventType;
 import synoptic.model.TraceGraph;
 import synoptic.model.Transition;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.ITransition;
 
 /**
@@ -36,7 +36,7 @@ import synoptic.model.interfaces.ITransition;
  * into valid temporal invariants.
  */
 public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
-        POInvariantMiner, TOInvariantMiner {
+        IPOInvariantMiner, ITOInvariantMiner {
 
     // TODO: we can set the initial capacity of the following HashMaps more
     // optimally, e.g. (N / 0.75) + 1 where N is the total number of event

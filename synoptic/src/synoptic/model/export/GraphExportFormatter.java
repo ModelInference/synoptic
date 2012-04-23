@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import synoptic.model.Event;
+import synoptic.model.event.Event;
 import synoptic.model.interfaces.INode;
 import synoptic.util.time.ITime;
 

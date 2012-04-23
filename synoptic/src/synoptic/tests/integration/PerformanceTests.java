@@ -9,11 +9,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import synoptic.algorithms.bisim.Bisimulation;
+import synoptic.algorithms.Bisimulation;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
-import synoptic.main.Main;
-import synoptic.main.ParseException;
-import synoptic.main.TraceParser;
+import synoptic.main.SynopticMain;
+import synoptic.main.parser.ParseException;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.PartitionGraph;
 import synoptic.model.scalability.ScalableGraph;
 import synoptic.tests.SynopticTest;
@@ -51,15 +51,16 @@ public class PerformanceTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        Main.options.useFSMChecker = this.useFSMChecker;
-        synoptic.main.Main.options.logLvlExtraVerbose = false;
-        synoptic.main.Main.options.logLvlQuiet = true;
+        SynopticMain.getInstance().options.useFSMChecker = this.useFSMChecker;
+        synoptic.main.SynopticMain.getInstance().options.logLvlExtraVerbose = false;
+        synoptic.main.SynopticMain.getInstance().options.logLvlQuiet = true;
     }
 
     public void reportTime(long msTime) {
         System.out.println(testName.getMethodName() + ":"
-                + "\n\tuseFSMChecker " + Main.options.useFSMChecker
-                + "\n\tType " + traceType + "\n\ttotalEvents " + totalEvents
+                + "\n\tuseFSMChecker "
+                + SynopticMain.getInstance().options.useFSMChecker + "\n\tType "
+                + traceType + "\n\ttotalEvents " + totalEvents
                 + "\n\tnumPartitions " + numPartitions + "\n\tnumEventTypes "
                 + numEventTypes + "\n\twithInvariants " + withInvariants
                 + "\n\t==> TIME: " + msTime + "ms (averaged over "
@@ -134,7 +135,7 @@ public class PerformanceTests extends SynopticTest {
                     new ChainWalkingTOInvMiner(), false);
 
             long startTime = System.currentTimeMillis();
-            Bisimulation.splitPartitions(g);
+            Bisimulation.splitUntilAllInvsSatisfied(g);
             total_delta += System.currentTimeMillis() - startTime;
             // exportTestGraph(g, 1);
         }

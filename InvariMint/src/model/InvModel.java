@@ -6,7 +6,7 @@ import java.util.List;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.KTailInvariant;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 
 /**
  * Extends the EncodedAutomaton class to encode a single ITemporalInvariant.

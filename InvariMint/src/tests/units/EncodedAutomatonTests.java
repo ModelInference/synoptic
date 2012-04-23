@@ -22,7 +22,7 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.model.EventType;
+import synoptic.model.event.EventType;
 
 /**
  * Basic tests for the EncodedAutomaton class.

@@ -1,5 +1,8 @@
 package synoptic.util.time;
 
+/**
+ * Thrown when the expected time type does not match what was supplied.
+ */
 public class WrongTimeTypeException extends RuntimeException {
     /**
      * Unique version uid

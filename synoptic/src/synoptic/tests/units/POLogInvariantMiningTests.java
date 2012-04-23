@@ -12,22 +12,22 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import synoptic.invariants.AlwaysConcurrentInvariant;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.NeverConcurrentInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.concurrency.AlwaysConcurrentInvariant;
+import synoptic.invariants.concurrency.NeverConcurrentInvariant;
 import synoptic.invariants.miners.DAGWalkingPOInvMiner;
-import synoptic.invariants.miners.POInvariantMiner;
+import synoptic.invariants.miners.IPOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
-import synoptic.main.ParseException;
-import synoptic.main.TraceParser;
+import synoptic.main.parser.ParseException;
+import synoptic.main.parser.TraceParser;
 import synoptic.model.DAGsTraceGraph;
-import synoptic.model.DistEventType;
 import synoptic.model.EventNode;
-import synoptic.model.StringEventType;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 
 /**
@@ -44,7 +44,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
     private static String ticketReservationTrace = "1,0,0 client-0 search\n0,1,0 client-1 search\n1,0,1 server available\n1,1,2 server available\n2,0,1 client-0 buy\n2,1,3 server sold\n1,2,2 client-1 buy\n2,2,4 server sold-out\n--\n0,1,0 client-1 search\n1,0,0 client-0 search\n0,1,1 server available\n1,1,2 server available\n0,2,1 client-1 buy\n1,2,3 server sold\n2,1,2 client-0 buy\n2,2,4 server sold-out\n--\n1,0,0 client-0 search\n1,0,1 server available\n0,1,0 client-1 search\n1,1,2 server available\n1,2,2 client-1 buy\n1,2,3 server sold\n2,0,1 client-0 buy\n2,2,4 server sold-out\n--\n1,0,0 client-0 search\n1,0,1 server available\n0,1,0 client-1 search\n1,1,2 server available\n--\n1,0,0 client-0 search\n1,0,1 server available\n2,0,1 client-0 buy\n2,0,2 server sold\n0,1,0 client-1 search\n2,1,3 server sold-out";
 
     boolean mineNCWith = true;
-    POInvariantMiner miner = null;
+    IPOInvariantMiner miner = null;
 
     /**
      * Generates parameters for this unit test. The only parameter right now is
@@ -62,7 +62,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
         return Arrays.asList(data);
     }
 
-    public POLogInvariantMiningTests(POInvariantMiner minerToUse) {
+    public POLogInvariantMiningTests(IPOInvariantMiner minerToUse) {
         miner = minerToUse;
         if (miner instanceof DAGWalkingPOInvMiner) {
             mineNCWith = ((DAGWalkingPOInvMiner) miner)
