@@ -43,8 +43,8 @@ public class KTailInvariantMiner implements TOInvariantMiner {
 
         TemporalInvariantSet invars = new TemporalInvariantSet();
 
-        // k equal to 0 or 1 handled by immediate invariants
-        if (k > 1) {
+        // k equal to 1 handled by immediate invariants
+        if (k > 0) {
 
             Set<KTailInvariant> tails = new HashSet<KTailInvariant>();
             EventNode initNode = g.getDummyInitialNode();
