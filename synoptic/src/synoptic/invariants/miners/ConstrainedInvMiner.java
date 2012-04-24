@@ -1,10 +1,5 @@
 package synoptic.invariants.miners;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Logger;
-
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
@@ -14,10 +9,7 @@ import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.constraints.UpperBoundConstraint;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.Trace;
-import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
-import synoptic.model.interfaces.IRelationPath;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
 
@@ -31,22 +23,21 @@ public class ConstrainedInvMiner extends InvariantMiner implements
         ITOInvariantMiner {
 	private ITOInvariantMiner miner;
 
-    public ConstrainedInvMiner(boolean useTransitiveClosureMining) {
-        if (useTransitiveClosureMining) {
-            miner = new TransitiveClosureInvMiner();
-        } else {
-            miner = new ChainWalkingTOInvMiner();
-        }
+	public ConstrainedInvMiner(ITOInvariantMiner miner) {
+		this.miner = miner;
     }
-
-    @Override
+	
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations) {
+    	TemporalInvariantSet invs = miner.computeInvariants(g, multipleRelations);
+    	return computeInvariants(g, multipleRelations, invs);    
+    }
+    
+    public static TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+    		boolean multipleRelations, TemporalInvariantSet invs) {
     	
-    	TemporalInvariantSet invs = miner.computeInvariants(g,
-        multipleRelations);
-        TemporalInvariantSet constrainedInvs = new TemporalInvariantSet();
-		
+    	TemporalInvariantSet constrainedInvs = new TemporalInvariantSet();
+
 		// Iterate through all invariants.
         for (ITemporalInvariant i : invs.getSet()) {
         	// Found invariants that can be constrained.
@@ -122,15 +113,6 @@ public class ConstrainedInvMiner extends InvariantMiner implements
         }
         //return constrainedInvs;
         return invs;
-    }
-    
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            boolean multipleRelations, TemporalInvariantSet invs) {
-    	
-    	// TODO: add an invariant set argument -- used when the unconstrained
-        // invariants were already mined, and the purpose of this code would be
-        // to augment this set with constraints (generating a new set
-        // of constrained invariants as the final result).
-    	return null;
-    }
+	}
 }
+
