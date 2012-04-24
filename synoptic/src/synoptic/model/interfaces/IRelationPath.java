@@ -3,6 +3,7 @@ package synoptic.model.interfaces;
 import java.util.Map;
 import java.util.Set;
 
+import synoptic.model.EventNode;
 import synoptic.model.event.EventType;
 
 /**
@@ -26,5 +27,14 @@ public interface IRelationPath {
      * count.
      */
     public Map<EventType, Map<EventType, Integer>> getPrecedesCounts();
-
+    
+    /**
+     * @return first non-INITIAL node in this relation path
+     */
+    public EventNode getFirstNode();
+    
+    /**
+     * @return final non-TERMINAL node in this relation path
+     */
+    public EventNode getLastNode();
 }

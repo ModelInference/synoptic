@@ -1,9 +1,7 @@
 package synoptic.invariants.miners;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
@@ -31,22 +29,58 @@ public class ConstrainedInvMiner extends InvariantMiner implements
         ITOInvariantMiner {
 	private ITOInvariantMiner miner;
 
-    public ConstrainedInvMiner(boolean useTransitiveClosureMining) {
-        if (useTransitiveClosureMining) {
-            miner = new TransitiveClosureInvMiner();
-        } else {
-            miner = new ChainWalkingTOInvMiner();
-        }
+	public ConstrainedInvMiner(ITOInvariantMiner miner) {
+		this.miner = miner;
     }
-
-    @Override
+	
+	@Override
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations) {
     	
-    	TemporalInvariantSet invs = miner.computeInvariants(g,
-        multipleRelations);
-        TemporalInvariantSet constrainedInvs = new TemporalInvariantSet();
-		
+    	TemporalInvariantSet invs = miner.computeInvariants(g, multipleRelations);  	
+    	
+    	return computeInvariants(g, multipleRelations, invs);    
+    }
+    
+    public static TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+    		boolean multipleRelations, TemporalInvariantSet invs) {
+    		
+    	TemporalInvariantSet result = new TemporalInvariantSet();
+    	for (String r : g.getRelations()) {
+            TemporalInvariantSet tmp = computeInvariants(g, multipleRelations, r, invs);
+            result.add(tmp);
+        }
+        return result;
+	}
+    	
+    public static TemporalInvariantSet computeInvariants(ChainsTraceGraph g, 
+    		boolean multipleRelations, String relation, TemporalInvariantSet invs) {
+    	
+    	TemporalInvariantSet constrainedInvs = new TemporalInvariantSet();
+
+    	// Stores generated RelationPaths
+        Set<IRelationPath> relationPaths = new HashSet<IRelationPath>();
+    	
+        // Loop through the traces.
+    	for (Trace trace : g.getTraces()) {
+            IRelationPath relationPath = null;
+            
+            if (multipleRelations && !relation.equals(Event.defaultTimeRelationString)) {
+                relationPath = trace.getBiRelationalPath(relation, Event.defaultTimeRelationString);
+            } else {
+                Set<IRelationPath> single = trace.getSingleRelationPaths(relation);
+                if (relation.equals(Event.defaultTimeRelationString) && single.size() != 1) {
+                    throw new IllegalStateException("Multiple relation subraphs for single relation graph");
+                }
+                relationPath = single.toArray(new IRelationPath[1])[0];
+            }
+      
+            if (relationPath == null) {
+                continue;
+            }
+            relationPaths.add(relationPath);
+    	}
+    
 		// Iterate through all invariants.
         for (ITemporalInvariant i : invs.getSet()) {
         	// Found invariants that can be constrained.
@@ -67,27 +101,38 @@ public class ConstrainedInvMiner extends InvariantMiner implements
         		// Track nodes of event a for computing lowerBound;
         		EventNode recentA = null;
         		
+        		
+        		for (IRelationPath path : relationPaths) {
+        			//TODO
+        			// 1) Loop through each relationPath
+        			// 2) Retrieve upper and lower bound for invariant like
+        			//    commented out loop below.
+        			// 3) Keep track of each of these lower and upper bounds.
+        			// 4) Get the min of the lower and the max of the upper
+        			// 5) Set the threshold for particular invariant using min and max in 4). 
+            	}
+        		
         		// Iterate all nodes in graph and check for nodes having
         		// transitions containing a and b EventType above.
-        		for (EventNode node : g.getNodes()) {
-        			if (node.getEType().equals(a)) {
-        				recentA = node;
-        				if (first == null) {
-        					first = node.getTime();
-        				}
-        			}
-        			if (node.getEType().equals(b)) {
-        				if (recentA != null) {
-        					ITime delta = node.getTime().computeDelta(recentA.getTime());
-            				lowerBound = delta;
-            				// Found new lowerBound.
-            				if (delta.lessThan(lowerBound)) {
-            					lowerBound = delta;
-            				}
-        				}
-        				last = node.getTime();
-        			}
-        		}
+//        		for (EventNode node : g.getNodes()) {
+//        			if (node.getEType().equals(a)) {
+//        				recentA = node;
+//        				if (first == null) {
+//        					first = node.getTime();
+//        				}
+//        			}
+//        			if (node.getEType().equals(b)) {
+//        				if (recentA != null) {
+//        					ITime delta = node.getTime().computeDelta(recentA.getTime());
+//            				lowerBound = delta;
+//            				// Found new lowerBound.
+//            				if (delta.lessThan(lowerBound)) {
+//            					lowerBound = delta;
+//            				}
+//        				}
+//        				last = node.getTime();
+//        			}
+//        		}
         		
         		//TODO 
         		//Unsure of what to do for this case. For now, 
@@ -123,14 +168,5 @@ public class ConstrainedInvMiner extends InvariantMiner implements
         //return constrainedInvs;
         return invs;
     }
-    
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            boolean multipleRelations, TemporalInvariantSet invs) {
-    	
-    	// TODO: add an invariant set argument -- used when the unconstrained
-        // invariants were already mined, and the purpose of this code would be
-        // to augment this set with constraints (generating a new set
-        // of constrained invariants as the final result).
-    	return null;
-    }
 }
+
