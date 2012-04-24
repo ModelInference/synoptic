@@ -13,7 +13,7 @@ import synoptic.util.time.ITime;
  *
  *      2. Either one of the following is true:
  *          a.) The first c_i, c_j, follows a_i in at most n time.
- *          b.) The first c_i, c_j, follows a_i in at leas n time.
+ *          b.) The first c_i, c_j, follows a_i in at least n time.
  * </pre>
  */
 public interface IThresholdConstraint {
