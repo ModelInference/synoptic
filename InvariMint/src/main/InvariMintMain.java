@@ -97,7 +97,10 @@ public class InvariMintMain {
         logger.fine(NIFbys.toPrettyString());
 
         EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
-        InvsModel dfa = getIntersectedModelFromInvs(NIFbys, encodings, opts);
+        EncodedAutomaton dfa = null;
+
+        System.out.println("NOT PGraphin'");
+        dfa = getIntersectedModelFromInvs(NIFbys, encodings, opts);
 
         // Apply initial/terminal condition
         EventType initialEvent = StringEventType.newInitialStringEventType();
@@ -415,10 +418,6 @@ public class InvariMintMain {
         }
 
         SynopticModel convertedDfa = new SynopticModel(pGraph, encodings);
-
-        // This minimization step will first determinize the model -- from the
-        // dk brics documentation.
-        convertedDfa.minimize();
 
         if (opts.exportSynopticDFA) {
             convertedDfa.exportDotAndPng(opts.outputPathPrefix
