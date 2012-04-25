@@ -103,11 +103,11 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
         for (Trace trace : g.getTraces()) {
             IRelationPath relationPath = null;
             
-            if (multipleRelations && !relation.equals(Event.defaultTimeRelationString)) {
-                relationPath = trace.getBiRelationalPath(relation, Event.defaultTimeRelationString);
+            if (multipleRelations && !relation.equals(Event.defTimeRelationStr)) {
+                relationPath = trace.getBiRelationalPath(relation, Event.defTimeRelationStr);
             } else {
                 Set<IRelationPath> single = trace.getSingleRelationPaths(relation);
-                if (relation.equals(Event.defaultTimeRelationString) && single.size() != 1) {
+                if (relation.equals(Event.defTimeRelationStr) && single.size() != 1) {
                     throw new IllegalStateException("Multiple relation subraphs for single relation graph");
                 }
                 relationPath = single.toArray(new IRelationPath[1])[0];

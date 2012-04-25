@@ -27,6 +27,7 @@ import synoptic.main.parser.TraceParser;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
 import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 
@@ -96,7 +97,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         DistEventType a = new DistEventType("a", "0");
         DistEventType b = new DistEventType("b", "1");
-        String R = SynopticTest.defRelation;
+        String R = Event.defTimeRelationStr;
 
         // Add the "eventually x" invariants.
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -132,7 +133,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
         DistEventType a = new DistEventType("a", "0");
         DistEventType b = new DistEventType("b", "1");
         DistEventType c = new DistEventType("c", "0");
-        String R = SynopticTest.defRelation;
+        String R = Event.defTimeRelationStr;
 
         // Add the "eventually x" invariants.
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -182,7 +183,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
         DistEventType a = new DistEventType("a", "0");
         DistEventType b = new DistEventType("b", "0");
         DistEventType c = new DistEventType("c", "1");
-        String R = SynopticTest.defRelation;
+        String R = Event.defTimeRelationStr;
 
         // Add the "eventually x" invariants.
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -258,7 +259,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         DistEventType a = new DistEventType("a", "0");
         DistEventType b = new DistEventType("b", "1");
-        String R = SynopticTest.defRelation;
+        String R = Event.defTimeRelationStr;
 
         // Add the "eventually x" invariants.
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -293,7 +294,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         DistEventType a = new DistEventType("a", "0");
         DistEventType b = new DistEventType("b", "1");
-        String R = SynopticTest.defRelation;
+        String R = Event.defTimeRelationStr;
 
         trueInvs.add(new AlwaysConcurrentInvariant(b, a, R));
 
@@ -320,7 +321,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         DistEventType a = new DistEventType("a", "0");
         DistEventType b = new DistEventType("b", "1");
-        String R = SynopticTest.defRelation;
+        String R = Event.defTimeRelationStr;
 
         assertTrue(minedInvs.getSet().contains(
                 new AlwaysConcurrentInvariant(b, a, R)));
@@ -352,7 +353,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         DistEventType a = new DistEventType("a", "0");
         DistEventType b = new DistEventType("b", "1");
-        String R = SynopticTest.defRelation;
+        String R = Event.defTimeRelationStr;
 
         if (mineNCWith) {
             trueInvs.add(new NeverConcurrentInvariant(b, a, R));
@@ -381,7 +382,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         DistEventType a = new DistEventType("a", "0");
         DistEventType b = new DistEventType("b", "1");
-        String R = SynopticTest.defRelation;
+        String R = Event.defTimeRelationStr;
 
         assertTrue(minedInvs.getSet().contains(
                 new AlwaysFollowedInvariant(b, a, R)));
@@ -409,7 +410,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         DistEventType a = new DistEventType("a", "0");
         DistEventType b = new DistEventType("b", "1");
-        String R = SynopticTest.defRelation;
+        String R = Event.defTimeRelationStr;
 
         assertTrue(minedInvs.getSet().contains(
                 new AlwaysPrecedesInvariant(b, a, R)));
@@ -438,7 +439,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
 
         DistEventType a = new DistEventType("a", "0");
         DistEventType c = new DistEventType("c", "1");
-        String R = SynopticTest.defRelation;
+        String R = Event.defTimeRelationStr;
 
         if (mineNCWith) {
             assertTrue(minedInvs.getSet().contains(
@@ -480,7 +481,7 @@ public class POLogInvariantMiningTests extends SynopticTest {
         DistEventType buy_c0 = new DistEventType("buy", "client-0");
         DistEventType buy_c1 = new DistEventType("buy", "client-1");
 
-        String R = SynopticTest.defRelation;
+        String R = Event.defTimeRelationStr;
 
         trueInvs.add(new NeverFollowedInvariant(sold_out, sold, R));
         trueInvs.add(new AlwaysPrecedesInvariant(sold, sold_out, R));
