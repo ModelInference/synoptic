@@ -79,6 +79,15 @@
       </jar>
     </target>
     <!--====================================================================-->
+	
+	<!-- 
+		Runs tests for the specific class defined by the -Djunit.include 
+		option in the command line. Ex:
+
+		ant -Djunit.include=synoptic/tests/units/Foo.class test
+
+		Would run tests for class "Foo." 
+	-->
     <target name="test" depends="build">
         <mkdir dir="${junit.output.dir}"/>
         <echo message="${junit.include}" />
@@ -88,7 +97,7 @@
 
             <batchtest fork="no" todir="${junit.output.dir}">
                 <fileset dir="bin/">
-                    <include name="${junit.include}.class"/>
+                    <include name="${junit.include}"/>
                 </fileset>
             </batchtest>
         </junit>
