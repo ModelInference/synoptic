@@ -15,7 +15,9 @@
     <property name="synoptic.jarpath" value="${util.synoptic.libdir}/synoptic.jar"/>
 
     <!-- Where to output junit test results. -->
-    <property name="junit.output.dir" value="junit"/>
+	<property name="junit.output.dir" value="junit"/>
+
+	<property name="synoptic.testdir" value="synoptic/tests/" />
 
     <!-- Where to find the generated synoptic classes. -->
     <path id="synoptic.classes.classpath">
@@ -81,27 +83,54 @@
     <!--====================================================================-->
 	
 	<!-- 
-		Runs tests for the specific class defined by the -Djunit.include 
-		option in the command line. Ex:
+	  Runs tests for the specific class defined by the -Djunit.include 
+	  option in the command line. Ex:
 
-		ant -Djunit.include=synoptic/tests/units/Foo.class test
+	  ant -Djunit.include=Foo test
 
-		Would run tests for class "Foo." 
-	-->
-    <target name="test" depends="build">
-        <mkdir dir="${junit.output.dir}"/>
-        <echo message="${junit.include}" />
-        <junit fork="no" printsummary="withOutAndErr" showoutput="true">
-            <classpath refid="synoptic.classpath"/>
-            <formatter type="xml"/>
+	  Would run tests for class "Foo." 
 
-            <batchtest fork="no" todir="${junit.output.dir}">
-                <fileset dir="bin/">
-                    <include name="${junit.include}"/>
-                </fileset>
-            </batchtest>
-        </junit>
-    </target>
+	  Note: This searches for classes included in synoptic's testing directory
+	  and will execute any matching files through any number of subdirectories,
+	  so make sure to be concise if you don't want to run the whole test suite.
+  	-->
+	<target name="test" depends="build"> 
+		<!-- If junit.include is not set, complain -->
+		<fail unless="junit.include">Must supply a class name with -Djunit.include</fail>
+		<echo message="Finding matches for '${junit.include}'" />
+
+		<!-- Build the file set and make sure it's not empty -->
+		<property name="junit.regex" value=".*${junit.include}.*(\.class)?$" />
+		<condition property="dir.empty">
+			<length length="0">
+				<fileset id="junit.include.fileset" dir="bin/" includes="${synoptic.testdir}">
+					<filename regex="${junit.regex}"/>
+				</fileset>
+			</length>
+		</condition>
+
+		<!-- If there were no files found, exit -->
+		<fail if="dir.empty">No files found</fail>
+
+		<!-- Print the JUnit files to be run -->
+		<echo>RUNNING JUNIT ON THE FOLLOWING FILES:</echo>
+		<pathconvert pathsep="${line.separator}    --"             
+				property="junit.include.path"             
+				refid="junit.include.fileset">
+		</pathconvert>
+		<echo>    --${junit.include.path}</echo>
+
+		<!-- Run junit on the found files -->
+		<junit fork="no" printsummary="withOutAndErr" showoutput="true">
+			<classpath refid="synoptic.classpath"/>
+			<formatter type="xml"/>
+			<batchtest fork="yes" todir="${junit.output.dir}">
+				<!-- Include all class files, then filter -->
+				<fileset refid="junit.include.fileset" />
+			</batchtest>
+		</junit>
+	</target>
+
     <!--=====================================================================-->
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
