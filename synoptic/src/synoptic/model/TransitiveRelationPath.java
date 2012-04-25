@@ -46,7 +46,7 @@ public class TransitiveRelationPath implements IRelationPath {
      * The relation this path uses for ordered traversal, defaults to
      * Event.defaultTimeRelationString, or "t"
      */
-    private String orderingRelation = Event.defaultTimeRelationString;
+    private String orderingRelation = Event.defTimeRelationStr;
     /**
      * Caching indicator -- whether or not the various counts have already been
      * computed.

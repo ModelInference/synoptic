@@ -22,6 +22,7 @@ import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
+import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.tests.SynopticTest;
 import synoptic.util.InternalSynopticException;
@@ -616,19 +617,23 @@ public class TraceParserTests extends SynopticTest {
 
         assertTrue(events.size() == 6);
 
-        expectedGraph.tagInitial(events.get(0), defRelation);
-        expectedGraph.tagInitial(events.get(3), defRelation);
-        expectedGraph.tagTerminal(events.get(2), defRelation);
-        expectedGraph.tagTerminal(events.get(5), defRelation);
+        expectedGraph
+                .tagInitial(events.get(0), Event.defTimeRelationStr);
+        expectedGraph
+                .tagInitial(events.get(3), Event.defTimeRelationStr);
+        expectedGraph.tagTerminal(events.get(2),
+                Event.defTimeRelationStr);
+        expectedGraph.tagTerminal(events.get(5),
+                Event.defTimeRelationStr);
 
         EventNode prevEvent = events.get(0);
         for (EventNode event : events.subList(1, 2)) {
-            prevEvent.addTransition(event, defRelation);
+            prevEvent.addTransition(event, Event.defTimeRelationStr);
         }
 
         prevEvent = events.get(3);
         for (EventNode event : events.subList(4, 5)) {
-            prevEvent.addTransition(event, defRelation);
+            prevEvent.addTransition(event, Event.defTimeRelationStr);
         }
 
         return expectedGraph;
@@ -657,20 +662,20 @@ public class TraceParserTests extends SynopticTest {
 
         expectedGraph.tagInitial(
                 cMain,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        callRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, callRelation)));
 
         cMain.addTransition(
                 cFoo,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        callRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, callRelation)));
 
         cFoo.addTransition(
                 rMain,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        returnRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, returnRelation)));
 
-        expectedGraph.tagTerminal(rMain, defRelation);
+        expectedGraph.tagTerminal(rMain, Event.defTimeRelationStr);
 
         return expectedGraph;
     }
@@ -696,20 +701,20 @@ public class TraceParserTests extends SynopticTest {
 
         expectedGraph.tagInitial(
                 cMain,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        callRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, callRelation)));
 
         cMain.addTransition(
                 cFoo,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        callRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, callRelation)));
 
         cFoo.addTransition(
                 rMain,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        returnRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, returnRelation)));
 
-        expectedGraph.tagTerminal(rMain, defRelation);
+        expectedGraph.tagTerminal(rMain, Event.defTimeRelationStr);
 
         cMain = events.get(3);
         cFoo = events.get(4);
@@ -717,20 +722,20 @@ public class TraceParserTests extends SynopticTest {
 
         expectedGraph.tagInitial(
                 cMain,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        callRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, callRelation)));
 
         cMain.addTransition(
                 cFoo,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        callRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, callRelation)));
 
         cFoo.addTransition(
                 rMain,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        returnRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, returnRelation)));
 
-        expectedGraph.tagTerminal(rMain, defRelation);
+        expectedGraph.tagTerminal(rMain, Event.defTimeRelationStr);
 
         return expectedGraph;
     }
@@ -754,34 +759,39 @@ public class TraceParserTests extends SynopticTest {
         EventNode mainMain = events.get(0);
         expectedGraph.tagInitial(
                 mainMain,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        callRelation, staticRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, callRelation,
+                        staticRelation)));
 
         EventNode mainInstance = events.get(1);
         mainMain.addTransition(
                 mainInstance,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        callRelation, instanceRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, callRelation,
+                        instanceRelation)));
 
         EventNode mainMain2 = events.get(2);
         mainInstance.addTransition(
                 mainMain2,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        returnRelation, staticRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, returnRelation,
+                        staticRelation)));
 
         EventNode fooFoo = events.get(3);
         mainMain2.addTransition(
                 fooFoo,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        callRelation, nativeRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, callRelation,
+                        nativeRelation)));
 
         EventNode mainMain3 = events.get(4);
         fooFoo.addTransition(
                 mainMain3,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        returnRelation, staticRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, returnRelation,
+                        staticRelation)));
 
-        expectedGraph.tagTerminal(mainMain3, defRelation);
+        expectedGraph.tagTerminal(mainMain3, Event.defTimeRelationStr);
 
         return expectedGraph;
     }
@@ -813,34 +823,34 @@ public class TraceParserTests extends SynopticTest {
         EventNode mainMain = events.get(0);
         expectedGraph.tagInitial(
                 mainMain,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        callRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, callRelation)));
 
         EventNode mainInstance = events.get(1);
         mainMain.addTransition(
                 mainInstance,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        callRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, callRelation)));
 
         EventNode mainMain2 = events.get(2);
         mainInstance.addTransition(
                 mainMain2,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        returnRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, returnRelation)));
 
         EventNode fooFoo = events.get(3);
         mainMain2.addTransition(
                 fooFoo,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        callRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, callRelation)));
 
         EventNode mainMain3 = events.get(4);
         fooFoo.addTransition(
                 mainMain3,
-                new LinkedHashSet<String>(Arrays.asList(defRelation,
-                        returnRelation)));
+                new LinkedHashSet<String>(Arrays.asList(
+                        Event.defTimeRelationStr, returnRelation)));
 
-        expectedGraph.tagTerminal(mainMain3, defRelation);
+        expectedGraph.tagTerminal(mainMain3, Event.defTimeRelationStr);
 
         expectedGraph.tagInitial(mainMain, staticRelation);
         mainMain.addTransition(mainMain2, staticRelation);
@@ -879,21 +889,21 @@ public class TraceParserTests extends SynopticTest {
         assertTrue(events.size() == 5);
 
         EventNode mainMain = events.get(0);
-        expectedGraph.tagInitial(mainMain, defRelation);
+        expectedGraph.tagInitial(mainMain, Event.defTimeRelationStr);
 
         EventNode mainInstance = events.get(1);
-        mainMain.addTransition(mainInstance, defRelation);
+        mainMain.addTransition(mainInstance, Event.defTimeRelationStr);
 
         EventNode mainMain2 = events.get(2);
-        mainInstance.addTransition(mainMain2, defRelation);
+        mainInstance.addTransition(mainMain2, Event.defTimeRelationStr);
 
         EventNode fooFoo = events.get(3);
-        mainMain2.addTransition(fooFoo, defRelation);
+        mainMain2.addTransition(fooFoo, Event.defTimeRelationStr);
 
         EventNode mainMain3 = events.get(4);
-        fooFoo.addTransition(mainMain3, defRelation);
+        fooFoo.addTransition(mainMain3, Event.defTimeRelationStr);
 
-        expectedGraph.tagTerminal(mainMain3, defRelation);
+        expectedGraph.tagTerminal(mainMain3, Event.defTimeRelationStr);
 
         expectedGraph.tagInitial(mainMain, callRelation);
         mainMain.addTransition(mainInstance, callRelation);

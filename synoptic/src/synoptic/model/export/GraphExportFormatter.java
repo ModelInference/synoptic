@@ -55,7 +55,7 @@ public abstract class GraphExportFormatter {
                 "indigo", "yellow1", "thistle"));
 
         relationColors = new LinkedHashMap<String, String>();
-        relationColors.put(Event.defaultTimeRelationString,
+        relationColors.put(Event.defTimeRelationStr,
                 defaultRelationColor);
     }
 

@@ -1,5 +1,8 @@
 package synoptic.model.event;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import synoptic.util.time.ITime;
 
 /**
@@ -10,8 +13,15 @@ import synoptic.util.time.ITime;
  * @author Sigurd Schneider
  */
 public class Event {
+    /** The default relation used throughout the code. */
+    public final static String defTimeRelationStr = "t";
+    /** A set that contains just the defTimeRelationStr (initialized below). */
+    public final static Set<String> defTimeRelationSet;
 
-    public final static String defaultTimeRelationString = "t";
+    static {
+        defTimeRelationSet = new LinkedHashSet<String>();
+        defTimeRelationSet.add(defTimeRelationStr);
+    }
 
     /**
      * The event's label.

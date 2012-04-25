@@ -10,8 +10,8 @@ import java.util.Set;
 
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
-import synoptic.model.interfaces.ITransition;
 import synoptic.model.interfaces.IRelationPath;
+import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
 public class ChainRelationPath implements IRelationPath {
@@ -54,8 +54,7 @@ public class ChainRelationPath implements IRelationPath {
      *            Whether INITIAL is directly or transitively connected to the
      *            relation subgraph
      */
-    public ChainRelationPath(EventNode eNode, EventNode eFinal, 
-            String relation) {
+    public ChainRelationPath(EventNode eNode, EventNode eFinal, String relation) {
         this.eNode = eNode;
         this.eFinal = eFinal;
         this.relation = relation;
@@ -65,7 +64,7 @@ public class ChainRelationPath implements IRelationPath {
         this.followedByCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
         this.precedesCounts = new LinkedHashMap<EventType, Map<EventType, Integer>>();
     }
-    
+
     /**
      * Assumes tracegraph is already constructed. Walks over the tracegraph that
      * eNode is part of to populate seen, eventcounts, followedByCounts, and
@@ -76,9 +75,7 @@ public class ChainRelationPath implements IRelationPath {
         if (counted) {
             return;
         }
-        
-        Set<String> orderingRelationSet = new HashSet<String>();
-        orderingRelationSet.add(Event.defaultTimeRelationString);
+
         Set<String> relationSet = new HashSet<String>();
         relationSet.add(relation);
 
@@ -87,23 +84,26 @@ public class ChainRelationPath implements IRelationPath {
         List<? extends ITransition<EventNode>> transitions = curNode
                 .getTransitionsWithIntersectingRelations(relationSet);
 
-
         while (!transitions.isEmpty()) {
-            
+
             // TODO: Refactor this well formed transition test into Trace
             // Each node we traverse must have exactly one transition with the
             // ordering relation.
-            if (curNode.getTransitionsWithIntersectingRelations(orderingRelationSet).size() != 1) {
+            if (curNode.getTransitionsWithIntersectingRelations(
+                    Event.defTimeRelationSet).size() != 1) {
                 throw new InternalSynopticException(
                         "There should be exactly one transition with an ordering relation.");
             }
-            
+
             // Each node we traverse must have 1 relation with the relation.
-            if (curNode.getTransitionsWithIntersectingRelations(relationSet).size() !=1) {
+            if (curNode.getTransitionsWithIntersectingRelations(relationSet)
+                    .size() != 1) {
                 throw new InternalSynopticException(
-                        "There should be one transition with the " + relation + 
-                        " relation, but there are " +
-                        curNode.getTransitionsWithExactRelations(relationSet).size());
+                        "There should be one transition with the "
+                                + relation
+                                + " relation, but there are "
+                                + curNode.getTransitionsWithExactRelations(
+                                        relationSet).size());
             }
 
             // The current event is 'b', and all prior events are 'a' --
@@ -164,13 +164,14 @@ public class ChainRelationPath implements IRelationPath {
 
             curNode = searchTransitions.get(0).getTarget();
 
-            transitions = curNode.getTransitionsWithIntersectingRelations(relationSet);
+            transitions = curNode
+                    .getTransitionsWithIntersectingRelations(relationSet);
 
         }
 
         counted = true;
     }
-    
+
     public Set<EventType> getSeen() {
         count();
         return Collections.unmodifiableSet(seen);

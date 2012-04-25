@@ -28,6 +28,7 @@ import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
+import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 import synoptic.model.interfaces.IGraph;
@@ -226,7 +227,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         ITemporalInvariant inv = new AlwaysFollowedInvariant(
                 new StringEventType("a"), new StringEventType("b"),
-                SynopticTest.defRelation);
+                Event.defTimeRelationStr);
 
         testPartitionGraphCExample(events, inv, false, null);
     }
@@ -245,7 +246,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         ITemporalInvariant inv = new AlwaysFollowedInvariant(
                 new StringEventType("a"), new StringEventType("b"),
-                SynopticTest.defRelation);
+                Event.defTimeRelationStr);
 
         List<EventType> cExampleLabels = stringsToStringEventTypes(new String[] {
                 "x", "a", "y", "w" });
@@ -265,7 +266,7 @@ public class ModelCheckersTests extends SynopticTest {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "a", "x", "y", "b" };
         ITemporalInvariant inv = new AlwaysFollowedInvariant("a", "b",
-                SynopticTest.defRelation);
+                Event.defTimeRelationStr);
         testLinearGraphCExample(events, inv, false, 0);
     }
 
@@ -281,7 +282,7 @@ public class ModelCheckersTests extends SynopticTest {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "a", "x", "y", "z" };
         ITemporalInvariant inv = new AlwaysFollowedInvariant("a", "b",
-                SynopticTest.defRelation);
+                Event.defTimeRelationStr);
         testLinearGraphCExample(events, inv, true, 5);
     }
 
@@ -299,7 +300,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         ITemporalInvariant inv = new NeverFollowedInvariant(
                 new StringEventType("a"), new StringEventType("b"),
-                SynopticTest.defRelation);
+                Event.defTimeRelationStr);
 
         testPartitionGraphCExample(events, inv, false, null);
     }
@@ -315,7 +316,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         ITemporalInvariant inv = new NeverFollowedInvariant(
                 new StringEventType("a"), new StringEventType("b"),
-                SynopticTest.defRelation);
+                Event.defTimeRelationStr);
 
         List<EventType> cExampleLabels = null;
 
@@ -342,7 +343,7 @@ public class ModelCheckersTests extends SynopticTest {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "a", "x", "y", "z" };
         ITemporalInvariant inv = new NeverFollowedInvariant("a", "b",
-                SynopticTest.defRelation);
+                Event.defTimeRelationStr);
         testLinearGraphCExample(events, inv, false, 0);
     }
 
@@ -358,7 +359,7 @@ public class ModelCheckersTests extends SynopticTest {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "a", "x", "y", "z", "b" };
         ITemporalInvariant inv = new NeverFollowedInvariant("a", "b",
-                SynopticTest.defRelation);
+                Event.defTimeRelationStr);
         testLinearGraphCExample(events, inv, true, 5);
     }
 
@@ -375,7 +376,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         ITemporalInvariant inv = new AlwaysPrecedesInvariant(
                 new StringEventType("a"), new StringEventType("b"),
-                SynopticTest.defRelation);
+                Event.defTimeRelationStr);
 
         testPartitionGraphCExample(events, inv, false, null);
     }
@@ -391,7 +392,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         ITemporalInvariant inv = new AlwaysPrecedesInvariant(
                 new StringEventType("a"), new StringEventType("b"),
-                SynopticTest.defRelation);
+                Event.defTimeRelationStr);
         List<EventType> cExampleLabels = stringsToStringEventTypes(new String[] {
                 "z", "b" });
         testPartitionGraphCExample(events, inv, true, cExampleLabels);
@@ -409,7 +410,7 @@ public class ModelCheckersTests extends SynopticTest {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "x", "a", "x", "y", "b" };
         ITemporalInvariant inv = new AlwaysPrecedesInvariant("a", "b",
-                SynopticTest.defRelation);
+                Event.defTimeRelationStr);
         testLinearGraphCExample(events, inv, false, 0);
     }
 
@@ -425,7 +426,7 @@ public class ModelCheckersTests extends SynopticTest {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "x", "y", "z", "b", "a" };
         ITemporalInvariant inv = new AlwaysPrecedesInvariant("a", "b",
-                SynopticTest.defRelation);
+                Event.defTimeRelationStr);
         testLinearGraphCExample(events, inv, true, 4);
     }
 
