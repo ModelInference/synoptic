@@ -1,0 +1,3 @@
+-r ^(?<DTIME>)(?<TYPE>)$
+-s --
+-o output/client-server-send-recv.client.png
