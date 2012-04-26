@@ -66,8 +66,10 @@ public class FsmStateSetTests extends SynopticTest {
         BinaryInvariant inv1, inv2;
 
         // AFby with AFby.
-        inv1 = new AlwaysFollowedInvariant("a", "b", defRelation);
-        inv2 = new AlwaysFollowedInvariant("a", "c", defRelation);
+        inv1 = new AlwaysFollowedInvariant("a", "b",
+                Event.defTimeRelationStr);
+        inv2 = new AlwaysFollowedInvariant("a", "c",
+                Event.defTimeRelationStr);
         invs1 = new LinkedList<BinaryInvariant>();
         invs1.add(inv1);
 
@@ -86,8 +88,10 @@ public class FsmStateSetTests extends SynopticTest {
         assertTrue(!f1.equals(f2)); // differ in count
 
         // AFby with NFby.
-        inv1 = new AlwaysFollowedInvariant("a", "b", defRelation);
-        inv2 = new NeverFollowedInvariant("a", "b", defRelation);
+        inv1 = new AlwaysFollowedInvariant("a", "b",
+                Event.defTimeRelationStr);
+        inv2 = new NeverFollowedInvariant("a", "b",
+                Event.defTimeRelationStr);
         invs1 = new LinkedList<BinaryInvariant>();
         invs1.add(inv1);
         invs2 = new LinkedList<BinaryInvariant>();
@@ -127,7 +131,7 @@ public class FsmStateSetTests extends SynopticTest {
                 s2 = new StringEventType("y");
             }
 
-            inv = generator.genInv(s1, s2, defRelation);
+            inv = generator.genInv(s1, s2, Event.defTimeRelationStr);
             invs.add(inv);
         }
         return generator.genFsmStateSet(invs);

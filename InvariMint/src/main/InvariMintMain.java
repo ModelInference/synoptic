@@ -93,7 +93,7 @@ public class InvariMintMain {
         EventType terminalEvent = StringEventType.newTerminalStringEventType();
         InvModel initialTerminalInv = new InvModel(
                 new TOInitialTerminalInvariant(initialEvent, terminalEvent,
-                        Event.defaultTimeRelationString), encodings);
+                        Event.defTimeRelationStr), encodings);
         dfa.intersectWith(initialTerminalInv);
 
         // Intersect with mined invariants.

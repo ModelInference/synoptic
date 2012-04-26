@@ -1,9 +1,7 @@
 package synoptic.tests;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.rules.TestName;
@@ -36,18 +34,9 @@ import synoptic.util.InternalSynopticException;
  */
 public abstract class SynopticTest extends SynopticLibTest {
 
-    /**
-     * Default relation used in invariant mining.
-     */
-    public static final String defRelation = Event.defaultTimeRelationString;
-    public static final Set<String> defRelationSet;
-
     static {
         // Set up static SynopticLib state.
         SynopticLibTest.initialize("SynopticTest Logger");
-
-        defRelationSet = new LinkedHashSet<String>();
-        defRelationSet.add(defRelation);
     }
 
     /**
@@ -217,7 +206,8 @@ public abstract class SynopticTest extends SynopticLibTest {
             EventNode logEvent = new EventNode(act);
             ret.add(logEvent);
             if (prevEvent != null) {
-                prevEvent.addTransition(logEvent, defRelation);
+                prevEvent.addTransition(logEvent,
+                        Event.defTimeRelationStr);
             }
             prevEvent = logEvent;
         }

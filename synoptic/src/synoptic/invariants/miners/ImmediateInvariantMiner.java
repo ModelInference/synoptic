@@ -85,7 +85,7 @@ public class ImmediateInvariantMiner {
                 if (!followedBy.contains(target)) {
                     neverIFbyInvariants
                             .add(new NeverImmediatelyFollowedInvariant(source,
-                                    target, Event.defaultTimeRelationString));
+                                    target, Event.defTimeRelationStr));
                 }
             }
         }

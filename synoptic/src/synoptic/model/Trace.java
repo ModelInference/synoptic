@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import synoptic.model.event.Event;
-import synoptic.model.interfaces.ITransition;
 import synoptic.model.interfaces.IRelationPath;
+import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -21,13 +21,9 @@ public class Trace {
 
     /** Relations -> First non-INITIAL node for each relation in this trace */
     private Map<String, EventNode> relationToInitialNodes;
-    // TODO: Is there a way to statically define this set?
-    private Set<String> defaultTimeRelationStringSet;
 
     public Trace() {
         this.relationToInitialNodes = new HashMap<String, EventNode>();
-        defaultTimeRelationStringSet = new HashSet<String>();
-        defaultTimeRelationStringSet.add(Event.defaultTimeRelationString);
     }
 
     public void addInitialNode(String relation, EventNode eNode) {
@@ -68,9 +64,9 @@ public class Trace {
             pendingInitial = curNode;
         } else {
             curNode = relationToInitialNodes
-                    .get(Event.defaultTimeRelationString);
+                    .get(Event.defTimeRelationStr);
         }
-        
+
         EventNode prevNode = curNode;
 
         // Iterate through the trace chain and construct zero or more
@@ -89,7 +85,8 @@ public class Trace {
                 // curNode does not have an outgoing edge with the input
                 // parameter relation type
                 if (relationTransitions.isEmpty()) {
-                    IRelationPath relationPath = new ChainRelationPath(pendingInitial, curNode, relation);
+                    IRelationPath relationPath = new ChainRelationPath(
+                            pendingInitial, curNode, relation);
                     results.add(relationPath);
                     pendingInitial = null;
                 }
@@ -109,17 +106,18 @@ public class Trace {
              */
             if (relationTransitions.isEmpty()) {
                 relationTransitions = curNode
-                        .getTransitionsWithIntersectingRelations(defaultTimeRelationStringSet);
+                        .getTransitionsWithIntersectingRelations(Event.defTimeRelationSet);
             }
 
             prevNode = curNode;
-            
+
             ITransition<EventNode> transition = relationTransitions.get(0);
             curNode = transition.getTarget();
         }
-        
+
         if (pendingInitial != null) {
-            IRelationPath relationPath = new ChainRelationPath(pendingInitial, prevNode, relation);
+            IRelationPath relationPath = new ChainRelationPath(pendingInitial,
+                    prevNode, relation);
             results.add(relationPath);
         }
 
@@ -137,7 +135,7 @@ public class Trace {
      */
     public IRelationPath getBiRelationalPath(String relation,
             String transitiveRelation) {
-        
+
         EventNode firstNode;
         EventNode finalNode = null;
         boolean initialTransitivelyConnected;
@@ -154,7 +152,7 @@ public class Trace {
         } else { // birelational path is connected to the initial node by the
                  // transitive relation
             firstNode = relationToInitialNodes
-                    .get(Event.defaultTimeRelationString);
+                    .get(Event.defTimeRelationStr);
             initialTransitivelyConnected = true;
         }
 
@@ -184,9 +182,9 @@ public class Trace {
             // Begin the process of moving to the next node
             if (relationTransitions.isEmpty()) {
                 relationTransitions = curNode
-                        .getTransitionsWithIntersectingRelations(defaultTimeRelationStringSet);
+                        .getTransitionsWithIntersectingRelations(Event.defTimeRelationSet);
             }
-            
+
             ITransition<EventNode> transition = relationTransitions.get(0);
             curNode = transition.getTarget();
         }
@@ -198,7 +196,7 @@ public class Trace {
 
         return null;
     }
-    
+
     public boolean containsRelation(String relation) {
         return relationToInitialNodes.containsKey(relation);
     }

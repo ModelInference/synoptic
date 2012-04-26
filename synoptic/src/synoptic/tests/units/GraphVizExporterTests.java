@@ -14,6 +14,7 @@ import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
+import synoptic.model.event.Event;
 import synoptic.model.export.GraphExporter;
 import synoptic.tests.SynopticTest;
 
@@ -44,11 +45,12 @@ public class GraphVizExporterTests extends SynopticTest {
             g.add(event);
         }
 
-        g.tagInitial(path.get(0), defRelation);
+        g.tagInitial(path.get(0), Event.defTimeRelationStr);
 
         for (int i = 0; i < path.size() - 1; i++) {
             EventNode event = path.get(i);
-            event.addTransition(path.get(i + 1), defRelation);
+            event.addTransition(path.get(i + 1),
+                    Event.defTimeRelationStr);
         }
 
         StringWriter writer = new StringWriter();
