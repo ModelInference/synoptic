@@ -53,7 +53,7 @@ public class KTailInvariant implements ITemporalInvariant {
         KTailInvariant theTail = tails.get(events);
         if (theTail == null) {
             theTail = new KTailInvariant(events,
-                    Event.defaultTimeRelationString);
+                    Event.defTimeRelationStr);
             tails.put(theTail.tail, theTail);
         }
         theTail.following.add(follow);

@@ -1014,7 +1014,7 @@ public class TraceParser {
             event.setTime(nextTime);
 
             Relation timeRelation = new Relation("time-relation",
-                    Event.defaultTimeRelationString, false);
+                    Event.defTimeRelationStr, false);
             eventRelations.add(timeRelation);
 
             String partitionName = filter.substitute(eventStringArgs);
