@@ -32,6 +32,8 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     protected int secondRoleId = 0;
 
     protected Set<String> relations;
+    protected String orderingRelation;
+    
     // CACHE:
     private Graph automaton;
 
@@ -245,6 +247,10 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
 
     public void setSecondRoleId(int roleId) {
         secondRoleId = roleId;
+    }
+    
+    public boolean isBiRelational() {
+        return orderingRelation != null;
     }
 
 }
