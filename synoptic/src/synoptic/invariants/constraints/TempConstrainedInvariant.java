@@ -16,7 +16,7 @@ public class TempConstrainedInvariant<BInv extends BinaryInvariant> extends
     protected IThresholdConstraint constr;
 
     public TempConstrainedInvariant(BInv inv, IThresholdConstraint constr) {
-        super(inv.getFirst(), inv.getSecond(), inv.getRelations());
+        super(inv);
         this.inv = inv;
         this.constr = constr;
     }

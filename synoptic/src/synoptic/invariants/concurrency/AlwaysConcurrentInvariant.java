@@ -1,7 +1,5 @@
 package synoptic.invariants.concurrency;
 
-import java.util.Set;
-
 import synoptic.model.event.DistEventType;
 import synoptic.util.InternalSynopticException;
 
@@ -18,11 +16,6 @@ import synoptic.util.InternalSynopticException;
  * </pre>
  */
 public class AlwaysConcurrentInvariant extends ConcurrencyInvariant {
-    public AlwaysConcurrentInvariant(DistEventType typeFirst,
-            DistEventType typeSecond, Set<String> relations) {
-        super(typeFirst, typeSecond, relations);
-    }
-
     public AlwaysConcurrentInvariant(DistEventType typeFirst,
             DistEventType typeSecond, String relation) {
         super(typeFirst, typeSecond, relation);

@@ -1,7 +1,6 @@
 package synoptic.invariants.concurrency;
 
 import java.util.List;
-import java.util.Set;
 
 import synoptic.invariants.BinaryInvariant;
 import synoptic.model.event.EventType;
@@ -13,11 +12,6 @@ import synoptic.model.interfaces.INode;
  * Relying on this observation this class implements hashCode() and equals().
  */
 public abstract class ConcurrencyInvariant extends BinaryInvariant {
-
-    public ConcurrencyInvariant(EventType typeFirst, EventType typeSecond,
-            Set<String> relations) {
-        super(typeFirst, typeSecond, relations);
-    }
 
     public ConcurrencyInvariant(EventType typeFirst, EventType typeSecond,
             String relation) {

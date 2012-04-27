@@ -5,9 +5,15 @@ import java.util.List;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
-public class AFBiRelationInvariant extends BinaryInvariant {
+/**
+ * TODO: describe.
+ */
+public class AFBiRelationInvariant extends BinaryInvariant implements
+        IBiRelationalInvariant {
 
-    public AFBiRelationInvariant(EventType first, EventType second, 
+    protected String orderingRelation;
+
+    public AFBiRelationInvariant(EventType first, EventType second,
             String relation, String orderingRelation) {
         super(first, second, relation);
         this.orderingRelation = orderingRelation;
@@ -38,5 +44,5 @@ public class AFBiRelationInvariant extends BinaryInvariant {
     public String getRegex(char firstC, char secondC) {
         throw new UnsupportedOperationException();
     }
-    
+
 }
