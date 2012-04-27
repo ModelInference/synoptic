@@ -35,12 +35,12 @@ public class GraphLTLChecker<T extends INode<T>> {
     /**
      * Cache for that last target graphs.
      */
-    private final LinkedHashMap<Set<String>, Graph> lastTargetGraph = new LinkedHashMap<Set<String>, Graph>();
+    private final LinkedHashMap<String, Graph> lastTargetGraph = new LinkedHashMap<String, Graph>();
     // CACHE:
     /**
      * Cache for the last source graphs.
      */
-    private final LinkedHashMap<Set<String>, IGraph<T>> lastSourceGraph = new LinkedHashMap<Set<String>, IGraph<T>>();
+    private final LinkedHashMap<String, IGraph<T>> lastSourceGraph = new LinkedHashMap<String, IGraph<T>>();
 
     // CACHE:
 
@@ -63,7 +63,7 @@ public class GraphLTLChecker<T extends INode<T>> {
         TimedTask transToMC = PerformanceMetrics.createTask("transToMC");
 
         Graph targetGraph = null;
-        Set<String> relation = invariant.getRelations();
+        String relation = invariant.getRelation();
         // If we've already converted this source graph before then just look up
         // the target in the cache.
         if (lastSourceGraph.containsKey(relation)
@@ -163,7 +163,7 @@ public class GraphLTLChecker<T extends INode<T>> {
      *            The set of relations to consider in the sourceGraph.
      * @return The transition-based target graph
      */
-    private Graph convertGraph(IGraph<T> sourceGraph, Set<String> relations) {
+    private Graph convertGraph(IGraph<T> sourceGraph, String relation) {
         Graph targetGraph = new Graph();
 
         // Set<T> initialMessages = sourceGraph.getDummyInitialNode();
@@ -188,9 +188,13 @@ public class GraphLTLChecker<T extends INode<T>> {
             n.setAttribute("post", "P:" + m.getEType());
         }
 
+        // TODO: retrieve an interned copy of this set.
+        Set<String> relationSet = new LinkedHashSet<String>();
+        relationSet.add(relation);
+
         for (T m : allNodes) {
             for (ITransition<T> t : m
-                    .getTransitionsWithExactRelations(relations)) {
+                    .getTransitionsWithExactRelations(relationSet)) {
                 T n = t.getTarget();
                 if (!prevStates.containsKey(n)) {
                     prevStates.put(n, new LinkedHashSet<Node>());

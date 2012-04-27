@@ -231,7 +231,7 @@ public class KTails {
 
             // Make sure to get transitions of the same relation.
             for (ITransition<NodeType> t2 : n2
-                    .getTransitionsWithExactRelations(t1.getRelations())) {
+                    .getTransitionsWithExactRelations(t1.getRelation())) {
                 NodeType c2 = t2.getTarget();
 
                 // Skip c2 if it was visited by this method earlier.

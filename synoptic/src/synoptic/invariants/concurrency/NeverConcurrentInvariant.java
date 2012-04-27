@@ -27,10 +27,10 @@ public class NeverConcurrentInvariant extends ConcurrencyInvariant {
         String f = first.toString();
         String s = second.toString();
         if (f.hashCode() <= s.hashCode()) {
-            return f + " NeverConcurrentWith(" + relations.toString() + ") "
+            return f + " NeverConcurrentWith(" + relation.toString() + ") "
                     + s;
         }
-        return s + " NeverConcurrentWith(" + relations.toString() + ") " + f;
+        return s + " NeverConcurrentWith(" + relation.toString() + ") " + f;
 
     }
 

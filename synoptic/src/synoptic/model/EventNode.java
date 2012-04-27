@@ -170,7 +170,7 @@ public class EventNode implements INode<EventNode> {
      */
     public void addTransition(Transition<EventNode> transition) {
         transitions.add(transition);
-        for (String r : transition.getRelations()) {
+        for (String r : transition.getRelation()) {
             // For each relation associated with the new transition update the
             // mapping of relations to transitions that carry those relations.
             Set<Transition<EventNode>> ref = transitionsWithRelation.get(r);
@@ -199,7 +199,7 @@ public class EventNode implements INode<EventNode> {
      */
     public void checkConsistency() {
         for (ITransition<EventNode> t : transitions) {
-            assert (transitionsWithRelation.get(t.getRelations()).contains(t)) : "inconsistent transitions in message";
+            assert (transitionsWithRelation.get(t.getRelation()).contains(t)) : "inconsistent transitions in message";
         }
     }
 
@@ -332,7 +332,7 @@ public class EventNode implements INode<EventNode> {
         for (Transition<EventNode> tr : transitions) {
             double freq = (double) 1 / (double) totalTrans;
             WeightedTransition<EventNode> trWeighted = new WeightedTransition<EventNode>(
-                    tr.getSource(), tr.getTarget(), tr.getRelations(), freq, 1);
+                    tr.getSource(), tr.getTarget(), tr.getRelation(), freq, 1);
             result.add(trWeighted);
         }
         return result;
@@ -350,7 +350,7 @@ public class EventNode implements INode<EventNode> {
         // Iterate through all transitions, adding those to ret that have
         // exactly the input relations associated with them.
         for (Transition<EventNode> t : transitions) {
-            if (t.getRelations().equals(relations)) {
+            if (t.getRelation().equals(relations)) {
                 if (ret == null) {
                     ret = new LinkedHashSet<Transition<EventNode>>();
                 }
@@ -370,7 +370,7 @@ public class EventNode implements INode<EventNode> {
         // Iterate through all transitions, adding those to ret that have
         // exactly a subset of relations associated with them.
         for (Transition<EventNode> t : transitions) {
-            if (relations.containsAll(t.getRelations())) {
+            if (relations.containsAll(t.getRelation())) {
                 if (ret == null) {
                     ret = new LinkedHashSet<Transition<EventNode>>();
                 }

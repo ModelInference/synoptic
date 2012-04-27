@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +27,7 @@ public class KTailInvariant implements ITemporalInvariant {
     // Set of all kTail invariants already created
     private static Map<List<EventType>, KTailInvariant> tails = new HashMap<List<EventType>, KTailInvariant>();
 
-    private final Set<String> relations;
+    private final String relations;
 
     // This tail's list of events
     private final List<EventType> tail;
@@ -37,8 +36,7 @@ public class KTailInvariant implements ITemporalInvariant {
     private Set<EventType> following;
 
     private KTailInvariant(List<EventType> eventTail, String relation) {
-        this.relations = new LinkedHashSet<String>();
-        this.relations.add(relation);
+        this.relations = relation;
         this.tail = Collections.unmodifiableList(new ArrayList<EventType>(
                 eventTail));
         this.following = new HashSet<EventType>();
@@ -52,8 +50,7 @@ public class KTailInvariant implements ITemporalInvariant {
             EventType follow) {
         KTailInvariant theTail = tails.get(events);
         if (theTail == null) {
-            theTail = new KTailInvariant(events,
-                    Event.defTimeRelationStr);
+            theTail = new KTailInvariant(events, Event.defTimeRelationStr);
             tails.put(theTail.tail, theTail);
         }
         theTail.following.add(follow);
@@ -121,7 +118,7 @@ public class KTailInvariant implements ITemporalInvariant {
     }
 
     @Override
-    public Set<String> getRelations() {
+    public String getRelation() {
         return relations;
     }
 

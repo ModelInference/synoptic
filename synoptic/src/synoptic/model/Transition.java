@@ -77,7 +77,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     }
 
     @Override
-    public Set<String> getRelations() {
+    public Set<String> getRelation() {
         return relations;
     }
 
@@ -198,7 +198,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
 
     @Override
     public String toStringConcise() {
-        return getRelations().toString();
+        return getRelation().toString();
     }
 
     @Override
@@ -220,6 +220,6 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         // relations for possible disambiguation.
 
         return MultipleRelations.compareMultipleRelations(this.relations,
-                other.getRelations());
+                other.getRelation());
     }
 }
