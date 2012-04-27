@@ -38,10 +38,10 @@ public class KTailInvariantMiner {
         TemporalInvariantSet invars = new TemporalInvariantSet();
 
         // k equal to 1 handled by immediate invariants
-        if (k > 0) {
+        if (k > 1) {
 
             // Mine kTails for all values from 1 to k
-            for (int i = 1; i <= k; i++) {
+            for (int i = 2; i <= k; i++) {
                 computeInvariants(invars, g, i);
             }
         }
