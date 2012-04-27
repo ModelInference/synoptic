@@ -43,7 +43,7 @@ public interface ITemporalInvariant {
      * 
      * @return the relation occurring in this invariant
      */
-    Set<String> getRelations();
+    String getRelation();
 
     /**
      * Get the set of predicates occurring in this property. Predicates are here

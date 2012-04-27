@@ -31,7 +31,7 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     protected int firstRoleId = 0;
     protected int secondRoleId = 0;
 
-    protected Set<String> relations;
+    protected String relation;
 
     // CACHE:
     private Graph automaton;
@@ -43,20 +43,13 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
 
     public BinaryInvariant(BinaryInvariant bInv) {
         this(bInv.getFirst(), bInv.getSecond());
-        relations = bInv.getRelations();
+        relation = bInv.getRelation();
     }
 
     public BinaryInvariant(EventType typeFirst, EventType typeSecond,
-            Set<String> relations) {
+            String relations) {
         this(typeFirst, typeSecond);
-        this.relations = relations;
-    }
-
-    public BinaryInvariant(EventType typeFirst, EventType typeSecond,
-            String relation) {
-        this(typeFirst, typeSecond);
-        this.relations = new LinkedHashSet<String>();
-        relations.add(relation);
+        this.relation = relations;
     }
 
     @Override
@@ -65,8 +58,8 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     }
 
     @Override
-    public Set<String> getRelations() {
-        return relations;
+    public String getRelation() {
+        return relation;
     }
 
     // /**
@@ -131,7 +124,7 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
         int result = getClass().hashCode();
         result = prime * result + (first == null ? 0 : first.hashCode());
         result = prime * result
-                + (relations == null ? 0 : relations.hashCode());
+                + (relation == null ? 0 : relation.hashCode());
         result = prime * result + (second == null ? 0 : second.hashCode());
         return result;
     }
@@ -156,11 +149,11 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
             return false;
         }
 
-        if (relations == null) {
-            if (other.relations != null) {
+        if (relation == null) {
+            if (other.relation != null) {
                 return false;
             }
-        } else if (!relations.equals(other.relations)) {
+        } else if (!relation.equals(other.relation)) {
             return false;
         }
 

@@ -44,7 +44,7 @@ public abstract class ConcurrencyInvariant extends BinaryInvariant {
 
         result = prime * result + (f + s);
         result = prime * result
-                + (relations == null ? 0 : relations.hashCode());
+                + (relation == null ? 0 : relation.hashCode());
         return result;
     }
 
@@ -87,11 +87,11 @@ public abstract class ConcurrencyInvariant extends BinaryInvariant {
             return false;
         }
 
-        if (relations == null) {
-            if (other.getRelations() != null) {
+        if (relation == null) {
+            if (other.getRelation() != null) {
                 return false;
             }
-        } else if (!relations.equals(other.getRelations())) {
+        } else if (!relation.equals(other.getRelation())) {
             return false;
         }
 

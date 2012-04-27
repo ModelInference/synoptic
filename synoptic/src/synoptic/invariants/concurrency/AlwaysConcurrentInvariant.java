@@ -26,10 +26,10 @@ public class AlwaysConcurrentInvariant extends ConcurrencyInvariant {
         String f = first.toString();
         String s = second.toString();
         if (f.hashCode() <= s.hashCode()) {
-            return f + " AlwaysConcurrentWith(" + relations.toString() + ") "
+            return f + " AlwaysConcurrentWith(" + relation.toString() + ") "
                     + s;
         }
-        return s + " AlwaysConcurrentWith(" + relations.toString() + ") " + f;
+        return s + " AlwaysConcurrentWith(" + relation.toString() + ") " + f;
     }
 
     @Override

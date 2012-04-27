@@ -240,7 +240,7 @@ public class Partition implements INode<Partition> {
             ITransition<Partition> trans) {
 
         for (ITransition<EventNode> t : event.getAllTransitions()) {
-            if (t.getRelations().equals(trans.getRelations())
+            if (t.getRelation().equals(trans.getRelation())
                     && t.getTarget().getParent().equals(trans.getTarget())) {
                 // TODO: Shouldn't this check and return true only if the
                 // condition holds for _all_ transitions t (not just some
@@ -349,7 +349,7 @@ public class Partition implements INode<Partition> {
                 double probability = (double) numOutgoing
                         / (double) totalChildren;
                 WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
-                        this, tr.getTarget(), tr.getRelations(), probability,
+                        this, tr.getTarget(), tr.getRelation(), probability,
                         numOutgoing);
                 trsWeighted.add(trWeighted);
             }
@@ -369,7 +369,7 @@ public class Partition implements INode<Partition> {
                 double probability = (double) numOutgoing
                         / (double) totalAtSource;
                 WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
-                        this, tr.getTarget(), tr.getRelations(), probability,
+                        this, tr.getTarget(), tr.getRelation(), probability,
                         numOutgoing);
                 trsWeighted.add(trWeighted);
             }
@@ -465,7 +465,7 @@ public class Partition implements INode<Partition> {
                 // Refactor this into a new kind of Transition constructor? Or a
                 // helper method.
                 Transition<Partition> tx = new Transition<Partition>(this, tr
-                        .getTarget().getParent(), tr.getRelations());
+                        .getTarget().getParent(), tr.getRelation());
                 updateTransitionDeltas(e, tr.getTarget(), tx);
                 ret.add(tx);
             }
@@ -493,7 +493,7 @@ public class Partition implements INode<Partition> {
             for (ITransition<EventNode> tr : e
                     .getTransitionsWithExactRelations(relations)) {
                 Transition<Partition> tx = new Transition<Partition>(this, tr
-                        .getTarget().getParent(), tr.getRelations());
+                        .getTarget().getParent(), tr.getRelation());
                 updateTransitionDeltas(e, tr.getTarget(), tx);
                 ret.add(tx);
             }

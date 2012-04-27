@@ -239,7 +239,7 @@ public class GraphExporter {
                                 .edgeToStringWithTraceId(nodeSrc, nodeDst,
                                         ((EventNode) ((INode<?>) trans
                                                 .getSource())).getTraceID(),
-                                        trans.getRelations());
+                                        trans.getRelation());
                     } else {
                         if (outputEdgeLabels) {
 
@@ -255,19 +255,19 @@ public class GraphExporter {
                                 s = SynopticMain.getInstance().graphExportFormatter
                                         .edgeToStringWithITime(nodeSrc,
                                                 nodeDst, time,
-                                                trans.getRelations());
+                                                trans.getRelation());
 
                             } else {
                                 double prob = ((WeightedTransition<T>) trans)
                                         .getFraction();
                                 s = SynopticMain.getInstance().graphExportFormatter
                                         .edgeToStringWithProb(nodeSrc, nodeDst,
-                                                prob, trans.getRelations());
+                                                prob, trans.getRelation());
                             }
                         } else {
                             s = SynopticMain.getInstance().graphExportFormatter
                                     .edgeToStringWithNoProb(nodeSrc, nodeDst,
-                                            trans.getRelations());
+                                            trans.getRelation());
                         }
                     }
                     writer.write(s);

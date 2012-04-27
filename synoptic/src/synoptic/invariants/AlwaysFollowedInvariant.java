@@ -45,7 +45,7 @@ public class AlwaysFollowedInvariant extends BinaryInvariant {
 
     @Override
     public String toString() {
-        return first.toString() + " AlwaysFollowedBy(" + relations.toString()
+        return first.toString() + " AlwaysFollowedBy(" + relation.toString()
                 + ") " + second.toString();
     }
 

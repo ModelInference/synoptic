@@ -301,6 +301,12 @@ public class Bisimulation {
         Partition nextPartition = null;
         Partition curPartition = null;
         // logger.fine("" + counterexampleTrace.path);
+
+        // TODO: retrieve an interned copy of this set
+        String relation = counterexampleTrace.invariant.getRelation();
+        Set<String> relationSet = new LinkedHashSet<String>();
+        relationSet.add(relation);
+
         // Walk along the path
         for (Partition part : counterexampleTrace.path) {
             if (part == null) {
@@ -318,11 +324,10 @@ public class Bisimulation {
             }
             // Compute the valid successor messages in the original trace.
             LinkedHashSet<EventNode> successorEvents = new LinkedHashSet<EventNode>();
-            Set<String> relations = counterexampleTrace.invariant
-                    .getRelations();
+
             for (EventNode m : hot) {
                 for (ITransition<EventNode> t : m
-                        .getTransitionsWithIntersectingRelations(relations)) {
+                        .getTransitionsWithIntersectingRelations(relationSet)) {
                     // successorEvents.addAll(m.getSuccessors(relations));
                     successorEvents.add(t.getTarget());
                 }
@@ -331,12 +336,11 @@ public class Bisimulation {
         }
 
         ITransition<Partition> outgoingTransition = curPartition
-                .getTransitionWithExactRelation(nextPartition,
-                        counterexampleTrace.invariant.getRelations());
+                .getTransitionWithExactRelation(nextPartition, relationSet);
         ITransition<Partition> incomingTransition = null;
         if (prevPartition != null) {
             incomingTransition = prevPartition.getTransitionWithExactRelation(
-                    curPartition, counterexampleTrace.invariant.getRelations());
+                    curPartition, relationSet);
         }
         if (outgoingTransition != null) {
             // logger.fine("outgoingTrans:" + outgoingTransition);
@@ -351,7 +355,7 @@ public class Bisimulation {
         if (incomingTransition != null && incomingTransitionSplit) {
             // logger.fine("incomingTrans:" + incomingTransition);
 
-            Set<String> relations = incomingTransition.getRelations();
+            Set<String> relations = incomingTransition.getRelation();
             PartitionSplit newSplit;
             if (relations.size() == 1) {
                 // Single relation case.
