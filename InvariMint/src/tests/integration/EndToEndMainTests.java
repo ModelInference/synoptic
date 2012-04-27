@@ -25,13 +25,25 @@ import tests.InvariMintTest;
  */
 public class EndToEndMainTests extends InvariMintTest {
 
+    private EventType initial = new StringEventType("INITIAL");
+    private EventType login = new StringEventType("login attempt");
+    private EventType guestLogin = new StringEventType("guest login");
+    private EventType authorized = new StringEventType("authorized");
+    private EventType authFailed = new StringEventType("auth failed");
+    private EventType terminal = new StringEventType("TERMINAL");
+
     /**
-     * Test on osx-login-example in traces/abstract/.
-     * 
-     * @throws Exception
+     * Tests InvariMint on osx-login-example in traces/abstract/.
      */
     @Test
-    public void abstractLogFileTest() throws Exception {
+    public void osxLogFileTest() throws Exception {
+        // String[] events = new String[] { "login attempt", "auth failed",
+        // "login attempt", "authorized", "--", "login attempt",
+        // "auth failed", "authorized", "--", "login attempt",
+        // "authorized", "--", "login attempt", "auth failed",
+        // "login attempt", "auth failed", "login attempt", "authorized",
+        // "--", "login attempt", "guest login", "authorized" };
+
         String tPath = ".." + File.separator + "traces" + File.separator;
         String loginExamplePath = tPath + "abstract" + File.separator
                 + "osx-login-example" + File.separator;
@@ -43,35 +55,49 @@ public class EndToEndMainTests extends InvariMintTest {
         EncodedAutomaton dfa = InvariMintMain.runInvariMint(opts);
 
         List<EventType> sequence = new ArrayList<EventType>();
-        sequence.add(new StringEventType("INITIAL"));
-        sequence.add(new StringEventType("login attempt"));
-        sequence.add(new StringEventType("guest login"));
-        sequence.add(new StringEventType("authorized"));
-        sequence.add(new StringEventType("TERMINAL"));
+        sequence.add(initial);
+        sequence.add(login);
+        sequence.add(guestLogin);
+        sequence.add(authorized);
+        sequence.add(terminal);
         assertTrue(dfa.run(sequence));
 
-        sequence.add(2, new StringEventType("auth failed"));
-        // Now we have INITIAL --> login attempt --> auth failed --> guest login
-        // --> authorized --> TERMINAL (invalid)
+        sequence.clear();
+        sequence.add(initial);
+        sequence.add(login);
+        sequence.add(authFailed);
+        sequence.add(guestLogin);
+        sequence.add(authorized);
+        sequence.add(terminal);
         assertFalse(dfa.run(sequence));
 
-        sequence.remove(3);
-        // Now we have INITIAL --> login attempt --> auth failed
-        // --> authorized --> TERMINAL (valid)
+        sequence.clear();
+        sequence.add(initial);
+        sequence.add(login);
+        sequence.add(authFailed);
+        sequence.add(authorized);
+        sequence.add(terminal);
         assertTrue(dfa.run(sequence));
 
-        sequence.add(3, new StringEventType("login attempt"));
-        sequence.add(4, new StringEventType("auth failed"));
-        sequence.add(5, new StringEventType("login attempt"));
-        // Now we have INITIAL --> login attempt --> auth failed --> login
-        // attempt --> auth failed --> login attempt
-        // --> authorized --> TERMINAL (valid)
+        sequence.clear();
+        sequence.add(initial);
+        sequence.add(login);
+        sequence.add(authFailed);
+        sequence.add(login);
+        sequence.add(authFailed);
+        sequence.add(login);
+        sequence.add(authorized);
+        sequence.add(terminal);
         assertTrue(dfa.run(sequence));
 
-        sequence.remove(6);
-        // Now we have INITIAL --> login attempt --> auth failed --> login
-        // attempt --> auth failed --> login attempt
-        // --> TERMINAL (invalid)
+        sequence.clear();
+        sequence.add(initial);
+        sequence.add(login);
+        sequence.add(authFailed);
+        sequence.add(login);
+        sequence.add(authFailed);
+        sequence.add(login);
+        sequence.add(terminal);
         assertFalse(dfa.run(sequence));
     }
 }
