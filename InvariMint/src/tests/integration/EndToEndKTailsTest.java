@@ -19,13 +19,24 @@ import synoptic.model.event.StringEventType;
 import tests.InvariMintTest;
 
 public class EndToEndKTailsTest extends InvariMintTest {
+
+    private EventType initial = new StringEventType("INITIAL");
+    private EventType x = new StringEventType("x");
+    private EventType y = new StringEventType("y");
+    private EventType z = new StringEventType("z");
+    private EventType c = new StringEventType("c");
+    private EventType d = new StringEventType("d");
+    private EventType f = new StringEventType("f");
+    private EventType terminal = new StringEventType("TERMINAL");
+
     /**
-     * Test on osx-login-example in traces/abstract/.
+     * Test on abstract log example in traces/abstract/ktails-test.
      * 
      * @throws Exception
      */
     @Test
     public void simpleLogTest() throws Exception {
+
         String tPath = ".." + File.separator + "traces" + File.separator
                 + "abstract" + File.separator + "ktails-test" + File.separator;
 
@@ -38,20 +49,30 @@ public class EndToEndKTailsTest extends InvariMintTest {
         EncodedAutomaton dfa = InvariMintMain.runInvariMint(opts);
 
         List<EventType> sequence = new ArrayList<EventType>();
-        sequence.add(new StringEventType("INITIAL"));
-        sequence.add(new StringEventType("x"));
-        sequence.add(new StringEventType("y"));
-        sequence.add(new StringEventType("z"));
-        sequence.add(new StringEventType("d"));
-        sequence.add(new StringEventType("TERMINAL"));
+        sequence.add(initial);
+        sequence.add(x);
+        sequence.add(y);
+        sequence.add(z);
+        sequence.add(d);
+        sequence.add(terminal);
         assertTrue(dfa.run(sequence));
 
-        sequence.remove(4);
-        sequence.add(4, new StringEventType("c"));
+        sequence.clear();
+        sequence.add(initial);
+        sequence.add(x);
+        sequence.add(y);
+        sequence.add(z);
+        sequence.add(c);
+        sequence.add(terminal);
         assertTrue(dfa.run(sequence));
 
-        sequence.remove(4);
-        sequence.add(4, new StringEventType("f"));
+        sequence.clear();
+        sequence.add(initial);
+        sequence.add(x);
+        sequence.add(y);
+        sequence.add(z);
+        sequence.add(f);
+        sequence.add(terminal);
         assertFalse(dfa.run(sequence));
 
     }

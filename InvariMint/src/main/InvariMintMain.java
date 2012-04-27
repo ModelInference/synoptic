@@ -75,6 +75,9 @@ public class InvariMintMain {
         dfa.exportDotAndPng(opts.outputPathPrefix + ".invarimintDFA.dot");
     }
 
+    /**
+     * Performs InvariMint with the given set of options, returns the final dfa.
+     */
     public static EncodedAutomaton runInvariMint(InvariMintOptions opts)
             throws Exception {
 
@@ -86,20 +89,22 @@ public class InvariMintMain {
         // Mine invariants -- will be Synoptic invariants or kTail invariants
         // depending on opts.
         TemporalInvariantSet minedInvs = mineInvariants(opts, inputGraph);
+        logger.fine("Mined " + minedInvs.numInvariants()
+                + (opts.performKTails ? " KTail" : " Synoptic")
+                + " invariant(s).");
+        logger.fine(minedInvs.toPrettyString());
 
         // Construct initial DFA from NIFby invariants.
         ImmediateInvariantMiner miner = new ImmediateInvariantMiner(inputGraph);
         TemporalInvariantSet NIFbys = miner.getNIFbyInvariants();
         Set<EventType> allEvents = new HashSet<EventType>(miner.getEventTypes());
 
-        logger.fine("Mined " + minedInvs.numInvariants()
-                + " NIFby invariant(s).");
+        logger.fine("Mined " + NIFbys.numInvariants() + " NIFby invariant(s).");
         logger.fine(NIFbys.toPrettyString());
 
         EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
         EncodedAutomaton dfa = null;
 
-        System.out.println("NOT PGraphin'");
         dfa = getIntersectedModelFromInvs(NIFbys, encodings, opts);
 
         // Apply initial/terminal condition
@@ -117,12 +122,14 @@ public class InvariMintMain {
 
         // Remove paths from the model not found in any input trace
         if (opts.removeSpuriousEdges) {
+            logger.info("Removing spurious edges");
             removeSpuriousEdges(dfa, inputGraph, encodings, initialEvent,
                     terminalEvent);
         }
 
         // Run Synoptic to compare models
         if (opts.runSynoptic) {
+            logger.info("Running Synoptic");
             PartitionGraph pGraph = null;
             if (opts.performKTails) {
                 pGraph = KTails.performKTails(inputGraph, opts.kTailLength);
@@ -132,6 +139,7 @@ public class InvariMintMain {
                 Bisimulation.mergePartitions(pGraph);
             }
 
+            logger.info("Comparing Synoptic and InvariMint models");
             compareTranslatedModel(pGraph, encodings, dfa, opts);
         }
 
@@ -178,6 +186,11 @@ public class InvariMintMain {
             logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
                     + synoptic.main.Options.getOptDesc("help"));
             System.exit(0);
+        }
+
+        if (!opts.runSynoptic
+                && (opts.exportSynopticNFA || opts.exportSynopticDFA)) {
+            logger.severe("Will not export Synoptic models since --runSynoptic is false");
         }
     }
 
