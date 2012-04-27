@@ -5,14 +5,20 @@ import java.util.List;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
-public class APBiRelationInvariant extends BinaryInvariant {
+/**
+ * TODO: describe.
+ */
+public class APBiRelationInvariant extends BinaryInvariant implements
+        IBiRelationalInvariant {
 
-    public APBiRelationInvariant(EventType first, EventType second, 
+    protected String orderingRelation;
+
+    public APBiRelationInvariant(EventType first, EventType second,
             String relation, String orderingRelation) {
         super(first, second, relation);
         this.orderingRelation = orderingRelation;
     }
-    
+
     @Override
     public String getLTLString() {
         throw new UnsupportedOperationException();

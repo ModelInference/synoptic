@@ -32,14 +32,18 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     protected int secondRoleId = 0;
 
     protected Set<String> relations;
-    protected String orderingRelation;
-    
+
     // CACHE:
     private Graph automaton;
 
     private BinaryInvariant(EventType typeFirst, EventType typeSecond) {
         first = typeFirst;
         second = typeSecond;
+    }
+
+    public BinaryInvariant(BinaryInvariant bInv) {
+        this(bInv.getFirst(), bInv.getSecond());
+        relations = bInv.getRelations();
     }
 
     public BinaryInvariant(EventType typeFirst, EventType typeSecond,
@@ -248,9 +252,4 @@ public abstract class BinaryInvariant implements ITemporalInvariant {
     public void setSecondRoleId(int roleId) {
         secondRoleId = roleId;
     }
-    
-    public boolean isBiRelational() {
-        return orderingRelation != null;
-    }
-
 }

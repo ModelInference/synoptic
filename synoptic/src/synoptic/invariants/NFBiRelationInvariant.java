@@ -5,14 +5,20 @@ import java.util.List;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
-public class NFBiRelationInvariant extends BinaryInvariant {
+/**
+ * TODO: describe.
+ */
+public class NFBiRelationInvariant extends BinaryInvariant implements
+        IBiRelationalInvariant {
 
-    public NFBiRelationInvariant(EventType first, EventType second, 
+    protected String orderingRelation;
+
+    public NFBiRelationInvariant(EventType first, EventType second,
             String relation, String orderingRelation) {
         super(first, second, relation);
         this.orderingRelation = orderingRelation;
     }
-    
+
     @Override
     public String getLTLString() {
         throw new UnsupportedOperationException();
