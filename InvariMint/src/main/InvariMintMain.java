@@ -245,26 +245,26 @@ public class InvariMintMain {
     private static TemporalInvariantSet mineInvariants(InvariMintOptions opts,
             ChainsTraceGraph inputGraph) {
 
-        long startTime = System.currentTimeMillis();
-        TemporalInvariantSet minedInvs;
+        TOInvariantMiner miner;
 
         if (opts.performKTails) {
-            logger.info("Mining invariants [KTailInvariMintMiner]..");
-            minedInvs = KTailInvariantMiner.computeInvariants(inputGraph,
-                    false, opts.kTailLength);
-
+            miner = new KTailInvariantMiner(opts.kTailLength);
         } else {
-            TOInvariantMiner miner = new ChainWalkingTOInvMiner();
+            miner = new ChainWalkingTOInvMiner();
             logger.info("Mining invariants [" + miner.getClass().getName()
                     + "]..");
-            minedInvs = miner.computeInvariants(inputGraph, false);
         }
+
+        long startTime = System.currentTimeMillis();
+        logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
+
+        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph,
+                false);
 
         long endTime = System.currentTimeMillis();
         logger.info("Mining took " + (endTime - startTime));
 
-        logger.fine("Mined " + minedInvs.numInvariants()
-                + " kTail invariant(s).");
+        logger.fine("Mined " + minedInvs.numInvariants() + " invariant(s).");
         logger.fine(minedInvs.toPrettyString());
 
         return minedInvs;
