@@ -2,7 +2,9 @@ package synoptic.invariants;
 
 import java.util.List;
 
+import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
+import synoptic.model.event.StringEventType;
 import synoptic.model.interfaces.INode;
 
 /**
@@ -15,6 +17,23 @@ public class APBiRelationInvariant extends BiRelationalInvariant {
     public APBiRelationInvariant(EventType first, EventType second,
             String relation, String orderingRelation) {
         super(first, second, relation, orderingRelation);
+    }
+    
+    public APBiRelationInvariant(EventType firstEvent, EventType secondEvent,
+            String relation) {
+        this(firstEvent, secondEvent, relation, Event.defTimeRelationStr);
+    }
+    
+    public APBiRelationInvariant(EventType firstEvent, String secondEvent,
+            String relation) {
+        this(firstEvent, new StringEventType(secondEvent), relation, 
+                Event.defTimeRelationStr);
+    }
+    
+    public APBiRelationInvariant(String firstEvent, String secondEvent,
+            String relation) {
+        this(new StringEventType(firstEvent), new StringEventType(secondEvent),
+                relation, Event.defTimeRelationStr);
     }
 
     @Override
@@ -58,6 +77,12 @@ public class APBiRelationInvariant extends BiRelationalInvariant {
     @Override
     public String getRegex(char firstC, char secondC) {
         throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public String toString() {
+        return first + " APby(" + relation + ", " + orderingRelation + ") " +
+                second;
     }
 
 }

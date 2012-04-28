@@ -101,25 +101,22 @@ public class ChainWalkingTOInvMiner extends CountingInvariantMiner implements
          */
         Set<EventType> eTypes = new LinkedHashSet<EventType>();
         for (Trace trace : g.getTraces()) {
-            IRelationPath relationPath = null;
             
             if (multipleRelations && !relation.equals(Event.defTimeRelationStr)) {
-                relationPath = trace.getBiRelationalPath(relation, Event.defTimeRelationStr);
+                IRelationPath relationPath = trace.getBiRelationalPath(relation, Event.defTimeRelationStr);
+                relationPaths.add(relationPath);
             } else {
-                Set<IRelationPath> single = trace.getSingleRelationPaths(relation);
-                if (relation.equals(Event.defTimeRelationStr) && single.size() != 1) {
-                    throw new IllegalStateException("Multiple relation subraphs for single relation graph");
+                Set<IRelationPath> subgraphs = trace.getSingleRelationPaths(relation);
+                if (relation.equals(Event.defTimeRelationStr) && subgraphs.size() != 1) {
+                    throw new IllegalStateException("Multiple relation subraphs for ordering relation graph");
                 }
-                relationPath = single.toArray(new IRelationPath[1])[0];
-            }
-                    
-
-            if (relationPath == null) {
-                continue;
+                relationPaths.addAll(subgraphs);
             }
 
-            relationPaths.add(relationPath);
-
+            
+        }
+        
+        for (IRelationPath relationPath : relationPaths) {
             eTypes.addAll(relationPath.getSeen());
             Map<EventType, Integer> relationPathEventCounts = relationPath
                     .getEventCounts();
