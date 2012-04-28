@@ -26,7 +26,7 @@ import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 
 @RunWith(value = Parameterized.class)
-public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
+public class SingleRelationSubgraphsInvariantMiningTests extends SynopticTest {
 
     // Single trace, non closure, variable relation subgraphs
     public final String[] singleElement = { "1 r w" };
@@ -73,7 +73,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
         return Arrays.asList(data);
     }
 
-    public TOLogMultipleRelationInvariantMiningTests(
+    public SingleRelationSubgraphsInvariantMiningTests(
             ITOInvariantMiner minerToUse) {
         miner = minerToUse;
     }
@@ -98,7 +98,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
      * @return an invariant set for the input log
      * @throws Exception
      */
-    public TemporalInvariantSet genInvariants(String[] trace) throws Exception {
+    public TemporalInvariantSet genSingleRelationInvariants(String[] trace) throws Exception {
 
         if (trace.length == 0) {
             throw new IllegalStateException("Trace array is empty");
@@ -111,14 +111,14 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
 
         List<EventNode> events = parser.parseTraceString(traceStr, "test", -1);
         ChainsTraceGraph graph = parser.generateDirectTORelation(events);
-        return miner.computeInvariants(graph, true);
+        return miner.computeInvariants(graph, false);
     }
 
     @Test
     public void singleElement() throws Exception {
         // {"1 r w"};
 
-        TemporalInvariantSet minedInvs = genInvariants(singleElement);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(singleElement);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -137,7 +137,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
     @Test
     public void relationSubgraphIsolatedFromInitial() throws Exception {
         // {"1 w", "2 r x"}
-        TemporalInvariantSet minedInvs = genInvariants(relationSubgraphIsolatedFromInitial);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(relationSubgraphIsolatedFromInitial);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -173,7 +173,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
     @Test
     public void relationSubgraphIsolatedFromTerminal() throws Exception {
         // {"1 r w", "2 x"}
-        TemporalInvariantSet minedInvs = genInvariants(relationSubgraphIsolatedFromTerminal);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(relationSubgraphIsolatedFromTerminal);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -203,7 +203,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
     @Test
     public void relationSubgraphIsolatedFromSpecialNodes() throws Exception {
         // {"1 w", "2 r x", "3 y"}
-        TemporalInvariantSet minedInvs = genInvariants(relationSubgraphIsolatedFromSpecialNodes);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(relationSubgraphIsolatedFromSpecialNodes);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -256,7 +256,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
     @Test
     public void multipleIsolatedRelationSubgraphs() throws Exception {
         // {"1 v", "2 r w", "3 x", "4 r y", "5 z"}
-        TemporalInvariantSet minedInvs = genInvariants(multipleIsolatedRelationSubgraphs);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(multipleIsolatedRelationSubgraphs);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -349,30 +349,17 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
         trueInvs.add(new NeverFollowedInvariant("z", "y",
                 Event.defTimeRelationStr));
 
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "v", r));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w", r));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "x", r));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "y", r));
-
         trueInvs.add(new AlwaysFollowedInvariant("v", "w", r));
-        trueInvs.add(new AlwaysFollowedInvariant("v", "x", r));
-        trueInvs.add(new AlwaysFollowedInvariant("v", "y", r));
-        trueInvs.add(new AlwaysFollowedInvariant("w", "x", r));
-        trueInvs.add(new AlwaysFollowedInvariant("w", "y", r));
         trueInvs.add(new AlwaysFollowedInvariant("x", "y", r));
 
         trueInvs.add(new AlwaysPrecedesInvariant("v", "w", r));
-        trueInvs.add(new AlwaysPrecedesInvariant("v", "x", r));
-        trueInvs.add(new AlwaysPrecedesInvariant("v", "y", r));
-        trueInvs.add(new AlwaysPrecedesInvariant("w", "x", r));
-        trueInvs.add(new AlwaysPrecedesInvariant("w", "y", r));
         trueInvs.add(new AlwaysPrecedesInvariant("x", "y", r));
 
+        trueInvs.add(new NeverFollowedInvariant("v", "x", r));
+        trueInvs.add(new NeverFollowedInvariant("v", "y", r));
         trueInvs.add(new NeverFollowedInvariant("w", "v", r));
+        trueInvs.add(new NeverFollowedInvariant("w", "x", r));
+        trueInvs.add(new NeverFollowedInvariant("w", "y", r));
         trueInvs.add(new NeverFollowedInvariant("x", "v", r));
         trueInvs.add(new NeverFollowedInvariant("y", "v", r));
         trueInvs.add(new NeverFollowedInvariant("x", "w", r));
@@ -391,7 +378,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
     public void eventPairSubgraphIsolatedFromInitial() throws Exception {
         // "1 w", "2 x", "3 r y"
 
-        TemporalInvariantSet minedInvs = genInvariants(eventPairSubgraphIsolatedFromInitial);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(eventPairSubgraphIsolatedFromInitial);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -449,7 +436,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
     public void multipleIsolatedEventPairSubgraphs() throws Exception {
         // "1 u", "2 v", "3 r w", "4 x", "5 y", "6 r z"
 
-        TemporalInvariantSet minedInvs = genInvariants(multipleIsolatedEventPairSubgraphs);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(multipleIsolatedEventPairSubgraphs);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -577,27 +564,11 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
         trueInvs.add(new NeverFollowedInvariant("z", "y",
                 Event.defTimeRelationStr));
 
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "v", r));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w", r));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "y", r));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "z", r));
 
         trueInvs.add(new AlwaysFollowedInvariant("v", "w", r));
-        trueInvs.add(new AlwaysFollowedInvariant("v", "y", r));
-        trueInvs.add(new AlwaysFollowedInvariant("v", "z", r));
-        trueInvs.add(new AlwaysFollowedInvariant("w", "y", r));
-        trueInvs.add(new AlwaysFollowedInvariant("w", "z", r));
         trueInvs.add(new AlwaysFollowedInvariant("y", "z", r));
 
         trueInvs.add(new AlwaysPrecedesInvariant("v", "w", r));
-        trueInvs.add(new AlwaysPrecedesInvariant("v", "y", r));
-        trueInvs.add(new AlwaysPrecedesInvariant("v", "z", r));
-        trueInvs.add(new AlwaysPrecedesInvariant("w", "y", r));
-        trueInvs.add(new AlwaysPrecedesInvariant("w", "z", r));
         trueInvs.add(new AlwaysPrecedesInvariant("y", "z", r));
 
         trueInvs.add(new NeverFollowedInvariant("v", "v", r));
@@ -605,7 +576,11 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
         trueInvs.add(new NeverFollowedInvariant("y", "y", r));
         trueInvs.add(new NeverFollowedInvariant("z", "z", r));
 
+        trueInvs.add(new NeverFollowedInvariant("v", "y", r));
+        trueInvs.add(new NeverFollowedInvariant("v", "z", r));
         trueInvs.add(new NeverFollowedInvariant("w", "v", r));
+        trueInvs.add(new NeverFollowedInvariant("w", "y", r));
+        trueInvs.add(new NeverFollowedInvariant("w", "z", r));
         trueInvs.add(new NeverFollowedInvariant("y", "v", r));
         trueInvs.add(new NeverFollowedInvariant("z", "v", r));
         trueInvs.add(new NeverFollowedInvariant("y", "w", r));
@@ -618,7 +593,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
     @Test
     public void singleClosureElement() throws Exception {
         // {"1 r cl w"}
-        TemporalInvariantSet minedInvs = genInvariants(singleClosureElement);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(singleClosureElement);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -637,7 +612,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
     @Test
     public void singleNonTimeClosure() throws Exception {
         // {"1 v", "2 r cl w"}
-        TemporalInvariantSet minedInvs = genInvariants(singleNonTimeClosure);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(singleNonTimeClosure);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -672,7 +647,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
     @Test
     public void doubleNonTimeClosure() throws Exception {
         // {"1 v", "2 r cl w", "3 x", "4 r cl y"}
-        TemporalInvariantSet minedInvs = genInvariants(doubleNonTimeClosure);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(doubleNonTimeClosure);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -755,7 +730,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
     @Test
     public void closureIntoAndOutOfRegular() throws Exception {
         // {"1 r v", "2 w", "3 r cl x", "4 r y"}
-        TemporalInvariantSet minedInvs = genInvariants(closureIntoAndOutOfRegular);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(closureIntoAndOutOfRegular);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -848,7 +823,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
     @Test
     public void disjointClosureAndRegularSubgraphs() throws Exception {
         // {"1 v", "2 r cl w", "3 x", "4 r y"}
-        TemporalInvariantSet minedInvs = genInvariants(disjointClosureAndRegularSubgraphs);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(disjointClosureAndRegularSubgraphs);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -912,25 +887,16 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
         trueInvs.add(new NeverFollowedInvariant("y", "x",
                 Event.defTimeRelationStr));
 
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w", r));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "x", r));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "y", r));
-
-        trueInvs.add(new AlwaysFollowedInvariant("w", "x", r));
-        trueInvs.add(new AlwaysFollowedInvariant("w", "y", r));
         trueInvs.add(new AlwaysFollowedInvariant("x", "y", r));
 
-        trueInvs.add(new AlwaysPrecedesInvariant("w", "x", r));
-        trueInvs.add(new AlwaysPrecedesInvariant("w", "y", r));
         trueInvs.add(new AlwaysPrecedesInvariant("x", "y", r));
 
         trueInvs.add(new NeverFollowedInvariant("w", "w", r));
         trueInvs.add(new NeverFollowedInvariant("x", "x", r));
         trueInvs.add(new NeverFollowedInvariant("y", "y", r));
 
+        trueInvs.add(new NeverFollowedInvariant("w", "x", r));
+        trueInvs.add(new NeverFollowedInvariant("w", "y", r));
         trueInvs.add(new NeverFollowedInvariant("x", "w", r));
         trueInvs.add(new NeverFollowedInvariant("y", "w", r));
         trueInvs.add(new NeverFollowedInvariant("y", "x", r));
@@ -941,7 +907,7 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
     @Test
     public void disjointClosureAndEventPairSubgraphs() throws Exception {
         // "1 v", "2 r cl w", "3 x", "4 y", "5 r z"
-        TemporalInvariantSet minedInvs = genInvariants(disjointClosureAndEventPairSubgraphs);
+        TemporalInvariantSet minedInvs = genSingleRelationInvariants(disjointClosureAndEventPairSubgraphs);
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
@@ -1034,25 +1000,16 @@ public class TOLogMultipleRelationInvariantMiningTests extends SynopticTest {
         trueInvs.add(new NeverFollowedInvariant("z", "y",
                 Event.defTimeRelationStr));
 
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "w", r));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "y", r));
-        trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "z", r));
-
-        trueInvs.add(new AlwaysFollowedInvariant("w", "y", r));
-        trueInvs.add(new AlwaysFollowedInvariant("w", "z", r));
         trueInvs.add(new AlwaysFollowedInvariant("y", "z", r));
 
-        trueInvs.add(new AlwaysPrecedesInvariant("w", "y", r));
-        trueInvs.add(new AlwaysPrecedesInvariant("w", "z", r));
         trueInvs.add(new AlwaysPrecedesInvariant("y", "z", r));
 
         trueInvs.add(new NeverFollowedInvariant("w", "w", r));
         trueInvs.add(new NeverFollowedInvariant("y", "y", r));
         trueInvs.add(new NeverFollowedInvariant("z", "z", r));
 
+        trueInvs.add(new NeverFollowedInvariant("w", "y", r));
+        trueInvs.add(new NeverFollowedInvariant("w", "z", r));
         trueInvs.add(new NeverFollowedInvariant("y", "w", r));
         trueInvs.add(new NeverFollowedInvariant("z", "w", r));
         trueInvs.add(new NeverFollowedInvariant("z", "y", r));

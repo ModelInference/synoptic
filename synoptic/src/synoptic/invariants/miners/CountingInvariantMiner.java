@@ -101,8 +101,13 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
         // Determine all the INITIAL AFby x invariants to represent
         // "eventually x"
         for (EventType label : AlwaysFollowsINITIALSet) {
-            invariants.add(new AlwaysFollowedInvariant(StringEventType
-                    .newInitialStringEventType(), label, relation));
+            if (multipleRelations) {
+                invariants.add(new AFBiRelationInvariant(StringEventType
+                        .newInitialStringEventType(), label, relation));
+            } else {
+                invariants.add(new AlwaysFollowedInvariant(StringEventType
+                        .newInitialStringEventType(), label, relation));
+            }
         }
 
         return invariants;
