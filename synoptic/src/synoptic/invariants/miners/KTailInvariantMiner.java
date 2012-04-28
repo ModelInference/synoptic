@@ -17,23 +17,29 @@ import synoptic.util.InternalSynopticException;
  * 
  * @author jennyabrahamson
  */
-public class KTailInvariantMiner {
+public class KTailInvariantMiner implements TOInvariantMiner {
+
+    private int k;
+
+    public KTailInvariantMiner(int k) {
+        this.k = k;
+    }
 
     /**
      * NOTE: multiple-relations mining of KTail invariants is not supported.
      */
-    public static TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            boolean multipleRelations, int k) {
+    @Override
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+            boolean multipleRelations) {
         assert multipleRelations == false;
-        return computeInvariants(g, k);
+        return computeInvariants(g);
     }
 
     /**
      * Returns the set of all KTail invariants for k from 1 to k for the given
      * trace graph g.
      */
-    public static TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            int k) {
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
 
         TemporalInvariantSet invars = new TemporalInvariantSet();
 
@@ -52,7 +58,7 @@ public class KTailInvariantMiner {
      * Adds all kTail invariants for k = kVal to the set of KTailInvariants
      * invars.
      */
-    private static void computeInvariants(TemporalInvariantSet invars,
+    private void computeInvariants(TemporalInvariantSet invars,
             ChainsTraceGraph g, int kVal) {
 
         EventNode initNode = g.getDummyInitialNode();
