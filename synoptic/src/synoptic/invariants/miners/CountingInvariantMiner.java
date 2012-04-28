@@ -4,13 +4,17 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import synoptic.invariants.AFBiRelationInvariant;
+import synoptic.invariants.APBiRelationInvariant;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NFBiRelationInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.concurrency.AlwaysConcurrentInvariant;
 import synoptic.invariants.concurrency.NeverConcurrentInvariant;
 import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 import synoptic.util.InternalSynopticException;
@@ -49,7 +53,8 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
             Map<EventType, Map<EventType, Integer>> gFollowedByCnts,
             Map<EventType, Map<EventType, Integer>> gPrecedesCnts,
             Map<EventType, Set<EventType>> gEventCoOccurrences,
-            Set<EventType> AlwaysFollowsINITIALSet) {
+            Set<EventType> AlwaysFollowsINITIALSet,
+            boolean multipleRelations) {
 
         Set<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
@@ -61,19 +66,34 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                     if (gEventCoOccurrences == null
                             || !alwaysConcurrentWith(gFollowedByCnts,
                                     gEventCoOccurrences, e1, e2)) {
-                        invariants.add(new NeverFollowedInvariant(e1, e2,
-                                relation));
+                        if (multipleRelations) {
+                            invariants.add(new NFBiRelationInvariant(e1, e2, 
+                                    relation, Event.defTimeRelationStr));
+                        } else {
+                            invariants.add(new NeverFollowedInvariant(e1, e2, 
+                                    relation));
+                        }
                     }
                 }
 
                 if (alwaysFollowedBy(gEventCnts, gFollowedByCnts, e1, e2)) {
-                    invariants
-                            .add(new AlwaysFollowedInvariant(e1, e2, relation));
+                    if (multipleRelations) {
+                        invariants.add(new AFBiRelationInvariant(e1, e2, 
+                                relation, Event.defTimeRelationStr));
+                    } else {
+                        invariants.add(new AlwaysFollowedInvariant(e1, e2, 
+                                relation));
+                    }
                 }
 
                 if (alwaysPrecedes(gEventCnts, gPrecedesCnts, e1, e2)) {
-                    invariants
-                            .add(new AlwaysPrecedesInvariant(e1, e2, relation));
+                    if (multipleRelations) {
+                        invariants.add(new APBiRelationInvariant(e1, e2, 
+                                relation, Event.defTimeRelationStr));
+                    } else {
+                        invariants.add(new AlwaysPrecedesInvariant(e1, e2, 
+                                relation));
+                    }
                 }
             }
         }
