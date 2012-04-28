@@ -6,17 +6,15 @@ import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
 /**
- * TODO: describe.
+ * Represents a birelational event invariant in the input 
+ * traces where the first event is always followed by the 
+ * second event.
  */
-public class AFBiRelationInvariant extends BinaryInvariant implements
-        IBiRelationalInvariant {
-
-    protected String orderingRelation;
+public class AFBiRelationInvariant extends BiRelationalInvariant {
 
     public AFBiRelationInvariant(EventType first, EventType second,
             String relation, String orderingRelation) {
-        super(first, second, relation);
-        this.orderingRelation = orderingRelation;
+        super(first, second, relation, orderingRelation);
     }
 
     @Override
@@ -24,10 +22,14 @@ public class AFBiRelationInvariant extends BinaryInvariant implements
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Unlike the other types of invariants' counter-example paths, an AFby
+     * counter-example path cannot be trivially shortened because it must
+     * include the entire path to the TERMINAL node.
+     */
     @Override
     public <T extends INode<T>> List<T> shorten(List<T> path) {
-        // TODO Auto-generated method stub
-        return null;
+        return path;
     }
 
     @Override
