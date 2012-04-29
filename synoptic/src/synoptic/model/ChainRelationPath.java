@@ -84,7 +84,7 @@ public class ChainRelationPath implements IRelationPath {
         List<? extends ITransition<EventNode>> transitions = curNode
                 .getTransitionsWithIntersectingRelations(relationSet);
 
-        while (!transitions.isEmpty()) {
+        while (!transitions.isEmpty() || curNode.equals(eFinal)) {
 
             // TODO: Refactor this well formed transition test into Trace
             // Each node we traverse must have exactly one transition with the
@@ -97,7 +97,7 @@ public class ChainRelationPath implements IRelationPath {
 
             // Each node we traverse must have 1 relation with the relation.
             if (curNode.getTransitionsWithIntersectingRelations(relationSet)
-                    .size() != 1) {
+                    .size() != 1 && !curNode.equals(eFinal)) {
                 throw new InternalSynopticException(
                         "There should be one transition with the "
                                 + relation

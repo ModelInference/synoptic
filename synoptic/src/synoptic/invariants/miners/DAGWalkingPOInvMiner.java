@@ -454,7 +454,7 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
         // Extract the AFby, NFby, AP invariants based on counts.
         Set<ITemporalInvariant> pathInvs = extractPathInvariantsFromWalkCounts(
                 relation, gEventCnts, gFollowedByCnts, gPrecedesCnts,
-                gEventCoOccurrences, gAlwaysFollowsINITIALSet);
+                gEventCoOccurrences, gAlwaysFollowsINITIALSet, false);
 
         if (mineConcurrencyInvariants) {
             // Extract the concurrency invariants based on counts.
