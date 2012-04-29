@@ -41,10 +41,10 @@ import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.WeightedTransition;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.model.export.GraphExporter;
 import synoptic.model.interfaces.INode;
+import synoptic.model.interfaces.ITransition;
 import synoptic.util.time.ITime;
 import synopticgwt.client.ISynopticService;
 import synopticgwt.shared.GWTEdge;
@@ -260,12 +260,12 @@ public class SynopticService extends RemoteServiceServlet implements
              * Get the list of adjacent nodes that have the current pNode as the
              * source.
              */
-            List<WeightedTransition<Partition>> adjacents = pNode
+            List<? extends ITransition<Partition>> adjacents = pNode
                     .getWeightedTransitions();
 
             // For every adjacent node, calculate the likelihood of the
             // transition, and add that to the graph's edge.
-            for (WeightedTransition<Partition> wTransition : adjacents) {
+            for (ITransition<Partition> wTransition : adjacents) {
                 // The current adjacent partition.
                 Partition adjPNode = wTransition.getTarget();
 
@@ -279,7 +279,7 @@ public class SynopticService extends RemoteServiceServlet implements
                     graph.addNode(adjGWTPNode);
                 }
 
-                double transitionProb = wTransition.getFraction();
+                double transitionProb = wTransition.getProbability();
                 ITime mean = wTransition.getDeltaSeries().computeMean();
 
                 GWTEdge edge;
@@ -557,8 +557,8 @@ public class SynopticService extends RemoteServiceServlet implements
         assert (counterExampleTraces.size() > 0);
 
         // Perform a single refinement step.
-        numSplitSteps = Bisimulation.splitOnce(
-                numSplitSteps, pGraph, counterExampleTraces);
+        numSplitSteps = Bisimulation.splitOnce(numSplitSteps, pGraph,
+                counterExampleTraces);
 
         // Recompute the counter-examples for the unsatisfied invariants.
         counterExampleTraces = new TemporalInvariantSet(unsatInvs)

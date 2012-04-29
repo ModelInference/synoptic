@@ -5,9 +5,8 @@ import java.util.Set;
 
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.MultipleRelations;
 import synoptic.util.time.ITime;
-import synoptic.util.time.ITimeSeries;
+import synoptic.util.time.TimeSeries;
 
 /**
  * An implementation of a transition.
@@ -16,23 +15,28 @@ import synoptic.util.time.ITimeSeries;
  * @param <NodeType>
  */
 public class Transition<NodeType> implements ITransition<NodeType> {
+
     protected NodeType source;
     protected NodeType target;
-    protected ITime delta = null;
-    protected ITimeSeries<ITime> series = null;
 
+    TransitionLabelsMap labels;
+
+    // TODO: currently, we are using this field to represent multiple relations,
+    // but eventually we will refactor this away and instead use the
+    // RelationsSet maintained by labels[RELATIONS_LABEL].
     protected Set<String> relations;
 
     private Transition(NodeType source, NodeType target) {
         assert source != null;
-        if (target == null) {
-            return;
-        }
         assert target != null;
 
         this.source = source;
         this.target = target;
+        this.labels = new TransitionLabelsMap();
     }
+
+    // //////////////////////////////////////////////////////////////////////
+    // Constructors.
 
     /**
      * Create a new transition with multiple relations.
@@ -66,6 +70,8 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         this.relations.add(relation);
     }
 
+    // //////////////////////////////////////////////////////////////////////
+
     @Override
     public NodeType getTarget() {
         return target;
@@ -77,66 +83,115 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     }
 
     @Override
+    public TransitionLabelsMap getLabels() {
+        return labels;
+    }
+
+    @Override
     public Set<String> getRelation() {
         return relations;
     }
 
     @Override
-    public ITime getDelta() {
-        if (this.series != null) {
-            throw new IllegalStateException("Series initialized");
-        }
-        return delta;
+    public void setSource(NodeType source) {
+        this.source = source;
     }
 
     @Override
-    public void setDelta(ITime d) {
+    public void setTarget(NodeType target) {
+        this.target = target;
+    }
+
+    // //////////////////////////////////////////////////////////////////////
+    // Methods delegating label-related functionality to labels
+    // TransitionLabelsMap instance.
+
+    @Override
+    public Double getProbability() {
+        return this.labels.getProbability();
+    }
+
+    @Override
+    public void setProbability(double fraction) {
+        this.labels.setLabel(TransitionLabelType.PROBABILITY_LABEL, fraction);
+    }
+
+    @Override
+    public Integer getCount() {
+        return this.labels.getCount();
+    }
+
+    @Override
+    public void addCount(int count) {
+        this.labels.setLabel(TransitionLabelType.COUNT_LABEL, count);
+    }
+
+    // ////////////////////////////
+    // Methods below are also delegating to the labels instance, but are more
+    // elaborate because they also check for state consistency. For example, a
+    // transition is not allowed to maintain both a delta series and a time
+    // delta at thesame time.
+
+    @Override
+    public ITime getTimeDelta() {
+        if (this.labels.getTimeDeltaSeries() != null) {
+            throw new IllegalStateException("Series initialized");
+        }
+        return this.labels.getTimeDelta();
+    }
+
+    @Override
+    public void setTimeDelta(ITime d) {
         if (d == null) {
             throw new IllegalArgumentException();
         }
-        
-        if (this.series != null) {
+
+        if (this.labels.getTimeDeltaSeries() != null) {
             throw new IllegalStateException("Series initialized.");
         }
-        
-        delta = d;
+
+        this.labels.setLabel(TransitionLabelType.TIME_DELTA_LABEL, d);
     }
 
     @Override
-    public ITimeSeries<ITime> getDeltaSeries() {
-        if (this.delta != null) {
+    public TimeSeries<ITime> getDeltaSeries() {
+        if (this.labels.getTimeDelta() != null) {
             throw new IllegalStateException("Delta already set.");
         }
-        
+
         createSeriesIfEmpty();
-        return this.series;
+        return this.labels.getTimeDeltaSeries();
     }
 
     @Override
-    public void addDelta(ITime newDelta) {
+    public void addTimeDeltaToSeries(ITime newDelta) {
         // Should not be able to have a delta and a series at the same
         // time.
-        if (this.delta != null) {
+        if (this.labels.getTimeDelta() != null) {
             throw new IllegalStateException("Delta already set.");
         }
-        
+
         // If delta is null, do not add anything.
         if (newDelta == null) {
             return;
         }
 
         createSeriesIfEmpty();
-        this.series.addDelta(newDelta);
+        TimeSeries<ITime> series = this.labels.getTimeDeltaSeries();
+        series.addDelta(newDelta);
     }
 
     /**
-     * Create the series if one does not exist.
+     * Helper method -- creates the time delta series if one does not exist.
      */
     private void createSeriesIfEmpty() {
-        if (this.series == null) {
-            this.series = new ITimeSeries<ITime>();
+        if (this.labels.getTimeDeltaSeries() == null) {
+            this.labels.setLabel(TransitionLabelType.TIME_DELTA_SERIES_LABEL,
+                    new TimeSeries<ITime>());
         }
     }
+
+    // //////////////////////////////////////////////////////////////////////
 
     @Override
     public int hashCode() {
@@ -146,6 +201,8 @@ public class Transition<NodeType> implements ITransition<NodeType> {
                 + (relations == null ? 0 : relations.hashCode());
         result = prime * result + (source == null ? 0 : source.hashCode());
         result = prime * result + (target == null ? 0 : target.hashCode());
+        // TODO: implement a custom hashCode method for TransitionLabelsMap.
+        result = prime * result + (labels == null ? 0 : labels.hashCode());
         return result;
     }
 
@@ -183,43 +240,34 @@ public class Transition<NodeType> implements ITransition<NodeType> {
         } else if (!target.equals(other.target)) {
             return false;
         }
-        return true;
-    }
 
-    @Override
-    public void setSource(NodeType source) {
-        this.source = source;
-    }
-
-    @Override
-    public void setTarget(NodeType target) {
-        this.target = target;
-    }
-
-    @Override
-    public String toStringConcise() {
-        return getRelation().toString();
+        int cmp = this.labels.compareTo(other.getLabels());
+        return (cmp == 0);
     }
 
     @Override
     public int compareTo(ITransition<NodeType> other) {
         // First compare the sources of the two transitions.
-        int cmpSrc = ((INode<NodeType>) this.source).getEType().compareTo(
+        int cmp = ((INode<NodeType>) this.source).getEType().compareTo(
                 ((INode<NodeType>) other.getSource()).getEType());
-        if (cmpSrc != 0) {
-            return cmpSrc;
+        if (cmp != 0) {
+            return cmp;
         }
 
         // Then, compare the targets of the two transitions.
-        int cmpTarget = ((INode<NodeType>) this.target).getEType().compareTo(
+        cmp = ((INode<NodeType>) this.target).getEType().compareTo(
                 ((INode<NodeType>) other.getTarget()).getEType());
-        if (cmpTarget != 0) {
-            return cmpTarget;
+        if (cmp != 0) {
+            return cmp;
         }
-        // If both the sources and the targets are equal then we use the
-        // relations for possible disambiguation.
-
-        return MultipleRelations.compareMultipleRelations(this.relations,
+        // If both the sources and the targets are equal then compare the
+        // relations:
+        cmp = RelationsSet.compareMultipleRelations(this.relations,
                 other.getRelation());
+        if (cmp != 0) {
+            return cmp;
+        }
+
+        return this.labels.compareTo(other.getLabels());
     }
 }

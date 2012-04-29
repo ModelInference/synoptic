@@ -2,8 +2,9 @@ package synoptic.model.interfaces;
 
 import java.util.Set;
 
+import synoptic.model.TransitionLabelsMap;
 import synoptic.util.time.ITime;
-import synoptic.util.time.ITimeSeries;
+import synoptic.util.time.TimeSeries;
 
 /**
  * A generic interface for a transition. This interface provides method to
@@ -61,7 +62,7 @@ public interface ITransition<NodeType> extends
      * @throws IllegalStateException
      *             if called after a delta series has been set.
      */
-    ITime getDelta();
+    ITime getTimeDelta();
 
     /**
      * Set the delta. Cannot be called after the delta series has been
@@ -72,7 +73,7 @@ public interface ITransition<NodeType> extends
      * @throws IllegalStateException
      *             if called after a delta series has been set.
      */
-    void setDelta(ITime d);
+    void setTimeDelta(ITime d);
 
     /**
      * Returns the series of times contained within the Transition. If there is
@@ -84,7 +85,7 @@ public interface ITransition<NodeType> extends
      * @throws IllegalStateException
      *             if called after a single delta has been set.
      */
-    ITimeSeries<ITime> getDeltaSeries();
+    TimeSeries<ITime> getDeltaSeries();
 
     /**
      * Adds a delta to the series. If the series of deltas is missing, then one
@@ -96,12 +97,32 @@ public interface ITransition<NodeType> extends
      * @throws IllegalStateException
      *             if called after a single delta has been set.
      */
-    void addDelta(ITime d);
+    void addTimeDeltaToSeries(ITime d);
 
     /**
-     * Get a short description of the transition
-     * 
-     * @return a short description
+     * Returns the transition labels associated with this transition.
      */
-    String toStringConcise();
+    TransitionLabelsMap getLabels();
+
+    /**
+     * Returns the probability associated with this transition. If none is
+     * associated, returns null.
+     */
+    Double getProbability();
+
+    /**
+     * Associates a probability value with this transition.
+     */
+    void setProbability(double fraction);
+
+    /**
+     * Returns the count associated with this transition. If none is associated,
+     * returns null.
+     */
+    Integer getCount();
+
+    /**
+     * Associates a count value with this transition.
+     */
+    void addCount(int count);
 }

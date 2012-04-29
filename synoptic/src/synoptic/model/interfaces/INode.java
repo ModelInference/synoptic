@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 
 import synoptic.model.Partition;
-import synoptic.model.WeightedTransition;
 import synoptic.model.event.EventType;
 
 /**
@@ -53,7 +52,7 @@ public interface INode<NodeType> extends Comparable<NodeType> {
      * 
      * @return list of weighted outgoing transition corresponding to this node
      */
-    List<WeightedTransition<NodeType>> getWeightedTransitions();
+    List<? extends ITransition<NodeType>> getWeightedTransitions();
 
     /**
      * Set the parent partition of this node.

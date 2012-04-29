@@ -12,7 +12,7 @@ public abstract class EventType implements Comparable<EventType> {
      * The label used to distinguish the dummy initial node -- constructed to
      * transition to all initial trace log events.
      */
-    public static final String initialNodeLabel = "INITIAL";
+    protected static final String initialNodeLabel = "INITIAL";
 
     /**
      * The label used to distinguish the dummy terminal node -- constructed so

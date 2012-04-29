@@ -53,9 +53,6 @@ public class StringEventType extends EventType {
         if (!super.equals(other)) {
             return false;
         }
-        if (other == this) {
-            return true;
-        }
         return eType.equals(((StringEventType) other).eType);
     }
 
