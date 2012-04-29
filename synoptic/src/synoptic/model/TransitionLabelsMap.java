@@ -42,7 +42,7 @@ public class TransitionLabelsMap implements Comparable<TransitionLabelsMap> {
             throw new IllegalStateException(
                     "Can only add transition labels that are not yet defined.");
         }
-        if (label.getClass() != t.cls) {
+        if (!t.cls.isAssignableFrom(label.getClass())) {
             throw new IllegalStateException(
                     "Inappropriate type of label passed for a label of type: "
                             + t.toString() + ". Expected: " + t.cls.getName()
