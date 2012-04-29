@@ -45,7 +45,8 @@ public class TransitionLabelsMap implements Comparable<TransitionLabelsMap> {
         if (label.getClass() != t.cls) {
             throw new IllegalStateException(
                     "Inappropriate type of label passed for a label of type: "
-                            + t.toString());
+                            + t.toString() + ". Expected: " + t.cls.getName()
+                            + ", Got: " + label.getClass().getName());
         }
         labels.put(t, label);
     }
