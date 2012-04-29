@@ -10,11 +10,24 @@ import java.util.Map;
 /**
  * Encapsulates a list of time instances that extend ITime.
  */
-public class ITimeSeries<TimeType extends ITime> {
+public class TimeSeries<TimeType extends ITime> implements
+        Comparable<TimeSeries<ITime>> {
     private List<TimeType> times;
+    boolean isSorted;
 
-    public ITimeSeries() {
+    public TimeSeries() {
         times = new ArrayList<TimeType>();
+        isSorted = true;
+    }
+
+    /**
+     * If the times list is not sorted, then sorts the list in-place.
+     */
+    private void sort() {
+        if (!isSorted) {
+            Collections.sort(times);
+            isSorted = true;
+        }
     }
 
     /**
@@ -55,16 +68,21 @@ public class ITimeSeries<TimeType extends ITime> {
      *         delta times.
      */
     public TimeType computeMedian() {
-
         if (this.times.isEmpty()) {
             return null;
         }
 
-        Collections.sort(this.times);
+        // Sort the list.
+        sort();
 
-        // TODO: Calculate between the halfway values if the size
-        // of the list is odd.
-        return times.get((times.size() / 2));
+        int middle = times.size() / 2;
+        if (times.size() % 2 == 1) {
+            // Odd length.
+            return times.get(middle);
+        }
+        // Event length.
+        return (TimeType) times.get(middle - 1).incrBy(times.get(middle))
+                .divBy(2);
     }
 
     /**
@@ -90,10 +108,6 @@ public class ITimeSeries<TimeType extends ITime> {
         return (TimeType) initial.divBy(times.size());
     }
 
-    public List<TimeType> getTimes() {
-        return times;
-    }
-
     /**
      * Adds a time for the transition between the source and target nodes.
      * 
@@ -103,6 +117,7 @@ public class ITimeSeries<TimeType extends ITime> {
     public void addDelta(TimeType t) {
         assert t != null;
         times.add(t);
+        isSorted = false;
     }
 
     /**
@@ -114,5 +129,26 @@ public class ITimeSeries<TimeType extends ITime> {
     public void addAllDeltas(Collection<TimeType> deltas) {
         assert deltas != null;
         times.addAll(deltas);
+    }
+
+    @Override
+    public int compareTo(TimeSeries<ITime> o) {
+        int cmp;
+
+        sort();
+        cmp = ((Integer) times.size()).compareTo(o.times.size());
+        if (cmp != 0) {
+            return cmp;
+        }
+
+        int i = 0;
+        for (ITime t : times) {
+            cmp = t.compareTo(o.times.get(i));
+            if (cmp != 0) {
+                return cmp;
+            }
+            i += 1;
+        }
+        return 0;
     }
 }

@@ -81,9 +81,6 @@ public class DistEventType extends EventType {
         if (!super.equals(other)) {
             return false;
         }
-        if (other == this) {
-            return true;
-        }
         return eType.equals(((DistEventType) other).eType)
                 && (processId.equals(((DistEventType) other).processId));
     }

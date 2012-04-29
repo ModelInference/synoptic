@@ -1,4 +1,4 @@
-package synoptic.util;
+package synoptic.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,11 +6,21 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-public class MultipleRelations {
+/**
+ * Represents an unordered collection of relations, used as a label for
+ * transitions that need to be associated with multiple relations.
+ */
+public class RelationsSet implements Comparable<RelationsSet> {
+    Set<String> relations;
 
-    /** Suppress default constructor for non-instantiability */
-    private MultipleRelations() {
-        throw new AssertionError();
+    public Set<String> getRelationsAsSet() {
+        return relations;
+    }
+
+    @Override
+    public int compareTo(RelationsSet o) {
+        return RelationsSet.compareMultipleRelations(relations,
+                o.getRelationsAsSet());
     }
 
     /**
@@ -53,4 +63,5 @@ public class MultipleRelations {
 
         return 0;
     }
+
 }

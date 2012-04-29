@@ -23,7 +23,6 @@ import synoptic.main.SynopticMain;
 import synoptic.main.options.Options;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
-import synoptic.model.WeightedTransition;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -258,8 +257,7 @@ public class GraphExporter {
                                                 trans.getRelation());
 
                             } else {
-                                double prob = ((WeightedTransition<T>) trans)
-                                        .getFraction();
+                                double prob = trans.getProbability();
                                 s = SynopticMain.getInstance().graphExportFormatter
                                         .edgeToStringWithProb(nodeSrc, nodeDst,
                                                 prob, trans.getRelation());

@@ -91,8 +91,8 @@ public class Partition implements INode<Partition> {
         events.addAll(eNodes);
         for (final EventNode e : eNodes) {
             e.setParent(this);
-            // A partition is final if it contains a message event that is a
-            // terminal node in some input trace.
+            // A Partition is allowed to contain only EventNode instances of the
+            // same event type.
             assert eType.equals(e.getEType());
         }
     }
@@ -306,12 +306,13 @@ public class Partition implements INode<Partition> {
      * number of observations.
      */
     @Override
-    public List<WeightedTransition<Partition>> getWeightedTransitions() {
+    public List<? extends ITransition<Partition>> getWeightedTransitions() {
         assert initialized;
 
         List<? extends ITransition<Partition>> transitions = getAllTransitions();
 
-        List<WeightedTransition<Partition>> trsWeighted = new ArrayList<WeightedTransition<Partition>>();
+        // TODO: Cache whether or not the fractions/counts have already been set
+        // on the transitions.
 
         if (this.isInitial()) {
             // We handle INITIAL partitions differently because we optimized the
@@ -348,10 +349,9 @@ public class Partition implements INode<Partition> {
                         .getTarget());
                 double probability = (double) numOutgoing
                         / (double) totalChildren;
-                WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
-                        this, tr.getTarget(), tr.getRelation(), probability,
-                        numOutgoing);
-                trsWeighted.add(trWeighted);
+
+                tr.setProbability(probability);
+                tr.addCount(numOutgoing);
             }
 
         } else {
@@ -368,13 +368,13 @@ public class Partition implements INode<Partition> {
 
                 double probability = (double) numOutgoing
                         / (double) totalAtSource;
-                WeightedTransition<Partition> trWeighted = new WeightedTransition<Partition>(
-                        this, tr.getTarget(), tr.getRelation(), probability,
-                        numOutgoing);
-                trsWeighted.add(trWeighted);
+
+                tr.setProbability(probability);
+                tr.addCount(numOutgoing);
+
             }
         }
-        return trsWeighted;
+        return transitions;
     }
 
     public ITransition<Partition> getTransitionWithExactRelation(Partition p,
@@ -405,9 +405,9 @@ public class Partition implements INode<Partition> {
         }
 
         // 2. Compare number of children.
-        List<WeightedTransition<Partition>> tnsThis = this
+        List<? extends ITransition<Partition>> tnsThis = this
                 .getWeightedTransitions();
-        List<WeightedTransition<Partition>> tnsOther = other
+        List<? extends ITransition<Partition>> tnsOther = other
                 .getWeightedTransitions();
         int childrenCmp = ((Integer) tnsThis.size()).compareTo(tnsOther.size());
         if (childrenCmp != 0) {
@@ -419,9 +419,9 @@ public class Partition implements INode<Partition> {
         Collections.sort(tnsOther);
         int index = 0;
         int transCmp;
-        for (WeightedTransition<Partition> p : tnsThis) {
+        for (ITransition<Partition> p : tnsThis) {
             // Sizes of tnsThis and tnsOther were checked to be equal above.
-            WeightedTransition<Partition> p2 = tnsOther.get(index);
+            ITransition<Partition> p2 = tnsOther.get(index);
             transCmp = p.compareTo(p2);
             if (transCmp != 0) {
                 return transCmp;

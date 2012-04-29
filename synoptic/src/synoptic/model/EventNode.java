@@ -185,7 +185,7 @@ public class EventNode implements INode<EventNode> {
         if (SynopticMain.getInstance().options.enablePerfDebugging) {
             if (dest.getTime() != null) {
                 ITime delta = dest.getTime().computeDelta(this.getTime());
-                transition.setDelta(delta);
+                transition.setTimeDelta(delta);
             }
         }
     }
@@ -280,10 +280,10 @@ public class EventNode implements INode<EventNode> {
         }
 
         // Compare transitions to children.
-        ArrayList<WeightedTransition<EventNode>> thisTrans = new ArrayList<WeightedTransition<EventNode>>(
-                this.getWeightedTransitions());
-        ArrayList<WeightedTransition<EventNode>> otherTrans = new ArrayList<WeightedTransition<EventNode>>(
-                other.getWeightedTransitions());
+        List<? extends ITransition<EventNode>> thisTrans = this
+                .getWeightedTransitions();
+        List<? extends ITransition<EventNode>> otherTrans = other
+                .getWeightedTransitions();
 
         Collections.sort(thisTrans);
         Collections.sort(otherTrans);
@@ -326,16 +326,14 @@ public class EventNode implements INode<EventNode> {
      * with information about frequency and number of observations.
      */
     @Override
-    public List<WeightedTransition<EventNode>> getWeightedTransitions() {
-        List<WeightedTransition<EventNode>> result = new ArrayList<WeightedTransition<EventNode>>();
+    public List<? extends ITransition<EventNode>> getWeightedTransitions() {
         int totalTrans = transitions.size();
         for (Transition<EventNode> tr : transitions) {
             double freq = (double) 1 / (double) totalTrans;
-            WeightedTransition<EventNode> trWeighted = new WeightedTransition<EventNode>(
-                    tr.getSource(), tr.getTarget(), tr.getRelation(), freq, 1);
-            result.add(trWeighted);
+            tr.setProbability(freq);
+            tr.addCount(1);
         }
-        return result;
+        return transitions;
     }
 
     @Override

@@ -10,7 +10,6 @@ import org.junit.Test;
 import synoptic.model.Transition;
 import synoptic.util.time.ITime;
 import synoptic.util.time.ITotalTime;
-import synoptic.util.time.DTotalTime;
 
 /**
  * Tests for verifying proper state when adding/mutating the innards of the
@@ -38,42 +37,41 @@ public class TransitionDeltaTests {
     // is the single delta now null?
     @Test
     public void generateDelta() {
-        assertNull(sTrans.getDelta());
+        assertNull(sTrans.getTimeDelta());
     }
 
     @Test
     public void addDeltaToSeries() {
-        sTrans.addDelta(t);
+        sTrans.addTimeDeltaToSeries(t);
         assertNotNull(sTrans.getDeltaSeries());
-        assertEquals(sTrans.getDeltaSeries().computeMode(),
-                t);
+        assertEquals(sTrans.getDeltaSeries().computeMode(), t);
     }
 
     // Should not be able to add a delta after the delta
     // has been set.
-    @Test (expected = IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void stateExceptionOnAddDeltaAfterSet() {
-        sTrans.setDelta(t);
-        sTrans.addDelta(t);
+        sTrans.setTimeDelta(t);
+        sTrans.addTimeDeltaToSeries(t);
     }
 
     // Should not be able to set the delta after the
     // ITimeSeries has been initialized.
-    @Test (expected = IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void stateExceptionOnSetDelta() {
-        sTrans.addDelta(t);
-        sTrans.setDelta(t);
+        sTrans.addTimeDeltaToSeries(t);
+        sTrans.setTimeDelta(t);
     }
 
-    @Test (expected = IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void stateExceptionOnGetDelta() {
-        sTrans.addDelta(t);
-        sTrans.getDelta();
+        sTrans.addTimeDeltaToSeries(t);
+        sTrans.getTimeDelta();
     }
 
-    @Test (expected = IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void stateExceptionOnGetDeltaSeries() {
-        sTrans.setDelta(t);
+        sTrans.setTimeDelta(t);
         sTrans.getDeltaSeries();
     }
 }

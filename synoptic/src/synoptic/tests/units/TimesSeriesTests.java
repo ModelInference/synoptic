@@ -1,21 +1,23 @@
 package synoptic.tests.units;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.tests.SynopticTest;
-import synoptic.util.time.ITimeSeries;
+import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITotalTime;
+import synoptic.util.time.TimeSeries;
 
-public class ITimesSeriesTests extends SynopticTest {
+public class TimesSeriesTests extends SynopticTest {
 
-    private ITimeSeries<ITotalTime> times;
+    private TimeSeries<ITotalTime> times;
 
     @Before
     public void resettimes() {
-        times = new ITimeSeries<ITotalTime>();
+        times = new TimeSeries<ITotalTime>();
     }
 
     // Does it compute the mode with only one value?
@@ -62,31 +64,41 @@ public class ITimesSeriesTests extends SynopticTest {
     }
 
     @Test
-    public void medianTestManyValues() {
+    public void medianTestOddNumberOfValues() {
         for (int i = 1; i <= 5; i++) {
             times.addDelta(new ITotalTime(i));
         }
 
         assertEquals(new ITotalTime(3), times.computeMedian());
     }
-    
+
+    @Test
+    public void medianTestEvenNumberOfValues() {
+        TimeSeries<DTotalTime> dtimes = new TimeSeries<DTotalTime>();
+        for (int i = 1; i <= 6; i++) {
+            dtimes.addDelta(new DTotalTime(i));
+        }
+
+        assertEquals(new DTotalTime(3.5), dtimes.computeMedian());
+    }
+
     @Test
     public void meanTestOneValue() {
-    	times.addDelta(new ITotalTime(1));
-    	assertEquals(new ITotalTime(1), times.computeMean());
+        times.addDelta(new ITotalTime(1));
+        assertEquals(new ITotalTime(1), times.computeMean());
     }
-    
+
     @Test
     public void meanTestEmpty() {
-    	assertNull(times.computeMean());
+        assertNull(times.computeMean());
     }
-    
+
     @Test
     public void meanTestManyValues() {
-    	times.addDelta(new ITotalTime(1));
-    	times.addDelta(new ITotalTime(2));
-    	times.addDelta(new ITotalTime(5));
-    	times.addDelta(new ITotalTime(8));
-    	assertEquals(new ITotalTime(4), times.computeMean());
+        times.addDelta(new ITotalTime(1));
+        times.addDelta(new ITotalTime(2));
+        times.addDelta(new ITotalTime(5));
+        times.addDelta(new ITotalTime(8));
+        assertEquals(new ITotalTime(4), times.computeMean());
     }
 }
