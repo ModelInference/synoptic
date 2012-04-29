@@ -79,12 +79,17 @@ public class NeverFollowedInvariant extends BinaryInvariant {
      */
     @Override
     public <T extends INode<T>> List<T> shorten(List<T> trace) {
+        return NFShorten(trace, first, second);
+    }
+    
+    static <T extends INode<T>> List<T> NFShorten(List<T> trace, 
+            EventType firstEvent, EventType secondEvent) {
         boolean first_seen = false;
         for (int trace_pos = 0; trace_pos < trace.size(); trace_pos++) {
             T message = trace.get(trace_pos);
-            if (message.getEType().equals(first) && !first_seen) {
+            if (message.getEType().equals(firstEvent) && !first_seen) {
                 first_seen = true;
-            } else if (message.getEType().equals(second) && first_seen) {
+            } else if (message.getEType().equals(secondEvent) && first_seen) {
                 return trace.subList(0, trace_pos + 1);
                 // return BinaryInvariant.removeLoops(..);
             }

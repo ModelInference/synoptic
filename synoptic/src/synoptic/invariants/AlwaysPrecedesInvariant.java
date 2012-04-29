@@ -88,14 +88,19 @@ public class AlwaysPrecedesInvariant extends BinaryInvariant {
      */
     @Override
     public <T extends INode<T>> List<T> shorten(List<T> trace) {
+        return APShorten(trace, first, second);
+    }
+    
+    static <T extends INode<T>> List<T> APShorten(List<T> trace, 
+            EventType firstEvent, EventType secondEvent) {
         for (int trace_pos = 0; trace_pos < trace.size(); trace_pos++) {
             T message = trace.get(trace_pos);
-            if (message.getEType().equals(first)) {
+            if (message.getEType().equals(firstEvent)) {
                 // We found a 'first' before a 'second' (we are assuming that
                 // 'second' does exist later on in the trace).
                 return null;
             }
-            if (message.getEType().equals(second)) {
+            if (message.getEType().equals(secondEvent)) {
                 // We found a 'second' before a 'first'.
                 return trace.subList(0, trace_pos + 1);
                 // return BinaryInvariant.removeLoops(..);
