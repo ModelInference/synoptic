@@ -4,13 +4,13 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import synoptic.invariants.AFBiRelationInvariant;
-import synoptic.invariants.APBiRelationInvariant;
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.NFBiRelationInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
+import synoptic.invariants.birelational.AFBiRelationInvariant;
+import synoptic.invariants.birelational.APBiRelationInvariant;
+import synoptic.invariants.birelational.NFBiRelationInvariant;
 import synoptic.invariants.concurrency.AlwaysConcurrentInvariant;
 import synoptic.invariants.concurrency.NeverConcurrentInvariant;
 import synoptic.model.event.DistEventType;

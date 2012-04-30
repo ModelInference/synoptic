@@ -11,10 +11,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import synoptic.invariants.AFBiRelationInvariant;
-import synoptic.invariants.APBiRelationInvariant;
-import synoptic.invariants.NFBiRelationInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.birelational.AFBiRelationInvariant;
+import synoptic.invariants.birelational.APBiRelationInvariant;
+import synoptic.invariants.birelational.NFBiRelationInvariant;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.main.parser.ParseException;
