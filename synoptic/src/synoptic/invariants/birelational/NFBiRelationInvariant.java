@@ -1,16 +1,16 @@
-package synoptic.invariants;
+package synoptic.invariants.birelational;
 
 import java.util.List;
 
+import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
 import synoptic.model.interfaces.INode;
 
 /**
- * Represents a birelational event invariant in the input 
- * traces where the first event is never followed by the 
- * second event.
+ * Represents a birelational event invariant in the input traces where the first
+ * event is never followed by the second event.
  */
 public class NFBiRelationInvariant extends BiRelationalInvariant {
 
@@ -18,18 +18,18 @@ public class NFBiRelationInvariant extends BiRelationalInvariant {
             String relation, String orderingRelation) {
         super(first, second, relation, orderingRelation);
     }
-    
+
     public NFBiRelationInvariant(EventType firstEvent, EventType secondEvent,
             String relation) {
         this(firstEvent, secondEvent, relation, Event.defTimeRelationStr);
     }
-    
+
     public NFBiRelationInvariant(EventType firstEvent, String secondEvent,
             String relation) {
-        this(firstEvent, new StringEventType(secondEvent), relation, 
+        this(firstEvent, new StringEventType(secondEvent), relation,
                 Event.defTimeRelationStr);
     }
-    
+
     public NFBiRelationInvariant(String firstEvent, String secondEvent,
             String relation) {
         this(new StringEventType(firstEvent), new StringEventType(secondEvent),
@@ -78,11 +78,11 @@ public class NFBiRelationInvariant extends BiRelationalInvariant {
     public String getRegex(char firstC, char secondC) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public String toString() {
-        return first + " NFby(" + relation + ", " + orderingRelation + ") " +
-                second;
+        return first + " NFby(" + relation + ", " + orderingRelation + ") "
+                + second;
     }
 
 }

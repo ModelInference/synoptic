@@ -1,4 +1,4 @@
-package synoptic.invariants;
+package synoptic.invariants.birelational;
 
 import java.util.List;
 
@@ -8,9 +8,8 @@ import synoptic.model.event.StringEventType;
 import synoptic.model.interfaces.INode;
 
 /**
- * Represents a birelational event invariant in the input 
- * traces where the first event is always followed by the 
- * second event.
+ * Represents a birelational event invariant in the input traces where the first
+ * event is always followed by the second event.
  */
 public class AFBiRelationInvariant extends BiRelationalInvariant {
 
@@ -18,18 +17,18 @@ public class AFBiRelationInvariant extends BiRelationalInvariant {
             String relation, String orderingRelation) {
         super(firstEvent, secondEvent, relation, orderingRelation);
     }
-    
+
     public AFBiRelationInvariant(EventType firstEvent, EventType secondEvent,
             String relation) {
         this(firstEvent, secondEvent, relation, Event.defTimeRelationStr);
     }
-    
+
     public AFBiRelationInvariant(EventType firstEvent, String secondEvent,
             String relation) {
-        this(firstEvent, new StringEventType(secondEvent), relation, 
+        this(firstEvent, new StringEventType(secondEvent), relation,
                 Event.defTimeRelationStr);
     }
-    
+
     public AFBiRelationInvariant(String firstEvent, String secondEvent,
             String relation) {
         this(new StringEventType(firstEvent), new StringEventType(secondEvent),
@@ -65,11 +64,11 @@ public class AFBiRelationInvariant extends BiRelationalInvariant {
     public String getRegex(char firstC, char secondC) {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public String toString() {
-        return first + " AFby(" + relation + ", " + orderingRelation + ") " +
-        		second;
+        return first + " AFby(" + relation + ", " + orderingRelation + ") "
+                + second;
     }
 
 }
