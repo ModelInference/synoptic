@@ -4,6 +4,8 @@ import synoptic.util.time.ITime;
 
 /**
  * Represents a time threshold constraint on some temporal invariant.
+ *
+ * 
  */
 public interface IThresholdConstraint {
     /**
