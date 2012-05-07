@@ -16,6 +16,9 @@ import synoptic.model.event.Event;
 import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 
+/**
+ * Work in progress. Currently contains mostly copy-and-pasted code that will be useful.
+ */
 public class ConstrainedInvMinerTests extends SynopticTest {
 	ITOInvariantMiner miner;
 	
