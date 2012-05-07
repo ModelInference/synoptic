@@ -37,4 +37,9 @@ public interface IRelationPath {
      * @return final non-TERMINAL node in this relation path
      */
     public EventNode getLastNode();
+    
+    /**
+     * @return relation that path is over
+     */
+    public String getRelation();
 }

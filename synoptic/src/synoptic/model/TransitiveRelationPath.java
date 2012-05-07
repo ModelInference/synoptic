@@ -286,4 +286,8 @@ public class TransitiveRelationPath implements IRelationPath {
     public EventNode getLastNode() {
     	return this.eFinal;
     }
+    
+    public String getRelation() {
+    	return this.relation;
+    }
 }

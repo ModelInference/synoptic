@@ -209,4 +209,8 @@ public class ChainRelationPath implements IRelationPath {
     public EventNode getLastNode() {
     	return this.eFinal;
     }
+    
+    public String getRelation() {
+    	return this.relation;
+    }
 }
