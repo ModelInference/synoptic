@@ -1,6 +1,7 @@
 package synoptic.invariants.miners;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
@@ -8,11 +9,13 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.constraints.UpperBoundConstraint;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Trace;
+import synoptic.model.Transition;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IRelationPath;
@@ -56,6 +59,7 @@ public class ConstrainedInvMiner extends InvariantMiner implements
     public static TemporalInvariantSet computeInvariants(ChainsTraceGraph g, 
     		boolean multipleRelations, String relation, TemporalInvariantSet invs) {
     	
+    	// The set of constrained invariants that we will be returning.
     	TemporalInvariantSet constrainedInvs = new TemporalInvariantSet();
 
     	// Stores generated RelationPaths
@@ -63,110 +67,116 @@ public class ConstrainedInvMiner extends InvariantMiner implements
     	
         // Loop through the traces.
     	for (Trace trace : g.getTraces()) {
-            IRelationPath relationPath = null;
             
-            if (multipleRelations && !relation.equals(Event.defaultTimeRelationString)) {
-                relationPath = trace.getBiRelationalPath(relation, Event.defaultTimeRelationString);
+            if (multipleRelations && !relation.equals(Event.defTimeRelationStr)) {
+                IRelationPath relationPath = trace.getBiRelationalPath(relation, Event.defTimeRelationStr);
+                relationPaths.add(relationPath);
             } else {
-                Set<IRelationPath> single = trace.getSingleRelationPaths(relation);
-                if (relation.equals(Event.defaultTimeRelationString) && single.size() != 1) {
-                    throw new IllegalStateException("Multiple relation subraphs for single relation graph");
+                Set<IRelationPath> subgraphs = trace.getSingleRelationPaths(relation);
+                if (relation.equals(Event.defTimeRelationStr) && subgraphs.size() != 1) {
+                    throw new IllegalStateException("Multiple relation subraphs for ordering relation graph");
                 }
-                relationPath = single.toArray(new IRelationPath[1])[0];
+                relationPaths.addAll(subgraphs);
             }
-      
-            if (relationPath == null) {
-                continue;
-            }
-            relationPaths.add(relationPath);
+            
     	}
-    
-		// Iterate through all invariants.
-        for (ITemporalInvariant i : invs.getSet()) {
-        	// Found invariants that can be constrained.
-        	if (i instanceof AlwaysFollowedInvariant ||
-        		i instanceof AlwaysPrecedesInvariant) {
-        		        		
-        		EventType a = ((BinaryInvariant) i).getFirst();
+    	
+    	// For each AFby or AP invariant.
+    	// 		For each relationPath.
+    	//			Go through each node in path.
+    	//			Find nodes that match event types for invariant.
+    	//			Find upperBound  
+    	// 			Find and lowerBound to create ConstrainedInvariants.
+    	for (ITemporalInvariant i : invs.getSet()) {
+    		if (i instanceof AlwaysFollowedInvariant || i instanceof AlwaysPrecedesInvariant) {
+    			EventType a = ((BinaryInvariant) i).getFirst();
         		EventType b = ((BinaryInvariant) i).getSecond();
         		
-        		// First occurrence of a.
-        		ITime first = null;
-        		
-        		// Last occurrence of b.
-        		ITime last = null;
-        		
         		ITime lowerBound = null;
-        		
-        		// Track nodes of event a for computing lowerBound;
-        		EventNode recentA = null;
-        		
-        		
-        		for (IRelationPath path : relationPaths) {
-        			//TODO
-        			// 1) Loop through each relationPath
-        			// 2) Retrieve upper and lower bound for invariant like
-        			//    commented out loop below.
-        			// 3) Keep track of each of these lower and upper bounds.
-        			// 4) Get the min of the lower and the max of the upper
-        			// 5) Set the threshold for particular invariant using min and max in 4). 
-            	}
-        		
-        		// Iterate all nodes in graph and check for nodes having
-        		// transitions containing a and b EventType above.
-//        		for (EventNode node : g.getNodes()) {
-//        			if (node.getEType().equals(a)) {
-//        				recentA = node;
-//        				if (first == null) {
-//        					first = node.getTime();
-//        				}
-//        			}
-//        			if (node.getEType().equals(b)) {
-//        				if (recentA != null) {
-//        					ITime delta = node.getTime().computeDelta(recentA.getTime());
-//            				lowerBound = delta;
-//            				// Found new lowerBound.
-//            				if (delta.lessThan(lowerBound)) {
-//            					lowerBound = delta;
-//            				}
-//        				}
-//        				last = node.getTime();
-//        			}
-//        		}
-        		
-        		//TODO 
-        		//Unsure of what to do for this case. For now, 
-        		//for an INITIAL node, set min value to 0 to not
-        		//break code.
-        		if (last == null) {
-        			last = new ITotalTime(0);
+        		ITime upperBound = null;
+        		 
+        		for (IRelationPath relationPath : relationPaths) {
+        			// First occurrence of a and last occurrence of b.
+            		// last - first = upper bound
+            		ITime first = null;
+            		ITime last = null;
+            		
+            		// Track nodes of event type a for computing lowerBound.
+            		EventNode recentA = null;
+        			
+            		EventNode curr = relationPath.getFirstNode();
+            		EventNode end = relationPath.getLastNode();
+            		Transition<EventNode> trans;
+            		            		   
+            		while (true) {
+        				if (curr.getEType().equals(a)) {
+        					recentA = curr;
+        					if (first == null) {
+        						first = curr.getTime();
+        					}
+        				}
+        				
+        				if (curr.getEType().equals(b)) {
+        					// If node of event type a is found already, then we can obtain
+        					// a delta value since we now found node of event type b.
+        					if (recentA != null) {	
+        						ITime delta = curr.getTime().computeDelta(recentA.getTime());
+        						if (lowerBound == null || delta.lessThan(lowerBound)) {
+        							lowerBound = delta;
+        						}
+        					}
+        					last = curr.getTime();
+        				}	
+            			        				
+        				// Dealing with single relation, so only one transition.
+        				trans = curr.getAllTransitions().get(0);
+        				
+        				// Reached ending node in path.
+        				if (curr.equals(end)) {
+        					break;
+        				} else {
+        					curr = trans.getTarget();
+        				}
+            		}
+            		
+            		// relationPath contains the invariant.
+            		// Note: this will exclude invariants with an INITIAL node, since that
+            		// will yield a null lowerbound and upperbound.
+            		if (first != null && last != null) {
+            			ITime delta = last.computeDelta(first);
+            			if (upperBound == null || upperBound.lessThan(delta)) {
+            				upperBound = delta;
+            			}       			
+            		} 		
         		}
         		
-        		ITime upperBound = last.computeDelta(first);
-        		
+        		// TODO used for testing purposes, remove when done.
+        		logger.info("Eventtype a = " + a + ", b = " + b + ", upperbound = " + upperBound + ", lowerbound = " + lowerBound);	
+    		
         		if (i instanceof AlwaysFollowedInvariant) {
         			TempConstrainedInvariant<AlwaysFollowedInvariant> lowerConstrInv =
-            			new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-            					(AlwaysFollowedInvariant) i, new UpperBoundConstraint(lowerBound));
+        				new TempConstrainedInvariant<AlwaysFollowedInvariant>(
+        					(AlwaysFollowedInvariant) i, new LowerBoundConstraint(lowerBound));
         			TempConstrainedInvariant<AlwaysFollowedInvariant> upperConstrInv =
-            			new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-            					(AlwaysFollowedInvariant) i, new UpperBoundConstraint(upperBound));
+        				new TempConstrainedInvariant<AlwaysFollowedInvariant>(
+        					(AlwaysFollowedInvariant) i, new UpperBoundConstraint(upperBound));
+        			
         			constrainedInvs.add(lowerConstrInv);
         			constrainedInvs.add(upperConstrInv);
         		} else { // AlwaysPrecedesInvariant
         			TempConstrainedInvariant<AlwaysPrecedesInvariant> lowerConstrInv =
-            			new TempConstrainedInvariant<AlwaysPrecedesInvariant>(
-            					(AlwaysPrecedesInvariant) i, new UpperBoundConstraint(lowerBound));
+        				new TempConstrainedInvariant<AlwaysPrecedesInvariant>(
+        					(AlwaysPrecedesInvariant) i, new LowerBoundConstraint(lowerBound));
         			TempConstrainedInvariant<AlwaysPrecedesInvariant> upperConstrInv =
-            			new TempConstrainedInvariant<AlwaysPrecedesInvariant>(
-            					(AlwaysPrecedesInvariant) i, new UpperBoundConstraint(upperBound));
+        				new TempConstrainedInvariant<AlwaysPrecedesInvariant>(
+        					(AlwaysPrecedesInvariant) i, new UpperBoundConstraint(upperBound));
+        			
         			constrainedInvs.add(lowerConstrInv);
         			constrainedInvs.add(upperConstrInv);
         		}
-        	}
-        }
-        //return constrainedInvs;
-        return invs;
+    		}
+    	}
+    	return constrainedInvs;
+        //return invs;
     }
 }
-
