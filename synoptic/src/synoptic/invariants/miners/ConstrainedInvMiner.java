@@ -147,10 +147,6 @@ public class ConstrainedInvMiner extends InvariantMiner implements
         Pair<IThresholdConstraint, IThresholdConstraint> constraints = computeConstraints(
                 relationPaths, a, b);
 
-        if (constraints == null) {
-            return constrainedInvs;
-        }
-
         // TODO used for testing purposes, remove when done.
         logger.info("Eventtype a = " + a + ", b = " + b + ", lowerbound = "
                 + constraints.getLeft().getThreshold() + ", upperbound = "
@@ -272,12 +268,6 @@ public class ConstrainedInvMiner extends InvariantMiner implements
                     upperBound = delta;
                 }
             }
-        }
-
-        assert ((lowerBound == null || upperBound != null) || (lowerBound != null || upperBound == null));
-
-        if (lowerBound == null || upperBound == null) {
-            return null;
         }
 
         IThresholdConstraint l = new LowerBoundConstraint(lowerBound);
