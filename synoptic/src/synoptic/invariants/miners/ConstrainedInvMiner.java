@@ -111,16 +111,27 @@ public class ConstrainedInvMiner extends InvariantMiner implements
     		if (!(i instanceof AlwaysFollowedInvariant || i instanceof AlwaysPrecedesInvariant)) {
     			continue; 
     		}
-			computeInvariants(g, relationPaths, i);
+			result.add(computeInvariants(relationPaths, i));
     	}
 
     	//return result;
     	return invs;
     }
-    	
-    public static TemporalInvariantSet computeInvariants(ChainsTraceGraph g, Set<IRelationPath> relationPaths, 
+    
+    /**
+     * Walks each relation path to compute a lower and upper bound constraint for the 
+     * given invariant. Augments the given invariant with the two constraints and
+     * returns them within a TemporalInvariantSet.
+     * 
+     * @param relationPaths
+     * 				set of relation paths to walk
+     * @param i
+     * 				the invariant that is being augmented with constraints
+     * @return the set of augmented constrained invariants
+     */
+    public static TemporalInvariantSet computeInvariants(Set<IRelationPath> relationPaths, 
     		ITemporalInvariant i) {
-    	
+
     	// The set of constrained invariants that we will be returning.
     	TemporalInvariantSet constrainedInvs = new TemporalInvariantSet();
     	
