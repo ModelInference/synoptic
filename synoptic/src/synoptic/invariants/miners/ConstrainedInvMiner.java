@@ -206,68 +206,66 @@ public class ConstrainedInvMiner extends InvariantMiner implements
      * @return IThresholdConstraint pair where the left represents the lower bound
      * 			constraint and the right represents the upper bound constraint
      */
-    private static Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
+    public static Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
     		Set<IRelationPath> relationPaths, EventType a, EventType b) {
 
     	ITime lowerBound = null;
     	ITime upperBound = null; 
     	
-    	//    	For each relationPath.
-    	//		Go through each node in path.
-    	//		Find nodes that match event types for invariant.
-    	//		Find upperBound.  
-    	// 		Find and lowerBound to create ConstrainedInvariants.
 		for (IRelationPath relationPath : relationPaths) {
 			EventNode start = relationPath.getFirstNode();
     		EventNode end = relationPath.getLastNode();
     		
     		// First occurrence of a and last occurrence of b.
         	// last - first = upperBound
-        	ITime first = null;
-        	ITime last = null;
-
+        	ITime firstA = null;
+        	ITime lastB = null;
+        	
         	// Track nodes of event type a for computing lowerBound.
         	EventNode recentA = null;
 
         	Transition<EventNode> trans;
-
+        	
+        	// The current node we're currently at when walking the trace.
+        	EventNode curr = start;
+        	
         	while (true) {
-        		if (start.getEType().equals(a)) {
-        			recentA = start;
-        			if (first == null) {
-        				first = start.getTime();
+        		if (curr.getEType().equals(a)) {
+        			recentA = curr;
+        			if (firstA == null) {
+        				firstA = curr.getTime();
         			}
         		}
 
-        		if (start.getEType().equals(b)) {
+        		if (curr.getEType().equals(b)) {
         			// If node of event type a is found already, then we can obtain
         			// a delta value since we now found node of event type b.
         			if (recentA != null) {	
-        				ITime delta = start.getTime().computeDelta(recentA.getTime());
+        				ITime delta = curr.getTime().computeDelta(recentA.getTime());
         				if (lowerBound == null || delta.lessThan(lowerBound)) {
         					lowerBound = delta;
         				}
         			}
-        			last = start.getTime();
+        			lastB = curr.getTime();
         		}	
     	
         		// Dealing with a TO log, so only one transition available to use.
-        		assert(start.getAllTransitions().size() == 1);
-        		trans = start.getAllTransitions().get(0);
+        		assert(curr.getAllTransitions().size() == 1);
+        		trans = curr.getAllTransitions().get(0);
 
         		// Reached ending node in path.
-        		if (start.equals(end)) {
+        		if (curr.equals(end)) {
         			break;
         		} else {
-        			start = trans.getTarget();
+        			curr = trans.getTarget();
         		}
         	}
 
         	// relationPath contains the invariant.
         	// Note: this will exclude invariants with an INITIAL node, since that
         	// will yield a null lowerbound and upperbound.
-        	if (first != null && last != null) {
-        		ITime delta = last.computeDelta(first);
+        	if (firstA != null && lastB != null) {
+        		ITime delta = lastB.computeDelta(firstA);
         		if (upperBound == null || upperBound.lessThan(delta)) {
         			upperBound = delta;
         		}       			
