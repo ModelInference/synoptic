@@ -22,4 +22,15 @@ public class LowerBoundConstraint implements IThresholdConstraint {
     public boolean evaluate(ITime t) {
         return !(this.bound.lessThan(t));
     }
+
+    @Override
+    public int hashCode() {
+        return bound.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return bound.equals(obj);
+    }
+
 }

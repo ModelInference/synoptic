@@ -91,19 +91,19 @@ public class ConstrainedInvMiner extends InvariantMiner implements
 
         for (ITemporalInvariant i : invs.getSet()) {
             String relation = i.getRelation();
+            boolean isTimeRelation = relation.equals(Event.defTimeRelationStr);
+
             // Loop through the traces.
             for (Trace trace : g.getTraces()) {
 
-                if (multipleRelations
-                        && !relation.equals(Event.defTimeRelationStr)) {
+                if (multipleRelations && !isTimeRelation) {
                     IRelationPath relationPath = trace.getBiRelationalPath(
                             relation, Event.defTimeRelationStr);
                     relationPaths.add(relationPath);
                 } else {
                     Set<IRelationPath> subgraphs = trace
                             .getSingleRelationPaths(relation);
-                    if (relation.equals(Event.defTimeRelationStr)
-                            && subgraphs.size() != 1) {
+                    if (isTimeRelation && subgraphs.size() != 1) {
                         throw new IllegalStateException(
                                 "Multiple relation subraphs for ordering relation graph");
                     }
@@ -119,7 +119,6 @@ public class ConstrainedInvMiner extends InvariantMiner implements
             result.add(computeInvariants(relationPaths, i));
         }
 
-        // return result;
         return invs;
     }
 
@@ -147,6 +146,10 @@ public class ConstrainedInvMiner extends InvariantMiner implements
         // Right pair represents upper bound constraint.
         Pair<IThresholdConstraint, IThresholdConstraint> constraints = computeConstraints(
                 relationPaths, a, b);
+
+        if (constraints == null) {
+            return constrainedInvs;
+        }
 
         // TODO used for testing purposes, remove when done.
         logger.info("Eventtype a = " + a + ", b = " + b + ", lowerbound = "
@@ -236,8 +239,8 @@ public class ConstrainedInvMiner extends InvariantMiner implements
 
                 if (start.getEType().equals(b)) {
                     // If node of event type a is found already, then we can
-                    // obtain
-                    // a delta value since we now found node of event type b.
+                    // obtain a delta value since we now found node of event
+                    // type b.
                     if (recentA != null) {
                         ITime delta = start.getTime().computeDelta(
                                 recentA.getTime());
@@ -262,14 +265,19 @@ public class ConstrainedInvMiner extends InvariantMiner implements
 
             // relationPath contains the invariant.
             // Note: this will exclude invariants with an INITIAL node, since
-            // that
-            // will yield a null lowerbound and upperbound.
+            // that will yield a null lowerbound and upperbound.
             if (first != null && last != null) {
                 ITime delta = last.computeDelta(first);
                 if (upperBound == null || upperBound.lessThan(delta)) {
                     upperBound = delta;
                 }
             }
+        }
+
+        assert ((lowerBound == null || upperBound != null) || (lowerBound != null || upperBound == null));
+
+        if (lowerBound == null || upperBound == null) {
+            return null;
         }
 
         IThresholdConstraint l = new LowerBoundConstraint(lowerBound);
