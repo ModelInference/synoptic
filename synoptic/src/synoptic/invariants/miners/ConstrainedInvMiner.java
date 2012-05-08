@@ -217,53 +217,56 @@ public class ConstrainedInvMiner extends InvariantMiner implements
 
             // First occurrence of a and last occurrence of b.
             // last - first = upperBound
-            ITime first = null;
-            ITime last = null;
+            ITime firstA = null;
+            ITime lastB = null;
 
             // Track nodes of event type a for computing lowerBound.
             EventNode recentA = null;
 
             Transition<EventNode> trans;
-
+            
+            // Current node we're at as we walk the trace.
+            EventNode curr = start;
+            
             while (true) {
-                if (start.getEType().equals(a)) {
-                    recentA = start;
-                    if (first == null) {
-                        first = start.getTime();
+                if (curr.getEType().equals(a)) {
+                    recentA = curr;
+                    if (firstA == null) {
+                        firstA = curr.getTime();
                     }
                 }
 
-                if (start.getEType().equals(b)) {
+                if (curr.getEType().equals(b)) {
                     // If node of event type a is found already, then we can
                     // obtain a delta value since we now found node of event
                     // type b.
                     if (recentA != null) {
-                        ITime delta = start.getTime().computeDelta(
+                        ITime delta = curr.getTime().computeDelta(
                                 recentA.getTime());
                         if (lowerBound == null || delta.lessThan(lowerBound)) {
                             lowerBound = delta;
                         }
                     }
-                    last = start.getTime();
+                    lastB = curr.getTime();
                 }
 
                 // Dealing with a TO log, so only one transition available to
                 // use.
-                assert (start.getAllTransitions().size() == 1);
-                trans = start.getAllTransitions().get(0);
+                assert (curr.getAllTransitions().size() == 1);
+                trans = curr.getAllTransitions().get(0);
 
                 // Reached ending node in path.
-                if (start.equals(end)) {
+                if (curr.equals(end)) {
                     break;
                 }
-                start = trans.getTarget();
+                curr = trans.getTarget();
             }
 
             // relationPath contains the invariant.
             // Note: this will exclude invariants with an INITIAL node, since
             // that will yield a null lowerbound and upperbound.
-            if (first != null && last != null) {
-                ITime delta = last.computeDelta(first);
+            if (firstA != null && lastB != null) {
+                ITime delta = lastB.computeDelta(firstA);
                 if (upperBound == null || upperBound.lessThan(delta)) {
                     upperBound = delta;
                 }
