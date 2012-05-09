@@ -41,7 +41,7 @@ public class ConstrainedInvMiner extends InvariantMiner implements
         ITOInvariantMiner {
     private ITOInvariantMiner miner;
 
-    public ConstrainedInvMiner(ITOInvariantMiner miner) {
+    public ConstrainedInvMiner(ITOInvariantMiner miner, ChainsTraceGraph g) {
         this.miner = miner;
     }
 
@@ -81,7 +81,7 @@ public class ConstrainedInvMiner extends InvariantMiner implements
      *            invariant miner
      * @return the set of constrained temporal invariants
      */
-    public static TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
+    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations, TemporalInvariantSet invs) {
 
         TemporalInvariantSet result = new TemporalInvariantSet();
@@ -133,8 +133,7 @@ public class ConstrainedInvMiner extends InvariantMiner implements
      *            the invariant that is being augmented with constraints
      * @return the set of augmented constrained invariants
      */
-    public static TemporalInvariantSet computeInvariants(
-            Set<IRelationPath> relationPaths, ITemporalInvariant i) {
+    public TemporalInvariantSet computeInvariants(Set<IRelationPath> relationPaths, ITemporalInvariant i) {
 
         // The set of constrained invariants that we will be returning.
         TemporalInvariantSet constrainedInvs = new TemporalInvariantSet();
@@ -200,7 +199,7 @@ public class ConstrainedInvMiner extends InvariantMiner implements
      *         bound constraint and the right represents the upper bound
      *         constraint
      */
-    private static Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
+    private Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
             Set<IRelationPath> relationPaths, EventType a, EventType b) {
 
         ITime lowerBound = null;
