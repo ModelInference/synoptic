@@ -43,7 +43,9 @@ public class ConstrainedInvMinerTests extends SynopticTest {
             boolean multipleRelations) throws Exception {
         ChainsTraceGraph inputGraph = genInitialLinearGraph(events);
         TemporalInvariantSet invs = miner.computeInvariants(inputGraph, false);
-        return ConstrainedInvMiner.computeInvariants(inputGraph,
+        
+        ConstrainedInvMiner constrMiner = new ConstrainedInvMiner(miner);
+        return constrMiner.computeInvariants(inputGraph,
                 multipleRelations, invs);
     }
 
