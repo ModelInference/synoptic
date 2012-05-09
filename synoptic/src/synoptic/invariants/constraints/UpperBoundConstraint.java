@@ -32,5 +32,9 @@ public class UpperBoundConstraint implements IThresholdConstraint {
     public boolean equals(Object obj) {
         return bound.equals(obj);
     }
-
+    
+    @Override
+    public String toString() {
+    	return "upperbound = " + bound.toString();
+    }
 }
