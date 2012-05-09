@@ -32,5 +32,9 @@ public class LowerBoundConstraint implements IThresholdConstraint {
     public boolean equals(Object obj) {
         return bound.equals(obj);
     }
-
+    
+    @Override
+    public String toString() {
+    	return "lowerbound = " + bound.toString();
+    }
 }
