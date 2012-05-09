@@ -30,7 +30,19 @@ public class UpperBoundConstraint implements IThresholdConstraint {
 
     @Override
     public boolean equals(Object obj) {
-        return bound.equals(obj);
+    	 if (this == obj) {
+             return true;
+         }
+         if (obj == null) {
+             return false;
+         }
+
+         if (getClass() != obj.getClass()) {
+             return false;
+         }
+         
+         UpperBoundConstraint other = (UpperBoundConstraint) obj;
+         return bound.equals(other.getThreshold());
     }
     
     @Override

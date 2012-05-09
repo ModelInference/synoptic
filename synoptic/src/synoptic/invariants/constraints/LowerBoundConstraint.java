@@ -30,7 +30,18 @@ public class LowerBoundConstraint implements IThresholdConstraint {
 
     @Override
     public boolean equals(Object obj) {
-        return bound.equals(obj);
+    	 if (this == obj) {
+             return true;
+         }
+         if (obj == null) {
+             return false;
+         }
+         if (getClass() != obj.getClass()) {
+             return false;
+         }
+         
+         LowerBoundConstraint other = (LowerBoundConstraint) obj;
+         return bound.equals(other.getThreshold());
     }
     
     @Override

@@ -103,7 +103,7 @@ public class TempConstrainedInvariant<BInv extends BinaryInvariant> extends
         if (!inv.equals(other.getInv())) {
             return false;
         }
-        if (constr.equals(other.getConstraint())) {
+        if (!constr.equals(other.getConstraint())) {
             return false;
         }
         return true;
