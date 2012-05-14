@@ -159,23 +159,22 @@ public class ConstrainedInvMiner extends InvariantMiner implements
         // Create two TempConstrainedInvariant objects using the lower bound and
         // upper bound computed.
         if (i instanceof AlwaysFollowedInvariant) {
-            TempConstrainedInvariant<AlwaysFollowedInvariant> lowerConstrInv = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-                    (AlwaysFollowedInvariant) i, constraints.getLeft());
-            TempConstrainedInvariant<AlwaysFollowedInvariant> upperConstrInv = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-                    (AlwaysFollowedInvariant) i, constraints.getLeft());
-
-            constrainedInvs.add(lowerConstrInv);
-            constrainedInvs.add(upperConstrInv);
+        	augmentInvariant(AlwaysFollowedInvariant.class, i, constraints, constrainedInvs);
         } else if (i instanceof AlwaysPrecedesInvariant) {
-            TempConstrainedInvariant<AlwaysPrecedesInvariant> lowerConstrInv = new TempConstrainedInvariant<AlwaysPrecedesInvariant>(
-                    (AlwaysPrecedesInvariant) i, constraints.getLeft());
-            TempConstrainedInvariant<AlwaysPrecedesInvariant> upperConstrInv = new TempConstrainedInvariant<AlwaysPrecedesInvariant>(
-                    (AlwaysPrecedesInvariant) i, constraints.getRight());
-
-            constrainedInvs.add(lowerConstrInv);
-            constrainedInvs.add(upperConstrInv);
+            augmentInvariant(AlwaysPrecedesInvariant.class, i, constraints, constrainedInvs);
         }
         return constrainedInvs;
+    }
+    
+    // Helper method for creating a lower and upper constrained invariant and adding it
+    // into the constrainedInvs set.
+    private <T extends BinaryInvariant> void augmentInvariant(Class<T> type, ITemporalInvariant i, 
+    		Pair<IThresholdConstraint, IThresholdConstraint> constraints,  TemporalInvariantSet constrainedInvs) {    	
+    	TempConstrainedInvariant<T> lowerConstrInv = new TempConstrainedInvariant<T>((T) i, constraints.getLeft());
+    	TempConstrainedInvariant<T> upperConstrInv = new TempConstrainedInvariant<T>((T) i, constraints.getRight()); 
+
+    	constrainedInvs.add(lowerConstrInv);
+        constrainedInvs.add(upperConstrInv);
     }
     
     
