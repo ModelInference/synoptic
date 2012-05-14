@@ -23,26 +23,36 @@ import synoptic.util.Pair;
 import synoptic.util.time.ITime;
 
 /**
+ * <p>
  * Mines constrained invariants from totally ordered traces. Constrained
- * invariants are the standard set of invariants with time constraints on the
- * time between events in an execution. Invariants that can be constrained are
- * AlwaysFollowedInvariant and AlwaysPrecedesInvariant. Uses other totally
- * ordered invariant miners to first mine the unconstrained invariants (if not
- * given these explicitly). Mines constraints for these unconstrained invariants
- * by walking the trace directly. New invariants are not created, the
- * unconstrained invariants are just augmented with constraints. Walking the
- * trace consists of traversing the log for every constrained AFby and AP
- * invariant. Each traversal finds a lower bound and upper bound constraint for
- * an unconstrained invariant. Two constrained invariants are then created (for
+ * invariants are the standard set of invariants with constraints on the time
+ * between events in an execution. New invariants are not created, the
+ * unconstrained invariants are simply augmented with constraints.
+ * </p>
+ * <p>
+ * The only two invariants that can be constrained are AlwaysFollowedInvariant
+ * and AlwaysPrecedesInvariant.
+ * </p>
+ * <p>
+ * Uses other totally ordered invariant miners to first mine the unconstrained
+ * invariants (if not given these explicitly). Mines constraints for these
+ * unconstrained invariants by walking the trace directly. Walking the trace
+ * consists of traversing the log for every constrained AFby and AP invariant.
+ * Each traversal finds a lower bound and upper bound constraint for an
+ * unconstrained invariant. Two constrained invariants are then created (for
  * lower bound and upper bound) and added in the resulting constrained invariant
  * set.
+ * </p>
  */
-public class ConstrainedInvMiner extends InvariantMiner implements
-        ITOInvariantMiner {
-    private ITOInvariantMiner miner;
+public class ConstrainedInvMiner extends InvariantMiner {
 
-    public ConstrainedInvMiner(ITOInvariantMiner miner) {
-        this.miner = miner;
+    // Stores generated RelationPaths
+    private Set<IRelationPath> relationPaths;
+    // The set of constrained invariants that we will be returning.
+    private TemporalInvariantSet constrainedInvs;
+
+    public ConstrainedInvMiner() {
+        this.relationPaths = new HashSet<IRelationPath>();
     }
 
     /**
@@ -51,15 +61,17 @@ public class ConstrainedInvMiner extends InvariantMiner implements
      * AlwaysFollowedInvariant and AlwaysPrecedesInvariant. Returns a set of
      * these constrained invariants.
      * 
+     * @param miner
+     *            The miner to use for mining regular (unconstrained)
+     *            invariants. private ITOInvariantMiner miner;
      * @param g
      *            a chain trace graph of nodes of type LogEvent
      * @param multipleRelations
      *            whether or not nodes have multiple relations
      * @return the set of constrained temporal invariants
      */
-    @Override
-    public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
-            boolean multipleRelations) {
+    public TemporalInvariantSet computeInvariants(ITOInvariantMiner miner,
+            ChainsTraceGraph g, boolean multipleRelations) {
 
         TemporalInvariantSet invs = miner.computeInvariants(g,
                 multipleRelations);
@@ -84,13 +96,12 @@ public class ConstrainedInvMiner extends InvariantMiner implements
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g,
             boolean multipleRelations, TemporalInvariantSet invs) {
 
-        TemporalInvariantSet result = new TemporalInvariantSet();
+        // For each invocation we create a new invariant set to store the
+        // generated constrained invariants.
+        this.constrainedInvs = new TemporalInvariantSet();
 
-        // Stores generated RelationPaths
-        Set<IRelationPath> relationPaths = new HashSet<IRelationPath>();
-
-        for (ITemporalInvariant i : invs.getSet()) {
-            String relation = i.getRelation();
+        for (ITemporalInvariant inv : invs.getSet()) {
+            String relation = inv.getRelation();
             boolean isTimeRelation = relation.equals(Event.defTimeRelationStr);
 
             // Loop through the traces.
@@ -112,14 +123,15 @@ public class ConstrainedInvMiner extends InvariantMiner implements
             }
         }
 
-        for (ITemporalInvariant i : invs.getSet()) {
-            if (!(i instanceof AlwaysFollowedInvariant || i instanceof AlwaysPrecedesInvariant)) {
+        for (ITemporalInvariant inv : invs.getSet()) {
+            if (!(inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant)) {
                 continue;
             }
-            result.add(computeInvariants(relationPaths, i));
+            computeInvariants((BinaryInvariant) inv);
         }
 
-        return result;
+        relationPaths.clear();
+        return constrainedInvs;
     }
 
     /**
@@ -127,30 +139,27 @@ public class ConstrainedInvMiner extends InvariantMiner implements
      * for the given invariant. Augments the given invariant with the two
      * constraints and returns them within a TemporalInvariantSet.
      * 
-     * @param relationPaths
-     *            set of relation paths to walk
-     * @param i
+     * @param inv
      *            the invariant that is being augmented with constraints
-     * @return the set of augmented constrained invariants
      */
-    public TemporalInvariantSet computeInvariants(Set<IRelationPath> relationPaths, ITemporalInvariant i) {
+    public void computeInvariants(BinaryInvariant inv) {
 
-        // The set of constrained invariants that we will be returning.
-        TemporalInvariantSet constrainedInvs = new TemporalInvariantSet();
-        
-        EventType a = ((BinaryInvariant) i).getFirst();
-        EventType b = ((BinaryInvariant) i).getSecond();
-        
-        // If invariant contains INITIAL node, we can't compute bound constraints.
+        assert (inv instanceof AlwaysFollowedInvariant || inv instanceof AlwaysPrecedesInvariant);
+
+        EventType a = inv.getFirst();
+        EventType b = inv.getSecond();
+
+        // If invariant contains INITIAL node, we can't compute bound
+        // constraints.
         if (a.isInitialEventType()) {
-        	return constrainedInvs;
+            return;
         }
 
-        // Left pair represents lower bound constraint.
-        // Right pair represents upper bound constraint.
+        // Return pair.left represents lower bound constraint.
+        // Return pair.right represents upper bound constraint.
         Pair<IThresholdConstraint, IThresholdConstraint> constraints = computeConstraints(
-                relationPaths, a, b);
-        
+                a, b);
+
         // TODO used for testing purposes, remove when done.
         logger.info("Eventtype a = " + a + ", b = " + b + ", lowerbound = "
                 + constraints.getLeft().getThreshold() + ", upperbound = "
@@ -158,26 +167,21 @@ public class ConstrainedInvMiner extends InvariantMiner implements
 
         // Create two TempConstrainedInvariant objects using the lower bound and
         // upper bound computed.
-        if (i instanceof AlwaysFollowedInvariant) {
-        	augmentInvariant(AlwaysFollowedInvariant.class, i, constraints, constrainedInvs);
-        } else if (i instanceof AlwaysPrecedesInvariant) {
-            augmentInvariant(AlwaysPrecedesInvariant.class, i, constraints, constrainedInvs);
-        }
-        return constrainedInvs;
+        augmentInvariant(inv, constraints);
     }
-    
-    // Helper method for creating a lower and upper constrained invariant and adding it
-    // into the constrainedInvs set.
-    private <T extends BinaryInvariant> void augmentInvariant(Class<T> type, ITemporalInvariant i, 
-    		Pair<IThresholdConstraint, IThresholdConstraint> constraints,  TemporalInvariantSet constrainedInvs) {    	
-    	TempConstrainedInvariant<T> lowerConstrInv = new TempConstrainedInvariant<T>((T) i, constraints.getLeft());
-    	TempConstrainedInvariant<T> upperConstrInv = new TempConstrainedInvariant<T>((T) i, constraints.getRight()); 
 
-    	constrainedInvs.add(lowerConstrInv);
+    // Helper method for creating a lower and upper constrained invariant and
+    // adding it into the constrainedInvs set.
+    private <T extends BinaryInvariant> void augmentInvariant(T inv,
+            Pair<IThresholdConstraint, IThresholdConstraint> constraints) {
+        TempConstrainedInvariant<T> lowerConstrInv = new TempConstrainedInvariant<T>(
+                inv, constraints.getLeft());
+        TempConstrainedInvariant<T> upperConstrInv = new TempConstrainedInvariant<T>(
+                inv, constraints.getRight());
+
+        constrainedInvs.add(lowerConstrInv);
         constrainedInvs.add(upperConstrInv);
     }
-    
-    
 
     /**
      * Walks each relationPath and checks for nodes either of EventType a or b.
@@ -206,7 +210,7 @@ public class ConstrainedInvMiner extends InvariantMiner implements
      *         constraint
      */
     private Pair<IThresholdConstraint, IThresholdConstraint> computeConstraints(
-            Set<IRelationPath> relationPaths, EventType a, EventType b) {
+            EventType a, EventType b) {
 
         ITime lowerBound = null;
         ITime upperBound = null;
@@ -229,10 +233,10 @@ public class ConstrainedInvMiner extends InvariantMiner implements
             EventNode recentA = null;
 
             Transition<EventNode> trans;
-            
+
             // Current node we're at as we walk the trace.
             EventNode curr = start;
-            
+
             while (true) {
                 if (curr.getEType().equals(a)) {
                     recentA = curr;
@@ -269,7 +273,7 @@ public class ConstrainedInvMiner extends InvariantMiner implements
 
             // relationPath contains the invariant.
             // Note: this will exclude invariants with an INITIAL node, since
-            // that will yield a null lowerbound and upperbound.
+            // that will yield a null lower-bound and upper-bound.
             if (firstA != null && lastB != null) {
                 ITime delta = lastB.computeDelta(firstA);
                 if (upperBound == null || upperBound.lessThan(delta)) {
@@ -280,10 +284,7 @@ public class ConstrainedInvMiner extends InvariantMiner implements
 
         IThresholdConstraint l = new LowerBoundConstraint(lowerBound);
         IThresholdConstraint u = new UpperBoundConstraint(upperBound);
-    
-        Pair<IThresholdConstraint, IThresholdConstraint> result = new Pair<IThresholdConstraint, IThresholdConstraint>(
-                l, u);
 
-        return result;
+        return new Pair<IThresholdConstraint, IThresholdConstraint>(l, u);
     }
 }
