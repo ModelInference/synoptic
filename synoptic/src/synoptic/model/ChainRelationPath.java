@@ -201,5 +201,16 @@ public class ChainRelationPath implements IRelationPath {
         // TODO: Make the return type deeply unmodifiable
         return Collections.unmodifiableMap(precedesCounts);
     }
-
+    
+    public EventNode getFirstNode() {
+    	return this.eNode;
+    }
+    
+    public EventNode getLastNode() {
+    	return this.eFinal;
+    }
+    
+    public String getRelation() {
+    	return this.relation;
+    }
 }
