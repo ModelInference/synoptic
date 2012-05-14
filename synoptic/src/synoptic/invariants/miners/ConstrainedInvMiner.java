@@ -119,7 +119,7 @@ public class ConstrainedInvMiner extends InvariantMiner implements
             result.add(computeInvariants(relationPaths, i));
         }
 
-        return invs;
+        return result;
     }
 
     /**
