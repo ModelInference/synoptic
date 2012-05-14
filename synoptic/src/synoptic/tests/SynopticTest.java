@@ -102,6 +102,21 @@ public abstract class SynopticTest extends SynopticLibTest {
         parser.addPartitionsSeparator("^--$");
         return parser;
     }
+    
+    /**
+     * Constructs a parser used by tests concerning time. Note: the parser may not be
+     * re-used for parsing different traces (it is stateful).
+     */
+    public static TraceParser genTimeParser() {
+    	 TraceParser parser = new TraceParser();
+         try {
+             parser.addRegex("^(?<TYPE>)(?<TIME>)$");
+         } catch (ParseException e) {
+             throw new InternalSynopticException(e);
+         }
+         parser.addPartitionsSeparator("^--$");
+         return parser;
+    }
 
     /**
      * Creates a single string out of an array of strings, joined together and
