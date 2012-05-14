@@ -24,9 +24,9 @@ import synoptic.invariants.NeverImmediatelyFollowedInvariant;
 import synoptic.invariants.TOInitialTerminalInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.ChainWalkingTOInvMiner;
+import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.ImmediateInvariantMiner;
 import synoptic.invariants.miners.KTailInvariantMiner;
-import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.main.SynopticMain;
 import synoptic.main.options.Options;
 import synoptic.main.options.SynopticOptions;
@@ -176,7 +176,8 @@ public class InvariMintMain {
         options.debugParse = opts.debugParse;
         options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
 
-        SynopticMain synMain = new SynopticMain(options, new DotExportFormatter());
+        SynopticMain synMain = new SynopticMain(options,
+                new DotExportFormatter());
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = new TraceParser(opts.regExps,
@@ -192,7 +193,7 @@ public class InvariMintMain {
         }
 
         if (!parser.logTimeTypeIsTotallyOrdered()) {
-            logger.severe("Partially ordered log input detected. Stopping");
+            logger.severe("Partially ordered log input detected. Stopping.");
             System.exit(0);
         }
 
@@ -323,9 +324,9 @@ public class InvariMintMain {
      * Recursively replicates the given automata starting from the current state
      * but eliminates transitions that were not 'seen'.
      */
-    private static State replicate(Map<StatePair, Set<Character>> seenTransitions,
-            State current, Map<State, State> visited,
-            EventTypeEncodings encodings) {
+    private static State replicate(
+            Map<StatePair, Set<Character>> seenTransitions, State current,
+            Map<State, State> visited, EventTypeEncodings encodings) {
 
         if (visited.containsKey(current)) {
             return visited.get(current);
