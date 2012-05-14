@@ -41,7 +41,7 @@ public class ConstrainedInvMiner extends InvariantMiner implements
         ITOInvariantMiner {
     private ITOInvariantMiner miner;
 
-    public ConstrainedInvMiner(ITOInvariantMiner miner, ChainsTraceGraph g) {
+    public ConstrainedInvMiner(ITOInvariantMiner miner) {
         this.miner = miner;
     }
 
@@ -137,15 +137,20 @@ public class ConstrainedInvMiner extends InvariantMiner implements
 
         // The set of constrained invariants that we will be returning.
         TemporalInvariantSet constrainedInvs = new TemporalInvariantSet();
-
+        
         EventType a = ((BinaryInvariant) i).getFirst();
         EventType b = ((BinaryInvariant) i).getSecond();
+        
+        // If invariant contains INITIAL node, we can't compute bound constraints.
+        if (a.isInitialEventType()) {
+        	return constrainedInvs;
+        }
 
         // Left pair represents lower bound constraint.
         // Right pair represents upper bound constraint.
         Pair<IThresholdConstraint, IThresholdConstraint> constraints = computeConstraints(
                 relationPaths, a, b);
-
+        
         // TODO used for testing purposes, remove when done.
         logger.info("Eventtype a = " + a + ", b = " + b + ", lowerbound = "
                 + constraints.getLeft().getThreshold() + ", upperbound = "
@@ -172,6 +177,8 @@ public class ConstrainedInvMiner extends InvariantMiner implements
         }
         return constrainedInvs;
     }
+    
+    
 
     /**
      * Walks each relationPath and checks for nodes either of EventType a or b.
@@ -274,6 +281,7 @@ public class ConstrainedInvMiner extends InvariantMiner implements
 
         IThresholdConstraint l = new LowerBoundConstraint(lowerBound);
         IThresholdConstraint u = new UpperBoundConstraint(upperBound);
+    
         Pair<IThresholdConstraint, IThresholdConstraint> result = new Pair<IThresholdConstraint, IThresholdConstraint>(
                 l, u);
 
