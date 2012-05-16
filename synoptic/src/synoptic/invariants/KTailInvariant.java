@@ -2,11 +2,9 @@ package synoptic.invariants;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import gov.nasa.ltl.graph.Graph;
@@ -25,39 +23,33 @@ import synoptic.model.interfaces.INode;
  */
 public class KTailInvariant implements ITemporalInvariant {
 
-    // Set of all kTail invariants already created
-    private static Map<List<EventType>, KTailInvariant> tails = new HashMap<List<EventType>, KTailInvariant>();
-
     private final Set<String> relations;
 
     // This tail's list of events
     private final List<EventType> tail;
 
     // The set of events that immediately follow this tail
-    private Set<EventType> following;
+    private final Set<EventType> following;
 
-    private KTailInvariant(List<EventType> eventTail, String relation) {
+    /**
+     * Returns a KTailInvariant for the given series. On construction, the
+     * invariant has a tail but no follow events.
+     */
+    public KTailInvariant(List<EventType> eventTail,
+            Set<EventType> followEvents, String relation) {
         this.relations = new LinkedHashSet<String>();
         this.relations.add(relation);
         this.tail = Collections.unmodifiableList(new ArrayList<EventType>(
                 eventTail));
-        this.following = new HashSet<EventType>();
+        this.following = new HashSet<EventType>(followEvents);
     }
 
     /**
-     * Returns the single KTail for the given series of events. Also updates the
-     * count of instances and set of following events for this tail.
+     * Returns a KTailInvariant for the given series. On construction, the
+     * invariant has a tail but no follow events.
      */
-    public static KTailInvariant getInvariant(List<EventType> events,
-            EventType follow) {
-        KTailInvariant theTail = tails.get(events);
-        if (theTail == null) {
-            theTail = new KTailInvariant(events,
-                    Event.defaultTimeRelationString);
-            tails.put(theTail.tail, theTail);
-        }
-        theTail.following.add(follow);
-        return theTail;
+    public KTailInvariant(List<EventType> eventTail, Set<EventType> followEvents) {
+        this(eventTail, followEvents, Event.defaultTimeRelationString);
     }
 
     /**
