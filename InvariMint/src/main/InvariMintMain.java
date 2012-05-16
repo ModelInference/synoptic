@@ -190,7 +190,7 @@ public class InvariMintMain {
 
         if (!opts.runSynoptic
                 && (opts.exportSynopticNFA || opts.exportSynopticDFA)) {
-            logger.severe("Will not export Synoptic models since --runSynoptic is false");
+            logger.severe("Can not export Synoptic models since --runSynoptic is false");
         }
     }
 

@@ -1,7 +1,12 @@
 package synoptic.invariants.miners;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import synoptic.invariants.KTailInvariant;
 import synoptic.invariants.TemporalInvariantSet;
@@ -41,15 +46,22 @@ public class KTailInvariantMiner implements TOInvariantMiner {
      */
     public TemporalInvariantSet computeInvariants(ChainsTraceGraph g) {
 
-        TemporalInvariantSet invars = new TemporalInvariantSet();
+        // Set of all kTail invariants already created
+        Map<List<EventType>, Set<EventType>> tails = new HashMap<List<EventType>, Set<EventType>>();
 
         // k equal to 1 handled by immediate invariants
         if (k > 1) {
 
             // Mine kTails for all values from 1 to k
             for (int i = 2; i <= k; i++) {
-                computeInvariants(invars, g, i);
+                computeInvariants(g, i, tails);
             }
+        }
+
+        // Construct a KTailInvariant for each tail in tails
+        TemporalInvariantSet invars = new TemporalInvariantSet();
+        for (Entry<List<EventType>, Set<EventType>> inv : tails.entrySet()) {
+            invars.add(new KTailInvariant(inv.getKey(), inv.getValue()));
         }
         return invars;
     }
@@ -58,8 +70,8 @@ public class KTailInvariantMiner implements TOInvariantMiner {
      * Adds all kTail invariants for k = kVal to the set of KTailInvariants
      * invars.
      */
-    private void computeInvariants(TemporalInvariantSet invars,
-            ChainsTraceGraph g, int kVal) {
+    private void computeInvariants(ChainsTraceGraph g, int kVal,
+            Map<List<EventType>, Set<EventType>> tails) {
 
         EventNode initNode = g.getDummyInitialNode();
 
@@ -99,9 +111,13 @@ public class KTailInvariantMiner implements TOInvariantMiner {
             // Explore the rest of this trace, iteratively creating a
             // tail and then sliding down the eventWindow by 1
             while (true) {
-                // Add tail to the set of invariants
-                invars.add(KTailInvariant.getInvariant(eventWindow,
-                        curNode.getEType()));
+
+                // Update tails map
+                if (!tails.containsKey(eventWindow)) {
+                    tails.put(eventWindow, new HashSet<EventType>());
+                }
+                Set<EventType> followingEvents = tails.get(eventWindow);
+                followingEvents.add(curNode.getEType());
 
                 if (curNode.getAllTransitions().size() == 0) {
                     break;
