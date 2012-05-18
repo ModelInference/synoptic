@@ -457,6 +457,7 @@ public class Partition implements INode<Partition> {
     public List<? extends ITransition<Partition>> getAllTransitions() {
         // TODO: implement a transition cache optimization.
         List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>();
+        Set<Partition> children = new LinkedHashSet<Partition>();
         for (EventNode e : events) {
             for (ITransition<EventNode> tr : e.getAllTransitions()) {
                 // TODO: calling updateTransitionDeltas() is a fragile kind of
@@ -464,9 +465,18 @@ public class Partition implements INode<Partition> {
                 // whenever creating a new ITransition<Partition> instance.
                 // Refactor this into a new kind of Transition constructor? Or a
                 // helper method.
-                Transition<Partition> tx = new Transition<Partition>(this, tr
-                        .getTarget().getParent(), tr.getRelation());
+
+                Partition childP = tr.getTarget().getParent();
+                // Skip children if we've already processed them.
+                if (children.contains(childP)) {
+                    continue;
+                }
+
+                Transition<Partition> tx = new Transition<Partition>(this,
+                        childP, tr.getRelation());
                 updateTransitionDeltas(e, tr.getTarget(), tx);
+
+                children.add(childP);
                 ret.add(tx);
             }
         }
