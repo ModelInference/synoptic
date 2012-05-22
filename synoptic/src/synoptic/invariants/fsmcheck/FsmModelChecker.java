@@ -3,7 +3,6 @@ package synoptic.invariants.fsmcheck;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,7 @@ public class FsmModelChecker {
      * graph, the resulting association between nodes in the graph and states is
      * yielded.
      * 
-     * @param <S>
+     * @param <StateSet>
      *            The type of StateSet we are propagating.
      * @param initial
      *            The initial state of each node.
@@ -45,26 +44,25 @@ public class FsmModelChecker {
      *            The graph to analyze.
      * @return The associations between node and stateset.
      */
-    public static <T extends INode<T>, S extends IStateSet<T, S>> Map<T, S> runChecker(
-            IStateSet<T, S> initial, IGraph<T> graph, boolean earlyExit) {
+    public static <Node extends INode<Node>, StateSet extends IStateSet<Node, StateSet>> Map<Node, StateSet> runChecker(
+            IStateSet<Node, StateSet> initial, IGraph<Node> graph,
+            boolean earlyExit) {
 
-        Set<T> onWorkList = new LinkedHashSet<T>();
-        Queue<T> workList = new LinkedList<T>();
-        Map<T, S> states = new LinkedHashMap<T, S>();
+        // A queue of nodes that we should process.
+        Queue<Node> workList = new LinkedList<Node>();
 
-        // Populate the state map with initial states.s
-        for (T node : graph.getNodes()) {
+        // Maps a node to a set of states.
+        Map<Node, StateSet> states = new LinkedHashMap<Node, StateSet>();
+
+        // Populate the state map with initial states.
+        for (Node node : graph.getNodes()) {
             states.put(node, initial.copy());
         }
 
-        // Populate the worklist with the initial nodes, and set the initial
-        // path history on each.
-        // for (T node : graph.getDummyInitialNode()) {
-        T node = graph.getDummyInitialNode();
-        onWorkList.add(node);
+        // Add initial node to the worklist.
+        Node node = graph.getDummyInitialNode();
         workList.add(node);
         states.get(node).setInitial(node);
-        // }
 
         // Actual model checking step - takes an item off the worklist, and
         // transitions the state found at that node, using the labels of all
@@ -76,35 +74,29 @@ public class FsmModelChecker {
         // (the changed states need to be propagated).
         while (!workList.isEmpty()) {
             node = workList.remove();
-            onWorkList.remove(node);
-            S current = states.get(node);
-            /*
-             * System.out.println(); System.out.println(node.getLabel() + " " +
-             * node.toString()); System.out.println(current.toString());
-             */
-            for (T target : graph.getAdjacentNodes(node)) {
-                S other = states.get(target);
-                S temp = current.copy();
-                temp.transition(target);
-                boolean isSubset = temp.isSubset(other);
-                other.mergeWith(temp);
-                if (earlyExit && other.isFail() && target.isTerminal()) {
+            StateSet current = states.get(node);
+
+            // Process all the nodes that are adjacent to the current node.
+            for (Node target : graph.getAdjacentNodes(node)) {
+                StateSet oldTargetStates = states.get(target);
+                StateSet updatesToTargetStates = current.copy();
+                updatesToTargetStates.transition(target);
+
+                // Evaluate isSubset _before_ the merge.
+                boolean isSubset = updatesToTargetStates
+                        .isSubset(oldTargetStates);
+                oldTargetStates.mergeWith(updatesToTargetStates);
+                if (earlyExit && oldTargetStates.isFail()
+                        && target.isTerminal()) {
                     return states;
                 }
-                if (!isSubset && !onWorkList.contains(target)) {
-                    /*
-                     * System.out.println("propogated to " + target.getLabel() +
-                     * " " + target.toString() + (target.isTerminal() ? "final"
-                     * : "")); System.out.println(other);
-                     */
+
+                // Optimization: if updatesToTargetStates is subset of
+                // targetStates then I do not need to re-explore the graph
+                // starting from the current node.
+                if (!isSubset && !workList.contains(target)) {
                     workList.add(target);
-                    onWorkList.add(target);
-                } /*
-                   * else { System.out.println("subset found on " +
-                   * target.getLabel() + " " + target.toString() +
-                   * (target.isTerminal() ? "final" : ""));
-                   * System.out.println(other); }
-                   */
+                }
             }
         }
 
@@ -185,34 +177,39 @@ public class FsmModelChecker {
      * @return The shortest counterexample path for this invariant.
      */
     @SuppressWarnings("unchecked")
-    public static <T extends INode<T>> CExamplePath<T> getCounterExample(
-            BinaryInvariant invariant, IGraph<T> graph) {
+    public static <Node extends INode<Node>> CExamplePath<Node> getCounterExample(
+            BinaryInvariant invariant, IGraph<Node> graph) {
 
-        TracingStateSet<T> stateset = null;
+        TracingStateSet<Node> stateset = null;
         if (invariant == null) {
             return null;
         }
         Class<BinaryInvariant> invClass = (Class<BinaryInvariant>) invariant
                 .getClass();
         if (invClass.equals(AlwaysFollowedInvariant.class)) {
-            stateset = new AFbyTracingSet<T>(invariant);
+            stateset = new AFbyTracingSet<Node>(invariant);
         } else if (invClass.equals(AlwaysPrecedesInvariant.class)) {
-            stateset = new APTracingSet<T>(invariant);
+            stateset = new APTracingSet<Node>(invariant);
         } else if (invClass.equals(NeverFollowedInvariant.class)) {
-            stateset = new NFbyTracingSet<T>(invariant);
+            stateset = new NFbyTracingSet<Node>(invariant);
         }
 
         // Return the shortest path, ending on a final node, which causes the
         // invariant to fail.
-        TracingStateSet<T>.HistoryNode shortestPath = null;
-        Set<Entry<T, TracingStateSet<T>>> entrySet = runChecker(stateset,
+        TracingStateSet<Node>.HistoryNode shortestPath = null;
+        Set<Entry<Node, TracingStateSet<Node>>> entrySet = runChecker(stateset,
                 graph, true).entrySet();
-        for (Entry<T, TracingStateSet<T>> e : entrySet) {
-            // if (!invClass.equals(AlwaysFollowedInvariant.class) ||
-            // e.getKey().isTerminal()) {
-            TracingStateSet<T>.HistoryNode path = e.getValue().failpath();
-            boolean fin = e.getKey().isTerminal();
-            if (fin
+        for (Entry<Node, TracingStateSet<Node>> e : entrySet) {
+            TracingStateSet<Node> stateSet = e.getValue();
+            Node node = e.getKey();
+
+            TracingStateSet<Node>.HistoryNode path = stateSet.failpath();
+
+            // 1. We must have ended up at the terminal node.
+            // 2. Invariant is not satisfied, so we have a history path for it.
+            // 3. If we had counter-example path in the past, that path is
+            // longer (because we want the shortest).
+            if (node.isTerminal()
                     && path != null
                     && (shortestPath == null || shortestPath.count > path.count)) {
                 shortestPath = path;
