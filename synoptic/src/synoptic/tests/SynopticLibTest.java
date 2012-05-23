@@ -117,6 +117,6 @@ public abstract class SynopticLibTest {
         }
         String path = "test-output" + File.separator + testName.getMethodName()
                 + title + ".dot";
-        SynopticMain.getInstance().exportInitialGraph(path, g);
+        SynopticMain.getInstance().exportTraceGraph(path, g);
     }
 }

@@ -351,7 +351,7 @@ public class Partition implements INode<Partition> {
                         / (double) totalChildren;
 
                 tr.setProbability(probability);
-                tr.addCount(numOutgoing);
+                tr.setCount(numOutgoing);
             }
 
         } else {
@@ -370,7 +370,7 @@ public class Partition implements INode<Partition> {
                         / (double) totalAtSource;
 
                 tr.setProbability(probability);
-                tr.addCount(numOutgoing);
+                tr.setCount(numOutgoing);
 
             }
         }
@@ -445,11 +445,11 @@ public class Partition implements INode<Partition> {
         if (!SynopticMain.getInstance().options.enablePerfDebugging) {
             return;
         }
-        ITime targTime = targetENode.getTime();
         ITime srcTime = srcENode.getTime();
-        if (targTime != null && srcTime != null) {
-            ITime d = targTime.computeDelta(srcTime);
-            tx.getDeltaSeries().addDelta(d);
+        ITime targetTime = targetENode.getTime();
+        if (targetTime != null && srcTime != null) {
+            ITime d = targetTime.computeDelta(srcTime);
+            tx.addTimeDeltaToSeries(d);
         }
     }
 
@@ -458,20 +458,21 @@ public class Partition implements INode<Partition> {
         // TODO: implement a transition cache optimization.
         List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>();
         Set<Partition> children = new LinkedHashSet<Partition>();
+
         for (EventNode e : events) {
             for (ITransition<EventNode> tr : e.getAllTransitions()) {
-                // TODO: calling updateTransitionDeltas() is a fragile kind of
-                // initialization -- we have to remember to call this method
-                // whenever creating a new ITransition<Partition> instance.
-                // Refactor this into a new kind of Transition constructor? Or a
-                // helper method.
-
                 Partition childP = tr.getTarget().getParent();
+
                 // Skip children if we've already processed them.
                 if (children.contains(childP)) {
                     continue;
                 }
 
+                // TODO: calling updateTransitionDeltas() is a fragile kind of
+                // initialization -- we have to remember to call this method
+                // whenever creating a new ITransition<Partition> instance.
+                // Refactor this into a new kind of Transition constructor? Or a
+                // helper method.
                 Transition<Partition> tx = new Transition<Partition>(this,
                         childP, tr.getRelation());
                 updateTransitionDeltas(e, tr.getTarget(), tx);

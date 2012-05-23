@@ -381,9 +381,9 @@ public class SynopticMain {
     }
 
     /**
-     * Export g as an initial graph.
+     * Export the trace graph g.
      */
-    public <T extends INode<T>> void exportInitialGraph(String baseFilename,
+    public <T extends INode<T>> void exportTraceGraph(String baseFilename,
             IGraph<T> g) {
         // false below : never include edge labels on exported initial graphs
 
@@ -391,7 +391,7 @@ public class SynopticMain {
         // convert exported graph to a png file -- the user must have explicitly
         // requested this and the export must be in non-GML format (i.e., dot
         // format).
-        exportGraph(baseFilename, g, false, options.dumpInitialGraphPngFile
+        exportGraph(baseFilename, g, false, options.dumpTraceGraphPngFile
                 && !options.exportAsGML);
     }
 
@@ -413,7 +413,7 @@ public class SynopticMain {
     private void processPOLog(TraceParser parser, List<EventNode> parsedEvents)
             throws ParseException, FileNotFoundException {
         // //////////////////
-        DAGsTraceGraph inputGraph = genDAGsTraceGraph(parser, parsedEvents);
+        DAGsTraceGraph traceGraph = genDAGsTraceGraph(parser, parsedEvents);
         // //////////////////
 
         // Parser can be garbage-collected.
@@ -435,7 +435,7 @@ public class SynopticMain {
 
         // //////////////////
         TemporalInvariantSet minedInvs = minePOInvariants(
-                options.useTransitiveClosureMining, inputGraph);
+                options.useTransitiveClosureMining, traceGraph);
         // //////////////////
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
@@ -461,9 +461,17 @@ public class SynopticMain {
         }
     }
 
+    /**
+     * Parses all the log filenames, constructing and returning a list of parsed
+     * events.
+     * 
+     * @param parser
+     * @param logFilenames
+     * @return
+     * @throws Exception
+     */
     static public List<EventNode> parseEvents(TraceParser parser,
             List<String> logFilenames) throws Exception {
-        // Parses all the log filenames, constructing the parsedEvents List.
         long startTime = loggerInfoStart("Parsing input files..");
 
         List<EventNode> parsedEvents = new ArrayList<EventNode>();
@@ -503,8 +511,16 @@ public class SynopticMain {
         return inputGraph;
     }
 
+    /**
+     * Mines and returns the totally ordered invariants from the trace graph of
+     * the input log.
+     * 
+     * @param useTransitiveClosureMining
+     * @param traceGraph
+     * @return
+     */
     public TemporalInvariantSet mineTOInvariants(
-            boolean useTransitiveClosureMining, ChainsTraceGraph inputGraph) {
+            boolean useTransitiveClosureMining, ChainsTraceGraph traceGraph) {
         ITOInvariantMiner miner;
 
         if (useTransitiveClosureMining) {
@@ -515,7 +531,7 @@ public class SynopticMain {
 
         long startTime = loggerInfoStart("Mining invariants ["
                 + miner.getClass().getName() + "]..");
-        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph,
+        TemporalInvariantSet minedInvs = miner.computeInvariants(traceGraph,
                 options.multipleRelations);
 
         loggerInfoEnd("Mining took ", startTime);
@@ -525,8 +541,16 @@ public class SynopticMain {
         return minedInvs;
     }
 
+    /**
+     * Mines and returns a set of partially ordered invariants from the DAG
+     * trace graph of an input log.
+     * 
+     * @param useTransitiveClosureMining
+     * @param traceGraph
+     * @return
+     */
     public TemporalInvariantSet minePOInvariants(
-            boolean useTransitiveClosureMining, DAGsTraceGraph inputGraph) {
+            boolean useTransitiveClosureMining, DAGsTraceGraph traceGraph) {
 
         IPOInvariantMiner miner;
         if (useTransitiveClosureMining) {
@@ -537,7 +561,7 @@ public class SynopticMain {
 
         long startTime = loggerInfoStart("Mining invariants ["
                 + miner.getClass().getName() + "]..");
-        TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph);
+        TemporalInvariantSet minedInvs = miner.computeInvariants(traceGraph);
         loggerInfoEnd("Mining took ", startTime);
         // Miner can be garbage-collected.
         miner = null;
@@ -586,14 +610,14 @@ public class SynopticMain {
         }
 
         // //////////////////
-        ChainsTraceGraph inputGraph = genChainsTraceGraph(parser, parsedEvents);
+        ChainsTraceGraph traceGraph = genChainsTraceGraph(parser, parsedEvents);
         // //////////////////
 
-        if (options.dumpInitialGraphDotFile) {
-            logger.info("Exporting initial graph ["
-                    + inputGraph.getNodes().size() + " nodes]..");
-            exportInitialGraph(options.outputPathPrefix + ".initial",
-                    inputGraph);
+        if (options.dumpTraceGraphDotFile) {
+            logger.info("Exporting trace graph ["
+                    + traceGraph.getNodes().size() + " nodes]..");
+            exportTraceGraph(options.outputPathPrefix + ".tracegraph",
+                    traceGraph);
         }
 
         // Parser can be garbage-collected.
@@ -601,7 +625,7 @@ public class SynopticMain {
 
         // //////////////////
         TemporalInvariantSet minedInvs = mineTOInvariants(
-                options.useTransitiveClosureMining, inputGraph);
+                options.useTransitiveClosureMining, traceGraph);
         // //////////////////
 
         logger.info("Mined " + minedInvs.numInvariants() + " invariants");
@@ -624,7 +648,7 @@ public class SynopticMain {
         // //////////////////
         // Create the initial partitioning graph.
         long startTime = loggerInfoStart("Creating initial partition graph.");
-        PartitionGraph pGraph = new PartitionGraph(inputGraph, true, minedInvs);
+        PartitionGraph pGraph = new PartitionGraph(traceGraph, true, minedInvs);
         loggerInfoEnd("Creating partition graph took ", startTime);
         // //////////////////
 

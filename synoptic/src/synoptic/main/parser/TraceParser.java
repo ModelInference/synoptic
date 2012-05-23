@@ -89,7 +89,7 @@ public class TraceParser {
 
     // Regexp groups that represent valid time in a log line:
     // TIME: integer time (e.g. 123)
-    // VTIME: vector clock time (e.g. 12.23.34, and 12.234)
+    // VTIME: vector clock time (e.g. [12,23,34], and [12,234])
     // FTIME: float time (e.g. 123.456) -- 32 bits
     // DTIME: double time (e.g. 1234.56) -- 64 bits
     public static final List<String> validTimeGroups = Arrays.asList("TIME",

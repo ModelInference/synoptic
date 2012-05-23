@@ -38,10 +38,6 @@ public class TransitionLabelsMap implements Comparable<TransitionLabelsMap> {
      *            An object representing the label value.
      */
     public void setLabel(TransitionLabelType t, Object label) {
-        if (labels.containsKey(t)) {
-            throw new IllegalStateException(
-                    "Can only add transition labels that are not yet defined.");
-        }
         if (!t.cls.isAssignableFrom(label.getClass())) {
             throw new IllegalStateException(
                     "Inappropriate type of label passed for a label of type: "
