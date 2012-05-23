@@ -113,6 +113,9 @@ public class Event {
 
     @Override
     public String toString() {
+        if (time == null) {
+            return eType.toString();
+        }
         return eType.toString() + "-" + time.toString();
     }
 

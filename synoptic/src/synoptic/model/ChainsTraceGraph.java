@@ -85,7 +85,8 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
             Map<EventNode, Set<Relation>> eventRelations) throws ParseException {
         assert events.size() > 0;
 
-        // Sort the events in this group/trace.
+        // Sort the events in this group/trace according to the totally order
+        // time relation.
         Collections.sort(events, new Comparator<EventNode>() {
             @Override
             public int compare(EventNode e1, EventNode e2) {
@@ -149,14 +150,15 @@ public class ChainsTraceGraph extends TraceGraph<StringEventType> {
                     // we tag curNode as initial and add a new relation path to
                     // the trace.
                     relations = new HashSet<String>();
-                    Set<Relation> wrappedRelations = eventRelations.get(curNode);
+                    Set<Relation> wrappedRelations = eventRelations
+                            .get(curNode);
                     for (Relation relation : wrappedRelations) {
                         String relationString = relation.getRelation();
                         if (!trace.containsRelation(relationString)) {
                             trace.addInitialNode(relationString, curNode);
                         }
                         relations.add(relationString);
-                    }    
+                    }
                     tagInitial(curNode, relations);
                 } else {
                     // Otherwise, there is a specific previous srcNode, and we

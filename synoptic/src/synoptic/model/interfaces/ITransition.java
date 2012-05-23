@@ -124,5 +124,5 @@ public interface ITransition<NodeType> extends
     /**
      * Associates a count value with this transition.
      */
-    void addCount(int count);
+    void setCount(int count);
 }

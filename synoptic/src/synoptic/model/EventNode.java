@@ -47,6 +47,19 @@ public class EventNode implements INode<EventNode> {
      */
     LinkedHashMap<String, Set<Transition<EventNode>>> transitionsWithRelation = new LinkedHashMap<String, Set<Transition<EventNode>>>();
 
+    /**
+     * Updates the transition probabilities of all the transitions emitted from
+     * this event node. This is used when the set of transitions is somehow
+     * changed (e.g., a new transition is added).
+     */
+    private void updateTransitionProbabilities() {
+        int totalTrans = transitions.size();
+        for (Transition<EventNode> tr : transitions) {
+            double freq = (double) 1 / (double) totalTrans;
+            tr.setProbability(freq);
+        }
+    }
+
     public EventNode(EventNode copyFrom) {
         assert copyFrom != null;
 
@@ -73,7 +86,7 @@ public class EventNode implements INode<EventNode> {
 
     @Override
     public String toString() {
-        return "[" + getEvent().getEType() + "]";
+        return "[EventNode: " + getEvent() + " (" + hashCode() + ")" + "]";
     }
 
     /**
@@ -107,17 +120,18 @@ public class EventNode implements INode<EventNode> {
     }
 
     /**
-     * Find all direct successors of all events. For an event e1, direct
-     * successors are successors (in terms of vector-clock) that are not
-     * preceded by any other successors of e1. That is, if e1 < x then x is a
-     * direct successor if there is no other successor y to e1 such that y < x.
+     * Given an event node e1, and a set of event nodes allNodes, this methods
+     * finds all _direct_ successors of e1 in allNodes. Direct successors are
+     * successors (in terms of vector-clock) that are not preceded by any other
+     * successors of e1. That is, if e1 < e2 then e2 is a direct successor if
+     * there is no other successor e3 to e1 such that e3 < e2.
      * 
      * @param e1
-     * @param group
+     * @param allNodes
      * @return
      */
     public static Set<EventNode> getDirectPOSuccessors(EventNode e1,
-            List<EventNode> group) {
+            List<EventNode> allNodes) {
         LinkedHashSet<EventNode> e1DirectSuccessors = new LinkedHashSet<EventNode>();
 
         // Events in group are partially ordered. We have to do more
@@ -130,7 +144,7 @@ public class EventNode implements INode<EventNode> {
         // First find all all events that succeed e1, store this set in
         // e1AllSuccessors.
         LinkedHashSet<EventNode> e1AllSuccessors = new LinkedHashSet<EventNode>();
-        for (EventNode e2 : group) {
+        for (EventNode e2 : allNodes) {
             if (e1 == e2) {
                 continue;
             }
@@ -188,34 +202,15 @@ public class EventNode implements INode<EventNode> {
                 transition.setTimeDelta(delta);
             }
         }
-    }
-
-    /**
-     * Check that all transitions are in local cache.
-     * 
-     * <pre>
-     * TODO: refactor this out into a test.
-     * </pre>
-     */
-    public void checkConsistency() {
-        for (ITransition<EventNode> t : transitions) {
-            assert (transitionsWithRelation.get(t.getRelation()).contains(t)) : "inconsistent transitions in message";
-        }
+        updateTransitionProbabilities();
+        // Set the count on the newly added transition.
+        transition.setCount(1);
     }
 
     public void addTransitions(Collection<Transition<EventNode>> transCollection) {
         for (Transition<EventNode> t : transCollection) {
             this.addTransition(t);
         }
-    }
-
-    public void setTransitions(ArrayList<Transition<EventNode>> t) {
-        transitions.clear();
-        transitions.addAll(t);
-    }
-
-    public String toStringFull() {
-        return "[EventNode: " + getEvent() + " (" + hashCode() + ")" + "]";
     }
 
     public Event getEvent() {
@@ -327,12 +322,6 @@ public class EventNode implements INode<EventNode> {
      */
     @Override
     public List<? extends ITransition<EventNode>> getWeightedTransitions() {
-        int totalTrans = transitions.size();
-        for (Transition<EventNode> tr : transitions) {
-            double freq = (double) 1 / (double) totalTrans;
-            tr.setProbability(freq);
-            tr.addCount(1);
-        }
         return transitions;
     }
 

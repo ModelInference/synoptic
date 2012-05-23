@@ -247,22 +247,23 @@ public class SynopticOptions extends Options {
     public boolean dumpInvariants = false;
 
     /**
-     * Dump the DOT representation of the initial graph to file. The file will
-     * have the name <outputPathPrefix>.initial.dot, where 'outputPathPrefix' is
-     * the filename of the final Synoptic output. This option is
-     * <i>unpublicized</i>; it will not appear in the default usage message
+     * Dump the DOT representation of the parsed trace graph to file. The file
+     * will have the name <outputPathPrefix>.tracegraph.dot, where
+     * 'outputPathPrefix' is the filename of the final Synoptic output. This
+     * option is <i>unpublicized</i>; it will not appear in the default usage
+     * message
      */
-    @Option("Dump the DOT file for the initial graph to file <outputPathPrefix>.initial.dot")
-    public boolean dumpInitialGraphDotFile = false;
+    @Option("Dump the DOT file for the trace graph to file <outputPathPrefix>.tracegraph.dot")
+    public boolean dumpTraceGraphDotFile = false;
 
     /**
-     * Dump PNG of graph to file. The file will have the name
-     * <outputPathPrefix>.initial.dot.png, where 'outputPathPrefix' is the
+     * Dump PNG of parsed trace graph to file. The file will have the name
+     * <outputPathPrefix>.tracegraph.dot.png, where 'outputPathPrefix' is the
      * filename of the final Synoptic output. This option is
      * <i>unpublicized</i>; it will not appear in the default usage message
      */
-    @Option("Dump the PNG for the initial graph to file <outputPathPrefix>.initial.dot.png")
-    public boolean dumpInitialGraphPngFile = false;
+    @Option("Dump the PNG of the trace graph to file <outputPathPrefix>.tracegraph.dot.png")
+    public boolean dumpTraceGraphPngFile = false;
 
     /**
      * Dumps PNG of initial condensed partition graph to file. The file will

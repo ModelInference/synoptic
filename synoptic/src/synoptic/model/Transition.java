@@ -122,7 +122,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     }
 
     @Override
-    public void addCount(int count) {
+    public void setCount(int count) {
         this.labels.setLabel(TransitionLabelType.COUNT_LABEL, count);
     }
 
@@ -130,7 +130,7 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     // Methods below are also delegating to the labels instance, but are more
     // elaborate because they also check for state consistency. For example, a
     // transition is not allowed to maintain both a delta series and a time
-    // delta at thesame time.
+    // delta at the same time.
 
     @Override
     public ITime getTimeDelta() {

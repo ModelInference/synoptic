@@ -617,14 +617,10 @@ public class TraceParserTests extends SynopticTest {
 
         assertTrue(events.size() == 6);
 
-        expectedGraph
-                .tagInitial(events.get(0), Event.defTimeRelationStr);
-        expectedGraph
-                .tagInitial(events.get(3), Event.defTimeRelationStr);
-        expectedGraph.tagTerminal(events.get(2),
-                Event.defTimeRelationStr);
-        expectedGraph.tagTerminal(events.get(5),
-                Event.defTimeRelationStr);
+        expectedGraph.tagInitial(events.get(0), Event.defTimeRelationStr);
+        expectedGraph.tagInitial(events.get(3), Event.defTimeRelationStr);
+        expectedGraph.tagTerminal(events.get(2), Event.defTimeRelationStr);
+        expectedGraph.tagTerminal(events.get(5), Event.defTimeRelationStr);
 
         EventNode prevEvent = events.get(0);
         for (EventNode event : events.subList(1, 2)) {
@@ -638,6 +634,60 @@ public class TraceParserTests extends SynopticTest {
 
         return expectedGraph;
     }
+
+    /**
+     * Check that we can parse a log by splitting its lines into partitions.
+     * This test also checks that two different partitions may have events that
+     * have the same timestamp (this is not allowed if the events are in the
+     * same partition -- see test above).
+     * 
+     * @throws ParseException
+     */
+    @Test
+    public void parseWithSplitPartitionsTotalOrderTest() throws ParseException {
+        String traceStr = "1 a\n2 b\n3 c\n--\n1 c\n2 b\n3 a\n";
+        parser.addRegex("^(?<TIME>)(?<TYPE>)$");
+        parser.addPartitionsSeparator("^--$");
+        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
+                -1);
+        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForTotalOrder(events);
+        // Test graph equality.
+        assertTrue(expectedGraph.equalsWith(graph,
+                new IBoolBinary<EventNode, EventNode>() {
+                    @Override
+                    public boolean eval(EventNode a, EventNode b) {
+                        return (a.getEvent().equals(b.getEvent()));
+                    }
+                }));
+    }
+
+    /**
+     * Check that we can parse a log by mapping log lines to partitions.
+     * 
+     * @throws ParseException
+     */
+    @Test
+    public void parseWithMappedPartitionsTotalOrderTest() throws ParseException {
+        String traceStr = "1 a\n1 b\n1 c\n2 c\n2 b\n2 a\n";
+        parser.addRegex("^(?<PARTITION>)(?<TYPE>)$");
+        parser.setPartitionsMap("\\k<PARTITION>");
+        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
+                -1);
+        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
+        ChainsTraceGraph expectedGraph = genExpectedGraphForTotalOrder(events);
+        // Test graph equality.
+        assertTrue(expectedGraph.equalsWith(graph,
+                new IBoolBinary<EventNode, EventNode>() {
+                    @Override
+                    public boolean eval(EventNode a, EventNode b) {
+                        return (a.getEvent().equals(b.getEvent()));
+                    }
+                }));
+    }
+
+    // ////////////////////////////
+    // Multiple relations parsing
 
     /**
      * Generates the expected graph for the call and return multiple relations
@@ -757,11 +807,12 @@ public class TraceParserTests extends SynopticTest {
         assertTrue(events.size() == 5);
 
         EventNode mainMain = events.get(0);
-        expectedGraph.tagInitial(
-                mainMain,
-                new LinkedHashSet<String>(Arrays.asList(
-                        Event.defTimeRelationStr, callRelation,
-                        staticRelation)));
+        expectedGraph
+                .tagInitial(
+                        mainMain,
+                        new LinkedHashSet<String>(Arrays.asList(
+                                Event.defTimeRelationStr, callRelation,
+                                staticRelation)));
 
         EventNode mainInstance = events.get(1);
         mainMain.addTransition(
@@ -778,11 +829,12 @@ public class TraceParserTests extends SynopticTest {
                         staticRelation)));
 
         EventNode fooFoo = events.get(3);
-        mainMain2.addTransition(
-                fooFoo,
-                new LinkedHashSet<String>(Arrays.asList(
-                        Event.defTimeRelationStr, callRelation,
-                        nativeRelation)));
+        mainMain2
+                .addTransition(
+                        fooFoo,
+                        new LinkedHashSet<String>(Arrays.asList(
+                                Event.defTimeRelationStr, callRelation,
+                                nativeRelation)));
 
         EventNode mainMain3 = events.get(4);
         fooFoo.addTransition(
@@ -921,57 +973,6 @@ public class TraceParserTests extends SynopticTest {
         expectedGraph.tagInitial(fooFoo, nativeRelation);
 
         return expectedGraph;
-    }
-
-    /**
-     * Check that we can parse a log by splitting its lines into partitions.
-     * This test also checks that two different partitions may have events that
-     * have the same timestamp (this is not allowed if the events are in the
-     * same partition -- see test above).
-     * 
-     * @throws ParseException
-     */
-    @Test
-    public void parseWithSplitPartitionsTotalOrderTest() throws ParseException {
-        String traceStr = "1 a\n2 b\n3 c\n--\n1 c\n2 b\n3 a\n";
-        parser.addRegex("^(?<TIME>)(?<TYPE>)$");
-        parser.addPartitionsSeparator("^--$");
-        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
-                -1);
-        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
-        ChainsTraceGraph expectedGraph = genExpectedGraphForTotalOrder(events);
-        // Test graph equality.
-        assertTrue(expectedGraph.equalsWith(graph,
-                new IBoolBinary<EventNode, EventNode>() {
-                    @Override
-                    public boolean eval(EventNode a, EventNode b) {
-                        return (a.getEvent().equals(b.getEvent()));
-                    }
-                }));
-    }
-
-    /**
-     * Check that we can parse a log by mapping log lines to partitions.
-     * 
-     * @throws ParseException
-     */
-    @Test
-    public void parseWithMappedPartitionsTotalOrderTest() throws ParseException {
-        String traceStr = "1 a\n1 b\n1 c\n2 c\n2 b\n2 a\n";
-        parser.addRegex("^(?<PARTITION>)(?<TYPE>)$");
-        parser.setPartitionsMap("\\k<PARTITION>");
-        ArrayList<EventNode> events = parser.parseTraceString(traceStr, "test",
-                -1);
-        ChainsTraceGraph graph = parser.generateDirectTORelation(events);
-        ChainsTraceGraph expectedGraph = genExpectedGraphForTotalOrder(events);
-        // Test graph equality.
-        assertTrue(expectedGraph.equalsWith(graph,
-                new IBoolBinary<EventNode, EventNode>() {
-                    @Override
-                    public boolean eval(EventNode a, EventNode b) {
-                        return (a.getEvent().equals(b.getEvent()));
-                    }
-                }));
     }
 
     /**
