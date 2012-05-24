@@ -114,11 +114,11 @@ public class KTailInvariantMiner implements TOInvariantMiner {
 
                 // Update tails map
                 if (!tails.containsKey(eventWindow)) {
-                    tails.put(eventWindow, new HashSet<EventType>());
+                    tails.put(new ArrayList(eventWindow),
+                            new HashSet<EventType>());
                 }
                 Set<EventType> followingEvents = tails.get(eventWindow);
                 followingEvents.add(curNode.getEType());
-
                 if (curNode.getAllTransitions().size() == 0) {
                     break;
                 }
