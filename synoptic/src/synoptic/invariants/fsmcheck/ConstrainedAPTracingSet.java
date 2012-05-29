@@ -106,6 +106,7 @@ public class ConstrainedAPTracingSet<T extends INode<T>> extends TracingStateSet
         result.firstB = firstB;
         result.constr = constr;
         result.currTime = currTime;
+        result.failB = failB;
         return result;
     }
 
