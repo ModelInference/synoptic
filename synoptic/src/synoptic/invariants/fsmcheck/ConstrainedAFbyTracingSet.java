@@ -7,12 +7,22 @@ import synoptic.model.interfaces.INode;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;
 
+/**
+ * Represents a constrained "A always followed by B" synoptic.invariants to simulate,
+ * recording the shortest historical path to reach a particular state. We can assume
+ * that every A has a B since this tracing set is used after model checking unconstrained
+ * invariants. This finite state machine enters a failure state when B is encountered and
+ * the time elapsed since the last was seen is greater than the constrained threshold. 
+ * 
+ * @param <T>
+ *            The node type, used as an input, and stored in path-history.
+ */
 public class ConstrainedAFbyTracingSet<T extends INode<T>> extends TracingStateSet<T>  {
 	HistoryNode wasA; // Indicates that A was seen more recently than B (failing
     // state)
     HistoryNode wasB; // Indicates that B was seen more recently than A
     HistoryNode failB; // Indicates B where state fails since time for B to appear
-    // after A is greater than threshold.
+    // after A is violates threshold constraint
     EventType a, b;
     
     IThresholdConstraint constr; // Threshold constraint
@@ -58,13 +68,13 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends TracingStateS
     		currTime = currTime.incrBy(delta);
     	}
     	
+    	wasA = extend(x, wasA);
+    	wasB = extend(x, wasB);
+    	
     	// Fail state, currTime greater than time constraint
     	if (!constr.evaluate(currTime)) {
     		failB = wasB;
     	}
-    	
-    	wasA = extend(x, wasA);
-    	wasB = extend(x, wasB);
     }
     
     @Override
@@ -102,6 +112,7 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends TracingStateS
         ConstrainedAFbyTracingSet<T> casted = (ConstrainedAFbyTracingSet<T>) other;
         wasA = preferShorter(wasA, casted.wasA);
         wasB = preferShorter(wasB, casted.wasB);
+        failB = preferShorter(failB, casted.failB);
     }
 
     @Override
@@ -117,13 +128,18 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends TracingStateS
                 return false;
             }
         }
+        if (casted.failB == null) {
+        	if (failB != null) {
+        		return false;
+        	}
+        }
         return true;
     }
 
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append("AFby: ");
+        result.append("ConstrainedAFby: ");
         appendWNull(result, wasA); // Failure case first.
         result.append(" | ");
         appendWNull(result, wasB);
