@@ -1,5 +1,7 @@
 package synoptic.invariants.fsmcheck;
 
+import synoptic.util.time.ITime;
+
 public interface IStateSet<T, StateSetType> {
     /**
      * Resets the stateset to be as if it started on the passed node. This
@@ -16,6 +18,8 @@ public interface IStateSet<T, StateSetType> {
      */
     void transition(T input);
 
+    void transition(T input, ITime delta);
+    
     /**
      * Merges this stateset with another, such that all states inhabited by
      * 'other' will also now be inhabited by this.
