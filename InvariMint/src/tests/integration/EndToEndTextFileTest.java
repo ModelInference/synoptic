@@ -4,8 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import main.InvariMintMain;
-import main.InvariMintOptions;
+import main.InvariMintFromTextFile;
 import model.CustomModel;
 import model.EncodedAutomaton;
 import model.EventTypeEncodings;
@@ -20,12 +19,12 @@ import synoptic.model.event.StringEventType;
 import tests.InvariMintTest;
 
 /**
- * Runs KTails InvariMint end-to-end on a simple log file and checks that the
- * final model matches the expected output.
+ * Runs InvariMintFromTextFile end-to-end on a simple invariants file and checks
+ * that the final model matches the expected output.
  * 
  * @author jennyabrahamson
  */
-public class EndToEndKTailsMainTest extends InvariMintTest {
+public class EndToEndTextFileTest extends InvariMintTest {
     private EventType initial = StringEventType.newInitialStringEventType();
     private EventType terminal = StringEventType.newTerminalStringEventType();
 
@@ -39,18 +38,11 @@ public class EndToEndKTailsMainTest extends InvariMintTest {
      */
     @Test
     public void simpleModelTest() throws Exception {
-        String tPath = ".." + File.separator + "traces" + File.separator;
-        String simpleModelPath = tPath + "abstract" + File.separator
-                + "simple-model" + File.separator;
+        String filename = ".." + File.separator + "traces" + File.separator
+                + "abstract" + File.separator + "simple-model" + File.separator
+                + "invariants.txt";
 
-        String[] args = new String[] { "--performKTails=true", "--kTailLength",
-                "2", "-r", "^(?<DTYPE>.+)(?<nodename>)(?<TYPE>)$", "-m",
-                "\\k<nodename>", "-o",
-                testOutputDir + "ktail-simple-model-example",
-                "-runSynoptic=false", simpleModelPath + "trace.txt" };
-
-        InvariMintOptions opts = new InvariMintOptions(args);
-        EncodedAutomaton dfa = InvariMintMain.runInvariMint(opts);
+        EncodedAutomaton dfa = InvariMintFromTextFile.createDFA(filename);
 
         // Create expected model:
         EventTypeEncodings encodings = dfa.getEventEncodings();

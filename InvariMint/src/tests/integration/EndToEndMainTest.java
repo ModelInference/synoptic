@@ -27,8 +27,8 @@ import tests.InvariMintTest;
  */
 public class EndToEndMainTest extends InvariMintTest {
 
-    private EventType initial = new StringEventType("INITIAL");
-    private EventType terminal = new StringEventType("TERMINAL");
+    private EventType initial = StringEventType.newInitialStringEventType();
+    private EventType terminal = StringEventType.newTerminalStringEventType();
 
     private EventType a = new StringEventType("a");
     private EventType b = new StringEventType("b");
