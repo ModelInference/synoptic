@@ -49,11 +49,11 @@ public class KTailInvariantMiner implements TOInvariantMiner {
         // Set of all kTail invariants already created
         Map<List<EventType>, Set<EventType>> tails = new HashMap<List<EventType>, Set<EventType>>();
 
-        // k equal to 1 handled by immediate invariants
-        if (k > 1) {
+        // k equal to 0 handled by immediate invariants
+        if (k > 0) {
 
             // Mine kTails for all values from 1 to k
-            for (int i = 2; i <= k; i++) {
+            for (int i = 1; i <= k; i++) {
                 computeInvariants(g, i, tails);
             }
         }
@@ -114,7 +114,7 @@ public class KTailInvariantMiner implements TOInvariantMiner {
 
                 // Update tails map
                 if (!tails.containsKey(eventWindow)) {
-                    tails.put(new ArrayList(eventWindow),
+                    tails.put(new ArrayList<EventType>(eventWindow),
                             new HashSet<EventType>());
                 }
                 Set<EventType> followingEvents = tails.get(eventWindow);
