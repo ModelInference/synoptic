@@ -20,14 +20,15 @@ import tests.InvariMintTest;
 
 public class EndToEndKTailsSimpleTest extends InvariMintTest {
 
-    private EventType initial = new StringEventType("INITIAL");
     private EventType x = new StringEventType("x");
     private EventType y = new StringEventType("y");
     private EventType z = new StringEventType("z");
     private EventType c = new StringEventType("c");
     private EventType d = new StringEventType("d");
     private EventType f = new StringEventType("f");
-    private EventType terminal = new StringEventType("TERMINAL");
+
+    private EventType initial = StringEventType.newInitialStringEventType();
+    private EventType terminal = StringEventType.newTerminalStringEventType();
 
     /**
      * Test on abstract log example in traces/abstract/ktails-test.

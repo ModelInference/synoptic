@@ -19,12 +19,13 @@ import synoptic.model.event.StringEventType;
 import tests.InvariMintTest;
 
 public class EndToEndOSXLoginMainTest extends InvariMintTest {
-    private EventType initial = new StringEventType("INITIAL");
+    private EventType initial = StringEventType.newInitialStringEventType();
+    private EventType terminal = StringEventType.newTerminalStringEventType();
+
     private EventType login = new StringEventType("login attempt");
     private EventType guestLogin = new StringEventType("guest login");
     private EventType authorized = new StringEventType("authorized");
     private EventType authFailed = new StringEventType("auth failed");
-    private EventType terminal = new StringEventType("TERMINAL");
 
     /**
      * Tests InvariMint on osx-login-example in traces/abstract/.
