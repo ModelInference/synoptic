@@ -196,14 +196,14 @@ public class FsmModelChecker {
 
         // Return the shortest path, ending on a final node, which causes the
         // invariant to fail.
-        TracingStateSet<Node>.HistoryNode shortestPath = null;
+        HistoryNode<Node> shortestPath = null;
         Set<Entry<Node, TracingStateSet<Node>>> entrySet = runChecker(stateset,
                 graph, true).entrySet();
         for (Entry<Node, TracingStateSet<Node>> e : entrySet) {
             TracingStateSet<Node> stateSet = e.getValue();
             Node node = e.getKey();
 
-            TracingStateSet<Node>.HistoryNode path = stateSet.failpath();
+            HistoryNode<Node> path = stateSet.failpath();
 
             // 1. We must have ended up at the terminal node.
             // 2. Invariant is not satisfied, so we have a history path for it.
