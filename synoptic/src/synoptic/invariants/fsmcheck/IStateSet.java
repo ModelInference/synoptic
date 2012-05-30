@@ -1,7 +1,5 @@
 package synoptic.invariants.fsmcheck;
 
-import synoptic.util.time.ITime;
-
 public interface IStateSet<T, StateSetType> {
     /**
      * Resets the stateset to be as if it started on the passed node. This
