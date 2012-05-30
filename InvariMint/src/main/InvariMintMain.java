@@ -103,9 +103,8 @@ public class InvariMintMain {
         logger.fine(NIFbys.toPrettyString());
 
         EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
-        EncodedAutomaton dfa = null;
-
-        dfa = getIntersectedModelFromInvs(NIFbys, encodings, opts);
+        InvsModel dfa = getIntersectedModelFromInvs(NIFbys, encodings, opts,
+                null);
 
         // Apply initial/terminal condition
         EventType initialEvent = StringEventType.newInitialStringEventType();
@@ -116,9 +115,7 @@ public class InvariMintMain {
         dfa.intersectWith(initialTerminalInv);
 
         // Intersect with mined invariants.
-        dfa.intersectWith(getIntersectedModelFromInvs(minedInvs, encodings,
-                opts));
-        dfa.minimize();
+        dfa = getIntersectedModelFromInvs(minedInvs, encodings, opts, dfa);
 
         // Remove paths from the model not found in any input trace
         if (opts.removeSpuriousEdges) {
@@ -282,15 +279,21 @@ public class InvariMintMain {
      */
     public static InvsModel getIntersectedModelFromInvs(
             TemporalInvariantSet invariants, EventTypeEncodings encodings,
-            InvariMintOptions opts) {
-        // Initial model will accept all Strings.
-        InvsModel model = new InvsModel(encodings);
+            InvariMintOptions opts, InvsModel initial) {
+
+        InvsModel model;
+        if (initial == null) {
+            // Initial model will accept all Strings.
+            model = new InvsModel(encodings);
+        } else {
+            model = initial;
+        }
 
         // Intersect provided invariants.
         for (ITemporalInvariant invariant : invariants) {
             InvModel invDFA = new InvModel(invariant, encodings);
-
             model.intersectWith(invDFA);
+            model.minimize();
 
             if (opts.exportMinedInvariantDFAs
                     && !(invariant instanceof NeverImmediatelyFollowedInvariant)) {
