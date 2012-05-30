@@ -135,5 +135,17 @@ public class InvariantRegexTests {
 
         assertTrue(model.run("abcc"));
         assertFalse(model.run("abc"));
+
+        tailEvents.clear();
+        tailEvents.add('a');
+        tailEvents.add('b');
+        tailEvents.add('b');
+        followEvents.clear();
+        followEvents.add('x');
+        model = new RegExp(KTailInvariant.getRegex(tailEvents, followEvents))
+                .toAutomaton();
+        model.minimize();
+        assertTrue(model.run("abbx"));
+        assertFalse(model.run("abbb"));
     }
 }

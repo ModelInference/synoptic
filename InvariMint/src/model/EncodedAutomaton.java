@@ -126,6 +126,7 @@ public abstract class EncodedAutomaton {
 
         model = BasicOperations.intersection(model, other.model);
         checkEmptyLanguage(errorHint);
+        model.determinize();
     }
 
     /*
@@ -226,6 +227,10 @@ public abstract class EncodedAutomaton {
 
     public State getInitialState() {
         return model.getInitialState();
+    }
+
+    public EventTypeEncodings getEventEncodings() {
+        return this.encodings;
     }
 
     /**
