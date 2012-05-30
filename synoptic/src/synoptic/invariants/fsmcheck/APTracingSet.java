@@ -19,9 +19,9 @@ import synoptic.model.interfaces.INode;
  * @see TracingStateSet
  */
 public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
-    HistoryNode neitherSeen; // Neither A or B yet seen
-    HistoryNode firstA; // A seen before B (permanent success)
-    HistoryNode firstB; // B seen before A (permanent failure)
+    HistoryNode<T> neitherSeen; // Neither A or B yet seen
+    HistoryNode<T> firstA; // A seen before B (permanent success)
+    HistoryNode<T> firstB; // B seen before A (permanent failure)
     EventType a, b;
 
     public APTracingSet(EventType a, EventType b) {
@@ -36,7 +36,7 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     @Override
     public void setInitial(T x) {
         EventType name = x.getEType();
-        HistoryNode newHistory = new HistoryNode(x, null, 1);
+        HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
         neitherSeen = firstA = firstB = null;
         if (a.equals(name)) {
             firstA = newHistory;
@@ -63,7 +63,7 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public HistoryNode failpath() {
+    public HistoryNode<T> failpath() {
         return firstB;
     }
 
