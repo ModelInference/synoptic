@@ -17,8 +17,6 @@ public interface IStateSet<T, StateSetType> {
      *            The input event to transition the FSM.
      */
     void transition(T input);
-
-    void transition(T input, ITime delta);
     
     /**
      * Merges this stateset with another, such that all states inhabited by
