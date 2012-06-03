@@ -1,4 +1,4 @@
-package synoptic.invariants.fsmcheck;
+package synoptic.invariants.fsmcheck.constraints;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -13,6 +13,9 @@ import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
+import synoptic.invariants.fsmcheck.HistoryNode;
+import synoptic.invariants.fsmcheck.IStateSet;
+import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
