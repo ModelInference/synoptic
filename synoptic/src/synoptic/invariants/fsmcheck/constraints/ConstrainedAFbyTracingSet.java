@@ -1,11 +1,12 @@
 package synoptic.invariants.fsmcheck.constraints;
 
 import synoptic.invariants.constraints.IThresholdConstraint;
+import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.fsmcheck.HistoryNode;
-import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
+import synoptic.model.interfaces.ITransition;
 import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;
 
@@ -19,11 +20,17 @@ import synoptic.util.time.ITime;
  * @param <T>
  *            The node type, used as an input, and stored in path-history.
  */
-public class ConstrainedAFbyTracingSet<T extends INode<T>> extends TracingStateSet<T>  {
-	HistoryNode wasA; // Indicates that A was seen more recently than B (failing
+public class ConstrainedAFbyTracingSet<T extends INode<T>> extends ConstrainedTracingStateSet<T>  {
+		
+	public enum AFbyUpperThreshold {
+		
+	}
+	
+	
+	HistoryNode<T> wasA; // Indicates that A was seen more recently than B (failing
     // state)
-    HistoryNode wasB; // Indicates that B was seen more recently than A
-    HistoryNode failB; // Indicates B where state fails since time for B to appear
+    HistoryNode<T> wasB; // Indicates that B was seen more recently than A
+    HistoryNode<T> failB; // Indicates B where state fails since time for B to appear
     // after A is violates threshold constraint
     EventType a, b;
     
@@ -32,7 +39,7 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends TracingStateS
 
     public ConstrainedAFbyTracingSet(EventType a, EventType b) {
         this.a = a;
-        this.b = b;  
+        this.b = b; 
     }
     
     @SuppressWarnings("rawtypes")
@@ -45,7 +52,7 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends TracingStateS
     @Override
     public void setInitial(T x) {
         EventType name = x.getEType();
-        HistoryNode newHistory = new HistoryNode(x, null, 1);
+        HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
         wasA = wasB = failB = null;
         if (name.equals(a)) {
             wasA = newHistory;
@@ -80,7 +87,13 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends TracingStateS
     }
     
     @Override
-    public void transition(T x) {
+    public void transition(T x, ITransition<T> trans) {
+    	ITime time;
+    	if (constr.getClass().equals(LowerBoundConstraint.class)) {
+    		time = trans.getDeltaSeries().getMinDelta();
+    	} else {
+    		time = trans.getDeltaSeries().getMaxDelta();
+    	}
 //    	EventType name = x.getEType();
 //        if (a.equals(name)) {
 //            wasA = preferShorter(wasB, wasA);
@@ -94,7 +107,7 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends TracingStateS
     }
 
     @Override
-    public HistoryNode failpath() {
+    public HistoryNode<T> failpath() {
         return failB;
     }
 
@@ -110,7 +123,7 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends TracingStateS
     }
 
     @Override
-    public void mergeWith(TracingStateSet<T> other) {
+    public void mergeWith(ConstrainedTracingStateSet<T> other) {
         ConstrainedAFbyTracingSet<T> casted = (ConstrainedAFbyTracingSet<T>) other;
         wasA = preferShorter(wasA, casted.wasA);
         wasB = preferShorter(wasB, casted.wasB);
@@ -118,7 +131,7 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends TracingStateS
     }
 
     @Override
-    public boolean isSubset(TracingStateSet<T> other) {
+    public boolean isSubset(ConstrainedTracingStateSet<T> other) {
         ConstrainedAFbyTracingSet<T> casted = (ConstrainedAFbyTracingSet<T>) other;
         if (casted.wasA == null) {
             if (wasA != null) {
