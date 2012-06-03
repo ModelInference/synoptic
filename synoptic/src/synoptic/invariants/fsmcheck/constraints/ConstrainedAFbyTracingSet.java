@@ -1,7 +1,9 @@
-package synoptic.invariants.fsmcheck;
+package synoptic.invariants.fsmcheck.constraints;
 
 import synoptic.invariants.constraints.IThresholdConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
+import synoptic.invariants.fsmcheck.HistoryNode;
+import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.util.time.DTotalTime;

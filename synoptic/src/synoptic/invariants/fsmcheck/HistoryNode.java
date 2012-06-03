@@ -18,11 +18,11 @@ import synoptic.util.InternalSynopticException;
 public class HistoryNode<T extends INode<T>> implements Comparable<HistoryNode> {
     public static boolean checkPath = false;
 	
-    T node;
-    HistoryNode previous;
-    int count;
+    public T node;
+    public HistoryNode<T> previous;
+    public int count;
 
-    public HistoryNode(T node, HistoryNode previous, int count) {
+    public HistoryNode(T node, HistoryNode<T> previous, int count) {
         this.node = node;
         this.previous = previous;
         this.count = count;
