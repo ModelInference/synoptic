@@ -67,7 +67,8 @@ public class TimeSeries<TimeType extends ITime> implements
      * @return median delta time for transition, null if transition has zero
      *         delta times.
      */
-    public TimeType computeMedian() {
+    @SuppressWarnings("unchecked")
+	public TimeType computeMedian() {
         if (this.times.isEmpty()) {
             return null;
         }
@@ -129,6 +130,30 @@ public class TimeSeries<TimeType extends ITime> implements
     public void addAllDeltas(Collection<TimeType> deltas) {
         assert deltas != null;
         times.addAll(deltas);
+    }
+    
+    /**
+     * @return the minimum delta value from delta series, null if delta series is empty
+     */
+    public TimeType getMinDelta() {
+    	return getDelta(0);
+    }
+    
+    /**
+     * @return the maximum delta value from delta series, null if delta series is empty
+     */
+    public TimeType getMaxDelta() {
+    	return getDelta(times.size() - 1);
+    }
+    
+    private TimeType getDelta(int index) {
+    	if (!isSorted) {
+    		sort();
+    	}
+    	if (times.isEmpty()) {
+    		return null;
+    	}
+    	return times.get(index);
     }
 
     @Override
