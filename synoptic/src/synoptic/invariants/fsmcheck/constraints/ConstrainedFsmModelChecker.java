@@ -11,15 +11,11 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
-import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.fsmcheck.HistoryNode;
-import synoptic.invariants.fsmcheck.IStateSet;
-import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.time.ITime;
 
 public class ConstrainedFsmModelChecker {
 	/**
@@ -37,8 +33,8 @@ public class ConstrainedFsmModelChecker {
      *            The graph to analyze.
      * @return The associations between node and stateset.
      */
-    public static <Node extends INode<Node>, StateSet extends IStateSet<Node, StateSet>> Map<Node, StateSet> runChecker(
-            IStateSet<Node, StateSet> initial, IGraph<Node> graph,
+    public static <Node extends INode<Node>, StateSet extends IConstrainedStateSet<Node, StateSet>> Map<Node, StateSet> runChecker(
+            IConstrainedStateSet<Node, StateSet> initial, IGraph<Node> graph,
             boolean earlyExit) {
 
         // A queue of nodes that we should process.
@@ -73,11 +69,10 @@ public class ConstrainedFsmModelChecker {
             for (Node target : graph.getAdjacentNodes(node)) {
             	ITransition<Node> trans = getTransition(node, target);
             	// Dealing with partitions, so get mean delta of transition
-            	ITime t = trans.getDeltaSeries().computeMean();
             	
                 StateSet oldTargetStates = states.get(target);
                 StateSet updatesToTargetStates = current.copy();
-                updatesToTargetStates.transition(target);
+                updatesToTargetStates.transition(target, trans);
 
                 // Evaluate isSubset _before_ the merge.
                 boolean isSubset = updatesToTargetStates
@@ -124,7 +119,7 @@ public class ConstrainedFsmModelChecker {
     public static <Node extends INode<Node>> CExamplePath<Node> getCounterExample(
             TempConstrainedInvariant invariant, IGraph<Node> graph) {
 
-        TracingStateSet<Node> stateset = null;
+        ConstrainedTracingStateSet<Node> stateset = null;
         if (invariant == null) {
             return null;
         }
@@ -141,10 +136,10 @@ public class ConstrainedFsmModelChecker {
         // Return the shortest path, ending on a final node, which causes the
         // invariant to fail.
         HistoryNode<Node> shortestPath = null;
-        Set<Entry<Node, TracingStateSet<Node>>> entrySet = runChecker(stateset,
+        Set<Entry<Node, ConstrainedTracingStateSet<Node>>> entrySet = runChecker(stateset,
                 graph, true).entrySet();
-        for (Entry<Node, TracingStateSet<Node>> e : entrySet) {
-            TracingStateSet<Node> stateSet = e.getValue();
+        for (Entry<Node, ConstrainedTracingStateSet<Node>> e : entrySet) {
+            ConstrainedTracingStateSet<Node> stateSet = e.getValue();
             Node node = e.getKey();
 
             HistoryNode<Node> path = stateSet.failpath();
