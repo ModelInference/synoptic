@@ -4,7 +4,8 @@ public enum APState {
 	NIL(true),
 	FIRST_A(false),
 	FAIL_B(false),
-	AFTER_A(true);
+	NEITHER(true),
+	SUCCESS_B(true);
 	
 	private boolean isSuccess;
 
