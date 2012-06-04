@@ -93,6 +93,8 @@ public class AFbyLowerDFA<Node extends INode<Node>> {
 	}
 	
 	private void successBTransition(EventType name, ITime delta) {
-		nilTransition(name);
+		if (name.equals(a)) {
+			nilTransition(name);
+		}
 	}
 }
