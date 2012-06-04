@@ -8,30 +8,30 @@ import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;
 
 /**
- * DFA for constrained lower bound threshold AFby invariant.
+ * DFA for constrained lower bound threshold AP invariant.
  * 
  * @author Kevin
  *
  * @param <Node>
  */
-public class AFbyLowerDFA<Node extends INode<Node>> {
+public class APLowerDFA<Node extends INode<Node>> {
 	private ITime currTime;
-	private AFbyState state;
+	private APState state;
 	
 	private EventType a;
 	private EventType b;
 	private IThresholdConstraint constraint;
 	
-	public AFbyLowerDFA(TempConstrainedInvariant inv) {
+	public APLowerDFA(TempConstrainedInvariant inv) {
 		this.currTime = null;
-		this.state = AFbyState.NIL;
+		this.state = APState.NIL;
 		this.a = inv.getFirst();
 		this.b = inv.getSecond();
 		// TODO check that inv has lower bound constraint
 		this.constraint = inv.getConstraint();
 	}
 	
-	public AFbyState getState() {
+	public APState getState() {
 		return state;
 	}
 	
@@ -44,13 +44,13 @@ public class AFbyLowerDFA<Node extends INode<Node>> {
 			case FIRST_A:
 				firstATransition(name, delta);
 				break;
-			case NOT_B:
-				notBTransition(name, delta);
+			case FAIL_B: // permanent failure
+				break;
+			case NEITHER:
+				neitherTransition(name, delta);
 				break;
 			case SUCCESS_B:
 				successBTransition(name, delta);
-				break;
-			case FAIL_B: // no actions taken, permanent failure state
 				break;
 			default: break;
 		}
@@ -59,40 +59,46 @@ public class AFbyLowerDFA<Node extends INode<Node>> {
 	private void nilTransition(EventType name) {
 		if (name.equals(a)) {
 			currTime = new DTotalTime(0);
-			state = AFbyState.FIRST_A;
-		}
+			state = APState.FIRST_A;
+		} else if (name.equals(b)) { 
+			state = APState.FAIL_B;
+		} 
 	}
 	
 	private void firstATransition(EventType name, ITime delta) {
-		currTime = currTime.incrBy(delta);
 		if (name.equals(b)) {
 			if (constraint.evaluate(currTime)) {
-				state = AFbyState.SUCCESS_B;
+				currTime = currTime.incrBy(delta);
+				state = APState.SUCCESS_B;
 			} else { // permanent failure
-				state = AFbyState.FAIL_B;
+				state = APState.FAIL_B;
 			}
-		} else { // not b
-			state = AFbyState.NOT_B;
+		} else if (!name.equals(a)) { // not a
+			currTime = currTime.incrBy(delta);
+			state = APState.NEITHER;
 		}
 	}
 	
-	private void notBTransition(EventType name, ITime delta) {
+	private void neitherTransition(EventType name, ITime delta) {
 		if (name.equals(a)) {
-			nilTransition(name);
+			currTime = new DTotalTime(0);
+			state = APState.FIRST_A;
 		} else if (name.equals(b)) {
 			currTime = currTime.incrBy(delta);
 			if (constraint.evaluate(currTime)) {
-				state = AFbyState.SUCCESS_B;
+				state = APState.SUCCESS_B;
 			} else { // permanent failure
-				state = AFbyState.FAIL_B;
+				state = APState.FAIL_B;
 			}
-		} else { // not a or b
-			// stay in NOT_B state
+		} else {
 			currTime = currTime.incrBy(delta);
 		}
 	}
 	
 	private void successBTransition(EventType name, ITime delta) {
-		nilTransition(name);
+		if (name.equals(a)) {
+			currTime = new DTotalTime(0);
+			state = APState.FIRST_A;
+		}
 	}
 }

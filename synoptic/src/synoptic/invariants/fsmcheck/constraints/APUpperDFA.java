@@ -8,30 +8,30 @@ import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;
 
 /**
- * DFA for constrained upper bound threshold AFby invariant.
+ * DFA for constrained upper bound threshold AP invariant.
  * 
  * @author Kevin
  *
  * @param <Node>
  */
-public class AFbyUpperDFA<Node extends INode<Node>> {
+public class APUpperDFA<Node extends INode<Node>> {
 	private ITime currTime;
-	private AFbyState state;
+	private APState state;
 	
 	private EventType a;
 	private EventType b;
 	private IThresholdConstraint constraint;
 	
-	public AFbyUpperDFA(TempConstrainedInvariant inv) {
+	public APUpperDFA(TempConstrainedInvariant inv) {
 		this.currTime = null;
-		this.state = AFbyState.NIL;
+		this.state = APState.NIL;
 		this.a = inv.getFirst();
 		this.b = inv.getSecond();
 		// TODO check that inv has upper bound constraint
 		this.constraint = inv.getConstraint();
 	}
 	
-	public AFbyState getState() {
+	public APState getState() {
 		return state;
 	}
 	
@@ -42,15 +42,12 @@ public class AFbyUpperDFA<Node extends INode<Node>> {
 				nilTransition(name);
 				break;
 			case FIRST_A:
-				afterATransition(name, delta);
+				firstATransition(name, delta);
 				break;
-			case NOT_B:
-				afterATransition(name, delta);
+			case FAIL_B: // permanent failure
 				break;
 			case SUCCESS_B:
 				successBTransition(name, delta);
-				break;
-			case FAIL_B: // no actions taken, permanent failure state
 				break;
 			default: break;
 		}
@@ -59,27 +56,22 @@ public class AFbyUpperDFA<Node extends INode<Node>> {
 	private void nilTransition(EventType name) {
 		if (name.equals(a)) {
 			currTime = new DTotalTime(0);
-			state = AFbyState.FIRST_A;
-		}
+			state = APState.FIRST_A;
+		} else if (name.equals(b)) { 
+			state = APState.FAIL_B;
+		} 
 	}
 	
-	private void afterATransition(EventType name, ITime delta) {
+	private void firstATransition(EventType name, ITime delta) {
 		currTime = currTime.incrBy(delta);
-		if (name.equals(b)) {
-			if (constraint.evaluate(currTime)) {
-				state = AFbyState.SUCCESS_B;
-			} else { // permanent failure
-				state = AFbyState.FAIL_B;
-			}
-		} else { // not b
-			state = AFbyState.NOT_B;
-		}
+		state = APState.SUCCESS_B;
+		
 	}
-	
+
 	private void successBTransition(EventType name, ITime delta) {
 		currTime = currTime.incrBy(delta);
-		if (name.equals(b) && !constraint.evaluate(delta)) { // permanent failure
-			state = AFbyState.FAIL_B;
-		} 
+		if (name.equals(b) && !constraint.evaluate(delta)) {
+			state = APState.FAIL_B;
+		}
 	}
 }
