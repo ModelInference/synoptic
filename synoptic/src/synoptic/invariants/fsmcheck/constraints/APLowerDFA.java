@@ -15,9 +15,9 @@ import synoptic.util.time.ITime;
  *
  * @param <Node>
  */
-public class APLowerDFA<Node extends INode<Node>> {
+public class APLowerDFA<Node extends INode<Node>> implements IDFA<Node> {
 	private ITime currTime;
-	private APState state;
+	private State state;
 	
 	private EventType a;
 	private EventType b;
@@ -26,7 +26,7 @@ public class APLowerDFA<Node extends INode<Node>> {
 	@SuppressWarnings("rawtypes")
 	public APLowerDFA(TempConstrainedInvariant inv) {
 		this.currTime = null;
-		this.state = APState.NIL;
+		this.state = State.NIL;
 		this.a = inv.getFirst();
 		this.b = inv.getSecond();
 		
@@ -38,10 +38,12 @@ public class APLowerDFA<Node extends INode<Node>> {
 		this.constraint = constr;
 	}
 	
-	public APState getState() {
+	@Override
+	public State getState() {
 		return state;
 	}
 	
+	@Override
 	public void transition(Node target, ITime delta) {
 		EventType name = target.getEType();
 		switch(this.state) {
@@ -66,9 +68,9 @@ public class APLowerDFA<Node extends INode<Node>> {
 	private void nilTransition(EventType name) {
 		if (name.equals(a)) {
 			currTime = new DTotalTime(0);
-			state = APState.FIRST_A;
+			state = State.FIRST_A;
 		} else if (name.equals(b)) { 
-			state = APState.FAIL_B;
+			state = State.FAIL_B;
 		} 
 	}
 	
@@ -76,26 +78,26 @@ public class APLowerDFA<Node extends INode<Node>> {
 		if (name.equals(b)) {
 			if (constraint.evaluate(currTime)) {
 				currTime = currTime.incrBy(delta);
-				state = APState.SUCCESS_B;
+				state = State.SUCCESS_B;
 			} else { // permanent failure
-				state = APState.FAIL_B;
+				state = State.FAIL_B;
 			}
 		} else if (!name.equals(a)) { // not a
 			currTime = currTime.incrBy(delta);
-			state = APState.NEITHER;
+			state = State.NEITHER;
 		}
 	}
 	
 	private void neitherTransition(EventType name, ITime delta) {
 		if (name.equals(a)) {
 			currTime = new DTotalTime(0);
-			state = APState.FIRST_A;
+			state = State.FIRST_A;
 		} else if (name.equals(b)) {
 			currTime = currTime.incrBy(delta);
 			if (constraint.evaluate(currTime)) {
-				state = APState.SUCCESS_B;
+				state = State.SUCCESS_B;
 			} else { // permanent failure
-				state = APState.FAIL_B;
+				state = State.FAIL_B;
 			}
 		} else {
 			currTime = currTime.incrBy(delta);
@@ -105,7 +107,7 @@ public class APLowerDFA<Node extends INode<Node>> {
 	private void successBTransition(EventType name, ITime delta) {
 		if (name.equals(a)) {
 			currTime = new DTotalTime(0);
-			state = APState.FIRST_A;
+			state = State.FIRST_A;
 		}
 	}
 }

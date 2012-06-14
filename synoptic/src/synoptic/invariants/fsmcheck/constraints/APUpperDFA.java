@@ -15,9 +15,9 @@ import synoptic.util.time.ITime;
  *
  * @param <Node>
  */
-public class APUpperDFA<Node extends INode<Node>> {
+public class APUpperDFA<Node extends INode<Node>> implements IDFA<Node>{
 	private ITime currTime;
-	private APState state;
+	private State state;
 	
 	private EventType a;
 	private EventType b;
@@ -26,7 +26,7 @@ public class APUpperDFA<Node extends INode<Node>> {
 	@SuppressWarnings("rawtypes")
 	public APUpperDFA(TempConstrainedInvariant inv) {
 		this.currTime = null;
-		this.state = APState.NIL;
+		this.state = State.NIL;
 		this.a = inv.getFirst();
 		this.b = inv.getSecond();
 
@@ -38,10 +38,12 @@ public class APUpperDFA<Node extends INode<Node>> {
 		this.constraint = constr;
 	}
 	
-	public APState getState() {
+	@Override
+	public State getState() {
 		return state;
 	}
 	
+	@Override
 	public void transition(Node target, ITime delta) {
 		EventType name = target.getEType();
 		switch(this.state) {
@@ -63,22 +65,22 @@ public class APUpperDFA<Node extends INode<Node>> {
 	private void nilTransition(EventType name) {
 		if (name.equals(a)) {
 			currTime = new DTotalTime(0);
-			state = APState.FIRST_A;
+			state = State.FIRST_A;
 		} else if (name.equals(b)) { 
-			state = APState.FAIL_B;
+			state = State.FAIL_B;
 		} 
 	}
 	
 	private void firstATransition(EventType name, ITime delta) {
 		currTime = currTime.incrBy(delta);
-		state = APState.SUCCESS_B;
+		state = State.SUCCESS_B;
 		
 	}
 
 	private void successBTransition(EventType name, ITime delta) {
 		currTime = currTime.incrBy(delta);
 		if (name.equals(b) && !constraint.evaluate(delta)) {
-			state = APState.FAIL_B;
+			state = State.FAIL_B;
 		}
 	}
 }

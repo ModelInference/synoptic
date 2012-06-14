@@ -115,7 +115,7 @@ public class ConstrainedFsmModelChecker {
      *            The invariant to test.
      * @return The shortest counterexample path for this invariant.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static <Node extends INode<Node>> CExamplePath<Node> getCounterExample(
             TempConstrainedInvariant invariant, IGraph<Node> graph) {
 
