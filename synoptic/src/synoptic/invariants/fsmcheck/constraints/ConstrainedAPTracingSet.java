@@ -87,21 +87,6 @@ public class ConstrainedAPTracingSet<T extends INode<T>> extends ConstrainedTrac
     	}
     }
 
-//    @Override
- //   public void transition(T x, ITransition<T> trans) {
-//        EventType name = x.getEType();
-//        if (a.equals(name)) {
-//            firstA = preferShorter(neitherSeen, firstA);
-//            neitherSeen = null;
-//        } else if (b.equals(name)) {
-//            firstB = preferShorter(neitherSeen, firstB);
-//            neitherSeen = null;
-//        }
-//        neitherSeen = extend(x, neitherSeen);
-//        firstA = extend(x, firstA);
-//        firstB = extend(x, firstB);
-   // }
-
     @Override
     public HistoryNode<T> failpath() {
         return failB;

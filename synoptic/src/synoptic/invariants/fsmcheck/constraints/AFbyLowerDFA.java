@@ -11,9 +11,9 @@ import synoptic.util.time.ITime;
 /**
  * DFA for constrained lower bound threshold AFby invariant.
  */
-public class AFbyLowerDFA<Node extends INode<Node>> {
+public class AFbyLowerDFA<Node extends INode<Node>> implements IDFA<Node> {
 	private ITime currTime;
-	private AFbyState state;
+	private State state;
 	
 	private EventType a;
 	private EventType b;
@@ -22,7 +22,7 @@ public class AFbyLowerDFA<Node extends INode<Node>> {
 	@SuppressWarnings("rawtypes")
 	public AFbyLowerDFA(TempConstrainedInvariant inv) {
 		this.currTime = null;
-		this.state = AFbyState.NIL;
+		this.state = State.NIL;
 		this.a = inv.getFirst();
 		this.b = inv.getSecond();
 		
@@ -34,10 +34,12 @@ public class AFbyLowerDFA<Node extends INode<Node>> {
 		this.constraint = constr;
 	}
 	
-	public AFbyState getState() {
+	@Override
+	public State getState() {
 		return state;
 	}
 	
+	@Override
 	public void transition(Node target, ITime delta) {
 		EventType name = target.getEType();
 		switch(this.state) {
@@ -62,7 +64,7 @@ public class AFbyLowerDFA<Node extends INode<Node>> {
 	private void nilTransition(EventType name) {
 		if (name.equals(a)) {
 			currTime = new DTotalTime(0);
-			state = AFbyState.FIRST_A;
+			state = State.FIRST_A;
 		}
 	}
 	
@@ -70,12 +72,12 @@ public class AFbyLowerDFA<Node extends INode<Node>> {
 		currTime = currTime.incrBy(delta);
 		if (name.equals(b)) {
 			if (constraint.evaluate(currTime)) {
-				state = AFbyState.SUCCESS_B;
+				state = State.SUCCESS_B;
 			} else { // permanent failure
-				state = AFbyState.FAIL_B;
+				state = State.FAIL_B;
 			}
 		} else { // not b
-			state = AFbyState.NOT_B;
+			state = State.NOT_B;
 		}
 	}
 	
@@ -85,9 +87,9 @@ public class AFbyLowerDFA<Node extends INode<Node>> {
 		} else if (name.equals(b)) {
 			currTime = currTime.incrBy(delta);
 			if (constraint.evaluate(currTime)) {
-				state = AFbyState.SUCCESS_B;
+				state = State.SUCCESS_B;
 			} else { // permanent failure
-				state = AFbyState.FAIL_B;
+				state = State.FAIL_B;
 			}
 		} else { // not a or b
 			// stay in NOT_B state
