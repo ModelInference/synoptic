@@ -1,6 +1,7 @@
 package synoptic.invariants.fsmcheck.constraints;
 
 import synoptic.invariants.constraints.IThresholdConstraint;
+import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
@@ -9,10 +10,6 @@ import synoptic.util.time.ITime;
 
 /**
  * DFA for constrained lower bound threshold AFby invariant.
- * 
- * @author Kevin
- *
- * @param <Node>
  */
 public class AFbyLowerDFA<Node extends INode<Node>> {
 	private ITime currTime;
@@ -22,13 +19,19 @@ public class AFbyLowerDFA<Node extends INode<Node>> {
 	private EventType b;
 	private IThresholdConstraint constraint;
 	
+	@SuppressWarnings("rawtypes")
 	public AFbyLowerDFA(TempConstrainedInvariant inv) {
 		this.currTime = null;
 		this.state = AFbyState.NIL;
 		this.a = inv.getFirst();
 		this.b = inv.getSecond();
-		// TODO check that inv has lower bound constraint
-		this.constraint = inv.getConstraint();
+		
+		IThresholdConstraint constr = inv.getConstraint();
+		// check that inv has lower bound constraint
+		if (!constr.getClass().equals(LowerBoundConstraint.class)) {
+			throw new IllegalArgumentException("TempConstrainedInvariant must be for lower bound");
+		}
+		this.constraint = constr;
 	}
 	
 	public AFbyState getState() {

@@ -1,5 +1,8 @@
 package synoptic.invariants.fsmcheck.constraints;
 
+/**
+ * Represents various states for a constraint AP FSM.
+ */
 public enum APState {
 	NIL(true),
 	FIRST_A(false),

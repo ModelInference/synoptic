@@ -2,6 +2,7 @@ package synoptic.invariants.fsmcheck.constraints;
 
 import synoptic.invariants.constraints.IThresholdConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
+import synoptic.invariants.constraints.UpperBoundConstraint;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.util.time.DTotalTime;
@@ -22,13 +23,19 @@ public class AFbyUpperDFA<Node extends INode<Node>> {
 	private EventType b;
 	private IThresholdConstraint constraint;
 	
+	@SuppressWarnings("rawtypes")
 	public AFbyUpperDFA(TempConstrainedInvariant inv) {
 		this.currTime = null;
 		this.state = AFbyState.NIL;
 		this.a = inv.getFirst();
 		this.b = inv.getSecond();
-		// TODO check that inv has upper bound constraint
-		this.constraint = inv.getConstraint();
+		
+		IThresholdConstraint constr = inv.getConstraint();
+		// check that inv has upper bound constraint
+		if (!constr.getClass().equals(UpperBoundConstraint.class)) {
+			throw new IllegalArgumentException("TempConstrainedInvariant must be for upper bound");
+		}
+		this.constraint = constr;
 	}
 	
 	public AFbyState getState() {
