@@ -68,7 +68,6 @@ public class ConstrainedFsmModelChecker {
             // Process all the nodes that are adjacent to the current node.
             for (Node target : graph.getAdjacentNodes(node)) {
             	ITransition<Node> trans = getTransition(node, target);
-            	// Dealing with partitions, so get mean delta of transition
             	
                 StateSet oldTargetStates = states.get(target);
                 StateSet updatesToTargetStates = current.copy();
