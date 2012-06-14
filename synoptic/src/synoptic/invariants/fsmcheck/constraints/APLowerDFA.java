@@ -1,6 +1,7 @@
 package synoptic.invariants.fsmcheck.constraints;
 
 import synoptic.invariants.constraints.IThresholdConstraint;
+import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
@@ -22,13 +23,19 @@ public class APLowerDFA<Node extends INode<Node>> {
 	private EventType b;
 	private IThresholdConstraint constraint;
 	
+	@SuppressWarnings("rawtypes")
 	public APLowerDFA(TempConstrainedInvariant inv) {
 		this.currTime = null;
 		this.state = APState.NIL;
 		this.a = inv.getFirst();
 		this.b = inv.getSecond();
-		// TODO check that inv has lower bound constraint
-		this.constraint = inv.getConstraint();
+		
+		IThresholdConstraint constr = inv.getConstraint();
+		// check that inv has lower bound constraint
+		if (!constr.getClass().equals(LowerBoundConstraint.class)) {
+			throw new IllegalArgumentException("TempConstrainedInvariant must be for lower bound");
+		}
+		this.constraint = constr;
 	}
 	
 	public APState getState() {

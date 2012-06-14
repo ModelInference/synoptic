@@ -1,5 +1,8 @@
 package synoptic.invariants.fsmcheck.constraints;
 
+/**
+ * Represents various states in a AFby FSM.
+ */
 public enum AFbyState {
 	NIL(true),
 	FIRST_A(false),
