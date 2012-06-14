@@ -6,14 +6,12 @@ import synoptic.invariants.constraints.UpperBoundConstraint;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.util.time.DTotalTime;
+import synoptic.util.time.FTotalTime;
 import synoptic.util.time.ITime;
+import synoptic.util.time.ITotalTime;
 
 /**
  * DFA for constrained upper bound threshold AFby invariant.
- * 
- * @author Kevin
- *
- * @param <Node>
  */
 public class AFbyUpperDFA<Node extends INode<Node>> implements IDFA<Node> {
 	private ITime currTime;
@@ -67,7 +65,14 @@ public class AFbyUpperDFA<Node extends INode<Node>> implements IDFA<Node> {
 	
 	private void nilTransition(EventType name) {
 		if (name.equals(a)) {
-			currTime = new DTotalTime(0);
+			Class<?> clazz = constraint.getThreshold().getClass();
+			if (clazz.equals(DTotalTime.class)) {
+				currTime = new DTotalTime(0);
+			} else if (clazz.equals(FTotalTime.class)) {
+				currTime = new FTotalTime(0);
+			} else if (clazz.equals(ITotalTime.class)) {
+				currTime = new ITotalTime(0);
+			}
 			state = State.FIRST_A;
 		}
 	}

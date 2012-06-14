@@ -3,11 +3,11 @@ package synoptic.invariants.fsmcheck.constraints;
 import synoptic.invariants.constraints.IThresholdConstraint;
 import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
+import synoptic.invariants.constraints.UpperBoundConstraint;
 import synoptic.invariants.fsmcheck.HistoryNode;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
-import synoptic.util.time.DTotalTime;
 import synoptic.util.time.ITime;
 
 /**
@@ -21,14 +21,15 @@ import synoptic.util.time.ITime;
  *            The node type, used as an input, and stored in path-history.
  */
 public class ConstrainedAPTracingSet<T extends INode<T>> extends ConstrainedTracingStateSet<T> {
-    HistoryNode<T> neitherSeen; // Neither A or B yet seen
-    HistoryNode<T> firstA; // A seen before B (permanent success)
-    HistoryNode<T> firstB; // B seen before A (permanent failure)
-    HistoryNode<T> failB;
+//    HistoryNode<T> neitherSeen; // Neither A or B yet seen
+//    HistoryNode<T> firstA; // A seen before B (permanent success)
+//    HistoryNode<T> firstB; // B seen before A (permanent failure)
+	HistoryNode<T> history;
+
     EventType a, b;
 
+    IDFA<T> dfa;
     IThresholdConstraint constr;
-    ITime currTime;
     
     public ConstrainedAPTracingSet(EventType a, EventType b) {
         this.a = a;
@@ -39,21 +40,26 @@ public class ConstrainedAPTracingSet<T extends INode<T>> extends ConstrainedTrac
 	public ConstrainedAPTracingSet(TempConstrainedInvariant inv) {
         this(inv.getFirst(), inv.getSecond());
         this.constr = inv.getConstraint();
-        this.currTime = new DTotalTime(0.0);
+        if (constr.getClass().equals(LowerBoundConstraint.class)) {
+        	dfa = new AFbyLowerDFA<T>(inv);
+        } else if (constr.getClass().equals(UpperBoundConstraint.class)) {
+        	dfa = new AFbyUpperDFA<T>(inv);
+        }
     }
 
     @Override
     public void setInitial(T x) {
         EventType name = x.getEType();
         HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
-        neitherSeen = firstA = firstB = null;
-        if (a.equals(name)) {
-            firstA = newHistory;
-        } else if (b.equals(name)) {
-            firstB = newHistory;
-        } else {
-            neitherSeen = newHistory;
-        }
+//        neitherSeen = firstA = firstB = null;
+//        if (a.equals(name)) {
+//            firstA = newHistory;
+//        } else if (b.equals(name)) {
+//            firstB = newHistory;
+//        } else {
+//            neitherSeen = newHistory;
+//        }
+        history = newHistory;
     }
     
     public void transition(T x, ITransition<T> trans) {
@@ -64,79 +70,74 @@ public class ConstrainedAPTracingSet<T extends INode<T>> extends ConstrainedTrac
     		time = trans.getDeltaSeries().getMaxDelta();
     	}
     	
-    	EventType name = x.getEType();
-    	if (a.equals(name)) {
-    		firstA = preferShorter(neitherSeen, firstA);
-    		neitherSeen = null;
-    	} else if (b.equals(name)) {
-    		firstB = preferShorter(neitherSeen, firstB);
-    		neitherSeen = null;
-    	}
+    	dfa.transition(x, time);
+    	history = extend(x, history);    	
     	
-    	// An A has been seen, start adding up transition times.
-    	/*if (firstA != null) {
-    		currTime = currTime.incrBy(delta);
-    	}*/
-      
-    	neitherSeen = extend(x, neitherSeen);
-    	firstA = extend(x, firstA);
-    	firstB = extend(x, firstB);
-    	
-    	if (!constr.evaluate(currTime)) {
-    		failB = firstB; 
-    	}
+//    	EventType name = x.getEType();
+//        if (a.equals(name)) {
+//            firstA = preferShorter(neitherSeen, firstA);
+//            neitherSeen = null;
+//        } else if (b.equals(name)) {
+//            firstB = preferShorter(neitherSeen, firstB);
+//            neitherSeen = null;
+//        }
+//        neitherSeen = extend(x, neitherSeen);
+//        firstA = extend(x, firstA);
+//        firstB = extend(x, firstB);
     }
 
     @Override
     public HistoryNode<T> failpath() {
-        return failB;
+    	if (dfa.getState().isSuccess()) {
+    		return null;
+    	}
+    	return history;
     }
 
     @Override
     public ConstrainedAPTracingSet<T> copy() {
         ConstrainedAPTracingSet<T> result = new ConstrainedAPTracingSet<T>(a, b);
-        result.neitherSeen = neitherSeen;
-        result.firstA = firstA;
-        result.firstB = firstB;
+//        result.neitherSeen = neitherSeen;
+//        result.firstA = firstA;
+//        result.firstB = firstB;
         result.constr = constr;
-        result.currTime = currTime;
-        result.failB = failB;
+        result.dfa = dfa;
+        result.history = history;
         return result;
     }
 
     @Override
     public void mergeWith(ConstrainedTracingStateSet<T> other) {
         ConstrainedAPTracingSet<T> casted = (ConstrainedAPTracingSet<T>) other;
-        neitherSeen = preferShorter(neitherSeen, casted.neitherSeen);
-        firstA = preferShorter(firstA, casted.firstA);
-        firstB = preferShorter(firstB, casted.firstB);
-        failB = preferShorter(failB, casted.failB);
+//        neitherSeen = preferShorter(neitherSeen, casted.neitherSeen);
+//        firstA = preferShorter(firstA, casted.firstA);
+//        firstB = preferShorter(firstB, casted.firstB);
+        history = preferShorter(history, casted.history);
     }
 
     @Override
     public boolean isSubset(ConstrainedTracingStateSet<T> other) {
         ConstrainedAPTracingSet<T> casted = (ConstrainedAPTracingSet<T>) other;
-        if (casted.neitherSeen == null) {
-            if (neitherSeen != null) {
-                return false;
-            }
-        }
-        if (casted.firstA == null) {
-            if (firstA != null) {
-                return false;
-            }
-        }
-        if (casted.firstB == null) {
-            if (firstB != null) {
-                return false;
-            }
-        }
-        if (casted.failB == null) {
-        	if (failB != null) {
+//        if (casted.neitherSeen == null) {
+//            if (neitherSeen != null) {
+//                return false;
+//            }
+//        }
+//        if (casted.firstA == null) {
+//            if (firstA != null) {
+//                return false;
+//            }
+//        }
+//        if (casted.firstB == null) {
+//            if (firstB != null) {
+//                return false;
+//            }
+//        }
+        if (casted.history == null) {
+        	if (history != null) {
         		return false;
         	}
         }
-        
         return true;
     }
 
@@ -144,11 +145,12 @@ public class ConstrainedAPTracingSet<T extends INode<T>> extends ConstrainedTrac
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append("AP: ");
-        appendWNull(result, firstB); // Failure case first.
-        result.append(" | ");
-        appendWNull(result, firstA);
-        result.append(" | ");
-        appendWNull(result, neitherSeen);
+        appendWNull(result, history);
+//        appendWNull(result, firstB); // Failure case first.
+//        result.append(" | ");
+//        appendWNull(result, firstA);
+//        result.append(" | ");
+//        appendWNull(result, neitherSeen);
         return result.toString();
     }
 }
