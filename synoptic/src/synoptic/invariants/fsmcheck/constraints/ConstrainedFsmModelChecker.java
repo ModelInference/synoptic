@@ -97,7 +97,7 @@ public class ConstrainedFsmModelChecker {
     // Given a source node and target node, return the transition between the two.
     private static <Node extends INode<Node>> ITransition<Node> getTransition(Node source, Node target) {
     	for (ITransition<Node> trans : source.getAllTransitions()) {
-    		if (trans.equals(target)) {
+    		if (trans.getTarget().equals(target)) {
     			return trans;
     		}
     	}
