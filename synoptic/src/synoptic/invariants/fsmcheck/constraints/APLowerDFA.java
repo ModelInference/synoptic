@@ -48,7 +48,7 @@ public class APLowerDFA<Node extends INode<Node>> implements IDFA<Node> {
 			case NIL:
 				nilTransition(name);
 				break;
-			case FIRST_A:
+			case FIRST_A_ACCEPT:
 				firstATransition(name, delta);
 				break;
 			case FAIL_B: // permanent failure
@@ -73,7 +73,7 @@ public class APLowerDFA<Node extends INode<Node>> implements IDFA<Node> {
 			} else if (clazz.equals(ITotalTime.class)) {
 				currTime = new ITotalTime(0);
 			}
-			state = State.FIRST_A;
+			state = State.FIRST_A_ACCEPT;
 		} else if (name.equals(b)) { 
 			state = State.FAIL_B;
 		} 
@@ -96,7 +96,7 @@ public class APLowerDFA<Node extends INode<Node>> implements IDFA<Node> {
 	private void neitherTransition(EventType name, ITime delta) {
 		if (name.equals(a)) {
 			currTime = new DTotalTime(0);
-			state = State.FIRST_A;
+			state = State.FIRST_A_ACCEPT;
 		} else if (name.equals(b)) {
 			currTime = currTime.incrBy(delta);
 			if (constraint.evaluate(currTime)) {
@@ -112,7 +112,7 @@ public class APLowerDFA<Node extends INode<Node>> implements IDFA<Node> {
 	private void successBTransition(EventType name, ITime delta) {
 		if (name.equals(a)) {
 			currTime = new DTotalTime(0);
-			state = State.FIRST_A;
+			state = State.FIRST_A_ACCEPT;
 		}
 	}
 }

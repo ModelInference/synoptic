@@ -6,15 +6,16 @@ package synoptic.invariants.fsmcheck.constraints;
 public enum State {
 	// Used by both AFby and AP FSM
 	NIL(true),
-	FIRST_A(false),
 	SUCCESS_B(true),
 	FAIL_B(false),
 	
 	// Only AFby
 	NOT_B(false),
+	FIRST_A_REJECT(false),
 	
 	// Only AP
-	NEITHER(true);
+	NEITHER(true),
+	FIRST_A_ACCEPT(true);
 
 	private boolean isSuccess;
 

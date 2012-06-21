@@ -48,7 +48,7 @@ public class AFbyUpperDFA<Node extends INode<Node>> implements IDFA<Node> {
 			case NIL:
 				nilTransition(name);
 				break;
-			case FIRST_A:
+			case FIRST_A_REJECT:
 				afterATransition(name, delta);
 				break;
 			case NOT_B:
@@ -73,7 +73,7 @@ public class AFbyUpperDFA<Node extends INode<Node>> implements IDFA<Node> {
 			} else if (clazz.equals(ITotalTime.class)) {
 				currTime = new ITotalTime(0);
 			}
-			state = State.FIRST_A;
+			state = State.FIRST_A_REJECT;
 		}
 	}
 	

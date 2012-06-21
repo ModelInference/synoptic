@@ -48,7 +48,7 @@ public class APUpperDFA<Node extends INode<Node>> implements IDFA<Node> {
 			case NIL:
 				nilTransition(name);
 				break;
-			case FIRST_A:
+			case FIRST_A_ACCEPT:
 				firstATransition(name, delta);
 				break;
 			case FAIL_B: // permanent failure
@@ -70,7 +70,7 @@ public class APUpperDFA<Node extends INode<Node>> implements IDFA<Node> {
 			} else if (clazz.equals(ITotalTime.class)) {
 				currTime = new ITotalTime(0);
 			}
-			state = State.FIRST_A;
+			state = State.FIRST_A_ACCEPT;
 		} else if (name.equals(b)) { 
 			state = State.FAIL_B;
 		} 

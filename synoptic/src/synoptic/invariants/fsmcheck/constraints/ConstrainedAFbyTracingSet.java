@@ -21,14 +21,8 @@ import synoptic.util.time.ITime;
  *            The node type, used as an input, and stored in path-history.
  */
 public class ConstrainedAFbyTracingSet<T extends INode<T>> extends ConstrainedTracingStateSet<T>  {
-//	HistoryNode<T> wasA; // Indicates that A was seen more recently than B (failing
-//    // state)
-//    HistoryNode<T> wasB; // Indicates that B was seen more recently than A
-    
     HistoryNode<T> history;
-    
     EventType a, b;
-   
     IDFA<T> dfa;
     IThresholdConstraint constr;
 
@@ -51,14 +45,7 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends ConstrainedTr
 
     @Override
     public void setInitial(T x) {
-//        EventType name = x.getEType();
         HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
-//        wasA = wasB = null;
-//        if (name.equals(a)) {
-//            wasA = newHistory;
-//        } else if (name.equals(b)) {
-//            wasB = newHistory;
-//        }
         history = newHistory;
     }
     
@@ -73,16 +60,6 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends ConstrainedTr
     	
     	dfa.transition(x, time);
     	history = extend(x, history);
-//    	EventType name = x.getEType();
-//        if (a.equals(name)) {
-//            wasA = preferShorter(wasB, wasA);
-//            wasB = null;
-//        } else if (b.equals(name)) {
-//            wasB = preferShorter(wasA, wasB);
-//            wasA = null;
-//        }
-//        wasA = extend(x, wasA);
-//        wasB = extend(x, wasB);
     }
 
     @Override
@@ -91,14 +68,11 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends ConstrainedTr
     		return null;
     	}
     	return history;
-//        return wasA;
     }
 
     @Override
     public ConstrainedAFbyTracingSet<T> copy() {
         ConstrainedAFbyTracingSet<T> result = new ConstrainedAFbyTracingSet<T>(a, b);
-//        result.wasA = wasA;
-//        result.wasB = wasB;
         result.constr = constr;
         result.dfa = dfa;
         result.history = history;
@@ -108,24 +82,12 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends ConstrainedTr
     @Override
     public void mergeWith(ConstrainedTracingStateSet<T> other) {
         ConstrainedAFbyTracingSet<T> casted = (ConstrainedAFbyTracingSet<T>) other;
-//        wasA = preferShorter(wasA, casted.wasA);
-//        wasB = preferShorter(wasB, casted.wasB);
         history = preferShorter(history, casted.history);
     }
 
     @Override
     public boolean isSubset(ConstrainedTracingStateSet<T> other) {
         ConstrainedAFbyTracingSet<T> casted = (ConstrainedAFbyTracingSet<T>) other;
-//        if (casted.wasA == null) {
-//            if (wasA != null) {
-//                return false;
-//            }
-//        }
-//        if (casted.wasB == null) {
-//            if (wasB != null) {
-//                return false;
-//            }
-//        }
         if (casted.history == null) {
         	if (history != null) {
         		return false;
@@ -139,9 +101,6 @@ public class ConstrainedAFbyTracingSet<T extends INode<T>> extends ConstrainedTr
         StringBuilder result = new StringBuilder();
         result.append("ConstrainedAFby: ");
         appendWNull(result, history);
-//        appendWNull(result, wasA); // Failure case first.
-//        result.append(" | ");
-//        appendWNull(result, wasB);
         return result.toString();
     }
 }
