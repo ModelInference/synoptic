@@ -20,7 +20,7 @@ public class LowerBoundConstraint implements IThresholdConstraint {
 
     @Override
     public boolean evaluate(ITime t) {
-        return !(this.bound.lessThan(t));
+        return this.bound.lessThan(t);
     }
 
     @Override
