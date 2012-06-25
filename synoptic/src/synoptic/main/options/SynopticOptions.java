@@ -144,7 +144,7 @@ public class SynopticOptions extends Options {
      * performance.
      */
     @Option(value = "-p Enable performance debugging support")
-    public boolean enablePerfDebugging = false;
+    public static boolean enablePerfDebugging = false;
 
     /**
      * This allows users to get away with sloppy\incorrect regular expressions
