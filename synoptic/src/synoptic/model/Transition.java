@@ -133,6 +133,11 @@ public class Transition<NodeType> implements ITransition<NodeType> {
     // delta at the same time.
 
     @Override
+    public boolean isDeltaSet() {
+    	return this.labels.getTimeDeltaSeries() == null;
+    }
+    
+    @Override
     public ITime getTimeDelta() {
         if (this.labels.getTimeDeltaSeries() != null) {
             throw new IllegalStateException("Series initialized");
