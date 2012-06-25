@@ -52,6 +52,13 @@ public interface ITransition<NodeType> extends
      *            the new source node
      */
     void setSource(NodeType source);
+    
+    /**
+     * Returns whether or not a delta time is set for transition.
+     * 
+     * @return true if delta is set, false if not
+     */
+    boolean isDeltaSet();
 
     /**
      * Get the delta time of the transition. Cannot be called after a delta
