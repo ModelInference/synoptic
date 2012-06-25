@@ -32,7 +32,7 @@ import synoptic.model.interfaces.INode;
  * Maintains a set of temporal invariants.
  */
 public class ConstrainedTemporalInvariantSet implements Iterable<ITemporalInvariant> {
-    private static Logger logger = Logger.getLogger("TemporalInvSet Logger");
+    private static Logger logger = Logger.getLogger("ConstrainedTemporalInvSet Logger");
 
     LinkedHashSet<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
@@ -126,7 +126,7 @@ public class ConstrainedTemporalInvariantSet implements Iterable<ITemporalInvari
                 "getCounterExample", true);
         try {
             if (SynopticMain.getInstance().options.useFSMChecker) {
-                return ConstrainedFsmModelChecker.getCounterExample((TempConstrainedInvariant) inv,
+                return ConstrainedFsmModelChecker.getCounterExample((TempConstrainedInvariant<?>) inv,
                         g);
             }
             GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
@@ -156,7 +156,7 @@ public class ConstrainedTemporalInvariantSet implements Iterable<ITemporalInvari
                 paths = new ArrayList<CExamplePath<T>>();
                 for (ITemporalInvariant tinv : invariants) {
                     CExamplePath<T> path = ConstrainedFsmModelChecker.getCounterExample(
-                            (TempConstrainedInvariant) tinv, graph);
+                            (TempConstrainedInvariant<?>) tinv, graph);
                     if (path != null) {
                         paths.add(path);
                     }
