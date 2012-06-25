@@ -18,6 +18,7 @@ import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.constraints.TempConstrainedInvariant;
 import synoptic.invariants.constraints.UpperBoundConstraint;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
+import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -50,7 +51,8 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
 
         ConstrainedTemporalInvariantSet invs = new ConstrainedTemporalInvariantSet();
         invs.add(inv);
-
+        System.out.println(g.getNodes());
+        
         List<CExamplePath<T>> cexamples = invs.getAllCounterExamples(g);
 
         if (cexamples != null) {
@@ -94,7 +96,7 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
             ParseException {
     	
     	TraceParser parser = new TraceParser();
-    	parser.addRegex("^(?<TYPE>)(?<DTIME>)$");
+    	parser.addRegex("^(?<TYPE>)(?<TIME>)$");
      	parser.addPartitionsSeparator("^--$");
     	
         // Create the graph.
@@ -141,7 +143,7 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
             List<EventType> cExampleLabels) throws Exception {
 
         TraceParser parser = new TraceParser();
-        parser.addRegex("^(?<TYPE>)(?<DTIME>)$");
+        parser.addRegex("^(?<TYPE>)(?<TIME>)$");
         parser.addPartitionsSeparator("^--$");
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser,
                 new TransitiveClosureInvMiner(), false);
@@ -192,13 +194,15 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
      */
     @Test
     public void NoAFbyLinearGraphWithCycleTest() throws Exception {
+    	SynopticOptions.enablePerfDebugging = true;
+    	
         String[] events = new String[] { "x 1", "a 2", "c 3", "x 5", "a 7", "y 8", "b 10", "w 12" };
 
         AlwaysFollowedInvariant inv = new AlwaysFollowedInvariant(
                 new StringEventType("a"), new StringEventType("b"),
                 Event.defTimeRelationStr);
         
-        IThresholdConstraint threshold = new LowerBoundConstraint(new ITotalTime(2));
+        IThresholdConstraint threshold = new UpperBoundConstraint(new ITotalTime(30));
         
         ITemporalInvariant constrInv = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
         		inv, threshold);
@@ -215,6 +219,8 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
      */
     @Test
     public void AFbyLinearGraphWithCycleTest() throws Exception {
+    	SynopticOptions.enablePerfDebugging = true;
+    	
         String[] events = new String[] { "x 1", "a 2", "b 3", "x 4", "a 5", "y 6", "w 7",
                 "--", "x 10", "a 11", "y 13", "w 14" };
 
@@ -222,7 +228,7 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
                 new StringEventType("a"), new StringEventType("b"),
                 Event.defTimeRelationStr);
         
-        IThresholdConstraint threshold = new UpperBoundConstraint(new ITotalTime(10));
+        IThresholdConstraint threshold = new UpperBoundConstraint(new ITotalTime(30));
 
         ITemporalInvariant constrInv = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
         		inv, threshold);
@@ -243,6 +249,8 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
     @Test
     public void NoAFbyLinearGraphTest() throws InternalSynopticException,
             ParseException {
+    	SynopticOptions.enablePerfDebugging = true;
+    	
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "a 1", "x 2", "y 3", "b 4" };
         
@@ -267,6 +275,8 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
     @Test
     public void AFbyLinearGraphTest() throws InternalSynopticException,
             ParseException {
+    	SynopticOptions.enablePerfDebugging = true;
+    	
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "a 1", "x 2", "y 3", "z 4" };
         
@@ -291,6 +301,8 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
      */
     @Test
     public void NoAPLinearGraphWithCycleTest() throws Exception {
+    	SynopticOptions.enablePerfDebugging = true;
+    	
         String[] events = new String[] { "a 1", "c 2", "a 3", "b 4" };
 
         AlwaysPrecedesInvariant inv = new AlwaysPrecedesInvariant(
@@ -312,6 +324,8 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
      */
     @Test
     public void APLinearGraphWithCycleTest() throws Exception {
+    	SynopticOptions.enablePerfDebugging = true;
+
         String[] events = new String[] { "z 1", "x 2", "z 3", "b 4" };
 
         AlwaysPrecedesInvariant inv = new AlwaysPrecedesInvariant(
@@ -337,6 +351,8 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
     @Test
     public void NoAPLinearGraphTest() throws InternalSynopticException,
             ParseException {
+    	SynopticOptions.enablePerfDebugging = true;
+
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "x 1", "a 2", "x 3", "y 4", "b 5" };
         
@@ -361,6 +377,8 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
     @Test
     public void APLinearGraphTest() throws InternalSynopticException,
             ParseException {
+    	SynopticOptions.enablePerfDebugging = true;
+
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "x 1", "y 2", "z 3", "b 4", "a 5" };
         
@@ -368,7 +386,7 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
                 new StringEventType("a"), new StringEventType("b"),
                 Event.defTimeRelationStr);
         
-        IThresholdConstraint threshold = new UpperBoundConstraint(new ITotalTime(10));
+        IThresholdConstraint threshold = new LowerBoundConstraint(new ITotalTime(10));
         
         ITemporalInvariant constrInv = new TempConstrainedInvariant<AlwaysPrecedesInvariant>(
         		inv, threshold);
