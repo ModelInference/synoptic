@@ -48,8 +48,8 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
 
     /**
      * Test that the graph g generates or not (depending on the value of
-     * cExampleExists) a counter-example for invariant inv, which is exactly the
-     * expectedPath through the graph g.
+     * cExampleExists) a _single_ counter-example for invariant inv, which is
+     * exactly the expectedPath through the graph g.
      */
     @SuppressWarnings("null")
     private static <T extends INode<T>> void testCExamplePath(IGraph<T> g,
@@ -150,7 +150,7 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
             List<EventType> cExampleLabels) throws Exception {
 
         TraceParser parser = new TraceParser();
-        parser.addRegex("^(?<TYPE>)(?<DTIME>)$");
+        parser.addRegex("^(?<TYPE>)(?<TIME>)$");
         parser.addPartitionsSeparator("^--$");
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser,
                 new TransitiveClosureInvMiner(), false);
@@ -262,7 +262,6 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
                 new StringEventType("a"), new StringEventType("b"),
                 Event.defTimeRelationStr);
 
-        // ///////// XXX ITotalTime should actually be DTotalTime -- Why?
         IThresholdConstraint threshold = new LowerBoundConstraint(
                 new ITotalTime(2));
 
