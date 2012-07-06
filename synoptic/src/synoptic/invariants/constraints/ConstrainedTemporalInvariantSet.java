@@ -22,7 +22,6 @@ import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
 import synoptic.invariants.fsmcheck.constraints.ConstrainedFsmModelChecker;
-import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.SynopticMain;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IGraph;
@@ -31,8 +30,10 @@ import synoptic.model.interfaces.INode;
 /**
  * Maintains a set of temporal invariants.
  */
-public class ConstrainedTemporalInvariantSet implements Iterable<ITemporalInvariant> {
-    private static Logger logger = Logger.getLogger("ConstrainedTemporalInvSet Logger");
+public class ConstrainedTemporalInvariantSet implements
+        Iterable<ITemporalInvariant> {
+    private static Logger logger = Logger
+            .getLogger("ConstrainedTemporalInvSet Logger");
 
     LinkedHashSet<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
@@ -125,12 +126,8 @@ public class ConstrainedTemporalInvariantSet implements Iterable<ITemporalInvari
         TimedTask refinement = PerformanceMetrics.createTask(
                 "getCounterExample", true);
         try {
-            if (SynopticMain.getInstance().options.useFSMChecker) {
-                return ConstrainedFsmModelChecker.getCounterExample((TempConstrainedInvariant<?>) inv,
-                        g);
-            }
-            GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
-            return ch.getCounterExample(inv, g);
+            return ConstrainedFsmModelChecker.getCounterExample(
+                    (TempConstrainedInvariant<?>) inv, g);
         } finally {
             refinement.stop();
         }
@@ -152,25 +149,14 @@ public class ConstrainedTemporalInvariantSet implements Iterable<ITemporalInvari
                 "getAllCounterExamples", false);
         try {
             List<CExamplePath<T>> paths = null;
-            if (SynopticMain.getInstance().options.useFSMChecker) {
-                paths = new ArrayList<CExamplePath<T>>();
-                for (ITemporalInvariant tinv : invariants) {
-                    CExamplePath<T> path = ConstrainedFsmModelChecker.getCounterExample(
-                            (TempConstrainedInvariant<?>) tinv, graph);
-                    if (path != null) {
-                        paths.add(path);
-                    }
-                }
-            } else {
-                // Use the LTL checker instead.
-                paths = new ArrayList<CExamplePath<T>>();
-                GraphLTLChecker<T> checker = new GraphLTLChecker<T>();
-                for (ITemporalInvariant inv : invariants) {
-                    CExamplePath<T> path = checker
-                            .getCounterExample(inv, graph);
-                    if (path != null) {
-                        paths.add(path);
-                    }
+
+            paths = new ArrayList<CExamplePath<T>>();
+            for (ITemporalInvariant tinv : invariants) {
+                CExamplePath<T> path = ConstrainedFsmModelChecker
+                        .getCounterExample((TempConstrainedInvariant<?>) tinv,
+                                graph);
+                if (path != null) {
+                    paths.add(path);
                 }
             }
 
@@ -211,21 +197,11 @@ public class ConstrainedTemporalInvariantSet implements Iterable<ITemporalInvari
         TimedTask violations = PerformanceMetrics.createTask(
                 "getFirstCounterExample", false);
         try {
-            if (SynopticMain.getInstance().options.useFSMChecker) {
-                for (ITemporalInvariant tinv : invariants) {
-                    CExamplePath<T> path = FsmModelChecker.getCounterExample(
-                            (BinaryInvariant) tinv, g);
-                    if (path != null) {
-                        return path;
-                    }
-                }
-                return null;
-            }
-            GraphLTLChecker<T> c = new GraphLTLChecker<T>();
-            for (ITemporalInvariant i : invariants) {
-                CExamplePath<T> result = c.getCounterExample(i, g);
-                if (result != null) {
-                    return result;
+            for (ITemporalInvariant tinv : invariants) {
+                CExamplePath<T> path = FsmModelChecker.getCounterExample(
+                        (BinaryInvariant) tinv, g);
+                if (path != null) {
+                    return path;
                 }
             }
             return null;
