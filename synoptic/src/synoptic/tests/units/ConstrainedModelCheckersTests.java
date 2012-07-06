@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
@@ -38,7 +39,14 @@ import synoptic.util.time.ITotalTime;
  * Tests for constrained model checker.
  */
 public class ConstrainedModelCheckersTests extends SynopticTest {
-	/**
+
+    @Before
+    public void setUp() throws ParseException {
+        super.setUp();
+        synoptic.main.SynopticMain.getInstance().options.enablePerfDebugging = true;
+    }
+
+    /**
      * Test that the graph g generates or not (depending on the value of
      * cExampleExists) a counter-example for invariant inv, which is exactly the
      * expectedPath through the graph g.
@@ -80,26 +88,27 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
         }
         return;
     }
-    
+
     /**
      * Test that the list of events representing a linear graph generates or not
      * (depending on value of cExampleExists) a single counter-example for
      * invariant inv that includes the prefix of linear graph of length up to
-     * cExampleIndex (which starts counting at 0 = INITIAL, and may index
+     * lastCExampleIndex (which starts counting at 0 = INITIAL, and may index
      * TERMINAL).
      */
     private void testLinearGraphCExample(String[] events,
             ITemporalInvariant inv, boolean cExampleExists,
             int lastCExampleIndex) throws InternalSynopticException,
             ParseException {
-    	
-    	TraceParser parser = new TraceParser();
-    	parser.addRegex("^(?<TYPE>)(?<DTIME>)$");
-     	parser.addPartitionsSeparator("^--$");
-    	
+
+        TraceParser parser = new TraceParser();
+        parser.addRegex("^(?<TYPE>)(?<DTIME>)$");
+        parser.addPartitionsSeparator("^--$");
+
         // Create the graph.
-        ChainsTraceGraph g = (ChainsTraceGraph) genChainsTraceGraph(events, parser);
-        
+        ChainsTraceGraph g = (ChainsTraceGraph) genChainsTraceGraph(events,
+                parser);
+
         if (!cExampleExists) {
             // Don't bother constructing the counter-example path.
             testCExamplePath(g, inv, cExampleExists, null);
@@ -116,7 +125,7 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
         }
         testCExamplePath(g, inv, cExampleExists, expectedPath);
     }
-    
+
     /**
      * The list of partially ordered events is condensed into a partition graph
      * (the most compressed model). This graph is then checked for existence or
@@ -180,9 +189,9 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
         }
         testCExamplePath(pGraph, inv, cExampleExists, expectedPath);
     }
-    
+
     // //////////////////////////// AFby:
-    
+
     /**
      * Tests that a linear graph with a cycle does _not_ generate an AFby
      * c-example. This demonstrates why we need "<> TERMINAL ->" as the prefix
@@ -192,20 +201,22 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
      */
     @Test
     public void NoAFbyLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "x 1", "a 2", "c 3", "x 5", "a 7", "y 8", "b 10", "w 12" };
+        String[] events = new String[] { "x 1", "a 2", "c 3", "x 5", "a 7",
+                "y 8", "b 10", "w 12" };
 
         AlwaysFollowedInvariant inv = new AlwaysFollowedInvariant(
                 new StringEventType("a"), new StringEventType("b"),
                 Event.defTimeRelationStr);
-        
-        IThresholdConstraint threshold = new LowerBoundConstraint(new ITotalTime(2));
-        
+
+        IThresholdConstraint threshold = new LowerBoundConstraint(
+                new ITotalTime(2));
+
         ITemporalInvariant constrInv = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-        		inv, threshold);
+                inv, threshold);
 
         testPartitionGraphCExample(events, constrInv, false, null);
     }
-    
+
     /**
      * Tests that a linear graph with a cycle does generate an AFby c-example.
      * This tests the LTL formula that includes an "eventually TERMINAL" clause
@@ -215,25 +226,26 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
      */
     @Test
     public void AFbyLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "x 1", "a 2", "b 3", "x 4", "a 5", "y 6", "w 7",
-                "--", "x 10", "a 11", "y 13", "w 14" };
+        String[] events = new String[] { "x 1", "a 2", "b 3", "x 4", "a 5",
+                "y 6", "w 7", "--", "x 10", "a 11", "y 13", "w 14" };
 
         AlwaysFollowedInvariant inv = new AlwaysFollowedInvariant(
                 new StringEventType("a"), new StringEventType("b"),
                 Event.defTimeRelationStr);
-        
-        IThresholdConstraint threshold = new UpperBoundConstraint(new ITotalTime(10));
+
+        IThresholdConstraint threshold = new UpperBoundConstraint(
+                new ITotalTime(10));
 
         ITemporalInvariant constrInv = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-        		inv, threshold);
-        
+                inv, threshold);
+
         List<EventType> cExampleLabels = stringsToStringEventTypes(new String[] {
                 "x", "a", "y", "w" });
-        
+
         cExampleLabels.add(StringEventType.newTerminalStringEventType());
         testPartitionGraphCExample(events, constrInv, true, cExampleLabels);
     }
-    
+
     /**
      * Tests that a linear graph does not generate an AFby c-example.
      * 
@@ -245,19 +257,21 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
             ParseException {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "a 1", "x 2", "y 3", "b 4" };
-        
+
         AlwaysFollowedInvariant inv = new AlwaysFollowedInvariant(
                 new StringEventType("a"), new StringEventType("b"),
                 Event.defTimeRelationStr);
-        
-        IThresholdConstraint threshold = new LowerBoundConstraint(new ITotalTime(2));
-        
+
+        // ///////// XXX ITotalTime should actually be DTotalTime -- Why?
+        IThresholdConstraint threshold = new LowerBoundConstraint(
+                new ITotalTime(2));
+
         ITemporalInvariant constrInv = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-        		inv, threshold);
+                inv, threshold);
 
         testLinearGraphCExample(events, constrInv, false, 0);
     }
-    
+
     /**
      * Tests that a linear graph does generate an AFby c-example.
      * 
@@ -269,19 +283,20 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
             ParseException {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "a 1", "x 2", "y 3", "z 4" };
-        
+
         AlwaysFollowedInvariant inv = new AlwaysFollowedInvariant(
                 new StringEventType("a"), new StringEventType("b"),
                 Event.defTimeRelationStr);
-        
-        IThresholdConstraint threshold = new LowerBoundConstraint(new ITotalTime(2));
-        
+
+        IThresholdConstraint threshold = new LowerBoundConstraint(
+                new ITotalTime(2));
+
         ITemporalInvariant constrInv = new TempConstrainedInvariant<AlwaysFollowedInvariant>(
-        		inv, threshold);
-        
+                inv, threshold);
+
         testLinearGraphCExample(events, constrInv, true, 5);
     }
-    
+
     // //////////////////////////// AP:
 
     /**
@@ -296,11 +311,12 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
         AlwaysPrecedesInvariant inv = new AlwaysPrecedesInvariant(
                 new StringEventType("a"), new StringEventType("b"),
                 Event.defTimeRelationStr);
-        
-        IThresholdConstraint threshold = new UpperBoundConstraint(new ITotalTime(10));
-        
+
+        IThresholdConstraint threshold = new UpperBoundConstraint(
+                new ITotalTime(10));
+
         ITemporalInvariant constrInv = new TempConstrainedInvariant<AlwaysPrecedesInvariant>(
-        		inv, threshold);
+                inv, threshold);
 
         testPartitionGraphCExample(events, constrInv, false, null);
     }
@@ -317,12 +333,13 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
         AlwaysPrecedesInvariant inv = new AlwaysPrecedesInvariant(
                 new StringEventType("a"), new StringEventType("b"),
                 Event.defTimeRelationStr);
-        
-        IThresholdConstraint threshold = new UpperBoundConstraint(new ITotalTime(10));
-        
+
+        IThresholdConstraint threshold = new UpperBoundConstraint(
+                new ITotalTime(10));
+
         ITemporalInvariant constrInv = new TempConstrainedInvariant<AlwaysPrecedesInvariant>(
-        		inv, threshold);
-        
+                inv, threshold);
+
         List<EventType> cExampleLabels = stringsToStringEventTypes(new String[] {
                 "z", "b" });
         testPartitionGraphCExample(events, constrInv, true, cExampleLabels);
@@ -339,16 +356,17 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
             ParseException {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "x 1", "a 2", "x 3", "y 4", "b 5" };
-        
+
         AlwaysPrecedesInvariant inv = new AlwaysPrecedesInvariant(
                 new StringEventType("a"), new StringEventType("b"),
                 Event.defTimeRelationStr);
-        
-        IThresholdConstraint threshold = new UpperBoundConstraint(new ITotalTime(10));
-        
+
+        IThresholdConstraint threshold = new UpperBoundConstraint(
+                new ITotalTime(10));
+
         ITemporalInvariant constrInv = new TempConstrainedInvariant<AlwaysPrecedesInvariant>(
-        		inv, threshold);
-       
+                inv, threshold);
+
         testLinearGraphCExample(events, constrInv, false, 0);
     }
 
@@ -363,15 +381,16 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
             ParseException {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "x 1", "y 2", "z 3", "b 4", "a 5" };
-        
+
         AlwaysPrecedesInvariant inv = new AlwaysPrecedesInvariant(
                 new StringEventType("a"), new StringEventType("b"),
                 Event.defTimeRelationStr);
-        
-        IThresholdConstraint threshold = new UpperBoundConstraint(new ITotalTime(10));
-        
+
+        IThresholdConstraint threshold = new UpperBoundConstraint(
+                new ITotalTime(10));
+
         ITemporalInvariant constrInv = new TempConstrainedInvariant<AlwaysPrecedesInvariant>(
-        		inv, threshold);
+                inv, threshold);
 
         testLinearGraphCExample(events, constrInv, true, 4);
     }

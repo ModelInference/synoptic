@@ -1,7 +1,12 @@
 package synoptic.invariants.fsmcheck.constraints;
 
+import synoptic.invariants.constraints.IThresholdConstraint;
+import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.fsmcheck.HistoryNode;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
+import synoptic.model.interfaces.ITransition;
+import synoptic.util.time.ITime;
 
 /**
  * Abstract NFA state set which keeps the shortest path justifying a given state
@@ -15,6 +20,48 @@ import synoptic.model.interfaces.INode;
 public abstract class ConstrainedTracingStateSet<T extends INode<T>> implements
         IConstrainedStateSet<T, ConstrainedTracingStateSet<T>> {
     public static boolean checkPath = false;
+
+    protected HistoryNode<T> history;
+    protected EventType a, b;
+    protected IDFA<T> dfa;
+    protected IThresholdConstraint constr;
+
+    public ConstrainedTracingStateSet(EventType a, EventType b) {
+        this.a = a;
+        this.b = b;
+    }
+
+    @Override
+    public void setInitial(T x) {
+        HistoryNode<T> newHistory = new HistoryNode<T>(x, null, 1);
+        history = newHistory;
+    }
+
+    @Override
+    public void transition(T x, ITransition<T> trans) {
+        ITime time;
+        if (constr.getClass().equals(LowerBoundConstraint.class)) {
+            time = trans.getDeltaSeries().getMinDelta();
+        } else {
+            time = trans.getDeltaSeries().getMaxDelta();
+        }
+
+        dfa.transition(x, time);
+        history = extend(x, history);
+    }
+
+    /**
+     * Queries the state for the shortest path which leads to a failing state.
+     * 
+     * @return The HistoryNode at the head of the linked list of nodes within
+     *         the synoptic.model.
+     */
+    public HistoryNode<T> failpath() {
+        if (dfa.getState().isSuccess()) {
+            return null;
+        }
+        return history;
+    }
 
     /*
      * Helper to extend this history path with another node. If the passed in
@@ -30,39 +77,34 @@ public abstract class ConstrainedTracingStateSet<T extends INode<T>> implements
     /*
      * Helper to yield the shortest non-null path of the two passed in.
      */
-    public HistoryNode<T> preferShorter(HistoryNode<T> a, HistoryNode<T> b) {
-        if (b == null) {
-            return a;
+    public HistoryNode<T> preferShorter(HistoryNode<T> aa, HistoryNode<T> bb) {
+        if (bb == null) {
+            return aa;
         }
-        if (a == null) {
-            return b;
+        if (aa == null) {
+            return bb;
         }
-        if (a.count < b.count) {
-            return a;
+        if (aa.count < bb.count) {
+            return aa;
         }
-        return b;
+        return bb;
     }
-
-    /**
-     * Queries the state for the shortest path which leads to a failing state.
-     * 
-     * @return The HistoryNode at the head of the linked list of nodes within
-     *         the synoptic.model.
-     */
-    public abstract HistoryNode<T> failpath();
 
     @Override
     public boolean isFail() {
         return failpath() != null;
     }
 
-    // Utility function in common with all TracingSet toString definitions.
-    protected static void appendWNull(StringBuilder s, Object o) {
-        if (o == null) {
-            s.append("0");
-        } else {
-            s.append(o.toString());
-        }
-    }
+    protected String toString(String headerStr) {
+        StringBuilder result = new StringBuilder();
+        result.append(headerStr);
 
+        if (history == null) {
+            result.append("null");
+        } else {
+            result.append(history.toString());
+        }
+
+        return result.toString();
+    }
 }
