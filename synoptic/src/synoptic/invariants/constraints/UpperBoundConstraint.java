@@ -4,7 +4,7 @@ import synoptic.util.time.ITime;
 
 /**
  * An inequality constraint that evaluates to true if the given time t is less
- * than the internal time threshold.
+ * than or equal to the internal time threshold.
  */
 public class UpperBoundConstraint implements IThresholdConstraint {
     private ITime bound;
@@ -20,6 +20,8 @@ public class UpperBoundConstraint implements IThresholdConstraint {
 
     @Override
     public boolean evaluate(ITime t) {
+        // If bound >= t return true, else return false.
+        // == If bound < t return false, else return true.
         return !this.bound.lessThan(t);
     }
 
@@ -30,23 +32,23 @@ public class UpperBoundConstraint implements IThresholdConstraint {
 
     @Override
     public boolean equals(Object obj) {
-    	 if (this == obj) {
-             return true;
-         }
-         if (obj == null) {
-             return false;
-         }
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
 
-         if (getClass() != obj.getClass()) {
-             return false;
-         }
-         
-         UpperBoundConstraint other = (UpperBoundConstraint) obj;
-         return bound.equals(other.getThreshold());
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        UpperBoundConstraint other = (UpperBoundConstraint) obj;
+        return bound.equals(other.getThreshold());
     }
-    
+
     @Override
     public String toString() {
-    	return "upperbound = " + bound.toString();
+        return "upperbound = " + bound.toString();
     }
 }
