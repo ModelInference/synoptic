@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="build" name="mcscm-bridge">
+    <description>
+      This build file is used to build the mcscm-bridge project. It can
+      also be used to run the test suite.
+    </description>
+
+    <property environment="env"/>
+    <property name="junit.output.dir" value="junit"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+
+    <path id="mcscm-bridge.classpath">
+        <pathelement location="bin"/>
+		<pathelement location="../lib/junit-4.9b2.jar"/>
+    </path>
+
+    <!--=====================================================================-->
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+
+    <!--=====================================================================-->
+    <target depends="init" name="build">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+        	<src path="tests"/>
+            <classpath refid="mcscm-bridge.classpath"/>
+        </javac>
+    </target>
+
+   
+    <!--=====================================================================-->
+    <target name="tests" depends="build">
+        <mkdir dir="${junit.output.dir}"/>
+    	
+        <junit fork="no" printsummary="withOutAndErr" showoutput="true">
+          <classpath refid="mcscm-bridge.classpath"/>
+		  <formatter type="xml"/>
+    	  <batchtest fork="no" todir="${junit.output.dir}">
+    	  	<fileset dir="bin/">
+			  	<include name="mcscm/*Tests.class"/>
+	  	  	</fileset>
+    	  </batchtest>
+        </junit>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
+    </target>
+
+</project>
