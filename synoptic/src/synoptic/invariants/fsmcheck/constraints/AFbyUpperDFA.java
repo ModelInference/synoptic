@@ -64,6 +64,8 @@ public class AFbyUpperDFA<Node extends INode<Node>> extends DFA<Node> {
         if (name.equals(b) && !constraint.evaluate(currTime)) {
             // permanent failure
             state = State.FAIL_B;
+        } else if (name.equals(a)) {
+        	state = State.NOT_B;
         }
     }
 }
