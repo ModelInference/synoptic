@@ -36,8 +36,8 @@ public class SynopticModelTests extends InvariMintTest {
         // Testing correctness for a known model.
         String[] args = new String[] {
                 "--dumpInitialPartitionGraph=false",
-                "--dumpInitialGraphDotFile=false",
-                "--dumpInitialGraphPngFile=false",
+                "--dumpTraceGraphDotFile=false",
+                "--dumpTraceGraphPngFile=false",
                 "-o",
                 testOutputDir + "syn-model-osx-login-test.png",
                 "-r",

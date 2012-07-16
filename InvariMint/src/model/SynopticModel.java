@@ -31,6 +31,10 @@ public class SynopticModel extends EncodedAutomaton {
 
         // Set the automaton to our newly constructed model.
         super.setInitialState(initial);
+
+        // This minimization step will first determinize the model -- from
+        // the dk brics documentation.
+        this.minimize();
     }
 
     /**

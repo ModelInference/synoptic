@@ -26,6 +26,7 @@ public class EventTypeEncodings {
     public EventTypeEncodings(Set<EventType> events) {
         /** Maps a string representation of an event to a char. */
         eventEncodings = new HashMap<String, Character>();
+
         /** The reverse eventEncodings map -- always maintained up to date. */
         charEncodings = new HashMap<Character, String>();
 
@@ -79,6 +80,10 @@ public class EventTypeEncodings {
         return charEncodings.get(c);
     }
 
+    /**
+     * Returns an Automaton that accepts Strings containing only the EventTypes
+     * with known encodings
+     */
     protected Automaton getInitialModel() {
         return alphabet.toAutomaton();
     }

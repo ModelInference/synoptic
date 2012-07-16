@@ -81,8 +81,12 @@ public class SynopticMain {
      */
     public SynopticOptions options = null;
 
-    public static SynopticMain getInstance() {
+    public static SynopticMain getInstanceWithExistenceCheck() {
         assert (instance != null);
+        return instance;
+    }
+
+    public static SynopticMain getInstance() {
         return instance;
     }
 
