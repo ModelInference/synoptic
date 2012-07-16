@@ -202,8 +202,10 @@ public class InvariMintMain {
         options.debugParse = opts.debugParse;
         options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
 
-        SynopticMain synMain = new SynopticMain(options,
-                new DotExportFormatter());
+        SynopticMain synMain = SynopticMain.getInstance();
+        if (synMain == null) {
+            synMain = new SynopticMain(options, new DotExportFormatter());
+        }
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = new TraceParser(opts.regExps,

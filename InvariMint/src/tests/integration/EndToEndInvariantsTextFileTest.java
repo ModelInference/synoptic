@@ -19,12 +19,12 @@ import synoptic.model.event.StringEventType;
 import tests.InvariMintTest;
 
 /**
- * Runs InvariMintFromTextFile end-to-end on a simple invariants file and checks
- * that the final model matches the expected output.
+ * Runs InvariMint end-to-end on a simple invariants file and checks that the
+ * final model matches the expected output.
  * 
  * @author jennyabrahamson
  */
-public class EndToEndTextFileTest extends InvariMintTest {
+public class EndToEndInvariantsTextFileTest extends InvariMintTest {
     private EventType initial = StringEventType.newInitialStringEventType();
     private EventType terminal = StringEventType.newTerminalStringEventType();
 
