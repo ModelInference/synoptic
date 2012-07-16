@@ -15,6 +15,7 @@ import model.InvModel;
 import model.InvsModel;
 import model.SynopticModel;
 import dk.brics.automaton.State;
+import dk.brics.automaton.StatePair;
 import dk.brics.automaton.Transition;
 
 import synoptic.algorithms.Bisimulation;
@@ -67,8 +68,20 @@ public class InvariMintMain {
      */
     public static void main(String[] args) throws Exception {
 
-        // Set up Synoptic.
         InvariMintOptions opts = new InvariMintOptions(args);
+        EncodedAutomaton dfa = runInvariMint(opts);
+
+        // Export final model.
+        dfa.exportDotAndPng(opts.outputPathPrefix + ".invarimintDFA.dot");
+    }
+
+    /**
+     * Performs InvariMint with the given set of options, returns the final dfa.
+     */
+    public static EncodedAutomaton runInvariMint(InvariMintOptions opts)
+            throws Exception {
+
+        // Set up Synoptic.
         setUpLogging(opts);
         handleOptions(opts);
         ChainsTraceGraph inputGraph = setUpSynoptic(opts);
@@ -76,17 +89,22 @@ public class InvariMintMain {
         // Mine invariants -- will be Synoptic invariants or kTail invariants
         // depending on opts.
         TemporalInvariantSet minedInvs = mineInvariants(opts, inputGraph);
+        logger.fine("Mined " + minedInvs.numInvariants()
+                + (opts.performKTails ? " KTail" : " Synoptic")
+                + " invariant(s).");
+        logger.fine(minedInvs.toPrettyString());
 
         // Construct initial DFA from NIFby invariants.
         ImmediateInvariantMiner miner = new ImmediateInvariantMiner(inputGraph);
         TemporalInvariantSet NIFbys = miner.getNIFbyInvariants();
         Set<EventType> allEvents = new HashSet<EventType>(miner.getEventTypes());
-        logger.fine("Mined " + minedInvs.numInvariants()
-                + " NIFby invariant(s).");
+
+        logger.fine("Mined " + NIFbys.numInvariants() + " NIFby invariant(s).");
         logger.fine(NIFbys.toPrettyString());
 
         EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
-        InvsModel dfa = getIntersectedModelFromInvs(NIFbys, encodings, opts);
+        InvsModel dfa = getIntersectedModelFromInvs(NIFbys, encodings, opts,
+                null);
 
         // Apply initial/terminal condition
         EventType initialEvent = StringEventType.newInitialStringEventType();
@@ -97,29 +115,32 @@ public class InvariMintMain {
         dfa.intersectWith(initialTerminalInv);
 
         // Intersect with mined invariants.
-        dfa.intersectWith(getIntersectedModelFromInvs(minedInvs, encodings,
-                opts));
-        dfa.minimize();
+        dfa = getIntersectedModelFromInvs(minedInvs, encodings, opts, dfa);
 
         // Remove paths from the model not found in any input trace
         if (opts.removeSpuriousEdges) {
+            logger.info("Removing spurious edges");
             removeSpuriousEdges(dfa, inputGraph, encodings, initialEvent,
                     terminalEvent);
         }
 
-        // Export final model.
-        dfa.exportDotAndPng(opts.outputPathPrefix + ".invarimintDFA.dot");
+        // Run Synoptic to compare models
+        if (opts.runSynoptic) {
+            logger.info("Running Synoptic");
+            PartitionGraph pGraph = null;
+            if (opts.performKTails) {
+                pGraph = KTails.performKTails(inputGraph, opts.kTailLength);
+            } else {
+                pGraph = new PartitionGraph(inputGraph, true, minedInvs);
+                Bisimulation.splitUntilAllInvsSatisfied(pGraph);
+                Bisimulation.mergePartitions(pGraph);
+            }
 
-        PartitionGraph pGraph = null;
-        if (opts.performKTails) {
-            pGraph = KTails.performKTails(inputGraph, opts.kTailLength);
-        } else {
-            pGraph = new PartitionGraph(inputGraph, true, minedInvs);
-            Bisimulation.splitUntilAllInvsSatisfied(pGraph);
-            Bisimulation.mergePartitions(pGraph);
+            logger.info("Comparing Synoptic and InvariMint models");
+            compareTranslatedModel(pGraph, encodings, dfa, opts);
         }
 
-        compareTranslatedModel(pGraph, encodings, dfa, opts);
+        return dfa;
     }
 
     public static void setUpLogging(InvariMintOptions opts) {
@@ -163,6 +184,11 @@ public class InvariMintMain {
                     + synoptic.main.options.Options.getOptDesc("help"));
             System.exit(0);
         }
+
+        if (!opts.runSynoptic
+                && (opts.exportSynopticNFA || opts.exportSynopticDFA)) {
+            logger.severe("Can not export Synoptic models since --runSynoptic is false");
+        }
     }
 
     public static ChainsTraceGraph setUpSynoptic(InvariMintOptions opts)
@@ -176,8 +202,10 @@ public class InvariMintMain {
         options.debugParse = opts.debugParse;
         options.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
 
-        SynopticMain synMain = new SynopticMain(options,
-                new DotExportFormatter());
+        SynopticMain synMain = SynopticMain.getInstance();
+        if (synMain == null) {
+            synMain = new SynopticMain(options, new DotExportFormatter());
+        }
 
         // Instantiate the parser and parse the log lines.
         TraceParser parser = new TraceParser(opts.regExps,
@@ -209,17 +237,25 @@ public class InvariMintMain {
         return inputGraph;
     }
 
+    /**
+     * Mines invariants from the given input graph. These are either Synoptic or
+     * kTail invariants depending on command line options stored in opts.
+     */
     private static TemporalInvariantSet mineInvariants(InvariMintOptions opts,
             ChainsTraceGraph inputGraph) {
+
         ITOInvariantMiner miner;
+
         if (opts.performKTails) {
             miner = new KTailInvariantMiner(opts.kTailLength);
         } else {
             miner = new ChainWalkingTOInvMiner();
+            logger.info("Mining invariants [" + miner.getClass().getName()
+                    + "]..");
         }
 
-        logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
         long startTime = System.currentTimeMillis();
+        logger.info("Mining invariants [" + miner.getClass().getName() + "]..");
 
         TemporalInvariantSet minedInvs = miner.computeInvariants(inputGraph,
                 false);
@@ -227,8 +263,7 @@ public class InvariMintMain {
         long endTime = System.currentTimeMillis();
         logger.info("Mining took " + (endTime - startTime));
 
-        logger.fine("Mined " + minedInvs.numInvariants()
-                + " kTail invariant(s).");
+        logger.fine("Mined " + minedInvs.numInvariants() + " invariant(s).");
         logger.fine(minedInvs.toPrettyString());
 
         return minedInvs;
@@ -246,15 +281,21 @@ public class InvariMintMain {
      */
     public static InvsModel getIntersectedModelFromInvs(
             TemporalInvariantSet invariants, EventTypeEncodings encodings,
-            InvariMintOptions opts) {
-        // Initial model will accept all Strings.
-        InvsModel model = new InvsModel(encodings);
+            InvariMintOptions opts, InvsModel initial) {
+
+        InvsModel model;
+        if (initial == null) {
+            // Initial model will accept all Strings.
+            model = new InvsModel(encodings);
+        } else {
+            model = initial;
+        }
 
         // Intersect provided invariants.
         for (ITemporalInvariant invariant : invariants) {
             InvModel invDFA = new InvModel(invariant, encodings);
-
             model.intersectWith(invDFA);
+            model.minimize();
 
             if (opts.exportMinedInvariantDFAs
                     && !(invariant instanceof NeverImmediatelyFollowedInvariant)) {
@@ -277,17 +318,20 @@ public class InvariMintMain {
         return model;
     }
 
-    // TODO: just build the new dfa -- no seen map
+    /**
+     * Removes edges from the provided dfa that cannot be mapped to any trace in
+     * the input trace graph g.
+     */
     private static void removeSpuriousEdges(EncodedAutomaton dfa,
             ChainsTraceGraph g, EventTypeEncodings encodings,
             EventType initialEvent, EventType terminalEvent) {
+        // TODO: just build the new dfa -- no seen map
 
         Map<StatePair, Set<Character>> seenTransitions = new HashMap<StatePair, Set<Character>>();
         EventNode initNode = g.getDummyInitialNode();
 
         // Iterate through all the traces -- each transition from the INITIAL
-        // node connects\holds a single trace.
-        // for (ITransition<EventNode> initTrans : initNode.getTransitions()) {
+        // node holds a single trace.
         for (EventNode curNode : initNode.getAllSuccessors()) {
             // Set curState to the state immediately following the INITIAL
             // transition.
@@ -302,7 +346,7 @@ public class InvariMintMain {
 
                 if (curState == null) {
                     throw new IllegalStateException(
-                            "Something bad has happened");
+                            "Unable to fetch valid destination for ");
                 }
 
                 // Move on to the next node in the trace.
@@ -395,10 +439,6 @@ public class InvariMintMain {
         }
 
         SynopticModel convertedDfa = new SynopticModel(pGraph, encodings);
-
-        // This minimization step will first determinize the model -- from the
-        // dk brics documentation.
-        convertedDfa.minimize();
 
         if (opts.exportSynopticDFA) {
             convertedDfa.exportDotAndPng(opts.outputPathPrefix

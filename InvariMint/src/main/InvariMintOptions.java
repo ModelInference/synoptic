@@ -160,15 +160,26 @@ public class InvariMintOptions extends synoptic.main.options.Options {
     public String outputPathPrefix = null;
 
     /**
+     * Whether to compare the InvariMint model with the Synoptic equivalent by
+     * running Synoptic.
+     */
+    @Option(
+            value = "Whether to run Synoptic to compare the InvariMint model with the Synoptic equivalent.",
+            aliases = { "-runSynoptic" })
+    public boolean runSynoptic = true;
+
+    /**
      * Whether to export the corresponding Synoptic model
      */
-    @Option(value = "Export corresponding Synoptic NFA model")
+    @Option(
+            value = "Export corresponding Synoptic NFA model (runSynoptic must also be true)")
     public boolean exportSynopticNFA = false;
 
     /**
      * Whether to export the corresponding Synoptic model
      */
-    @Option(value = "Export corresponding Synoptic DFA model")
+    @Option(
+            value = "Export corresponding Synoptic DFA model (runSynoptic must also be true")
     public boolean exportSynopticDFA = false;
 
     /**

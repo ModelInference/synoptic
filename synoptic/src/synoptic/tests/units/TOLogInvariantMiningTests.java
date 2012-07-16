@@ -75,7 +75,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
 
         // Generate a random log.
         while (numPartitions != 0) {
-            int rndIndex = SynopticMain.getInstance().random
+            int rndIndex = SynopticMain.getInstanceWithExistenceCheck().random
                     .nextInt(eventTypes.length);
             log.add(eventTypes[rndIndex]);
             if (rndIndex == 0) {
@@ -116,31 +116,25 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         for (String e : allEvents) {
             // x AFby TERMINAL
             invs.add(new AlwaysFollowedInvariant(e, StringEventType
-                    .newTerminalStringEventType(),
-                    Event.defTimeRelationStr));
+                    .newTerminalStringEventType(), Event.defTimeRelationStr));
 
             // INITIAL AFby x
             invs.add(new AlwaysFollowedInvariant(StringEventType
-                    .newInitialStringEventType(), e,
-                    Event.defTimeRelationStr));
+                    .newInitialStringEventType(), e, Event.defTimeRelationStr));
 
             // x NFby INITIAL
             invs.add(new NeverFollowedInvariant(e, StringEventType
-                    .newInitialStringEventType(),
-                    Event.defTimeRelationStr));
+                    .newInitialStringEventType(), Event.defTimeRelationStr));
             // TERMINAL NFby x
             invs.add(new NeverFollowedInvariant(StringEventType
-                    .newTerminalStringEventType(), e,
-                    Event.defTimeRelationStr));
+                    .newTerminalStringEventType(), e, Event.defTimeRelationStr));
             // INITIAL AP x
             invs.add(new AlwaysPrecedesInvariant(StringEventType
-                    .newInitialStringEventType(), e,
-                    Event.defTimeRelationStr));
+                    .newInitialStringEventType(), e, Event.defTimeRelationStr));
 
             // x AP TERMINAL
             invs.add(new AlwaysPrecedesInvariant(e, StringEventType
-                    .newTerminalStringEventType(),
-                    Event.defTimeRelationStr));
+                    .newTerminalStringEventType(), Event.defTimeRelationStr));
         }
         // INITIAL AFby TERMINAL
         invs.add(new AlwaysFollowedInvariant(StringEventType
@@ -178,11 +172,9 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "b",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "b", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "a",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "a", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant("a", "b",
                 Event.defTimeRelationStr));
         trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
@@ -209,11 +201,9 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "b",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "b", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "a",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "a", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysFollowedInvariant("a", "b",
                 Event.defTimeRelationStr));
         assertTrue(trueInvs.sameInvariants(minedInvs));
@@ -251,8 +241,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         TemporalInvariantSet trueInvs = new TemporalInvariantSet();
 
         trueInvs.add(new AlwaysFollowedInvariant(StringEventType
-                .newInitialStringEventType(), "a",
-                Event.defTimeRelationStr));
+                .newInitialStringEventType(), "a", Event.defTimeRelationStr));
         trueInvs.add(new AlwaysPrecedesInvariant("a", "b",
                 Event.defTimeRelationStr));
         logger.info("minedInvs: " + minedInvs.toString());
@@ -347,7 +336,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
                 false);
 
         // Test with FSM checker.
-        SynopticMain.getInstance().options.useFSMChecker = true;
+        SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker = true;
         List<CExamplePath<EventNode>> cExamples = minedInvs
                 .getAllCounterExamples(inputGraph);
         if (cExamples != null) {
@@ -358,7 +347,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         assertTrue(cExamples == null);
 
         // Test with LTL checker.
-        SynopticMain.getInstance().options.useFSMChecker = false;
+        SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker = false;
         cExamples = minedInvs.getAllCounterExamples(inputGraph);
         if (cExamples != null) {
             logger.fine("log: " + Arrays.toString(log));

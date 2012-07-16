@@ -442,7 +442,7 @@ public class Partition implements INode<Partition> {
 
     private void updateTransitionDeltas(EventNode srcENode,
             EventNode targetENode, ITransition<Partition> tx) {
-        if (!SynopticMain.getInstance().options.enablePerfDebugging) {
+        if (!SynopticMain.getInstanceWithExistenceCheck().options.enablePerfDebugging) {
             return;
         }
         ITime srcTime = srcENode.getTime();

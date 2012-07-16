@@ -33,28 +33,26 @@ public class KTailInvariant implements ITemporalInvariant {
     private final List<EventType> tail;
 
     // The set of events that immediately follow this tail
-    private Set<EventType> following;
+    private final Set<EventType> following;
 
-    private KTailInvariant(List<EventType> eventTail, String relation) {
+    /**
+     * Returns a KTailInvariant for the given series. On construction, the
+     * invariant has a tail but no follow events.
+     */
+    public KTailInvariant(List<EventType> eventTail,
+            Set<EventType> followEvents, String relation) {
         this.relations = relation;
         this.tail = Collections.unmodifiableList(new ArrayList<EventType>(
                 eventTail));
-        this.following = new HashSet<EventType>();
+        this.following = new HashSet<EventType>(followEvents);
     }
 
     /**
-     * Returns the single KTail for the given series of events. Also updates the
-     * count of instances and set of following events for this tail.
+     * Returns a KTailInvariant for the given series. On construction, the
+     * invariant has a tail but no follow events.
      */
-    public static KTailInvariant getInvariant(List<EventType> events,
-            EventType follow) {
-        KTailInvariant theTail = tails.get(events);
-        if (theTail == null) {
-            theTail = new KTailInvariant(events, Event.defTimeRelationStr);
-            tails.put(theTail.tail, theTail);
-        }
-        theTail.following.add(follow);
-        return theTail;
+    public KTailInvariant(List<EventType> eventTail, Set<EventType> followEvents) {
+        this(eventTail, followEvents, Event.defTimeRelationStr);
     }
 
     /**

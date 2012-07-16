@@ -55,8 +55,8 @@ public class TOMiningPerformanceTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        synoptic.main.SynopticMain.getInstance().options.logLvlExtraVerbose = false;
-        synoptic.main.SynopticMain.getInstance().options.logLvlQuiet = true;
+        synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.logLvlExtraVerbose = false;
+        synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.logLvlQuiet = true;
     }
 
     public void reportTime(long msTime) {
