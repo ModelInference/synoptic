@@ -37,15 +37,6 @@ public interface IGraph<NodeType extends INode<NodeType>> {
     NodeType getDummyInitialNode();
 
     /**
-     * The nodes in the graph that are initial with respect to the relation
-     * 
-     * @param relation
-     *            the relation
-     * @return the set of initial nodes w.r.t. the relation
-     */
-    // NodeType getDummyInitialNode(String relation);
-
-    /**
      * Returns a list of nodes that are adjacent to node.
      */
     Set<NodeType> getAdjacentNodes(NodeType node);

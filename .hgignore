@@ -40,3 +40,8 @@ lib/synoptic.jar
 synoptic/test-output/*
 InvariMint/test-output/*
 
+# Ignore the mcscm distribution
+mcscm-1.2/
+
+# Ignore secondary binary files (e.g., derby tools)
+bin/
