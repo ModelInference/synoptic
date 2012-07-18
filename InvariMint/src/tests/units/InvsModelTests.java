@@ -1,5 +1,6 @@
 package tests.units;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -60,7 +61,11 @@ public class InvsModelTests {
         invariants.add(new AlwaysFollowedInvariant("b", "c", "t"));
         invariants.add(new AlwaysFollowedInvariant("c", "d", "t"));
         InvsModel model = generateModel(invariants);
-        assertTrue(invariants.equals(model.getInvariants()));
+
+        assertEquals(invariants.size(), model.getInvariants().size());
+        for (InvModel invDFA : model.getInvariants()) {
+            assertTrue(invariants.contains(invDFA.getInvariant()));
+        }
     }
 
     @Test

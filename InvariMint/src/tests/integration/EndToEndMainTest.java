@@ -47,7 +47,7 @@ public class EndToEndMainTest extends InvariMintTest {
         String[] args = new String[] { "-r",
                 "^(?<DTYPE>.+)(?<nodename>)(?<TYPE>)$", "-m", "\\k<nodename>",
                 "-o", testOutputDir + "simple-model-example",
-                "-runSynoptic=false", simpleModelPath + "trace.txt" };
+                "-invMintSynoptic=true", simpleModelPath + "trace.txt" };
         InvariMintOptions opts = new InvariMintOptions(args);
         EncodedAutomaton dfa = InvariMintMain.runInvariMint(opts);
 

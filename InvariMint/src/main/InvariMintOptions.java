@@ -6,10 +6,12 @@ import java.util.List;
 import plume.Option;
 import plume.OptionGroup;
 
+import synoptic.main.options.Options;
+
 /**
  * Options relevant to the InvariMint project.
  */
-public class InvariMintOptions extends synoptic.main.options.Options {
+public class InvariMintOptions extends Options {
 
     // //////////////////////////////////////////////////
     /**
@@ -47,12 +49,13 @@ public class InvariMintOptions extends synoptic.main.options.Options {
     // end option group "Input Options"
 
     // //////////////////////////////////////////////////
+
     /**
-     * Mine kTail invariants instead of Synoptic invariants.
+     * Run InvariMint-KTails.
      */
-    @OptionGroup("Inference Options")
-    @Option(value = "Perform kTails instead of Synoptic")
-    public boolean performKTails = false;
+    @Option(value = "Run the InvariMint-KTails algorithm.",
+            aliases = { "-invMintKTails" })
+    public boolean invMintKTails = false;
 
     /**
      * Size of tail when performing kTails.
@@ -160,35 +163,40 @@ public class InvariMintOptions extends synoptic.main.options.Options {
     public String outputPathPrefix = null;
 
     /**
-     * Whether to compare the InvariMint model with the Synoptic equivalent by
-     * running Synoptic.
+     * Run InvariMint-Synoptic.
      */
-    @Option(
-            value = "Whether to run Synoptic to compare the InvariMint model with the Synoptic equivalent.",
-            aliases = { "-runSynoptic" })
-    public boolean runSynoptic = true;
+    @Option(value = "Run the InvariMint-Synoptic algorithm.",
+            aliases = { "-invMintSynoptic" })
+    public boolean invMintSynoptic = false;
 
     /**
-     * Whether to export the corresponding Synoptic model
+     * Whether to compare the InvariMint model with the model derived using the
+     * standard (e.g., non-InvariMint Synoptic) algorithm.
      */
     @Option(
-            value = "Export corresponding Synoptic NFA model (runSynoptic must also be true)")
-    public boolean exportSynopticNFA = false;
+            value = "Whether to compare the InvariMint model to the model derived using the non-InvariMint algorithm",
+            aliases = { "-compareToStandardAlg" })
+    public boolean compareToStandardAlg = false;
 
     /**
-     * Whether to export the corresponding Synoptic model
+     * Whether to export the PGraph model derived using StandardAlg.
+     */
+    @Option(value = "Export the PGraph model derived using StandardAlg")
+    public boolean exportStdAlgPGraph = false;
+
+    /**
+     * Whether to export the DFA model corresponding to the PGraph derived using
+     * StandardAlg.
      */
     @Option(
-            value = "Export corresponding Synoptic DFA model (runSynoptic must also be true")
-    public boolean exportSynopticDFA = false;
+            value = "Exports the DFA model corresponding to the PGraph derived using StandardAlg")
+    public boolean exportStdAlgDFA = false;
 
     /**
      * Whether to export every mined invariant DFA
      */
     @Option(value = "Export every mined invariant DFA")
     public boolean exportMinedInvariantDFAs = false;
-
-    protected int invIDCounter = 0;
 
     /**
      * What level of logging to use.

@@ -43,11 +43,11 @@ public class EndToEndKTailsMainTest extends InvariMintTest {
         String simpleModelPath = tPath + "abstract" + File.separator
                 + "simple-model" + File.separator;
 
-        String[] args = new String[] { "--performKTails=true", "--kTailLength",
+        String[] args = new String[] { "--invMintKTails=true", "--kTailLength",
                 "2", "-r", "^(?<DTYPE>.+)(?<nodename>)(?<TYPE>)$", "-m",
                 "\\k<nodename>", "-o",
                 testOutputDir + "ktail-simple-model-example",
-                "-runSynoptic=false", simpleModelPath + "trace.txt" };
+                simpleModelPath + "trace.txt" };
 
         InvariMintOptions opts = new InvariMintOptions(args);
         EncodedAutomaton dfa = InvariMintMain.runInvariMint(opts);
