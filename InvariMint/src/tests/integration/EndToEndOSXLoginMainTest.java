@@ -44,7 +44,7 @@ public class EndToEndOSXLoginMainTest extends InvariMintTest {
                 + "osx-login-example" + File.separator;
 
         String[] args = new String[] { "-r", "(?<TYPE>.+)", "-s", "--", "-o",
-                testOutputDir + "osx-login-example", "-runSynoptic=false",
+                testOutputDir + "osx-login-example", "-invMintSynoptic=true",
                 loginExamplePath + "trace.txt" };
         InvariMintOptions opts = new InvariMintOptions(args);
         EncodedAutomaton dfa = InvariMintMain.runInvariMint(opts);

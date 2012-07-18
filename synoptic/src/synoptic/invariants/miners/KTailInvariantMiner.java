@@ -17,14 +17,8 @@ import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
 
 /**
-<<<<<<< mine
- * Mines KTailInvariants from a totally ordered log. Mines tails occurring at
- * least twice of some length k for a given ChainsTraceGraph (TODO: is this
- * "at least twice" constraint true?).
-=======
- * Mines k tail invariants for values of k from 1 to k for a given
- * ChainsTraceGraph.
->>>>>>> theirs
+ * Mines KTailInvariants from a totally ordered ChainsTraceGraph for values of k
+ * from 1 to k.
  * 
  * @author jennyabrahamson
  */
@@ -72,9 +66,9 @@ public class KTailInvariantMiner implements ITOInvariantMiner {
         return invars;
     }
 
-    /*
+    /**
      * Adds all kTail invariants for k = kVal to the set of KTailInvariants
-     * invars.
+     * invariants.
      */
     private void computeInvariants(ChainsTraceGraph g, int kVal,
             Map<List<EventType>, Set<EventType>> tails) {

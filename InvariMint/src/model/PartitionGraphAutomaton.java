@@ -9,13 +9,14 @@ import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
 
 /**
- * Translates a Synoptic model from PartitionGraph to EncodedAutomaton DFA.
+ * Translates a Synoptic-style partition graph model to an EncodedAutomaton DFA
+ * model type.
  * 
  * @author Jenny
  */
-public class SynopticModel extends EncodedAutomaton {
+public class PartitionGraphAutomaton extends EncodedAutomaton {
 
-    public SynopticModel(PartitionGraph synoptic, EventTypeEncodings encodings) {
+    public PartitionGraphAutomaton(PartitionGraph pGraph, EventTypeEncodings encodings) {
         super(encodings);
 
         // The set of partitions we've visited, mapped to the source state for
@@ -26,7 +27,7 @@ public class SynopticModel extends EncodedAutomaton {
         State initial = new State();
 
         // Convert all partitions starting from the INITIAL node.
-        Partition initialPartition = synoptic.getDummyInitialNode();
+        Partition initialPartition = pGraph.getDummyInitialNode();
         convert(initialPartition, initial, preEventStates, encodings);
 
         // Set the automaton to our newly constructed model.

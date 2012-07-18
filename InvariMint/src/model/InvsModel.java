@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import synoptic.invariants.ITemporalInvariant;
-
 /**
  * Extends the EncodedAutomaton class to encode the intersection of multiple
  * InvModel Automatons.
@@ -16,20 +14,20 @@ import synoptic.invariants.ITemporalInvariant;
 public class InvsModel extends EncodedAutomaton {
 
     // The set of invariants represented by this Automaton.
-    private Set<ITemporalInvariant> invariants;
+    private Set<InvModel> invariants;
 
     /**
      * Constructs a new InvsModel that accepts all strings.
      */
     public InvsModel(EventTypeEncodings encodings) {
         super(encodings);
-        invariants = new HashSet<ITemporalInvariant>();
+        invariants = new HashSet<InvModel>();
     }
 
     /**
      * Returns the set of ITemporalInvariants composing this model.
      */
-    public Set<ITemporalInvariant> getInvariants() {
+    public Set<InvModel> getInvariants() {
         return Collections.unmodifiableSet(invariants);
     }
 
@@ -57,7 +55,7 @@ public class InvsModel extends EncodedAutomaton {
      * to this model's list of invariants.
      */
     public void intersectWith(InvModel inv) {
-        invariants.add(inv.getInvariant());
+        invariants.add(inv);
         super.intersectWith(inv,
                 "Intersecting model with " + inv.getInvariant());
     }

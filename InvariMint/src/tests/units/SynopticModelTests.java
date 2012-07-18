@@ -10,7 +10,7 @@ import java.util.Set;
 
 import model.EncodedAutomaton;
 import model.EventTypeEncodings;
-import model.SynopticModel;
+import model.PartitionGraphAutomaton;
 
 import org.junit.Test;
 
@@ -57,7 +57,7 @@ public class SynopticModelTests extends InvariMintTest {
                 pGraph.getTraceGraph());
         Set<EventType> allEvents = miner.getEventTypes();
         EventTypeEncodings encodings = new EventTypeEncodings(allEvents);
-        EncodedAutomaton convertedDfa = new SynopticModel(pGraph, encodings);
+        EncodedAutomaton convertedDfa = new PartitionGraphAutomaton(pGraph, encodings);
 
         List<EventType> validSequence = new ArrayList<EventType>();
         validSequence.add(new StringEventType("INITIAL"));
