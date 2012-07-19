@@ -11,7 +11,7 @@ import synoptic.model.PartitionGraph;
 public class InvariMintSynoptic extends PGraphInvariMint {
 
     public InvariMintSynoptic(InvariMintOptions opts) throws Exception {
-        super(opts);
+        super(opts, "Synoptic");
     }
 
     /**

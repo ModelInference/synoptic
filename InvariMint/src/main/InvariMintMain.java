@@ -30,27 +30,19 @@ public class InvariMintMain {
     public static Logger logger = null;
 
     /**
-     * Main entrance into the application. Application arguments (args) are
-     * processed using Synoptic's build-in argument parser, extended with a few
-     * InvDFAMinimization-specific arguments. For more information, see
-     * InvDFAMinimizationOptions class.
+     * Main entrance into the application. See InvariMintOptions for expected
+     * args/options.
      * 
      * @param args
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-
-        InvariMintOptions opts = new InvariMintOptions(args);
-        EncodedAutomaton dfa;
         try {
-            dfa = runInvariMint(opts);
+            runInvariMint(new InvariMintOptions(args));
         } catch (OptionException e) {
             // During OptionExceptions, the problem has already been printed.
             return;
         }
-
-        // Export final model.
-        dfa.exportDotAndPng(opts.outputPathPrefix + ".invarimintDFA.dot");
     }
 
     /**
@@ -84,13 +76,20 @@ public class InvariMintMain {
 
         // //////////// Below, only output (non-transforming) methods:
 
+        // Export final model.
+        String exportFname = opts.outputPathPrefix + "."
+                + invMintAlg.getInvMintAlgName() + ".dfa.dot";
+        dfa.exportDotAndPng(exportFname);
+
         // Export each of the mined DFAs (except NIFby invariants).
         if (opts.exportMinedInvariantDFAs) {
             int invID = 0;
             String path;
             for (InvModel invDFA : dfa.getInvariants()) {
                 if (!(invDFA.getInvariant() instanceof NeverImmediatelyFollowedInvariant)) {
-                    path = opts.outputPathPrefix + ".InvDFA" + invID + ".dot";
+                    path = opts.outputPathPrefix + "."
+                            + invMintAlg.getInvMintAlgName() + ".InvDFA"
+                            + invID + ".dot";
                     invDFA.exportDotAndPng(path);
                     invID++;
                 }

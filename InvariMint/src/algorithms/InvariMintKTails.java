@@ -10,7 +10,7 @@ import synoptic.invariants.miners.KTailInvariantMiner;
 public class InvariMintKTails extends PGraphInvariMint {
 
     public InvariMintKTails(InvariMintOptions opts) throws Exception {
-        super(opts);
+        super(opts, "KTails");
     }
 
     /**
