@@ -30,13 +30,6 @@ public class InvariMintOptions extends Options {
             value = "-H Print extended usage message (includes debugging options)")
     public boolean allHelp = false;
 
-    /**
-     * Sets the random seed for Synoptic's source of pseudo-random numbers.
-     */
-    @Option(
-            value = "Use a specific random seed for pseudo-random number generator")
-    public Long randomSeed = null;
-
     // //////////////////////////////////////////////////
     /**
      * Command line arguments input filename to use.
@@ -46,37 +39,12 @@ public class InvariMintOptions extends Options {
             aliases = { "-argsfile" })
     public String argsFilename = null;
 
-    // end option group "Input Options"
-
-    // //////////////////////////////////////////////////
-
     /**
-     * Run InvariMint-KTails.
+     * Sets the random seed for Synoptic's source of pseudo-random numbers.
      */
-    @Option(value = "Run the InvariMint-KTails algorithm.",
-            aliases = { "-invMintKTails" })
-    public boolean invMintKTails = false;
-
-    /**
-     * Size of tail when performing kTails.
-     */
-    @Option(value = "Size of tail when performing kTails")
-    public int kTailLength = 2;
-
-    /**
-     * Whether to remove spurious edges from the InvariMint model.
-     */
-    @Option(value = "Remove spurious edges from InvariMint model")
-    public boolean removeSpuriousEdges = false;
-
-    /**
-     * Whether to minimize every intermediate model during invariant
-     * intersections.
-     */
-    @Option(value = "Minimize on afer each intersection")
-    public boolean minimizeIntersections = true;
-
-    // end option group "Inference Options"
+    @Option(
+            value = "Use a specific random seed for pseudo-random number generator")
+    public Long randomSeed = null;
 
     /**
      * Regular expression separator string. When lines are found which match
@@ -86,7 +54,6 @@ public class InvariMintOptions extends Options {
      * expression with an incrementor, (?<SEPCOUNT++>), and adding \k<SEPCOUNT>
      * to the partitioner.
      */
-    @OptionGroup("Parser Options")
     @Option(
             value = "-s Partitions separator reg-exp: log lines below and above the matching line are placed into different partitions",
             aliases = { "-partition-separator" })
@@ -150,24 +117,67 @@ public class InvariMintOptions extends Options {
             value = "Debug the parser by printing field values extracted from the log and then terminate.",
             aliases = { "-debugParse" })
     public boolean debugParse = false;
-    // end option group "Parser Options"
+
+    // end option group "Input Options"
 
     // //////////////////////////////////////////////////
-    @OptionGroup("Output Options")
+
     /**
-     * Specifies the prefix of where to store the model outputs.
+     * Run InvariMint-KTails.
      */
-    @Option(
-            value = "-o Output path prefix for generating Graphviz dot files graphics",
-            aliases = { "-output-prefix" })
-    public String outputPathPrefix = null;
+    @OptionGroup("kTails Options")
+    @Option(value = "Run the InvariMint-KTails algorithm.",
+            aliases = { "-invMintKTails" })
+    public boolean invMintKTails = false;
+
+    /**
+     * Size of tail when performing kTails.
+     */
+    @Option(value = "Size of tail when performing kTails")
+    public int kTailLength = 2;
+
+    // end option group "kTails Options"
+
+    // //////////////////////////////////////////////////
 
     /**
      * Run InvariMint-Synoptic.
      */
+    @OptionGroup("Synoptic Options")
     @Option(value = "Run the InvariMint-Synoptic algorithm.",
             aliases = { "-invMintSynoptic" })
     public boolean invMintSynoptic = false;
+
+    // end option group "Synoptic Options"
+
+    // //////////////////////////////////////////////////
+
+    /**
+     * Whether to remove spurious edges from the InvariMint model.
+     */
+    @OptionGroup("InvariMint Options")
+    @Option(value = "Remove spurious edges from InvariMint model")
+    public boolean removeSpuriousEdges = false;
+
+    /**
+     * Whether to minimize every intermediate model during invariant
+     * intersections.
+     */
+    @Option(value = "Minimize afer each intersection and the final model")
+    public boolean minimizeIntersections = true;
+
+    // end option group "InvariMint Options"
+
+    // //////////////////////////////////////////////////
+
+    /**
+     * Specifies the prefix of where to store the model outputs.
+     */
+    @OptionGroup("Output Options")
+    @Option(
+            value = "-o Output path prefix for generating Graphviz dot files graphics",
+            aliases = { "-output-prefix" })
+    public String outputPathPrefix = null;
 
     /**
      * Whether to compare the InvariMint model with the model derived using the
@@ -229,7 +239,8 @@ public class InvariMintOptions extends Options {
     public void printLongHelp() {
         System.out.println("Usage: " + getUsageString());
         System.out.println(plumeOptions.usage("General Options",
-                "Parser Options", "Input Options", "Output Options"));
+                "Input Options", "kTails Options", "Synoptic Options",
+                "InvariMint Options", "Output Options"));
     }
 
     @Override
