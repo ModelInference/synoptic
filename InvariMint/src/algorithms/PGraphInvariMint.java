@@ -138,7 +138,7 @@ public abstract class PGraphInvariMint {
         TemporalInvariantSet invs = miner.computeInvariants(traceGraph, false);
 
         long endTime = System.currentTimeMillis();
-        logger.info("Mining took " + (endTime - startTime));
+        logger.info("Mining took " + (endTime - startTime) + "ms");
 
         logger.fine("Mined " + invs.numInvariants() + " invariant(s).");
         logger.fine(invs.toPrettyString());

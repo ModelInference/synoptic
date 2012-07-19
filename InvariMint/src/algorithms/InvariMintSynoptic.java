@@ -39,6 +39,7 @@ public class InvariMintSynoptic extends PGraphInvariMint {
                 minedInvs);
         Bisimulation.splitUntilAllInvsSatisfied(synModel);
         Bisimulation.mergePartitions(synModel);
+        stdAlgPGraph = synModel;
     }
 
 }
