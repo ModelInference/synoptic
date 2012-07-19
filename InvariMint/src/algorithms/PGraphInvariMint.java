@@ -33,6 +33,9 @@ import synoptic.model.export.GraphExporter;
  * algorithm, such as kTails and Synoptic.
  */
 public abstract class PGraphInvariMint {
+    String stdAlgName;
+    String invMintAlgName;
+
     public static Logger logger;
     InvariMintOptions opts;
     ChainsTraceGraph traceGraph;
@@ -44,8 +47,11 @@ public abstract class PGraphInvariMint {
     EventType initialEvent;
     EventType terminalEvent;
 
-    public PGraphInvariMint(InvariMintOptions opts) throws Exception {
-        logger = Logger.getLogger("PGraphInvariMint");
+    public PGraphInvariMint(InvariMintOptions opts, String stdAlgName)
+            throws Exception {
+        this.stdAlgName = stdAlgName;
+        this.invMintAlgName = "InvMint" + stdAlgName;
+        logger = Logger.getLogger(invMintAlgName);
 
         initialEvent = StringEventType.newInitialStringEventType();
         terminalEvent = StringEventType.newTerminalStringEventType();
@@ -61,6 +67,14 @@ public abstract class PGraphInvariMint {
      * Executes the InvariMint algorithm. Implemented by sub-classes.
      */
     public abstract InvsModel runInvariMint() throws Exception;
+
+    public String getInvMintAlgName() {
+        return invMintAlgName;
+    }
+
+    public String getStdAlgName() {
+        return stdAlgName;
+    }
 
     /**
      * Executes the InvariMint algorithm for a specific invMiner, including
@@ -97,9 +111,13 @@ public abstract class PGraphInvariMint {
 
     /** Exports the partition graph inferred by the standard algorithm. */
     public void exportStdAlgPGraph() throws IOException {
+        if (stdAlgPGraph == null) {
+            runStdAlg();
+        }
         assert stdAlgPGraph != null;
 
-        String exportPrefix = opts.outputPathPrefix + ".stdAlg.pGraph.dot";
+        String exportPrefix = opts.outputPathPrefix + "." + stdAlgName
+                + ".pGraph.dot";
         GraphExporter.exportGraph(exportPrefix, stdAlgPGraph, false);
         GraphExporter.generatePngFileFromDotFile(exportPrefix);
     }
@@ -109,7 +127,8 @@ public abstract class PGraphInvariMint {
         stdAlgpGraphToDFA();
         assert stdAlgDFA != null;
 
-        String exportPrefix = opts.outputPathPrefix + ".stdAlg.dfa.dot";
+        String exportPrefix = opts.outputPathPrefix + "." + stdAlgName
+                + ".dfa.dot";
         stdAlgDFA.exportDotAndPng(exportPrefix);
     }
 
@@ -197,9 +216,9 @@ public abstract class PGraphInvariMint {
         if (stdAlgPGraph == null) {
             runStdAlg();
         }
+        assert stdAlgPGraph != null;
 
         if (stdAlgDFA == null) {
-            assert stdAlgPGraph != null;
             stdAlgDFA = new PartitionGraphAutomaton(stdAlgPGraph, encodings);
         }
     }
