@@ -1,3 +1,4 @@
+--invMintKTails=true
 --kTailLength=2
 -r ^(?<TYPE>)$
 -s ^--$

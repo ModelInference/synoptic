@@ -57,6 +57,9 @@ public abstract class PGraphInvariMint {
 
     // ///////////////////////////// Public methods.
 
+    /**
+     * Executes the InvariMint algorithm. Implemented by sub-classes.
+     */
     public abstract InvsModel runInvariMint() throws Exception;
 
     /**
@@ -92,6 +95,7 @@ public abstract class PGraphInvariMint {
                 initialEvent, terminalEvent);
     }
 
+    /** Exports the partition graph inferred by the standard algorithm. */
     public void exportStdAlgPGraph() throws IOException {
         assert stdAlgPGraph != null;
 
@@ -247,5 +251,4 @@ public abstract class PGraphInvariMint {
 
         return traceGraph;
     }
-
 }
