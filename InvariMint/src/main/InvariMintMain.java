@@ -41,7 +41,13 @@ public class InvariMintMain {
     public static void main(String[] args) throws Exception {
 
         InvariMintOptions opts = new InvariMintOptions(args);
-        EncodedAutomaton dfa = runInvariMint(opts);
+        EncodedAutomaton dfa;
+        try {
+            dfa = runInvariMint(opts);
+        } catch (OptionException e) {
+            // During OptionExceptions, the problem has already been printed.
+            return;
+        }
 
         // Export final model.
         dfa.exportDotAndPng(opts.outputPathPrefix + ".invarimintDFA.dot");
@@ -123,36 +129,41 @@ public class InvariMintMain {
         return;
     }
 
-    public static void handleOptions(InvariMintOptions opts) {
+    public static void handleOptions(InvariMintOptions opts) throws Exception {
+        String err = null;
+
         // Display help for all option groups, including unpublicized ones
         if (opts.allHelp) {
             opts.printLongHelp();
-            System.exit(0);
+            err = "";
         }
 
         // Display help just for the 'publicized' option groups
         if (opts.help) {
             opts.printShortHelp();
-            System.exit(0);
+            err = "";
         }
 
         if (opts.outputPathPrefix == null) {
-            logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t"
-                    + Options.getOptDesc("outputPathPrefix"));
-            System.exit(0);
+            err = "Cannot output initial graph. Specify output path prefix using:\n\t"
+                    + Options.getOptDesc("outputPathPrefix");
+            logger.severe(err);
         }
 
         if (opts.logFilenames.size() == 0) {
-            logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
-                    + synoptic.main.options.Options.getOptDesc("help"));
-            System.exit(0);
+            err = "No log filenames specified, exiting. Try cmd line option:\n\t"
+                    + synoptic.main.options.Options.getOptDesc("help");
+            logger.severe(err);
         }
 
         if ((!opts.invMintSynoptic && !opts.invMintKTails)
-                || opts.invMintSynoptic && opts.invMintKTails) {
+                || (opts.invMintSynoptic && opts.invMintKTails)) {
+            err = "Must specify either --invMintSynoptic or --invMintKTails option, but not both.";
+            logger.severe(err);
+        }
 
-            logger.severe("Must specify either invMintSynoptic or invMintKTails option, but not both.");
+        if (err != null) {
+            throw new OptionException();
         }
     }
-
 }
