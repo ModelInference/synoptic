@@ -34,12 +34,22 @@ public class KTails {
      * become merge-able.
      */
     private static void attemptMerge(PartitionGraph pGraph, int k) {
+        // TODO: one optimization for skipping checking k-equivalence between
+        // two nodes if (1) we have checked it before and found it to be false,
+        // and (2) if any merges since the last check did not merge any nodes
+        // within k distance of either of the nodes.
         for (Partition p : pGraph.getNodes()) {
             for (Partition q : pGraph.getNodes()) {
                 if (p == q) {
                     // Can't merge a partition with itself
                     continue;
                 }
+
+                // For all k, can only merge p and q if their event types match.
+                if (!(p.getEType().equals(q.getEType()))) {
+                    continue;
+                }
+
                 if (kEquals(p, q, k, false)) {
                     // Merge partitions that are k-equivalent
                     pGraph.apply(new PartitionMerge(p, q));
@@ -66,9 +76,13 @@ public class KTails {
 
     static public <NodeType extends INode<NodeType>> boolean kEquals(
             NodeType n1, NodeType n2, int k, boolean subsumption) {
+        if (!n1.getEType().equals(n2.getEType())) {
+            return false;
+        }
         if (k == 0) {
             return n1.getEType().equals(n2.getEType());
         }
+
         if (subsumption) {
             return kEqualsWithSubsumption(n1, n2, k);
         }
@@ -171,7 +185,6 @@ public class KTails {
         // If any of the children of n1 have been previously visited, then check
         // that each visited child of n1 corresponds to some visited child of
         // n2. And that no visited child of n2 is visited otherwise.
-        // Iterator<? extends ITransition<NodeType>> i1, i2;
         LinkedHashSet<NodeType> visitedN1Children = new LinkedHashSet<NodeType>();
         LinkedHashSet<NodeType> visitedN2Children = new LinkedHashSet<NodeType>();
 

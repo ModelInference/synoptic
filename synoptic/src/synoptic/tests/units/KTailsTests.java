@@ -106,7 +106,7 @@ public class KTailsTests extends SynopticTest {
     }
 
     /**
-     * Returns a simple trace graph with two chains, both just a --> b
+     * Returns a simple trace graph with three short chains.
      * 
      * @throws ParseException
      * @throws InternalSynopticException
@@ -429,21 +429,16 @@ public class KTailsTests extends SynopticTest {
         List<EventNode> g1Nodes = addNodesToGraph(g1, new String[] { "a", "a",
                 "a" });
         // Create a loop in g1, with 3 nodes
-        g1Nodes.get(0).addTransition(g1Nodes.get(1),
-                Event.defTimeRelationStr);
-        g1Nodes.get(1).addTransition(g1Nodes.get(2),
-                Event.defTimeRelationStr);
-        g1Nodes.get(2).addTransition(g1Nodes.get(0),
-                Event.defTimeRelationStr);
+        g1Nodes.get(0).addTransition(g1Nodes.get(1), Event.defTimeRelationStr);
+        g1Nodes.get(1).addTransition(g1Nodes.get(2), Event.defTimeRelationStr);
+        g1Nodes.get(2).addTransition(g1Nodes.get(0), Event.defTimeRelationStr);
         exportTestGraph(g1, 0);
 
         ChainsTraceGraph g2 = new ChainsTraceGraph();
         List<EventNode> g2Nodes = addNodesToGraph(g2, new String[] { "a", "a" });
         // Create a loop in g2, with 2 nodes
-        g2Nodes.get(0).addTransition(g2Nodes.get(1),
-                Event.defTimeRelationStr);
-        g2Nodes.get(1).addTransition(g2Nodes.get(0),
-                Event.defTimeRelationStr);
+        g2Nodes.get(0).addTransition(g2Nodes.get(1), Event.defTimeRelationStr);
+        g2Nodes.get(1).addTransition(g2Nodes.get(0), Event.defTimeRelationStr);
         exportTestGraph(g2, 1);
 
         testTrueBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 0);
@@ -454,8 +449,7 @@ public class KTailsTests extends SynopticTest {
         ChainsTraceGraph g3 = new ChainsTraceGraph();
         List<EventNode> g3Nodes = addNodesToGraph(g2, new String[] { "a" });
         // Create a loop in g3, from a to itself
-        g3Nodes.get(0).addTransition(g3Nodes.get(0),
-                Event.defTimeRelationStr);
+        g3Nodes.get(0).addTransition(g3Nodes.get(0), Event.defTimeRelationStr);
         exportTestGraph(g3, 2);
 
         testTrueBothSubsumingAndNotSubsuming(g3Nodes.get(0), g2Nodes.get(0), 0);
@@ -479,14 +473,10 @@ public class KTailsTests extends SynopticTest {
         List<EventNode> g1Nodes = addNodesToGraph(g1, new String[] { "a", "b",
                 "c", "d" });
         // Create a loop in g1, with 4 nodes
-        g1Nodes.get(0).addTransition(g1Nodes.get(1),
-                Event.defTimeRelationStr);
-        g1Nodes.get(1).addTransition(g1Nodes.get(2),
-                Event.defTimeRelationStr);
-        g1Nodes.get(2).addTransition(g1Nodes.get(3),
-                Event.defTimeRelationStr);
-        g1Nodes.get(3).addTransition(g1Nodes.get(0),
-                Event.defTimeRelationStr);
+        g1Nodes.get(0).addTransition(g1Nodes.get(1), Event.defTimeRelationStr);
+        g1Nodes.get(1).addTransition(g1Nodes.get(2), Event.defTimeRelationStr);
+        g1Nodes.get(2).addTransition(g1Nodes.get(3), Event.defTimeRelationStr);
+        g1Nodes.get(3).addTransition(g1Nodes.get(0), Event.defTimeRelationStr);
         exportTestGraph(g1, 0);
 
         // g1.a is k-equivalent to g1.a for all k
@@ -499,14 +489,10 @@ public class KTailsTests extends SynopticTest {
         List<EventNode> g2Nodes = addNodesToGraph(g2, new String[] { "a", "b",
                 "c", "d", "a" });
         // Create a chain from a to a'.
-        g2Nodes.get(0).addTransition(g2Nodes.get(1),
-                Event.defTimeRelationStr);
-        g2Nodes.get(1).addTransition(g2Nodes.get(2),
-                Event.defTimeRelationStr);
-        g2Nodes.get(2).addTransition(g2Nodes.get(3),
-                Event.defTimeRelationStr);
-        g2Nodes.get(3).addTransition(g2Nodes.get(4),
-                Event.defTimeRelationStr);
+        g2Nodes.get(0).addTransition(g2Nodes.get(1), Event.defTimeRelationStr);
+        g2Nodes.get(1).addTransition(g2Nodes.get(2), Event.defTimeRelationStr);
+        g2Nodes.get(2).addTransition(g2Nodes.get(3), Event.defTimeRelationStr);
+        g2Nodes.get(3).addTransition(g2Nodes.get(4), Event.defTimeRelationStr);
         exportTestGraph(g2, 1);
 
         testTrueBothSubsumingAndNotSubsuming(g1Nodes.get(0), g2Nodes.get(0), 0);
@@ -532,22 +518,15 @@ public class KTailsTests extends SynopticTest {
                 "c", "d", "b", "c" });
 
         // Create loop1 in g1, with the first 4 nodes.
-        g1Nodes.get(0).addTransition(g1Nodes.get(1),
-                Event.defTimeRelationStr);
-        g1Nodes.get(1).addTransition(g1Nodes.get(2),
-                Event.defTimeRelationStr);
-        g1Nodes.get(2).addTransition(g1Nodes.get(3),
-                Event.defTimeRelationStr);
-        g1Nodes.get(3).addTransition(g1Nodes.get(0),
-                Event.defTimeRelationStr);
+        g1Nodes.get(0).addTransition(g1Nodes.get(1), Event.defTimeRelationStr);
+        g1Nodes.get(1).addTransition(g1Nodes.get(2), Event.defTimeRelationStr);
+        g1Nodes.get(2).addTransition(g1Nodes.get(3), Event.defTimeRelationStr);
+        g1Nodes.get(3).addTransition(g1Nodes.get(0), Event.defTimeRelationStr);
 
         // Create loop2 in g1, with the last 2 nodes, plus the initial node.
-        g1Nodes.get(0).addTransition(g1Nodes.get(4),
-                Event.defTimeRelationStr);
-        g1Nodes.get(4).addTransition(g1Nodes.get(5),
-                Event.defTimeRelationStr);
-        g1Nodes.get(5).addTransition(g1Nodes.get(0),
-                Event.defTimeRelationStr);
+        g1Nodes.get(0).addTransition(g1Nodes.get(4), Event.defTimeRelationStr);
+        g1Nodes.get(4).addTransition(g1Nodes.get(5), Event.defTimeRelationStr);
+        g1Nodes.get(5).addTransition(g1Nodes.get(0), Event.defTimeRelationStr);
 
         exportTestGraph(g1, 0);
 
@@ -560,22 +539,15 @@ public class KTailsTests extends SynopticTest {
                 "c", "d", "b", "c" });
 
         // Create loop2 in g2, with the last 2 nodes, plus the initial node.
-        g2Nodes.get(0).addTransition(g2Nodes.get(4),
-                Event.defTimeRelationStr);
-        g2Nodes.get(4).addTransition(g2Nodes.get(5),
-                Event.defTimeRelationStr);
-        g2Nodes.get(5).addTransition(g2Nodes.get(0),
-                Event.defTimeRelationStr);
+        g2Nodes.get(0).addTransition(g2Nodes.get(4), Event.defTimeRelationStr);
+        g2Nodes.get(4).addTransition(g2Nodes.get(5), Event.defTimeRelationStr);
+        g2Nodes.get(5).addTransition(g2Nodes.get(0), Event.defTimeRelationStr);
 
         // Create loop1 in g2, with the first 4 nodes.
-        g2Nodes.get(0).addTransition(g2Nodes.get(1),
-                Event.defTimeRelationStr);
-        g2Nodes.get(1).addTransition(g2Nodes.get(2),
-                Event.defTimeRelationStr);
-        g2Nodes.get(2).addTransition(g2Nodes.get(3),
-                Event.defTimeRelationStr);
-        g2Nodes.get(3).addTransition(g2Nodes.get(0),
-                Event.defTimeRelationStr);
+        g2Nodes.get(0).addTransition(g2Nodes.get(1), Event.defTimeRelationStr);
+        g2Nodes.get(1).addTransition(g2Nodes.get(2), Event.defTimeRelationStr);
+        g2Nodes.get(2).addTransition(g2Nodes.get(3), Event.defTimeRelationStr);
+        g2Nodes.get(3).addTransition(g2Nodes.get(0), Event.defTimeRelationStr);
 
         exportTestGraph(g2, 1);
 
