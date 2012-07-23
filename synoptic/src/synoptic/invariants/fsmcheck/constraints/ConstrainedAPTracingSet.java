@@ -29,9 +29,9 @@ public class ConstrainedAPTracingSet<T extends INode<T>> extends
         this(inv.getFirst(), inv.getSecond());
         this.constr = inv.getConstraint();
         if (constr.getClass().equals(LowerBoundConstraint.class)) {
-            dfa = new AFbyLowerDFA<T>(inv);
+            dfa = new APLowerDFA<T>(inv);
         } else if (constr.getClass().equals(UpperBoundConstraint.class)) {
-            dfa = new AFbyUpperDFA<T>(inv);
+            dfa = new APUpperDFA<T>(inv);
         }
     }
 
