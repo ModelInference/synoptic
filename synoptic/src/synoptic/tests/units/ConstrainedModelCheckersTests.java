@@ -67,13 +67,13 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
         }
 
         if (!cExampleExists) {
-            assertTrue(cexamples == null);
+            assertTrue("cexamples == null", cexamples == null);
             return;
         }
 
         // Else, there should be just one counter-example
-        assertTrue(cexamples != null);
-        assertTrue(cexamples.size() == 1);
+        assertTrue("cexamples != null", cexamples != null);
+        assertTrue("cexamples.size() == 1", cexamples.size() == 1);
         List<T> cexamplePath = cexamples.get(0).path;
 
         // logger.info("model-checker counter-example:" + cexamplePath);
@@ -102,7 +102,7 @@ public class ConstrainedModelCheckersTests extends SynopticTest {
             ParseException {
 
         TraceParser parser = new TraceParser();
-        parser.addRegex("^(?<TYPE>)(?<DTIME>)$");
+        parser.addRegex("^(?<TYPE>)(?<TIME>)$");
         parser.addPartitionsSeparator("^--$");
 
         // Create the graph.

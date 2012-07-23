@@ -3,6 +3,7 @@ package synoptic.invariants.fsmcheck.constraints;
 import synoptic.invariants.constraints.IThresholdConstraint;
 import synoptic.invariants.constraints.LowerBoundConstraint;
 import synoptic.invariants.fsmcheck.HistoryNode;
+import synoptic.model.EventNode;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -40,12 +41,15 @@ public abstract class ConstrainedTracingStateSet<T extends INode<T>> implements
     @Override
     public void transition(T x, ITransition<T> trans) {
         ITime time;
-        if (constr.getClass().equals(LowerBoundConstraint.class)) {
-            time = trans.getDeltaSeries().getMinDelta();
-        } else {
-            time = trans.getDeltaSeries().getMaxDelta();
+        if (x instanceof EventNode) {
+        	time = trans.getTimeDelta();
+        } else { // Partition node
+	        if (constr.getClass().equals(LowerBoundConstraint.class)) {
+	            time = trans.getDeltaSeries().getMinDelta();
+	        } else {
+	            time = trans.getDeltaSeries().getMaxDelta();
+	        }
         }
-
         dfa.transition(x, time);
         history = extend(x, history);
     }
