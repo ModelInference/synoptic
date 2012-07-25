@@ -2,20 +2,42 @@
 
 <project basedir="." default="build" name="mcscm-bridge">
     <description>
-      This build file is used to build the mcscm-bridge project. It can
-      also be used to run the test suite.
+      Provides targets to build, test, and package the mcscm-bridge
+      project into a mcscm-bridge.jar archive.
     </description>
 
+    <!-- Include ant xml file with shared utils. -->
+    <include file="../ant-util.xml" as="util" />
+
     <property environment="env"/>
+
+    <!-- Where to create the mcscm-bridge.jar file. -->
+    <property name="mcscm-bridge.jarpath" value="${util.synoptic.libdir}/mcscm-bridge.jar"/>
+
     <property name="junit.output.dir" value="junit"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
 
-    <path id="mcscm-bridge.classpath">
+    <!-- Where to find the generated synoptic classes. -->
+    <path id="mcscm-bridge.classes.classpath">
         <pathelement location="bin"/>
-		<pathelement location="../lib/junit-4.9b2.jar"/>
     </path>
+
+    <!-- The set of jars synoptic depends on, in classpath format. -->
+    <path id="mcscm-bridge.depjars.classpath">
+        <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
+    </path>
+
+    <!-- The complete classpath. -->
+    <path id="mcscm-bridge.classpath">
+        <path refid="mcscm-bridge.classes.classpath"/>
+        <path refid="mcscm-bridge.depjars.classpath"/>
+    </path>
+
+	<manifestclasspath property="jar.liblist" jarfile="${mcscm-bridge.jarpath}">
+      <classpath refid="mcscm-bridge.depjars.classpath" />
+    </manifestclasspath>
 
     <!--=====================================================================-->
     <target name="init">
@@ -31,32 +53,50 @@
     <!--=====================================================================-->
     <target name="clean">
         <delete dir="bin"/>
+        <delete dir="junit"/>
     </target>
 
     <!--=====================================================================-->
     <target depends="init" name="build">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+        <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
+	    <!-- <compilerarg value="-Xlint:unchecked" /> -->
             <src path="src"/>
-        	<src path="tests"/>
+            <src path="tests"/>
             <classpath refid="mcscm-bridge.classpath"/>
         </javac>
     </target>
 
-   
     <!--=====================================================================-->
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
-    	
         <junit fork="no" printsummary="withOutAndErr" showoutput="true">
-          <classpath refid="mcscm-bridge.classpath"/>
-		  <formatter type="xml"/>
-    	  <batchtest fork="no" todir="${junit.output.dir}">
-    	  	<fileset dir="bin/">
-			  	<include name="mcscm/*Tests.class"/>
-	  	  	</fileset>
-    	  </batchtest>
+	  <classpath refid="mcscm-bridge.classpath"/>
+	  <formatter type="xml"/>
+
+	  <batchtest fork="no" todir="${junit.output.dir}">
+	    <fileset dir="bin/">
+              <include name="mcscm/*Tests.class"/>
+	    </fileset>
+	  </batchtest>
+
         </junit>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="jar" depends="build,util.hg-rev-extract">
+      <echo message="Embedding hg changeset number ${util.hg.revision}" />
+      <jar destfile="${mcscm-bridge.jarpath}"
+           basedir="./bin/"
+           includes="**/*.class">
+        <manifest>
+	  <attribute name="Manifest-Version" value="1.0" />
+	  <attribute name="Implementation-Title" value="mcscm-bridge" />
+	  <attribute name="Implementation-Version" value="0.0.1" />
+          <attribute name="Class-Path" value="${jar.liblist}" />
+	  <attribute name="ChangesetID" value="${util.hg.revision}" />
+	</manifest>
+      </jar>
     </target>
 
     <!--=====================================================================-->

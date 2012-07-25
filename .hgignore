@@ -10,7 +10,7 @@ synoptic/bin/*
 synoptic/junit/*
 synoptic/test-output/*
 
-# Ignore the compiled synoptic.jar file
+# Ignore the compiled jar file
 lib/synoptic.jar
 
 
@@ -20,6 +20,7 @@ lib/synoptic.jar
 
 # Manifest is generated automatically during build.
 synopticgwt/META-INF/MANIFEST.MF
+
 synopticgwt/war/WEB-INF/*
 synopticgwt/www-test/*
 synopticgwt/war/synopticgwt.SynopticGWT.JUnit/*
@@ -40,6 +41,7 @@ synopticgwt/derby/*
 # SynopticJUNG
 #####################
 
+# Ignore directories with auto-generated files
 synopticjung/bin/*
 
 
@@ -47,24 +49,33 @@ synopticjung/bin/*
 # InvariMint
 #####################
 
+# Ignore directories with auto-generated files
 InvariMint/bin/*
 InvariMint/junit/*
 InvariMint/test-output/*
+
+# Ignore the compiled jar
+lib/invarimint.jar
 
 
 #####################
 # Dynoptic
 #####################
 
+# Ignore directories with auto-generated files
 dynoptic/bin/*
 dynoptic/junit/*
 dynoptic/test-output/*
+
+# Ignore the compiled jar
+lib/dynoptic.jar
 
 
 #####################
 # McScm-Bridge
 #####################
 
+# Ignore directories with auto-generated files
 mcscm-bridge/junit/
 
 
