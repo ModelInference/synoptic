@@ -51,20 +51,24 @@ public class PerformanceTests extends SynopticTest {
     @Before
     public void setUp() throws ParseException {
         super.setUp();
-        SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker = this.useFSMChecker;
-        synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.logLvlExtraVerbose = false;
-        synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.logLvlQuiet = true;
+        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        syn.options.useFSMChecker = this.useFSMChecker;
+        syn.options.logLvlExtraVerbose = false;
+        syn.options.logLvlQuiet = true;
     }
 
     public void reportTime(long msTime) {
-        System.out.println(testName.getMethodName() + ":"
-                + "\n\tuseFSMChecker "
-                + SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker + "\n\tType "
-                + traceType + "\n\ttotalEvents " + totalEvents
-                + "\n\tnumPartitions " + numPartitions + "\n\tnumEventTypes "
-                + numEventTypes + "\n\twithInvariants " + withInvariants
-                + "\n\t==> TIME: " + msTime + "ms (averaged over "
-                + numIterations + " iterations)\n");
+        System.out
+                .println(testName.getMethodName()
+                        + ":"
+                        + "\n\tuseFSMChecker "
+                        + SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker
+                        + "\n\tType " + traceType + "\n\ttotalEvents "
+                        + totalEvents + "\n\tnumPartitions " + numPartitions
+                        + "\n\tnumEventTypes " + numEventTypes
+                        + "\n\twithInvariants " + withInvariants
+                        + "\n\t==> TIME: " + msTime + "ms (averaged over "
+                        + numIterations + " iterations)\n");
     }
 
     // public void testPerf() {

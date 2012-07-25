@@ -74,9 +74,9 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         int numPartitions = 5;
 
         // Generate a random log.
+        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
         while (numPartitions != 0) {
-            int rndIndex = SynopticMain.getInstanceWithExistenceCheck().random
-                    .nextInt(eventTypes.length);
+            int rndIndex = syn.random.nextInt(eventTypes.length);
             log.add(eventTypes[rndIndex]);
             if (rndIndex == 0) {
                 numPartitions -= 1;
@@ -336,7 +336,8 @@ public class TOLogInvariantMiningTests extends SynopticTest {
                 false);
 
         // Test with FSM checker.
-        SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker = true;
+        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        syn.options.useFSMChecker = true;
         List<CExamplePath<EventNode>> cExamples = minedInvs
                 .getAllCounterExamples(inputGraph);
         if (cExamples != null) {
@@ -347,7 +348,7 @@ public class TOLogInvariantMiningTests extends SynopticTest {
         assertTrue(cExamples == null);
 
         // Test with LTL checker.
-        SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker = false;
+        syn.options.useFSMChecker = false;
         cExamples = minedInvs.getAllCounterExamples(inputGraph);
         if (cExamples != null) {
             logger.fine("log: " + Arrays.toString(log));

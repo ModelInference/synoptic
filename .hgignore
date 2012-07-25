@@ -44,6 +44,9 @@ synopticgwt/derby/*
 # Ignore directories with auto-generated files
 synopticjung/bin/*
 
+# Ignore the compiled jar file
+lib/synopticjung.jar
+
 
 #####################
 # InvariMint

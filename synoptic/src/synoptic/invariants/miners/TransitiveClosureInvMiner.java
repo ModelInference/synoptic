@@ -85,6 +85,8 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
                 "mineInvariants", false);
         Set<ITemporalInvariant> overapproximatedInvariantsSet;
 
+        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+
         // Compute the over-approximated set of invariants for the input graph.
         try {
 
@@ -97,7 +99,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
 
             // Get the over-approximation.
             itc.stop();
-            if (SynopticMain.getInstanceWithExistenceCheck().options.doBenchmarking) {
+            if (syn.options.doBenchmarking) {
                 logger.info("BENCHM: " + itc);
             }
             TimedTask io = PerformanceMetrics.createTask(
@@ -114,7 +116,7 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
             }
 
             io.stop();
-            if (SynopticMain.getInstanceWithExistenceCheck().options.doBenchmarking) {
+            if (syn.options.doBenchmarking) {
                 logger.info("BENCHM: " + io);
             }
             // logger.info("Over-approx set: "
