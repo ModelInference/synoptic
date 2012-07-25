@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-<project basedir="." default="build" name="InvariMint">
+<project basedir="." default="build" name="Dynoptic">
     <description>
-      Provides targets to build, test, and package the InvariMint
-      project into a invarimint.jar archive.
+      Provides targets to build, test, and package the Dynoptic
+      project into a dynoptic.jar archive.
     </description>
 
     <!-- Include ant xml file with shared utils. -->
@@ -11,8 +11,8 @@
 
     <property environment="env"/>
 
-    <!-- Where to create the invarimint.jar file. -->
-    <property name="invarimint.jarpath" value="${util.synoptic.libdir}/invarimint.jar"/>
+    <!-- Where to create the dynoptic.jar file. -->
+    <property name="dynoptic.jarpath" value="${util.synoptic.libdir}/dynoptic.jar"/>
 
 	<property name="junit.output.dir" value="junit"/>
 
@@ -22,26 +22,25 @@
     <property name="source" value="1.6"/>
 
     <!-- Where to find the generated synoptic classes. -->
-    <path id="invarimint.classes.classpath">
+    <path id="dynoptic.classes.classpath">
         <pathelement location="bin"/>
     </path>
 
     <!-- The set of jars synoptic depends on, in classpath format. -->
-    <path id="invarimint.depjars.classpath">
+    <path id="dynoptic.depjars.classpath">
         <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
         <pathelement location="${util.synoptic.libdir}/plume.jar"/>
     	<pathelement location="${util.synoptic.libdir}/synoptic.jar"/>
-        <pathelement location="${util.synoptic.libdir}/automaton.jar"/>
     </path>
 
     <!-- The complete classpath for running the compiled synoptic. -->
-    <path id="invarimint.classpath">
-        <path refid="invarimint.classes.classpath"/>
-        <path refid="invarimint.depjars.classpath"/>
+    <path id="dynoptic.classpath">
+        <path refid="dynoptic.classes.classpath"/>
+        <path refid="dynoptic.depjars.classpath"/>
     </path>
 
-	<manifestclasspath property="jar.liblist" jarfile="${invarimint.jarpath}">
-      <classpath refid="invarimint.depjars.classpath" />
+	<manifestclasspath property="jar.liblist" jarfile="${dynoptic.jarpath}">
+      <classpath refid="dynoptic.depjars.classpath" />
     </manifestclasspath>
 
     <!--=====================================================================-->
@@ -66,7 +65,7 @@
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
 	    <!-- <compilerarg value="-Xlint:unchecked" /> -->
             <src path="src"/>
-            <classpath refid="invarimint.classpath"/>
+            <classpath refid="dynoptic.classpath"/>
         </javac>
     </target>
 
@@ -74,7 +73,7 @@
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="no" printsummary="withOutAndErr" showoutput="true">
-	  <classpath refid="invarimint.classpath"/>
+	  <classpath refid="dynoptic.classpath"/>
 	  <formatter type="xml"/>
 
 	  <batchtest fork="no" todir="${junit.output.dir}">
@@ -90,14 +89,14 @@
     <!--=====================================================================-->
     <target name="jar" depends="build,util.hg-rev-extract">
       <echo message="Embedding hg changeset number ${util.hg.revision}" />
-      <jar destfile="${invarimint.jarpath}"
+      <jar destfile="${dynoptic.jarpath}"
            basedir="./bin/"
            includes="**/*.class">
         <manifest>
 	  <attribute name="Manifest-Version" value="1.0" />
-	  <attribute name="Implementation-Title" value="InvariMint" />
+	  <attribute name="Implementation-Title" value="Dynoptic" />
 	  <attribute name="Implementation-Version" value="0.0.1" />
-	  <attribute name="Main-Class" value="main.InvariMintMain" />
+	  <attribute name="Main-Class" value="dynoptic.main.DynopticMain" />
       <attribute name="Class-Path" value="${jar.liblist}" />
 	  <attribute name="ChangesetID" value="${util.hg.revision}" />
 	</manifest>
