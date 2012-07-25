@@ -21,8 +21,18 @@ public class McScMTests {
 
     @Before
     public void setUp() {
+        // Determine whether to use the Linux or the OSX McScM binary.
+        String osStr = null;
+        if (Os.isLinux()) {
+            osStr = "linux";
+        } else if (Os.isMac()) {
+            osStr = "osx";
+        } else {
+            fail("Running on an unsupported OS (not Linux, and not Mac).");
+        }
+
         // NOTE: We assume the tests are run from synoptic/mcscm-bridge/
-        verifyPath = "../mcscm-1.2/bin/verify.native";
+        verifyPath = "../bin/mcscm.verify." + osStr;
         scmFilePrefix = "./tests/mcscm/";
 
         logger = Logger.getLogger("TestMcScM");
