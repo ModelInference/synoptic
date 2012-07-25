@@ -144,7 +144,7 @@ public class InvariMintMain {
         }
 
         if (opts.outputPathPrefix == null) {
-            err = "Cannot output initial graph. Specify output path prefix using:\n\t"
+            err = "Cannot output any models. Specify output path prefix using:\n\t"
                     + Options.getOptDesc("outputPathPrefix");
             logger.severe(err);
         }
