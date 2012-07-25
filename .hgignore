@@ -1,9 +1,22 @@
 # Use the glob syntax:
 syntax: glob
 
+#####################
+# Synoptic
+#####################
+
 # Ignore directories with auto-generated files
 synoptic/bin/*
 synoptic/junit/*
+synoptic/test-output/*
+
+# Ignore the compiled synoptic.jar file
+lib/synoptic.jar
+
+
+#####################
+# SynopticGWT
+#####################
 
 # Manifest is generated automatically during build.
 synopticgwt/META-INF/MANIFEST.MF
@@ -22,26 +35,49 @@ synopticgwt/test/**.class
 synopticgwt/test-output/*
 synopticgwt/derby/*
 
+
+#####################
+# SynopticJUNG
+#####################
+
 synopticjung/bin/*
+
+
+#####################
+# InvariMint
+#####################
 
 InvariMint/bin/*
 InvariMint/junit/*
 InvariMint/test-output/*
 
+
+#####################
+# Dynoptic
+#####################
+
+dynoptic/bin/*
+dynoptic/junit/*
+dynoptic/test-output/*
+
+
+#####################
+# McScm-Bridge
+#####################
+
 mcscm-bridge/junit/
 
-# Ignore vim .swp files
-.*.swp
 
-# Ignore the compiled synoptic.jar file
-lib/synoptic.jar
-
-# Ignore dot/png files created by tests
-synoptic/test-output/*
-InvariMint/test-output/*
+#####################
+# Other
+#####################
 
 # Ignore the mcscm distribution
 mcscm-1.2/
 
 # Ignore secondary binary files (e.g., derby tools)
 bin/
+
+# Ignore vim .swp files
+.*.swp
+
