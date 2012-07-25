@@ -146,9 +146,10 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             IGraph<T> graph) {
         TimedTask violations = PerformanceMetrics.createTask(
                 "getAllCounterExamples", false);
+        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
         try {
             List<CExamplePath<T>> paths = null;
-            if (SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker) {
+            if (syn.options.useFSMChecker) {
                 paths = new ArrayList<CExamplePath<T>>();
                 for (ITemporalInvariant tinv : invariants) {
                     CExamplePath<T> path = FsmModelChecker.getCounterExample(
@@ -186,7 +187,7 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             return paths;
         } finally {
             violations.stop();
-            if (SynopticMain.getInstanceWithExistenceCheck().options.doBenchmarking) {
+            if (syn.options.doBenchmarking) {
                 logger.info("BENCHM: " + violations.toString());
             }
         }

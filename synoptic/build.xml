@@ -49,9 +49,6 @@
     <target name="clean">
       <delete dir="bin"/>
       <delete dir="junit"/>
-      <delete>
-        <fileset dir="test-output" includes="*"/>
-      </delete>
     </target>
 
     <!--=====================================================================-->
@@ -88,12 +85,18 @@
     <!--====================================================================-->
 	
     <!-- 
-	 Runs tests that match a regex partially defined by the
+	 Runs test(s) that match a regex partially defined by the
 	 -Djunit.include option from the command line. For example,
 
 	 $ ant -Djunit.include=Foo test
 
 	 Would run all test classes that match the regex '.*Foo.*(\.class)?$'
+
+
+         For example, to run just the unit tests, use:
+
+         $ ant -Djunit.include=units test
+
 
 	 Note: This searches for classes in synoptic's testing directory
 	 and executes all matching files across all subdirectories.
@@ -102,6 +105,8 @@
       <!-- If junit.include is not set, complain. -->
       <fail unless="junit.include">Must supply a class name with -Djunit.include</fail>
       <echo message="Looking for files matching '.*${junit.include}.*(\.class)?$' in bin/${synoptic.testdir}" />
+
+      <mkdir dir="${junit.output.dir}"/>
 
       <!-- Build the file set and make sure it's not empty. -->
       <property name="junit.regex" value=".*${junit.include}.*(\.class)?$" />
@@ -138,6 +143,7 @@
     <!--=====================================================================-->
     <target name="tests" depends="build">
       <mkdir dir="${junit.output.dir}"/>
+
       <junit fork="no" printsummary="withOutAndErr" showoutput="true">
 	<classpath refid="synoptic.classpath"/>
 	<formatter type="xml"/>

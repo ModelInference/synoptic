@@ -59,9 +59,7 @@
     <target name="clean">
         <delete dir="bin"/>
         <delete dir="junit"/>
-        <delete>
-          <fileset dir="test-output" includes="*"/>
-        </delete>
+        <delete dir="test-output"/>
     </target>
 
     <!--=====================================================================-->
@@ -77,6 +75,10 @@
     <!--=====================================================================-->
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
+
+        <!-- Create the test-output/ dir where output from executed tests will go. -->
+        <mkdir dir="test-output"/>
+
         <junit fork="no" printsummary="withOutAndErr" showoutput="true">
 	  <classpath refid="invarimint.classpath"/>
 	  <formatter type="xml"/>

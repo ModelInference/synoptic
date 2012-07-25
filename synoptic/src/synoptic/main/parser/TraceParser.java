@@ -763,8 +763,8 @@ public class TraceParser {
             ret += " from file [" + fileName + "]";
         }
 
-        if (SynopticMain.getInstanceWithExistenceCheck().options.logLvlVerbose
-                || SynopticMain.getInstanceWithExistenceCheck().options.logLvlExtraVerbose) {
+        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        if (syn.options.logLvlVerbose || syn.options.logLvlExtraVerbose) {
             // Include the actual line if verbose output is desired.
             return ret + " line [" + line + "]";
         }
@@ -780,6 +780,8 @@ public class TraceParser {
 
         Event event = null;
         ITime nextTime = null;
+
+        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
 
         for (int i = 0; i < parsers.size(); i++) {
             NamedMatcher matcher = parsers.get(i).matcher(line);
@@ -841,7 +843,7 @@ public class TraceParser {
 
             String eTypeLabel;
             EventType eType;
-            if (SynopticMain.getInstanceWithExistenceCheck().options.internCommonStrings) {
+            if (syn.options.internCommonStrings) {
                 eTypeLabel = matched.get("TYPE").intern();
             } else {
                 eTypeLabel = matched.get("TYPE");
@@ -956,7 +958,7 @@ public class TraceParser {
                     String errMsg = buildLineErrorLocString(line, fileName,
                             lineNum)
                             + " Unable to parse time field on log line.";
-                    if (SynopticMain.getInstanceWithExistenceCheck().options.ignoreNonMatchingLines) {
+                    if (syn.options.ignoreNonMatchingLines) {
                         logger.warning(errMsg
                                 + " Ignoring line and continuing.");
                         continue;
@@ -981,8 +983,7 @@ public class TraceParser {
                 }
             }
 
-            if (SynopticMain.getInstanceWithExistenceCheck().options.partitionRegExp
-                    .equals("\\k<FILE>")) {
+            if (syn.options.partitionRegExp.equals("\\k<FILE>")) {
                 // These logs are to be partitioned via file
                 eventStringArgs.put("FILE", fileName);
                 // "" + traceNameToTraceID.get(fileName));
@@ -996,7 +997,7 @@ public class TraceParser {
                 }
             }
 
-            if (SynopticMain.getInstanceWithExistenceCheck().options.debugParse) {
+            if (syn.options.debugParse) {
                 // TODO: include partition name in the list of field values
                 logger.info("input: " + line);
                 StringBuilder msg = new StringBuilder("{");
@@ -1034,7 +1035,7 @@ public class TraceParser {
             return eventNode;
         }
 
-        if (SynopticMain.getInstanceWithExistenceCheck().options.recoverFromParseErrors) {
+        if (syn.options.recoverFromParseErrors) {
             logger.warning(buildLineErrorLocString(line, fileName, lineNum)
                     + " Failed to parse trace line. Using entire line as type.");
             event = new Event(new StringEventType(line), line, fileName,
@@ -1055,7 +1056,7 @@ public class TraceParser {
                     filter.substitute(new LinkedHashMap<String, String>()));
             return eventNode;
 
-        } else if (SynopticMain.getInstanceWithExistenceCheck().options.ignoreNonMatchingLines) {
+        } else if (syn.options.ignoreNonMatchingLines) {
             logger.fine(buildLineErrorLocString(line, fileName, lineNum)
                     + " Failed to parse trace line. Ignoring line and continuing.");
             return null;

@@ -87,11 +87,10 @@ public class Bisimulation {
 
         TimedTask refinement = PerformanceMetrics.createTask("refinement",
                 false);
-
-        if (SynopticMain.getInstanceWithExistenceCheck().options.dumpIntermediateStages) {
-            SynopticMain.getInstanceWithExistenceCheck().exportNonInitialGraph(
-                    SynopticMain.getInstanceWithExistenceCheck().getIntermediateDumpFilename("r",
-                            0), pGraph);
+        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
+        if (syn.options.dumpIntermediateStages) {
+            syn.exportNonInitialGraph(syn.getIntermediateDumpFilename("r", 0),
+                    pGraph);
         }
 
         int numSplitSteps = 0;
@@ -155,10 +154,9 @@ public class Bisimulation {
 
         }
 
-        if (SynopticMain.getInstanceWithExistenceCheck().options.dumpIntermediateStages) {
-            SynopticMain.getInstanceWithExistenceCheck().exportNonInitialGraph(
-                    SynopticMain.getInstanceWithExistenceCheck().getIntermediateDumpFilename("r",
-                            numSplitSteps), pGraph);
+        if (syn.options.dumpIntermediateStages) {
+            syn.exportNonInitialGraph(
+                    syn.getIntermediateDumpFilename("r", numSplitSteps), pGraph);
         }
 
         PerformanceMetrics.get().record("numOfSplitSteps", numSplitSteps);
@@ -249,9 +247,11 @@ public class Bisimulation {
         logger.fine(logStr);
 
         if (SynopticMain.getInstanceWithExistenceCheck().options.dumpIntermediateStages) {
-            SynopticMain.getInstanceWithExistenceCheck().exportNonInitialGraph(
-                    SynopticMain.getInstanceWithExistenceCheck().getIntermediateDumpFilename("r",
-                            numSplitSteps + 1), pGraph);
+            SynopticMain.getInstanceWithExistenceCheck()
+                    .exportNonInitialGraph(
+                            SynopticMain.getInstanceWithExistenceCheck()
+                                    .getIntermediateDumpFilename("r",
+                                            numSplitSteps + 1), pGraph);
         }
 
         return numSplitSteps + 1;
@@ -437,6 +437,7 @@ public class Bisimulation {
             Set<ITemporalInvariant> newlySatisfiedInvariants) {
 
         IOperation arbitrarySplit = null;
+        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
 
         // TODO: we are considering counter-example traces in an arbitrary
         // order. This heuristic should be turned into a customizable strategy.
@@ -450,8 +451,7 @@ public class Bisimulation {
                     counterexampleTrace, pGraph);
 
             // Permute the list of candidates.
-            Collections.shuffle(candidateSplits,
-                    SynopticMain.getInstanceWithExistenceCheck().random);
+            Collections.shuffle(candidateSplits, syn.random);
 
             logger.fine("candidateSplits are: " + candidateSplits.toString());
 
@@ -505,7 +505,7 @@ public class Bisimulation {
                 // result in making the invariant true!
 
                 for (PartitionSplit candidateSplit : candidateSplits) {
-                    if (SynopticMain.getInstanceWithExistenceCheck().options.performExtraChecks) {
+                    if (syn.options.performExtraChecks) {
                         // getSplits() should never generate invalid splits.
                         if (!candidateSplit.isValid()) {
                             throw new InternalSynopticException(
@@ -553,11 +553,12 @@ public class Bisimulation {
         // violations.
         Map<Partition, Set<Partition>> mergeBlacklist = new LinkedHashMap<Partition, Set<Partition>>();
 
+        SynopticMain syn = SynopticMain.getInstanceWithExistenceCheck();
         while (true) {
-            if (SynopticMain.getInstanceWithExistenceCheck().options.dumpIntermediateStages) {
-                SynopticMain.getInstanceWithExistenceCheck().exportNonInitialGraph(
-                        SynopticMain.getInstanceWithExistenceCheck().getIntermediateDumpFilename(
-                                "c", outerItters), pGraph);
+            if (syn.options.dumpIntermediateStages) {
+                syn.exportNonInitialGraph(
+                        syn.getIntermediateDumpFilename("c", outerItters),
+                        pGraph);
             }
             outerItters++;
 
@@ -566,10 +567,9 @@ public class Bisimulation {
             }
         }
 
-        if (SynopticMain.getInstanceWithExistenceCheck().options.dumpIntermediateStages) {
-            SynopticMain.getInstanceWithExistenceCheck().exportNonInitialGraph(
-                    SynopticMain.getInstanceWithExistenceCheck().getIntermediateDumpFilename("c",
-                            outerItters), pGraph);
+        if (syn.options.dumpIntermediateStages) {
+            syn.exportNonInitialGraph(
+                    syn.getIntermediateDumpFilename("c", outerItters), pGraph);
         }
     }
 
