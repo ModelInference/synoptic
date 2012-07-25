@@ -68,6 +68,7 @@
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
 	    <!-- <compilerarg value="-Xlint:unchecked" /> -->
             <src path="src"/>
+        	<src path="tests"/>
             <classpath refid="dynoptic.classpath"/>
         </javac>
     </target>
@@ -85,8 +86,7 @@
 
 	  <batchtest fork="no" todir="${junit.output.dir}">
 	    <fileset dir="bin/">
-	      <include name="tests/units/*Tests.class"/>
-	      <include name="tests/integration/*Tests.class"/>
+	      <include name="dynoptic/**/*Tests.class"/>
 	    </fileset>
 	  </batchtest>
 
