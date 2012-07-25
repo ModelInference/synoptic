@@ -1,4 +1,4 @@
-package main;
+package dynoptic.main;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,9 +9,9 @@ import plume.OptionGroup;
 import synoptic.main.options.Options;
 
 /**
- * Options relevant to the InvariMint project.
+ * Options relevant to the dynoptic project.
  */
-public class InvariMintOptions extends Options {
+public class DynopticOptions extends Options {
 
     // //////////////////////////////////////////////////
     /**
@@ -40,7 +40,7 @@ public class InvariMintOptions extends Options {
     public String argsFilename = null;
 
     /**
-     * Sets the random seed for InvariMint's source of pseudo-random numbers.
+     * Sets the random seed for Dynoptic's source of pseudo-random numbers.
      */
     @Option(
             value = "Use a specific random seed for pseudo-random number generator")
@@ -87,7 +87,7 @@ public class InvariMintOptions extends Options {
     public String partitionRegExp = partitionRegExpDefault;
 
     /**
-     * This flag indicates whether InvariMint should partition traces by file
+     * This flag indicates whether Dynoptic should partition traces by file
      */
     public boolean partitionViaFile = true;
 
@@ -123,54 +123,6 @@ public class InvariMintOptions extends Options {
     // //////////////////////////////////////////////////
 
     /**
-     * Run InvariMint-KTails.
-     */
-    @OptionGroup("kTails Options")
-    @Option(value = "Run the InvariMint-KTails algorithm.",
-            aliases = { "-invMintKTails" })
-    public boolean invMintKTails = false;
-
-    /**
-     * Size of tail when performing kTails.
-     */
-    @Option(value = "Size of tail when performing kTails")
-    public int kTailLength = 2;
-
-    // end option group "kTails Options"
-
-    // //////////////////////////////////////////////////
-
-    /**
-     * Run InvariMint-Synoptic.
-     */
-    @OptionGroup("Synoptic Options")
-    @Option(value = "Run the InvariMint-Synoptic algorithm.",
-            aliases = { "-invMintSynoptic" })
-    public boolean invMintSynoptic = false;
-
-    // end option group "Synoptic Options"
-
-    // //////////////////////////////////////////////////
-
-    /**
-     * Whether to remove spurious edges from the InvariMint model.
-     */
-    @OptionGroup("InvariMint Options")
-    @Option(value = "Remove spurious edges from InvariMint model")
-    public boolean removeSpuriousEdges = false;
-
-    /**
-     * Whether to minimize every intermediate model during invariant
-     * intersections.
-     */
-    @Option(value = "Minimize afer each intersection and the final model")
-    public boolean minimizeIntersections = true;
-
-    // end option group "InvariMint Options"
-
-    // //////////////////////////////////////////////////
-
-    /**
      * Specifies the prefix of where to store the model outputs.
      */
     @OptionGroup("Output Options")
@@ -178,35 +130,6 @@ public class InvariMintOptions extends Options {
             value = "-o Output path prefix for generating Graphviz dot files graphics",
             aliases = { "-output-prefix" })
     public String outputPathPrefix = null;
-
-    /**
-     * Whether to compare the InvariMint model with the model derived using the
-     * standard (e.g., non-InvariMint Synoptic) algorithm.
-     */
-    @Option(
-            value = "Whether to compare the InvariMint model to the model derived using the non-InvariMint algorithm",
-            aliases = { "-compareToStandardAlg" })
-    public boolean compareToStandardAlg = false;
-
-    /**
-     * Whether to export the PGraph model derived using StandardAlg.
-     */
-    @Option(value = "Export the PGraph model derived using StandardAlg")
-    public boolean exportStdAlgPGraph = false;
-
-    /**
-     * Whether to export the DFA model corresponding to the PGraph derived using
-     * StandardAlg.
-     */
-    @Option(
-            value = "Exports the DFA model corresponding to the PGraph derived using StandardAlg")
-    public boolean exportStdAlgDFA = false;
-
-    /**
-     * Whether to export every mined invariant DFA
-     */
-    @Option(value = "Export every mined invariant DFA")
-    public boolean exportMinedInvariantDFAs = false;
 
     /**
      * What level of logging to use.
@@ -223,9 +146,9 @@ public class InvariMintOptions extends Options {
     // end option group "Output Options"
 
     /** One line synopsis of usage */
-    public static final String usageString = "invarimint [options] <logfiles-to-analyze>";
+    public static final String usageString = "dynoptic [options] <logfiles-to-analyze>";
 
-    public InvariMintOptions(String[] args) throws IOException {
+    public DynopticOptions(String[] args) throws IOException {
         plumeOptions = new plume.Options(getUsageString(), this);
         setOptions(args);
         if (randomSeed == null) {
@@ -239,8 +162,7 @@ public class InvariMintOptions extends Options {
     public void printLongHelp() {
         System.out.println("Usage: " + getUsageString());
         System.out.println(plumeOptions.usage("General Options",
-                "Input Options", "kTails Options", "Synoptic Options",
-                "InvariMint Options", "Output Options"));
+                "Input Options", "Output Options"));
     }
 
     @Override

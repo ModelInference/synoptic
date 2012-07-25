@@ -122,7 +122,7 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
     // 1. Add all nodes in unordered to subList
     // 2. Sort subList using a comparator that uses the relative position of
     // elements in the orderedSuperList for computing the order of elements.
-    public List<EventNode> getSubSortedList(
+    private List<EventNode> getSubSortedList(
             Collection<? extends ITransition<EventNode>> unorderedTrans,
             List<EventNode> orderedSuperList) {
         List<EventNode> subList = new LinkedList<EventNode>();
