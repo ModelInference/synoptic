@@ -78,6 +78,8 @@ lib/dynoptic.jar
 # Ignore directories with auto-generated files
 mcscm-bridge/junit/
 
+# Ignore the compiled jar file
+lib/mcscm-bridge.jar
 
 #####################
 # Other
