@@ -50,6 +50,9 @@ public class CFSM implements IFSM<CFSMState> {
     int unSpecifiedPids;
 
     public CFSM(int numProcesses, Set<ChannelId> channelIds) {
+        assert numProcesses > 0;
+        assert channelIds != null;
+
         this.numProcesses = numProcesses;
 
         // Populate the channels map based on the connections map.

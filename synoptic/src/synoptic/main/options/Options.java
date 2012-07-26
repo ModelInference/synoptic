@@ -136,8 +136,16 @@ public abstract class Options {
         } catch (NoSuchFieldException e) {
             throw InternalSynopticException.wrap(e);
         }
-        Option opt = field.getAnnotation(Option.class);
-        String desc = opt.value();
+
+        Option opt;
+        String desc;
+        try {
+            opt = field.getAnnotation(Option.class);
+            desc = opt.value();
+        } catch (NullPointerException e) {
+            throw InternalSynopticException.wrap(e);
+        }
+
         if (desc.length() > 0 && desc.charAt(0) != '-') {
             // For options that do not have a short option form,
             // include the long option trigger in the description.

@@ -3,6 +3,8 @@ package dynoptic.main;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import mcscm.McScM;
+
 import synoptic.main.options.Options;
 
 /**
@@ -22,7 +24,11 @@ import synoptic.main.options.Options;
  */
 public class DynopticMain {
     DynopticOptions opts = null;
-    public Logger logger = null;
+    Logger logger = null;
+
+    // The Java McScM model checker bridge instance that interfaces with the
+    // McScM verify binary.
+    McScM mcscm = null;
 
     public DynopticMain(String[] args) throws Exception {
         this(new DynopticOptions(args));
@@ -32,6 +38,7 @@ public class DynopticMain {
         this.opts = opts;
         setUpLogging(opts);
         checkOptions(opts);
+        mcscm = new McScM(opts.mcPath);
     }
 
     /**
@@ -111,7 +118,7 @@ public class DynopticMain {
 
         if (optns.logFilenames.size() == 0) {
             err = "No log filenames specified, exiting. Try cmd line option:\n\t"
-                    + synoptic.main.options.Options.getOptDesc("help");
+                    + Options.getOptDesc("logFilenames");
             logger.severe(err);
         }
 

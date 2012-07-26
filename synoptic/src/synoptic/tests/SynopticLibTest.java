@@ -29,7 +29,7 @@ import synoptic.model.interfaces.INode;
  */
 public abstract class SynopticLibTest {
     /**
-     * Can be used to derive the current test name (as of JUnit 4.7) via
+     * Can be used to find out the current test name (as of JUnit 4.7) via
      * name.getMethodName().
      **/
     @Rule
