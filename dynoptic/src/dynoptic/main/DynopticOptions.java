@@ -1,6 +1,7 @@
 package dynoptic.main;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 import plume.Option;
@@ -30,7 +31,9 @@ public class DynopticOptions extends Options {
             value = "-H Print extended usage message (includes debugging options)")
     public boolean allHelp = false;
 
+    // end option group "General Options"
     // //////////////////////////////////////////////////
+
     /**
      * Command line arguments input filename to use.
      */
@@ -119,7 +122,18 @@ public class DynopticOptions extends Options {
     public boolean debugParse = false;
 
     // end option group "Input Options"
+    // //////////////////////////////////////////////////
 
+    /**
+     * Specifies the prefix of where to store the model outputs.
+     */
+    @OptionGroup("Verify Options")
+    @Option(
+            value = "-mc Complete path to the verification McScM model checker",
+            aliases = { "-mc-path" })
+    public String mcPath = null;
+
+    // end option group "Verify Options"
     // //////////////////////////////////////////////////
 
     /**
@@ -144,9 +158,20 @@ public class DynopticOptions extends Options {
     public boolean logLvlExtraVerbose = false;
 
     // end option group "Output Options"
+    // //////////////////////////////////////////////////
 
     /** One line synopsis of usage */
     public static final String usageString = "dynoptic [options] <logfiles-to-analyze>";
+
+    /**
+     * Use this constructor to create a blank set of options, that can then be
+     * populated manually, one at a time. This is useful when Dynoptic is used
+     * as a library or in tests, and options do not come from the command line.
+     */
+    public DynopticOptions() {
+        randomSeed = System.currentTimeMillis();
+        logFilenames = new LinkedList<String>();
+    }
 
     public DynopticOptions(String[] args) throws IOException {
         plumeOptions = new plume.Options(getUsageString(), this);
@@ -162,7 +187,7 @@ public class DynopticOptions extends Options {
     public void printLongHelp() {
         System.out.println("Usage: " + getUsageString());
         System.out.println(plumeOptions.usage("General Options",
-                "Input Options", "Output Options"));
+                "Input Options", "Verify Options", "Output Options"));
     }
 
     @Override

@@ -8,7 +8,7 @@ import dynoptic.model.alphabet.FSMAlphabet;
 import dynoptic.model.cfsm.CFSM;
 
 /**
- * This class models an FSM that is part of a CFSM. A few key characteristics:
+ * This class models FSMs that make up a CFSM. A few key characteristics:
  * 
  * <pre>
  * 1. It does not maintain channel state. This is done in the parent CFSM.

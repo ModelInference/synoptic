@@ -382,7 +382,7 @@ public class SynopticOptions extends Options {
     /**
      * Use this constructor to create a blank set of options, that can then be
      * populated manually, one at a time. This is useful when Synoptic is used
-     * as a library, and options do not come from the command line.
+     * as a library or in tests, and options do not come from the command line.
      */
     public SynopticOptions() {
         randomSeed = System.currentTimeMillis();

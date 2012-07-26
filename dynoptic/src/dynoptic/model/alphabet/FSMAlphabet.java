@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * A collection of events that can be processed by an FSM that is part of a
  * CFSM. This includes both the local events as well as send/receive
- * (communication) events. <br />
+ * (communication) events.
  */
 public class FSMAlphabet implements Set<EventType> {
     Set<EventType> events;
@@ -17,6 +17,7 @@ public class FSMAlphabet implements Set<EventType> {
     }
 
     // //////////////////////////////////////////////////////////////////
+    // Methods for Set<>, which we simply pass onto the internal events set.
 
     @Override
     public boolean add(EventType arg0) {

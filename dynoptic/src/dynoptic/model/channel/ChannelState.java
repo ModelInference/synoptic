@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import dynoptic.model.alphabet.EventType;
 
 /**
- * The ChannelState maintains the queue state for a channel along with the
- * channel's id.
+ * The ChannelState maintains the queue state for a channel, identified with a
+ * specific channel id.
  */
 public class ChannelState {
     final ChannelId chId;
