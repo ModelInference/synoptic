@@ -309,8 +309,9 @@ public class JungGui extends JApplet implements Printable {
                                         "Cannot output "
                                                 + filename
                                                 + "graph. Specify output path prefix using:\n\t"
-                                                + Options
-                                                        .getOptDesc("outputPathPrefix"));
+                                                + Options.getOptDesc(
+                                                        "outputPathPrefix",
+                                                        SynopticOptions.class));
                     }
                 }
             }
@@ -409,8 +410,8 @@ public class JungGui extends JApplet implements Printable {
 
     private void refine(List<CExamplePath<Partition>> counterExampleTraces) {
         // Perform a single refinement step.
-        numSplitSteps = Bisimulation.splitOnce(
-                numSplitSteps, pGraph, counterExampleTraces);
+        numSplitSteps = Bisimulation.splitOnce(numSplitSteps, pGraph,
+                counterExampleTraces);
 
         // Update the old\new partition maps.
         oldPartitions = newPartitions;
