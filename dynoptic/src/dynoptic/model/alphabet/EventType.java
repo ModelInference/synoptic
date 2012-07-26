@@ -6,15 +6,17 @@ import dynoptic.model.channel.ChannelId;
  * <p>
  * This is an immutable class.
  * </p>
- * An event represents a possible transition/action that the CFSM, or one of the
- * FSMs that make up a CFSM can handle.
+ * An event type represents a possible transition/action that the CFSM, or one
+ * of the FSMs that make up a CFSM can handle. Event types that are
+ * communicating events (send, receive) are associated with a channel Id, while
+ * local events are associated with a process id of the corresponding process.
  */
-public final class Event {
-    enum EventType {
+public final class EventType {
+    enum EventClass {
         LOCAL, SEND, RECV
     }
 
-    final EventType eventType;
+    final EventClass eventType;
     final String event;
 
     // LOCAL event types are associated with a pid:
@@ -27,24 +29,25 @@ public final class Event {
     // Used to cache the hashCode.
     final int hashCode;
 
-    public static Event LocalEvent(String event, int pid) {
-        return new Event(event, pid, EventType.LOCAL, null);
+    public static EventType LocalEvent(String event, int pid) {
+        return new EventType(event, pid, EventClass.LOCAL, null);
     }
 
-    public static Event SendEvent(String event, ChannelId channel) {
-        return new Event(event, -1, EventType.SEND, channel);
+    public static EventType SendEvent(String event, ChannelId channel) {
+        return new EventType(event, -1, EventClass.SEND, channel);
     }
 
-    public static Event RecvEvent(String event, ChannelId channel) {
-        return new Event(event, -1, EventType.RECV, channel);
+    public static EventType RecvEvent(String event, ChannelId channel) {
+        return new EventType(event, -1, EventClass.RECV, channel);
     }
 
     // //////////////////////////////////////////////////////////////////
 
-    private Event(String event, int pid, EventType eventType, ChannelId channel) {
-        if (eventType == EventType.LOCAL) {
+    private EventType(String event, int pid, EventClass eventType,
+            ChannelId channel) {
+        if (eventType == EventClass.LOCAL) {
             assert channel == null;
-        } else if (eventType == EventType.SEND || eventType == EventType.RECV) {
+        } else if (eventType == EventClass.SEND || eventType == EventClass.RECV) {
             assert channel != null;
             pid = -1;
         } else {
@@ -71,15 +74,15 @@ public final class Event {
     }
 
     public boolean isCommEvent() {
-        return eventType == EventType.SEND || eventType == EventType.RECV;
+        return eventType == EventClass.SEND || eventType == EventClass.RECV;
     }
 
     public boolean isRecvEvent() {
-        return eventType == EventType.RECV;
+        return eventType == EventClass.RECV;
     }
 
     public boolean isSendEvent() {
-        return eventType == EventType.SEND;
+        return eventType == EventClass.SEND;
     }
 
     public String toScmString() {
@@ -101,11 +104,11 @@ public final class Event {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof Event)) {
+        if (!(other instanceof EventType)) {
             return false;
 
         }
-        Event otherE = (Event) other;
+        EventType otherE = (EventType) other;
         if (!otherE.getEventStr().equals(event)) {
             return false;
         }
