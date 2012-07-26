@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.IFSM;
-import dynoptic.model.alphabet.Event;
+import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
-import dynoptic.model.channel.ChannelConfig;
+import dynoptic.model.channel.ChannelState;
 import dynoptic.model.channel.ChannelId;
 import dynoptic.model.fsm.FSM;
 import dynoptic.model.fsm.FSMState;
@@ -22,13 +22,13 @@ import synoptic.util.InternalSynopticException;
  * uni-directional, involve just two end-points, and do not have to exist
  * between any two processes.
  */
-public class CFSM implements IFSM<CFSMConfig> {
+public class CFSM implements IFSM<CFSMState> {
     // Total number of processes in this CFSM. These are numbered 0 through
     // numProcesses - 1.
     final int numProcesses;
 
     // srcPid_i -> [(dstPid_j, channel), ... ]
-    final Map<ChannelId, ChannelConfig> channels;
+    final Map<ChannelId, ChannelState> channels;
 
     // Keeps track of the total number of channels.
     final int numChannels;
@@ -45,10 +45,10 @@ public class CFSM implements IFSM<CFSMConfig> {
 
         // Populate the channels map based on the connections map.
         int chCount = 0;
-        this.channels = new HashMap<ChannelId, ChannelConfig>();
+        this.channels = new HashMap<ChannelId, ChannelState>();
         for (ChannelId chId : channelIds) {
-            ChannelConfig chConfig = new ChannelConfig(chId);
-            channels.put(chId, chConfig);
+            ChannelState chState = new ChannelState(chId);
+            channels.put(chId, chState);
             chCount++;
         }
         numChannels = chCount;
@@ -83,20 +83,20 @@ public class CFSM implements IFSM<CFSMConfig> {
     // //////////////////////////////////////////////////////////////////
 
     @Override
-    public CFSMConfig getConfig() {
+    public CFSMState getState() {
         assert unSpecifiedPids == 0;
 
         // Capture the current state of all FSMs.
         Map<Integer, FSMState> fsmStates = new LinkedHashMap<Integer, FSMState>();
         for (Integer pid : fsms.keySet()) {
-            fsmStates.put(pid, fsms.get(pid).getConfig());
+            fsmStates.put(pid, fsms.get(pid).getState());
         }
         // Capture the current state of all the channels.
-        Map<ChannelId, ChannelConfig> clonedChannels = new HashMap<ChannelId, ChannelConfig>();
+        Map<ChannelId, ChannelState> clonedChannels = new HashMap<ChannelId, ChannelState>();
         for (ChannelId chId : channels.keySet()) {
             clonedChannels.put(chId, channels.get(chId).clone());
         }
-        return new CFSMConfig(fsmStates, clonedChannels);
+        return new CFSMState(fsmStates, clonedChannels);
     }
 
     @Override
@@ -112,21 +112,21 @@ public class CFSM implements IFSM<CFSMConfig> {
     }
 
     @Override
-    public Set<Event> getEnabledEvents() {
+    public Set<EventType> getEnabledEvents() {
         assert unSpecifiedPids == 0;
 
-        Set<Event> ret = new LinkedHashSet<Event>();
+        Set<EventType> ret = new LinkedHashSet<EventType>();
 
         // Iterate through all the FSMs and determine the events that they can
         // perform.
         for (FSM fsm : fsms.values()) {
             // Get all the possible events that the FSM thinks it can perform.
-            Set<Event> enabled = fsm.getEnabledEvents();
+            Set<EventType> enabled = fsm.getEnabledEvents();
 
             // Add events, but filter out those events that cannot be received
             // because of incompatible FIFO queue state (i.e., cannot receive
             // 'm' if 'm' is not at the head of the queue).
-            for (Event e : enabled) {
+            for (EventType e : enabled) {
                 if (e.isRecvEvent()) {
                     if (!channels.get(e.getChannelId()).peek().equals(e)) {
                         continue;
@@ -139,7 +139,7 @@ public class CFSM implements IFSM<CFSMConfig> {
     }
 
     @Override
-    public CFSMConfig transition(Event event) {
+    public CFSMState transition(EventType event) {
         assert unSpecifiedPids == 0;
 
         // Execute the transition on the corresponding FSM/channel.
@@ -157,7 +157,7 @@ public class CFSM implements IFSM<CFSMConfig> {
                 fsms.get(pid).transition(event);
 
                 // 2. Consume a message from the top of the queue.
-                Event recvdEvent = channels.get(chId).dequeue();
+                EventType recvdEvent = channels.get(chId).dequeue();
                 if (!event.equals(recvdEvent)) {
                     // The recv event we transitioned on is not an event
                     // that was at the top of the channel queue. Since we should
@@ -177,6 +177,6 @@ public class CFSM implements IFSM<CFSMConfig> {
             }
         }
 
-        return getConfig();
+        return getState();
     }
 }

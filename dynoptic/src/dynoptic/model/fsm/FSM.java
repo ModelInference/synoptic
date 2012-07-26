@@ -3,7 +3,7 @@ package dynoptic.model.fsm;
 import java.util.Set;
 
 import dynoptic.model.IFSM;
-import dynoptic.model.alphabet.Event;
+import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
 import dynoptic.model.cfsm.CFSM;
 
@@ -63,7 +63,7 @@ public class FSM implements IFSM<FSMState> {
     // //////////////////////////////////////////////////////////////////
 
     @Override
-    public Set<Event> getEnabledEvents() {
+    public Set<EventType> getEnabledEvents() {
         return this.fsmState.getPossibleEvents();
     }
 
@@ -73,12 +73,12 @@ public class FSM implements IFSM<FSMState> {
     }
 
     @Override
-    public FSMState getConfig() {
+    public FSMState getState() {
         return fsmState;
     }
 
     @Override
-    public FSMState transition(Event event) {
+    public FSMState transition(EventType event) {
         this.fsmState = this.fsmState.getNextState(event);
         return this.fsmState;
     }

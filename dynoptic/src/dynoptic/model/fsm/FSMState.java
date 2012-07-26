@@ -7,15 +7,14 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import dynoptic.model.IFSMConfig;
-import dynoptic.model.alphabet.Event;
+import dynoptic.model.IFSMState;
+import dynoptic.model.alphabet.EventType;
 
 import synoptic.util.InternalSynopticException;
 
 /**
  * <p>
- * Represents a state of a simple NFA FSM. This state is also the FSM's
- * configuration.
+ * Represents a state of a simple NFA FSM.
  * </p>
  * <p>
  * An FSMState maintains "abstract" transitions to other FSMState instances,
@@ -28,16 +27,18 @@ import synoptic.util.InternalSynopticException;
  * In many ways this class mimics a Synoptic Partition class/concept.
  * </p>
  */
-public class FSMState implements IFSMConfig {
+public class FSMState implements IFSMState {
     // This is the set of observed state instances.
+    // TODO: include these.
 
     // Whether or not this state is an accepting state = whether or not any of
     // the observed states were terminal.
     boolean isAccept;
 
-    // The set of abstract transitions induced by the concrete transitions.
-    // These transitions are merely a CACHE optimization of the ground truth.
-    Map<Event, Set<FSMState>> transitions;
+    // CACHE optimization: the set of abstract transitions induced by the
+    // concrete transitions. This is merely a cached version of the ground
+    // truth.
+    Map<EventType, Set<FSMState>> transitions;
 
     public FSMState() {
 
@@ -47,11 +48,11 @@ public class FSMState implements IFSMConfig {
         return isAccept;
     }
 
-    public Set<Event> getPossibleEvents() {
+    public Set<EventType> getPossibleEvents() {
         return transitions.keySet();
     }
 
-    public FSMState getNextState(Event event) {
+    public FSMState getNextState(EventType event) {
         if (!transitions.containsKey(event)) {
             throw new InternalSynopticException(
                     "Cannot transition on an event that is not possible from this state.");
@@ -66,7 +67,7 @@ public class FSMState implements IFSMConfig {
     /**
      * Returns the set of all possible following states for this FSMState.
      */
-    public Set<FSMState> getPossibleFollowingStates(Event event) {
+    public Set<FSMState> getPossibleFollowingStates(EventType event) {
         if (!transitions.containsKey(event)) {
             return Collections.<FSMState> emptySet();
         }
@@ -75,7 +76,7 @@ public class FSMState implements IFSMConfig {
 
     // //////////////////////////////////////////////////////////////////
 
-    private void cacheTransition(Event e, FSMState s) {
+    private void cacheTransition(EventType e, FSMState s) {
         Set<FSMState> following;
         if (transitions.get(e) == null) {
             following = new LinkedHashSet<FSMState>();

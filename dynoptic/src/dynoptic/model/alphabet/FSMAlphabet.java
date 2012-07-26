@@ -9,22 +9,22 @@ import java.util.Set;
  * CFSM. This includes both the local events as well as send/receive
  * (communication) events. <br />
  */
-public class FSMAlphabet implements Set<Event> {
-    Set<Event> events;
+public class FSMAlphabet implements Set<EventType> {
+    Set<EventType> events;
 
-    public boolean contains(Event e) {
+    public boolean contains(EventType e) {
         return events.contains(e);
     }
 
     // //////////////////////////////////////////////////////////////////
 
     @Override
-    public boolean add(Event arg0) {
+    public boolean add(EventType arg0) {
         return events.add(arg0);
     }
 
     @Override
-    public boolean addAll(Collection<? extends Event> arg0) {
+    public boolean addAll(Collection<? extends EventType> arg0) {
         return events.addAll(arg0);
     }
 
@@ -49,7 +49,7 @@ public class FSMAlphabet implements Set<Event> {
     }
 
     @Override
-    public Iterator<Event> iterator() {
+    public Iterator<EventType> iterator() {
         return events.iterator();
     }
 
