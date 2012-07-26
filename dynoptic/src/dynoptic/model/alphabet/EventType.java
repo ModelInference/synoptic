@@ -1,6 +1,6 @@
 package dynoptic.model.alphabet;
 
-import dynoptic.model.channel.ChannelId;
+import dynoptic.model.fifosys.channel.ChannelId;
 
 /**
  * <p>
