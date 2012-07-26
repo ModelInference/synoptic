@@ -1,11 +1,11 @@
-package dynoptic.model.cfsm;
+package dynoptic.model.fifosys.cfsm;
 
 import java.util.Map;
 
 import dynoptic.model.IFSMState;
-import dynoptic.model.channel.ChannelId;
-import dynoptic.model.channel.ChannelState;
-import dynoptic.model.fsm.FSMState;
+import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.ChannelState;
 
 /**
  * <p>

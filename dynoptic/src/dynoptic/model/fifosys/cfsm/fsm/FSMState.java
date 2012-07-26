@@ -1,4 +1,4 @@
-package dynoptic.model.fsm;
+package dynoptic.model.fifosys.cfsm.fsm;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,27 +17,17 @@ import synoptic.util.InternalSynopticException;
  * Represents a state of a simple NFA FSM.
  * </p>
  * <p>
- * An FSMState maintains "abstract" transitions to other FSMState instances,
- * these are induced based on the "concrete" (observed) transitions from the
- * observed states corresponding to (grouped into) this FSMState. Note that the
- * FSM can be an NFA -- that is, an FSMState can have multiple transitions on
- * the same event that go to different FSMState instances.
- * </p>
- * <p>
- * In many ways this class mimics a Synoptic Partition class/concept.
+ * An FSMState maintains abstract transitions to other FSMState instances. It is
+ * completely disassociated form the concrete/observed transitions and states.
+ * Note that an FSMState can have multiple transitions on the same event that go
+ * to different FSMState instances (the FSM can be an NFA).
  * </p>
  */
 public class FSMState implements IFSMState {
-    // This is the set of observed state instances.
-    // TODO: include these.
-
-    // Whether or not this state is an accepting state = whether or not any of
-    // the observed states were terminal.
+    // Whether or not this state is an accepting state.
     boolean isAccept;
 
-    // CACHE optimization: the set of abstract transitions induced by the
-    // concrete transitions. This is merely a cached version of the ground
-    // truth.
+    // Transitions to other FSMState instances.
     Map<EventType, Set<FSMState>> transitions;
 
     public FSMState() {
@@ -52,6 +42,13 @@ public class FSMState implements IFSMState {
         return transitions.keySet();
     }
 
+    /**
+     * Returns a single next state based on an event transition. If multiple
+     * states are possible, then a state is returned non-deterministically.
+     * 
+     * @param event
+     * @return
+     */
     public FSMState getNextState(EventType event) {
         if (!transitions.containsKey(event)) {
             throw new InternalSynopticException(
@@ -71,12 +68,12 @@ public class FSMState implements IFSMState {
         if (!transitions.containsKey(event)) {
             return Collections.<FSMState> emptySet();
         }
-        return transitions.get(event);
+        return Collections.unmodifiableSet(transitions.get(event));
     }
 
     // //////////////////////////////////////////////////////////////////
 
-    private void cacheTransition(EventType e, FSMState s) {
+    private void addTransition(EventType e, FSMState s) {
         Set<FSMState> following;
         if (transitions.get(e) == null) {
             following = new LinkedHashSet<FSMState>();

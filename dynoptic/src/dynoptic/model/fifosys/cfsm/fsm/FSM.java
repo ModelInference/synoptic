@@ -1,11 +1,11 @@
-package dynoptic.model.fsm;
+package dynoptic.model.fifosys.cfsm.fsm;
 
 import java.util.Set;
 
 import dynoptic.model.IFSM;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
-import dynoptic.model.cfsm.CFSM;
+import dynoptic.model.fifosys.cfsm.CFSM;
 
 /**
  * This class models FSMs that make up a CFSM. A few key characteristics:

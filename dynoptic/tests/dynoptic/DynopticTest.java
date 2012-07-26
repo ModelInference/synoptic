@@ -16,7 +16,7 @@ import org.junit.rules.TestName;
 
 import dynoptic.main.DynopticMain;
 import dynoptic.main.DynopticOptions;
-import dynoptic.model.channel.ChannelId;
+import dynoptic.model.fifosys.channel.ChannelId;
 
 /**
  * Base test class for Dynoptic tests.

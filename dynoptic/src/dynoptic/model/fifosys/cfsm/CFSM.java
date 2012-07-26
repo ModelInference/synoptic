@@ -1,4 +1,4 @@
-package dynoptic.model.cfsm;
+package dynoptic.model.fifosys.cfsm;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -9,10 +9,11 @@ import java.util.Set;
 import dynoptic.model.IFSM;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
-import dynoptic.model.channel.ChannelId;
-import dynoptic.model.channel.ChannelState;
-import dynoptic.model.fsm.FSM;
-import dynoptic.model.fsm.FSMState;
+import dynoptic.model.fifosys.cfsm.fsm.FSM;
+import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.ChannelState;
+import dynoptic.model.fifosys.gfsm.GFSM;
 
 import synoptic.util.InternalSynopticException;
 
@@ -48,6 +49,24 @@ public class CFSM implements IFSM<CFSMState> {
     // A count of the number of processes/FSMs that still remain to be
     // added/specified.
     int unSpecifiedPids;
+
+    /**
+     * This method constructs an initialized CFSM from a GFSM. It performs the
+     * necessary traversal of the GFSM to construct/specify all the FSMs that
+     * should be part of the CFSM.
+     * 
+     * @param gfsm
+     * @return
+     */
+    public static CFSM buildFromGFSM(GFSM gfsm) {
+
+        // TODO:
+        // 1.
+
+        return null;
+    }
+
+    // //////////////////////////////////////////////////////////////////
 
     public CFSM(int numProcesses, Set<ChannelId> channelIds) {
         assert numProcesses > 0;

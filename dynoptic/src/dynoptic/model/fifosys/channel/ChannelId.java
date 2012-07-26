@@ -1,4 +1,4 @@
-package dynoptic.model.channel;
+package dynoptic.model.fifosys.channel;
 
 /**
  * <p>
