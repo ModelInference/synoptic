@@ -2,6 +2,7 @@ package dynoptic;
 
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -71,10 +72,8 @@ public class DynopticTest {
         }
         assert opts == null;
         opts = new DynopticOptions();
-
-        if (opts.mcPath == null) {
-            opts.mcPath = getMcPath();
-        }
+        opts.mcPath = getMcPath();
+        opts.outputPathPrefix = "test-output" + File.separator;
         dyn = new DynopticMain(opts);
     }
 

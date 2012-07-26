@@ -5,8 +5,6 @@ import java.util.logging.Logger;
 
 import mcscm.McScM;
 
-import synoptic.main.options.Options;
-
 /**
  * <p>
  * This class wraps everything together to provide a command-line interface, as
@@ -42,9 +40,26 @@ public class DynopticMain {
     }
 
     /**
-     * Runs the Dynoptic process based on the settings in this.opts.
+     * Runs Dynoptic based on setting in opts, but uses the log from the passed
+     * in String, and not from the logFilenames defined in opts.
+     * 
+     * @param log
+     */
+    public void run(String log) {
+        // TODO
+    }
+
+    /**
+     * Runs the Dynoptic process based on the settings in opts. In particular,
+     * we expect that the logFilenames are specified in opts.
      */
     public void run() {
+        if (opts.logFilenames.size() == 0) {
+            String err = "No log filenames specified, exiting. Specify log files at the end of the command line with no options.";
+            logger.severe(err);
+            throw new OptionException();
+        }
+
         try {
 
             // TODO:
@@ -105,20 +120,14 @@ public class DynopticMain {
         }
 
         if (optns.outputPathPrefix == null) {
-            err = "Cannot output initial graph. Specify output path prefix using:\n\t"
-                    + Options.getOptDesc("outputPathPrefix");
+            err = "Cannot output any generated models. Specify output path prefix using:\n\t"
+                    + opts.getOptDesc("outputPathPrefix");
             logger.severe(err);
         }
 
         if (optns.mcPath == null) {
             err = "Specify path of the McScM model checker to use for verification:\n\t"
-                    + Options.getOptDesc("mcPath");
-            logger.severe(err);
-        }
-
-        if (optns.logFilenames.size() == 0) {
-            err = "No log filenames specified, exiting. Try cmd line option:\n\t"
-                    + Options.getOptDesc("logFilenames");
+                    + opts.getOptDesc("mcPath");
             logger.severe(err);
         }
 

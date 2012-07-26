@@ -118,6 +118,14 @@ public abstract class Options {
     }
 
     /**
+     * Returns a command line option description for an option name for class of
+     * this instance.
+     */
+    public String getOptDesc(String optName) throws InternalSynopticException {
+        return getOptDesc(optName, this.getClass());
+    }
+
+    /**
      * Returns a command line option description for an option name
      * 
      * @param optName
@@ -126,11 +134,13 @@ public abstract class Options {
      * @throws InternalSynopticException
      *             if optName cannot be accessed
      */
-    public static String getOptDesc(String optName)
+    public static String getOptDesc(String optName, Class<?> optsCls)
             throws InternalSynopticException {
         Field field;
         try {
-            field = SynopticOptions.class.getField(optName);
+            // field = SynopticOptions.class.getField(optName);
+            field = optsCls.getField(optName);
+            // field = this.getClass().getField(optName);
         } catch (SecurityException e) {
             throw InternalSynopticException.wrap(e);
         } catch (NoSuchFieldException e) {
