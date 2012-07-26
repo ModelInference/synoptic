@@ -178,7 +178,8 @@ public class TraceParser {
             logger.warning("Using a default regular expression to parse log-lines: "
                     + "will map the entire log line to an event type."
                     + "\nTo use a custom regular expressions use the option:\n\t"
-                    + Options.getOptDesc("regExps") + "\n\t");
+                    + Options.getOptDesc("regExps", SynopticOptions.class)
+                    + "\n\t");
             // TODO: is this next statement necessary?
             // parser.addRegex("^\\s*$(?<SEPCOUNT++>)");
             this.addRegex(SynopticOptions.regExpDefault);
@@ -963,9 +964,13 @@ public class TraceParser {
                                 + " Ignoring line and continuing.");
                         continue;
                     }
-                    String error = errMsg + "\n\tTry cmd line options:\n\t"
-                            + Options.getOptDesc("ignoreNonMatchingLines")
-                            + "\n\t" + Options.getOptDesc("debugParse");
+                    String error = errMsg
+                            + "\n\tTry cmd line options:\n\t"
+                            + Options.getOptDesc("ignoreNonMatchingLines",
+                                    SynopticOptions.class)
+                            + "\n\t"
+                            + Options.getOptDesc("debugParse",
+                                    SynopticOptions.class);
                     logger.severe(error);
                     logger.severe(e.toString());
                     ParseException parseException = new ParseException(errMsg);
@@ -1065,9 +1070,11 @@ public class TraceParser {
         String exceptionError = buildLineErrorLocString(line, fileName, lineNum)
                 + " does not match any of the provided regular expressions.";
 
-        String loggerError = exceptionError + "\nTry cmd line options:\n\t"
-                + Options.getOptDesc("ignoreNonMatchingLines") + "\n\t"
-                + Options.getOptDesc("debugParse");
+        String loggerError = exceptionError
+                + "\nTry cmd line options:\n\t"
+                + Options.getOptDesc("ignoreNonMatchingLines",
+                        SynopticOptions.class) + "\n\t"
+                + Options.getOptDesc("debugParse", SynopticOptions.class);
 
         logger.severe(loggerError);
         ParseException parseException = new ParseException(exceptionError);

@@ -11,7 +11,6 @@ import algorithms.InvariMintSynoptic;
 import algorithms.PGraphInvariMint;
 
 import synoptic.invariants.NeverImmediatelyFollowedInvariant;
-import synoptic.main.options.Options;
 
 /**
  * InvariMint accepts a log file and regular expression arguments and constructs
@@ -145,13 +144,13 @@ public class InvariMintMain {
 
         if (opts.outputPathPrefix == null) {
             err = "Cannot output any models. Specify output path prefix using:\n\t"
-                    + Options.getOptDesc("outputPathPrefix");
+                    + opts.getOptDesc("outputPathPrefix");
             logger.severe(err);
         }
 
         if (opts.logFilenames.size() == 0) {
             err = "No log filenames specified, exiting. Try cmd line option:\n\t"
-                    + synoptic.main.options.Options.getOptDesc("help");
+                    + opts.getOptDesc("help");
             logger.severe(err);
         }
 

@@ -28,7 +28,6 @@ import synoptic.invariants.miners.DAGWalkingPOInvMiner;
 import synoptic.invariants.miners.IPOInvariantMiner;
 import synoptic.invariants.miners.ITOInvariantMiner;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
-import synoptic.main.options.Options;
 import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
@@ -203,14 +202,13 @@ public class SynopticMain {
         }
 
         if (opts.logFilenames.size() == 0) {
-            logger.severe("No log filenames specified, exiting. Try cmd line option:\n\t"
-                    + Options.getOptDesc("help"));
+            logger.severe("No log filenames specified, exiting. Specify log files at the end of the command line with no options.");
             return null;
         }
 
         if (opts.dumpIntermediateStages && opts.outputPathPrefix == null) {
             logger.severe("Cannot dump intermediate stages without an output path prefix. Set this prefix with:\n\t"
-                    + Options.getOptDesc("outputPathPrefix"));
+                    + opts.getOptDesc("outputPathPrefix"));
             return null;
         }
 
@@ -362,7 +360,7 @@ public class SynopticMain {
 
         if (options.outputPathPrefix == null) {
             logger.warning("Cannot output initial graph. Specify output path prefix using:\n\t"
-                    + Options.getOptDesc("outputPathPrefix"));
+                    + options.getOptDesc("outputPathPrefix"));
             return;
         }
 
@@ -590,7 +588,7 @@ public class SynopticMain {
             parsedEvents = parseEvents(parser, options.logFilenames);
         } catch (ParseException e) {
             logger.severe("Caught ParseException -- unable to continue, exiting. Try cmd line option:\n\t"
-                    + Options.getOptDesc("help"));
+                    + options.getOptDesc("help"));
             logger.severe(e.toString());
             return null;
         }
@@ -715,7 +713,7 @@ public class SynopticMain {
                     + (System.currentTimeMillis() - startTime) + "ms");
         } else {
             logger.warning("Cannot output final graph. Specify output path prefix using:\n\t"
-                    + Options.getOptDesc("outputPathPrefix"));
+                    + options.getOptDesc("outputPathPrefix"));
         }
     }
 }
