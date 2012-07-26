@@ -9,18 +9,27 @@ import java.util.Set;
 import dynoptic.model.IFSM;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
-import dynoptic.model.channel.ChannelState;
 import dynoptic.model.channel.ChannelId;
+import dynoptic.model.channel.ChannelState;
 import dynoptic.model.fsm.FSM;
 import dynoptic.model.fsm.FSMState;
 
 import synoptic.util.InternalSynopticException;
 
 /**
+ * <p>
  * Represents a CFSM that consists of some number of FSM processes, which
  * communicate through some number of channels with each other. Channels are
  * uni-directional, involve just two end-points, and do not have to exist
- * between any two processes.
+ * between every two processes.
+ * </p>
+ * <p>
+ * The number of processes, channels, and the channels configurations are fixed
+ * when a CFSM is constructed. Once constructed, to specify/add an FSM instance
+ * for a process id (pid), use the addFSM() method. Once all the FSMs have been
+ * specified the CFSM is considered initialized. Before the FSM is initialized,
+ * none of the other public methods will work.
+ * </p>
  */
 public class CFSM implements IFSM<CFSMState> {
     // Total number of processes in this CFSM. These are numbered 0 through

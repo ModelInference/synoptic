@@ -28,8 +28,8 @@ public interface IFSM<State extends IFSMState> {
     State transition(EventType event);
 
     /**
-     * Returns the set of events that are currently feasible (that this FSM can
-     * transition on).
+     * Returns the set of events that are currently feasible. That is, those
+     * events that this FSM can transition on based on its current state.
      */
     Set<EventType> getEnabledEvents();
 }

@@ -2,7 +2,9 @@ package dynoptic.model.alphabet;
 
 import org.junit.Test;
 
-public class AlphabetTests {
+import dynoptic.DynopticTest;
+
+public class AlphabetTests extends DynopticTest {
 
     @Test
     public void createAlphabet() {
