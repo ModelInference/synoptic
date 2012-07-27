@@ -1,16 +1,12 @@
 package dynoptic.model.fifosys.cfsm.fsm;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import dynoptic.model.IFSMState;
 import dynoptic.model.alphabet.EventType;
-
-import synoptic.util.InternalSynopticException;
 
 /**
  * <p>
@@ -18,12 +14,12 @@ import synoptic.util.InternalSynopticException;
  * </p>
  * <p>
  * An FSMState maintains abstract transitions to other FSMState instances. It is
- * completely disassociated form the concrete/observed transitions and states.
- * Note that an FSMState can have multiple transitions on the same event that go
- * to different FSMState instances (the FSM can be an NFA).
+ * completely disassociated from the observed transitions and states. Note that
+ * an FSMState can have multiple transitions on the same event that go to
+ * different FSMState instances (the FSM can be an NFA).
  * </p>
  */
-public class FSMState implements IFSMState {
+public class FSMState implements IFSMState<FSMState> {
     // Whether or not this state is an accepting state.
     boolean isAccept;
 
@@ -34,37 +30,27 @@ public class FSMState implements IFSMState {
 
     }
 
+    // //////////////////////////////////////////////////////////////////
+
+    @Override
     public boolean isAccept() {
         return isAccept;
     }
 
-    public Set<EventType> getPossibleEvents() {
+    @Override
+    public Set<EventType> getTransitioningEvents() {
         return transitions.keySet();
     }
 
     /**
-     * Returns a single next state based on an event transition. If multiple
-     * states are possible, then a state is returned non-deterministically.
+     * Returns the set of all possible following states for this FSMState and an
+     * event.
      * 
      * @param event
      * @return
      */
-    public FSMState getNextState(EventType event) {
-        if (!transitions.containsKey(event)) {
-            throw new InternalSynopticException(
-                    "Cannot transition on an event that is not possible from this state.");
-        }
-        // Get the next state non-deterministically (randomly) based on event.
-        ArrayList<FSMState> following = new ArrayList<FSMState>(
-                transitions.get(event));
-        int i = new Random().nextInt(following.size());
-        return following.get(i);
-    }
-
-    /**
-     * Returns the set of all possible following states for this FSMState.
-     */
-    public Set<FSMState> getPossibleFollowingStates(EventType event) {
+    @Override
+    public Set<FSMState> getNextStates(EventType event) {
         if (!transitions.containsKey(event)) {
             return Collections.<FSMState> emptySet();
         }
@@ -73,12 +59,20 @@ public class FSMState implements IFSMState {
 
     // //////////////////////////////////////////////////////////////////
 
-    private void addTransition(EventType e, FSMState s) {
+    /**
+     * Adds a new transition to a state s on event e from this state.
+     * 
+     * @param e
+     * @param s
+     */
+    public void addTransition(EventType e, FSMState s) {
         Set<FSMState> following;
         if (transitions.get(e) == null) {
             following = new LinkedHashSet<FSMState>();
         } else {
             following = transitions.get(e);
+            // Make sure that we haven't added this transition before.
+            assert !following.contains(e);
         }
         following.add(s);
     }

@@ -1,4 +1,4 @@
-package dynoptic.model.fsm;
+package dynoptic.model.fifosys.cfsm.fsm;
 
 import org.junit.Test;
 
