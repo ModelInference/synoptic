@@ -1,8 +1,7 @@
 package dynoptic.model.fifosys.cfsm;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import dynoptic.model.alphabet.FSMAlphabet;
@@ -33,8 +32,8 @@ import dynoptic.model.fifosys.gfsm.GFSM;
  */
 public class CFSM extends FifoSys<CFSMState> {
 
-    // pid -> FSM_pid
-    final Map<Integer, FSM> fsms;
+    // FSMs participating in this CFSM, ordered according to process ID.
+    final List<FSM> fsms;
 
     // A count of the number of processes/FSMs that still remain to be
     // added/specified.
@@ -72,7 +71,7 @@ public class CFSM extends FifoSys<CFSMState> {
 
     public CFSM(int numProcesses, Set<ChannelId> channelIds) {
         super(numProcesses, channelIds);
-        fsms = new HashMap<Integer, FSM>();
+        fsms = new ArrayList<FSM>(numProcesses);
         unSpecifiedPids = numProcesses;
     }
 
@@ -84,8 +83,8 @@ public class CFSM extends FifoSys<CFSMState> {
 
         // Return the union of the alphabets of all of the FSMs.
         FSMAlphabet ret = new FSMAlphabet();
-        for (Integer pid : fsms.keySet()) {
-            ret.addAll(fsms.get(pid).getAlphabet());
+        for (FSM f : fsms) {
+            ret.addAll(f.getAlphabet());
         }
         return ret;
     }
@@ -94,11 +93,11 @@ public class CFSM extends FifoSys<CFSMState> {
     public CFSMState getInitState() {
         assert unSpecifiedPids == 0;
 
-        Map<Integer, FSMState> fsmStates = new LinkedHashMap<Integer, FSMState>();
-        for (Integer pid : fsms.keySet()) {
-            fsmStates.put(pid, fsms.get(pid).getInitState());
+        List<FSMState> initStates = new ArrayList<FSMState>();
+        for (FSM f : fsms) {
+            initStates.add(f.getInitState());
         }
-        CFSMState init = new CFSMState(fsmStates);
+        CFSMState init = new CFSMState(initStates);
         return init;
     }
 
@@ -106,9 +105,9 @@ public class CFSM extends FifoSys<CFSMState> {
     public CFSMState getAcceptState() {
         assert unSpecifiedPids == 0;
 
-        Map<Integer, FSMState> fsmStates = new LinkedHashMap<Integer, FSMState>();
-        for (Integer pid : fsms.keySet()) {
-            fsmStates.put(pid, fsms.get(pid).getAcceptState());
+        List<FSMState> fsmStates = new ArrayList<FSMState>();
+        for (FSM f : fsms) {
+            fsmStates.add(f.getAcceptState());
         }
         CFSMState accept = new CFSMState(fsmStates);
         return accept;
@@ -130,11 +129,11 @@ public class CFSM extends FifoSys<CFSMState> {
         // Must be a valid pid (in the right range).
         assert (pid >= 0 && pid < numProcesses);
         // Only allow to set the FSM for a pid once.
-        assert !fsms.containsKey(pid);
+        assert (fsms.get(pid) == null);
         // Check that the FSM thinks it is part of the right CFSM (this).
         assert fsm.getCFSM() == this;
 
-        fsms.put(pid, fsm);
+        fsms.set(pid, fsm);
 
         unSpecifiedPids -= 1;
     }

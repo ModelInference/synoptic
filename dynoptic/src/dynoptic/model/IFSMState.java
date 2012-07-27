@@ -6,8 +6,11 @@ import dynoptic.model.alphabet.EventType;
 
 /**
  * Captures complete state of an FSM at some instant.
+ * 
+ * @param <NextState>
+ *            The type of the next state (set) returned by getNextStates.
  */
-public interface IFSMState<State extends IFSMState<State>> {
+public interface IFSMState<NextState extends IFSMState<NextState>> {
     /**
      * Whether or not the FSM state is an initial state in the FSM.
      */
@@ -30,5 +33,5 @@ public interface IFSMState<State extends IFSMState<State>> {
      * @param event
      * @return
      */
-    Set<State> getNextStates(EventType event);
+    Set<NextState> getNextStates(EventType event);
 }
