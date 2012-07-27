@@ -17,9 +17,11 @@ import synoptic.util.InternalSynopticException;
  * in a FIFO systems, along with state of all of the channels in the system.
  * 
  * @param <State>
+ *            Represents the state of _all_ the processes participating in the
+ *            system. This does _not_ include channel states.
  */
-public class FifoState<State extends ICFSMState<State>> implements
-        ICFSMState<FifoState<State>> {
+public class FifoState<State extends IMultiFSMState<State>> implements
+        IMultiFSMState<FifoState<State>> {
 
     // The current state of the system.
     State processStates;

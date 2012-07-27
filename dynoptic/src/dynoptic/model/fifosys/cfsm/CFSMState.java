@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.ICFSMState;
+import dynoptic.model.fifosys.IMultiFSMState;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 
 /**
@@ -14,7 +14,7 @@ import dynoptic.model.fifosys.cfsm.fsm.FSMState;
  * </p>
  * Captures the current state of a CFSM without the channel state.
  */
-public final class CFSMState implements ICFSMState<CFSMState> {
+public final class CFSMState implements IMultiFSMState<CFSMState> {
 
     final Map<Integer, FSMState> fsmStates;
 
