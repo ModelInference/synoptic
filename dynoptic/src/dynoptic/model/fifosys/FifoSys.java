@@ -4,6 +4,7 @@ import java.util.Set;
 
 import dynoptic.model.IFSM;
 import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.exec.FifoSysExecution;
 
 /**
  * <p>
@@ -49,5 +50,9 @@ abstract public class FifoSys<State extends IMultiFSMState<State>> implements
      */
     public FifoSysExecution<State> newExecution() {
         return new FifoSysExecution<State>(this);
+    }
+
+    public Set<ChannelId> getChannelIds() {
+        return channelIds;
     }
 }

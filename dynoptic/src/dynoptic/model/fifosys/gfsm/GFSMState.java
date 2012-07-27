@@ -6,6 +6,7 @@ import java.util.Set;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.IMultiFSMState;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
 
 /**
  * <p>
@@ -25,7 +26,7 @@ import dynoptic.model.fifosys.cfsm.fsm.FSMState;
  */
 public class GFSMState implements IMultiFSMState<GFSMState> {
     // This is the set of observed state instances.
-    // TODO: include these.
+    Set<ObservedFifoSysState> observedStates;
 
     // CACHE optimization: whether or not any of the observed states were
     // terminal.

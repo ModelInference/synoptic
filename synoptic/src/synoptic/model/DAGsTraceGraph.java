@@ -105,26 +105,22 @@ public class DAGsTraceGraph extends TraceGraph<DistEventType> {
      * This function takes a collection of transitions, and a list of nodes that
      * are somehow canonically ordered. It returns a list of nodes that the
      * transitions point to, in an order that is compatible with the canonical
-     * ordering. <br/>
-     * <br/>
-     * TODO: this is inefficient because in the worst case it is n^2. Ideally,
-     * this would do the following: 1. Add all nodes in unordered to subList 2.
-     * Sort subList using a comparator that uses the relative position of
-     * elements in the orderedSuperList for computing the order of elements.
+     * ordering.
      * 
      * @param unorderedTrans
      * @param orderedSuperList
      * @return
      */
-
-    // TODO: this is inefficient because in the worst case it is n^2.
-    // Ideally, this would do the following:
-    // 1. Add all nodes in unordered to subList
-    // 2. Sort subList using a comparator that uses the relative position of
-    // elements in the orderedSuperList for computing the order of elements.
     private List<EventNode> getSubSortedList(
             Collection<? extends ITransition<EventNode>> unorderedTrans,
             List<EventNode> orderedSuperList) {
+
+        // TODO: this is inefficient because in the worst case it is n^2.
+        // Ideally, this would do the following:
+        // 1. Add all nodes in unordered to subList
+        // 2. Sort subList using a comparator that uses the relative position of
+        // elements in the orderedSuperList for computing the order of elements.
+
         List<EventNode> subList = new LinkedList<EventNode>();
         Set<EventNode> unorderedNodes = new LinkedHashSet<EventNode>();
         for (ITransition<EventNode> trans : unorderedTrans) {

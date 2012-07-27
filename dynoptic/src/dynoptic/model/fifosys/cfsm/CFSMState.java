@@ -1,7 +1,7 @@
 package dynoptic.model.fifosys.cfsm;
 
 import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import dynoptic.model.alphabet.EventType;
@@ -16,9 +16,10 @@ import dynoptic.model.fifosys.cfsm.fsm.FSMState;
  */
 public final class CFSMState implements IMultiFSMState<CFSMState> {
 
-    final Map<Integer, FSMState> fsmStates;
+    // List of FSMStates, ordered according to process IDs.
+    final List<FSMState> fsmStates;
 
-    public CFSMState(Map<Integer, FSMState> fsmStates) {
+    public CFSMState(List<FSMState> fsmStates) {
         this.fsmStates = fsmStates;
     }
 
@@ -35,7 +36,7 @@ public final class CFSMState implements IMultiFSMState<CFSMState> {
      */
     @Override
     public boolean isAccept() {
-        for (FSMState state : fsmStates.values()) {
+        for (FSMState state : fsmStates) {
             if (!state.isAccept()) {
                 return false;
             }
@@ -46,7 +47,7 @@ public final class CFSMState implements IMultiFSMState<CFSMState> {
     @Override
     public Set<EventType> getTransitioningEvents() {
         Set<EventType> ret = new LinkedHashSet<EventType>();
-        for (FSMState p : fsmStates.values()) {
+        for (FSMState p : fsmStates) {
             ret.addAll(p.getTransitioningEvents());
         }
         return ret;
@@ -67,8 +68,7 @@ public final class CFSMState implements IMultiFSMState<CFSMState> {
 
     @Override
     public boolean isAcceptForPid(int pid) {
-        assert fsmStates.containsKey(pid);
-
+        assert pid >= 0 && pid < fsmStates.size();
         return fsmStates.get(pid).isAccept();
     }
 
