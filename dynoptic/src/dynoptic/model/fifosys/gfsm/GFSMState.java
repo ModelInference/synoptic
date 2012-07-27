@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.ICFSMState;
+import dynoptic.model.fifosys.IMultiFSMState;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 
 /**
@@ -23,7 +23,7 @@ import dynoptic.model.fifosys.cfsm.fsm.FSMState;
  * In many ways this class mimics a Synoptic Partition class/concept.
  * </p>
  */
-public class GFSMState implements ICFSMState<GFSMState> {
+public class GFSMState implements IMultiFSMState<GFSMState> {
     // This is the set of observed state instances.
     // TODO: include these.
 
@@ -35,6 +35,10 @@ public class GFSMState implements ICFSMState<GFSMState> {
     // concrete transitions. This is merely a cached version of the ground
     // truth.
     Map<EventType, Set<FSMState>> transitions;
+
+    public GFSMState() {
+        //
+    }
 
     // //////////////////////////////////////////////////////////////////
 

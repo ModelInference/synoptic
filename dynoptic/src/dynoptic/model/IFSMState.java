@@ -9,6 +9,11 @@ import dynoptic.model.alphabet.EventType;
  */
 public interface IFSMState<State extends IFSMState<State>> {
     /**
+     * Whether or not the FSM state is an initial state in the FSM.
+     */
+    // boolean isInitial();
+
+    /**
      * Whether or not the FSM state is a valid terminal state for the FSM.
      */
     boolean isAccept();

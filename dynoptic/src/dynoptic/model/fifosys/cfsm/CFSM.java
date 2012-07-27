@@ -26,6 +26,10 @@ import dynoptic.model.fifosys.gfsm.GFSM;
  * specified the CFSM is considered initialized. Before the FSM is initialized,
  * none of the other public methods will work.
  * </p>
+ * <p>
+ * Note that a CFSM is merely a representation of a machine, and does not
+ * maintain execution instance state. FifoSysExecution does this.
+ * </p>
  */
 public class CFSM extends FifoSys<CFSMState> {
 

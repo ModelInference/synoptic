@@ -9,8 +9,14 @@ package dynoptic.model.fifosys.channel;
  * optional name for the channel.
  */
 public final class ChannelId {
+    // Sender pid.
     final int srcPid;
+
+    // Receiver pid.
     final int dstPid;
+
+    // The name of the channel. If none is specified then this is set to
+    // "srcPid->dstPid"
     final String chName;
 
     public ChannelId(int srcPid, int dstPid) {
@@ -24,18 +30,20 @@ public final class ChannelId {
         this.chName = chName;
     }
 
+    // //////////////////////////////////////////////////////////////////
+
+    @Override
+    public String toString() {
+        return chName;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
     public int getSrcPid() {
         return srcPid;
     }
 
     public int getDstPid() {
         return dstPid;
-    }
-
-    // //////////////////////////////////////////////////////////////////
-
-    @Override
-    public String toString() {
-        return chName;
     }
 }

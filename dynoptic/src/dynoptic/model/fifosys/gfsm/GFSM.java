@@ -21,8 +21,10 @@ import dynoptic.model.fifosys.channel.ChannelId;
  * </p>
  * <p>
  * A GFSM can also be thought of as a representation of the operational
- * semantics, or _the_ execution of a CFSM. Note that all CFSM executions are
- * captured by a GFSM.
+ * semantics, or some number of executions of some hidden/abstract CFSM. Note
+ * that although it captures or describes prior executions, it cannot actually
+ * be executed or maintain instantaneous execution state -- for this, use
+ * FifoSysExecution.
  * </p>
  * <p>
  * A GFSM is composed of GFSMStates, which are actually _partitions_ of the
