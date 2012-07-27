@@ -3,8 +3,8 @@ package dynoptic.model.fifosys.gfsm;
 import java.util.Map;
 import java.util.Set;
 
-import dynoptic.model.IFSMState;
 import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.ICFSMState;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 
 /**
@@ -23,12 +23,12 @@ import dynoptic.model.fifosys.cfsm.fsm.FSMState;
  * In many ways this class mimics a Synoptic Partition class/concept.
  * </p>
  */
-public class GFSMState implements IFSMState {
+public class GFSMState implements ICFSMState<GFSMState> {
     // This is the set of observed state instances.
     // TODO: include these.
 
-    // Whether or not this state is an accepting state = whether or not any of
-    // the observed states were terminal.
+    // CACHE optimization: whether or not any of the observed states were
+    // terminal.
     boolean isAccept;
 
     // CACHE optimization: the set of abstract transitions induced by the
@@ -40,6 +40,23 @@ public class GFSMState implements IFSMState {
 
     @Override
     public boolean isAccept() {
+        return isAccept;
+    }
+
+    @Override
+    public Set<EventType> getTransitioningEvents() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Set<GFSMState> getNextStates(EventType event) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean isAcceptForPid(int pid) {
         // TODO Auto-generated method stub
         return false;
     }

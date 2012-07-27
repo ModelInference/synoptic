@@ -1,51 +1,28 @@
 package dynoptic.model.fifosys.cfsm;
 
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
-import dynoptic.model.IFSMState;
+import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.ICFSMState;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
-import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.channel.ChannelState;
 
 /**
  * <p>
  * This is an immutable class.
  * </p>
- * Captures the current state of a CFSM.
+ * Captures the current state of a CFSM without the channel state.
  */
-public final class CFSMState implements IFSMState {
+public final class CFSMState implements ICFSMState<CFSMState> {
 
     final Map<Integer, FSMState> fsmStates;
-    final Map<ChannelId, ChannelState> channels;
 
-    public CFSMState(Map<Integer, FSMState> fsmStates,
-            Map<ChannelId, ChannelState> channels) {
+    public CFSMState(Map<Integer, FSMState> fsmStates) {
         this.fsmStates = fsmStates;
-        this.channels = channels;
     }
 
-    /**
-     * Whether or not in this state:
-     * 
-     * <pre>
-     * (1) the specified pid is in an accept state, and
-     * (2) all queues where this pid is a receiver are empty.
-     * </pre>
-     * 
-     * @param pid
-     * @return
-     */
-    public boolean isAcceptForPid(int pid) {
-        if (!fsmStates.get(pid).isAccept()) {
-            return false;
-        }
-        for (ChannelId chId : channels.keySet()) {
-            if (chId.getDstPid() == pid && channels.get(chId).size() != 0) {
-                return false;
-            }
-        }
-        return true;
-    }
+    // //////////////////////////////////////////////////////////////////
 
     /**
      * Whether or not this state is a valid accepting state for a CFSM. The
@@ -56,17 +33,43 @@ public final class CFSMState implements IFSMState {
      * (2) all the queue are empty.
      * </pre>
      */
+    @Override
     public boolean isAccept() {
         for (FSMState state : fsmStates.values()) {
             if (!state.isAccept()) {
                 return false;
             }
         }
-        for (ChannelState chState : channels.values()) {
-            if (chState.size() != 0) {
-                return false;
-            }
-        }
         return true;
     }
+
+    @Override
+    public Set<EventType> getTransitioningEvents() {
+        Set<EventType> ret = new LinkedHashSet<EventType>();
+        for (FSMState p : fsmStates.values()) {
+            ret.addAll(p.getTransitioningEvents());
+        }
+        return ret;
+    }
+
+    @Override
+    public Set<CFSMState> getNextStates(EventType event) {
+        // TODO: have to take a cross product of all the possible sub-FSM states
+        // to derive possible CFSM states.
+        return null;
+
+        // Set<CFSMState> ret = new LinkedHashSet<CFSMState>();
+        // for (FSMState p : fsmStates.values()) {
+        // ret.addAll(p.getNextStates(event));
+        // }
+        // return ret;
+    }
+
+    @Override
+    public boolean isAcceptForPid(int pid) {
+        assert fsmStates.containsKey(pid);
+
+        return fsmStates.get(pid).isAccept();
+    }
+
 }

@@ -1,35 +1,31 @@
 package dynoptic.model;
 
-import java.util.Set;
-
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
 
 /**
  * Describes a basic interface for an FSM.
  */
-public interface IFSM<State extends IFSMState> {
+public interface IFSM<State extends IFSMState<State>> {
     /**
-     * Returns the current state of the FSM.
+     * Returns the initial state for the FSM.
+     * 
+     * <pre>
+     * TODO: expand this to allow for multiple initial states.
+     * </pre>
      */
-    State getState();
+    State getInitState();
+
+    /**
+     * Returns the accept state for the FSM.
+     * 
+     * <pre>
+     * TODO: expand this to allow for multiple initial states.
+     * </pre>
+     */
+    State getAcceptState();
 
     /**
      * An FSM uses a finite alphabet of events.
      */
     FSMAlphabet getAlphabet();
-
-    /**
-     * An FSM transitions between states by processing events.
-     * 
-     * @param event
-     * @return
-     */
-    State transition(EventType event);
-
-    /**
-     * Returns the set of events that are currently feasible. That is, those
-     * events that this FSM can transition on based on its current state.
-     */
-    Set<EventType> getEnabledEvents();
 }

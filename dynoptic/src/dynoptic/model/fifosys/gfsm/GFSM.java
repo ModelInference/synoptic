@@ -1,13 +1,10 @@
 package dynoptic.model.fifosys.gfsm;
 
-import java.util.Map;
 import java.util.Set;
 
-import dynoptic.model.IFSM;
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
+import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.channel.ChannelState;
 
 /**
  * <p>
@@ -35,29 +32,13 @@ import dynoptic.model.fifosys.channel.ChannelState;
  * complete step of the Dynoptic algorithm.
  * </p>
  */
-public class GFSM implements IFSM<GFSMState> {
-
-    // Total number of processes in this CFSM. These are numbered 0 through
-    // numProcesses - 1.
-    final int numProcesses;
-
-    // srcPid_i -> [(dstPid_j, channel), ... ]
-    final Map<ChannelId, ChannelState> channels;
-
-    // Keeps track of the total number of channels.
-    final int numChannels;
+public class GFSM extends FifoSys<GFSMState> {
 
     public GFSM(int numProcesses, Set<ChannelId> channelIds) {
-        //
+        super(numProcesses, channelIds);
     }
 
     // //////////////////////////////////////////////////////////////////
-
-    @Override
-    public GFSMState getState() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     @Override
     public FSMAlphabet getAlphabet() {
@@ -66,13 +47,13 @@ public class GFSM implements IFSM<GFSMState> {
     }
 
     @Override
-    public GFSMState transition(EventType event) {
+    public GFSMState getInitState() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Set<EventType> getEnabledEvents() {
+    public GFSMState getAcceptState() {
         // TODO Auto-generated method stub
         return null;
     }
