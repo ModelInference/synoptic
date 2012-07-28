@@ -1,5 +1,6 @@
 package dynoptic.model.fifosys.gfsm;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import dynoptic.model.alphabet.FSMAlphabet;
@@ -36,8 +37,16 @@ import dynoptic.model.fifosys.channel.ChannelId;
  */
 public class GFSM extends FifoSys<GFSMState> {
 
+    // The set of all states, or partitions of observations.
+    final Set<GFSMState> states;
+
+    // The initial and accept states.
+    GFSMState initS = null;
+    GFSMState acceptS = null;
+
     public GFSM(int numProcesses, Set<ChannelId> channelIds) {
         super(numProcesses, channelIds);
+        states = new LinkedHashSet<GFSMState>();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -49,15 +58,27 @@ public class GFSM extends FifoSys<GFSMState> {
     }
 
     @Override
-    public GFSMState getInitState() {
-        // TODO Auto-generated method stub
-        return null;
+    public GFSMState getAcceptState() {
+        return acceptS;
     }
 
     @Override
-    public GFSMState getAcceptState() {
-        // TODO Auto-generated method stub
-        return null;
+    public GFSMState getInitState() {
+        return initS;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
+    public void addGFSMStates(GFSMState s) {
+        assert !states.contains(s);
+
+        states.add(s);
+    }
+
+    public void removeGFSMStates(GFSMState s) {
+        assert states.contains(s);
+
+        states.remove(s);
     }
 
 }

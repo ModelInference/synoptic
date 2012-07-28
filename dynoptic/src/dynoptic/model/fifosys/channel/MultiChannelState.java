@@ -18,6 +18,8 @@ public class MultiChannelState {
      * @param channelIds
      */
     public MultiChannelState(Set<ChannelId> channelIds) {
+        assert channelIds != null;
+
         // Populate the channels map based on the channelIds.
         this.channelStates = new LinkedHashMap<ChannelId, ChannelState>();
         for (ChannelId chId : channelIds) {
@@ -44,6 +46,27 @@ public class MultiChannelState {
         return ret;
     }
 
+    @Override
+    public int hashCode() {
+        return channelStates.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof MultiChannelState)) {
+            return false;
+
+        }
+        MultiChannelState mc = (MultiChannelState) other;
+        return mc.channelStates.equals(channelStates);
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     /** Whether or not all queues are empty. */
@@ -58,11 +81,18 @@ public class MultiChannelState {
 
     /** Whether or not all queues where pid is receiver are empty. */
     public boolean isEmptyForPid(int pid) {
+        boolean foundPid = false;
+
         for (ChannelId chId : channelStates.keySet()) {
-            if (chId.getDstPid() == pid && channelStates.get(chId).size() != 0) {
-                return false;
+            if (chId.getDstPid() == pid) {
+                if (channelStates.get(chId).size() != 0) {
+                    return false;
+                }
+                foundPid = true;
             }
         }
+        assert foundPid;
+
         return true;
     }
 

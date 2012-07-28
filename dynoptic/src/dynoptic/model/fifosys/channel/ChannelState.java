@@ -17,6 +17,9 @@ public class ChannelState {
     }
 
     private ChannelState(ChannelId chId, ArrayList<EventType> queue) {
+        assert chId != null;
+        assert queue != null;
+
         this.chId = chId;
         this.queue = queue;
     }
@@ -33,10 +36,40 @@ public class ChannelState {
         return ret;
     }
 
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + chId.hashCode();
+        result = 31 * result + queue.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof ChannelState)) {
+            return false;
+
+        }
+        ChannelState s = (ChannelState) other;
+        if (!s.chId.equals(chId)) {
+            return false;
+        }
+        return s.queue.equals(queue);
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     /** Adds an event to the back of the queue. */
     public void enqueue(EventType e) {
+        assert e.isSendEvent();
+        assert e.getChannelId().equals(chId);
+
         queue.add(e);
     }
 

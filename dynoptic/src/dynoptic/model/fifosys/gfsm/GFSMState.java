@@ -27,16 +27,12 @@ import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
  */
 public class GFSMState implements IMultiFSMState<GFSMState> {
     // This is the set of observed state instances.
-    Set<ObservedFifoSysState> observedStates;
-
-    // CACHE optimization: whether or not any of the observed states were
-    // terminal.
-    // boolean isAccept;
+    final Set<ObservedFifoSysState> observedStates;
 
     // CACHE optimization: the set of abstract transitions induced by the
     // concrete transitions. This is merely a cached version of the ground
     // truth.
-    Map<EventType, Set<GFSMState>> transitions;
+    final Map<EventType, Set<GFSMState>> transitions;
 
     public GFSMState() {
         observedStates = new LinkedHashSet<ObservedFifoSysState>();
@@ -47,6 +43,8 @@ public class GFSMState implements IMultiFSMState<GFSMState> {
 
     @Override
     public boolean isAccept() {
+        // We need at least one observed state as accepting/terminal for this
+        // partition to be accepting.
         for (ObservedFifoSysState s : observedStates) {
             if (s.isAccept()) {
                 return true;

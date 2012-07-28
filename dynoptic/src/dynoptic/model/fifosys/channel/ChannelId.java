@@ -17,6 +17,8 @@ public final class ChannelId {
 
     // The name of the channel. If none is specified then this is set to
     // "srcPid->dstPid"
+    //
+    // NOTE: chName is not part of the hashCode/equals
     final String chName;
 
     public ChannelId(int srcPid, int dstPid) {
@@ -25,6 +27,7 @@ public final class ChannelId {
     }
 
     public ChannelId(int srcPid, int dstPid, String chName) {
+        assert srcPid >= 0 && dstPid >= 0;
         this.srcPid = srcPid;
         this.dstPid = dstPid;
         this.chName = chName;
@@ -37,6 +40,33 @@ public final class ChannelId {
         return chName;
     }
 
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + srcPid;
+        result = 31 * result + dstPid;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof ChannelId)) {
+            return false;
+
+        }
+        ChannelId oCid = (ChannelId) other;
+        if (oCid.srcPid != srcPid) {
+            return false;
+        }
+        return oCid.dstPid == srcPid;
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     public int getSrcPid() {
@@ -46,4 +76,5 @@ public final class ChannelId {
     public int getDstPid() {
         return dstPid;
     }
+
 }

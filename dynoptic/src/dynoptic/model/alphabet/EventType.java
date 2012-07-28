@@ -121,7 +121,7 @@ public final class EventType {
         if (otherE.isSendEvent() != isSendEvent()) {
             return false;
         }
-        if (otherE.getChannelId() != this.getChannelId()) {
+        if (!otherE.getChannelId().equals(this.getChannelId())) {
             return false;
         }
 
@@ -147,7 +147,9 @@ public final class EventType {
         result = 31 * result + eventType.hashCode();
         result = 31 * result + event.hashCode();
         result = 31 * result + pid;
-        result = 31 * result + channelId.hashCode();
+        if (channelId != null) {
+            result = 31 * result + channelId.hashCode();
+        }
         return result;
     }
 }
