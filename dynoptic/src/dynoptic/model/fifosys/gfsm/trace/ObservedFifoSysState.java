@@ -1,5 +1,6 @@
 package dynoptic.model.fifosys.gfsm.trace;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Set;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.IMultiFSMState;
 import dynoptic.model.fifosys.channel.MultiChannelState;
+import dynoptic.model.fifosys.gfsm.GFSMState;
 
 /**
  * Represents a state that was observed or mined from a log from an execution of
@@ -20,6 +22,9 @@ import dynoptic.model.fifosys.channel.MultiChannelState;
  */
 public class ObservedFifoSysState implements
         IMultiFSMState<ObservedFifoSysState> {
+
+    // The "partition" that this observed fifo state belongs to.
+    GFSMState parent;
 
     // A list of observed FSM states, the list is ordered according to process
     // IDs.
@@ -81,7 +86,7 @@ public class ObservedFifoSysState implements
 
     @Override
     public Set<ObservedFifoSysState> getNextStates(EventType event) {
-        return (Set<ObservedFifoSysState>) transitions.values();
+        return Collections.singleton(transitions.get(event));
     }
 
     @Override
@@ -95,6 +100,10 @@ public class ObservedFifoSysState implements
     }
 
     // //////////////////////////////////////////////////////////////////
+
+    public ObservedFifoSysState getNextState(EventType event) {
+        return transitions.get(event);
+    }
 
     public void addTransition(EventType e, ObservedFifoSysState s) {
         assert unSpecifiedTxns > 0;
@@ -117,6 +126,14 @@ public class ObservedFifoSysState implements
     public boolean isInitialForPid(int pid) {
         return fsmStates.get(pid).isInitial()
                 && channelStates.isEmptyForPid(pid);
+    }
+
+    public GFSMState getParent() {
+        return parent;
+    }
+
+    public void setParent(GFSMState newParent) {
+        parent = newParent;
     }
 
 }

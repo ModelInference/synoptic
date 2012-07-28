@@ -23,6 +23,18 @@ public class ChannelState {
 
     // //////////////////////////////////////////////////////////////////
 
+    @Override
+    public String toString() {
+        String ret = chId.toString() + ": [";
+        for (EventType e : queue) {
+            ret = ret + e.getEventStr() + ", ";
+        }
+        ret = ret + "]";
+        return ret;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
     /** Adds an event to the back of the queue. */
     public void enqueue(EventType e) {
         queue.add(e);

@@ -33,6 +33,19 @@ public class MultiChannelState {
 
     // //////////////////////////////////////////////////////////////////
 
+    @Override
+    public String toString() {
+        String ret = "{";
+        for (ChannelId chId : channelStates.keySet()) {
+            // channelState string includes the channelId.
+            ret = ret + channelStates.get(chId).toString() + ", ";
+        }
+        ret = ret + "}";
+        return ret;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
     /** Whether or not all queues are empty. */
     public boolean isEmpty() {
         for (ChannelState chState : channelStates.values()) {
