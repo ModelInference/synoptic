@@ -11,8 +11,4 @@ public class FSMTests extends DynopticTest {
         // FSM f = new FSM();
     }
 
-    @Test
-    public void createFSMState() {
-        FSMState p = new FSMState();
-    }
 }

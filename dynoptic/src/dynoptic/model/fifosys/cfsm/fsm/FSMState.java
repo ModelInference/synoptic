@@ -1,6 +1,7 @@
 package dynoptic.model.fifosys.cfsm.fsm;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -21,13 +22,14 @@ import dynoptic.model.alphabet.EventType;
  */
 public class FSMState implements IFSMState<FSMState> {
     // Whether or not this state is an accepting state.
-    boolean isAccept;
+    final boolean isAccept;
 
     // Transitions to other FSMState instances.
-    Map<EventType, Set<FSMState>> transitions;
+    final Map<EventType, Set<FSMState>> transitions;
 
-    public FSMState() {
-
+    public FSMState(boolean isAccept) {
+        this.isAccept = isAccept;
+        transitions = new LinkedHashMap<EventType, Set<FSMState>>();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -51,6 +53,8 @@ public class FSMState implements IFSMState<FSMState> {
      */
     @Override
     public Set<FSMState> getNextStates(EventType event) {
+        assert event != null;
+
         if (!transitions.containsKey(event)) {
             return Collections.<FSMState> emptySet();
         }
@@ -66,14 +70,18 @@ public class FSMState implements IFSMState<FSMState> {
      * @param s
      */
     public void addTransition(EventType e, FSMState s) {
+        assert s != null;
+
         Set<FSMState> following;
         if (transitions.get(e) == null) {
             following = new LinkedHashSet<FSMState>();
+            transitions.put(e, following);
         } else {
             following = transitions.get(e);
-            // Make sure that we haven't added this transition before.
-            assert !following.contains(e);
         }
+
+        // Make sure that we haven't added this transition to s on e before.
+        assert !following.contains(s);
         following.add(s);
     }
 }
