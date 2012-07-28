@@ -13,12 +13,9 @@
 
     <!-- Where to create the dynoptic.jar file. -->
     <property name="dynoptic.jarpath" value="${util.synoptic.libdir}/dynoptic.jar"/>
-
-	<property name="junit.output.dir" value="junit"/>
-
-	<property name="debuglevel" value="source,lines,vars"/>
-
-	<property name="target" value="1.6"/>
+    <property name="junit.output.dir" value="junit"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
 
     <!-- Where to find the generated synoptic classes. -->
@@ -79,12 +76,21 @@
     <!--=====================================================================-->
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
+        <!-- <junit printsummary="withOutAndErr" showoutput="true" fork="true"> -->
+	<junit printsummary="true" haltonfailure="true" fork="true">
 
-        <junit fork="no" printsummary="withOutAndErr" showoutput="true">
+	  <jvmarg value="-ea" />
+	  <jvmarg value="-enableassertions" />
+	  <assertions>
+	    <enable/>
+	  </assertions>
+
 	  <classpath refid="dynoptic.classpath"/>
 	  <formatter type="xml"/>
 
+
 	  <batchtest fork="no" todir="${junit.output.dir}">
+
 	    <fileset dir="bin/">
 	      <include name="dynoptic/**/*Tests.class"/>
 	    </fileset>
