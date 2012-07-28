@@ -76,21 +76,21 @@
     <!--=====================================================================-->
     <target name="tests" depends="build">
         <mkdir dir="${junit.output.dir}"/>
-        <!-- <junit printsummary="withOutAndErr" showoutput="true" fork="true"> -->
-	<junit printsummary="true" haltonfailure="true" fork="true">
 
-	  <jvmarg value="-ea" />
-	  <jvmarg value="-enableassertions" />
+	<!-- Note that we will be forking the jvm, but just once. This
+   	     is essential for java assertions to be enabled in the
+   	     forked jvm. -->
+        <junit printsummary="withOutAndErr" showoutput="true" fork="true"  forkmode="once">
+	  <classpath refid="dynoptic.classpath"/>
+	  <formatter type="xml"/>
+
+	  <!-- We need java built-in assertions enabled because some
+	       tests check for these.  -->
 	  <assertions>
 	    <enable/>
 	  </assertions>
 
-	  <classpath refid="dynoptic.classpath"/>
-	  <formatter type="xml"/>
-
-
-	  <batchtest fork="no" todir="${junit.output.dir}">
-
+	  <batchtest todir="${junit.output.dir}">
 	    <fileset dir="bin/">
 	      <include name="dynoptic/**/*Tests.class"/>
 	    </fileset>
