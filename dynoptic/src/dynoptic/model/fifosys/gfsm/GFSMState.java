@@ -60,11 +60,9 @@ public class GFSMState implements IMultiFSMState<GFSMState> {
 
     @Override
     public Set<GFSMState> getNextStates(EventType event) {
-        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
-        for (Set<GFSMState> following : transitions.values()) {
-            ret.addAll(following);
-        }
-        return ret;
+        assert transitions.containsKey(event);
+
+        return transitions.get(event);
     }
 
     @Override

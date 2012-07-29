@@ -130,8 +130,6 @@ public class CFSM extends FifoSys<CFSMState> {
         assert (pid >= 0 && pid < numProcesses);
         // Only allow to set the FSM for a pid once.
         assert (fsms.get(pid) == null);
-        // Check that the FSM thinks it is part of the right CFSM (this).
-        assert fsm.getCFSM() == this;
 
         fsms.set(pid, fsm);
 

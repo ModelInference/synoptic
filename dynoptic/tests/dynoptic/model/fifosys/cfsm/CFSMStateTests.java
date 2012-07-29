@@ -1,0 +1,62 @@
+package dynoptic.model.fifosys.cfsm;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Test;
+
+import dynoptic.DynopticTest;
+import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+
+public class CFSMStateTests extends DynopticTest {
+
+    // Non-accepting states at pid 0.
+    FSMState p_0;
+    FSMState q_0;
+    // Accepting state at pid 1.
+    FSMState a_1;
+    // Local event at pid 0.
+    EventType e_0;
+
+    @Override
+    public void setUp() {
+        p_0 = new FSMState(false, 0);
+        q_0 = new FSMState(false, 0);
+        a_1 = new FSMState(true, 1);
+        e_0 = EventType.LocalEvent("e", 0);
+
+    }
+
+    @Test
+    public void createCFSMState() {
+        List<FSMState> states = new ArrayList<FSMState>();
+        states.add(p_0);
+        states.add(a_1);
+        CFSMState c = new CFSMState(states);
+
+        assertFalse(c.isAccept());
+        assertFalse(c.isAcceptForPid(0));
+        assertTrue(c.isAcceptForPid(1));
+        assertEquals(c.getTransitioningEvents().size(), 0);
+    }
+
+    @Test
+    public void createCFSMStateWithTxns() {
+        p_0.addTransition(e_0, q_0);
+
+        List<FSMState> states = new ArrayList<FSMState>();
+        states.add(p_0);
+        states.add(a_1);
+        CFSMState c = new CFSMState(states);
+
+        assertEquals(c.getTransitioningEvents().size(), 1);
+        assertTrue(c.getTransitioningEvents().contains(e_0));
+
+        // TODO: test c.getNextStates()
+    }
+}
