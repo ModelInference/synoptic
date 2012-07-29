@@ -70,7 +70,10 @@ public class FSMState implements IFSMState<FSMState> {
      * @param s
      */
     public void addTransition(EventType e, FSMState s) {
+        assert e != null;
         assert s != null;
+
+        e.getEventPid();
 
         Set<FSMState> following;
         if (transitions.get(e) == null) {
