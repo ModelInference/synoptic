@@ -27,8 +27,14 @@ public class FSMState implements IFSMState<FSMState> {
     // Transitions to other FSMState instances.
     final Map<EventType, Set<FSMState>> transitions;
 
-    public FSMState(boolean isAccept) {
+    // The process that this state is associated with. Initially this is -1, but
+    // once a transition on an event is added, the pid is set based on the event
+    // type.
+    int pid = -1;
+
+    public FSMState(boolean isAccept, int pid) {
         this.isAccept = isAccept;
+        this.pid = pid;
         transitions = new LinkedHashMap<EventType, Set<FSMState>>();
     }
 
@@ -63,6 +69,11 @@ public class FSMState implements IFSMState<FSMState> {
 
     // //////////////////////////////////////////////////////////////////
 
+    /** Returns the pid that this state is associated with. */
+    public int getPid() {
+        return pid;
+    }
+
     /**
      * Adds a new transition to a state s on event e from this state.
      * 
@@ -72,8 +83,7 @@ public class FSMState implements IFSMState<FSMState> {
     public void addTransition(EventType e, FSMState s) {
         assert e != null;
         assert s != null;
-
-        e.getEventPid();
+        assert pid == e.getEventPid();
 
         Set<FSMState> following;
         if (transitions.get(e) == null) {

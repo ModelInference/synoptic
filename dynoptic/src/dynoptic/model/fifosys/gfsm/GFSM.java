@@ -41,6 +41,9 @@ public class GFSM extends FifoSys<GFSMState> {
     final Set<GFSMState> states;
 
     // The initial and accept states.
+    // TODO: init and accept states need to be made into sets.
+    // Also, we have to distinguish between init/accept states for different
+    // pids.
     GFSMState initS = null;
     GFSMState acceptS = null;
 

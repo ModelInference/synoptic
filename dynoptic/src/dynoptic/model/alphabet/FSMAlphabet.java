@@ -2,6 +2,7 @@ package dynoptic.model.alphabet;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -12,8 +13,8 @@ import java.util.Set;
 public class FSMAlphabet implements Set<EventType> {
     Set<EventType> events;
 
-    public boolean contains(EventType e) {
-        return events.contains(e);
+    public FSMAlphabet() {
+        events = new LinkedHashSet<EventType>();
     }
 
     // //////////////////////////////////////////////////////////////////

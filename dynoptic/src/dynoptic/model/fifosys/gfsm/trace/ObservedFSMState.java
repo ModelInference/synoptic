@@ -47,8 +47,7 @@ public class ObservedFSMState {
         return new ObservedFSMState(pid, false, true, name);
     }
 
-    public static ObservedFSMState ObservedInitialTerminalFSMState(int pid,
-            String name) {
+    public static ObservedFSMState ObservedInitialFSMState(int pid, String name) {
         if (name == null) {
             name = getNextAnonName();
         }

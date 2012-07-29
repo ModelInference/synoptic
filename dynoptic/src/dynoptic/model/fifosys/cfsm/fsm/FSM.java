@@ -3,8 +3,8 @@ package dynoptic.model.fifosys.cfsm.fsm;
 import java.util.Set;
 
 import dynoptic.model.IFSM;
+import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
-import dynoptic.model.fifosys.cfsm.CFSM;
 
 /**
  * This class models FSMs that make up a CFSM. A few key characteristics:
@@ -16,9 +16,6 @@ import dynoptic.model.fifosys.cfsm.CFSM;
  * </pre>
  */
 public class FSM implements IFSM<FSMState> {
-    // An instance of CFSM that this FSM corresponds to.
-    final CFSM cfsm;
-
     // The process id of this FSM in the CFSM.
     final int pid;
 
@@ -33,23 +30,28 @@ public class FSM implements IFSM<FSMState> {
     final FSMState initState;
     final FSMState acceptState;
 
-    public FSM(CFSM cfsm, int pid, FSMAlphabet alphabet, FSMState initState,
-            FSMState acceptState, Set<FSMState> states) {
+    public FSM(int pid, FSMState initState, FSMState acceptState,
+            Set<FSMState> states) {
+        assert states != null;
         assert states.contains(initState);
         assert states.contains(acceptState);
         assert acceptState.isAccept();
 
-        this.cfsm = cfsm;
+        // Construct the alphabet from the events associated with each state.
+        alphabet = new FSMAlphabet();
+        for (FSMState s : states) {
+            assert s.getPid() == pid;
+            Set<EventType> events = s.getTransitioningEvents();
+            if (events.size() != 0) {
+                alphabet.addAll(events);
+            }
+        }
+
         this.pid = pid;
-        this.alphabet = alphabet;
 
         this.initState = initState;
         this.acceptState = acceptState;
         this.states = states;
-    }
-
-    public CFSM getCFSM() {
-        return this.cfsm;
     }
 
     public int getPid() {

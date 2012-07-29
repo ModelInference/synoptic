@@ -52,7 +52,9 @@ public class ObservedFifoSysState implements
         this.transitions = new LinkedHashMap<EventType, ObservedFifoSysState>();
 
         for (ObservedFSMState s : fsmStates) {
-            events.add(s.getNextEvent().getType());
+            if (!s.isTerminal()) {
+                events.add(s.getNextEvent().getType());
+            }
         }
 
         unSpecifiedTxns = events.size();

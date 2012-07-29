@@ -30,6 +30,7 @@ public class EventTypeTests extends DynopticTest {
         assertFalse(e.isSendEvent());
         assertFalse(e.isRecvEvent());
         assertEquals(e.getEventPid(), 1);
+        logger.info(e.toString());
 
         // equality:
         EventType e2 = EventType.LocalEvent("e", 1);
@@ -55,6 +56,7 @@ public class EventTypeTests extends DynopticTest {
         assertTrue(e.isSendEvent());
         assertFalse(e.isRecvEvent());
         assertEquals(e.getEventPid(), cid.getSrcPid());
+        logger.info(e.toString());
 
         // equality:
         EventType e2 = EventType.SendEvent("e", cidCopy);
@@ -80,6 +82,7 @@ public class EventTypeTests extends DynopticTest {
         assertFalse(e.isSendEvent());
         assertTrue(e.isRecvEvent());
         assertEquals(e.getEventPid(), cid.getDstPid());
+        logger.info(e.toString());
 
         // equality:
         EventType e2 = EventType.RecvEvent("e", cidCopy);

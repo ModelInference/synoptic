@@ -16,7 +16,7 @@ import dynoptic.model.fifosys.cfsm.fsm.FSMState;
  */
 public final class CFSMState implements IMultiFSMState<CFSMState> {
 
-    // List of FSMStates, ordered according to process IDs.
+    // List of FSMStates, ordered according to process IDs: 0 - (size-1).
     final List<FSMState> fsmStates;
 
     public CFSMState(List<FSMState> fsmStates) {
