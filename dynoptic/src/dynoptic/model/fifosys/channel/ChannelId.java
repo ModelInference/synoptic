@@ -64,7 +64,7 @@ public final class ChannelId {
         if (oCid.srcPid != srcPid) {
             return false;
         }
-        return oCid.dstPid == srcPid;
+        return oCid.dstPid == dstPid;
     }
 
     // //////////////////////////////////////////////////////////////////

@@ -20,6 +20,7 @@ public final class EventType {
     final String event;
 
     // LOCAL event types are associated with a pid:
+    // SEND/RECV events have pid set to the sender/receiver
     final int pid;
 
     // SEND and RECV event types are associated with a channel id (i.e., a
@@ -34,11 +35,13 @@ public final class EventType {
     }
 
     public static EventType SendEvent(String event, ChannelId channel) {
-        return new EventType(event, -1, EventClass.SEND, channel);
+        return new EventType(event, channel.getSrcPid(), EventClass.SEND,
+                channel);
     }
 
     public static EventType RecvEvent(String event, ChannelId channel) {
-        return new EventType(event, -1, EventClass.RECV, channel);
+        return new EventType(event, channel.getDstPid(), EventClass.RECV,
+                channel);
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -49,7 +52,6 @@ public final class EventType {
             assert channel == null;
         } else if (eventType == EventClass.SEND || eventType == EventClass.RECV) {
             assert channel != null;
-            pid = -1;
         } else {
             throw new IllegalArgumentException("Invalid EventType.");
         }
@@ -115,14 +117,21 @@ public final class EventType {
         if (otherE.getEventPid() != pid) {
             return false;
         }
-        if (otherE.isRecvEvent() != isRecvEvent()) {
+
+        if (otherE.isCommEvent() != this.isCommEvent()) {
             return false;
         }
-        if (otherE.isSendEvent() != isSendEvent()) {
-            return false;
-        }
-        if (!otherE.getChannelId().equals(this.getChannelId())) {
-            return false;
+
+        if (this.isCommEvent()) {
+            if (otherE.isRecvEvent() != isRecvEvent()) {
+                return false;
+            }
+            if (otherE.isSendEvent() != isSendEvent()) {
+                return false;
+            }
+            if (!otherE.getChannelId().equals(this.getChannelId())) {
+                return false;
+            }
         }
 
         return true;

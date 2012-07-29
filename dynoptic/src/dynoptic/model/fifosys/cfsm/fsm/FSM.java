@@ -37,6 +37,7 @@ public class FSM implements IFSM<FSMState> {
             FSMState acceptState, Set<FSMState> states) {
         assert states.contains(initState);
         assert states.contains(acceptState);
+        assert acceptState.isAccept();
 
         this.cfsm = cfsm;
         this.pid = pid;
