@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.IMultiFSMState;
+import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.channel.ChannelId;
 import dynoptic.model.fifosys.channel.MultiChannelState;
 
@@ -19,19 +19,33 @@ import synoptic.util.InternalSynopticException;
  *            Represents the state of _all_ the processes participating in the
  *            system. This does _not_ include channel states.
  */
-public class FifoSysExecState<MultiFSMState extends IMultiFSMState<MultiFSMState>> implements
-        IMultiFSMState<FifoSysExecState<MultiFSMState>> {
+public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMState>>
+        extends AbsMultiFSMState<FifoSysExecState<MultiFSMState>> {
 
     // The current state of the system.
     MultiFSMState processStates;
     MultiChannelState channelStates;
 
-    public FifoSysExecState(MultiFSMState processStates, Set<ChannelId> channelIds) {
-        this.processStates = processStates;
-        this.channelStates = new MultiChannelState(channelIds);
+    /**
+     * Initializes with processStates and empty queues.
+     * 
+     * @param processStates
+     * @param channelIds
+     */
+    public FifoSysExecState(MultiFSMState processStates,
+            Set<ChannelId> channelIds) {
+        this(processStates, new MultiChannelState(channelIds));
     }
 
-    public FifoSysExecState(MultiFSMState processStates, MultiChannelState channelStates) {
+    /**
+     * Initializes with processStates and specific channelStates.
+     * 
+     * @param processStates
+     * @param channelStates
+     */
+    public FifoSysExecState(MultiFSMState processStates,
+            MultiChannelState channelStates) {
+        super(processStates.getNumProcesses());
         this.processStates = processStates;
         this.channelStates = channelStates;
     }
@@ -105,7 +119,8 @@ public class FifoSysExecState<MultiFSMState extends IMultiFSMState<MultiFSMState
             // states. This is potentially dangerous, but we are expecting a
             // usage in which just one of these states is used and the rest are
             // discarded.
-            ret.add(new FifoSysExecState<MultiFSMState>(newS, clonedChannelStates));
+            ret.add(new FifoSysExecState<MultiFSMState>(newS,
+                    clonedChannelStates));
         }
 
         return ret;

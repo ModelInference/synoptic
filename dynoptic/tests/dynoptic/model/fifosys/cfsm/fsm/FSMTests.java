@@ -19,6 +19,11 @@ public class FSMTests extends DynopticTest {
     // Accepting state at pid 1.
     FSMState accepting_1;
 
+    // Set containing just init_1.
+    Set<FSMState> listInit_1;
+    // Set containing just accepting_1.
+    Set<FSMState> listAccepting_1;
+
     // Random state at pid 2.
     FSMState state_2;
 
@@ -35,7 +40,13 @@ public class FSMTests extends DynopticTest {
     @Override
     public void setUp() {
         init_1 = new FSMState(false, 1);
+        listInit_1 = new LinkedHashSet<FSMState>();
+        listInit_1.add(init_1);
+
         accepting_1 = new FSMState(true, 1);
+        listAccepting_1 = new LinkedHashSet<FSMState>();
+        listAccepting_1.add(accepting_1);
+
         state_2 = new FSMState(false, 2);
         cid = new ChannelId(1, 2);
         e_pid1 = EventType.SendEvent("m", cid);
@@ -50,8 +61,8 @@ public class FSMTests extends DynopticTest {
         FSM f = new FSM(1, init_1, accepting_1, states);
         assertEquals(f.getAlphabet().size(), 0);
         assertEquals(f.getPid(), 1);
-        assertEquals(f.getInitState(), init_1);
-        assertEquals(f.getAcceptState(), accepting_1);
+        assertEquals(f.getInitStates(), listInit_1);
+        assertEquals(f.getAcceptStates(), listAccepting_1);
     }
 
     @Test
@@ -67,8 +78,8 @@ public class FSMTests extends DynopticTest {
         assertTrue(f.getAlphabet().contains(e2_pid1));
 
         assertEquals(f.getPid(), 1);
-        assertEquals(f.getInitState(), init_1);
-        assertEquals(f.getAcceptState(), accepting_1);
+        assertEquals(f.getInitStates(), listInit_1);
+        assertEquals(f.getAcceptStates(), listAccepting_1);
 
     }
 

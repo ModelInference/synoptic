@@ -16,7 +16,7 @@ public class GFSMStateTests extends DynopticTest {
 
     @Test
     public void createGFSMState() {
-        GFSMState s = new GFSMState();
+        GFSMState s = new GFSMState(1);
         assertFalse(s.isAccept());
         assertFalse(s.isAcceptForPid(0));
         assertEquals(s.getTransitioningEvents().size(), 0);

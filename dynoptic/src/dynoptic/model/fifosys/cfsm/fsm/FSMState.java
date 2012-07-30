@@ -6,7 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import dynoptic.model.IFSMState;
+import dynoptic.model.AbsFSMState;
 import dynoptic.model.alphabet.EventType;
 
 /**
@@ -20,7 +20,7 @@ import dynoptic.model.alphabet.EventType;
  * different FSMState instances (the FSM can be an NFA).
  * </p>
  */
-public class FSMState implements IFSMState<FSMState> {
+public class FSMState extends AbsFSMState<FSMState> {
     // Whether or not this state is an accepting state.
     final boolean isAccept;
 

@@ -1,8 +1,9 @@
 package dynoptic.model.fifosys;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
-import dynoptic.model.IFSM;
+import dynoptic.model.AbsFSM;
 import dynoptic.model.fifosys.channel.ChannelId;
 import dynoptic.model.fifosys.exec.FifoSysExecution;
 
@@ -21,8 +22,8 @@ import dynoptic.model.fifosys.exec.FifoSysExecution;
  *            Represents the state of _all_ the processes participating in the
  *            system. This does _not_ include channel states.
  */
-abstract public class FifoSys<MultiFSMState extends IMultiFSMState<MultiFSMState>>
-        implements IFSM<MultiFSMState> {
+abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMState>>
+        extends AbsFSM<MultiFSMState> {
     // Total number of processes in the system. These are numbered 0 through
     // numProcesses - 1.
     final protected int numProcesses;
@@ -51,11 +52,16 @@ abstract public class FifoSys<MultiFSMState extends IMultiFSMState<MultiFSMState
     }
 
     /**
-     * Returns a new execution of this FIFO that is initialized with the initial
-     * state.
+     * Returns a new set of executions of this FIFO. Each execution is
+     * initialized to an init state of this FIFO system. Multiple executions are
+     * returned when there are multiple possible init states.
      */
-    public FifoSysExecution<MultiFSMState> newExecution() {
-        return new FifoSysExecution<MultiFSMState>(this);
+    public Set<FifoSysExecution<MultiFSMState>> newExecution() {
+        Set<FifoSysExecution<MultiFSMState>> ret = new LinkedHashSet<FifoSysExecution<MultiFSMState>>();
+        for (MultiFSMState init : this.getInitStates()) {
+            ret.add(new FifoSysExecution<MultiFSMState>(this, init));
+        }
+        return ret;
     }
 
     public Set<ChannelId> getChannelIds() {
