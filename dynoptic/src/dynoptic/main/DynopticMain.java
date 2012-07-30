@@ -1,9 +1,17 @@
 package dynoptic.main;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import mcscm.McScM;
+import dynoptic.model.fifosys.gfsm.GFSM;
+import dynoptic.model.fifosys.gfsm.GFSMState;
+
+import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.TemporalInvariantSet;
+import synoptic.util.Pair;
 
 /**
  * <p>
@@ -37,6 +45,87 @@ public class DynopticMain {
         setUpLogging(opts);
         checkOptions(opts);
         mcscm = new McScM(opts.mcPath);
+    }
+
+    /**
+     * Runs Dynoptic based on setting in opts, but uses the pre-created GFSM
+     * with observations and a set of invariants invs. Satisfies all of the
+     * invariants invs in g.
+     * 
+     * @param g
+     *            A fifosys model that partitions concrete observations into
+     *            abstract states.
+     * @param invs
+     *            Invariants to satisfy in g.
+     */
+    public void run(GFSM g, TemporalInvariantSet invs) {
+        for (ITemporalInvariant inv : invs) {
+            // TODO
+            // 1. Iterate over invs.
+        }
+    }
+
+    /**
+     * Converts a temporal invariant inv into a set S of pairs of GFSMStates.
+     * This set S satisfies the condition that:
+     * 
+     * <pre>
+     * inv is true iff \forall <p,q> \in S there is no path from p to q in g.
+     * </pre>
+     * 
+     * @param g
+     * @return
+     */
+    public Set<Pair<GFSMState, GFSMState>> invToBadStates(GFSM g,
+            ITemporalInvariant inv) {
+        // TODO: assert that inv is composed of events that are in g's alphabet
+        // assert g.getAlphabet().contains(
+        Set<Pair<GFSMState, GFSMState>> ret = new LinkedHashSet<Pair<GFSMState, GFSMState>>();
+
+        // The basic strategy, regardless of invariant, is to create a
+        // separate FIFO queue that will be used to record the sequence of
+        // executed events that are relevant to the invariant.
+        //
+        // For instance, for a AFby b invariant, create a queue Q_ab. Modify any
+        // state p that has an outgoing "a" transition, add a synthetic state
+        // p_synth, and redirect the "a" transition from p to p_synth. Then, add
+        // just one outgoing transition on "Q_ab ! a" from p_synth to the
+        // original state target of "a" in state p. That is, whenever "a"
+        // occurs, we will add "a" to Q_ab. Do the same for event "b".
+        //
+        // For a AFby b bad state pairs within the modified GFSM (per above
+        // procedure) are all initial state and all states where all queues
+        // except Q_ab are empty, and where Q_ab = [*a], and where the process
+        // states are terminal. In a sense, we've added Q_ab to track "a" and
+        // "b" executions, and not interfere with the normal execution of the
+        // FIFO system.
+        //
+        // For a AP b, the procedure is identical, but the second bad state in
+        // every pair would have Q_ab = [b*]. For a NFby b, Q_ab = [*a*b*]. In a
+        // sense, we've expressed LTL properties as regular expressions of Q_ab
+        // queue contents.
+
+        // TODO:
+
+        return ret;
+    }
+
+    /**
+     * <p>
+     * Refines g until there is no path from badStates.left to badStates.right
+     * in g. Throws an exception if (1) no such refinement is possible, or (2)
+     * if the model checker that checks the abstract model corresponding to g
+     * (i.e., the CFSM derived from g) has exceeded an execution time-bound.
+     * </p>
+     * <p>
+     * NOTE: this method mutates g.
+     * </p>
+     * 
+     * @param g
+     * @param badStates
+     */
+    public void run(GFSM g, Pair<GFSMState, GFSMState> badStates) {
+        // TODO
     }
 
     /**

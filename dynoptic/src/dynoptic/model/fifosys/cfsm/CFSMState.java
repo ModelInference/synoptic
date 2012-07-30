@@ -1,11 +1,12 @@
 package dynoptic.model.fifosys.cfsm;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.IMultiFSMState;
+import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 
 /**
@@ -14,12 +15,21 @@ import dynoptic.model.fifosys.cfsm.fsm.FSMState;
  * </p>
  * Captures the current state of a CFSM without the channel state.
  */
-public final class CFSMState implements IMultiFSMState<CFSMState> {
+public final class CFSMState extends AbsMultiFSMState<CFSMState> {
 
     // List of FSMStates, ordered according to process IDs: 0 - (size-1).
     final List<FSMState> fsmStates;
 
+    /** Single FSM state. */
+    public CFSMState(FSMState s) {
+        super(1);
+        this.fsmStates = new ArrayList<FSMState>();
+        this.fsmStates.add(s);
+    }
+
+    /** Multiple FSMs state. */
     public CFSMState(List<FSMState> fsmStates) {
+        super(fsmStates.size());
         this.fsmStates = fsmStates;
     }
 
@@ -36,12 +46,7 @@ public final class CFSMState implements IMultiFSMState<CFSMState> {
      */
     @Override
     public boolean isAccept() {
-        for (FSMState state : fsmStates) {
-            if (!state.isAccept()) {
-                return false;
-            }
-        }
-        return true;
+        return this.allAreAccept(fsmStates);
     }
 
     @Override

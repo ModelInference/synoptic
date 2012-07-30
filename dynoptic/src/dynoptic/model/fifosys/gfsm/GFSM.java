@@ -1,9 +1,8 @@
 package dynoptic.model.fifosys.gfsm;
 
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
-import dynoptic.model.alphabet.FSMAlphabet;
 import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.channel.ChannelId;
 
@@ -37,37 +36,25 @@ import dynoptic.model.fifosys.channel.ChannelId;
  */
 public class GFSM extends FifoSys<GFSMState> {
 
-    // The set of all states, or partitions of observations.
-    final Set<GFSMState> states;
+    // Per-process initial and accept states, ordered by process id. That is,
+    // processInits[0] contains the set of all GFSMState instances that contain
+    // at least one observation in which process id 0 was in initial state.
+    List<Set<GFSMState>> processInits;
+    List<Set<GFSMState>> processAccepts;
 
-    // The initial and accept states.
-    // TODO: init and accept states need to be made into sets.
-    // Also, we have to distinguish between init/accept states for different
-    // pids.
-    GFSMState initS = null;
-    GFSMState acceptS = null;
+    // Note that this.initStates and this.acceptStates are global init/accept
+    // states. That is, these are states that contain at least one
+    // observation per process, for all processes, in which the process is in
+    // initial/accept state.
+    //
+    // For n processes, these sets satisfy the invariants:
+    // processInits[0] \intersect processInits[1] \intersect ... \intersect
+    // processInits[n-1] = initStates
+    //
+    // And likewise for acceptStates
 
     public GFSM(int numProcesses, Set<ChannelId> channelIds) {
         super(numProcesses, channelIds);
-        states = new LinkedHashSet<GFSMState>();
-    }
-
-    // //////////////////////////////////////////////////////////////////
-
-    @Override
-    public FSMAlphabet getAlphabet() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public GFSMState getAcceptState() {
-        return acceptS;
-    }
-
-    @Override
-    public GFSMState getInitState() {
-        return initS;
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -76,12 +63,14 @@ public class GFSM extends FifoSys<GFSMState> {
         assert !states.contains(s);
 
         states.add(s);
+        recomputeAlphabet();
     }
 
     public void removeGFSMStates(GFSMState s) {
         assert states.contains(s);
 
         states.remove(s);
+        recomputeAlphabet();
     }
 
 }

@@ -7,8 +7,8 @@ import java.util.Random;
 import java.util.Set;
 
 import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.FifoSys;
-import dynoptic.model.fifosys.IMultiFSMState;
 
 import synoptic.util.InternalSynopticException;
 
@@ -28,7 +28,7 @@ import synoptic.util.InternalSynopticException;
  *            system. This does _not_ include channel states (channel state is
  *            maintained by the FifoState<State> instance).
  */
-public class FifoSysExecution<MultiFSMState extends IMultiFSMState<MultiFSMState>> {
+public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMState>> {
 
     // The FIFO system for which this is an execution.
     final FifoSys<MultiFSMState> fifoSys;
@@ -40,12 +40,13 @@ public class FifoSysExecution<MultiFSMState extends IMultiFSMState<MultiFSMState
     // Sequence of states that we have executed before (includes currentState)
     final List<FifoSysExecState<MultiFSMState>> stateSequence;
 
-    public FifoSysExecution(FifoSys<MultiFSMState> fifoSys) {
+    public FifoSysExecution(FifoSys<MultiFSMState> fifoSys,
+            MultiFSMState initState) {
         this.fifoSys = fifoSys;
 
         // We start with the initial state and empty queues.
-        this.currState = new FifoSysExecState<MultiFSMState>(
-                fifoSys.getInitState(), fifoSys.getChannelIds());
+        this.currState = new FifoSysExecState<MultiFSMState>(initState,
+                fifoSys.getChannelIds());
         this.stateSequence = new LinkedList<FifoSysExecState<MultiFSMState>>();
         this.stateSequence.add(currState);
     }

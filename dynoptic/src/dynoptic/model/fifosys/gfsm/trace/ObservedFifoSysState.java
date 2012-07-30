@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.IMultiFSMState;
+import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.channel.MultiChannelState;
 import dynoptic.model.fifosys.gfsm.GFSMState;
 
@@ -20,8 +20,8 @@ import dynoptic.model.fifosys.gfsm.GFSMState;
  * can have as many states possible as the number of events observed following
  * each of the individual FSM states that comprise this ObservedFifoSysState.
  */
-public class ObservedFifoSysState implements
-        IMultiFSMState<ObservedFifoSysState> {
+public class ObservedFifoSysState extends
+        AbsMultiFSMState<ObservedFifoSysState> {
 
     // The "partition" that this observed fifo state belongs to.
     GFSMState parent;
@@ -45,6 +45,7 @@ public class ObservedFifoSysState implements
 
     public ObservedFifoSysState(List<ObservedFSMState> fsmStates,
             MultiChannelState channelStates) {
+        super(fsmStates.size());
         this.fsmStates = fsmStates;
         this.channelStates = channelStates;
 
@@ -77,6 +78,7 @@ public class ObservedFifoSysState implements
 
     @Override
     public boolean isAcceptForPid(int pid) {
+        assert pid >= 0 && pid < fsmStates.size();
         return fsmStates.get(pid).isTerminal()
                 && channelStates.isEmptyForPid(pid);
     }

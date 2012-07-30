@@ -10,7 +10,7 @@ import dynoptic.model.alphabet.EventType;
  * @param <NextState>
  *            The type of the next state (set) returned by getNextStates.
  */
-public interface IFSMState<NextState extends IFSMState<NextState>> {
+abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
     /**
      * Whether or not the FSM state is an initial state in the FSM.
      */
@@ -19,12 +19,12 @@ public interface IFSMState<NextState extends IFSMState<NextState>> {
     /**
      * Whether or not the FSM state is a valid terminal state for the FSM.
      */
-    boolean isAccept();
+    abstract public boolean isAccept();
 
     /**
      * The set of possible events that can trigger a transition from this state.
      */
-    Set<EventType> getTransitioningEvents();
+    abstract public Set<EventType> getTransitioningEvents();
 
     /**
      * Returns the unmodifiable (read-only) set of states that follow this state
@@ -33,5 +33,5 @@ public interface IFSMState<NextState extends IFSMState<NextState>> {
      * @param event
      * @return
      */
-    Set<NextState> getNextStates(EventType event);
+    abstract public Set<NextState> getNextStates(EventType event);
 }

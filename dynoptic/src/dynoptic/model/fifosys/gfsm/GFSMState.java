@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.IMultiFSMState;
+import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
 
 /**
@@ -25,7 +25,7 @@ import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
  * In many ways this class mimics a Synoptic Partition class/concept.
  * </p>
  */
-public class GFSMState implements IMultiFSMState<GFSMState> {
+public class GFSMState extends AbsMultiFSMState<GFSMState> {
     // This is the set of observed state instances.
     final Set<ObservedFifoSysState> observedStates;
 
@@ -34,7 +34,8 @@ public class GFSMState implements IMultiFSMState<GFSMState> {
     // truth.
     final Map<EventType, Set<GFSMState>> transitions;
 
-    public GFSMState() {
+    public GFSMState(int numProcesses) {
+        super(numProcesses);
         observedStates = new LinkedHashSet<ObservedFifoSysState>();
         transitions = new LinkedHashMap<EventType, Set<GFSMState>>();
     }
@@ -43,14 +44,23 @@ public class GFSMState implements IMultiFSMState<GFSMState> {
 
     @Override
     public boolean isAccept() {
-        // We need at least one observed state as accepting/terminal for this
-        // partition to be accepting.
-        for (ObservedFifoSysState s : observedStates) {
-            if (s.isAccept()) {
-                return true;
+        // For each pid, we need at least one observed state that is an accept
+        // state for that pid.
+        boolean foundPidAccept;
+        for (int pid = 0; pid < numProcesses; pid++) {
+            foundPidAccept = false;
+            for (ObservedFifoSysState s : observedStates) {
+                if (s.isAcceptForPid(pid)) {
+                    foundPidAccept = true;
+                    break;
+                }
             }
+            if (!foundPidAccept) {
+                return false;
+            }
+
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -67,6 +77,8 @@ public class GFSMState implements IMultiFSMState<GFSMState> {
 
     @Override
     public boolean isAcceptForPid(int pid) {
+        assert pid >= 0 && pid < numProcesses;
+
         for (ObservedFifoSysState s : observedStates) {
             if (s.isAcceptForPid(pid)) {
                 return true;
@@ -80,6 +92,8 @@ public class GFSMState implements IMultiFSMState<GFSMState> {
     /** Adds a new observed state to this partition. */
     public void add(ObservedFifoSysState s) {
         assert !observedStates.contains(s);
+        assert s.getNumProcesses() == this.numProcesses;
+
         observedStates.add(s);
         cacheObservedParentTransitions(s);
     }
@@ -91,7 +105,7 @@ public class GFSMState implements IMultiFSMState<GFSMState> {
         }
     }
 
-    /** Adds a new observed state to this partition. */
+    /** Removes an observed state from this partition. */
     public void removeObservedState(ObservedFifoSysState s) {
         assert observedStates.contains(s);
         observedStates.remove(s);
