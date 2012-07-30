@@ -34,31 +34,49 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     // truth.
     final Map<EventType, Set<GFSMState>> transitions;
 
+    // Fn: (ObservedFifoSysState s, pid p) -> "s accept for pid"
+    private IStatePidToBooleanFn fnIsAcceptForPid;
+    // Fn: (ObservedFifoSysState s, pid p) -> "s initial for pid"
+    private IStatePidToBooleanFn fnIsInitialForPid;
+
     public GFSMState(int numProcesses) {
         super(numProcesses);
         observedStates = new LinkedHashSet<ObservedFifoSysState>();
         transitions = new LinkedHashMap<EventType, Set<GFSMState>>();
+
+        fnIsAcceptForPid = new IStatePidToBooleanFn() {
+            @Override
+            public boolean eval(ObservedFifoSysState s, int pid) {
+                return s.isAcceptForPid(pid);
+            }
+        };
+
+        fnIsInitialForPid = new IStatePidToBooleanFn() {
+            @Override
+            public boolean eval(ObservedFifoSysState s, int pid) {
+                return s.isInitialForPid(pid);
+            }
+        };
     }
 
     // //////////////////////////////////////////////////////////////////
 
     @Override
-    public boolean isAccept() {
-        // For each pid, we need at least one observed state that is an accept
-        // state for that pid.
-        boolean foundPidAccept;
+    public boolean isInitial() {
         for (int pid = 0; pid < numProcesses; pid++) {
-            foundPidAccept = false;
-            for (ObservedFifoSysState s : observedStates) {
-                if (s.isAcceptForPid(pid)) {
-                    foundPidAccept = true;
-                    break;
-                }
-            }
-            if (!foundPidAccept) {
+            if (!atLeastOneObsStateEvalTrueForPid(fnIsInitialForPid, pid)) {
                 return false;
             }
+        }
+        return true;
+    }
 
+    @Override
+    public boolean isAccept() {
+        for (int pid = 0; pid < numProcesses; pid++) {
+            if (!atLeastOneObsStateEvalTrueForPid(fnIsAcceptForPid, pid)) {
+                return false;
+            }
         }
         return true;
     }
@@ -79,12 +97,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     public boolean isAcceptForPid(int pid) {
         assert pid >= 0 && pid < numProcesses;
 
-        for (ObservedFifoSysState s : observedStates) {
-            if (s.isAcceptForPid(pid)) {
-                return true;
-            }
-        }
-        return false;
+        return atLeastOneObsStateEvalTrueForPid(fnIsAcceptForPid, pid);
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -138,4 +151,19 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
         }
     }
 
+    /** Used for functional calls to atLeastOneStateEvalTruePerPid. */
+    private interface IStatePidToBooleanFn {
+        boolean eval(ObservedFifoSysState s, int pid);
+    }
+
+    /** Used to evaluate whether this GFSMState is accept/initial. */
+    private boolean atLeastOneObsStateEvalTrueForPid(IStatePidToBooleanFn fn,
+            int pid) {
+        for (ObservedFifoSysState s : observedStates) {
+            if (fn.eval(s, pid)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

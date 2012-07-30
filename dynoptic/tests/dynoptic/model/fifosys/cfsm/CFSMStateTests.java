@@ -25,9 +25,9 @@ public class CFSMStateTests extends DynopticTest {
 
     @Override
     public void setUp() {
-        p_0 = new FSMState(false, 0);
-        q_0 = new FSMState(false, 0);
-        a_1 = new FSMState(true, 1);
+        p_0 = new FSMState(false, true, 0);
+        q_0 = new FSMState(false, false, 0);
+        a_1 = new FSMState(true, false, 1);
         e_0 = EventType.LocalEvent("e", 0);
 
     }
@@ -42,6 +42,9 @@ public class CFSMStateTests extends DynopticTest {
         assertFalse(c.isAccept());
         assertFalse(c.isAcceptForPid(0));
         assertTrue(c.isAcceptForPid(1));
+
+        // TODO: add checks for initial
+
         assertEquals(c.getTransitioningEvents().size(), 0);
     }
 

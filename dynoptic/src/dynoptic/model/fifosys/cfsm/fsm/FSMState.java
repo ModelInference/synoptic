@@ -21,8 +21,9 @@ import dynoptic.model.alphabet.EventType;
  * </p>
  */
 public class FSMState extends AbsFSMState<FSMState> {
-    // Whether or not this state is an accepting state.
+    // Whether or not this state is an accepting/initial state.
     final boolean isAccept;
+    final boolean isInitial;
 
     // Transitions to other FSMState instances.
     final Map<EventType, Set<FSMState>> transitions;
@@ -32,13 +33,19 @@ public class FSMState extends AbsFSMState<FSMState> {
     // type.
     int pid = -1;
 
-    public FSMState(boolean isAccept, int pid) {
+    public FSMState(boolean isAccept, boolean isInitial, int pid) {
         this.isAccept = isAccept;
+        this.isInitial = isInitial;
         this.pid = pid;
         transitions = new LinkedHashMap<EventType, Set<FSMState>>();
     }
 
     // //////////////////////////////////////////////////////////////////
+
+    @Override
+    public boolean isInitial() {
+        return isInitial;
+    }
 
     @Override
     public boolean isAccept() {

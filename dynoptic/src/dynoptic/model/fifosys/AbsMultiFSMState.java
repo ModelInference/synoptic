@@ -13,6 +13,11 @@ import dynoptic.model.AbsFSMState;
 public abstract class AbsMultiFSMState<State extends AbsFSMState<State>>
         extends AbsFSMState<State> {
 
+    /** Used for functional calls below. */
+    protected interface StateToBooleanFn<T> {
+        boolean eval(T s);
+    }
+
     /** The total number of processes that this multi-FSM state captures, */
     protected int numProcesses;
 
@@ -39,15 +44,18 @@ public abstract class AbsMultiFSMState<State extends AbsFSMState<State>>
     abstract public boolean isAcceptForPid(int pid);
 
     /**
-     * Returns true if all the AbsFSMState states in the collection are accept
-     * states.
+     * Returns true if all the AbsFSMState states in the collection evalute to
+     * true through fn.
      * 
      * @param states
      * @return
+     * @return
      */
-    protected boolean allAreAccept(Collection<? extends AbsFSMState<?>> states) {
-        for (AbsFSMState<?> state : states) {
-            if (!state.isAccept()) {
+    protected boolean statesEvalToTrue(
+            Collection<? extends AbsFSMState<?>> states,
+            StateToBooleanFn<AbsFSMState<?>> fn) {
+        for (AbsFSMState<?> s : states) {
+            if (!fn.eval(s)) {
                 return false;
             }
         }

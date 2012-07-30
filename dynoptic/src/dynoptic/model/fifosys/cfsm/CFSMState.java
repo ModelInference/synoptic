@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import dynoptic.model.AbsFSMState;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
@@ -36,17 +37,41 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState> {
     // //////////////////////////////////////////////////////////////////
 
     /**
-     * Whether or not this state is a valid accepting state for a CFSM. The
-     * conservative definition of this is:
+     * Whether or not this state is an initial state for a CFSM:
      * 
      * <pre>
-     * (1) all the FSMS making up the CFSM are in accept state, and
-     * (2) all the queue are empty.
+     * 1. all the FSMS making up the CFSM are in initial state, and
+     * 2. all the queue are empty.
+     * </pre>
+     */
+    @Override
+    public boolean isInitial() {
+        StateToBooleanFn<AbsFSMState<?>> fn = new StateToBooleanFn<AbsFSMState<?>>() {
+            @Override
+            public boolean eval(AbsFSMState<?> s) {
+                return s.isInitial();
+            }
+        };
+        return this.statesEvalToTrue(fsmStates, fn);
+    }
+
+    /**
+     * Whether or not this state is a valid accepting state for a CFSM:
+     * 
+     * <pre>
+     * 1. all the FSMS making up the CFSM are in accept state, and
+     * 2. all the queue are empty.
      * </pre>
      */
     @Override
     public boolean isAccept() {
-        return this.allAreAccept(fsmStates);
+        StateToBooleanFn<AbsFSMState<?>> fn = new StateToBooleanFn<AbsFSMState<?>>() {
+            @Override
+            public boolean eval(AbsFSMState<?> s) {
+                return s.isAccept();
+            }
+        };
+        return this.statesEvalToTrue(fsmStates, fn);
     }
 
     @Override
