@@ -53,6 +53,11 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     // //////////////////////////////////////////////////////////////////
 
     @Override
+    public boolean isInitial() {
+        return processStates.isInitial() && channelStates.isEmpty();
+    }
+
+    @Override
     public boolean isAccept() {
         return processStates.isAccept() && channelStates.isEmpty();
     }
@@ -166,4 +171,5 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
         }
         return ret;
     }
+
 }

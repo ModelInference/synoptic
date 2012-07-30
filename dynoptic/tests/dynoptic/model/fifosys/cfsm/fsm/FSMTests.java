@@ -39,15 +39,15 @@ public class FSMTests extends DynopticTest {
     // e_3
     @Override
     public void setUp() {
-        init_1 = new FSMState(false, 1);
+        init_1 = new FSMState(false, true, 1);
         listInit_1 = new LinkedHashSet<FSMState>();
         listInit_1.add(init_1);
 
-        accepting_1 = new FSMState(true, 1);
+        accepting_1 = new FSMState(true, false, 1);
         listAccepting_1 = new LinkedHashSet<FSMState>();
         listAccepting_1.add(accepting_1);
 
-        state_2 = new FSMState(false, 2);
+        state_2 = new FSMState(false, false, 2);
         cid = new ChannelId(1, 2);
         e_pid1 = EventType.SendEvent("m", cid);
         e2_pid1 = EventType.LocalEvent("e", 1);

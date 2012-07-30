@@ -11,10 +11,11 @@ import dynoptic.model.alphabet.EventType;
  *            The type of the next state (set) returned by getNextStates.
  */
 abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
+
     /**
      * Whether or not the FSM state is an initial state in the FSM.
      */
-    // boolean isInitial();
+    abstract public boolean isInitial();
 
     /**
      * Whether or not the FSM state is a valid terminal state for the FSM.
