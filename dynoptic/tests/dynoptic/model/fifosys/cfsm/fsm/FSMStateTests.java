@@ -1,7 +1,11 @@
 package dynoptic.model.fifosys.cfsm.fsm;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -36,12 +40,15 @@ public class FSMStateTests extends DynopticTest {
     }
 
     @Test
-    public void checkInitAccept() {
+    public void checkInitAcceptPid() {
         assertTrue(init.isInitial());
         assertFalse(accept.isInitial());
 
         assertFalse(init.isAccept());
         assertTrue(accept.isAccept());
+
+        assertEquals(init.getPid(), 1);
+        assertEquals(accept.getPid(), 1);
     }
 
     @Test
@@ -66,6 +73,25 @@ public class FSMStateTests extends DynopticTest {
 
         assertTrue(init.getNextStates(e2_pid1).size() == 1);
         assertTrue(init.getNextStates(e2_pid1).contains(accept));
+    }
+
+    @Test
+    public void scmString() {
+        Map<FSMState, Integer> statesToInt = new LinkedHashMap<FSMState, Integer>();
+        Map<ChannelId, Integer> cIdsToInt = new LinkedHashMap<ChannelId, Integer>();
+
+        statesToInt.put(init, 0);
+        statesToInt.put(accept, 1);
+        cIdsToInt.put(cid, 0);
+
+        // Without transitions:
+        logger.info(init.toScmString(statesToInt, cIdsToInt));
+
+        init.addTransition(e_pid1, accept);
+        init.addTransition(e2_pid1, accept);
+
+        // With transitions:
+        logger.info(init.toScmString(statesToInt, cIdsToInt));
     }
 
     @Test(expected = AssertionError.class)

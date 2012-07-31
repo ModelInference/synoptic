@@ -109,12 +109,13 @@ public class FSMState extends AbsFSMState<FSMState> {
     /** Returns an SCM representation of this FSMStates. */
     public String toScmString(Map<FSMState, Integer> statesToInt,
             Map<ChannelId, Integer> cIdsToInt) {
-        String ret = "";
+        String ret = "state " + statesToInt.get(this) + " :\n";
 
         for (EventType e : transitions.keySet()) {
             String eStr = e.toScmString(cIdsToInt);
             for (FSMState next : transitions.get(e)) {
-                ret += "to " + statesToInt.get(next) + " : when true , " + eStr;
+                ret += "to " + statesToInt.get(next) + " : when true , " + eStr
+                        + " ;\n";
             }
         }
 

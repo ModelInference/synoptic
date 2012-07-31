@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,6 +17,7 @@ public class EventTypeTests extends DynopticTest {
     ChannelId cid;
     ChannelId cidCopy;
     ChannelId cid2;
+    Map<ChannelId, Integer> cIdsToInt;
 
     @Before
     public void setUp() throws Exception {
@@ -21,6 +25,10 @@ public class EventTypeTests extends DynopticTest {
         cid = new ChannelId(1, 2);
         cidCopy = new ChannelId(1, 2);
         cid2 = new ChannelId(2, 1);
+
+        cIdsToInt = new LinkedHashMap<ChannelId, Integer>();
+        cIdsToInt.put(cid, 0);
+        cIdsToInt.put(cid2, 1);
     }
 
     @Test
@@ -31,6 +39,7 @@ public class EventTypeTests extends DynopticTest {
         assertFalse(e.isRecvEvent());
         assertEquals(e.getEventPid(), 1);
         logger.info(e.toString());
+        logger.info(e.toScmString(cIdsToInt));
 
         // equality:
         EventType e2 = EventType.LocalEvent("e", 1);
@@ -57,6 +66,7 @@ public class EventTypeTests extends DynopticTest {
         assertFalse(e.isRecvEvent());
         assertEquals(e.getEventPid(), cid.getSrcPid());
         logger.info(e.toString());
+        logger.info(e.toScmString(cIdsToInt));
 
         // equality:
         EventType e2 = EventType.SendEvent("e", cidCopy);
@@ -83,6 +93,7 @@ public class EventTypeTests extends DynopticTest {
         assertTrue(e.isRecvEvent());
         assertEquals(e.getEventPid(), cid.getDstPid());
         logger.info(e.toString());
+        logger.info(e.toScmString(cIdsToInt));
 
         // equality:
         EventType e2 = EventType.RecvEvent("e", cidCopy);

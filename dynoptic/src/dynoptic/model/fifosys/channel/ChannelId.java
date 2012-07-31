@@ -28,6 +28,8 @@ public final class ChannelId {
 
     public ChannelId(int srcPid, int dstPid, String chName) {
         assert srcPid >= 0 && dstPid >= 0;
+        assert chName != null;
+
         this.srcPid = srcPid;
         this.dstPid = dstPid;
         this.chName = chName;

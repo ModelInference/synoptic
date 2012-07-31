@@ -1,6 +1,7 @@
 package dynoptic.model.fifosys.cfsm;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -110,7 +111,7 @@ public class CFSM extends FifoSys<CFSMState> {
 
     public CFSM(int numProcesses, Set<ChannelId> channelIds) {
         super(numProcesses, channelIds);
-        fsms = new ArrayList<FSM>(numProcesses);
+        fsms = new ArrayList<FSM>(Collections.nCopies(numProcesses, (FSM) null));
         unSpecifiedPids = numProcesses;
     }
 
@@ -168,7 +169,7 @@ public class CFSM extends FifoSys<CFSMState> {
         assert numProcesses > 1;
 
         List<List<FSMState>> accepts = Util.get2DPermutations(fsms.get(0)
-                .getInitStates(), fsms.get(1).getAcceptStates());
+                .getAcceptStates(), fsms.get(1).getAcceptStates());
 
         int i = 2;
         while (i != numProcesses) {
@@ -199,6 +200,21 @@ public class CFSM extends FifoSys<CFSMState> {
         assert (fsms.get(pid) == null);
 
         fsms.set(pid, fsm);
+
+        // Check that the FSM alphabet conforms to the expected number of
+        // processes.
+        for (EventType e : fsm.getAlphabet()) {
+            if (e.isCommEvent()) {
+                pid = e.getChannelId().getDstPid();
+                assert pid >= 0 && pid < numProcesses;
+                pid = e.getChannelId().getSrcPid();
+                assert pid >= 0 && pid < numProcesses;
+            } else {
+                pid = e.getEventPid();
+                assert pid >= 0 && pid < numProcesses;
+            }
+        }
+
         alphabet.addAll(fsm.getAlphabet());
 
         unSpecifiedPids -= 1;
@@ -206,6 +222,8 @@ public class CFSM extends FifoSys<CFSMState> {
 
     /** Generate SCM representation of this CFSM (without bad_states). */
     public String toScmString() {
+        assert unSpecifiedPids == 0;
+
         String ret;
 
         // Parameters to the SCM representation of this CFSM.
@@ -223,21 +241,29 @@ public class CFSM extends FifoSys<CFSMState> {
         }
 
         ret = "scm " + cfsmName + ":\n\n";
+
+        // Channels:
         ret += "nb_channels = " + numChannels + " ;\n";
-        ret += "/*";
+        ret += "/*\n";
         for (i = 0; i < numChannels; i++) {
             ret += "channel " + Integer.toString(i) + " : "
-                    + orderedCids.get(i).toString();
+                    + orderedCids.get(i).toString() + "\n";
         }
-        ret += "*/\n";
+        ret += "*/\n\n";
 
-        // Whether or not the channels are lossy.
+        // Parameters/Alphabet:
+        ret += "parameters :\n";
+        ret += alphabet.toScmString();
+        ret += "\n";
+
+        // Whether or not the channels are lossy:
         if (lossy) {
-            ret += "lossy: 1\n";
+            ret += "lossy: 1\n\n";
         } else {
-            ret += "lossy: 0\n";
+            ret += "lossy: 0\n\n";
         }
 
+        // FSMS:
         for (int pid = 0; pid < numProcesses; pid++) {
             FSM f = fsms.get(pid);
             ret += "automaton p" + Integer.toString(pid) + " :\n";
