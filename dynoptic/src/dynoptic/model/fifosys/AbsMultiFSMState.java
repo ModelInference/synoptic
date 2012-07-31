@@ -35,7 +35,7 @@ public abstract class AbsMultiFSMState<State extends AbsFSMState<State>>
     };
 
     /** Used to evaluate whether this GFSMState is accept/initial. */
-    protected static boolean atLeastStatePidEvalTrue(
+    protected static boolean atLeastOneStatePidEvalTrue(
             Collection<? extends AbsMultiFSMState<?>> states,
             IStatePidToBooleanFn fn, int pid) {
         // for (ObservedFifoSysState s : observedStates) {

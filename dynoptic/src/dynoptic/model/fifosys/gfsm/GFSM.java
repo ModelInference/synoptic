@@ -1,6 +1,6 @@
 package dynoptic.model.fifosys.gfsm;
 
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import dynoptic.model.fifosys.FifoSys;
@@ -36,12 +36,18 @@ import dynoptic.model.fifosys.channel.ChannelId;
  */
 public class GFSM extends FifoSys<GFSMState> {
 
+    //
+    // NOTE: The processInits/processAccepts were intended as a cache
+    // optimization, but since GFSMStates can mutate, it is non-trivial to keep
+    // this cache up to date without GFSMStates signaling to the container GFSM.
+    // For now, this is optimization is disabled.
+    //
     // Per-process initial and accept states, ordered by process id. That is,
     // processInits[0] contains the set of all GFSMState instances that contain
     // at least one observation in which process id 0 was in initial state.
-    List<Set<GFSMState>> processInits;
-    List<Set<GFSMState>> processAccepts;
-
+    // List<Set<GFSMState>> processInits;
+    // List<Set<GFSMState>> processAccepts;
+    //
     // Note that this.initStates and this.acceptStates are global init/accept
     // states. That is, these are states that contain at least one
     // observation per process, for all processes, in which the process is in
@@ -55,22 +61,157 @@ public class GFSM extends FifoSys<GFSMState> {
 
     public GFSM(int numProcesses, Set<ChannelId> channelIds) {
         super(numProcesses, channelIds);
+        // Per-process Inits and Accepts Sets will be created on demand as new
+        // GFSM states are added. They will also be de-allocated when empty.
+        // processInits = new ArrayList<Set<GFSMState>>(numProcesses);
+        // processAccepts = new ArrayList<Set<GFSMState>>(numProcesses);
     }
 
     // //////////////////////////////////////////////////////////////////
 
-    public void addGFSMStates(GFSMState s) {
+    @Override
+    public Set<GFSMState> getInitStates() {
+        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
+        for (GFSMState s : states) {
+            if (s.isInitial()) {
+                ret.add(s);
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public Set<GFSMState> getAcceptStates() {
+        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
+        for (GFSMState s : states) {
+            if (s.isAccept()) {
+                ret.add(s);
+            }
+        }
+        return ret;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
+    /** Returns the set of partitions that are accepting for a pid. */
+    public Set<GFSMState> getAcceptStatesForPid(int pid) {
+        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
+        for (GFSMState s : states) {
+            if (s.isAcceptForPid(pid)) {
+                ret.add(s);
+            }
+        }
+        return ret;
+
+        // if (processAccepts.get(pid) != null) {
+        // return processAccepts.get(pid);
+        // }
+        // return Collections.emptySet();
+    }
+
+    /** Returns the set of partitions that are initial for a pid. */
+    public Set<GFSMState> getInitialStatesForPid(int pid) {
+        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
+        for (GFSMState s : states) {
+            if (s.isInitialForPid(pid)) {
+                ret.add(s);
+            }
+        }
+        return ret;
+
+        // if (processInits.get(pid) != null) {
+        // return processInits.get(pid);
+        // }
+        // return Collections.emptySet();
+    }
+
+    /** Adds a new partition/state s to this GFSM. */
+    public void addGFSMState(GFSMState s) {
         assert !states.contains(s);
 
         states.add(s);
+
+        // Update global init/accept states.
+        // if (s.isAccept()) {
+        // acceptStates.add(s);
+        // }
+        // if (s.isInitial()) {
+        // initStates.add(s);
+        // }
+        //
+        // // Update per-pid init/accept states.
+        // for (int pid = 0; pid < numProcesses; pid++) {
+        // if (s.isAcceptForPid(pid)) {
+        // addStateToList(processAccepts, pid, s);
+        // }
+        // if (s.isInitialForPid(pid)) {
+        // addStateToList(processInits, pid, s);
+        // }
+        // }
+
         recomputeAlphabet();
     }
 
-    public void removeGFSMStates(GFSMState s) {
+    /** Removes the partition/state s from this GFSM. */
+    public void removeGFSMState(GFSMState s) {
         assert states.contains(s);
 
         states.remove(s);
+
+        // Update global init/accept states.
+        // if (s.isAccept()) {
+        // assert acceptStates.contains(s);
+        // acceptStates.remove(s);
+        // }
+        // if (s.isInitial()) {
+        // assert initStates.contains(s);
+        // initStates.remove(s);
+        // }
+        //
+        // // Update per-pid init/accept states.
+        // for (int pid = 0; pid < numProcesses; pid++) {
+        // if (s.isAcceptForPid(pid)) {
+        // rmStateFromList(processAccepts, pid, s);
+        // }
+        // if (s.isInitialForPid(pid)) {
+        // rmStateFromList(processInits, pid, s);
+        // }
+        // }
+
         recomputeAlphabet();
     }
 
+    // //////////////////////////////////////////////////////////////////
+
+    // /** Adds s to the set at list[pid]; creates this set if it doesn't exist.
+    // */
+    // private void addStateToList(List<Set<GFSMState>> list, int pid, GFSMState
+    // s) {
+    // assert pid >= 0 && pid < numProcesses;
+    //
+    // Set<GFSMState> set;
+    // if (list.get(pid) == null) {
+    // set = new LinkedHashSet<GFSMState>();
+    // list.set(pid, set);
+    // } else {
+    // set = list.get(pid);
+    // }
+    // set.add(s);
+    // }
+    //
+    // /**
+    // * Removes s from the set at list[pid]; if the set is then empty, assigns
+    // * list[pid] to null.
+    // */
+    // private void rmStateFromList(List<Set<GFSMState>> list, int pid,
+    // GFSMState s) {
+    // assert pid >= 0 && pid < numProcesses;
+    // Set<GFSMState> set = list.get(pid);
+    // assert set.contains(s);
+    //
+    // set.remove(s);
+    // if (set.size() == 0) {
+    // list.set(pid, null);
+    // }
+    // }
 }

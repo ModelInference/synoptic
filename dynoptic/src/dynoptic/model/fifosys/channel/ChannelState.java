@@ -63,6 +63,18 @@ public class ChannelState implements Cloneable {
         return s.queue.equals(queue);
     }
 
+    /**
+     * Returns a copy of this ChannelState.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public ChannelState clone() {
+        // Since ChannelId is immutable and Event is immutable all we need to do
+        // is make sure to clone the ArrayList that maintains events to produce
+        // a new independent deep-copy of ChannelState.
+        return new ChannelState(chId, (ArrayList<EventType>) queue.clone());
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     /** Adds an event to the back of the queue. */
@@ -86,17 +98,5 @@ public class ChannelState implements Cloneable {
     /** Returns the number of events in the queue. */
     public int size() {
         return queue.size();
-    }
-
-    /**
-     * Returns a copy of this ChannelState.
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    public ChannelState clone() {
-        // Since ChannelId is immutable and Event is immutable all we need to do
-        // is make sure to clone the ArrayList that maintains events to produce
-        // a new independent deep-copy of ChannelState.
-        return new ChannelState(chId, (ArrayList<EventType>) queue.clone());
     }
 }

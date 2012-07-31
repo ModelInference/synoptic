@@ -15,8 +15,9 @@ import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 
 public class CFSMStateTests extends DynopticTest {
 
-    // Non-accepting states at pid 0.
-    FSMState p_0;
+    // Initial state for pid 0.
+    FSMState i_0;
+    // Non-initial and non-accepting state for pid 0.
     FSMState q_0;
     // Accepting state at pid 1.
     FSMState a_1;
@@ -25,7 +26,7 @@ public class CFSMStateTests extends DynopticTest {
 
     @Override
     public void setUp() {
-        p_0 = new FSMState(false, true, 0);
+        i_0 = new FSMState(false, true, 0);
         q_0 = new FSMState(false, false, 0);
         a_1 = new FSMState(true, false, 1);
         e_0 = EventType.LocalEvent("e", 0);
@@ -35,7 +36,7 @@ public class CFSMStateTests extends DynopticTest {
     @Test
     public void createCFSMState() {
         List<FSMState> states = new ArrayList<FSMState>();
-        states.add(p_0);
+        states.add(i_0);
         states.add(a_1);
         CFSMState c = new CFSMState(states);
 
@@ -43,17 +44,19 @@ public class CFSMStateTests extends DynopticTest {
         assertFalse(c.isAcceptForPid(0));
         assertTrue(c.isAcceptForPid(1));
 
-        // TODO: add checks for initial
+        assertFalse(c.isInitial());
+        assertFalse(c.isInitialForPid(1));
+        assertTrue(c.isInitialForPid(0));
 
         assertEquals(c.getTransitioningEvents().size(), 0);
     }
 
     @Test
     public void createCFSMStateWithTxns() {
-        p_0.addTransition(e_0, q_0);
+        i_0.addTransition(e_0, q_0);
 
         List<FSMState> states = new ArrayList<FSMState>();
-        states.add(p_0);
+        states.add(i_0);
         states.add(a_1);
         CFSMState c = new CFSMState(states);
 

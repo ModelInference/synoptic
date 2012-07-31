@@ -45,7 +45,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     @Override
     public boolean isInitial() {
         for (int pid = 0; pid < numProcesses; pid++) {
-            if (!atLeastStatePidEvalTrue(this.observedStates,
+            if (!atLeastOneStatePidEvalTrue(this.observedStates,
                     fnIsInitialForPid, pid)) {
                 return false;
             }
@@ -56,8 +56,8 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     @Override
     public boolean isAccept() {
         for (int pid = 0; pid < numProcesses; pid++) {
-            if (!atLeastStatePidEvalTrue(this.observedStates, fnIsAcceptForPid,
-                    pid)) {
+            if (!atLeastOneStatePidEvalTrue(this.observedStates,
+                    fnIsAcceptForPid, pid)) {
                 return false;
             }
         }
@@ -80,22 +80,22 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     public boolean isAcceptForPid(int pid) {
         assert pid >= 0 && pid < numProcesses;
 
-        return atLeastStatePidEvalTrue(this.observedStates, fnIsAcceptForPid,
-                pid);
+        return atLeastOneStatePidEvalTrue(this.observedStates,
+                fnIsAcceptForPid, pid);
     }
 
     @Override
     public boolean isInitialForPid(int pid) {
         assert pid >= 0 && pid < numProcesses;
 
-        return atLeastStatePidEvalTrue(this.observedStates, fnIsInitialForPid,
-                pid);
+        return atLeastOneStatePidEvalTrue(this.observedStates,
+                fnIsInitialForPid, pid);
     }
 
     // //////////////////////////////////////////////////////////////////
 
     /** Adds a new observed state to this partition. */
-    public void add(ObservedFifoSysState s) {
+    public void addObs(ObservedFifoSysState s) {
         assert !observedStates.contains(s);
         assert s.getNumProcesses() == this.numProcesses;
 
@@ -104,14 +104,14 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     }
 
     /** Adds a new observed state to this partition. */
-    public void addAll(Set<ObservedFifoSysState> states) {
+    public void addAllObs(Set<ObservedFifoSysState> states) {
         for (ObservedFifoSysState s : states) {
-            add(s);
+            addObs(s);
         }
     }
 
     /** Removes an observed state from this partition. */
-    public void removeObservedState(ObservedFifoSysState s) {
+    public void removeObs(ObservedFifoSysState s) {
         assert observedStates.contains(s);
         observedStates.remove(s);
         recreateCachedTransitions();

@@ -37,6 +37,7 @@ abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     // //////////////////////////////////////////////////////////////////
 
     public FifoSys(int numProcesses, Set<ChannelId> channelIds) {
+        super();
         assert numProcesses > 0;
         assert channelIds != null;
 
@@ -66,5 +67,9 @@ abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
 
     public Set<ChannelId> getChannelIds() {
         return channelIds;
+    }
+
+    public int getNumProcesses() {
+        return numChannels;
     }
 }

@@ -3,6 +3,7 @@ package dynoptic.model;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
 
 /**
@@ -54,7 +55,10 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
     protected void recomputeAlphabet() {
         this.alphabet.clear();
         for (State s : states) {
-            this.alphabet.addAll(s.getTransitioningEvents());
+            Set<EventType> events = s.getTransitioningEvents();
+            if (events.size() != 0) {
+                alphabet.addAll(events);
+            }
         }
     }
 
