@@ -18,6 +18,7 @@ public class ChannelIdTests extends DynopticTest {
     }
 
     @Test(expected = AssertionError.class)
+    @SuppressWarnings("unused")
     public void createBadChannelId() {
         ChannelId cid = new ChannelId(-1, 2);
     }

@@ -5,7 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import dynoptic.model.AbsFSMState;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
@@ -46,13 +45,7 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState> {
      */
     @Override
     public boolean isInitial() {
-        StateToBooleanFn<AbsFSMState<?>> fn = new StateToBooleanFn<AbsFSMState<?>>() {
-            @Override
-            public boolean eval(AbsFSMState<?> s) {
-                return s.isInitial();
-            }
-        };
-        return this.statesEvalToTrue(fsmStates, fn);
+        return statesEvalToTrue(fsmStates, fnInitialState);
     }
 
     /**
@@ -65,13 +58,7 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState> {
      */
     @Override
     public boolean isAccept() {
-        StateToBooleanFn<AbsFSMState<?>> fn = new StateToBooleanFn<AbsFSMState<?>>() {
-            @Override
-            public boolean eval(AbsFSMState<?> s) {
-                return s.isAccept();
-            }
-        };
-        return this.statesEvalToTrue(fsmStates, fn);
+        return statesEvalToTrue(fsmStates, fnAcceptState);
     }
 
     @Override
@@ -97,9 +84,14 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState> {
     }
 
     @Override
+    public boolean isInitialForPid(int pid) {
+        assert pid >= 0 && pid < fsmStates.size();
+        return fsmStates.get(pid).isInitial();
+    }
+
+    @Override
     public boolean isAcceptForPid(int pid) {
         assert pid >= 0 && pid < fsmStates.size();
         return fsmStates.get(pid).isAccept();
     }
-
 }

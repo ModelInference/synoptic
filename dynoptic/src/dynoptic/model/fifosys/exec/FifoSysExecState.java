@@ -63,15 +63,20 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     }
 
     /**
-     * Whether or not in this state:
-     * 
-     * <pre>
-     * (1) the specified pid is in an accept state, and
-     * (2) all queues where this pid is a receiver are empty.
-     * </pre>
-     * 
-     * @param pid
-     * @return
+     * Returns true if: <br/>
+     * 1. the specified pid is in an initial state, and<br/>
+     * 2. all queues where this pid is a receiver are empty.
+     */
+    @Override
+    public boolean isInitialForPid(int pid) {
+        return processStates.isInitialForPid(pid)
+                && channelStates.isEmptyForPid(pid);
+    }
+
+    /**
+     * Returns true if: <br/>
+     * 1. the specified pid is in an accept state, and<br/>
+     * 2. all queues where this pid is a receiver are empty.
      */
     @Override
     public boolean isAcceptForPid(int pid) {
@@ -171,5 +176,4 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
         }
         return ret;
     }
-
 }

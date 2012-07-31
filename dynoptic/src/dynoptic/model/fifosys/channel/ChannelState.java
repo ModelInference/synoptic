@@ -8,7 +8,7 @@ import dynoptic.model.alphabet.EventType;
  * The ChannelState maintains the queue state for a channel, identified with a
  * specific channel id.
  */
-public class ChannelState {
+public class ChannelState implements Cloneable {
     final ChannelId chId;
     final ArrayList<EventType> queue;
 
@@ -91,6 +91,7 @@ public class ChannelState {
     /**
      * Returns a copy of this ChannelState.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public ChannelState clone() {
         // Since ChannelId is immutable and Event is immutable all we need to do

@@ -29,6 +29,7 @@ public class GFSMTests extends DynopticTest {
     }
 
     @Test
+    @SuppressWarnings("unused")
     public void createGFSM() {
         GFSM g = new GFSM(2, this.getAllToAllChannelIds(2));
     }

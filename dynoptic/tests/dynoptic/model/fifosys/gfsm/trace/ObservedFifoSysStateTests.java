@@ -18,6 +18,7 @@ public class ObservedFifoSysStateTests extends DynopticTest {
     Set<ChannelId> cids;
 
     @Test
+    @SuppressWarnings("unused")
     public void create() {
         ObservedFSMState p = ObservedFSMState.ObservedTerminalFSMState(0, null);
         List<ObservedFSMState> P = new ArrayList<ObservedFSMState>();
