@@ -67,6 +67,16 @@ public class MultiChannelState implements Cloneable {
         return mc.channelStates.equals(channelStates);
     }
 
+    @Override
+    public MultiChannelState clone() {
+        // Capture the current state of all the channels.
+        Map<ChannelId, ChannelState> clonedChannels = new LinkedHashMap<ChannelId, ChannelState>();
+        for (ChannelId chId : channelStates.keySet()) {
+            clonedChannels.put(chId, channelStates.get(chId).clone());
+        }
+        return new MultiChannelState(clonedChannels);
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     /** Whether or not all queues are empty. */
@@ -94,16 +104,6 @@ public class MultiChannelState implements Cloneable {
         assert foundPid;
 
         return true;
-    }
-
-    @Override
-    public MultiChannelState clone() {
-        // Capture the current state of all the channels.
-        Map<ChannelId, ChannelState> clonedChannels = new LinkedHashMap<ChannelId, ChannelState>();
-        for (ChannelId chId : channelStates.keySet()) {
-            clonedChannels.put(chId, channelStates.get(chId).clone());
-        }
-        return new MultiChannelState(clonedChannels);
     }
 
     public void enqueue(EventType event) {

@@ -79,7 +79,7 @@ public class ObservedFSMState {
 
     @Override
     public String toString() {
-        return name;
+        return ((isInitial) ? "i_" : "") + name + ((isTerminal) ? "_t" : "");
     }
 
     // //////////////////////////////////////////////////////////////////

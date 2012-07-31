@@ -13,12 +13,28 @@ import dynoptic.model.fifosys.cfsm.fsm.FSMState;
  * <p>
  * This is an immutable class.
  * </p>
- * Captures the current state of a CFSM without the channel state.
+ * Captures the current state of a CFSM -- essentially a vector of FSMStates --
+ * without the channel state.
  */
 public final class CFSMState extends AbsMultiFSMState<CFSMState> {
 
     // List of FSMStates, ordered according to process IDs: 0 - (size-1).
     final List<FSMState> fsmStates;
+
+    /**
+     * Creates and returns a CFSMState instance for each item in the list of
+     * lists of FSMState instances.
+     */
+    public static Set<CFSMState> CFSMStatesFromFSMListLists(
+            List<List<FSMState>> list) {
+        Set<CFSMState> ret = new LinkedHashSet<CFSMState>();
+        for (List<FSMState> item : list) {
+            ret.add(new CFSMState(item));
+        }
+        return ret;
+    }
+
+    // //////////////////////////////////////////////////////////////////
 
     /** Single FSM state. */
     public CFSMState(FSMState s) {

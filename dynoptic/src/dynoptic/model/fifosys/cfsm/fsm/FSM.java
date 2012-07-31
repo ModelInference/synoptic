@@ -1,9 +1,10 @@
 package dynoptic.model.fifosys.cfsm.fsm;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import dynoptic.model.AbsFSM;
-import dynoptic.model.alphabet.EventType;
 
 /**
  * This class models FSMs that make up a CFSM. A few key characteristics:
@@ -20,26 +21,35 @@ public class FSM extends AbsFSM<FSMState> {
 
     public FSM(int pid, FSMState initState, FSMState acceptState,
             Set<FSMState> states) {
-        super();
+        this(pid, Collections.singleton(initState), Collections
+                .singleton(acceptState), states);
+    }
 
+    public FSM(int pid, Set<FSMState> initStates, Set<FSMState> acceptStates,
+            Collection<FSMState> states) {
+        super();
         assert states != null;
-        assert states.contains(initState);
-        assert states.contains(acceptState);
-        assert acceptState.isAccept();
+        assert states.containsAll(initStates);
+        assert states.containsAll(acceptStates);
+
+        for (FSMState s : initStates) {
+            assert s.isInitial();
+        }
+        for (FSMState s : acceptStates) {
+            assert s.isAccept();
+        }
+
+        for (FSMState s : states) {
+            assert s.getPid() == pid;
+        }
 
         this.pid = pid;
         this.states.addAll(states);
-        this.initStates.add(initState);
-        this.acceptStates.add(acceptState);
+        this.initStates.addAll(initStates);
+        this.acceptStates.addAll(acceptStates);
 
         // Construct the alphabet from the events associated with each state.
-        for (FSMState s : states) {
-            assert s.getPid() == pid;
-            Set<EventType> events = s.getTransitioningEvents();
-            if (events.size() != 0) {
-                alphabet.addAll(events);
-            }
-        }
+        this.recomputeAlphabet();
     }
 
     // //////////////////////////////////////////////////////////////////
