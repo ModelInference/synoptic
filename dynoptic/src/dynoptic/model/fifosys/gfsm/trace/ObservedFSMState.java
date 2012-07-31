@@ -40,25 +40,28 @@ public class ObservedFSMState {
     // TODO: For non-anon states include things like line number and filename,
     // and so forth.
 
+    public static ObservedFSMState ObservedTerminalFSMState(int pid) {
+        return new ObservedFSMState(pid, false, true, getNextAnonName());
+    }
+
     public static ObservedFSMState ObservedTerminalFSMState(int pid, String name) {
-        if (name == null) {
-            name = getNextAnonName();
-        }
         return new ObservedFSMState(pid, false, true, name);
     }
 
+    public static ObservedFSMState ObservedInitialFSMState(int pid) {
+        return new ObservedFSMState(pid, false, true, getNextAnonName());
+    }
+
     public static ObservedFSMState ObservedInitialFSMState(int pid, String name) {
-        if (name == null) {
-            name = getNextAnonName();
-        }
         return new ObservedFSMState(pid, false, true, name);
+    }
+
+    public static ObservedFSMState ObservedIntermediateFSMState(int pid) {
+        return new ObservedFSMState(pid, false, false, getNextAnonName());
     }
 
     public static ObservedFSMState ObservedIntermediateFSMState(int pid,
             String name) {
-        if (name == null) {
-            name = getNextAnonName();
-        }
         return new ObservedFSMState(pid, false, false, name);
     }
 
@@ -79,10 +82,16 @@ public class ObservedFSMState {
         return name;
     }
 
+    // //////////////////////////////////////////////////////////////////
+
     /** Use this method to set the event and state that followed this state. */
     public void addTransition(ObservedEvent event, ObservedFSMState followState) {
         this.nextEvent = event;
         this.nextState = followState;
+    }
+
+    public int getPid() {
+        return pid;
     }
 
     public boolean isInitial() {

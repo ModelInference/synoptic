@@ -84,6 +84,7 @@ public class FSMTests extends DynopticTest {
     }
 
     @Test(expected = AssertionError.class)
+    @SuppressWarnings("unused")
     public void createBadFSM1() {
         states.add(init_1);
         // error: accepting_1 \not\in states
@@ -91,6 +92,7 @@ public class FSMTests extends DynopticTest {
     }
 
     @Test(expected = AssertionError.class)
+    @SuppressWarnings("unused")
     public void createBadFSM2() {
         states.add(init_1);
         states.add(accepting_1);

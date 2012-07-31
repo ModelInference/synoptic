@@ -9,7 +9,7 @@ import dynoptic.model.alphabet.EventType;
 /**
  * Represents the state of a set of channels that are part of a FIFO system.
  */
-public class MultiChannelState {
+public class MultiChannelState implements Cloneable {
     final Map<ChannelId, ChannelState> channelStates;
 
     /**
@@ -96,6 +96,7 @@ public class MultiChannelState {
         return true;
     }
 
+    @Override
     public MultiChannelState clone() {
         // Capture the current state of all the channels.
         Map<ChannelId, ChannelState> clonedChannels = new LinkedHashMap<ChannelId, ChannelState>();

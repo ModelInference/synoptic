@@ -13,10 +13,41 @@ import dynoptic.model.AbsFSMState;
 public abstract class AbsMultiFSMState<State extends AbsFSMState<State>>
         extends AbsFSMState<State> {
 
-    /** Used for functional calls below. */
-    protected interface StateToBooleanFn<T> {
-        boolean eval(T s);
+    /** Used for functional calls to atLeastOneStateEvalTruePerPid. */
+    protected interface IStatePidToBooleanFn {
+        boolean eval(AbsMultiFSMState<?> s, int pid);
     }
+
+    // Fn: (ObservedFifoSysState s, pid p) -> "s accept for pid"
+    protected static IStatePidToBooleanFn fnIsAcceptForPid = new IStatePidToBooleanFn() {
+        @Override
+        public boolean eval(AbsMultiFSMState<?> s, int pid) {
+            return s.isAcceptForPid(pid);
+        }
+    };
+
+    // Fn: (ObservedFifoSysState s, pid p) -> "s initial for pid"
+    protected static IStatePidToBooleanFn fnIsInitialForPid = new IStatePidToBooleanFn() {
+        @Override
+        public boolean eval(AbsMultiFSMState<?> s, int pid) {
+            return s.isInitialForPid(pid);
+        }
+    };
+
+    /** Used to evaluate whether this GFSMState is accept/initial. */
+    protected static boolean atLeastStatePidEvalTrue(
+            Collection<? extends AbsMultiFSMState<?>> states,
+            IStatePidToBooleanFn fn, int pid) {
+        // for (ObservedFifoSysState s : observedStates) {
+        for (AbsMultiFSMState<?> s : states) {
+            if (fn.eval(s, pid)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // //////////////////////////////////////////////////////////////////
 
     /** The total number of processes that this multi-FSM state captures, */
     protected int numProcesses;
@@ -43,34 +74,6 @@ public abstract class AbsMultiFSMState<State extends AbsFSMState<State>>
      */
     abstract public boolean isAcceptForPid(int pid);
 
-    /**
-     * Returns true if all the AbsFSMState states in the collection evalute to
-     * true through fn.
-     * 
-     * @param states
-     * @return
-     * @return
-     */
-    protected boolean statesEvalToTrue(
-            Collection<? extends AbsFSMState<?>> states,
-            StateToBooleanFn<AbsFSMState<?>> fn) {
-        for (AbsFSMState<?> s : states) {
-            if (!fn.eval(s)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Returns true if there is at least one state that is accept
-     * 
-     * @param states
-     * @return
-     */
-    /*
-     * protected boolean atLeastOneIsAccept(Collection<? extends AbsFSMState<?>>
-     * states) { for (ObservedFifoSysState s : observedStates) { if
-     * (s.isAcceptForPid(pid)) { return true; } } return false; }
-     */
+    /** Similar to accept state definition above. */
+    abstract public boolean isInitialForPid(int pid);
 }
