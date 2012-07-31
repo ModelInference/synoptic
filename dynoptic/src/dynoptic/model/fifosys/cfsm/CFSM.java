@@ -204,6 +204,50 @@ public class CFSM extends FifoSys<CFSMState> {
         unSpecifiedPids -= 1;
     }
 
+    /** Generate SCM representation of this CFSM (without bad_states). */
+    public String toScmString() {
+        String ret;
+
+        // Parameters to the SCM representation of this CFSM.
+        String cfsmName = "blah";
+        boolean lossy = false;
+
+        // Build a map from [0...numChannels-1] to channelIds as a List.
+        List<ChannelId> orderedCids = new ArrayList<ChannelId>();
+        Map<ChannelId, Integer> cIdsToInt = new LinkedHashMap<ChannelId, Integer>();
+        int i = 0;
+        for (ChannelId c : channelIds) {
+            orderedCids.add(c);
+            cIdsToInt.put(c, i);
+            i++;
+        }
+
+        ret = "scm " + cfsmName + ":\n\n";
+        ret += "nb_channels = " + numChannels + " ;\n";
+        ret += "/*";
+        for (i = 0; i < numChannels; i++) {
+            ret += "channel " + Integer.toString(i) + " : "
+                    + orderedCids.get(i).toString();
+        }
+        ret += "*/\n";
+
+        // Whether or not the channels are lossy.
+        if (lossy) {
+            ret += "lossy: 1\n";
+        } else {
+            ret += "lossy: 0\n";
+        }
+
+        for (int pid = 0; pid < numProcesses; pid++) {
+            FSM f = fsms.get(pid);
+            ret += "automaton p" + Integer.toString(pid) + " :\n";
+            ret += f.toScmString(cIdsToInt);
+            ret += "\n";
+        }
+
+        return ret;
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     /**
