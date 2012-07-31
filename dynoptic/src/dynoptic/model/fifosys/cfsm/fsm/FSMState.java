@@ -8,6 +8,7 @@ import java.util.Set;
 
 import dynoptic.model.AbsFSMState;
 import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.channel.ChannelId;
 
 /**
  * <p>
@@ -103,5 +104,20 @@ public class FSMState extends AbsFSMState<FSMState> {
         // Make sure that we haven't added this transition to s on e before.
         assert !following.contains(s);
         following.add(s);
+    }
+
+    /** Returns an SCM representation of this FSMStates. */
+    public String toScmString(Map<FSMState, Integer> statesToInt,
+            Map<ChannelId, Integer> cIdsToInt) {
+        String ret = "";
+
+        for (EventType e : transitions.keySet()) {
+            String eStr = e.toScmString(cIdsToInt);
+            for (FSMState next : transitions.get(e)) {
+                ret += "to " + statesToInt.get(next) + " : when true , " + eStr;
+            }
+        }
+
+        return ret;
     }
 }

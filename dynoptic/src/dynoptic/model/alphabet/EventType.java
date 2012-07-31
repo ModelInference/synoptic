@@ -1,5 +1,7 @@
 package dynoptic.model.alphabet;
 
+import java.util.Map;
+
 import dynoptic.model.fifosys.channel.ChannelId;
 
 /**
@@ -87,8 +89,16 @@ public final class EventType {
         return eventType == EventClass.SEND;
     }
 
-    public String toScmString() {
-        return toString();
+    /**
+     * Returns an scm representation of this EventType, based on channelId to
+     * int map.
+     */
+    public String toScmString(Map<ChannelId, Integer> cIdsToInt) {
+        if (channelId != null) {
+            assert cIdsToInt.containsKey(channelId);
+            return toString(Integer.toString(cIdsToInt.get(channelId)));
+        }
+        return toString("");
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -139,14 +149,10 @@ public final class EventType {
 
     @Override
     public String toString() {
-        if (isSendEvent()) {
-            assert channelId != null;
-            return channelId.toString() + " ! " + event;
-        } else if (isRecvEvent()) {
-            assert channelId != null;
-            return channelId.toString() + " ? " + event;
+        if (channelId != null) {
+            return toString(channelId.toString());
         }
-        return event + "_" + Integer.toString(pid);
+        return toString("");
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -160,5 +166,14 @@ public final class EventType {
             result = 31 * result + channelId.hashCode();
         }
         return result;
+    }
+
+    private String toString(String cidString) {
+        if (isSendEvent()) {
+            return cidString + " ! " + event;
+        } else if (isRecvEvent()) {
+            return cidString + " ? " + event;
+        }
+        return event + "_" + Integer.toString(pid);
     }
 }
