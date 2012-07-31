@@ -84,4 +84,20 @@ public class FSMAlphabet implements Set<EventType> {
     public <T> T[] toArray(T[] arg0) {
         return events.toArray(arg0);
     }
+
+    // //////////////////////////////////////////////////////////////////
+
+    public String toScmString() {
+        String ret = "parameters :\n";
+
+        Set<String> seenEventStrs = new LinkedHashSet<String>();
+        for (EventType e : events) {
+            String eStr = e.getEventStr();
+            if (!seenEventStrs.contains(eStr)) {
+                ret += "real " + eStr + " ;\n";
+                seenEventStrs.add(eStr);
+            }
+        }
+        return ret;
+    }
 }

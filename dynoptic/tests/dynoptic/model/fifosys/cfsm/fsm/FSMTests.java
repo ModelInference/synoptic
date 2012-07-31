@@ -3,7 +3,9 @@ package dynoptic.model.fifosys.cfsm.fsm;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
@@ -80,7 +82,21 @@ public class FSMTests extends DynopticTest {
         assertEquals(f.getPid(), 1);
         assertEquals(f.getInitStates(), listInit_1);
         assertEquals(f.getAcceptStates(), listAccepting_1);
+    }
 
+    @Test
+    public void scmString() {
+        Map<ChannelId, Integer> cIdsToInt = new LinkedHashMap<ChannelId, Integer>();
+        cIdsToInt.put(cid, 0);
+
+        init_1.addTransition(e_pid1, accepting_1);
+        accepting_1.addTransition(e2_pid1, init_1);
+        states.add(init_1);
+        states.add(accepting_1);
+
+        FSM f = new FSM(1, init_1, accepting_1, states);
+
+        logger.info(f.toScmString(cIdsToInt));
     }
 
     @Test(expected = AssertionError.class)

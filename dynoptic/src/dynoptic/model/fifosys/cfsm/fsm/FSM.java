@@ -83,16 +83,14 @@ public class FSM extends AbsFSM<FSMState> {
         ret = null;
         for (FSMState s : initStates) {
             if (ret == null) {
-                ret += "initial : " + statesToInt.get(s);
+                ret = "initial : " + statesToInt.get(s);
             } else {
                 ret += " , " + statesToInt.get(s);
             }
         }
         ret += "\n";
 
-        for (i = 0; i < orderedStates.size(); i++) {
-            FSMState s = orderedStates.get(i);
-            ret += "state " + Integer.toString(i) + " : \n";
+        for (FSMState s : orderedStates) {
             ret += s.toScmString(statesToInt, cIdsToInt);
             ret += "\n\n";
         }

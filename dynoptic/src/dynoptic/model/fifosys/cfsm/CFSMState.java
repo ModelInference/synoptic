@@ -110,4 +110,10 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState> {
         assert pid >= 0 && pid < fsmStates.size();
         return fsmStates.get(pid).isAccept();
     }
+
+    // //////////////////////////////////////////////////////////////////
+
+    public FSMState getFSMState(int pid) {
+        return fsmStates.get(pid);
+    }
 }

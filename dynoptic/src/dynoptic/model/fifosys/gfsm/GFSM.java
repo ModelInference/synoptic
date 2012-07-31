@@ -63,8 +63,12 @@ public class GFSM extends FifoSys<GFSMState> {
         super(numProcesses, channelIds);
         // Per-process Inits and Accepts Sets will be created on demand as new
         // GFSM states are added. They will also be de-allocated when empty.
-        // processInits = new ArrayList<Set<GFSMState>>(numProcesses);
-        // processAccepts = new ArrayList<Set<GFSMState>>(numProcesses);
+        // processInits = new
+        // ArrayList<Set<GFSMState>>(Collections.nCopies(numProcesses,
+        // (GFSMState) null));
+        // processAccepts = new
+        // ArrayList<Set<GFSMState>>(Collections.nCopies(numProcesses,
+        // (GFSMState) null));
     }
 
     // //////////////////////////////////////////////////////////////////
