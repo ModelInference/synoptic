@@ -6,6 +6,8 @@ import java.util.Set;
 
 import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
+import dynoptic.model.fifosys.gfsm.trace.Trace;
 
 /**
  * <p>
@@ -59,6 +61,29 @@ public class GFSM extends FifoSys<GFSMState> {
     // processInits[n-1] = initStates
     //
     // And likewise for acceptStates
+
+    public static GFSM constructGFSMFromTraces(List<Trace> traces) {
+        int numProcesses = traces.get(0).getNumProcesses();
+        List<ChannelId> cIds = traces.get(0).getChannelIds();
+
+        GFSM g = new GFSM(numProcesses, cIds);
+        for (Trace t : traces) {
+            assert t.getNumProcesses() == numProcesses;
+            assert t.getChannelIds().equals(cIds);
+
+            // TODO:
+            // 1. Create a partitioning function that takes a set of observed
+            // states and returns a set of GFSMState instances. Each of these
+            // states contains observed states that have identical final message
+            // in their queues.
+            // 2. Add each of these GFSMState instances to the GFSM.
+
+            ObservedFifoSysState s = t.getInitState();
+        }
+        return g;
+    }
+
+    // //////////////////////////////////////////////////////////////////
 
     public GFSM(int numProcesses, List<ChannelId> channelIds) {
         super(numProcesses, channelIds);

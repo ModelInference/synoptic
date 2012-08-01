@@ -26,8 +26,9 @@ public class GFSMStateTests extends DynopticTest {
     public void setUp() throws Exception {
         super.setUp();
         cids = new ArrayList<ChannelId>(2);
-        cid1 = new ChannelId(1, 2, 0);
-        cid2 = new ChannelId(2, 1, 1);
+        // Two process system.
+        cid1 = new ChannelId(0, 1, 0);
+        cid2 = new ChannelId(1, 0, 1);
         cids.add(cid1);
         cids.add(cid2);
     }
@@ -44,21 +45,25 @@ public class GFSMStateTests extends DynopticTest {
 
     @Test
     public void stateWithObs() {
-        GFSMState s = new GFSMState(1);
+        GFSMState s = new GFSMState(2);
 
         List<ObservedFSMState> obsFsmStates = new ArrayList<ObservedFSMState>();
         obsFsmStates.add(ObservedFSMState.ObservedInitialTerminalFSMState(0));
+        obsFsmStates.add(ObservedFSMState.ObservedInitialTerminalFSMState(1));
 
-        MultiChannelState obsChStates = new MultiChannelState(cids);
+        MultiChannelState obsChStates = MultiChannelState.fromChannelIds(cids);
         ObservedFifoSysState o = new ObservedFifoSysState(obsFsmStates,
                 obsChStates);
         s.addObs(o);
         logger.info(s.toString());
 
         assertTrue(s.isAccept());
-        assertTrue(s.isAcceptForPid(0));
         assertTrue(s.isInitial());
+        assertTrue(s.isAcceptForPid(0));
         assertTrue(s.isInitialForPid(0));
+        assertTrue(s.isAcceptForPid(1));
+        assertTrue(s.isInitialForPid(1));
         assertEquals(s.getTransitioningEvents().size(), 0);
+        assertEquals(s.getNumProcesses(), 2);
     }
 }

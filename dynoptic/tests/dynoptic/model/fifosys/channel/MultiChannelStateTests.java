@@ -18,26 +18,30 @@ public class MultiChannelStateTests extends DynopticTest {
     ChannelId cid1;
     ChannelId cid2;
     List<ChannelId> cids;
+    MultiChannelState mc;
+    MultiChannelState mc2;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
+
         cids = new ArrayList<ChannelId>(2);
         cid1 = new ChannelId(1, 2, 0);
         cid2 = new ChannelId(2, 1, 1);
         cids.add(cid1);
         cids.add(cid2);
+
+        mc = MultiChannelState.fromChannelIds(cids);
+        mc2 = MultiChannelState.fromChannelIds(cids);
     }
 
     @Test
-    public void createMChannelState() {
-        MultiChannelState mc = new MultiChannelState(cids);
+    public void toStringCheck() {
         logger.info(mc.toString());
     }
 
     @Test
     public void isEmpty() {
-        MultiChannelState mc = new MultiChannelState(cids);
         assertTrue(mc.isEmpty());
         assertTrue(mc.isEmptyForPid(1));
         assertTrue(mc.isEmptyForPid(2));
@@ -46,7 +50,6 @@ public class MultiChannelStateTests extends DynopticTest {
 
     @Test
     public void enqueueIsEmptyPeekDequeue() {
-        MultiChannelState mc = new MultiChannelState(cids);
         EventType e = EventType.SendEvent("e", cid1);
         // Enqueue e
         mc.enqueue(e);
@@ -71,17 +74,15 @@ public class MultiChannelStateTests extends DynopticTest {
 
     @Test
     public void cloneMCState() {
-        MultiChannelState mc = new MultiChannelState(cids);
         EventType e = EventType.SendEvent("e", cid1);
         mc.enqueue(e);
 
-        MultiChannelState mc2 = mc.clone();
+        mc2 = mc.clone();
         assertEquals(mc, mc2);
     }
 
     @Test
     public void equals() {
-        MultiChannelState mc = new MultiChannelState(cids);
         EventType e = EventType.SendEvent("e", cid1);
         mc.enqueue(e);
 
@@ -89,7 +90,6 @@ public class MultiChannelStateTests extends DynopticTest {
         assertFalse(mc.equals(""));
         assertTrue(mc.equals(mc));
 
-        MultiChannelState mc2 = new MultiChannelState(cids);
         EventType e2 = EventType.SendEvent("e", cid1);
         mc2.enqueue(e2);
 

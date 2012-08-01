@@ -35,7 +35,7 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
      */
     public FifoSysExecState(MultiFSMState processStates,
             List<ChannelId> channelIds) {
-        this(processStates, new MultiChannelState(channelIds));
+        this(processStates, MultiChannelState.fromChannelIds(channelIds));
     }
 
     /**
