@@ -8,7 +8,6 @@ import java.util.Set;
 
 import dynoptic.model.AbsFSMState;
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.channel.ChannelId;
 
 /**
  * <p>
@@ -23,21 +22,25 @@ import dynoptic.model.fifosys.channel.ChannelId;
  */
 public class FSMState extends AbsFSMState<FSMState> {
     // Whether or not this state is an accepting/initial state.
-    final boolean isAccept;
-    final boolean isInitial;
+    private final boolean isAccept;
+    private final boolean isInitial;
 
     // Transitions to other FSMState instances.
-    final Map<EventType, Set<FSMState>> transitions;
+    private final Map<EventType, Set<FSMState>> transitions;
 
     // The process that this state is associated with. Initially this is -1, but
     // once a transition on an event is added, the pid is set based on the event
     // type.
-    int pid = -1;
+    private int pid = -1;
 
-    public FSMState(boolean isAccept, boolean isInitial, int pid) {
+    // The id used by this FSMState in scm output.
+    private final int scmId;
+
+    public FSMState(boolean isAccept, boolean isInitial, int pid, int scmId) {
         this.isAccept = isAccept;
         this.isInitial = isInitial;
         this.pid = pid;
+        this.scmId = scmId;
         transitions = new LinkedHashMap<EventType, Set<FSMState>>();
     }
 
@@ -82,6 +85,11 @@ public class FSMState extends AbsFSMState<FSMState> {
         return pid;
     }
 
+    /** Returns the scmId that this state is associated with. */
+    public int getScmId() {
+        return scmId;
+    }
+
     /**
      * Adds a new transition to a state s on event e from this state.
      * 
@@ -107,18 +115,18 @@ public class FSMState extends AbsFSMState<FSMState> {
     }
 
     /** Returns an SCM representation of this FSMStates. */
-    public String toScmString(Map<FSMState, Integer> statesToInt,
-            Map<ChannelId, Integer> cIdsToInt) {
-        String ret = "state " + statesToInt.get(this) + " :\n";
+    public String toScmString() {
+        String ret = "state " + scmId + " :\n";
 
         for (EventType e : transitions.keySet()) {
-            String eStr = e.toScmString(cIdsToInt);
+            String eStr = e.toScmString();
             for (FSMState next : transitions.get(e)) {
-                ret += "to " + statesToInt.get(next) + " : when true , " + eStr
+                ret += "to " + next.getScmId() + " : when true , " + eStr
                         + " ;\n";
             }
         }
 
         return ret;
     }
+
 }

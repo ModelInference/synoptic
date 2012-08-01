@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,14 +17,14 @@ public class MultiChannelStateTests extends DynopticTest {
 
     ChannelId cid1;
     ChannelId cid2;
-    Set<ChannelId> cids;
+    List<ChannelId> cids;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        cids = new LinkedHashSet<ChannelId>();
-        cid1 = new ChannelId(1, 2);
-        cid2 = new ChannelId(2, 1);
+        cids = new ArrayList<ChannelId>(2);
+        cid1 = new ChannelId(1, 2, 0);
+        cid2 = new ChannelId(2, 1, 1);
         cids.add(cid1);
         cids.add(cid2);
     }

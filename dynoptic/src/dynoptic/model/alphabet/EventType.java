@@ -1,7 +1,5 @@
 package dynoptic.model.alphabet;
 
-import java.util.Map;
-
 import dynoptic.model.fifosys.channel.ChannelId;
 
 /**
@@ -93,10 +91,9 @@ public final class EventType {
      * Returns an scm representation of this EventType, based on channelId to
      * int map.
      */
-    public String toScmString(Map<ChannelId, Integer> cIdsToInt) {
+    public String toScmString() {
         if (channelId != null) {
-            assert cIdsToInt.containsKey(channelId);
-            return toString(Integer.toString(cIdsToInt.get(channelId)));
+            return toString(Integer.toString(channelId.getScmId()));
         }
         return toString("");
     }

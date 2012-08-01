@@ -1,8 +1,8 @@
 package dynoptic.model.fifosys.channel;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import dynoptic.model.alphabet.EventType;
 
@@ -17,7 +17,7 @@ public class MultiChannelState implements Cloneable {
      * 
      * @param channelIds
      */
-    public MultiChannelState(Set<ChannelId> channelIds) {
+    public MultiChannelState(List<ChannelId> channelIds) {
         assert channelIds != null;
 
         // Populate the channels map based on the channelIds.

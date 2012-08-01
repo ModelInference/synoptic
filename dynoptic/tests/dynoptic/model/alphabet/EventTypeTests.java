@@ -4,9 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,18 +14,13 @@ public class EventTypeTests extends DynopticTest {
     ChannelId cid;
     ChannelId cidCopy;
     ChannelId cid2;
-    Map<ChannelId, Integer> cIdsToInt;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        cid = new ChannelId(1, 2);
-        cidCopy = new ChannelId(1, 2);
-        cid2 = new ChannelId(2, 1);
-
-        cIdsToInt = new LinkedHashMap<ChannelId, Integer>();
-        cIdsToInt.put(cid, 0);
-        cIdsToInt.put(cid2, 1);
+        cid = new ChannelId(1, 2, 0);
+        cidCopy = new ChannelId(1, 2, 0);
+        cid2 = new ChannelId(2, 1, 1);
     }
 
     @Test
@@ -39,7 +31,7 @@ public class EventTypeTests extends DynopticTest {
         assertFalse(e.isRecvEvent());
         assertEquals(e.getEventPid(), 1);
         logger.info(e.toString());
-        logger.info(e.toScmString(cIdsToInt));
+        logger.info(e.toScmString());
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));
@@ -70,7 +62,7 @@ public class EventTypeTests extends DynopticTest {
         assertFalse(e.isRecvEvent());
         assertEquals(e.getEventPid(), cid.getSrcPid());
         logger.info(e.toString());
-        logger.info(e.toScmString(cIdsToInt));
+        logger.info(e.toScmString());
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));
@@ -101,7 +93,7 @@ public class EventTypeTests extends DynopticTest {
         assertTrue(e.isRecvEvent());
         assertEquals(e.getEventPid(), cid.getDstPid());
         logger.info(e.toString());
-        logger.info(e.toScmString(cIdsToInt));
+        logger.info(e.toScmString());
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));

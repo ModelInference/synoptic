@@ -3,9 +3,7 @@ package dynoptic.model.fifosys.cfsm.fsm;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
@@ -41,16 +39,16 @@ public class FSMTests extends DynopticTest {
     // e_3
     @Override
     public void setUp() {
-        init_1 = new FSMState(false, true, 1);
+        init_1 = new FSMState(false, true, 1, 0);
         listInit_1 = new LinkedHashSet<FSMState>();
         listInit_1.add(init_1);
 
-        accepting_1 = new FSMState(true, false, 1);
+        accepting_1 = new FSMState(true, false, 1, 1);
         listAccepting_1 = new LinkedHashSet<FSMState>();
         listAccepting_1.add(accepting_1);
 
-        state_2 = new FSMState(false, false, 2);
-        cid = new ChannelId(1, 2);
+        state_2 = new FSMState(false, false, 2, 2);
+        cid = new ChannelId(1, 2, 0);
         e_pid1 = EventType.SendEvent("m", cid);
         e2_pid1 = EventType.LocalEvent("e", 1);
         states = new LinkedHashSet<FSMState>();
@@ -86,9 +84,6 @@ public class FSMTests extends DynopticTest {
 
     @Test
     public void scmString() {
-        Map<ChannelId, Integer> cIdsToInt = new LinkedHashMap<ChannelId, Integer>();
-        cIdsToInt.put(cid, 0);
-
         init_1.addTransition(e_pid1, accepting_1);
         accepting_1.addTransition(e2_pid1, init_1);
         states.add(init_1);
@@ -96,7 +91,7 @@ public class FSMTests extends DynopticTest {
 
         FSM f = new FSM(1, init_1, accepting_1, states);
 
-        logger.info(f.toScmString(cIdsToInt));
+        logger.info(f.toScmString());
     }
 
     @Test(expected = AssertionError.class)

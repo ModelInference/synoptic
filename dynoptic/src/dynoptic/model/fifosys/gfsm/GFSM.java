@@ -1,6 +1,7 @@
 package dynoptic.model.fifosys.gfsm;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import dynoptic.model.fifosys.FifoSys;
@@ -59,7 +60,7 @@ public class GFSM extends FifoSys<GFSMState> {
     //
     // And likewise for acceptStates
 
-    public GFSM(int numProcesses, Set<ChannelId> channelIds) {
+    public GFSM(int numProcesses, List<ChannelId> channelIds) {
         super(numProcesses, channelIds);
         // Per-process Inits and Accepts Sets will be created on demand as new
         // GFSM states are added. They will also be de-allocated when empty.

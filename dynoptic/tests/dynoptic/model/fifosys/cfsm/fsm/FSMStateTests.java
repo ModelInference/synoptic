@@ -4,9 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
@@ -31,9 +28,9 @@ public class FSMStateTests extends DynopticTest {
 
     @Override
     public void setUp() {
-        init = new FSMState(false, true, 1);
-        accept = new FSMState(true, false, 1);
-        cid = new ChannelId(1, 2);
+        init = new FSMState(false, true, 1, 0);
+        accept = new FSMState(true, false, 1, 1);
+        cid = new ChannelId(1, 2, 0);
         e_pid1 = EventType.SendEvent("m", cid);
         e2_pid1 = EventType.LocalEvent("e", 1);
         e3_pid2 = EventType.LocalEvent("e", 2);
@@ -77,21 +74,14 @@ public class FSMStateTests extends DynopticTest {
 
     @Test
     public void scmString() {
-        Map<FSMState, Integer> statesToInt = new LinkedHashMap<FSMState, Integer>();
-        Map<ChannelId, Integer> cIdsToInt = new LinkedHashMap<ChannelId, Integer>();
-
-        statesToInt.put(init, 0);
-        statesToInt.put(accept, 1);
-        cIdsToInt.put(cid, 0);
-
         // Without transitions:
-        logger.info(init.toScmString(statesToInt, cIdsToInt));
+        logger.info(init.toScmString());
 
         init.addTransition(e_pid1, accept);
         init.addTransition(e2_pid1, accept);
 
         // With transitions:
-        logger.info(init.toScmString(statesToInt, cIdsToInt));
+        logger.info(init.toScmString());
     }
 
     @Test(expected = AssertionError.class)

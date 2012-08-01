@@ -26,9 +26,9 @@ public class CFSMStateTests extends DynopticTest {
 
     @Override
     public void setUp() {
-        i_0 = new FSMState(false, true, 0);
-        q_0 = new FSMState(false, false, 0);
-        a_1 = new FSMState(true, false, 1);
+        i_0 = new FSMState(false, true, 0, 0);
+        q_0 = new FSMState(false, false, 0, 1);
+        a_1 = new FSMState(true, false, 1, 2);
         e_0 = EventType.LocalEvent("e", 0);
 
     }
