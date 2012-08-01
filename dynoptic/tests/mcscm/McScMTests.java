@@ -7,17 +7,27 @@ import static org.junit.Assert.fail;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.channel.ChannelId;
+
 public class McScMTests {
 
     McScM bridge;
     String verifyPath;
     String scmFilePrefix;
+
+    List<ChannelId> cids;
+    ChannelId cid0, cid1;
+
+    EventType cExEType;
 
     protected static Logger logger;
 
@@ -40,6 +50,14 @@ public class McScMTests {
         logger = Logger.getLogger("TestMcScM");
         logger.setLevel(Level.INFO);
         bridge = new McScM(verifyPath);
+
+        cids = new ArrayList<ChannelId>();
+        cid0 = new ChannelId(1, 2);
+        cid1 = new ChannelId(1, 2);
+        cids.add(cid0);
+        cids.add(cid1);
+
+        cExEType = EventType.SendEvent("i", cid1);
     }
 
     /**
@@ -75,7 +93,7 @@ public class McScMTests {
             fail("Verify should not fail.");
         }
 
-        bridge.getVerifyResult();
+        bridge.getVerifyResult(cids);
         fail("getVerifyResult should have thrown an exception.");
     }
 
@@ -95,7 +113,7 @@ public class McScMTests {
             fail("Verify should not fail.");
         }
 
-        VerifyResult result = bridge.getVerifyResult();
+        VerifyResult result = bridge.getVerifyResult(cids);
         assertTrue(result.modelIsSafe());
     }
 
@@ -115,10 +133,10 @@ public class McScMTests {
             fail("Verify should not fail.");
         }
 
-        VerifyResult result = bridge.getVerifyResult();
+        VerifyResult result = bridge.getVerifyResult(cids);
         assertTrue(!result.modelIsSafe());
         assertEquals(result.getCExample().getEvents().size(), 1);
-        assertEquals(result.getCExample().getEvents().get(0), "1 ! i");
+        assertEquals(result.getCExample().getEvents().get(0), cExEType);
     }
 
     /**
@@ -137,10 +155,10 @@ public class McScMTests {
             fail("Verify should not fail.");
         }
 
-        VerifyResult result = bridge.getVerifyResult();
+        VerifyResult result = bridge.getVerifyResult(cids);
         assertTrue(!result.modelIsSafe());
         assertEquals(result.getCExample().getEvents().size(), 2);
-        assertEquals(result.getCExample().getEvents().get(0), "1 ! i");
-        assertEquals(result.getCExample().getEvents().get(1), "1 ! i");
+        assertEquals(result.getCExample().getEvents().get(0), cExEType);
+        assertEquals(result.getCExample().getEvents().get(1), cExEType);
     }
 }

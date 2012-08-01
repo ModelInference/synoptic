@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import dynoptic.model.fifosys.channel.ChannelId;
+
 /**
  * Represents the result of running the McScM verify tool and contains parsing
  * utilities for parsing the output of the verify tool.
@@ -15,9 +17,11 @@ public class VerifyResult {
     static String counterExRe = "^Counterexample:";
     static String counterExEventRe = "^.*\\|- (.*) -\\|.*";
 
-    boolean modelIsSafe;
+    private boolean modelIsSafe;
 
-    public CounterExample cExample = null;
+    private CounterExample cExample = null;
+
+    private final List<ChannelId> cids;
 
     /**
      * Creates a new VerifyResult from the raw verify output, broken into lines.
@@ -25,8 +29,9 @@ public class VerifyResult {
      * @param verifyRawOutput
      * @throws Exception
      */
-    public VerifyResult(List<String> verifyRawLines)
+    public VerifyResult(List<String> verifyRawLines, List<ChannelId> cids)
             throws VerifyOutputParseException {
+        this.cids = cids;
         parseVerifyOutput(verifyRawLines);
     }
 
@@ -79,16 +84,16 @@ public class VerifyResult {
      *            header of the counterexample section in the output.
      */
     private void parseCounterExample(List<String> lines, int lineCnt) {
-        cExample = new CounterExample();
+        cExample = new CounterExample(cids);
         Pattern p = Pattern.compile(counterExEventRe);
 
         for (String line : lines.subList(lineCnt + 1, lines.size())) {
             Matcher m = p.matcher(line);
             if (m.find()) {
                 assert m.groupCount() == 1;
-                String event = m.group(1);
-                cExample.addEvent(event);
+                cExample.addEventStr(m.group(1));
             }
         }
     }
+
 }
