@@ -66,15 +66,5 @@ to 0 :  when true , 2 ? M  ;
 
 
 bad_states:
-(automaton sender: in 0: true in 2: true in 3: true
-automaton receiver: in 1: true) 
-
-(automaton sender: in 0: true in 1: true in 2: true
-automaton receiver: in 3: true) 
-
 (automaton sender: in 0: true
-automaton receiver: in 2: true) 
-
-(automaton sender: in 2: true
-automaton receiver: in 0: true) 
-
+automaton receiver: in 1: true) 

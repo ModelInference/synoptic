@@ -1,6 +1,7 @@
 package dynoptic.model.alphabet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -16,5 +17,9 @@ public class AlphabetTests extends DynopticTest {
         a.add(e);
         assertEquals(a.size(), 1);
         assertTrue(a.contains(e));
+
+        assertFalse(a.equals(null));
+        assertFalse(a.equals(""));
+        assertTrue(a.equals(a));
     }
 }

@@ -41,12 +41,6 @@ public class MultiChannelStateTests extends DynopticTest {
         assertTrue(mc.isEmpty());
         assertTrue(mc.isEmptyForPid(1));
         assertTrue(mc.isEmptyForPid(2));
-    }
-
-    @Test(expected = AssertionError.class)
-    public void isEmptyFail() {
-        MultiChannelState mc = new MultiChannelState(cids);
-        assertTrue(mc.isEmpty());
         assertTrue(mc.isEmptyForPid(42));
     }
 
@@ -90,6 +84,10 @@ public class MultiChannelStateTests extends DynopticTest {
         MultiChannelState mc = new MultiChannelState(cids);
         EventType e = EventType.SendEvent("e", cid1);
         mc.enqueue(e);
+
+        assertFalse(mc.equals(null));
+        assertFalse(mc.equals(""));
+        assertTrue(mc.equals(mc));
 
         MultiChannelState mc2 = new MultiChannelState(cids);
         EventType e2 = EventType.SendEvent("e", cid1);

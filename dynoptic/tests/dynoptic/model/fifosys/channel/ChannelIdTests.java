@@ -2,6 +2,7 @@ package dynoptic.model.fifosys.channel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -27,6 +28,11 @@ public class ChannelIdTests extends DynopticTest {
     @Test
     public void equality() {
         ChannelId cid = new ChannelId(1, 2);
+
+        assertFalse(cid.equals(null));
+        assertFalse(cid.equals(""));
+        assertTrue(cid.equals(cid));
+
         ChannelId cid2 = new ChannelId(1, 2);
         assertEquals(cid, cid2);
 
