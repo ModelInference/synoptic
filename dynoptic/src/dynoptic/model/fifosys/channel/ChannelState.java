@@ -99,4 +99,8 @@ public class ChannelState implements Cloneable {
     public int size() {
         return queue.size();
     }
+
+    public ChannelId getChannelId() {
+        return chId;
+    }
 }

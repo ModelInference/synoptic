@@ -1,5 +1,6 @@
 package dynoptic.model.fifosys.gfsm.trace;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -20,21 +21,27 @@ public class ObservedFifoSysStateTests extends DynopticTest {
 
     @Test
     public void create() {
-        ObservedFSMState p = ObservedFSMState.ObservedTerminalFSMState(0, null);
+
         List<ObservedFSMState> P = new ArrayList<ObservedFSMState>();
-        P.add(p);
+        ObservedFSMState p0 = ObservedFSMState
+                .ObservedTerminalFSMState(0, null);
+        ObservedFSMState p1 = ObservedFSMState
+                .ObservedTerminalFSMState(1, null);
+        P.add(p0);
+        P.add(p1);
 
         cids = new ArrayList<ChannelId>(2);
-        cid1 = new ChannelId(1, 2, 0);
-        cid2 = new ChannelId(2, 1, 1);
+        cid1 = new ChannelId(0, 1, 0);
+        cid2 = new ChannelId(1, 0, 1);
         cids.add(cid1);
         cids.add(cid2);
-        MultiChannelState Pmc = new MultiChannelState(cids);
+        MultiChannelState Pmc = MultiChannelState.fromChannelIds(cids);
 
         ObservedFifoSysState s = new ObservedFifoSysState(P, Pmc);
 
         assertTrue(s.isAccept());
         assertFalse(s.isInitial());
+        assertEquals(s.getNumProcesses(), 2);
 
         assertFalse(s.equals(null));
         assertFalse(s.equals(""));
