@@ -1,15 +1,12 @@
 package dynoptic.model.fifosys.cfsm.fsm;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
+import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
-import dynoptic.model.fifosys.channel.ChannelId;
 
 /**
  * This class models FSMs that make up a CFSM. A few key characteristics:
@@ -33,19 +30,31 @@ public class FSM extends AbsFSM<FSMState> {
     public FSM(int pid, Set<FSMState> initStates, Set<FSMState> acceptStates,
             Collection<FSMState> states) {
         super();
+
         assert states != null;
         assert states.containsAll(initStates);
         assert states.containsAll(acceptStates);
 
-        for (FSMState s : initStates) {
-            assert s.isInitial();
-        }
-        for (FSMState s : acceptStates) {
-            assert s.isAccept();
-        }
+        if (DynopticMain.assertsOn) {
+            // Check that:
+            // 1. all states have unique scm ids.
+            // 2. all states transition only to states in the states collection
+            // 3. all states have a pid that matches the pid of this FSM
+            // 4. all init/accept states are in fact init/accept
+            Set<Integer> scmIds = new LinkedHashSet<Integer>();
+            for (FSMState s : states) {
+                assert !scmIds.contains(s.getScmId());
+                scmIds.add(s.getScmId());
+                assert (states.containsAll(s.getNextStates()));
+                assert s.getPid() == pid;
+            }
 
-        for (FSMState s : states) {
-            assert s.getPid() == pid;
+            for (FSMState s : initStates) {
+                assert s.isInitial();
+            }
+            for (FSMState s : acceptStates) {
+                assert s.isAccept();
+            }
         }
 
         this.pid = pid;
@@ -67,31 +76,21 @@ public class FSM extends AbsFSM<FSMState> {
      * Generate SCM representation of this FSM, using a specific channelIds
      * ordering.
      */
-    public String toScmString(Map<ChannelId, Integer> cIdsToInt) {
+    public String toScmString() {
         String ret;
-
-        // Build a map from [0...states.size()-1] to FSMState.
-        List<FSMState> orderedStates = new ArrayList<FSMState>();
-        Map<FSMState, Integer> statesToInt = new LinkedHashMap<FSMState, Integer>();
-        int i = 0;
-        for (FSMState s : states) {
-            orderedStates.add(s);
-            statesToInt.put(s, i);
-            i++;
-        }
 
         ret = null;
         for (FSMState s : initStates) {
             if (ret == null) {
-                ret = "initial : " + statesToInt.get(s);
+                ret = "initial : " + s.getScmId();
             } else {
-                ret += " , " + statesToInt.get(s);
+                ret += " , " + s.getScmId();
             }
         }
         ret += "\n";
 
-        for (FSMState s : orderedStates) {
-            ret += s.toScmString(statesToInt, cIdsToInt);
+        for (FSMState s : states) {
+            ret += s.toScmString();
             ret += "\n\n";
         }
 

@@ -2,6 +2,7 @@ package dynoptic.model.fifosys.exec;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import dynoptic.model.alphabet.EventType;
@@ -33,7 +34,7 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
      * @param channelIds
      */
     public FifoSysExecState(MultiFSMState processStates,
-            Set<ChannelId> channelIds) {
+            List<ChannelId> channelIds) {
         this(processStates, new MultiChannelState(channelIds));
     }
 
@@ -176,4 +177,5 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
         }
         return ret;
     }
+
 }

@@ -29,6 +29,13 @@ import synoptic.util.Pair;
  * </p>
  */
 public class DynopticMain {
+    static public boolean assertsOn = false;
+    static {
+        // Dynamic check for asserts. Note: without the '== true' a conservative
+        // compiler complaints that the assert is not checking a condition.
+        assert (assertsOn = true) == true;
+    }
+
     DynopticOptions opts = null;
     Logger logger = null;
 

@@ -52,8 +52,8 @@ public class McScMTests {
         bridge = new McScM(verifyPath);
 
         cids = new ArrayList<ChannelId>();
-        cid0 = new ChannelId(1, 2);
-        cid1 = new ChannelId(1, 2);
+        cid0 = new ChannelId(1, 2, 0);
+        cid1 = new ChannelId(1, 2, 1);
         cids.add(cid0);
         cids.add(cid1);
 

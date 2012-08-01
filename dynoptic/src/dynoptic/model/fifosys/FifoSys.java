@@ -1,8 +1,10 @@
 package dynoptic.model.fifosys;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
 import dynoptic.model.fifosys.channel.ChannelId;
 import dynoptic.model.fifosys.exec.FifoSysExecution;
@@ -28,23 +30,29 @@ abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     // numProcesses - 1.
     final protected int numProcesses;
 
-    // The set of all the channels, which are just <pid_i, pid_j> pairs.
-    final protected Set<ChannelId> channelIds;
+    // The list of all the channels, which are just <pid_i, pid_j> pairs. This
+    // list is ordered according to the scmIds used by each of the channelIds.
+    final protected List<ChannelId> channelIds;
 
     // Keeps track of the total number of channels.
     final protected int numChannels;
 
     // //////////////////////////////////////////////////////////////////
 
-    public FifoSys(int numProcesses, Set<ChannelId> channelIds) {
+    public FifoSys(int numProcesses, List<ChannelId> channelIds) {
         super();
         assert numProcesses > 0;
         assert channelIds != null;
 
-        // Make sure the channel IDs reference valid process IDs.
-        for (ChannelId chId : channelIds) {
-            assert chId.getSrcPid() >= 0 && chId.getSrcPid() < numProcesses;
-            assert chId.getDstPid() >= 0 && chId.getDstPid() < numProcesses;
+        if (DynopticMain.assertsOn) {
+            // 1. Make sure the channel IDs reference valid process IDs.
+            // 2. Check that channel IDs are ordered according to scmIds.
+            for (int i = 0; i < channelIds.size(); i++) {
+                ChannelId chId = channelIds.get(i);
+                assert chId.getSrcPid() >= 0 && chId.getSrcPid() < numProcesses;
+                assert chId.getDstPid() >= 0 && chId.getDstPid() < numProcesses;
+                assert chId.getScmId() == i;
+            }
         }
 
         this.numProcesses = numProcesses;
@@ -65,11 +73,11 @@ abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
         return ret;
     }
 
-    public Set<ChannelId> getChannelIds() {
+    public List<ChannelId> getChannelIds() {
         return channelIds;
     }
 
     public int getNumProcesses() {
-        return numChannels;
+        return numProcesses;
     }
 }

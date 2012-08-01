@@ -3,8 +3,8 @@ package dynoptic;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -96,15 +96,18 @@ public class DynopticTest {
      * @param numProcesses
      * @return
      */
-    public Set<ChannelId> getAllToAllChannelIds(int numProcesses) {
-        Set<ChannelId> channels = new LinkedHashSet<ChannelId>();
+    public List<ChannelId> getAllToAllChannelIds(int numProcesses) {
+        List<ChannelId> channels = new ArrayList<ChannelId>(numProcesses
+                * (numProcesses - 1));
 
+        int scmId = 0;
         for (int i = 0; i < numProcesses; i++) {
             for (int j = 0; j < numProcesses; j++) {
                 if (i == j) {
                     continue;
                 }
-                channels.add(new ChannelId(i, j));
+                channels.add(new ChannelId(i, j, scmId));
+                scmId++;
             }
         }
         return channels;

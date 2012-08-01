@@ -17,7 +17,7 @@ public class ChannelStateTests extends DynopticTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        cid = new ChannelId(1, 2);
+        cid = new ChannelId(1, 2, 0);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class ChannelStateTests extends DynopticTest {
     @Test(expected = AssertionError.class)
     public void enqueueBadEvent3() {
         ChannelState s = new ChannelState(cid);
-        ChannelId cid2 = new ChannelId(2, 3);
+        ChannelId cid2 = new ChannelId(2, 3, 1);
         EventType e = EventType.SendEvent("e", cid2);
         s.enqueue(e);
     }

@@ -21,18 +21,22 @@ public final class ChannelId {
     // NOTE: chName is not part of the hashCode/equals
     final String chName;
 
-    public ChannelId(int srcPid, int dstPid) {
-        this(srcPid, dstPid, Integer.toString(srcPid) + "->"
+    // The id used by this channel in scm output.
+    private final int scmId;
+
+    public ChannelId(int srcPid, int dstPid, int scmId) {
+        this(srcPid, dstPid, scmId, Integer.toString(srcPid) + "->"
                 + Integer.toString(dstPid));
     }
 
-    public ChannelId(int srcPid, int dstPid, String chName) {
+    public ChannelId(int srcPid, int dstPid, int scmId, String chName) {
         assert srcPid >= 0 && dstPid >= 0;
         assert chName != null;
 
         this.srcPid = srcPid;
         this.dstPid = dstPid;
         this.chName = chName;
+        this.scmId = scmId;
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -47,6 +51,7 @@ public final class ChannelId {
         int result = 17;
         result = 31 * result + srcPid;
         result = 31 * result + dstPid;
+        result = 31 * result + scmId;
         return result;
     }
 
@@ -66,6 +71,12 @@ public final class ChannelId {
         if (oCid.srcPid != srcPid) {
             return false;
         }
+        if (oCid.scmId != scmId) {
+            return false;
+        }
+        if (!oCid.chName.equals(chName)) {
+            return false;
+        }
         return oCid.dstPid == dstPid;
     }
 
@@ -79,4 +90,7 @@ public final class ChannelId {
         return dstPid;
     }
 
+    public int getScmId() {
+        return scmId;
+    }
 }

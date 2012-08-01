@@ -67,20 +67,26 @@ public class CFSM extends FifoSys<CFSMState> {
         // Create an FSM per pid.
         for (int pid = 0; pid < gfsm.getNumProcesses(); pid++) {
 
+            // States in each FSM have to be uniquely numbered in the scm
+            // output.
+            int scmId = 0;
+
             // Generate the FSM states and inter-state transitions.
             for (GFSMState gInit : gfsm.getInitialStatesForPid(pid)) {
                 FSMState fInit;
                 if (stateMap.containsKey(gInit)) {
                     fInit = stateMap.get(gInit);
                 } else {
-                    fInit = new FSMState(gInit.isAcceptForPid(pid), true, pid);
+                    fInit = new FSMState(gInit.isAcceptForPid(pid), true, pid,
+                            scmId);
+                    scmId++;
                     stateMap.put(gInit, fInit);
                 }
                 // We might have visited the current gInit in a prior iteration,
                 // from another gInit, in which case we don't need to
                 // re-explore.
                 if (!visited.contains(gInit)) {
-                    visit(stateMap, gInit, fInit, visited, pid);
+                    scmId = visit(stateMap, gInit, fInit, visited, pid, scmId);
                 }
             }
 
@@ -109,7 +115,7 @@ public class CFSM extends FifoSys<CFSMState> {
 
     // //////////////////////////////////////////////////////////////////
 
-    public CFSM(int numProcesses, Set<ChannelId> channelIds) {
+    public CFSM(int numProcesses, List<ChannelId> channelIds) {
         super(numProcesses, channelIds);
         fsms = new ArrayList<FSM>(Collections.nCopies(numProcesses, (FSM) null));
         unSpecifiedPids = numProcesses;
@@ -230,24 +236,14 @@ public class CFSM extends FifoSys<CFSMState> {
         String cfsmName = "blah";
         boolean lossy = false;
 
-        // Build a map from [0...numChannels-1] to channelIds as a List.
-        List<ChannelId> orderedCids = new ArrayList<ChannelId>();
-        Map<ChannelId, Integer> cIdsToInt = new LinkedHashMap<ChannelId, Integer>();
-        int i = 0;
-        for (ChannelId c : channelIds) {
-            orderedCids.add(c);
-            cIdsToInt.put(c, i);
-            i++;
-        }
-
         ret = "scm " + cfsmName + ":\n\n";
 
         // Channels:
         ret += "nb_channels = " + numChannels + " ;\n";
         ret += "/*\n";
-        for (i = 0; i < numChannels; i++) {
+        for (int i = 0; i < numChannels; i++) {
             ret += "channel " + Integer.toString(i) + " : "
-                    + orderedCids.get(i).toString() + "\n";
+                    + channelIds.get(i).toString() + "\n";
         }
         ret += "*/\n\n";
 
@@ -267,7 +263,7 @@ public class CFSM extends FifoSys<CFSMState> {
         for (int pid = 0; pid < numProcesses; pid++) {
             FSM f = fsms.get(pid);
             ret += "automaton p" + Integer.toString(pid) + " :\n";
-            ret += f.toScmString(cIdsToInt);
+            ret += f.toScmString();
             ret += "\n";
         }
 
@@ -288,8 +284,9 @@ public class CFSM extends FifoSys<CFSMState> {
      * @param visited
      * @param pid
      */
-    private static void visit(Map<GFSMState, FSMState> stateMap,
-            GFSMState gParent, FSMState fParent, Set<GFSMState> visited, int pid) {
+    private static int visit(Map<GFSMState, FSMState> stateMap,
+            GFSMState gParent, FSMState fParent, Set<GFSMState> visited,
+            int pid, int scmId) {
         visited.add(gParent);
 
         // Recurse on each (e,gNext) transition from this parent.
@@ -306,28 +303,32 @@ public class CFSM extends FifoSys<CFSMState> {
                         fNext = stateMap.get(gNext);
                     } else {
                         fNext = new FSMState(gNext.isAcceptForPid(pid),
-                                gNext.isInitialForPid(pid), pid);
+                                gNext.isInitialForPid(pid), pid, scmId);
+                        scmId++;
                         stateMap.put(gNext, fNext);
                     }
                     // Add the transition in the FSM-space.
                     fParent.addTransition(e, fNext);
 
-                    // Recurse with next as parents and updated visited set.
+                    // Recurse with fNext as parent and updated visited set.
                     if (!visited.contains(gNext)) {
-                        visit(stateMap, gNext, fNext, visited, pid);
+                        scmId = visit(stateMap, gNext, fNext, visited, pid,
+                                scmId);
                     }
 
                 } else {
                     // Because the event e does not impact this pid, we recurse
-                    // with gNext as parent, but with the _old_ fParent
+                    // with gNext as g-parent, but with the _old_ fParent
                     // FSMState. That is, the pid did not transition in the FSM
                     // state space, even though we did transition the GFSM state
                     // space.
                     if (!visited.contains(gNext)) {
-                        visit(stateMap, gNext, fParent, visited, pid);
+                        scmId = visit(stateMap, gNext, fParent, visited, pid,
+                                scmId);
                     }
                 }
             }
         }
+        return scmId;
     }
 }
