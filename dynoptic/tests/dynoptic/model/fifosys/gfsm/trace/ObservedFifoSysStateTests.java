@@ -1,5 +1,8 @@
 package dynoptic.model.fifosys.gfsm.trace;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -18,7 +21,6 @@ public class ObservedFifoSysStateTests extends DynopticTest {
     Set<ChannelId> cids;
 
     @Test
-    @SuppressWarnings("unused")
     public void create() {
         ObservedFSMState p = ObservedFSMState.ObservedTerminalFSMState(0, null);
         List<ObservedFSMState> P = new ArrayList<ObservedFSMState>();
@@ -32,6 +34,15 @@ public class ObservedFifoSysStateTests extends DynopticTest {
         MultiChannelState Pmc = new MultiChannelState(cids);
 
         ObservedFifoSysState s = new ObservedFifoSysState(P, Pmc);
+
+        assertTrue(s.isAccept());
+        assertFalse(s.isInitial());
+
+        assertFalse(s.equals(null));
+        assertFalse(s.equals(""));
+        assertTrue(s.equals(s));
+
+        logger.info(s.toString());
     }
 
 }

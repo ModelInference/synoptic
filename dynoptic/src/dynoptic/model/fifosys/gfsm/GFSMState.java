@@ -92,6 +92,14 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
                 fnIsInitialForPid, pid);
     }
 
+    @Override
+    public String toString() {
+        String ret = "Obs_[" + observedStates.size() + "]";
+        ret += ((isInitial()) ? "_i" : "");
+        ret += ((isAccept()) ? "_t" : "");
+        return ret;
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     /** Adds a new observed state to this partition. */
@@ -116,6 +124,8 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
         observedStates.remove(s);
         recreateCachedTransitions();
     }
+
+    // //////////////////////////////////////////////////////////////////
 
     /** Creates the transitions cache from scratch. */
     private void recreateCachedTransitions() {

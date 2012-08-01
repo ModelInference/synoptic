@@ -40,7 +40,7 @@ public class ObservedFifoSysState extends
     final Map<EventType, ObservedFifoSysState> transitions;
 
     // A count of the number of transitions that still remain to be
-    // added/specified.
+    // added/specified (based on the number of following events).
     int unSpecifiedTxns;
 
     public ObservedFifoSysState(List<ObservedFSMState> fsmStates,
@@ -49,10 +49,14 @@ public class ObservedFifoSysState extends
         this.fsmStates = fsmStates;
         this.channelStates = channelStates;
 
+        // TODO: check that channelStates only reference pids that are less than
+        // fsmStates.size().
+
         this.events = new LinkedHashSet<EventType>();
         this.transitions = new LinkedHashMap<EventType, ObservedFifoSysState>();
 
         for (ObservedFSMState s : fsmStates) {
+            // Terminal observed states have no events for any pid.
             if (!s.isTerminal()) {
                 events.add(s.getNextEvent().getType());
             }
@@ -103,6 +107,22 @@ public class ObservedFifoSysState extends
         return ret;
     }
 
+    @Override
+    public boolean isInitialForPid(int pid) {
+        return fsmStates.get(pid).isInitial()
+                && channelStates.isEmptyForPid(pid);
+    }
+
+    @Override
+    public boolean isInitial() {
+        for (ObservedFSMState s : fsmStates) {
+            if (!s.isInitial()) {
+                return false;
+            }
+        }
+        return channelStates.isEmpty();
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     public ObservedFifoSysState getNextState(EventType event) {
@@ -118,20 +138,6 @@ public class ObservedFifoSysState extends
         unSpecifiedTxns--;
     }
 
-    public boolean isInitial() {
-        for (ObservedFSMState s : fsmStates) {
-            if (!s.isInitial()) {
-                return false;
-            }
-        }
-        return channelStates.isEmpty();
-    }
-
-    public boolean isInitialForPid(int pid) {
-        return fsmStates.get(pid).isInitial()
-                && channelStates.isEmptyForPid(pid);
-    }
-
     public GFSMState getParent() {
         return parent;
     }
@@ -139,5 +145,4 @@ public class ObservedFifoSysState extends
     public void setParent(GFSMState newParent) {
         parent = newParent;
     }
-
 }

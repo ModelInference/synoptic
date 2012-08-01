@@ -1,6 +1,8 @@
 package mcscm;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Represents the result of running the McScM verify tool and contains parsing
@@ -11,8 +13,11 @@ public class VerifyResult {
     static String unsafeRe = "^Result: Model is unsafe.*";
     static String syntaxErrRe = "^Syntaxical error:.*";
     static String counterExRe = "^Counterexample:";
+    static String counterExEventRe = "^.*\\|- (.*) -\\|.*";
 
     boolean modelIsSafe;
+
+    public CounterExample cExample = null;
 
     /**
      * Creates a new VerifyResult from the raw verify output, broken into lines.
@@ -28,6 +33,12 @@ public class VerifyResult {
     public boolean modelIsSafe() {
         return this.modelIsSafe;
     }
+
+    public CounterExample getCExample() {
+        return cExample;
+    }
+
+    // //////////////////////////////////////////////////////////////////
 
     private void parseVerifyOutput(List<String> lines)
             throws VerifyOutputParseException {
@@ -67,13 +78,17 @@ public class VerifyResult {
      *            Index of the line in lines that contains the "Counterexample:"
      *            header of the counterexample section in the output.
      */
-    void parseCounterExample(List<String> lines, int lineCnt) {
-        // TODO: parse and set the counter-example path here.
+    private void parseCounterExample(List<String> lines, int lineCnt) {
+        cExample = new CounterExample();
+        Pattern p = Pattern.compile(counterExEventRe);
 
-        // Pattern safeP = Pattern.compile(counterExRe);
-        // Matcher m = safeP.matcher(line);
-        // if (m.find()) {
-        //
-        // }
+        for (String line : lines.subList(lineCnt + 1, lines.size())) {
+            Matcher m = p.matcher(line);
+            if (m.find()) {
+                assert m.groupCount() == 1;
+                String event = m.group(1);
+                cExample.addEvent(event);
+            }
+        }
     }
 }

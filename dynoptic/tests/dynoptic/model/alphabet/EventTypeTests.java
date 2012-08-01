@@ -41,6 +41,10 @@ public class EventTypeTests extends DynopticTest {
         logger.info(e.toString());
         logger.info(e.toScmString(cIdsToInt));
 
+        assertFalse(e.equals(null));
+        assertFalse(e.equals(""));
+        assertTrue(e.equals(e));
+
         // equality:
         EventType e2 = EventType.LocalEvent("e", 1);
         assertEquals(e, e2);
@@ -68,6 +72,10 @@ public class EventTypeTests extends DynopticTest {
         logger.info(e.toString());
         logger.info(e.toScmString(cIdsToInt));
 
+        assertFalse(e.equals(null));
+        assertFalse(e.equals(""));
+        assertTrue(e.equals(e));
+
         // equality:
         EventType e2 = EventType.SendEvent("e", cidCopy);
         assertEquals(e, e2);
@@ -94,6 +102,10 @@ public class EventTypeTests extends DynopticTest {
         assertEquals(e.getEventPid(), cid.getDstPid());
         logger.info(e.toString());
         logger.info(e.toScmString(cIdsToInt));
+
+        assertFalse(e.equals(null));
+        assertFalse(e.equals(""));
+        assertTrue(e.equals(e));
 
         // equality:
         EventType e2 = EventType.RecvEvent("e", cidCopy);

@@ -30,6 +30,8 @@ public class MultiChannelState implements Cloneable {
 
     /** Private constructor used by clone() */
     private MultiChannelState(Map<ChannelId, ChannelState> channelStates) {
+        assert channelStates != null;
+
         this.channelStates = channelStates;
     }
 
@@ -91,18 +93,16 @@ public class MultiChannelState implements Cloneable {
 
     /** Whether or not all queues where pid is receiver are empty. */
     public boolean isEmptyForPid(int pid) {
-        boolean foundPid = false;
+        // NOTE: A process is not required to be associated with a queue on
+        // which it is a receiver. In this case, this always return true.
 
         for (ChannelId chId : channelStates.keySet()) {
             if (chId.getDstPid() == pid) {
                 if (channelStates.get(chId).size() != 0) {
                     return false;
                 }
-                foundPid = true;
             }
         }
-        assert foundPid;
-
         return true;
     }
 

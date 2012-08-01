@@ -8,9 +8,9 @@ import dynoptic.model.alphabet.EventType;
 public class ObservedEventTests extends DynopticTest {
 
     @Test
-    @SuppressWarnings("unused")
     public void create() {
         ObservedEvent e = new ObservedEvent(EventType.LocalEvent("e", 1));
+        logger.info(e.toString());
     }
 
 }

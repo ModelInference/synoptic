@@ -1,5 +1,7 @@
 package mcscm;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
@@ -94,17 +96,17 @@ public class McScMTests {
         }
 
         VerifyResult result = bridge.getVerifyResult();
-        assert (result.modelIsSafe());
+        assertTrue(result.modelIsSafe());
     }
 
     /**
-     * Test verify on an unsafe model.
+     * Test verify on an unsafe model with c-example of len 1.
      * 
      * @throws IOException
      */
     @Test
-    public void testUnsafeScmInput() throws IOException {
-        String scmStr = readScmFile("ABP_unsafe.scm");
+    public void testUnsafeScmInputLen1() throws IOException {
+        String scmStr = readScmFile("ABP_unsafe_cexample_len1.scm");
 
         try {
             bridge.verify(scmStr);
@@ -114,6 +116,31 @@ public class McScMTests {
         }
 
         VerifyResult result = bridge.getVerifyResult();
-        assert (!result.modelIsSafe());
+        assertTrue(!result.modelIsSafe());
+        assertEquals(result.getCExample().getEvents().size(), 1);
+        assertEquals(result.getCExample().getEvents().get(0), "1 ! i");
+    }
+
+    /**
+     * Test verify on an unsafe model with c-example of len 2.
+     * 
+     * @throws IOException
+     */
+    @Test
+    public void testUnsafeScmInputLen2() throws IOException {
+        String scmStr = readScmFile("ABP_unsafe_cexample_len2.scm");
+
+        try {
+            bridge.verify(scmStr);
+        } catch (Exception e) {
+            logger.info("Verify threw an exception: " + e.toString());
+            fail("Verify should not fail.");
+        }
+
+        VerifyResult result = bridge.getVerifyResult();
+        assertTrue(!result.modelIsSafe());
+        assertEquals(result.getCExample().getEvents().size(), 2);
+        assertEquals(result.getCExample().getEvents().get(0), "1 ! i");
+        assertEquals(result.getCExample().getEvents().get(1), "1 ! i");
     }
 }

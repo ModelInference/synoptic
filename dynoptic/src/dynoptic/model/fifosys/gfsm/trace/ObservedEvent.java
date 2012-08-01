@@ -3,8 +3,8 @@ package dynoptic.model.fifosys.gfsm.trace;
 import dynoptic.model.alphabet.EventType;
 
 /**
- * Represents a state that was observed or mined from a log from an execution of
- * a FIFO system.
+ * Represents a state that was observed or mined from a log of an execution of a
+ * FIFO system.
  */
 public class ObservedEvent {
     /** The type of the observed event. */
@@ -16,6 +16,13 @@ public class ObservedEvent {
 
     public EventType getType() {
         return eType;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
+    @Override
+    public String toString() {
+        return "obs_" + eType.toString();
     }
 
 }

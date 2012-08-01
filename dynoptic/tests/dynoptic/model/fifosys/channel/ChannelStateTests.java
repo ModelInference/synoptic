@@ -1,6 +1,8 @@
 package dynoptic.model.fifosys.channel;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -104,11 +106,14 @@ public class ChannelStateTests extends DynopticTest {
     }
 
     @Test
-    public void equals() {
-
+    public void equality() {
         ChannelState s = new ChannelState(cid);
         EventType e = EventType.SendEvent("m", cid);
         s.enqueue(e);
+
+        assertFalse(s.equals(null));
+        assertFalse(s.equals(""));
+        assertTrue(s.equals(s));
 
         ChannelState s2 = new ChannelState(cid);
         EventType e2 = EventType.SendEvent("m", cid);

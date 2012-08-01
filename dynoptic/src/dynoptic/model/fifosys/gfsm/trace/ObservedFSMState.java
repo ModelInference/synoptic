@@ -48,6 +48,8 @@ public class ObservedFSMState {
         return new ObservedFSMState(pid, false, true, name);
     }
 
+    // ///////////
+
     public static ObservedFSMState ObservedInitialFSMState(int pid) {
         return new ObservedFSMState(pid, false, true, getNextAnonName());
     }
@@ -55,6 +57,19 @@ public class ObservedFSMState {
     public static ObservedFSMState ObservedInitialFSMState(int pid, String name) {
         return new ObservedFSMState(pid, false, true, name);
     }
+
+    // ///////////
+
+    public static ObservedFSMState ObservedInitialTerminalFSMState(int pid) {
+        return new ObservedFSMState(pid, true, true, getNextAnonName());
+    }
+
+    public static ObservedFSMState ObservedInitialTerminalFSMState(int pid,
+            String name) {
+        return new ObservedFSMState(pid, true, true, name);
+    }
+
+    // ///////////
 
     public static ObservedFSMState ObservedIntermediateFSMState(int pid) {
         return new ObservedFSMState(pid, false, false, getNextAnonName());
