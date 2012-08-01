@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import dynoptic.model.fifosys.channel.ChannelId;
+
 public class McScM {
     /** Complete path to the McScM verify binary. */
     private String verifyPath;
@@ -34,10 +36,11 @@ public class McScM {
                 scmInput, currentPath);
     }
 
-    public VerifyResult getVerifyResult() throws IOException {
+    public VerifyResult getVerifyResult(List<ChannelId> cids)
+            throws IOException {
         List<String> lines = Util.getInputStreamContent(verifyProcess
                 .getInputStream());
-        VerifyResult ret = new VerifyResult(lines);
+        VerifyResult ret = new VerifyResult(lines, cids);
         return ret;
     }
 }
