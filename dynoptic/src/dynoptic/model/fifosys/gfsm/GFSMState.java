@@ -27,12 +27,12 @@ import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
  */
 public class GFSMState extends AbsMultiFSMState<GFSMState> {
     // This is the set of observed state instances.
-    final Set<ObservedFifoSysState> observedStates;
+    private final Set<ObservedFifoSysState> observedStates;
 
     // CACHE optimization: the set of abstract transitions induced by the
     // concrete transitions. This is merely a cached version of the ground
     // truth.
-    final Map<EventType, Set<GFSMState>> transitions;
+    private final Map<EventType, Set<GFSMState>> transitions;
 
     public GFSMState(int numProcesses) {
         super(numProcesses);
@@ -106,8 +106,10 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     public void addObs(ObservedFifoSysState s) {
         assert !observedStates.contains(s);
         assert s.getNumProcesses() == this.numProcesses;
+        assert s.getParent() == null;
 
         observedStates.add(s);
+        s.setParent(this);
         cacheObservedParentTransitions(s);
     }
 
@@ -121,7 +123,10 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     /** Removes an observed state from this partition. */
     public void removeObs(ObservedFifoSysState s) {
         assert observedStates.contains(s);
+        assert s.getParent() == this;
+
         observedStates.remove(s);
+        s.setParent(null);
         recreateCachedTransitions();
     }
 

@@ -33,25 +33,25 @@ public class ObservedFifoSysState extends
         AbsMultiFSMState<ObservedFifoSysState> {
 
     // The "partition" that this observed fifo state belongs to.
-    GFSMState parent;
+    private GFSMState parent;
 
     // A list of observed FSM states, the list is ordered according to process
     // IDs.
-    final List<ObservedFSMState> fsmStates;
+    private final List<ObservedFSMState> fsmStates;
 
     // The observed state of all the channels in the system.
-    final MultiChannelState channelStates;
+    private final MultiChannelState channelStates;
 
     // Observed following event types across all FSM states that make up
     // fsmStates.
-    final Set<EventType> events;
+    private final Set<EventType> events;
 
     // Observed transitions for each observed following event type.
-    final Map<EventType, ObservedFifoSysState> transitions;
+    private final Map<EventType, ObservedFifoSysState> transitions;
 
     // A count of the number of transitions that still remain to be
     // added/specified (based on the number of following events above).
-    int unSpecifiedTxns;
+    private int unSpecifiedTxns;
 
     public ObservedFifoSysState(List<ObservedFSMState> fsmStates,
             MultiChannelState channelStates) {
@@ -177,5 +177,9 @@ public class ObservedFifoSysState extends
 
     public List<ChannelId> getChannelIds() {
         return channelStates.getChannelIds();
+    }
+
+    public MultiChannelState getChannelStates() {
+        return channelStates;
     }
 }
