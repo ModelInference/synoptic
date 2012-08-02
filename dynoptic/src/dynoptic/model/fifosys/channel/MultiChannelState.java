@@ -136,4 +136,15 @@ public class MultiChannelState implements Cloneable {
         return ret;
     }
 
+    /**
+     * Returns a hash of the list of event types at the top of all of the queues
+     * in this multi-channel state.
+     */
+    public int topOfQueuesHash() {
+        int ret = 17;
+        for (ChannelState s : channelStates) {
+            ret = 31 * ret + s.peek().hashCode();
+        }
+        return ret;
+    }
 }

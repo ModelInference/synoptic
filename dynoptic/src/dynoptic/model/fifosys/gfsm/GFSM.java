@@ -1,7 +1,10 @@
 package dynoptic.model.fifosys.gfsm;
 
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.fifosys.FifoSys;
@@ -62,28 +65,60 @@ public class GFSM extends FifoSys<GFSMState> {
     //
     // And likewise for acceptStates
 
-    public static GFSM constructGFSMFromTraces(List<Trace> traces) {
-        int numProcesses = traces.get(0).getNumProcesses();
-        List<ChannelId> cIds = traces.get(0).getChannelIds();
+    // //////////////////////////////////////////////////////////////////
 
-        GFSM g = new GFSM(numProcesses, cIds);
+    /**
+     * Creates a new GFSM, using default initial partitioning strategy (by the
+     * list of elements at the head of all of the queues in the system), from a
+     * list of traces.
+     * 
+     * @param traces
+     * @return
+     */
+    public GFSM(List<Trace> traces) {
+        super(traces.get(0).getNumProcesses(), traces.get(0).getChannelIds());
+
+        Map<Integer, GFSMState> qTopHashToPartition = new LinkedHashMap<Integer, GFSMState>();
+
         for (Trace t : traces) {
             assert t.getNumProcesses() == numProcesses;
-            assert t.getChannelIds().equals(cIds);
+            assert t.getChannelIds().equals(channelIds);
 
-            // TODO:
-            // 1. Create a partitioning function that takes a set of observed
-            // states and returns a set of GFSMState instances. Each of these
-            // states contains observed states that have identical final message
-            // in their queues.
-            // 2. Add each of these GFSMState instances to the GFSM.
-
-            ObservedFifoSysState s = t.getInitState();
+            // DFS traversal to perform initial partitioning.
+            ObservedFifoSysState init = t.getInitState();
+            addToMap(qTopHashToPartition, init);
+            traverseAndPartition(init, qTopHashToPartition);
         }
-        return g;
+        this.addAllGFSMStates(qTopHashToPartition.values());
     }
 
-    // //////////////////////////////////////////////////////////////////
+    /**
+     * Constructor helper -- adds an observation to the map, by hashing on its
+     * top of queue event types.
+     */
+    private void addToMap(Map<Integer, GFSMState> qTopHashToPartition,
+            ObservedFifoSysState obs) {
+        int hash = obs.getChannelStates().topOfQueuesHash();
+        if (qTopHashToPartition.containsKey(hash)) {
+            qTopHashToPartition.get(hash).addObs(obs);
+        } else {
+            GFSMState partition = new GFSMState(numProcesses);
+            partition.addObs(obs);
+            qTopHashToPartition.put(hash, partition);
+        }
+    }
+
+    /**
+     * Constructor helper -- DFS traversal of the observed traces, building up
+     * an initial partitioning.
+     */
+    private void traverseAndPartition(ObservedFifoSysState curr,
+            Map<Integer, GFSMState> qTopHashToPartition) {
+        for (ObservedFifoSysState next : curr.getNextStates()) {
+            addToMap(qTopHashToPartition, next);
+            traverseAndPartition(next, qTopHashToPartition);
+        }
+    }
 
     public GFSM(int numProcesses, List<ChannelId> channelIds) {
         super(numProcesses, channelIds);
@@ -153,6 +188,14 @@ public class GFSM extends FifoSys<GFSMState> {
         // return processInits.get(pid);
         // }
         // return Collections.emptySet();
+    }
+
+    /** Adds a new partition/state s to this GFSM. */
+    public void addAllGFSMStates(Collection<GFSMState> newStates) {
+        assert !newStates.containsAll(newStates);
+
+        newStates.addAll(newStates);
+        recomputeAlphabet();
     }
 
     /** Adds a new partition/state s to this GFSM. */
