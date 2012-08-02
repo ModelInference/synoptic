@@ -71,10 +71,8 @@ public class FSMState extends AbsFSMState<FSMState> {
     @Override
     public Set<FSMState> getNextStates(EventType event) {
         assert event != null;
+        assert transitions.containsKey(event);
 
-        if (!transitions.containsKey(event)) {
-            return Collections.<FSMState> emptySet();
-        }
         return Collections.unmodifiableSet(transitions.get(event));
     }
 
@@ -112,6 +110,22 @@ public class FSMState extends AbsFSMState<FSMState> {
         // Make sure that we haven't added this transition to s on e before.
         assert !following.contains(s);
         following.add(s);
+    }
+
+    /**
+     * Removes an existing transition to a state s on event e from this state.
+     * 
+     * @param e
+     * @param s
+     */
+    public void rmTransition(EventType e, FSMState s) {
+        assert e != null;
+        assert s != null;
+        assert pid == e.getEventPid();
+        assert transitions.containsKey(e);
+        assert transitions.get(e).contains(s);
+
+        transitions.get(e).remove(s);
     }
 
     /** Returns an SCM representation of this FSMStates. */
