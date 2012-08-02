@@ -69,8 +69,8 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
      * 2. all queues where this pid is a receiver are empty.
      */
     @Override
-    public boolean isInitialForPid(int pid) {
-        return processStates.isInitialForPid(pid)
+    public boolean isInitForPid(int pid) {
+        return processStates.isInitForPid(pid)
                 && channelStates.isEmptyForPid(pid);
     }
 

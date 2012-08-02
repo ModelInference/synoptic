@@ -30,7 +30,7 @@ public abstract class AbsMultiFSMState<State extends AbsFSMState<State>>
     protected static IStatePidToBooleanFn fnIsInitialForPid = new IStatePidToBooleanFn() {
         @Override
         public boolean eval(AbsMultiFSMState<?> s, int pid) {
-            return s.isInitialForPid(pid);
+            return s.isInitForPid(pid);
         }
     };
 
@@ -75,5 +75,5 @@ public abstract class AbsMultiFSMState<State extends AbsFSMState<State>>
     abstract public boolean isAcceptForPid(int pid);
 
     /** Similar to accept state definition above. */
-    abstract public boolean isInitialForPid(int pid);
+    abstract public boolean isInitForPid(int pid);
 }
