@@ -2,10 +2,8 @@ package dynoptic.model.fifosys.cfsm;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.alphabet.EventType;
@@ -14,8 +12,6 @@ import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.gfsm.GFSM;
-import dynoptic.model.fifosys.gfsm.GFSMState;
 import dynoptic.util.Util;
 
 /**
@@ -45,73 +41,6 @@ public class CFSM extends FifoSys<CFSMState> {
     // A count of the number of processes/FSMs that still remain to be
     // added/specified.
     int unSpecifiedPids;
-
-    /**
-     * Constructs a CFSM from a GFSM. It performs the necessary traversal of the
-     * GFSM to construct/specify all the process FSMs that should be part of the
-     * CFSM.
-     * 
-     * @param gfsm
-     * @return
-     */
-    public static CFSM buildFromGFSM(GFSM gfsm) {
-        Map<GFSMState, FSMState> stateMap = new LinkedHashMap<GFSMState, FSMState>();
-        Set<FSMState> initStates = new LinkedHashSet<FSMState>();
-        Set<FSMState> acceptStates = new LinkedHashSet<FSMState>();
-        Set<GFSMState> visited = new LinkedHashSet<GFSMState>();
-
-        // This is the CFSM that we will return, once we populate it with all
-        // the process FSMs.
-        CFSM c = new CFSM(gfsm.getNumProcesses(), gfsm.getChannelIds());
-
-        // Create an FSM per pid.
-        for (int pid = 0; pid < gfsm.getNumProcesses(); pid++) {
-
-            // States in each FSM have to be uniquely numbered in the scm
-            // output.
-            int scmId = 0;
-
-            // Generate the FSM states and inter-state transitions.
-            for (GFSMState gInit : gfsm.getInitStatesForPid(pid)) {
-                FSMState fInit;
-                if (stateMap.containsKey(gInit)) {
-                    fInit = stateMap.get(gInit);
-                } else {
-                    fInit = new FSMState(gInit.isAcceptForPid(pid), true, pid,
-                            scmId);
-                    scmId++;
-                    stateMap.put(gInit, fInit);
-                }
-                // We might have visited the current gInit in a prior iteration,
-                // from another gInit, in which case we don't need to
-                // re-explore.
-                if (!visited.contains(gInit)) {
-                    scmId = visit(stateMap, gInit, fInit, visited, pid, scmId);
-                }
-            }
-
-            // Determine the initial/accept FSM states for FSM construction
-            // below.
-            for (FSMState s : stateMap.values()) {
-                if (s.isInitial()) {
-                    initStates.add(s);
-                }
-                if (s.isAccept()) {
-                    acceptStates.add(s);
-                }
-            }
-
-            // Create the FSM for this pid, and add it to the CFSM.
-            FSM f = new FSM(pid, initStates, acceptStates, stateMap.values());
-            c.addFSM(f);
-
-            stateMap.clear();
-            initStates.clear();
-            acceptStates.clear();
-            visited.clear();
-        }
-        return c;
-    }
 
     // //////////////////////////////////////////////////////////////////
 
@@ -270,65 +199,4 @@ public class CFSM extends FifoSys<CFSMState> {
         return ret;
     }
 
-    // //////////////////////////////////////////////////////////////////
-
-    /**
-     * Depth-first recursive traversal of the GFSM state/transition graph. We
-     * back-out when we reach a node that we've visited before. As we traverse,
-     * we build up the FSMState states for the specific pid, which are only
-     * dependent on event types that are relevant to this pid.
-     * 
-     * @param stateMap
-     * @param gParent
-     * @param fParent
-     * @param visited
-     * @param pid
-     */
-    private static int visit(Map<GFSMState, FSMState> stateMap,
-            GFSMState gParent, FSMState fParent, Set<GFSMState> visited,
-            int pid, int scmId) {
-        visited.add(gParent);
-
-        // Recurse on each (e,gNext) transition from this parent.
-        for (EventType e : gParent.getTransitioningEvents()) {
-            for (GFSMState gNext : gParent.getNextStates(e)) {
-
-                // In the FSM we only include transitions, and optionally create
-                // new FSMStates, for events that match the pid.
-                if (e.getEventPid() == pid) {
-                    FSMState fNext;
-                    // Look-up and optionally create the next FSMState
-                    // corresponding to gNext.
-                    if (stateMap.containsKey(gNext)) {
-                        fNext = stateMap.get(gNext);
-                    } else {
-                        fNext = new FSMState(gNext.isAcceptForPid(pid),
-                                gNext.isInitForPid(pid), pid, scmId);
-                        scmId++;
-                        stateMap.put(gNext, fNext);
-                    }
-                    // Add the transition in the FSM-space.
-                    fParent.addTransition(e, fNext);
-
-                    // Recurse with fNext as parent and updated visited set.
-                    if (!visited.contains(gNext)) {
-                        scmId = visit(stateMap, gNext, fNext, visited, pid,
-                                scmId);
-                    }
-
-                } else {
-                    // Because the event e does not impact this pid, we recurse
-                    // with gNext as g-parent, but with the _old_ fParent
-                    // FSMState. That is, the pid did not transition in the FSM
-                    // state space, even though we did transition the GFSM state
-                    // space.
-                    if (!visited.contains(gNext)) {
-                        scmId = visit(stateMap, gNext, fParent, visited, pid,
-                                scmId);
-                    }
-                }
-            }
-        }
-        return scmId;
-    }
 }

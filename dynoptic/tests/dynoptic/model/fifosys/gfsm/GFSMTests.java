@@ -8,8 +8,7 @@ import java.util.List;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
-import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.channel.ChannelId;
 import dynoptic.model.fifosys.channel.MultiChannelState;
 import dynoptic.model.fifosys.gfsm.trace.ObservedEvent;
@@ -19,34 +18,13 @@ import dynoptic.model.fifosys.gfsm.trace.Trace;
 
 public class GFSMTests extends DynopticTest {
 
-    // Non-accepting state
-    FSMState p;
-    // Accepting state.
-    FSMState q;
+    GFSM g;
 
-    // cid: 1->2
-    ChannelId cid;
-    // cid!m
-    EventType e_pid1;
-    // e_2
-    EventType e2_pid1;
-    // e_3
-    EventType e3_pid2;
+    ObservedFifoSysState Si, St;
+    ObservedEvent e;
 
     @Override
     public void setUp() {
-        //
-    }
-
-    @Test
-    @SuppressWarnings("unused")
-    public void createEmptyGFSM() {
-        GFSM g = new GFSM(2, this.getAllToAllChannelIds(2));
-    }
-
-    @Test
-    @SuppressWarnings("unused")
-    public void createGFSMFromTrace() {
         List<ObservedFSMState> Pi = new ArrayList<ObservedFSMState>();
         List<ObservedFSMState> Pt = new ArrayList<ObservedFSMState>();
 
@@ -63,11 +41,11 @@ public class GFSMTests extends DynopticTest {
         MultiChannelState PiChstate = MultiChannelState.fromChannelIds(cids);
         MultiChannelState PtChstate = MultiChannelState.fromChannelIds(cids);
 
-        ObservedFifoSysState Si = new ObservedFifoSysState(Pi, PiChstate);
-        ObservedFifoSysState St = new ObservedFifoSysState(Pt, PtChstate);
+        Si = new ObservedFifoSysState(Pi, PiChstate);
+        St = new ObservedFifoSysState(Pt, PtChstate);
 
         // Si -> St
-        ObservedEvent e = ObservedEvent.LocalEvent("e", 0);
+        e = ObservedEvent.LocalEvent("e", 0);
         Si.addTransition(e, St);
 
         List<Trace> traces = new ArrayList<Trace>(1);
@@ -75,8 +53,17 @@ public class GFSMTests extends DynopticTest {
         Trace trace = new Trace(Si, St);
         traces.add(trace);
 
-        GFSM g = new GFSM(traces);
+        g = new GFSM(traces);
+    }
 
+    @Test
+    @SuppressWarnings("unused")
+    public void createEmptyGFSM() {
+        GFSM g_ = new GFSM(2, this.getAllToAllChannelIds(2));
+    }
+
+    @Test
+    public void createGFSMFromOneTrace() {
         // Check that the two observations were initially partitioned into a
         // single partition.
         assertTrue(g.getStates().size() == 1);
@@ -113,4 +100,10 @@ public class GFSMTests extends DynopticTest {
         assertTrue(part.getNextStates(e).size() == 1);
         assertTrue(part.getNextStates(e).contains(part));
     }
+
+    @Test
+    public void gfsmToCFSM() {
+        CFSM c = g.getCFSM();
+    }
+
 }

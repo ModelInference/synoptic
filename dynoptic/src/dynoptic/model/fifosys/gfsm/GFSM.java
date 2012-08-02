@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.FifoSys;
+import dynoptic.model.fifosys.cfsm.CFSM;
+import dynoptic.model.fifosys.cfsm.fsm.FSM;
+import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 import dynoptic.model.fifosys.channel.ChannelId;
 import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
 import dynoptic.model.fifosys.gfsm.trace.Trace;
@@ -41,31 +45,6 @@ import dynoptic.model.fifosys.gfsm.trace.Trace;
  * </p>
  */
 public class GFSM extends FifoSys<GFSMState> {
-
-    //
-    // NOTE: The processInits/processAccepts were intended as a cache
-    // optimization, but since GFSMStates can mutate, it is non-trivial to keep
-    // this cache up to date without GFSMStates signaling to the container GFSM.
-    // For now, this is optimization is disabled.
-    //
-    // Per-process initial and accept states, ordered by process id. That is,
-    // processInits[0] contains the set of all GFSMState instances that contain
-    // at least one observation in which process id 0 was in initial state.
-    // List<Set<GFSMState>> processInits;
-    // List<Set<GFSMState>> processAccepts;
-    //
-    // Note that this.initStates and this.acceptStates are global init/accept
-    // states. That is, these are states that contain at least one
-    // observation per process, for all processes, in which the process is in
-    // initial/accept state.
-    //
-    // For n processes, these sets satisfy the invariants:
-    // processInits[0] \intersect processInits[1] \intersect ... \intersect
-    // processInits[n-1] = initStates
-    //
-    // And likewise for acceptStates
-
-    // //////////////////////////////////////////////////////////////////
 
     /**
      * Creates a new GFSM, using default initial partitioning strategy (by the
@@ -127,14 +106,6 @@ public class GFSM extends FifoSys<GFSMState> {
 
     public GFSM(int numProcesses, List<ChannelId> channelIds) {
         super(numProcesses, channelIds);
-        // Per-process Inits and Accepts Sets will be created on demand as new
-        // GFSM states are added. They will also be de-allocated when empty.
-        // processInits = new
-        // ArrayList<Set<GFSMState>>(Collections.nCopies(numProcesses,
-        // (GFSMState) null));
-        // processAccepts = new
-        // ArrayList<Set<GFSMState>>(Collections.nCopies(numProcesses,
-        // (GFSMState) null));
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -172,11 +143,6 @@ public class GFSM extends FifoSys<GFSMState> {
             }
         }
         return ret;
-
-        // if (processAccepts.get(pid) != null) {
-        // return processAccepts.get(pid);
-        // }
-        // return Collections.emptySet();
     }
 
     /** Returns the set of partitions that are initial for a pid. */
@@ -188,11 +154,6 @@ public class GFSM extends FifoSys<GFSMState> {
             }
         }
         return ret;
-
-        // if (processInits.get(pid) != null) {
-        // return processInits.get(pid);
-        // }
-        // return Collections.emptySet();
     }
 
     /** Adds a new partition/state s to this GFSM. */
@@ -208,25 +169,6 @@ public class GFSM extends FifoSys<GFSMState> {
         assert !states.contains(s);
 
         states.add(s);
-
-        // Update global init/accept states.
-        // if (s.isAccept()) {
-        // acceptStates.add(s);
-        // }
-        // if (s.isInitial()) {
-        // initStates.add(s);
-        // }
-        //
-        // // Update per-pid init/accept states.
-        // for (int pid = 0; pid < numProcesses; pid++) {
-        // if (s.isAcceptForPid(pid)) {
-        // addStateToList(processAccepts, pid, s);
-        // }
-        // if (s.isInitialForPid(pid)) {
-        // addStateToList(processInits, pid, s);
-        // }
-        // }
-
         recomputeAlphabet();
     }
 
@@ -235,61 +177,135 @@ public class GFSM extends FifoSys<GFSMState> {
         assert states.contains(s);
 
         states.remove(s);
-
-        // Update global init/accept states.
-        // if (s.isAccept()) {
-        // assert acceptStates.contains(s);
-        // acceptStates.remove(s);
-        // }
-        // if (s.isInitial()) {
-        // assert initStates.contains(s);
-        // initStates.remove(s);
-        // }
-        //
-        // // Update per-pid init/accept states.
-        // for (int pid = 0; pid < numProcesses; pid++) {
-        // if (s.isAcceptForPid(pid)) {
-        // rmStateFromList(processAccepts, pid, s);
-        // }
-        // if (s.isInitialForPid(pid)) {
-        // rmStateFromList(processInits, pid, s);
-        // }
-        // }
-
         recomputeAlphabet();
     }
 
     // //////////////////////////////////////////////////////////////////
 
-    // /** Adds s to the set at list[pid]; creates this set if it doesn't exist.
-    // */
-    // private void addStateToList(List<Set<GFSMState>> list, int pid, GFSMState
-    // s) {
-    // assert pid >= 0 && pid < numProcesses;
-    //
-    // Set<GFSMState> set;
-    // if (list.get(pid) == null) {
-    // set = new LinkedHashSet<GFSMState>();
-    // list.set(pid, set);
-    // } else {
-    // set = list.get(pid);
-    // }
-    // set.add(s);
-    // }
-    //
-    // /**
-    // * Removes s from the set at list[pid]; if the set is then empty, assigns
-    // * list[pid] to null.
-    // */
-    // private void rmStateFromList(List<Set<GFSMState>> list, int pid,
-    // GFSMState s) {
-    // assert pid >= 0 && pid < numProcesses;
-    // Set<GFSMState> set = list.get(pid);
-    // assert set.contains(s);
-    //
-    // set.remove(s);
-    // if (set.size() == 0) {
-    // list.set(pid, null);
-    // }
-    // }
+    /**
+     * Constructs a CFSM from a GFSM. It performs the necessary traversal of the
+     * GFSM to construct/specify all the process FSMs that should be part of the
+     * CFSM.
+     * 
+     * @param gfsm
+     * @return
+     */
+    public CFSM getCFSM() {
+        Map<GFSMState, FSMState> stateMap = new LinkedHashMap<GFSMState, FSMState>();
+        Set<FSMState> initFSMStates = new LinkedHashSet<FSMState>();
+        Set<FSMState> acceptFSMStates = new LinkedHashSet<FSMState>();
+        Set<GFSMState> visited = new LinkedHashSet<GFSMState>();
+
+        // This is the CFSM that we will return, once we populate it with all
+        // the process FSMs.
+        CFSM c = new CFSM(numProcesses, channelIds);
+
+        // Create an FSM per pid.
+        for (int pid = 0; pid < numProcesses; pid++) {
+
+            // States in each FSM have to be uniquely numbered in the scm
+            // output.
+            int scmId = 0;
+
+            // Generate the FSM states and inter-state transitions.
+            for (GFSMState gInit : getInitStatesForPid(pid)) {
+                FSMState fInit;
+                if (stateMap.containsKey(gInit)) {
+                    fInit = stateMap.get(gInit);
+                } else {
+                    fInit = new FSMState(gInit.isAcceptForPid(pid), true, pid,
+                            scmId);
+                    scmId++;
+                    stateMap.put(gInit, fInit);
+                }
+                // We might have visited the current gInit in a prior iteration,
+                // from another gInit, in which case we don't need to
+                // re-explore.
+                if (!visited.contains(gInit)) {
+                    scmId = cfsmBuilderVisit(stateMap, gInit, fInit, visited, pid, scmId);
+                }
+            }
+
+            // Determine the initial/accept FSM states for FSM construction
+            // below.
+            for (FSMState s : stateMap.values()) {
+                if (s.isInitial()) {
+                    initFSMStates.add(s);
+                }
+                if (s.isAccept()) {
+                    acceptFSMStates.add(s);
+                }
+            }
+
+            // Create the FSM for this pid, and add it to the CFSM.
+            FSM f = new FSM(pid, initFSMStates, acceptFSMStates,
+                    stateMap.values());
+            c.addFSM(f);
+
+            stateMap.clear();
+            initFSMStates.clear();
+            acceptFSMStates.clear();
+            visited.clear();
+        }
+        return c;
+    }
+
+    /**
+     * Depth-first recursive traversal of the GFSM state/transition graph. We
+     * back-out when we reach a node that we've visited before. As we traverse,
+     * we build up the FSMState states for the specific pid, which are only
+     * dependent on event types that are relevant to this pid.
+     * 
+     * @param stateMap
+     * @param gParent
+     * @param fParent
+     * @param visited
+     * @param pid
+     */
+    private int cfsmBuilderVisit(Map<GFSMState, FSMState> stateMap, GFSMState gParent,
+            FSMState fParent, Set<GFSMState> visited, int pid, int scmId) {
+        visited.add(gParent);
+
+        // Recurse on each (e,gNext) transition from this parent.
+        for (EventType e : gParent.getTransitioningEvents()) {
+            for (GFSMState gNext : gParent.getNextStates(e)) {
+
+                // In the FSM we only include transitions, and optionally create
+                // new FSMStates, for events that match the pid.
+                if (e.getEventPid() == pid) {
+                    FSMState fNext;
+                    // Look-up and optionally create the next FSMState
+                    // corresponding to gNext.
+                    if (stateMap.containsKey(gNext)) {
+                        fNext = stateMap.get(gNext);
+                    } else {
+                        fNext = new FSMState(gNext.isAcceptForPid(pid),
+                                gNext.isInitForPid(pid), pid, scmId);
+                        scmId++;
+                        stateMap.put(gNext, fNext);
+                    }
+                    // Add the transition in the FSM-space.
+                    fParent.addTransition(e, fNext);
+
+                    // Recurse with fNext as parent and updated visited set.
+                    if (!visited.contains(gNext)) {
+                        scmId = cfsmBuilderVisit(stateMap, gNext, fNext, visited, pid,
+                                scmId);
+                    }
+
+                } else {
+                    // Because the event e does not impact this pid, we recurse
+                    // with gNext as g-parent, but with the _old_ fParent
+                    // FSMState. That is, the pid did not transition in the FSM
+                    // state space, even though we did transition the GFSM state
+                    // space.
+                    if (!visited.contains(gNext)) {
+                        scmId = cfsmBuilderVisit(stateMap, gNext, fParent, visited, pid,
+                                scmId);
+                    }
+                }
+            }
+        }
+        return scmId;
+    }
 }
