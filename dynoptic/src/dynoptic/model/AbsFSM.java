@@ -29,25 +29,24 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
         this.acceptStates = new LinkedHashSet<State>();
     }
 
-    /**
-     * Returns the initial states for the FSM.
-     */
+    /** Returns the initial states for the FSM. */
     public Set<State> getInitStates() {
         return initStates;
     }
 
-    /**
-     * Returns the accept states for the FSM.
-     */
+    /** Returns the accept states for the FSM. */
     public Set<State> getAcceptStates() {
         return acceptStates;
     }
 
-    /**
-     * An FSM uses a finite alphabet of events.
-     */
+    /** An FSM uses a finite alphabet of events. */
     public FSMAlphabet getAlphabet() {
         return alphabet;
+    }
+
+    /** Returns the internal states of this FSM. */
+    public Set<State> getStates() {
+        return states;
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -55,7 +54,7 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
     protected void recomputeAlphabet() {
         this.alphabet.clear();
         for (State s : states) {
-            Set<EventType> events = s.getTransitioningEvents();
+            Set<EventType> events = (Set<EventType>) s.getTransitioningEvents();
             if (events.size() != 0) {
                 alphabet.addAll(events);
             }

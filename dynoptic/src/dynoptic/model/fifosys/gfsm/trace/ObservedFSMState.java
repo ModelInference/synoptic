@@ -1,7 +1,8 @@
 package dynoptic.model.fifosys.gfsm.trace;
 
 /**
- * Represents the state observed at a _single_ FSM.
+ * Represents the state observed at a _single_ FSM, without any context -- i.e.,
+ * no transition events or following states.
  */
 public class ObservedFSMState {
 
@@ -30,13 +31,6 @@ public class ObservedFSMState {
     // The string representation of this state.
     final private String name;
 
-    // The event that was observed to follow this state _locally_ (i.e., at this
-    // process). For terminal states, this is null.
-    private ObservedEvent nextEvent = null;
-
-    // The state that was observed to follow this state locally.
-    private ObservedFSMState nextState = null;
-
     // TODO: For non-anon states include things like line number and filename,
     // and so forth.
 
@@ -51,11 +45,11 @@ public class ObservedFSMState {
     // ///////////
 
     public static ObservedFSMState ObservedInitialFSMState(int pid) {
-        return new ObservedFSMState(pid, false, true, getNextAnonName());
+        return new ObservedFSMState(pid, true, false, getNextAnonName());
     }
 
     public static ObservedFSMState ObservedInitialFSMState(int pid, String name) {
-        return new ObservedFSMState(pid, false, true, name);
+        return new ObservedFSMState(pid, true, false, name);
     }
 
     // ///////////
@@ -99,12 +93,6 @@ public class ObservedFSMState {
 
     // //////////////////////////////////////////////////////////////////
 
-    /** Use this method to set the event and state that followed this state. */
-    public void addTransition(ObservedEvent event, ObservedFSMState followState) {
-        this.nextEvent = event;
-        this.nextState = followState;
-    }
-
     public int getPid() {
         return pid;
     }
@@ -115,13 +103,5 @@ public class ObservedFSMState {
 
     public boolean isTerminal() {
         return isTerminal;
-    }
-
-    public ObservedEvent getNextEvent() {
-        return nextEvent;
-    }
-
-    public ObservedFSMState getNextState() {
-        return nextState;
     }
 }

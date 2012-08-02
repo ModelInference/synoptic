@@ -69,7 +69,7 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
     /**
      * The set of possible events that can trigger a transition from this state.
      */
-    abstract public Set<EventType> getTransitioningEvents();
+    abstract public Set<? extends EventType> getTransitioningEvents();
 
     /**
      * Returns the unmodifiable (read-only) set of states that follow this state

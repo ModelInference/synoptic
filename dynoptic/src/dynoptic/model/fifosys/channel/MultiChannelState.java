@@ -143,7 +143,11 @@ public class MultiChannelState implements Cloneable {
     public int topOfQueuesHash() {
         int ret = 17;
         for (ChannelState s : channelStates) {
-            ret = 31 * ret + s.peek().hashCode();
+            if (s.size() != 0) {
+                ret = 31 * ret + s.peek().hashCode();
+            } else {
+                ret = 31 * ret;
+            }
         }
         return ret;
     }
