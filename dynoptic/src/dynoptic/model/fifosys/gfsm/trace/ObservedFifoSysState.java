@@ -125,7 +125,7 @@ public class ObservedFifoSysState extends
     }
 
     @Override
-    public boolean isInitialForPid(int pid) {
+    public boolean isInitForPid(int pid) {
         return fsmStates.get(pid).isInitial()
                 && channelStates.isEmptyForPid(pid);
     }

@@ -67,7 +67,8 @@ public class GFSMTests extends DynopticTest {
         ObservedFifoSysState St = new ObservedFifoSysState(Pt, PtChstate);
 
         // Si -> St
-        Si.addTransition(ObservedEvent.LocalEvent("e", 0), St);
+        ObservedEvent e = ObservedEvent.LocalEvent("e", 0);
+        Si.addTransition(e, St);
 
         List<Trace> traces = new ArrayList<Trace>(1);
 
@@ -81,10 +82,35 @@ public class GFSMTests extends DynopticTest {
         assertTrue(g.getStates().size() == 1);
         GFSMState part = g.getStates().iterator().next();
 
+        // Make sure both observations have the right partition as parent.
         assertTrue(Si.getParent() == part);
         assertTrue(St.getParent() == part);
 
+        // Check basic g properties.
+        assertTrue(g.getInitStates().size() == 1);
+        assertTrue(g.getInitStates().contains(part));
+
+        assertTrue(g.getInitStatesForPid(0).size() == 1);
+        assertTrue(g.getInitStatesForPid(0).contains(part));
+
+        assertTrue(g.getAcceptStates().size() == 1);
+        assertTrue(g.getAcceptStates().contains(part));
+
+        assertTrue(g.getAcceptStatesForPid(0).size() == 1);
+        assertTrue(g.getAcceptStatesForPid(0).contains(part));
+
+        // Check the one partition in g.
         assertTrue(part.isInitial());
         assertTrue(part.isAccept());
+
+        assertTrue(part.isAcceptForPid(0));
+        assertTrue(part.isInitForPid(0));
+
+        assertTrue(part.getNextStates().size() == 1);
+        assertTrue(part.getNextStates().contains(part));
+
+        assertTrue(part.getTransitioningEvents().size() == 1);
+        assertTrue(part.getNextStates(e).size() == 1);
+        assertTrue(part.getNextStates(e).contains(part));
     }
 }

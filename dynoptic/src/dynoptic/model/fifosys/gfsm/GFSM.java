@@ -180,10 +180,10 @@ public class GFSM extends FifoSys<GFSMState> {
     }
 
     /** Returns the set of partitions that are initial for a pid. */
-    public Set<GFSMState> getInitialStatesForPid(int pid) {
+    public Set<GFSMState> getInitStatesForPid(int pid) {
         Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
         for (GFSMState s : states) {
-            if (s.isInitialForPid(pid)) {
+            if (s.isInitForPid(pid)) {
                 ret.add(s);
             }
         }

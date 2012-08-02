@@ -72,7 +72,7 @@ public class CFSM extends FifoSys<CFSMState> {
             int scmId = 0;
 
             // Generate the FSM states and inter-state transitions.
-            for (GFSMState gInit : gfsm.getInitialStatesForPid(pid)) {
+            for (GFSMState gInit : gfsm.getInitStatesForPid(pid)) {
                 FSMState fInit;
                 if (stateMap.containsKey(gInit)) {
                     fInit = stateMap.get(gInit);
@@ -303,7 +303,7 @@ public class CFSM extends FifoSys<CFSMState> {
                         fNext = stateMap.get(gNext);
                     } else {
                         fNext = new FSMState(gNext.isAcceptForPid(pid),
-                                gNext.isInitialForPid(pid), pid, scmId);
+                                gNext.isInitForPid(pid), pid, scmId);
                         scmId++;
                         stateMap.put(gNext, fNext);
                     }

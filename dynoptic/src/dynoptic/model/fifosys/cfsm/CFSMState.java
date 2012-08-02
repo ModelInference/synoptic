@@ -100,7 +100,7 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState> {
     }
 
     @Override
-    public boolean isInitialForPid(int pid) {
+    public boolean isInitForPid(int pid) {
         assert pid >= 0 && pid < fsmStates.size();
         return fsmStates.get(pid).isInitial();
     }

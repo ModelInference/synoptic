@@ -45,8 +45,8 @@ public class CFSMStateTests extends DynopticTest {
         assertTrue(c.isAcceptForPid(1));
 
         assertFalse(c.isInitial());
-        assertFalse(c.isInitialForPid(1));
-        assertTrue(c.isInitialForPid(0));
+        assertFalse(c.isInitForPid(1));
+        assertTrue(c.isInitForPid(0));
 
         assertEquals(c.getTransitioningEvents().size(), 0);
     }

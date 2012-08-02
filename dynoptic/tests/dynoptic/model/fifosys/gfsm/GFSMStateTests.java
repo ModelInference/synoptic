@@ -60,9 +60,9 @@ public class GFSMStateTests extends DynopticTest {
         assertTrue(s.isAccept());
         assertTrue(s.isInitial());
         assertTrue(s.isAcceptForPid(0));
-        assertTrue(s.isInitialForPid(0));
+        assertTrue(s.isInitForPid(0));
         assertTrue(s.isAcceptForPid(1));
-        assertTrue(s.isInitialForPid(1));
+        assertTrue(s.isInitForPid(1));
         assertEquals(s.getTransitioningEvents().size(), 0);
         assertEquals(s.getNumProcesses(), 2);
     }
