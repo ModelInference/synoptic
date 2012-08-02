@@ -20,7 +20,7 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
     }
 
     // Fn: (AbsFSMState s) -> "s an accept state"
-    static protected IStateToBooleanFn<AbsFSMState<?>> fnInitialState = new IStateToBooleanFn<AbsFSMState<?>>() {
+    static protected IStateToBooleanFn<AbsFSMState<?>> fnIsInitialState = new IStateToBooleanFn<AbsFSMState<?>>() {
         @Override
         public boolean eval(AbsFSMState<?> s) {
             return s.isAccept();
@@ -28,7 +28,7 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
     };
 
     // Fn: (AbsFSMState s) -> "s an init state"
-    static protected IStateToBooleanFn<AbsFSMState<?>> fnAcceptState = new IStateToBooleanFn<AbsFSMState<?>>() {
+    static protected IStateToBooleanFn<AbsFSMState<?>> fnIsAcceptState = new IStateToBooleanFn<AbsFSMState<?>>() {
         @Override
         public boolean eval(AbsFSMState<?> s) {
             return s.isInitial();

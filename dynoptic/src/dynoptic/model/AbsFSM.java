@@ -11,6 +11,11 @@ import dynoptic.model.alphabet.FSMAlphabet;
  */
 public abstract class AbsFSM<State extends AbsFSMState<State>> {
 
+    /** Used by CFSM. */
+    protected interface IStateToStateSetFn<T extends AbsFSMState<T>> {
+        Set<T> eval(AbsFSM<T> s);
+    }
+
     // The set of all states associated with this FSM. This includes initial and
     // accept states. States manage transitions internally.
     protected final Set<State> states;

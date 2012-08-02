@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import dynoptic.model.AbsFSM;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
 import dynoptic.model.fifosys.FifoSys;
@@ -35,6 +36,22 @@ import dynoptic.util.Util;
  */
 public class CFSM extends FifoSys<CFSMState> {
 
+    // Fn: (FSM f) -> initial states of f.
+    static private IStateToStateSetFn<FSMState> fnGetInitialStates = new IStateToStateSetFn<FSMState>() {
+        @Override
+        public Set<FSMState> eval(AbsFSM<FSMState> f) {
+            return f.getInitStates();
+        }
+    };
+
+    // Fn: (FSM f) -> accept states of f.
+    static private IStateToStateSetFn<FSMState> fnGetAcceptStates = new IStateToStateSetFn<FSMState>() {
+        @Override
+        public Set<FSMState> eval(AbsFSM<FSMState> f) {
+            return f.getAcceptStates();
+        }
+    };
+
     // FSMs participating in this CFSM, ordered according to process ID.
     final List<FSM> fsms;
 
@@ -62,58 +79,12 @@ public class CFSM extends FifoSys<CFSMState> {
 
     @Override
     public Set<CFSMState> getInitStates() {
-        assert unSpecifiedPids == 0;
-
-        if (numProcesses == 1) {
-            Set<CFSMState> ret = new LinkedHashSet<CFSMState>();
-            for (FSMState i : fsms.get(0).getInitStates()) {
-                ret.add(new CFSMState(i));
-            }
-            return ret;
-        }
-
-        assert numProcesses > 1;
-
-        List<List<FSMState>> inits = Util.get2DPermutations(fsms.get(0)
-                .getInitStates(), fsms.get(1).getInitStates());
-
-        int i = 2;
-        while (i != numProcesses) {
-            // Modifies inits in place.
-            Util.get2DPermutations(inits, fsms.get(i).getInitStates());
-            i += 1;
-        }
-
-        return CFSMState.CFSMStatesFromFSMListLists(inits);
+        return deriveAllPermsOfStates(fnGetInitialStates);
     }
 
-    // TODO: getAcceptStates and getInitStates are very similar. Find a way to
-    // refactor these two methods.
     @Override
     public Set<CFSMState> getAcceptStates() {
-        assert unSpecifiedPids == 0;
-
-        if (numProcesses == 1) {
-            Set<CFSMState> ret = new LinkedHashSet<CFSMState>();
-            for (FSMState i : fsms.get(0).getAcceptStates()) {
-                ret.add(new CFSMState(i));
-            }
-            return ret;
-        }
-
-        assert numProcesses > 1;
-
-        List<List<FSMState>> accepts = Util.get2DPermutations(fsms.get(0)
-                .getAcceptStates(), fsms.get(1).getAcceptStates());
-
-        int i = 2;
-        while (i != numProcesses) {
-            // Modifies accepts in place.
-            Util.get2DPermutations(accepts, fsms.get(i).getAcceptStates());
-            i += 1;
-        }
-
-        return CFSMState.CFSMStatesFromFSMListLists(accepts);
+        return deriveAllPermsOfStates(fnGetAcceptStates);
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -197,6 +168,35 @@ public class CFSM extends FifoSys<CFSMState> {
         }
 
         return ret;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
+    private Set<CFSMState> deriveAllPermsOfStates(
+            IStateToStateSetFn<FSMState> fn) {
+        assert unSpecifiedPids == 0;
+
+        if (numProcesses == 1) {
+            Set<CFSMState> ret = new LinkedHashSet<CFSMState>();
+            for (FSMState i : fn.eval(fsms.get(0))) {
+                ret.add(new CFSMState(i));
+            }
+            return ret;
+        }
+
+        assert numProcesses > 1;
+
+        List<List<FSMState>> perms = Util.get2DPermutations(
+                fn.eval(fsms.get(0)), fn.eval(fsms.get(1)));
+
+        int i = 2;
+        while (i != numProcesses) {
+            // Modifies perms in place.
+            Util.get2DPermutations(perms, fn.eval(fsms.get(i)));
+            i += 1;
+        }
+
+        return CFSMState.CFSMStatesFromFSMListLists(perms);
     }
 
 }

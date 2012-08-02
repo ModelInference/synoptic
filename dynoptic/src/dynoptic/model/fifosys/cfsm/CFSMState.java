@@ -61,7 +61,7 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState> {
      */
     @Override
     public boolean isInitial() {
-        return statesEvalToTrue(fsmStates, fnInitialState);
+        return statesEvalToTrue(fsmStates, fnIsInitialState);
     }
 
     /**
@@ -74,7 +74,7 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState> {
      */
     @Override
     public boolean isAccept() {
-        return statesEvalToTrue(fsmStates, fnAcceptState);
+        return statesEvalToTrue(fsmStates, fnIsAcceptState);
     }
 
     @Override
