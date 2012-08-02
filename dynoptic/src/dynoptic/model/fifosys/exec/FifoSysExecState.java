@@ -86,7 +86,7 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     }
 
     @Override
-    public Set<EventType> getTransitioningEvents() {
+    public Set<? extends EventType> getTransitioningEvents() {
         return processStates.getTransitioningEvents();
     }
 
@@ -158,7 +158,7 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     public Set<EventType> getEnabledEvents() {
         // The Set of possible events -- these are the only events that we have
         // to consider.
-        Set<EventType> potentialEvents = getTransitioningEvents();
+        Set<EventType> potentialEvents = (Set<EventType>) getTransitioningEvents();
 
         // Traverse potentialEvents and build ret from all events that are
         // feasible -- all local/send events, and some receive events.

@@ -78,7 +78,7 @@ public class GFSM extends FifoSys<GFSMState> {
     public GFSM(List<Trace> traces) {
         super(traces.get(0).getNumProcesses(), traces.get(0).getChannelIds());
 
-        Map<Integer, GFSMState> qTopHashToPartition = new LinkedHashMap<Integer, GFSMState>();
+        Map<Integer, Set<ObservedFifoSysState>> qTopHashToPartition = new LinkedHashMap<Integer, Set<ObservedFifoSysState>>();
 
         for (Trace t : traces) {
             assert t.getNumProcesses() == numProcesses;
@@ -89,21 +89,26 @@ public class GFSM extends FifoSys<GFSMState> {
             addToMap(qTopHashToPartition, init);
             traverseAndPartition(init, qTopHashToPartition);
         }
-        this.addAllGFSMStates(qTopHashToPartition.values());
+        // Create the GFSMState partitions based off of sets of observations.
+        for (Set<ObservedFifoSysState> set : qTopHashToPartition.values()) {
+            states.add(new GFSMState(numProcesses, set));
+        }
+        recomputeAlphabet();
     }
 
     /**
      * Constructor helper -- adds an observation to the map, by hashing on its
      * top of queue event types.
      */
-    private void addToMap(Map<Integer, GFSMState> qTopHashToPartition,
+    private void addToMap(
+            Map<Integer, Set<ObservedFifoSysState>> qTopHashToPartition,
             ObservedFifoSysState obs) {
         int hash = obs.getChannelStates().topOfQueuesHash();
         if (qTopHashToPartition.containsKey(hash)) {
-            qTopHashToPartition.get(hash).addObs(obs);
+            qTopHashToPartition.get(hash).add(obs);
         } else {
-            GFSMState partition = new GFSMState(numProcesses);
-            partition.addObs(obs);
+            Set<ObservedFifoSysState> partition = new LinkedHashSet<ObservedFifoSysState>();
+            partition.add(obs);
             qTopHashToPartition.put(hash, partition);
         }
     }
@@ -113,7 +118,7 @@ public class GFSM extends FifoSys<GFSMState> {
      * an initial partitioning.
      */
     private void traverseAndPartition(ObservedFifoSysState curr,
-            Map<Integer, GFSMState> qTopHashToPartition) {
+            Map<Integer, Set<ObservedFifoSysState>> qTopHashToPartition) {
         for (ObservedFifoSysState next : curr.getNextStates()) {
             addToMap(qTopHashToPartition, next);
             traverseAndPartition(next, qTopHashToPartition);
@@ -192,9 +197,9 @@ public class GFSM extends FifoSys<GFSMState> {
 
     /** Adds a new partition/state s to this GFSM. */
     public void addAllGFSMStates(Collection<GFSMState> newStates) {
-        assert !newStates.containsAll(newStates);
+        assert !states.containsAll(newStates);
 
-        newStates.addAll(newStates);
+        states.addAll(newStates);
         recomputeAlphabet();
     }
 

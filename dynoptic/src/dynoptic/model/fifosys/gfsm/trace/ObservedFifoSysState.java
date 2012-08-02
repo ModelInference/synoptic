@@ -2,7 +2,6 @@ package dynoptic.model.fifosys.gfsm.trace;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,14 +43,14 @@ public class ObservedFifoSysState extends
 
     // Observed following event types across all FSM states that make up
     // fsmStates.
-    private final Set<EventType> events;
+    // private final Set<EventType> events;
 
     // Observed transitions for each observed following event type.
-    private final Map<EventType, ObservedFifoSysState> transitions;
+    private final Map<ObservedEvent, ObservedFifoSysState> transitions;
 
     // A count of the number of transitions that still remain to be
     // added/specified (based on the number of following events above).
-    private int unSpecifiedTxns;
+    // private int unSpecifiedTxns;
 
     public ObservedFifoSysState(List<ObservedFSMState> fsmStates,
             MultiChannelState channelStates) {
@@ -70,17 +69,17 @@ public class ObservedFifoSysState extends
 
         this.fsmStates = fsmStates;
         this.channelStates = channelStates;
-        this.events = new LinkedHashSet<EventType>();
-        this.transitions = new LinkedHashMap<EventType, ObservedFifoSysState>();
+        // this.events = new LinkedHashSet<EventType>();
+        this.transitions = new LinkedHashMap<ObservedEvent, ObservedFifoSysState>();
 
-        for (ObservedFSMState s : fsmStates) {
-            // Terminal observed states have no events for any pid.
-            if (!s.isTerminal()) {
-                events.add(s.getNextEvent().getType());
-            }
-        }
+        // for (ObservedFSMState s : fsmStates) {
+        // Terminal observed states have no events for any pid.
+        // if (!s.isTerminal()) {
+        // events.add(s.getNextEvent().getType());
+        // }
+        // }
 
-        unSpecifiedTxns = events.size();
+        // unSpecifiedTxns = events.size();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -106,7 +105,7 @@ public class ObservedFifoSysState extends
     }
 
     @Override
-    public Set<EventType> getTransitioningEvents() {
+    public Set<? extends EventType> getTransitioningEvents() {
         return transitions.keySet();
     }
 
@@ -147,9 +146,9 @@ public class ObservedFifoSysState extends
         return transitions.get(event);
     }
 
-    public void addTransition(EventType e, ObservedFifoSysState s) {
-        assert unSpecifiedTxns > 0;
-        assert this.events.contains(e);
+    public void addTransition(ObservedEvent e, ObservedFifoSysState s) {
+        // assert unSpecifiedTxns > 0;
+        // assert this.events.contains(e);
         assert !this.transitions.containsKey(e);
 
         if (DynopticMain.assertsOn) {
@@ -160,7 +159,7 @@ public class ObservedFifoSysState extends
         }
 
         this.transitions.put(e, s);
-        unSpecifiedTxns--;
+        // unSpecifiedTxns--;
     }
 
     public GFSMState getParent() {

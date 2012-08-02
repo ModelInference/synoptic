@@ -11,8 +11,8 @@ import dynoptic.model.fifosys.channel.ChannelId;
  * communicating events (send, receive) are associated with a channel Id, while
  * local events are associated with a process id of the corresponding process.
  */
-public final class EventType {
-    enum EventClass {
+public class EventType {
+    protected enum EventClass {
         LOCAL, SEND, RECV
     }
 
@@ -46,7 +46,7 @@ public final class EventType {
 
     // //////////////////////////////////////////////////////////////////
 
-    private EventType(String event, int pid, EventClass eventType,
+    protected EventType(String event, int pid, EventClass eventType,
             ChannelId channel) {
         if (eventType == EventClass.LOCAL) {
             assert channel == null;

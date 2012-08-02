@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import dynoptic.main.DynopticMain;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
@@ -35,9 +36,21 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     private final Map<EventType, Set<GFSMState>> transitions;
 
     public GFSMState(int numProcesses) {
+        this(numProcesses, new LinkedHashSet<ObservedFifoSysState>());
+    }
+
+    /**
+     * Creates a GFSMState based off an observations set that will be _used_
+     * internally
+     */
+    public GFSMState(int numProcesses, Set<ObservedFifoSysState> observedStates) {
         super(numProcesses);
-        observedStates = new LinkedHashSet<ObservedFifoSysState>();
-        transitions = new LinkedHashMap<EventType, Set<GFSMState>>();
+        this.observedStates = observedStates;
+        this.transitions = new LinkedHashMap<EventType, Set<GFSMState>>();
+
+        for (ObservedFifoSysState obs : this.observedStates) {
+            enforceNewObsConsistency(obs);
+        }
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -102,21 +115,35 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
 
     // //////////////////////////////////////////////////////////////////
 
-    /** Adds a new observed state to this partition. */
-    public void addObs(ObservedFifoSysState s) {
-        assert !observedStates.contains(s);
-        assert s.getNumProcesses() == this.numProcesses;
-        assert s.getParent() == null;
+    /**
+     * Checks that a new obs is in the right state before being associated with
+     * this partition, associates the obs with this partition, and updates the
+     * cached transitions. The obs _may_ be part of internal observedStates.
+     */
+    private void enforceNewObsConsistency(ObservedFifoSysState obs) {
+        if (DynopticMain.assertsOn) {
+            assert obs.getNumProcesses() == this.numProcesses;
+            assert obs.getParent() == null;
+        }
 
-        observedStates.add(s);
-        s.setParent(this);
-        cacheObservedParentTransitions(s);
+        obs.setParent(this);
+        cacheObservedParentTransitions(obs);
+    }
+
+    /** Adds a new observed state to this partition. */
+    public void addObs(ObservedFifoSysState obs) {
+        assert !observedStates.contains(obs);
+
+        observedStates.add(obs);
+        enforceNewObsConsistency(obs);
     }
 
     /** Adds a new observed state to this partition. */
     public void addAllObs(Set<ObservedFifoSysState> states) {
-        for (ObservedFifoSysState s : states) {
-            addObs(s);
+        for (ObservedFifoSysState obs : states) {
+            observedStates.add(obs);
+            assert !observedStates.contains(obs);
+            enforceNewObsConsistency(obs);
         }
     }
 

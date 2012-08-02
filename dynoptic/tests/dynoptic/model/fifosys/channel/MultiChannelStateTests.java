@@ -90,10 +90,13 @@ public class MultiChannelStateTests extends DynopticTest {
         assertFalse(mc.equals(""));
         assertTrue(mc.equals(mc));
 
+        assertFalse(mc.topOfQueuesHash() == mc2.topOfQueuesHash());
+
         EventType e2 = EventType.SendEvent("e", cid1);
         mc2.enqueue(e2);
 
         assertEquals(mc, mc2);
+        assertTrue(mc.topOfQueuesHash() == mc2.topOfQueuesHash());
     }
 
 }
