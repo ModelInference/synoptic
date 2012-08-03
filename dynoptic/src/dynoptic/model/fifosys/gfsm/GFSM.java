@@ -222,7 +222,8 @@ public class GFSM extends FifoSys<GFSMState> {
                 // from another gInit, in which case we don't need to
                 // re-explore.
                 if (!visited.contains(gInit)) {
-                    scmId = cfsmBuilderVisit(stateMap, gInit, fInit, visited, pid, scmId);
+                    scmId = cfsmBuilderVisit(stateMap, gInit, fInit, visited,
+                            pid, scmId);
                 }
             }
 
@@ -239,7 +240,7 @@ public class GFSM extends FifoSys<GFSMState> {
 
             // Create the FSM for this pid, and add it to the CFSM.
             FSM f = new FSM(pid, initFSMStates, acceptFSMStates,
-                    stateMap.values());
+                    stateMap.values(), scmId);
             c.addFSM(f);
 
             stateMap.clear();
@@ -262,8 +263,9 @@ public class GFSM extends FifoSys<GFSMState> {
      * @param visited
      * @param pid
      */
-    private int cfsmBuilderVisit(Map<GFSMState, FSMState> stateMap, GFSMState gParent,
-            FSMState fParent, Set<GFSMState> visited, int pid, int scmId) {
+    private int cfsmBuilderVisit(Map<GFSMState, FSMState> stateMap,
+            GFSMState gParent, FSMState fParent, Set<GFSMState> visited,
+            int pid, int scmId) {
         visited.add(gParent);
 
         // Recurse on each (e,gNext) transition from this parent.
@@ -289,8 +291,8 @@ public class GFSM extends FifoSys<GFSMState> {
 
                     // Recurse with fNext as parent and updated visited set.
                     if (!visited.contains(gNext)) {
-                        scmId = cfsmBuilderVisit(stateMap, gNext, fNext, visited, pid,
-                                scmId);
+                        scmId = cfsmBuilderVisit(stateMap, gNext, fNext,
+                                visited, pid, scmId);
                     }
 
                 } else {
@@ -300,8 +302,8 @@ public class GFSM extends FifoSys<GFSMState> {
                     // state space, even though we did transition the GFSM state
                     // space.
                     if (!visited.contains(gNext)) {
-                        scmId = cfsmBuilderVisit(stateMap, gNext, fParent, visited, pid,
-                                scmId);
+                        scmId = cfsmBuilderVisit(stateMap, gNext, fParent,
+                                visited, pid, scmId);
                     }
                 }
             }
