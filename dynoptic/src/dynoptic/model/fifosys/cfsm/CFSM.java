@@ -6,6 +6,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import dynoptic.invariants.AlwaysFollowedBy;
+import dynoptic.invariants.AlwaysPrecedes;
+import dynoptic.invariants.NeverFollowedBy;
+import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
@@ -79,11 +83,15 @@ public class CFSM extends FifoSys<CFSMState> {
 
     @Override
     public Set<CFSMState> getInitStates() {
+        assert unSpecifiedPids == 0;
+
         return deriveAllPermsOfStates(fnGetInitialStates);
     }
 
     @Override
     public Set<CFSMState> getAcceptStates() {
+        assert unSpecifiedPids == 0;
+
         return deriveAllPermsOfStates(fnGetAcceptStates);
     }
 
@@ -98,32 +106,85 @@ public class CFSM extends FifoSys<CFSMState> {
     public void addFSM(FSM fsm) {
         assert unSpecifiedPids > 0;
         assert fsm != null;
+
         int pid = fsm.getPid();
 
-        // Must be a valid pid (in the right range).
-        assert (pid >= 0 && pid < numProcesses);
-        // Only allow to set the FSM for a pid once.
-        assert (fsms.get(pid) == null);
+        if (DynopticMain.assertsOn) {
+            // Must be a valid pid (in the right range).
+            assert (pid >= 0 && pid < numProcesses);
+            // Only allow to set the FSM for a pid once.
+            assert (fsms.get(pid) == null);
 
-        fsms.set(pid, fsm);
+            // Check that the FSM alphabet conforms to the expected number of
+            // processes.
+            for (EventType e : fsm.getAlphabet()) {
+                if (e.isCommEvent()) {
+                    pid = e.getChannelId().getDstPid();
+                    assert pid >= 0 && pid < numProcesses;
 
-        // Check that the FSM alphabet conforms to the expected number of
-        // processes.
-        for (EventType e : fsm.getAlphabet()) {
-            if (e.isCommEvent()) {
-                pid = e.getChannelId().getDstPid();
-                assert pid >= 0 && pid < numProcesses;
-                pid = e.getChannelId().getSrcPid();
-                assert pid >= 0 && pid < numProcesses;
-            } else {
-                pid = e.getEventPid();
-                assert pid >= 0 && pid < numProcesses;
+                    pid = e.getChannelId().getSrcPid();
+                    assert pid >= 0 && pid < numProcesses;
+                } else {
+                    pid = e.getEventPid();
+                    assert pid >= 0 && pid < numProcesses;
+                }
             }
         }
 
+        fsms.set(pid, fsm);
         alphabet.addAll(fsm.getAlphabet());
 
         unSpecifiedPids -= 1;
+    }
+
+    public void augmentWithInvTracing(AlwaysFollowedBy inv) {
+        EventType e1 = inv.getFirst();
+        EventType e2 = inv.getSecond();
+
+        assert alphabet.contains(e1);
+        assert alphabet.contains(e2);
+        assert fsms.size() < e1.getEventPid();
+        assert fsms.size() < e2.getEventPid();
+
+        int scmId = this.channelIds.size();
+
+        // Create a new invariant-specific channel and add it to the
+        // CFSM.
+        //
+        // NOTE: since the McScM model checker allows all processes to access
+        // all channels, it does not matter which pids we use here.
+        ChannelId invCid = new ChannelId(e1.getEventPid(), e1.getEventPid(),
+                scmId);
+        this.channelIds.add(invCid);
+
+        FSM f1 = this.fsms.get(e1.getEventPid());
+        EventType e1Tracer = EventType.SendEvent(e1.getEventStr(), invCid);
+        addSendToEventTx(f1, e1, e1Tracer);
+
+        FSM f2 = this.fsms.get(e2.getEventPid());
+        EventType e2Tracer = EventType.SendEvent(e2.getEventStr(), invCid);
+        addSendToEventTx(f1, e2, e2Tracer);
+
+        // 5. Keep track of these synthetic events, so that we can later
+        // identify and filter them out from the generated counter-example event
+        // sequence.
+        // 6. Return a set of "bad states" that should be used by the model
+        // checker to check if invariant is invalid.
+        // 6.1 bad states are a set of CFSM states (that can be emitted in scm
+        // format)
+        // 6.2 each bad state encodes a terminal/accepting CFSM FSM state and
+        // queue contents that are empty except for a reg-exp specifying the
+        // queue contents of the cid_inv channel that is an invalid
+        // configuration for the invariant.
+
+    }
+
+    public void augmentWithInvTracing(NeverFollowedBy inv) {
+        // TODO
+    }
+
+    public void augmentWithInvTracing(AlwaysPrecedes inv) {
+        // TODO
     }
 
     /** Generate SCM representation of this CFSM (without bad_states). */
@@ -174,12 +235,10 @@ public class CFSM extends FifoSys<CFSMState> {
 
     private Set<CFSMState> deriveAllPermsOfStates(
             IStateToStateSetFn<FSMState> fn) {
-        assert unSpecifiedPids == 0;
-
         if (numProcesses == 1) {
             Set<CFSMState> ret = new LinkedHashSet<CFSMState>();
-            for (FSMState i : fn.eval(fsms.get(0))) {
-                ret.add(new CFSMState(i));
+            for (FSMState s : fn.eval(fsms.get(0))) {
+                ret.add(new CFSMState(s));
             }
             return ret;
         }
@@ -199,4 +258,44 @@ public class CFSM extends FifoSys<CFSMState> {
         return CFSMState.CFSMStatesFromFSMListLists(perms);
     }
 
+    /**
+     * Traverse the graph of FSM f and replace all transitions on e to some
+     * state s to transition to a new state X, and add a transition from X to s
+     * that enqueues event e on channel identified by invCid.
+     * 
+     * @param f1
+     * @param e1
+     * @param invCid
+     */
+    private void addSendToEventTx(FSM f, EventType eToTrace, EventType eTracer) {
+        for (FSMState init : f.getInitStates()) {
+            recurseAddSendToEventTx(f, init, eToTrace, eTracer);
+        }
+    }
+
+    /**
+     * Recursive call to perform DFA exploration of FSM f. Helper to
+     * addSendToEventTx
+     */
+    private void recurseAddSendToEventTx(FSM f, FSMState s, EventType eToTrace,
+            EventType eTracer) {
+
+        for (EventType e : s.getTransitioningEvents()) {
+            if (e.equals(eToTrace)) {
+                for (FSMState next : s.getNextStates(e)) {
+                    s.rmTransition(e, next);
+                    FSMState newFSMState = new FSMState(next.isAccept(),
+                            next.isInitial(), next.getPid(),
+                            f.getNextScmFSMStateId());
+                    s.addTransition(e, newFSMState);
+                    newFSMState.addTransition(eTracer, next);
+                    recurseAddSendToEventTx(f, next, eToTrace, eToTrace);
+                }
+            } else {
+                for (FSMState next : s.getNextStates(e)) {
+                    recurseAddSendToEventTx(f, next, eToTrace, eToTrace);
+                }
+            }
+        }
+    }
 }

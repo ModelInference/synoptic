@@ -58,7 +58,7 @@ public class FSMTests extends DynopticTest {
     public void createFSM() {
         states.add(init_1);
         states.add(accepting_1);
-        FSM f = new FSM(1, init_1, accepting_1, states);
+        FSM f = new FSM(1, init_1, accepting_1, states, 2);
         assertEquals(f.getAlphabet().size(), 0);
         assertEquals(f.getPid(), 1);
         assertEquals(f.getInitStates(), listInit_1);
@@ -72,7 +72,7 @@ public class FSMTests extends DynopticTest {
         states.add(init_1);
         states.add(accepting_1);
 
-        FSM f = new FSM(1, init_1, accepting_1, states);
+        FSM f = new FSM(1, init_1, accepting_1, states, 2);
         assertEquals(f.getAlphabet().size(), 2);
         assertTrue(f.getAlphabet().contains(e_pid1));
         assertTrue(f.getAlphabet().contains(e2_pid1));
@@ -89,7 +89,7 @@ public class FSMTests extends DynopticTest {
         states.add(init_1);
         states.add(accepting_1);
 
-        FSM f = new FSM(1, init_1, accepting_1, states);
+        FSM f = new FSM(1, init_1, accepting_1, states, 2);
 
         logger.info(f.toScmString());
     }
@@ -99,7 +99,7 @@ public class FSMTests extends DynopticTest {
     public void createBadFSM1() {
         states.add(init_1);
         // error: accepting_1 \not\in states
-        FSM f = new FSM(1, init_1, accepting_1, states);
+        FSM f = new FSM(1, init_1, accepting_1, states, 2);
     }
 
     @Test(expected = AssertionError.class)
@@ -109,7 +109,7 @@ public class FSMTests extends DynopticTest {
         states.add(accepting_1);
         states.add(state_2);
         // error: state_2.pid != 2
-        FSM f = new FSM(1, init_1, accepting_1, states);
+        FSM f = new FSM(1, init_1, accepting_1, states, 2);
     }
 
 }

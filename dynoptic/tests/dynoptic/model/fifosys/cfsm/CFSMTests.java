@@ -48,7 +48,7 @@ public class CFSMTests extends DynopticTest {
         init_0.addTransition(e_pid0, accepting_0);
         accepting_0.addTransition(e2_pid0, init_0);
 
-        f0 = new FSM(0, init_0, accepting_0, states);
+        f0 = new FSM(0, init_0, accepting_0, states, 0);
 
         // ///////////
 
@@ -65,7 +65,7 @@ public class CFSMTests extends DynopticTest {
         init_1.addTransition(e_pid1, accepting_1);
         accepting_1.addTransition(e2_pid1, init_1);
 
-        f1 = new FSM(1, init_1, accepting_1, states);
+        f1 = new FSM(1, init_1, accepting_1, states, 0);
     }
 
     @SuppressWarnings("unused")

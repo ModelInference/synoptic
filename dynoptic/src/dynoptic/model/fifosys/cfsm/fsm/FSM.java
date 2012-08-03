@@ -21,19 +21,24 @@ public class FSM extends AbsFSM<FSMState> {
     // The process id of this FSM in the CFSM.
     final int pid;
 
+    // This keeps track of the scmId to be used by FSMState instances associated
+    // with this FSM.
+    private int nextScmFSMStateId = 0;
+
     public FSM(int pid, FSMState initState, FSMState acceptState,
-            Set<FSMState> states) {
+            Set<FSMState> states, int nextScmFSMStateId) {
         this(pid, Collections.singleton(initState), Collections
-                .singleton(acceptState), states);
+                .singleton(acceptState), states, nextScmFSMStateId);
     }
 
     public FSM(int pid, Set<FSMState> initStates, Set<FSMState> acceptStates,
-            Collection<FSMState> states) {
+            Collection<FSMState> states, int nextScmFSMStateId) {
         super();
 
         assert states != null;
         assert states.containsAll(initStates);
         assert states.containsAll(acceptStates);
+        assert nextScmFSMStateId >= 0;
 
         if (DynopticMain.assertsOn) {
             // Check that:
@@ -58,6 +63,7 @@ public class FSM extends AbsFSM<FSMState> {
         }
 
         this.pid = pid;
+        this.nextScmFSMStateId = nextScmFSMStateId;
         this.states.addAll(states);
         this.initStates.addAll(initStates);
         this.acceptStates.addAll(acceptStates);
@@ -70,6 +76,12 @@ public class FSM extends AbsFSM<FSMState> {
 
     public int getPid() {
         return this.pid;
+    }
+
+    public int getNextScmFSMStateId() {
+        int ret = nextScmFSMStateId;
+        nextScmFSMStateId++;
+        return ret;
     }
 
     /**
