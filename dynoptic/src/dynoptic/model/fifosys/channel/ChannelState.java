@@ -30,7 +30,7 @@ public class ChannelState implements Cloneable {
     public String toString() {
         String ret = chId.toString() + ": [";
         for (EventType e : queue) {
-            ret = ret + e.getEventStr() + ", ";
+            ret = ret + e.getRawEventStr() + ", ";
         }
         ret = ret + "]";
         return ret;

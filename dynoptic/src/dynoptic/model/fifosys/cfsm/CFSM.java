@@ -338,12 +338,12 @@ public class CFSM extends FifoSys<CFSMState> {
 
         // Update the FSM corresponding to e1.
         FSM f1 = this.fsms.get(e1.getEventPid());
-        EventType e1Tracer = EventType.SendEvent(e1.getEventStr(), invCid);
+        EventType e1Tracer = EventType.SendEvent(e1.getRawEventStr(), invCid);
         addSendToEventTx(f1, e1, e1Tracer);
 
         // Update the FSM corresponding to e2.
         FSM f2 = this.fsms.get(e2.getEventPid());
-        EventType e2Tracer = EventType.SendEvent(e2.getEventStr(), invCid);
+        EventType e2Tracer = EventType.SendEvent(e2.getRawEventStr(), invCid);
         addSendToEventTx(f2, e2, e2Tracer);
     }
 

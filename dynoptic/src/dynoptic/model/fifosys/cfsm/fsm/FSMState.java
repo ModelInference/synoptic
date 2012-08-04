@@ -133,7 +133,7 @@ public class FSMState extends AbsFSMState<FSMState> {
         String ret = "state " + scmId + " :\n";
 
         for (EventType e : transitions.keySet()) {
-            String eStr = e.toScmString();
+            String eStr = e.toScmTransitionString();
             for (FSMState next : transitions.get(e)) {
                 ret += "to " + next.getScmId() + " : when true , " + eStr
                         + " ;\n";

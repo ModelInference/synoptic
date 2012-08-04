@@ -11,9 +11,13 @@ public class NeverFollowedBy extends BinaryInvariant {
 
     @Override
     public String scmBadStateQRe(FSMAlphabet globalAlphabet) {
+        super.scmBadStateQRe(globalAlphabet);
+
         // There is an 'a' that is followed by a 'b'.
-        return globalAlphabet.anyEventScmQRe() + "^* . " + first + " . "
-                + globalAlphabet.anyEventScmQRe() + "^* . " + second + " . "
+        return globalAlphabet.anyEventScmQRe() + "^* . "
+                + first.getScmEventString() + " . "
+                + globalAlphabet.anyEventScmQRe() + "^* . "
+                + second.getScmEventString() + " . "
                 + globalAlphabet.anyEventScmQRe() + "^*";
     }
 }

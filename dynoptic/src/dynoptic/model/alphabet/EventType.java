@@ -56,6 +56,18 @@ public class EventType {
             throw new IllegalArgumentException("Invalid EventType.");
         }
 
+        // The following characters conflict with SCM's regular-expressions
+        // output format.
+        assert !event.contains("*");
+        assert !event.contains(".");
+        assert !event.contains("^");
+        assert !event.contains(")");
+        assert !event.contains("(");
+        assert !event.contains("#");
+        assert !event.contains("_");
+        assert !event.contains("|");
+        assert !event.contains("+");
+
         this.eventType = eventType;
         this.event = event;
         this.pid = pid;
@@ -63,7 +75,7 @@ public class EventType {
         this.hashCode = initHashCode();
     }
 
-    public String getEventStr() {
+    public String getRawEventStr() {
         return event;
     }
 
@@ -91,11 +103,20 @@ public class EventType {
      * Returns an scm representation of this EventType, based on channelId to
      * int map.
      */
-    public String toScmString() {
+    public String toScmTransitionString() {
         if (channelId != null) {
-            return toString(Integer.toString(channelId.getScmId()));
+            return toString(Integer.toString(channelId.getScmId()), ' ');
         }
-        return toString("");
+        return toString("", ' ');
+    }
+
+    public String getScmEventString() {
+        if (isSendEvent()) {
+            return channelId.getScmId() + "S" + event;
+        } else if (isRecvEvent()) {
+            return channelId.getScmId() + "R" + event;
+        }
+        return event + "L" + Integer.toString(pid);
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -118,7 +139,7 @@ public class EventType {
 
         }
         EventType otherE = (EventType) other;
-        if (!otherE.getEventStr().equals(event)) {
+        if (!otherE.getRawEventStr().equals(event)) {
             return false;
         }
         if (otherE.getEventPid() != pid) {
@@ -147,9 +168,9 @@ public class EventType {
     @Override
     public String toString() {
         if (channelId != null) {
-            return toString(channelId.toString());
+            return toString(channelId.toString(), ' ');
         }
-        return toString("");
+        return toString("", ' ');
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -165,12 +186,14 @@ public class EventType {
         return result;
     }
 
-    private String toString(String cidString) {
+    private String toString(String cidString, char separator) {
         if (isSendEvent()) {
-            return cidString + " ! " + event;
+            return cidString + separator + "!" + separator
+                    + getScmEventString();
         } else if (isRecvEvent()) {
-            return cidString + " ? " + event;
+            return cidString + separator + "?" + separator
+                    + getScmEventString();
         }
-        return event + "_" + Integer.toString(pid);
+        return getScmEventString();
     }
 }

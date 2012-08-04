@@ -11,8 +11,11 @@ public class AlwaysPrecedes extends BinaryInvariant {
 
     @Override
     public String scmBadStateQRe(FSMAlphabet globalAlphabet) {
+        super.scmBadStateQRe(globalAlphabet);
+
         // There is a 'b' that was never preceded by an 'a'.
-        return globalAlphabet.anyEventExceptOneScmQRe(first) + "^* . " + second
-                + " . " + globalAlphabet.anyEventScmQRe() + "^*";
+        return globalAlphabet.anyEventExceptOneScmQRe(first) + "^* . "
+                + second.getScmEventString() + " . "
+                + globalAlphabet.anyEventScmQRe() + "^*";
     }
 }

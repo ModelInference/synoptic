@@ -11,8 +11,11 @@ public class AlwaysFollowedBy extends BinaryInvariant {
 
     @Override
     public String scmBadStateQRe(FSMAlphabet globalAlphabet) {
+        super.scmBadStateQRe(globalAlphabet);
+
         // There is an 'a' that is not followed any time later by a 'b'.
-        return globalAlphabet.anyEventScmQRe() + "^* . " + first
+        return globalAlphabet.anyEventScmQRe() + "^* . "
+                + first.getScmEventString() + " . "
                 + globalAlphabet.anyEventExceptOneScmQRe(second) + "^*";
     }
 }
