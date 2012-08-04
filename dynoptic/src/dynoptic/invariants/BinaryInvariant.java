@@ -4,19 +4,22 @@ import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
 
 abstract public class BinaryInvariant {
+    // The two event types that are related by this binary invariant.
     protected EventType first;
     protected EventType second;
-    protected String str;
+
+    // A string such as "AFby", or "NFby", or "AP".
+    protected String connectorStr;
 
     public BinaryInvariant(EventType typeFirst, EventType typeSecond, String str) {
         first = typeFirst;
         second = typeSecond;
-        this.str = str;
+        this.connectorStr = str;
     }
 
     @Override
     public String toString() {
-        return first + " " + str + " " + second;
+        return "(" + first + ") " + connectorStr + " (" + second + ")";
     }
 
     public EventType getFirst() {
@@ -27,5 +30,9 @@ abstract public class BinaryInvariant {
         return second;
     }
 
-    abstract public String scmBadStateQRe(FSMAlphabet globalAlphabet);
+    public String scmBadStateQRe(FSMAlphabet globalAlphabet) {
+        assert globalAlphabet.contains(first);
+        assert globalAlphabet.contains(second);
+        return null;
+    }
 }

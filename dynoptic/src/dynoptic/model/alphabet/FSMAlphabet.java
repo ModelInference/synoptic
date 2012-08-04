@@ -5,12 +5,15 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import dynoptic.main.DynopticMain;
+
 /**
  * A collection of events that can be processed by an FSM that is part of a
  * CFSM. This includes both the local events as well as send/receive
  * (communication) events.
  */
 public class FSMAlphabet implements Set<EventType> {
+    private static final String EMPTY_STR_SCM_RE = "(_)";
     Set<EventType> events;
 
     public FSMAlphabet() {
@@ -22,11 +25,21 @@ public class FSMAlphabet implements Set<EventType> {
 
     @Override
     public boolean add(EventType arg0) {
+        assert !events.contains(arg0);
+
         return events.add(arg0);
     }
 
     @Override
     public boolean addAll(Collection<? extends EventType> arg0) {
+        if (DynopticMain.assertsOn) {
+            // Make sure that the new set of events we are adding
+            // does not include any events already in the alphabet
+            for (EventType e1 : arg0) {
+                assert !events.contains(e1);
+            }
+        }
+
         return events.addAll(arg0);
     }
 
@@ -92,7 +105,7 @@ public class FSMAlphabet implements Set<EventType> {
 
         Set<String> seenEventStrs = new LinkedHashSet<String>();
         for (EventType e : events) {
-            String eStr = e.getEventStr();
+            String eStr = e.getRawEventStr();
             if (!seenEventStrs.contains(eStr)) {
                 ret += "real " + eStr + " ;\n";
                 seenEventStrs.add(eStr);
@@ -102,43 +115,38 @@ public class FSMAlphabet implements Set<EventType> {
     }
 
     public String anyEventScmQRe() {
-        if (events.size() == 0) {
-            return "(_)";
-        }
-
-        String ret = "(";
-        Iterator<EventType> iter = events.iterator();
-        while (iter.hasNext()) {
-            EventType e = iter.next();
-            ret = ret + e.toScmString();
-            if (iter.hasNext()) {
-                ret += " . ";
-            }
-        }
-        return ret + " )";
+        return scmQRe(null);
     }
 
     public String anyEventExceptOneScmQRe(EventType ignoreE) {
         assert events.contains(ignoreE);
 
-        // If ignoreE is the only event in the alphabet, then return the empty
-        // string RE.
-        if (events.size() == 1) {
-            return "(_)";
-        }
+        return scmQRe(ignoreE);
+    }
 
-        // TODO: refactor to unify with anyEventScmQRe above.
+    // //////////////////////////////////////////////////////////////////
+
+    private String scmQRe(EventType ignoreE) {
         String ret = "(";
         Iterator<EventType> iter = events.iterator();
+
         while (iter.hasNext()) {
             EventType e = iter.next();
-            if (e == ignoreE) {
-                ret = ret + e.toScmString();
-                if (iter.hasNext()) {
-                    ret += " . ";
-                }
+            // Skip the ignored event.
+            if (ignoreE != null && e.equals(ignoreE)) {
+                continue;
             }
+            ret = ret + e.getScmEventString() + " . ";
         }
-        return ret + " )";
+
+        // The re encodes no events -- return empty string re.
+        if (ret.length() == 1) {
+            return EMPTY_STR_SCM_RE;
+        }
+
+        // Remove the dangling "."
+        ret = ret.substring(0, ret.length() - 3);
+
+        return ret + ")";
     }
 }

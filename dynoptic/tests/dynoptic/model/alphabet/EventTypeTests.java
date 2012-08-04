@@ -31,7 +31,7 @@ public class EventTypeTests extends DynopticTest {
         assertFalse(e.isRecvEvent());
         assertEquals(e.getEventPid(), 1);
         logger.info(e.toString());
-        logger.info(e.toScmString());
+        logger.info(e.toScmTransitionString());
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));
@@ -62,7 +62,7 @@ public class EventTypeTests extends DynopticTest {
         assertFalse(e.isRecvEvent());
         assertEquals(e.getEventPid(), cid.getSrcPid());
         logger.info(e.toString());
-        logger.info(e.toScmString());
+        logger.info(e.toScmTransitionString());
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));
@@ -93,7 +93,7 @@ public class EventTypeTests extends DynopticTest {
         assertTrue(e.isRecvEvent());
         assertEquals(e.getEventPid(), cid.getDstPid());
         logger.info(e.toString());
-        logger.info(e.toScmString());
+        logger.info(e.toScmTransitionString());
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));
