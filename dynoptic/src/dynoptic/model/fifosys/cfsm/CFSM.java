@@ -154,7 +154,7 @@ public class CFSM extends FifoSys<CFSMState> {
 
         // Set the synthetic queue reg-exps.
         for (int i = firstSyntheticChIndex; i < channelIds.size(); i++) {
-            if (i == invIndex) {
+            if (i == firstSyntheticChIndex + invIndex) {
                 qReList.add(inv.scmBadStateQRe(this.alphabet));
             } else {
                 // Initialize non-inv invariant synthetic queues to accept
@@ -211,26 +211,17 @@ public class CFSM extends FifoSys<CFSMState> {
         unSpecifiedPids -= 1;
     }
 
+    /** Augment this CFSM with an AFby invariant for model checking. */
     public void augmentWithInvTracing(AlwaysFollowedBy inv) {
         augmentWithInvTracingGeneric(inv);
-
-        // 5. Keep track of these synthetic events, so that we can later
-        // identify and filter them out from the generated counter-example event
-        // sequence.
-        // 6. Return a set of "bad states" that should be used by the model
-        // checker to check if invariant is invalid.
-        // 6.1 bad states are a set of CFSM states (that can be emitted in scm
-        // format)
-        // 6.2 each bad state encodes a terminal/accepting CFSM FSM state and
-        // queue contents that are empty except for a reg-exp specifying the
-        // queue contents of the cid_inv channel that is an invalid
-        // configuration for the invariant.
     }
 
+    /** Augment this CFSM with an NFby invariant for model checking. */
     public void augmentWithInvTracing(NeverFollowedBy inv) {
         augmentWithInvTracingGeneric(inv);
     }
 
+    /** Augment this CFSM with an AP invariant for model checking. */
     public void augmentWithInvTracing(AlwaysPrecedes inv) {
         augmentWithInvTracingGeneric(inv);
     }
@@ -307,8 +298,9 @@ public class CFSM extends FifoSys<CFSMState> {
     }
 
     /**
-     * Augments the CFSM with a tracking channel to keep track of the two events
-     * that are part of the binary invariant inv.
+     * Augments the CFSM with a tracking channel and send events to this channel
+     * to keep track of the two events that are part of the binary invariant
+     * inv.
      */
     private void augmentWithInvTracingGeneric(BinaryInvariant inv) {
         EventType e1 = inv.getFirst();
@@ -316,8 +308,8 @@ public class CFSM extends FifoSys<CFSMState> {
 
         assert alphabet.contains(e1);
         assert alphabet.contains(e2);
-        assert fsms.size() < e1.getEventPid();
-        assert fsms.size() < e2.getEventPid();
+        assert e1.getEventPid() < fsms.size();
+        assert e2.getEventPid() < fsms.size();
         assert !invs.contains(invs);
 
         invs.add(inv);
@@ -337,14 +329,16 @@ public class CFSM extends FifoSys<CFSMState> {
         this.channelIds.add(invCid);
 
         // Update the FSM corresponding to e1.
+        Set<FSMState> visited = new LinkedHashSet<FSMState>();
         FSM f1 = this.fsms.get(e1.getEventPid());
         EventType e1Tracer = EventType.SendEvent(e1.getRawEventStr(), invCid);
-        addSendToEventTx(f1, e1, e1Tracer);
+        addSendToEventTx(f1, e1, e1Tracer, visited);
 
         // Update the FSM corresponding to e2.
+        visited.clear();
         FSM f2 = this.fsms.get(e2.getEventPid());
         EventType e2Tracer = EventType.SendEvent(e2.getRawEventStr(), invCid);
-        addSendToEventTx(f2, e2, e2Tracer);
+        addSendToEventTx(f2, e2, e2Tracer, visited);
     }
 
     /**
@@ -352,36 +346,51 @@ public class CFSM extends FifoSys<CFSMState> {
      * state s to transition to a new state X, and add a transition from X to s
      * that enqueues event e on channel identified by invCid.
      * 
+     * @param visited
      * @param f1
      * @param e1
      * @param invCid
      */
-    private void addSendToEventTx(FSM f, EventType eToTrace, EventType eTracer) {
+    private void addSendToEventTx(FSM f, EventType eToTrace, EventType eTracer,
+            Set<FSMState> visited) {
         for (FSMState init : f.getInitStates()) {
-            recurseAddSendToEventTx(f, init, eToTrace, eTracer);
+            recurseAddSendToEventTx(f, init, eToTrace, eTracer, visited);
         }
     }
 
     /**
      * Recursive call to perform DFA exploration of FSM f. Helper to
      * addSendToEventTx
+     * 
+     * @param visited
      */
     private void recurseAddSendToEventTx(FSM f, FSMState s, EventType eToTrace,
-            EventType eTracer) {
+            EventType eTracer, Set<FSMState> visited) {
+        visited.add(s);
 
         for (EventType e : s.getTransitioningEvents()) {
             if (e.equals(eToTrace)) {
                 for (FSMState next : s.getNextStates(e)) {
+                    if (visited.contains(next)) {
+                        continue;
+                    }
+
                     s.rmTransition(e, next);
                     FSMState newFSMState = new FSMState(s.isAccept(),
                             s.isInitial(), s.getPid(), f.getNextScmFSMStateId());
                     s.addTransition(e, newFSMState);
-                    newFSMState.addTransition(eTracer, next);
-                    recurseAddSendToEventTx(f, next, eToTrace, eToTrace);
+                    newFSMState.addSynthTransition(eTracer, next);
+                    recurseAddSendToEventTx(f, next, eToTrace, eToTrace,
+                            visited);
                 }
             } else {
                 for (FSMState next : s.getNextStates(e)) {
-                    recurseAddSendToEventTx(f, next, eToTrace, eToTrace);
+                    if (visited.contains(next)) {
+                        continue;
+                    }
+
+                    recurseAddSendToEventTx(f, next, eToTrace, eToTrace,
+                            visited);
                 }
             }
         }
