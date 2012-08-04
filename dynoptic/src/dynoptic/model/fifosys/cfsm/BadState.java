@@ -20,6 +20,11 @@ public class BadState {
         this.qReList = qReList;
     }
 
+    @Override
+    public String toString() {
+        return toString();
+    }
+
     public String toScmString() {
         String ret = "(";
 

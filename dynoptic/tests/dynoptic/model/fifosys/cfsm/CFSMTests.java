@@ -3,11 +3,15 @@ package dynoptic.model.fifosys.cfsm;
 import static org.junit.Assert.assertEquals;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
+import dynoptic.invariants.AlwaysFollowedBy;
+import dynoptic.invariants.AlwaysPrecedes;
+import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
@@ -23,7 +27,7 @@ public class CFSMTests extends DynopticTest {
     // cid: 0->1
     ChannelId cid;
     // cid!m, cid?m
-    EventType e_pid0, e_pid1;
+    EventType e1_pid0, e1_pid1;
     // e_0, e_1
     EventType e2_pid0, e2_pid1;
 
@@ -42,10 +46,10 @@ public class CFSMTests extends DynopticTest {
         states.add(accepting_0);
 
         cid = new ChannelId(0, 1, 0);
-        e_pid0 = EventType.SendEvent("m", cid);
+        e1_pid0 = EventType.SendEvent("m", cid);
         e2_pid0 = EventType.LocalEvent("e", 0);
 
-        init_0.addTransition(e_pid0, accepting_0);
+        init_0.addTransition(e1_pid0, accepting_0);
         accepting_0.addTransition(e2_pid0, init_0);
 
         f0 = new FSM(0, init_0, accepting_0, states, 0);
@@ -59,10 +63,10 @@ public class CFSMTests extends DynopticTest {
         states.add(init_1);
         states.add(accepting_1);
 
-        e_pid1 = EventType.RecvEvent("m", cid);
+        e1_pid1 = EventType.RecvEvent("m", cid);
         e2_pid1 = EventType.LocalEvent("e'", 1);
 
-        init_1.addTransition(e_pid1, accepting_1);
+        init_1.addTransition(e1_pid1, accepting_1);
         accepting_1.addTransition(e2_pid1, init_1);
 
         f1 = new FSM(1, init_1, accepting_1, states, 0);
@@ -98,5 +102,50 @@ public class CFSMTests extends DynopticTest {
         assertEquals(c.getAcceptStates().iterator().next().getFSMState(1),
                 accepting_1);
 
+    }
+
+    @Test
+    public void augmentWithAFby() {
+        CFSM c = new CFSM(2, this.getAllToAllChannelIds(2));
+        c.addFSM(f0);
+        c.addFSM(f1);
+        AlwaysFollowedBy inv = new AlwaysFollowedBy(e1_pid0, e1_pid1);
+        logger.info(inv.toString());
+
+        c.augmentWithInvTracing(inv);
+
+        List<BadState> badStates = c.getBadStates();
+        assertEquals(badStates.size(), 1);
+        logger.info(badStates.get(0).toScmString());
+    }
+
+    @Test
+    public void augmentWithNFby() {
+        CFSM c = new CFSM(2, this.getAllToAllChannelIds(2));
+        c.addFSM(f0);
+        c.addFSM(f1);
+        NeverFollowedBy inv = new NeverFollowedBy(e1_pid0, e1_pid1);
+        logger.info(inv.toString());
+
+        c.augmentWithInvTracing(inv);
+
+        List<BadState> badStates = c.getBadStates();
+        assertEquals(badStates.size(), 1);
+        logger.info(badStates.get(0).toScmString());
+    }
+
+    @Test
+    public void augmentWithAP() {
+        CFSM c = new CFSM(2, this.getAllToAllChannelIds(2));
+        c.addFSM(f0);
+        c.addFSM(f1);
+        AlwaysPrecedes inv = new AlwaysPrecedes(e1_pid0, e1_pid1);
+        logger.info(inv.toString());
+
+        c.augmentWithInvTracing(inv);
+
+        List<BadState> badStates = c.getBadStates();
+        assertEquals(badStates.size(), 1);
+        logger.info(badStates.get(0).toScmString());
     }
 }

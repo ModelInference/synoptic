@@ -99,17 +99,23 @@ public class FSMState extends AbsFSMState<FSMState> {
         assert s != null;
         assert pid == e.getEventPid();
 
-        Set<FSMState> following;
-        if (transitions.get(e) == null) {
-            following = new LinkedHashSet<FSMState>();
-            transitions.put(e, following);
-        } else {
-            following = transitions.get(e);
-        }
+        addTransitionNoChecks(e, s);
+    }
 
-        // Make sure that we haven't added this transition to s on e before.
-        assert !following.contains(s);
-        following.add(s);
+    /**
+     * Adds a new synthetic transition that is associated with an invariant
+     * channel. For now, this is similar to addTransition and omits a check that
+     * disallow two processes from sending to the same queue.
+     * 
+     * @param e
+     * @param s
+     */
+    public void addSynthTransition(EventType e, FSMState s) {
+        assert e != null;
+        assert s != null;
+        assert e.isSendEvent();
+
+        addTransitionNoChecks(e, s);
     }
 
     /**
@@ -141,6 +147,23 @@ public class FSMState extends AbsFSMState<FSMState> {
         }
 
         return ret;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
+    /** Adds a transition from this state on e to state s. */
+    private void addTransitionNoChecks(EventType e, FSMState s) {
+        Set<FSMState> following;
+        if (transitions.get(e) == null) {
+            following = new LinkedHashSet<FSMState>();
+            transitions.put(e, following);
+        } else {
+            following = transitions.get(e);
+        }
+
+        // Make sure that we haven't added this transition to s on e before.
+        assert !following.contains(s);
+        following.add(s);
     }
 
 }
