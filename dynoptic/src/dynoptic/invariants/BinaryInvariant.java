@@ -1,6 +1,7 @@
 package dynoptic.invariants;
 
 import dynoptic.model.alphabet.EventType;
+import dynoptic.model.alphabet.FSMAlphabet;
 
 abstract public class BinaryInvariant {
     protected EventType first;
@@ -26,4 +27,5 @@ abstract public class BinaryInvariant {
         return second;
     }
 
+    abstract public String scmBadStateQRe(FSMAlphabet globalAlphabet);
 }
