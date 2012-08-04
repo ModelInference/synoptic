@@ -87,7 +87,7 @@ public class FSMAlphabet implements Set<EventType> {
 
     // //////////////////////////////////////////////////////////////////
 
-    public String toScmString() {
+    public String toScmParametersString() {
         String ret = "parameters :\n";
 
         Set<String> seenEventStrs = new LinkedHashSet<String>();
@@ -99,5 +99,46 @@ public class FSMAlphabet implements Set<EventType> {
             }
         }
         return ret;
+    }
+
+    public String anyEventScmQRe() {
+        if (events.size() == 0) {
+            return "(_)";
+        }
+
+        String ret = "(";
+        Iterator<EventType> iter = events.iterator();
+        while (iter.hasNext()) {
+            EventType e = iter.next();
+            ret = ret + e.toScmString();
+            if (iter.hasNext()) {
+                ret += " . ";
+            }
+        }
+        return ret + " )";
+    }
+
+    public String anyEventExceptOneScmQRe(EventType ignoreE) {
+        assert events.contains(ignoreE);
+
+        // If ignoreE is the only event in the alphabet, then return the empty
+        // string RE.
+        if (events.size() == 1) {
+            return "(_)";
+        }
+
+        // TODO: refactor to unify with anyEventScmQRe above.
+        String ret = "(";
+        Iterator<EventType> iter = events.iterator();
+        while (iter.hasNext()) {
+            EventType e = iter.next();
+            if (e == ignoreE) {
+                ret = ret + e.toScmString();
+                if (iter.hasNext()) {
+                    ret += " . ";
+                }
+            }
+        }
+        return ret + " )";
     }
 }

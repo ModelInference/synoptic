@@ -34,9 +34,6 @@ abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     // list is ordered according to the scmIds used by each of the channelIds.
     final protected List<ChannelId> channelIds;
 
-    // Keeps track of the total number of channels.
-    final protected int numChannels;
-
     // //////////////////////////////////////////////////////////////////
 
     public FifoSys(int numProcesses, List<ChannelId> channelIds) {
@@ -57,7 +54,6 @@ abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
 
         this.numProcesses = numProcesses;
         this.channelIds = channelIds;
-        this.numChannels = channelIds.size();
     }
 
     /**

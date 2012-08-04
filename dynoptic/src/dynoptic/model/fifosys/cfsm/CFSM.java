@@ -8,6 +8,7 @@ import java.util.Set;
 
 import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.AlwaysPrecedes;
+import dynoptic.invariants.BinaryInvariant;
 import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
@@ -57,11 +58,22 @@ public class CFSM extends FifoSys<CFSMState> {
     };
 
     // FSMs participating in this CFSM, ordered according to process ID.
-    final List<FSM> fsms;
+    private final List<FSM> fsms;
 
     // A count of the number of processes/FSMs that still remain to be
     // added/specified.
-    int unSpecifiedPids;
+    private int unSpecifiedPids;
+
+    // Maintains the index in the channeldIds list of the first synthetic
+    // channelId. All channelIds at or above this index are synthetic.
+    // Synthetic channels are used for invariant checking, and are
+    // not part of the true model.
+    private int firstSyntheticChIndex;
+
+    // The set of invariants that are encoded in this CFSM. Each invariant
+    // at index i in invs corresponds to the synthetic channel at index
+    // (firstSyntheticChIndex + i) in channelIds list.
+    private final List<BinaryInvariant> invs;
 
     // //////////////////////////////////////////////////////////////////
 
@@ -69,6 +81,8 @@ public class CFSM extends FifoSys<CFSMState> {
         super(numProcesses, channelIds);
         fsms = new ArrayList<FSM>(Collections.nCopies(numProcesses, (FSM) null));
         unSpecifiedPids = numProcesses;
+        firstSyntheticChIndex = Integer.MAX_VALUE;
+        invs = new ArrayList<BinaryInvariant>();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -96,6 +110,66 @@ public class CFSM extends FifoSys<CFSMState> {
     }
 
     // //////////////////////////////////////////////////////////////////
+
+    /** Returns the bad states for all invariants that augment this CFSM. */
+    public List<BadState> getBadStates() {
+        assert invs.size() != 0;
+
+        // TODO: Sub-optimality -- we are needlessly creating many lists by
+        // calling getBadState(inv) repeatedly.
+        List<BadState> ret = new ArrayList<BadState>();
+        for (BinaryInvariant inv : invs) {
+            ret.addAll(getBadStates(inv));
+        }
+        return ret;
+    }
+
+    /**
+     * Returns a set of bad states that correspond to a specific invariant that
+     * is augmenting this CFSM. Each invariant corresponds to (possibly
+     * multiple) bad states. A bad states is a combination of FSM states and a
+     * sequence of regular expressions that describe the contents of each of the
+     * queues in the CFSM. For an invariant I, a bad state B has the property
+     * that if B is reachable in the CFSM then I is falsified. That is, the path
+     * to reach B is the counter-example for I.
+     */
+    public List<BadState> getBadStates(BinaryInvariant inv) {
+        assert invs.contains(inv);
+
+        // Without invariants there are no bad states.
+        if (invs.size() == 0) {
+            return Collections.emptyList();
+        }
+        List<BadState> badStates = new ArrayList<BadState>();
+
+        Set<CFSMState> accepts = this.getAcceptStates();
+        List<String> qReList = new ArrayList<String>(channelIds.size());
+
+        // Set non-synthetic queues reg-exps to accept the empty string.
+        for (int i = 0; i < firstSyntheticChIndex; i++) {
+            qReList.add("_");
+        }
+
+        int invIndex = invs.indexOf(inv);
+
+        // Set the synthetic queue reg-exps.
+        for (int i = firstSyntheticChIndex; i < channelIds.size(); i++) {
+            if (i == invIndex) {
+                qReList.add(inv.scmBadStateQRe(this.alphabet));
+            } else {
+                // Initialize non-inv invariant synthetic queues to accept
+                // everything.
+                qReList.add(".*");
+            }
+        }
+
+        // For each accept, generate a bad state <accept, qReList>.
+        for (CFSMState accept : accepts) {
+            badStates.add(new BadState(accept, qReList));
+        }
+
+        return badStates;
+    }
 
     /**
      * Adds a new FSM instance to the CFSM. Once all the FSMs have been added,
@@ -138,32 +212,7 @@ public class CFSM extends FifoSys<CFSMState> {
     }
 
     public void augmentWithInvTracing(AlwaysFollowedBy inv) {
-        EventType e1 = inv.getFirst();
-        EventType e2 = inv.getSecond();
-
-        assert alphabet.contains(e1);
-        assert alphabet.contains(e2);
-        assert fsms.size() < e1.getEventPid();
-        assert fsms.size() < e2.getEventPid();
-
-        int scmId = this.channelIds.size();
-
-        // Create a new invariant-specific channel and add it to the
-        // CFSM.
-        //
-        // NOTE: since the McScM model checker allows all processes to access
-        // all channels, it does not matter which pids we use here.
-        ChannelId invCid = new ChannelId(e1.getEventPid(), e1.getEventPid(),
-                scmId);
-        this.channelIds.add(invCid);
-
-        FSM f1 = this.fsms.get(e1.getEventPid());
-        EventType e1Tracer = EventType.SendEvent(e1.getEventStr(), invCid);
-        addSendToEventTx(f1, e1, e1Tracer);
-
-        FSM f2 = this.fsms.get(e2.getEventPid());
-        EventType e2Tracer = EventType.SendEvent(e2.getEventStr(), invCid);
-        addSendToEventTx(f1, e2, e2Tracer);
+        augmentWithInvTracingGeneric(inv);
 
         // 5. Keep track of these synthetic events, so that we can later
         // identify and filter them out from the generated counter-example event
@@ -176,15 +225,14 @@ public class CFSM extends FifoSys<CFSMState> {
         // queue contents that are empty except for a reg-exp specifying the
         // queue contents of the cid_inv channel that is an invalid
         // configuration for the invariant.
-
     }
 
     public void augmentWithInvTracing(NeverFollowedBy inv) {
-        // TODO
+        augmentWithInvTracingGeneric(inv);
     }
 
     public void augmentWithInvTracing(AlwaysPrecedes inv) {
-        // TODO
+        augmentWithInvTracingGeneric(inv);
     }
 
     /** Generate SCM representation of this CFSM (without bad_states). */
@@ -200,9 +248,9 @@ public class CFSM extends FifoSys<CFSMState> {
         ret = "scm " + cfsmName + ":\n\n";
 
         // Channels:
-        ret += "nb_channels = " + numChannels + " ;\n";
+        ret += "nb_channels = " + channelIds.size() + " ;\n";
         ret += "/*\n";
-        for (int i = 0; i < numChannels; i++) {
+        for (int i = 0; i < channelIds.size(); i++) {
             ret += "channel " + Integer.toString(i) + " : "
                     + channelIds.get(i).toString() + "\n";
         }
@@ -210,7 +258,7 @@ public class CFSM extends FifoSys<CFSMState> {
 
         // Parameters/Alphabet:
         ret += "parameters :\n";
-        ret += alphabet.toScmString();
+        ret += alphabet.toScmParametersString();
         ret += "\n";
 
         // Whether or not the channels are lossy:
@@ -259,6 +307,47 @@ public class CFSM extends FifoSys<CFSMState> {
     }
 
     /**
+     * Augments the CFSM with a tracking channel to keep track of the two events
+     * that are part of the binary invariant inv.
+     */
+    private void augmentWithInvTracingGeneric(BinaryInvariant inv) {
+        EventType e1 = inv.getFirst();
+        EventType e2 = inv.getSecond();
+
+        assert alphabet.contains(e1);
+        assert alphabet.contains(e2);
+        assert fsms.size() < e1.getEventPid();
+        assert fsms.size() < e2.getEventPid();
+        assert !invs.contains(invs);
+
+        invs.add(inv);
+
+        int scmId = this.channelIds.size();
+
+        if (firstSyntheticChIndex > scmId) {
+            firstSyntheticChIndex = scmId;
+        }
+
+        // Create and add a new invariant-specific channel.
+        //
+        // NOTE: since the McScM model checker allows all processes to access
+        // all channels, it does not matter which pids we use here.
+        ChannelId invCid = new ChannelId(e1.getEventPid(), e1.getEventPid(),
+                scmId, "ch-" + inv.toString());
+        this.channelIds.add(invCid);
+
+        // Update the FSM corresponding to e1.
+        FSM f1 = this.fsms.get(e1.getEventPid());
+        EventType e1Tracer = EventType.SendEvent(e1.getEventStr(), invCid);
+        addSendToEventTx(f1, e1, e1Tracer);
+
+        // Update the FSM corresponding to e2.
+        FSM f2 = this.fsms.get(e2.getEventPid());
+        EventType e2Tracer = EventType.SendEvent(e2.getEventStr(), invCid);
+        addSendToEventTx(f2, e2, e2Tracer);
+    }
+
+    /**
      * Traverse the graph of FSM f and replace all transitions on e to some
      * state s to transition to a new state X, and add a transition from X to s
      * that enqueues event e on channel identified by invCid.
@@ -284,9 +373,8 @@ public class CFSM extends FifoSys<CFSMState> {
             if (e.equals(eToTrace)) {
                 for (FSMState next : s.getNextStates(e)) {
                     s.rmTransition(e, next);
-                    FSMState newFSMState = new FSMState(next.isAccept(),
-                            next.isInitial(), next.getPid(),
-                            f.getNextScmFSMStateId());
+                    FSMState newFSMState = new FSMState(s.isAccept(),
+                            s.isInitial(), s.getPid(), f.getNextScmFSMStateId());
                     s.addTransition(e, newFSMState);
                     newFSMState.addTransition(eTracer, next);
                     recurseAddSendToEventTx(f, next, eToTrace, eToTrace);

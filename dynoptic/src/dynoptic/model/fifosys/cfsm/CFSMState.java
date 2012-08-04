@@ -19,7 +19,7 @@ import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 public final class CFSMState extends AbsMultiFSMState<CFSMState> {
 
     // List of FSMStates, ordered according to process IDs: 0 - (size-1).
-    final List<FSMState> fsmStates;
+    private final List<FSMState> fsmStates;
 
     /**
      * Creates and returns a CFSMState instance for each item in the list of
