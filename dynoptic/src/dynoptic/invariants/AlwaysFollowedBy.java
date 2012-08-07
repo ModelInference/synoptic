@@ -1,7 +1,6 @@
 package dynoptic.invariants;
 
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.alphabet.FSMAlphabet;
 
 public class AlwaysFollowedBy extends BinaryInvariant {
 
@@ -10,12 +9,11 @@ public class AlwaysFollowedBy extends BinaryInvariant {
     }
 
     @Override
-    public String scmBadStateQRe(FSMAlphabet globalAlphabet) {
-        super.scmBadStateQRe(globalAlphabet);
+    public String scmBadStateQRe() {
+        super.scmBadStateQRe();
 
-        // There is an 'a' that is not followed any time later by a 'b'.
-        return globalAlphabet.anyEventScmQRe() + "^* . "
-                + firstSynth.getScmEventString() + " . "
-                + globalAlphabet.anyEventExceptOneScmQRe(secondSynth) + "^*";
+        // There is an 'a' that is preceded by 'a' or 'b' but is not followed
+        // any later by any 'b', though it might be followed by more a's.
+        return someSynthEventsQRe() + " . " + firstSynthEventsQRe() + "^+";
     }
 }

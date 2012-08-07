@@ -100,15 +100,21 @@ public class FSMAlphabet implements Set<EventType> {
 
     // //////////////////////////////////////////////////////////////////
 
+    public Set<String> getLocalEventScmStrings() {
+        Set<String> ret = new LinkedHashSet<String>();
+        for (EventType e : events) {
+            if (e.isLocalEvent()) {
+                ret.add(e.getScmEventFullString());
+            }
+        }
+        return ret;
+    }
+
     public String toScmParametersString() {
         String ret = "";
-        Set<String> seenEventStrs = new LinkedHashSet<String>();
-        for (EventType e : events) {
-            String eStr = e.getScmEventString();
-            if (!seenEventStrs.contains(eStr)) {
-                ret += "real " + eStr + " ;\n";
-                seenEventStrs.add(eStr);
-            }
+
+        for (String eStr : getUniqueEventStrings(null)) {
+            ret += "real " + eStr + " ;\n";
         }
         return ret;
     }
@@ -125,17 +131,18 @@ public class FSMAlphabet implements Set<EventType> {
 
     // //////////////////////////////////////////////////////////////////
 
+    /**
+     * Concatenates a list of event strings into a re expression representing a
+     * set of strings.
+     */
     private String scmQRe(EventType ignoreE) {
         String ret = "(";
-        Iterator<EventType> iter = events.iterator();
+        Set<String> eventStrings = getUniqueEventStrings(ignoreE);
+        Iterator<String> iter = eventStrings.iterator();
 
         while (iter.hasNext()) {
-            EventType e = iter.next();
-            // Skip the ignored event.
-            if (ignoreE != null && e.equals(ignoreE)) {
-                continue;
-            }
-            ret = ret + e.getScmEventString() + " . ";
+            String e = iter.next();
+            ret = ret + e + " | ";
         }
 
         // The re encodes no events -- return empty string re.
@@ -147,5 +154,22 @@ public class FSMAlphabet implements Set<EventType> {
         ret = ret.substring(0, ret.length() - 3);
 
         return ret + ")";
+    }
+
+    /**
+     * This function exists because we might have duplication of event strings,
+     * event though the event types are unique. For example, the two event types
+     * '0!m' and '0?m' are unique, but the event string for both event types is
+     * 'm'.
+     */
+    private Set<String> getUniqueEventStrings(EventType ignoreE) {
+        Set<String> ret = new LinkedHashSet<String>();
+        for (EventType e : events) {
+            if ((ignoreE != null) && e.equals(ignoreE)) {
+                continue;
+            }
+            ret.add(e.getScmEventString());
+        }
+        return ret;
     }
 }

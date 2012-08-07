@@ -141,11 +141,11 @@ public class FSMState extends AbsFSMState<FSMState> {
     }
 
     /** Returns an SCM representation of this FSMStates. */
-    public String toScmString() {
+    public String toScmString(int localEventsQueueId) {
         String ret = "state " + scmId + " :\n";
 
         for (EventType e : transitions.keySet()) {
-            String eStr = e.toScmTransitionString();
+            String eStr = e.toScmTransitionString(localEventsQueueId);
             for (FSMState next : transitions.get(e)) {
                 ret += "to " + next.getScmId() + " : when true , " + eStr
                         + " ;\n";

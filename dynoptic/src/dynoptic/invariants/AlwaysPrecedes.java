@@ -1,7 +1,6 @@
 package dynoptic.invariants;
 
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.alphabet.FSMAlphabet;
 
 public class AlwaysPrecedes extends BinaryInvariant {
 
@@ -10,12 +9,11 @@ public class AlwaysPrecedes extends BinaryInvariant {
     }
 
     @Override
-    public String scmBadStateQRe(FSMAlphabet globalAlphabet) {
-        super.scmBadStateQRe(globalAlphabet);
+    public String scmBadStateQRe() {
+        super.scmBadStateQRe();
 
-        // There is a 'b' that was never preceded by an 'a'.
-        return globalAlphabet.anyEventExceptOneScmQRe(firstSynth) + "^* . "
-                + secondSynth.getScmEventString() + " . "
-                + globalAlphabet.anyEventScmQRe() + "^*";
+        // There is a 'b' that was never preceded by an 'a'. This 'b' is
+        // followed by any number of a's or b's.
+        return secondSynthEventsQRe() + "^+ . " + someSynthEventsQRe();
     }
 }

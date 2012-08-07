@@ -78,13 +78,13 @@ public class FSMStateTests extends DynopticTest {
     @Test
     public void scmString() {
         // Without transitions:
-        logger.info(init.toScmString());
+        logger.info(init.toScmString(42));
 
         init.addTransition(e_pid1, accept);
         init.addTransition(e2_pid1, accept);
 
         // With transitions:
-        logger.info(init.toScmString());
+        logger.info(init.toScmString(42));
     }
 
     @Test(expected = AssertionError.class)

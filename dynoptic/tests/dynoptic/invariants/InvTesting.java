@@ -1,21 +1,18 @@
 package dynoptic.invariants;
 
-import java.util.Arrays;
-
 import org.junit.Before;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.alphabet.FSMAlphabet;
 import dynoptic.model.fifosys.channel.ChannelId;
 
 public abstract class InvTesting extends DynopticTest {
 
     EventType e0, e1, e2;
     ChannelId cid1, cid2;
-    FSMAlphabet alphabet;
 
-    EventType fSynth, sSynth;
+    EventType fSynth1, sSynth1;
+    EventType fSynth2, sSynth2;
 
     @Before
     public void setUp() throws Exception {
@@ -28,15 +25,10 @@ public abstract class InvTesting extends DynopticTest {
         e1 = EventType.SendEvent("e1", cid1);
         e2 = EventType.SendEvent("e2", cid2);
 
-        alphabet = new FSMAlphabet();
-        alphabet.addAll(Arrays.asList(new EventType[] { e0, e1, e2 }));
-
         ChannelId cid = new ChannelId(1, 1, 2);
-        fSynth = EventType.SynthSendEvent(e1, cid);
-        sSynth = EventType.SynthSendEvent(e2, cid);
-
-        alphabet.add(fSynth);
-        alphabet.add(sSynth);
+        fSynth1 = EventType.SynthSendEvent(e1, cid, true);
+        sSynth1 = EventType.SynthSendEvent(e2, cid, true);
+        fSynth2 = EventType.SynthSendEvent(e1, cid, false);
+        sSynth2 = EventType.SynthSendEvent(e2, cid, false);
     }
-
 }
