@@ -15,9 +15,9 @@ public class NeverFollowedBy extends BinaryInvariant {
 
         // There is an 'a' that is followed by a 'b'.
         return globalAlphabet.anyEventScmQRe() + "^* . "
-                + first.getScmEventString() + " . "
+                + firstSynth.getScmEventString() + " . "
                 + globalAlphabet.anyEventScmQRe() + "^* . "
-                + second.getScmEventString() + " . "
+                + secondSynth.getScmEventString() + " . "
                 + globalAlphabet.anyEventScmQRe() + "^*";
     }
 }

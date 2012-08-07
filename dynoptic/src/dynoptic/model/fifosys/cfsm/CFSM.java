@@ -226,7 +226,10 @@ public class CFSM extends FifoSys<CFSMState> {
         augmentWithInvTracingGeneric(inv);
     }
 
-    /** Generate SCM representation of this CFSM (without bad_states). */
+    /**
+     * Generate SCM representation of this CFSM, with bad states if this CFSM
+     * was augmented with any invariants.
+     */
     public String toScmString() {
         assert unSpecifiedPids == 0;
 
@@ -267,6 +270,13 @@ public class CFSM extends FifoSys<CFSMState> {
             ret += "\n";
         }
 
+        // Bad states:
+        if (invs.size() != 0) {
+            for (BadState b : getBadStates()) {
+                ret += b.toScmString() + "\n";
+            }
+        }
+
         return ret;
     }
 
@@ -298,9 +308,9 @@ public class CFSM extends FifoSys<CFSMState> {
     }
 
     /**
-     * Augments the CFSM with a tracking channel and send events to this channel
-     * to keep track of the two events that are part of the binary invariant
-     * inv.
+     * Augments the CFSM with a tracking channel and send synthetic messages on
+     * this channel to keep track of the two events that are part of the binary
+     * invariant inv. Adds the synthetic events to the CFSM alphabet.
      */
     private void augmentWithInvTracingGeneric(BinaryInvariant inv) {
         EventType e1 = inv.getFirst();
@@ -325,20 +335,25 @@ public class CFSM extends FifoSys<CFSMState> {
         // NOTE: since the McScM model checker allows all processes to access
         // all channels, it does not matter which pids we use here.
         ChannelId invCid = new ChannelId(e1.getEventPid(), e1.getEventPid(),
-                scmId, "ch-" + inv.toString());
+                scmId, "ch-[" + inv.toString() + "]");
         this.channelIds.add(invCid);
 
         // Update the FSM corresponding to e1.
         Set<FSMState> visited = new LinkedHashSet<FSMState>();
         FSM f1 = this.fsms.get(e1.getEventPid());
-        EventType e1Tracer = EventType.SendEvent(e1.getRawEventStr(), invCid);
+        EventType e1Tracer = EventType.SynthSendEvent(e1, invCid);
         addSendToEventTx(f1, e1, e1Tracer, visited);
+        this.alphabet.add(e1Tracer);
 
         // Update the FSM corresponding to e2.
         visited.clear();
         FSM f2 = this.fsms.get(e2.getEventPid());
-        EventType e2Tracer = EventType.SendEvent(e2.getRawEventStr(), invCid);
+        EventType e2Tracer = EventType.SynthSendEvent(e2, invCid);
         addSendToEventTx(f2, e2, e2Tracer, visited);
+        this.alphabet.add(e2Tracer);
+
+        inv.setFirstSynthTracer(e1Tracer);
+        inv.setSecondSynthTracer(e2Tracer);
     }
 
     /**
@@ -364,27 +379,23 @@ public class CFSM extends FifoSys<CFSMState> {
      * 
      * @param visited
      */
-    private void recurseAddSendToEventTx(FSM f, FSMState s, EventType eToTrace,
-            EventType eTracer, Set<FSMState> visited) {
-        visited.add(s);
+    private void recurseAddSendToEventTx(FSM f, FSMState parent,
+            EventType eToTrace, EventType eTracer, Set<FSMState> visited) {
+        visited.add(parent);
 
-        for (EventType e : s.getTransitioningEvents()) {
+        for (EventType e : parent.getTransitioningEvents()) {
             if (e.equals(eToTrace)) {
-                for (FSMState next : s.getNextStates(e)) {
-                    if (visited.contains(next)) {
+                for (FSMState child : parent.getNextStates(e)) {
+                    if (visited.contains(child)) {
                         continue;
                     }
 
-                    s.rmTransition(e, next);
-                    FSMState newFSMState = new FSMState(s.isAccept(),
-                            s.isInitial(), s.getPid(), f.getNextScmFSMStateId());
-                    s.addTransition(e, newFSMState);
-                    newFSMState.addSynthTransition(eTracer, next);
-                    recurseAddSendToEventTx(f, next, eToTrace, eToTrace,
+                    f.addSyntheticState(parent, child, eToTrace, eTracer);
+                    recurseAddSendToEventTx(f, child, eToTrace, eToTrace,
                             visited);
                 }
             } else {
-                for (FSMState next : s.getNextStates(e)) {
+                for (FSMState next : parent.getNextStates(e)) {
                     if (visited.contains(next)) {
                         continue;
                     }

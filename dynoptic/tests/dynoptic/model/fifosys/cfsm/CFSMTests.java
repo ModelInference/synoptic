@@ -52,7 +52,7 @@ public class CFSMTests extends DynopticTest {
         init_0.addTransition(e1_pid0, accepting_0);
         accepting_0.addTransition(e2_pid0, init_0);
 
-        f0 = new FSM(0, init_0, accepting_0, states, 0);
+        f0 = new FSM(0, init_0, accepting_0, states, 2);
 
         // ///////////
 
@@ -69,7 +69,7 @@ public class CFSMTests extends DynopticTest {
         init_1.addTransition(e1_pid1, accepting_1);
         accepting_1.addTransition(e2_pid1, init_1);
 
-        f1 = new FSM(1, init_1, accepting_1, states, 0);
+        f1 = new FSM(1, init_1, accepting_1, states, 2);
     }
 
     @SuppressWarnings("unused")
@@ -142,10 +142,14 @@ public class CFSMTests extends DynopticTest {
         AlwaysPrecedes inv = new AlwaysPrecedes(e1_pid0, e1_pid1);
         logger.info(inv.toString());
 
+        // logger.info(c.toScmString());
+
         c.augmentWithInvTracing(inv);
 
         List<BadState> badStates = c.getBadStates();
-        assertEquals(badStates.size(), 1);
+        assertEquals(1, badStates.size());
         logger.info(badStates.get(0).toScmString());
+
+        logger.info(c.toScmString());
     }
 }

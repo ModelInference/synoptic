@@ -76,6 +76,12 @@ public class FSMState extends AbsFSMState<FSMState> {
         return Collections.unmodifiableSet(transitions.get(event));
     }
 
+    @Override
+    public String toString() {
+        return "FSM_state: init[" + isInitial + "], accept[" + isAccept
+                + "] id[" + scmId + "]";
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     /** Returns the pid that this state is associated with. */
@@ -113,7 +119,7 @@ public class FSMState extends AbsFSMState<FSMState> {
     public void addSynthTransition(EventType e, FSMState s) {
         assert e != null;
         assert s != null;
-        assert e.isSendEvent();
+        assert e.isSynthSendEvent();
 
         addTransitionNoChecks(e, s);
     }
