@@ -155,12 +155,31 @@ public class CFSM extends FifoSys<CFSMState> {
         // Set the synthetic queue reg-exps.
         for (int i = firstSyntheticChIndex; i < channelIds.size(); i++) {
             if (i == firstSyntheticChIndex + invIndex) {
-                qReList.add(inv.scmBadStateQRe(this.alphabet));
+                qReList.add(inv.scmBadStateQRe());
             } else {
                 // Initialize non-inv invariant synthetic queues to accept
                 // everything.
                 qReList.add(".*");
             }
+        }
+
+        // Add an RE for the local events queue.
+        Set<String> localEvents = this.alphabet.getLocalEventScmStrings();
+        if (localEvents.size() > 0) {
+            String localEventsQueueRe = "(";
+            for (String eLocal : localEvents) {
+                localEventsQueueRe += eLocal + " | ";
+            }
+            // Remove the last occurrence of the "|" character.
+            localEventsQueueRe = localEventsQueueRe.substring(0,
+                    localEventsQueueRe.length() - 3);
+            localEventsQueueRe += ")^*";
+            qReList.add(localEventsQueueRe);
+        } else {
+            // If there are no local events then the queue RE is the empty
+            // string, since no corresponding local event messages will be
+            // generated.
+            qReList.add("_");
         }
 
         // For each accept, generate a bad state <accept, qReList>.
@@ -242,18 +261,17 @@ public class CFSM extends FifoSys<CFSMState> {
         ret = "scm " + cfsmName + ":\n\n";
 
         // Channels:
-        ret += "nb_channels = " + channelIds.size() + " ;\n";
+        // The +1 channel is for simulating local events as send events (McScM
+        // does not support local events).
+        ret += "nb_channels = " + (channelIds.size() + 1) + " ;\n";
+        int localEventsQueueId = channelIds.size();
         ret += "/*\n";
         for (int i = 0; i < channelIds.size(); i++) {
             ret += "channel " + Integer.toString(i) + " : "
                     + channelIds.get(i).toString() + "\n";
         }
+        ret += "channel " + localEventsQueueId + " : local events queue\n";
         ret += "*/\n\n";
-
-        // Parameters/Alphabet:
-        ret += "parameters :\n";
-        ret += alphabet.toScmParametersString();
-        ret += "\n";
 
         // Whether or not the channels are lossy:
         if (lossy) {
@@ -262,16 +280,22 @@ public class CFSM extends FifoSys<CFSMState> {
             ret += "lossy: 0\n\n";
         }
 
+        // Parameters/Alphabet:
+        ret += "parameters :\n";
+        ret += alphabet.toScmParametersString();
+        ret += "\n";
+
         // FSMS:
         for (int pid = 0; pid < numProcesses; pid++) {
             FSM f = fsms.get(pid);
             ret += "automaton p" + Integer.toString(pid) + " :\n";
-            ret += f.toScmString();
+            ret += f.toScmString(localEventsQueueId);
             ret += "\n";
         }
 
         // Bad states:
         if (invs.size() != 0) {
+            ret += "\nbad_states:\n";
             for (BadState b : getBadStates()) {
                 ret += b.toScmString() + "\n";
             }
@@ -341,19 +365,23 @@ public class CFSM extends FifoSys<CFSMState> {
         // Update the FSM corresponding to e1.
         Set<FSMState> visited = new LinkedHashSet<FSMState>();
         FSM f1 = this.fsms.get(e1.getEventPid());
-        EventType e1Tracer = EventType.SynthSendEvent(e1, invCid);
-        addSendToEventTx(f1, e1, e1Tracer, visited);
-        this.alphabet.add(e1Tracer);
+        EventType e1Tracer1 = EventType.SynthSendEvent(e1, invCid, true);
+        EventType e1Tracer2 = EventType.SynthSendEvent(e1, invCid, false);
+        addSendToEventTx(f1, e1, e1Tracer1, e1Tracer2, visited);
+        this.alphabet.add(e1Tracer1);
+        this.alphabet.add(e1Tracer2);
 
         // Update the FSM corresponding to e2.
         visited.clear();
         FSM f2 = this.fsms.get(e2.getEventPid());
-        EventType e2Tracer = EventType.SynthSendEvent(e2, invCid);
-        addSendToEventTx(f2, e2, e2Tracer, visited);
-        this.alphabet.add(e2Tracer);
+        EventType e2Tracer1 = EventType.SynthSendEvent(e2, invCid, true);
+        EventType e2Tracer2 = EventType.SynthSendEvent(e2, invCid, false);
+        addSendToEventTx(f2, e2, e2Tracer1, e2Tracer2, visited);
+        this.alphabet.add(e2Tracer1);
+        this.alphabet.add(e2Tracer2);
 
-        inv.setFirstSynthTracer(e1Tracer);
-        inv.setSecondSynthTracer(e2Tracer);
+        inv.setFirstSynthTracers(e1Tracer1, e1Tracer2);
+        inv.setSecondSynthTracers(e2Tracer1, e2Tracer2);
     }
 
     /**
@@ -366,10 +394,11 @@ public class CFSM extends FifoSys<CFSMState> {
      * @param e1
      * @param invCid
      */
-    private void addSendToEventTx(FSM f, EventType eToTrace, EventType eTracer,
-            Set<FSMState> visited) {
+    private void addSendToEventTx(FSM f, EventType eToTrace,
+            EventType eTracer1, EventType eTracer2, Set<FSMState> visited) {
         for (FSMState init : f.getInitStates()) {
-            recurseAddSendToEventTx(f, init, eToTrace, eTracer, visited);
+            recurseAddSendToEventTx(f, init, eToTrace, eTracer1, eTracer2,
+                    visited);
         }
     }
 
@@ -380,7 +409,8 @@ public class CFSM extends FifoSys<CFSMState> {
      * @param visited
      */
     private void recurseAddSendToEventTx(FSM f, FSMState parent,
-            EventType eToTrace, EventType eTracer, Set<FSMState> visited) {
+            EventType eToTrace, EventType eTracer1, EventType eTracer2,
+            Set<FSMState> visited) {
         visited.add(parent);
 
         for (EventType e : parent.getTransitioningEvents()) {
@@ -390,9 +420,10 @@ public class CFSM extends FifoSys<CFSMState> {
                         continue;
                     }
 
-                    f.addSyntheticState(parent, child, eToTrace, eTracer);
-                    recurseAddSendToEventTx(f, child, eToTrace, eToTrace,
-                            visited);
+                    f.addSyntheticState(parent, child, eToTrace, eTracer1,
+                            eTracer2);
+                    recurseAddSendToEventTx(f, child, eToTrace, eTracer1,
+                            eTracer2, visited);
                 }
             } else {
                 for (FSMState next : parent.getNextStates(e)) {
@@ -400,8 +431,8 @@ public class CFSM extends FifoSys<CFSMState> {
                         continue;
                     }
 
-                    recurseAddSendToEventTx(f, next, eToTrace, eToTrace,
-                            visited);
+                    recurseAddSendToEventTx(f, next, eToTrace, eTracer1,
+                            eTracer2, visited);
                 }
             }
         }

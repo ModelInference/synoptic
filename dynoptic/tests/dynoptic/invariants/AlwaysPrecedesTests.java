@@ -14,9 +14,9 @@ public class AlwaysPrecedesTests extends InvTesting {
     public void scmBadStatesString() {
         AlwaysPrecedes inv = new AlwaysPrecedes(e1, e2);
 
-        inv.setFirstSynthTracer(fSynth);
-        inv.setSecondSynthTracer(sSynth);
+        inv.setFirstSynthTracers(fSynth1, fSynth2);
+        inv.setSecondSynthTracers(sSynth1, sSynth2);
 
-        logger.info(inv.scmBadStateQRe(alphabet));
+        logger.info(inv.scmBadStateQRe());
     }
 }

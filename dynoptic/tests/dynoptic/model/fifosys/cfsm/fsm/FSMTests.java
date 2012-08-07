@@ -91,7 +91,7 @@ public class FSMTests extends DynopticTest {
 
         FSM f = new FSM(1, init_1, accepting_1, states, 2);
 
-        logger.info(f.toScmString());
+        logger.info(f.toScmString(42));
     }
 
     @Test(expected = AssertionError.class)

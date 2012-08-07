@@ -1,7 +1,6 @@
 package dynoptic.invariants;
 
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.alphabet.FSMAlphabet;
 
 abstract public class BinaryInvariant {
     // The two event types that are related by this binary invariant.
@@ -9,8 +8,8 @@ abstract public class BinaryInvariant {
     protected EventType second;
 
     // The corresponding synthetic events used for invariant checking.
-    protected EventType firstSynth;
-    protected EventType secondSynth;
+    protected EventType firstSynth1, firstSynth2;
+    protected EventType secondSynth1, secondSynth2;
 
     // A string such as "AFby", or "NFby", or "AP".
     protected String connectorStr;
@@ -24,8 +23,10 @@ abstract public class BinaryInvariant {
 
         // Initialize these to null -- use set*SynthTracer below to set these
         // appropriately.
-        firstSynth = null;
-        secondSynth = null;
+        firstSynth1 = null;
+        firstSynth2 = null;
+        secondSynth1 = null;
+        secondSynth2 = null;
 
         this.connectorStr = str;
     }
@@ -44,21 +45,57 @@ abstract public class BinaryInvariant {
     }
 
     /** Sets the synthetic tracing event corresponding to first. */
-    public void setFirstSynthTracer(EventType fSynth) {
-        firstSynth = fSynth;
+    public void setFirstSynthTracers(EventType fSynth1, EventType fSynth2) {
+        firstSynth1 = fSynth1;
+        firstSynth2 = fSynth2;
     }
 
     /** Sets the synthetic tracing event corresponding to second. */
-    public void setSecondSynthTracer(EventType sSynth) {
-        secondSynth = sSynth;
+    public void setSecondSynthTracers(EventType sSynth1, EventType sSynth2) {
+        secondSynth1 = sSynth1;
+        secondSynth2 = sSynth2;
     }
 
-    public String scmBadStateQRe(FSMAlphabet globalAlphabet) {
-        assert globalAlphabet.contains(first);
-        assert globalAlphabet.contains(second);
-        assert firstSynth != null;
-        assert secondSynth != null;
+    /**
+     * This method assumes that the channel alphabet is made up of just
+     * secondSynth and firstSynth events.
+     */
+    public String scmBadStateQRe() {
+        assert firstSynth1 != null;
+        assert secondSynth1 != null;
+        assert firstSynth2 != null;
+        assert secondSynth2 != null;
 
         return null;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
+    protected String someSynthEventsQRe() {
+        assert firstSynth1 != null;
+        assert secondSynth1 != null;
+        assert firstSynth2 != null;
+        assert secondSynth2 != null;
+
+        return "(" + firstSynth1.getScmEventString() + " | "
+                + firstSynth2.getScmEventString() + " | "
+                + secondSynth1.getScmEventString() + " | "
+                + secondSynth2.getScmEventString() + ")^*";
+    }
+
+    protected String firstSynthEventsQRe() {
+        assert firstSynth1 != null;
+        assert firstSynth2 != null;
+
+        return firstSynth1.getScmEventString() + " . "
+                + firstSynth2.getScmEventString();
+    }
+
+    protected String secondSynthEventsQRe() {
+        assert secondSynth1 != null;
+        assert secondSynth2 != null;
+
+        return "(" + secondSynth1.getScmEventString() + " . "
+                + secondSynth2.getScmEventString() + ")";
     }
 }

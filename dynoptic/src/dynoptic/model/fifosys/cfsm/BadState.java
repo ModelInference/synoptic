@@ -43,7 +43,7 @@ public class BadState {
                 String re = iter.next();
                 ret += re;
                 if (iter.hasNext()) {
-                    ret += " # ";
+                    ret += " . # . ";
                 }
             }
             ret += "\n";

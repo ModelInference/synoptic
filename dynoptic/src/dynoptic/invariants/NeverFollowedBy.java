@@ -1,7 +1,6 @@
 package dynoptic.invariants;
 
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.alphabet.FSMAlphabet;
 
 public class NeverFollowedBy extends BinaryInvariant {
 
@@ -10,14 +9,14 @@ public class NeverFollowedBy extends BinaryInvariant {
     }
 
     @Override
-    public String scmBadStateQRe(FSMAlphabet globalAlphabet) {
-        super.scmBadStateQRe(globalAlphabet);
+    public String scmBadStateQRe() {
+        super.scmBadStateQRe();
 
-        // There is an 'a' that is followed by a 'b'.
-        return globalAlphabet.anyEventScmQRe() + "^* . "
-                + firstSynth.getScmEventString() + " . "
-                + globalAlphabet.anyEventScmQRe() + "^* . "
-                + secondSynth.getScmEventString() + " . "
-                + globalAlphabet.anyEventScmQRe() + "^*";
+        // There is an 'a', preceded by any number of 'a' or 'b', but which is
+        // followed by at least one 'b'. This last 'b' can be intermingled in
+        // any way with 'a' and other 'b' instances.
+        return someSynthEventsQRe() + " . " + firstSynthEventsQRe() + " . "
+                + someSynthEventsQRe() + " . " + secondSynthEventsQRe() + " . "
+                + someSynthEventsQRe();
     }
 }

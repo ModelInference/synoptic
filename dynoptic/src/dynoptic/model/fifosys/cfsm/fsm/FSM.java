@@ -78,19 +78,29 @@ public class FSM extends AbsFSM<FSMState> {
 
     /** Adds a new synthetic state for tracking events for invariants checking. */
     public void addSyntheticState(FSMState parent, FSMState child,
-            EventType eToTrace, EventType eTracer) {
+            EventType eToTrace, EventType eTracer1, EventType eTracer2) {
         assert this.states.contains(parent);
         assert this.states.contains(child);
 
         parent.rmTransition(eToTrace, child);
-        FSMState newFSMState = new FSMState(parent.isAccept(),
+
+        FSMState synthState1 = new FSMState(parent.isAccept(),
                 parent.isInitial(), pid, nextScmFSMStateId);
         nextScmFSMStateId++;
 
-        parent.addTransition(eToTrace, newFSMState);
-        newFSMState.addSynthTransition(eTracer, child);
+        FSMState synthState2 = new FSMState(child.isAccept(),
+                child.isInitial(), pid, nextScmFSMStateId);
+        nextScmFSMStateId++;
 
-        this.states.add(newFSMState);
+        // The tracer events t1 and t2 flank the event to trace so that a queue
+        // sequence of 't1t2' would indicate exactly when the event to trace
+        // occurred.
+        parent.addSynthTransition(eTracer1, synthState1);
+        synthState1.addTransition(eToTrace, synthState2);
+        synthState2.addSynthTransition(eTracer2, child);
+
+        this.states.add(synthState1);
+        this.states.add(synthState2);
     }
 
     public int getPid() {
@@ -101,7 +111,7 @@ public class FSM extends AbsFSM<FSMState> {
      * Generate SCM representation of this FSM, using a specific channelIds
      * ordering.
      */
-    public String toScmString() {
+    public String toScmString(int localEventsQueueId) {
         String ret;
 
         ret = null;
@@ -115,7 +125,7 @@ public class FSM extends AbsFSM<FSMState> {
         ret += "\n";
 
         for (FSMState s : states) {
-            ret += s.toScmString();
+            ret += s.toScmString(localEventsQueueId);
             ret += "\n\n";
         }
 

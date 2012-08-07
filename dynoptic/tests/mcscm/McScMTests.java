@@ -20,7 +20,7 @@ import dynoptic.model.fifosys.channel.ChannelId;
 
 public class McScMTests {
 
-    McScM bridge;
+    McScM mcscm;
     String verifyPath;
     String scmFilePrefix;
 
@@ -49,7 +49,7 @@ public class McScMTests {
 
         logger = Logger.getLogger("TestMcScM");
         logger.setLevel(Level.INFO);
-        bridge = new McScM(verifyPath);
+        mcscm = new McScM(verifyPath);
 
         cids = new ArrayList<ChannelId>();
         cid0 = new ChannelId(1, 2, 0);
@@ -87,13 +87,13 @@ public class McScMTests {
     @Test(expected = ScmSyntaxException.class)
     public void testEmptyScmInput() throws IOException {
         try {
-            bridge.verify("");
+            mcscm.verify("");
         } catch (Exception e) {
             logger.info("Verify threw an exception: " + e.toString());
             fail("Verify should not fail.");
         }
 
-        bridge.getVerifyResult(cids);
+        mcscm.getVerifyResult(cids);
         fail("getVerifyResult should have thrown an exception.");
     }
 
@@ -107,13 +107,13 @@ public class McScMTests {
         String scmStr = readScmFile("ABP_safe.scm");
 
         try {
-            bridge.verify(scmStr);
+            mcscm.verify(scmStr);
         } catch (Exception e) {
             logger.info("Verify threw an exception: " + e.toString());
             fail("Verify should not fail.");
         }
 
-        VerifyResult result = bridge.getVerifyResult(cids);
+        VerifyResult result = mcscm.getVerifyResult(cids);
         assertTrue(result.modelIsSafe());
     }
 
@@ -127,13 +127,13 @@ public class McScMTests {
         String scmStr = readScmFile("ABP_unsafe_cexample_len1.scm");
 
         try {
-            bridge.verify(scmStr);
+            mcscm.verify(scmStr);
         } catch (Exception e) {
             logger.info("Verify threw an exception: " + e.toString());
             fail("Verify should not fail.");
         }
 
-        VerifyResult result = bridge.getVerifyResult(cids);
+        VerifyResult result = mcscm.getVerifyResult(cids);
         assertTrue(!result.modelIsSafe());
         assertEquals(result.getCExample().getEvents().size(), 1);
         assertEquals(result.getCExample().getEvents().get(0), cExEType);
@@ -149,13 +149,13 @@ public class McScMTests {
         String scmStr = readScmFile("ABP_unsafe_cexample_len2.scm");
 
         try {
-            bridge.verify(scmStr);
+            mcscm.verify(scmStr);
         } catch (Exception e) {
             logger.info("Verify threw an exception: " + e.toString());
             fail("Verify should not fail.");
         }
 
-        VerifyResult result = bridge.getVerifyResult(cids);
+        VerifyResult result = mcscm.getVerifyResult(cids);
         assertTrue(!result.modelIsSafe());
         assertEquals(result.getCExample().getEvents().size(), 2);
         assertEquals(result.getCExample().getEvents().get(0), cExEType);

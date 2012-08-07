@@ -50,8 +50,14 @@ public class EventType {
                 channel);
     }
 
-    public static EventType SynthSendEvent(EventType eToTrace, ChannelId channel) {
-        String event = eToTrace.getScmEventString() + "TR";
+    public static EventType SynthSendEvent(EventType eToTrace,
+            ChannelId channel, boolean isFirstTracer) {
+        String event = eToTrace.getScmEventFullString();
+        if (isFirstTracer) {
+            event += "TR0";
+        } else {
+            event += "TR1";
+        }
         return new EventType(event, channel.getDstPid(), EventClass.SYNTH_SEND,
                 channel);
     }
@@ -60,6 +66,8 @@ public class EventType {
 
     protected EventType(String event, int pid, EventClass eventType,
             ChannelId channel) {
+        assert !event.endsWith("L") : "Events cannot end with 'L' -- conflict with local events format.";
+
         if (eventType == EventClass.LOCAL) {
             assert channel == null;
         } else if (eventType == EventClass.SEND || eventType == EventClass.RECV
@@ -80,6 +88,9 @@ public class EventType {
         assert !event.contains("_");
         assert !event.contains("|");
         assert !event.contains("+");
+
+        // There are some other disallowed symbols, as well:
+        assert !event.contains("'");
 
         this.eventType = eventType;
         this.event = event;
@@ -117,27 +128,41 @@ public class EventType {
         return eventType == EventClass.SYNTH_SEND;
     }
 
+    public boolean isLocalEvent() {
+        return eventType == EventClass.LOCAL;
+    }
+
     /**
      * Returns an scm representation of this EventType, based on channelId to
      * int map.
      */
-    public String toScmTransitionString() {
+    public String toScmTransitionString(int localEventsQueueId) {
         if (channelId != null) {
             return toString(Integer.toString(channelId.getScmId()), ' ');
         }
-        return toString("", ' ');
+        // Use local queue for local events.
+        return localEventsQueueId + " ! " + getScmEventFullString();
     }
 
     public String getScmEventString() {
+        if (isLocalEvent()) {
+            return getScmEventFullString();
+        }
+        return event;
+
+    }
+
+    public String getScmEventFullString() {
         if (isSynthSendEvent()) {
-            // The internal string is the exact SCM event representation.
+            // The internal string is the exact SCM event
+            // representation.
             return event;
         } else if (isSendEvent()) {
-            return channelId.getScmId() + "S" + event;
+            return "ch" + channelId.getScmId() + "S" + event;
         } else if (isRecvEvent()) {
-            return channelId.getScmId() + "R" + event;
+            return "ch" + channelId.getScmId() + "R" + event;
         }
-        return event + "L" + Integer.toString(pid);
+        return event + "p" + Integer.toString(pid) + "L";
     }
 
     // //////////////////////////////////////////////////////////////////
