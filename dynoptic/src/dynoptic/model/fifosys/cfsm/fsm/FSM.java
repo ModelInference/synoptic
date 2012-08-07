@@ -7,6 +7,7 @@ import java.util.Set;
 
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
+import dynoptic.model.alphabet.EventType;
 
 /**
  * This class models FSMs that make up a CFSM. A few key characteristics:
@@ -52,6 +53,7 @@ public class FSM extends AbsFSM<FSMState> {
                 scmIds.add(s.getScmId());
                 assert (states.containsAll(s.getNextStates()));
                 assert s.getPid() == pid;
+                assert nextScmFSMStateId > s.getScmId();
             }
 
             for (FSMState s : initStates) {
@@ -74,14 +76,25 @@ public class FSM extends AbsFSM<FSMState> {
 
     // //////////////////////////////////////////////////////////////////
 
-    public int getPid() {
-        return this.pid;
+    /** Adds a new synthetic state for tracking events for invariants checking. */
+    public void addSyntheticState(FSMState parent, FSMState child,
+            EventType eToTrace, EventType eTracer) {
+        assert this.states.contains(parent);
+        assert this.states.contains(child);
+
+        parent.rmTransition(eToTrace, child);
+        FSMState newFSMState = new FSMState(parent.isAccept(),
+                parent.isInitial(), pid, nextScmFSMStateId);
+        nextScmFSMStateId++;
+
+        parent.addTransition(eToTrace, newFSMState);
+        newFSMState.addSynthTransition(eTracer, child);
+
+        this.states.add(newFSMState);
     }
 
-    public int getNextScmFSMStateId() {
-        int ret = nextScmFSMStateId;
-        nextScmFSMStateId++;
-        return ret;
+    public int getPid() {
+        return this.pid;
     }
 
     /**

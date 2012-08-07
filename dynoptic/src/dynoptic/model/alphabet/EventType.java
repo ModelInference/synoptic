@@ -12,8 +12,13 @@ import dynoptic.model.fifosys.channel.ChannelId;
  * local events are associated with a process id of the corresponding process.
  */
 public class EventType {
+    // LOCAL : event that is local to a process
+    // SEND : an enqueue of a message from a channel event
+    // RECV : a dequeue of a message from a channel
+    // SYNTH_SEND : a synthetic event that is an enqueue on a synthetic channel
+    // that is used for augmenting CFSMs with invariants.
     protected enum EventClass {
-        LOCAL, SEND, RECV
+        LOCAL, SEND, RECV, SYNTH_SEND
     }
 
     final EventClass eventType;
@@ -35,6 +40,7 @@ public class EventType {
     }
 
     public static EventType SendEvent(String event, ChannelId channel) {
+        assert !event.endsWith("TR") : "Send events cannot end with 'TR' -- conflict with internal invariant tracking events.";
         return new EventType(event, channel.getSrcPid(), EventClass.SEND,
                 channel);
     }
@@ -44,13 +50,20 @@ public class EventType {
                 channel);
     }
 
+    public static EventType SynthSendEvent(EventType eToTrace, ChannelId channel) {
+        String event = eToTrace.getScmEventString() + "TR";
+        return new EventType(event, channel.getDstPid(), EventClass.SYNTH_SEND,
+                channel);
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     protected EventType(String event, int pid, EventClass eventType,
             ChannelId channel) {
         if (eventType == EventClass.LOCAL) {
             assert channel == null;
-        } else if (eventType == EventClass.SEND || eventType == EventClass.RECV) {
+        } else if (eventType == EventClass.SEND || eventType == EventClass.RECV
+                || eventType == EventClass.SYNTH_SEND) {
             assert channel != null;
         } else {
             throw new IllegalArgumentException("Invalid EventType.");
@@ -88,7 +101,8 @@ public class EventType {
     }
 
     public boolean isCommEvent() {
-        return eventType == EventClass.SEND || eventType == EventClass.RECV;
+        return eventType == EventClass.SEND || eventType == EventClass.RECV
+                || eventType == EventClass.SYNTH_SEND;
     }
 
     public boolean isRecvEvent() {
@@ -97,6 +111,10 @@ public class EventType {
 
     public boolean isSendEvent() {
         return eventType == EventClass.SEND;
+    }
+
+    public boolean isSynthSendEvent() {
+        return eventType == EventClass.SYNTH_SEND;
     }
 
     /**
@@ -111,7 +129,10 @@ public class EventType {
     }
 
     public String getScmEventString() {
-        if (isSendEvent()) {
+        if (isSynthSendEvent()) {
+            // The internal string is the exact SCM event representation.
+            return event;
+        } else if (isSendEvent()) {
             return channelId.getScmId() + "S" + event;
         } else if (isRecvEvent()) {
             return channelId.getScmId() + "R" + event;
@@ -147,6 +168,10 @@ public class EventType {
         }
 
         if (otherE.isCommEvent() != this.isCommEvent()) {
+            return false;
+        }
+
+        if (otherE.isSynthSendEvent() != this.isSynthSendEvent()) {
             return false;
         }
 
@@ -187,7 +212,7 @@ public class EventType {
     }
 
     private String toString(String cidString, char separator) {
-        if (isSendEvent()) {
+        if (isSendEvent() || isSynthSendEvent()) {
             return cidString + separator + "!" + separator
                     + getScmEventString();
         } else if (isRecvEvent()) {

@@ -29,6 +29,7 @@ public class EventTypeTests extends DynopticTest {
         assertFalse(e.isCommEvent());
         assertFalse(e.isSendEvent());
         assertFalse(e.isRecvEvent());
+        assertFalse(e.isSynthSendEvent());
         assertEquals(e.getEventPid(), 1);
         logger.info(e.toString());
         logger.info(e.toScmTransitionString());
@@ -60,6 +61,7 @@ public class EventTypeTests extends DynopticTest {
         assertTrue(e.isCommEvent());
         assertTrue(e.isSendEvent());
         assertFalse(e.isRecvEvent());
+        assertFalse(e.isSynthSendEvent());
         assertEquals(e.getEventPid(), cid.getSrcPid());
         logger.info(e.toString());
         logger.info(e.toScmTransitionString());
@@ -91,6 +93,7 @@ public class EventTypeTests extends DynopticTest {
         assertTrue(e.isCommEvent());
         assertFalse(e.isSendEvent());
         assertTrue(e.isRecvEvent());
+        assertFalse(e.isSynthSendEvent());
         assertEquals(e.getEventPid(), cid.getDstPid());
         logger.info(e.toString());
         logger.info(e.toScmTransitionString());
@@ -110,6 +113,38 @@ public class EventTypeTests extends DynopticTest {
         assertTrue(!e.equals(e2));
 
         e2 = EventType.SendEvent("e", cid);
+        assertTrue(!e.equals(e2));
+
+        e2 = EventType.LocalEvent("e", 1);
+        assertTrue(!e.equals(e2));
+    }
+
+    @Test
+    public void createSynthSend() {
+        EventType eToTrace = EventType.RecvEvent("e", cid);
+
+        EventType e = EventType.SynthSendEvent(eToTrace, cid);
+
+        assertTrue(e.isCommEvent());
+        assertFalse(e.isSendEvent());
+        assertFalse(e.isRecvEvent());
+        assertTrue(e.isSynthSendEvent());
+        assertEquals(e.getEventPid(), cid.getDstPid());
+        logger.info(e.toString());
+        logger.info(e.toScmTransitionString());
+
+        assertFalse(e.equals(null));
+        assertFalse(e.equals(""));
+        assertTrue(e.equals(e));
+
+        // equality:
+        EventType e2 = EventType.SynthSendEvent(eToTrace, cid);
+        assertEquals(e, e2);
+
+        e2 = EventType.RecvEvent("e", cid);
+        assertTrue(!e.equals(e2));
+
+        e2 = EventType.SendEvent("e", cid2);
         assertTrue(!e.equals(e2));
 
         e2 = EventType.LocalEvent("e", 1);

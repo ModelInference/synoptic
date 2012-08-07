@@ -101,11 +101,10 @@ public class FSMAlphabet implements Set<EventType> {
     // //////////////////////////////////////////////////////////////////
 
     public String toScmParametersString() {
-        String ret = "parameters :\n";
-
+        String ret = "";
         Set<String> seenEventStrs = new LinkedHashSet<String>();
         for (EventType e : events) {
-            String eStr = e.getRawEventStr();
+            String eStr = e.getScmEventString();
             if (!seenEventStrs.contains(eStr)) {
                 ret += "real " + eStr + " ;\n";
                 seenEventStrs.add(eStr);

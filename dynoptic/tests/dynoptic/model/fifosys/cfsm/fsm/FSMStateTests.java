@@ -46,6 +46,9 @@ public class FSMStateTests extends DynopticTest {
 
         assertEquals(init.getPid(), 1);
         assertEquals(accept.getPid(), 1);
+
+        logger.info(init.toString());
+        logger.info(accept.toString());
     }
 
     @Test

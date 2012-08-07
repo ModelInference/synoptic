@@ -15,7 +15,7 @@ public class AlwaysFollowedBy extends BinaryInvariant {
 
         // There is an 'a' that is not followed any time later by a 'b'.
         return globalAlphabet.anyEventScmQRe() + "^* . "
-                + first.getScmEventString() + " . "
-                + globalAlphabet.anyEventExceptOneScmQRe(second) + "^*";
+                + firstSynth.getScmEventString() + " . "
+                + globalAlphabet.anyEventExceptOneScmQRe(secondSynth) + "^*";
     }
 }

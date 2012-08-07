@@ -13,6 +13,10 @@ public class AlwaysFollowedByTests extends InvTesting {
     @Test
     public void scmBadStatesString() {
         AlwaysFollowedBy inv = new AlwaysFollowedBy(e1, e2);
+
+        inv.setFirstSynthTracer(fSynth);
+        inv.setSecondSynthTracer(sSynth);
+
         logger.info(inv.scmBadStateQRe(alphabet));
     }
 }

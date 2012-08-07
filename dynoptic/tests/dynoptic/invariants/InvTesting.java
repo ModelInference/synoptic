@@ -15,6 +15,8 @@ public abstract class InvTesting extends DynopticTest {
     ChannelId cid1, cid2;
     FSMAlphabet alphabet;
 
+    EventType fSynth, sSynth;
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -28,6 +30,13 @@ public abstract class InvTesting extends DynopticTest {
 
         alphabet = new FSMAlphabet();
         alphabet.addAll(Arrays.asList(new EventType[] { e0, e1, e2 }));
+
+        ChannelId cid = new ChannelId(1, 1, 2);
+        fSynth = EventType.SynthSendEvent(e1, cid);
+        sSynth = EventType.SynthSendEvent(e2, cid);
+
+        alphabet.add(fSynth);
+        alphabet.add(sSynth);
     }
 
 }
