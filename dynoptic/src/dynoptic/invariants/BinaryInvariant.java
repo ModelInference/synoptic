@@ -31,10 +31,50 @@ abstract public class BinaryInvariant {
         this.connectorStr = str;
     }
 
+    // //////////////////////////////////////////////////////////////////
+
     @Override
     public String toString() {
         return "(" + first + ") " + connectorStr + " (" + second + ")";
     }
+
+    @Override
+    public int hashCode() {
+        int ret = 17;
+        ret = 31 * ret + first.hashCode();
+        ret = 31 * ret + second.hashCode();
+        ret = 31 * ret + connectorStr.hashCode();
+        return ret;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof BinaryInvariant)) {
+            return false;
+
+        }
+        BinaryInvariant otherInv = (BinaryInvariant) other;
+        if (!otherInv.getFirst().equals(first)) {
+            return false;
+        }
+
+        if (!otherInv.getSecond().equals(second)) {
+            return false;
+        }
+
+        if (!otherInv.connectorStr.equals(connectorStr)) {
+            return false;
+        }
+        return true;
+    }
+
+    // //////////////////////////////////////////////////////////////////
 
     public EventType getFirst() {
         return first;

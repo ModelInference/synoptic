@@ -8,12 +8,37 @@ import dynoptic.invariants.BinaryInvariant;
  */
 public class InvChannelId extends ChannelId {
 
-    BinaryInvariant inv;
+    private BinaryInvariant inv;
 
     public InvChannelId(BinaryInvariant inv, int scmId) {
         super(inv.getFirst().getEventPid(), inv.getFirst().getEventPid(),
                 scmId, "ch-[" + inv.toString() + "]");
         this.inv = inv;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
+
+        if (!(other instanceof InvChannelId)) {
+            return false;
+
+        }
+
+        InvChannelId iCid = (InvChannelId) other;
+        if (!inv.equals(iCid.inv)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        return result + inv.hashCode();
     }
 
 }

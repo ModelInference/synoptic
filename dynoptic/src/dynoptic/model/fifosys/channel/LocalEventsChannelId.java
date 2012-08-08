@@ -19,6 +19,35 @@ public class LocalEventsChannelId extends ChannelId {
         eventStrToEventType = new LinkedHashMap<String, EventType>();
     }
 
+    // //////////////////////////////////////////////////////////////////
+
+    @Override
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
+
+        if (!(other instanceof LocalEventsChannelId)) {
+            return false;
+
+        }
+
+        LocalEventsChannelId leCid = (LocalEventsChannelId) other;
+        if (!eventStrToEventType.equals(leCid.eventStrToEventType)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        return result + eventStrToEventType.hashCode();
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
     public void addLocalEventString(EventType eventType, String eventStr) {
         assert !eventStrToEventType.containsKey(eventStr);
 

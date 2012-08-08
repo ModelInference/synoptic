@@ -22,7 +22,7 @@ public class BadState {
 
     @Override
     public String toString() {
-        return toString();
+        return toScmString();
     }
 
     public String toScmString() {

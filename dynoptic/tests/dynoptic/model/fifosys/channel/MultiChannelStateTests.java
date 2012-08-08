@@ -38,6 +38,7 @@ public class MultiChannelStateTests extends DynopticTest {
     @Test
     public void toStringCheck() {
         logger.info(mc.toString());
+        mc.hashCode();
     }
 
     @Test
@@ -51,8 +52,13 @@ public class MultiChannelStateTests extends DynopticTest {
     @Test
     public void enqueueIsEmptyPeekDequeue() {
         EventType e = EventType.SendEvent("e", cid1);
+
+        int h1 = mc.hashCode();
+
         // Enqueue e
         mc.enqueue(e);
+        int h2 = mc.hashCode();
+        assertTrue(h1 != h2);
         assertFalse(mc.isEmpty());
         assertFalse(mc.isEmptyForPid(2));
         assertTrue(mc.isEmptyForPid(1));
