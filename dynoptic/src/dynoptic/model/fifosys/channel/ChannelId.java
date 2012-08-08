@@ -8,7 +8,7 @@ package dynoptic.model.fifosys.channel;
  * channel state. It only records the two processes that use the channel and an
  * optional name for the channel.
  */
-public final class ChannelId {
+public class ChannelId {
     // Sender pid.
     final int srcPid;
 
@@ -93,4 +93,5 @@ public final class ChannelId {
     public int getScmId() {
         return scmId;
     }
+
 }

@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import mcscm.McScM;
 import mcscm.Os;
+import mcscm.VerifyResult;
 
 import org.junit.Test;
 
@@ -39,9 +40,17 @@ public class McScMCFSMTests extends CFSMTesting {
     public void verifyAFby() throws IOException, InterruptedException {
         AlwaysFollowedBy inv = new AlwaysFollowedBy(p0Sm, p1Rm);
         cfsm.augmentWithInvTracing(inv);
-        mcscm.verify(cfsm.toScmString());
 
-        mcscm.getVerifyResult(cfsm.getChannelIds());
+        String cStr = cfsm.toScmString();
+
+        mcscm.verify(cStr);
+        logger.info(cStr);
+
+        VerifyResult result = mcscm.getVerifyResult(cfsm.getChannelIds());
+
+        logger.info(result.toRawString());
+
+        logger.info(result.toString());
     }
 
 }

@@ -8,6 +8,7 @@ import java.util.Set;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
 import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.channel.LocalEventsChannelId;
 
 /**
  * This class models FSMs that make up a CFSM. A few key characteristics:
@@ -111,7 +112,7 @@ public class FSM extends AbsFSM<FSMState> {
      * Generate SCM representation of this FSM, using a specific channelIds
      * ordering.
      */
-    public String toScmString(int localEventsQueueId) {
+    public String toScmString(LocalEventsChannelId localEventsChId) {
         String ret;
 
         ret = null;
@@ -125,7 +126,7 @@ public class FSM extends AbsFSM<FSMState> {
         ret += "\n";
 
         for (FSMState s : states) {
-            ret += s.toScmString(localEventsQueueId);
+            ret += s.toScmString(localEventsChId);
             ret += "\n\n";
         }
 

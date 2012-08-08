@@ -69,9 +69,7 @@ abstract public class BinaryInvariant {
         return null;
     }
 
-    // //////////////////////////////////////////////////////////////////
-
-    protected String someSynthEventsQRe() {
+    public String someSynthEventsQRe() {
         assert firstSynth1 != null;
         assert secondSynth1 != null;
         assert firstSynth2 != null;
@@ -83,15 +81,15 @@ abstract public class BinaryInvariant {
                 + secondSynth2.getScmEventString() + ")^*";
     }
 
-    protected String firstSynthEventsQRe() {
+    public String firstSynthEventsQRe() {
         assert firstSynth1 != null;
         assert firstSynth2 != null;
 
-        return firstSynth1.getScmEventString() + " . "
-                + firstSynth2.getScmEventString();
+        return "(" + firstSynth1.getScmEventString() + " . "
+                + firstSynth2.getScmEventString() + ")";
     }
 
-    protected String secondSynthEventsQRe() {
+    public String secondSynthEventsQRe() {
         assert secondSynth1 != null;
         assert secondSynth2 != null;
 
