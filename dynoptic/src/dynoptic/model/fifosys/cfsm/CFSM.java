@@ -18,6 +18,8 @@ import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.InvChannelId;
+import dynoptic.model.fifosys.channel.LocalEventsChannelId;
 import dynoptic.util.Util;
 
 /**
@@ -64,7 +66,7 @@ public class CFSM extends FifoSys<CFSMState> {
     // added/specified.
     private int unSpecifiedPids;
 
-    // Maintains the index in the channeldIds list of the first synthetic
+    // Maintains the index in the channelIds list of the first synthetic
     // channelId. All channelIds at or above this index are synthetic.
     // Synthetic channels are used for invariant checking, and are
     // not part of the true model.
@@ -75,6 +77,11 @@ public class CFSM extends FifoSys<CFSMState> {
     // (firstSyntheticChIndex + i) in channelIds list.
     private final List<BinaryInvariant> invs;
 
+    // Index of the local events channel in the channelIds list. Note, that this
+    // channel only exists once the CFSM has been converted to an SCM string
+    // using toScmString.
+    private int localEventsChIndex;
+
     // //////////////////////////////////////////////////////////////////
 
     public CFSM(int numProcesses, List<ChannelId> channelIds) {
@@ -82,6 +89,7 @@ public class CFSM extends FifoSys<CFSMState> {
         fsms = new ArrayList<FSM>(Collections.nCopies(numProcesses, (FSM) null));
         unSpecifiedPids = numProcesses;
         firstSyntheticChIndex = Integer.MAX_VALUE;
+        localEventsChIndex = Integer.MAX_VALUE;
         invs = new ArrayList<BinaryInvariant>();
     }
 
@@ -155,31 +163,37 @@ public class CFSM extends FifoSys<CFSMState> {
         // Set the synthetic queue reg-exps.
         for (int i = firstSyntheticChIndex; i < channelIds.size(); i++) {
             if (i == firstSyntheticChIndex + invIndex) {
+
+                // The invariant we care about checking.
                 qReList.add(inv.scmBadStateQRe());
+
+            } else if (i == localEventsChIndex) {
+
+                // Add an RE for the local events queue.
+                Set<String> localEvents = this.alphabet
+                        .getLocalEventScmStrings();
+                if (localEvents.size() > 0) {
+                    String localEventsQueueRe = "(";
+                    for (String eLocal : localEvents) {
+                        localEventsQueueRe += eLocal + " | ";
+                    }
+                    // Remove the last occurrence of the "|" character.
+                    localEventsQueueRe = localEventsQueueRe.substring(0,
+                            localEventsQueueRe.length() - 3);
+                    localEventsQueueRe += ")^*";
+                    qReList.add(localEventsQueueRe);
+                } else {
+                    // If there are no local events then the queue RE is the
+                    // empty string, since no corresponding local event messages
+                    // will be generated.
+                    qReList.add("_");
+                }
+
             } else {
                 // Initialize non-inv invariant synthetic queues to accept
-                // everything.
-                qReList.add(".*");
+                // everything that their alphabet permits.
+                qReList.add(inv.someSynthEventsQRe());
             }
-        }
-
-        // Add an RE for the local events queue.
-        Set<String> localEvents = this.alphabet.getLocalEventScmStrings();
-        if (localEvents.size() > 0) {
-            String localEventsQueueRe = "(";
-            for (String eLocal : localEvents) {
-                localEventsQueueRe += eLocal + " | ";
-            }
-            // Remove the last occurrence of the "|" character.
-            localEventsQueueRe = localEventsQueueRe.substring(0,
-                    localEventsQueueRe.length() - 3);
-            localEventsQueueRe += ")^*";
-            qReList.add(localEventsQueueRe);
-        } else {
-            // If there are no local events then the queue RE is the empty
-            // string, since no corresponding local event messages will be
-            // generated.
-            qReList.add("_");
         }
 
         // For each accept, generate a bad state <accept, qReList>.
@@ -261,16 +275,19 @@ public class CFSM extends FifoSys<CFSMState> {
         ret = "scm " + cfsmName + ":\n\n";
 
         // Channels:
-        // The +1 channel is for simulating local events as send events (McScM
-        // does not support local events).
-        ret += "nb_channels = " + (channelIds.size() + 1) + " ;\n";
-        int localEventsQueueId = channelIds.size();
+        // Add a special channel for handling local events, represented as
+        // messages on this channel.
+        LocalEventsChannelId localChId = new LocalEventsChannelId(
+                this.channelIds.size());
+        localEventsChIndex = localChId.getScmId();
+        this.channelIds.add(localChId);
+
+        ret += "nb_channels = " + channelIds.size() + " ;\n";
         ret += "/*\n";
         for (int i = 0; i < channelIds.size(); i++) {
             ret += "channel " + Integer.toString(i) + " : "
                     + channelIds.get(i).toString() + "\n";
         }
-        ret += "channel " + localEventsQueueId + " : local events queue\n";
         ret += "*/\n\n";
 
         // Whether or not the channels are lossy:
@@ -289,7 +306,7 @@ public class CFSM extends FifoSys<CFSMState> {
         for (int pid = 0; pid < numProcesses; pid++) {
             FSM f = fsms.get(pid);
             ret += "automaton p" + Integer.toString(pid) + " :\n";
-            ret += f.toScmString(localEventsQueueId);
+            ret += f.toScmString(localChId);
             ret += "\n";
         }
 
@@ -358,8 +375,7 @@ public class CFSM extends FifoSys<CFSMState> {
         //
         // NOTE: since the McScM model checker allows all processes to access
         // all channels, it does not matter which pids we use here.
-        ChannelId invCid = new ChannelId(e1.getEventPid(), e1.getEventPid(),
-                scmId, "ch-[" + inv.toString() + "]");
+        ChannelId invCid = new InvChannelId(inv, scmId);
         this.channelIds.add(invCid);
 
         // Update the FSM corresponding to e1.

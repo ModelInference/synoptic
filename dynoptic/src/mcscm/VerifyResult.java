@@ -23,6 +23,8 @@ public class VerifyResult {
 
     private final List<ChannelId> cids;
 
+    List<String> verifyRawLines;
+
     /**
      * Creates a new VerifyResult from the raw verify output, broken into lines.
      * 
@@ -32,6 +34,7 @@ public class VerifyResult {
     public VerifyResult(List<String> verifyRawLines, List<ChannelId> cids)
             throws VerifyOutputParseException {
         this.cids = cids;
+        this.verifyRawLines = verifyRawLines;
         parseVerifyOutput(verifyRawLines);
     }
 
@@ -41,6 +44,24 @@ public class VerifyResult {
 
     public CounterExample getCExample() {
         return cExample;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
+    @Override
+    public String toString() {
+        if (cExample != null) {
+            return "Verify-CExample: " + this.cExample.toString();
+        }
+        return "Verify-safe";
+    }
+
+    public String toRawString() {
+        String ret = "";
+        for (String line : verifyRawLines) {
+            ret += line + "\n";
+        }
+        return ret;
     }
 
     // //////////////////////////////////////////////////////////////////

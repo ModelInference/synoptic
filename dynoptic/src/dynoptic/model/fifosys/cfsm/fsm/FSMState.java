@@ -8,6 +8,7 @@ import java.util.Set;
 
 import dynoptic.model.AbsFSMState;
 import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.channel.LocalEventsChannelId;
 
 /**
  * <p>
@@ -141,11 +142,11 @@ public class FSMState extends AbsFSMState<FSMState> {
     }
 
     /** Returns an SCM representation of this FSMStates. */
-    public String toScmString(int localEventsQueueId) {
+    public String toScmString(LocalEventsChannelId localEventsChId) {
         String ret = "state " + scmId + " :\n";
 
         for (EventType e : transitions.keySet()) {
-            String eStr = e.toScmTransitionString(localEventsQueueId);
+            String eStr = e.toScmTransitionString(localEventsChId);
             for (FSMState next : transitions.get(e)) {
                 ret += "to " + next.getScmId() + " : when true , " + eStr
                         + " ;\n";

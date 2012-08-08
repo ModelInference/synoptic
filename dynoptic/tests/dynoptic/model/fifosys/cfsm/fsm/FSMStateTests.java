@@ -9,6 +9,7 @@ import org.junit.Test;
 import dynoptic.DynopticTest;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.LocalEventsChannelId;
 
 public class FSMStateTests extends DynopticTest {
 
@@ -78,13 +79,14 @@ public class FSMStateTests extends DynopticTest {
     @Test
     public void scmString() {
         // Without transitions:
-        logger.info(init.toScmString(42));
+        LocalEventsChannelId localChId = new LocalEventsChannelId(1);
+        logger.info(init.toScmString(localChId));
 
         init.addTransition(e_pid1, accept);
         init.addTransition(e2_pid1, accept);
 
         // With transitions:
-        logger.info(init.toScmString(42));
+        logger.info(init.toScmString(localChId));
     }
 
     @Test(expected = AssertionError.class)

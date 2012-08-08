@@ -9,11 +9,13 @@ import org.junit.Test;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.LocalEventsChannelId;
 
 public class EventTypeTests extends DynopticTest {
     ChannelId cid;
     ChannelId cidCopy;
     ChannelId cid2;
+    LocalEventsChannelId localChId;
 
     @Before
     public void setUp() throws Exception {
@@ -21,6 +23,7 @@ public class EventTypeTests extends DynopticTest {
         cid = new ChannelId(1, 2, 0);
         cidCopy = new ChannelId(1, 2, 0);
         cid2 = new ChannelId(2, 1, 1);
+        localChId = new LocalEventsChannelId(2);
     }
 
     @Test
@@ -32,7 +35,7 @@ public class EventTypeTests extends DynopticTest {
         assertFalse(e.isSynthSendEvent());
         assertEquals(e.getEventPid(), 1);
         logger.info(e.toString());
-        logger.info(e.toScmTransitionString(42));
+        logger.info(e.toScmTransitionString(localChId));
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));
@@ -64,7 +67,7 @@ public class EventTypeTests extends DynopticTest {
         assertFalse(e.isSynthSendEvent());
         assertEquals(e.getEventPid(), cid.getSrcPid());
         logger.info(e.toString());
-        logger.info(e.toScmTransitionString(42));
+        logger.info(e.toScmTransitionString(localChId));
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));
@@ -96,7 +99,7 @@ public class EventTypeTests extends DynopticTest {
         assertFalse(e.isSynthSendEvent());
         assertEquals(e.getEventPid(), cid.getDstPid());
         logger.info(e.toString());
-        logger.info(e.toScmTransitionString(42));
+        logger.info(e.toScmTransitionString(localChId));
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));
@@ -131,7 +134,7 @@ public class EventTypeTests extends DynopticTest {
         assertTrue(e.isSynthSendEvent());
         assertEquals(e.getEventPid(), cid.getDstPid());
         logger.info(e.toString());
-        logger.info(e.toScmTransitionString(42));
+        logger.info(e.toScmTransitionString(localChId));
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));

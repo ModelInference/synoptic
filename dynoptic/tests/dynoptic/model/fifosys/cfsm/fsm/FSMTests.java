@@ -11,6 +11,7 @@ import org.junit.Test;
 import dynoptic.DynopticTest;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.LocalEventsChannelId;
 
 public class FSMTests extends DynopticTest {
 
@@ -91,7 +92,8 @@ public class FSMTests extends DynopticTest {
 
         FSM f = new FSM(1, init_1, accepting_1, states, 2);
 
-        logger.info(f.toScmString(42));
+        LocalEventsChannelId localChId = new LocalEventsChannelId(1);
+        logger.info(f.toScmString(localChId));
     }
 
     @Test(expected = AssertionError.class)

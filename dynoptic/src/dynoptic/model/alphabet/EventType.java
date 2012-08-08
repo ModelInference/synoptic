@@ -1,6 +1,7 @@
 package dynoptic.model.alphabet;
 
 import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.LocalEventsChannelId;
 
 /**
  * <p>
@@ -40,7 +41,6 @@ public class EventType {
     }
 
     public static EventType SendEvent(String event, ChannelId channel) {
-        assert !event.endsWith("TR") : "Send events cannot end with 'TR' -- conflict with internal invariant tracking events.";
         return new EventType(event, channel.getSrcPid(), EventClass.SEND,
                 channel);
     }
@@ -66,8 +66,6 @@ public class EventType {
 
     protected EventType(String event, int pid, EventClass eventType,
             ChannelId channel) {
-        assert !event.endsWith("L") : "Events cannot end with 'L' -- conflict with local events format.";
-
         if (eventType == EventClass.LOCAL) {
             assert channel == null;
         } else if (eventType == EventClass.SEND || eventType == EventClass.RECV
@@ -136,12 +134,13 @@ public class EventType {
      * Returns an scm representation of this EventType, based on channelId to
      * int map.
      */
-    public String toScmTransitionString(int localEventsQueueId) {
+    public String toScmTransitionString(LocalEventsChannelId localEventsChId) {
         if (channelId != null) {
             return toString(Integer.toString(channelId.getScmId()), ' ');
         }
         // Use local queue for local events.
-        return localEventsQueueId + " ! " + getScmEventFullString();
+        localEventsChId.addLocalEventString(this, getScmEventFullString());
+        return localEventsChId.getScmId() + " ! " + getScmEventFullString();
     }
 
     public String getScmEventString() {
