@@ -7,6 +7,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
+import dynoptic.invariants.AlwaysFollowedBy;
+import dynoptic.invariants.BinaryInvariant;
+import dynoptic.model.alphabet.EventType;
 
 public class ChannelIdTests extends DynopticTest {
 
@@ -24,6 +27,52 @@ public class ChannelIdTests extends DynopticTest {
     @SuppressWarnings("unused")
     public void createBadChannelId() {
         ChannelId cid = new ChannelId(-1, 2, 0);
+    }
+
+    @Test
+    public void createInvChannelId() {
+        EventType e = EventType.LocalEvent("e", 0);
+        EventType f = EventType.LocalEvent("f", 0);
+
+        BinaryInvariant inv = new AlwaysFollowedBy(e, f);
+        InvChannelId cid = new InvChannelId(inv, 0);
+
+        assertEquals(cid.getSrcPid(), 0);
+        assertEquals(cid.getDstPid(), 0);
+        assertEquals(cid.getScmId(), 0);
+        logger.info(cid.toString());
+        cid.hashCode();
+
+        // Equality.
+        assertFalse(cid.equals(null));
+        assertFalse(cid.equals(""));
+        assertTrue(cid.equals(cid));
+
+        EventType e2 = EventType.LocalEvent("e", 0);
+        EventType f2 = EventType.LocalEvent("f", 0);
+
+        BinaryInvariant inv2 = new AlwaysFollowedBy(e2, f2);
+        InvChannelId cid2 = new InvChannelId(inv2, 0);
+        assertTrue(cid.equals(cid2));
+    }
+
+    @Test
+    public void createLocalEventsChannelId() {
+        LocalEventsChannelId cid = new LocalEventsChannelId(42);
+
+        assertEquals(cid.getSrcPid(), Integer.MAX_VALUE);
+        assertEquals(cid.getDstPid(), Integer.MAX_VALUE);
+        assertEquals(cid.getScmId(), 42);
+        logger.info(cid.toString());
+        cid.hashCode();
+
+        // Equality.
+        assertFalse(cid.equals(null));
+        assertFalse(cid.equals(""));
+        assertTrue(cid.equals(cid));
+
+        LocalEventsChannelId cid2 = new LocalEventsChannelId(42);
+        assertTrue(cid.equals(cid2));
     }
 
     @Test

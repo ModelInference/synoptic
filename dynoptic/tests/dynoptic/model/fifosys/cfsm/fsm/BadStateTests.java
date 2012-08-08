@@ -32,6 +32,7 @@ public class BadStateTests extends DynopticTest {
 
         BadState b = new BadState(c, qReList);
         logger.info(b.toScmString());
+        logger.info(b.toString());
     }
 
 }

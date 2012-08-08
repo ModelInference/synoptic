@@ -24,6 +24,7 @@ public class ChannelStateTests extends DynopticTest {
     public void createChannelState() {
         ChannelState s = new ChannelState(cid);
         logger.info(s.toString());
+        s.hashCode();
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
@@ -47,8 +48,12 @@ public class ChannelStateTests extends DynopticTest {
         EventType e = EventType.SendEvent("m", cid);
 
         assertEquals(s.size(), 0);
+        int h = s.hashCode();
         s.enqueue(e);
         assertEquals(s.size(), 1);
+        logger.info(s.toString());
+        int h2 = s.hashCode();
+        assertTrue(h != h2);
     }
 
     @Test(expected = AssertionError.class)

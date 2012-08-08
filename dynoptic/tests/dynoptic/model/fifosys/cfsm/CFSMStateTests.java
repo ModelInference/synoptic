@@ -34,6 +34,8 @@ public class CFSMStateTests extends DynopticTest {
 
     @Test
     public void createCFSMState() {
+        CFSMState tmp = new CFSMState(new FSMState(true, false, 0, 0));
+
         List<FSMState> states = new ArrayList<FSMState>();
         states.add(i_0);
         states.add(a_1);
