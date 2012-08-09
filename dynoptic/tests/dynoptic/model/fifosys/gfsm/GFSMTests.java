@@ -63,7 +63,7 @@ public class GFSMTests extends DynopticTest {
     }
 
     @Test
-    public void createGFSMFromOneTrace() {
+    public void checkGFSMFromOneTrace() {
         // Check that the two observations were initially partitioned into a
         // single partition.
         assertTrue(g.getStates().size() == 1);
@@ -104,6 +104,10 @@ public class GFSMTests extends DynopticTest {
     @Test
     public void gfsmToCFSM() {
         CFSM c = g.getCFSM();
+        assertTrue(c.getNumProcesses() == 1);
+        assertTrue(c.getInitStates().size() == 1);
+        assertTrue(c.getAcceptStates().size() == 1);
+        assertTrue(c.getAlphabet().size() == 1);
     }
 
 }

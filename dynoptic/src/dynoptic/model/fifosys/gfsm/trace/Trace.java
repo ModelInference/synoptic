@@ -6,8 +6,9 @@ import dynoptic.model.fifosys.channel.ChannelId;
 
 /**
  * Represents a single captured/observed trace of an execution of a distributed
- * system. Most state is maintained by ObservedFifoSysState instances. This
- * trace merely maintains a pointer to the initial/terminal states.
+ * system. The actual (parsed) event/state information is maintained by
+ * ObservedFifoSysState instances. This trace merely maintains a pointer to the
+ * initial/terminal states.
  */
 public class Trace {
     private final ObservedFifoSysState initState;

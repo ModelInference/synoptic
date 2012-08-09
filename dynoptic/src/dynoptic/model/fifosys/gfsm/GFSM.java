@@ -47,7 +47,7 @@ import dynoptic.model.fifosys.gfsm.trace.Trace;
 public class GFSM extends FifoSys<GFSMState> {
 
     /**
-     * Creates a new GFSM, using default initial partitioning strategy (by the
+     * Creates a new GFSM from observed traces, using default initial partitioning strategy (by the
      * list of elements at the head of all of the queues in the system), from a
      * list of traces.
      * 
@@ -104,6 +104,7 @@ public class GFSM extends FifoSys<GFSMState> {
         }
     }
 
+    /** Creates an empty GFSM. */
     public GFSM(int numProcesses, List<ChannelId> channelIds) {
         super(numProcesses, channelIds);
     }
