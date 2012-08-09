@@ -1,8 +1,17 @@
 package dynoptic.model.fifosys.gfsm.trace;
 
 /**
+ * <p>
  * Represents the state observed at a _single_ FSM, without any context -- i.e.,
  * no transition events or following states.
+ * </p>
+ * <p>
+ * An ObservedFSMState instance is maintained by ObservedFifoSysState along with
+ * other ObsFSMStates (from other processes). There is exactly one instance of
+ * this class per observed state so as to minimize number of instances. The
+ * ObservedFifoSysState class also maintains transitions, separately from this
+ * class.
+ * </p>
  */
 public class ObservedFSMState {
 
