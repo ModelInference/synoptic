@@ -10,7 +10,8 @@ import org.junit.Test;
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.channel.MultiChannelState;
+import dynoptic.model.fifosys.channel.ImmutableMultiChannelState;
+import dynoptic.model.fifosys.gfsm.trace.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.trace.ObservedEvent;
 import dynoptic.model.fifosys.gfsm.trace.ObservedFSMState;
 import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
@@ -28,21 +29,24 @@ public class GFSMTests extends DynopticTest {
         List<ObservedFSMState> Pi = new ArrayList<ObservedFSMState>();
         List<ObservedFSMState> Pt = new ArrayList<ObservedFSMState>();
 
-        ObservedFSMState p0i = ObservedFSMState
-                .ObservedInitialFSMState(0, null);
+        ObservedFSMState p0i = ObservedFSMState.ObservedInitialFSMState(0, "i");
         Pi.add(p0i);
+        ObsMultFSMState obsPi = new ObsMultFSMState(Pi);
 
-        ObservedFSMState p0t = ObservedFSMState.ObservedTerminalFSMState(0,
-                null);
+        ObservedFSMState p0t = ObservedFSMState
+                .ObservedTerminalFSMState(0, "t");
         Pt.add(p0t);
+        ObsMultFSMState obsPt = new ObsMultFSMState(Pt);
 
         // Empty channeldIds list -- no queues.
         List<ChannelId> cids = new ArrayList<ChannelId>();
-        MultiChannelState PiChstate = MultiChannelState.fromChannelIds(cids);
-        MultiChannelState PtChstate = MultiChannelState.fromChannelIds(cids);
+        ImmutableMultiChannelState PiChstate = ImmutableMultiChannelState
+                .fromChannelIds(cids);
+        ImmutableMultiChannelState PtChstate = ImmutableMultiChannelState
+                .fromChannelIds(cids);
 
-        Si = new ObservedFifoSysState(Pi, PiChstate);
-        St = new ObservedFifoSysState(Pt, PtChstate);
+        Si = ObservedFifoSysState.getFifoSysState(obsPi, PiChstate);
+        St = ObservedFifoSysState.getFifoSysState(obsPt, PtChstate);
 
         // Si -> St
         e = ObservedEvent.LocalEvent("e", 0);

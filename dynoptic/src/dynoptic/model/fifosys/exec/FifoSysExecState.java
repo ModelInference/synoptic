@@ -8,7 +8,7 @@ import java.util.Set;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.channel.MultiChannelState;
+import dynoptic.model.fifosys.channel.MutableMultiChannelState;
 
 import synoptic.util.InternalSynopticException;
 
@@ -25,7 +25,7 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
 
     // The current state of the system.
     MultiFSMState processStates;
-    MultiChannelState channelStates;
+    MutableMultiChannelState channelStates;
 
     /**
      * Initializes with processStates and empty queues.
@@ -35,7 +35,7 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
      */
     public FifoSysExecState(MultiFSMState processStates,
             List<ChannelId> channelIds) {
-        this(processStates, MultiChannelState.fromChannelIds(channelIds));
+        this(processStates, MutableMultiChannelState.fromChannelIds(channelIds));
     }
 
     /**
@@ -45,7 +45,7 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
      * @param channelStates
      */
     public FifoSysExecState(MultiFSMState processStates,
-            MultiChannelState channelStates) {
+            MutableMultiChannelState channelStates) {
         super(processStates.getNumProcesses());
         this.processStates = processStates;
         this.channelStates = channelStates;
@@ -103,7 +103,7 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
 
         // Next states are going to have their own version of channels (possible
         // updated with event).
-        MultiChannelState clonedChannelStates = channelStates.clone();
+        MutableMultiChannelState clonedChannelStates = channelStates.clone();
 
         // Only send and receive events modify channel states.
         if (event.isSendEvent()) {

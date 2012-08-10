@@ -12,7 +12,8 @@ import org.junit.Test;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.channel.MultiChannelState;
+import dynoptic.model.fifosys.channel.ImmutableMultiChannelState;
+import dynoptic.model.fifosys.gfsm.trace.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.trace.ObservedFSMState;
 import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
 
@@ -50,10 +51,12 @@ public class GFSMStateTests extends DynopticTest {
         List<ObservedFSMState> obsFsmStates = new ArrayList<ObservedFSMState>();
         obsFsmStates.add(ObservedFSMState.ObservedInitialTerminalFSMState(0));
         obsFsmStates.add(ObservedFSMState.ObservedInitialTerminalFSMState(1));
+        ObsMultFSMState fsmStates = new ObsMultFSMState(obsFsmStates);
 
-        MultiChannelState obsChStates = MultiChannelState.fromChannelIds(cids);
-        ObservedFifoSysState o = new ObservedFifoSysState(obsFsmStates,
-                obsChStates);
+        ImmutableMultiChannelState obsChStates = ImmutableMultiChannelState
+                .fromChannelIds(cids);
+        ObservedFifoSysState o = ObservedFifoSysState.getFifoSysState(
+                fsmStates, obsChStates);
         s.addObs(o);
         logger.info(s.toString());
 

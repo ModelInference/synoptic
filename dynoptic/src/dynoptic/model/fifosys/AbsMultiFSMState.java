@@ -5,7 +5,7 @@ import java.util.Collection;
 import dynoptic.model.AbsFSMState;
 
 /**
- * Interface for the non-channel state of multiple FSM processes.
+ * Partial specification for the non-channel state of multiple FSM processes.
  * 
  * @param <State>
  *            The state of a single FSM process.
