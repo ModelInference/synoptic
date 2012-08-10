@@ -13,7 +13,7 @@ import org.junit.Test;
 import dynoptic.DynopticTest;
 import dynoptic.model.alphabet.EventType;
 
-public class MultiChannelStateTests extends DynopticTest {
+public class MutibleMultiChannelStateTests extends DynopticTest {
 
     ChannelId cid1;
     ChannelId cid2;

@@ -30,7 +30,7 @@ public class ChannelIdTests extends DynopticTest {
     }
 
     @Test
-    public void createInvChannelId() {
+    public void invChannelId() {
         EventType e = EventType.LocalEvent("e", 0);
         EventType f = EventType.LocalEvent("f", 0);
 
@@ -47,17 +47,20 @@ public class ChannelIdTests extends DynopticTest {
         assertFalse(cid.equals(null));
         assertFalse(cid.equals(""));
         assertTrue(cid.equals(cid));
+        assertFalse(cid.equals(new LocalEventsChannelId(42)));
+        BinaryInvariant inv2 = new AlwaysFollowedBy(e, e);
+        assertFalse(cid.equals(new InvChannelId(inv2, 0)));
 
         EventType e2 = EventType.LocalEvent("e", 0);
         EventType f2 = EventType.LocalEvent("f", 0);
 
-        BinaryInvariant inv2 = new AlwaysFollowedBy(e2, f2);
+        inv2 = new AlwaysFollowedBy(e2, f2);
         InvChannelId cid2 = new InvChannelId(inv2, 0);
         assertTrue(cid.equals(cid2));
     }
 
     @Test
-    public void createLocalEventsChannelId() {
+    public void localEventsChannelId() {
         LocalEventsChannelId cid = new LocalEventsChannelId(42);
 
         assertEquals(cid.getSrcPid(), Integer.MAX_VALUE);
@@ -73,10 +76,27 @@ public class ChannelIdTests extends DynopticTest {
 
         LocalEventsChannelId cid2 = new LocalEventsChannelId(42);
         assertTrue(cid.equals(cid2));
+
+        EventType e = EventType.LocalEvent("e", 0);
+        BinaryInvariant inv = new AlwaysFollowedBy(e, e);
+        assertFalse(cid.equals(new InvChannelId(inv, 42)));
     }
 
     @Test
-    public void equality() {
+    public void localEventsChannelIdMapping() {
+        LocalEventsChannelId cid = new LocalEventsChannelId(42);
+        EventType e = EventType.LocalEvent("e", 0);
+        cid.addLocalEventString(e, "e");
+        assertEquals(e, cid.getEventType("e"));
+
+        LocalEventsChannelId cid2 = new LocalEventsChannelId(42);
+        assertFalse(cid.equals(cid2));
+
+        assertFalse(cid.equals(new ChannelId(Integer.MAX_VALUE, 0, 42)));
+    }
+
+    @Test
+    public void channelId() {
         ChannelId cid = new ChannelId(1, 2, 0);
 
         assertFalse(cid.equals(null));

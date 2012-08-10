@@ -29,7 +29,6 @@ public class LocalEventsChannelId extends ChannelId {
 
         if (!(other instanceof LocalEventsChannelId)) {
             return false;
-
         }
 
         LocalEventsChannelId leCid = (LocalEventsChannelId) other;
@@ -49,6 +48,7 @@ public class LocalEventsChannelId extends ChannelId {
     // //////////////////////////////////////////////////////////////////
 
     public void addLocalEventString(EventType eventType, String eventStr) {
+        assert eventType.isLocalEvent();
         assert !eventStrToEventType.containsKey(eventStr);
 
         eventStrToEventType.put(eventStr, eventType);
