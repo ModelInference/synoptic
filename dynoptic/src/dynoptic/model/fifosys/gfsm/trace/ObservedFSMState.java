@@ -40,6 +40,9 @@ public class ObservedFSMState {
     // The string representation of this state.
     final private String name;
 
+    // Used to cache the hashCode.
+    final int hashCode;
+
     // TODO: For non-anon states include things like line number and filename,
     // and so forth.
 
@@ -87,10 +90,14 @@ public class ObservedFSMState {
 
     private ObservedFSMState(int pid, boolean isInit, boolean isTerminal,
             String name) {
+        assert name != null;
+
         this.pid = pid;
         this.isInitial = isInit;
         this.isTerminal = isTerminal;
         this.name = name;
+
+        this.hashCode = initHashCode();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -98,6 +105,42 @@ public class ObservedFSMState {
     @Override
     public String toString() {
         return ((isInitial) ? "i_" : "") + name + ((isTerminal) ? "_t" : "");
+    }
+
+    @Override
+    public int hashCode() {
+        return hashCode;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof ObservedFSMState)) {
+            return false;
+
+        }
+        ObservedFSMState otherF = (ObservedFSMState) other;
+        if (otherF.isInitial() != isInitial) {
+            return false;
+        }
+
+        if (!otherF.isTerminal() != isTerminal) {
+            return false;
+        }
+
+        if (otherF.getPid() != pid) {
+            return false;
+        }
+
+        if (!otherF.getName().equals(name)) {
+            return false;
+        }
+        return true;
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -112,5 +155,20 @@ public class ObservedFSMState {
 
     public boolean isTerminal() {
         return isTerminal;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
+    private int initHashCode() {
+        int result = 17;
+        result = 31 * result + (isInitial ? 1231 : 1237);
+        result = 31 * result + (isTerminal ? 1231 : 1237);
+        result = 31 * result + pid;
+        result = 31 * result + name.hashCode();
+        return result;
     }
 }

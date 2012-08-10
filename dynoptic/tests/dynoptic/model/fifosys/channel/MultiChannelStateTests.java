@@ -18,8 +18,8 @@ public class MultiChannelStateTests extends DynopticTest {
     ChannelId cid1;
     ChannelId cid2;
     List<ChannelId> cids;
-    MultiChannelState mc;
-    MultiChannelState mc2;
+    MutableMultiChannelState mc;
+    MutableMultiChannelState mc2;
 
     @Before
     public void setUp() throws Exception {
@@ -31,8 +31,8 @@ public class MultiChannelStateTests extends DynopticTest {
         cids.add(cid1);
         cids.add(cid2);
 
-        mc = MultiChannelState.fromChannelIds(cids);
-        mc2 = MultiChannelState.fromChannelIds(cids);
+        mc = MutableMultiChannelState.fromChannelIds(cids);
+        mc2 = MutableMultiChannelState.fromChannelIds(cids);
     }
 
     @Test
