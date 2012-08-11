@@ -9,7 +9,7 @@ import dynoptic.DynopticTest;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
-import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
 
 public class CFSMTesting extends DynopticTest {
 

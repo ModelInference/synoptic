@@ -8,7 +8,7 @@ import java.util.Set;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.channel.LocalEventsChannelId;
+import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
 
 /**
  * This class models FSMs that make up a CFSM. A few key characteristics:

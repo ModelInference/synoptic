@@ -16,7 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
 
 public class McScMTests {
 

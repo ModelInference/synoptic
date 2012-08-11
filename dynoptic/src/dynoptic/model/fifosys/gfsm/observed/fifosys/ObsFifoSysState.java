@@ -1,4 +1,4 @@
-package dynoptic.model.fifosys.gfsm.trace;
+package dynoptic.model.fifosys.gfsm.observed.fifosys;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -9,9 +9,11 @@ import java.util.Set;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
-import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.channel.ImmutableMultiChannelState;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import dynoptic.model.fifosys.gfsm.GFSMState;
+import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
+import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 
 /**
  * <p>
@@ -29,13 +31,13 @@ import dynoptic.model.fifosys.gfsm.GFSMState;
  * channel states based on the sequence of send/receive operations.
  * </p>
  */
-public class ObservedFifoSysState extends
-        AbsMultiFSMState<ObservedFifoSysState> {
+public class ObsFifoSysState extends
+        AbsMultiFSMState<ObsFifoSysState> {
 
-    private static final Map<ObsMultFSMState, ObservedFifoSysState> fifoSysStatesMap;
+    private static final Map<ObsMultFSMState, ObsFifoSysState> fifoSysStatesMap;
 
     static {
-        fifoSysStatesMap = new LinkedHashMap<ObsMultFSMState, ObservedFifoSysState>();
+        fifoSysStatesMap = new LinkedHashMap<ObsMultFSMState, ObsFifoSysState>();
     }
 
     /**
@@ -50,17 +52,17 @@ public class ObservedFifoSysState extends
      * @param nextChannelStates
      * @return
      */
-    public static ObservedFifoSysState getFifoSysState(
-            ObsMultFSMState fsmStates, ImmutableMultiChannelState channelStates) {
+    public static ObsFifoSysState getFifoSysState(
+            ObsMultFSMState fsmStates, ImmutableMultiChState channelStates) {
         assert fsmStates != null;
         assert channelStates != null;
 
-        ObservedFifoSysState ret;
+        ObsFifoSysState ret;
         if (fifoSysStatesMap.containsKey(fsmStates)) {
             ret = fifoSysStatesMap.get(fsmStates);
             assert ret.getChannelStates().equals(channelStates);
         } else {
-            ret = new ObservedFifoSysState(fsmStates, channelStates);
+            ret = new ObsFifoSysState(fsmStates, channelStates);
             fifoSysStatesMap.put(fsmStates, ret);
         }
         return ret;
@@ -76,13 +78,13 @@ public class ObservedFifoSysState extends
     private final ObsMultFSMState fsmStates;
 
     // The observed state of all the channels in the system.
-    private final ImmutableMultiChannelState channelStates;
+    private final ImmutableMultiChState channelStates;
 
     // Observed transitions for each observed following event type.
-    private final Map<ObservedEvent, ObservedFifoSysState> transitions;
+    private final Map<ObsEvent, ObsFifoSysState> transitions;
 
-    private ObservedFifoSysState(ObsMultFSMState fsmStates,
-            ImmutableMultiChannelState channelStates) {
+    private ObsFifoSysState(ObsMultFSMState fsmStates,
+            ImmutableMultiChState channelStates) {
         super(fsmStates.getNumProcesses());
 
         if (DynopticMain.assertsOn) {
@@ -104,7 +106,7 @@ public class ObservedFifoSysState extends
 
         this.fsmStates = fsmStates;
         this.channelStates = channelStates;
-        this.transitions = new LinkedHashMap<ObservedEvent, ObservedFifoSysState>();
+        this.transitions = new LinkedHashMap<ObsEvent, ObsFifoSysState>();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -130,7 +132,7 @@ public class ObservedFifoSysState extends
     }
 
     @Override
-    public Set<ObservedFifoSysState> getNextStates(EventType event) {
+    public Set<ObsFifoSysState> getNextStates(EventType event) {
         return Collections.singleton(transitions.get(event));
     }
 
@@ -151,11 +153,11 @@ public class ObservedFifoSysState extends
 
     // //////////////////////////////////////////////////////////////////
 
-    public ObservedFifoSysState getNextState(EventType event) {
+    public ObsFifoSysState getNextState(EventType event) {
         return transitions.get(event);
     }
 
-    public void addTransition(ObservedEvent e, ObservedFifoSysState s) {
+    public void addTransition(ObsEvent e, ObsFifoSysState s) {
         assert !this.transitions.containsKey(e);
 
         if (DynopticMain.assertsOn) {
@@ -184,7 +186,7 @@ public class ObservedFifoSysState extends
         return channelStates.getChannelIds();
     }
 
-    public ImmutableMultiChannelState getChannelStates() {
+    public ImmutableMultiChState getChannelStates() {
         return channelStates;
     }
 

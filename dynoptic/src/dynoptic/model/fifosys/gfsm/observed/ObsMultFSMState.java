@@ -1,4 +1,4 @@
-package dynoptic.model.fifosys.gfsm.trace;
+package dynoptic.model.fifosys.gfsm.observed;
 
 import java.util.List;
 import java.util.Set;
@@ -14,9 +14,9 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
 
     // Observed FSM states tuple. The list is ordered according to process
     // IDs.
-    private List<ObservedFSMState> fsmStates;
+    private List<ObsFSMState> fsmStates;
 
-    public ObsMultFSMState(List<ObservedFSMState> fsmStates) {
+    public ObsMultFSMState(List<ObsFSMState> fsmStates) {
         super(fsmStates.size());
         this.fsmStates = fsmStates;
     }
@@ -26,7 +26,7 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
     @Override
     public String toString() {
         String ret = "[";
-        for (ObservedFSMState s : fsmStates) {
+        for (ObsFSMState s : fsmStates) {
             ret = ret + "," + s.toString();
         }
         return ret + "]";
@@ -44,7 +44,7 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
 
     @Override
     public boolean isInitial() {
-        for (ObservedFSMState s : fsmStates) {
+        for (ObsFSMState s : fsmStates) {
             if (!s.isInitial()) {
                 return false;
             }
@@ -54,7 +54,7 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
 
     @Override
     public boolean isAccept() {
-        for (ObservedFSMState s : fsmStates) {
+        for (ObsFSMState s : fsmStates) {
             if (!s.isTerminal()) {
                 return false;
             }

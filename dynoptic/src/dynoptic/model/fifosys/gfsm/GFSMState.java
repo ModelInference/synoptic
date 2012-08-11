@@ -8,7 +8,7 @@ import java.util.Set;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
-import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
 /**
  * <p>
@@ -28,7 +28,7 @@ import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
  */
 public class GFSMState extends AbsMultiFSMState<GFSMState> {
     // This is the set of observed state instances.
-    private final Set<ObservedFifoSysState> observedStates;
+    private final Set<ObsFifoSysState> observedStates;
 
     // CACHE optimization: the set of abstract transitions induced by the
     // concrete transitions. This is merely a cached version of the ground
@@ -36,20 +36,20 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     private final Map<EventType, Set<GFSMState>> transitions;
 
     public GFSMState(int numProcesses) {
-        this(numProcesses, new LinkedHashSet<ObservedFifoSysState>());
+        this(numProcesses, new LinkedHashSet<ObsFifoSysState>());
     }
 
     /**
      * Creates a GFSMState based off an observations set that will be _used_
      * internally
      */
-    public GFSMState(int numProcesses, Set<ObservedFifoSysState> observedStates) {
+    public GFSMState(int numProcesses, Set<ObsFifoSysState> observedStates) {
         super(numProcesses);
         // NOTE: we do not create a new set for observed states.
         this.observedStates = observedStates;
         this.transitions = new LinkedHashMap<EventType, Set<GFSMState>>();
 
-        for (ObservedFifoSysState obs : this.observedStates) {
+        for (ObsFifoSysState obs : this.observedStates) {
             if (DynopticMain.assertsOn) {
                 assert obs.getNumProcesses() == this.numProcesses;
                 assert obs.getParent() == null;
@@ -122,7 +122,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     // //////////////////////////////////////////////////////////////////
 
     /** Adds a new observed state to this partition. */
-    public void addObs(ObservedFifoSysState obs) {
+    public void addObs(ObsFifoSysState obs) {
         assert !observedStates.contains(obs);
         assert obs.getNumProcesses() == this.numProcesses;
         assert obs.getParent() == null;
@@ -133,14 +133,14 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     }
 
     /** Adds a new observed state to this partition. */
-    public void addAllObs(Set<ObservedFifoSysState> states) {
-        for (ObservedFifoSysState obs : states) {
+    public void addAllObs(Set<ObsFifoSysState> states) {
+        for (ObsFifoSysState obs : states) {
             addObs(obs);
         }
     }
 
     /** Removes an observed state from this partition. */
-    public void removeObs(ObservedFifoSysState s) {
+    public void removeObs(ObsFifoSysState s) {
         assert observedStates.contains(s);
         assert s.getParent() == this;
 
@@ -157,13 +157,13 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
 
         // Update the cached transitions for each observed state in this
         // partition.
-        for (ObservedFifoSysState s : observedStates) {
+        for (ObsFifoSysState s : observedStates) {
             cacheObservedParentTransitions(s);
         }
     }
 
     /** Updates the cached transitions for a particular observed state. */
-    private void cacheObservedParentTransitions(ObservedFifoSysState s) {
+    private void cacheObservedParentTransitions(ObsFifoSysState s) {
         for (EventType e : s.getTransitioningEvents()) {
             GFSMState nextPartition = s.getNextState(e).getParent();
             Set<GFSMState> partitions;

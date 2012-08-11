@@ -1,26 +1,31 @@
-package dynoptic.model.fifosys.gfsm.trace;
+package dynoptic.model.fifosys.gfsm.observed.dag;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.channel.ImmutableMultiChannelState;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
+import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
+import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
+import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
 /**
  * Maintains pointers to the set of initial DAG nodes and implements conversion
  * from ObservedDAG FSM to a Trace FSM.
  */
-public class ObservedDAG {
+public class ObsDAG {
 
     // Ordered list of initial (root) DAG nodes, ordered by process id.
-    List<ObsStateDAGNode> initDagConfig;
+    List<ObsDAGNode> initDagConfig;
     // Ordered list of terminal (leaf) DAG nodes, ordered by process id.
-    List<ObsStateDAGNode> termDagConfig;
+    List<ObsDAGNode> termDagConfig;
 
-    public ObservedDAG(List<ObsStateDAGNode> initDagConfig,
-            List<ObsStateDAGNode> termDagConfig) {
+    public ObsDAG(List<ObsDAGNode> initDagConfig,
+            List<ObsDAGNode> termDagConfig) {
         this.initDagConfig = initDagConfig;
         this.termDagConfig = termDagConfig;
     }
@@ -28,45 +33,45 @@ public class ObservedDAG {
     // //////////////////////////////////////////////////////////////////
 
     /** Creates a Trace FSM from the internal observed DAG. */
-    public TraceFSM getGlobalTraceFSM() {
-        ObservedFifoSysState initS, termS;
+    public ObsFifoSys getObsFifoSys() {
+        ObsFifoSysState initS, termS;
 
         List<ChannelId> channelIds = new ArrayList<ChannelId>();
-        ImmutableMultiChannelState initChStates = ImmutableMultiChannelState
+        ImmutableMultiChState initChStates = ImmutableMultiChState
                 .fromChannelIds(channelIds);
-        termS = ObservedFifoSysState.getFifoSysState(
+        termS = ObsFifoSysState.getFifoSysState(
                 fsmStatesFromDagConfig(termDagConfig), initChStates);
-        initS = ObservedFifoSysState.getFifoSysState(
+        initS = ObsFifoSysState.getFifoSysState(
                 fsmStatesFromDagConfig(initDagConfig), initChStates);
 
         // Copy the initDagConfig into curDagconfig, since we will be modifying
         // this config to tack where we are in the space of possible DAG
         // configurations.
-        List<ObsStateDAGNode> initDagConfigCopy = new ArrayList<ObsStateDAGNode>(
+        List<ObsDAGNode> initDagConfigCopy = new ArrayList<ObsDAGNode>(
                 initDagConfig);
 
         // This will keep track of all states we've created thus far.
-        Set<ObservedFifoSysState> states = new LinkedHashSet<ObservedFifoSysState>();
+        Set<ObsFifoSysState> states = new LinkedHashSet<ObsFifoSysState>();
         states.add(initS);
         states.add(termS);
 
         // Mark all the nodes in the initial config as having occurred.
-        for (ObsStateDAGNode node : initDagConfigCopy) {
+        for (ObsDAGNode node : initDagConfigCopy) {
             node.setOccurred(true);
         }
 
         // Iterate through all enabled nodes, and explore them in DFS-style.
-        for (ObsStateDAGNode nextNode : getEnabledNodes(initDagConfigCopy)) {
+        for (ObsDAGNode nextNode : getEnabledNodes(initDagConfigCopy)) {
             exploreNextDagNode(initDagConfigCopy, initS, initChStates,
                     nextNode, states);
         }
 
         // Cleanup: mark all nodes in the init config as _not_ having occurred.
-        for (ObsStateDAGNode node : initDagConfigCopy) {
+        for (ObsDAGNode node : initDagConfigCopy) {
             node.setOccurred(false);
         }
 
-        return new TraceFSM(initS.getChannelIds(), initS, termS, states);
+        return new ObsFifoSys(initS.getChannelIds(), initS, termS, states);
     }
 
     /**
@@ -79,24 +84,24 @@ public class ObservedDAG {
      * @param nextNode
      * @param states
      */
-    public void exploreNextDagNode(List<ObsStateDAGNode> curDagConfig,
-            ObservedFifoSysState currSysState,
-            ImmutableMultiChannelState currChStates, ObsStateDAGNode nextNode,
-            Set<ObservedFifoSysState> states) {
+    public void exploreNextDagNode(List<ObsDAGNode> curDagConfig,
+            ObsFifoSysState currSysState,
+            ImmutableMultiChState currChStates, ObsDAGNode nextNode,
+            Set<ObsFifoSysState> states) {
 
         // Retrieve the event that will cause the transition.
-        ObservedEvent e = nextNode.getPrevState().getNextEvent();
+        ObsEvent e = nextNode.getPrevState().getNextEvent();
 
         // Create the next set of channel states based off of the previous
         // channel state and the event type.
-        ImmutableMultiChannelState nextChStates = currChStates
+        ImmutableMultiChState nextChStates = currChStates
                 .getNextChState(e);
 
         // Update the DAG config by transitioning to the next node.
         curDagConfig.set(nextNode.getPid(), nextNode);
 
         // Look up/create the next FIFO sys state.
-        ObservedFifoSysState nextSysState = ObservedFifoSysState
+        ObsFifoSysState nextSysState = ObsFifoSysState
                 .getFifoSysState(fsmStatesFromDagConfig(curDagConfig),
                         nextChStates);
         states.add(nextSysState);
@@ -109,7 +114,7 @@ public class ObservedDAG {
 
         // Iterate through all the nodes enabled from this configuration, and
         // transition to them.
-        for (ObsStateDAGNode nextNextNode : getEnabledNodes(curDagConfig)) {
+        for (ObsDAGNode nextNextNode : getEnabledNodes(curDagConfig)) {
             exploreNextDagNode(curDagConfig, nextSysState, nextChStates,
                     nextNextNode, states);
         }
@@ -129,10 +134,10 @@ public class ObservedDAG {
      * @return
      */
     public ObsMultFSMState fsmStatesFromDagConfig(
-            List<ObsStateDAGNode> dagConfig) {
-        List<ObservedFSMState> fsmStates = new ArrayList<ObservedFSMState>();
+            List<ObsDAGNode> dagConfig) {
+        List<ObsFSMState> fsmStates = new ArrayList<ObsFSMState>();
 
-        for (ObsStateDAGNode node : dagConfig) {
+        for (ObsDAGNode node : dagConfig) {
             fsmStates.add(node.getObsState());
         }
 
@@ -148,9 +153,9 @@ public class ObservedDAG {
      * @param curConfig
      * @return
      */
-    public Set<ObsStateDAGNode> getEnabledNodes(List<ObsStateDAGNode> curConfig) {
-        Set<ObsStateDAGNode> ret = new LinkedHashSet<ObsStateDAGNode>();
-        for (ObsStateDAGNode node : curConfig) {
+    public Set<ObsDAGNode> getEnabledNodes(List<ObsDAGNode> curConfig) {
+        Set<ObsDAGNode> ret = new LinkedHashSet<ObsDAGNode>();
+        for (ObsDAGNode node : curConfig) {
             if (node.getNextState().isEnabled()) {
                 ret.add(node);
             }

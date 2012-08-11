@@ -1,4 +1,4 @@
-package dynoptic.model.fifosys.channel;
+package dynoptic.model.fifosys.channel.channelid;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

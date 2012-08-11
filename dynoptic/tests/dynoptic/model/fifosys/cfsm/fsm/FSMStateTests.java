@@ -8,8 +8,8 @@ import org.junit.Test;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.channel.LocalEventsChannelId;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
 
 public class FSMStateTests extends DynopticTest {
 

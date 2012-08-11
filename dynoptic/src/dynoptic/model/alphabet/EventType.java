@@ -1,7 +1,7 @@
 package dynoptic.model.alphabet;
 
-import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.channel.LocalEventsChannelId;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
 
 /**
  * <p>

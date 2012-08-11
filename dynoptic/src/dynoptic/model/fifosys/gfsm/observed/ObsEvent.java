@@ -1,31 +1,35 @@
-package dynoptic.model.fifosys.gfsm.trace;
+package dynoptic.model.fifosys.gfsm.observed;
 
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
 
 /**
  * Represents an event that was observed or mined from a log of an execution of
- * a FIFO system.
+ * a FIFO system. An observed event is an _instance_ of an EventType. It is
+ * associated with a particular log, location in the log, etc.
  */
-public class ObservedEvent extends EventType {
+public class ObsEvent extends EventType {
 
-    public static ObservedEvent LocalEvent(String event, int pid) {
-        return new ObservedEvent(event, pid, EventClass.LOCAL, null);
+    // TODO: include contextual information, such as the log filename, the line
+    // number at which this event was observed/parsed, etc.
+
+    public static ObsEvent LocalEvent(String event, int pid) {
+        return new ObsEvent(event, pid, EventClass.LOCAL, null);
     }
 
-    public static ObservedEvent SendEvent(String event, ChannelId channel) {
-        return new ObservedEvent(event, channel.getSrcPid(), EventClass.SEND,
+    public static ObsEvent SendEvent(String event, ChannelId channel) {
+        return new ObsEvent(event, channel.getSrcPid(), EventClass.SEND,
                 channel);
     }
 
-    public static ObservedEvent RecvEvent(String event, ChannelId channel) {
-        return new ObservedEvent(event, channel.getDstPid(), EventClass.RECV,
+    public static ObsEvent RecvEvent(String event, ChannelId channel) {
+        return new ObsEvent(event, channel.getDstPid(), EventClass.RECV,
                 channel);
     }
 
     // //////////////////////////////////////////////////////////////////
 
-    private ObservedEvent(String event, int pid, EventClass eventType,
+    private ObsEvent(String event, int pid, EventClass eventType,
             ChannelId channel) {
         super(event, pid, eventType, channel);
     }

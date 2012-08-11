@@ -4,7 +4,7 @@ import org.junit.Before;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
 
 public abstract class InvTesting extends DynopticTest {
 

@@ -11,55 +11,55 @@ import org.junit.Test;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.cfsm.CFSM;
-import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.channel.ImmutableMultiChannelState;
-import dynoptic.model.fifosys.gfsm.trace.ObsMultFSMState;
-import dynoptic.model.fifosys.gfsm.trace.ObservedEvent;
-import dynoptic.model.fifosys.gfsm.trace.ObservedFSMState;
-import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
-import dynoptic.model.fifosys.gfsm.trace.TraceFSM;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
+import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
+import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
+import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
 public class GFSMTests extends DynopticTest {
 
     GFSM g;
 
-    ObservedFifoSysState Si, St;
-    ObservedEvent e;
+    ObsFifoSysState Si, St;
+    ObsEvent e;
 
     @Override
     public void setUp() {
-        List<ObservedFSMState> Pi = new ArrayList<ObservedFSMState>();
-        List<ObservedFSMState> Pt = new ArrayList<ObservedFSMState>();
+        List<ObsFSMState> Pi = new ArrayList<ObsFSMState>();
+        List<ObsFSMState> Pt = new ArrayList<ObsFSMState>();
 
-        ObservedFSMState p0i = ObservedFSMState.ObservedInitialFSMState(0, "i");
+        ObsFSMState p0i = ObsFSMState.ObservedInitialFSMState(0, "i");
         Pi.add(p0i);
         ObsMultFSMState obsPi = new ObsMultFSMState(Pi);
 
-        ObservedFSMState p0t = ObservedFSMState
+        ObsFSMState p0t = ObsFSMState
                 .ObservedTerminalFSMState(0, "t");
         Pt.add(p0t);
         ObsMultFSMState obsPt = new ObsMultFSMState(Pt);
 
         // Empty channeldIds list -- no queues.
         List<ChannelId> cids = new ArrayList<ChannelId>();
-        ImmutableMultiChannelState PiChstate = ImmutableMultiChannelState
+        ImmutableMultiChState PiChstate = ImmutableMultiChState
                 .fromChannelIds(cids);
-        ImmutableMultiChannelState PtChstate = ImmutableMultiChannelState
+        ImmutableMultiChState PtChstate = ImmutableMultiChState
                 .fromChannelIds(cids);
 
-        Si = ObservedFifoSysState.getFifoSysState(obsPi, PiChstate);
-        St = ObservedFifoSysState.getFifoSysState(obsPt, PtChstate);
+        Si = ObsFifoSysState.getFifoSysState(obsPi, PiChstate);
+        St = ObsFifoSysState.getFifoSysState(obsPt, PtChstate);
 
         // Si -> St
-        e = ObservedEvent.LocalEvent("e", 0);
+        e = ObsEvent.LocalEvent("e", 0);
         Si.addTransition(e, St);
 
-        List<TraceFSM> traces = new ArrayList<TraceFSM>(1);
+        List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>(1);
 
-        Set<ObservedFifoSysState> states = new LinkedHashSet<ObservedFifoSysState>();
+        Set<ObsFifoSysState> states = new LinkedHashSet<ObsFifoSysState>();
         states.add(Si);
         states.add(St);
-        TraceFSM trace = new TraceFSM(cids, Si, St, states);
+        ObsFifoSys trace = new ObsFifoSys(cids, Si, St, states);
         traces.add(trace);
 
         g = new GFSM(traces);

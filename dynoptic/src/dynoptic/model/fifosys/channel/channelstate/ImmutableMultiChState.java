@@ -1,11 +1,12 @@
-package dynoptic.model.fifosys.channel;
+package dynoptic.model.fifosys.channel.channelstate;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import dynoptic.model.fifosys.gfsm.trace.ObservedEvent;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
 
 /**
  * Represents the state of a set of channels that are part of a FIFO system.
@@ -14,12 +15,12 @@ import dynoptic.model.fifosys.gfsm.trace.ObservedEvent;
  * through static methods that perform instance caching and will return a
  * previosly created instance, if one exists.
  */
-public class ImmutableMultiChannelState extends AbsMultiChannelState {
+public class ImmutableMultiChState extends AbsMultiChState {
 
-    private static final Map<List<ChannelState>, ImmutableMultiChannelState> queuesMap;
+    private static final Map<List<ChState>, ImmutableMultiChState> queuesMap;
 
     static {
-        queuesMap = new LinkedHashMap<List<ChannelState>, ImmutableMultiChannelState>();
+        queuesMap = new LinkedHashMap<List<ChState>, ImmutableMultiChState>();
     }
 
     /**
@@ -28,9 +29,9 @@ public class ImmutableMultiChannelState extends AbsMultiChannelState {
      * the given channel states. Otherwise, returns a new instance and caches
      * it.
      */
-    public static ImmutableMultiChannelState fromChannelIds(
+    public static ImmutableMultiChState fromChannelIds(
             List<ChannelId> channelIds) {
-        List<ChannelState> chStates = chStatesFromChIds(channelIds);
+        List<ChState> chStates = chStatesFromChIds(channelIds);
         return fromChannelStates(chStates);
     }
 
@@ -39,14 +40,14 @@ public class ImmutableMultiChannelState extends AbsMultiChannelState {
      * previously created with the given channel states. Otherwise, returns a
      * new instance and caches it.
      */
-    public static ImmutableMultiChannelState fromChannelStates(
-            List<ChannelState> chStates) {
-        ImmutableMultiChannelState ret;
+    public static ImmutableMultiChState fromChannelStates(
+            List<ChState> chStates) {
+        ImmutableMultiChState ret;
 
         if (queuesMap.containsKey(chStates)) {
             ret = queuesMap.get(chStates);
         } else {
-            ret = new ImmutableMultiChannelState(chStates);
+            ret = new ImmutableMultiChState(chStates);
             queuesMap.put(chStates, ret);
         }
         return ret;
@@ -54,7 +55,7 @@ public class ImmutableMultiChannelState extends AbsMultiChannelState {
 
     // //////////////////////////////////////////////////////////////////
 
-    private ImmutableMultiChannelState(List<ChannelState> chStates) {
+    private ImmutableMultiChState(List<ChState> chStates) {
         super(chStates);
     }
 
@@ -71,7 +72,7 @@ public class ImmutableMultiChannelState extends AbsMultiChannelState {
             return false;
         }
 
-        if (!(other instanceof ImmutableMultiChannelState)) {
+        if (!(other instanceof ImmutableMultiChState)) {
             return false;
 
         }
@@ -80,7 +81,7 @@ public class ImmutableMultiChannelState extends AbsMultiChannelState {
 
     // //////////////////////////////////////////////////////////////////
 
-    public ImmutableMultiChannelState getNextChState(ObservedEvent e) {
+    public ImmutableMultiChState getNextChState(ObsEvent e) {
         if (e.isLocalEvent()) {
             // These events do not change the channel state.
             return this;
@@ -88,22 +89,22 @@ public class ImmutableMultiChannelState extends AbsMultiChannelState {
 
         // Keep this.channelStates, except for the one that will be modified (at
         // the index indicated by the event) -- this ChannelState is cloned.
-        List<ChannelState> states = new ArrayList<ChannelState>(channelStates);
+        List<ChState> states = new ArrayList<ChState>(channelStates);
         int scmId = e.getChannelId().getScmId();
-        ChannelState newState = states.get(scmId).clone();
+        ChState newState = states.get(scmId).clone();
         states.set(scmId, newState);
 
         // 'Execute' the event by taking the appropriate action on the queue.
         if (e.isSendEvent()) {
             newState.enqueue(e);
         } else if (e.isRecvEvent()) {
-            ObservedEvent eRecv = (ObservedEvent) newState.dequeue();
+            ObsEvent eRecv = (ObsEvent) newState.dequeue();
             assert e.getRawEventStr().equals(eRecv.getRawEventStr());
         } else {
             assert false : "A non-local event is not a send or a receive event, either.";
         }
 
-        return ImmutableMultiChannelState.fromChannelStates(states);
+        return ImmutableMultiChState.fromChannelStates(states);
     }
 
 }

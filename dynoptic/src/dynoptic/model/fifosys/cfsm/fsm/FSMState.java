@@ -8,7 +8,7 @@ import java.util.Set;
 
 import dynoptic.model.AbsFSMState;
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.channel.LocalEventsChannelId;
+import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
 
 /**
  * <p>

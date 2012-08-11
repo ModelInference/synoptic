@@ -1,47 +1,50 @@
-package dynoptic.model.fifosys.gfsm.trace;
+package dynoptic.model.fifosys.gfsm.observed.dag;
 
 import java.util.Set;
+
+import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
+import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 
 /**
  * Represents an observed state, or a state that could have been instantaneously
  * observed, based on the DAG of observed events.
  */
-public class ObsStateDAGNode {
+public class ObsDAGNode {
 
     // The local state corresponding to this DAG node. These ObservedFSMState
     // instances are re-used and long-lived, while DAG states are used only to
     // construct Traces.
-    private ObservedFSMState obsState = null;
+    private ObsFSMState obsState = null;
 
     // The event that was observed to follow this state _locally_ (i.e., at this
     // process). For terminal states, this is null.
-    private ObservedEvent nextEvent = null;
+    private ObsEvent nextEvent = null;
 
     // The state that was observed to follow this state locally.
-    private ObsStateDAGNode nextState = null;
+    private ObsDAGNode nextState = null;
 
     // The state that preceded this state locally.
-    private ObsStateDAGNode prevState = null;
+    private ObsDAGNode prevState = null;
 
     // The set of states that this node depends on (i.e., if these states have
     // not occurred yet in the trace then this state cannot occur. This set only
     // includes remote dependencies -- states at other processes (since locally,
     // this state trivially depends only on the preceding state).
-    private Set<ObsStateDAGNode> remoteDependencies;
+    private Set<ObsDAGNode> remoteDependencies;
 
     // The states for which _this_ state is a dependency (i.e., this state
     // appears in these states' remoteDependencies set).
-    private Set<ObsStateDAGNode> remoteEnabledStates;
+    private Set<ObsDAGNode> remoteEnabledStates;
 
     // Whether or not this state has occurred in a trace simulation.
     private boolean occurredInSym = false;
 
-    public ObsStateDAGNode(ObservedFSMState state) {
+    public ObsDAGNode(ObsFSMState state) {
         this.obsState = state;
     }
 
     /** Use this method to set the event and state that followed this state. */
-    public void addTransition(ObservedEvent event, ObsStateDAGNode followState) {
+    public void addTransition(ObsEvent event, ObsDAGNode followState) {
         assert event != null;
         assert followState != null;
         assert event.getEventPid() == getPid();
@@ -52,7 +55,7 @@ public class ObsStateDAGNode {
         followState.setPrevState(this);
     }
 
-    public ObservedFSMState getObsState() {
+    public ObsFSMState getObsState() {
         return obsState;
     }
 
@@ -60,30 +63,30 @@ public class ObsStateDAGNode {
         return obsState.getPid();
     }
 
-    public ObservedEvent getNextEvent() {
+    public ObsEvent getNextEvent() {
         return nextEvent;
     }
 
-    public ObsStateDAGNode getNextState() {
+    public ObsDAGNode getNextState() {
         return nextState;
     }
 
-    public ObsStateDAGNode getPrevState() {
+    public ObsDAGNode getPrevState() {
         return prevState;
     }
 
-    public void setPrevState(ObsStateDAGNode prevState) {
+    public void setPrevState(ObsDAGNode prevState) {
         assert prevState != null;
         assert prevState.getPid() == getPid();
         this.prevState = prevState;
     }
 
-    public void addDependency(ObsStateDAGNode newDep) {
+    public void addDependency(ObsDAGNode newDep) {
         assert !remoteDependencies.contains(newDep);
         remoteDependencies.add(newDep);
     }
 
-    public Set<ObsStateDAGNode> getRemoteEnabledStates() {
+    public Set<ObsDAGNode> getRemoteEnabledStates() {
         return remoteEnabledStates;
     }
 
@@ -111,7 +114,7 @@ public class ObsStateDAGNode {
             return false;
         }
 
-        for (ObsStateDAGNode rNode : remoteDependencies) {
+        for (ObsDAGNode rNode : remoteDependencies) {
             // A remote state that this state depends on has not occurred.
             if (!rNode.hasOccurred()) {
                 return false;

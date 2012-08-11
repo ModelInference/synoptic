@@ -17,9 +17,9 @@ import dynoptic.model.alphabet.FSMAlphabet;
 import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
-import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.channel.InvChannelId;
-import dynoptic.model.fifosys.channel.LocalEventsChannelId;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.channel.channelid.InvChannelId;
+import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
 import dynoptic.util.Util;
 
 /**
