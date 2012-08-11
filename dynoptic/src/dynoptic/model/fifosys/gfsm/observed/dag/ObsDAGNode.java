@@ -45,8 +45,11 @@ public class ObsDAGNode {
 
     /** Use this method to set the event and state that followed this state. */
     public void addTransition(ObsEvent event, ObsDAGNode followState) {
+        assert !obsState.isTerminal();
         assert event != null;
         assert followState != null;
+        assert this.nextEvent == null;
+        assert this.nextState == null;
         assert event.getEventPid() == getPid();
         assert followState.getPid() == getPid();
 
@@ -64,25 +67,36 @@ public class ObsDAGNode {
     }
 
     public ObsEvent getNextEvent() {
+        assert isInitialized();
+
         return nextEvent;
     }
 
     public ObsDAGNode getNextState() {
+        assert isInitialized();
+
         return nextState;
     }
 
     public ObsDAGNode getPrevState() {
+        assert isInitialized();
+
         return prevState;
     }
 
     public void setPrevState(ObsDAGNode prevState) {
+        assert !obsState.isInitial();
+        assert this.prevState == null;
         assert prevState != null;
         assert prevState.getPid() == getPid();
+
         this.prevState = prevState;
     }
 
     public void addDependency(ObsDAGNode newDep) {
         assert !remoteDependencies.contains(newDep);
+        assert newDep.getPid() != getPid();
+
         remoteDependencies.add(newDep);
     }
 
@@ -91,10 +105,14 @@ public class ObsDAGNode {
     }
 
     public boolean hasOccurred() {
+        assert isInitialized();
+
         return occurredInSym;
     }
 
     public void setOccurred(boolean newOccurred) {
+        assert isInitialized();
+
         occurredInSym = newOccurred;
     }
 
@@ -104,6 +122,8 @@ public class ObsDAGNode {
      * and if the local preceding state has also occurred.
      */
     public boolean isEnabled() {
+        assert isInitialized();
+
         if (hasOccurred()) {
             return false;
         }
@@ -125,10 +145,25 @@ public class ObsDAGNode {
     }
 
     public boolean isInitState() {
-        return prevState == null;
+        return obsState.isInitial();
     }
 
     public boolean isTermState() {
-        return nextState == null;
+        return obsState.isTerminal();
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
+    private boolean isInitialized() {
+        if (!isTermState()) {
+            // This would indicate that this node is not yet initialized.
+            return (nextEvent != null) || (nextState != null);
+        }
+
+        if (!isInitState()) {
+            // This would indicate that this node is not yet initialized.
+            return prevState != null;
+        }
+        return true;
     }
 }
