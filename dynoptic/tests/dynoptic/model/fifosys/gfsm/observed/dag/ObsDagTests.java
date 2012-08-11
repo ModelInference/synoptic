@@ -6,12 +6,12 @@ import java.util.List;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
+import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 
 public class ObsDagTests extends DynopticTest {
 
-    @Test
-    public void create() {
+    public ObsDAG getSimpleDag() {
         ObsFSMState state0I = ObsFSMState.ObservedInitialFSMState(0);
         ObsFSMState state1I = ObsFSMState.ObservedInitialFSMState(1);
         ObsDAGNode node0I = new ObsDAGNode(state0I);
@@ -24,11 +24,27 @@ public class ObsDagTests extends DynopticTest {
         ObsFSMState state1T = ObsFSMState.ObservedTerminalFSMState(1);
         ObsDAGNode node0T = new ObsDAGNode(state0T);
         ObsDAGNode node1T = new ObsDAGNode(state1T);
+
+        node0I.addTransition(ObsEvent.LocalEvent("e", 0), node0T);
+        node1I.addTransition(ObsEvent.LocalEvent("f", 1), node1T);
+
         List<ObsDAGNode> termDagConfig = new ArrayList<ObsDAGNode>();
         termDagConfig.add(node0T);
         termDagConfig.add(node1T);
 
         ObsDAG dag = new ObsDAG(initDagConfig, termDagConfig);
+        return dag;
+    }
+
+    @Test
+    public void create() {
+        getSimpleDag();
+    }
+
+    @Test
+    public void getObsFifoSys() {
+        ObsDAG dag = getSimpleDag();
+        dag.getObsFifoSys();
     }
 
 }
