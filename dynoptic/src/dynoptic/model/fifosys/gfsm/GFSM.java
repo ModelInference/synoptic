@@ -12,9 +12,9 @@ import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
-import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
-import dynoptic.model.fifosys.gfsm.trace.TraceFSM;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
 /**
  * <p>
@@ -54,22 +54,22 @@ public class GFSM extends FifoSys<GFSMState> {
      * @param traces
      * @return
      */
-    public GFSM(List<TraceFSM> traces) {
+    public GFSM(List<ObsFifoSys> traces) {
         super(traces.get(0).getNumProcesses(), traces.get(0).getChannelIds());
 
-        Map<Integer, Set<ObservedFifoSysState>> qTopHashToPartition = new LinkedHashMap<Integer, Set<ObservedFifoSysState>>();
+        Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition = new LinkedHashMap<Integer, Set<ObsFifoSysState>>();
 
-        for (TraceFSM t : traces) {
+        for (ObsFifoSys t : traces) {
             assert t.getNumProcesses() == numProcesses;
             assert t.getChannelIds().equals(channelIds);
 
             // DFS traversal to perform initial partitioning.
-            ObservedFifoSysState init = t.getInitState();
+            ObsFifoSysState init = t.getInitState();
             addToMap(qTopHashToPartition, init);
             traverseAndPartition(init, qTopHashToPartition);
         }
         // Create the GFSMState partitions based off of sets of observations.
-        for (Set<ObservedFifoSysState> set : qTopHashToPartition.values()) {
+        for (Set<ObsFifoSysState> set : qTopHashToPartition.values()) {
             states.add(new GFSMState(numProcesses, set));
         }
         recomputeAlphabet();
@@ -80,13 +80,13 @@ public class GFSM extends FifoSys<GFSMState> {
      * top of queue event types.
      */
     private void addToMap(
-            Map<Integer, Set<ObservedFifoSysState>> qTopHashToPartition,
-            ObservedFifoSysState obs) {
+            Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition,
+            ObsFifoSysState obs) {
         int hash = obs.getChannelStates().topOfQueuesHash();
         if (qTopHashToPartition.containsKey(hash)) {
             qTopHashToPartition.get(hash).add(obs);
         } else {
-            Set<ObservedFifoSysState> partition = new LinkedHashSet<ObservedFifoSysState>();
+            Set<ObsFifoSysState> partition = new LinkedHashSet<ObsFifoSysState>();
             partition.add(obs);
             qTopHashToPartition.put(hash, partition);
         }
@@ -96,9 +96,9 @@ public class GFSM extends FifoSys<GFSMState> {
      * Constructor helper -- DFS traversal of the observed traces, building up
      * an initial partitioning.
      */
-    private void traverseAndPartition(ObservedFifoSysState curr,
-            Map<Integer, Set<ObservedFifoSysState>> qTopHashToPartition) {
-        for (ObservedFifoSysState next : curr.getNextStates()) {
+    private void traverseAndPartition(ObsFifoSysState curr,
+            Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition) {
+        for (ObsFifoSysState next : curr.getNextStates()) {
             addToMap(qTopHashToPartition, next);
             traverseAndPartition(next, qTopHashToPartition);
         }

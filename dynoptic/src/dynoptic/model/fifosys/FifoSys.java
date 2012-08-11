@@ -6,7 +6,7 @@ import java.util.Set;
 
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
-import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.exec.FifoSysExecution;
 
 /**

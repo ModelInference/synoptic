@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import dynoptic.model.fifosys.channel.ChannelId;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
 
 public class McScM {
     /** Complete path to the McScM verify binary. */

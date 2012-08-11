@@ -1,4 +1,4 @@
-package dynoptic.model.fifosys.channel;
+package dynoptic.model.fifosys.channel.channelid;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -10,6 +10,9 @@ import dynoptic.DynopticTest;
 import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.BinaryInvariant;
 import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.channel.channelid.InvChannelId;
+import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
 
 public class ChannelIdTests extends DynopticTest {
 

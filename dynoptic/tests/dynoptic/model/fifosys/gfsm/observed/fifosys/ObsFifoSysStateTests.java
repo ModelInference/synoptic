@@ -1,4 +1,4 @@
-package dynoptic.model.fifosys.gfsm.trace;
+package dynoptic.model.fifosys.gfsm.observed.fifosys;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -10,10 +10,13 @@ import java.util.List;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
-import dynoptic.model.fifosys.channel.ChannelId;
-import dynoptic.model.fifosys.channel.ImmutableMultiChannelState;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
+import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
+import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
-public class ObservedFifoSysStateTests extends DynopticTest {
+public class ObsFifoSysStateTests extends DynopticTest {
 
     ChannelId cid1;
     ChannelId cid2;
@@ -22,9 +25,9 @@ public class ObservedFifoSysStateTests extends DynopticTest {
     @Test
     public void create() {
 
-        List<ObservedFSMState> P = new ArrayList<ObservedFSMState>();
-        ObservedFSMState p0 = ObservedFSMState.ObservedTerminalFSMState(0, "p");
-        ObservedFSMState p1 = ObservedFSMState.ObservedTerminalFSMState(1, "q");
+        List<ObsFSMState> P = new ArrayList<ObsFSMState>();
+        ObsFSMState p0 = ObsFSMState.ObservedTerminalFSMState(0, "p");
+        ObsFSMState p1 = ObsFSMState.ObservedTerminalFSMState(1, "q");
         P.add(p0);
         P.add(p1);
 
@@ -35,10 +38,10 @@ public class ObservedFifoSysStateTests extends DynopticTest {
         cid2 = new ChannelId(1, 0, 1);
         cids.add(cid1);
         cids.add(cid2);
-        ImmutableMultiChannelState Pmc = ImmutableMultiChannelState
+        ImmutableMultiChState Pmc = ImmutableMultiChState
                 .fromChannelIds(cids);
 
-        ObservedFifoSysState s = ObservedFifoSysState.getFifoSysState(
+        ObsFifoSysState s = ObsFifoSysState.getFifoSysState(
                 obsFSMState, Pmc);
 
         assertTrue(s.isAccept());
@@ -53,7 +56,7 @@ public class ObservedFifoSysStateTests extends DynopticTest {
 
         // Retrieve another instance of fifo sys state, and make sure that the
         // internal cache returns the prior instance.
-        ObservedFifoSysState s2 = ObservedFifoSysState.getFifoSysState(
+        ObsFifoSysState s2 = ObsFifoSysState.getFifoSysState(
                 obsFSMState, Pmc);
 
         assertTrue(s == s2);

@@ -1,4 +1,4 @@
-package dynoptic.model.fifosys.gfsm.trace;
+package dynoptic.model.fifosys.gfsm.observed;
 
 /**
  * <p>
@@ -13,7 +13,7 @@ package dynoptic.model.fifosys.gfsm.trace;
  * class.
  * </p>
  */
-public class ObservedFSMState {
+public class ObsFSMState {
 
     private static int prevAnonId = -1;
 
@@ -46,49 +46,49 @@ public class ObservedFSMState {
     // TODO: For non-anon states include things like line number and filename,
     // and so forth.
 
-    public static ObservedFSMState ObservedTerminalFSMState(int pid) {
-        return new ObservedFSMState(pid, false, true, getNextAnonName());
+    public static ObsFSMState ObservedTerminalFSMState(int pid) {
+        return new ObsFSMState(pid, false, true, getNextAnonName());
     }
 
-    public static ObservedFSMState ObservedTerminalFSMState(int pid, String name) {
-        return new ObservedFSMState(pid, false, true, name);
-    }
-
-    // ///////////
-
-    public static ObservedFSMState ObservedInitialFSMState(int pid) {
-        return new ObservedFSMState(pid, true, false, getNextAnonName());
-    }
-
-    public static ObservedFSMState ObservedInitialFSMState(int pid, String name) {
-        return new ObservedFSMState(pid, true, false, name);
+    public static ObsFSMState ObservedTerminalFSMState(int pid, String name) {
+        return new ObsFSMState(pid, false, true, name);
     }
 
     // ///////////
 
-    public static ObservedFSMState ObservedInitialTerminalFSMState(int pid) {
-        return new ObservedFSMState(pid, true, true, getNextAnonName());
+    public static ObsFSMState ObservedInitialFSMState(int pid) {
+        return new ObsFSMState(pid, true, false, getNextAnonName());
     }
 
-    public static ObservedFSMState ObservedInitialTerminalFSMState(int pid,
+    public static ObsFSMState ObservedInitialFSMState(int pid, String name) {
+        return new ObsFSMState(pid, true, false, name);
+    }
+
+    // ///////////
+
+    public static ObsFSMState ObservedInitialTerminalFSMState(int pid) {
+        return new ObsFSMState(pid, true, true, getNextAnonName());
+    }
+
+    public static ObsFSMState ObservedInitialTerminalFSMState(int pid,
             String name) {
-        return new ObservedFSMState(pid, true, true, name);
+        return new ObsFSMState(pid, true, true, name);
     }
 
     // ///////////
 
-    public static ObservedFSMState ObservedIntermediateFSMState(int pid) {
-        return new ObservedFSMState(pid, false, false, getNextAnonName());
+    public static ObsFSMState ObservedIntermediateFSMState(int pid) {
+        return new ObsFSMState(pid, false, false, getNextAnonName());
     }
 
-    public static ObservedFSMState ObservedIntermediateFSMState(int pid,
+    public static ObsFSMState ObservedIntermediateFSMState(int pid,
             String name) {
-        return new ObservedFSMState(pid, false, false, name);
+        return new ObsFSMState(pid, false, false, name);
     }
 
     // //////////////////////////////////////////////////////////////////
 
-    private ObservedFSMState(int pid, boolean isInit, boolean isTerminal,
+    private ObsFSMState(int pid, boolean isInit, boolean isTerminal,
             String name) {
         assert name != null;
 
@@ -120,11 +120,11 @@ public class ObservedFSMState {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof ObservedFSMState)) {
+        if (!(other instanceof ObsFSMState)) {
             return false;
 
         }
-        ObservedFSMState otherF = (ObservedFSMState) other;
+        ObsFSMState otherF = (ObsFSMState) other;
         if (otherF.isInitial() != isInitial) {
             return false;
         }

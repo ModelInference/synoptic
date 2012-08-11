@@ -1,4 +1,4 @@
-package dynoptic.model.fifosys.channel;
+package dynoptic.model.fifosys.channel.channelstate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -12,14 +12,16 @@ import org.junit.Test;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.channel.channelstate.MutableMultiChState;
 
-public class MutibleMultiChannelStateTests extends DynopticTest {
+public class MutibleMultiChStateTests extends DynopticTest {
 
     ChannelId cid1;
     ChannelId cid2;
     List<ChannelId> cids;
-    MutableMultiChannelState mc;
-    MutableMultiChannelState mc2;
+    MutableMultiChState mc;
+    MutableMultiChState mc2;
 
     @Before
     public void setUp() throws Exception {
@@ -31,8 +33,8 @@ public class MutibleMultiChannelStateTests extends DynopticTest {
         cids.add(cid1);
         cids.add(cid2);
 
-        mc = MutableMultiChannelState.fromChannelIds(cids);
-        mc2 = MutableMultiChannelState.fromChannelIds(cids);
+        mc = MutableMultiChState.fromChannelIds(cids);
+        mc2 = MutableMultiChState.fromChannelIds(cids);
     }
 
     @Test

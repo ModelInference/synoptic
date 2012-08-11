@@ -1,22 +1,23 @@
-package dynoptic.model.fifosys.channel;
+package dynoptic.model.fifosys.channel.channelstate;
 
 import java.util.ArrayList;
 
 import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
 
 /**
  * The ChannelState maintains the queue state for a channel, identified with a
  * specific channel id.
  */
-public class ChannelState implements Cloneable {
+public class ChState implements Cloneable {
     final ChannelId chId;
     final ArrayList<EventType> queue;
 
-    public ChannelState(ChannelId chId) {
+    public ChState(ChannelId chId) {
         this(chId, new ArrayList<EventType>());
     }
 
-    private ChannelState(ChannelId chId, ArrayList<EventType> queue) {
+    private ChState(ChannelId chId, ArrayList<EventType> queue) {
         assert chId != null;
         assert queue != null;
 
@@ -52,11 +53,11 @@ public class ChannelState implements Cloneable {
         if (this == other) {
             return true;
         }
-        if (!(other instanceof ChannelState)) {
+        if (!(other instanceof ChState)) {
             return false;
 
         }
-        ChannelState s = (ChannelState) other;
+        ChState s = (ChState) other;
         if (!s.chId.equals(chId)) {
             return false;
         }
@@ -68,11 +69,11 @@ public class ChannelState implements Cloneable {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public ChannelState clone() {
+    public ChState clone() {
         // Since ChannelId is immutable and Event is immutable all we need to do
         // is make sure to clone the ArrayList that maintains events to produce
         // a new independent deep-copy of ChannelState.
-        return new ChannelState(chId, (ArrayList<EventType>) queue.clone());
+        return new ChState(chId, (ArrayList<EventType>) queue.clone());
     }
 
     // //////////////////////////////////////////////////////////////////

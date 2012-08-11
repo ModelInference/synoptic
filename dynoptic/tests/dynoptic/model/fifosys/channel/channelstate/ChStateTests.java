@@ -1,4 +1,4 @@
-package dynoptic.model.fifosys.channel;
+package dynoptic.model.fifosys.channel.channelstate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -9,8 +9,10 @@ import org.junit.Test;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.channel.channelstate.ChState;
 
-public class ChannelStateTests extends DynopticTest {
+public class ChStateTests extends DynopticTest {
 
     ChannelId cid;
 
@@ -22,28 +24,28 @@ public class ChannelStateTests extends DynopticTest {
 
     @Test
     public void createChannelState() {
-        ChannelState s = new ChannelState(cid);
+        ChState s = new ChState(cid);
         logger.info(s.toString());
         s.hashCode();
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void emptyDequeue() {
-        ChannelState s = new ChannelState(cid);
+        ChState s = new ChState(cid);
         assertEquals(s.size(), 0);
         s.dequeue();
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void emptyPeek() {
-        ChannelState s = new ChannelState(cid);
+        ChState s = new ChState(cid);
         assertEquals(s.size(), 0);
         s.peek();
     }
 
     @Test
     public void enqueue() {
-        ChannelState s = new ChannelState(cid);
+        ChState s = new ChState(cid);
 
         EventType e = EventType.SendEvent("m", cid);
 
@@ -58,21 +60,21 @@ public class ChannelStateTests extends DynopticTest {
 
     @Test(expected = AssertionError.class)
     public void enqueueBadEvent1() {
-        ChannelState s = new ChannelState(cid);
+        ChState s = new ChState(cid);
         EventType e = EventType.LocalEvent("e", 1);
         s.enqueue(e);
     }
 
     @Test(expected = AssertionError.class)
     public void enqueueBadEvent2() {
-        ChannelState s = new ChannelState(cid);
+        ChState s = new ChState(cid);
         EventType e = EventType.RecvEvent("e", cid);
         s.enqueue(e);
     }
 
     @Test(expected = AssertionError.class)
     public void enqueueBadEvent3() {
-        ChannelState s = new ChannelState(cid);
+        ChState s = new ChState(cid);
         ChannelId cid2 = new ChannelId(2, 3, 1);
         EventType e = EventType.SendEvent("e", cid2);
         s.enqueue(e);
@@ -80,7 +82,7 @@ public class ChannelStateTests extends DynopticTest {
 
     @Test
     public void enqueuePeekDequeue() {
-        ChannelState s = new ChannelState(cid);
+        ChState s = new ChState(cid);
         EventType e = EventType.SendEvent("m", cid);
 
         assertEquals(s.size(), 0);
@@ -94,25 +96,25 @@ public class ChannelStateTests extends DynopticTest {
 
     @Test
     public void cloneEmptyChannelState() {
-        ChannelState s = new ChannelState(cid);
+        ChState s = new ChState(cid);
 
-        ChannelState s2 = s.clone();
+        ChState s2 = s.clone();
         assertEquals(s, s2);
     }
 
     @Test
     public void cloneNonEmptyChannelState() {
-        ChannelState s = new ChannelState(cid);
+        ChState s = new ChState(cid);
         EventType e = EventType.SendEvent("m", cid);
         s.enqueue(e);
 
-        ChannelState s2 = s.clone();
+        ChState s2 = s.clone();
         assertEquals(s, s2);
     }
 
     @Test
     public void equality() {
-        ChannelState s = new ChannelState(cid);
+        ChState s = new ChState(cid);
         EventType e = EventType.SendEvent("m", cid);
         s.enqueue(e);
 
@@ -120,7 +122,7 @@ public class ChannelStateTests extends DynopticTest {
         assertFalse(s.equals(""));
         assertTrue(s.equals(s));
 
-        ChannelState s2 = new ChannelState(cid);
+        ChState s2 = new ChState(cid);
         EventType e2 = EventType.SendEvent("m", cid);
         s2.enqueue(e2);
 

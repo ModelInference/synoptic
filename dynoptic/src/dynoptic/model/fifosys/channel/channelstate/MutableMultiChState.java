@@ -1,41 +1,42 @@
-package dynoptic.model.fifosys.channel;
+package dynoptic.model.fifosys.channel.channelstate;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import dynoptic.model.alphabet.EventType;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
 
 /**
  * Represents the state of a set of channels that are part of a FIFO system.
  * This state can be mutated, or modified. For example, a new message can be
  * enqueued and messages can be dequeued to/from channels.
  */
-public class MutableMultiChannelState extends AbsMultiChannelState implements
+public class MutableMultiChState extends AbsMultiChState implements
         Cloneable {
 
-    static public MutableMultiChannelState fromChannelIds(
+    static public MutableMultiChState fromChannelIds(
             List<ChannelId> channelIds) {
-        return new MutableMultiChannelState(
-                AbsMultiChannelState.chStatesFromChIds(channelIds));
+        return new MutableMultiChState(
+                AbsMultiChState.chStatesFromChIds(channelIds));
     }
 
     // //////////////////////////////////////////////////////////////////
 
-    public MutableMultiChannelState(List<ChannelState> channelStates) {
+    public MutableMultiChState(List<ChState> channelStates) {
         super(channelStates);
     }
 
     // //////////////////////////////////////////////////////////////////
 
     @Override
-    public MutableMultiChannelState clone() {
+    public MutableMultiChState clone() {
         // Capture the current state of all the channels.
-        List<ChannelState> clonedChannels = new ArrayList<ChannelState>(
+        List<ChState> clonedChannels = new ArrayList<ChState>(
                 channelStates.size());
-        for (ChannelState s : channelStates) {
+        for (ChState s : channelStates) {
             clonedChannels.add(s.clone());
         }
-        return new MutableMultiChannelState(clonedChannels);
+        return new MutableMultiChState(clonedChannels);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class MutableMultiChannelState extends AbsMultiChannelState implements
             return false;
         }
 
-        if (!(other instanceof MutableMultiChannelState)) {
+        if (!(other instanceof MutableMultiChState)) {
             return false;
 
         }
