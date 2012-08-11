@@ -71,7 +71,7 @@ public class MutableMultiChannelState extends AbsMultiChannelState implements
 
         EventType e = channelStates
                 .get(expectedEvent.getChannelId().getScmId()).dequeue();
-        assert e.equals(expectedEvent);
+        assert e.getRawEventStr().equals(expectedEvent.getRawEventStr());
     }
 
     public EventType dequeue(ChannelId chId) {

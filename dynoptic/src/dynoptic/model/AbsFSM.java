@@ -65,5 +65,4 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
             }
         }
     }
-
 }

@@ -14,7 +14,7 @@ import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 import dynoptic.model.fifosys.channel.ChannelId;
 import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
-import dynoptic.model.fifosys.gfsm.trace.Trace;
+import dynoptic.model.fifosys.gfsm.trace.TraceFSM;
 
 /**
  * <p>
@@ -54,12 +54,12 @@ public class GFSM extends FifoSys<GFSMState> {
      * @param traces
      * @return
      */
-    public GFSM(List<Trace> traces) {
+    public GFSM(List<TraceFSM> traces) {
         super(traces.get(0).getNumProcesses(), traces.get(0).getChannelIds());
 
         Map<Integer, Set<ObservedFifoSysState>> qTopHashToPartition = new LinkedHashMap<Integer, Set<ObservedFifoSysState>>();
 
-        for (Trace t : traces) {
+        for (TraceFSM t : traces) {
             assert t.getNumProcesses() == numProcesses;
             assert t.getChannelIds().equals(channelIds);
 

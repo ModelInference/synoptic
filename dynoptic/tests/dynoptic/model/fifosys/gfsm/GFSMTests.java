@@ -3,7 +3,9 @@ package dynoptic.model.fifosys.gfsm;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -15,7 +17,7 @@ import dynoptic.model.fifosys.gfsm.trace.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.trace.ObservedEvent;
 import dynoptic.model.fifosys.gfsm.trace.ObservedFSMState;
 import dynoptic.model.fifosys.gfsm.trace.ObservedFifoSysState;
-import dynoptic.model.fifosys.gfsm.trace.Trace;
+import dynoptic.model.fifosys.gfsm.trace.TraceFSM;
 
 public class GFSMTests extends DynopticTest {
 
@@ -52,9 +54,12 @@ public class GFSMTests extends DynopticTest {
         e = ObservedEvent.LocalEvent("e", 0);
         Si.addTransition(e, St);
 
-        List<Trace> traces = new ArrayList<Trace>(1);
+        List<TraceFSM> traces = new ArrayList<TraceFSM>(1);
 
-        Trace trace = new Trace(Si, St);
+        Set<ObservedFifoSysState> states = new LinkedHashSet<ObservedFifoSysState>();
+        states.add(Si);
+        states.add(St);
+        TraceFSM trace = new TraceFSM(cids, Si, St, states);
         traces.add(trace);
 
         g = new GFSM(traces);
