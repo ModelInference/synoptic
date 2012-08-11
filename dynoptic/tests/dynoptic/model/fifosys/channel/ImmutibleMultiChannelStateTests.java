@@ -48,6 +48,7 @@ public class ImmutibleMultiChannelStateTests extends DynopticTest {
         // internal caching.
         assertTrue(mc == mc2);
         assertTrue(mc.equals(mc2));
+        assertTrue(mc.hashCode() == mc2.hashCode());
 
         // Now, attempt to create the same mc/mc2 instances, but by building
         // them from more explicit state instances.
@@ -69,9 +70,8 @@ public class ImmutibleMultiChannelStateTests extends DynopticTest {
     @Test
     public void createFromQueues() {
         // Create config [[e],[]]
-        // EventType e = EventType.SendEvent("e", cid1);
-        ObservedEvent e = ObservedEvent.SendEvent("e", cid1);
-        chStates.get(0).enqueue(e);
+        ObservedEvent sendE = ObservedEvent.SendEvent("e", cid1);
+        chStates.get(0).enqueue(sendE);
         mc = ImmutableMultiChannelState.fromChannelStates(chStates);
 
         // Create config [[],[]]
@@ -81,14 +81,25 @@ public class ImmutibleMultiChannelStateTests extends DynopticTest {
 
         // Add e to [[],[]] at cid1 (index 0)
         // This should result in [[],[e]] and equal the first mc above.
-        mc3 = mc2.getNextChState(e);
+        mc3 = mc2.getNextChState(sendE);
         assertTrue(mc == mc3);
         assertTrue(mc.equals(mc3));
+        assertTrue(mc.hashCode() == mc3.hashCode());
 
         // Apply e again, resulting in: [[e,e],[]]
-        mc4 = mc3.getNextChState(e);
+        mc4 = mc3.getNextChState(sendE);
         assertTrue(mc != mc4);
         assertTrue(mc2 != mc4);
         assertTrue(mc3 != mc4);
+
+        // Consume e, resulting in: [[e],[]]
+        ObservedEvent recvE = ObservedEvent.RecvEvent("e", cid1);
+        mc4 = mc4.getNextChState(recvE);
+        assertTrue(mc4 == mc3);
+
+        // Execute a local event at pid 0, which should not change the state
+        ObservedEvent localE = ObservedEvent.LocalEvent("e", 1);
+        mc4 = mc4.getNextChState(localE);
+        assertTrue(mc4 == mc3);
     }
 }

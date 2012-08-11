@@ -50,6 +50,13 @@ public class ObservedFifoSysStateTests extends DynopticTest {
         assertTrue(s.equals(s));
 
         logger.info(s.toString());
+
+        // Retrieve another instance of fifo sys state, and make sure that the
+        // internal cache returns the prior instance.
+        ObservedFifoSysState s2 = ObservedFifoSysState.getFifoSysState(
+                obsFSMState, Pmc);
+
+        assertTrue(s == s2);
     }
 
 }

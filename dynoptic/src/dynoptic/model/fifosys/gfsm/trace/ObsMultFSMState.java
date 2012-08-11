@@ -7,7 +7,8 @@ import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
 
 /**
- * 
+ * Represents the instantaneous observed state across all of the processes in a
+ * FIFO system. This does not include the queue state of the processes.
  */
 public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
 
@@ -62,18 +63,6 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
     }
 
     @Override
-    public Set<? extends EventType> getTransitioningEvents() {
-        assert false : "Transition information for ObsMultFSMState is maintained by ObservedFifoSysState instances.";
-        return null;
-    }
-
-    @Override
-    public Set<ObsMultFSMState> getNextStates(EventType event) {
-        assert false : "Transition information for ObsMultFSMState is maintained by ObservedFifoSysState instances.";
-        return null;
-    }
-
-    @Override
     public int hashCode() {
         return fsmStates.hashCode();
     }
@@ -83,4 +72,19 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
         return fsmStates.equals(o);
     }
 
+    @Override
+    public Set<? extends EventType> getTransitioningEvents() {
+        // We do not maintain transitions here because these need to depend on
+        // the state of the queue, and queue state is not maintained here.
+        assert false : "Transition information for ObsMultFSMState is maintained by ObservedFifoSysState instances.";
+        return null;
+    }
+
+    @Override
+    public Set<ObsMultFSMState> getNextStates(EventType event) {
+        // We do not maintain transitions here because these need to depend on
+        // the state of the queue, and queue state is not maintained here.
+        assert false : "Transition information for ObsMultFSMState is maintained by ObservedFifoSysState instances.";
+        return null;
+    }
 }

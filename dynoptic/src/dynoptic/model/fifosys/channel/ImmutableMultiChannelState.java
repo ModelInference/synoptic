@@ -97,7 +97,8 @@ public class ImmutableMultiChannelState extends AbsMultiChannelState {
         if (e.isSendEvent()) {
             newState.enqueue(e);
         } else if (e.isRecvEvent()) {
-            newState.dequeue();
+            ObservedEvent eRecv = (ObservedEvent) newState.dequeue();
+            assert e.getRawEventStr().equals(eRecv.getRawEventStr());
         } else {
             assert false : "A non-local event is not a send or a receive event, either.";
         }

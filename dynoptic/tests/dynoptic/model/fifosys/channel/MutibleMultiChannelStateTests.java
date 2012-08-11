@@ -50,7 +50,7 @@ public class MutibleMultiChannelStateTests extends DynopticTest {
     }
 
     @Test
-    public void enqueueIsEmptyPeekDequeue() {
+    public void enqueueDequeueSeq() {
         EventType e = EventType.SendEvent("e", cid1);
 
         int h1 = mc.hashCode();
@@ -70,12 +70,18 @@ public class MutibleMultiChannelStateTests extends DynopticTest {
         assertFalse(mc.isEmptyForPid(2));
         assertTrue(mc.isEmptyForPid(1));
 
-        // Dequeue e.
+        // Dequeue e (using cid)
         e2 = mc.dequeue(cid1);
         assertEquals(e, e2);
         assertTrue(mc.isEmpty());
         assertTrue(mc.isEmptyForPid(1));
         assertTrue(mc.isEmptyForPid(2));
+
+        // Enqueue e, again, but dequeue this time using e (not the cid).
+        mc.enqueue(e);
+
+        EventType recvE = EventType.RecvEvent("e", cid1);
+        mc.dequeue(recvE);
     }
 
     @Test

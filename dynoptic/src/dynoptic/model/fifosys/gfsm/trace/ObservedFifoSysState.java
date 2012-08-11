@@ -15,17 +15,18 @@ import dynoptic.model.fifosys.gfsm.GFSMState;
 
 /**
  * <p>
- * Represents a state that was observed or mined from a log from an execution of
- * a FIFO system. Note that because the execution is possible partially ordered
- * (concurrent), there are multiple possible _next_ ObservedFifoSysState
- * instances. That is, the observed state is a cross product of states, and we
- * can have as many states possible as the number of events observed following
- * each of the individual FSM states that comprise this ObservedFifoSysState.
+ * Represents an instantaneous state that is predicted by partially-ordered
+ * event observation from an input log for an execution of a FIFO system. Note
+ * that because the execution is possibly concurrent, there are multiple
+ * possible _next_ ObservedFifoSysState instances to this state. That is, the
+ * observed state is a cross product of states, and we can have as many states
+ * possible as the number of events observed following each of the individual
+ * FSM states that comprise this ObservedFifoSysState.
  * </p>
  * <p>
- * Also, note that the channelStates are often implicit -- we do not have a
- * record of the actual channel states, but we can reconstruct the channel
- * states based on the sequence of send/receive operations.
+ * Also, note that the queue state (channelStates) are often implicit -- we do
+ * not have a record of the actual channel states, but we can reconstruct the
+ * channel states based on the sequence of send/receive operations.
  * </p>
  */
 public class ObservedFifoSysState extends
@@ -51,6 +52,9 @@ public class ObservedFifoSysState extends
      */
     public static ObservedFifoSysState getFifoSysState(
             ObsMultFSMState fsmStates, ImmutableMultiChannelState channelStates) {
+        assert fsmStates != null;
+        assert channelStates != null;
+
         ObservedFifoSysState ret;
         if (fifoSysStatesMap.containsKey(fsmStates)) {
             ret = fifoSysStatesMap.get(fsmStates);
@@ -89,6 +93,12 @@ public class ObservedFifoSysState extends
                         && chId.getSrcPid() < fsmStates.getNumProcesses();
                 assert chId.getDstPid() >= 0
                         && chId.getDstPid() < fsmStates.getNumProcesses();
+            }
+
+            // Since these are observed states, by definition, if we are in all
+            // accepting states, then the queues must be empty.
+            if (fsmStates.isAccept()) {
+                assert channelStates.isEmpty();
             }
         }
 
