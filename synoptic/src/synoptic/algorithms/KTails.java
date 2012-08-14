@@ -73,7 +73,6 @@ public class KTails {
      * @return true if the k-tails are equivalent under the current definition
      *         of equivalence.
      */
-
     static public <NodeType extends INode<NodeType>> boolean kEquals(
             NodeType n1, NodeType n2, int k, boolean subsumption) {
         if (!n1.getEType().equals(n2.getEType())) {
@@ -140,6 +139,13 @@ public class KTails {
     static private <NodeType extends INode<NodeType>> boolean kEqualsWithoutSubsumption(
             NodeType n1, NodeType n2, int k,
             LinkedHashMap<NodeType, NodeType> allVisitedMatches) {
+
+        // ////////////////
+        // Documented in Issue 258.
+        // FIXME: this comparison should be independent of topology -- i.e., we
+        // should be comparing the set of k-length strings generated from n1 and
+        // n2, regardless of the paths that we took to generate them.
+        // ////////////////
 
         // The labels must match.
         if (!n1.getEType().equals(n2.getEType())) {
