@@ -270,7 +270,6 @@ public class CFSM extends FifoSys<CFSMState> {
 
         // Parameters to the SCM representation of this CFSM.
         String cfsmName = "blah";
-        boolean lossy = false;
 
         ret = "scm " + cfsmName + ":\n\n";
 
@@ -290,12 +289,9 @@ public class CFSM extends FifoSys<CFSMState> {
         }
         ret += "*/\n\n";
 
-        // Whether or not the channels are lossy:
-        if (lossy) {
-            ret += "lossy: 1\n\n";
-        } else {
-            ret += "lossy: 0\n\n";
-        }
+        // Whether or not any channels are lossy:
+        // TODO: add lossy field to ChannelId and if list all channel ids that
+        // are lossy here.
 
         // Parameters/Alphabet:
         ret += "parameters :\n";
