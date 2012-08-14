@@ -8,6 +8,7 @@ import org.junit.Test;
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 
 public class ObsDagTests extends DynopticTest {
 
@@ -44,7 +45,9 @@ public class ObsDagTests extends DynopticTest {
     @Test
     public void getObsFifoSys() {
         ObsDAG dag = getSimpleDag();
-        dag.getObsFifoSys();
+        ObsFifoSys sys = dag.getObsFifoSys();
+
+        // TODO: check properties of sys.
     }
 
 }

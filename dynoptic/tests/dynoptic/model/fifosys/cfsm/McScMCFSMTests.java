@@ -52,16 +52,12 @@ public class McScMCFSMTests extends CFSMTesting {
         return result;
     }
 
-    @SuppressWarnings("unused")
     @Test
     public void verifyAFby() throws IOException, InterruptedException {
         AlwaysFollowedBy inv = new AlwaysFollowedBy(p0Sm, p1Rm);
         cfsm.augmentWithInvTracing(inv);
         VerifyResult result = verifyAndPrint();
-        // NOTE: there is a bug in McScM.verify for this particular
-        // CFSM example. Once the bug is fixed, we need to:
-        //
-        // assertTrue(result.getCExample() == null);
+        assertTrue(result.getCExample() == null);
     }
 
     @Test
