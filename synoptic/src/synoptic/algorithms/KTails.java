@@ -1,13 +1,18 @@
 package synoptic.algorithms;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import synoptic.algorithms.graphops.PartitionMerge;
+import synoptic.algorithms.graphops.PartitionMultiMerge;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
+import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
 import synoptic.util.InternalSynopticException;
@@ -34,32 +39,150 @@ public class KTails {
      * become merge-able.
      */
     private static void attemptMerge(PartitionGraph pGraph, int k) {
-        // TODO: one optimization for skipping checking k-equivalence between
-        // two nodes if (1) we have checked it before and found it to be false,
-        // and (2) if any merges since the last check did not merge any nodes
-        // within k distance of either of the nodes.
-        for (Partition p : pGraph.getNodes()) {
-            for (Partition q : pGraph.getNodes()) {
-                if (p == q) {
-                    // Can't merge a partition with itself
-                    continue;
-                }
+        // Keeps track of the merges that we want to perform.
+        Set<PartitionMultiMerge> merges = new LinkedHashSet<PartitionMultiMerge>();
 
-                // For all k, can only merge p and q if their event types match.
-                if (!(p.getEType().equals(q.getEType()))) {
-                    continue;
-                }
+        // List of all partitions -- needed for ordering partitions in the loops
+        // below.
+        List<Partition> partitions = new ArrayList<Partition>(pGraph.getNodes());
 
-                if (kEquals(p, q, k, false)) {
-                    // Merge partitions that are k-equivalent
-                    pGraph.apply(new PartitionMerge(p, q));
+        // Partitions that belong to a merge.
+        List<Partition> mergedPartitions = new ArrayList<Partition>();
 
-                    // Now attempt merges in modified graph
-                    attemptMerge(pGraph, k);
-                    return;
+        // Maps a partition to the set of strings of length <= k reachable from
+        // the partition.
+        Map<Partition, Set<List<EventType>>> kStringsMap = new LinkedHashMap<Partition, Set<List<EventType>>>();
+
+        // Build the kStringsMap
+        for (Partition P : partitions) {
+            Set<List<EventType>> prefixes = new LinkedHashSet<List<EventType>>();
+            List<EventType> prefix = new ArrayList<EventType>();
+            prefix.add(P.getEType());
+            prefixes.add(prefix);
+
+            Set<List<EventType>> ret = null;
+            if (k == 0) {
+                // For k=0, use singleton prefixes set containing P's event
+                // type.
+                ret = prefixes;
+            } else {
+                for (Partition child : P.getAllSuccessors()) {
+                    if (ret == null) {
+                        ret = getKString(child, k - 1, prefixes);
+                    } else {
+                        ret.addAll(getKString(child, k - 1, prefixes));
+                    }
                 }
             }
+            // If we have not explored anything below P because it is a leaf
+            // then use singleton prefix set.
+            if (ret == null) {
+                ret = prefixes;
+            }
+            kStringsMap.put(P, ret);
         }
+
+        for (int i = 0; i < partitions.size(); i++) {
+            Partition Pi = partitions.get(i);
+
+            // Skip partition Pi if it has already been merged previously.
+            // Since k-equivalence is transitive, this merge already contains
+            // all the k-equivalent partitions.
+            if (mergedPartitions.contains(Pi)) {
+                continue;
+            }
+
+            // m will track all partitions to be merged with Pi.
+            PartitionMultiMerge m = null;
+
+            // Can't merge a partition with itself. So skip i=j. Also, merging
+            // is commutative so if we've tried merge(p1,p2)w then we don't have
+            // to try/check merge(p2,p1). So skip j < i.
+            for (int j = i + 1; j < partitions.size(); j++) {
+                Partition Pj = partitions.get(j);
+                // If we merged p1 and p2 previously, and now we are merging
+                // p2 and p3, then p3 _must_ be in the p1-p2 partition, since we
+                // must have already compared the ktails of p1 and p3
+                // previously.
+                if (mergedPartitions.contains(Pj)) {
+                    continue;
+                }
+
+                if (!kStringsMap.get(Pi).equals(kStringsMap.get(Pj))) {
+                    continue;
+                }
+
+                if (m == null) {
+                    List<Partition> list = new ArrayList<Partition>();
+                    list.add(Pj);
+                    m = new PartitionMultiMerge(Pi, list);
+                    merges.add(m);
+                } else {
+                    m.addToMerge(Pj);
+                }
+
+                // We don't need to add Pi to mergedPartitions, since we
+                // will never come back to it in the check above.
+                mergedPartitions.add(Pj);
+
+            }
+        }
+
+        for (PartitionMultiMerge merge : merges) {
+            pGraph.apply(merge);
+        }
+
+        return;
+        /*
+         * TODO: old topological-version of k-equivalence. Refactor and keep
+         * this code in case we want to use it later.
+         * 
+         * 
+         * for (Partition p : pGraph.getNodes()) { for (Partition q :
+         * pGraph.getNodes()) { if (p == q) { // Can't merge a partition with
+         * itself continue; }
+         * 
+         * // For all k, can only merge p and q if their event types match. if
+         * (!(p.getEType().equals(q.getEType()))) { continue; }
+         * 
+         * if (kEquals(p, q, k, false)) { // Merge partitions that are
+         * k-equivalent pGraph.apply(new PartitionMerge(p, q));
+         * 
+         * // Now attempt merges in modified graph attemptMerge(pGraph, k);
+         * return; } } }
+         */
+    }
+
+    private static Set<List<EventType>> getKString(Partition P, int k,
+            Set<List<EventType>> parentPrefixes) {
+        if (k < 0) {
+            return Collections.emptySet();
+        }
+
+        Set<List<EventType>> newPrefixes = new LinkedHashSet<List<EventType>>();
+
+        for (List<EventType> prefix : parentPrefixes) {
+            // Have to copy the prefix into newPrefixes, completely!
+            List<EventType> prefixCopy = new ArrayList<EventType>();
+            prefixCopy.addAll(prefix);
+            prefixCopy.add(P.getEType());
+            newPrefixes.add(prefixCopy);
+        }
+
+        if (k == 0) {
+            return newPrefixes;
+        }
+
+        Set<List<EventType>> ret = null;
+        for (Partition child : P.getAllSuccessors()) {
+            if (ret == null) {
+                ret = getKString(child, k - 1, newPrefixes);
+            } else {
+                ret.addAll(getKString(child, k - 1, newPrefixes));
+            }
+        }
+
+        return ret;
     }
 
     /**
@@ -129,7 +252,6 @@ public class KTails {
         // // match to the one we've matched to previously).
         // LinkedHashMap<NodeType, NodeType> childKEquivMatches = new
         // LinkedHashMap<NodeType, NodeType>();
-
     }
 
     /**

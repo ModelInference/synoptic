@@ -1,6 +1,6 @@
 package synoptic.algorithms.graphops;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
@@ -13,7 +13,7 @@ import synoptic.model.PartitionGraph;
  */
 public class PartitionMultiMerge implements IOperation {
     private final Partition retainedPartition;
-    private final ArrayList<Partition> partitionsToMerge;
+    private final List<Partition> partitionsToMerge;
 
     /**
      * Creates a partition multi-merge.
@@ -24,9 +24,15 @@ public class PartitionMultiMerge implements IOperation {
      *            the partitions to merge into {@code partition}
      */
     public PartitionMultiMerge(Partition partition,
-            ArrayList<Partition> partitionsToMerge) {
+            List<Partition> partitionsToMerge) {
         retainedPartition = partition;
         this.partitionsToMerge = partitionsToMerge;
+    }
+
+    public void addToMerge(Partition p) {
+        assert !this.partitionsToMerge.contains(p);
+
+        this.partitionsToMerge.add(p);
     }
 
     @Override

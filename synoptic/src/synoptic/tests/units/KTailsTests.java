@@ -73,7 +73,7 @@ public class KTailsTests extends SynopticTest {
     public void performKTails0Test() throws InternalSynopticException,
             ParseException {
         PartitionGraph pGraph = KTails.performKTails(makeSimpleGraph(), 0);
-        // All a's and b's should be merged.
+        // All a's and b's should be merged + initial + terminal.
         assertTrue(pGraph.getNodes().size() == 4);
     }
 
