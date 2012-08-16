@@ -62,7 +62,7 @@ public class KTails {
 
         // Build the kStringsMap
         for (Partition P : partitions) {
-            logger.info("Remaining = " + remaining);
+            logger.info("Remaining kTails pre-mining = " + remaining);
             remaining -= 1;
             Set<List<EventType>> prefixes = new LinkedHashSet<List<EventType>>();
             List<EventType> prefix = new ArrayList<EventType>();
@@ -91,7 +91,10 @@ public class KTails {
             kStringsMap.put(P, ret);
         }
 
+        remaining = partitions.size();
         for (int i = 0; i < partitions.size(); i++) {
+            logger.info("Remaining kTails n^2 checking = " + remaining);
+            remaining -= 1;
             Partition Pi = partitions.get(i);
 
             // Skip partition Pi if it has already been merged previously.
