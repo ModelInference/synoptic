@@ -169,7 +169,7 @@ public abstract class PGraphInvariMint {
         logger.info("Mining took " + (endTime - startTime) + "ms");
 
         logger.fine("Mined " + invs.numInvariants() + " invariant(s).");
-        logger.fine(invs.toPrettyString());
+        // logger.fine(invs.toPrettyString());
 
         return invs;
     }
@@ -190,7 +190,7 @@ public abstract class PGraphInvariMint {
         ImmediateInvariantMiner miner = new ImmediateInvariantMiner(traceGraph);
         TemporalInvariantSet NIFbys = miner.getNIFbyInvariants();
         logger.fine("Mined " + NIFbys.numInvariants() + " NIFby invariant(s).");
-        logger.fine(NIFbys.toPrettyString());
+        // logger.fine(NIFbys.toPrettyString());
 
         Set<EventType> allEvents = new HashSet<EventType>(miner.getEventTypes());
         encodings = new EventTypeEncodings(allEvents);

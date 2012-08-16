@@ -109,6 +109,8 @@ public class KTails {
             // m will track all partitions to be merged with Pi.
             PartitionMultiMerge m = null;
 
+            Set<List<EventType>> PiKStrings = kStringsMap.get(Pi);
+
             // Can't merge a partition with itself. So skip i=j. Also, merging
             // is commutative so if we've tried merge(p1,p2)w then we don't have
             // to try/check merge(p2,p1). So skip j < i.
@@ -122,7 +124,7 @@ public class KTails {
                     continue;
                 }
 
-                if (!kStringsMap.get(Pi).equals(kStringsMap.get(Pj))) {
+                if (!PiKStrings.equals(kStringsMap.get(Pj))) {
                     continue;
                 }
 
