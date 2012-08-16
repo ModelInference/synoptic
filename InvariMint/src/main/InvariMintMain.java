@@ -65,8 +65,18 @@ public class InvariMintMain {
             throw new Exception("InvariMint algorithm not specified.");
         }
 
+        logger.info("Running Standard Alg.");
+        invMintAlg.runStdAlg();
+        logger.info("DONE Running Standard Alg.");
+        assert false;
+
+        logger.info("Running InvariMint.");
+
         // Run the appropriate version of InvariMint.
         dfa = invMintAlg.runInvariMint();
+
+        logger.info("DONE Running InvariMint.");
+        assert false;
 
         // Optionally remove paths from the model not found in any input trace.
         if (opts.removeSpuriousEdges) {

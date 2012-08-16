@@ -31,7 +31,7 @@ public class InvariMintSynoptic extends PGraphInvariMint {
     }
 
     @Override
-    protected void runStdAlg() {
+    public void runStdAlg() {
         assert minedInvs != null;
 
         logger.info("Running Standard Synoptic");

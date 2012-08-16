@@ -55,7 +55,7 @@ public class InvsModel extends EncodedAutomaton {
      * to this model's list of invariants.
      */
     public void intersectWith(InvModel inv) {
-        invariants.add(inv);
+        // invariants.add(inv);
         super.intersectWith(inv,
                 "Intersecting model with " + inv.getInvariant());
     }

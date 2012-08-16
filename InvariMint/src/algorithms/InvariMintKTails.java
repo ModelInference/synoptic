@@ -31,7 +31,7 @@ public class InvariMintKTails extends PGraphInvariMint {
     }
 
     @Override
-    protected void runStdAlg() {
+    public void runStdAlg() {
         logger.info("Running Standard KTails");
         stdAlgPGraph = KTails.performKTails(traceGraph, opts.kTailLength);
     }
