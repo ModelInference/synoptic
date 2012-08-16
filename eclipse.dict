@@ -47,3 +47,4 @@ fifo
 init
 transitioning
 config
+multi
