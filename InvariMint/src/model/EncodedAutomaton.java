@@ -129,7 +129,7 @@ public abstract class EncodedAutomaton {
             throw new IllegalArgumentException(
                     "Cannot intersect Automata using different encoding schemes");
         }
-        logger.info("Performing NFA intersection");
+        // logger.info("Performing NFA intersection");
         model = BasicOperations.intersection(model, other.model);
 
         // logger.info("Checking empty language");
