@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import dk.brics.automaton.Automaton;
 import dk.brics.automaton.BasicOperations;
@@ -27,6 +28,11 @@ import synoptic.model.export.GraphExporter;
  * @author Jenny
  */
 public abstract class EncodedAutomaton {
+
+    public static Logger logger;
+    static {
+        logger = Logger.getLogger("EncodedAutomaton");
+    }
 
     // The Automaton wrapped with String encodings.
     private Automaton model;
@@ -123,10 +129,15 @@ public abstract class EncodedAutomaton {
             throw new IllegalArgumentException(
                     "Cannot intersect Automata using different encoding schemes");
         }
-
+        logger.info("Performing NFA intersection");
         model = BasicOperations.intersection(model, other.model);
-        checkEmptyLanguage(errorHint);
-        model.determinize();
+
+        // logger.info("Checking empty language");
+        // checkEmptyLanguage(errorHint);
+
+        /*
+         * logger.info("Determinizing (NFA->DFA)"); model.determinize();
+         */
     }
 
     /*
@@ -134,11 +145,11 @@ public abstract class EncodedAutomaton {
      * the exception if errorHint != null
      */
     private void checkEmptyLanguage(String errorHint) {
-        if (model.isEmpty()) {
-            throw new IllegalStateException(
-                    "DFA intersection generated the empty language"
-                            + (errorHint == null ? "" : ": " + errorHint));
-        }
+        /*
+         * if (model.isEmpty()) { throw new IllegalStateException(
+         * "DFA intersection generated the empty language" + (errorHint == null
+         * ? "" : ": " + errorHint)); }
+         */
     }
 
     /**

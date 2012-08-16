@@ -83,14 +83,23 @@ public abstract class PGraphInvariMint {
     protected InvsModel runInvariMint(ITOInvariantMiner invMiner)
             throws Exception {
 
+        logger.info("Initializing with NIFby invs.");
+
         // NIFby invariants.
-        this.initializeModelWithNFby();
+        this.initializeModelWithNIFby();
+
+        logger.info("\n\nApplying Init AFby Term inv.");
 
         // Initial AFby Terminal invariant.
         this.applyInitTermInv();
 
+        logger.info("Mining Invs.");
+
         // Mine invariants using the specialized invMiner.
         minedInvs = this.mineInvariants(invMiner);
+
+        logger.info("Intersecting current model with mined invs with minimize intersections="
+                + opts.minimizeIntersections);
 
         // Intersect current model with mined invariants.
         invMintModel = InvComposition.intersectModelWithInvs(minedInvs,
@@ -168,14 +177,14 @@ public abstract class PGraphInvariMint {
     // ///////////////////////////// Protected methods.
 
     /** Executes the standard algorithm and sets stdAlgPGraph. */
-    protected abstract void runStdAlg();
+    public abstract void runStdAlg();
 
     /**
      * Initialize the InvariMint DFA from mined NIFby invariants.
      * 
      * @throws IOException
      */
-    private void initializeModelWithNFby() throws IOException {
+    private void initializeModelWithNIFby() throws IOException {
         assert invMintModel == null;
 
         ImmediateInvariantMiner miner = new ImmediateInvariantMiner(traceGraph);

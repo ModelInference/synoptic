@@ -39,9 +39,9 @@ def run_simulator(dirname, nodes, etypes, events, execs):
     events in a parametrized filename.
     '''
     fname = dirname + "/nodes-%d_etypes-%d_events-%d_execs-%d.txt" % (nodes, etypes, events, execs)
-    f = open(f, 'w')
+    f = open(fname, 'w')
     def logEventFn(e):
-        write(f + "\n")
+        f.write(e + "\n")
     # os.system("python simulator.py %d %d %d %d > %s" % (nodes, etypes, events, execs, fname))
     simulator.main(nodes, etypes, events, execs, logEventFn)
     f.close()
