@@ -58,12 +58,13 @@ public class KTails {
         // the partition.
         Map<Partition, Set<List<EventType>>> kStringsMap = new LinkedHashMap<Partition, Set<List<EventType>>>();
 
-        int remaining = partitions.size();
-
+        // int remaining = partitions.size();
         // Build the kStringsMap
+        logger.fine("Pre-computing [node -> ktail set] map");
         for (Partition P : partitions) {
-            logger.info("Remaining kTails pre-mining = " + remaining);
-            remaining -= 1;
+            // logger.info("Remaining kTails pre-mining = " + remaining);
+            // remaining -= 1;
+
             Set<List<EventType>> prefixes = new LinkedHashSet<List<EventType>>();
             List<EventType> prefix = new ArrayList<EventType>();
             prefix.add(P.getEType());
@@ -91,10 +92,11 @@ public class KTails {
             kStringsMap.put(P, ret);
         }
 
-        remaining = partitions.size();
+        // remaining = partitions.size();
+        logger.fine("Finding sets of nodes that are k-equivalent.");
         for (int i = 0; i < partitions.size(); i++) {
-            logger.info("Remaining kTails n^2 checking = " + remaining);
-            remaining -= 1;
+            // logger.info("Remaining kTails n^2 checking = " + remaining);
+            // remaining -= 1;
             Partition Pi = partitions.get(i);
 
             // Skip partition Pi if it has already been merged previously.
@@ -136,10 +138,10 @@ public class KTails {
                 // We don't need to add Pi to mergedPartitions, since we
                 // will never come back to it in the check above.
                 mergedPartitions.add(Pj);
-
             }
         }
 
+        logger.fine("Merging k-equivalent nodes.");
         for (PartitionMultiMerge merge : merges) {
             pGraph.apply(merge);
         }
