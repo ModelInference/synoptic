@@ -66,16 +66,32 @@ public class InvariMintMain {
         }
 
         logger.info("Running Standard Alg.");
-        invMintAlg.runStdAlg();
-        logger.info("DONE Running Standard Alg.");
-        assert false;
+        long startTime = System.nanoTime();
+        long endTime;
+        try {
+            invMintAlg.runStdAlg();
+        } finally {
+            endTime = System.nanoTime();
+        }
+        // Convert nanoseconds to seconds
+        double duration_secs = (endTime - startTime) / 1000000000.0;
+        logger.info("DONE Running Standard Alg. Duration = " + duration_secs);
 
-        logger.info("Running InvariMint.");
+        logger.info("Running InvariMint Alg.");
+        startTime = System.nanoTime();
+        try {
+            // Run the appropriate version of InvariMint.
+            dfa = invMintAlg.runInvariMint();
+        } finally {
+            endTime = System.nanoTime();
+        }
+        // Convert nanoseconds to seconds
+        duration_secs = (endTime - startTime) / 1000000000.0;
+        logger.info("DONE Running InvariMint Alg. Duration = " + duration_secs);
 
-        // Run the appropriate version of InvariMint.
-        dfa = invMintAlg.runInvariMint();
+        invMintAlg.compareToStandardAlg();
 
-        logger.info("DONE Running InvariMint.");
+        // Forcefully terminate.
         assert false;
 
         // Optionally remove paths from the model not found in any input trace.
