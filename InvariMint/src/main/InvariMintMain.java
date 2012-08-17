@@ -76,6 +76,7 @@ public class InvariMintMain {
         // Convert nanoseconds to seconds
         double duration_secs = (endTime - startTime) / 1000000000.0;
         logger.info("DONE Running Standard Alg. Duration = " + duration_secs);
+        // assert false;
 
         logger.info("Running InvariMint Alg.");
         startTime = System.nanoTime();

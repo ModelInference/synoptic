@@ -32,7 +32,9 @@ public class InvariMintSynoptic extends PGraphInvariMint {
 
     @Override
     public void runStdAlg() {
-        assert minedInvs != null;
+        // assert minedInvs != null;
+        ITOInvariantMiner synMiner = new ChainWalkingTOInvMiner();
+        minedInvs = this.mineInvariants(synMiner);
 
         logger.info("Running Standard Synoptic");
         PartitionGraph synModel = new PartitionGraph(traceGraph, true,

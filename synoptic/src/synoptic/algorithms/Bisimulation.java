@@ -443,8 +443,8 @@ public class Bisimulation {
         // order. This heuristic should be turned into a customizable strategy.
         for (CExamplePath<Partition> counterexampleTrace : counterexampleTraces) {
 
-            logger.fine("Considering counterexample: "
-                    + counterexampleTrace.toString());
+            // logger.fine("Considering counterexample: "
+            // + counterexampleTrace.toString());
 
             // Get the possible splits that might resolve this counter-example.
             List<PartitionSplit> candidateSplits = getSplits(
@@ -453,7 +453,8 @@ public class Bisimulation {
             // Permute the list of candidates.
             Collections.shuffle(candidateSplits, syn.random);
 
-            logger.fine("candidateSplits are: " + candidateSplits.toString());
+            // logger.fine("candidateSplits are: " +
+            // candidateSplits.toString());
 
             if (combineCandidates) {
                 PartitionMultiSplit combinedSplit = null;
@@ -614,7 +615,7 @@ public class Bisimulation {
                     continue;
                 }
 
-                logger.fine("Attempting merge: " + p + " + " + q);
+                // logger.fine("Attempting merge: " + p + " + " + q);
 
                 Set<Partition> parts = new LinkedHashSet<Partition>();
                 parts.addAll(pGraph.getNodes());
@@ -653,7 +654,7 @@ public class Bisimulation {
                     }
 
                 } else {
-                    logger.fine("Merge maintains invs, continuing");
+                    // logger.fine("Merge maintains invs, continuing");
                     return true;
                 }
             }
