@@ -132,8 +132,8 @@ public class Bisimulation {
             satisfiedInvariants.addAll(pGraph.getInvariants().getSet());
             satisfiedInvariants.removeAll(unsatisfiedInvariants);
             // /////////
-            logger.fine("New graph size: " + pGraph.getNodes().size()
-                    + ", unsat invs remaining: " + unsatisfiedInvariants.size());
+            // logger.fine("New graph size: " + pGraph.getNodes().size()
+            // + ", unsat invs remaining: " + unsatisfiedInvariants.size());
 
             // Perform the splitting.
             prevNumSplitSteps = numSplitSteps;
@@ -196,9 +196,9 @@ public class Bisimulation {
         Collections.shuffle(counterExampleTraces,
                 SynopticMain.getInstanceWithExistenceCheck().random);
 
-        logger.fine("" + counterExampleTraces.size()
-                + " unsatisfied invariants and counter-examples: "
-                + counterExampleTraces);
+        // logger.fine("" + counterExampleTraces.size()
+        // + " unsatisfied invariants and counter-examples: "
+        // + counterExampleTraces);
 
         // The set of all invariants for which we have a split that makes the
         // graph satisfy the invariant.
@@ -244,7 +244,7 @@ public class Bisimulation {
                     + newlySatisfiedInvariants.size();
         }
 
-        logger.fine(logStr);
+        // logger.fine(logStr);
 
         if (SynopticMain.getInstanceWithExistenceCheck().options.dumpIntermediateStages) {
             SynopticMain.getInstanceWithExistenceCheck()
