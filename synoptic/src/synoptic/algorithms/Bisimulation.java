@@ -229,7 +229,8 @@ public class Bisimulation {
             int i = 0;
             for (PartitionMultiSplit split : splitsToDoByPartition.values()) {
                 pGraph.apply(split);
-                logger.fine("split[" + numSplitSteps + "." + i + "] : " + split);
+                // logger.fine("split[" + numSplitSteps + "." + i + "] : " +
+                // split);
                 i++;
             }
 
@@ -424,7 +425,7 @@ public class Bisimulation {
         } else {
             // Otherwise, record this split as the only one for this partition
             splitsToDoByPartition.put(partitionBeingSplit, splitOp);
-            logger.info("New split by partition: " + splitOp.toString());
+            // logger.info("New split by partition: " + splitOp.toString());
         }
         // The split has no other violations once the split is performed.
         return true;
@@ -491,8 +492,8 @@ public class Bisimulation {
                         combinedSplit)) {
                     // Remember that we can resolve this invariant violation.
                     newlySatisfiedInvariants.add(counterexampleTrace.invariant);
-                    logger.fine("newlySatInvariants: "
-                            + newlySatisfiedInvariants.toString());
+                    // logger.fine("newlySatInvariants: "
+                    // + newlySatisfiedInvariants.toString());
                 }
 
             } else {
