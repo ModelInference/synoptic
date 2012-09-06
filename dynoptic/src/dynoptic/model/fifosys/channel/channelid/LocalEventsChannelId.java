@@ -5,7 +5,12 @@ import java.util.Map;
 
 import dynoptic.model.alphabet.EventType;
 
-/** Represent a channel that simulates local events in a CFSM. */
+/**
+ * Represent a channel that simulates local events in a CFSM. This channel is
+ * synthetic -- that is, it is used internally by dynoptic due to limitations of
+ * the model checker. This channel is not part of the system being modeled by
+ * dynoptic.
+ */
 public class LocalEventsChannelId extends ChannelId {
 
     /**
@@ -42,7 +47,7 @@ public class LocalEventsChannelId extends ChannelId {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        return result + eventStrToEventType.hashCode();
+        return (31 * result) + eventStrToEventType.hashCode();
     }
 
     // //////////////////////////////////////////////////////////////////

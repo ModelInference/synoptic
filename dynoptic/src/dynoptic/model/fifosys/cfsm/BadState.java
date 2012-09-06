@@ -5,11 +5,16 @@ import java.util.List;
 
 /**
  * Represents a bad configuration in the CFSM, which will be tested for
- * reachability by the McScM model checker.
+ * reachability by the McScM model checker. A bad configuration includes (1) a
+ * CFSM state, and (2) a list of regular-expressions, one per channel, that
+ * describes queue contents.
  */
 public class BadState {
 
     private final CFSMState fsmState;
+
+    // Regular expressions, ordered according to the scm ids of the channels in
+    // the CFSM.
     private final List<String> qReList;
 
     public BadState(CFSMState s, List<String> qReList) {

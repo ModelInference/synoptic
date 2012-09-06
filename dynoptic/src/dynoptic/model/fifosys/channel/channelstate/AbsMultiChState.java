@@ -6,8 +6,8 @@ import java.util.List;
 import dynoptic.model.fifosys.channel.channelid.ChannelId;
 
 /**
- * Implements some basic functionality and maintains channel states for a number
- * of processes in a FIFO system.
+ * Implements basic functionality and maintains channel states for a number of
+ * processes in a FIFO system.
  */
 abstract public class AbsMultiChState {
 
@@ -30,8 +30,7 @@ abstract public class AbsMultiChState {
      * 
      * @param channelIds
      */
-    protected static List<ChState> chStatesFromChIds(
-            List<ChannelId> channelIds) {
+    protected static List<ChState> chStatesFromChIds(List<ChannelId> channelIds) {
         assert channelIds != null;
 
         List<ChState> ret = new ArrayList<ChState>(channelIds.size());
@@ -121,6 +120,7 @@ abstract public class AbsMultiChState {
             if (s.size() != 0) {
                 ret = 31 * ret + s.peek().hashCode();
             } else {
+                // Empty queues have to be captured by the hash as well.
                 ret = 31 * ret;
             }
         }

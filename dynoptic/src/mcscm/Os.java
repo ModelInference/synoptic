@@ -1,8 +1,8 @@
 package mcscm;
 
 /**
- * Used to detect the OS on which we are executing. Currently, we only care
- * about Mac and Linux detection.
+ * Utility class that is used to detect the OS on which we are executing.
+ * Currently, we only care about Mac and Linux detection.
  */
 public final class Os {
 

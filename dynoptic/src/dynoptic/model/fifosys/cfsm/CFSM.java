@@ -12,6 +12,7 @@ import dynoptic.invariants.BinaryInvariant;
 import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
+import dynoptic.model.AbsFSMState;
 import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
 import dynoptic.model.fifosys.FifoSys;
@@ -43,8 +44,13 @@ import dynoptic.util.Util;
  */
 public class CFSM extends FifoSys<CFSMState> {
 
+    // FSM f -> states returned by eval(f)
+    protected interface IFSMToStateSetFn<T extends AbsFSMState<T>> {
+        Set<T> eval(AbsFSM<T> s);
+    }
+
     // Fn: (FSM f) -> initial states of f.
-    static private IStateToStateSetFn<FSMState> fnGetInitialStates = new IStateToStateSetFn<FSMState>() {
+    static private IFSMToStateSetFn<FSMState> fnGetInitialStates = new IFSMToStateSetFn<FSMState>() {
         @Override
         public Set<FSMState> eval(AbsFSM<FSMState> f) {
             return f.getInitStates();
@@ -52,7 +58,7 @@ public class CFSM extends FifoSys<CFSMState> {
     };
 
     // Fn: (FSM f) -> accept states of f.
-    static private IStateToStateSetFn<FSMState> fnGetAcceptStates = new IStateToStateSetFn<FSMState>() {
+    static private IFSMToStateSetFn<FSMState> fnGetAcceptStates = new IFSMToStateSetFn<FSMState>() {
         @Override
         public Set<FSMState> eval(AbsFSM<FSMState> f) {
             return f.getAcceptStates();
@@ -319,8 +325,7 @@ public class CFSM extends FifoSys<CFSMState> {
 
     // //////////////////////////////////////////////////////////////////
 
-    private Set<CFSMState> deriveAllPermsOfStates(
-            IStateToStateSetFn<FSMState> fn) {
+    private Set<CFSMState> deriveAllPermsOfStates(IFSMToStateSetFn<FSMState> fn) {
         if (numProcesses == 1) {
             Set<CFSMState> ret = new LinkedHashSet<CFSMState>();
             for (FSMState s : fn.eval(fsms.get(0))) {

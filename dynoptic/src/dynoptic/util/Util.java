@@ -6,8 +6,19 @@ import java.util.List;
 public final class Util {
 
     /**
-     * Given [a,b,c] and [d,e], returns a new list containing:
+     * Given two lists:
+     * 
+     * <pre>
+     * 1: [a,b,c] and
+     * 2: [d,e]
+     * </pre>
+     * 
+     * returns a list of all pairs where first/second element of each pair is
+     * from the first/second list:
+     * 
+     * <pre>
      * [[a,d],[a,e],[b,d],[b,e],[c,d],[c,e]]
+     * </pre>
      */
     public static <T> List<List<T>> get2DPermutations(Iterable<T> list1,
             Iterable<T> list2) {
@@ -24,12 +35,18 @@ public final class Util {
     }
 
     /**
-     * Given a list [[a,d],[a,e],[b,d],[b,e],[c,d],[c,e]] and [f,g], returns a
-     * new list containing:
+     * Given two lists:
      * 
      * <pre>
-     *  [[a,d,f],[a,e,f],[b,d,f],[b,e,f],[c,d,f],[c,e,f],   <- first list with f appended
-     *   [a,d,g],[a,e,g],[b,d,g],[b,e,g],[c,d,f],[c,e,g]]   <- first list with g appended
+     * 1: [[a,d],[a,e]] and
+     * 2: [f,g],
+     * </pre>
+     * 
+     * returns a list containing:
+     * 
+     * <pre>
+     *  [[a,d,f],[a,e,f],    <- first list with f appended
+     *   [a,d,g],[a,e,g],]   <- first list with g appended
      * </pre>
      */
     public static <T> void get2DPermutations(List<List<T>> listList1,

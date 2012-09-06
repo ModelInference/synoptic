@@ -2,6 +2,7 @@ package dynoptic.invariants;
 
 import dynoptic.model.alphabet.EventType;
 
+/** A Dynoptic representation of the NFby invariant. */
 public class NeverFollowedBy extends BinaryInvariant {
 
     public NeverFollowedBy(EventType typeFirst, EventType typeSecond) {

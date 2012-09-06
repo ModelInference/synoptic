@@ -4,10 +4,13 @@ import dynoptic.invariants.BinaryInvariant;
 
 /**
  * Represent a channel that is used to track events that are relevant to model
- * checking a specific invariant.
+ * checking a specific invariant. Such channels are synthetic -- that is, they
+ * are used only internally by Dynoptic and are not part of the actual system
+ * being modeled.
  */
 public class InvChannelId extends ChannelId {
 
+    // The invariant that this channel corresponds to.
     private BinaryInvariant inv;
 
     public InvChannelId(BinaryInvariant inv, int scmId) {
@@ -38,7 +41,7 @@ public class InvChannelId extends ChannelId {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        return result + inv.hashCode();
+        return (31 * result) + inv.hashCode();
     }
 
 }

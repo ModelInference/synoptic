@@ -15,7 +15,7 @@ import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
 /**
  * Maintains pointers to the set of initial DAG nodes and implements conversion
- * from ObservedDAG FSM to a Trace FSM.
+ * from ObsDAG FSM to an ObsFifoSys.
  */
 public class ObsDAG {
 
@@ -44,7 +44,7 @@ public class ObsDAG {
                 fsmStatesFromDagConfig(initDagConfig), initChStates);
 
         // Copy the initDagConfig into curDagconfig, since we will be modifying
-        // this config to tack where we are in the space of possible DAG
+        // this config to track where we are in the space of possible DAG
         // configurations.
         List<ObsDAGNode> initDagConfigCopy = new ArrayList<ObsDAGNode>(
                 initDagConfig);

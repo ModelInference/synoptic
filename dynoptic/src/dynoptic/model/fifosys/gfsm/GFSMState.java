@@ -12,9 +12,9 @@ import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
 /**
  * <p>
- * An GFSMState is a partitioning of the concrete observations. It maintains a
- * set of these observations, but this set may change over time (e.g., as more
- * partitioning occurs).
+ * An GFSMState is a partitioning of the concrete observations (ObsFifoSysState
+ * instances). It maintains a set of these observations, but this set may change
+ * over time (e.g., as more partitioning occurs).
  * </p>
  * <p>
  * The transitions of a GFSMState are abstract -- they are induced by the
@@ -27,12 +27,11 @@ import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
  * </p>
  */
 public class GFSMState extends AbsMultiFSMState<GFSMState> {
-    // This is the set of observed state instances.
+    // Set of observed state instances.
     private final Set<ObsFifoSysState> observedStates;
 
     // CACHE optimization: the set of abstract transitions induced by the
-    // concrete transitions. This is merely a cached version of the ground
-    // truth.
+    // concrete transitions. This is a cache of the ground truth.
     private final Map<EventType, Set<GFSMState>> transitions;
 
     public GFSMState(int numProcesses) {

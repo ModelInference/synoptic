@@ -9,7 +9,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Util {
+/** Some process handling routines. */
+public class ProcessUtil {
 
     /** Timeout (sec) to wait for the process to terminate before killing it. */
     public static final int TIMEOUT = 3600;
