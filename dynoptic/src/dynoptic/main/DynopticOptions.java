@@ -10,7 +10,7 @@ import plume.OptionGroup;
 import synoptic.main.options.Options;
 
 /**
- * Options relevant to the dynoptic project.
+ * Options relevant to the dynoptic binary.
  */
 public class DynopticOptions extends Options {
 

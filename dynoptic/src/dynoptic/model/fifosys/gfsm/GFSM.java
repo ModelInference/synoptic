@@ -23,6 +23,13 @@ import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
  * like refinement.
  * </p>
  * <p>
+ * A GFSM is composed of GFSMStates, which are _partitions_ of the observed
+ * global configurations. Refinement causes a re-shuffling of the observations,
+ * and new partitions to be created and added to the GFSM. Therefore, a GFSM is
+ * highly mutable. Each mutation of the GFSM is a single complete step of the
+ * Dynoptic algorithm.
+ * </p>
+ * <p>
  * This model is easier to deal with than a CFSM because it captures all global
  * information in a single place (e.g., all enabled transitions from a single
  * global configuration). A CFSM can be thought of as an abstraction of a GFSM
@@ -36,20 +43,13 @@ import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
  * be executed or maintain instantaneous execution state -- for this, use
  * FifoSysExecution.
  * </p>
- * <p>
- * A GFSM is composed of GFSMStates, which are actually _partitions_ of the
- * observed global configurations. Refinement causes a re-shuffling of the
- * observations, and new partitions to be created and added to the GFSM.
- * Therefore, a GFSM is highly mutable. Each mutation of the GFSM is a single
- * complete step of the Dynoptic algorithm.
- * </p>
  */
 public class GFSM extends FifoSys<GFSMState> {
 
     /**
-     * Creates a new GFSM from observed traces, using default initial partitioning strategy (by the
-     * list of elements at the head of all of the queues in the system), from a
-     * list of traces.
+     * Creates a new GFSM from observed traces, using default initial
+     * partitioning strategy (by the list of elements at the head of all of the
+     * queues in the system), from a list of traces.
      * 
      * @param traces
      * @return

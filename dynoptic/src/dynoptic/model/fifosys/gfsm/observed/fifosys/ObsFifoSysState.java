@@ -31,9 +31,11 @@ import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
  * channel states based on the sequence of send/receive operations.
  * </p>
  */
-public class ObsFifoSysState extends
-        AbsMultiFSMState<ObsFifoSysState> {
+public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
 
+    // A global cache of previously created ObsFifoSysState instances. This is
+    // an optimization to forego duplicating identical fifo states that might be
+    // created because of different interleavings of concurrent events.
     private static final Map<ObsMultFSMState, ObsFifoSysState> fifoSysStatesMap;
 
     static {
@@ -52,8 +54,8 @@ public class ObsFifoSysState extends
      * @param nextChannelStates
      * @return
      */
-    public static ObsFifoSysState getFifoSysState(
-            ObsMultFSMState fsmStates, ImmutableMultiChState channelStates) {
+    public static ObsFifoSysState getFifoSysState(ObsMultFSMState fsmStates,
+            ImmutableMultiChState channelStates) {
         assert fsmStates != null;
         assert channelStates != null;
 
@@ -74,7 +76,6 @@ public class ObsFifoSysState extends
     private GFSMState parent;
 
     // Observed FSM states.
-    // private final List<ObservedFSMState> fsmStates;
     private final ObsMultFSMState fsmStates;
 
     // The observed state of all the channels in the system.

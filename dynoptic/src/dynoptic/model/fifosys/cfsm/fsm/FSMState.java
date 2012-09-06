@@ -12,7 +12,7 @@ import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
 
 /**
  * <p>
- * Represents a state of a simple NFA FSM.
+ * Represents a state of a simple FSM that is an NFA.
  * </p>
  * <p>
  * An FSMState maintains abstract transitions to other FSMState instances. It is

@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
 import dynoptic.model.fifosys.channel.channelid.ChannelId;
 
 /**
- * Represents the result of running the McScM verify tool and contains parsing
- * utilities for parsing the output of the verify tool.
+ * The result of running the McScM verify tool. Contains parsing utilities for
+ * parsing the output of the verify tool.
  */
 public class VerifyResult {
     static String safeRe = "^Result: Model is safe.";

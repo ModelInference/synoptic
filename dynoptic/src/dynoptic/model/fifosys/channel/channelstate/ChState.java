@@ -6,7 +6,7 @@ import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.channel.channelid.ChannelId;
 
 /**
- * The ChannelState maintains the queue state for a channel, identified with a
+ * The ChannelState maintains the queue state for a channel, identified by a
  * specific channel id.
  */
 public class ChState implements Cloneable {

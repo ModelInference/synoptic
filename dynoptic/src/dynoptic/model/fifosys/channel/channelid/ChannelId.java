@@ -2,11 +2,11 @@ package dynoptic.model.fifosys.channel.channelid;
 
 /**
  * <p>
- * This is an immutable class.
+ * Immutable class.
  * </p>
- * A ChannelId represents a uni-directional channel, without maintaining any
- * channel state. It only records the two processes that use the channel and an
- * optional name for the channel.
+ * A ChannelId names a channel, or queue, without maintaining any state. It only
+ * records the two processes that use the channel and an optional name for the
+ * channel.
  */
 public class ChannelId {
     // Sender pid.
@@ -21,7 +21,7 @@ public class ChannelId {
     // NOTE: chName is not part of the hashCode/equals
     final String chName;
 
-    // The id used by this channel in scm output.
+    // The id used by this channel in scm output (input to the model checker).
     private final int scmId;
 
     public ChannelId(int srcPid, int dstPid, int scmId) {

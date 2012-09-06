@@ -48,3 +48,5 @@ init
 transitioning
 config
 multi
+interleavings
+verbosity

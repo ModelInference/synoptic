@@ -12,15 +12,16 @@ import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
  * Represents the state of a set of channels that are part of a FIFO system.
  * This state _cannot_ be mutated, or modified. An instance of this state is
  * finalized at construction. Moreover, the only way to create an instance is
- * through static methods that perform instance caching and will return a
- * previosly created instance, if one exists.
+ * through static methods that perform instance caching and return a previously
+ * created instance, if one already exists.
  */
 public class ImmutableMultiChState extends AbsMultiChState {
 
-    private static final Map<List<ChState>, ImmutableMultiChState> queuesMap;
+    // Global cache of channel states already created.
+    private static final Map<List<ChState>, ImmutableMultiChState> chCache;
 
     static {
-        queuesMap = new LinkedHashMap<List<ChState>, ImmutableMultiChState>();
+        chCache = new LinkedHashMap<List<ChState>, ImmutableMultiChState>();
     }
 
     /**
@@ -40,15 +41,14 @@ public class ImmutableMultiChState extends AbsMultiChState {
      * previously created with the given channel states. Otherwise, returns a
      * new instance and caches it.
      */
-    public static ImmutableMultiChState fromChannelStates(
-            List<ChState> chStates) {
+    public static ImmutableMultiChState fromChannelStates(List<ChState> chStates) {
         ImmutableMultiChState ret;
 
-        if (queuesMap.containsKey(chStates)) {
-            ret = queuesMap.get(chStates);
+        if (chCache.containsKey(chStates)) {
+            ret = chCache.get(chStates);
         } else {
             ret = new ImmutableMultiChState(chStates);
-            queuesMap.put(chStates, ret);
+            chCache.put(chStates, ret);
         }
         return ret;
     }
@@ -101,7 +101,7 @@ public class ImmutableMultiChState extends AbsMultiChState {
             ObsEvent eRecv = (ObsEvent) newState.dequeue();
             assert e.getRawEventStr().equals(eRecv.getRawEventStr());
         } else {
-            assert false : "A non-local event is not a send or a receive event, either.";
+            assert false : "A non-local event is not a send or a receive event.";
         }
 
         return ImmutableMultiChState.fromChannelStates(states);

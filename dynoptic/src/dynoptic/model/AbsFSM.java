@@ -11,16 +11,11 @@ import dynoptic.model.alphabet.FSMAlphabet;
  */
 public abstract class AbsFSM<State extends AbsFSMState<State>> {
 
-    /** Used by CFSM. */
-    protected interface IStateToStateSetFn<T extends AbsFSMState<T>> {
-        Set<T> eval(AbsFSM<T> s);
-    }
-
-    // The set of all states associated with this FSM. This includes initial and
+    // The set of all FSM states. This includes initial and
     // accept states. States manage transitions internally.
     protected final Set<State> states;
 
-    // This FSM's alphabet.
+    // The FSM's alphabet.
     protected final FSMAlphabet alphabet;
 
     // Initial, and accept states.
@@ -56,10 +51,11 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
 
     // //////////////////////////////////////////////////////////////////
 
+    /** Recomputes the alphabet of the FSM based on current states. */
     protected void recomputeAlphabet() {
         this.alphabet.clear();
         for (State s : states) {
-            Set<EventType> events = (Set<EventType>) s.getTransitioningEvents();
+            Set<? extends EventType> events = s.getTransitioningEvents();
             if (events.size() != 0) {
                 alphabet.addAll(events);
             }

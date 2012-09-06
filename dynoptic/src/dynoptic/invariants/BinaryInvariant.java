@@ -2,16 +2,22 @@ package dynoptic.invariants;
 
 import dynoptic.model.alphabet.EventType;
 
+/**
+ * A Dynoptic representation a binary temporal invariant, inv(first,second),
+ * where first/second are the related event types. An invariant also includes
+ * synthetic event types that are solely used to track and specify when the
+ * first/second events occur during model checking.
+ */
 abstract public class BinaryInvariant {
     // The two event types that are related by this binary invariant.
     protected EventType first;
     protected EventType second;
 
-    // The corresponding synthetic events used for invariant checking.
+    // Synthetic events used for invariant checking.
     protected EventType firstSynth1, firstSynth2;
     protected EventType secondSynth1, secondSynth2;
 
-    // A string such as "AFby", or "NFby", or "AP".
+    // A string such as "AFby", "NFby", or "AP".
     protected String connectorStr;
 
     public BinaryInvariant(EventType typeFirst, EventType typeSecond, String str) {
