@@ -93,7 +93,7 @@ public class InvariMintMain {
         invMintAlg.compareToStandardAlg();
 
         // Forcefully terminate.
-        assert false;
+        // assert false;
 
         // Optionally remove paths from the model not found in any input trace.
         if (opts.removeSpuriousEdges) {
