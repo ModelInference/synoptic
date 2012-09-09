@@ -54,6 +54,10 @@ public class DistEventType extends EventType {
 
     // ///////////////////////////////////////////////////////////////////////
 
+    public String getEType() {
+        return eType;
+    }
+
     public String getPID() {
         return processId;
     }
