@@ -154,6 +154,7 @@ public class ObsDAGNode {
 
     // //////////////////////////////////////////////////////////////////
 
+    // Performs a few consistency checks.
     private boolean isInitialized() {
         if (!isTermState()) {
             // This would indicate that this node is not yet initialized.

@@ -23,6 +23,7 @@ abstract public class BinaryInvariant {
     public BinaryInvariant(EventType typeFirst, EventType typeSecond, String str) {
         assert typeSecond != null;
         assert typeFirst != null;
+        assert str != null;
 
         first = typeFirst;
         second = typeSecond;

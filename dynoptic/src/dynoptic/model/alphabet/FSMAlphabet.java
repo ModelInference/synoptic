@@ -25,8 +25,6 @@ public class FSMAlphabet implements Set<EventType> {
 
     @Override
     public boolean add(EventType arg0) {
-        assert !events.contains(arg0);
-
         return events.add(arg0);
     }
 

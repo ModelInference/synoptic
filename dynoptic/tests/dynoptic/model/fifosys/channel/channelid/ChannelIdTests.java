@@ -10,9 +10,6 @@ import dynoptic.DynopticTest;
 import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.BinaryInvariant;
 import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
-import dynoptic.model.fifosys.channel.channelid.InvChannelId;
-import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
 
 public class ChannelIdTests extends DynopticTest {
 
@@ -22,7 +19,7 @@ public class ChannelIdTests extends DynopticTest {
         assertEquals(cid.getSrcPid(), 1);
         assertEquals(cid.getDstPid(), 2);
         assertEquals(cid.getScmId(), 0);
-        assertEquals(cid.toString(), "1->2");
+        assertEquals(cid.toString(), "0-1->2:1->2");
         logger.info(cid.toString());
     }
 

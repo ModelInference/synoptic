@@ -6,6 +6,7 @@ import java.util.List;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
@@ -33,7 +34,8 @@ public class ObsDagTests extends DynopticTest {
         termDagConfig.add(node0T);
         termDagConfig.add(node1T);
 
-        ObsDAG dag = new ObsDAG(initDagConfig, termDagConfig);
+        List<ChannelId> channelIds = new ArrayList<ChannelId>();
+        ObsDAG dag = new ObsDAG(initDagConfig, termDagConfig, channelIds);
         return dag;
     }
 

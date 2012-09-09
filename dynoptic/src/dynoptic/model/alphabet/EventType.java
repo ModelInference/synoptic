@@ -62,6 +62,10 @@ public class EventType {
                 channel);
     }
 
+    // Used to represent the Synoptic's INITIAL event type, which is a synthetic
+    // Synoptic event used for checking "INITIAL AFby X" invariant types.
+    public final static EventType INITIALEventType = LocalEvent("INITIAL", -1);
+
     // //////////////////////////////////////////////////////////////////
 
     protected EventType(String event, int pid, EventClass eventType,
@@ -83,7 +87,6 @@ public class EventType {
         assert !event.contains(")");
         assert !event.contains("(");
         assert !event.contains("#");
-        assert !event.contains("_");
         assert !event.contains("|");
         assert !event.contains("+");
 
