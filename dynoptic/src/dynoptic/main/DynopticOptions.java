@@ -90,9 +90,14 @@ public class DynopticOptions extends Options {
     public String partitionRegExp = partitionRegExpDefault;
 
     /**
-     * This flag indicates whether Dynoptic should partition traces by file
+     * A substitution expression, used to express how to map the trace lines
+     * into partition traces, to be considered as an individual sample of the
+     * behavior of the system.
      */
-    public boolean partitionViaFile = true;
+    @Option(
+            value = "-q Queue/channel specification. For example, 'M:0->1;A:1->0' specifies channels 'M' and 'A' in the log. For 'M' pid 0 is the sender and pid 1 is the receiver.",
+            aliases = { "-channel-spec" })
+    public String channelSpec = null;
 
     /**
      * This option relieves the user from writing regular expressions to parse
@@ -124,13 +129,25 @@ public class DynopticOptions extends Options {
     // end option group "Input Options"
     // //////////////////////////////////////////////////
 
+    // //////////////////////////////////////////////////
+    /**
+     * Used to select the algorithm for mining invariants.
+     */
+    @OptionGroup(value = "Debugging Options", unpublicized = true)
+    @Option(
+            value = "-t Use the transitive closure invariant mining algorithm (usually slower)")
+    public boolean useTransitiveClosureMining = false;
+
+    // end option group "Debugging Options"
+    // //////////////////////////////////////////////////
+
     /**
      * Specifies the prefix of where to store the model outputs.
      */
     @OptionGroup("Verify Options")
     @Option(
-            value = "-mc Complete path to the verification McScM model checker",
-            aliases = { "-mc-path" })
+            value = "-v Complete path to the verify McScM model checker binary",
+            aliases = { "-verify-path" })
     public String mcPath = null;
 
     // end option group "Verify Options"
@@ -144,6 +161,13 @@ public class DynopticOptions extends Options {
             value = "-o Output path prefix for generating Graphviz dot files graphics",
             aliases = { "-output-prefix" })
     public String outputPathPrefix = null;
+
+    /**
+     * Dump the complete list of mined synoptic.invariants for the set of input
+     * files to stdout.
+     */
+    @Option(value = "-d Output complete list of mined invariant to stdout")
+    public boolean dumpInvariants = false;
 
     /**
      * What level of logging to use.
@@ -163,6 +187,9 @@ public class DynopticOptions extends Options {
     /** One line synopsis of usage */
     public static final String usageString = "dynoptic [options] <logfiles-to-analyze>";
 
+    // The arguments that this options instance corresponds to.
+    public final String[] args;
+
     /**
      * Use this constructor to create a blank set of options, that can then be
      * populated manually, one at a time. This is useful when Dynoptic is used
@@ -171,6 +198,7 @@ public class DynopticOptions extends Options {
     public DynopticOptions() {
         randomSeed = System.currentTimeMillis();
         logFilenames = new LinkedList<String>();
+        args = null;
     }
 
     public DynopticOptions(String[] args) throws IOException {
@@ -179,6 +207,7 @@ public class DynopticOptions extends Options {
         if (randomSeed == null) {
             randomSeed = System.currentTimeMillis();
         }
+        this.args = args;
     }
 
     /**

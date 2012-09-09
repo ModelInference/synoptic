@@ -1,16 +1,41 @@
 package dynoptic.main;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import mcscm.McScM;
+import dynoptic.invariants.AlwaysFollowedBy;
+import dynoptic.invariants.AlwaysPrecedes;
+import dynoptic.invariants.EventuallyHappens;
+import dynoptic.invariants.NeverFollowedBy;
+import dynoptic.model.alphabet.EventType;
+import dynoptic.model.alphabet.FSMAlphabet;
+import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.gfsm.GFSM;
 import dynoptic.model.fifosys.gfsm.GFSMState;
 
+import synoptic.invariants.AlwaysFollowedInvariant;
+import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.main.SynopticMain;
+import synoptic.main.options.SynopticOptions;
+import synoptic.main.parser.TraceParser;
+import synoptic.model.DAGsTraceGraph;
+import synoptic.model.EventNode;
+import synoptic.model.event.DistEventType;
+import synoptic.model.export.DotExportFormatter;
+import synoptic.util.InternalSynopticException;
 import synoptic.util.Pair;
 
 /**
@@ -36,22 +61,51 @@ public class DynopticMain {
         assert (assertsOn = true) == true;
     }
 
-    DynopticOptions opts = null;
-    Logger logger = null;
+    static Logger logger = null;
+
+    private DynopticOptions opts = null;
 
     // The Java McScM model checker bridge instance that interfaces with the
     // McScM verify binary.
-    McScM mcscm = null;
+    private McScM mcscm = null;
 
-    public DynopticMain(String[] args) throws Exception {
-        this(new DynopticOptions(args));
+    // The channels associated with this Dynoptic execution. These are parsed in
+    // checkOptions().
+    private List<ChannelId> channelIds = null;
+
+    /**
+     * The main entrance to the command line version of Dynoptic.
+     * 
+     * @param args
+     *            Command-line options
+     */
+    public static void main(String[] args) throws Exception {
+        DynopticOptions opts = new DynopticOptions(args);
+        DynopticMain main = new DynopticMain(opts);
+        try {
+            main.run();
+        } catch (Exception e) {
+            if (e.toString() != "") {
+                logger.severe(e.toString());
+                logger.severe("Unable to continue, exiting. Try cmd line option:\n\t"
+                        + opts.getOptDesc("help"));
+            }
+        }
+        return;
     }
 
+    // //////////////////////////////////////////////////////////////////
+
+    /** Prepares a new DynopticMain instance based on opts. */
     public DynopticMain(DynopticOptions opts) throws Exception {
         this.opts = opts;
         setUpLogging(opts);
         checkOptions(opts);
         mcscm = new McScM(opts.mcPath);
+    }
+
+    public List<ChannelId> getChannelIds() {
+        return channelIds;
     }
 
     /**
@@ -148,51 +202,214 @@ public class DynopticMain {
     /**
      * Runs the Dynoptic process based on the settings in opts. In particular,
      * we expect that the logFilenames are specified in opts.
+     * 
+     * @throws Exception
      */
-    public void run() {
+    public void run() throws Exception {
+        // ////////////////// Parse the input log files into _Synoptic_
+        // structures.
+
         if (opts.logFilenames.size() == 0) {
-            String err = "No log filenames specified, exiting. Specify log files at the end of the command line with no options.";
-            logger.severe(err);
-            throw new OptionException();
+            String err = "No log filenames specified, exiting. Specify log files at the end of the command line.";
+            throw new OptionException(err);
         }
 
-        try {
+        SynopticOptions synOpts = new SynopticOptions();
+        synOpts.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
+        synOpts.recoverFromParseErrors = opts.recoverFromParseErrors;
+        synOpts.debugParse = opts.debugParse;
+        SynopticMain synMain = new SynopticMain(synOpts,
+                new DotExportFormatter());
 
-            // TODO:
-            // 1. read in and parse input logs into traces
-            // 2. mine invariants from traces.
-            // 3. create initial partitioning from traces
-            // 4. check invariant/refine loop
-            // 5. coarsen
-            // 6. output final model
+        TraceParser parser = new TraceParser(opts.regExps,
+                opts.partitionRegExp, opts.separatorRegExp);
+        List<EventNode> parsedEvents;
 
-        } catch (OptionException e) {
-            // During OptionExceptions, the problem has already been printed.
-            return;
+        parsedEvents = SynopticMain.parseEvents(parser, opts.logFilenames);
+        if (parsedEvents.size() == 0) {
+            throw new OptionException(
+                    "Did not parse any events from the input log files. Stopping.");
         }
+
+        if (parser.logTimeTypeIsTotallyOrdered()) {
+            throw new OptionException(
+                    "Dynoptic expects a log that is partially ordered.");
+        }
+
+        // ////////////////// Generate the Synoptic DAG from parsed events
+        DAGsTraceGraph traceGraph = SynopticMain.genDAGsTraceGraph(parser,
+                parsedEvents);
+
+        // Parser can be garbage-collected.
+        parser = null;
+
+        // ////////////////// Mine Synoptic invariants
+        TemporalInvariantSet minedInvs = synMain.minePOInvariants(
+                opts.useTransitiveClosureMining, traceGraph);
+
+        logger.info("Mined " + minedInvs.numInvariants() + " invariants");
+
+        if (opts.dumpInvariants) {
+            logger.info("Mined invariants:\n" + minedInvs.toPrettyString());
+        }
+
+        // ////////////////// Generate an alphabet of Dynoptic EventTypes based
+        // on the events parsed by Synoptic.
+
+        FSMAlphabet alphabet = new FSMAlphabet();
+
+        Set<ChannelId> usedChannelIds = new LinkedHashSet<ChannelId>();
+        Set<Integer> usedPids = new LinkedHashSet<Integer>();
+        Map<synoptic.model.event.EventType, EventType> eTypesMap = new LinkedHashMap<synoptic.model.event.EventType, EventType>();
+        for (EventNode eNode : parsedEvents) {
+            synoptic.model.event.EventType synEType = eNode.getEType();
+            if (!(synEType instanceof DistEventType)) {
+                throw new InternalSynopticException(
+                        "Expected a DistEvenType, instead got "
+                                + synEType.getClass());
+            }
+            EventType dynEType = parseEventType((DistEventType) synEType);
+
+            // Record the pid and channelId corresponding to this eType.
+            usedPids.add(dynEType.getEventPid());
+            if (dynEType.isCommEvent()) {
+                usedChannelIds.add(dynEType.getChannelId());
+            }
+            eTypesMap.put(synEType, dynEType);
+            alphabet.add(dynEType);
+        }
+
+        if (usedChannelIds.size() != channelIds.size()) {
+            throw new OptionException(
+                    "Some specified channelIds are not referenced in the log.");
+        }
+
+        // Find the max pid referenced in the log. This will determine the
+        // number of processes in the system.
+        int maxPid = 0;
+        // Use sum of pids to check that all PIDs are referenced.
+        int pidSum = 0;
+        for (Integer pid : usedPids) {
+            pidSum += pid;
+            if (maxPid < pid) {
+                maxPid = pid;
+            }
+        }
+        int numProcesses = maxPid;
+        if (pidSum != ((maxPid * (maxPid + 1)) / 2) || !usedPids.contains(0)) {
+            throw new OptionException("Process ID range for the log has gaps: "
+                    + usedPids.toString());
+        }
+
+        // ////////////////// Use Synoptic event nodes and ordering constraints
+        // between these to generate ObsFSMStates (anonymous states),
+        // obsDAGNodes (to contain obsFSMStates and encode dependencies between
+        // them), and an ObsDag per execution parsed from the log.
+
+        // TODO
+
+        // /////////////////// Express Synoptic invariants as Dynoptic
+        // invariants.
+
+        Set<dynoptic.invariants.BinaryInvariant> dynInvs = new LinkedHashSet<dynoptic.invariants.BinaryInvariant>();
+        dynoptic.invariants.BinaryInvariant dynInv = null;
+        EventType dynETypeFirst, dynETypeSecond;
+        for (ITemporalInvariant inv : minedInvs) {
+            BinaryInvariant binv = (BinaryInvariant) inv;
+
+            if (binv.getFirst().isInitialEventType()) {
+                // Special case for INITIAL event type since it does not appear
+                // in the traces and is therefore not recorded in the eTypesMap.
+                dynETypeFirst = EventType.INITIALEventType;
+            } else {
+                dynETypeFirst = eTypesMap.get(binv.getFirst());
+            }
+            dynETypeSecond = eTypesMap.get(binv.getSecond());
+            assert dynETypeFirst != null;
+            assert dynETypeSecond != null;
+
+            if (inv instanceof AlwaysFollowedInvariant) {
+                if (dynETypeFirst == EventType.INITIALEventType) {
+                    dynInv = new EventuallyHappens(dynETypeSecond);
+                } else {
+                    dynInv = new AlwaysFollowedBy(dynETypeFirst, dynETypeSecond);
+                }
+            } else if (inv instanceof NeverFollowedInvariant) {
+                assert dynETypeFirst != EventType.INITIALEventType;
+                dynInv = new NeverFollowedBy(dynETypeFirst, dynETypeSecond);
+            } else if (inv instanceof AlwaysPrecedesInvariant) {
+                assert dynETypeFirst != EventType.INITIALEventType;
+                dynInv = new AlwaysPrecedes(dynETypeFirst, dynETypeSecond);
+            }
+            if (dynInv != null) {
+                dynInvs.add(dynInv);
+                dynInv = null;
+            }
+        }
+
+        // TODO:
+        // - create initial partitioning from traces
+        // - check invariant/refine loop
+        // - output final model
+
+        // } catch (OptionException e) {
+        // During OptionExceptions, the problem has already been printed.
+        // return;
+        // }
     }
 
     /**
-     * Sets up project-global logging based on command line options.
-     * 
-     * @param opts
+     * Interprets a Synoptic DistEventType and returns a corresponding Dynoptic
+     * EvenType.
      */
-    private void setUpLogging(DynopticOptions opts) {
-        // Get the top Logger instance
-        logger = Logger.getLogger("DynopticMain");
+    private EventType parseEventType(DistEventType eType) {
+        ChannelId cid;
+        String chName, strType;
+        String delim;
 
-        // Set the logger's log level based on command line arguments
-        if (opts.logLvlQuiet) {
-            logger.setLevel(Level.WARNING);
-        } else if (opts.logLvlVerbose) {
-            logger.setLevel(Level.FINE);
-        } else if (opts.logLvlExtraVerbose) {
-            logger.setLevel(Level.FINEST);
+        strType = eType.getEType();
+        if (strType.contains("?")) {
+            delim = "?";
+        } else if (strType.contains("!")) {
+            delim = "!";
         } else {
-            logger.setLevel(Level.INFO);
+            // Create and return a local event type.
+            int pid = Integer.parseInt(eType.getPID());
+            return EventType.LocalEvent(strType, pid);
         }
-        return;
+
+        // Now create message send (!) or message receive (?) event types.
+        String[] splitType = strType.split("\\" + delim);
+        if (!(splitType.length == 2)) {
+            throw new OptionException("Event type'" + strType
+                    + "' contains multiple '" + delim + "' chars.");
+        }
+        chName = splitType[0];
+
+        cid = getChIdByName(chName);
+        if (cid == null) {
+            throw new OptionException(
+                    "Channel name '"
+                            + chName
+                            + "' in the log is not specified in the channel specification.");
+        }
+        if (delim.equals("?")) {
+            return EventType.RecvEvent(splitType[1], cid);
+        }
+        return EventType.SendEvent(splitType[1], cid);
     }
+
+    /** Finds an returns a ChannelId by name. Returns null if none is found. */
+    private ChannelId getChIdByName(String name) {
+        for (ChannelId cid : channelIds) {
+            if (cid.getName().equals(name)) {
+                return cid;
+            }
+        }
+        return null;
+    }
+
+    // //////////////////////////////////////////////////////////////////
 
     /**
      * Checks the input Dynoptic options for consistency and omissions.
@@ -207,29 +424,119 @@ public class DynopticMain {
         if (optns.allHelp) {
             optns.printLongHelp();
             err = "";
+            throw new OptionException(err);
         }
 
         // Display help just for the 'publicized' option groups
         if (optns.help) {
             optns.printShortHelp();
             err = "";
+            throw new OptionException(err);
+        }
+
+        if (optns.channelSpec == null) {
+            err = "Cannot parse a communications log without a channel specification:\n\t"
+                    + opts.getOptDesc("channelSpec");
+            throw new OptionException(err);
+        }
+
+        channelIds = parseChannelSpec(opts.channelSpec);
+        if (channelIds.size() == 0) {
+            err = "Could not parse the channel specification:\n\t"
+                    + opts.getOptDesc("channelSpec");
+            throw new OptionException(err);
         }
 
         if (optns.outputPathPrefix == null) {
             err = "Cannot output any generated models. Specify output path prefix using:\n\t"
                     + opts.getOptDesc("outputPathPrefix");
-            logger.severe(err);
+            throw new OptionException(err);
         }
 
         if (optns.mcPath == null) {
             err = "Specify path of the McScM model checker to use for verification:\n\t"
                     + opts.getOptDesc("mcPath");
-            logger.severe(err);
+            throw new OptionException(err);
+        }
+    }
+
+    // //////////////////////////////////////////////////
+
+    /**
+     * Parses the channelSpec command line option value and returns a list of
+     * corresponding channelId instances.
+     */
+    public static List<ChannelId> parseChannelSpec(String channelSpec) {
+        // Parse the channelSpec option value into channelId instances.
+        int scmId = 0, srcPid, dstPid;
+        String chName;
+
+        // This pattern matcher will match strings like "M:0->1;A:1->0", which
+        // defines two channels -- 'M' and 'A'. The M channel has pid 0 as
+        // sender and pid 1 as receiver, and the A channel has pid 1 as sender
+        // and pid 0 as receiver.
+        Pattern pattern = Pattern.compile("(.*?):(\\d+)\\-\\>(\\d+);*");
+        Matcher matcher = pattern.matcher(channelSpec);
+
+        ChannelId cid;
+        List<ChannelId> cids = new ArrayList<ChannelId>();
+        Set<String> chNames = new LinkedHashSet<String>();
+        int lastEnd = 0;
+        while (matcher.find()) {
+            // logger.info("Found text" + " \"" + matcher.group()
+            // + "\" starting at " + "index " + matcher.start()
+            // + "  and ending at index " + matcher.end());
+            chName = matcher.group(1);
+            srcPid = Integer.parseInt(matcher.group(2));
+            dstPid = Integer.parseInt(matcher.group(3));
+            lastEnd = matcher.end();
+            if (chNames.contains(chName)) {
+                // Channel names should be unique since in the log channels are
+                // identified solely by the channel name.
+                throw new OptionException(
+                        "Channel spec contains multiple entries for channel '"
+                                + chName + "'.");
+            }
+            chNames.add(chName);
+
+            cid = new ChannelId(srcPid, dstPid, scmId, chName);
+            logger.info("Parsed ChannelId : " + cid.toString());
+            cids.add(cid);
+            scmId += 1;
         }
 
-        if (err != null) {
-            throw new OptionException();
+        if (lastEnd != channelSpec.length()) {
+            throw new OptionException(
+                    "Failed to completely parse the channel spec. Parsed up to char position "
+                            + lastEnd);
         }
+        return cids;
+    }
+
+    /**
+     * Sets up project-global logging based on command line options.
+     * 
+     * @param opts
+     */
+    public static void setUpLogging(DynopticOptions opts) {
+        if (logger != null) {
+            return;
+        }
+
+        // Get the top Logger instance
+        logger = Logger.getLogger("DynopticMain");
+
+        // Set the logger's log level based on command line arguments
+        if (opts.logLvlQuiet) {
+            logger.setLevel(Level.WARNING);
+        } else if (opts.logLvlVerbose) {
+            logger.setLevel(Level.FINE);
+        } else if (opts.logLvlExtraVerbose) {
+            logger.setLevel(Level.FINEST);
+        } else {
+            logger.setLevel(Level.INFO);
+        }
+        return;
     }
 
 }

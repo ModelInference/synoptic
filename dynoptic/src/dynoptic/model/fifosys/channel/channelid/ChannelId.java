@@ -43,7 +43,8 @@ public class ChannelId {
 
     @Override
     public String toString() {
-        return chName;
+        return Integer.toString(scmId) + "-" + chName + ":"
+                + Integer.toString(srcPid) + "->" + Integer.toString(dstPid);
     }
 
     @Override
@@ -92,6 +93,10 @@ public class ChannelId {
 
     public int getScmId() {
         return scmId;
+    }
+
+    public String getName() {
+        return chName;
     }
 
 }

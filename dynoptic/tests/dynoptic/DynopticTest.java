@@ -2,7 +2,6 @@ package dynoptic;
 
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -45,58 +44,27 @@ public class DynopticTest {
         logger.setLevel(Level.INFO);
     }
 
-    /**
-     * The DynopticMain instance that is the main entry to running and
-     * interfacing with Dynoptic.
-     */
-    public DynopticMain dyn;
-
-    /**
-     * Options that DynopticMain (dyn), defined above, is parameterized with.
-     */
-    public DynopticOptions opts;
-
     // //////////////////////////////////////////////////
 
-    /**
-     * Sets the dyn instance of DynopticMain based on passed in options. If
-     * these are null, then does its best to set options that won't raise an
-     * exception.
-     * 
-     * @throws Exception
-     */
     @Before
     public void setUp() throws Exception {
-        if (dyn != null) {
-            return;
-        }
-        assert opts == null;
-        opts = new DynopticOptions();
-        opts.mcPath = getMcPath();
-        opts.outputPathPrefix = "test-output" + File.separator;
-        dyn = new DynopticMain(opts);
-    }
-
-    /**
-     * Can be used by tests to set custom options and initialize a particular
-     * kind of DynopticMain based off of these options. If this method is not
-     * used, then setUp (above) will set opts and dyn to default values.
-     */
-    public void setDynopticOpts(DynopticOptions opts) throws Exception {
-        this.opts = opts;
-        this.dyn = new DynopticMain(opts);
+        DynopticOptions opts = new DynopticOptions();
+        opts.logLvlQuiet = false;
+        opts.logLvlVerbose = true;
+        opts.logLvlExtraVerbose = false;
+        DynopticMain.setUpLogging(opts);
     }
 
     // //////////////////////////////////////////////////
 
     /**
-     * Creates an all to all (fully connected graph) topology for numProcesses
+     * Creates an all-to-all (fully connected graph) topology for numProcesses
      * number of processes.
      * 
      * @param numProcesses
      * @return
      */
-    public List<ChannelId> getAllToAllChannelIds(int numProcesses) {
+    protected List<ChannelId> getAllToAllChannelIds(int numProcesses) {
         List<ChannelId> channels = new ArrayList<ChannelId>(numProcesses
                 * (numProcesses - 1));
 
@@ -115,7 +83,7 @@ public class DynopticTest {
 
     // //////////////////////////////////////////////////
 
-    private String getMcPath() {
+    protected String getMcPath() {
         // Determine whether to use the Linux or the OSX McScM binary.
         String osStr = null;
         if (Os.isLinux()) {

@@ -6,11 +6,10 @@ package dynoptic.model.fifosys.gfsm.observed;
  * no transition events or following states.
  * </p>
  * <p>
- * An ObservedFSMState instance is maintained by ObservedFifoSysState along with
- * other ObsFSMStates (from other processes). There is exactly one instance of
- * this class per observed state so as to minimize number of instances. The
- * ObservedFifoSysState class also maintains transitions, separately from this
- * class.
+ * An ObservedFSMState instance is maintained by an ObsDAGNode. There is exactly
+ * one instance of this class per observed state so as to minimize number of
+ * instances. The corresponding ObsDAGNode instance maintains transitions,
+ * separately from this class.
  * </p>
  */
 public class ObsFSMState {
@@ -81,15 +80,13 @@ public class ObsFSMState {
         return new ObsFSMState(pid, false, false, getNextAnonName());
     }
 
-    public static ObsFSMState ObservedIntermediateFSMState(int pid,
-            String name) {
+    public static ObsFSMState ObservedIntermediateFSMState(int pid, String name) {
         return new ObsFSMState(pid, false, false, name);
     }
 
     // //////////////////////////////////////////////////////////////////
 
-    private ObsFSMState(int pid, boolean isInit, boolean isTerminal,
-            String name) {
+    private ObsFSMState(int pid, boolean isInit, boolean isTerminal, String name) {
         assert name != null;
 
         this.pid = pid;
