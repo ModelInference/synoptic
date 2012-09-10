@@ -45,6 +45,8 @@ public class ObsFSMState {
     // TODO: For non-anon states include things like line number and filename,
     // and so forth.
 
+    // /////////// Terminal states:
+
     public static ObsFSMState ObservedTerminalFSMState(int pid) {
         return new ObsFSMState(pid, false, true, getNextAnonName());
     }
@@ -53,7 +55,7 @@ public class ObsFSMState {
         return new ObsFSMState(pid, false, true, name);
     }
 
-    // ///////////
+    // /////////// Initial states:
 
     public static ObsFSMState ObservedInitialFSMState(int pid) {
         return new ObsFSMState(pid, true, false, getNextAnonName());
@@ -63,7 +65,7 @@ public class ObsFSMState {
         return new ObsFSMState(pid, true, false, name);
     }
 
-    // ///////////
+    // /////////// Terminal+Initial states:
 
     public static ObsFSMState ObservedInitialTerminalFSMState(int pid) {
         return new ObsFSMState(pid, true, true, getNextAnonName());
@@ -74,7 +76,7 @@ public class ObsFSMState {
         return new ObsFSMState(pid, true, true, name);
     }
 
-    // ///////////
+    // /////////// Intermediate states:
 
     public static ObsFSMState ObservedIntermediateFSMState(int pid) {
         return new ObsFSMState(pid, false, false, getNextAnonName());
