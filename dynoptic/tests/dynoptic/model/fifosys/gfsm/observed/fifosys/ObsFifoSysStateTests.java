@@ -9,8 +9,9 @@ import java.util.List;
 
 import org.junit.Test;
 
+import synoptic.model.channelid.ChannelId;
+
 import dynoptic.DynopticTest;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;

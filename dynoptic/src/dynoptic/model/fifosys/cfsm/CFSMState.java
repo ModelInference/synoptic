@@ -5,9 +5,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+
+import synoptic.model.event.DistEventType;
 
 /**
  * <p>
@@ -78,8 +79,8 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState> {
     }
 
     @Override
-    public Set<EventType> getTransitioningEvents() {
-        Set<EventType> ret = new LinkedHashSet<EventType>();
+    public Set<DistEventType> getTransitioningEvents() {
+        Set<DistEventType> ret = new LinkedHashSet<DistEventType>();
         for (FSMState p : fsmStates) {
             ret.addAll(p.getTransitioningEvents());
         }
@@ -87,7 +88,7 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState> {
     }
 
     @Override
-    public Set<CFSMState> getNextStates(EventType event) {
+    public Set<CFSMState> getNextStates(DistEventType event) {
         // TODO: have to take a cross product of all the possible sub-FSM states
         // to derive possible CFSM states.
         return null;

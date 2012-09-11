@@ -6,10 +6,12 @@ import java.util.List;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
-import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
 
 public class ObsDagTests extends DynopticTest {
 
@@ -27,8 +29,11 @@ public class ObsDagTests extends DynopticTest {
         ObsDAGNode node0T = new ObsDAGNode(state0T);
         ObsDAGNode node1T = new ObsDAGNode(state1T);
 
-        node0I.addTransition(ObsEvent.LocalEvent("e", 0), node0T);
-        node1I.addTransition(ObsEvent.LocalEvent("f", 1), node1T);
+        Event e = new Event(DistEventType.LocalEvent("e", 0));
+        Event f = new Event(DistEventType.LocalEvent("f", 1));
+
+        node0I.addTransition(e, node0T);
+        node1I.addTransition(f, node1T);
 
         List<ObsDAGNode> termDagConfig = new ArrayList<ObsDAGNode>();
         termDagConfig.add(node0T);

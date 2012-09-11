@@ -3,8 +3,10 @@ package dynoptic.model.fifosys.gfsm.observed;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
-import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
 
 public class ObsEventTests extends DynopticTest {
 
@@ -12,9 +14,9 @@ public class ObsEventTests extends DynopticTest {
     public void create() {
         ChannelId cid = new ChannelId(1, 2, 0);
 
-        ObsEvent e = ObsEvent.LocalEvent("e", 1);
-        e = ObsEvent.SendEvent("e", cid);
-        e = ObsEvent.RecvEvent("e", cid);
+        Event e = new Event(DistEventType.LocalEvent("e", 1));
+        e = new Event(DistEventType.SendEvent("e", cid));
+        e = new Event(DistEventType.RecvEvent("e", cid));
         logger.info(e.toString());
     }
 

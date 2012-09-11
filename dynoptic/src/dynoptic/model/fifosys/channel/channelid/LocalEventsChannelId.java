@@ -3,7 +3,8 @@ package dynoptic.model.fifosys.channel.channelid;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import dynoptic.model.alphabet.EventType;
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 /**
  * Represent a channel that simulates local events in a CFSM. This channel is
@@ -17,11 +18,11 @@ public class LocalEventsChannelId extends ChannelId {
      * This map allows us to look up the local event types based on their string
      * representations in the McScM counter-example output.
      */
-    private Map<String, EventType> eventStrToEventType;
+    private Map<String, DistEventType> eventStrToDistEventType;
 
     public LocalEventsChannelId(int scmId) {
         super(Integer.MAX_VALUE, Integer.MAX_VALUE, scmId, "ch-locals");
-        eventStrToEventType = new LinkedHashMap<String, EventType>();
+        eventStrToDistEventType = new LinkedHashMap<String, DistEventType>();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -37,7 +38,7 @@ public class LocalEventsChannelId extends ChannelId {
         }
 
         LocalEventsChannelId leCid = (LocalEventsChannelId) other;
-        if (!eventStrToEventType.equals(leCid.eventStrToEventType)) {
+        if (!eventStrToDistEventType.equals(leCid.eventStrToDistEventType)) {
             return false;
         }
 
@@ -47,22 +48,22 @@ public class LocalEventsChannelId extends ChannelId {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        return (31 * result) + eventStrToEventType.hashCode();
+        return (31 * result) + eventStrToDistEventType.hashCode();
     }
 
     // //////////////////////////////////////////////////////////////////
 
-    public void addLocalEventString(EventType eventType, String eventStr) {
+    public void addLocalEventString(DistEventType eventType, String eventStr) {
         assert eventType.isLocalEvent();
-        assert !eventStrToEventType.containsKey(eventStr);
+        assert !eventStrToDistEventType.containsKey(eventStr);
 
-        eventStrToEventType.put(eventStr, eventType);
+        eventStrToDistEventType.put(eventStr, eventType);
     }
 
-    public EventType getEventType(String eventStr) {
-        assert eventStrToEventType.containsKey(eventStr);
+    public DistEventType getEventType(String eventStr) {
+        assert eventStrToDistEventType.containsKey(eventStr);
 
-        return eventStrToEventType.get(eventStr);
+        return eventStrToDistEventType.get(eventStr);
     }
 
 }

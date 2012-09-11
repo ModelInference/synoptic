@@ -1,7 +1,7 @@
 package dynoptic.main;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -11,16 +11,21 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import mcscm.CounterExample;
 import mcscm.McScM;
+import mcscm.VerifyResult;
 import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.AlwaysPrecedes;
 import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.gfsm.GFSM;
 import dynoptic.model.fifosys.gfsm.GFSMState;
+import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
+import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAG;
+import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAGNode;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
@@ -33,7 +38,9 @@ import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
+import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Pair;
@@ -253,6 +260,11 @@ public class DynopticMain {
             logger.info("Mined invariants:\n" + minedInvs.toPrettyString());
         }
 
+        if (minedInvs.numInvariants() == 0) {
+            logger.info("Mined 0 Synoptic invariants. Stopping.");
+            return;
+        }
+
         // ////////////////// Generate an alphabet of Dynoptic EventTypes based
         // on the events parsed by Synoptic.
 
@@ -260,7 +272,7 @@ public class DynopticMain {
 
         Set<ChannelId> usedChannelIds = new LinkedHashSet<ChannelId>();
         Set<Integer> usedPids = new LinkedHashSet<Integer>();
-        Map<synoptic.model.event.EventType, EventType> eTypesMap = new LinkedHashMap<synoptic.model.event.EventType, EventType>();
+
         for (EventNode eNode : parsedEvents) {
             synoptic.model.event.EventType synEType = eNode.getEType();
             if (!(synEType instanceof DistEventType)) {
@@ -268,15 +280,19 @@ public class DynopticMain {
                         "Expected a DistEvenType, instead got "
                                 + synEType.getClass());
             }
-            EventType dynEType = parseEventType((DistEventType) synEType);
+            DistEventType distEType = ((DistEventType) synEType);
+
+            String err = distEType.interpretEType(channelIds);
+            if (err != null) {
+                throw new OptionException(err);
+            }
 
             // Record the pid and channelId corresponding to this eType.
-            usedPids.add(dynEType.getEventPid());
-            if (dynEType.isCommEvent()) {
-                usedChannelIds.add(dynEType.getChannelId());
+            usedPids.add(distEType.getEventPid());
+            if (distEType.isCommEvent()) {
+                usedChannelIds.add(distEType.getChannelId());
             }
-            eTypesMap.put(synEType, dynEType);
-            alphabet.add(dynEType);
+            alphabet.add(distEType);
         }
 
         if (usedChannelIds.size() != channelIds.size()) {
@@ -308,37 +324,74 @@ public class DynopticMain {
 
         // TODO
 
+        int pid = 0;
+        ObsDAGNode node, nextNode = null, prevNode = null;
+        ObsFSMState s;
+        Event obsEvent = null;
+
+        List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>();
+
+        // A map of trace id to the set of initial nodes in the trace.
+        Map<Integer, Set<EventNode>> traceIdToInitNodes = traceGraph
+                .getTraceIdToInitNodes();
+
+        for (int traceId = 0; traceId < traceGraph.getNumTraces(); traceId++) {
+            assert traceIdToInitNodes.containsKey(traceId);
+
+            Set<EventNode> initSynNodes = traceIdToInitNodes.get(traceId);
+
+            /*
+             * TODO: build a Dynoptic DAG from the Synoptic DAG.
+             * 
+             * s = ObsFSMState.ObservedInitialFSMState(pid);
+             * ObsFSMState.ObservedIntermediateFSMState(pid);
+             * ObsFSMState.ObservedInitialTerminalFSMState(pid);
+             * 
+             * node = new ObsDAGNode(s); node.addDependency(prevNode);
+             * node.addTransition(obsEvent, nextNode);
+             */
+            List<ObsDAGNode> initDagConfig = new ArrayList<ObsDAGNode>();
+            List<ObsDAGNode> termDagConfig = new ArrayList<ObsDAGNode>();
+
+            ObsDAG dag = new ObsDAG(initDagConfig, termDagConfig, channelIds);
+
+            ObsFifoSys fifoSys = dag.getObsFifoSys();
+            traces.add(fifoSys);
+        }
+
         // /////////////////// Express Synoptic invariants as Dynoptic
         // invariants.
 
         Set<dynoptic.invariants.BinaryInvariant> dynInvs = new LinkedHashSet<dynoptic.invariants.BinaryInvariant>();
         dynoptic.invariants.BinaryInvariant dynInv = null;
-        EventType dynETypeFirst, dynETypeSecond;
+        DistEventType dynETypeFirst, dynETypeSecond;
         for (ITemporalInvariant inv : minedInvs) {
             BinaryInvariant binv = (BinaryInvariant) inv;
+
+            assert (binv.getFirst() instanceof DistEventType);
+            assert (binv.getSecond() instanceof DistEventType);
 
             if (binv.getFirst().isInitialEventType()) {
                 // Special case for INITIAL event type since it does not appear
                 // in the traces and is therefore not recorded in the eTypesMap.
-                dynETypeFirst = EventType.INITIALEventType;
+                dynETypeFirst = DistEventType.INITIALEventType;
             } else {
-                dynETypeFirst = eTypesMap.get(binv.getFirst());
+
+                dynETypeFirst = ((DistEventType) binv.getFirst());
             }
-            dynETypeSecond = eTypesMap.get(binv.getSecond());
-            assert dynETypeFirst != null;
-            assert dynETypeSecond != null;
+            dynETypeSecond = ((DistEventType) binv.getSecond());
 
             if (inv instanceof AlwaysFollowedInvariant) {
-                if (dynETypeFirst == EventType.INITIALEventType) {
+                if (dynETypeFirst == DistEventType.INITIALEventType) {
                     dynInv = new EventuallyHappens(dynETypeSecond);
                 } else {
                     dynInv = new AlwaysFollowedBy(dynETypeFirst, dynETypeSecond);
                 }
             } else if (inv instanceof NeverFollowedInvariant) {
-                assert dynETypeFirst != EventType.INITIALEventType;
+                assert dynETypeFirst != DistEventType.INITIALEventType;
                 dynInv = new NeverFollowedBy(dynETypeFirst, dynETypeSecond);
             } else if (inv instanceof AlwaysPrecedesInvariant) {
-                assert dynETypeFirst != EventType.INITIALEventType;
+                assert dynETypeFirst != DistEventType.INITIALEventType;
                 dynInv = new AlwaysPrecedes(dynETypeFirst, dynETypeSecond);
             }
             if (dynInv != null) {
@@ -347,57 +400,71 @@ public class DynopticMain {
             }
         }
 
-        // TODO:
-        // - create initial partitioning from traces
-        // - check invariant/refine loop
-        // - output final model
+        if (dynInvs.size() == 0) {
+            logger.info("Mined 0 Dynoptic invariants. Stopping.");
+            return;
+        }
 
-        // } catch (OptionException e) {
-        // During OptionExceptions, the problem has already been printed.
-        // return;
-        // }
+        // /////////////////// Create a partition graph (GFSM instance) of the
+        // ObsFifoSys instances we've created above. And check each invariant in
+        // the model, and refine the model as needed until all invariants hold.
+
+        // Create the initial partition graph using the default partitioning
+        // strategy, based on head of all of the queues of each
+        // ObsFifoSysState.
+        GFSM pGraph = new GFSM(traces);
+
+        Iterator<dynoptic.invariants.BinaryInvariant> invIter = dynInvs
+                .iterator();
+        // We checked above that the number of mined Dynoptic invariants is
+        // non-zero.
+        dynoptic.invariants.BinaryInvariant curInv = invIter.next();
+        while (true) {
+            // Get the CFSM corresponding to the partition graph.
+            CFSM cfsm = pGraph.getCFSM();
+            // Augment the CFSM with synthetic states/events to check curInv.
+            cfsm.augmentWithInvTracing(curInv);
+
+            // Model check the CFSM using the McScM model checker.
+            String cStr = cfsm.toScmString();
+            mcscm.verify(cStr);
+            logger.info(cStr);
+
+            VerifyResult result = mcscm.getVerifyResult(cfsm.getChannelIds());
+            logger.info(result.toRawString());
+            logger.info(result.toString());
+
+            // If there is no counter-example, then the invariant holds true.
+            if (result.getCExample() == null) {
+                if (!invIter.hasNext()) {
+                    // No more invariants to check. We are done.
+                    break;
+                }
+                // Check the next invariant.
+                curInv = invIter.next();
+            } else {
+                CounterExample cExample = result.getCExample();
+
+                // TODO: refine the pGraph to eliminate cExample.
+
+            }
+        }
+
+        // ///////////////////
+        // Output the final CFSM model using GraphViz (dot-format).
+
+        // TODO.
     }
+
+    // //////////////////////////////////////////////////////////////////
 
     /**
      * Interprets a Synoptic DistEventType and returns a corresponding Dynoptic
-     * EvenType.
+     * EventType.
      */
-    private EventType parseEventType(DistEventType eType) {
-        ChannelId cid;
-        String chName, strType;
-        String delim;
+    // private EventType parseEventType(EventNode eNode) {
 
-        strType = eType.getEType();
-        if (strType.contains("?")) {
-            delim = "?";
-        } else if (strType.contains("!")) {
-            delim = "!";
-        } else {
-            // Create and return a local event type.
-            int pid = Integer.parseInt(eType.getPID());
-            return EventType.LocalEvent(strType, pid);
-        }
-
-        // Now create message send (!) or message receive (?) event types.
-        String[] splitType = strType.split("\\" + delim);
-        if (!(splitType.length == 2)) {
-            throw new OptionException("Event type'" + strType
-                    + "' contains multiple '" + delim + "' chars.");
-        }
-        chName = splitType[0];
-
-        cid = getChIdByName(chName);
-        if (cid == null) {
-            throw new OptionException(
-                    "Channel name '"
-                            + chName
-                            + "' in the log is not specified in the channel specification.");
-        }
-        if (delim.equals("?")) {
-            return EventType.RecvEvent(splitType[1], cid);
-        }
-        return EventType.SendEvent(splitType[1], cid);
-    }
+    // }
 
     /** Finds an returns a ChannelId by name. Returns null if none is found. */
     private ChannelId getChIdByName(String name) {
@@ -408,8 +475,6 @@ public class DynopticMain {
         }
         return null;
     }
-
-    // //////////////////////////////////////////////////////////////////
 
     /**
      * Checks the input Dynoptic options for consistency and omissions.

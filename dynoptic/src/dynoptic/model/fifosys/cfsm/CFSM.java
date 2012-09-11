@@ -13,15 +13,16 @@ import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
 import dynoptic.model.AbsFSMState;
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
 import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.channel.channelid.InvChannelId;
 import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
 import dynoptic.util.Util;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 /**
  * <p>
@@ -230,7 +231,7 @@ public class CFSM extends FifoSys<CFSMState> {
 
             // Check that the FSM alphabet conforms to the expected number of
             // processes.
-            for (EventType e : fsm.getAlphabet()) {
+            for (DistEventType e : fsm.getAlphabet()) {
                 if (e.isCommEvent()) {
                     pid = e.getChannelId().getDstPid();
                     assert pid >= 0 && pid < numProcesses;
@@ -248,6 +249,11 @@ public class CFSM extends FifoSys<CFSMState> {
         alphabet.addAll(fsm.getAlphabet());
 
         unSpecifiedPids -= 1;
+    }
+
+    /** Augment this CFSM with an AP invariant for model checking. */
+    public void augmentWithInvTracing(BinaryInvariant binv) {
+        augmentWithInvTracingGeneric(binv);
     }
 
     /** Augment this CFSM with an AFby invariant for model checking. */
@@ -355,8 +361,8 @@ public class CFSM extends FifoSys<CFSMState> {
      * invariant inv. Adds the synthetic events to the CFSM alphabet.
      */
     private void augmentWithInvTracingGeneric(BinaryInvariant inv) {
-        EventType e1 = inv.getFirst();
-        EventType e2 = inv.getSecond();
+        DistEventType e1 = inv.getFirst();
+        DistEventType e2 = inv.getSecond();
 
         assert alphabet.contains(e1);
         assert alphabet.contains(e2);
@@ -382,8 +388,10 @@ public class CFSM extends FifoSys<CFSMState> {
         // Update the FSM corresponding to e1.
         Set<FSMState> visited = new LinkedHashSet<FSMState>();
         FSM f1 = this.fsms.get(e1.getEventPid());
-        EventType e1Tracer1 = EventType.SynthSendEvent(e1, invCid, true);
-        EventType e1Tracer2 = EventType.SynthSendEvent(e1, invCid, false);
+        DistEventType e1Tracer1 = DistEventType
+                .SynthSendEvent(e1, invCid, true);
+        DistEventType e1Tracer2 = DistEventType.SynthSendEvent(e1, invCid,
+                false);
         addSendToEventTx(f1, e1, e1Tracer1, e1Tracer2, visited);
         this.alphabet.add(e1Tracer1);
         this.alphabet.add(e1Tracer2);
@@ -391,8 +399,10 @@ public class CFSM extends FifoSys<CFSMState> {
         // Update the FSM corresponding to e2.
         visited.clear();
         FSM f2 = this.fsms.get(e2.getEventPid());
-        EventType e2Tracer1 = EventType.SynthSendEvent(e2, invCid, true);
-        EventType e2Tracer2 = EventType.SynthSendEvent(e2, invCid, false);
+        DistEventType e2Tracer1 = DistEventType
+                .SynthSendEvent(e2, invCid, true);
+        DistEventType e2Tracer2 = DistEventType.SynthSendEvent(e2, invCid,
+                false);
         addSendToEventTx(f2, e2, e2Tracer1, e2Tracer2, visited);
         this.alphabet.add(e2Tracer1);
         this.alphabet.add(e2Tracer2);
@@ -411,8 +421,9 @@ public class CFSM extends FifoSys<CFSMState> {
      * @param e1
      * @param invCid
      */
-    private void addSendToEventTx(FSM f, EventType eToTrace,
-            EventType eTracer1, EventType eTracer2, Set<FSMState> visited) {
+    private void addSendToEventTx(FSM f, DistEventType eToTrace,
+            DistEventType eTracer1, DistEventType eTracer2,
+            Set<FSMState> visited) {
         for (FSMState init : f.getInitStates()) {
             recurseAddSendToEventTx(f, init, eToTrace, eTracer1, eTracer2,
                     visited);
@@ -426,11 +437,11 @@ public class CFSM extends FifoSys<CFSMState> {
      * @param visited
      */
     private void recurseAddSendToEventTx(FSM f, FSMState parent,
-            EventType eToTrace, EventType eTracer1, EventType eTracer2,
-            Set<FSMState> visited) {
+            DistEventType eToTrace, DistEventType eTracer1,
+            DistEventType eTracer2, Set<FSMState> visited) {
         visited.add(parent);
 
-        for (EventType e : parent.getTransitioningEvents()) {
+        for (DistEventType e : parent.getTransitioningEvents()) {
             if (e.equals(eToTrace)) {
                 for (FSMState child : parent.getNextStates(e)) {
                     if (visited.contains(child)) {

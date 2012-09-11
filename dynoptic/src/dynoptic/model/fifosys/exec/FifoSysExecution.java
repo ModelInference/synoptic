@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.FifoSys;
 
+import synoptic.model.event.DistEventType;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -64,7 +64,7 @@ public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
      * @param event
      * @return
      */
-    public FifoSysExecState<MultiFSMState> transition(EventType event) {
+    public FifoSysExecState<MultiFSMState> transition(DistEventType event) {
         Set<FifoSysExecState<MultiFSMState>> following = this.currState
                 .getNextStates(event);
         if (following.size() == 0) {

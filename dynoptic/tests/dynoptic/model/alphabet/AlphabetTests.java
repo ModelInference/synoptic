@@ -8,12 +8,14 @@ import org.junit.Test;
 
 import dynoptic.DynopticTest;
 
+import synoptic.model.event.DistEventType;
+
 public class AlphabetTests extends DynopticTest {
 
     @Test
     public void createAlphabet() {
         FSMAlphabet a = new FSMAlphabet();
-        EventType e = EventType.LocalEvent("e", 0);
+        DistEventType e = DistEventType.LocalEvent("e", 0);
         a.add(e);
         assertEquals(a.size(), 1);
         assertTrue(a.contains(e));

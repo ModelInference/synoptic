@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.Set;
 
 import dynoptic.DynopticTest;
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 public class CFSMTesting extends DynopticTest {
 
@@ -23,9 +24,9 @@ public class CFSMTesting extends DynopticTest {
     // [cid]
     List<ChannelId> channels;
     // cid!m, cid?m
-    EventType p0Sm, p1Rm;
+    DistEventType p0Sm, p1Rm;
     // e_0, e_1
-    EventType p0Le, p1Lf;
+    DistEventType p0Le, p1Lf;
 
     // FSM for pids 0,1
     FSM f0, f1;
@@ -50,8 +51,8 @@ public class CFSMTesting extends DynopticTest {
         channels = new ArrayList<ChannelId>(1);
         channels.add(cid);
 
-        p0Sm = EventType.SendEvent("m", cid);
-        p0Le = EventType.LocalEvent("e", 0);
+        p0Sm = DistEventType.SendEvent("m", cid);
+        p0Le = DistEventType.LocalEvent("e", 0);
 
         p0Init.addTransition(p0Sm, p0Accept);
         p0Accept.addTransition(p0Le, p0Init);
@@ -67,8 +68,8 @@ public class CFSMTesting extends DynopticTest {
         states.add(p1Init);
         states.add(p1Accept);
 
-        p1Rm = EventType.RecvEvent("m", cid);
-        p1Lf = EventType.LocalEvent("f", 1);
+        p1Rm = DistEventType.RecvEvent("m", cid);
+        p1Lf = DistEventType.LocalEvent("f", 1);
 
         p1Init.addTransition(p1Rm, p1Accept);
         p1Accept.addTransition(p1Lf, p1Init);

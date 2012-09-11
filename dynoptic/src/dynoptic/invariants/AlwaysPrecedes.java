@@ -1,11 +1,11 @@
 package dynoptic.invariants;
 
-import dynoptic.model.alphabet.EventType;
+import synoptic.model.event.DistEventType;
 
 /** A Dynoptic representation of the AP invariant. */
 public class AlwaysPrecedes extends BinaryInvariant {
 
-    public AlwaysPrecedes(EventType typeFirst, EventType typeSecond) {
+    public AlwaysPrecedes(DistEventType typeFirst, DistEventType typeSecond) {
         super(typeFirst, typeSecond, "AP");
     }
 

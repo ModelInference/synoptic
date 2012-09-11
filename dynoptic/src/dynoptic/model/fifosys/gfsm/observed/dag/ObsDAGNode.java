@@ -2,8 +2,10 @@ package dynoptic.model.fifosys.gfsm.observed.dag;
 
 import java.util.Set;
 
-import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
+
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
 
 /**
  * Represents an observed state, or a state that could have been instantaneously
@@ -18,7 +20,7 @@ public class ObsDAGNode {
 
     // The event that was observed to follow this state _locally_ (i.e., at this
     // process). For terminal states, this is null.
-    private ObsEvent nextEvent = null;
+    private Event nextEvent = null;
 
     // The state that was observed to follow this state locally.
     private ObsDAGNode nextState = null;
@@ -44,13 +46,13 @@ public class ObsDAGNode {
     }
 
     /** Use this method to set the event and state that followed this state. */
-    public void addTransition(ObsEvent event, ObsDAGNode followState) {
+    public void addTransition(Event event, ObsDAGNode followState) {
         assert !obsState.isTerminal();
         assert event != null;
         assert followState != null;
         assert this.nextEvent == null;
         assert this.nextState == null;
-        assert event.getEventPid() == getPid();
+        assert ((DistEventType) event.getEType()).getEventPid() == getPid();
         assert followState.getPid() == getPid();
 
         this.nextEvent = event;
@@ -66,7 +68,7 @@ public class ObsDAGNode {
         return obsState.getPid();
     }
 
-    public ObsEvent getNextEvent() {
+    public Event getNextEvent() {
         assert isInitialized();
 
         return nextEvent;

@@ -10,10 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
-import dynoptic.model.fifosys.channel.channelstate.ChState;
-import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
-import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 public class ImmutibleMultiChStateTests extends DynopticTest {
 
@@ -73,7 +72,7 @@ public class ImmutibleMultiChStateTests extends DynopticTest {
     @Test
     public void createFromQueues() {
         // Create config [[e],[]]
-        ObsEvent sendE = ObsEvent.SendEvent("e", cid1);
+        DistEventType sendE = DistEventType.SendEvent("e", cid1);
         chStates.get(0).enqueue(sendE);
         mc = ImmutableMultiChState.fromChannelStates(chStates);
 
@@ -96,12 +95,12 @@ public class ImmutibleMultiChStateTests extends DynopticTest {
         assertTrue(mc3 != mc4);
 
         // Consume e, resulting in: [[e],[]]
-        ObsEvent recvE = ObsEvent.RecvEvent("e", cid1);
+        DistEventType recvE = DistEventType.RecvEvent("e", cid1);
         mc4 = mc4.getNextChState(recvE);
         assertTrue(mc4 == mc3);
 
-        // Execute a local event at pid 0, which should not change the state
-        ObsEvent localE = ObsEvent.LocalEvent("e", 1);
+        // Execute a local etype at pid 0, which should not change the state
+        DistEventType localE = DistEventType.LocalEvent("e", 1);
         mc4 = mc4.getNextChState(localE);
         assertTrue(mc4 == mc3);
     }

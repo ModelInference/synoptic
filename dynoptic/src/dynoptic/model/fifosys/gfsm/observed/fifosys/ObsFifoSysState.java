@@ -2,18 +2,20 @@ package dynoptic.model.fifosys.gfsm.observed.fifosys;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import dynoptic.main.DynopticMain;
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import dynoptic.model.fifosys.gfsm.GFSMState;
-import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
 
 /**
  * <p>
@@ -81,8 +83,12 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
     // The observed state of all the channels in the system.
     private final ImmutableMultiChState channelStates;
 
-    // Observed transitions for each observed following event type.
-    private final Map<ObsEvent, ObsFifoSysState> transitions;
+    // Potentially observed transitions for each following event type.
+    private final Map<DistEventType, ObsFifoSysState> transitions;
+
+    // List of observed event instances -- there is a one-to-one correspondence
+    // between event observed txn Event and a key in the transitions map.
+    private final Set<Event> observedTxns;
 
     private ObsFifoSysState(ObsMultFSMState fsmStates,
             ImmutableMultiChState channelStates) {
@@ -107,7 +113,8 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
 
         this.fsmStates = fsmStates;
         this.channelStates = channelStates;
-        this.transitions = new LinkedHashMap<ObsEvent, ObsFifoSysState>();
+        this.transitions = new LinkedHashMap<DistEventType, ObsFifoSysState>();
+        this.observedTxns = new LinkedHashSet<Event>();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -128,12 +135,12 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
     }
 
     @Override
-    public Set<? extends EventType> getTransitioningEvents() {
+    public Set<DistEventType> getTransitioningEvents() {
         return transitions.keySet();
     }
 
     @Override
-    public Set<ObsFifoSysState> getNextStates(EventType event) {
+    public Set<ObsFifoSysState> getNextStates(DistEventType event) {
         return Collections.singleton(transitions.get(event));
     }
 
@@ -154,11 +161,11 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
 
     // //////////////////////////////////////////////////////////////////
 
-    public ObsFifoSysState getNextState(EventType event) {
+    public ObsFifoSysState getNextState(DistEventType event) {
         return transitions.get(event);
     }
 
-    public void addTransition(ObsEvent e, ObsFifoSysState s) {
+    public void addTransition(Event e, ObsFifoSysState s) {
         assert !this.transitions.containsKey(e);
 
         if (DynopticMain.assertsOn) {
@@ -168,7 +175,9 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
             assert s.getNumProcesses() == getNumProcesses();
         }
 
-        this.transitions.put(e, s);
+        assert (e.getEType() instanceof DistEventType);
+        observedTxns.add(e);
+        this.transitions.put((DistEventType) e.getEType(), s);
     }
 
     public GFSMState getParent() {

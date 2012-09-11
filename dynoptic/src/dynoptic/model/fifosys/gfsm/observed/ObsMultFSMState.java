@@ -3,8 +3,9 @@ package dynoptic.model.fifosys.gfsm.observed;
 import java.util.List;
 import java.util.Set;
 
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
+
+import synoptic.model.event.DistEventType;
 
 /**
  * Represents the instantaneous observed state across all of the processes in a
@@ -73,7 +74,7 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
     }
 
     @Override
-    public Set<? extends EventType> getTransitioningEvents() {
+    public Set<DistEventType> getTransitioningEvents() {
         // We do not maintain transitions here because these need to depend on
         // the state of the queue, and queue state is not maintained here.
         assert false : "Transition information for ObsMultFSMState is maintained by ObservedFifoSysState instances.";
@@ -81,7 +82,7 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
     }
 
     @Override
-    public Set<ObsMultFSMState> getNextStates(EventType event) {
+    public Set<ObsMultFSMState> getNextStates(DistEventType event) {
         // We do not maintain transitions here because these need to depend on
         // the state of the queue, and queue state is not maintained here.
         assert false : "Transition information for ObsMultFSMState is maintained by ObservedFifoSysState instances.";

@@ -11,9 +11,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
-import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
-import dynoptic.model.fifosys.channel.channelstate.MutableMultiChState;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 public class MutibleMultiChStateTests extends DynopticTest {
 
@@ -53,7 +53,7 @@ public class MutibleMultiChStateTests extends DynopticTest {
 
     @Test
     public void enqueueDequeueSeq() {
-        EventType e = EventType.SendEvent("e", cid1);
+        DistEventType e = DistEventType.SendEvent("e", cid1);
 
         int h1 = mc.hashCode();
 
@@ -66,7 +66,7 @@ public class MutibleMultiChStateTests extends DynopticTest {
         assertTrue(mc.isEmptyForPid(1));
 
         // Peek at e.
-        EventType e2 = mc.peek(cid1);
+        DistEventType e2 = mc.peek(cid1);
         assertEquals(e, e2);
         assertFalse(mc.isEmpty());
         assertFalse(mc.isEmptyForPid(2));
@@ -82,13 +82,13 @@ public class MutibleMultiChStateTests extends DynopticTest {
         // Enqueue e, again, but dequeue this time using e (not the cid).
         mc.enqueue(e);
 
-        EventType recvE = EventType.RecvEvent("e", cid1);
+        DistEventType recvE = DistEventType.RecvEvent("e", cid1);
         mc.dequeue(recvE);
     }
 
     @Test
     public void cloneMCState() {
-        EventType e = EventType.SendEvent("e", cid1);
+        DistEventType e = DistEventType.SendEvent("e", cid1);
         mc.enqueue(e);
 
         mc2 = mc.clone();
@@ -97,7 +97,7 @@ public class MutibleMultiChStateTests extends DynopticTest {
 
     @Test
     public void equals() {
-        EventType e = EventType.SendEvent("e", cid1);
+        DistEventType e = DistEventType.SendEvent("e", cid1);
         mc.enqueue(e);
 
         assertFalse(mc.equals(null));
@@ -106,7 +106,7 @@ public class MutibleMultiChStateTests extends DynopticTest {
 
         assertFalse(mc.topOfQueuesHash() == mc2.topOfQueuesHash());
 
-        EventType e2 = EventType.SendEvent("e", cid1);
+        DistEventType e2 = DistEventType.SendEvent("e", cid1);
         mc2.enqueue(e2);
 
         assertEquals(mc, mc2);

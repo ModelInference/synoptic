@@ -2,8 +2,8 @@ package dynoptic.model.fifosys.channel.channelstate;
 
 import java.util.ArrayList;
 
-import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 /**
  * The ChannelState maintains the queue state for a channel, identified by a
@@ -11,13 +11,13 @@ import dynoptic.model.fifosys.channel.channelid.ChannelId;
  */
 public class ChState implements Cloneable {
     final ChannelId chId;
-    final ArrayList<EventType> queue;
+    final ArrayList<DistEventType> queue;
 
     public ChState(ChannelId chId) {
-        this(chId, new ArrayList<EventType>());
+        this(chId, new ArrayList<DistEventType>());
     }
 
-    private ChState(ChannelId chId, ArrayList<EventType> queue) {
+    private ChState(ChannelId chId, ArrayList<DistEventType> queue) {
         assert chId != null;
         assert queue != null;
 
@@ -30,8 +30,8 @@ public class ChState implements Cloneable {
     @Override
     public String toString() {
         String ret = chId.toString() + ": [";
-        for (EventType e : queue) {
-            ret = ret + e.getRawEventStr() + ", ";
+        for (DistEventType e : queue) {
+            ret = ret + e.getEType() + ", ";
         }
         ret = ret + "]";
         return ret;
@@ -73,13 +73,13 @@ public class ChState implements Cloneable {
         // Since ChannelId is immutable and Event is immutable all we need to do
         // is make sure to clone the ArrayList that maintains events to produce
         // a new independent deep-copy of ChannelState.
-        return new ChState(chId, (ArrayList<EventType>) queue.clone());
+        return new ChState(chId, (ArrayList<DistEventType>) queue.clone());
     }
 
     // //////////////////////////////////////////////////////////////////
 
     /** Adds an event to the back of the queue. */
-    public void enqueue(EventType e) {
+    public void enqueue(DistEventType e) {
         assert e.isSendEvent();
         assert e.getChannelId().equals(chId);
 
@@ -87,12 +87,12 @@ public class ChState implements Cloneable {
     }
 
     /** Removes and returns the event at the top of the queue. */
-    public EventType dequeue() {
+    public DistEventType dequeue() {
         return queue.remove(0);
     }
 
     /** Returns the event at the top of the queue, without removing it. */
-    public EventType peek() {
+    public DistEventType peek() {
         return queue.get(0);
     }
 

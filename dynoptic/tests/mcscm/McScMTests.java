@@ -15,8 +15,8 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
-import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 public class McScMTests {
 
@@ -27,7 +27,7 @@ public class McScMTests {
     List<ChannelId> cids;
     ChannelId cid0, cid1;
 
-    EventType cExEType;
+    DistEventType cExEType;
 
     protected static Logger logger;
 
@@ -57,7 +57,7 @@ public class McScMTests {
         cids.add(cid0);
         cids.add(cid1);
 
-        cExEType = EventType.SendEvent("i", cid1);
+        cExEType = DistEventType.SendEvent("i", cid1);
     }
 
     /**
