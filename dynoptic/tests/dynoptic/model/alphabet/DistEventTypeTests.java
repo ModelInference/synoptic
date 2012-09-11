@@ -4,28 +4,28 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
-import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
 
-public class EventTypeTests extends DynopticTest {
+public class DistEventTypeTests extends DynopticTest {
     ChannelId cid;
     ChannelId cidCopy;
     ChannelId cid2;
-    LocalEventsChannelId localChId;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        cid = new ChannelId(1, 2, 0);
-        cidCopy = new ChannelId(1, 2, 0);
-        cid2 = new ChannelId(2, 1, 1);
-        localChId = new LocalEventsChannelId(2);
+        cid = new ChannelId(1, 2, 0, "A");
+        cidCopy = new ChannelId(1, 2, 0, "A");
+        cid2 = new ChannelId(2, 1, 1, "B");
     }
 
     @Test
@@ -153,5 +153,83 @@ public class EventTypeTests extends DynopticTest {
 
         e2 = DistEventType.LocalEvent("e", 1);
         assertTrue(!e.equals(e2));
+    }
+
+    @Test
+    public void checkEventStrParsingSend() {
+        DistEventType e = new DistEventType("A!m", "sender");
+        List<ChannelId> cids = new ArrayList<ChannelId>();
+        cids.add(cid);
+        cids.add(cid2);
+        // Should not return an error.
+        assertEquals(e.interpretEType(cids), null);
+
+        // Check the interpreted e instance.
+        assertEquals(e.getChannelId(), cid);
+        assertTrue(e.isCommEvent());
+        assertTrue(e.isSendEvent());
+        assertFalse(e.isRecvEvent());
+        assertFalse(e.isLocalEvent());
+        assertEquals(e.getEventPid(), 1);
+        assertEquals(e.getEType(), "m");
+    }
+
+    @Test
+    public void checkEventStrParsingRecv() {
+        DistEventType e = new DistEventType("A?m", "receiver");
+        List<ChannelId> cids = new ArrayList<ChannelId>();
+        cids.add(cid);
+        cids.add(cid2);
+        // Should not return an error.
+        assertEquals(e.interpretEType(cids), null);
+
+        // Check the interpreted e instance.
+        assertEquals(e.getChannelId(), cid);
+        assertTrue(e.isCommEvent());
+        assertFalse(e.isSendEvent());
+        assertTrue(e.isRecvEvent());
+        assertFalse(e.isLocalEvent());
+        assertEquals(e.getEventPid(), 2);
+        assertEquals(e.getEType(), "m");
+    }
+
+    @Test
+    public void checkEventStrParsingLocal() {
+        DistEventType e = new DistEventType("e", "1");
+        List<ChannelId> cids = new ArrayList<ChannelId>();
+        cids.add(cid);
+        cids.add(cid2);
+        // Should not return an error.
+        assertEquals(e.interpretEType(cids), null);
+
+        // Check the interpreted e instance.
+        assertEquals(e.getChannelId(), null);
+        assertFalse(e.isCommEvent());
+        assertFalse(e.isSendEvent());
+        assertFalse(e.isRecvEvent());
+        assertTrue(e.isLocalEvent());
+        assertEquals(e.getEventPid(), 1);
+        assertEquals(e.getEType(), "e");
+    }
+
+    @Test
+    public void checkEventStrParsingErr1() {
+        DistEventType e = new DistEventType("A?m", "receiver");
+        List<ChannelId> cids = new ArrayList<ChannelId>();
+        // Leave out cid on purpose.
+        // cids.add(cid);
+        cids.add(cid2);
+        // Should return an _error_ -- no 'A' channel specified.
+        assertFalse(e.interpretEType(cids).equals(null));
+    }
+
+    @Test
+    public void checkEventStrParsingErr2() {
+        DistEventType e = new DistEventType("A??m", "receiver");
+        List<ChannelId> cids = new ArrayList<ChannelId>();
+        cids.add(cid);
+        cids.add(cid2);
+        // Should return an _error_ -- problem parsing ??.
+        assertFalse(e.interpretEType(cids).equals(null));
     }
 }
