@@ -1,11 +1,11 @@
 package dynoptic.invariants;
 
-import dynoptic.model.alphabet.EventType;
+import synoptic.model.event.DistEventType;
 
 /** A Dynoptic representation of the AFby invariant. */
 public class AlwaysFollowedBy extends BinaryInvariant {
 
-    public AlwaysFollowedBy(EventType typeFirst, EventType typeSecond) {
+    public AlwaysFollowedBy(DistEventType typeFirst, DistEventType typeSecond) {
         super(typeFirst, typeSecond, "AFby");
     }
 

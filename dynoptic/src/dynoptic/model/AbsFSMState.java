@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import dynoptic.model.alphabet.EventType;
+import synoptic.model.event.DistEventType;
 
 /**
  * Captures complete state of an FSM at some instant.
@@ -67,9 +67,10 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
     abstract public boolean isAccept();
 
     /**
-     * The set of possible events that can trigger a transition from this state.
+     * The set of possible (abstract, non-observed) event types that can trigger
+     * a transition from this state.
      */
-    abstract public Set<? extends EventType> getTransitioningEvents();
+    abstract public Set<DistEventType> getTransitioningEvents();
 
     /**
      * Returns the unmodifiable (read-only) set of states that follow this state
@@ -78,7 +79,7 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
      * @param event
      * @return
      */
-    abstract public Set<NextState> getNextStates(EventType event);
+    abstract public Set<NextState> getNextStates(DistEventType event);
 
     /**
      * Returns the set of all states that follows this state.
@@ -88,7 +89,7 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
      */
     public Set<NextState> getNextStates() {
         Set<NextState> ret = new LinkedHashSet<NextState>();
-        for (EventType e : getTransitioningEvents()) {
+        for (DistEventType e : getTransitioningEvents()) {
             ret.addAll(getNextStates(e));
         }
         return ret;

@@ -6,11 +6,13 @@ import java.util.Set;
 import synoptic.util.time.ITime;
 
 /**
- * Represents an event parsed from a log file. Each event needs at least a name,
- * called a label. Optionally, a time and data fields can set. If data fields
- * will be used, {@code useDatafields} must be set before compilation.
- * 
- * @author Sigurd Schneider
+ * Represents an event parsed from a log file. An event includes an event type,
+ * as well as information to identify where the event came from (e.g., filename,
+ * line number, etc).
+ * <p>
+ * This class is also used by Dynoptic where it represents an event that was
+ * observed or mined from a log of an execution of a FIFO system.
+ * </p>
  */
 public class Event {
     /** The default relation used throughout the code. */

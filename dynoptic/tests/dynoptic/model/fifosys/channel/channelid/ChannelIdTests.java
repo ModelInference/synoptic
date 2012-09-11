@@ -9,7 +9,9 @@ import org.junit.Test;
 import dynoptic.DynopticTest;
 import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.BinaryInvariant;
-import dynoptic.model.alphabet.EventType;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 public class ChannelIdTests extends DynopticTest {
 
@@ -31,8 +33,8 @@ public class ChannelIdTests extends DynopticTest {
 
     @Test
     public void invChannelId() {
-        EventType e = EventType.LocalEvent("e", 0);
-        EventType f = EventType.LocalEvent("f", 0);
+        DistEventType e = DistEventType.LocalEvent("e", 0);
+        DistEventType f = DistEventType.LocalEvent("f", 0);
 
         BinaryInvariant inv = new AlwaysFollowedBy(e, f);
         InvChannelId cid = new InvChannelId(inv, 0);
@@ -51,8 +53,8 @@ public class ChannelIdTests extends DynopticTest {
         BinaryInvariant inv2 = new AlwaysFollowedBy(e, e);
         assertFalse(cid.equals(new InvChannelId(inv2, 0)));
 
-        EventType e2 = EventType.LocalEvent("e", 0);
-        EventType f2 = EventType.LocalEvent("f", 0);
+        DistEventType e2 = DistEventType.LocalEvent("e", 0);
+        DistEventType f2 = DistEventType.LocalEvent("f", 0);
 
         inv2 = new AlwaysFollowedBy(e2, f2);
         InvChannelId cid2 = new InvChannelId(inv2, 0);
@@ -77,7 +79,7 @@ public class ChannelIdTests extends DynopticTest {
         LocalEventsChannelId cid2 = new LocalEventsChannelId(42);
         assertTrue(cid.equals(cid2));
 
-        EventType e = EventType.LocalEvent("e", 0);
+        DistEventType e = DistEventType.LocalEvent("e", 0);
         BinaryInvariant inv = new AlwaysFollowedBy(e, e);
         assertFalse(cid.equals(new InvChannelId(inv, 42)));
     }
@@ -85,7 +87,7 @@ public class ChannelIdTests extends DynopticTest {
     @Test
     public void localEventsChannelIdMapping() {
         LocalEventsChannelId cid = new LocalEventsChannelId(42);
-        EventType e = EventType.LocalEvent("e", 0);
+        DistEventType e = DistEventType.LocalEvent("e", 0);
         cid.addLocalEventString(e, "e");
         assertEquals(e, cid.getEventType("e"));
 

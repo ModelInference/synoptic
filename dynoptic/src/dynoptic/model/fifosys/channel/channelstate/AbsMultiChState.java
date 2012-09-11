@@ -3,7 +3,8 @@ package dynoptic.model.fifosys.channel.channelstate;
 import java.util.ArrayList;
 import java.util.List;
 
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import synoptic.model.channelid.ChannelId;
+
 
 /**
  * Implements basic functionality and maintains channel states for a number of

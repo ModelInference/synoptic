@@ -7,8 +7,9 @@ import java.util.Set;
 
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
+
+import synoptic.model.event.DistEventType;
 
 /**
  * This class models FSMs that make up a CFSM. A few key characteristics:
@@ -79,7 +80,8 @@ public class FSM extends AbsFSM<FSMState> {
 
     /** Adds a new synthetic state for tracking events for invariants checking. */
     public void addSyntheticState(FSMState parent, FSMState child,
-            EventType eToTrace, EventType eTracer1, EventType eTracer2) {
+            DistEventType eToTrace, DistEventType eTracer1,
+            DistEventType eTracer2) {
         assert this.states.contains(parent);
         assert this.states.contains(child);
 

@@ -7,33 +7,35 @@ import java.util.Set;
 
 import dynoptic.main.DynopticMain;
 
+import synoptic.model.event.DistEventType;
+
 /**
  * A collection of events that can be processed by an FSM that is part of a
  * CFSM. This includes both the local events as well as send/receive
  * (communication) events.
  */
-public class FSMAlphabet implements Set<EventType> {
+public class FSMAlphabet implements Set<DistEventType> {
     private static final String EMPTY_STR_SCM_RE = "(_)";
-    Set<EventType> events;
+    Set<DistEventType> events;
 
     public FSMAlphabet() {
-        events = new LinkedHashSet<EventType>();
+        events = new LinkedHashSet<DistEventType>();
     }
 
     // //////////////////////////////////////////////////////////////////
     // Methods for Set<>, which we simply pass onto the internal events set.
 
     @Override
-    public boolean add(EventType arg0) {
+    public boolean add(DistEventType arg0) {
         return events.add(arg0);
     }
 
     @Override
-    public boolean addAll(Collection<? extends EventType> arg0) {
+    public boolean addAll(Collection<? extends DistEventType> arg0) {
         if (DynopticMain.assertsOn) {
             // Make sure that the new set of events we are adding
             // does not include any events already in the alphabet
-            for (EventType e1 : arg0) {
+            for (DistEventType e1 : arg0) {
                 assert !events.contains(e1);
             }
         }
@@ -62,7 +64,7 @@ public class FSMAlphabet implements Set<EventType> {
     }
 
     @Override
-    public Iterator<EventType> iterator() {
+    public Iterator<DistEventType> iterator() {
         return events.iterator();
     }
 
@@ -100,7 +102,7 @@ public class FSMAlphabet implements Set<EventType> {
 
     public Set<String> getLocalEventScmStrings() {
         Set<String> ret = new LinkedHashSet<String>();
-        for (EventType e : events) {
+        for (DistEventType e : events) {
             if (e.isLocalEvent()) {
                 ret.add(e.getScmEventFullString());
             }
@@ -121,7 +123,7 @@ public class FSMAlphabet implements Set<EventType> {
         return scmQRe(null);
     }
 
-    public String anyEventExceptOneScmQRe(EventType ignoreE) {
+    public String anyEventExceptOneScmQRe(DistEventType ignoreE) {
         assert events.contains(ignoreE);
 
         return scmQRe(ignoreE);
@@ -133,7 +135,7 @@ public class FSMAlphabet implements Set<EventType> {
      * Concatenates a list of event strings into a re expression representing a
      * set of strings.
      */
-    private String scmQRe(EventType ignoreE) {
+    private String scmQRe(DistEventType ignoreE) {
         String ret = "(";
         Set<String> eventStrings = getUniqueEventStrings(ignoreE);
         Iterator<String> iter = eventStrings.iterator();
@@ -160,9 +162,9 @@ public class FSMAlphabet implements Set<EventType> {
      * '0!m' and '0?m' are unique, but the event string for both event types is
      * 'm'.
      */
-    private Set<String> getUniqueEventStrings(EventType ignoreE) {
+    private Set<String> getUniqueEventStrings(DistEventType ignoreE) {
         Set<String> ret = new LinkedHashSet<String>();
-        for (EventType e : events) {
+        for (DistEventType e : events) {
             if ((ignoreE != null) && e.equals(ignoreE)) {
                 continue;
             }

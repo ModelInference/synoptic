@@ -7,14 +7,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 /**
  * <p>
@@ -270,7 +271,7 @@ public class GFSM extends FifoSys<GFSMState> {
         visited.add(gParent);
 
         // Recurse on each (e,gNext) transition from this parent.
-        for (EventType e : gParent.getTransitioningEvents()) {
+        for (DistEventType e : gParent.getTransitioningEvents()) {
             for (GFSMState gNext : gParent.getNextStates(e)) {
 
                 // In the FSM we only include transitions, and optionally create

@@ -5,11 +5,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.channel.channelstate.MutableMultiChState;
 
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -86,15 +86,16 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     }
 
     @Override
-    public Set<? extends EventType> getTransitioningEvents() {
+    public Set<DistEventType> getTransitioningEvents() {
         return processStates.getTransitioningEvents();
     }
 
     @Override
-    public Set<FifoSysExecState<MultiFSMState>> getNextStates(EventType event) {
+    public Set<FifoSysExecState<MultiFSMState>> getNextStates(
+            DistEventType event) {
         Set<FifoSysExecState<MultiFSMState>> ret = new LinkedHashSet<FifoSysExecState<MultiFSMState>>();
 
-        Set<EventType> enabledEvents = this.getEnabledEvents();
+        Set<DistEventType> enabledEvents = this.getEnabledEvents();
 
         // If the event is not enabled, then no next states are possible.
         if (!enabledEvents.contains(event)) {
@@ -111,7 +112,7 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
             clonedChannelStates.enqueue(event);
         } else if (event.isRecvEvent()) {
             // Consume a message from the top of the queue.
-            EventType recvdEvent = clonedChannelStates.dequeue(event
+            DistEventType recvdEvent = clonedChannelStates.dequeue(event
                     .getChannelId());
 
             if (!event.equals(recvdEvent)) {
@@ -155,15 +156,15 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
      * is, those events that this FSM can transition on based on its current
      * state.
      */
-    public Set<EventType> getEnabledEvents() {
+    public Set<DistEventType> getEnabledEvents() {
         // The Set of possible events -- these are the only events that we have
         // to consider.
-        Set<EventType> potentialEvents = (Set<EventType>) getTransitioningEvents();
+        Set<DistEventType> potentialEvents = getTransitioningEvents();
 
         // Traverse potentialEvents and build ret from all events that are
         // feasible -- all local/send events, and some receive events.
-        Set<EventType> ret = new LinkedHashSet<EventType>();
-        for (EventType e : potentialEvents) {
+        Set<DistEventType> ret = new LinkedHashSet<DistEventType>();
+        for (DistEventType e : potentialEvents) {
             // Filter out those events that cannot be received because of
             // incompatible FIFO queue state (i.e., cannot receive 'm' if 'm' is
             // not at the head of the queue).

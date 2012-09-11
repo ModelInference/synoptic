@@ -5,13 +5,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
-import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
 
 /**
  * Maintains pointers to the set of initial DAG nodes and implements conversion
@@ -98,11 +100,12 @@ public class ObsDAG {
             ObsDAGNode nextNode, Set<ObsFifoSysState> states) {
 
         // Retrieve the event that will cause the transition.
-        ObsEvent e = nextNode.getPrevState().getNextEvent();
+        Event e = nextNode.getPrevState().getNextEvent();
 
         // Create the next set of channel states based off of the previous
         // channel state and the event type.
-        ImmutableMultiChState nextChStates = currChStates.getNextChState(e);
+        ImmutableMultiChState nextChStates = currChStates
+                .getNextChState((DistEventType) e.getEType());
 
         // Update the DAG config by transitioning to the next node.
         curDagConfig.set(nextNode.getPid(), nextNode);

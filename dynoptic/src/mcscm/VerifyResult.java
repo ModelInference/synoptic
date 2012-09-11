@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import synoptic.model.channelid.ChannelId;
+
 
 /**
  * The result of running the McScM verify tool. Contains parsing utilities for

@@ -7,8 +7,9 @@ import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.AbsFSMState;
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
+
+import synoptic.model.event.DistEventType;
 
 /**
  * <p>
@@ -27,7 +28,7 @@ public class FSMState extends AbsFSMState<FSMState> {
     private final boolean isInitial;
 
     // Transitions to other FSMState instances.
-    private final Map<EventType, Set<FSMState>> transitions;
+    private final Map<DistEventType, Set<FSMState>> transitions;
 
     // The process that this state is associated with. Initially this is -1, but
     // once a transition on an event is added, the pid is set based on the event
@@ -42,7 +43,7 @@ public class FSMState extends AbsFSMState<FSMState> {
         this.isInitial = isInitial;
         this.pid = pid;
         this.scmId = scmId;
-        transitions = new LinkedHashMap<EventType, Set<FSMState>>();
+        transitions = new LinkedHashMap<DistEventType, Set<FSMState>>();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -58,7 +59,7 @@ public class FSMState extends AbsFSMState<FSMState> {
     }
 
     @Override
-    public Set<EventType> getTransitioningEvents() {
+    public Set<DistEventType> getTransitioningEvents() {
         return transitions.keySet();
     }
 
@@ -70,7 +71,7 @@ public class FSMState extends AbsFSMState<FSMState> {
      * @return
      */
     @Override
-    public Set<FSMState> getNextStates(EventType event) {
+    public Set<FSMState> getNextStates(DistEventType event) {
         assert event != null;
         assert transitions.containsKey(event);
 
@@ -101,7 +102,7 @@ public class FSMState extends AbsFSMState<FSMState> {
      * @param e
      * @param s
      */
-    public void addTransition(EventType e, FSMState s) {
+    public void addTransition(DistEventType e, FSMState s) {
         assert e != null;
         assert s != null;
         assert pid == e.getEventPid();
@@ -117,7 +118,7 @@ public class FSMState extends AbsFSMState<FSMState> {
      * @param e
      * @param s
      */
-    public void addSynthTransition(EventType e, FSMState s) {
+    public void addSynthTransition(DistEventType e, FSMState s) {
         assert e != null;
         assert s != null;
         assert e.isSynthSendEvent();
@@ -131,7 +132,7 @@ public class FSMState extends AbsFSMState<FSMState> {
      * @param e
      * @param s
      */
-    public void rmTransition(EventType e, FSMState s) {
+    public void rmTransition(DistEventType e, FSMState s) {
         assert e != null;
         assert s != null;
         assert pid == e.getEventPid();
@@ -145,8 +146,20 @@ public class FSMState extends AbsFSMState<FSMState> {
     public String toScmString(LocalEventsChannelId localEventsChId) {
         String ret = "state " + scmId + " :\n";
 
-        for (EventType e : transitions.keySet()) {
-            String eStr = e.toScmTransitionString(localEventsChId);
+        String eStr;
+        for (DistEventType e : transitions.keySet()) {
+            // Build an scm representation of this event type.
+            if (e.isCommEvent()) {
+                eStr = e.toString(
+                        Integer.toString(e.getChannelId().getScmId()), ' ');
+            } else {
+                // Local event: use local queue for local events.
+                localEventsChId.addLocalEventString(e,
+                        e.getScmEventFullString());
+                eStr = localEventsChId.getScmId() + " ! "
+                        + e.getScmEventFullString();
+            }
+
             for (FSMState next : transitions.get(e)) {
                 ret += "to " + next.getScmId() + " : when true , " + eStr
                         + " ;\n";
@@ -159,7 +172,7 @@ public class FSMState extends AbsFSMState<FSMState> {
     // //////////////////////////////////////////////////////////////////
 
     /** Adds a transition from this state on e to state s. */
-    private void addTransitionNoChecks(EventType e, FSMState s) {
+    private void addTransitionNoChecks(DistEventType e, FSMState s) {
         Set<FSMState> following;
         if (transitions.get(e) == null) {
             following = new LinkedHashSet<FSMState>();

@@ -3,9 +3,10 @@ package dynoptic.model.fifosys.gfsm.observed.fifosys;
 import java.util.List;
 import java.util.Set;
 
+import synoptic.model.channelid.ChannelId;
+
 import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.FifoSys;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
 
 /**
  * Represents a single captured/observed trace of an execution of a distributed

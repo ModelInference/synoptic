@@ -1,6 +1,10 @@
-package dynoptic.model.fifosys.channel.channelid;
+package synoptic.model.channelid;
 
 /**
+ * <p>
+ * This class is used solely by Dynoptic and is included in Synoptic to simplify
+ * compatibility and to keep Synoptic independent of Dynoptic.
+ * </p>
  * <p>
  * Immutable class.
  * </p>

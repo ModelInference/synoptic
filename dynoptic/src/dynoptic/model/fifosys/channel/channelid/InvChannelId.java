@@ -1,5 +1,7 @@
 package dynoptic.model.fifosys.channel.channelid;
 
+import synoptic.model.channelid.ChannelId;
+
 import dynoptic.invariants.BinaryInvariant;
 
 /**

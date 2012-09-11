@@ -6,9 +6,10 @@ import java.util.Map;
 import java.util.Set;
 
 import dynoptic.main.DynopticMain;
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+
+import synoptic.model.event.DistEventType;
 
 /**
  * <p>
@@ -32,7 +33,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
 
     // CACHE optimization: the set of abstract transitions induced by the
     // concrete transitions. This is a cache of the ground truth.
-    private final Map<EventType, Set<GFSMState>> transitions;
+    private final Map<DistEventType, Set<GFSMState>> transitions;
 
     public GFSMState(int numProcesses) {
         this(numProcesses, new LinkedHashSet<ObsFifoSysState>());
@@ -46,7 +47,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
         super(numProcesses);
         // NOTE: we do not create a new set for observed states.
         this.observedStates = observedStates;
-        this.transitions = new LinkedHashMap<EventType, Set<GFSMState>>();
+        this.transitions = new LinkedHashMap<DistEventType, Set<GFSMState>>();
 
         for (ObsFifoSysState obs : this.observedStates) {
             if (DynopticMain.assertsOn) {
@@ -83,12 +84,12 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     }
 
     @Override
-    public Set<EventType> getTransitioningEvents() {
+    public Set<DistEventType> getTransitioningEvents() {
         return transitions.keySet();
     }
 
     @Override
-    public Set<GFSMState> getNextStates(EventType event) {
+    public Set<GFSMState> getNextStates(DistEventType event) {
         assert transitions.containsKey(event);
 
         return transitions.get(event);
@@ -163,7 +164,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
 
     /** Updates the cached transitions for a particular observed state. */
     private void cacheObservedParentTransitions(ObsFifoSysState s) {
-        for (EventType e : s.getTransitioningEvents()) {
+        for (DistEventType e : s.getTransitioningEvents()) {
             GFSMState nextPartition = s.getNextState(e).getParent();
             Set<GFSMState> partitions;
             if (!transitions.containsKey(e)) {

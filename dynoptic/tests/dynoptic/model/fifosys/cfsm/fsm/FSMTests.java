@@ -9,9 +9,10 @@ import java.util.Set;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
-import dynoptic.model.alphabet.EventType;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 public class FSMTests extends DynopticTest {
 
@@ -33,9 +34,9 @@ public class FSMTests extends DynopticTest {
     // cid: 1->2
     ChannelId cid;
     // cid!m
-    EventType e_pid1;
+    DistEventType e_pid1;
     // e_2
-    EventType e2_pid1;
+    DistEventType e2_pid1;
 
     // e_3
     @Override
@@ -50,8 +51,8 @@ public class FSMTests extends DynopticTest {
 
         state_2 = new FSMState(false, false, 2, 2);
         cid = new ChannelId(1, 2, 0);
-        e_pid1 = EventType.SendEvent("m", cid);
-        e2_pid1 = EventType.LocalEvent("e", 1);
+        e_pid1 = DistEventType.SendEvent("m", cid);
+        e2_pid1 = DistEventType.LocalEvent("e", 1);
         states = new LinkedHashSet<FSMState>();
     }
 

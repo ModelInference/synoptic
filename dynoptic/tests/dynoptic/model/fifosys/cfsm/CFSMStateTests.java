@@ -10,8 +10,9 @@ import java.util.List;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+
+import synoptic.model.event.DistEventType;
 
 public class CFSMStateTests extends DynopticTest {
 
@@ -22,14 +23,14 @@ public class CFSMStateTests extends DynopticTest {
     // Accepting state at pid 1.
     FSMState a_1;
     // Local event at pid 0.
-    EventType e_0;
+    DistEventType e_0;
 
     @Override
     public void setUp() {
         i_0 = new FSMState(false, true, 0, 0);
         q_0 = new FSMState(false, false, 0, 1);
         a_1 = new FSMState(true, false, 1, 2);
-        e_0 = EventType.LocalEvent("e", 0);
+        e_0 = DistEventType.LocalEvent("e", 0);
     }
 
     @Test

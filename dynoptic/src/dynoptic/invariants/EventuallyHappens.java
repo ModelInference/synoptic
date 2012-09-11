@@ -1,6 +1,6 @@
 package dynoptic.invariants;
 
-import dynoptic.model.alphabet.EventType;
+import synoptic.model.event.DistEventType;
 
 /**
  * Represents an "X eventually happens" invariant type, which corresponds to the
@@ -8,7 +8,7 @@ import dynoptic.model.alphabet.EventType;
  * AFby invariant.
  */
 public class EventuallyHappens extends AlwaysFollowedBy {
-    public EventuallyHappens(EventType event) {
-        super(EventType.INITIALEventType, event);
+    public EventuallyHappens(DistEventType event) {
+        super(DistEventType.INITIALEventType, event);
     }
 }

@@ -11,20 +11,22 @@ import org.junit.Test;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.cfsm.CFSM;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
-import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
+import synoptic.model.event.Event;
 
 public class GFSMTests extends DynopticTest {
 
     GFSM g;
 
     ObsFifoSysState Si, St;
-    ObsEvent e;
+    Event e;
 
     @Override
     public void setUp() {
@@ -35,8 +37,7 @@ public class GFSMTests extends DynopticTest {
         Pi.add(p0i);
         ObsMultFSMState obsPi = new ObsMultFSMState(Pi);
 
-        ObsFSMState p0t = ObsFSMState
-                .ObservedTerminalFSMState(0, "t");
+        ObsFSMState p0t = ObsFSMState.ObservedTerminalFSMState(0, "t");
         Pt.add(p0t);
         ObsMultFSMState obsPt = new ObsMultFSMState(Pt);
 
@@ -51,7 +52,7 @@ public class GFSMTests extends DynopticTest {
         St = ObsFifoSysState.getFifoSysState(obsPt, PtChstate);
 
         // Si -> St
-        e = ObsEvent.LocalEvent("e", 0);
+        e = new Event(DistEventType.LocalEvent("e", 0));
         Si.addTransition(e, St);
 
         List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>(1);
@@ -106,8 +107,9 @@ public class GFSMTests extends DynopticTest {
         assertTrue(part.getNextStates().contains(part));
 
         assertTrue(part.getTransitioningEvents().size() == 1);
-        assertTrue(part.getNextStates(e).size() == 1);
-        assertTrue(part.getNextStates(e).contains(part));
+        assertTrue(part.getNextStates((DistEventType) e.getEType()).size() == 1);
+        assertTrue(part.getNextStates((DistEventType) e.getEType()).contains(
+                part));
     }
 
     @Test

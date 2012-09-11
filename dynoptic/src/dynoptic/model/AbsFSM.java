@@ -3,8 +3,9 @@ package dynoptic.model;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import dynoptic.model.alphabet.EventType;
 import dynoptic.model.alphabet.FSMAlphabet;
+
+import synoptic.model.event.DistEventType;
 
 /**
  * Describes a basic interface for an FSM.
@@ -55,7 +56,7 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
     protected void recomputeAlphabet() {
         this.alphabet.clear();
         for (State s : states) {
-            Set<? extends EventType> events = s.getTransitioningEvents();
+            Set<? extends DistEventType> events = s.getTransitioningEvents();
             if (events.size() != 0) {
                 alphabet.addAll(events);
             }

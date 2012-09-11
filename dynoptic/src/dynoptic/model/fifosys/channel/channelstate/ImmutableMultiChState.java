@@ -5,8 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
-import dynoptic.model.fifosys.gfsm.observed.ObsEvent;
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 /**
  * Represents the state of a set of channels that are part of a FIFO system.
@@ -81,7 +81,7 @@ public class ImmutableMultiChState extends AbsMultiChState {
 
     // //////////////////////////////////////////////////////////////////
 
-    public ImmutableMultiChState getNextChState(ObsEvent e) {
+    public ImmutableMultiChState getNextChState(DistEventType e) {
         if (e.isLocalEvent()) {
             // These events do not change the channel state.
             return this;
@@ -98,8 +98,8 @@ public class ImmutableMultiChState extends AbsMultiChState {
         if (e.isSendEvent()) {
             newState.enqueue(e);
         } else if (e.isRecvEvent()) {
-            ObsEvent eRecv = (ObsEvent) newState.dequeue();
-            assert e.getRawEventStr().equals(eRecv.getRawEventStr());
+            DistEventType eRecv = newState.dequeue();
+            assert e.getEType().equals(eRecv.getEType());
         } else {
             assert false : "A non-local event is not a send or a receive event.";
         }

@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
+import synoptic.model.channelid.ChannelId;
+
 
 /** An interface to the McScM model checker. */
 public class McScM {

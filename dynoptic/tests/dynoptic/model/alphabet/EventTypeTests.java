@@ -8,8 +8,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
+
+import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 public class EventTypeTests extends DynopticTest {
     ChannelId cid;
@@ -28,105 +30,102 @@ public class EventTypeTests extends DynopticTest {
 
     @Test
     public void createLocal() {
-        EventType e = EventType.LocalEvent("e", 1);
+        DistEventType e = DistEventType.LocalEvent("e", 1);
         assertFalse(e.isCommEvent());
         assertFalse(e.isSendEvent());
         assertFalse(e.isRecvEvent());
         assertFalse(e.isSynthSendEvent());
         assertEquals(e.getEventPid(), 1);
         logger.info(e.toString());
-        logger.info(e.toScmTransitionString(localChId));
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));
         assertTrue(e.equals(e));
 
         // equality:
-        EventType e2 = EventType.LocalEvent("e", 1);
+        DistEventType e2 = DistEventType.LocalEvent("e", 1);
         assertEquals(e, e2);
 
-        e2 = EventType.LocalEvent("e", 2);
+        e2 = DistEventType.LocalEvent("e", 2);
         assertTrue(!e.equals(e2));
 
-        e2 = EventType.LocalEvent("Z", 1);
+        e2 = DistEventType.LocalEvent("Z", 1);
         assertTrue(!e.equals(e2));
 
-        e2 = EventType.SendEvent("e", cid);
+        e2 = DistEventType.SendEvent("e", cid);
         assertTrue(!e.equals(e2));
 
-        e2 = EventType.RecvEvent("e", cid);
+        e2 = DistEventType.RecvEvent("e", cid);
         assertTrue(!e.equals(e2));
     }
 
     @Test
     public void createSend() {
-        EventType e = EventType.SendEvent("e", cid);
+        DistEventType e = DistEventType.SendEvent("e", cid);
         assertTrue(e.isCommEvent());
         assertTrue(e.isSendEvent());
         assertFalse(e.isRecvEvent());
         assertFalse(e.isSynthSendEvent());
         assertEquals(e.getEventPid(), cid.getSrcPid());
         logger.info(e.toString());
-        logger.info(e.toScmTransitionString(localChId));
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));
         assertTrue(e.equals(e));
 
         // equality:
-        EventType e2 = EventType.SendEvent("e", cidCopy);
+        DistEventType e2 = DistEventType.SendEvent("e", cidCopy);
         assertEquals(e, e2);
 
-        e2 = EventType.SendEvent("Z", cid);
+        e2 = DistEventType.SendEvent("Z", cid);
         assertTrue(!e.equals(e2));
 
-        e2 = EventType.SendEvent("e", cid2);
+        e2 = DistEventType.SendEvent("e", cid2);
         assertTrue(!e.equals(e2));
 
-        e2 = EventType.RecvEvent("e", cid);
+        e2 = DistEventType.RecvEvent("e", cid);
         assertTrue(!e.equals(e2));
 
-        e2 = EventType.LocalEvent("e", 1);
+        e2 = DistEventType.LocalEvent("e", 1);
         assertTrue(!e.equals(e2));
     }
 
     @Test
     public void createRecv() {
-        EventType e = EventType.RecvEvent("e", cid);
+        DistEventType e = DistEventType.RecvEvent("e", cid);
         assertTrue(e.isCommEvent());
         assertFalse(e.isSendEvent());
         assertTrue(e.isRecvEvent());
         assertFalse(e.isSynthSendEvent());
         assertEquals(e.getEventPid(), cid.getDstPid());
         logger.info(e.toString());
-        logger.info(e.toScmTransitionString(localChId));
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));
         assertTrue(e.equals(e));
 
         // equality:
-        EventType e2 = EventType.RecvEvent("e", cidCopy);
+        DistEventType e2 = DistEventType.RecvEvent("e", cidCopy);
         assertEquals(e, e2);
 
-        e2 = EventType.RecvEvent("Z", cid);
+        e2 = DistEventType.RecvEvent("Z", cid);
         assertTrue(!e.equals(e2));
 
-        e2 = EventType.RecvEvent("e", cid2);
+        e2 = DistEventType.RecvEvent("e", cid2);
         assertTrue(!e.equals(e2));
 
-        e2 = EventType.SendEvent("e", cid);
+        e2 = DistEventType.SendEvent("e", cid);
         assertTrue(!e.equals(e2));
 
-        e2 = EventType.LocalEvent("e", 1);
+        e2 = DistEventType.LocalEvent("e", 1);
         assertTrue(!e.equals(e2));
     }
 
     @Test
     public void createSynthSend() {
-        EventType eToTrace = EventType.RecvEvent("e", cid);
+        DistEventType eToTrace = DistEventType.RecvEvent("e", cid);
 
-        EventType e = EventType.SynthSendEvent(eToTrace, cid, true);
+        DistEventType e = DistEventType.SynthSendEvent(eToTrace, cid, true);
 
         assertTrue(e.isCommEvent());
         assertFalse(e.isSendEvent());
@@ -134,26 +133,25 @@ public class EventTypeTests extends DynopticTest {
         assertTrue(e.isSynthSendEvent());
         assertEquals(e.getEventPid(), cid.getDstPid());
         logger.info(e.toString());
-        logger.info(e.toScmTransitionString(localChId));
 
         assertFalse(e.equals(null));
         assertFalse(e.equals(""));
         assertTrue(e.equals(e));
 
         // equality:
-        EventType e2 = EventType.SynthSendEvent(eToTrace, cid, true);
+        DistEventType e2 = DistEventType.SynthSendEvent(eToTrace, cid, true);
         assertEquals(e, e2);
 
-        e2 = EventType.SynthSendEvent(eToTrace, cid, false);
+        e2 = DistEventType.SynthSendEvent(eToTrace, cid, false);
         assertTrue(!e.equals(e2));
 
-        e2 = EventType.RecvEvent("e", cid);
+        e2 = DistEventType.RecvEvent("e", cid);
         assertTrue(!e.equals(e2));
 
-        e2 = EventType.SendEvent("e", cid2);
+        e2 = DistEventType.SendEvent("e", cid2);
         assertTrue(!e.equals(e2));
 
-        e2 = EventType.LocalEvent("e", 1);
+        e2 = DistEventType.LocalEvent("e", 1);
         assertTrue(!e.equals(e2));
     }
 }

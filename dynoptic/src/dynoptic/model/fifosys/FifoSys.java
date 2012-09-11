@@ -4,9 +4,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import synoptic.model.channelid.ChannelId;
+
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
-import dynoptic.model.fifosys.channel.channelid.ChannelId;
 import dynoptic.model.fifosys.exec.FifoSysExecution;
 
 /**
