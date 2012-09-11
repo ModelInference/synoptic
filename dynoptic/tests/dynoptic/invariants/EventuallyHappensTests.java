@@ -5,17 +5,19 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class AlwaysFollowedByTests extends AbsInvTesting {
+import synoptic.model.event.DistEventType;
+
+public class EventuallyHappensTests extends AbsInvTesting {
 
     @Test
     public void create() {
-        AlwaysFollowedBy inv = new AlwaysFollowedBy(e1, e2);
+        EventuallyHappens inv = new EventuallyHappens(e1);
         logger.info(inv.toString());
     }
 
     @Test
     public void scmBadStatesString() {
-        AlwaysFollowedBy inv = new AlwaysFollowedBy(e1, e2);
+        EventuallyHappens inv = new EventuallyHappens(e1);
 
         inv.setFirstSynthTracers(fSynth1, fSynth2);
         inv.setSecondSynthTracers(sSynth1, sSynth2);
@@ -25,18 +27,19 @@ public class AlwaysFollowedByTests extends AbsInvTesting {
 
     @Test
     public void getFirstSecond() {
-        AlwaysFollowedBy inv = new AlwaysFollowedBy(e1, e2);
-        inv.getFirst().equals(e1);
-        inv.getSecond().equals(e2);
+        EventuallyHappens inv = new EventuallyHappens(e1);
+        inv.getFirst().equals(DistEventType.INITIALEventType);
+        inv.getSecond().equals(e1);
     }
 
     @Test
     public void equality() {
-        AlwaysFollowedBy inv1 = new AlwaysFollowedBy(e1, e2);
-        AlwaysFollowedBy inv2 = new AlwaysFollowedBy(e1, e2);
+        EventuallyHappens inv1 = new EventuallyHappens(e1);
+        EventuallyHappens inv2 = new EventuallyHappens(e1);
         assertEquals(inv1, inv2);
 
-        AlwaysFollowedBy inv3 = new AlwaysFollowedBy(e0, e2);
+        EventuallyHappens inv3 = new EventuallyHappens(e2);
         assertTrue(!inv1.equals(inv3));
     }
+
 }

@@ -23,6 +23,12 @@ public class ChannelIdTests extends DynopticTest {
         assertEquals(cid.getScmId(), 0);
         assertEquals(cid.toString(), "0-1->2:1->2");
         logger.info(cid.toString());
+
+        ChannelId cid2 = new ChannelId(1, 2, 0, "ChName");
+        assertEquals(cid2.getName(), "ChName");
+        assertFalse(cid2.equals(cid));
+        assertFalse(cid.equals(cid2));
+        logger.info(cid2.toString());
     }
 
     @Test(expected = AssertionError.class)
@@ -98,7 +104,7 @@ public class ChannelIdTests extends DynopticTest {
     }
 
     @Test
-    public void channelId() {
+    public void channelIdEquals() {
         ChannelId cid = new ChannelId(1, 2, 0);
 
         assertFalse(cid.equals(null));
@@ -110,12 +116,15 @@ public class ChannelIdTests extends DynopticTest {
 
         cid2 = new ChannelId(3, 2, 0);
         assertFalse(cid.equals(cid2));
+        assertFalse(cid2.equals(cid));
 
         cid2 = new ChannelId(1, 3, 0);
         assertFalse(cid.equals(cid2));
+        assertFalse(cid2.equals(cid));
 
         cid2 = new ChannelId(1, 2, 1);
         assertFalse(cid.equals(cid2));
+        assertFalse(cid2.equals(cid));
     }
 
 }

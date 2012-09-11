@@ -7,7 +7,7 @@ import dynoptic.DynopticTest;
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
 
-public abstract class InvTesting extends DynopticTest {
+public abstract class AbsInvTesting extends DynopticTest {
 
     DistEventType e0, e1, e2;
     ChannelId cid1, cid2;

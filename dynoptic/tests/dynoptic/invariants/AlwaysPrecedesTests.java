@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class AlwaysPrecedesTests extends InvTesting {
+public class AlwaysPrecedesTests extends AbsInvTesting {
 
     @Test
     public void create() {

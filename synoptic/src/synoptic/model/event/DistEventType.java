@@ -12,7 +12,7 @@ import synoptic.model.channelid.ChannelId;
  * replica role id).
  */
 public class DistEventType extends EventType {
-    private final String eType;
+    private String eType;
     private String processId;
     private final static String syntheticEventPID = "-1";
 
@@ -110,19 +110,20 @@ public class DistEventType extends EventType {
             delim = "!";
             this.eventCls = EventClass.SEND;
         } else {
-            // Create and return a local event type.
-            int pid = Integer.parseInt(getPID());
+            // A local event type.
+            this.iPid = Integer.parseInt(getPID());
             this.eventCls = EventClass.LOCAL;
             return null;
         }
 
-        // Now create message send (!) or message receive (?) event types.
+        // Now handle message send (!) or message receive (?) event types.
         String[] splitType = eType.split("\\" + delim);
         if (!(splitType.length == 2)) {
             return "Event type'" + eType + "' contains multiple '" + delim
                     + "' chars.";
         }
         String chName = splitType[0];
+        eType = splitType[1];
 
         for (ChannelId cid : channelIds) {
             if (cid.getName().equals(chName)) {
@@ -135,6 +136,13 @@ public class DistEventType extends EventType {
                     + chName
                     + "' in the log is not specified in the channel specification.";
         }
+
+        if (this.eventCls == EventClass.SEND) {
+            this.iPid = channelId.getSrcPid();
+        } else {
+            this.iPid = channelId.getDstPid();
+        }
+
         return null;
     }
 
