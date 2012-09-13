@@ -146,7 +146,8 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
 
     @Override
     public String toString() {
-        return fsmStates.toString() + "; " + channelStates.toString();
+        return "ObsFifoSysState[" + fsmStates.toString() + "; "
+                + channelStates.toString() + "]";
     }
 
     @Override
@@ -157,6 +158,14 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
     @Override
     public boolean isInitial() {
         return fsmStates.isInitial() && channelStates.isEmpty();
+    }
+
+    @Override
+    public int hashCode() {
+        int ret = 31;
+        ret = ret * 31 + fsmStates.hashCode();
+        ret = ret * 31 + channelStates.hashCode();
+        return ret;
     }
 
     // //////////////////////////////////////////////////////////////////

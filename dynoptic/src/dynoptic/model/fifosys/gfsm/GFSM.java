@@ -84,13 +84,11 @@ public class GFSM extends FifoSys<GFSMState> {
             Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition,
             ObsFifoSysState obs) {
         int hash = obs.getChannelStates().topOfQueuesHash();
-        if (qTopHashToPartition.containsKey(hash)) {
-            qTopHashToPartition.get(hash).add(obs);
-        } else {
+        if (!qTopHashToPartition.containsKey(hash)) {
             Set<ObsFifoSysState> partition = new LinkedHashSet<ObsFifoSysState>();
-            partition.add(obs);
             qTopHashToPartition.put(hash, partition);
         }
+        qTopHashToPartition.get(hash).add(obs);
     }
 
     /**

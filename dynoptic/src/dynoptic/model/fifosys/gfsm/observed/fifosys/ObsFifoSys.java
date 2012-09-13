@@ -3,10 +3,10 @@ package dynoptic.model.fifosys.gfsm.observed.fifosys;
 import java.util.List;
 import java.util.Set;
 
-import synoptic.model.channelid.ChannelId;
-
 import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.FifoSys;
+
+import synoptic.model.channelid.ChannelId;
 
 /**
  * Represents a single captured/observed trace of an execution of a distributed
@@ -64,6 +64,11 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
 
     public List<ChannelId> getChannelIds() {
         return initState.getChannelIds();
+    }
+
+    @Override
+    public String toString() {
+        return "ObsFifoSys[" + this.states.size() + "]";
     }
 
 }

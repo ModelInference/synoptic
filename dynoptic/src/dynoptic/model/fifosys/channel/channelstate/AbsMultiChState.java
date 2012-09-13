@@ -5,7 +5,6 @@ import java.util.List;
 
 import synoptic.model.channelid.ChannelId;
 
-
 /**
  * Implements basic functionality and maintains channel states for a number of
  * processes in a FIFO system.
@@ -47,12 +46,12 @@ abstract public class AbsMultiChState {
 
     @Override
     public String toString() {
-        String ret = "{";
+        String ret = "ChStates[";
         for (ChState s : channelStates) {
             // channelState string includes the channelId.
             ret = ret + s.toString() + ", ";
         }
-        ret = ret + "}";
+        ret = ret.substring(0, ret.length() - 2) + "]";
         return ret;
     }
 

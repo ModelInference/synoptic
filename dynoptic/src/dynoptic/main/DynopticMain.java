@@ -1,7 +1,9 @@
 package dynoptic.main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,6 @@ import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.AlwaysPrecedes;
 import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
-import dynoptic.model.alphabet.FSMAlphabet;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.gfsm.GFSM;
 import dynoptic.model.fifosys.gfsm.GFSMState;
@@ -41,6 +42,7 @@ import synoptic.model.EventNode;
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
 import synoptic.model.event.Event;
+import synoptic.model.event.StringEventType;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.util.InternalSynopticException;
 import synoptic.util.Pair;
@@ -243,32 +245,9 @@ public class DynopticMain {
                     "Dynoptic expects a log that is partially ordered.");
         }
 
-        // ////////////////// Generate the Synoptic DAG from parsed events
-        DAGsTraceGraph traceGraph = SynopticMain.genDAGsTraceGraph(parser,
-                parsedEvents);
-
-        // Parser can be garbage-collected.
-        parser = null;
-
-        // ////////////////// Mine Synoptic invariants
-        TemporalInvariantSet minedInvs = synMain.minePOInvariants(
-                opts.useTransitiveClosureMining, traceGraph);
-
-        logger.info("Mined " + minedInvs.numInvariants() + " invariants");
-
-        if (opts.dumpInvariants) {
-            logger.info("Mined invariants:\n" + minedInvs.toPrettyString());
-        }
-
-        if (minedInvs.numInvariants() == 0) {
-            logger.info("Mined 0 Synoptic invariants. Stopping.");
-            return;
-        }
-
-        // ////////////////// Generate an alphabet of Dynoptic EventTypes based
-        // on the events parsed by Synoptic.
-
-        FSMAlphabet alphabet = new FSMAlphabet();
+        // ////////////////// Parse the parsed events further (as distributed
+        // events that capture message send/receives). And determine the number
+        // of processes in the system.
 
         Set<ChannelId> usedChannelIds = new LinkedHashSet<ChannelId>();
         Set<Integer> usedPids = new LinkedHashSet<Integer>();
@@ -292,7 +271,6 @@ public class DynopticMain {
             if (distEType.isCommEvent()) {
                 usedChannelIds.add(distEType.getChannelId());
             }
-            alphabet.add(distEType);
         }
 
         if (usedChannelIds.size() != channelIds.size()) {
@@ -311,10 +289,32 @@ public class DynopticMain {
                 maxPid = pid;
             }
         }
-        int numProcesses = maxPid;
+        int numProcesses = maxPid + 1;
         if (pidSum != ((maxPid * (maxPid + 1)) / 2) || !usedPids.contains(0)) {
             throw new OptionException("Process ID range for the log has gaps: "
                     + usedPids.toString());
+        }
+
+        // ////////////////// Generate the Synoptic DAG from parsed events
+        DAGsTraceGraph traceGraph = SynopticMain.genDAGsTraceGraph(parser,
+                parsedEvents);
+
+        // Parser can be garbage-collected.
+        parser = null;
+
+        // ////////////////// Mine Synoptic invariants
+        TemporalInvariantSet minedInvs = synMain.minePOInvariants(
+                opts.useTransitiveClosureMining, traceGraph);
+
+        logger.info("Mined " + minedInvs.numInvariants() + " invariants");
+
+        if (opts.dumpInvariants) {
+            logger.info("Mined invariants:\n" + minedInvs.toPrettyString());
+        }
+
+        if (minedInvs.numInvariants() == 0) {
+            logger.info("Mined 0 Synoptic invariants. Stopping.");
+            return;
         }
 
         // ////////////////// Use Synoptic event nodes and ordering constraints
@@ -322,42 +322,8 @@ public class DynopticMain {
         // obsDAGNodes (to contain obsFSMStates and encode dependencies between
         // them), and an ObsDag per execution parsed from the log.
 
-        // TODO
-
-        int pid = 0;
-        ObsDAGNode node, nextNode = null, prevNode = null;
-        ObsFSMState s;
-        Event obsEvent = null;
-
-        List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>();
-
-        // A map of trace id to the set of initial nodes in the trace.
-        Map<Integer, Set<EventNode>> traceIdToInitNodes = traceGraph
-                .getTraceIdToInitNodes();
-
-        for (int traceId = 0; traceId < traceGraph.getNumTraces(); traceId++) {
-            assert traceIdToInitNodes.containsKey(traceId);
-
-            Set<EventNode> initSynNodes = traceIdToInitNodes.get(traceId);
-
-            /*
-             * TODO: build a Dynoptic DAG from the Synoptic DAG.
-             * 
-             * s = ObsFSMState.ObservedInitialFSMState(pid);
-             * ObsFSMState.ObservedIntermediateFSMState(pid);
-             * ObsFSMState.ObservedInitialTerminalFSMState(pid);
-             * 
-             * node = new ObsDAGNode(s); node.addDependency(prevNode);
-             * node.addTransition(obsEvent, nextNode);
-             */
-            List<ObsDAGNode> initDagConfig = new ArrayList<ObsDAGNode>();
-            List<ObsDAGNode> termDagConfig = new ArrayList<ObsDAGNode>();
-
-            ObsDAG dag = new ObsDAG(initDagConfig, termDagConfig, channelIds);
-
-            ObsFifoSys fifoSys = dag.getObsFifoSys();
-            traces.add(fifoSys);
-        }
+        List<ObsFifoSys> traces = synTraceGraphToDynObsFifoSys(traceGraph,
+                numProcesses, parsedEvents);
 
         // /////////////////// Express Synoptic invariants as Dynoptic
         // invariants.
@@ -368,7 +334,12 @@ public class DynopticMain {
         for (ITemporalInvariant inv : minedInvs) {
             BinaryInvariant binv = (BinaryInvariant) inv;
 
-            assert (binv.getFirst() instanceof DistEventType);
+            if (!(binv.getFirst() instanceof DistEventType)) {
+                assert (binv.getFirst() instanceof StringEventType);
+                assert (inv instanceof AlwaysFollowedInvariant);
+                assert binv.getFirst().isInitialEventType();
+            }
+
             assert (binv.getSecond() instanceof DistEventType);
 
             if (binv.getFirst().isInitialEventType()) {
@@ -376,7 +347,6 @@ public class DynopticMain {
                 // in the traces and is therefore not recorded in the eTypesMap.
                 dynETypeFirst = DistEventType.INITIALEventType;
             } else {
-
                 dynETypeFirst = ((DistEventType) binv.getFirst());
             }
             dynETypeSecond = ((DistEventType) binv.getSecond());
@@ -419,6 +389,8 @@ public class DynopticMain {
         // We checked above that the number of mined Dynoptic invariants is
         // non-zero.
         dynoptic.invariants.BinaryInvariant curInv = invIter.next();
+
+        logger.info("Model checking " + curInv.toString());
         while (true) {
             // Get the CFSM corresponding to the partition graph.
             CFSM cfsm = pGraph.getCFSM();
@@ -442,6 +414,7 @@ public class DynopticMain {
                 }
                 // Check the next invariant.
                 curInv = invIter.next();
+                logger.info("Model checking " + curInv.toString());
             } else {
                 CounterExample cExample = result.getCExample();
 
@@ -456,25 +429,140 @@ public class DynopticMain {
         // TODO.
     }
 
-    // //////////////////////////////////////////////////////////////////
-
     /**
-     * Interprets a Synoptic DistEventType and returns a corresponding Dynoptic
-     * EventType.
+     * Uses Synoptic event nodes and ordering constraints between these to
+     * generate ObsFSMStates (anonymous states), obsDAGNodes (to contain
+     * obsFSMStates and encode dependencies between them), and an ObsDag per
+     * execution parsed from the log.
+     * 
+     * @param traceGraph
+     * @param numProcesses
+     * @param parsedEvents
+     * @return
      */
-    // private EventType parseEventType(EventNode eNode) {
+    public List<ObsFifoSys> synTraceGraphToDynObsFifoSys(
+            DAGsTraceGraph traceGraph, int numProcesses,
+            List<EventNode> parsedEvents) {
+        List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>();
 
-    // }
+        // Maps an observed event to the generated ObsDAGNode that emits the
+        // event in the Dynoptic DAG.
+        Map<Event, ObsDAGNode> preEventNodesMap = new LinkedHashMap<Event, ObsDAGNode>();
 
-    /** Finds an returns a ChannelId by name. Returns null if none is found. */
-    private ChannelId getChIdByName(String name) {
-        for (ChannelId cid : channelIds) {
-            if (cid.getName().equals(name)) {
-                return cid;
+        // Build a Dynoptic ObsDAG for each Synoptic trace DAG.
+        for (int traceId = 0; traceId < traceGraph.getNumTraces(); traceId++) {
+            preEventNodesMap.clear();
+
+            // These contain the initial and terminal configurations in terms of
+            // process states. These are used to construct the ObsDAG.
+            List<ObsDAGNode> initDagCfg = Arrays
+                    .asList(new ObsDAGNode[numProcesses]);
+            // new ArrayList<ObsDAGNode>(
+            // numProcesses);
+            // initDagCfg.addAll(Collections.nCopies(numProcesses, null));
+
+            List<ObsDAGNode> termDagCfg = Arrays
+                    .asList(new ObsDAGNode[numProcesses]);
+            // new ArrayList<ObsDAGNode>(
+            // numProcesses);
+
+            // Maps a pid to the first event node for that pid.
+            List<EventNode> pidInitialNodes = Arrays
+                    .asList(new EventNode[numProcesses]);
+            // new ArrayList<EventNode>(
+            // numProcesses);
+
+            // Populate the pidInitialNodes list.
+            for (EventNode eNode : parsedEvents) {
+                // Skip nodes from other traces.
+                if (eNode.getTraceID() != traceId) {
+                    continue;
+                }
+
+                Event e = eNode.getEvent();
+                int ePid = ((DistEventType) e.getEType()).getEventPid();
+
+                if (pidInitialNodes.get(ePid) == null
+                        || eNode.getTime().lessThan(
+                                pidInitialNodes.get(ePid).getTime())) {
+                    pidInitialNodes.set(ePid, eNode);
+                }
             }
+
+            // Walk the per-process chain starting at the initial node, and
+            // create the corresponding Dynoptic states (without remote
+            // dependencies).
+            for (int pid = 0; pid < numProcesses; pid++) {
+                EventNode eNode = pidInitialNodes.get(pid);
+                assert eNode != null;
+
+                ObsFSMState obsState = ObsFSMState.ObservedInitialFSMState(pid);
+                ObsDAGNode prevNode = new ObsDAGNode(obsState);
+
+                initDagCfg.set(pid, prevNode);
+
+                while (eNode != null) {
+                    Event e = eNode.getEvent();
+
+                    obsState = ObsFSMState.ObservedIntermediateFSMState(pid);
+                    ObsDAGNode nextNode = new ObsDAGNode(obsState);
+
+                    prevNode.addTransition(e, nextNode);
+                    preEventNodesMap.put(e, prevNode);
+
+                    prevNode = nextNode;
+                    eNode = eNode.getProcessLocalSuccessor();
+                }
+                termDagCfg.set(pid, prevNode);
+                obsState.markTerm();
+            }
+
+            // Walk the same chains as above, but now record the remote
+            // dependencies between events as dependencies between states.
+            for (int pid = 0; pid < numProcesses; pid++) {
+                EventNode eNode = pidInitialNodes.get(pid);
+
+                while (eNode != null) {
+                    Event e = eNode.getEvent();
+
+                    // Record remote dependencies.
+                    for (EventNode eNodeSucc : eNode.getAllSuccessors()) {
+                        if (eNodeSucc.isTerminal()) {
+                            continue;
+                        }
+                        Event eSucc = eNodeSucc.getEvent();
+                        int eSuccPid = ((DistEventType) eSucc.getEType())
+                                .getEventPid();
+
+                        if (eSuccPid != pid) {
+                            assert preEventNodesMap.containsKey(e);
+                            if (!preEventNodesMap.containsKey(eSucc)) {
+
+                                assert preEventNodesMap.containsKey(eSucc);
+
+                            }
+                            // post-state of eSucc depends on the post-state of
+                            // e having occurred.
+                            ObsDAGNode eSuccPost = preEventNodesMap.get(eSucc)
+                                    .getNextState();
+                            ObsDAGNode ePost = preEventNodesMap.get(e)
+                                    .getNextState();
+                            eSuccPost.addRemoteDependency(ePost);
+                        }
+                    }
+
+                    eNode = eNode.getProcessLocalSuccessor();
+                }
+            }
+
+            ObsDAG dag = new ObsDAG(initDagCfg, termDagCfg, channelIds);
+            ObsFifoSys fifoSys = dag.getObsFifoSys();
+            traces.add(fifoSys);
         }
-        return null;
+        return traces;
     }
+
+    // //////////////////////////////////////////////////////////////////
 
     /**
      * Checks the input Dynoptic options for consistency and omissions.

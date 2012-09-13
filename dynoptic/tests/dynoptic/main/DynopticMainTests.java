@@ -115,4 +115,23 @@ public class DynopticMainTests extends DynopticTest {
         // TODO: FIX ME
         // dyn.run();
     }
+
+    @Test
+    public void runSimpleConcurrencySuccess() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.add("../traces/EndToEndDynopticTests/simple-po-concurrency/trace.txt");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        // Dummy channel spec:
+        args.add("-q");
+        args.add("M:0->1");
+        args.add("-i");
+        args.add("-d");
+        opts = new DynopticOptions(args.toArray(new String[0]));
+        dyn = new DynopticMain(opts);
+        // TODO: FIX ME
+        // dyn.run();
+    }
 }

@@ -507,10 +507,10 @@ public class SynopticMain {
     static public DAGsTraceGraph genDAGsTraceGraph(TraceParser parser,
             List<EventNode> parsedEvents) throws ParseException {
         long startTime = loggerInfoStart("Generating inter-event temporal relation...");
-        DAGsTraceGraph inputGraph = parser
+        DAGsTraceGraph traceGraph = parser
                 .generateDirectPORelation(parsedEvents);
         loggerInfoEnd("Generating temporal relation took ", startTime);
-        return inputGraph;
+        return traceGraph;
     }
 
     /**

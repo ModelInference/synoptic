@@ -1156,8 +1156,10 @@ public class TraceParser {
         Set<EventNode> directSuccessors;
         for (String partition : partitions.keySet()) {
             List<EventNode> group = partitions.get(partition);
+
             for (EventNode e1 : group) {
-                // In partially ordered case there may be multiple direct
+
+                // In the partially ordered case there may be multiple direct
                 // successors.
                 try {
                     directSuccessors = EventNode.getDirectPOSuccessors(e1,
@@ -1195,7 +1197,6 @@ public class TraceParser {
         }
 
         // Mark messages without a predecessor as initial.
-
         for (EventNode e : noPredecessor) {
             assert allEventRelations.get(e).size() == 1;
             String r = allEventRelations.get(e).iterator().next().getRelation();
