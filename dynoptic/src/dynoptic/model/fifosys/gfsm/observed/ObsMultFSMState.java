@@ -26,11 +26,11 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
 
     @Override
     public String toString() {
-        String ret = "[";
+        String ret = "";
         for (ObsFSMState s : fsmStates) {
-            ret = ret + "," + s.toString();
+            ret += ", " + s.toString();
         }
-        return ret + "]";
+        return "FSMStates[" + ret.substring(2) + "]";
     }
 
     @Override

@@ -34,6 +34,9 @@ public class ObsDAG {
         assert termDagConfig != null;
         assert channelIds != null;
 
+        assert initDagConfig.size() > 0;
+        assert termDagConfig.size() > 0;
+
         this.initDagConfig = initDagConfig;
         this.termDagConfig = termDagConfig;
         this.channelIds = channelIds;

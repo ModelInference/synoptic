@@ -31,10 +31,10 @@ public class ObsFSMState {
     // final boolean isAnon;
 
     // Whether or not this state is an initial state.
-    final private boolean isInitial;
+    private boolean isInitial;
 
     // Whether or not this state is a terminal state in a trace.
-    final private boolean isTerminal;
+    private boolean isTerminal;
 
     // The string representation of this state.
     final private String name;
@@ -146,6 +146,14 @@ public class ObsFSMState {
 
     public int getPid() {
         return pid;
+    }
+
+    public void markInit() {
+        this.isInitial = true;
+    }
+
+    public void markTerm() {
+        this.isTerminal = true;
     }
 
     public boolean isInitial() {

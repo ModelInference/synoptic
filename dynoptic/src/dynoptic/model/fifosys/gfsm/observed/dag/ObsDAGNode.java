@@ -1,5 +1,6 @@
 package dynoptic.model.fifosys.gfsm.observed.dag;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
@@ -32,33 +33,71 @@ public class ObsDAGNode {
     // not occurred yet in the trace then this state cannot occur. This set only
     // includes remote dependencies -- states at other processes (since locally,
     // this state trivially depends only on the preceding state).
-    private Set<ObsDAGNode> remoteDependencies;
+    private Set<ObsDAGNode> remoteDependencies = new LinkedHashSet<ObsDAGNode>();
 
     // The states for which _this_ state is a dependency (i.e., this state
     // appears in these states' remoteDependencies set).
-    private Set<ObsDAGNode> remoteEnabledStates;
+    // private Set<ObsDAGNode> remoteEnabledStates;
 
     // Whether or not this state has occurred in a trace simulation.
     private boolean occurredInSym = false;
 
-    public ObsDAGNode(ObsFSMState state) {
-        this.obsState = state;
+    public ObsDAGNode(ObsFSMState obsState) {
+        this.obsState = obsState;
     }
 
-    /** Use this method to set the event and state that followed this state. */
-    public void addTransition(Event event, ObsDAGNode followState) {
+    // //////////////////////////////////////////////////////////////////
+
+    /**
+     * Sets the event and the state (local to the same process) that followed
+     * this state.
+     */
+    public void addTransition(Event event, ObsDAGNode nextState_) {
         assert !obsState.isTerminal();
         assert event != null;
-        assert followState != null;
+        assert nextState_ != null;
         assert this.nextEvent == null;
         assert this.nextState == null;
         assert ((DistEventType) event.getEType()).getEventPid() == getPid();
-        assert followState.getPid() == getPid();
+        assert nextState_.getPid() == getPid();
 
         this.nextEvent = event;
-        this.nextState = followState;
-        followState.setPrevState(this);
+        this.nextState = nextState_;
+        nextState_.setPrevState(this);
     }
+
+    /**
+     * Sets the state (local to the same process) that occurred immediately
+     * before this state (set by addTransition).
+     */
+    protected void setPrevState(ObsDAGNode prevState) {
+        assert !obsState.isInitial();
+        assert this.prevState == null;
+        assert prevState != null;
+        assert prevState.getPid() == getPid();
+
+        this.prevState = prevState;
+    }
+
+    /**
+     * Records a dependency from a remote state -- a state at some other process
+     * that must occur before this state can occur.
+     */
+    public void addRemoteDependency(ObsDAGNode newDep) {
+        assert !remoteDependencies.contains(newDep);
+        assert newDep.getPid() != getPid();
+
+        remoteDependencies.add(newDep);
+    }
+
+    /** Used during execution simulation to mark this state as having occurred. */
+    public void setOccurred(boolean hasOccurred) {
+        assert isInitialized();
+
+        occurredInSym = hasOccurred;
+    }
+
+    // //////////////////////////////////////////////////////////////////
 
     public ObsFSMState getObsState() {
         return obsState;
@@ -86,36 +125,15 @@ public class ObsDAGNode {
         return prevState;
     }
 
-    public void setPrevState(ObsDAGNode prevState) {
-        assert !obsState.isInitial();
-        assert this.prevState == null;
-        assert prevState != null;
-        assert prevState.getPid() == getPid();
-
-        this.prevState = prevState;
-    }
-
-    public void addDependency(ObsDAGNode newDep) {
-        assert !remoteDependencies.contains(newDep);
-        assert newDep.getPid() != getPid();
-
-        remoteDependencies.add(newDep);
-    }
-
-    public Set<ObsDAGNode> getRemoteEnabledStates() {
-        return remoteEnabledStates;
-    }
+    /*
+     * public Set<ObsDAGNode> getRemoteEnabledStates() { return
+     * remoteEnabledStates; }
+     */
 
     public boolean hasOccurred() {
         assert isInitialized();
 
         return occurredInSym;
-    }
-
-    public void setOccurred(boolean newOccurred) {
-        assert isInitialized();
-
-        occurredInSym = newOccurred;
     }
 
     /**
@@ -132,7 +150,7 @@ public class ObsDAGNode {
 
         // Previous local state has not occurred -- therefore the local
         // dependency is not satisfied.
-        if (prevState != null && prevState.hasOccurred()) {
+        if (prevState != null && !prevState.hasOccurred()) {
             return false;
         }
 
@@ -152,6 +170,11 @@ public class ObsDAGNode {
 
     public boolean isTermState() {
         return obsState.isTerminal();
+    }
+
+    @Override
+    public String toString() {
+        return "ObsDAGNode[" + obsState.toString() + "]";
     }
 
     // //////////////////////////////////////////////////////////////////

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import synoptic.main.SynopticMain;
+import synoptic.model.event.DistEventType;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
@@ -46,6 +47,23 @@ public class EventNode implements INode<EventNode> {
      * may therefore appear in multiple sets.
      */
     LinkedHashMap<String, Set<Transition<EventNode>>> transitionsWithRelation = new LinkedHashMap<String, Set<Transition<EventNode>>>();
+
+    /**
+     * The process local successor node -- node with closest larger timestamp
+     * corresponding to the same process as this node. This is set during
+     * immediate successor computation and is used by Dynoptic
+     */
+    private EventNode processLocalSucc = null;
+
+    private void setProcessLocalSuccessor(EventNode processLocalSucc) {
+        assert this.processLocalSucc == null;
+
+        this.processLocalSucc = processLocalSucc;
+    }
+
+    public EventNode getProcessLocalSuccessor() {
+        return processLocalSucc;
+    }
 
     /**
      * Updates the transition probabilities of all the transitions emitted from
@@ -157,10 +175,31 @@ public class EventNode implements INode<EventNode> {
             }
         }
 
+        // ///////////////// Dynoptic-related:
+        // As we search for direct successors, we also find the nearest
+        // process-local successor. This is used by Dynoptic.
+        //
+        // NOTE: for this to work, the DistEventType must be first interpreted
+        // with interpretEType()
+        int localPid = ((DistEventType) e1.getEType()).getEventPid();
+        EventNode processLocalSucc = null;
+        // /////////////////
+
         // Now out of all successors find all direct successors of e1.
         for (EventNode e1Succ1 : e1AllSuccessors) {
-            boolean directSuccessor = true; // whether or not e1Succ1 is
-                                            // a direct successor of e2
+            // Whether or not e1Succ1 is a direct successor of e2.
+            boolean directSuccessor = true;
+
+            // ///////////////// Dynoptic-related:
+            if (((DistEventType) e1Succ1.getEType()).getEventPid() == localPid) {
+                if (processLocalSucc == null
+                        || e1Succ1.getTime().lessThan(
+                                processLocalSucc.getTime())) {
+                    processLocalSucc = e1Succ1;
+                }
+            }
+            // /////////////////
+
             for (EventNode e1Succ2 : e1AllSuccessors) {
                 if (e1Succ1 == e1Succ2) {
                     continue;
@@ -175,6 +214,9 @@ public class EventNode implements INode<EventNode> {
                 e1DirectSuccessors.add(e1Succ1);
             }
         }
+
+        // ///////////////// Dynoptic-related:
+        e1.setProcessLocalSuccessor(processLocalSucc);
 
         return e1DirectSuccessors;
     }
