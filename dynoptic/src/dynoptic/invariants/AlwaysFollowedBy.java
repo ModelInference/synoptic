@@ -11,7 +11,7 @@ public class AlwaysFollowedBy extends BinaryInvariant {
 
     @Override
     public String scmBadStateQRe() {
-        super.scmBadStateQRe();
+        checkInitialized();
 
         // There is an 'a' that is preceded by 'a' or 'b' but is not followed
         // any later by any 'b', though it might be followed by more a's.

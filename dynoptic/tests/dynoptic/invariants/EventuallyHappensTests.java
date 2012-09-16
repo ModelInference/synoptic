@@ -30,6 +30,7 @@ public class EventuallyHappensTests extends AbsInvTesting {
         EventuallyHappens inv = new EventuallyHappens(e1);
         inv.getFirst().equals(DistEventType.INITIALEventType);
         inv.getSecond().equals(e1);
+        inv.getEvent().equals(e1);
     }
 
     @Test

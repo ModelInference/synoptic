@@ -11,7 +11,7 @@ public class NeverFollowedBy extends BinaryInvariant {
 
     @Override
     public String scmBadStateQRe() {
-        super.scmBadStateQRe();
+        checkInitialized();
 
         // There is an 'a', preceded by any number of 'a' or 'b', but which is
         // followed by at least one 'b'. This last 'b' can be intermingled in
