@@ -71,8 +71,8 @@ public class ChannelIdTests extends DynopticTest {
     public void localEventsChannelId() {
         LocalEventsChannelId cid = new LocalEventsChannelId(42);
 
-        assertEquals(cid.getSrcPid(), Integer.MAX_VALUE);
-        assertEquals(cid.getDstPid(), Integer.MAX_VALUE);
+        assertEquals(cid.getSrcPid(), 0);
+        assertEquals(cid.getDstPid(), 0);
         assertEquals(cid.getScmId(), 42);
         logger.info(cid.toString());
         cid.hashCode();

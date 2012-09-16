@@ -1,8 +1,8 @@
 package dynoptic.model.fifosys.channel.channelid;
 
-import synoptic.model.channelid.ChannelId;
-
 import dynoptic.invariants.BinaryInvariant;
+
+import synoptic.model.channelid.ChannelId;
 
 /**
  * Represent a channel that is used to track events that are relevant to model
@@ -16,8 +16,10 @@ public class InvChannelId extends ChannelId {
     private BinaryInvariant inv;
 
     public InvChannelId(BinaryInvariant inv, int scmId) {
-        super(inv.getFirst().getEventPid(), inv.getFirst().getEventPid(),
-                scmId, "ch-[" + inv.toString() + "]");
+        // NOTE: since the McScM model checker allows all processes to access
+        // all channels, it does not matter which pids we use here, so we use
+        // the arbitrary value of 0 for both srcPid and dstPid.
+        super(0, 0, scmId, "ch-[" + inv.toString() + "]");
         this.inv = inv;
     }
 

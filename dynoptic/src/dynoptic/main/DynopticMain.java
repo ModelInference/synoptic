@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import mcscm.CounterExample;
 import mcscm.McScM;
 import mcscm.VerifyResult;
 import dynoptic.invariants.AlwaysFollowedBy;
@@ -21,6 +20,7 @@ import dynoptic.invariants.AlwaysPrecedes;
 import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.model.fifosys.cfsm.CFSM;
+import dynoptic.model.fifosys.gfsm.CExamplePath;
 import dynoptic.model.fifosys.gfsm.GFSM;
 import dynoptic.model.fifosys.gfsm.GFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
@@ -416,9 +416,21 @@ public class DynopticMain {
                 curInv = invIter.next();
                 logger.info("Model checking " + curInv.toString());
             } else {
-                CounterExample cExample = result.getCExample();
+                // Refine the pGraph to eliminate cExample.
 
-                // TODO: refine the pGraph to eliminate cExample.
+                // Match the sequence of events in the counter-example to
+                // paths of corresponding GFSM states.
+                List<CExamplePath> paths = pGraph.getCExamplePath(result
+                        .getCExample());
+
+                for (CExamplePath path : paths) {
+                    logger.info("Resolving " + path.toString());
+                    path.resolve(curInv, pGraph);
+                    if (!path.isResolved()) {
+                        throw new Exception("Cannot resolve " + path.toString()
+                                + " for " + curInv.toString());
+                    }
+                }
 
             }
         }

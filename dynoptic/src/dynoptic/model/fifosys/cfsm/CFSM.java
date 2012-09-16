@@ -231,16 +231,17 @@ public class CFSM extends FifoSys<CFSMState> {
 
             // Check that the FSM alphabet conforms to the expected number of
             // processes.
+            int ppid;
             for (DistEventType e : fsm.getAlphabet()) {
                 if (e.isCommEvent()) {
-                    pid = e.getChannelId().getDstPid();
-                    assert pid >= 0 && pid < numProcesses;
+                    ppid = e.getChannelId().getDstPid();
+                    assert ppid >= 0 && ppid < numProcesses;
 
-                    pid = e.getChannelId().getSrcPid();
-                    assert pid >= 0 && pid < numProcesses;
+                    ppid = e.getChannelId().getSrcPid();
+                    assert ppid >= 0 && ppid < numProcesses;
                 } else {
-                    pid = e.getEventPid();
-                    assert pid >= 0 && pid < numProcesses;
+                    ppid = e.getEventPid();
+                    assert ppid >= 0 && ppid < numProcesses;
                 }
             }
         }
@@ -253,22 +254,22 @@ public class CFSM extends FifoSys<CFSMState> {
 
     /** Augment this CFSM with an AP invariant for model checking. */
     public void augmentWithInvTracing(BinaryInvariant binv) {
-        augmentWithInvTracingGeneric(binv);
+        augmentWithBinInvTracing(binv);
     }
 
     /** Augment this CFSM with an AFby invariant for model checking. */
     public void augmentWithInvTracing(AlwaysFollowedBy inv) {
-        augmentWithInvTracingGeneric(inv);
+        augmentWithBinInvTracing(inv);
     }
 
     /** Augment this CFSM with an NFby invariant for model checking. */
     public void augmentWithInvTracing(NeverFollowedBy inv) {
-        augmentWithInvTracingGeneric(inv);
+        augmentWithBinInvTracing(inv);
     }
 
     /** Augment this CFSM with an AP invariant for model checking. */
     public void augmentWithInvTracing(AlwaysPrecedes inv) {
-        augmentWithInvTracingGeneric(inv);
+        augmentWithBinInvTracing(inv);
     }
 
     /**
@@ -288,10 +289,15 @@ public class CFSM extends FifoSys<CFSMState> {
         // Channels:
         // Add a special channel for handling local events, represented as
         // messages on this channel.
-        LocalEventsChannelId localChId = new LocalEventsChannelId(
-                this.channelIds.size());
-        localEventsChIndex = localChId.getScmId();
-        this.channelIds.add(localChId);
+        LocalEventsChannelId localChId;
+        if (localEventsChIndex == Integer.MAX_VALUE) {
+            localChId = new LocalEventsChannelId(this.channelIds.size());
+            localEventsChIndex = localChId.getScmId();
+            this.channelIds.add(localChId);
+        } else {
+            localChId = (LocalEventsChannelId) this.channelIds
+                    .get(localEventsChIndex);
+        }
 
         ret += "nb_channels = " + channelIds.size() + " ;\n";
         ret += "/*\n";
@@ -360,7 +366,7 @@ public class CFSM extends FifoSys<CFSMState> {
      * this channel to keep track of the two events that are part of the binary
      * invariant inv. Adds the synthetic events to the CFSM alphabet.
      */
-    private void augmentWithInvTracingGeneric(BinaryInvariant inv) {
+    private void augmentWithBinInvTracing(BinaryInvariant inv) {
         DistEventType e1 = inv.getFirst();
         DistEventType e2 = inv.getSecond();
 
@@ -379,9 +385,6 @@ public class CFSM extends FifoSys<CFSMState> {
         }
 
         // Create and add a new invariant-specific channel.
-        //
-        // NOTE: since the McScM model checker allows all processes to access
-        // all channels, it does not matter which pids we use here.
         ChannelId invCid = new InvChannelId(inv, scmId);
         this.channelIds.add(invCid);
 
@@ -441,19 +444,25 @@ public class CFSM extends FifoSys<CFSMState> {
             DistEventType eTracer2, Set<FSMState> visited) {
         visited.add(parent);
 
-        for (DistEventType e : parent.getTransitioningEvents()) {
-            if (e.equals(eToTrace)) {
-                for (FSMState child : parent.getNextStates(e)) {
-                    if (visited.contains(child)) {
-                        continue;
-                    }
-
-                    f.addSyntheticState(parent, child, eToTrace, eTracer1,
-                            eTracer2);
-                    recurseAddSendToEventTx(f, child, eToTrace, eTracer1,
-                            eTracer2, visited);
+        // If there is a transition on to-trace event, then perform the
+        // re-writing.
+        if (parent.getTransitioningEvents().contains(eToTrace)) {
+            for (FSMState child : parent.getNextStates(eToTrace)) {
+                if (visited.contains(child)) {
+                    continue;
                 }
-            } else {
+
+                f.addSyntheticState(parent, child, eToTrace, eTracer1, eTracer2);
+                recurseAddSendToEventTx(f, child, eToTrace, eTracer1, eTracer2,
+                        visited);
+            }
+        }
+
+        for (DistEventType e : parent.getTransitioningEvents()) {
+            // Now handle all the non-to-trace events. Note, however, that these
+            // have been re-written above with eTracer1 events, so this is what
+            // we check for.
+            if (!e.equals(eTracer1)) {
                 for (FSMState next : parent.getNextStates(e)) {
                     if (visited.contains(next)) {
                         continue;

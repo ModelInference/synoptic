@@ -112,8 +112,7 @@ public class DynopticMainTests extends DynopticTest {
         args.add("-d");
         opts = new DynopticOptions(args.toArray(new String[0]));
         dyn = new DynopticMain(opts);
-        // TODO: FIX ME
-        // dyn.run();
+        dyn.run();
     }
 
     @Test
@@ -124,14 +123,12 @@ public class DynopticMainTests extends DynopticTest {
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-s");
         args.add("^--$");
-        // Dummy channel spec:
         args.add("-q");
         args.add("M:0->1");
         args.add("-i");
         args.add("-d");
         opts = new DynopticOptions(args.toArray(new String[0]));
         dyn = new DynopticMain(opts);
-        // TODO: FIX ME
-        // dyn.run();
+        dyn.run();
     }
 }

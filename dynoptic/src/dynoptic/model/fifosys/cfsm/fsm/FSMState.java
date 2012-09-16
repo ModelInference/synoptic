@@ -182,7 +182,10 @@ public class FSMState extends AbsFSMState<FSMState> {
         }
 
         // Make sure that we haven't added this transition to s on e before.
-        assert !following.contains(s);
+        if (following.contains(s)) {
+            // assert !following.contains(s);
+            return;
+        }
         following.add(s);
     }
 

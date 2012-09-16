@@ -39,9 +39,6 @@ public class ObsFSMState {
     // The string representation of this state.
     final private String name;
 
-    // Used to cache the hashCode.
-    final int hashCode;
-
     // TODO: For non-anon states include things like line number and filename,
     // and so forth.
 
@@ -95,8 +92,6 @@ public class ObsFSMState {
         this.isInitial = isInit;
         this.isTerminal = isTerminal;
         this.name = name;
-
-        this.hashCode = initHashCode();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -108,7 +103,12 @@ public class ObsFSMState {
 
     @Override
     public int hashCode() {
-        return hashCode;
+        int result = 17;
+        result = 31 * result + (isInitial ? 1231 : 1237);
+        result = 31 * result + (isTerminal ? 1231 : 1237);
+        result = 31 * result + pid;
+        result = 31 * result + name.hashCode();
+        return result;
     }
 
     @Override
@@ -121,7 +121,6 @@ public class ObsFSMState {
         }
         if (!(other instanceof ObsFSMState)) {
             return false;
-
         }
         ObsFSMState otherF = (ObsFSMState) other;
         if (otherF.isInitial() != isInitial) {
@@ -166,16 +165,5 @@ public class ObsFSMState {
 
     public String getName() {
         return name;
-    }
-
-    // //////////////////////////////////////////////////////////////////
-
-    private int initHashCode() {
-        int result = 17;
-        result = 31 * result + (isInitial ? 1231 : 1237);
-        result = 31 * result + (isTerminal ? 1231 : 1237);
-        result = 31 * result + pid;
-        result = 31 * result + name.hashCode();
-        return result;
     }
 }
