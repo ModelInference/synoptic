@@ -41,7 +41,7 @@ public class McScMCFSMTests extends CFSMTesting {
 
     public VerifyResult verifyAndPrint() throws IOException,
             InterruptedException {
-        String cStr = cfsm.toScmString();
+        String cStr = cfsm.toScmString("test");
 
         mcscm.verify(cStr);
         logger.info(cStr);

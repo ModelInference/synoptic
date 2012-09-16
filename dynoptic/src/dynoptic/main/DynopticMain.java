@@ -398,7 +398,8 @@ public class DynopticMain {
             cfsm.augmentWithInvTracing(curInv);
 
             // Model check the CFSM using the McScM model checker.
-            String cStr = cfsm.toScmString();
+            String cStr = cfsm.toScmString("checking_"
+                    + curInv.getConnectorString());
             mcscm.verify(cStr);
             logger.info(cStr);
 

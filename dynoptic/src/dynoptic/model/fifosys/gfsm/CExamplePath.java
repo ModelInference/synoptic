@@ -9,8 +9,11 @@ import java.util.Random;
 import java.util.Set;
 
 import mcscm.CounterExample;
+import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.AlwaysPrecedes;
 import dynoptic.invariants.BinaryInvariant;
+import dynoptic.invariants.EventuallyHappens;
+import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
 import synoptic.model.event.DistEventType;
@@ -100,131 +103,170 @@ public class CExamplePath {
     public void resolve(BinaryInvariant inv, GFSM pGraph) {
         assert this.isInitialized;
 
-        // For x AP y, the path includes a y without a preceding x.
-        // Refine the state that emits the y to eliminate the
-        // counter-example path.
         if (inv instanceof AlwaysPrecedes) {
-            DistEventType y = inv.getSecond();
-            assert eToSrcStateIndexMap.containsKey(y);
-
-            // The partition that emits the event y.
-            int yPartSrcIndex = eToSrcStateIndexMap.get(y);
-            GFSMState yPartSrc = path.get(yPartSrcIndex);
-
-            // The set of observations in yPartSrc that emit y.
-            Set<ObsFifoSysState> yObsSources = yPartSrc
-                    .getObservedStatesWithTransition(y);
-
-            // The simple case is when y is emitted by an observed state whose
-            // parent is not in the preceding (along c-example path) partition.
-            // Therefore, we can refine ySrc to isolate the y from any observed
-            // states that do have a parent in the preceding partition.
-            //
-            // The more advanced case is when ySrc does have a parent in the
-            // preceding partition, so we have to track back this chain until we
-            // find a stitching.
-            //
-            // A few more complications we deal with:
-            // - There might be multiple observed states that emit y.
-            // - The stitching might be in the first partition, so we have to
-            // separate initial observed states from non-initials.
-            // - The stitching might be in the last partition, so we have to
-            // separate terminal/accepting observed states from the
-            // non-terminals.
-
-            // Determine the partition to refine, by tracking back each
-            // observation that emits y from this partition along the
-            // counter-example path and identifying the partition where the
-            // observation was 'stitched' onto another observation. The
-            // partition of this kind that has minimal index (first along the
-            // path) is the one we refine.
-            int minLastStitchPartIndex = path.size();
-            for (ObsFifoSysState s : yObsSources) {
-                int i = findMinStitchPartIndex(yPartSrcIndex, s);
-                if (i < minLastStitchPartIndex) {
-                    minLastStitchPartIndex = i;
-                }
-            }
-
-            // //////////
-            // Now refine the partition at minLastStitchPartIndex. The goal is
-            // to isolate setLeft and setRight of observations in this
-            // partition.
-
-            // Construct setRight.
-            Set<ObsFifoSysState> setRight;
-
-            GFSMState part = path.get(minLastStitchPartIndex);
-
-            if (minLastStitchPartIndex == path.size()) {
-                // Part is the last (terminal) partition in path, so we want to
-                // isolate the observations that allow the counter-example path
-                // to terminate at this partition from events that have
-                // transitioned the path into this partition.
-                setRight = part.getTerminalObservations();
-            } else {
-                // Construct setRight to contain observations that transition
-                // from part to partNext in the counter-example path.
-                setRight = new LinkedHashSet<ObsFifoSysState>();
-                DistEventType eNext = cExample.getEvents().get(
-                        minLastStitchPartIndex);
-                GFSMState partNext = path.get(minLastStitchPartIndex + 1);
-                for (ObsFifoSysState s : part
-                        .getObservedStatesWithTransition(eNext)) {
-                    if (s.getNextState(eNext).getParent() == partNext) {
-                        setRight.add(s);
-                    }
-                }
-            }
-
-            // Construct setLeft.
-            Set<ObsFifoSysState> setLeft;
-
-            if (minLastStitchPartIndex == 0) {
-                // Part is the first (initial) partition in path, so we want to
-                // isolate the initial observations in this partition from those
-                // that generate the counter-example path.
-                setLeft = part.getInitialObservations();
-            } else {
-                // As above for determining setRight, but we head to the left
-                // and build a set of observations in part that can be reached
-                // from the previous partition along the counter-example path.
-
-                setLeft = new LinkedHashSet<ObsFifoSysState>();
-
-                DistEventType ePrev = cExample.getEvents().get(
-                        minLastStitchPartIndex - 1);
-                GFSMState partPrev = path.get(minLastStitchPartIndex - 1);
-                for (ObsFifoSysState s : partPrev
-                        .getObservedStatesWithTransition(ePrev)) {
-                    if (s.getNextState(ePrev).getParent() == part) {
-                        setLeft.add(s.getNextState(ePrev));
-                    }
-                }
-            }
-
-            // We know that setLeft and setRight have to be isolated, but what
-            // about the observations in part that in neither of these two sets?
-            // Our strategy is to assign them at random, either to setLeft or
-            // setRight (and hope for the best).
-            Random rand = new Random();
-
-            for (ObsFifoSysState s : part.getObservedStates()) {
-                if (!setLeft.contains(s) && !setRight.contains(s)) {
-                    // Assign s to setLeft or setRight at random.
-                    if (rand.nextInt(2) == 0) {
-                        setLeft.add(s);
-                    } else {
-                        setRight.add(s);
-                    }
-                }
-            }
-
-            // Perform the refinement.
-            pGraph.refine(part, setRight);
-            this.isResolved = true;
+            resolve((AlwaysPrecedes) inv, pGraph);
+        } else if (inv instanceof AlwaysFollowedBy) {
+            resolve((AlwaysFollowedBy) inv, pGraph);
+        } else if (inv instanceof NeverFollowedBy) {
+            resolve((NeverFollowedBy) inv, pGraph);
+        } else if (inv instanceof EventuallyHappens) {
+            resolve((EventuallyHappens) inv, pGraph);
         }
-        return;
+        this.isResolved = true;
+    }
+
+    /**
+     * Resolves an AFby counter-example. For x AFby y, the path includes an x
+     * without a following y. Refine the state that emits the x, or one of the
+     * following partitions to eliminate the counter-example path.
+     */
+    private void resolve(AlwaysFollowedBy inv, GFSM pGraph) {
+        // TODO
+    }
+
+    /**
+     * Resolves an NFby counter-example. For x NFby y, the path includes an x
+     * that is followed by a y. Refine the partition that emits the x, or if
+     * this is not possible, refine a partition after the partition that emits
+     * the x (but before a y is emitted). This refinement should be possible.
+     */
+    private void resolve(NeverFollowedBy inv, GFSM pGraph) {
+        // TODO
+    }
+
+    /**
+     * Resolves an EventuallyHappens counter-example. For EventuallyHappens y,
+     * the path does not include a y. Refine the first partition that contains a
+     * stitching to the next partition to eliminate the counter-example path.
+     */
+    private void resolve(EventuallyHappens inv, GFSM pGraph) {
+        // TODO
+    }
+
+    /**
+     * Resolves an AP counter-example. For x AP y, the path includes a y without
+     * a preceding x. Refine the state that emits the y to eliminate the
+     * counter-example path.
+     */
+    private void resolve(AlwaysPrecedes inv, GFSM pGraph) {
+        DistEventType y = inv.getSecond();
+        assert eToSrcStateIndexMap.containsKey(y);
+
+        // The partition that emits the event y.
+        int yPartSrcIndex = eToSrcStateIndexMap.get(y);
+        GFSMState yPartSrc = path.get(yPartSrcIndex);
+
+        // The set of observations in yPartSrc that emit y.
+        Set<ObsFifoSysState> yObsSources = yPartSrc
+                .getObservedStatesWithTransition(y);
+
+        // The simple case is when y is emitted by an observed state whose
+        // parent is not in the preceding (along c-example path) partition.
+        // Therefore, we can refine ySrc to isolate the y from any observed
+        // states that do have a parent in the preceding partition.
+        //
+        // The more advanced case is when ySrc does have a parent in the
+        // preceding partition, so we have to track back this chain until we
+        // find a stitching.
+        //
+        // A few more complications we deal with:
+        // - There might be multiple observed states that emit y.
+        // - The stitching might be in the first partition, so we have to
+        // separate initial observed states from non-initials.
+        // - The stitching might be in the last partition, so we have to
+        // separate terminal/accepting observed states from the
+        // non-terminals.
+
+        // Determine the partition to refine, by tracking back each
+        // observation that emits y from this partition along the
+        // counter-example path and identifying the partition where the
+        // observation was 'stitched' onto another observation. The
+        // partition of this kind that has minimal index (first along the
+        // path) is the one we refine.
+        int minLastStitchPartIndex = path.size();
+        for (ObsFifoSysState s : yObsSources) {
+            int i = findMinStitchPartIndex(yPartSrcIndex, s);
+            if (i < minLastStitchPartIndex) {
+                minLastStitchPartIndex = i;
+            }
+        }
+
+        // //////////
+        // Now refine the partition at minLastStitchPartIndex. The goal is
+        // to isolate setLeft and setRight of observations in this
+        // partition.
+
+        // Construct setRight.
+        Set<ObsFifoSysState> setRight;
+
+        GFSMState part = path.get(minLastStitchPartIndex);
+
+        if (minLastStitchPartIndex == path.size()) {
+            // Part is the last (terminal) partition in path, so we want to
+            // isolate the observations that allow the counter-example path
+            // to terminate at this partition from events that have
+            // transitioned the path into this partition.
+            setRight = part.getTerminalObservations();
+        } else {
+            // Construct setRight to contain observations that transition
+            // from part to partNext in the counter-example path.
+            setRight = new LinkedHashSet<ObsFifoSysState>();
+            DistEventType eNext = cExample.getEvents().get(
+                    minLastStitchPartIndex);
+            GFSMState partNext = path.get(minLastStitchPartIndex + 1);
+            for (ObsFifoSysState s : part
+                    .getObservedStatesWithTransition(eNext)) {
+                if (s.getNextState(eNext).getParent() == partNext) {
+                    setRight.add(s);
+                }
+            }
+        }
+
+        // Construct setLeft.
+        Set<ObsFifoSysState> setLeft;
+
+        if (minLastStitchPartIndex == 0) {
+            // Part is the first (initial) partition in path, so we want to
+            // isolate the initial observations in this partition from those
+            // that generate the counter-example path.
+            setLeft = part.getInitialObservations();
+        } else {
+            // As above for determining setRight, but we head to the left
+            // and build a set of observations in part that can be reached
+            // from the previous partition along the counter-example path.
+
+            setLeft = new LinkedHashSet<ObsFifoSysState>();
+
+            DistEventType ePrev = cExample.getEvents().get(
+                    minLastStitchPartIndex - 1);
+            GFSMState partPrev = path.get(minLastStitchPartIndex - 1);
+            for (ObsFifoSysState s : partPrev
+                    .getObservedStatesWithTransition(ePrev)) {
+                if (s.getNextState(ePrev).getParent() == part) {
+                    setLeft.add(s.getNextState(ePrev));
+                }
+            }
+        }
+
+        // We know that setLeft and setRight have to be isolated, but what
+        // about the observations in part that in neither of these two sets?
+        // Our strategy is to assign them at random, either to setLeft or
+        // setRight (and hope for the best).
+        Random rand = new Random();
+
+        for (ObsFifoSysState s : part.getObservedStates()) {
+            if (!setLeft.contains(s) && !setRight.contains(s)) {
+                // Assign s to setLeft or setRight at random.
+                if (rand.nextInt(2) == 0) {
+                    setLeft.add(s);
+                } else {
+                    setRight.add(s);
+                }
+            }
+        }
+
+        // Perform the refinement.
+        pGraph.refine(part, setRight);
     }
 
     /**
