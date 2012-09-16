@@ -79,10 +79,10 @@ public class CounterExample {
 
     // //////////////////////////////////////////////////////////////////
 
-    final List<ChannelId> cids;
+    private final List<ChannelId> cids;
 
     // The sequence of events that makes up the counter-example.
-    List<DistEventType> events;
+    private final List<DistEventType> events;
 
     public CounterExample(List<ChannelId> cids) {
         this.cids = cids;
@@ -104,7 +104,7 @@ public class CounterExample {
 
     @Override
     public String toString() {
-        String ret = "[\n";
+        String ret = "CExample[\n";
         for (DistEventType e : events) {
             ret += "  " + e.toString() + "\n";
         }

@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.AbsMultiFSMState;
@@ -34,6 +35,7 @@ import synoptic.model.event.Event;
  * </p>
  */
 public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
+    static Logger logger = Logger.getLogger("ObsFifoSysState");
 
     // A global cache of previously created ObsFifoSysState instances. This is
     // an optimization to forego duplicating identical fifo states that might be
@@ -47,7 +49,7 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
     /**
      * Returns a cached ObservedFifoSysState instance, if one was previously
      * created with the given FSM states. Otherwise, returns a new instance and
-     * caches it. When looking up an existing FIFO state, the channelStates
+     * caches it. When looking up an existing F1IFO state, the channelStates
      * argument is only used to check that the returned instance has the
      * expected channel state (channel state is determined by the local states
      * of the processes).
@@ -62,6 +64,7 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
         assert channelStates != null;
 
         ObsFifoSysState ret;
+
         if (fifoSysStatesMap.containsKey(fsmStates)) {
             ret = fifoSysStatesMap.get(fsmStates);
             assert ret.getChannelStates().equals(channelStates);

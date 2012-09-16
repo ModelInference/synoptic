@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import synoptic.model.channelid.ChannelId;
 
-
 /**
  * The result of running the McScM verify tool. Contains parsing utilities for
  * parsing the output of the verify tool.

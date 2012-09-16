@@ -45,13 +45,12 @@ public class FSM extends AbsFSM<FSMState> {
 
         if (DynopticMain.assertsOn) {
             // Check that:
-            // 1. all states have unique scm ids.
-            // 2. all states transition only to states in the states collection
-            // 3. all states have a pid that matches the pid of this FSM
-            // 4. all init/accept states are in fact init/accept
+            // 1. all states transition only to states in the states collection
+            // 2. all states have a pid that matches the pid of this FSM
+            // 3. all init/accept states are in fact init/accept
             Set<Integer> scmIds = new LinkedHashSet<Integer>();
             for (FSMState s : states) {
-                assert !scmIds.contains(s.getScmId());
+                // NOTE: states might contain duplicates!
                 scmIds.add(s.getScmId());
                 assert (states.containsAll(s.getNextStates()));
                 assert s.getPid() == pid;
@@ -110,11 +109,21 @@ public class FSM extends AbsFSM<FSMState> {
         return this.pid;
     }
 
+    @Override
+    public String toString() {
+        String ret = "FSM[pid=" + pid + "] states: " + states.toString();
+        ret += ", inits: " + initStates.toString();
+        ret += ", accepts: " + acceptStates.toString();
+        return ret;
+    }
+
     /**
      * Generate SCM representation of this FSM, using a specific channelIds
      * ordering.
      */
     public String toScmString(LocalEventsChannelId localEventsChId) {
+        assert initStates.size() > 0;
+
         String ret;
 
         ret = null;

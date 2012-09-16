@@ -41,7 +41,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
 
     /**
      * Creates a GFSMState based off an observations set that will be _used_
-     * internally
+     * internally.
      */
     public GFSMState(int numProcesses, Set<ObsFifoSysState> observedStates) {
         super(numProcesses);
@@ -56,13 +56,39 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
             }
             obs.setParent(this);
         }
-        recreateCachedTransitions();
+    }
+
+    /** Returns the set of all observations that are initial in this partition. */
+    public Set<ObsFifoSysState> getInitialObservations() {
+        Set<ObsFifoSysState> ret = new LinkedHashSet<ObsFifoSysState>();
+        for (ObsFifoSysState s : observedStates) {
+            if (s.isInitial()) {
+                ret.add(s);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Returns the set of all observations that are accepting/terminal in this
+     * partition.
+     */
+    public Set<ObsFifoSysState> getTerminalObservations() {
+        Set<ObsFifoSysState> ret = new LinkedHashSet<ObsFifoSysState>();
+        for (ObsFifoSysState s : observedStates) {
+            if (s.isAccept()) {
+                ret.add(s);
+            }
+        }
+        return ret;
     }
 
     // //////////////////////////////////////////////////////////////////
 
     @Override
     public boolean isInitial() {
+        // For each pid, this partition must include an initial state
+        // observation for the process with this pid.
         for (int pid = 0; pid < numProcesses; pid++) {
             if (!atLeastOneStatePidEvalTrue(this.observedStates,
                     fnIsInitialForPid, pid)) {
@@ -85,11 +111,18 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
 
     @Override
     public Set<DistEventType> getTransitioningEvents() {
+        if (this.transitions.size() == 0) {
+            recreateCachedTransitions();
+        }
         return transitions.keySet();
     }
 
     @Override
     public Set<GFSMState> getNextStates(DistEventType event) {
+        if (this.transitions.size() == 0) {
+            recreateCachedTransitions();
+        }
+
         assert transitions.containsKey(event);
 
         return transitions.get(event);
@@ -146,7 +179,36 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
 
         observedStates.remove(s);
         s.setParent(null);
-        recreateCachedTransitions();
+        // We cannot re-create the cached transitions at this point since the
+        // other GFSMStates might be in indeterminate state.
+        transitions.clear();
+    }
+
+    /** Removes an observed state from this partition. */
+    public void removeAllObs(Set<ObsFifoSysState> states) {
+        for (ObsFifoSysState s : states) {
+            this.removeObs(s);
+        }
+    }
+
+    /**
+     * Returns the set of all observations mapped to this partition that emit e.
+     */
+    public Set<ObsFifoSysState> getObservedStatesWithTransition(DistEventType e) {
+        Set<ObsFifoSysState> ret = new LinkedHashSet<ObsFifoSysState>();
+        for (ObsFifoSysState s : observedStates) {
+            if (s.getTransitioningEvents().contains(e)) {
+                ret.add(s);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Returns the set of all observations mapped to this partition.
+     */
+    public Set<ObsFifoSysState> getObservedStates() {
+        return observedStates;
     }
 
     // //////////////////////////////////////////////////////////////////

@@ -15,7 +15,7 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
 
     // Observed FSM states tuple. The list is ordered according to process
     // IDs.
-    private List<ObsFSMState> fsmStates;
+    protected List<ObsFSMState> fsmStates;
 
     public ObsMultFSMState(List<ObsFSMState> fsmStates) {
         super(fsmStates.size());
@@ -70,7 +70,14 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
 
     @Override
     public boolean equals(Object o) {
-        return fsmStates.equals(o);
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof ObsMultFSMState)) {
+            return false;
+        }
+        ObsMultFSMState S = (ObsMultFSMState) o;
+        return fsmStates.equals(S.fsmStates);
     }
 
     @Override

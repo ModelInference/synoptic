@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import dynoptic.main.DynopticMain;
-
 import synoptic.model.event.DistEventType;
 
 /**
@@ -32,14 +30,8 @@ public class FSMAlphabet implements Set<DistEventType> {
 
     @Override
     public boolean addAll(Collection<? extends DistEventType> arg0) {
-        if (DynopticMain.assertsOn) {
-            // Make sure that the new set of events we are adding
-            // does not include any events already in the alphabet
-            for (DistEventType e1 : arg0) {
-                assert !events.contains(e1);
-            }
-        }
-
+        // NOTE: we might end up adding the same event multiple times. This is
+        // okay, since the event might occur on different transitions.
         return events.addAll(arg0);
     }
 

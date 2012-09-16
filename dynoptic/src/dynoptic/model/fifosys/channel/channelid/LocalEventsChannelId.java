@@ -21,7 +21,8 @@ public class LocalEventsChannelId extends ChannelId {
     private Map<String, DistEventType> eventStrToDistEventType;
 
     public LocalEventsChannelId(int scmId) {
-        super(Integer.MAX_VALUE, Integer.MAX_VALUE, scmId, "ch-locals");
+        // NOTE: srcPid and dstPid of 0 are arbitrary values.
+        super(0, 0, scmId, "ch-locals");
         eventStrToDistEventType = new LinkedHashMap<String, DistEventType>();
     }
 
@@ -55,7 +56,9 @@ public class LocalEventsChannelId extends ChannelId {
 
     public void addLocalEventString(DistEventType eventType, String eventStr) {
         assert eventType.isLocalEvent();
-        assert !eventStrToDistEventType.containsKey(eventStr);
+        if (eventStrToDistEventType.containsKey(eventStr)) {
+            assert !eventStrToDistEventType.containsKey(eventStr);
+        }
 
         eventStrToDistEventType.put(eventStr, eventType);
     }
