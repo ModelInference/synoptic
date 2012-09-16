@@ -41,6 +41,14 @@ abstract public class BinaryInvariant {
 
     // //////////////////////////////////////////////////////////////////
 
+    /**
+     * This method has to be override all subclasses. It's purpose is to return
+     * an RE that encodes the queue bad states corresponding to the invariant.
+     */
+    abstract public String scmBadStateQRe();
+
+    // //////////////////////////////////////////////////////////////////
+
     @Override
     public String toString() {
         return "(" + first + ") " + connectorStr + " (" + second + ")";
@@ -107,23 +115,22 @@ abstract public class BinaryInvariant {
     }
 
     /**
-     * This method assumes that the channel alphabet is made up of just
-     * secondSynth and firstSynth events.
+     * Checks that the invariant has been properly initialized -- that all of
+     * the synthetic events are initialized.
      */
-    public String scmBadStateQRe() {
+    public void checkInitialized() {
         assert firstSynth1 != null;
         assert secondSynth1 != null;
         assert firstSynth2 != null;
         assert secondSynth2 != null;
-
-        return null;
     }
 
+    /**
+     * Returns an RE encoding an occurrence of any number of the synthetic
+     * events, in arbitrary order.
+     */
     public String someSynthEventsQRe() {
-        assert firstSynth1 != null;
-        assert secondSynth1 != null;
-        assert firstSynth2 != null;
-        assert secondSynth2 != null;
+        checkInitialized();
 
         return "(" + firstSynth1.getScmEventString() + " | "
                 + firstSynth2.getScmEventString() + " | "
@@ -131,6 +138,10 @@ abstract public class BinaryInvariant {
                 + secondSynth2.getScmEventString() + ")^*";
     }
 
+    /**
+     * Returns an RE encoding exactly one occurrence of the _first_ pair of
+     * synthetic events in the appropriate order (synth1, and then synth2).
+     */
     public String firstSynthEventsQRe() {
         assert firstSynth1 != null;
         assert firstSynth2 != null;
@@ -139,6 +150,10 @@ abstract public class BinaryInvariant {
                 + firstSynth2.getScmEventString() + ")";
     }
 
+    /**
+     * Returns an RE encoding exactly one occurrence of the _second_ pair of
+     * synthetic events in the appropriate order (synth1, and then synth2).
+     */
     public String secondSynthEventsQRe() {
         assert secondSynth1 != null;
         assert secondSynth2 != null;

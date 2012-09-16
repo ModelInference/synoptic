@@ -9,6 +9,7 @@ import java.util.Set;
 import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.AlwaysPrecedes;
 import dynoptic.invariants.BinaryInvariant;
+import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
@@ -252,24 +253,58 @@ public class CFSM extends FifoSys<CFSMState> {
         unSpecifiedPids -= 1;
     }
 
-    /** Augment this CFSM with an AP invariant for model checking. */
-    public void augmentWithInvTracing(BinaryInvariant binv) {
-        augmentWithBinInvTracing(binv);
+    /** Augments the CFSM with synthetic events for model checking binv. */
+    public void augmentWithInvTracing(BinaryInvariant binv) throws Exception {
+        if (binv instanceof EventuallyHappens) {
+            augmentWithInvTracing((EventuallyHappens) binv);
+        } else if (binv instanceof AlwaysPrecedes
+                || binv instanceof AlwaysFollowedBy
+                || binv instanceof NeverFollowedBy) {
+            augmentWithBinInvTracing(binv);
+        } else {
+            throw new Exception("Unrecognized binary invarianr type: "
+                    + binv.toString());
+        }
     }
 
-    /** Augment this CFSM with an AFby invariant for model checking. */
-    public void augmentWithInvTracing(AlwaysFollowedBy inv) {
-        augmentWithBinInvTracing(inv);
-    }
+    /**
+     * Augment this CFSM with an "eventually happens e" invariant for model
+     * checking. This procedure is slightly different from binary invariants. In
+     * particular, we do not trace an 'initial' event and instead just trace the
+     * event e.
+     */
+    private void augmentWithInvTracing(EventuallyHappens inv) {
+        DistEventType e1 = inv.getEvent();
 
-    /** Augment this CFSM with an NFby invariant for model checking. */
-    public void augmentWithInvTracing(NeverFollowedBy inv) {
-        augmentWithBinInvTracing(inv);
-    }
+        assert alphabet.contains(e1);
+        assert e1.getEventPid() < fsms.size();
+        assert !invs.contains(invs);
 
-    /** Augment this CFSM with an AP invariant for model checking. */
-    public void augmentWithInvTracing(AlwaysPrecedes inv) {
-        augmentWithBinInvTracing(inv);
+        invs.add(inv);
+
+        int scmId = this.channelIds.size();
+
+        if (firstSyntheticChIndex > scmId) {
+            firstSyntheticChIndex = scmId;
+        }
+
+        // Create and add a new invariant-specific channel.
+        ChannelId invCid = new InvChannelId(inv, scmId);
+        this.channelIds.add(invCid);
+
+        // Update the FSM corresponding to e1.
+        Set<FSMState> visited = new LinkedHashSet<FSMState>();
+        FSM f1 = this.fsms.get(e1.getEventPid());
+        DistEventType e1Tracer1 = DistEventType
+                .SynthSendEvent(e1, invCid, true);
+        DistEventType e1Tracer2 = DistEventType.SynthSendEvent(e1, invCid,
+                false);
+        addSendToEventTx(f1, e1, e1Tracer1, e1Tracer2, visited);
+        this.alphabet.add(e1Tracer1);
+        this.alphabet.add(e1Tracer2);
+
+        inv.setFirstSynthTracers(e1Tracer1, e1Tracer2);
+        inv.setSecondSynthTracers(null, null);
     }
 
     /**

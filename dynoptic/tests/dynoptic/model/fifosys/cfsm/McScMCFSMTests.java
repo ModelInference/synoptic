@@ -53,7 +53,7 @@ public class McScMCFSMTests extends CFSMTesting {
     }
 
     @Test
-    public void verifyAFby() throws IOException, InterruptedException {
+    public void verifyAFby() throws Exception {
         AlwaysFollowedBy inv = new AlwaysFollowedBy(p0Sm, p1Rm);
         cfsm.augmentWithInvTracing(inv);
         VerifyResult result = verifyAndPrint();
@@ -61,7 +61,7 @@ public class McScMCFSMTests extends CFSMTesting {
     }
 
     @Test
-    public void verifyNFby() throws IOException, InterruptedException {
+    public void verifyNFby() throws Exception {
         NeverFollowedBy inv = new NeverFollowedBy(p0Sm, p1Rm);
         cfsm.augmentWithInvTracing(inv);
         VerifyResult result = verifyAndPrint();
@@ -69,7 +69,7 @@ public class McScMCFSMTests extends CFSMTesting {
     }
 
     @Test
-    public void verifyAP() throws IOException, InterruptedException {
+    public void verifyAP() throws Exception {
         AlwaysPrecedes inv = new AlwaysPrecedes(p0Sm, p1Rm);
         cfsm.augmentWithInvTracing(inv);
         VerifyResult result = verifyAndPrint();

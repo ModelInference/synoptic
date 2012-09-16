@@ -45,7 +45,7 @@ public class CFSMTests extends CFSMTesting {
     }
 
     @Test
-    public void augmentWithAFby() {
+    public void augmentWithAFby() throws Exception {
         AlwaysFollowedBy inv = new AlwaysFollowedBy(p0Sm, p1Rm);
         logger.info(inv.toString());
 
@@ -59,7 +59,7 @@ public class CFSMTests extends CFSMTesting {
     }
 
     @Test
-    public void augmentWithNFby() {
+    public void augmentWithNFby() throws Exception {
         NeverFollowedBy inv = new NeverFollowedBy(p0Sm, p1Rm);
         logger.info(inv.toString());
 
@@ -73,7 +73,7 @@ public class CFSMTests extends CFSMTesting {
     }
 
     @Test
-    public void augmentWithAP() {
+    public void augmentWithAP() throws Exception {
         AlwaysPrecedes inv = new AlwaysPrecedes(p0Sm, p1Rm);
         logger.info(inv.toString());
 

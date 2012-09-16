@@ -11,7 +11,7 @@ public class AlwaysPrecedes extends BinaryInvariant {
 
     @Override
     public String scmBadStateQRe() {
-        super.scmBadStateQRe();
+        checkInitialized();
 
         // There is a 'b' that was never preceded by an 'a'. This 'b' is
         // followed by any number of a's or b's.
