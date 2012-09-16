@@ -115,11 +115,29 @@ public class CExamplePath {
             Set<ObsFifoSysState> yObsSources = yPartSrc
                     .getObservedStatesWithTransition(y);
 
+            // The simple case is when y is emitted by an observed state whose
+            // parent is not in the preceding (along c-example path) partition.
+            // Therefore, we can refine ySrc to isolate the y from any observed
+            // states that do have a parent in the preceding partition.
+            //
+            // The more advanced case is when ySrc does have a parent in the
+            // preceding partition, so we have to track back this chain until we
+            // find a stitching.
+            //
+            // A few more complications we deal with:
+            // - There might be multiple observed states that emit y.
+            // - The stitching might be in the first partition, so we have to
+            // separate initial observed states from non-initials.
+            // - The stitching might be in the last partition, so we have to
+            // separate terminal/accepting observed states from the
+            // non-terminals.
+
             // Determine the partition to refine, by tracking back each
-            // observation in this partition along the counter-example path and
-            // identifying the partition where the observation was 'stitched'
-            // onto another observation. The partition of this kind that has
-            // minimal index (first along the path) is the one we refine.
+            // observation that emits y from this partition along the
+            // counter-example path and identifying the partition where the
+            // observation was 'stitched' onto another observation. The
+            // partition of this kind that has minimal index (first along the
+            // path) is the one we refine.
             int minLastStitchPartIndex = path.size();
             for (ObsFifoSysState s : yObsSources) {
                 int i = findMinStitchPartIndex(yPartSrcIndex, s);
@@ -193,36 +211,18 @@ public class CExamplePath {
 
             for (ObsFifoSysState s : part.getObservedStates()) {
                 if (!setLeft.contains(s) && !setRight.contains(s)) {
-
-                    // TEMPORARY:
-                    if (s.isInitForPid(0)) {
-                        setRight.add(s);
-                    } else {
-                        setLeft.add(s);
-                    }
-
                     // Assign s to setLeft or setRight at random.
-                    /*
-                     * if (rand.nextInt(2) == 0) { setLeft.add(s); } else {
-                     * setRight.add(s); }
-                     */
+                    if (rand.nextInt(2) == 0) {
+                        setLeft.add(s);
+                    } else {
+                        setRight.add(s);
+                    }
                 }
             }
 
             // Perform the refinement.
             pGraph.refine(part, setRight);
             this.isResolved = true;
-
-            // The above handles the three possible cases:
-            //
-            // 1. y is emitted by an observed state whose parent is not in the
-            // preceding partition. Therefore, we can refine ySrc to isolate the
-            // y from any observed states that _do_
-            //
-            // 2. TODO
-            //
-            // 3. TODO
-
         }
         return;
     }
