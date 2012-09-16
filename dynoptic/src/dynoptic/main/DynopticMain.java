@@ -22,7 +22,6 @@ import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.gfsm.CExamplePath;
 import dynoptic.model.fifosys.gfsm.GFSM;
-import dynoptic.model.fifosys.gfsm.GFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAG;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAGNode;
@@ -45,7 +44,6 @@ import synoptic.model.event.Event;
 import synoptic.model.event.StringEventType;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.util.InternalSynopticException;
-import synoptic.util.Pair;
 
 /**
  * <p>
@@ -136,69 +134,6 @@ public class DynopticMain {
     }
 
     /**
-     * Converts a temporal invariant inv into a set S of pairs of GFSMStates.
-     * This set S satisfies the condition that:
-     * 
-     * <pre>
-     * inv is true iff \forall <p,q> \in S there is no path from p to q in g.
-     * </pre>
-     * 
-     * @param g
-     * @return
-     */
-    public Set<Pair<GFSMState, GFSMState>> invToBadStates(GFSM g,
-            ITemporalInvariant inv) {
-        // TODO: assert that inv is composed of events that are in g's alphabet
-        // assert g.getAlphabet().contains(
-        Set<Pair<GFSMState, GFSMState>> ret = new LinkedHashSet<Pair<GFSMState, GFSMState>>();
-
-        // The basic strategy, regardless of invariant, is to create a
-        // separate FIFO queue that will be used to record the sequence of
-        // executed events that are relevant to the invariant.
-        //
-        // For instance, for a AFby b invariant, create a queue Q_ab. Modify any
-        // state p that has an outgoing "a" transition, add a synthetic state
-        // p_synth, and redirect the "a" transition from p to p_synth. Then, add
-        // just one outgoing transition on "Q_ab ! a" from p_synth to the
-        // original state target of "a" in state p. That is, whenever "a"
-        // occurs, we will add "a" to Q_ab. Do the same for event "b".
-        //
-        // For a AFby b bad state pairs within the modified GFSM (per above
-        // procedure) are all initial state and all states where all queues
-        // except Q_ab are empty, and where Q_ab = [*a], and where the process
-        // states are terminal. In a sense, we've added Q_ab to track "a" and
-        // "b" executions, and not interfere with the normal execution of the
-        // FIFO system.
-        //
-        // For a AP b, the procedure is identical, but the second bad state in
-        // every pair would have Q_ab = [b*]. For a NFby b, Q_ab = [*a*b*]. In a
-        // sense, we've expressed LTL properties as regular expressions of Q_ab
-        // queue contents.
-
-        // TODO:
-
-        return ret;
-    }
-
-    /**
-     * <p>
-     * Refines g until there is no path from badStates.left to badStates.right
-     * in g. Throws an exception if (1) no such refinement is possible, or (2)
-     * if the model checker that checks the abstract model corresponding to g
-     * (i.e., the CFSM derived from g) has exceeded an execution time-bound.
-     * </p>
-     * <p>
-     * NOTE: this method mutates g.
-     * </p>
-     * 
-     * @param g
-     * @param badStates
-     */
-    public void run(GFSM g, Pair<GFSMState, GFSMState> badStates) {
-        // TODO
-    }
-
-    /**
      * Runs Dynoptic based on setting in opts, but uses the log from the passed
      * in String, and not from the logFilenames defined in opts.
      * 
@@ -215,8 +150,8 @@ public class DynopticMain {
      * @throws Exception
      */
     public void run() throws Exception {
-        // ////////////////// Parse the input log files into _Synoptic_
-        // structures.
+        // //////////////////
+        // Parse the input log files into _Synoptic_ structures.
 
         if (opts.logFilenames.size() == 0) {
             String err = "No log filenames specified, exiting. Specify log files at the end of the command line.";
@@ -245,7 +180,8 @@ public class DynopticMain {
                     "Dynoptic expects a log that is partially ordered.");
         }
 
-        // ////////////////// Parse the parsed events further (as distributed
+        // //////////////////
+        // Parse the parsed events further (as distributed
         // events that capture message send/receives). And determine the number
         // of processes in the system.
 
@@ -295,14 +231,16 @@ public class DynopticMain {
                     + usedPids.toString());
         }
 
-        // ////////////////// Generate the Synoptic DAG from parsed events
+        // //////////////////
+        // Generate the Synoptic DAG from parsed events
         DAGsTraceGraph traceGraph = SynopticMain.genDAGsTraceGraph(parser,
                 parsedEvents);
 
         // Parser can be garbage-collected.
         parser = null;
 
-        // ////////////////// Mine Synoptic invariants
+        // //////////////////
+        // Mine Synoptic invariants
         TemporalInvariantSet minedInvs = synMain.minePOInvariants(
                 opts.useTransitiveClosureMining, traceGraph);
 
@@ -317,7 +255,8 @@ public class DynopticMain {
             return;
         }
 
-        // ////////////////// Use Synoptic event nodes and ordering constraints
+        // //////////////////
+        // Use Synoptic event nodes and ordering constraints
         // between these to generate ObsFSMStates (anonymous states),
         // obsDAGNodes (to contain obsFSMStates and encode dependencies between
         // them), and an ObsDag per execution parsed from the log.
@@ -325,69 +264,29 @@ public class DynopticMain {
         List<ObsFifoSys> traces = synTraceGraphToDynObsFifoSys(traceGraph,
                 numProcesses, parsedEvents);
 
-        // /////////////////// Express Synoptic invariants as Dynoptic
-        // invariants.
+        // ///////////////////
+        // Express Synoptic invariants as Dynoptic invariants.
 
-        Set<dynoptic.invariants.BinaryInvariant> dynInvs = new LinkedHashSet<dynoptic.invariants.BinaryInvariant>();
-        dynoptic.invariants.BinaryInvariant dynInv = null;
-        DistEventType dynETypeFirst, dynETypeSecond;
-        for (ITemporalInvariant inv : minedInvs) {
-            BinaryInvariant binv = (BinaryInvariant) inv;
-
-            if (!(binv.getFirst() instanceof DistEventType)) {
-                assert (binv.getFirst() instanceof StringEventType);
-                assert (inv instanceof AlwaysFollowedInvariant);
-                assert binv.getFirst().isInitialEventType();
-            }
-
-            assert (binv.getSecond() instanceof DistEventType);
-
-            if (binv.getFirst().isInitialEventType()) {
-                // Special case for INITIAL event type since it does not appear
-                // in the traces and is therefore not recorded in the eTypesMap.
-                dynETypeFirst = DistEventType.INITIALEventType;
-            } else {
-                dynETypeFirst = ((DistEventType) binv.getFirst());
-            }
-            dynETypeSecond = ((DistEventType) binv.getSecond());
-
-            if (inv instanceof AlwaysFollowedInvariant) {
-                if (dynETypeFirst == DistEventType.INITIALEventType) {
-                    dynInv = new EventuallyHappens(dynETypeSecond);
-                } else {
-                    dynInv = new AlwaysFollowedBy(dynETypeFirst, dynETypeSecond);
-                }
-            } else if (inv instanceof NeverFollowedInvariant) {
-                assert dynETypeFirst != DistEventType.INITIALEventType;
-                dynInv = new NeverFollowedBy(dynETypeFirst, dynETypeSecond);
-            } else if (inv instanceof AlwaysPrecedesInvariant) {
-                assert dynETypeFirst != DistEventType.INITIALEventType;
-                dynInv = new AlwaysPrecedes(dynETypeFirst, dynETypeSecond);
-            }
-            if (dynInv != null) {
-                dynInvs.add(dynInv);
-                dynInv = null;
-            }
-        }
+        Set<dynoptic.invariants.BinaryInvariant> dynInvs = synInvsToDynInvs(minedInvs);
 
         if (dynInvs.size() == 0) {
             logger.info("Mined 0 Dynoptic invariants. Stopping.");
             return;
         }
 
-        // /////////////////// Create a partition graph (GFSM instance) of the
-        // ObsFifoSys instances we've created above. And check each invariant in
-        // the model, and refine the model as needed until all invariants hold.
-
-        // Create the initial partition graph using the default partitioning
-        // strategy, based on head of all of the queues of each
-        // ObsFifoSysState.
+        // ///////////////////
+        // Create a partition graph (GFSM instance) of the ObsFifoSys instances
+        // we've created above. Use the default initial partitioning strategy,
+        // based on head of all of the queues of each ObsFifoSysState.
         GFSM pGraph = new GFSM(traces);
 
+        // ///////////////////
+        // Model check, refine loop. Check each invariant in the model, and
+        // refine the model as needed until all invariants hold.
+
+        // (Above we checked above that the number of mined invariants is > 0).
         Iterator<dynoptic.invariants.BinaryInvariant> invIter = dynInvs
                 .iterator();
-        // We checked above that the number of mined Dynoptic invariants is
-        // non-zero.
         dynoptic.invariants.BinaryInvariant curInv = invIter.next();
 
         logger.info("Model checking " + curInv.toString());
@@ -627,6 +526,56 @@ public class DynopticMain {
     }
 
     // //////////////////////////////////////////////////
+
+    /** Converts a set of Synoptic invariants into a set of Dynoptic invariants. */
+    public static Set<dynoptic.invariants.BinaryInvariant> synInvsToDynInvs(
+            TemporalInvariantSet minedInvs) {
+        Set<dynoptic.invariants.BinaryInvariant> dynInvs = new LinkedHashSet<dynoptic.invariants.BinaryInvariant>();
+
+        dynoptic.invariants.BinaryInvariant dynInv = null;
+
+        DistEventType dynETypeFirst, dynETypeSecond;
+        for (ITemporalInvariant inv : minedInvs) {
+            BinaryInvariant binv = (BinaryInvariant) inv;
+
+            if (!(binv.getFirst() instanceof DistEventType)) {
+                assert (binv.getFirst() instanceof StringEventType);
+                assert (inv instanceof AlwaysFollowedInvariant);
+                assert binv.getFirst().isInitialEventType();
+            }
+
+            assert (binv.getSecond() instanceof DistEventType);
+
+            if (binv.getFirst().isInitialEventType()) {
+                // Special case for INITIAL event type since it does not appear
+                // in the traces and is therefore not recorded in the eTypesMap.
+                dynETypeFirst = DistEventType.INITIALEventType;
+            } else {
+                dynETypeFirst = ((DistEventType) binv.getFirst());
+            }
+            dynETypeSecond = ((DistEventType) binv.getSecond());
+
+            if (inv instanceof AlwaysFollowedInvariant) {
+                if (dynETypeFirst == DistEventType.INITIALEventType) {
+                    dynInv = new EventuallyHappens(dynETypeSecond);
+                } else {
+                    dynInv = new AlwaysFollowedBy(dynETypeFirst, dynETypeSecond);
+                }
+            } else if (inv instanceof NeverFollowedInvariant) {
+                assert dynETypeFirst != DistEventType.INITIALEventType;
+                dynInv = new NeverFollowedBy(dynETypeFirst, dynETypeSecond);
+            } else if (inv instanceof AlwaysPrecedesInvariant) {
+                assert dynETypeFirst != DistEventType.INITIALEventType;
+                dynInv = new AlwaysPrecedes(dynETypeFirst, dynETypeSecond);
+            }
+            if (dynInv != null) {
+                dynInvs.add(dynInv);
+                dynInv = null;
+            }
+        }
+
+        return dynInvs;
+    }
 
     /**
      * Parses the channelSpec command line option value and returns a list of

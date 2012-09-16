@@ -91,7 +91,7 @@ public class CounterExample {
 
     // //////////////////////////////////////////////////////////////////
 
-    public void addEventStr(String event) {
+    public void addScmEventStrToPath(String event) {
         DistEventType e = parseScmEventStr(event, cids);
         if (e != null) {
             events.add(e);

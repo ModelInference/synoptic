@@ -112,7 +112,7 @@ public class VerifyResult {
             Matcher m = p.matcher(line);
             if (m.find()) {
                 assert m.groupCount() == 1;
-                cExample.addEventStr(m.group(1));
+                cExample.addScmEventStrToPath(m.group(1));
             }
         }
     }
