@@ -59,6 +59,10 @@ public class CExamplePath {
         }
     }
 
+    /**
+     * Computes the mapping of event types to their occurrence in the
+     * counter-example list of events.
+     */
     private void setUpIndexMap() {
         assert this.isInitialized;
 

@@ -40,13 +40,20 @@ public class McScM {
                 new String[] { verifyPath }, scmInput, currentPath);
     }
 
+    /**
+     * Interprets the output of running verify and returns a VerifyResult
+     * instance that includes a counter-example (if any) from the model checking
+     * run. Uses cids to interpret event instances in the counter-example --
+     * each of these is associated with some channel (a synthetic
+     * invariant/local channel, or an actual channel that is part of the
+     * system).
+     */
     public VerifyResult getVerifyResult(List<ChannelId> cids)
             throws IOException {
         List<String> lines = ProcessUtil.getInputStreamContent(verifyProcess
                 .getInputStream());
 
         logger.info("Verify returned: " + lines.toString());
-
         VerifyResult ret = new VerifyResult(lines, cids);
         return ret;
     }

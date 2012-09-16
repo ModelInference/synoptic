@@ -253,7 +253,35 @@ public class CFSM extends FifoSys<CFSMState> {
         unSpecifiedPids -= 1;
     }
 
-    /** Augments the CFSM with synthetic events for model checking binv. */
+    /**
+     * Augments the CFSM with synthetic events for model checking binv.
+     * <p>
+     * The basic strategy, regardless of invariant, is to create a separate FIFO
+     * queue that will be used to record the sequence of executed events that
+     * are relevant to the invariant.
+     * </p>
+     * <p>
+     * For instance, for a AFby b invariant, create a queue Q_ab. Modify any
+     * state p that has an outgoing "a" transition, add a synthetic state
+     * p_synth, and redirect the "a" transition from p to p_synth. Then, add
+     * just one outgoing transition on "Q_ab ! a" from p_synth to the original
+     * state target of "a" in state p. That is, whenever "a" occurs, we will add
+     * "a" to Q_ab. Do the same for event "b".
+     * </p>
+     * <p>
+     * For a AFby b bad state pairs within the modified GFSM (per above
+     * procedure) are all initial state and all states where all queues except
+     * Q_ab are empty, and where Q_ab = [*a], and where the process states are
+     * terminal. In a sense, we've added Q_ab to track "a" and "b" executions,
+     * and not interfere with the normal execution of the FIFO system.
+     * </p>
+     * <p>
+     * For a AP b, the procedure is identical, but the second bad state in every
+     * pair would have Q_ab = [b*]. For a NFby b, Q_ab = [*a*b*]. In a sense,
+     * we've expressed LTL properties as regular expressions of Q_ab queue
+     * contents.
+     * </p>
+     */
     public void augmentWithInvTracing(BinaryInvariant binv) throws Exception {
         if (binv instanceof EventuallyHappens) {
             augmentWithInvTracing((EventuallyHappens) binv);
