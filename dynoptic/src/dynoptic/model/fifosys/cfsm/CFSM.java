@@ -311,15 +311,10 @@ public class CFSM extends FifoSys<CFSMState> {
      * Generate SCM representation of this CFSM, with bad states if this CFSM
      * was augmented with any invariants.
      */
-    public String toScmString() {
+    public String toScmString(String cfsmName) {
         assert unSpecifiedPids == 0;
 
-        String ret;
-
-        // Parameters to the SCM representation of this CFSM.
-        String cfsmName = "blah";
-
-        ret = "scm " + cfsmName + ":\n\n";
+        String ret = "scm " + cfsmName + ":\n\n";
 
         // Channels:
         // Add a special channel for handling local events, represented as
@@ -343,7 +338,7 @@ public class CFSM extends FifoSys<CFSMState> {
         ret += "*/\n\n";
 
         // Whether or not any channels are lossy:
-        // TODO: add lossy field to ChannelId and if list all channel ids that
+        // TODO: add lossy field to ChannelId and list all channel ids that
         // are lossy here.
 
         // Parameters/Alphabet:

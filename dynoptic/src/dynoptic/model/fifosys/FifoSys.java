@@ -1,14 +1,15 @@
 package dynoptic.model.fifosys;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import synoptic.model.channelid.ChannelId;
-
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
 import dynoptic.model.fifosys.exec.FifoSysExecution;
+
+import synoptic.model.channelid.ChannelId;
 
 /**
  * <p>
@@ -55,7 +56,8 @@ abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
         }
 
         this.numProcesses = numProcesses;
-        this.channelIds = channelIds;
+        this.channelIds = new ArrayList<ChannelId>();
+        this.channelIds.addAll(channelIds);
     }
 
     /**

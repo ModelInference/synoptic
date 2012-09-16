@@ -100,6 +100,10 @@ abstract public class BinaryInvariant {
         return second;
     }
 
+    public String getConnectorString() {
+        return connectorStr;
+    }
+
     /** Sets the synthetic tracing event corresponding to first. */
     public void setFirstSynthTracers(DistEventType fSynth1,
             DistEventType fSynth2) {

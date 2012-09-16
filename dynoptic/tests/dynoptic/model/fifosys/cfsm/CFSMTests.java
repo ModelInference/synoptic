@@ -25,7 +25,7 @@ public class CFSMTests extends CFSMTesting {
 
     @Test
     public void scmString() {
-        logger.info(cfsm.toScmString());
+        logger.info(cfsm.toScmString("test"));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class CFSMTests extends CFSMTesting {
         assertEquals(badStates.size(), 1);
         logger.info(badStates.get(0).toScmString());
 
-        logger.info(cfsm.toScmString());
+        logger.info(cfsm.toScmString("augmentWithAFby-test"));
     }
 
     @Test
@@ -69,7 +69,7 @@ public class CFSMTests extends CFSMTesting {
         assertEquals(badStates.size(), 1);
         logger.info(badStates.get(0).toScmString());
 
-        logger.info(cfsm.toScmString());
+        logger.info(cfsm.toScmString("augmentWithNFby-test"));
     }
 
     @Test
@@ -83,6 +83,6 @@ public class CFSMTests extends CFSMTesting {
         assertEquals(1, badStates.size());
         logger.info(badStates.get(0).toScmString());
 
-        logger.info(cfsm.toScmString());
+        logger.info(cfsm.toScmString("augmentWithAP-test"));
     }
 }

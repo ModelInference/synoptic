@@ -354,7 +354,7 @@ public class GFSM extends FifoSys<GFSMState> {
 
         // This is the CFSM that we will return, once we populate it with all
         // the process FSMs.
-        CFSM c = new CFSM(numProcesses, channelIds);
+        CFSM cfsm = new CFSM(numProcesses, channelIds);
 
         // Create an FSM per pid.
         for (int pid = 0; pid < numProcesses; pid++) {
@@ -366,13 +366,6 @@ public class GFSM extends FifoSys<GFSMState> {
             // Generate the FSM states and inter-state transitions.
             for (GFSMState gInit : getInitStatesForPid(pid)) {
                 FSMState fInit = getFSMState(stateMap, gInit, pid);
-
-                /*
-                 * if (stateMap.containsKey(gInit)) { fInit =
-                 * stateMap.get(gInit); } else { fInit = new
-                 * FSMState(gInit.isAcceptForPid(pid), true, pid, scmId);
-                 * scmId++; stateMap.put(gInit, fInit); }
-                 */
 
                 // We might have visited the current gInit in a prior iteration,
                 // from another gInit, in which case we don't need to
@@ -394,16 +387,16 @@ public class GFSM extends FifoSys<GFSMState> {
             }
 
             // Create the FSM for this pid, and add it to the CFSM.
-            FSM f = new FSM(pid, initFSMStates, acceptFSMStates,
+            FSM fsm = new FSM(pid, initFSMStates, acceptFSMStates,
                     stateMap.values(), scmId);
-            c.addFSM(f);
+            cfsm.addFSM(fsm);
 
             stateMap.clear();
             initFSMStates.clear();
             acceptFSMStates.clear();
             visited.clear();
         }
-        return c;
+        return cfsm;
     }
 
     // //////////////////////////////////////////////////////////////////

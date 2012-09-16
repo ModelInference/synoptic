@@ -91,12 +91,6 @@ public class FSMStateTests extends DynopticTest {
     }
 
     @Test(expected = AssertionError.class)
-    public void addIdenticalTransition() {
-        init.addTransition(e_pid1, accept);
-        init.addTransition(e_pid1, accept);
-    }
-
-    @Test(expected = AssertionError.class)
     public void wrongEventPid() {
         init.addTransition(e3_pid2, accept);
     }
