@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import mcscm.CounterExample;
@@ -26,9 +25,15 @@ public class CExamplePath {
     private final List<GFSMState> path;
     private final CounterExample cExample;
 
-    // Maps each event in cExample to the lowest value index in the path list of
-    // the state that emits the event.
-    private Map<DistEventType, Integer> eToSrcStateIndexMap;
+    // Maps each event in cExample to the _lowest_ value index in the path list
+    // of the state that emits the event (i.e., the first occurrence of the
+    // event type in the cExample).
+    private Map<DistEventType, Integer> eToFirstSrcStateIndexMap;
+
+    // Maps each event in cExample to the _highest_ value index in the path list
+    // of the state that emits the event (i.e., the final occurrence of the
+    // event type in the cExample).
+    private Map<DistEventType, Integer> eToLastSrcStateIndexMap;
 
     // Whether or not this counter-example path has been resolved (refined) and
     // therefore no longer exists in the corresponding GFSM.
@@ -55,7 +60,7 @@ public class CExamplePath {
             assert path.get(0).isInitial();
             assert path.get(path.size() - 1).isAccept();
             this.isInitialized = true;
-            setUpIndexMap();
+            setUpIndexMaps();
         }
     }
 
@@ -63,19 +68,24 @@ public class CExamplePath {
      * Computes the mapping of event types to their occurrence in the
      * counter-example list of events.
      */
-    private void setUpIndexMap() {
+    private void setUpIndexMaps() {
         assert this.isInitialized;
 
-        this.eToSrcStateIndexMap = new LinkedHashMap<DistEventType, Integer>();
+        this.eToFirstSrcStateIndexMap = new LinkedHashMap<DistEventType, Integer>();
+        this.eToLastSrcStateIndexMap = new LinkedHashMap<DistEventType, Integer>();
 
         for (int i = 0; i < path.size(); i++) {
             if (i < cExample.getEvents().size()) {
                 DistEventType e = cExample.getEvents().get(i);
-                // Only record the event if no prior record exists (i.e., if
-                // it's the first observation of this event along cExample).
-                if (!eToSrcStateIndexMap.containsKey(e)) {
-                    eToSrcStateIndexMap.put(e, i);
+                // For 'First' index map only record the event if no prior
+                // record exists (i.e., if it's the first observation of this
+                // event along cExample).
+                if (!eToFirstSrcStateIndexMap.containsKey(e)) {
+                    eToFirstSrcStateIndexMap.put(e, i);
                 }
+
+                // For 'Last' index map, always record the event.
+                eToLastSrcStateIndexMap.put(e, i);
             }
         }
     }
@@ -93,7 +103,7 @@ public class CExamplePath {
         this.cExample = cExample;
         this.isResolved = false;
         this.isInitialized = true;
-        setUpIndexMap();
+        setUpIndexMaps();
     }
 
     /**
@@ -121,11 +131,39 @@ public class CExamplePath {
 
     /**
      * Resolves an AFby counter-example. For x AFby y, the path includes an x
-     * without a following y. Refine the state that emits the x, or one of the
-     * following partitions to eliminate the counter-example path.
+     * without a following y. We refine partitions that follow the _last_ x
+     * along the counter-example path. This is guaranteed to eventually satisfy
+     * x AFby y.
      */
     private void resolve(AlwaysFollowedBy inv, GFSM pGraph) {
-        // TODO
+        DistEventType x = inv.getFirst();
+        assert eToLastSrcStateIndexMap.containsKey(x);
+
+        // The last partition along the path that emits the event x.
+        int xPartSrcIndex = eToLastSrcStateIndexMap.get(x);
+        GFSMState xPartSrc = path.get(xPartSrcIndex);
+
+        // The set of observations in xPartSrc that emit x.
+        Set<ObsFifoSysState> xObsSources = xPartSrc
+                .getObservedStatesWithTransition(x);
+
+        // Determine the partition to refine, by tracking forward each
+        // observation that emits x from this partition along the
+        // counter-example path and identifying the partition where the
+        // observation was 'stitched' onto another observation. The
+        // partition of this kind that has maximal index (farthest along the
+        // path) is the one we refine.
+        int maxLastStitchPartIndex = 0;
+        for (ObsFifoSysState s : xObsSources) {
+            int i = findMaxStitchPartIndex(xPartSrcIndex, s);
+            if (i > maxLastStitchPartIndex) {
+                maxLastStitchPartIndex = i;
+            }
+        }
+
+        // //////////
+        // Now refine the partition at maxLastStitchPartIndex.
+        refinePartition(pGraph, maxLastStitchPartIndex);
     }
 
     /**
@@ -149,15 +187,15 @@ public class CExamplePath {
 
     /**
      * Resolves an AP counter-example. For x AP y, the path includes a y without
-     * a preceding x. Refine the state that emits the y to eliminate the
-     * counter-example path.
+     * a preceding x. We refine states that precede the _first_ y along the
+     * counter-example path and this is guaranteed to satisfy x AP y.
      */
     private void resolve(AlwaysPrecedes inv, GFSM pGraph) {
         DistEventType y = inv.getSecond();
-        assert eToSrcStateIndexMap.containsKey(y);
+        assert eToFirstSrcStateIndexMap.containsKey(y);
 
         // The partition that emits the event y.
-        int yPartSrcIndex = eToSrcStateIndexMap.get(y);
+        int yPartSrcIndex = eToFirstSrcStateIndexMap.get(y);
         GFSMState yPartSrc = path.get(yPartSrcIndex);
 
         // The set of observations in yPartSrc that emit y.
@@ -196,16 +234,28 @@ public class CExamplePath {
         }
 
         // //////////
-        // Now refine the partition at minLastStitchPartIndex. The goal is
-        // to isolate setLeft and setRight of observations in this
-        // partition.
+        // Now refine the partition at minLastStitchPartIndex.
+        refinePartition(pGraph, minLastStitchPartIndex);
+    }
+
+    /**
+     * Refine partition at partIndex in the path of partition along the
+     * counter-example path. The goal is to isolate setLeft and setRight of
+     * observations in this partition. These two sets are constructed so that
+     * after the partitioning this counter-example path is eliminated.
+     * Observations that are not pertinent to this refinement in the partition
+     * are assigned at random to setLeft and setRight.
+     * 
+     * @param pGraph
+     * @param partIndex
+     */
+    private void refinePartition(GFSM pGraph, int partIndex) {
+        GFSMState part = path.get(partIndex);
 
         // Construct setRight.
         Set<ObsFifoSysState> setRight;
 
-        GFSMState part = path.get(minLastStitchPartIndex);
-
-        if (minLastStitchPartIndex == path.size()) {
+        if (partIndex == path.size()) {
             // Part is the last (terminal) partition in path, so we want to
             // isolate the observations that allow the counter-example path
             // to terminate at this partition from events that have
@@ -215,9 +265,8 @@ public class CExamplePath {
             // Construct setRight to contain observations that transition
             // from part to partNext in the counter-example path.
             setRight = new LinkedHashSet<ObsFifoSysState>();
-            DistEventType eNext = cExample.getEvents().get(
-                    minLastStitchPartIndex);
-            GFSMState partNext = path.get(minLastStitchPartIndex + 1);
+            DistEventType eNext = cExample.getEvents().get(partIndex);
+            GFSMState partNext = path.get(partIndex + 1);
             for (ObsFifoSysState s : part
                     .getObservedStatesWithTransition(eNext)) {
                 if (s.getNextState(eNext).getParent() == partNext) {
@@ -229,7 +278,7 @@ public class CExamplePath {
         // Construct setLeft.
         Set<ObsFifoSysState> setLeft;
 
-        if (minLastStitchPartIndex == 0) {
+        if (partIndex == 0) {
             // Part is the first (initial) partition in path, so we want to
             // isolate the initial observations in this partition from those
             // that generate the counter-example path.
@@ -241,9 +290,8 @@ public class CExamplePath {
 
             setLeft = new LinkedHashSet<ObsFifoSysState>();
 
-            DistEventType ePrev = cExample.getEvents().get(
-                    minLastStitchPartIndex - 1);
-            GFSMState partPrev = path.get(minLastStitchPartIndex - 1);
+            DistEventType ePrev = cExample.getEvents().get(partIndex - 1);
+            GFSMState partPrev = path.get(partIndex - 1);
             for (ObsFifoSysState s : partPrev
                     .getObservedStatesWithTransition(ePrev)) {
                 if (s.getNextState(ePrev).getParent() == part) {
@@ -252,32 +300,14 @@ public class CExamplePath {
             }
         }
 
-        // We know that setLeft and setRight have to be isolated, but what
-        // about the observations in part that in neither of these two sets?
-        // Our strategy is to assign them at random, either to setLeft or
-        // setRight (and hope for the best).
-        Random rand = new Random();
-
-        for (ObsFifoSysState s : part.getObservedStates()) {
-            if (!setLeft.contains(s) && !setRight.contains(s)) {
-                // Assign s to setLeft or setRight at random.
-                if (rand.nextInt(2) == 0) {
-                    setLeft.add(s);
-                } else {
-                    setRight.add(s);
-                }
-            }
-        }
-
-        // Perform the refinement.
-        pGraph.refine(part, setRight);
+        pGraph.refineWithRandNonRelevantObsAssignment(part, setLeft, setRight);
     }
 
     /**
      * Follows the observed state s back along the partition in the
      * counter-example path. Once we find that we cannot follow it back any
-     * further, we return the partition index, or the min stitch partition index
-     * for s.
+     * further, we return the partition index, or the minimum stitch partition
+     * index for s.
      * 
      * @param sPartIndex
      * @param s
@@ -292,18 +322,45 @@ public class CExamplePath {
         DistEventType e = cExample.getEvents().get(sPartIndex);
 
         // There might be multiple observed states from prevPart that transition
-        // to s, so we explore all of them and return the min index.
-        for (ObsFifoSysState p : prevPart.getObservedStatesWithTransition(e)) {
+        // to s, so we explore all of them and return the min index we find.
+        for (ObsFifoSysState sPred : prevPart
+                .getObservedStatesWithTransition(e)) {
             // The observed fifo sys instances are deterministic, so there is
-            // just one transition on e from p.
-            if (p.getNextState(e).equals(s)) {
-                int newStitchIndex = findMinStitchPartIndex(sPartIndex - 1, p);
+            // just one transition on e from sPred.
+            if (sPred.getNextState(e).equals(s)) {
+                int newStitchIndex = findMinStitchPartIndex(sPartIndex - 1,
+                        sPred);
                 if (newStitchIndex < minIndex) {
                     minIndex = newStitchIndex;
                 }
             }
         }
         return minIndex;
+    }
+
+    /**
+     * Follows the observed state s back along the partition in the
+     * counter-example path. Once we find that we cannot follow it back any
+     * further, we return the partition index, or the minimum stitch partition
+     * index for s.
+     * 
+     * @param sPartIndex
+     * @param s
+     * @return
+     */
+    private int findMaxStitchPartIndex(int sPartIndex, ObsFifoSysState s) {
+        if (sPartIndex == (path.size() - 1)) {
+            return sPartIndex;
+        }
+
+        GFSMState sPartNext = path.get(sPartIndex + 1);
+        DistEventType e = cExample.getEvents().get(sPartIndex);
+        ObsFifoSysState sNext = s.getNextState(e);
+        if (sNext == null || sNext.getParent() != sPartNext) {
+            return sPartIndex;
+        }
+
+        return findMaxStitchPartIndex(sPartIndex + 1, sNext);
     }
 
     public boolean isResolved() {
