@@ -1,10 +1,8 @@
 package dynoptic.model.fifosys.gfsm;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import mcscm.CounterExample;
@@ -24,16 +22,6 @@ import synoptic.model.event.DistEventType;
 public class CExamplePath {
     private final List<GFSMState> path;
     private final CounterExample cExample;
-
-    // Maps each event in cExample to the _lowest_ value index in the path list
-    // of the state that emits the event (i.e., the first occurrence of the
-    // event type in the cExample).
-    private Map<DistEventType, Integer> eToFirstSrcStateIndexMap;
-
-    // Maps each event in cExample to the _highest_ value index in the path list
-    // of the state that emits the event (i.e., the final occurrence of the
-    // event type in the cExample).
-    private Map<DistEventType, Integer> eToLastSrcStateIndexMap;
 
     // Whether or not this counter-example path has been resolved (refined) and
     // therefore no longer exists in the corresponding GFSM.
@@ -60,33 +48,6 @@ public class CExamplePath {
             assert path.get(0).isInitial();
             assert path.get(path.size() - 1).isAccept();
             this.isInitialized = true;
-            setUpIndexMaps();
-        }
-    }
-
-    /**
-     * Computes the mapping of event types to their occurrence in the
-     * counter-example list of events.
-     */
-    private void setUpIndexMaps() {
-        assert this.isInitialized;
-
-        this.eToFirstSrcStateIndexMap = new LinkedHashMap<DistEventType, Integer>();
-        this.eToLastSrcStateIndexMap = new LinkedHashMap<DistEventType, Integer>();
-
-        for (int i = 0; i < path.size(); i++) {
-            if (i < cExample.getEvents().size()) {
-                DistEventType e = cExample.getEvents().get(i);
-                // For 'First' index map only record the event if no prior
-                // record exists (i.e., if it's the first observation of this
-                // event along cExample).
-                if (!eToFirstSrcStateIndexMap.containsKey(e)) {
-                    eToFirstSrcStateIndexMap.put(e, i);
-                }
-
-                // For 'Last' index map, always record the event.
-                eToLastSrcStateIndexMap.put(e, i);
-            }
         }
     }
 
@@ -103,7 +64,6 @@ public class CExamplePath {
         this.cExample = cExample;
         this.isResolved = false;
         this.isInitialized = true;
-        setUpIndexMaps();
     }
 
     /**
@@ -137,29 +97,18 @@ public class CExamplePath {
      */
     private void resolve(AlwaysFollowedBy inv, GFSM pGraph) {
         DistEventType x = inv.getFirst();
-        assert eToLastSrcStateIndexMap.containsKey(x);
 
-        // The last partition along the path that emits the event x.
-        int xPartSrcIndex = eToLastSrcStateIndexMap.get(x);
-        GFSMState xPartSrc = path.get(xPartSrcIndex);
-
-        // The set of observations in xPartSrc that emit x.
-        Set<ObsFifoSysState> xObsSources = xPartSrc
-                .getObservedStatesWithTransition(x);
-
-        // Determine the partition to refine, by tracking forward each
-        // observation that emits x from this partition along the
-        // counter-example path and identifying the partition where the
-        // observation was 'stitched' onto another observation. The
-        // partition of this kind that has maximal index (farthest along the
-        // path) is the one we refine.
-        int maxLastStitchPartIndex = 0;
-        for (ObsFifoSysState s : xObsSources) {
-            int i = findMaxStitchPartIndex(xPartSrcIndex, s);
-            if (i > maxLastStitchPartIndex) {
-                maxLastStitchPartIndex = i;
+        // Find the last partition along the path that emits the event x.
+        int xPartSrcIndex = -1;
+        for (int i = 0; i < (path.size() - 1); i++) {
+            DistEventType e = cExample.getEvents().get(i);
+            if (e.equals(x)) {
+                xPartSrcIndex = i;
             }
         }
+        assert xPartSrcIndex != -1;
+
+        int maxLastStitchPartIndex = findMaxStitchPartIndex(xPartSrcIndex, x);
 
         // //////////
         // Now refine the partition at maxLastStitchPartIndex.
@@ -173,7 +122,37 @@ public class CExamplePath {
      * the x (but before a y is emitted). This refinement should be possible.
      */
     private void resolve(NeverFollowedBy inv, GFSM pGraph) {
-        // TODO
+        DistEventType x = inv.getFirst();
+        DistEventType y = inv.getSecond();
+
+        // Find the first partition Px along the path that emits the event x,
+        // which is eventually followed by a partition Py that emits y (without
+        // another partition that emits x before Py).
+        int xPartSrcIndex = -1; // Px
+        int yPartSrcIndex = -1; // Py
+
+        for (int i = 0; i < (path.size() - 1); i++) {
+            DistEventType e = cExample.getEvents().get(i);
+            if (e.equals(x)) {
+                xPartSrcIndex = i;
+            }
+            if (e.equals(y) && xPartSrcIndex != -1) {
+                break;
+            }
+        }
+        assert xPartSrcIndex != -1;
+        assert yPartSrcIndex != -1;
+
+        // Make sure that the max stitch part index found is in the range
+        // [xPartSrcIndex, yPartSrcIndex] and refine the corresponding
+        // partition.
+
+        int maxLastStitchPartIndex = findMaxStitchPartIndex(xPartSrcIndex, x);
+        assert maxLastStitchPartIndex <= yPartSrcIndex;
+
+        // //////////
+        // Now refine the partition at maxLastStitchPartIndex.
+        refinePartition(pGraph, maxLastStitchPartIndex);
     }
 
     /**
@@ -192,10 +171,18 @@ public class CExamplePath {
      */
     private void resolve(AlwaysPrecedes inv, GFSM pGraph) {
         DistEventType y = inv.getSecond();
-        assert eToFirstSrcStateIndexMap.containsKey(y);
 
-        // The partition that emits the event y.
-        int yPartSrcIndex = eToFirstSrcStateIndexMap.get(y);
+        // The first partition that emits the event y.
+        int yPartSrcIndex = -1;
+        for (int i = 0; i < (path.size() - 1); i++) {
+            DistEventType e = cExample.getEvents().get(i);
+            if (e.equals(y)) {
+                yPartSrcIndex = i;
+                break;
+            }
+        }
+        assert yPartSrcIndex != -1;
+
         GFSMState yPartSrc = path.get(yPartSrcIndex);
 
         // The set of observations in yPartSrc that emit y.
@@ -339,6 +326,7 @@ public class CExamplePath {
     }
 
     /**
+     * TODO: update comment<br/>
      * Follows the observed state s back along the partition in the
      * counter-example path. Once we find that we cannot follow it back any
      * further, we return the partition index, or the minimum stitch partition
@@ -348,19 +336,41 @@ public class CExamplePath {
      * @param s
      * @return
      */
-    private int findMaxStitchPartIndex(int sPartIndex, ObsFifoSysState s) {
-        if (sPartIndex == (path.size() - 1)) {
-            return sPartIndex;
-        }
+    private int findMaxStitchPartIndex(int xPartSrcIndex, DistEventType x) {
+        GFSMState xPartSrc = path.get(xPartSrcIndex);
 
-        GFSMState sPartNext = path.get(sPartIndex + 1);
-        DistEventType e = cExample.getEvents().get(sPartIndex);
-        ObsFifoSysState sNext = s.getNextState(e);
-        if (sNext == null || sNext.getParent() != sPartNext) {
-            return sPartIndex;
-        }
+        // The set of observations in xPartSrc that emit x.
+        Set<ObsFifoSysState> xObsSources = xPartSrc
+                .getObservedStatesWithTransition(x);
 
-        return findMaxStitchPartIndex(sPartIndex + 1, sNext);
+        // Determine the partition to refine, by tracking forward each
+        // observation that emits x from this partition along the
+        // counter-example path and identifying the partition where the
+        // observation was 'stitched' onto another observation. The
+        // partition of this kind that has maximal index (farthest along the
+        // path) is the one we refine.
+        int maxLastStitchPartIndex = 0;
+        for (ObsFifoSysState xObs : xObsSources) {
+            int sPartIndex = xPartSrcIndex;
+            ObsFifoSysState s = xObs;
+            while (true) {
+                if (sPartIndex == (path.size() - 1)) {
+                    break;
+                }
+
+                GFSMState sPartNext = path.get(sPartIndex + 1);
+                DistEventType e = cExample.getEvents().get(sPartIndex);
+                s = s.getNextState(e);
+                if (s == null || s.getParent() != sPartNext) {
+                    break;
+                }
+                sPartIndex += 1;
+            }
+            if (sPartIndex > maxLastStitchPartIndex) {
+                maxLastStitchPartIndex = sPartIndex;
+            }
+        }
+        return maxLastStitchPartIndex;
     }
 
     public boolean isResolved() {
