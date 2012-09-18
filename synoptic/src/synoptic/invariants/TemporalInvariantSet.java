@@ -30,11 +30,14 @@ import synoptic.model.interfaces.INode;
 public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
     private static Logger logger = Logger.getLogger("TemporalInvSet Logger");
 
+    static {
+        logger.setLevel(Level.FINE);
+    }
+
     LinkedHashSet<ITemporalInvariant> invariants = new LinkedHashSet<ITemporalInvariant>();
 
     public TemporalInvariantSet() {
         // Empty constructor for use by unit tests.
-        logger.setLevel(Level.FINE);
     }
 
     /**

@@ -233,7 +233,7 @@ public class DistEventType extends EventType {
     }
 
     // ////////////////////////////////////////////////////////////////
-    // /Dynoptic-specific class members
+    // end Dynoptic-specific class members
     // ////////////////////////////////////////////////////////////////
 
     private DistEventType(String eType, String pid, boolean isInitialEventType,

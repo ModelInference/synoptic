@@ -6,14 +6,25 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
+import dynoptic.invariants.AlwaysFollowedBy;
+import dynoptic.invariants.AlwaysPrecedes;
+import dynoptic.invariants.BinaryInvariant;
+import dynoptic.invariants.EventuallyHappens;
+import dynoptic.invariants.NeverFollowedBy;
 
+import synoptic.invariants.AlwaysFollowedInvariant;
+import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.invariants.NeverFollowedInvariant;
+import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.SynopticMain;
 import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 public class DynopticMainTests extends DynopticTest {
 
@@ -36,7 +47,7 @@ public class DynopticMainTests extends DynopticTest {
         SynopticMain.instance = null;
     }
 
-    // //////////////////// Test parsing of channel ids
+    // //////////////////// Test parsing of channel ids specification.
 
     @Test
     public void parseChannelIds() {
@@ -68,7 +79,7 @@ public class DynopticMainTests extends DynopticTest {
         cids = DynopticMain.parseChannelSpec("M:0->1;blah");
     }
 
-    // ////////////////////
+    // //////////////////// Check error conditions during options processing.
 
     @Test(expected = OptionException.class)
     public void missingChannelSpec() throws Exception {
@@ -97,6 +108,80 @@ public class DynopticMainTests extends DynopticTest {
         dyn = new DynopticMain(opts);
         dyn.run();
     }
+
+    // //////////////////// Test conversion of Synoptic invariants to Dynoptic
+    // invariants.
+
+    @Test
+    public void convertAFby() {
+        DistEventType x = DistEventType.LocalEvent("x", 0);
+        DistEventType y = DistEventType.LocalEvent("y", 0);
+
+        TemporalInvariantSet synInvs = new TemporalInvariantSet();
+        synInvs.add(new AlwaysFollowedInvariant(x, y, "t"));
+        Set<dynoptic.invariants.BinaryInvariant> dynInvs = DynopticMain
+                .synInvsToDynInvs(synInvs);
+        assertTrue(dynInvs.size() == 1);
+
+        BinaryInvariant dInv = dynInvs.iterator().next();
+        assertTrue(dInv instanceof AlwaysFollowedBy);
+        assertTrue(dInv.getFirst().equals(x));
+        assertTrue(dInv.getSecond().equals(y));
+    }
+
+    @Test
+    public void convertAP() {
+        DistEventType x = DistEventType.LocalEvent("x", 0);
+        DistEventType y = DistEventType.LocalEvent("y", 0);
+
+        TemporalInvariantSet synInvs = new TemporalInvariantSet();
+        synInvs.add(new AlwaysPrecedesInvariant(x, y, "t"));
+        Set<dynoptic.invariants.BinaryInvariant> dynInvs = DynopticMain
+                .synInvsToDynInvs(synInvs);
+        assertTrue(dynInvs.size() == 1);
+
+        BinaryInvariant dInv = dynInvs.iterator().next();
+        assertTrue(dInv instanceof AlwaysPrecedes);
+        assertTrue(dInv.getFirst().equals(x));
+        assertTrue(dInv.getSecond().equals(y));
+    }
+
+    @Test
+    public void convertNFby() {
+        DistEventType x = DistEventType.LocalEvent("x", 0);
+        DistEventType y = DistEventType.LocalEvent("y", 0);
+
+        TemporalInvariantSet synInvs = new TemporalInvariantSet();
+        synInvs.add(new NeverFollowedInvariant(x, y, "t"));
+        Set<dynoptic.invariants.BinaryInvariant> dynInvs = DynopticMain
+                .synInvsToDynInvs(synInvs);
+        assertTrue(dynInvs.size() == 1);
+
+        BinaryInvariant dInv = dynInvs.iterator().next();
+        assertTrue(dInv instanceof NeverFollowedBy);
+        assertTrue(dInv.getFirst().equals(x));
+        assertTrue(dInv.getSecond().equals(y));
+    }
+
+    @Test
+    public void convertEventually() {
+        DistEventType x = DistEventType.newInitialDistEventType();
+        DistEventType y = DistEventType.LocalEvent("y", 0);
+
+        TemporalInvariantSet synInvs = new TemporalInvariantSet();
+        synInvs.add(new AlwaysFollowedInvariant(x, y, "t"));
+        Set<dynoptic.invariants.BinaryInvariant> dynInvs = DynopticMain
+                .synInvsToDynInvs(synInvs);
+        assertTrue(dynInvs.size() == 1);
+
+        BinaryInvariant dInv = dynInvs.iterator().next();
+        assertTrue(dInv instanceof EventuallyHappens);
+        assertTrue(dInv.getFirst().equals(DistEventType.INITIALEventType));
+        assertTrue(((EventuallyHappens) dInv).getEvent().equals(y));
+        assertTrue(dInv.getSecond().equals(y));
+    }
+
+    // //////////////////// Integration tests.
 
     @Test
     public void runABPSuccess() throws Exception {
