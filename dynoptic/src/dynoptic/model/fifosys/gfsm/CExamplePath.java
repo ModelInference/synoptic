@@ -109,6 +109,8 @@ public class CExamplePath {
         assert xPartSrcIndex != -1;
 
         int maxLastStitchPartIndex = findMaxStitchPartIndex(xPartSrcIndex, x);
+        assert xPartSrcIndex <= maxLastStitchPartIndex;
+        assert maxLastStitchPartIndex < path.size();
 
         // //////////
         // Now refine the partition at maxLastStitchPartIndex.
@@ -148,6 +150,7 @@ public class CExamplePath {
         // partition.
 
         int maxLastStitchPartIndex = findMaxStitchPartIndex(xPartSrcIndex, x);
+        assert xPartSrcIndex <= maxLastStitchPartIndex;
         assert maxLastStitchPartIndex <= yPartSrcIndex;
 
         // //////////
@@ -156,12 +159,35 @@ public class CExamplePath {
     }
 
     /**
-     * Resolves an EventuallyHappens counter-example. For EventuallyHappens y,
-     * the path does not include a y. Refine the first partition that contains a
-     * stitching to the next partition to eliminate the counter-example path.
+     * Resolves an "EventuallyHappens y" counter-example path, which does not
+     * include a y. Our strategy is to trace back observations from the terminal
+     * partition in the counter-example path until we reach the first partition
+     * where the observations we've traced were stitched to earlier observations
+     * to make a connected counter-example path. We refine this partition to
+     * separate the two sets of observations within this partition.
      */
     private void resolve(EventuallyHappens inv, GFSM pGraph) {
-        // TODO
+        int lastPartIndex = path.size() - 1;
+        GFSMState lastPart = path.get(lastPartIndex);
+
+        // The set of observations in yPartSrc that emit y.
+        Set<ObsFifoSysState> termObservations = lastPart
+                .getTerminalObservations();
+
+        int minLastStitchPartIndex = path.size();
+        for (ObsFifoSysState s : termObservations) {
+            int newStitchIndex = findMinStitchPartIndex(lastPartIndex, s);
+            assert newStitchIndex >= 0;
+            assert newStitchIndex <= lastPartIndex;
+
+            if (newStitchIndex < minLastStitchPartIndex) {
+                minLastStitchPartIndex = newStitchIndex;
+            }
+        }
+
+        // //////////
+        // Now refine the partition at minLastStitchPartIndex.
+        refinePartition(pGraph, minLastStitchPartIndex);
     }
 
     /**
@@ -214,9 +240,12 @@ public class CExamplePath {
         // path) is the one we refine.
         int minLastStitchPartIndex = path.size();
         for (ObsFifoSysState s : yObsSources) {
-            int i = findMinStitchPartIndex(yPartSrcIndex, s);
-            if (i < minLastStitchPartIndex) {
-                minLastStitchPartIndex = i;
+            int newStitchIndex = findMinStitchPartIndex(yPartSrcIndex, s);
+            assert newStitchIndex >= 0;
+            assert newStitchIndex <= yPartSrcIndex;
+
+            if (newStitchIndex < minLastStitchPartIndex) {
+                minLastStitchPartIndex = newStitchIndex;
             }
         }
 
@@ -291,7 +320,7 @@ public class CExamplePath {
     }
 
     /**
-     * Follows the observed state s back along the partition in the
+     * Recursively follows the observed state s back along the partition in the
      * counter-example path. Once we find that we cannot follow it back any
      * further, we return the partition index, or the minimum stitch partition
      * index for s.
@@ -326,14 +355,17 @@ public class CExamplePath {
     }
 
     /**
-     * TODO: update comment<br/>
-     * Follows the observed state s back along the partition in the
-     * counter-example path. Once we find that we cannot follow it back any
-     * further, we return the partition index, or the minimum stitch partition
-     * index for s.
+     * Takes the observed state traces that begin in partition at index
+     * xPartSrcIndex and emit event x from this partition, and follows these
+     * along the counter-example path until we cannot follow it any further. We
+     * then return the maximum stitch partition index, which is the max over all
+     * these observed state traces we've followed.
      * 
-     * @param sPartIndex
-     * @param s
+     * @param xPartSrcIndex
+     *            The partition we start tracing from
+     * @param x
+     *            Determines the observed event types in partition at
+     *            xPartSrcIndex that we will trace through the c-example path.
      * @return
      */
     private int findMaxStitchPartIndex(int xPartSrcIndex, DistEventType x) {
@@ -343,18 +375,20 @@ public class CExamplePath {
         Set<ObsFifoSysState> xObsSources = xPartSrc
                 .getObservedStatesWithTransition(x);
 
-        // Determine the partition to refine, by tracking forward each
-        // observation that emits x from this partition along the
-        // counter-example path and identifying the partition where the
-        // observation was 'stitched' onto another observation. The
-        // partition of this kind that has maximal index (farthest along the
-        // path) is the one we refine.
+        // Track forward each observation that emits x from xPartSrcIndex
+        // partition along the counter-example path and identify the partition
+        // where the observation was 'stitched' onto another observation. The
+        // partition farthest along the path is the one we return for
+        // refinement.
         int maxLastStitchPartIndex = 0;
         for (ObsFifoSysState xObs : xObsSources) {
             int sPartIndex = xPartSrcIndex;
             ObsFifoSysState s = xObs;
+            // Track the observed path containing the observation xObs at the
+            // start through the counter-example path.
             while (true) {
                 if (sPartIndex == (path.size() - 1)) {
+                    // Reached the end of the counter-example path.
                     break;
                 }
 
@@ -362,10 +396,16 @@ public class CExamplePath {
                 DistEventType e = cExample.getEvents().get(sPartIndex);
                 s = s.getNextState(e);
                 if (s == null || s.getParent() != sPartNext) {
+                    // If the next observation does not have the right event
+                    // (the one required by the counter-example path), or if it
+                    // has the right event but the parent of the next
+                    // observation is not along the counter-example path, then
+                    // stop.
                     break;
                 }
                 sPartIndex += 1;
             }
+            // Update the max index.
             if (sPartIndex > maxLastStitchPartIndex) {
                 maxLastStitchPartIndex = sPartIndex;
             }
