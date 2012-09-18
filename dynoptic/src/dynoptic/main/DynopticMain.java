@@ -336,7 +336,15 @@ public class DynopticMain {
         }
 
         // ///////////////////
-        // Output the final CFSM model using GraphViz (dot-format).
+        // Output the final CFSM model (corresponding to pGraph) using GraphViz
+        // (dot-format).
+
+        // 1. get the CFSM:
+        // CFSM cfsm = pGraph.getCFSM();
+        //
+        // 2. For each process in the CFSM, visualize the FSM of the process:
+        // for each FSM f in CFSM, do:
+        // f.visualize(dotfile)
 
         // TODO.
     }

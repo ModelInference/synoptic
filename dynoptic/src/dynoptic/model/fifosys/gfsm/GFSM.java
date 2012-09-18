@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import mcscm.CounterExample;
@@ -197,6 +198,40 @@ public class GFSM extends FifoSys<GFSMState> {
     public void refine(GFSMState part, Set<ObsFifoSysState> setExtract) {
         part.removeAllObs(setExtract);
         states.add(new GFSMState(numProcesses, setExtract));
+    }
+
+    /**
+     * Refines partition part into setLeft and setRight -- keeping setLeft in
+     * part, and extracting the events in setRight. If (setLeft \\Union setRight
+     * != part) then the observations in part that are in neither of the two
+     * sets are assigned at random to setLeft or setRight with uniform
+     * probability.
+     * 
+     * @param part
+     * @param setLeft
+     * @param setRight
+     */
+    public void refineWithRandNonRelevantObsAssignment(GFSMState part,
+            Set<ObsFifoSysState> setLeft, Set<ObsFifoSysState> setRight) {
+        // We know that setLeft and setRight have to be isolated, but what
+        // about the observations in part that in neither of these two sets?
+        // Our strategy is to assign them at random, either to setLeft or
+        // setRight (and hope for the best).
+        Random rand = new Random();
+
+        for (ObsFifoSysState s : part.getObservedStates()) {
+            if (!setLeft.contains(s) && !setRight.contains(s)) {
+                // Assign s to setLeft or setRight at random.
+                if (rand.nextInt(2) == 0) {
+                    setLeft.add(s);
+                } else {
+                    setRight.add(s);
+                }
+            }
+        }
+
+        // Perform the complete refinement.
+        this.refine(part, setRight);
     }
 
     /**
