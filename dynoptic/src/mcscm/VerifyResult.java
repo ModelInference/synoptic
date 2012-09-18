@@ -19,7 +19,7 @@ public class VerifyResult {
 
     private boolean modelIsSafe;
 
-    private CounterExample cExample = null;
+    private McScMCExample cExample = null;
 
     private final List<ChannelId> cids;
 
@@ -42,7 +42,7 @@ public class VerifyResult {
         return this.modelIsSafe;
     }
 
-    public CounterExample getCExample() {
+    public McScMCExample getCExample() {
         return cExample;
     }
 
@@ -105,7 +105,7 @@ public class VerifyResult {
      *            header of the counterexample section in the output.
      */
     private void parseCounterExample(List<String> lines, int lineCnt) {
-        cExample = new CounterExample(cids);
+        cExample = new McScMCExample(cids);
         Pattern p = Pattern.compile(counterExEventRe);
 
         for (String line : lines.subList(lineCnt + 1, lines.size())) {

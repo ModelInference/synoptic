@@ -20,8 +20,8 @@ import dynoptic.invariants.AlwaysPrecedes;
 import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.model.fifosys.cfsm.CFSM;
-import dynoptic.model.fifosys.gfsm.CExamplePath;
 import dynoptic.model.fifosys.gfsm.GFSM;
+import dynoptic.model.fifosys.gfsm.GFSMCExample;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAG;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAGNode;
@@ -48,7 +48,7 @@ import synoptic.util.InternalSynopticException;
 /**
  * <p>
  * This class wraps everything together to provide a command-line interface, as
- * well as an API, to run Dynoptic programatically.
+ * well as an API, to run Dynoptic programmatically.
  * </p>
  * <p>
  * Unlike the synoptic code-base, DynopticMain is not a singleton and can be
@@ -320,10 +320,10 @@ public class DynopticMain {
 
                 // Match the sequence of events in the counter-example to
                 // paths of corresponding GFSM states.
-                List<CExamplePath> paths = pGraph.getCExamplePath(result
+                List<GFSMCExample> paths = pGraph.getCExamplePath(result
                         .getCExample());
 
-                for (CExamplePath path : paths) {
+                for (GFSMCExample path : paths) {
                     logger.info("Resolving " + path.toString());
                     path.resolve(curInv, pGraph);
                     if (!path.isResolved()) {

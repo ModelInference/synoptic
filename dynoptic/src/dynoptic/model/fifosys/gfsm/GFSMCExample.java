@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import mcscm.CounterExample;
+import mcscm.McScMCExample;
 import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.AlwaysPrecedes;
 import dynoptic.invariants.BinaryInvariant;
@@ -16,12 +16,13 @@ import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 import synoptic.model.event.DistEventType;
 
 /**
- * Represents a counter-example path in the GFSM, which corresponds to an
- * event-based counter-example that is returned by the McScM model checker.
+ * Represents a counter-example partitions path in the GFSM, which corresponds
+ * to an event-based counter-example that is returned by the McScM model
+ * checker.
  */
-public class CExamplePath {
+public class GFSMCExample {
     private final List<GFSMState> path;
-    private final CounterExample cExample;
+    private final McScMCExample cExample;
 
     // Whether or not this counter-example path has been resolved (refined) and
     // therefore no longer exists in the corresponding GFSM.
@@ -32,7 +33,7 @@ public class CExamplePath {
     private boolean isInitialized;
 
     /** Incremental path construction. */
-    public CExamplePath(CounterExample cExample) {
+    public GFSMCExample(McScMCExample cExample) {
         this.path = new ArrayList<GFSMState>();
         this.cExample = cExample;
         this.isInitialized = false;
@@ -54,7 +55,7 @@ public class CExamplePath {
     // /////////////////////////////////////////////////////////////
 
     /** All-at-once path construction. */
-    public CExamplePath(List<GFSMState> path, CounterExample cExample) {
+    public GFSMCExample(List<GFSMState> path, McScMCExample cExample) {
         // A few consistency checks.
         assert path.size() == (cExample.getEvents().size() + 1);
         assert path.get(0).isInitial();
@@ -64,6 +65,28 @@ public class CExamplePath {
         this.cExample = cExample;
         this.isResolved = false;
         this.isInitialized = true;
+    }
+
+    public boolean isResolved() {
+        assert this.isInitialized;
+
+        return isResolved;
+    }
+
+    @Override
+    public String toString() {
+        assert this.isInitialized;
+
+        String ret = "CExample[";
+        int i = 0;
+        for (GFSMState p : path) {
+            ret += p.toString();
+            if (i != path.size() - 1) {
+                ret += "-- " + cExample.getEvents().get(i).toString() + " --> ";
+            }
+            i += 1;
+        }
+        return ret + "]";
     }
 
     /**
@@ -88,6 +111,8 @@ public class CExamplePath {
         }
         this.isResolved = true;
     }
+
+    // /////////////////////////////////////////////////////////////
 
     /**
      * Resolves an AFby counter-example. For x AFby y, the path includes an x
@@ -413,25 +438,4 @@ public class CExamplePath {
         return maxLastStitchPartIndex;
     }
 
-    public boolean isResolved() {
-        assert this.isInitialized;
-
-        return isResolved;
-    }
-
-    @Override
-    public String toString() {
-        assert this.isInitialized;
-
-        String ret = "CExample[";
-        int i = 0;
-        for (GFSMState p : path) {
-            ret += p.toString();
-            if (i != path.size() - 1) {
-                ret += "-- " + cExample.getEvents().get(i).toString() + " --> ";
-            }
-            i += 1;
-        }
-        return ret + "]";
-    }
 }

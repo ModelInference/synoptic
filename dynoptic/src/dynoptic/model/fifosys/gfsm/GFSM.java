@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import mcscm.CounterExample;
+import mcscm.McScMCExample;
 import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
@@ -241,11 +241,11 @@ public class GFSM extends FifoSys<GFSMState> {
      * 
      * @param cExample
      */
-    public List<CExamplePath> getCExamplePath(CounterExample cExample) {
-        List<CExamplePath> paths = new ArrayList<CExamplePath>();
+    public List<GFSMCExample> getCExamplePath(McScMCExample cExample) {
+        List<GFSMCExample> paths = new ArrayList<GFSMCExample>();
         Set<GFSMState> inits = getInitStates();
         for (GFSMState parent : inits) {
-            List<CExamplePath> newPaths = buildCExamplePaths(cExample, 0,
+            List<GFSMCExample> newPaths = buildCExamplePaths(cExample, 0,
                     parent);
             if (newPaths != null) {
                 paths.addAll(newPaths);
@@ -258,14 +258,14 @@ public class GFSM extends FifoSys<GFSMState> {
      * Returns a set of counter-example paths that correspond to cExample,
      * starting at event index, and the corresponding GFSM state parent.
      */
-    private List<CExamplePath> buildCExamplePaths(CounterExample cExample,
+    private List<GFSMCExample> buildCExamplePaths(McScMCExample cExample,
             int eventIndex, GFSMState parent) {
-        List<CExamplePath> paths = null, newPaths = null;
+        List<GFSMCExample> paths = null, newPaths = null;
 
         if (eventIndex == cExample.getEvents().size()) {
-            CExamplePath path = new CExamplePath(cExample);
+            GFSMCExample path = new GFSMCExample(cExample);
             path.addToFrontOfPath(parent);
-            newPaths = new ArrayList<CExamplePath>();
+            newPaths = new ArrayList<GFSMCExample>();
             newPaths.add(path);
             return newPaths;
         }
@@ -288,7 +288,7 @@ public class GFSM extends FifoSys<GFSMState> {
             return null;
         }
 
-        for (CExamplePath path : paths) {
+        for (GFSMCExample path : paths) {
             path.addToFrontOfPath(parent);
         }
         return paths;
