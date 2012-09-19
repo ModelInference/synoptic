@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
@@ -125,6 +127,36 @@ public class ChannelIdTests extends DynopticTest {
         cid2 = new ChannelId(1, 2, 1);
         assertFalse(cid.equals(cid2));
         assertFalse(cid2.equals(cid));
+    }
+
+    // //////////////////// Test parsing of channel ids specification.
+
+    @Test
+    public void parseChannelIds() throws Exception {
+        List<ChannelId> cids;
+        cids = ChannelId.parseChannelSpec("M:0->1;A:1->0");
+        assertTrue(cids.size() == 2);
+        assertEquals(cids.get(0), new ChannelId(0, 1, 0, "M"));
+        assertEquals(cids.get(1), new ChannelId(1, 0, 1, "A"));
+
+        cids = ChannelId.parseChannelSpec("M:0->1;A:1->0;");
+        assertTrue(cids.size() == 2);
+        assertEquals(cids.get(0), new ChannelId(0, 1, 0, "M"));
+        assertEquals(cids.get(1), new ChannelId(1, 0, 1, "A"));
+
+        cids = ChannelId.parseChannelSpec("M:22->100");
+        assertTrue(cids.size() == 1);
+        assertEquals(cids.get(0), new ChannelId(22, 100, 0, "M"));
+    }
+
+    @Test(expected = Exception.class)
+    public void parseChannelIdsErrorDuplicateChNames() throws Exception {
+        ChannelId.parseChannelSpec("M:0->1;M:1->0");
+    }
+
+    @Test(expected = Exception.class)
+    public void parseChannelIdsErrorUnparseable() throws Exception {
+        ChannelId.parseChannelSpec("M:0->1;blah");
     }
 
 }
