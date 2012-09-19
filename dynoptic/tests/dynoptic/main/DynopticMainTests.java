@@ -1,6 +1,5 @@
 package dynoptic.main;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -23,7 +22,6 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.SynopticMain;
-import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
 
 public class DynopticMainTests extends DynopticTest {
@@ -45,38 +43,6 @@ public class DynopticMainTests extends DynopticTest {
         super.setUp();
         // Reset the SynopticMain singleton reference.
         SynopticMain.instance = null;
-    }
-
-    // //////////////////// Test parsing of channel ids specification.
-
-    @Test
-    public void parseChannelIds() {
-        List<ChannelId> cids;
-        cids = DynopticMain.parseChannelSpec("M:0->1;A:1->0");
-        assertTrue(cids.size() == 2);
-        assertEquals(cids.get(0), new ChannelId(0, 1, 0, "M"));
-        assertEquals(cids.get(1), new ChannelId(1, 0, 1, "A"));
-
-        cids = DynopticMain.parseChannelSpec("M:0->1;A:1->0;");
-        assertTrue(cids.size() == 2);
-        assertEquals(cids.get(0), new ChannelId(0, 1, 0, "M"));
-        assertEquals(cids.get(1), new ChannelId(1, 0, 1, "A"));
-
-        cids = DynopticMain.parseChannelSpec("M:22->100");
-        assertTrue(cids.size() == 1);
-        assertEquals(cids.get(0), new ChannelId(22, 100, 0, "M"));
-    }
-
-    @Test(expected = OptionException.class)
-    public void parseChannelIdsErrorDuplicateChNames() {
-        List<ChannelId> cids;
-        cids = DynopticMain.parseChannelSpec("M:0->1;M:1->0");
-    }
-
-    @Test(expected = OptionException.class)
-    public void parseChannelIdsErrorUnparseable() {
-        List<ChannelId> cids;
-        cids = DynopticMain.parseChannelSpec("M:0->1;blah");
     }
 
     // //////////////////// Check error conditions during options processing.
