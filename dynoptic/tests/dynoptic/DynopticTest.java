@@ -84,18 +84,20 @@ public class DynopticTest {
 
     // //////////////////////////////////////////////////
 
-    protected String getMcPath() {
+    public static String getMcPath() {
         // Determine whether to use the Linux or the OSX McScM binary.
         String osStr = null;
         if (Os.isLinux()) {
-            osStr = "linux";
+            osStr = "linux.static";
         } else if (Os.isMac()) {
-            osStr = "osx";
+        	String version = Os.getOsVersion();
+        	String arch = Os.getOsArch();
+            osStr = "osx-" + version + "-" + arch + ".dynamic";
         } else {
             fail("Running on an unsupported OS (not Linux, and not Mac).");
         }
 
         // NOTE: We assume the tests are run from synoptic/dynoptic/
-        return "../bin/mcscm.verify." + osStr;
+        return "../bin/mcscm-1.2/verify.native." + osStr;
     }
 }
