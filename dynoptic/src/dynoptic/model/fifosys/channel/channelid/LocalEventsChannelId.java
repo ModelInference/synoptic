@@ -57,10 +57,10 @@ public class LocalEventsChannelId extends ChannelId {
     public void addLocalEventString(DistEventType eventType, String eventStr) {
         assert eventType.isLocalEvent();
         if (eventStrToDistEventType.containsKey(eventStr)) {
-            assert !eventStrToDistEventType.containsKey(eventStr);
+            assert eventStrToDistEventType.get(eventStr).equals(eventType);
+        } else {
+            eventStrToDistEventType.put(eventStr, eventType);
         }
-
-        eventStrToDistEventType.put(eventStr, eventType);
     }
 
     public DistEventType getEventType(String eventStr) {

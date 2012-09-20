@@ -90,6 +90,11 @@ public class FSMAlphabet implements Set<DistEventType> {
         return events.toArray(arg0);
     }
 
+    @Override
+    public String toString() {
+        return events.toString();
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     public Set<String> getLocalEventScmStrings() {

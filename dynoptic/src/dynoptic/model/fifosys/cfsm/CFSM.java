@@ -125,6 +125,15 @@ public class CFSM extends FifoSys<CFSMState> {
         return deriveAllPermsOfStates(fnGetAcceptStates);
     }
 
+    @Override
+    public String toString() {
+        String ret = "CFSM: \n";
+        for (FSM f : fsms) {
+            ret += "\t" + f.toString() + "\n\n";
+        }
+        return ret.substring(0, ret.length() - 1);
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     /** Returns the bad states for all invariants that augment this CFSM. */
@@ -159,6 +168,10 @@ public class CFSM extends FifoSys<CFSMState> {
         List<BadState> badStates = new ArrayList<BadState>();
 
         Set<CFSMState> accepts = this.getAcceptStates();
+        if (accepts.isEmpty()) {
+            assert !accepts.isEmpty();
+        }
+
         List<String> qReList = new ArrayList<String>(channelIds.size());
 
         // Set non-synthetic queues reg-exps to accept the empty string.
@@ -296,46 +309,6 @@ public class CFSM extends FifoSys<CFSMState> {
     }
 
     /**
-     * Augment this CFSM with an "eventually happens e" invariant for model
-     * checking. This procedure is slightly different from binary invariants. In
-     * particular, we do not trace an 'initial' event and instead just trace the
-     * event e.
-     */
-    private void augmentWithInvTracing(EventuallyHappens inv) {
-        DistEventType e1 = inv.getEvent();
-
-        assert alphabet.contains(e1);
-        assert e1.getEventPid() < fsms.size();
-        assert !invs.contains(invs);
-
-        invs.add(inv);
-
-        int scmId = this.channelIds.size();
-
-        if (firstSyntheticChIndex > scmId) {
-            firstSyntheticChIndex = scmId;
-        }
-
-        // Create and add a new invariant-specific channel.
-        ChannelId invCid = new InvChannelId(inv, scmId);
-        this.channelIds.add(invCid);
-
-        // Update the FSM corresponding to e1.
-        Set<FSMState> visited = new LinkedHashSet<FSMState>();
-        FSM f1 = this.fsms.get(e1.getEventPid());
-        DistEventType e1Tracer1 = DistEventType
-                .SynthSendEvent(e1, invCid, true);
-        DistEventType e1Tracer2 = DistEventType.SynthSendEvent(e1, invCid,
-                false);
-        addSendToEventTx(f1, e1, e1Tracer1, e1Tracer2, visited);
-        this.alphabet.add(e1Tracer1);
-        this.alphabet.add(e1Tracer2);
-
-        inv.setFirstSynthTracers(e1Tracer1, e1Tracer2);
-        inv.setSecondSynthTracers(null, null);
-    }
-
-    /**
      * Generate SCM representation of this CFSM, with bad states if this CFSM
      * was augmented with any invariants.
      */
@@ -406,9 +379,11 @@ public class CFSM extends FifoSys<CFSMState> {
 
         assert numProcesses > 1;
 
+        // Permutations for processes 0 and 1.
         List<List<FSMState>> perms = Util.get2DPermutations(
                 fn.eval(fsms.get(0)), fn.eval(fsms.get(1)));
 
+        // Permutations for process with pid >= 2.
         int i = 2;
         while (i != numProcesses) {
             // Modifies perms in place.
@@ -417,6 +392,46 @@ public class CFSM extends FifoSys<CFSMState> {
         }
 
         return CFSMState.CFSMStatesFromFSMListLists(perms);
+    }
+
+    /**
+     * Augment this CFSM with an "eventually happens e" invariant for model
+     * checking. This procedure is slightly different from binary invariants. In
+     * particular, we do not trace an 'initial' event and instead just trace the
+     * event e.
+     */
+    private void augmentWithInvTracing(EventuallyHappens inv) {
+        DistEventType e1 = inv.getEvent();
+
+        assert alphabet.contains(e1);
+        assert e1.getEventPid() < fsms.size();
+        assert !invs.contains(invs);
+
+        invs.add(inv);
+
+        int scmId = this.channelIds.size();
+
+        if (firstSyntheticChIndex > scmId) {
+            firstSyntheticChIndex = scmId;
+        }
+
+        // Create and add a new invariant-specific channel.
+        ChannelId invCid = new InvChannelId(inv, scmId);
+        this.channelIds.add(invCid);
+
+        // Update the FSM corresponding to e1.
+        Set<FSMState> visited = new LinkedHashSet<FSMState>();
+        FSM f1 = this.fsms.get(e1.getEventPid());
+        DistEventType e1Tracer1 = DistEventType
+                .SynthSendEvent(e1, invCid, true);
+        DistEventType e1Tracer2 = DistEventType.SynthSendEvent(e1, invCid,
+                false);
+        addSendToEventTx(f1, e1, e1Tracer1, e1Tracer2, visited);
+        this.alphabet.add(e1Tracer1);
+        this.alphabet.add(e1Tracer2);
+
+        inv.setFirstSynthTracers(e1Tracer1, e1Tracer2);
+        inv.setSecondSynthTracers(null, null);
     }
 
     /**
@@ -506,13 +521,13 @@ public class CFSM extends FifoSys<CFSMState> {
         // re-writing.
         if (parent.getTransitioningEvents().contains(eToTrace)) {
             for (FSMState child : parent.getNextStates(eToTrace)) {
-                if (visited.contains(child)) {
-                    continue;
-                }
-
                 f.addSyntheticState(parent, child, eToTrace, eTracer1, eTracer2);
-                recurseAddSendToEventTx(f, child, eToTrace, eTracer1, eTracer2,
-                        visited);
+
+                if (!visited.contains(child)) {
+                    // If we haven't visited the child yet, then recurse to it.
+                    recurseAddSendToEventTx(f, child, eToTrace, eTracer1,
+                            eTracer2, visited);
+                }
             }
         }
 

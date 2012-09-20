@@ -111,9 +111,10 @@ public class FSM extends AbsFSM<FSMState> {
 
     @Override
     public String toString() {
-        String ret = "FSM[pid=" + pid + "] states: " + states.toString();
-        ret += ", inits: " + initStates.toString();
-        ret += ", accepts: " + acceptStates.toString();
+        String ret = "FSM[pid=" + pid + "]";
+        ret += "\n\tstates: " + states.toString();
+        ret += "\n\tinits: " + initStates.toString();
+        ret += "\n\taccepts: " + acceptStates.toString();
         return ret;
     }
 

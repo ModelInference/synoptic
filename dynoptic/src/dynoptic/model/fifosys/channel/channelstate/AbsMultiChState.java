@@ -105,7 +105,6 @@ abstract public class AbsMultiChState {
             if (s.getChannelId().getDstPid() == pid && s.size() != 0) {
                 return false;
             }
-
         }
         return true;
     }
