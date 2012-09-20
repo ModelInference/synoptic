@@ -1,0 +1,6 @@
+# Two nodes that execute initial events concurrently (e1,f1) and then
+# synchronize
+1,0 e1
+0,1 f1
+2,0 M!m
+2,2 M?m
