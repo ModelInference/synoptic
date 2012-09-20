@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
+import dynoptic.DynopticTest;
+
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
 
@@ -33,18 +35,8 @@ public class McScMTests {
 
     @Before
     public void setUp() {
-        // Determine whether to use the Linux or the OSX McScM binary.
-        String osStr = null;
-        if (Os.isLinux()) {
-            osStr = "linux";
-        } else if (Os.isMac()) {
-            osStr = "osx";
-        } else {
-            fail("Running on an unsupported OS (not Linux, and not Mac).");
-        }
-
         // NOTE: We assume the tests are run from synoptic/mcscm-bridge/
-        verifyPath = "../bin/mcscm.verify." + osStr;
+        verifyPath = DynopticTest.getMcPath();
         scmFilePrefix = "./tests/mcscm/";
 
         logger = Logger.getLogger("TestMcScM");
