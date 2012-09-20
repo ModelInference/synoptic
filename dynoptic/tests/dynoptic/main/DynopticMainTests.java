@@ -165,7 +165,11 @@ public class DynopticMainTests extends DynopticTest {
         dyn = new DynopticMain(opts);
 
         // TODO: takes too long.
-        // dyn.run();
+
+        long startTime = System.currentTimeMillis();
+        dyn.run();
+        long endTime = System.currentTimeMillis();
+        logger.info("Dynoptic run took: " + (endTime - startTime) + "ms");
     }
 
     @Test

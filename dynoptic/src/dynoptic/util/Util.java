@@ -42,12 +42,14 @@ public final class Util {
      * 2: [f,g],
      * </pre>
      * 
-     * returns a list containing:
+     * returns an updated (mutated) version of the first list, containing:
      * 
      * <pre>
      *  [[a,d,f],[a,e,f],    <- first list with f appended
      *   [a,d,g],[a,e,g],]   <- first list with g appended
      * </pre>
+     * 
+     * NOTE: mutates listList1
      */
     public static <T> void get2DPermutations(List<List<T>> listList1,
             Iterable<T> list2) {
