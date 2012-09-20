@@ -9,6 +9,14 @@ public final class Os {
     public static String getOsName() {
         return System.getProperty("os.name", "unknown");
     }
+    
+    public static String getOsVersion() {
+    	return System.getProperty("os.version");
+    }
+    
+    public static String getOsArch() {
+    	return System.getProperty("os.arch");
+    }
 
     public static boolean isLinux() {
         return getOsName().toLowerCase().indexOf("linux") >= 0;
