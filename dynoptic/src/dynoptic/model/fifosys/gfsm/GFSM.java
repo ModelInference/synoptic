@@ -352,6 +352,8 @@ public class GFSM extends FifoSys<GFSMState> {
             int eventIndex, GFSMState parent) {
         List<GFSMCExample> paths = null, newPaths = null;
 
+        // We reached the end of the events list: construct a new GFSMCExample
+        // instance containing just the parent partition and return it.
         if (eventIndex == cExample.getEvents().size()) {
             GFSMCExample path = new GFSMCExample(cExample);
             path.addToFrontOfPath(parent);
@@ -362,9 +364,13 @@ public class GFSM extends FifoSys<GFSMState> {
         DistEventType e = cExample.getEvents().get(eventIndex);
 
         if (!parent.getTransitioningEvents().contains(e)) {
+            // We can't make further progress along this partitions path with e
+            // as the next event.
             return null;
         }
 
+        // Recursively build the paths by traversing through each child that is
+        // reachable on e from parent.
         for (GFSMState child : parent.getNextStates(e)) {
             newPaths = buildCExamplePaths(cExample, eventIndex + 1, child);
             if (paths == null) {
