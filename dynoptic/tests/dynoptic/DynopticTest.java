@@ -13,10 +13,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
-import synoptic.model.channelid.ChannelId;
-
 import dynoptic.main.DynopticMain;
 import dynoptic.main.DynopticOptions;
+
+import synoptic.model.channelid.ChannelId;
 
 /**
  * Base test class for Dynoptic tests.

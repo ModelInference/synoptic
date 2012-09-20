@@ -589,8 +589,10 @@ public class DynopticMain {
         Iterator<dynoptic.invariants.BinaryInvariant> invIter = dynInvs
                 .iterator();
         dynoptic.invariants.BinaryInvariant curInv = invIter.next();
+        int curInvId = 1;
 
-        logger.info("Model checking " + curInv.toString());
+        logger.info("Model checking " + curInv.toString() + " : " + curInvId
+                + " / " + dynInvs.size());
         while (true) {
             // Get the CFSM corresponding to the partition graph.
             CFSM cfsm = pGraph.getCFSM();
@@ -600,8 +602,10 @@ public class DynopticMain {
             // Model check the CFSM using the McScM model checker.
             String cStr = cfsm.toScmString("checking_"
                     + curInv.getConnectorString());
-            mcscm.verify(cStr);
             logger.info(cStr);
+            logger.info("Checking ... " + curInv.toString() + " : " + curInvId
+                    + " / " + dynInvs.size());
+            mcscm.verify(cStr);
 
             VerifyResult result = mcscm.getVerifyResult(cfsm.getChannelIds());
             logger.info(result.toRawString());
@@ -615,7 +619,9 @@ public class DynopticMain {
                 }
                 // Check the next invariant.
                 curInv = invIter.next();
-                logger.info("Model checking " + curInv.toString());
+                curInvId += 1;
+                logger.info("Model checking " + curInv.toString() + " : "
+                        + curInvId + " / " + dynInvs.size());
             } else {
                 // Refine the pGraph to eliminate cExample.
 
@@ -623,6 +629,11 @@ public class DynopticMain {
                 // paths of corresponding GFSM states.
                 List<GFSMCExample> paths = pGraph.getCExamplePath(result
                         .getCExample());
+
+                assert paths != null;
+                if (paths.isEmpty()) {
+                    assert !paths.isEmpty();
+                }
 
                 for (GFSMCExample path : paths) {
                     logger.info("Resolving " + path.toString());

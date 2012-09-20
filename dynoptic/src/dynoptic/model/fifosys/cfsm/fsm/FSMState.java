@@ -24,8 +24,8 @@ import synoptic.model.event.DistEventType;
  */
 public class FSMState extends AbsFSMState<FSMState> {
     // Whether or not this state is an accepting/initial state.
-    private final boolean isAccept;
-    private final boolean isInitial;
+    private boolean isAccept;
+    private boolean isInitial;
 
     // Transitions to other FSMState instances.
     private final Map<DistEventType, Set<FSMState>> transitions;
@@ -56,6 +56,14 @@ public class FSMState extends AbsFSMState<FSMState> {
     @Override
     public boolean isAccept() {
         return isAccept;
+    }
+
+    public void setInitial(boolean newInitial) {
+        isInitial = newInitial;
+    }
+
+    public void setAccept(boolean newAccept) {
+        isAccept = newAccept;
     }
 
     @Override
@@ -137,12 +145,21 @@ public class FSMState extends AbsFSMState<FSMState> {
         assert s != null;
         assert pid == e.getEventPid();
         assert transitions.containsKey(e);
-        assert transitions.get(e).contains(s);
 
-        transitions.get(e).remove(s);
+        Set<FSMState> children = transitions.get(e);
+        assert children.contains(s);
+
+        children.remove(s);
+        if (children.isEmpty()) {
+            transitions.remove(e);
+        }
     }
 
-    /** Returns an SCM representation of this FSMStates. */
+    /**
+     * Returns an SCM representation of this FSMState. Updates the internal
+     * mapping maintained by localEventsChId to account for any local event
+     * transitions from this state.
+     */
     public String toScmString(LocalEventsChannelId localEventsChId) {
         String ret = "state " + scmId + " :\n";
 
@@ -154,10 +171,9 @@ public class FSMState extends AbsFSMState<FSMState> {
                         Integer.toString(e.getChannelId().getScmId()), ' ');
             } else {
                 // Local event: use local queue for local events.
-                localEventsChId.addLocalEventString(e,
-                        e.getScmEventFullString());
-                eStr = localEventsChId.getScmId() + " ! "
-                        + e.getScmEventFullString();
+                String eTypeStr = e.getScmEventFullString();
+                localEventsChId.addLocalEventString(e, eTypeStr);
+                eStr = localEventsChId.getScmId() + " ! " + eTypeStr;
             }
 
             for (FSMState next : transitions.get(e)) {
