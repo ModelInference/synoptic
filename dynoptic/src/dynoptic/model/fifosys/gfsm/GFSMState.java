@@ -3,6 +3,7 @@ package dynoptic.model.fifosys.gfsm;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import dynoptic.main.DynopticMain;
@@ -146,10 +147,22 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
 
     @Override
     public String toString() {
-        String ret = "Obs_[" + observedStates.size() + "]";
+        String ret = toShortString();
         ret += ((isInitial()) ? "_i" : "");
         ret += ((isAccept()) ? "_t" : "");
+        recreateCachedTransitions();
+        for (Entry<DistEventType, Set<GFSMState>> tx : transitions.entrySet()) {
+            ret += "\n\t -- " + tx.getKey().toString() + " --> [";
+            for (GFSMState child : tx.getValue()) {
+                ret += child.toShortString() + ", ";
+            }
+            ret += "]";
+        }
         return ret;
+    }
+
+    public String toShortString() {
+        return "Part-" + observedStates.size() + "-" + this.hashCode();
     }
 
     // //////////////////////////////////////////////////////////////////

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import mcscm.McScMCExample;
 import dynoptic.invariants.AlwaysFollowedBy;
@@ -21,6 +22,8 @@ import synoptic.model.event.DistEventType;
  * checker.
  */
 public class GFSMCExample {
+    public static Logger logger = Logger.getLogger("GFSMCExample");
+
     private final List<GFSMState> path;
     private final McScMCExample cExample;
 
@@ -46,6 +49,8 @@ public class GFSMCExample {
 
         path.add(0, state);
         if (path.size() == (cExample.getEvents().size() + 1)) {
+            logger.info("Constructed path = " + path);
+            logger.info("Event c-example path = " + cExample.toString());
             assert path.get(0).isInitial();
             assert path.get(path.size() - 1).isAccept();
             this.isInitialized = true;
@@ -75,18 +80,16 @@ public class GFSMCExample {
 
     @Override
     public String toString() {
-        assert this.isInitialized;
-
-        String ret = "CExample[";
+        String ret = "CExample[init=" + this.isInitialized + "] : ";
         int i = 0;
         for (GFSMState p : path) {
-            ret += p.toString();
+            ret += p.toShortString();
             if (i != path.size() - 1) {
                 ret += "-- " + cExample.getEvents().get(i).toString() + " --> ";
             }
             i += 1;
         }
-        return ret + "]";
+        return ret;
     }
 
     /**
@@ -160,11 +163,15 @@ public class GFSMCExample {
 
         for (int i = 0; i < (path.size() - 1); i++) {
             DistEventType e = cExample.getEvents().get(i);
+
+            // Match the y first (to handle the x == y case).
+            if (e.equals(y) && xPartSrcIndex != -1) {
+                yPartSrcIndex = i;
+                break;
+            }
+
             if (e.equals(x)) {
                 xPartSrcIndex = i;
-            }
-            if (e.equals(y) && xPartSrcIndex != -1) {
-                break;
             }
         }
         assert xPartSrcIndex != -1;
@@ -296,7 +303,7 @@ public class GFSMCExample {
         // Construct setRight.
         Set<ObsFifoSysState> setRight;
 
-        if (partIndex == path.size()) {
+        if (partIndex == (path.size() - 1)) {
             // Part is the last (terminal) partition in path, so we want to
             // isolate the observations that allow the counter-example path
             // to terminate at this partition from events that have
