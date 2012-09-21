@@ -21,6 +21,7 @@ import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.gfsm.GFSM;
 import dynoptic.model.fifosys.gfsm.GFSMCExample;
+import dynoptic.model.fifosys.gfsm.PartialGFSMCExample;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAG;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAGNode;
@@ -627,20 +628,41 @@ public class DynopticMain {
 
                 // Match the sequence of events in the counter-example to
                 // paths of corresponding GFSM states.
-                List<GFSMCExample> paths = pGraph.getCExamplePath(result
+                List<GFSMCExample> paths = pGraph.getCExamplePaths(result
                         .getCExample());
 
-                assert paths != null;
-                if (paths.isEmpty()) {
-                    assert !paths.isEmpty();
-                }
+                if (paths == null || paths.isEmpty()) {
+                    // A complete counter-example path does not exist. This may
+                    // occur when the GFSM->CFSM conversion does not produce
+                    // identical models (the CFSM model can be more general,
+                    // i.e., accept more behavior). In this case, we refine a
+                    // partial counter-example path with is the longest
+                    // partitions path that matches the McScM counter-example.
+                    PartialGFSMCExample partialPath = pGraph
+                            .getLongestPartialCExamplePath(result.getCExample());
 
-                for (GFSMCExample path : paths) {
-                    logger.info("Resolving " + path.toString());
-                    path.resolve(curInv, pGraph);
-                    if (!path.isResolved()) {
-                        throw new Exception("Cannot resolve " + path.toString()
-                                + " for " + curInv.toString());
+                    // TODO: resolve partialPath
+
+                } else {
+                    // Resolve all of the complete counter-example paths.
+                    for (GFSMCExample path : paths) {
+                        logger.info("Resolving " + path.toString());
+
+                        // TODO 1: after resolving a path in paths, we have to
+                        // check if the remaining counter-example paths are
+                        // still feasible before attempting to resolve them.
+
+                        // TODO 2: if the paths overlap then it might be
+                        // possible to resolve multiple paths with a single
+                        // refinement. Implement this optimization.
+
+                        path.resolve(curInv, pGraph);
+
+                        if (!path.isResolved()) {
+                            throw new Exception("Cannot resolve "
+                                    + path.toString() + " for "
+                                    + curInv.toString());
+                        }
                     }
                 }
             }
