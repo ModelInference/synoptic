@@ -124,6 +124,10 @@ public class CFSM extends FifoSys<CFSMState> {
 
         return deriveAllPermsOfStates(fnGetAcceptStates);
     }
+    
+    public List<FSM> getFSMs() {
+    	return fsms;
+    }
 
     @Override
     public String toString() {
