@@ -9,13 +9,26 @@ public final class Os {
     public static String getOsName() {
         return System.getProperty("os.name", "unknown");
     }
-    
+
     public static String getOsVersion() {
-    	return System.getProperty("os.version");
+        return System.getProperty("os.version");
     }
-    
+
+    /**
+     * Returns the version string, omitting the minor number. For example, if
+     * the version string is "10.8.2" then this returns "10.8"
+     */
+    public static String getMajorOSXVersion() {
+        String vs = getOsVersion();
+        if (!vs.contains(".")) {
+            return vs;
+        }
+        int lastDotIndex = vs.lastIndexOf(".");
+        return vs.substring(0, lastDotIndex);
+    }
+
     public static String getOsArch() {
-    	return System.getProperty("os.arch");
+        return System.getProperty("os.arch");
     }
 
     public static boolean isLinux() {
