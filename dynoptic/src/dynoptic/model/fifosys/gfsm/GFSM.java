@@ -323,16 +323,16 @@ public class GFSM extends FifoSys<GFSMState> {
     }
 
     /**
-     * Returns a set of counter-example paths that correspond to cExample. Since
-     * a GFSM is an NFA, we might have multiple matching paths. Constructs the
-     * paths using DFS exploration of the GFSM.
+     * Returns all counter-example paths in GFSM that correspond to the
+     * event-based McScMCExample. Since a GFSM is an NFA, we might have multiple
+     * matching paths. Constructs the paths using DFS exploration of the GFSM.
      * 
      * @param cExample
      */
-    public List<GFSMCExample> getCExamplePath(McScMCExample cExample) {
+    public List<GFSMCExample> getCExamplePaths(McScMCExample cExample) {
         List<GFSMCExample> paths = new ArrayList<GFSMCExample>();
-        Set<GFSMState> inits = getInitStates();
-        for (GFSMState parent : inits) {
+        // Explore potential paths from each global initial state in the GFSM.
+        for (GFSMState parent : getInitStates()) {
             List<GFSMCExample> newPaths = buildCExamplePaths(cExample, 0,
                     parent);
             if (newPaths != null) {
@@ -342,11 +342,88 @@ public class GFSM extends FifoSys<GFSMState> {
         return paths;
     }
 
+    /**
+     * Returns the longest _partial_ counter-example path in the GFSM that
+     * correspond to the event-based McScMCExample. If a complete
+     * counter-example is possible, then an AssertionError is thrown: Use
+     * getCExamplePaths() to first to determine if a complete counter-example
+     * path is impossible and it is necessary to construct a partial
+     * counter-example path for refinement.
+     * 
+     * @param cExample
+     */
+    public PartialGFSMCExample getLongestPartialCExamplePath(
+            McScMCExample cExample) {
+        // Explore potential paths from each global initial state in the GFSM.
+        PartialGFSMCExample maxPath = null;
+        PartialGFSMCExample newPath = null;
+        for (GFSMState parent : getInitStates()) {
+            newPath = buildCExamplePartialPaths(cExample, 0, parent);
+            if (newPath == null) {
+                continue;
+            }
+            if (maxPath == null || maxPath.pathLength() < newPath.pathLength()) {
+                maxPath = newPath;
+            }
+        }
+
+        assert maxPath != null;
+        // If maxPath length is 1 then we haven't even matched the first event
+        // in cExample. Therefore we cannot consider maxPath to be a partial
+        // path of cExample. And, at least one partial path must exist, based on
+        // GFSM->CFSM conversion.
+        assert maxPath.pathLength() > 1;
+
+        return maxPath;
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     /**
+     * Returns a single longest partial counter-example path corresponding to
+     * cExample, starting at event index, and the corresponding GFSM partition
+     * parent. This method is based on buildCExamplePaths() below.
+     */
+    private PartialGFSMCExample buildCExamplePartialPaths(
+            McScMCExample cExample, int eventIndex, GFSMState parent) {
+        PartialGFSMCExample path = null, newPath = null;
+
+        // Check that we did not reach the end of the events list (so a complete
+        // counter-example is possible).
+        assert (eventIndex != cExample.getEvents().size());
+
+        DistEventType e = cExample.getEvents().get(eventIndex);
+
+        if (!parent.getTransitioningEvents().contains(e)) {
+            // We can't make further progress along this partitions path with e
+            // as the next event.
+            path = new PartialGFSMCExample(cExample);
+            path.addToFrontOfPath(parent);
+            return path;
+        }
+
+        // Recursively build the possible partial paths by traversing through
+        // each child that is reachable on e from parent.
+        for (GFSMState child : parent.getNextStates(e)) {
+            newPath = buildCExamplePartialPaths(cExample, eventIndex + 1, child);
+            if (path == null || newPath.pathLength() > path.pathLength()) {
+                path = newPath;
+            }
+        }
+
+        // Add the current partition to the front of the longest partial path
+        // constructed and return.
+        if (path == null) {
+            path = new PartialGFSMCExample(cExample);
+        }
+        path.addToFrontOfPath(parent);
+
+        return path;
+    }
+
+    /**
      * Returns a set of counter-example paths that correspond to cExample,
-     * starting at event index, and the corresponding GFSM state parent.
+     * starting at event index, and the corresponding GFSM partition parent.
      */
     private List<GFSMCExample> buildCExamplePaths(McScMCExample cExample,
             int eventIndex, GFSMState parent) {
@@ -399,10 +476,11 @@ public class GFSM extends FifoSys<GFSMState> {
     }
 
     /**
-     * Depth-first recursive traversal of the GFSM state/transition graph. We
-     * back-out when we reach a node that we've visited before. As we traverse,
-     * we build up the FSMState states for the specific pid, which are only
-     * dependent on event types that are relevant to this pid.
+     * Depth-first recursive traversal of the GFSM state/transition graph to
+     * construct an equivalent CFSM (though in practice the CFSM may accept more
+     * behaviors). We back-out when we reach a node that we've visited before.
+     * As we traverse, we build up the FSMState states for the specific pid,
+     * which are only dependent on event types that are relevant to this pid.
      * 
      * @param stateMap
      * @param gParent
