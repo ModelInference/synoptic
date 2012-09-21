@@ -90,8 +90,8 @@ public class DynopticTest {
         if (Os.isLinux()) {
             osStr = "linux.static";
         } else if (Os.isMac()) {
-        	String version = Os.getOsVersion();
-        	String arch = Os.getOsArch();
+            String version = Os.getMajorOSXVersion();
+            String arch = Os.getOsArch();
             osStr = "osx-" + version + "-" + arch + ".dynamic";
         } else {
             fail("Running on an unsupported OS (not Linux, and not Mac).");
