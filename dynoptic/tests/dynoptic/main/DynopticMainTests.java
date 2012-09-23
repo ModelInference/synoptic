@@ -165,7 +165,7 @@ public class DynopticMainTests extends DynopticTest {
         dyn = new DynopticMain(opts);
 
         long startTime = System.currentTimeMillis();
-        // dyn.run();
+        dyn.run();
         long endTime = System.currentTimeMillis();
         logger.info("Dynoptic run took: " + (endTime - startTime) + "ms");
     }
@@ -184,6 +184,6 @@ public class DynopticMainTests extends DynopticTest {
         args.add("-d");
         opts = new DynopticOptions(args.toArray(new String[0]));
         dyn = new DynopticMain(opts);
-        // dyn.run();
+        dyn.run();
     }
 }

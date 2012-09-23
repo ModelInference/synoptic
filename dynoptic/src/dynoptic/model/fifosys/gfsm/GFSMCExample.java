@@ -1,10 +1,7 @@
 package dynoptic.model.fifosys.gfsm;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import mcscm.McScMCExample;
 import dynoptic.invariants.AlwaysFollowedBy;
@@ -21,36 +18,24 @@ import synoptic.model.event.DistEventType;
  * to an event-based counter-example that is returned by the McScM model
  * checker.
  */
-public class GFSMCExample {
-    public static Logger logger = Logger.getLogger("GFSMCExample");
-
-    private final List<GFSMState> path;
-    private final McScMCExample cExample;
-
-    // Whether or not this counter-example path has been resolved (refined) and
-    // therefore no longer exists in the corresponding GFSM.
-    private boolean isResolved;
-
+public class GFSMCExample extends PartialGFSMCExample {
     // Whether or not the path corresponding to cExample is completely
     // initialized (i.e., whether it is of the appropriate length).
     private boolean isInitialized;
 
     /** Incremental path construction. */
-    public GFSMCExample(McScMCExample cExample) {
-        this.path = new ArrayList<GFSMState>();
-        this.cExample = cExample;
+    public GFSMCExample(McScMCExample mcCExample) {
+        super(mcCExample);
         this.isInitialized = false;
     }
 
     /** Adds state to the front of the internal c-example path. */
     public void addToFrontOfPath(GFSMState state) {
-        assert this.path != null;
-        assert this.path.size() < (cExample.getEvents().size() + 1);
+        super.addToFrontOfPathNoPostChecks(state);
 
-        path.add(0, state);
-        if (path.size() == (cExample.getEvents().size() + 1)) {
+        if (path.size() == (mcCExample.getEvents().size() + 1)) {
             logger.info("Constructed path = " + path);
-            logger.info("Event c-example path = " + cExample.toString());
+            logger.info("Event c-example path = " + mcCExample.toString());
             assert path.get(0).isInitial();
             assert path.get(path.size() - 1).isAccept();
             this.isInitialized = true;
@@ -61,35 +46,28 @@ public class GFSMCExample {
 
     /** All-at-once path construction. */
     public GFSMCExample(List<GFSMState> path, McScMCExample cExample) {
+        super(path, cExample);
         // A few consistency checks.
         assert path.size() == (cExample.getEvents().size() + 1);
-        assert path.get(0).isInitial();
         assert path.get(path.size() - 1).isAccept();
-
-        this.path = path;
-        this.cExample = cExample;
-        this.isResolved = false;
         this.isInitialized = true;
     }
 
-    public boolean isResolved() {
-        assert this.isInitialized;
-
-        return isResolved;
+    public List<GFSMState> getPartitionPath() {
+        assert isInitialized;
+        return super.getPartitionPath();
     }
 
-    @Override
-    public String toString() {
-        String ret = "CExample[init=" + this.isInitialized + "] : ";
-        int i = 0;
-        for (GFSMState p : path) {
-            ret += p.toShortString();
-            if (i != path.size() - 1) {
-                ret += "-- " + cExample.getEvents().get(i).toString() + " --> ";
-            }
-            i += 1;
-        }
-        return ret;
+    public McScMCExample getMcScMCExample() {
+        assert isInitialized;
+
+        return super.getMcScMCExample();
+    }
+
+    public boolean isResolved() {
+        assert isInitialized;
+
+        return super.isResolved();
     }
 
     /**
@@ -101,7 +79,7 @@ public class GFSMCExample {
      * to the two resulting refined partitions.
      */
     public void resolve(BinaryInvariant inv, GFSM pGraph) {
-        assert this.isInitialized;
+        assert isInitialized;
 
         if (inv instanceof AlwaysPrecedes) {
             resolve((AlwaysPrecedes) inv, pGraph);
@@ -129,7 +107,7 @@ public class GFSMCExample {
         // Find the last partition along the path that emits the event x.
         int xPartSrcIndex = -1;
         for (int i = 0; i < (path.size() - 1); i++) {
-            DistEventType e = cExample.getEvents().get(i);
+            DistEventType e = mcCExample.getEvents().get(i);
             if (e.equals(x)) {
                 xPartSrcIndex = i;
             }
@@ -162,7 +140,7 @@ public class GFSMCExample {
         int yPartSrcIndex = -1; // Py
 
         for (int i = 0; i < (path.size() - 1); i++) {
-            DistEventType e = cExample.getEvents().get(i);
+            DistEventType e = mcCExample.getEvents().get(i);
 
             // Match the y first (to handle the x == y case).
             if (e.equals(y) && xPartSrcIndex != -1) {
@@ -233,7 +211,7 @@ public class GFSMCExample {
         // The first partition that emits the event y.
         int yPartSrcIndex = -1;
         for (int i = 0; i < (path.size() - 1); i++) {
-            DistEventType e = cExample.getEvents().get(i);
+            DistEventType e = mcCExample.getEvents().get(i);
             if (e.equals(y)) {
                 yPartSrcIndex = i;
                 break;
@@ -287,106 +265,6 @@ public class GFSMCExample {
     }
 
     /**
-     * Refine partition at partIndex in the path of partition along the
-     * counter-example path. The goal is to isolate setLeft and setRight of
-     * observations in this partition. These two sets are constructed so that
-     * after the partitioning this counter-example path is eliminated.
-     * Observations that are not pertinent to this refinement in the partition
-     * are assigned at random to setLeft and setRight.
-     * 
-     * @param pGraph
-     * @param partIndex
-     */
-    private void refinePartition(GFSM pGraph, int partIndex) {
-        GFSMState part = path.get(partIndex);
-
-        // Construct setRight.
-        Set<ObsFifoSysState> setRight;
-
-        if (partIndex == (path.size() - 1)) {
-            // Part is the last (terminal) partition in path, so we want to
-            // isolate the observations that allow the counter-example path
-            // to terminate at this partition from events that have
-            // transitioned the path into this partition.
-            setRight = part.getTerminalObservations();
-        } else {
-            // Construct setRight to contain observations that transition
-            // from part to partNext in the counter-example path.
-            setRight = new LinkedHashSet<ObsFifoSysState>();
-            DistEventType eNext = cExample.getEvents().get(partIndex);
-            GFSMState partNext = path.get(partIndex + 1);
-            for (ObsFifoSysState s : part
-                    .getObservedStatesWithTransition(eNext)) {
-                if (s.getNextState(eNext).getParent() == partNext) {
-                    setRight.add(s);
-                }
-            }
-        }
-
-        // Construct setLeft.
-        Set<ObsFifoSysState> setLeft;
-
-        if (partIndex == 0) {
-            // Part is the first (initial) partition in path, so we want to
-            // isolate the initial observations in this partition from those
-            // that generate the counter-example path.
-            setLeft = part.getInitialObservations();
-        } else {
-            // As above for determining setRight, but we head to the left
-            // and build a set of observations in part that can be reached
-            // from the previous partition along the counter-example path.
-
-            setLeft = new LinkedHashSet<ObsFifoSysState>();
-
-            DistEventType ePrev = cExample.getEvents().get(partIndex - 1);
-            GFSMState partPrev = path.get(partIndex - 1);
-            for (ObsFifoSysState s : partPrev
-                    .getObservedStatesWithTransition(ePrev)) {
-                if (s.getNextState(ePrev).getParent() == part) {
-                    setLeft.add(s.getNextState(ePrev));
-                }
-            }
-        }
-
-        pGraph.refineWithRandNonRelevantObsAssignment(part, setLeft, setRight);
-    }
-
-    /**
-     * Recursively follows the observed state s back along the partition in the
-     * counter-example path. Once we find that we cannot follow it back any
-     * further, we return the partition index, or the minimum stitch partition
-     * index for s.
-     * 
-     * @param sPartIndex
-     * @param s
-     * @return
-     */
-    private int findMinStitchPartIndex(int sPartIndex, ObsFifoSysState s) {
-        if (sPartIndex == 0) {
-            return sPartIndex;
-        }
-        GFSMState prevPart = path.get(sPartIndex - 1);
-        int minIndex = sPartIndex;
-        DistEventType e = cExample.getEvents().get(sPartIndex);
-
-        // There might be multiple observed states from prevPart that transition
-        // to s, so we explore all of them and return the min index we find.
-        for (ObsFifoSysState sPred : prevPart
-                .getObservedStatesWithTransition(e)) {
-            // The observed fifo sys instances are deterministic, so there is
-            // just one transition on e from sPred.
-            if (sPred.getNextState(e).equals(s)) {
-                int newStitchIndex = findMinStitchPartIndex(sPartIndex - 1,
-                        sPred);
-                if (newStitchIndex < minIndex) {
-                    minIndex = newStitchIndex;
-                }
-            }
-        }
-        return minIndex;
-    }
-
-    /**
      * Takes the observed state traces that begin in partition at index
      * xPartSrcIndex and emit event x from this partition, and follows these
      * along the counter-example path until we cannot follow it any further. We
@@ -425,7 +303,7 @@ public class GFSMCExample {
                 }
 
                 GFSMState sPartNext = path.get(sPartIndex + 1);
-                DistEventType e = cExample.getEvents().get(sPartIndex);
+                DistEventType e = mcCExample.getEvents().get(sPartIndex);
                 s = s.getNextState(e);
                 if (s == null || s.getParent() != sPartNext) {
                     // If the next observation does not have the right event
