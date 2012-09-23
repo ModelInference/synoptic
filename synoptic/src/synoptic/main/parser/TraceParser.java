@@ -676,7 +676,7 @@ public class TraceParser {
                             logger.severe(error);
                             throw new ParseException(error);
                         }
-                        ((DistEventType) eNode.getEType()).setPID(Integer
+                        ((DistEventType) eNode.getEType()).setProcessName(Integer
                                 .toString(pid));
                     }
                     pid += 1;
@@ -696,14 +696,14 @@ public class TraceParser {
                         logger.severe(error);
                         throw new ParseException(error);
                     }
-                    PIDs.add(((DistEventType) node.getEType()).getPID());
+                    PIDs.add(((DistEventType) node.getEType()).getProcessName());
                 }
 
                 LinkedList<EventNode> pidEvents = new LinkedList<EventNode>();
                 for (String pid : PIDs) {
                     // Select all events from the partition with the same PID
                     for (EventNode node : group) {
-                        if (((DistEventType) node.getEType()).getPID().equals(
+                        if (((DistEventType) node.getEType()).getProcessName().equals(
                                 pid)) {
                             pidEvents.add(node);
                         }

@@ -22,6 +22,8 @@ import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.SynopticMain;
+import synoptic.main.parser.TraceParser;
+import synoptic.model.EventNode;
 import synoptic.model.event.DistEventType;
 
 public class DynopticMainTests extends DynopticTest {
@@ -145,6 +147,50 @@ public class DynopticMainTests extends DynopticTest {
         assertTrue(dInv.getFirst().equals(DistEventType.INITIALEventType));
         assertTrue(((EventuallyHappens) dInv).getEvent().equals(y));
         assertTrue(dInv.getSecond().equals(y));
+    }
+
+    // //////////////////// Test file parsing.
+
+    @Test
+    public void testParseEventsFromFiles() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.add("../traces/EndToEndDynopticTests/simple-po-concurrency/trace.txt");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("M:0->1");
+        args.add("-i");
+        args.add("-d");
+        opts = new DynopticOptions(args.toArray(new String[0]));
+        dyn = new DynopticMain(opts);
+        dyn.initializeSynoptic();
+
+        TraceParser parser = new TraceParser(opts.regExps,
+                opts.partitionRegExp, opts.separatorRegExp);
+        List<String> logFilenames = opts.logFilenames;
+
+        List<EventNode> parsedEvents = dyn.parseEventsFromFiles(parser,
+                logFilenames);
+
+        assertTrue(parsedEvents.size() == 4);
+        assertTrue(dyn.getNumProcesses() == 2);
+
+        int numPid0Events = 0;
+        int numPid1Events = 0;
+        for (EventNode n : parsedEvents) {
+            assertTrue(n.getEType() instanceof DistEventType);
+            if (((DistEventType) n.getEType()).getPid() == 0) {
+                numPid0Events += 1;
+            }
+
+            if (((DistEventType) n.getEType()).getPid() == 1) {
+                numPid1Events += 1;
+            }
+        }
+        assertTrue(numPid0Events == 2);
+        assertTrue(numPid1Events == 2);
     }
 
     // //////////////////// Integration tests.

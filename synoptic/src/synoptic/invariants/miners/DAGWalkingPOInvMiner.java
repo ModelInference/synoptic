@@ -321,8 +321,8 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
                             || !(e2 instanceof DistEventType)) {
                         continue;
                     }
-                    if (((DistEventType) e1).getPID().equals(
-                            ((DistEventType) e2).getPID())) {
+                    if (((DistEventType) e1).getProcessName().equals(
+                            ((DistEventType) e2).getProcessName())) {
 
                         continue;
                     }
@@ -379,8 +379,8 @@ public class DAGWalkingPOInvMiner extends CountingInvariantMiner implements
                                 || !(e2 instanceof DistEventType)) {
                             continue;
                         }
-                        if (((DistEventType) e1).getPID().equals(
-                                ((DistEventType) e2).getPID())) {
+                        if (((DistEventType) e1).getProcessName().equals(
+                                ((DistEventType) e2).getProcessName())) {
                             continue;
                         }
                         // </Optimization>

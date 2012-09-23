@@ -254,7 +254,7 @@ public class CFSM extends FifoSys<CFSMState> {
                     ppid = e.getChannelId().getSrcPid();
                     assert ppid >= 0 && ppid < numProcesses;
                 } else {
-                    ppid = e.getEventPid();
+                    ppid = e.getPid();
                     assert ppid >= 0 && ppid < numProcesses;
                 }
             }
@@ -404,7 +404,7 @@ public class CFSM extends FifoSys<CFSMState> {
         DistEventType e1 = inv.getEvent();
 
         assert alphabet.contains(e1);
-        assert e1.getEventPid() < fsms.size();
+        assert e1.getPid() < fsms.size();
         assert !invs.contains(invs);
 
         invs.add(inv);
@@ -421,7 +421,7 @@ public class CFSM extends FifoSys<CFSMState> {
 
         // Update the FSM corresponding to e1.
         Set<FSMState> visited = new LinkedHashSet<FSMState>();
-        FSM f1 = this.fsms.get(e1.getEventPid());
+        FSM f1 = this.fsms.get(e1.getPid());
         DistEventType e1Tracer1 = DistEventType
                 .SynthSendEvent(e1, invCid, true);
         DistEventType e1Tracer2 = DistEventType.SynthSendEvent(e1, invCid,
@@ -445,8 +445,8 @@ public class CFSM extends FifoSys<CFSMState> {
 
         assert alphabet.contains(e1);
         assert alphabet.contains(e2);
-        assert e1.getEventPid() < fsms.size();
-        assert e2.getEventPid() < fsms.size();
+        assert e1.getPid() < fsms.size();
+        assert e2.getPid() < fsms.size();
         assert !invs.contains(invs);
 
         invs.add(inv);
@@ -463,7 +463,7 @@ public class CFSM extends FifoSys<CFSMState> {
 
         // Update the FSM corresponding to e1.
         Set<FSMState> visited = new LinkedHashSet<FSMState>();
-        FSM f1 = this.fsms.get(e1.getEventPid());
+        FSM f1 = this.fsms.get(e1.getPid());
         DistEventType e1Tracer1 = DistEventType
                 .SynthSendEvent(e1, invCid, true);
         DistEventType e1Tracer2 = DistEventType.SynthSendEvent(e1, invCid,
@@ -474,7 +474,7 @@ public class CFSM extends FifoSys<CFSMState> {
 
         // Update the FSM corresponding to e2.
         visited.clear();
-        FSM f2 = this.fsms.get(e2.getEventPid());
+        FSM f2 = this.fsms.get(e2.getPid());
         DistEventType e2Tracer1 = DistEventType
                 .SynthSendEvent(e2, invCid, true);
         DistEventType e2Tracer2 = DistEventType.SynthSendEvent(e2, invCid,

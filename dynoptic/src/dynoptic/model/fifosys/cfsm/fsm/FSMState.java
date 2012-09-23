@@ -113,7 +113,7 @@ public class FSMState extends AbsFSMState<FSMState> {
     public void addTransition(DistEventType e, FSMState s) {
         assert e != null;
         assert s != null;
-        assert pid == e.getEventPid();
+        assert pid == e.getPid();
 
         addTransitionNoChecks(e, s);
     }
@@ -143,7 +143,7 @@ public class FSMState extends AbsFSMState<FSMState> {
     public void rmTransition(DistEventType e, FSMState s) {
         assert e != null;
         assert s != null;
-        assert pid == e.getEventPid();
+        assert pid == e.getPid();
         assert transitions.containsKey(e);
 
         Set<FSMState> children = transitions.get(e);

@@ -7,14 +7,21 @@ import synoptic.model.channelid.ChannelId;
 /**
  * Implements an EventType for a partially ordered log. Here, the event type is
  * a unique string, that is also associated with an abstract "process" via some
- * identifier. The pid doesn't have to be a physical process id. For example, it
- * could also be interpreted as a role that a host performs in the system (e.g.
- * replica role id).
+ * identifier. The process name doesn't have to be a physical process id. For
+ * example, it could also be interpreted as a role that a host performs in the
+ * system (e.g. replica role id, or a string like "client").
  */
 public class DistEventType extends EventType {
+    // The string representation of the event type (e.g., "send").
     private String eType;
-    private String processId;
-    private final static String syntheticEventPID = "-1";
+
+    // The name of the process that generated the event. This is a string, like
+    // "client", but it could also be a process id, like "0". This is used by
+    // Synoptic, but not Dynoptic.
+    private String processName;
+
+    // Used by INITIAL and TERMINAL event types (that are not process-specific).
+    private final static String syntheticEventProcessName = "-1";
 
     // ////////////////////////////////////////////////////////////////
     // Dynoptic-specific class members:
@@ -27,7 +34,6 @@ public class DistEventType extends EventType {
      * while local events are associated with a process id of the corresponding
      * process.
      */
-
     public static DistEventType LocalEvent(String event, int pid) {
         return new DistEventType(event, pid, EventClass.LOCAL, null);
 
@@ -59,10 +65,10 @@ public class DistEventType extends EventType {
 
     protected EventClass eventCls = null;
 
-    // LOCAL event types are associated with an integer iPid:
-    // SEND/RECV events have this iPid set to the id of the sender/receiver
+    // LOCAL event types are associated with an integer pid.
+    // SEND/RECV events have this pid set to the id of the sender/receiver
     // process.
-    protected int iPid = -1;
+    protected int pid = -1;
 
     // SEND and RECV event types are associated with a channel id (i.e., a
     // sender and a receiver pid):
@@ -84,7 +90,7 @@ public class DistEventType extends EventType {
         assert channelIds != null;
         assert channelId == null;
         assert eventCls == null;
-        assert iPid == -1;
+        assert pid == -1;
 
         // The following characters conflict with SCM's regular-expressions
         // output format.
@@ -111,7 +117,7 @@ public class DistEventType extends EventType {
             this.eventCls = EventClass.SEND;
         } else {
             // A local event type.
-            this.iPid = Integer.parseInt(getPID());
+            this.pid = Integer.parseInt(getProcessName());
             this.eventCls = EventClass.LOCAL;
             return null;
         }
@@ -138,9 +144,9 @@ public class DistEventType extends EventType {
         }
 
         if (this.eventCls == EventClass.SEND) {
-            this.iPid = channelId.getSrcPid();
+            this.pid = channelId.getSrcPid();
         } else {
-            this.iPid = channelId.getDstPid();
+            this.pid = channelId.getDstPid();
         }
 
         return null;
@@ -159,8 +165,8 @@ public class DistEventType extends EventType {
                 EventClass.SYNTH_SEND, channel);
     }
 
-    public int getEventPid() {
-        return iPid;
+    public int getPid() {
+        return pid;
     }
 
     public ChannelId getChannelId() {
@@ -206,7 +212,7 @@ public class DistEventType extends EventType {
         } else if (isRecvEvent()) {
             return "ch" + channelId.getScmId() + "R" + eType;
         }
-        return eType + "p" + Integer.toString(iPid) + "L";
+        return eType + "p" + Integer.toString(pid) + "L";
     }
 
     public String toString(String cidString, char separator) {
@@ -227,7 +233,7 @@ public class DistEventType extends EventType {
     public DistEventType(String type, int pid, EventClass eventCls,
             ChannelId cid) {
         this(type, Integer.toString(pid), false, false);
-        this.iPid = pid;
+        this.pid = pid;
         this.eventCls = eventCls;
         this.channelId = cid;
     }
@@ -236,27 +242,27 @@ public class DistEventType extends EventType {
     // end Dynoptic-specific class members
     // ////////////////////////////////////////////////////////////////
 
-    private DistEventType(String eType, String pid, boolean isInitialEventType,
-            boolean isTerminalEventType) {
+    private DistEventType(String eType, String pName,
+            boolean isInitialEventType, boolean isTerminalEventType) {
         super(isInitialEventType, isTerminalEventType);
         this.eType = eType;
-        processId = pid;
+        processName = pName;
     }
 
     /**
      * Creates a new DistEventType that is a non-INITIAL and non-TERMINAL with a
-     * pid.
+     * pName.
      */
-    public DistEventType(String type, String pid) {
-        this(type, pid, false, false);
+    public DistEventType(String type, String pName) {
+        this(type, pName, false, false);
     }
 
     /**
      * Creates a new DistEventType that is a non-INITIAL and non-TERMINAL
-     * without a pid.
+     * without a pName.
      */
     public DistEventType(String type) {
-        // We set pid to "-1" to indicate that it is not initialized.
+        // We set pName to "-1" to indicate that it is not initialized.
         this(type, "-1", false, false);
     }
 
@@ -264,8 +270,8 @@ public class DistEventType extends EventType {
      * Creates a new DistEventType that is an INITIAL.
      */
     static public DistEventType newInitialDistEventType() {
-        return new DistEventType(EventType.initialNodeLabel, syntheticEventPID,
-                true, false);
+        return new DistEventType(EventType.initialNodeLabel,
+                syntheticEventProcessName, true, false);
     }
 
     /**
@@ -273,7 +279,7 @@ public class DistEventType extends EventType {
      */
     static public DistEventType newTerminalDistEventType() {
         return new DistEventType(EventType.terminalNodeLabel,
-                syntheticEventPID, false, true);
+                syntheticEventProcessName, false, true);
     }
 
     // ///////////////////////////////////////////////////////////////////////
@@ -282,12 +288,12 @@ public class DistEventType extends EventType {
         return eType;
     }
 
-    public String getPID() {
-        return processId;
+    public String getProcessName() {
+        return processName;
     }
 
-    public String setPID(String pid) {
-        return processId = pid;
+    public String setProcessName(String pName) {
+        return processName = pName;
     }
 
     @Override
@@ -301,7 +307,7 @@ public class DistEventType extends EventType {
         if (eTypeCmp != 0) {
             return eTypeCmp;
         }
-        return processId.compareTo(dother.processId);
+        return processName.compareTo(dother.processName);
     }
 
     @Override
@@ -319,11 +325,11 @@ public class DistEventType extends EventType {
             return false;
         }
 
-        if (!otherE.getPID().equals(processId)) {
+        if (!otherE.getProcessName().equals(processName)) {
             return false;
         }
 
-        if (otherE.getEventPid() != iPid) {
+        if (otherE.getPid() != pid) {
             return false;
         }
 
@@ -369,7 +375,7 @@ public class DistEventType extends EventType {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + eType.hashCode();
-        result = 31 * result + processId.hashCode();
+        result = 31 * result + processName.hashCode();
         result = 31 * result + (eventCls == null ? 0 : eventCls.hashCode());
         result = 31 * result + (channelId == null ? 0 : channelId.hashCode());
         return result;

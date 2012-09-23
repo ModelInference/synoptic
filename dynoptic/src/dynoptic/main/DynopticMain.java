@@ -193,6 +193,10 @@ public class DynopticMain {
         }
     }
 
+    public int getNumProcesses() {
+        return numProcesses;
+    }
+
     // //////////////////////////////////////////////////
     // "run" Methods that glue together all the major pieces to implement the
     // complete Dynoptic pipeline:
@@ -229,6 +233,54 @@ public class DynopticMain {
         // Parser can now be garbage-collected.
         parser = null;
 
+        run(traceGraph);
+    }
+
+    /**
+     * Runs Dynoptic based on setting in opts, but uses the log from the passed
+     * in String, and not from the logFilenames defined in opts.
+     * 
+     * @param log
+     * @throws Exception
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    public void run(String log) throws IOException, InterruptedException,
+            Exception {
+        if (this.synMain == null) {
+            initializeSynoptic();
+        }
+
+        // //////////////////
+        // Parse the input string into _Synoptic_ structures.
+        TraceParser parser = new TraceParser(opts.regExps,
+                opts.partitionRegExp, opts.separatorRegExp);
+
+        List<EventNode> parsedEvents = parser
+                .parseTraceString(log, "trace", -1);
+
+        // //////////////////
+        // Generate the Synoptic DAG from parsed events
+        DAGsTraceGraph traceGraph = SynopticMain.genDAGsTraceGraph(parser,
+                parsedEvents);
+
+        // Parser can now be garbage-collected.
+        parser = null;
+
+        run(traceGraph);
+    }
+
+    /**
+     * Runs Dynoptic based on setting sin opts, and uses the Synoptic traceGraph
+     * passed as an argument instead of parsing files or a string directly.
+     * 
+     * @param traceGraph
+     * @throws Exception
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    public void run(DAGsTraceGraph traceGraph) throws IOException,
+            InterruptedException, Exception {
         // //////////////////
         // Mine Synoptic invariants
         TemporalInvariantSet minedInvs = synMain.minePOInvariants(
@@ -250,9 +302,7 @@ public class DynopticMain {
         // between these to generate ObsFSMStates (anonymous states),
         // obsDAGNodes (to contain obsFSMStates and encode dependencies between
         // them), and an ObsDag per execution parsed from the log.
-
-        List<ObsFifoSys> traces = synTraceGraphToDynObsFifoSys(traceGraph,
-                parsedEvents);
+        List<ObsFifoSys> traces = synTraceGraphToDynObsFifoSys(traceGraph);
 
         // ///////////////////
         // Express/convert Synoptic invariants as Dynoptic invariants.
@@ -288,16 +338,6 @@ public class DynopticMain {
         // TODO.
     }
 
-    /**
-     * Runs Dynoptic based on setting in opts, but uses the log from the passed
-     * in String, and not from the logFilenames defined in opts.
-     * 
-     * @param log
-     */
-    public void run(String log) {
-        // TODO
-    }
-
     // //////////////////////////////////////////////////
     // Various helper methods that integrate with Synoptic and manipulate model
     // data structures. Ordered roughly in the order of their use in the run
@@ -305,6 +345,8 @@ public class DynopticMain {
 
     /** Initializes a version of SynopticMain based on Dynoptic options. */
     public void initializeSynoptic() {
+        assert synMain == null;
+
         SynopticOptions synOpts = new SynopticOptions();
         synOpts.ignoreNonMatchingLines = opts.ignoreNonMatchingLines;
         synOpts.recoverFromParseErrors = opts.recoverFromParseErrors;
@@ -327,6 +369,8 @@ public class DynopticMain {
      */
     public List<EventNode> parseEventsFromFiles(TraceParser parser,
             List<String> logFilenames) throws Exception {
+        assert synMain != null;
+
         List<EventNode> parsedEvents;
 
         parsedEvents = SynopticMain.parseEvents(parser, logFilenames);
@@ -363,7 +407,7 @@ public class DynopticMain {
             }
 
             // Record the pid and channelId corresponding to this eType.
-            usedPids.add(distEType.getEventPid());
+            usedPids.add(distEType.getPid());
             if (distEType.isCommEvent()) {
                 usedChannelIds.add(distEType.getChannelId());
             }
@@ -407,7 +451,7 @@ public class DynopticMain {
      * @return
      */
     public List<ObsFifoSys> synTraceGraphToDynObsFifoSys(
-            DAGsTraceGraph traceGraph, List<EventNode> parsedEvents) {
+            DAGsTraceGraph traceGraph) {
         assert numProcesses != -1;
 
         List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>();
@@ -433,14 +477,14 @@ public class DynopticMain {
                     .asList(new EventNode[numProcesses]);
 
             // Populate the pidInitialNodes list.
-            for (EventNode eNode : parsedEvents) {
+            for (EventNode eNode : traceGraph.getNodes()) {
                 // Skip nodes from other traces.
                 if (eNode.getTraceID() != traceId) {
                     continue;
                 }
 
                 Event e = eNode.getEvent();
-                int ePid = ((DistEventType) e.getEType()).getEventPid();
+                int ePid = ((DistEventType) e.getEType()).getPid();
 
                 if (pidInitialNodes.get(ePid) == null
                         || eNode.getTime().lessThan(
@@ -492,7 +536,7 @@ public class DynopticMain {
                         }
                         Event eSucc = eNodeSucc.getEvent();
                         int eSuccPid = ((DistEventType) eSucc.getEType())
-                                .getEventPid();
+                                .getPid();
 
                         if (eSuccPid != pid) {
                             assert preEventNodesMap.containsKey(e);
@@ -674,4 +718,5 @@ public class DynopticMain {
             }
         }
     }
+
 }

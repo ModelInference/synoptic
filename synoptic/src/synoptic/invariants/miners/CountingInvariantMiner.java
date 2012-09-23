@@ -239,8 +239,8 @@ abstract public class CountingInvariantMiner extends InvariantMiner {
                             "Cannot compute concurrency invariants on non-distributed event types.");
                 }
 
-                if (((DistEventType) e1).getPID().equals(
-                        ((DistEventType) e2).getPID())) {
+                if (((DistEventType) e1).getProcessName().equals(
+                        ((DistEventType) e2).getProcessName())) {
                     // See comment at top of function about local versions of
                     // concurrency invariants -- we ignore them.
                     continue;
