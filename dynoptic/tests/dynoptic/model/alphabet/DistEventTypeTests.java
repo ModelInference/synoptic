@@ -35,7 +35,7 @@ public class DistEventTypeTests extends DynopticTest {
         assertFalse(e.isSendEvent());
         assertFalse(e.isRecvEvent());
         assertFalse(e.isSynthSendEvent());
-        assertEquals(e.getEventPid(), 1);
+        assertEquals(e.getPid(), 1);
         logger.info(e.toString());
 
         assertFalse(e.equals(null));
@@ -66,7 +66,7 @@ public class DistEventTypeTests extends DynopticTest {
         assertTrue(e.isSendEvent());
         assertFalse(e.isRecvEvent());
         assertFalse(e.isSynthSendEvent());
-        assertEquals(e.getEventPid(), cid.getSrcPid());
+        assertEquals(e.getPid(), cid.getSrcPid());
         logger.info(e.toString());
 
         assertFalse(e.equals(null));
@@ -97,7 +97,7 @@ public class DistEventTypeTests extends DynopticTest {
         assertFalse(e.isSendEvent());
         assertTrue(e.isRecvEvent());
         assertFalse(e.isSynthSendEvent());
-        assertEquals(e.getEventPid(), cid.getDstPid());
+        assertEquals(e.getPid(), cid.getDstPid());
         logger.info(e.toString());
 
         assertFalse(e.equals(null));
@@ -131,7 +131,7 @@ public class DistEventTypeTests extends DynopticTest {
         assertFalse(e.isSendEvent());
         assertFalse(e.isRecvEvent());
         assertTrue(e.isSynthSendEvent());
-        assertEquals(e.getEventPid(), cid.getDstPid());
+        assertEquals(e.getPid(), cid.getDstPid());
         logger.info(e.toString());
 
         assertFalse(e.equals(null));
@@ -170,7 +170,7 @@ public class DistEventTypeTests extends DynopticTest {
         assertTrue(e.isSendEvent());
         assertFalse(e.isRecvEvent());
         assertFalse(e.isLocalEvent());
-        assertEquals(e.getEventPid(), 1);
+        assertEquals(e.getPid(), 1);
         assertEquals(e.getEType(), "m");
     }
 
@@ -189,7 +189,7 @@ public class DistEventTypeTests extends DynopticTest {
         assertFalse(e.isSendEvent());
         assertTrue(e.isRecvEvent());
         assertFalse(e.isLocalEvent());
-        assertEquals(e.getEventPid(), 2);
+        assertEquals(e.getPid(), 2);
         assertEquals(e.getEType(), "m");
     }
 
@@ -208,7 +208,7 @@ public class DistEventTypeTests extends DynopticTest {
         assertFalse(e.isSendEvent());
         assertFalse(e.isRecvEvent());
         assertTrue(e.isLocalEvent());
-        assertEquals(e.getEventPid(), 1);
+        assertEquals(e.getPid(), 1);
         assertEquals(e.getEType(), "e");
     }
 

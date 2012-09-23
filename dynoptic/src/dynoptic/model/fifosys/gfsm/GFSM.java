@@ -337,7 +337,7 @@ public class GFSM extends FifoSys<GFSMState> {
 
                 for (DistEventType e : g.getTransitioningEvents()) {
                     // Only create this pid's event transitions.
-                    if (e.getEventPid() != pid) {
+                    if (e.getPid() != pid) {
                         continue;
                     }
                     for (GFSMState gNext : g.getNextStates(e)) {
@@ -629,7 +629,7 @@ public class GFSM extends FifoSys<GFSMState> {
         // States reachable from s by pid events.
         Set<GFSMState> pidStates = new LinkedHashSet<GFSMState>();
         for (DistEventType e : s.getTransitioningEvents()) {
-            if (e.getEventPid() != pid) {
+            if (e.getPid() != pid) {
                 nonPidStates.addAll(s.getNextStates(e));
             } else {
                 pidStates.addAll(s.getNextStates(e));

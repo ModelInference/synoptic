@@ -357,8 +357,8 @@ public class TransitiveClosureInvMiner extends InvariantMiner implements
                     // Ignore local versions of alwaysOrdered and
                     // neverOrdered since they are trivially true and false
                     // respectively.
-                    if (!((DistEventType) e1).getPID().equals(
-                            ((DistEventType) e2).getPID())) {
+                    if (!((DistEventType) e1).getProcessName().equals(
+                            ((DistEventType) e2).getProcessName())) {
                         // Because lack of order is symmetric, it doesn't matter
                         // if we use E1orderE2.neverOrdered or
                         // E2orderE1.neverOrdered.

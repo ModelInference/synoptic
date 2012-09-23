@@ -15,8 +15,8 @@ import synoptic.util.InternalSynopticException;
 /**
  * This class defines generic functionality relating to parsing and maintaining
  * a program's command line options. This class is extended/specialized by
- * Synoptic, and InvariMint, which define the specific plume options they
- * expect.
+ * Synoptic, InvariMint, and other sub-projects, all of which define the
+ * specific plume options they expect.
  */
 public abstract class Options {
 
@@ -50,6 +50,12 @@ public abstract class Options {
      */
     abstract public String getArgsFilename();
 
+    /**
+     * Sets the options based on args array. Uses plume-lib for options
+     * processing and assumes that the plume options are defined as part of
+     * _this_ class instance (i.e., that it is specialized to include plume
+     * options).
+     */
     public void setOptions(String[] args) throws IOException {
         // Sets the fields in this class annotated with @Option.
         plumeOptions = new plume.Options(getUsageString(), this);

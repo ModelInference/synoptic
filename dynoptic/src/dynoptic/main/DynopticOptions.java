@@ -201,6 +201,7 @@ public class DynopticOptions extends Options {
         args = null;
     }
 
+    /** Sets up an instance of this class based on an array of arguments. */
     public DynopticOptions(String[] args) throws IOException {
         plumeOptions = new plume.Options(getUsageString(), this);
         setOptions(args);

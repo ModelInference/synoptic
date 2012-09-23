@@ -181,7 +181,7 @@ public class EventNode implements INode<EventNode> {
         //
         // NOTE: for this to work, the DistEventType must be first interpreted
         // with interpretEType()
-        int localPid = ((DistEventType) e1.getEType()).getEventPid();
+        int localPid = ((DistEventType) e1.getEType()).getPid();
         EventNode processLocalSucc = null;
         // /////////////////
 
@@ -191,7 +191,7 @@ public class EventNode implements INode<EventNode> {
             boolean directSuccessor = true;
 
             // ///////////////// Dynoptic-related:
-            if (((DistEventType) e1Succ1.getEType()).getEventPid() == localPid) {
+            if (((DistEventType) e1Succ1.getEType()).getPid() == localPid) {
                 if (processLocalSucc == null
                         || e1Succ1.getTime().lessThan(
                                 processLocalSucc.getTime())) {

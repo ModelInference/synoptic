@@ -58,7 +58,7 @@ public class ObsDAGNode {
         assert nextState_ != null;
         assert this.nextEvent == null;
         assert this.nextState == null;
-        assert ((DistEventType) event.getEType()).getEventPid() == getPid();
+        assert ((DistEventType) event.getEType()).getPid() == getPid();
         assert nextState_.getPid() == getPid();
 
         this.nextEvent = event;
