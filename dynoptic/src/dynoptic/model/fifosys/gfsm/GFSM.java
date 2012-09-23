@@ -57,6 +57,9 @@ public class GFSM extends FifoSys<GFSMState> {
     /** Used when converting GFSM to a CFSM representation. */
     private int scmId = 0;
 
+    /** Used when converting GFSM to a CFSM representation. */
+    private int nextFsmStateId = 0;
+
     /**
      * Creates a new GFSM from observed traces, using default initial
      * partitioning strategy (by the list of elements at the head of all of the
@@ -278,7 +281,8 @@ public class GFSM extends FifoSys<GFSMState> {
      * @return
      */
     public CFSM getCFSM() {
-        Map<GFSMState, FSMState> stateMap = new LinkedHashMap<GFSMState, FSMState>();
+        Map<GFSMState, Integer> stateMap = new LinkedHashMap<GFSMState, Integer>();
+        Map<Integer, FSMState> idToFSMState = new LinkedHashMap<Integer, FSMState>();
         Set<FSMState> initFSMStates = new LinkedHashSet<FSMState>();
         Set<FSMState> acceptFSMStates = new LinkedHashSet<FSMState>();
         Set<GFSMState> visited = new LinkedHashSet<GFSMState>();
@@ -296,22 +300,57 @@ public class GFSM extends FifoSys<GFSMState> {
             // output.
             scmId = 0;
 
-            // Generate the FSM states and inter-state transitions.
             for (GFSMState gInit : getInitStatesForPid(pid)) {
                 logger.info("Exploring from " + gInit.toShortString());
-                FSMState fInit = getFSMState(stateMap, gInit, pid);
-
                 // We might have visited the current gInit in a prior iteration,
                 // from another gInit, in which case we don't need to
                 // re-explore.
-                if (!visited.contains(gInit)) {
-                    cfsmBuilderVisit(stateMap, gInit, fInit, visited, pid);
+                if (!stateMap.containsKey(gInit)) {
+                    populateStateMap(stateMap, gInit, pid);
+                }
+            }
+
+            // Generate the FSM states based on the FSMState transitive closure
+            // equivalence classes captured by stateMap.
+            for (Entry<GFSMState, Integer> entry : stateMap.entrySet()) {
+                GFSMState g = entry.getKey();
+                int gId = entry.getValue();
+                FSMState gFsmS = null;
+                if (!idToFSMState.containsKey(gId)) {
+                    gFsmS = new FSMState(false, false, pid, scmId);
+                    scmId += 1;
+                    idToFSMState.put(gId, gFsmS);
+                } else {
+                    gFsmS = idToFSMState.get(gId);
+                }
+                gFsmS.setAccept(gFsmS.isAccept() || g.isAcceptForPid(pid));
+                gFsmS.setInitial(gFsmS.isInitial() || g.isInitForPid(pid));
+            }
+
+            // Generate inter-FSM-State transitions based on the underlying
+            // GFSMStates that these correspond to (we can't do this in the
+            // above loop because all the FSMStates have to first exist).
+            for (Entry<GFSMState, Integer> entry : stateMap.entrySet()) {
+                GFSMState g = entry.getKey();
+                int gId = entry.getValue();
+                FSMState gFsmS = idToFSMState.get(gId);
+
+                for (DistEventType e : g.getTransitioningEvents()) {
+                    // Only create this pid's event transitions.
+                    if (e.getEventPid() != pid) {
+                        continue;
+                    }
+                    for (GFSMState gNext : g.getNextStates(e)) {
+                        int gNextFsmSId = stateMap.get(gNext);
+                        FSMState gNextFsmS = idToFSMState.get(gNextFsmSId);
+                        gFsmS.addTransition(e, gNextFsmS);
+                    }
                 }
             }
 
             // Determine the initial/accept FSM states for FSM construction
             // below.
-            for (FSMState s : stateMap.values()) {
+            for (FSMState s : idToFSMState.values()) {
                 if (s.isInitial()) {
                     initFSMStates.add(s);
                 }
@@ -322,16 +361,17 @@ public class GFSM extends FifoSys<GFSMState> {
 
             // Create the FSM for this pid, and add it to the CFSM.
             FSM fsm = new FSM(pid, initFSMStates, acceptFSMStates,
-                    stateMap.values(), scmId);
+                    idToFSMState.values(), scmId);
+
             if (fsm.getAcceptStates().isEmpty()) {
                 logger.info("GFSM: " + this.toString() + "\n");
                 logger.info("Problem FSM: " + fsm.toString() + "\n");
 
                 String s = "";
-                for (Entry<GFSMState, FSMState> e : stateMap.entrySet()) {
-                    s += e.getKey().toShortString() + " : "
-                            + e.getValue().toString() + "\n";
-                }
+                // for (Entry<GFSMState, FSMState> e : stateMap.entrySet()) {
+                // s += e.getKey().toShortString() + " : "
+                // + e.getValue().toString() + "\n";
+                // }
                 logger.info("stateMap: \n" + s);
 
                 assert !fsm.getAcceptStates().isEmpty();
@@ -342,6 +382,7 @@ public class GFSM extends FifoSys<GFSMState> {
             cfsm.addFSM(fsm);
 
             stateMap.clear();
+            idToFSMState.clear();
             initFSMStates.clear();
             acceptFSMStates.clear();
             visited.clear();
@@ -510,121 +551,65 @@ public class GFSM extends FifoSys<GFSMState> {
      * behaviors). We back-out when we reach a node that we've visited before.
      * As we traverse, we build up the FSMState states for the specific pid,
      * which are only dependent on event types that are relevant to this pid.
-     * 
-     * @param stateMap
-     * @param gParent
-     * @param fParent
-     * @param visited
-     * @param pid
      */
-    private void cfsmBuilderVisit(Map<GFSMState, FSMState> stateMap,
-            GFSMState gParent, FSMState fParent, Set<GFSMState> visited, int pid) {
-        visited.add(gParent);
-
-        // Recurse on each (e,gNext) transition from this parent.
-        for (DistEventType e : gParent.getTransitioningEvents()) {
-            for (GFSMState gNext : gParent.getNextStates(e)) {
-                logger.info("exploring " + gParent.toShortString() + " --- "
-                        + e.toString() + " ---> " + gNext.toShortString());
-
-                // In the FSM we only include transitions, and optionally create
-                // new FSMStates, for events that match the pid.
-                if (e.getEventPid() == pid) {
-
-                    // Look-up and optionally create the next FSMState
-                    // corresponding to gNext.
-                    FSMState fNext = getFSMState(stateMap, gNext, pid);
-
-                    // Add the transition in the FSM-space.
-                    fParent.addTransition(e, fNext);
-
-                    // Recurse with fNext as parent.
-                    if (!visited.contains(gNext)) {
-                        cfsmBuilderVisit(stateMap, gNext, fNext, visited, pid);
-                    }
-
-                } else {
-                    // Because the event e does not impact this pid, we recurse
-                    // with gNext as g-parent, but with the _old_ fParent
-                    // FSMState. That is, the pid did not transition in the FSM
-                    // state space, even though we did transition the GFSM state
-                    // space.
-                    if (!visited.contains(gNext)) {
-                        cfsmBuilderVisit(stateMap, gNext, fParent, visited, pid);
-                    }
-                }
-            }
-        }
-        return;
-    }
 
     /**
-     * Returns the FSMState corresponding to GFSMState s. Records the
-     * correspondence in stateMap. Also, updates stateMap with the neighborhood
-     * states T of s to map to the returned FSMState such that \forall t \in T,
-     * t is reachable only through event transitions with process id != pid.
+     * Depth-first recursive traversal of the GFSM state/transition graph to
+     * determine transitive closure of GFSMState instances that are reachable
+     * from s through non-pid event transitions. GFSMState instances belonging
+     * to the same transitive closure map to the same integer in the stateMap
+     * structure. After a record is created in stateMap, it may later be updated
+     * based on state reachability in the GFSM.
      */
-    private FSMState getFSMState(Map<GFSMState, FSMState> stateMap,
+    private void populateStateMap(Map<GFSMState, Integer> stateMap,
             GFSMState s, int pid) {
-        if (stateMap.containsKey(s)) {
-            FSMState fsmS = stateMap.get(s);
-            if (s.isAcceptForPid(pid)) {
-                assert fsmS.isAccept();
-            }
-            if (s.isInitForPid(pid)) {
-                assert fsmS.isInitial();
-            }
-            return fsmS;
-        }
+        assert !stateMap.containsKey(s);
 
         // Find the transitive closure from s in the subgraph generated by
         // considering all partitions and transitions on events that
-        // are _not_ associated with pid.
-        Set<GFSMState> transClosure = findNonPidTransitiveClosure(pid, s,
-                new LinkedHashSet<GFSMState>());
+        // are _not_ associated with pid. At the same time determine the
+        // boundary composed of states that _are_ reachable with pid
+        // event transitions. We use this boundary for recursive calls to
+        // populateStateMap().
+        Set<GFSMState> nonPidTxClosureStates = new LinkedHashSet<GFSMState>();
+        Set<GFSMState> pidBoundaryStates = new LinkedHashSet<GFSMState>();
+
+        findNonPidTransitiveClosure(pid, s, new LinkedHashSet<GFSMState>(),
+                nonPidTxClosureStates, pidBoundaryStates);
 
         // Determine the corresponding FSMState for s. Since all partitions
         // in the computed transitive closure must have the same FSMState, we
         // first check if a partition in this set has a mapping to an FSMState.
-        FSMState fsmS = null;
-        boolean isInitial = s.isInitForPid(pid);
-        boolean isAccept = s.isAcceptForPid(pid);
-        for (GFSMState part : transClosure) {
+        int txClosureFsmSId = nextFsmStateId;
+
+        for (GFSMState part : nonPidTxClosureStates) {
             if (stateMap.containsKey(part)) {
-                if (fsmS == null) {
-                    fsmS = stateMap.get(part);
-                } else {
-                    assert (fsmS == stateMap.get(part));
+                int existingId = stateMap.get(part);
+                if (existingId < txClosureFsmSId) {
+                    txClosureFsmSId = existingId;
                 }
             }
-            isInitial = isInitial || part.isInitForPid(pid);
-            isAccept = isAccept || part.isAcceptForPid(pid);
+
         }
 
-        // If none of the neighbors have a corresponding FSMState, then we
-        // create a new one.
-        if (fsmS == null) {
-            fsmS = new FSMState(isAccept, isInitial, pid, scmId);
-            scmId += 1;
+        if (txClosureFsmSId == nextFsmStateId) {
+            nextFsmStateId += 1;
+        }
 
-            // Now, update all the neighbors to map to the newly created
-            // FSMState.
-            for (GFSMState neighbor : transClosure) {
-                stateMap.put(neighbor, fsmS);
+        // Now, update all the neighbors to map to the lowest state id
+        // corresponding to this transitive closure.
+        for (GFSMState neighbor : nonPidTxClosureStates) {
+            stateMap.put(neighbor, txClosureFsmSId);
+        }
+        // Record the mapping for s.
+        stateMap.put(s, txClosureFsmSId);
+
+        // Recursively explore states at the transitive closure boundary.
+        for (GFSMState boundaryG : pidBoundaryStates) {
+            if (!stateMap.containsKey(boundaryG)) {
+                populateStateMap(stateMap, boundaryG, pid);
             }
-        } else {
-            // If fsmS already exists we still need to update its
-            // isAccept/isInitial values since the region (transitive-closure)
-            // reachable by the node that originally created this FSMState could
-            // be smaller than what is reachable from s. Since
-            // isAccept/isInitial are accumulative, we don't have to worry about
-            // s tx-closure being smaller.
-            fsmS.setAccept(isAccept || fsmS.isAccept());
-            fsmS.setInitial(isInitial || fsmS.isInitial());
         }
-        stateMap.put(s, fsmS);
-
-        return fsmS;
     }
 
     /**
@@ -633,8 +618,9 @@ public class GFSM extends FifoSys<GFSMState> {
      * 
      * @param visited
      */
-    private Set<GFSMState> findNonPidTransitiveClosure(int pid, GFSMState s,
-            Set<GFSMState> visited) {
+    private void findNonPidTransitiveClosure(int pid, GFSMState s,
+            Set<GFSMState> visited, Set<GFSMState> nonPidTxClosureStates,
+            Set<GFSMState> pidBoundaryStates) {
         // Record that we have visited s.
         visited.add(s);
 
@@ -649,24 +635,28 @@ public class GFSM extends FifoSys<GFSMState> {
                 pidStates.addAll(s.getNextStates(e));
             }
         }
+        pidBoundaryStates.addAll(pidStates);
+
         // Now nonPidStates contains just those states that are reachable
         // exclusively through non-pid events (some may have been reachable
         // through both pid, and non-pid events).
         nonPidStates.removeAll(pidStates);
 
-        Set<GFSMState> reachables = new LinkedHashSet<GFSMState>();
-        reachables.addAll(nonPidStates);
+        // Set<GFSMState> reachables = new LinkedHashSet<GFSMState>();
+        nonPidTxClosureStates.addAll(nonPidStates);
 
         // Recursively build up the transitive set of non-pid-event-reachable
         // states from s.
-        Set<GFSMState> newReachables = null;
+        // Set<GFSMState> newReachables = null;
         for (GFSMState child : nonPidStates) {
             if (!visited.contains(child)) {
-                newReachables = findNonPidTransitiveClosure(pid, child, visited);
-                reachables.addAll(newReachables);
+                // newReachables =
+                findNonPidTransitiveClosure(pid, child, visited,
+                        nonPidTxClosureStates, pidBoundaryStates);
+                // reachables.addAll(newReachables);
             }
         }
-        return reachables;
+        // return reachables;
     }
 
 }

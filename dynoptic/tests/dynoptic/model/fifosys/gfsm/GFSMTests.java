@@ -75,7 +75,7 @@ public class GFSMTests extends DynopticTest {
     @Test
     public void checkGFSMFromOneTrace() {
         // Check that the two observations were initially partitioned into a
-        // single partition.
+        // single partition (using default queue-based partitioning).
         assertTrue(g.getStates().size() == 1);
         GFSMState part = g.getStates().iterator().next();
 
