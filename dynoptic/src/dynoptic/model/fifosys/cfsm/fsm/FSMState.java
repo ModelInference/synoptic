@@ -197,11 +197,8 @@ public class FSMState extends AbsFSMState<FSMState> {
             following = transitions.get(e);
         }
 
-        // Make sure that we haven't added this transition to s on e before.
-        if (following.contains(s)) {
-            // assert !following.contains(s);
-            return;
-        }
+        // Since following is a set, it's okay if we have added the transition
+        // to s on e before.
         following.add(s);
     }
 

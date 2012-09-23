@@ -641,20 +641,26 @@ public class DynopticMain {
                     PartialGFSMCExample partialPath = pGraph
                             .getLongestPartialCExamplePath(result.getCExample());
 
-                    // TODO: resolve partialPath
+                    logger.info("Resolving " + partialPath.toString());
+
+                    partialPath.resolve(pGraph);
 
                 } else {
                     // Resolve all of the complete counter-example paths.
                     for (GFSMCExample path : paths) {
                         logger.info("Resolving " + path.toString());
 
-                        // TODO 1: after resolving a path in paths, we have to
-                        // check if the remaining counter-example paths are
-                        // still feasible before attempting to resolve them.
-
                         // TODO 2: if the paths overlap then it might be
                         // possible to resolve multiple paths with a single
                         // refinement. Implement this optimization.
+
+                        // Check if path is still feasible before attempting to
+                        // resolve it (resolving prior paths might have made it
+                        // infeasible)
+                        if (!pGraph.feasible(path)) {
+                            logger.info("Path no longer feasible");
+                            continue;
+                        }
 
                         path.resolve(curInv, pGraph);
 
@@ -668,5 +674,4 @@ public class DynopticMain {
             }
         }
     }
-
 }
