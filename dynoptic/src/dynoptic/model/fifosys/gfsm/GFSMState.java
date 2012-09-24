@@ -198,8 +198,12 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
     }
 
     /** Removes an observed state from this partition. */
-    public void removeAllObs(Set<ObsFifoSysState> states) {
-        for (ObsFifoSysState s : states) {
+    public void removeAllObs(Set<ObsFifoSysState> toRemove) {
+        // Make sure that this partition will contain at least one observation
+        // after we remove the toRemove observations.
+        assert observedStates.size() > toRemove.size();
+
+        for (ObsFifoSysState s : toRemove) {
             this.removeObs(s);
         }
     }

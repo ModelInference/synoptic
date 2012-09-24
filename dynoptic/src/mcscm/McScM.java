@@ -36,8 +36,8 @@ public class McScM {
     public void verify(String scmInput) throws IOException,
             InterruptedException {
         File currentPath = new java.io.File(".");
-        verifyProcess = ProcessUtil.runVerifyProcess(
-                new String[] { verifyPath }, scmInput, currentPath);
+        verifyProcess = ProcessUtil.runVerifyProcess(new String[] { verifyPath,
+                "-no-validation" }, scmInput, currentPath);
     }
 
     /**

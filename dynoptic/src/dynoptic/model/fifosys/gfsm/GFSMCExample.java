@@ -83,12 +83,15 @@ public class GFSMCExample extends PartialGFSMCExample {
 
         if (inv instanceof AlwaysPrecedes) {
             resolve((AlwaysPrecedes) inv, pGraph);
+        } else if (inv instanceof EventuallyHappens) {
+            // NOTE: because EventuallyHappens subclasses AlwaysFollowedBy, we
+            // have to test for it before testing for AlwaysFollowedBy.
+            resolve((EventuallyHappens) inv, pGraph);
         } else if (inv instanceof AlwaysFollowedBy) {
             resolve((AlwaysFollowedBy) inv, pGraph);
         } else if (inv instanceof NeverFollowedBy) {
             resolve((NeverFollowedBy) inv, pGraph);
-        } else if (inv instanceof EventuallyHappens) {
-            resolve((EventuallyHappens) inv, pGraph);
+
         }
         this.isResolved = true;
     }
