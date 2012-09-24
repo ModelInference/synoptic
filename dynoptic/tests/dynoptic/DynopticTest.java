@@ -98,6 +98,6 @@ public class DynopticTest {
         }
 
         // NOTE: We assume the tests are run from synoptic/dynoptic/
-        return "../bin/mcscm-1.2/verify.native." + osStr;
+        return "../bin/mcscm/verify.native." + osStr;
     }
 }
