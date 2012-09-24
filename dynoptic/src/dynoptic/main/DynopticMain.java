@@ -197,6 +197,10 @@ public class DynopticMain {
         return numProcesses;
     }
 
+    public List<ChannelId> getChannelIds() {
+        return channelIds;
+    }
+
     // //////////////////////////////////////////////////
     // "run" Methods that glue together all the major pieces to implement the
     // complete Dynoptic pipeline:
@@ -256,8 +260,7 @@ public class DynopticMain {
         TraceParser parser = new TraceParser(opts.regExps,
                 opts.partitionRegExp, opts.separatorRegExp);
 
-        List<EventNode> parsedEvents = parser
-                .parseTraceString(log, "trace", -1);
+        List<EventNode> parsedEvents = parseEventsFromString(parser, log);
 
         // //////////////////
         // Generate the Synoptic DAG from parsed events
@@ -363,25 +366,74 @@ public class DynopticMain {
      * that have been observed in the log.
      * 
      * @param parser
+     *            parser to use for parsing the log string
      * @param logFilenames
+     *            log filenames to parse using the parser
      * @return
      * @throws Exception
      */
     public List<EventNode> parseEventsFromFiles(TraceParser parser,
             List<String> logFilenames) throws Exception {
+        assert parser != null;
         assert synMain != null;
+        assert logFilenames != null;
+        assert logFilenames.size() != 0;
 
         List<EventNode> parsedEvents;
 
         parsedEvents = SynopticMain.parseEvents(parser, logFilenames);
-        if (parsedEvents.size() == 0) {
-            throw new OptionException(
-                    "Did not parse any events from the input log files. Stopping.");
-        }
 
         if (parser.logTimeTypeIsTotallyOrdered()) {
             throw new OptionException(
                     "Dynoptic expects a log that is partially ordered.");
+        }
+
+        postParseEvents(parsedEvents);
+        return parsedEvents;
+    }
+
+    /**
+     * Like the method above, uses parser to parse a log string into a list of
+     * event nodes. These event nodes are post-processed and ready to be further
+     * used to build Synoptic/Dynoptic DAG structures. <br/>
+     * <br/>
+     * This function also sets the numProcesses field to the number of processes
+     * that have been observed in the log.
+     * 
+     * @param parser
+     *            parser to use for parsing the log string
+     * @param log
+     *            log string to parse
+     * @return
+     * @throws Exception
+     */
+    public List<EventNode> parseEventsFromString(TraceParser parser, String log)
+            throws Exception {
+        assert parser != null;
+
+        List<EventNode> parsedEvents = parser
+                .parseTraceString(log, "trace", -1);
+
+        if (parser.logTimeTypeIsTotallyOrdered()) {
+            throw new OptionException(
+                    "Dynoptic expects a log that is partially ordered.");
+        }
+
+        postParseEvents(parsedEvents);
+        return parsedEvents;
+    }
+
+    /**
+     * Further parsers the EventNodes -- setting up data structures internal to
+     * the DistEventType, that is the EventNode.event.etype instance. This
+     * function also determines and records the number of processes in the
+     * system.
+     */
+    private void postParseEvents(List<EventNode> parsedEvents) throws Exception {
+
+        if (parsedEvents.size() == 0) {
+            throw new OptionException(
+                    "Did not parse any events from the input log files. Stopping.");
         }
 
         // //////////////////
@@ -434,7 +486,6 @@ public class DynopticMain {
             throw new OptionException("Process ID range for the log has gaps: "
                     + usedPids.toString());
         }
-        return parsedEvents;
     }
 
     /**
@@ -480,6 +531,11 @@ public class DynopticMain {
             for (EventNode eNode : traceGraph.getNodes()) {
                 // Skip nodes from other traces.
                 if (eNode.getTraceID() != traceId) {
+                    continue;
+                }
+
+                // Skip special nodes.
+                if (eNode.isInitial() || eNode.isTerminal()) {
                     continue;
                 }
 

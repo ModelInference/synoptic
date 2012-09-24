@@ -24,6 +24,7 @@ import synoptic.invariants.TemporalInvariantSet;
 import synoptic.main.SynopticMain;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.EventNode;
+import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
 
 public class DynopticMainTests extends DynopticTest {
@@ -177,20 +178,44 @@ public class DynopticMainTests extends DynopticTest {
         assertTrue(parsedEvents.size() == 4);
         assertTrue(dyn.getNumProcesses() == 2);
 
-        int numPid0Events = 0;
-        int numPid1Events = 0;
+        assertTrue(dyn.getChannelIds().size() == 1);
+        ChannelId cid = dyn.getChannelIds().get(0);
+
+        int branchesProduct = 1;
         for (EventNode n : parsedEvents) {
             assertTrue(n.getEType() instanceof DistEventType);
-            if (((DistEventType) n.getEType()).getPid() == 0) {
-                numPid0Events += 1;
-            }
 
-            if (((DistEventType) n.getEType()).getPid() == 1) {
-                numPid1Events += 1;
+            DistEventType etype = ((DistEventType) n.getEType());
+
+            if (etype.getPid() == 0) {
+                if (etype.isLocalEvent()) {
+                    assertTrue(etype.getEType().equals("e1"));
+                    branchesProduct *= 2;
+                }
+
+                if (etype.isCommEvent()) {
+                    assertTrue(etype.getEType().equals("m"));
+                    assertTrue(etype.isSendEvent());
+                    assertTrue(etype.getChannelId() == cid);
+                    branchesProduct *= 3;
+                }
+
+            } else if (etype.getPid() == 1) {
+                if (etype.isLocalEvent()) {
+                    assertTrue(etype.getEType().equals("f1"));
+                    branchesProduct *= 5;
+                }
+
+                if (etype.isCommEvent()) {
+                    assertTrue(etype.getEType().equals("m"));
+                    assertTrue(etype.isRecvEvent());
+                    assertTrue(etype.getChannelId() == cid);
+                    branchesProduct *= 7;
+                }
             }
         }
-        assertTrue(numPid0Events == 2);
-        assertTrue(numPid1Events == 2);
+        // Make sure we've visited all cases above exactly once.
+        assertTrue(branchesProduct == (2 * 3 * 5 * 7));
     }
 
     // //////////////////// Integration tests.
@@ -198,7 +223,6 @@ public class DynopticMainTests extends DynopticTest {
     @Test
     public void runABPSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
-        args.add("../traces/EndToEndDynopticTests/AlternatingBitProtocol/trace_po_sr_simple.txt");
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-s");
@@ -207,6 +231,7 @@ public class DynopticMainTests extends DynopticTest {
         args.add("M:0->1;A:1->0");
         args.add("-i");
         args.add("-d");
+        args.add("../traces/EndToEndDynopticTests/AlternatingBitProtocol/trace_po_sr_simple.txt");
         opts = new DynopticOptions(args.toArray(new String[0]));
         dyn = new DynopticMain(opts);
 
@@ -217,9 +242,25 @@ public class DynopticMainTests extends DynopticTest {
     }
 
     @Test
-    public void runSimpleConcurrencySuccess() throws Exception {
+    public void runSimpleConcurrencyStringSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
-        args.add("../traces/EndToEndDynopticTests/simple-po-concurrency/trace.txt");
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("M:0->1");
+
+        opts = new DynopticOptions(args.toArray(new String[0]));
+        dyn = new DynopticMain(opts);
+
+        String log = "1,0 e1\n" + "0,1 f1\n" + "2,0 M!m\n" + "2,2 M?m";
+        // dyn.run(log);
+    }
+
+    @Test
+    public void runSimpleConcurrencyFileSuccess() throws Exception {
+        List<String> args = getBasicArgsStr();
         args.add("-r");
         args.add("^(?<VTIME>)(?<TYPE>)$");
         args.add("-s");
@@ -228,6 +269,7 @@ public class DynopticMainTests extends DynopticTest {
         args.add("M:0->1");
         args.add("-i");
         args.add("-d");
+        args.add("../traces/EndToEndDynopticTests/simple-po-concurrency/trace.txt");
         opts = new DynopticOptions(args.toArray(new String[0]));
         dyn = new DynopticMain(opts);
         // dyn.run();
