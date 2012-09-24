@@ -49,10 +49,10 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
     /**
      * Returns a cached ObservedFifoSysState instance, if one was previously
      * created with the given FSM states. Otherwise, returns a new instance and
-     * caches it. When looking up an existing F1IFO state, the channelStates
-     * argument is only used to check that the returned instance has the
-     * expected channel state (channel state is determined by the local states
-     * of the processes).
+     * caches it. When looking up an existing FIFO state, the channelStates
+     * argument is used to check that the returned instance has the expected
+     * channel state (channel state is determined by the local states of the
+     * processes).
      * 
      * @param nextFsmStates
      * @param nextChannelStates

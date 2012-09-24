@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import mcscm.McScMCExample;
+import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
 import synoptic.model.event.DistEventType;
@@ -75,8 +76,8 @@ public class PartialGFSMCExample {
 
     @Override
     public String toString() {
-        boolean partialPath = (path.size() == (mcCExample.getEvents().size() + 1));
-        String ret = "CExample[partial=" + partialPath + " : ";
+        boolean partialPath = (path.size() != (mcCExample.getEvents().size() + 1));
+        String ret = "CExample[partial=" + partialPath + "] : ";
         int i = 0;
         for (GFSMState p : path) {
             ret += p.toShortString();
@@ -118,10 +119,10 @@ public class PartialGFSMCExample {
                     continue;
                 }
 
-                int newStitchIndex = findMinStitchPartIndex(lastPartIndex,
-                        sChild);
+                int newStitchIndex = findMinStitchPartIndex(lastPartIndex - 1,
+                        s);
                 assert newStitchIndex >= 0;
-                assert newStitchIndex <= lastPartIndex;
+                assert newStitchIndex < lastPartIndex;
 
                 if (newStitchIndex < minLastStitchPartIndex) {
                     minLastStitchPartIndex = newStitchIndex;
@@ -152,7 +153,7 @@ public class PartialGFSMCExample {
         }
         GFSMState prevPart = path.get(sPartIndex - 1);
         int minIndex = sPartIndex;
-        DistEventType e = mcCExample.getEvents().get(sPartIndex);
+        DistEventType e = mcCExample.getEvents().get(sPartIndex - 1);
 
         // There might be multiple observed states from prevPart that transition
         // to s, so we explore all of them and return the min index we find.
@@ -185,6 +186,8 @@ public class PartialGFSMCExample {
     protected void refinePartition(GFSM pGraph, int partIndex) {
         GFSMState part = path.get(partIndex);
 
+        logger.info("Refining partition: " + part.toShortString());
+
         // Construct setRight.
         Set<ObsFifoSysState> setRight;
 
@@ -207,29 +210,56 @@ public class PartialGFSMCExample {
                 }
             }
         }
+        assert setRight.size() > 0;
 
         // Construct setLeft.
         Set<ObsFifoSysState> setLeft;
 
-        if (partIndex == 0) {
-            // Part is the first (initial) partition in path, so we want to
-            // isolate the initial observations in this partition from those
-            // that generate the counter-example path.
-            setLeft = part.getInitialObservations();
-        } else {
-            // As above for determining setRight, but we head to the left
-            // and build a set of observations in part that can be reached
-            // from the previous partition along the counter-example path.
+        // ///////////////
+        // For simplicity, we construct setLeft to be the complement of
+        // setRight.
+        setLeft = new LinkedHashSet<ObsFifoSysState>();
+        for (ObsFifoSysState s : part.getObservedStates()) {
+            if (!setRight.contains(s)) {
+                setLeft.add(s);
+            }
+        }
 
-            setLeft = new LinkedHashSet<ObsFifoSysState>();
+        // ///////////////
+        // TODO: more advanced setLeft construction, which does not work when
+        // there are self-loops along the counter-example path.
+        //
+        // if (partIndex == 0) {
+        // // Part is the first (initial) partition in path, so we want to
+        // // isolate the initial observations in this partition from those
+        // // that generate the counter-example path.
+        // setLeft = part.getInitialObservations();
+        // } else {
+        // // As above in determining setRight, except we head to the left
+        // // and build a set of observations in part that can be reached
+        // // from the previous partition along the counter-example path.
+        // setLeft = new LinkedHashSet<ObsFifoSysState>();
+        //
+        // DistEventType ePrev = mcCExample.getEvents().get(partIndex - 1);
+        // GFSMState partPrev = path.get(partIndex - 1);
+        // for (ObsFifoSysState s : partPrev
+        // .getObservedStatesWithTransition(ePrev)) {
+        // if (s.getNextState(ePrev).getParent() == part) {
+        // setLeft.add(s.getNextState(ePrev));
+        // }
+        // }
+        // }
+        assert setLeft.size() > 0;
 
-            DistEventType ePrev = mcCExample.getEvents().get(partIndex - 1);
-            GFSMState partPrev = path.get(partIndex - 1);
-            for (ObsFifoSysState s : partPrev
-                    .getObservedStatesWithTransition(ePrev)) {
-                if (s.getNextState(ePrev).getParent() == part) {
-                    setLeft.add(s.getNextState(ePrev));
+        if (DynopticMain.assertsOn) {
+            // Make sure that the two sets are disjoint.
+            for (ObsFifoSysState s : setLeft) {
+                if (setRight.contains(s)) {
+                    assert !setRight.contains(s);
                 }
+            }
+            for (ObsFifoSysState s : setRight) {
+                assert !setLeft.contains(s);
             }
         }
 

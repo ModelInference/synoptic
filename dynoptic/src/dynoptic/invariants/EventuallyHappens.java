@@ -28,7 +28,7 @@ public class EventuallyHappens extends AlwaysFollowedBy {
 
     @Override
     public String scmBadStateQRe() {
-        // There is at least one occurrence of 'X'.
-        return firstSynthEventsQRe() + "^+";
+        // There are 0 occurrences of 'X'.
+        return "_";
     }
 }

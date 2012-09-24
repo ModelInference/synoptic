@@ -204,9 +204,12 @@ public class GFSM extends FifoSys<GFSMState> {
 
     /**
      * Splits, or refines, the partition into two sets of observations --
-     * setExtract and the remaining set of events in partition part.
+     * setExtract and the remaining set of events in partition part. Add a newly
+     * created partition composed of observations in setExtract.
      */
     public void refine(GFSMState part, Set<ObsFifoSysState> setExtract) {
+        assert setExtract.size() > 0;
+
         part.removeAllObs(setExtract);
         states.add(new GFSMState(numProcesses, setExtract));
     }
@@ -251,10 +254,13 @@ public class GFSM extends FifoSys<GFSMState> {
      */
     public void refineWithRandNonRelevantObsAssignment(GFSMState part,
             Set<ObsFifoSysState> setLeft, Set<ObsFifoSysState> setRight) {
+        assert setLeft.size() > 0;
+        assert setRight.size() > 0;
+
         // We know that setLeft and setRight have to be isolated, but what
-        // about the observations in part that in neither of these two sets?
-        // Our strategy is to assign them at random, either to setLeft or
-        // setRight (and hope for the best).
+        // about the observations in part that are in neither of these two sets?
+        // Our strategy is to assign these at random, either to setLeft or
+        // setRight.
         Random rand = new Random();
 
         for (ObsFifoSysState s : part.getObservedStates()) {

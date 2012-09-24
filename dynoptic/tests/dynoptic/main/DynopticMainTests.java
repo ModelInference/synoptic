@@ -255,7 +255,7 @@ public class DynopticMainTests extends DynopticTest {
         dyn = new DynopticMain(opts);
 
         String log = "1,0 e1\n" + "0,1 f1\n" + "2,0 M!m\n" + "2,2 M?m";
-        // dyn.run(log);
+        dyn.run(log);
     }
 
     @Test
@@ -272,6 +272,6 @@ public class DynopticMainTests extends DynopticTest {
         args.add("../traces/EndToEndDynopticTests/simple-po-concurrency/trace.txt");
         opts = new DynopticOptions(args.toArray(new String[0]));
         dyn = new DynopticMain(opts);
-        // dyn.run();
+        dyn.run();
     }
 }

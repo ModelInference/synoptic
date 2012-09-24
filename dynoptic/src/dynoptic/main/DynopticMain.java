@@ -338,6 +338,9 @@ public class DynopticMain {
         // for each FSM f in CFSM, do:
         // f.visualize(dotfile)
 
+        logger.info("Final scm model:");
+        logger.info(pGraph.getCFSM().toScmString("final model"));
+
         // TODO.
     }
 
