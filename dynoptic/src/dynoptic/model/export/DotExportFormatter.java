@@ -11,7 +11,13 @@ import synoptic.model.event.DistEventType;
  * http://en.wikipedia.org/wiki/DOT_language
  */
 public class DotExportFormatter extends GraphExportFormatter {
-
+	
+	private int startStateCount;
+	
+	public DotExportFormatter() {
+		startStateCount = 0;
+	}
+	
 	@Override
     public String beginGraphString() {
         return "digraph {\n";
@@ -26,16 +32,20 @@ public class DotExportFormatter extends GraphExportFormatter {
 	public <State extends AbsFSMState<State>> String nodeToString(int nodeId,
 			State node, boolean isInitial, boolean isTerminal) {
 		String attributes = "label=\"" + quote(node.toString()) + "\"";
-		String inArrow = "";
+		String extra = "";
 		
 		if (isInitial) {
-			inArrow = "  none [shape=none];\n";
-			inArrow = "  none->" + nodeId + ";\n";
-		} else if (isTerminal) {
-			attributes = attributes + ",shape=doublecircle";
+			String startId = "start_" + startStateCount;
+			extra = "  " + startId + " [label=\"start\",shape=plaintext];\n";
+			extra += "  " + startId + "->" + nodeId + ";\n";
+			startStateCount++;
 		}
 		
-		return "  " + nodeId + " [" + attributes + "];\n" + inArrow;
+		if (isTerminal) {
+			attributes += ",shape=doublecircle";
+		}
+		
+		return "  " + nodeId + " [" + attributes + "];\n" + extra;
 	}
 
 	@Override
@@ -50,7 +60,7 @@ public class DotExportFormatter extends GraphExportFormatter {
         assert (attributes != null);
 
         String s = nodeSrc + "->" + nodeDst + " [";
-        if (!attributes.equals("")) {
+        if (!attributes.isEmpty()) {
             s += attributes + ",";
         }
         // s += "color=" + getRelationColor(relations);
