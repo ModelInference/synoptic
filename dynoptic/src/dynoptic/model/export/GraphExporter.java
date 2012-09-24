@@ -104,7 +104,7 @@ public class GraphExporter {
      * writing the resulting string to a file specified by fileName.
      */
     public static void exportCFSMGraph(String fileName, CFSM graph,
-    		boolean outputEdgeLabels) {
+    		boolean outputEdgeLabels) throws IOException {
     	File f = new File(fileName);
         logger.info("Exporting graph to: " + fileName);
         final PrintWriter writer;
@@ -120,8 +120,23 @@ public class GraphExporter {
         writer.close();
     }
     
+    /**
+     * Exports the graph to a format determined by Main.graphExportFormatter,
+     * writing the resulting string to writer. The export is done canonically --
+     * two isomorphic graphs will have equivalent outputs. The generated dot/gml
+     * files may then be diff-ed to check if they represent the same graphs.
+     * 
+     * @param writer
+     *            The writer to use for dot output
+     * @param cfsmGraph
+     *            The CFSM graph to export
+     * @param outputEdgeLabels
+     *            Whether or not to output edge labels
+     * @throws IOException
+     *             In case there is a problem using the writer
+     */
     public static void exportCFSMGraph(Writer writer, CFSM cfsmGraph,
-    		boolean outputEdgeLabels) {
+    		boolean outputEdgeLabels) throws IOException {
     	GraphExportFormatter formatter = new DotExportFormatter();
         
         try {
@@ -130,7 +145,7 @@ public class GraphExporter {
 	        
 	        // Write out each FSM in CFSM.
 	        for (FSM fsmGraph : cfsmGraph.getFSMs()) {
-	        	exportFSMGraph(writer, fsmGraph, outputEdgeLabels);
+	        	exportFSMGraph(writer, formatter, fsmGraph, outputEdgeLabels);
 	        }
 	
 	        // End graph.
@@ -143,10 +158,12 @@ public class GraphExporter {
         }
     }
     
+    /**
+     * Exports an FSM subgraph of the CFSM graph.
+     */
     public static <State extends AbsFSMState<State>> void exportFSMGraph(Writer writer,
-    		AbsFSM<State> fsmGraph, boolean outputEdgeLabels) {
-    	GraphExportFormatter formatter = new DotExportFormatter();
-    	
+    		GraphExportFormatter formatter, AbsFSM<State> fsmGraph,
+    		boolean outputEdgeLabels) {    	
     	try {
     		// A mapping between nodes in the graph and the their integer
             // identifiers in the dot output.
