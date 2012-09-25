@@ -18,6 +18,7 @@ import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.AlwaysPrecedes;
 import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
+import dynoptic.model.export.GraphExporter;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.gfsm.GFSM;
 import dynoptic.model.fifosys.gfsm.GFSMCExample;
@@ -331,17 +332,13 @@ public class DynopticMain {
         // Output the final CFSM model (corresponding to pGraph) using GraphViz
         // (dot-format).
 
-        // 1. get the CFSM:
-        // CFSM cfsm = pGraph.getCFSM();
-        //
-        // 2. For each process in the CFSM, visualize the FSM of the process:
-        // for each FSM f in CFSM, do:
-        // f.visualize(dotfile)
-
         logger.info("Final scm model:");
         logger.info(pGraph.getCFSM().toScmString("final model"));
-
-        // TODO.
+        
+        CFSM cfsm = pGraph.getCFSM();
+        String outputFileName = opts.outputPathPrefix + ".dot";
+        GraphExporter.exportCFSMGraph(outputFileName, cfsm, true);
+        GraphExporter.generatePngFileFromDotFile(outputFileName);
     }
 
     // //////////////////////////////////////////////////
