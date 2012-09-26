@@ -215,6 +215,19 @@ public class DistEventType extends EventType {
         return eType + "p" + Integer.toString(pid) + "L";
     }
 
+    /**
+     * Returns a more friendly string representation of the event, suitable for
+     * output to the user.
+     */
+    public String toDotString() {
+        if (isSendEvent() || isSynthSendEvent()) {
+            return "ch" + channelId.getScmId() + " ! " + eType;
+        } else if (isRecvEvent()) {
+            return "ch" + channelId.getScmId() + " ? " + eType;
+        }
+        return eType;
+    }
+
     public String toString(String cidString, char separator) {
         if (isSendEvent() || isSynthSendEvent()) {
             return cidString + separator + "!" + separator
