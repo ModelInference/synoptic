@@ -100,10 +100,11 @@ public class GraphExporter {
     }
     
     /**
-     * Exports the CFSM graph to a format determined by Main.graphExportFormatter,
+     * Exports the CFSM to a format determined by GraphExportFormatter,
      * writing the resulting string to a file specified by fileName.
+     * Each FSM in CFSM is exported as one graph.
      */
-    public static void exportCFSMGraph(String fileName, CFSM graph,
+    public static void exportCFSM(String fileName, CFSM cfsm,
     		boolean outputEdgeLabels) throws IOException {
     	File f = new File(fileName);
         logger.info("Exporting graph to: " + fileName);
@@ -115,14 +116,15 @@ public class GraphExporter {
                     + e.getMessage(), e);
         }
         // /////////////
-        exportCFSMGraph(writer, graph, outputEdgeLabels);
+        exportCFSM(writer, cfsm, outputEdgeLabels);
         // /////////////
         writer.close();
     }
     
     /**
-     * Exports the graph to a format determined by Main.graphExportFormatter,
-     * writing the resulting string to writer. The export is done canonically --
+     * Exports the CFSM to a format determined by Main.graphExportFormatter,
+     * writing the resulting string to writer. Each FSM in CFSM is exported
+     * as one graph. The export is done canonically --
      * two isomorphic graphs will have equivalent outputs. The generated dot/gml
      * files may then be diff-ed to check if they represent the same graphs.
      * 
@@ -135,46 +137,35 @@ public class GraphExporter {
      * @throws IOException
      *             In case there is a problem using the writer
      */
-    public static void exportCFSMGraph(Writer writer, CFSM cfsmGraph,
-    		boolean outputEdgeLabels) throws IOException {
-    	GraphExportFormatter formatter = new DotExportFormatter();
-        
-        try {
-	        // Begin graph.
-	        writer.write(formatter.beginGraphString());
-	        
-	        // Write out each FSM in CFSM.
-	        for (FSM fsmGraph : cfsmGraph.getFSMs()) {
-	        	exportFSMGraph(writer, formatter, fsmGraph, outputEdgeLabels);
-	        }
-	
-	        // End graph.
-	        writer.write(formatter.endGraphString());
-	        
-        } catch (IOException e) {
-            throw new RuntimeException(
-                    "Error writing to file during graph export: "
-                            + e.getMessage(), e);
+    public static void exportCFSM(Writer writer, CFSM cfsmGraph,
+    		boolean outputEdgeLabels) throws IOException {        
+        // Write out each FSM in CFSM as one graph.
+        for (FSM fsmGraph : cfsmGraph.getFSMs()) {
+        	exportFSMGraph(writer, fsmGraph, outputEdgeLabels);
         }
     }
     
     /**
-     * Exports an FSM subgraph of the CFSM graph.
+     * Exports an FSM in the CFSM as one graph.
      */
     public static <State extends AbsFSMState<State>> void exportFSMGraph(Writer writer,
-    		GraphExportFormatter formatter, AbsFSM<State> fsmGraph,
-    		boolean outputEdgeLabels) {    	
+    		AbsFSM<State> fsmGraph, boolean outputEdgeLabels) {
+    	GraphExportFormatter formatter = new DotExportFormatter();
+    	
     	try {
+    		// Begin graph.
+    		writer.write(formatter.beginGraphString());
+    		
     		// A mapping between nodes in the graph and the their integer
-            // identifiers in the dot output.
-            LinkedHashMap<State, Integer> nodeToInt = new LinkedHashMap<State, Integer>();
-
-            // A unique identifier used to represent nodes in the exported file.
-            int nodeCnt = 0;
-
-            // NOTE: we must create a new collection so that we do not modify
-            // the set maintained by the graph!
-            Set<State> nodes = new LinkedHashSet<State>(fsmGraph.getStates());
+    		// identifiers in the dot output.
+    		LinkedHashMap<State, Integer> nodeToInt = new LinkedHashMap<State, Integer>();
+    		
+    		// A unique identifier used to represent nodes in the exported file.
+    		int nodeCnt = 0;
+    		
+    		// NOTE: we must create a new collection so that we do not modify
+    		// the set maintained by the graph!
+    		Set<State> nodes = new LinkedHashSet<State>(fsmGraph.getStates());
     		
 	        // /////////////////////
 	        // EXPORT NODES:
@@ -206,6 +197,8 @@ public class GraphExporter {
                     }
             	}
             }
+            // End graph.
+            writer.write(formatter.endGraphString());
     	} catch (IOException e) {
             throw new RuntimeException(
                     "Error writing to file during graph export: "
