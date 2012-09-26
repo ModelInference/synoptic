@@ -9,10 +9,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import dynoptic.model.AbsFSM;
-import dynoptic.model.AbsFSMState;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
+import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 
 import synoptic.main.SynopticMain;
 import synoptic.model.event.DistEventType;
@@ -148,8 +147,8 @@ public class GraphExporter {
     /**
      * Exports an FSM in the CFSM as one graph.
      */
-    public static <State extends AbsFSMState<State>> void exportFSMGraph(Writer writer,
-    		AbsFSM<State> fsmGraph, boolean outputEdgeLabels) {
+    public static void exportFSMGraph(Writer writer, FSM fsmGraph,
+    		boolean outputEdgeLabels) {
     	GraphExportFormatter formatter = new DotExportFormatter();
     	
     	try {
@@ -158,18 +157,19 @@ public class GraphExporter {
     		
     		// A mapping between nodes in the graph and the their integer
     		// identifiers in the dot output.
-    		LinkedHashMap<State, Integer> nodeToInt = new LinkedHashMap<State, Integer>();
+    		LinkedHashMap<FSMState, Integer> nodeToInt = 
+    			new LinkedHashMap<FSMState, Integer>();
     		
     		// A unique identifier used to represent nodes in the exported file.
     		int nodeCnt = 0;
     		
     		// NOTE: we must create a new collection so that we do not modify
     		// the set maintained by the graph!
-    		Set<State> nodes = new LinkedHashSet<State>(fsmGraph.getStates());
+    		Set<FSMState> nodes = new LinkedHashSet<FSMState>(fsmGraph.getStates());
     		
 	        // /////////////////////
 	        // EXPORT NODES:
-            for (State node : nodes) {
+            for (FSMState node : nodes) {
             	// Output the node record -- its id along with its attributes.
                 writer.write(formatter.nodeToString(nodeCnt,
                         node, node.isInitial(), node.isAccept()));
@@ -182,14 +182,14 @@ public class GraphExporter {
 	        // /////////////////////
 	        // EXPORT EDGES:
 	        // Export all the edges corresponding to the nodes in the graph.
-            for (State node : nodes) {
+            for (FSMState node : nodes) {
             	int nodeSrc = nodeToInt.get(node);
             	Set<DistEventType> transitions = node.getTransitioningEvents();
             	
             	for (DistEventType trans : transitions) {
-            		Set<State> nextNodes = node.getNextStates(trans);
+            		Set<FSMState> nextNodes = node.getNextStates(trans);
             		
-                    for (State nextNode : nextNodes) {
+                    for (FSMState nextNode : nextNodes) {
                     	int nodeDst = nodeToInt.get(nextNode);
                     	
                     	String s = formatter.edgeToStringWithDistEvent(nodeSrc, nodeDst, trans, null);

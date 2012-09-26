@@ -2,9 +2,9 @@ package dynoptic.model.export;
 
 import java.util.Set;
 
-import synoptic.model.event.DistEventType;
+import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 
-import dynoptic.model.AbsFSMState;
+import synoptic.model.event.DistEventType;
 
 /**
  * Base class representing possible exported/serializing formats for graphs.
@@ -24,18 +24,17 @@ public abstract class GraphExportFormatter {
     /**
      * Serializes a single node in a graph to a string.
      * 
-     * @param <State>
      * @param nodeId
      *            a unique node identifier
      * @param node
-     *            State node, whose string will be used as a label
+     *            FSMState node, whose scm id will be used as a label
      * @param isInitial
      *            whether or not node is initial
      * @param isTerminal
      *            whether or not node is terminal
      */
-    public abstract <State extends AbsFSMState<State>> String nodeToString(int nodeId,
-            State node, boolean isInitial, boolean isTerminal);
+    public abstract String nodeToString(int nodeId, FSMState node,
+    		boolean isInitial, boolean isTerminal);
     
     /**
      * Serializes a single node edge in a graph to a string that represents this
