@@ -104,6 +104,11 @@ public class FSM extends AbsFSM<FSMState> {
         this.states.add(synthState1);
         this.states.add(synthState2);
     }
+    
+    @Override
+    public Set<FSMState> getStates() {
+    	return this.states;
+    }
 
     public int getPid() {
         return this.pid;
