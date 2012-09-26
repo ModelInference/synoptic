@@ -31,7 +31,8 @@ public class DotExportFormatter extends GraphExportFormatter {
 	@Override
 	public <State extends AbsFSMState<State>> String nodeToString(int nodeId,
 			State node, boolean isInitial, boolean isTerminal) {
-		String attributes = "label=\"" + quote(node.toString()) + "\"";
+		// TODO: should use scmId of FSMState as node label
+		String attributes = "label=\"" + quote(node.toString()) + "\",shape=circle";
 		String extra = "";
 		
 		if (isInitial) {
