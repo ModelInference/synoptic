@@ -2,7 +2,7 @@ package dynoptic.model.export;
 
 import java.util.Set;
 
-import dynoptic.model.AbsFSMState;
+import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 
 import synoptic.model.event.DistEventType;
 
@@ -29,10 +29,10 @@ public class DotExportFormatter extends GraphExportFormatter {
     }
 
 	@Override
-	public <State extends AbsFSMState<State>> String nodeToString(int nodeId,
-			State node, boolean isInitial, boolean isTerminal) {
-		// TODO: should use scmId of FSMState as node label
-		String attributes = "label=\"" + quote(node.toString()) + "\",shape=circle";
+	public String nodeToString(int nodeId, FSMState node,
+			boolean isInitial, boolean isTerminal) {
+		String attributes = "label=\"" + quote(Integer.toString(
+				node.getScmId())) + "\",shape=circle";
 		String extra = "";
 		
 		if (isInitial) {
