@@ -149,6 +149,8 @@ public class McScMTests {
 
         VerifyResult result = mcscm.getVerifyResult(cids);
         assertTrue(!result.modelIsSafe());
+        assertTrue(result.getCExample() != null);
+        assertTrue(result.getCExample().getEvents() != null);
         assertEquals(result.getCExample().getEvents().size(), 2);
         assertEquals(result.getCExample().getEvents().get(0), cExEType);
         assertEquals(result.getCExample().getEvents().get(1), cExEType);
