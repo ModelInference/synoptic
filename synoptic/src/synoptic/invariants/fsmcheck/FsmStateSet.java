@@ -57,7 +57,7 @@ import synoptic.util.InternalSynopticException;
 public abstract class FsmStateSet<T extends INode<T>> implements
         IStateSet<T, FsmStateSet<T>> {
     protected List<BitSet> sets;
-    protected int count;
+    protected int invariantsCount;
 
     /**
      * A bitset encoding of invariants between event types. This list has
@@ -88,16 +88,19 @@ public abstract class FsmStateSet<T extends INode<T>> implements
      * synoptic.invariants are of the appropriate type.
      */
     protected FsmStateSet(List<BinaryInvariant> invariants, int numStates) {
-        this.count = invariants.size();
+        this.invariantsCount = invariants.size();
         sets = new ArrayList<BitSet>(numStates);
         for (int i = 0; i < numStates; i++) {
             sets.add(new BitSet());
         }
 
         invariantsMap = new ArrayList<Map<EventType, BitSet>>(2);
-        Map<EventType, BitSet> amap = new LinkedHashMap<EventType, BitSet>(), bmap = new LinkedHashMap<EventType, BitSet>();
+        Map<EventType, BitSet> amap = new LinkedHashMap<EventType, BitSet>();
+        Map<EventType, BitSet> bmap = new LinkedHashMap<EventType, BitSet>();
+
         invariantsMap.add(amap);
         invariantsMap.add(bmap);
+        
         for (int i = 0; i < invariants.size(); i++) {
             EventType first = invariants.get(i).getFirst();
             EventType second = invariants.get(i).getSecond();
@@ -202,7 +205,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
             throw InternalSynopticException.wrap(e);
         }
 
-        result.count = count;
+        result.invariantsCount = invariantsCount;
         ArrayList<BitSet> newSets = new ArrayList<BitSet>();
         for (int i = 0; i < sets.size(); i++) {
             newSets.add((BitSet) sets.get(i).clone());
@@ -237,7 +240,7 @@ public abstract class FsmStateSet<T extends INode<T>> implements
             }
         }
 
-        if (this.count != other.count) {
+        if (this.invariantsCount != other.invariantsCount) {
             return false;
         }
 
