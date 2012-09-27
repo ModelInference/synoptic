@@ -27,31 +27,35 @@ public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
      * </pre>
      */
 
+    private static int STATE_ONE = 0;
+    private static int STATE_TWO = 1;
+    private static int STATE_THREE = 2;
+    
     public NFbyInvFsms(List<BinaryInvariant> invs) {
         super(invs, 3);
     }
 
     @Override
     public boolean isFail() {
-        return !sets.get(2).isEmpty();
+        return !sets.get(STATE_THREE).isEmpty();
     }
 
     @Override
     public BitSet whichFail() {
-        return (BitSet) sets.get(2).clone();
+        return (BitSet) sets.get(STATE_THREE).clone();
     }
 
     @Override
     public BitSet whichPermanentFail() {
-        return (BitSet) sets.get(2).clone();
+        return (BitSet) sets.get(STATE_THREE).clone();
     }
 
     @Override
     public void setInitial(T input) {
         BitSet isA = getInputCopy(0, input);
-        sets.set(1, (BitSet) isA.clone());
-        isA.flip(0, count);
-        sets.set(0, isA);
+        sets.set(STATE_TWO, (BitSet) isA.clone());
+        isA.flip(0, invariantsCount);
+        sets.set(STATE_ONE, isA);
     }
 
     @Override
@@ -65,21 +69,25 @@ public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
         // isA is cloned so that it can be mutated.
         BitSet isA = getInputInvariantsDependencies(0, input);
         BitSet isB = getInputInvariantsDependencies(1, input);
-        BitSet s1 = sets.get(0);
-        BitSet s2 = sets.get(1);
-        BitSet s3 = sets.get(2);
+        BitSet s1 = sets.get(STATE_ONE);
+        BitSet s2 = sets.get(STATE_TWO);
+        BitSet s3 = sets.get(STATE_THREE);
 
         // var = expression in terms of original values
 
+        // Transition to s3 if we see a B after A
         BitSet t = (BitSet) s2.clone();
         t.and(isB); // t = s2 & isB
         s3.or(t); // s3 = s3 | (s2 & isB)
 
+        // Transition to s2 if we are in s1 and we see an A or
+        // we are in s2 and did not see a B
         t = (BitSet) s1.clone();
         t.and(isA); // t = s1 & isA
         s2.andNot(isB); // s2 = s2 & !isB
         s2.or(t); // s2 = (s1 & isA) | (s2 & !isB)
 
+        // Stay at s1 if we are already there and don't see an A
         s1.andNot(isA); // s1 = s1 & !isA
     }
 }

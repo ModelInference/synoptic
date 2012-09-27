@@ -29,32 +29,38 @@ public class APInvFsms<T extends INode<T>> extends FsmStateSet<T> {
      * </pre>
      */
 
+    private static int STATE_ONE = 0;
+    private static int STATE_TWO = 1;
+    private static int STATE_THREE = 2;
+
     public APInvFsms(List<BinaryInvariant> invs) {
+        // 3 states
         super(invs, 3);
     }
 
     @Override
     public boolean isFail() {
-        return !sets.get(2).isEmpty();
+        return !sets.get(STATE_THREE).isEmpty();
     }
 
     @Override
     public BitSet whichFail() {
-        return (BitSet) sets.get(2).clone();
+        return (BitSet) sets.get(STATE_THREE).clone();
     }
 
     @Override
     public BitSet whichPermanentFail() {
-        return (BitSet) sets.get(2).clone();
+        return (BitSet) sets.get(STATE_THREE).clone();
     }
 
     @Override
     public void setInitial(T input) {
-        BitSet isA = getInputInvariantsDependencies(0, input), isB = getInputInvariantsDependencies(
-                1, input), neither = nor(isA, isB, count);
-        sets.set(0, neither);
-        sets.set(1, isA);
-        sets.set(2, isB);
+        BitSet isA = getInputInvariantsDependencies(0, input);
+        BitSet isB = getInputInvariantsDependencies(1, input); 
+        BitSet neither = nor(isA, isB, invariantsCount);
+        sets.set(STATE_ONE, neither);
+        sets.set(STATE_TWO, isA);
+        sets.set(STATE_THREE, isB);
     }
 
     @Override
@@ -62,22 +68,25 @@ public class APInvFsms<T extends INode<T>> extends FsmStateSet<T> {
         // Inputs cloned so that they can be mutated.
         BitSet isA = getInputCopy(0, input);
         BitSet isB = getInputCopy(1, input);
-        BitSet neither = nor(isA, isB, count);
-        BitSet s1 = sets.get(0);
-        BitSet s2 = sets.get(1);
-        BitSet s3 = sets.get(2);
+        BitSet neither = nor(isA, isB, invariantsCount);
+        BitSet s1 = sets.get(STATE_ONE);
+        BitSet s2 = sets.get(STATE_TWO);
+        BitSet s3 = sets.get(STATE_THREE);
 
         /*
          * n = !(isA | isB) (simultaneous assignment - order not significant) s1
          * = s1 & n s2 = s2 | (s1 & isA) s3 = s3 | (s1 & isB)
          */
 
+        // Transition to s2 if in s1 and input is A
         isA.and(s1); // isA = s1 & isA
         s2.or(isA); // s2 = s2 | (s1 & isA)
 
+        // Transition to s3 if in s1 and input is B
         isB.and(s1); // isB = s1 & isA
         s3.or(isB); // s3 = s3 | (s1 & isB)
 
+        // Stay at s1 if input is neither A or B
         s1.and(neither);
     }
 }
