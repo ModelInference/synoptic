@@ -155,7 +155,7 @@ public class GraphExporterTests extends DynopticTest {
      */
     private void generateOutput(CFSM cfsm) throws IOException {
         cleanDotOutputs();
-        GraphExporter.exportCFSM(DOT_OUTPUT_FILENAME, cfsm, true);
+        GraphExporter.exportCFSM(DOT_OUTPUT_FILENAME, cfsm);
         assertTrue(new File(DOT_OUTPUT_FILENAME).exists());
         
         GraphExporter.generatePngFileFromDotFile(DOT_OUTPUT_FILENAME);
