@@ -1,0 +1,14 @@
+@@ -171,11 +171,11 @@ let _ =
+ let _ =
+   match res with
+       C.Counterexample path ->
+-        Logger.report "@[<v 3>Counterexample:" ;
++        Logger.notice "@[<v 3>Counterexample:" ;
+         List.iter
+-          (Logger.report "@,@[<3>%a@]" M.Automaton.Transition.print)
++          (Logger.notice "@,@[<3>%a@]" M.Automaton.Transition.print)
+           path ;
+-        Logger.report "@]@."
++        Logger.notice "@]@."
+     | _ ->
+         ()
