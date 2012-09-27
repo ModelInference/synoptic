@@ -32,7 +32,7 @@ public class McScMCFSMTests extends CFSMTesting {
             InterruptedException {
         String cStr = cfsm.toScmString("test");
 
-        mcscm.verify(cStr);
+        mcscm.verify(cStr, 60);
         logger.info(cStr);
 
         VerifyResult result = mcscm.getVerifyResult(cfsm.getChannelIds());
