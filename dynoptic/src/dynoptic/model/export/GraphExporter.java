@@ -103,8 +103,7 @@ public class GraphExporter {
      * writing the resulting string to a file specified by fileName.
      * Each FSM in CFSM is exported as one graph.
      */
-    public static void exportCFSM(String fileName, CFSM cfsm,
-    		boolean outputEdgeLabels) throws IOException {
+    public static void exportCFSM(String fileName, CFSM cfsm) throws IOException {
     	File f = new File(fileName);
         logger.info("Exporting graph to: " + fileName);
         final PrintWriter writer;
@@ -115,7 +114,7 @@ public class GraphExporter {
                     + e.getMessage(), e);
         }
         // /////////////
-        exportCFSM(writer, cfsm, outputEdgeLabels);
+        exportCFSM(writer, cfsm);
         // /////////////
         writer.close();
     }
@@ -136,19 +135,17 @@ public class GraphExporter {
      * @throws IOException
      *             In case there is a problem using the writer
      */
-    public static void exportCFSM(Writer writer, CFSM cfsmGraph,
-    		boolean outputEdgeLabels) throws IOException {        
+    public static void exportCFSM(Writer writer, CFSM cfsmGraph) throws IOException {        
         // Write out each FSM in CFSM as one graph.
         for (FSM fsmGraph : cfsmGraph.getFSMs()) {
-        	exportFSMGraph(writer, fsmGraph, outputEdgeLabels);
+        	exportFSMGraph(writer, fsmGraph);
         }
     }
     
     /**
      * Exports an FSM in the CFSM as one graph.
      */
-    public static void exportFSMGraph(Writer writer, FSM fsmGraph,
-    		boolean outputEdgeLabels) {
+    public static void exportFSMGraph(Writer writer, FSM fsmGraph) {
     	GraphExportFormatter formatter = new DotExportFormatter();
     	
     	try {
