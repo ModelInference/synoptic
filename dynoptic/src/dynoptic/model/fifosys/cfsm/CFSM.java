@@ -125,6 +125,10 @@ public class CFSM extends FifoSys<CFSMState> {
         return deriveAllPermsOfStates(fnGetAcceptStates);
     }
 
+    public List<FSM> getFSMs() {
+        return fsms;
+    }
+
     @Override
     public String toString() {
         String ret = "CFSM: \n";
@@ -515,6 +519,11 @@ public class CFSM extends FifoSys<CFSMState> {
     private void recurseAddSendToEventTx(FSM f, FSMState parent,
             DistEventType eToTrace, DistEventType eTracer1,
             DistEventType eTracer2, Set<FSMState> visited) {
+
+        if (visited.contains(parent)) {
+            return;
+        }
+
         visited.add(parent);
 
         // If there is a transition on to-trace event, then perform the
@@ -536,12 +545,12 @@ public class CFSM extends FifoSys<CFSMState> {
             // have been re-written above with eTracer1 events, so this is what
             // we check for.
             if (!e.equals(eTracer1)) {
-                for (FSMState next : parent.getNextStates(e)) {
-                    if (visited.contains(next)) {
+                for (FSMState nextF : parent.getNextStates(e)) {
+                    if (visited.contains(nextF)) {
                         continue;
                     }
 
-                    recurseAddSendToEventTx(f, next, eToTrace, eTracer1,
+                    recurseAddSendToEventTx(f, nextF, eToTrace, eTracer1,
                             eTracer2, visited);
                 }
             }

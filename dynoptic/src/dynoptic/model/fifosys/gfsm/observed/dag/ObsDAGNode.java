@@ -35,10 +35,6 @@ public class ObsDAGNode {
     // this state trivially depends only on the preceding state).
     private Set<ObsDAGNode> remoteDependencies = new LinkedHashSet<ObsDAGNode>();
 
-    // The states for which _this_ state is a dependency (i.e., this state
-    // appears in these states' remoteDependencies set).
-    // private Set<ObsDAGNode> remoteEnabledStates;
-
     // Whether or not this state has occurred in a trace simulation.
     private boolean occurredInSym = false;
 
@@ -124,11 +120,6 @@ public class ObsDAGNode {
 
         return prevState;
     }
-
-    /*
-     * public Set<ObsDAGNode> getRemoteEnabledStates() { return
-     * remoteEnabledStates; }
-     */
 
     public boolean hasOccurred() {
         assert isInitialized();
