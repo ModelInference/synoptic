@@ -336,7 +336,7 @@ public class DynopticMain {
 
         CFSM cfsm = pGraph.getCFSM();
         String outputFileName = opts.outputPathPrefix + ".dot";
-        GraphExporter.exportCFSM(outputFileName, cfsm, true);
+        GraphExporter.exportCFSM(outputFileName, cfsm);
         GraphExporter.generatePngFileFromDotFile(outputFileName);
     }
 
