@@ -1,5 +1,10 @@
 package dynoptic.model.export;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
@@ -19,7 +25,10 @@ import synoptic.model.event.DistEventType;
 
 public class GraphExporterTests extends DynopticTest {
 
+    private static final String DOT_OUTPUT_PATH = ".";
     private static final String DOT_OUTPUT_FILENAME = "./test.dot";
+    private static final String DOT_OUTPUT_WILDCARD = "test.dot*";
+    private static final String DOT_PNG_OUTPUT_WILDCARD = "test.dot*.png";
 
     int pid0 = 0;
     int pid1 = 1;
@@ -141,8 +150,41 @@ public class GraphExporterTests extends DynopticTest {
         generateOutput(cfsm);
     }
 
+    /**
+     * Generates test.dot for cfsm and test.dot*.png for each fsm in cfsm.
+     */
     private void generateOutput(CFSM cfsm) throws IOException {
+        cleanDotOutputs();
         GraphExporter.exportCFSM(DOT_OUTPUT_FILENAME, cfsm, true);
+        assertTrue(new File(DOT_OUTPUT_FILENAME).exists());
+        
         GraphExporter.generatePngFileFromDotFile(DOT_OUTPUT_FILENAME);
+        int numFSMs = cfsm.getFSMs().size();
+        int numDotPngFiles = getNumDotPngFiles();
+        assertEquals(numFSMs, numDotPngFiles);
+    }
+    
+    /**
+     * Deletes all test.dot and test.dot*.png.
+     */
+    private void cleanDotOutputs() {
+        File outputDir = new File(DOT_OUTPUT_PATH);
+        FileFilter filter = new WildcardFileFilter(DOT_OUTPUT_WILDCARD);
+        File[] dotFiles = outputDir.listFiles(filter);
+        
+        for (File dotFile : dotFiles) {
+            dotFile.delete();
+        }
+    }
+    
+    /**
+     * Gets the number of test.dot*.png files.
+     */
+    private int getNumDotPngFiles() {
+        File outputDir = new File(DOT_OUTPUT_PATH);
+        FileFilter filter = new WildcardFileFilter(DOT_PNG_OUTPUT_WILDCARD);
+        File[] dotPngFiles = outputDir.listFiles(filter);
+        
+        return dotPngFiles.length;
     }
 }
