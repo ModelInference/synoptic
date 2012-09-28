@@ -85,6 +85,11 @@ def parse_arguments():
 
     return parser.parse_args()
 
+def print_log(log):
+    for (vtime, event) in log:
+        vtime_str = ",".join(map(lambda x: str(x), vtime))
+        print vtime_str, event
+    return
 
 def main():
     '''
@@ -97,13 +102,10 @@ def main():
     s_log, r_log = emulate(args)
 
     print "# Sender's log:"
-    for event in s_log:
-        print event
-
+    print_log(s_log)
     print
     print "# Receiver's log:"
-    for event in r_log:
-        print event
+    print_log(r_log)
     print
 
 

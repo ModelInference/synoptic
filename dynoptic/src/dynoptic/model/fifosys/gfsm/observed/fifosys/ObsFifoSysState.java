@@ -67,7 +67,9 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
 
         if (fifoSysStatesMap.containsKey(fsmStates)) {
             ret = fifoSysStatesMap.get(fsmStates);
-            assert ret.getChannelStates().equals(channelStates);
+            if (!ret.getChannelStates().equals(channelStates)) {
+                assert ret.getChannelStates().equals(channelStates);
+            }
         } else {
             ret = new ObsFifoSysState(fsmStates, channelStates);
             fifoSysStatesMap.put(fsmStates, ret);
