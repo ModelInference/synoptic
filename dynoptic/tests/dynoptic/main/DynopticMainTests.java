@@ -247,6 +247,21 @@ public class DynopticMainTests extends DynopticTest {
     }
 
     @Test
+    public void runABPLongTraceSuccess() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("M:0->1;A:1->0");
+        args.add("-i");
+        args.add("-d");
+        args.add("../traces/AlternatingBitProtocol/src/bam");
+        runDynFromFileArgs(args);
+    }
+
+    @Test
     public void runSimpleConcurrencyFileSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
         args.add("-r");

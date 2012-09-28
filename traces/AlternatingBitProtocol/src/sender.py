@@ -1,4 +1,6 @@
 import time
+import copy
+
 from process import Process
 
 
@@ -44,7 +46,7 @@ class Sender(Process):
         trans = {1 : 2,
                  4 : 5}
         self.change_state(trans[self.state])
-        self.remote_endpoint.rx_queue.put(self.currently_sending)
+        self.remote_endpoint.rx_queue.put((copy.deepcopy(self.vtime), self.currently_sending))
 
     def test_timeout(self):
         '''
@@ -86,7 +88,8 @@ class Sender(Process):
                 self.test_timeout()
             else:
                 # We have an ack to receive. Receive it, and process it.
-                rx_a = self.rx_queue.get()
+                (remote_vtime, rx_a) = self.rx_queue.get()
+                self.update_local_vtime(remote_vtime)
                 self.process_ack(rx_a)
 
         # POST: Make sure the new/current state is legal.
