@@ -305,10 +305,12 @@ public class DynopticMain {
         // between these to generate ObsFSMStates (anonymous states),
         // obsDAGNodes (to contain obsFSMStates and encode dependencies between
         // them), and an ObsDag per execution parsed from the log.
+        logger.info("Generating ObsFifoSys from DAGsTraceGraph...");
         List<ObsFifoSys> traces = synTraceGraphToDynObsFifoSys(traceGraph);
 
         // ///////////////////
         // Express/convert Synoptic invariants as Dynoptic invariants.
+        logger.info("Converting Synoptic invariants to Dynoptic invariants...");
         List<BinaryInvariant> dynInvs = synInvsToDynInvs(minedInvs);
 
         if (dynInvs.size() == 0) {
@@ -320,6 +322,7 @@ public class DynopticMain {
         // Create a partition graph (GFSM instance) of the ObsFifoSys instances
         // we've created above. Use the default initial partitioning strategy,
         // based on head of all of the queues of each ObsFifoSysState.
+        logger.info("Generating the initial partition graph (GFSM)...");
         GFSM pGraph = new GFSM(traces);
 
         // ///////////////////
@@ -512,6 +515,7 @@ public class DynopticMain {
 
         // Build a Dynoptic ObsDAG for each Synoptic trace DAG.
         for (int traceId = 0; traceId < traceGraph.getNumTraces(); traceId++) {
+            logger.info("Processing trace " + traceId);
             preEventNodesMap.clear();
 
             // These contain the initial and terminal configurations in terms of
@@ -527,6 +531,7 @@ public class DynopticMain {
                     .asList(new EventNode[numProcesses]);
 
             // Populate the pidInitialNodes list.
+            logger.info("Populating initial nodes list");
             for (EventNode eNode : traceGraph.getNodes()) {
                 // Skip nodes from other traces.
                 if (eNode.getTraceID() != traceId) {
@@ -552,6 +557,9 @@ public class DynopticMain {
             // create the corresponding Dynoptic states (without remote
             // dependencies).
             for (int pid = 0; pid < numProcesses; pid++) {
+                logger.info("Walking process[" + pid
+                        + "] chain to create ObsFSMState instances.");
+
                 EventNode eNode = pidInitialNodes.get(pid);
                 assert eNode != null;
 
@@ -579,6 +587,9 @@ public class DynopticMain {
             // Walk the same chains as above, but now record the remote
             // dependencies between events as dependencies between states.
             for (int pid = 0; pid < numProcesses; pid++) {
+                logger.info("Walking process[" + pid
+                        + "] chain to record remote dependencies");
+
                 EventNode eNode = pidInitialNodes.get(pid);
 
                 while (eNode != null) {
@@ -614,7 +625,9 @@ public class DynopticMain {
                 }
             }
 
+            logger.info("Generating ObsDAG.");
             ObsDAG dag = new ObsDAG(initDagCfg, termDagCfg, channelIds);
+            logger.info("Generating ObsFifoSys.");
             ObsFifoSys fifoSys = dag.getObsFifoSys();
             traces.add(fifoSys);
         }
@@ -728,14 +741,18 @@ public class DynopticMain {
             // Model check the CFSM using the McScM model checker.
             String cStr = cfsm.toScmString("checking_"
                     + curInv.getConnectorString());
-            logger.info(cStr);
+
+            // logger.info(cStr);
 
             // TODO: if we are re-checking an invariant, indicate how many times
             // we have rechecked it (since the last time it timed-out, if that
             // ever happened).
 
+            logger.info("*******************************************************");
+
             logger.info("Checking ... " + curInv.toString() + " : "
                     + invsCounter + " / " + totalInvs);
+            logger.info("*******************************************************");
 
             try {
                 mcscm.verify(cStr, curTimeout);

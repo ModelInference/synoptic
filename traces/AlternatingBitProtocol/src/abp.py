@@ -63,6 +63,23 @@ def emulate(args):
     r.terminate()
     r.join()
 
+    #s.log.append((([0,0], "S-TERM")))
+    #r.log.append((([0,0], "R-TERM")))
+
+    # At this point, the sender is not generating any more
+    # messages. But, we might have some oustanding messages in
+    # receiver's queue. So, process these, if any:
+    
+    while not r.rx_queue.empty():
+        # Receive msg and generate any outstanding acks.
+        r.transition()
+    
+    r.transition()
+    r.transition()
+
+    # Consume any outstanding acks on the sender's side.
+    s.consume_acks()
+
     return (s.log, r.log)
 
 
