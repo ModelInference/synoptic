@@ -2,7 +2,7 @@ package dynoptic.model.export;
 
 import java.util.Set;
 
-import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+import dynoptic.model.AbsFSMState;
 
 import synoptic.model.event.DistEventType;
 
@@ -10,8 +10,8 @@ import synoptic.model.event.DistEventType;
  * Base class representing possible exported/serializing formats for graphs.
  */
 public abstract class GraphExportFormatter {
-	
-	/**
+
+    /**
      * Returns a string that begins a new graph.
      */
     public abstract String beginGraphString();
@@ -20,7 +20,7 @@ public abstract class GraphExportFormatter {
      * Returns a string that terminates a graph.
      */
     public abstract String endGraphString();
-    
+
     /**
      * Serializes a single node in a graph to a string.
      * 
@@ -33,9 +33,9 @@ public abstract class GraphExportFormatter {
      * @param isTerminal
      *            whether or not node is terminal
      */
-    public abstract String nodeToString(int nodeId, FSMState node,
-    		boolean isInitial, boolean isTerminal);
-    
+    public abstract <State extends AbsFSMState<State>> String nodeToString(
+            int nodeId, State node, boolean isInitial, boolean isTerminal);
+
     /**
      * Serializes a single node edge in a graph to a string that represents this
      * edge.
@@ -52,7 +52,7 @@ public abstract class GraphExportFormatter {
      */
     public abstract String edgeToStringWithDistEvent(int nodeSrc, int nodeDst,
             DistEventType event, Set<String> relations);
-    
+
     /**
      * Returns a string with escaped forward slashes and double quotes.
      */
@@ -74,4 +74,5 @@ public abstract class GraphExportFormatter {
         }
         return sb.toString();
     }
+
 }

@@ -22,7 +22,7 @@ public class McScMCFSMTests extends CFSMTesting {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        
+
         // NOTE: We assume the tests are run from synoptic/mcscm-bridge/
         verifyPath = DynopticTest.getMcPath();
         mcscm = new McScM(verifyPath);
@@ -36,8 +36,8 @@ public class McScMCFSMTests extends CFSMTesting {
         logger.info(cStr);
 
         VerifyResult result = mcscm.getVerifyResult(cfsm.getChannelIds());
-        logger.info(result.toRawString());
-        logger.info(result.toString());
+        // logger.info(result.toRawString());
+        // logger.info(result.toString());
         return result;
     }
 

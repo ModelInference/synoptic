@@ -34,12 +34,20 @@ public class GFSMCExample extends PartialGFSMCExample {
         super.addToFrontOfPathNoPostChecks(state);
 
         if (path.size() == (mcCExample.getEvents().size() + 1)) {
-            logger.info("Constructed path = " + path);
+            logger.info("Constructed path = " + partitionPathToString(path));
             logger.info("Event c-example path = " + mcCExample.toString());
             assert path.get(0).isInitial();
             assert path.get(path.size() - 1).isAccept();
             this.isInitialized = true;
         }
+    }
+
+    public String partitionPathToString(List<GFSMState> path_) {
+        String ret = "[";
+        for (GFSMState p : path_) {
+            ret += p.toShortString() + ",";
+        }
+        return ret + "]";
     }
 
     // /////////////////////////////////////////////////////////////
