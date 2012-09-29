@@ -307,7 +307,7 @@ public class GFSM extends FifoSys<GFSMState> {
             scmId = 0;
 
             for (GFSMState gInit : getInitStatesForPid(pid)) {
-                logger.info("Exploring from " + gInit.toShortString());
+                // logger.info("Exploring from " + gInit.toShortString());
                 // We might have visited the current gInit in a prior iteration,
                 // from another gInit, in which case we don't need to
                 // re-explore.

@@ -8,7 +8,7 @@ class Receiver(Process):
     Receiver in an alternating bit protocol.
     '''
     def __init__(self):
-        # Ok terminal states [0,2] are just after 'recv_m' is generated
+        # Ok terminal states are just after an ack was generated
         super(Receiver, self).__init__(1, [0,3])
         # The ack we are currently sending -- either self.A0, or self.A1
         self.currently_sending = None

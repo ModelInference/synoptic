@@ -9,7 +9,7 @@ class Sender(Process):
     Sender in an alternating bit protocol.
     '''
     def __init__(self, timeout):
-        # Ok terminal states [0,1] are just before 'send_m' is generated in gen_send()
+        # Ok terminal states are just before 'send_m' is generated in gen_send()
         super(Sender, self).__init__(0, [0,3])
         # Re-send timeout.
         self.timeout = timeout
@@ -69,6 +69,12 @@ class Sender(Process):
                  2 : {self.A0 : 3, self.A1 : 2}}
         self.change_state(trans[self.state][rx_a])
         return
+
+    def consume_acks(self):
+        while not self.rx_queue.empty():
+            (remote_vtime, rx_a) = self.rx_queue.get()
+            self.update_local_vtime(remote_vtime)
+            self.log_event("A?" + rx_a)
 
     def transition(self):
         '''
