@@ -727,6 +727,14 @@ public class DynopticMain {
 
         logger.info("Model checking " + curInv.toString() + " : " + invsCounter
                 + " / " + totalInvs);
+
+        // This counts the number of times we've refined the gfsm.
+        int gfsmCounter = 0;
+        String gfsmPrefixFilename = opts.outputPathPrefix;
+        String dotFilename = gfsmPrefixFilename + ".gfsm.0.dot";
+        GraphExporter.exportGFSM(dotFilename, pGraph);
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
+
         while (true) {
             assert invsCounter <= totalInvs;
             assert curInv == invsToSatisfy.get(0);
@@ -750,8 +758,9 @@ public class DynopticMain {
 
             logger.info("*******************************************************");
 
-            logger.info("Checking ... " + curInv.toString() + " : "
-                    + invsCounter + " / " + totalInvs);
+            logger.info("Checking ... " + curInv.toString() + ". Inv "
+                    + invsCounter + " / " + totalInvs
+                    + ", refinements so far: " + gfsmCounter);
             logger.info("*******************************************************");
 
             try {
@@ -865,6 +874,12 @@ public class DynopticMain {
                         }
                     }
                 }
+
+                gfsmCounter += 1;
+                dotFilename = gfsmPrefixFilename + ".gfsm." + gfsmCounter
+                        + ".dot";
+                GraphExporter.exportGFSM(dotFilename, pGraph);
+                GraphExporter.generatePngFileFromDotFile(dotFilename);
 
                 // Model changed through refinement. Therefore, forget any
                 // invariants that might have timed out previously,
