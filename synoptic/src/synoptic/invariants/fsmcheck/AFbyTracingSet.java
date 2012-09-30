@@ -19,9 +19,10 @@ import synoptic.model.interfaces.INode;
  * @see TracingStateSet
  */
 public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
-    HistoryNode wasA; // Indicates that A was seen more recently than B (failing
-    // state)
-    HistoryNode wasB; // Indicates that B was seen more recently than A
+    // If non null, then A was seen more recently than B (failing state) 
+    HistoryNode wasA;
+    // If non null, then B was seen more recently than A 
+    HistoryNode wasB;
     EventType a, b;
 
     public AFbyTracingSet(EventType a, EventType b) {
@@ -33,6 +34,7 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         this(inv.getFirst(), inv.getSecond());
     }
 
+    // Can initialize to any state based on x's EventType
     @Override
     public void setInitial(T x) {
         EventType name = x.getEType();
@@ -49,15 +51,16 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     @Override
     public void transition(T x) {
         EventType name = x.getEType();
+        // Transitions to wasA or wasB based on x's EventType
         if (a.equals(name)) {
-            wasA = preferShorter(wasB, wasA);
+            wasA = yieldShorter(wasB, wasA);
             wasB = null;
         } else if (b.equals(name)) {
-            wasB = preferShorter(wasA, wasB);
+            wasB = yieldShorter(wasA, wasB);
             wasA = null;
         }
-        wasA = extend(x, wasA);
-        wasB = extend(x, wasB);
+        wasA = extendIfNonNull(x, wasA);
+        wasB = extendIfNonNull(x, wasB);
     }
 
     @Override
@@ -76,8 +79,8 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     @Override
     public void mergeWith(TracingStateSet<T> other) {
         AFbyTracingSet<T> casted = (AFbyTracingSet<T>) other;
-        wasA = preferShorter(wasA, casted.wasA);
-        wasB = preferShorter(wasB, casted.wasB);
+        wasA = yieldShorter(wasA, casted.wasA);
+        wasB = yieldShorter(wasB, casted.wasB);
     }
 
     @Override
