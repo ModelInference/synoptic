@@ -33,6 +33,7 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         this(inv.getFirst(), inv.getSecond());
     }
 
+    // Can initialize to any state based on x's EventType
     @Override
     public void setInitial(T x) {
         EventType name = x.getEType();
@@ -50,16 +51,19 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     @Override
     public void transition(T x) {
         EventType name = x.getEType();
+        /* If starting from neitherSeen, permanently transitions to firstA or 
+         * firstB based on x's EventType
+         */
         if (a.equals(name)) {
-            firstA = preferShorter(neitherSeen, firstA);
+            firstA = yieldShorter(neitherSeen, firstA);
             neitherSeen = null;
         } else if (b.equals(name)) {
-            firstB = preferShorter(neitherSeen, firstB);
+            firstB = yieldShorter(neitherSeen, firstB);
             neitherSeen = null;
         }
-        neitherSeen = extend(x, neitherSeen);
-        firstA = extend(x, firstA);
-        firstB = extend(x, firstB);
+        neitherSeen = extendIfNonNull(x, neitherSeen);
+        firstA = extendIfNonNull(x, firstA);
+        firstB = extendIfNonNull(x, firstB);
     }
 
     @Override
@@ -79,9 +83,9 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     @Override
     public void mergeWith(TracingStateSet<T> other) {
         APTracingSet<T> casted = (APTracingSet<T>) other;
-        neitherSeen = preferShorter(neitherSeen, casted.neitherSeen);
-        firstA = preferShorter(firstA, casted.firstA);
-        firstB = preferShorter(firstB, casted.firstB);
+        neitherSeen = yieldShorter(neitherSeen, casted.neitherSeen);
+        firstA = yieldShorter(firstA, casted.firstA);
+        firstB = yieldShorter(firstB, casted.firstB);
     }
 
     @Override

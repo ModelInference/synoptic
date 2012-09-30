@@ -46,23 +46,26 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     public void transition(T x) {
         EventType name = x.getEType();
 
+        // bSeenAfter is set if aSeen is set or bSeenAfter is already set. 
         if (b.equals(name)) {
-            bSeenAfter = preferShorter(aSeen, bSeenAfter);
+            bSeenAfter = yieldShorter(aSeen, bSeenAfter);
             aSeen = null;
         }
         /*
+         * aSeen can be set unless bSeenAfter is set.
+         * 
          * NOTE: there is no else here, because for this invariant, isA and isB
          * can be simultaneously true (A NFby A, eg, A is singleton).
          */
         if (a.equals(name)) {
-            aSeen = preferShorter(aNotSeen, aSeen);
+            aSeen = yieldShorter(aNotSeen, aSeen);
             aNotSeen = null;
         }
 
         // Advance history for all states.
-        aNotSeen = extend(x, aNotSeen);
-        aSeen = extend(x, aSeen);
-        bSeenAfter = extend(x, bSeenAfter);
+        aNotSeen = extendIfNonNull(x, aNotSeen);
+        aSeen = extendIfNonNull(x, aSeen);
+        bSeenAfter = extendIfNonNull(x, bSeenAfter);
     }
 
     @Override
@@ -82,9 +85,9 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     @Override
     public void mergeWith(TracingStateSet<T> other) {
         NFbyTracingSet<T> casted = (NFbyTracingSet<T>) other;
-        aNotSeen = preferShorter(aNotSeen, casted.aNotSeen);
-        aSeen = preferShorter(aSeen, casted.aSeen);
-        bSeenAfter = preferShorter(bSeenAfter, casted.bSeenAfter);
+        aNotSeen = yieldShorter(aNotSeen, casted.aNotSeen);
+        aSeen = yieldShorter(aSeen, casted.aSeen);
+        bSeenAfter = yieldShorter(bSeenAfter, casted.bSeenAfter);
     }
 
     @Override

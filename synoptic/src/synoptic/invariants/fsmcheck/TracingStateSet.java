@@ -22,6 +22,13 @@ public abstract class TracingStateSet<T extends INode<T>> implements
         IStateSet<T, TracingStateSet<T>> {
     public static boolean checkPath = false;
 
+    /* Consider creating a HistoryList class to abstract away HistoryNode 
+     * juggling in the tracing sets, and consider using boolean flags instead 
+     * of null fields to store state.
+     * 
+     * My gut says prefix sharing and list interfaces are not mutually
+     * exclusive.
+     */
     /**
      * HistoryNode class used to construct a linked-list path through the
      * synoptic.model graph. This linked list structure is used, rather than
@@ -38,6 +45,10 @@ public abstract class TracingStateSet<T extends INode<T>> implements
             this.count = count;
         }
 
+        /* History nodes/linked lists are equal if they are referentially 
+         * equivalent or have the same length.(non-Javadoc)
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
         @Override
         public boolean equals(Object other) {
             if (super.equals(other)) {
@@ -110,7 +121,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
      * Helper to extend this history path with another node. If the passed in
      * path is null, then null is yielded.
      */
-    public HistoryNode extend(T node, HistoryNode prior) {
+    public HistoryNode extendIfNonNull(T node, HistoryNode prior) {
         if (prior == null) {
             return null;
         }
@@ -120,7 +131,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
     /*
      * Helper to yield the shortest non-null path of the two passed in.
      */
-    public HistoryNode preferShorter(HistoryNode a, HistoryNode b) {
+    public HistoryNode yieldShorter(HistoryNode a, HistoryNode b) {
         if (b == null) {
             return a;
         }
