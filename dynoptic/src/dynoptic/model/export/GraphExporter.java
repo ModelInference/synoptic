@@ -210,6 +210,8 @@ public class GraphExporter {
                     Set<State> nextNodes = node.getNextStates(trans);
 
                     for (State nextNode : nextNodes) {
+                        assert nodeToInt.containsKey(nextNode);
+
                         int nodeDst = nodeToInt.get(nextNode);
 
                         String s = formatter.edgeToStringWithDistEvent(nodeSrc,
