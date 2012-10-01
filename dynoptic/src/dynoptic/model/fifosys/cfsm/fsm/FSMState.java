@@ -1,6 +1,5 @@
 package dynoptic.model.fifosys.cfsm.fsm;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -83,7 +82,12 @@ public class FSMState extends AbsFSMState<FSMState> {
         assert event != null;
         assert transitions.containsKey(event);
 
-        return Collections.unmodifiableSet(transitions.get(event));
+        // NOTE: Unfortunately, we can't return
+        // Collections.unmodifiableSet(transitions.get(event))
+        // because transitions are iterated over and at the same time modified
+        // in CFSM.recurseAddSendToEventTx(). This is a potential, but
+        // difficult, FIXME.
+        return new LinkedHashSet<FSMState>(transitions.get(event));
     }
 
     @Override

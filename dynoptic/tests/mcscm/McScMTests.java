@@ -79,7 +79,7 @@ public class McScMTests {
     @Test(expected = ScmSyntaxException.class)
     public void testEmptyScmInput() throws IOException {
         try {
-            mcscm.verify("");
+            mcscm.verify("", 60);
         } catch (Exception e) {
             logger.info("Verify threw an exception: " + e.toString());
             fail("Verify should not fail.");
@@ -99,7 +99,7 @@ public class McScMTests {
         String scmStr = readScmFile("ABP_safe.scm");
 
         try {
-            mcscm.verify(scmStr);
+            mcscm.verify(scmStr, 60);
         } catch (Exception e) {
             logger.info("Verify threw an exception: " + e.toString());
             fail("Verify should not fail.");
@@ -119,7 +119,7 @@ public class McScMTests {
         String scmStr = readScmFile("ABP_unsafe_cexample_len1.scm");
 
         try {
-            mcscm.verify(scmStr);
+            mcscm.verify(scmStr, 60);
         } catch (Exception e) {
             logger.info("Verify threw an exception: " + e.toString());
             fail("Verify should not fail.");
@@ -141,7 +141,7 @@ public class McScMTests {
         String scmStr = readScmFile("ABP_unsafe_cexample_len2.scm");
 
         try {
-            mcscm.verify(scmStr);
+            mcscm.verify(scmStr, 60);
         } catch (Exception e) {
             logger.info("Verify threw an exception: " + e.toString());
             fail("Verify should not fail.");
@@ -149,6 +149,8 @@ public class McScMTests {
 
         VerifyResult result = mcscm.getVerifyResult(cids);
         assertTrue(!result.modelIsSafe());
+        assertTrue(result.getCExample() != null);
+        assertTrue(result.getCExample().getEvents() != null);
         assertEquals(result.getCExample().getEvents().size(), 2);
         assertEquals(result.getCExample().getEvents().get(0), cExEType);
         assertEquals(result.getCExample().getEvents().get(1), cExEType);

@@ -63,6 +63,23 @@ def emulate(args):
     r.terminate()
     r.join()
 
+    #s.log.append((([0,0], "S-TERM")))
+    #r.log.append((([0,0], "R-TERM")))
+
+    # At this point, the sender is not generating any more
+    # messages. But, we might have some oustanding messages in
+    # receiver's queue. So, process these, if any:
+    
+    while not r.rx_queue.empty():
+        # Receive msg and generate any outstanding acks.
+        r.transition()
+    
+    r.transition()
+    r.transition()
+
+    # Consume any outstanding acks on the sender's side.
+    s.consume_acks()
+
     return (s.log, r.log)
 
 
@@ -85,6 +102,11 @@ def parse_arguments():
 
     return parser.parse_args()
 
+def print_log(log):
+    for (vtime, event) in log:
+        vtime_str = ",".join(map(lambda x: str(x), vtime))
+        print vtime_str, event
+    return
 
 def main():
     '''
@@ -97,13 +119,10 @@ def main():
     s_log, r_log = emulate(args)
 
     print "# Sender's log:"
-    for event in s_log:
-        print event
-
+    print_log(s_log)
     print
     print "# Receiver's log:"
-    for event in r_log:
-        print event
+    print_log(r_log)
     print
 
 

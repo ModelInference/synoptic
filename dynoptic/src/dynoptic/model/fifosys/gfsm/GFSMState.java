@@ -195,6 +195,11 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
         // We cannot re-create the cached transitions at this point since the
         // other GFSMStates might be in indeterminate state.
         transitions.clear();
+
+        // TODO: ideally we would also clear transitions of partitions that
+        // contain ObsFifoSysState instances that precede s. However, currently,
+        // we only maintain children of ObsFifoSysState instances, and not their
+        // parents.
     }
 
     /** Removes an observed state from this partition. */
@@ -228,10 +233,8 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
         return observedStates;
     }
 
-    // //////////////////////////////////////////////////////////////////
-
     /** Creates the transitions cache from scratch. */
-    private void recreateCachedTransitions() {
+    public void recreateCachedTransitions() {
         transitions.clear();
 
         // Update the cached transitions for each observed state in this
@@ -241,10 +244,14 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
         }
     }
 
+    // //////////////////////////////////////////////////////////////////
+
     /** Updates the cached transitions for a particular observed state. */
     private void cacheObservedParentTransitions(ObsFifoSysState s) {
         for (DistEventType e : s.getTransitioningEvents()) {
             GFSMState nextPartition = s.getNextState(e).getParent();
+            assert nextPartition != null;
+
             Set<GFSMState> partitions;
             if (!transitions.containsKey(e)) {
                 partitions = new LinkedHashSet<GFSMState>();
@@ -255,5 +262,4 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
             partitions.add(nextPartition);
         }
     }
-
 }

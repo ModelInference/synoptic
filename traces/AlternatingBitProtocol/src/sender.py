@@ -1,4 +1,6 @@
 import time
+import copy
+
 from process import Process
 
 
@@ -7,7 +9,7 @@ class Sender(Process):
     Sender in an alternating bit protocol.
     '''
     def __init__(self, timeout):
-        # Ok terminal states [0,1] are just before 'send_m' is generated in gen_send()
+        # Ok terminal states are just before 'send_m' is generated in gen_send()
         super(Sender, self).__init__(0, [0,3])
         # Re-send timeout.
         self.timeout = timeout
@@ -44,7 +46,7 @@ class Sender(Process):
         trans = {1 : 2,
                  4 : 5}
         self.change_state(trans[self.state])
-        self.remote_endpoint.rx_queue.put(self.currently_sending)
+        self.remote_endpoint.rx_queue.put((copy.deepcopy(self.vtime), self.currently_sending))
 
     def test_timeout(self):
         '''
@@ -68,6 +70,12 @@ class Sender(Process):
         self.change_state(trans[self.state][rx_a])
         return
 
+    def consume_acks(self):
+        while not self.rx_queue.empty():
+            (remote_vtime, rx_a) = self.rx_queue.get()
+            self.update_local_vtime(remote_vtime)
+            self.log_event("A?" + rx_a)
+
     def transition(self):
         '''
         Determine what state we are currently in, and depending on
@@ -86,7 +94,8 @@ class Sender(Process):
                 self.test_timeout()
             else:
                 # We have an ack to receive. Receive it, and process it.
-                rx_a = self.rx_queue.get()
+                (remote_vtime, rx_a) = self.rx_queue.get()
+                self.update_local_vtime(remote_vtime)
                 self.process_ack(rx_a)
 
         # POST: Make sure the new/current state is legal.

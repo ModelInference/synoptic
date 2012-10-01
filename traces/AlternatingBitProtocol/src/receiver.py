@@ -1,4 +1,5 @@
 import time
+import copy
 from process import Process
 
 
@@ -7,7 +8,7 @@ class Receiver(Process):
     Receiver in an alternating bit protocol.
     '''
     def __init__(self):
-        # Ok terminal states [0,2] are just after 'recv_m' is generated
+        # Ok terminal states are just after an ack was generated
         super(Receiver, self).__init__(1, [0,3])
         # The ack we are currently sending -- either self.A0, or self.A1
         self.currently_sending = None
@@ -46,7 +47,7 @@ class Receiver(Process):
         self.change_state(new_state)
 
         self.log_event("A!" + self.currently_sending)
-        self.remote_endpoint.rx_queue.put(self.currently_sending)
+        self.remote_endpoint.rx_queue.put((copy.deepcopy(self.vtime), self.currently_sending))
 
     def transition(self):
         '''
@@ -60,7 +61,8 @@ class Receiver(Process):
         if self.state in [0,3]:
             if not self.rx_queue.empty():
                 # We have a data packet to receive. Receive it, and process it.
-                rx_m = self.rx_queue.get()
+                (remote_vtime, rx_m) = self.rx_queue.get()
+                self.update_local_vtime(remote_vtime)
                 self.process_message(rx_m)
                 
         elif self.state in [1,4]:

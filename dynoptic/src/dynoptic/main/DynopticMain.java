@@ -3,7 +3,6 @@ package dynoptic.main;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,8 +15,10 @@ import mcscm.McScM;
 import mcscm.VerifyResult;
 import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.AlwaysPrecedes;
+import dynoptic.invariants.BinaryInvariant;
 import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
+import dynoptic.model.export.GraphExporter;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.gfsm.GFSM;
 import dynoptic.model.fifosys.gfsm.GFSMCExample;
@@ -29,7 +30,6 @@ import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
-import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
@@ -305,11 +305,13 @@ public class DynopticMain {
         // between these to generate ObsFSMStates (anonymous states),
         // obsDAGNodes (to contain obsFSMStates and encode dependencies between
         // them), and an ObsDag per execution parsed from the log.
+        logger.info("Generating ObsFifoSys from DAGsTraceGraph...");
         List<ObsFifoSys> traces = synTraceGraphToDynObsFifoSys(traceGraph);
 
         // ///////////////////
         // Express/convert Synoptic invariants as Dynoptic invariants.
-        Set<dynoptic.invariants.BinaryInvariant> dynInvs = synInvsToDynInvs(minedInvs);
+        logger.info("Converting Synoptic invariants to Dynoptic invariants...");
+        List<BinaryInvariant> dynInvs = synInvsToDynInvs(minedInvs);
 
         if (dynInvs.size() == 0) {
             logger.info("Mined 0 Dynoptic invariants. Stopping.");
@@ -320,6 +322,7 @@ public class DynopticMain {
         // Create a partition graph (GFSM instance) of the ObsFifoSys instances
         // we've created above. Use the default initial partitioning strategy,
         // based on head of all of the queues of each ObsFifoSysState.
+        logger.info("Generating the initial partition graph (GFSM)...");
         GFSM pGraph = new GFSM(traces);
 
         // ///////////////////
@@ -331,17 +334,13 @@ public class DynopticMain {
         // Output the final CFSM model (corresponding to pGraph) using GraphViz
         // (dot-format).
 
-        // 1. get the CFSM:
-        // CFSM cfsm = pGraph.getCFSM();
-        //
-        // 2. For each process in the CFSM, visualize the FSM of the process:
-        // for each FSM f in CFSM, do:
-        // f.visualize(dotfile)
-
         logger.info("Final scm model:");
         logger.info(pGraph.getCFSM().toScmString("final model"));
 
-        // TODO.
+        CFSM cfsm = pGraph.getCFSM();
+        String outputFileName = opts.outputPathPrefix + ".dot";
+        GraphExporter.exportCFSM(outputFileName, cfsm);
+        GraphExporter.generatePngFileFromDotFile(outputFileName);
     }
 
     // //////////////////////////////////////////////////
@@ -516,6 +515,7 @@ public class DynopticMain {
 
         // Build a Dynoptic ObsDAG for each Synoptic trace DAG.
         for (int traceId = 0; traceId < traceGraph.getNumTraces(); traceId++) {
+            logger.info("Processing trace " + traceId);
             preEventNodesMap.clear();
 
             // These contain the initial and terminal configurations in terms of
@@ -531,6 +531,7 @@ public class DynopticMain {
                     .asList(new EventNode[numProcesses]);
 
             // Populate the pidInitialNodes list.
+            logger.info("Populating initial nodes list");
             for (EventNode eNode : traceGraph.getNodes()) {
                 // Skip nodes from other traces.
                 if (eNode.getTraceID() != traceId) {
@@ -556,6 +557,9 @@ public class DynopticMain {
             // create the corresponding Dynoptic states (without remote
             // dependencies).
             for (int pid = 0; pid < numProcesses; pid++) {
+                logger.info("Walking process[" + pid
+                        + "] chain to create ObsFSMState instances.");
+
                 EventNode eNode = pidInitialNodes.get(pid);
                 assert eNode != null;
 
@@ -583,6 +587,9 @@ public class DynopticMain {
             // Walk the same chains as above, but now record the remote
             // dependencies between events as dependencies between states.
             for (int pid = 0; pid < numProcesses; pid++) {
+                logger.info("Walking process[" + pid
+                        + "] chain to record remote dependencies");
+
                 EventNode eNode = pidInitialNodes.get(pid);
 
                 while (eNode != null) {
@@ -618,7 +625,9 @@ public class DynopticMain {
                 }
             }
 
+            logger.info("Generating ObsDAG.");
             ObsDAG dag = new ObsDAG(initDagCfg, termDagCfg, channelIds);
+            logger.info("Generating ObsFifoSys.");
             ObsFifoSys fifoSys = dag.getObsFifoSys();
             traces.add(fifoSys);
         }
@@ -626,15 +635,17 @@ public class DynopticMain {
     }
 
     /** Converts a set of Synoptic invariants into a set of Dynoptic invariants. */
-    public static Set<dynoptic.invariants.BinaryInvariant> synInvsToDynInvs(
+    public static List<BinaryInvariant> synInvsToDynInvs(
             TemporalInvariantSet minedInvs) {
-        Set<dynoptic.invariants.BinaryInvariant> dynInvs = new LinkedHashSet<dynoptic.invariants.BinaryInvariant>();
+        List<BinaryInvariant> dynInvs = new ArrayList<BinaryInvariant>();
 
-        dynoptic.invariants.BinaryInvariant dynInv = null;
+        BinaryInvariant dynInv = null;
 
         DistEventType dynETypeFirst, dynETypeSecond;
         for (ITemporalInvariant inv : minedInvs) {
-            BinaryInvariant binv = (BinaryInvariant) inv;
+            assert (inv instanceof synoptic.invariants.BinaryInvariant);
+
+            synoptic.invariants.BinaryInvariant binv = (synoptic.invariants.BinaryInvariant) inv;
 
             if (!(binv.getFirst() instanceof DistEventType)) {
                 assert (binv.getFirst() instanceof StringEventType);
@@ -680,36 +691,125 @@ public class DynopticMain {
      * dynInvs in the pGraph model, and refine pGraph as needed until all
      * invariants are satisfied.
      * 
-     * @param dynInvs
+     * @param invsToSatisfy
+     *            Dynoptic invariants to check and satisfy in pGraph
      * @param pGraph
+     *            The GFSM model that will be checked and refined to satisfy all
+     *            of the invariants in invsTocheck
      * @throws Exception
      * @throws IOException
      * @throws InterruptedException
      */
-    public void checkInvsRefineGFSM(
-            Set<dynoptic.invariants.BinaryInvariant> dynInvs, GFSM pGraph)
-            throws Exception, IOException, InterruptedException {
+    public void checkInvsRefineGFSM(List<BinaryInvariant> invsToSatisfy,
+            GFSM pGraph) throws Exception, IOException, InterruptedException {
+        assert pGraph != null;
+        assert invsToSatisfy != null;
+        assert invsToSatisfy.size() > 0;
 
-        Iterator<dynoptic.invariants.BinaryInvariant> invIter = dynInvs
-                .iterator();
-        dynoptic.invariants.BinaryInvariant curInv = invIter.next();
-        int curInvId = 1;
+        Set<BinaryInvariant> timedOutInvs = new LinkedHashSet<BinaryInvariant>();
+        Set<BinaryInvariant> satisfiedInvs = new LinkedHashSet<BinaryInvariant>();
+        // curInv will _always_ refer to the 0th element of invsToSatisfy.
+        BinaryInvariant curInv = invsToSatisfy.get(0);
 
-        logger.info("Model checking " + curInv.toString() + " : " + curInvId
-                + " / " + dynInvs.size());
+        int totalInvs = invsToSatisfy.size();
+        int invsCounter = 1;
+
+        // ////// Additive and memory-less timeout value adaptation.
+        // Initial McScM invocation timeout in seconds.
+        int baseTimeout = 30;
+        // Current timeout value to use.
+        int curTimeout = baseTimeout;
+        // How much we increment curTimeout by, when we timeout on checking all
+        // invariants.
+        int timeoutDelta = 30;
+        // Max curTimeout value (300s = 5min).
+        int maxTimeout = 300;
+
+        logger.info("Model checking " + curInv.toString() + " : " + invsCounter
+                + " / " + totalInvs);
+
+        // This counts the number of times we've refined the gfsm.
+        int gfsmCounter = 0;
+        String gfsmPrefixFilename = opts.outputPathPrefix;
+        String dotFilename = gfsmPrefixFilename + ".gfsm.0.dot";
+        GraphExporter.exportGFSM(dotFilename, pGraph);
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
+
+        // Export intermediate CFSM:
+        CFSM cfsm = pGraph.getCFSM();
+        cfsm.augmentWithInvTracing(curInv);
+        dotFilename = gfsmPrefixFilename + ".cfsm." + gfsmCounter + ".dot";
+        GraphExporter.exportCFSM(dotFilename, cfsm);
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
+
         while (true) {
+            assert invsCounter <= totalInvs;
+            assert curInv == invsToSatisfy.get(0);
+            assert timedOutInvs.size() + satisfiedInvs.size()
+                    + invsToSatisfy.size() == totalInvs;
+
             // Get the CFSM corresponding to the partition graph.
-            CFSM cfsm = pGraph.getCFSM();
+            cfsm = pGraph.getCFSM();
             // Augment the CFSM with synthetic states/events to check curInv.
             cfsm.augmentWithInvTracing(curInv);
 
             // Model check the CFSM using the McScM model checker.
             String cStr = cfsm.toScmString("checking_"
                     + curInv.getConnectorString());
-            logger.info(cStr);
-            logger.info("Checking ... " + curInv.toString() + " : " + curInvId
-                    + " / " + dynInvs.size());
-            mcscm.verify(cStr);
+
+            // logger.info(cStr);
+
+            // TODO: if we are re-checking an invariant, indicate how many times
+            // we have rechecked it (since the last time it timed-out, if that
+            // ever happened).
+
+            logger.info("*******************************************************");
+
+            logger.info("Checking ... " + curInv.toString() + ". Inv "
+                    + invsCounter + " / " + totalInvs
+                    + ", refinements so far: " + gfsmCounter);
+            logger.info("*******************************************************");
+
+            try {
+                mcscm.verify(cStr, curTimeout);
+            } catch (InterruptedException e) {
+                // The model checker timed out. First, record the timed-out
+                // invariant so that we are not stuck re-checking it.
+                invsToSatisfy.remove(0);
+                timedOutInvs.add(curInv);
+
+                logger.info("Timed out in checking invariant: "
+                        + curInv.toString());
+
+                // No invariants are left to try -- increase the timeout value,
+                // unless we are the timeout limit, in which case we throw an
+                // exception.
+                if (invsToSatisfy.size() == 0) {
+                    logger.info("Timed out in checking these invariants with timeout value "
+                            + curTimeout + " :" + timedOutInvs.toString());
+
+                    curTimeout += timeoutDelta;
+
+                    if (curTimeout > maxTimeout) {
+                        throw new Exception(
+                                "McScM timed-out on all invariants. Cannot continue.");
+                    }
+
+                    // Append all of the previously timed out invariants back to
+                    // invsToSatisfy.
+                    invsToSatisfy.addAll(timedOutInvs);
+                    timedOutInvs.clear();
+                }
+
+                // Try the first invariant (perhaps again, but with a higher
+                // timeout value).
+                curInv = invsToSatisfy.get(0);
+                continue;
+            }
+
+            // We did not time-out on checking curInv. Therefore, reset
+            // curTimeout to base value.
+            curTimeout = baseTimeout;
 
             VerifyResult result = mcscm.getVerifyResult(cfsm.getChannelIds());
             logger.info(result.toRawString());
@@ -717,15 +817,22 @@ public class DynopticMain {
 
             // If there is no counter-example, then the invariant holds true.
             if (result.getCExample() == null) {
-                if (!invIter.hasNext()) {
+                // Remove the current invariant from the invsToSatisfy list.
+                invsToSatisfy.remove(0);
+                satisfiedInvs.add(curInv);
+
+                if (invsToSatisfy.size() == 0) {
                     // No more invariants to check. We are done.
+                    logger.info("Finished checking " + invsCounter + " / "
+                            + totalInvs + " invariants.");
                     break;
                 }
-                // Check the next invariant.
-                curInv = invIter.next();
-                curInvId += 1;
+
+                // Grab and start checking the next invariant.
+                curInv = invsToSatisfy.get(0);
+                invsCounter += 1;
                 logger.info("Model checking " + curInv.toString() + " : "
-                        + curInvId + " / " + dynInvs.size());
+                        + invsCounter + " / " + totalInvs);
             } else {
                 // Refine the pGraph to eliminate cExample.
 
@@ -774,8 +881,35 @@ public class DynopticMain {
                         }
                     }
                 }
+
+                // Increment the number of refinements:
+                gfsmCounter += 1;
+
+                // Export intermediate GFSM:
+                dotFilename = gfsmPrefixFilename + ".gfsm." + gfsmCounter
+                        + ".dot";
+                GraphExporter.exportGFSM(dotFilename, pGraph);
+                GraphExporter.generatePngFileFromDotFile(dotFilename);
+
+                // Export intermediate CFSM:
+                cfsm = pGraph.getCFSM();
+                cfsm.augmentWithInvTracing(curInv);
+                dotFilename = gfsmPrefixFilename + ".cfsm." + gfsmCounter
+                        + ".dot";
+                GraphExporter.exportCFSM(dotFilename, cfsm);
+                GraphExporter.generatePngFileFromDotFile(dotFilename);
+
+                // Model changed through refinement. Therefore, forget any
+                // invariants that might have timed out previously,
+                // and add all of them back to invsToSatisfy.
+                if (timedOutInvs.size() > 0) {
+                    // Append all of the previously timed out invariants back to
+                    // invsToSatisfy.
+                    invsToSatisfy.addAll(timedOutInvs);
+                    timedOutInvs.clear();
+                }
+
             }
         }
     }
-
 }

@@ -30,14 +30,16 @@ public class McScM {
      * Runs the verify commands with the scmInput string as input.
      * 
      * @param scmInput
+     * @param timeoutSecs
      * @throws InterruptedException
      * @throws IOException
      */
-    public void verify(String scmInput) throws IOException,
+    public void verify(String scmInput, int timeoutSecs) throws IOException,
             InterruptedException {
         File currentPath = new java.io.File(".");
         verifyProcess = ProcessUtil.runVerifyProcess(new String[] { verifyPath,
-                "-no-validation" }, scmInput, currentPath);
+                "-no-validation", "-quiet" }, scmInput, currentPath,
+                timeoutSecs);
     }
 
     /**

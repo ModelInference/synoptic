@@ -2,6 +2,8 @@ package dynoptic;
 
 import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -9,6 +11,7 @@ import java.util.logging.Logger;
 
 import mcscm.Os;
 
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -26,6 +29,12 @@ import synoptic.model.channelid.ChannelId;
  * </pre>
  */
 public class DynopticTest {
+
+    protected static final String DOT_OUTPUT_PATH = ".";
+    protected static final String DOT_OUTPUT_FILENAME = "./test.dot";
+    protected static final String DOT_OUTPUT_WILDCARD = "test.dot*";
+    protected static final String DOT_PNG_OUTPUT_WILDCARD = "test.dot*.png";
+
     /**
      * Can be used to find out the current test name (as of JUnit 4.7) via
      * name.getMethodName().
@@ -80,6 +89,30 @@ public class DynopticTest {
             }
         }
         return channels;
+    }
+
+    /**
+     * Deletes all test.dot and test.dot*.png.
+     */
+    protected void cleanDotOutputs() {
+        File outputDir = new File(DOT_OUTPUT_PATH);
+        FileFilter filter = new WildcardFileFilter(DOT_OUTPUT_WILDCARD);
+        File[] dotFiles = outputDir.listFiles(filter);
+
+        for (File dotFile : dotFiles) {
+            dotFile.delete();
+        }
+    }
+
+    /**
+     * Gets the number of test.dot*.png files.
+     */
+    protected int getNumDotPngFiles() {
+        File outputDir = new File(DOT_OUTPUT_PATH);
+        FileFilter filter = new WildcardFileFilter(DOT_PNG_OUTPUT_WILDCARD);
+        File[] dotPngFiles = outputDir.listFiles(filter);
+
+        return dotPngFiles.length;
     }
 
     // //////////////////////////////////////////////////

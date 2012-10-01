@@ -12,13 +12,11 @@ import java.util.List;
 /** Some process handling routines. */
 public class ProcessUtil {
 
-    /** Timeout (sec) to wait for the process to terminate before killing it. */
-    public static final int TIMEOUT = 3600;
-
     /**
      * Creates and executes a command in processDir, and passes along an
-     * scmString on its stdin. The process will be forcibly terminated after a
-     * TIMEOUT.
+     * scmString on its stdin. The process will be forcibly terminated after
+     * timeoutSecs -- timeout in seconds to wait for the process to terminate
+     * before killing it.
      * 
      * @return the process
      * @throws IOException
@@ -26,7 +24,8 @@ public class ProcessUtil {
      *             when the started process had to be killed forcibly
      */
     public static Process runVerifyProcess(String[] command, String scmInput,
-            File processDir) throws IOException, InterruptedException {
+            File processDir, int timeoutSecs) throws IOException,
+            InterruptedException {
         ProcessBuilder pBuilder = new ProcessBuilder(command);
         pBuilder.directory(processDir);
         Process p = null;
@@ -40,7 +39,7 @@ public class ProcessUtil {
         oStream.close();
 
         // Timer setup.
-        ProcessKillTimer pkt = new ProcessKillTimer(p, TIMEOUT);
+        ProcessKillTimer pkt = new ProcessKillTimer(p, timeoutSecs);
         Thread t = new Thread(pkt);
         t.start();
 

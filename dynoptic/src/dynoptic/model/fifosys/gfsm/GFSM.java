@@ -208,10 +208,24 @@ public class GFSM extends FifoSys<GFSMState> {
      * created partition composed of observations in setExtract.
      */
     public void refine(GFSMState part, Set<ObsFifoSysState> setExtract) {
+        assert states.contains(part);
         assert setExtract.size() > 0;
 
         part.removeAllObs(setExtract);
         states.add(new GFSMState(numProcesses, setExtract));
+
+        part.recreateCachedTransitions();
+
+        // We need to reset inter-partition transitions that contain preceding
+        // ObsFifoSysState instances to setExtract. Unfortunately, there is no
+        // way to do this in a targeted way -- we have to re-create all
+        // transitions if any are suspected of being stale (i.e., need to point
+        // to the new GFSMState created above).
+        for (GFSMState s : states) {
+            if (s != part && s.getNextStates().contains(part)) {
+                s.recreateCachedTransitions();
+            }
+        }
     }
 
     /**
@@ -307,7 +321,7 @@ public class GFSM extends FifoSys<GFSMState> {
             scmId = 0;
 
             for (GFSMState gInit : getInitStatesForPid(pid)) {
-                logger.info("Exploring from " + gInit.toShortString());
+                // logger.info("Exploring from " + gInit.toShortString());
                 // We might have visited the current gInit in a prior iteration,
                 // from another gInit, in which case we don't need to
                 // re-explore.
