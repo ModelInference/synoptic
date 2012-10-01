@@ -297,6 +297,7 @@ public class Bisimulation {
          * counterexampleTrace.
          */
         LinkedHashSet<EventNode> hot = new LinkedHashSet<EventNode>();
+        // hot set initialized to event nodes in first partition
         hot.addAll(counterexampleTrace.path.get(0).getEventNodes());
         Partition prevPartition = null;
         Partition nextPartition = null;
@@ -317,12 +318,27 @@ public class Bisimulation {
             prevPartition = curPartition;
             curPartition = nextPartition;
             nextPartition = part;
-            hot.retainAll(part.getEventNodes());
-            // If we cannot follow further, then we found the partition we need
-            // to split.
+            
+            /* We remove all event-nodes in the hot-set that are not in the next 
+             * partition of the counter-example trace.
+             */
+            hot.retainAll(nextPartition.getEventNodes());
+            
+            /* The hot-set only contains event-nodes that are transitively connected,
+             * through the trace graph, to the event nodes in the first partition of 
+             * the counter-example trace.
+             * 
+             * Once the next partition does not have an event node reachable 
+             * from the hot-set (hot.size() == 0), we have found the longest prefix 
+             * of the counter-example trace that exists in the trace graph.
+             * 
+             * The last partition of this prefix, curPartition, becomes a candidate
+             * for refinement.
+             */
             if (hot.size() == 0) {
                 break;
             }
+            
             // Compute the valid successor messages in the original trace.
             LinkedHashSet<EventNode> successorEvents = new LinkedHashSet<EventNode>();
 
@@ -333,6 +349,10 @@ public class Bisimulation {
                     successorEvents.add(t.getTarget());
                 }
             }
+            
+            /* The hot-set is updated to the set of event nodes that are
+             * reachable, through the trace graph, from the previous set in 1 step.
+             */
             hot = successorEvents;
         }
 
