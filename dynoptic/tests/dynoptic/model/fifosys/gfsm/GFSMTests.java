@@ -1,7 +1,9 @@
 package dynoptic.model.fifosys.gfsm;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
+import dynoptic.model.export.GraphExporter;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
@@ -121,4 +124,13 @@ public class GFSMTests extends DynopticTest {
         assertTrue(c.getAlphabet().size() == 1);
     }
 
+    @Test
+    public void exportGFSM() {
+        cleanDotOutputs();
+        GraphExporter.exportGFSM(DOT_OUTPUT_FILENAME, g);
+        assertTrue(new File(DOT_OUTPUT_FILENAME).exists());
+
+        GraphExporter.generatePngFileFromDotFile(DOT_OUTPUT_FILENAME);
+        assertEquals(1, getNumDotPngFiles());
+    }
 }

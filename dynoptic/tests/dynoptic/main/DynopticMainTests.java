@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +36,7 @@ public class DynopticMainTests extends DynopticTest {
         args.add("-v");
         args.add(super.getMcPath());
         args.add("-o");
-        args.add("test-output" + File.separator);
+        args.add("test-output" + File.separator + "test");
         return args;
     }
 
@@ -88,7 +87,7 @@ public class DynopticMainTests extends DynopticTest {
 
         TemporalInvariantSet synInvs = new TemporalInvariantSet();
         synInvs.add(new AlwaysFollowedInvariant(x, y, "t"));
-        Set<dynoptic.invariants.BinaryInvariant> dynInvs = DynopticMain
+        List<dynoptic.invariants.BinaryInvariant> dynInvs = DynopticMain
                 .synInvsToDynInvs(synInvs);
         assertTrue(dynInvs.size() == 1);
 
@@ -105,7 +104,7 @@ public class DynopticMainTests extends DynopticTest {
 
         TemporalInvariantSet synInvs = new TemporalInvariantSet();
         synInvs.add(new AlwaysPrecedesInvariant(x, y, "t"));
-        Set<dynoptic.invariants.BinaryInvariant> dynInvs = DynopticMain
+        List<dynoptic.invariants.BinaryInvariant> dynInvs = DynopticMain
                 .synInvsToDynInvs(synInvs);
         assertTrue(dynInvs.size() == 1);
 
@@ -122,7 +121,7 @@ public class DynopticMainTests extends DynopticTest {
 
         TemporalInvariantSet synInvs = new TemporalInvariantSet();
         synInvs.add(new NeverFollowedInvariant(x, y, "t"));
-        Set<dynoptic.invariants.BinaryInvariant> dynInvs = DynopticMain
+        List<dynoptic.invariants.BinaryInvariant> dynInvs = DynopticMain
                 .synInvsToDynInvs(synInvs);
         assertTrue(dynInvs.size() == 1);
 
@@ -139,7 +138,7 @@ public class DynopticMainTests extends DynopticTest {
 
         TemporalInvariantSet synInvs = new TemporalInvariantSet();
         synInvs.add(new AlwaysFollowedInvariant(x, y, "t"));
-        Set<dynoptic.invariants.BinaryInvariant> dynInvs = DynopticMain
+        List<dynoptic.invariants.BinaryInvariant> dynInvs = DynopticMain
                 .synInvsToDynInvs(synInvs);
         assertTrue(dynInvs.size() == 1);
 
@@ -220,6 +219,18 @@ public class DynopticMainTests extends DynopticTest {
 
     // //////////////////// Integration tests.
 
+    private void runDynFromFileArgs(List<String> args) throws Exception {
+        opts = new DynopticOptions(args.toArray(new String[0]));
+        dyn = new DynopticMain(opts);
+
+        long startTime = System.currentTimeMillis();
+        dyn.run();
+        long endTime = System.currentTimeMillis();
+        long msTime = (endTime - startTime);
+        long sTime = msTime / 1000;
+        logger.info("Dynoptic run took: " + msTime + "ms ~ " + sTime + "s");
+    }
+
     @Test
     public void runABPSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
@@ -232,13 +243,37 @@ public class DynopticMainTests extends DynopticTest {
         args.add("-i");
         args.add("-d");
         args.add("../traces/EndToEndDynopticTests/AlternatingBitProtocol/trace_po_sr_simple.txt");
-        opts = new DynopticOptions(args.toArray(new String[0]));
-        dyn = new DynopticMain(opts);
+        runDynFromFileArgs(args);
+    }
 
-        long startTime = System.currentTimeMillis();
-        // dyn.run();
-        long endTime = System.currentTimeMillis();
-        logger.info("Dynoptic run took: " + (endTime - startTime) + "ms");
+    @Test
+    public void runABPLongTraceSuccess() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("M:0->1;A:1->0");
+        args.add("-i");
+        args.add("-d");
+        args.add("../traces/AlternatingBitProtocol/src/bam");
+        // runDynFromFileArgs(args);
+    }
+
+    @Test
+    public void runSimpleConcurrencyFileSuccess() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("M:0->1");
+        args.add("-i");
+        args.add("-d");
+        args.add("../traces/EndToEndDynopticTests/simple-po-concurrency/trace.txt");
+        runDynFromFileArgs(args);
     }
 
     @Test
@@ -256,22 +291,5 @@ public class DynopticMainTests extends DynopticTest {
 
         String log = "1,0 e1\n" + "0,1 f1\n" + "2,0 M!m\n" + "2,2 M?m";
         dyn.run(log);
-    }
-
-    @Test
-    public void runSimpleConcurrencyFileSuccess() throws Exception {
-        List<String> args = getBasicArgsStr();
-        args.add("-r");
-        args.add("^(?<VTIME>)(?<TYPE>)$");
-        args.add("-s");
-        args.add("^--$");
-        args.add("-q");
-        args.add("M:0->1");
-        args.add("-i");
-        args.add("-d");
-        args.add("../traces/EndToEndDynopticTests/simple-po-concurrency/trace.txt");
-        opts = new DynopticOptions(args.toArray(new String[0]));
-        dyn = new DynopticMain(opts);
-        dyn.run();
     }
 }

@@ -1,4 +1,5 @@
 import time
+import copy
 import threading
 import Queue
 
@@ -18,7 +19,9 @@ class Process(threading.Thread):
 
     def __init__(self, vtime_lindex, ok_terminal_states):
         super(Process, self).__init__()
+        # The current vector clock timestamp:
         self.vtime = [0,0]
+        # This process' vector time index into the vtime array:
         self.vtime_lindex = vtime_lindex
         self.rx_queue = Queue.Queue()
         self.remote_endpoint = None
@@ -38,7 +41,6 @@ class Process(threading.Thread):
         '''
         Change the state of the process.
         '''
-        self.vtime[self.vtime_lindex] = self.vtime[self.vtime_lindex] + 1
         self.state = new_state
 
     def update_local_vtime(self, remote_vtime):
@@ -48,15 +50,17 @@ class Process(threading.Thread):
         assert self.vtime[self.vtime_lindex] >= remote_vtime[self.vtime_lindex]
         # 0->1, 1->0
         vtime_rindex = abs(self.vtime_lindex - 1)
-        # No need to take the max of the two values, since the remote
-        # endpoint must have the most up to date clock val.
+        # No need to take the max of the two values, since in a two
+        # process system the remote endpoint must have the most up to
+        # date clock val.
         self.vtime[vtime_rindex] = remote_vtime[vtime_rindex]
 
     def log_event(self, e):
         '''
-        Logs an event.
+        Updates the local time and logs a timestamped event.
         '''
-        self.log.append(e)
+        self.vtime[self.vtime_lindex] += 1
+        self.log.append((copy.deepcopy(self.vtime), e))
 
     def terminate(self):
         '''
