@@ -735,6 +735,13 @@ public class DynopticMain {
         GraphExporter.exportGFSM(dotFilename, pGraph);
         GraphExporter.generatePngFileFromDotFile(dotFilename);
 
+        // Export intermediate CFSM:
+        CFSM cfsm = pGraph.getCFSM();
+        cfsm.augmentWithInvTracing(curInv);
+        dotFilename = gfsmPrefixFilename + ".cfsm." + gfsmCounter + ".dot";
+        GraphExporter.exportCFSM(dotFilename, cfsm);
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
+
         while (true) {
             assert invsCounter <= totalInvs;
             assert curInv == invsToSatisfy.get(0);
@@ -742,7 +749,7 @@ public class DynopticMain {
                     + invsToSatisfy.size() == totalInvs;
 
             // Get the CFSM corresponding to the partition graph.
-            CFSM cfsm = pGraph.getCFSM();
+            cfsm = pGraph.getCFSM();
             // Augment the CFSM with synthetic states/events to check curInv.
             cfsm.augmentWithInvTracing(curInv);
 
@@ -875,10 +882,21 @@ public class DynopticMain {
                     }
                 }
 
+                // Increment the number of refinements:
                 gfsmCounter += 1;
+
+                // Export intermediate GFSM:
                 dotFilename = gfsmPrefixFilename + ".gfsm." + gfsmCounter
                         + ".dot";
                 GraphExporter.exportGFSM(dotFilename, pGraph);
+                GraphExporter.generatePngFileFromDotFile(dotFilename);
+
+                // Export intermediate CFSM:
+                cfsm = pGraph.getCFSM();
+                cfsm.augmentWithInvTracing(curInv);
+                dotFilename = gfsmPrefixFilename + ".cfsm." + gfsmCounter
+                        + ".dot";
+                GraphExporter.exportCFSM(dotFilename, cfsm);
                 GraphExporter.generatePngFileFromDotFile(dotFilename);
 
                 // Model changed through refinement. Therefore, forget any
