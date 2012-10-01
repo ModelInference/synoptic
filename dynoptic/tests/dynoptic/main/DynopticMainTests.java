@@ -258,7 +258,7 @@ public class DynopticMainTests extends DynopticTest {
         args.add("-i");
         args.add("-d");
         args.add("../traces/AlternatingBitProtocol/src/bam");
-        runDynFromFileArgs(args);
+        // runDynFromFileArgs(args);
     }
 
     @Test
