@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="build" name="InvariMint">
+    <description>
+      Provides targets to build, test, and package the InvariMint
+      project into a invarimint.jar archive.
+    </description>
+
+    <!-- Include ant xml file with shared utils. -->
+    <include file="../ant-util.xml" as="util" />
+
+    <property environment="env"/>
+
+    <!-- Where to create the invarimint.jar file. -->
+    <property name="invarimint.jarpath" value="${util.synoptic.libdir}/invarimint.jar"/>
+
+	<property name="junit.output.dir" value="junit"/>
+
+	<property name="debuglevel" value="source,lines,vars"/>
+
+	<property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+
+    <!-- Where to find the generated synoptic classes. -->
+    <path id="invarimint.classes.classpath">
+        <pathelement location="bin"/>
+    </path>
+
+    <!-- The set of jars synoptic depends on, in classpath format. -->
+    <path id="invarimint.depjars.classpath">
+        <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
+        <pathelement location="${util.synoptic.libdir}/plume.jar"/>
+    	<pathelement location="${util.synoptic.libdir}/synoptic.jar"/>
+        <pathelement location="${util.synoptic.libdir}/automaton.jar"/>
+    </path>
+
+    <!-- The complete classpath for running the compiled synoptic. -->
+    <path id="invarimint.classpath">
+        <path refid="invarimint.classes.classpath"/>
+        <path refid="invarimint.depjars.classpath"/>
+    </path>
+
+	<manifestclasspath property="jar.liblist" jarfile="${invarimint.jarpath}">
+      <classpath refid="invarimint.depjars.classpath" />
+    </manifestclasspath>
+
+    <!--=====================================================================-->
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="clean">
+        <delete dir="bin"/>
+        <delete dir="junit"/>
+	<!-- Clear out any generated test output. -->
+	<delete>
+          <fileset dir="test-output" includes="*" excludes=".hidden"/>
+        </delete>
+    </target>
+
+    <!--=====================================================================-->
+    <target depends="init" name="build">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false" destdir="bin" source="${source}" target="${target}">
+	    <!-- <compilerarg value="-Xlint:unchecked" /> -->
+            <src path="src"/>
+            <classpath refid="invarimint.classpath"/>
+        </javac>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="tests" depends="build">
+        <mkdir dir="${junit.output.dir}"/>
+
+        <junit fork="no" printsummary="withOutAndErr" showoutput="true">
+	  <classpath refid="invarimint.classpath"/>
+	  <formatter type="xml"/>
+
+	  <batchtest fork="no" todir="${junit.output.dir}">
+	    <fileset dir="bin/">
+	      <include name="tests/units/*Tests.class"/>
+	      <include name="tests/integration/*Tests.class"/>
+	    </fileset>
+	  </batchtest>
+
+        </junit>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="jar" depends="build,util.hg-rev-extract">
+      <echo message="Embedding hg changeset number ${util.hg.revision}" />
+      <jar destfile="${invarimint.jarpath}"
+           basedir="./bin/"
+           includes="**/*.class">
+        <manifest>
+	  <attribute name="Manifest-Version" value="1.0" />
+	  <attribute name="Implementation-Title" value="InvariMint" />
+	  <attribute name="Implementation-Version" value="0.0.1" />
+	  <attribute name="Main-Class" value="main.InvariMintMain" />
+      <attribute name="Class-Path" value="${jar.liblist}" />
+	  <attribute name="ChangesetID" value="${util.hg.revision}" />
+	</manifest>
+      </jar>
+    </target>
+
+    <!--=====================================================================-->
+    <target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
+    </target>
+
+</project>
