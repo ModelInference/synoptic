@@ -193,28 +193,40 @@ public class Partition implements INode<Partition> {
      * candidate would create a partition with 0 events, which is an invalid
      * split.
      * 
-     * @param trans
-     *            the transition that will be checked for
-     * @return the resulting split
+     * @param trans 
+     *          the transition that will be checked for
+     * @return A ParititonSplit containing events from this that are incident 
+     *          to an outgoing transition with the same type and destination 
+     *          partition as trans.
      */
     public PartitionSplit getCandidateSplitBasedOnOutgoing(
             ITransition<Partition> trans) {
         assert initialized;
 
         PartitionSplit split = null;
+        
         for (final EventNode event : events) {
+            
             if (fulfillsStrong(event, trans)) {
+                
                 if (split != null) {
                     split.addEventToSplit(event);
                 }
+                
             } else {
                 // We only create the split once we find an event that would
                 // not be placed in the split.
                 if (split == null) {
-                    // Add all events before event to the split (because ret is
-                    // null, each of these events is guaranteed to fulfill the
-                    // splitting criteria).
+                    
                     split = new PartitionSplit(this);
+                    
+                    /* Add all events before event to the split (because ret is
+                     * null, each of these events is guaranteed to fulfill the
+                     * splitting criteria).
+                     * 
+                     * This depends the following for-each loop iterating in
+                     * the same order as the outer for-each loop.
+                     */
                     for (final EventNode event2 : events) {
                         if (event2.equals(event)) {
                             break;
@@ -224,6 +236,7 @@ public class Partition implements INode<Partition> {
                 }
             }
         }
+
         return split;
     }
 
@@ -239,9 +252,13 @@ public class Partition implements INode<Partition> {
     private static boolean fulfillsStrong(EventNode event,
             ITransition<Partition> trans) {
 
-        for (ITransition<EventNode> t : event.getAllTransitions()) {
-            if (t.getRelation().equals(trans.getRelation())
-                    && t.getTarget().getParent().equals(trans.getTarget())) {
+        for (ITransition<EventNode> tPrime : event.getAllTransitions()) {
+            
+            boolean matchesRelation = tPrime.getRelation().equals(trans.getRelation());
+            boolean matchesDestinationPartition = 
+                    tPrime.getTarget().getParent().equals(trans.getTarget());
+            
+            if (matchesRelation && matchesDestinationPartition) {
                 // TODO: Shouldn't this check and return true only if the
                 // condition holds for _all_ transitions t (not just some
                 // transition t) ?
@@ -259,7 +276,8 @@ public class Partition implements INode<Partition> {
      *            the partition the transition should be incoming from
      * @param relation
      *            provides the relation name to consider
-     * @return returns the resulting split
+     * @return A PartitionSplit containing events from this that are adjacent 
+     *              to an event in previous through a relation type in relations.
      */
     public PartitionSplit getCandidateSplitBasedOnIncoming(Partition previous,
             Set<String> relations) {
