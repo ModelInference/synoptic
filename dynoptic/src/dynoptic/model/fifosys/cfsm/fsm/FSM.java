@@ -86,12 +86,12 @@ public class FSM extends AbsFSM<FSMState> {
 
         parent.rmTransition(eToTrace, child);
 
-        FSMState synthState1 = new FSMState(parent.isAccept(),
-                parent.isInitial(), pid, nextScmFSMStateId);
+        FSMState synthState1 = new FSMState(false, false, pid,
+                nextScmFSMStateId);
         nextScmFSMStateId++;
 
-        FSMState synthState2 = new FSMState(child.isAccept(),
-                child.isInitial(), pid, nextScmFSMStateId);
+        FSMState synthState2 = new FSMState(false, false, pid,
+                nextScmFSMStateId);
         nextScmFSMStateId++;
 
         // The tracer events t1 and t2 flank the event to trace so that a queue
@@ -104,10 +104,10 @@ public class FSM extends AbsFSM<FSMState> {
         this.states.add(synthState1);
         this.states.add(synthState2);
     }
-    
+
     @Override
     public Set<FSMState> getStates() {
-    	return this.states;
+        return this.states;
     }
 
     public int getPid() {

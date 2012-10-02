@@ -748,6 +748,10 @@ public class DynopticMain {
             assert timedOutInvs.size() + satisfiedInvs.size()
                     + invsToSatisfy.size() == totalInvs;
 
+            if (gfsmCounter == 2) {
+                assert true;
+            }
+
             // Get the CFSM corresponding to the partition graph.
             cfsm = pGraph.getCFSM();
             // Augment the CFSM with synthetic states/events to check curInv.
@@ -893,11 +897,21 @@ public class DynopticMain {
 
                 // Export intermediate CFSM:
                 cfsm = pGraph.getCFSM();
+
+                dotFilename = gfsmPrefixFilename + ".cfsm-no-inv."
+                        + gfsmCounter + ".dot";
+                GraphExporter.exportCFSM(dotFilename, cfsm);
+                GraphExporter.generatePngFileFromDotFile(dotFilename);
+
                 cfsm.augmentWithInvTracing(curInv);
                 dotFilename = gfsmPrefixFilename + ".cfsm." + gfsmCounter
                         + ".dot";
                 GraphExporter.exportCFSM(dotFilename, cfsm);
                 GraphExporter.generatePngFileFromDotFile(dotFilename);
+
+                if (gfsmCounter == 2) {
+                    assert true;
+                }
 
                 // Model changed through refinement. Therefore, forget any
                 // invariants that might have timed out previously,

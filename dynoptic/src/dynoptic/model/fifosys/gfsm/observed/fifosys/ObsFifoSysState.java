@@ -166,6 +166,29 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof ObsFifoSysState)) {
+            return false;
+
+        }
+        ObsFifoSysState s = (ObsFifoSysState) other;
+
+        if (!channelStates.equals(s.getChannelStates())) {
+            return false;
+        }
+        if (!fsmStates.equals(s.getFSMStates())) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public int hashCode() {
         int ret = 31;
         ret = ret * 31 + fsmStates.hashCode();
@@ -212,6 +235,10 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
 
     public ImmutableMultiChState getChannelStates() {
         return channelStates;
+    }
+
+    public ObsMultFSMState getFSMStates() {
+        return fsmStates;
     }
 
 }

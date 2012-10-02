@@ -55,6 +55,52 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
     }
 
     // //////////////////////////////////////////////////////////////////
+    // Generic transitivity methods.
+
+    /**
+     * Returns a set of GFSMState nodes that are reachable from s though all
+     * event transitions. This set does not include s.
+     * 
+     * @param visited
+     */
+    public static <State extends AbsFSMState<State>> void findTransitiveClosure(
+            State s, Set<State> visited, Set<State> txClosure) {
+        findNonPidTransitiveClosure(-1, s, visited, txClosure);
+    }
+
+    /**
+     * Returns a set of GFSMState nodes that are reachable from s though event
+     * transitions that are non-pid transitions. This set does not include s. If
+     * pid is -1 then it ignores the pid constraint and returns all reachable
+     * states from s.
+     * 
+     * @param visited
+     */
+    public static <State extends AbsFSMState<State>> void findNonPidTransitiveClosure(
+            int pid, State s, Set<State> visited,
+            Set<State> nonPidTxClosureStates) {
+        // Record that we have visited s.
+        visited.add(s);
+
+        for (DistEventType e : s.getTransitioningEvents()) {
+            if (pid != -1 && e.getPid() == pid) {
+                continue;
+            }
+            Set<State> children = s.getNextStates(e);
+            nonPidTxClosureStates.addAll(children);
+
+            // Recursively build up the transitive set of
+            // non-pid-event-reachable states from s.
+            for (State child : children) {
+                if (!visited.contains(child)) {
+                    findNonPidTransitiveClosure(pid, child, visited,
+                            nonPidTxClosureStates);
+                }
+            }
+        }
+    }
+
+    // //////////////////////////////////////////////////////////////////
 
     /**
      * Whether or not the FSM state is an initial state in the FSM.
