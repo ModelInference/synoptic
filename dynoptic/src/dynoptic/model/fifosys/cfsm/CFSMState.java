@@ -91,13 +91,7 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState> {
     public Set<CFSMState> getNextStates(DistEventType event) {
         // TODO: have to take a cross product of all the possible sub-FSM states
         // to derive possible CFSM states.
-        return null;
-
-        // Set<CFSMState> ret = new LinkedHashSet<CFSMState>();
-        // for (FSMState p : fsmStates.values()) {
-        // ret.addAll(p.getNextStates(event));
-        // }
-        // return ret;
+        throw new RuntimeException("getNextStates unimplemented for CFSMState");
     }
 
     @Override

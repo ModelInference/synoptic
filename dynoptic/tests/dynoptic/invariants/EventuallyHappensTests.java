@@ -1,7 +1,11 @@
 package dynoptic.invariants;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -41,6 +45,35 @@ public class EventuallyHappensTests extends AbsInvTesting {
 
         EventuallyHappens inv3 = new EventuallyHappens(e2);
         assertTrue(!inv1.equals(inv3));
+    }
+
+    @Test
+    public void testSatisfies() {
+        EventuallyHappens inv1 = new EventuallyHappens(e1);
+        List<DistEventType> ePath = new ArrayList<DistEventType>();
+
+        // Empty path always fails Eventually.
+        assertFalse(inv1.satisfies(ePath));
+
+        ePath.add(e0);
+        // e0
+        assertFalse(inv1.satisfies(ePath));
+
+        ePath.add(e2);
+        // e0, e2
+        assertFalse(inv1.satisfies(ePath));
+
+        ePath.add(e1);
+        // e0, e2, e1
+        assertTrue(inv1.satisfies(ePath));
+
+        ePath.add(e0);
+        // e0, e2, e1, e0
+        assertTrue(inv1.satisfies(ePath));
+
+        ePath.add(e1);
+        // e0, e2, e1, e0, e1
+        assertTrue(inv1.satisfies(ePath));
     }
 
 }

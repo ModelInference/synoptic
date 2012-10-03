@@ -18,13 +18,13 @@ import synoptic.model.event.DistEventType;
  * to an event-based counter-example that is returned by the McScM model
  * checker.
  */
-public class GFSMCExample extends PartialGFSMCExample {
+public class CompleteGFSMCExample extends PartialGFSMCExample {
     // Whether or not the path corresponding to cExample is completely
     // initialized (i.e., whether it is of the appropriate length).
     private boolean isInitialized;
 
     /** Incremental path construction. */
-    public GFSMCExample(McScMCExample mcCExample) {
+    public CompleteGFSMCExample(McScMCExample mcCExample) {
         super(mcCExample);
         this.isInitialized = false;
     }
@@ -34,7 +34,7 @@ public class GFSMCExample extends PartialGFSMCExample {
         super.addToFrontOfPathNoPostChecks(state);
 
         if (path.size() == (mcCExample.getEvents().size() + 1)) {
-            logger.info("Constructed path = " + partitionPathToString(path));
+            logger.info("Constructed path = " + path);
             logger.info("Event c-example path = " + mcCExample.toString());
             assert path.get(0).isInitial();
             assert path.get(path.size() - 1).isAccept();
@@ -42,18 +42,10 @@ public class GFSMCExample extends PartialGFSMCExample {
         }
     }
 
-    public String partitionPathToString(List<GFSMState> path_) {
-        String ret = "[";
-        for (GFSMState p : path_) {
-            ret += p.toShortString() + ",";
-        }
-        return ret + "]";
-    }
-
     // /////////////////////////////////////////////////////////////
 
     /** All-at-once path construction. */
-    public GFSMCExample(List<GFSMState> path, McScMCExample cExample) {
+    public CompleteGFSMCExample(List<GFSMState> path, McScMCExample cExample) {
         super(path, cExample);
         // A few consistency checks.
         assert path.size() == (cExample.getEvents().size() + 1);

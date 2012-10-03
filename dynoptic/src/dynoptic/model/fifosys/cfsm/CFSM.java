@@ -556,4 +556,5 @@ public class CFSM extends FifoSys<CFSMState> {
             }
         }
     }
+
 }

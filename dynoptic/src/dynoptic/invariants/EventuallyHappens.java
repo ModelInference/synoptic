@@ -1,5 +1,7 @@
 package dynoptic.invariants;
 
+import java.util.List;
+
 import synoptic.model.event.DistEventType;
 
 /**
@@ -30,5 +32,16 @@ public class EventuallyHappens extends AlwaysFollowedBy {
     public String scmBadStateQRe() {
         // There are 0 occurrences of 'X'.
         return "_";
+    }
+
+    @Override
+    public boolean satisfies(List<DistEventType> eventsPath) {
+        for (DistEventType e : eventsPath) {
+            if (e.equals(second)) {
+                return true;
+            }
+        }
+        // Never saw 'second' => eventually 'second' is false.
+        return false;
     }
 }

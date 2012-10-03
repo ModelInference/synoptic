@@ -145,23 +145,23 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
                 fnIsInitialForPid, pid);
     }
 
-    @Override
-    public String toString() {
-        String ret = toShortString();
+    public String toLongString() {
+        String ret = toString();
         ret += ((isInitial()) ? "_i" : "");
         ret += ((isAccept()) ? "_t" : "");
         recreateCachedTransitions();
         for (Entry<DistEventType, Set<GFSMState>> tx : transitions.entrySet()) {
             ret += "\n\t -- " + tx.getKey().toString() + " --> [";
             for (GFSMState child : tx.getValue()) {
-                ret += child.toShortString() + ", ";
+                ret += child.toString() + ", ";
             }
             ret += "]";
         }
         return ret;
     }
 
-    public String toShortString() {
+    @Override
+    public String toString() {
         return "Part-" + observedStates.size() + "-" + this.hashCode();
     }
 

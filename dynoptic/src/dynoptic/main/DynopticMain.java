@@ -20,8 +20,8 @@ import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.model.export.GraphExporter;
 import dynoptic.model.fifosys.cfsm.CFSM;
+import dynoptic.model.fifosys.gfsm.CompleteGFSMCExample;
 import dynoptic.model.fifosys.gfsm.GFSM;
-import dynoptic.model.fifosys.gfsm.GFSMCExample;
 import dynoptic.model.fifosys.gfsm.PartialGFSMCExample;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAG;
@@ -737,6 +737,12 @@ public class DynopticMain {
 
         // Export intermediate CFSM:
         CFSM cfsm = pGraph.getCFSM();
+
+        dotFilename = gfsmPrefixFilename + ".cfsm-no-inv." + gfsmCounter
+                + ".dot";
+        GraphExporter.exportCFSM(dotFilename, cfsm);
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
+
         cfsm.augmentWithInvTracing(curInv);
         dotFilename = gfsmPrefixFilename + ".cfsm." + gfsmCounter + ".dot";
         GraphExporter.exportCFSM(dotFilename, cfsm);
@@ -842,10 +848,12 @@ public class DynopticMain {
 
                 // Match the sequence of events in the counter-example to
                 // paths of corresponding GFSM states.
-                List<GFSMCExample> paths = pGraph.getCExamplePaths(result
-                        .getCExample());
+                List<CompleteGFSMCExample> paths = pGraph
+                        .getCExamplePaths(result.getCExample());
 
                 if (paths == null || paths.isEmpty()) {
+                    cfsm = pGraph.getCFSM();
+
                     // A complete counter-example path does not exist. This may
                     // occur when the GFSM->CFSM conversion does not produce
                     // identical models (the CFSM model can be more general,
@@ -855,13 +863,24 @@ public class DynopticMain {
                     PartialGFSMCExample partialPath = pGraph
                             .getLongestPartialCExamplePath(result.getCExample());
 
-                    logger.info("Resolving " + partialPath.toString());
+                    logger.info("Found partial path: " + partialPath.toString());
 
-                    partialPath.resolve(pGraph);
+                    CompleteGFSMCExample completePath = partialPath
+                            .extendToCompletePath(curInv);
+
+                    assert completePath != null;
+
+                    logger.info("Extended partial path to complete path: "
+                            + completePath.toString());
+
+                    logger.info("Resolving " + completePath.toString());
+                    completePath.resolve(pGraph);
+
+                    // partialPath.resolve(pGraph);
 
                 } else {
                     // Resolve all of the complete counter-example paths.
-                    for (GFSMCExample path : paths) {
+                    for (CompleteGFSMCExample path : paths) {
                         logger.info("Resolving " + path.toString());
 
                         // TODO 2: if the paths overlap then it might be
@@ -895,6 +914,11 @@ public class DynopticMain {
                 GraphExporter.exportGFSM(dotFilename, pGraph);
                 GraphExporter.generatePngFileFromDotFile(dotFilename);
 
+                if (gfsmCounter == 1) {
+                    logger.info("");
+                    assert true;
+                }
+
                 // Export intermediate CFSM:
                 cfsm = pGraph.getCFSM();
 
@@ -909,10 +933,6 @@ public class DynopticMain {
                 GraphExporter.exportCFSM(dotFilename, cfsm);
                 GraphExporter.generatePngFileFromDotFile(dotFilename);
 
-                if (gfsmCounter == 2) {
-                    assert true;
-                }
-
                 // Model changed through refinement. Therefore, forget any
                 // invariants that might have timed out previously,
                 // and add all of them back to invsToSatisfy.
@@ -926,4 +946,5 @@ public class DynopticMain {
             }
         }
     }
+
 }

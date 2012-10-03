@@ -112,7 +112,8 @@ public class GFSM extends FifoSys<GFSMState> {
      * two observations have identical process states, then belong to the same
      * GFSMState partition.
      */
-    private static void checkPartitioningConsistency(Set<ObsFifoSysState> obsToCheck) {
+    private static void checkPartitioningConsistency(
+            Set<ObsFifoSysState> obsToCheck) {
         for (ObsFifoSysState s1 : obsToCheck) {
             for (ObsFifoSysState s2 : obsToCheck) {
                 if (s1.getFSMStates().equals(s2.getFSMStates())) {
@@ -239,7 +240,7 @@ public class GFSM extends FifoSys<GFSMState> {
      * Checks if the partitions and events paths associated with cExample are
      * feasible in this GFSM.
      */
-    public boolean feasible(GFSMCExample cExample) {
+    public boolean feasible(CompleteGFSMCExample cExample) {
         // 1. Check that all partitions in path are in pGraph
         for (GFSMState s : cExample.getPartitionPath()) {
             if (!this.states.contains(s)) {
@@ -352,6 +353,10 @@ public class GFSM extends FifoSys<GFSMState> {
             for (GFSMState gstate : states) {
                 // Find the states that can be reached through non-pid
                 // transitions (we treat them as epsilon transitions).
+                nonPidTxClosureStates.clear();
+                gvisited.clear();
+                // TODO: cache reachability for explored states and re-use this
+                // information.
                 AbsFSMState.findNonPidTransitiveClosure(pid, gstate, gvisited,
                         nonPidTxClosureStates);
 
@@ -430,9 +435,6 @@ public class GFSM extends FifoSys<GFSMState> {
 
             cfsm.addFSM(fsm);
 
-            nonPidTxClosureStates.clear();
-            gvisited.clear();
-
             stateMap.clear();
             initFSMStates.clear();
             acceptFSMStates.clear();
@@ -448,12 +450,12 @@ public class GFSM extends FifoSys<GFSMState> {
      * 
      * @param cExample
      */
-    public List<GFSMCExample> getCExamplePaths(McScMCExample cExample) {
-        List<GFSMCExample> paths = new ArrayList<GFSMCExample>();
+    public List<CompleteGFSMCExample> getCExamplePaths(McScMCExample cExample) {
+        List<CompleteGFSMCExample> paths = new ArrayList<CompleteGFSMCExample>();
         // Explore potential paths from each global initial state in the GFSM.
         for (GFSMState parent : getInitStates()) {
-            List<GFSMCExample> newPaths = buildCExamplePaths(cExample, 0,
-                    parent);
+            List<CompleteGFSMCExample> newPaths = buildCExamplePaths(cExample,
+                    0, parent);
             if (newPaths != null) {
                 paths.addAll(newPaths);
             }
@@ -584,9 +586,9 @@ public class GFSM extends FifoSys<GFSMState> {
      * Returns a set of counter-example paths that correspond to cExample,
      * starting at event index, and the corresponding GFSM partition parent.
      */
-    private List<GFSMCExample> buildCExamplePaths(McScMCExample cExample,
-            int eventIndex, GFSMState parent) {
-        List<GFSMCExample> paths = null, newPaths = null;
+    private List<CompleteGFSMCExample> buildCExamplePaths(
+            McScMCExample cExample, int eventIndex, GFSMState parent) {
+        List<CompleteGFSMCExample> paths = null, newPaths = null;
 
         // We reached the end of the events list: construct a new GFSMCExample
         // instance containing just the parent partition and return it.
@@ -595,9 +597,9 @@ public class GFSM extends FifoSys<GFSMState> {
             if (!parent.isAccept()) {
                 return null;
             }
-            GFSMCExample path = new GFSMCExample(cExample);
+            CompleteGFSMCExample path = new CompleteGFSMCExample(cExample);
             path.addToFrontOfPath(parent);
-            newPaths = new ArrayList<GFSMCExample>();
+            newPaths = new ArrayList<CompleteGFSMCExample>();
             newPaths.add(path);
             return newPaths;
         }
@@ -628,7 +630,7 @@ public class GFSM extends FifoSys<GFSMState> {
 
         // Otherwise, add the current partition to the front of the paths
         // constructed and return.
-        for (GFSMCExample path : paths) {
+        for (CompleteGFSMCExample path : paths) {
             path.addToFrontOfPath(parent);
         }
         return paths;
