@@ -1,5 +1,7 @@
 package dynoptic.model.fifosys.gfsm.observed;
 
+import synoptic.model.event.DistEventType;
+
 /**
  * <p>
  * Represents the state observed at a _single_ FSM, without any context -- i.e.,
@@ -81,6 +83,13 @@ public class ObsFSMState {
 
     public static ObsFSMState ObservedIntermediateFSMState(int pid, String name) {
         return new ObsFSMState(pid, false, false, name);
+    }
+    
+    public static ObsFSMState ObservedIntermediateFSMState(int pid, ObsFSMState prevState,
+            DistEventType prevEvent) {
+        int nameHash = prevState.hashCode();
+        nameHash = 31 * nameHash + prevEvent.hashCode();
+        return new ObsFSMState(pid, false, false, "a" + Integer.toString(nameHash));
     }
 
     // //////////////////////////////////////////////////////////////////
