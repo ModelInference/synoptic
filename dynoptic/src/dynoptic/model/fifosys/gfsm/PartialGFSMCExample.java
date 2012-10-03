@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import mcscm.McScMCExample;
+import dynoptic.invariants.BinaryInvariant;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
@@ -80,7 +81,7 @@ public class PartialGFSMCExample {
         String ret = "CExample[partial=" + partialPath + "] : ";
         int i = 0;
         for (GFSMState p : path) {
-            ret += p.toShortString();
+            ret += p.toString();
             if (i != path.size() - 1) {
                 ret += "-- " + mcCExample.getEvents().get(i).toString()
                         + " --> ";
@@ -88,6 +89,97 @@ public class PartialGFSMCExample {
             i += 1;
         }
         return ret;
+    }
+
+    // /////////////////////////////////////////////////////////////
+
+    /**
+     * Finds a complete GFSM counter-example path that extends this partial
+     * counter-example path with events that appear in the McScM spurious
+     * counter-example path (spurious since this counter-example is incomplete,
+     * or partial).
+     */
+    public CompleteGFSMCExample extendToCompletePath(BinaryInvariant inv) {
+        List<GFSMState> partsPath = new ArrayList<GFSMState>(path);
+
+        List<DistEventType> events = mcCExample.getEvents();
+        int eNextIndex = path.size() - 1;
+
+        // The set of events that remain to construct the suffix to partialPath,
+        // the spurious counter-example.
+        List<DistEventType> eventsRemaining = new ArrayList<DistEventType>(
+                events.subList(eNextIndex, events.size()));
+
+        // The set of events that were used to construct partsPath
+        List<DistEventType> eventsPath = new ArrayList<DistEventType>(
+                mcCExample.getEvents().subList(0, partsPath.size() - 1));
+
+        assert (partsPath.size() == eventsPath.size() + 1);
+
+        return findCompletePathFromPartialPath(inv, partsPath, eventsPath,
+                eventsRemaining, path.get(path.size() - 1));
+    }
+
+    /**
+     * DFS traversal of the GFSM to extend the partial c-example to a complete
+     * c-example, constrained by the list of events that we are allowed to use
+     * in the constructed suffix.
+     */
+    private CompleteGFSMCExample findCompletePathFromPartialPath(
+            BinaryInvariant inv, List<GFSMState> partsPath,
+            List<DistEventType> eventsPath,
+            List<DistEventType> eventsRemaining, GFSMState gfsmState) {
+        // If we ran out of events to try, then we have constructed a path that
+        // is as long as the spurious McScM counter-example.
+        if (eventsRemaining.size() == 0) {
+            // Basic checks of partitions path and events path lengths.
+            assert partsPath.size() == mcCExample.getEvents().size() + 1;
+            assert eventsPath.size() == mcCExample.getEvents().size();
+
+            // To be a valid complete path, the last partition must be
+            // accepting.
+            if (!gfsmState.isAccept()) {
+                return null;
+            }
+
+            // To be a valid counter-example the events path must fail to
+            // satisfy the corresponding invariant.
+            if (inv.satisfies(eventsPath)) {
+                return null;
+            }
+
+            return new CompleteGFSMCExample(partsPath, mcCExample);
+        }
+
+        Set<DistEventType> nextEvents = new LinkedHashSet<DistEventType>(
+                gfsmState.getTransitioningEvents());
+        nextEvents.retainAll(eventsRemaining);
+
+        // Explore possible events from gfsmState that appeared in the spurious
+        // counter-example.
+        for (DistEventType nextE : nextEvents) {
+            assert eventsRemaining.remove(nextE);
+            eventsPath.add(nextE);
+            for (GFSMState nextState : gfsmState.getNextStates(nextE)) {
+                partsPath.add(nextState);
+
+                // Try to continue building the non-spurious counter-example by
+                // traversing nextE.
+                CompleteGFSMCExample ret = findCompletePathFromPartialPath(inv,
+                        partsPath, eventsPath, eventsRemaining, nextState);
+
+                // If we have reached a complete counter-example below this
+                // node, then we simply return it -- we just need to find one,
+                // not all such paths.
+                if (ret != null) {
+                    return ret;
+                }
+                partsPath.remove(partsPath.size() - 1);
+            }
+            eventsRemaining.add(nextE);
+            eventsPath.remove(eventsPath.size() - 1);
+        }
+        return null;
     }
 
     /**
@@ -186,7 +278,10 @@ public class PartialGFSMCExample {
     protected void refinePartition(GFSM pGraph, int partIndex) {
         GFSMState part = path.get(partIndex);
 
-        logger.info("Refining partition: " + part.toShortString());
+        // We can't refine a partition if it contains just a single observation.
+        assert part.getObservedStates().size() > 1;
+
+        logger.info("Refining partition: " + part);
 
         // Construct setRight.
         Set<ObsFifoSysState> setRight;

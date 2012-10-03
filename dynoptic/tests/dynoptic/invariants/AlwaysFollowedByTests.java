@@ -1,9 +1,15 @@
 package dynoptic.invariants;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
+
+import synoptic.model.event.DistEventType;
 
 public class AlwaysFollowedByTests extends AbsInvTesting {
 
@@ -39,4 +45,38 @@ public class AlwaysFollowedByTests extends AbsInvTesting {
         AlwaysFollowedBy inv3 = new AlwaysFollowedBy(e0, e2);
         assertTrue(!inv1.equals(inv3));
     }
+
+    @Test
+    public void testSatisfies() {
+        AlwaysFollowedBy inv1 = new AlwaysFollowedBy(e1, e2);
+        List<DistEventType> ePath = new ArrayList<DistEventType>();
+
+        // Empty path always satisfies AFby.
+        assertTrue(inv1.satisfies(ePath));
+
+        ePath.add(e1);
+        // e1
+        assertFalse(inv1.satisfies(ePath));
+
+        ePath.add(e2);
+        // e1,e2
+        assertTrue(inv1.satisfies(ePath));
+
+        ePath.add(e1);
+        // e1,e2,e1
+        assertFalse(inv1.satisfies(ePath));
+
+        ePath.add(e1);
+        // e1,e2,e1,e1
+        assertFalse(inv1.satisfies(ePath));
+
+        ePath.add(e0);
+        // e1,e2,e1,e1,e0
+        assertFalse(inv1.satisfies(ePath));
+
+        ePath.add(e2);
+        // e1,e2,e1,e1,e0,e2
+        assertTrue(inv1.satisfies(ePath));
+    }
+
 }

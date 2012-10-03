@@ -58,7 +58,7 @@ public class ChannelIdTests extends DynopticTest {
         assertFalse(cid.equals(""));
         assertTrue(cid.equals(cid));
         assertFalse(cid.equals(new LocalEventsChannelId(42)));
-        BinaryInvariant inv2 = new AlwaysFollowedBy(e, e);
+        BinaryInvariant inv2 = new AlwaysFollowedBy(f, e);
         assertFalse(cid.equals(new InvChannelId(inv2, 0)));
 
         DistEventType e2 = DistEventType.LocalEvent("e", 0);
@@ -88,7 +88,8 @@ public class ChannelIdTests extends DynopticTest {
         assertTrue(cid.equals(cid2));
 
         DistEventType e = DistEventType.LocalEvent("e", 0);
-        BinaryInvariant inv = new AlwaysFollowedBy(e, e);
+        DistEventType f = DistEventType.LocalEvent("f", 0);
+        BinaryInvariant inv = new AlwaysFollowedBy(e, f);
         assertFalse(cid.equals(new InvChannelId(inv, 42)));
     }
 

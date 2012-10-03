@@ -29,6 +29,10 @@ public class FSMState extends AbsFSMState<FSMState> {
     // Transitions to other FSMState instances.
     private final Map<DistEventType, Set<FSMState>> transitions;
 
+    // The GFSMState partition that this FSMState corresponds to (non-null if
+    // this FSM was generated from a GFSM).
+    // private final GFSMState gState;
+
     // The process that this state is associated with. Initially this is -1, but
     // once a transition on an event is added, the pid is set based on the event
     // type.
@@ -55,14 +59,6 @@ public class FSMState extends AbsFSMState<FSMState> {
     @Override
     public boolean isAccept() {
         return isAccept;
-    }
-
-    public void setInitial(boolean newInitial) {
-        isInitial = newInitial;
-    }
-
-    public void setAccept(boolean newAccept) {
-        isAccept = newAccept;
     }
 
     @Override
@@ -97,6 +93,14 @@ public class FSMState extends AbsFSMState<FSMState> {
     }
 
     // //////////////////////////////////////////////////////////////////
+
+    public void setInitial(boolean newInitial) {
+        isInitial = newInitial;
+    }
+
+    public void setAccept(boolean newAccept) {
+        isAccept = newAccept;
+    }
 
     /** Returns the pid that this state is associated with. */
     public int getPid() {

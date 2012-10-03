@@ -1,5 +1,7 @@
 package dynoptic.invariants;
 
+import java.util.List;
+
 import synoptic.model.event.DistEventType;
 
 /**
@@ -165,4 +167,7 @@ abstract public class BinaryInvariant {
         return "(" + secondSynth1.getScmEventString() + " . "
                 + secondSynth2.getScmEventString() + ")";
     }
+
+    /** Whether or not the passed eventsPath satisfied this invariant type. */
+    public abstract boolean satisfies(List<DistEventType> eventsPath);
 }
