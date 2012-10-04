@@ -313,6 +313,9 @@ public class DynopticMain {
         logger.info("Converting Synoptic invariants to Dynoptic invariants...");
         List<BinaryInvariant> dynInvs = synInvsToDynInvs(minedInvs);
 
+        logger.info(minedInvs.numInvariants() + " Synoptic invs --> "
+                + dynInvs.size() + " Dynoptic invs.");
+
         if (dynInvs.size() == 0) {
             logger.info("Mined 0 Dynoptic invariants. Stopping.");
             return;
@@ -634,14 +637,19 @@ public class DynopticMain {
         return traces;
     }
 
-    /** Converts a set of Synoptic invariants into a set of Dynoptic invariants. */
+    /**
+     * Converts a set of Synoptic invariants into a set of Dynoptic invariants.
+     * Currently we ignore all \parallel and \nparallel invariants, as well as
+     * all "x NFby y" invariants where x and y occur at different processes (see
+     * Issue 271)
+     */
     public static List<BinaryInvariant> synInvsToDynInvs(
             TemporalInvariantSet minedInvs) {
         List<BinaryInvariant> dynInvs = new ArrayList<BinaryInvariant>();
 
         BinaryInvariant dynInv = null;
 
-        DistEventType dynETypeFirst, dynETypeSecond;
+        DistEventType first, second;
         for (ITemporalInvariant inv : minedInvs) {
             assert (inv instanceof synoptic.invariants.BinaryInvariant);
 
@@ -658,25 +666,32 @@ public class DynopticMain {
             if (binv.getFirst().isInitialEventType()) {
                 // Special case for INITIAL event type since it does not appear
                 // in the traces and is therefore not recorded in the eTypesMap.
-                dynETypeFirst = DistEventType.INITIALEventType;
+                first = DistEventType.INITIALEventType;
             } else {
-                dynETypeFirst = ((DistEventType) binv.getFirst());
+                first = ((DistEventType) binv.getFirst());
             }
-            dynETypeSecond = ((DistEventType) binv.getSecond());
+            second = ((DistEventType) binv.getSecond());
 
             if (inv instanceof AlwaysFollowedInvariant) {
-                if (dynETypeFirst == DistEventType.INITIALEventType) {
-                    dynInv = new EventuallyHappens(dynETypeSecond);
+                if (first == DistEventType.INITIALEventType) {
+                    dynInv = new EventuallyHappens(second);
                 } else {
-                    dynInv = new AlwaysFollowedBy(dynETypeFirst, dynETypeSecond);
+                    dynInv = new AlwaysFollowedBy(first, second);
                 }
             } else if (inv instanceof NeverFollowedInvariant) {
-                assert dynETypeFirst != DistEventType.INITIALEventType;
-                dynInv = new NeverFollowedBy(dynETypeFirst, dynETypeSecond);
+                assert first != DistEventType.INITIALEventType;
+
+                // Ignore x NFby y if x and y occur at different processes
+                // (Issue 271).
+                if (first.getPid() == second.getPid()) {
+                    dynInv = new NeverFollowedBy(first, second);
+                }
+
             } else if (inv instanceof AlwaysPrecedesInvariant) {
-                assert dynETypeFirst != DistEventType.INITIALEventType;
-                dynInv = new AlwaysPrecedes(dynETypeFirst, dynETypeSecond);
+                assert first != DistEventType.INITIALEventType;
+                dynInv = new AlwaysPrecedes(first, second);
             }
+
             if (dynInv != null) {
                 dynInvs.add(dynInv);
                 dynInv = null;
@@ -857,26 +872,57 @@ public class DynopticMain {
                     // A complete counter-example path does not exist. This may
                     // occur when the GFSM->CFSM conversion does not produce
                     // identical models (the CFSM model can be more general,
-                    // i.e., accept more behavior). In this case, we refine a
-                    // partial counter-example path with is the longest
+                    // i.e., accept more behavior). In this case, we first find
+                    // the partial counter-example path with is the longest
                     // partitions path that matches the McScM counter-example.
                     PartialGFSMCExample partialPath = pGraph
                             .getLongestPartialCExamplePath(result.getCExample());
 
                     logger.info("Found partial path: " + partialPath.toString());
 
-                    CompleteGFSMCExample completePath = partialPath
-                            .extendToCompletePath(curInv);
+                    if (partialPath.pathLength() == result.getCExample()
+                            .getEvents().size() + 1) {
+                        logger.info("Resolving partial non-extended path: "
+                                + partialPath.toString());
+                        boolean ret = partialPath.resolve(pGraph);
+                        if (!ret) {
+                            // Find a permutation of the counter-example from
+                            // scratch, since we cannot resolve the partial
+                            // c-example that does not terminate in accepting
+                            // state.
 
-                    assert completePath != null;
+                            logger.info("Scrapping partial c-example and re-creating a permuted c-example.");
 
-                    logger.info("Extended partial path to complete path: "
-                            + completePath.toString());
+                            partialPath = new PartialGFSMCExample(
+                                    result.getCExample());
 
-                    logger.info("Resolving " + completePath.toString());
-                    completePath.resolve(pGraph);
+                            CompleteGFSMCExample completePath = partialPath
+                                    .extendToCompletePath(curInv, pGraph);
 
-                    // partialPath.resolve(pGraph);
+                            assert completePath != null;
+
+                            logger.info("Extended partial path to complete path: "
+                                    + completePath.toString());
+
+                            logger.info("Resolving " + completePath.toString());
+                            completePath.resolve(curInv, pGraph);
+                        }
+
+                    } else {
+                        // Now, extend the partial path to a complete path
+                        // through
+                        // permutation of events in the McScM counter-example.
+                        CompleteGFSMCExample completePath = partialPath
+                                .extendToCompletePath(curInv, pGraph);
+
+                        assert completePath != null;
+
+                        logger.info("Extended partial path to complete path: "
+                                + completePath.toString());
+
+                        logger.info("Resolving " + completePath.toString());
+                        completePath.resolve(curInv, pGraph);
+                    }
 
                 } else {
                     // Resolve all of the complete counter-example paths.

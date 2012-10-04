@@ -16,7 +16,10 @@ import synoptic.model.event.DistEventType;
 /**
  * Represents a _partial_ counter-example partitions path in the GFSM. This
  * means that it does not completely correspond to the event-based
- * counter-example that is returned by the McScM model checker.
+ * counter-example that is returned by the McScM model checker. However, it MUST
+ * correspond partially to the counter-example -- the partitions use the
+ * sub-sequence of events from the McScM counter-example, starting from the
+ * first event.
  */
 public class PartialGFSMCExample {
     protected static Logger logger = Logger.getLogger("GFSMCExample");
@@ -39,7 +42,6 @@ public class PartialGFSMCExample {
         assert path.get(0).isInitial();
         this.path = path;
         this.mcCExample = cExample;
-        this.isResolved = false;
     }
 
     public boolean isResolved() {
@@ -62,8 +64,15 @@ public class PartialGFSMCExample {
     public void addToFrontOfPath(GFSMState state) {
         addToFrontOfPathNoPostChecks(state);
 
-        // Make sure that this remains a partial GFSMCExample.
-        assert path.size() < (mcCExample.getEvents().size() + 1);
+        // Make sure that the partial path is never longer than the original
+        // c-example.
+        assert path.size() <= (mcCExample.getEvents().size() + 1);
+
+        // A partial c-example is still partial if it has the length of the
+        // original c-example, but does not end on an accepting state.
+        if (path.size() == (mcCExample.getEvents().size() + 1)) {
+            assert !path.get(path.size() - 1).isAccept();
+        }
     }
 
     /** Adds state to the front of the internal c-example path. */
@@ -77,14 +86,21 @@ public class PartialGFSMCExample {
 
     @Override
     public String toString() {
+        return this.toString(this.mcCExample.getEvents());
+    }
+
+    /**
+     * Prints the path, using this.path list of partitions and eventsPath list
+     * of events to connect the partitions.
+     */
+    protected String toString(List<DistEventType> eventsPath) {
         boolean partialPath = (path.size() != (mcCExample.getEvents().size() + 1));
         String ret = "CExample[partial=" + partialPath + "] : ";
         int i = 0;
         for (GFSMState p : path) {
             ret += p.toString();
             if (i != path.size() - 1) {
-                ret += "-- " + mcCExample.getEvents().get(i).toString()
-                        + " --> ";
+                ret += "-- " + eventsPath.get(i).toString() + " --> ";
             }
             i += 1;
         }
@@ -99,25 +115,78 @@ public class PartialGFSMCExample {
      * counter-example path (spurious since this counter-example is incomplete,
      * or partial).
      */
-    public CompleteGFSMCExample extendToCompletePath(BinaryInvariant inv) {
+    public CompleteGFSMCExample extendToCompletePath(BinaryInvariant inv,
+            GFSM pGraph) {
+
+        // The sequence of events returned by McScM model checker.
+        List<DistEventType> allEvents = mcCExample.getEvents();
+
+        // The partition path that we've constructed so far.
         List<GFSMState> partsPath = new ArrayList<GFSMState>(path);
 
-        List<DistEventType> events = mcCExample.getEvents();
-        int eNextIndex = path.size() - 1;
+        // The sequence of events that were used to construct partsPath.
+        List<DistEventType> eventsPath;
 
-        // The set of events that remain to construct the suffix to partialPath,
-        // the spurious counter-example.
-        List<DistEventType> eventsRemaining = new ArrayList<DistEventType>(
-                events.subList(eNextIndex, events.size()));
+        // The list of events that remain for constructing the suffix to
+        // partialPath, the spurious counter-example, to generate a complete
+        // counter-example.
+        List<DistEventType> eventsRemaining;
 
-        // The set of events that were used to construct partsPath
-        List<DistEventType> eventsPath = new ArrayList<DistEventType>(
-                mcCExample.getEvents().subList(0, partsPath.size() - 1));
+        CompleteGFSMCExample ret = null;
 
-        assert (partsPath.size() == eventsPath.size() + 1);
+        if (partsPath.size() == 0) {
+            // If we haven't been able to match any events, then we attempt to
+            // match the allEvents from all possible initial partitions.
 
-        return findCompletePathFromPartialPath(inv, partsPath, eventsPath,
-                eventsRemaining, path.get(path.size() - 1));
+            // Empty events path so far.
+            eventsPath = new ArrayList<DistEventType>();
+
+            // All events remain to be used.
+            eventsRemaining = new ArrayList<DistEventType>(allEvents);
+
+            List<CompleteGFSMCExample> rets = new ArrayList<CompleteGFSMCExample>();
+            for (GFSMState initPart : pGraph.getInitStates()) {
+                partsPath.add(initPart);
+                ret = findCompletePathFromPartialPath(inv, partsPath,
+                        eventsPath, eventsRemaining, initPart);
+                if (ret != null) {
+                    rets.add(ret);
+                    // We cannot re-use partsPath or eventsPath as ret refers to
+                    // both of them.
+                    partsPath = new ArrayList<GFSMState>(path);
+                    eventsPath = new ArrayList<DistEventType>();
+                }
+            }
+            assert rets.size() != 0;
+
+            // TODO: if there are multiple options for a complete path, then we
+            // must somehow decide among them. For now, we just use the first
+            // one in the list.
+            ret = rets.get(0);
+
+        } else {
+            // We've matched some events, so we start matching a complete path
+            // from where we left off.
+
+            // NOTE: an assumption here is that a complete extension to the
+            // partial path exists from the longest partial path match -- i.e.,
+            // if we have a non-empty partial path then we don't explore from
+            // all of the initial partitions from scratch as we do above.
+
+            eventsPath = new ArrayList<DistEventType>(allEvents.subList(0,
+                    partsPath.size() - 1));
+
+            eventsRemaining = new ArrayList<DistEventType>(allEvents.subList(
+                    path.size() - 1, allEvents.size()));
+
+            assert (partsPath.size() == eventsPath.size() + 1);
+
+            ret = findCompletePathFromPartialPath(inv, partsPath, eventsPath,
+                    eventsRemaining, path.get(path.size() - 1));
+        }
+
+        assert ret != null;
+        return ret;
     }
 
     /**
@@ -142,13 +211,19 @@ public class PartialGFSMCExample {
                 return null;
             }
 
-            // To be a valid counter-example the events path must fail to
+            // NOTE: the invariant unsatisfiability condition is TOO strong.
+            //
+            // In a valid counter-example the events path must fail to
             // satisfy the corresponding invariant.
-            if (inv.satisfies(eventsPath)) {
-                return null;
-            }
+            // if (inv.satisfies(eventsPath)) {
+            // return null;
+            // }
 
-            return new CompleteGFSMCExample(partsPath, mcCExample);
+            // TODO: check that the events in eventsPath are a valid linear
+            // extension of the implicit partial ordering of events in
+            // mcCExample.getEvents().
+
+            return new CompleteGFSMCExample(partsPath, eventsPath, mcCExample);
         }
 
         Set<DistEventType> nextEvents = new LinkedHashSet<DistEventType>(
@@ -190,7 +265,7 @@ public class PartialGFSMCExample {
      * 
      * @param pGraph
      */
-    public void resolve(GFSM pGraph) {
+    public boolean resolve(GFSM pGraph) {
         assert path.size() >= 2;
 
         GFSMState lastPart = path.get(path.size() - 1);
@@ -212,7 +287,7 @@ public class PartialGFSMCExample {
                 }
 
                 int newStitchIndex = findMinStitchPartIndex(lastPartIndex - 1,
-                        s);
+                        s, mcCExample.getEvents());
                 assert newStitchIndex >= 0;
                 assert newStitchIndex < lastPartIndex;
 
@@ -222,9 +297,15 @@ public class PartialGFSMCExample {
             }
         }
 
+        GFSMState part = path.get(minLastStitchPartIndex);
+        if (part.getObservedStates().size() == 1) {
+            return false;
+        }
+
         // //////////
         // Now refine the partition at minLastStitchPartIndex.
-        refinePartition(pGraph, minLastStitchPartIndex);
+        refinePartition(pGraph, minLastStitchPartIndex, mcCExample.getEvents());
+        return true;
     }
 
     // /////////////////////////////////////////////////////////////
@@ -239,13 +320,14 @@ public class PartialGFSMCExample {
      * @param s
      * @return
      */
-    protected int findMinStitchPartIndex(int sPartIndex, ObsFifoSysState s) {
+    protected int findMinStitchPartIndex(int sPartIndex, ObsFifoSysState s,
+            List<DistEventType> eventsPath) {
         if (sPartIndex == 0) {
             return sPartIndex;
         }
         GFSMState prevPart = path.get(sPartIndex - 1);
         int minIndex = sPartIndex;
-        DistEventType e = mcCExample.getEvents().get(sPartIndex - 1);
+        DistEventType e = eventsPath.get(sPartIndex - 1);
 
         // There might be multiple observed states from prevPart that transition
         // to s, so we explore all of them and return the min index we find.
@@ -255,7 +337,7 @@ public class PartialGFSMCExample {
             // just one transition on e from sPred.
             if (sPred.getNextState(e).equals(s)) {
                 int newStitchIndex = findMinStitchPartIndex(sPartIndex - 1,
-                        sPred);
+                        sPred, eventsPath);
                 if (newStitchIndex < minIndex) {
                     minIndex = newStitchIndex;
                 }
@@ -275,11 +357,16 @@ public class PartialGFSMCExample {
      * @param pGraph
      * @param partIndex
      */
-    protected void refinePartition(GFSM pGraph, int partIndex) {
+    protected void refinePartition(GFSM pGraph, int partIndex,
+            List<DistEventType> eventsPath) {
         GFSMState part = path.get(partIndex);
 
+        logger.info("Refining partition: " + part + ", at index " + partIndex);
+
         // We can't refine a partition if it contains just a single observation.
-        assert part.getObservedStates().size() > 1;
+        if (part.getObservedStates().size() == 1) {
+            assert part.getObservedStates().size() > 1;
+        }
 
         logger.info("Refining partition: " + part);
 
@@ -296,7 +383,7 @@ public class PartialGFSMCExample {
             // Construct setRight to contain observations that transition
             // from part to partNext in the counter-example path.
             setRight = new LinkedHashSet<ObsFifoSysState>();
-            DistEventType eNext = mcCExample.getEvents().get(partIndex);
+            DistEventType eNext = eventsPath.get(partIndex);
             GFSMState partNext = path.get(partIndex + 1);
             for (ObsFifoSysState s : part
                     .getObservedStatesWithTransition(eNext)) {
@@ -304,8 +391,34 @@ public class PartialGFSMCExample {
                     setRight.add(s);
                 }
             }
+
+            // setRight might not be differentiating enough. So, we might have
+            // to instead construct setRight to contain observations whose
+            // predecessors where in the partPrev partition, which preceded
+            // partNext.
+            if (setRight.size() == part.getObservedStates().size()) {
+                // Cannot be the initial partition -- otherwise no stitching
+                // exists at this partition.
+                assert partIndex > 0;
+
+                setRight.clear();
+                GFSMState partPrev = path.get(partIndex - 1);
+                DistEventType ePrev = eventsPath.get(partIndex - 1);
+
+                for (ObsFifoSysState sPrev : partPrev
+                        .getObservedStatesWithTransition(ePrev)) {
+                    ObsFifoSysState s = sPrev.getNextState(ePrev);
+                    if (s.getParent() == part) {
+                        setRight.add(s);
+                    }
+                }
+            }
+
         }
         assert setRight.size() > 0;
+        if (!(setRight.size() < part.getObservedStates().size())) {
+            assert setRight.size() < part.getObservedStates().size();
+        }
 
         // Construct setLeft.
         Set<ObsFifoSysState> setLeft;
@@ -344,7 +457,9 @@ public class PartialGFSMCExample {
         // }
         // }
         // }
-        assert setLeft.size() > 0;
+        if (!(setLeft.size() > 0)) {
+            assert setLeft.size() > 0;
+        }
 
         if (DynopticMain.assertsOn) {
             // Make sure that the two sets are disjoint.
