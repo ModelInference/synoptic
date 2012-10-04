@@ -16,16 +16,25 @@ import synoptic.model.event.DistEventType;
 /**
  * Represents a counter-example partitions path in the GFSM, which corresponds
  * to an event-based counter-example that is returned by the McScM model
- * checker.
+ * checker. <br/>
+ * <br/>
+ * Note that the path does _not_ have to match the sequence of events in the
+ * McScM counter-example exactly. It must merely be a permutation of this events
+ * path.
  */
 public class CompleteGFSMCExample extends PartialGFSMCExample {
     // Whether or not the path corresponding to cExample is completely
     // initialized (i.e., whether it is of the appropriate length).
     private boolean isInitialized;
 
+    // The set of events that is some permutation of the events in the
+    // mcCexample returned by McScM.
+    private final List<DistEventType> eventsPath;
+
     /** Incremental path construction. */
     public CompleteGFSMCExample(McScMCExample mcCExample) {
         super(mcCExample);
+        eventsPath = mcCExample.getEvents();
         this.isInitialized = false;
     }
 
@@ -35,7 +44,7 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
 
         if (path.size() == (mcCExample.getEvents().size() + 1)) {
             logger.info("Constructed path = " + path);
-            logger.info("Event c-example path = " + mcCExample.toString());
+            logger.info("Event path = " + eventsPath.toString());
             assert path.get(0).isInitial();
             assert path.get(path.size() - 1).isAccept();
             this.isInitialized = true;
@@ -44,13 +53,31 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
 
     // /////////////////////////////////////////////////////////////
 
-    /** All-at-once path construction. */
-    public CompleteGFSMCExample(List<GFSMState> path, McScMCExample cExample) {
+    /** All-at-once path construction with a specific eventsPath. */
+    public CompleteGFSMCExample(List<GFSMState> path,
+            List<DistEventType> eventsPath, McScMCExample cExample) {
         super(path, cExample);
         // A few consistency checks.
-        assert path.size() == (cExample.getEvents().size() + 1);
+        assert path.size() == (eventsPath.size() + 1);
         assert path.get(path.size() - 1).isAccept();
+
+        this.eventsPath = eventsPath;
         this.isInitialized = true;
+    }
+
+    /**
+     * All-at-once path construction with a default eventsPath =
+     * cExample.getEvents().
+     */
+    public CompleteGFSMCExample(List<GFSMState> path, McScMCExample cExample) {
+        this(path, cExample.getEvents(), cExample);
+    }
+
+    // /////////////////////////////////////////////////////////////
+
+    @Override
+    public String toString() {
+        return super.toString(this.eventsPath);
     }
 
     public List<GFSMState> getPartitionPath() {
@@ -96,6 +123,12 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
         this.isResolved = true;
     }
 
+    @Override
+    public boolean resolve(GFSM pGraph) {
+        throw new RuntimeException(
+                "Complete CExamples must be resolved with respect to a specific invariant. Use resolve(BinaryInvariant inv, GFSM pGraph).");
+    }
+
     // /////////////////////////////////////////////////////////////
 
     /**
@@ -110,7 +143,7 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
         // Find the last partition along the path that emits the event x.
         int xPartSrcIndex = -1;
         for (int i = 0; i < (path.size() - 1); i++) {
-            DistEventType e = mcCExample.getEvents().get(i);
+            DistEventType e = eventsPath.get(i);
             if (e.equals(x)) {
                 xPartSrcIndex = i;
             }
@@ -123,7 +156,7 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
 
         // //////////
         // Now refine the partition at maxLastStitchPartIndex.
-        refinePartition(pGraph, maxLastStitchPartIndex);
+        refinePartition(pGraph, maxLastStitchPartIndex, eventsPath);
     }
 
     /**
@@ -143,7 +176,7 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
         int yPartSrcIndex = -1; // Py
 
         for (int i = 0; i < (path.size() - 1); i++) {
-            DistEventType e = mcCExample.getEvents().get(i);
+            DistEventType e = eventsPath.get(i);
 
             // Match the y first (to handle the x == y case).
             if (e.equals(y) && xPartSrcIndex != -1) {
@@ -164,11 +197,10 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
 
         int maxLastStitchPartIndex = findMaxStitchPartIndex(xPartSrcIndex, x);
         assert xPartSrcIndex <= maxLastStitchPartIndex;
-        assert maxLastStitchPartIndex <= yPartSrcIndex;
 
         // //////////
         // Now refine the partition at maxLastStitchPartIndex.
-        refinePartition(pGraph, maxLastStitchPartIndex);
+        refinePartition(pGraph, maxLastStitchPartIndex, eventsPath);
     }
 
     /**
@@ -189,7 +221,8 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
 
         int minLastStitchPartIndex = path.size();
         for (ObsFifoSysState s : termObservations) {
-            int newStitchIndex = findMinStitchPartIndex(lastPartIndex, s);
+            int newStitchIndex = findMinStitchPartIndex(lastPartIndex, s,
+                    eventsPath);
             assert newStitchIndex >= 0;
             assert newStitchIndex <= lastPartIndex;
 
@@ -200,7 +233,7 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
 
         // //////////
         // Now refine the partition at minLastStitchPartIndex.
-        refinePartition(pGraph, minLastStitchPartIndex);
+        refinePartition(pGraph, minLastStitchPartIndex, eventsPath);
     }
 
     /**
@@ -211,10 +244,10 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
     private void resolve(AlwaysPrecedes inv, GFSM pGraph) {
         DistEventType y = inv.getSecond();
 
-        // The first partition that emits the event y.
+        // The first partition that emits the event y along this.path.
         int yPartSrcIndex = -1;
         for (int i = 0; i < (path.size() - 1); i++) {
-            DistEventType e = mcCExample.getEvents().get(i);
+            DistEventType e = eventsPath.get(i);
             if (e.equals(y)) {
                 yPartSrcIndex = i;
                 break;
@@ -253,7 +286,8 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
         // path) is the one we refine.
         int minLastStitchPartIndex = path.size();
         for (ObsFifoSysState s : yObsSources) {
-            int newStitchIndex = findMinStitchPartIndex(yPartSrcIndex, s);
+            int newStitchIndex = findMinStitchPartIndex(yPartSrcIndex, s,
+                    eventsPath);
             assert newStitchIndex >= 0;
             assert newStitchIndex <= yPartSrcIndex;
 
@@ -264,7 +298,7 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
 
         // //////////
         // Now refine the partition at minLastStitchPartIndex.
-        refinePartition(pGraph, minLastStitchPartIndex);
+        refinePartition(pGraph, minLastStitchPartIndex, eventsPath);
     }
 
     /**
@@ -306,7 +340,7 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
                 }
 
                 GFSMState sPartNext = path.get(sPartIndex + 1);
-                DistEventType e = mcCExample.getEvents().get(sPartIndex);
+                DistEventType e = eventsPath.get(sPartIndex);
                 s = s.getNextState(e);
                 if (s == null || s.getParent() != sPartNext) {
                     // If the next observation does not have the right event

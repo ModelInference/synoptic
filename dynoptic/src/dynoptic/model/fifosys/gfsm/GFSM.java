@@ -488,13 +488,16 @@ public class GFSM extends FifoSys<GFSMState> {
             }
         }
 
+        // maxPath should contains at least one partition -- some initial
+        // partition.
         assert maxPath != null;
-        // If maxPath length is 1 then we haven't even matched the first event
-        // in cExample. Therefore we cannot consider maxPath to be a partial
-        // path of cExample. And, at least one partial path must exist, based on
-        // GFSM->CFSM conversion.
-        if (!(maxPath.pathLength() > 1)) {
-            assert maxPath.pathLength() > 1;
+
+        // If our path contains just the initial partition, then we haven't even
+        // matched the first event in cExample. Instead, we rely on partial path
+        // extension code to give us a complete path -- trying all possilbe
+        // initial partitions.
+        if (maxPath.pathLength() == 1) {
+            return new PartialGFSMCExample(cExample);
         }
 
         return maxPath;
@@ -549,9 +552,15 @@ public class GFSM extends FifoSys<GFSMState> {
             McScMCExample cExample, int eventIndex, GFSMState parent) {
         PartialGFSMCExample path = null, newPath = null;
 
-        // Check that we did not reach the end of the events list (so a complete
-        // counter-example is possible).
-        assert (eventIndex != cExample.getEvents().size());
+        // If we reached the end of the events list, then the final partition
+        // must be non-accepting, otherwise a complete c-example is possible.
+        if (eventIndex == cExample.getEvents().size()) {
+            assert !parent.isAccept();
+
+            path = new PartialGFSMCExample(cExample);
+            path.addToFrontOfPath(parent);
+            return path;
+        }
 
         DistEventType e = cExample.getEvents().get(eventIndex);
 
