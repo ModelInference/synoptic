@@ -46,6 +46,9 @@ public class ObsFSMState {
 
     // /////////// Terminal states:
 
+    /**
+     * Creates anonymous globally-unique terminal state.
+     */
     public static ObsFSMState ObservedTerminalFSMState(int pid) {
         return new ObsFSMState(pid, false, true, getNextAnonName());
     }
@@ -53,9 +56,22 @@ public class ObsFSMState {
     public static ObsFSMState ObservedTerminalFSMState(int pid, String name) {
         return new ObsFSMState(pid, false, true, name);
     }
+    
+    /**
+     * Creates anonymous per-process terminal state.
+     */
+    public static ObsFSMState ObservedTerminalFSMState(int pid, ObsFSMState prevState,
+            DistEventType prevEvent) {
+        int nameHash = prevState.hashCode();
+        nameHash = 31 * nameHash + prevEvent.hashCode();
+        return new ObsFSMState(pid, false, true, "a" + Integer.toString(nameHash));
+    }
 
     // /////////// Initial states:
 
+    /**
+     * Creates anonymous globally-unique initial state.
+     */
     public static ObsFSMState ObservedInitialFSMState(int pid) {
         return new ObsFSMState(pid, true, false, getNextAnonName());
     }
@@ -63,9 +79,19 @@ public class ObsFSMState {
     public static ObsFSMState ObservedInitialFSMState(int pid, String name) {
         return new ObsFSMState(pid, true, false, name);
     }
+    
+    /**
+     * Creates anonymous per-process initial state.
+     */
+    public static ObsFSMState ObservedPerProcessInitialFSMState(int pid) {
+        return new ObsFSMState(pid, true, false, "a" + Integer.toString(pid));
+    }
 
     // /////////// Terminal+Initial states:
 
+    /**
+     * Creates anonymous globally-unique initial/terminal state.
+     */
     public static ObsFSMState ObservedInitialTerminalFSMState(int pid) {
         return new ObsFSMState(pid, true, true, getNextAnonName());
     }
@@ -74,9 +100,19 @@ public class ObsFSMState {
             String name) {
         return new ObsFSMState(pid, true, true, name);
     }
+    
+    /**
+     * Creates anonymous per-process initial/terminal state.
+     */
+    public static ObsFSMState ObservedPerProcessInitialTerminalFSMState(int pid) {
+        return new ObsFSMState(pid, true, true, "a" + Integer.toString(pid));
+    }
 
     // /////////// Intermediate states:
 
+    /**
+     * Creates anonymous globally-unique intermediate state.
+     */
     public static ObsFSMState ObservedIntermediateFSMState(int pid) {
         return new ObsFSMState(pid, false, false, getNextAnonName());
     }
@@ -85,6 +121,9 @@ public class ObsFSMState {
         return new ObsFSMState(pid, false, false, name);
     }
     
+    /**
+     * Creates anonymous per-process intermediate state.
+     */
     public static ObsFSMState ObservedIntermediateFSMState(int pid, ObsFSMState prevState,
             DistEventType prevEvent) {
         int nameHash = prevState.hashCode();
