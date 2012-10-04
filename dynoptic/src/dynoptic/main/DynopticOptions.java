@@ -183,6 +183,19 @@ public class DynopticOptions extends Options {
 
     // end option group "Output Options"
     // //////////////////////////////////////////////////
+    
+    /**
+     * Whether or not to assume that process i is in one unique state
+     * at the start of all executions.
+     */
+    @OptionGroup("Strategy Options")
+    @Option(
+            value = "Assume that process i is in one unique state at the start of all executions",
+            aliases = "consistent-init-state")
+    public boolean consistentInitState = false;
+    
+    // end option group "Strategy Options"
+    // //////////////////////////////////////////////////
 
     /** One line synopsis of usage */
     public static final String usageString = "dynoptic [options] <logfiles-to-analyze>";
@@ -217,7 +230,8 @@ public class DynopticOptions extends Options {
     public void printLongHelp() {
         System.out.println("Usage: " + getUsageString());
         System.out.println(plumeOptions.usage("General Options",
-                "Input Options", "Verify Options", "Output Options"));
+                "Input Options", "Verify Options", "Output Options",
+                "Strategy Options"));
     }
 
     @Override
