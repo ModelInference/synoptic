@@ -4,6 +4,7 @@ import java.util.BitSet;
 import java.util.List;
 
 import synoptic.invariants.BinaryInvariant;
+import synoptic.model.event.Event;
 import synoptic.model.interfaces.INode;
 
 /**
@@ -89,5 +90,11 @@ public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
 
         // Stay at s1 if we are already there and don't see an A
         s1.andNot(isA); // s1 = s1 & !isA
+    }
+
+    @Override
+    public void transition(T input, String relation) {
+        super.transition(input, relation);
+        
     }
 }

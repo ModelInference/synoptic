@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import synoptic.invariants.BinaryInvariant;
+import synoptic.main.SynopticMain;
+import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
@@ -296,5 +298,22 @@ public abstract class FsmStateSet<T extends INode<T>> implements
     public String toString() {
         return "Invariants: " + invariantsMap.toString() + ", states: "
                 + sets.toString();
+    }
+    
+    @Override
+    public void transition(T input, String relation) {
+        SynopticMain synopticMain = SynopticMain.getInstanceWithExistenceCheck();
+        
+        boolean multipleRelationsEnabled = synopticMain.options.multipleRelations;
+        
+        if (!multipleRelationsEnabled) {
+            throw new IllegalStateException("Multiple relations disabled.");
+        }
+        
+        if (relation.equals(Event.defTimeRelationStr)) {
+            transition(input);
+            return;
+        }
+        
     }
 }

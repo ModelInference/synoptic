@@ -12,6 +12,9 @@ import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
+import synoptic.invariants.birelational.AFBiRelationInvariant;
+import synoptic.invariants.birelational.APBiRelationInvariant;
+import synoptic.invariants.birelational.NFBiRelationInvariant;
 import synoptic.invariants.fsmcheck.AFbyInvFsms;
 import synoptic.invariants.fsmcheck.APInvFsms;
 import synoptic.invariants.fsmcheck.FsmStateSet;
@@ -23,6 +26,8 @@ import synoptic.model.event.StringEventType;
 import synoptic.tests.SynopticTest;
 
 public class FsmStateSetTests extends SynopticTest {
+    public static String nonTimeRelation = "r";
+    
     public static EventNode msgA = new EventNode(new Event("a"));
     public static EventNode msgB = new EventNode(new Event("b"));
     public static EventNode msgZ = new EventNode(new Event("z"));
@@ -112,7 +117,7 @@ public class FsmStateSetTests extends SynopticTest {
     }
 
     private static FsmStateSet<EventNode> initStateSet(String input,
-            iInvSpecificGenerator generator) {
+            iInvSpecificGenerator generator, String relation) {
         String[] inputs = input.split(" ");
         assertTrue(inputs.length == 2);
 
@@ -131,7 +136,7 @@ public class FsmStateSetTests extends SynopticTest {
                 s2 = new StringEventType("y");
             }
 
-            inv = generator.genInv(s1, s2, Event.defTimeRelationStr);
+            inv = generator.genInv(s1, s2, relation);
             invs.add(inv);
         }
         return generator.genFsmStateSet(invs);
@@ -159,9 +164,9 @@ public class FsmStateSetTests extends SynopticTest {
         // Simulate a single "a AFby b" invariant.
 
         // z (initial) != a (initial)
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(!f1.equals(f2));
         // z is not fail
@@ -170,62 +175,62 @@ public class FsmStateSetTests extends SynopticTest {
         assertTrue(f2.isFail());
 
         // z (initial) == b (initial)
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgB);
         assertTrue(f1.equals(f2));
 
         // z->a (initial z and then transition by a) == a (initial
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
         f1.transition(msgA);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // z->z == z
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
         f1.transition(msgZ);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgZ);
         assertTrue(f1.equals(f2));
 
         // a->a == a
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
         f1.transition(msgA);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // a->b != a
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
         f1.transition(msgB);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(!f1.equals(f2));
         // a->b is not fail
         assertTrue(!f1.isFail());
 
         // a->b->a == a
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
         f1.transition(msgB);
         f1.transition(msgA);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // a->b->a->b == a->b
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
         f1.transition(msgB);
         f1.transition(msgA);
         f1.transition(msgB);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         f2.transition(msgB);
         assertTrue(f1.equals(f2));
@@ -255,9 +260,9 @@ public class FsmStateSetTests extends SynopticTest {
         // Simulate a single "a NFby b" invariant.
 
         // z != a
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(!f1.equals(f2));
         // z is not fail
@@ -266,80 +271,80 @@ public class FsmStateSetTests extends SynopticTest {
         assertTrue(!f2.isFail());
 
         // z == b
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgB);
         assertTrue(f1.equals(f2));
 
         // z->a == a
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
         f1.transition(msgA);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // z->b == z
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
         f1.transition(msgB);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgB);
         assertTrue(f1.equals(f2));
 
         // z->z == z
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
         f1.transition(msgZ);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgZ);
         assertTrue(f1.equals(f2));
 
         // a->a == a
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
         f1.transition(msgA);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // a->b != a
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
         f1.transition(msgB);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(!f1.equals(f2));
         // a->b is fail
         assertTrue(f1.isFail());
 
         // a->b->a == a->b
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
         f1.transition(msgB);
         f1.transition(msgA);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         f2.transition(msgB);
         assertTrue(f1.equals(f2));
 
         // a->b->b == a->b
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
         f1.transition(msgB);
         f1.transition(msgB);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         f2.transition(msgB);
         assertTrue(f1.equals(f2));
 
         // a->b->z == a->b
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
         f1.transition(msgB);
         f1.transition(msgZ);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         f2.transition(msgB);
         assertTrue(f1.equals(f2));
@@ -369,9 +374,9 @@ public class FsmStateSetTests extends SynopticTest {
         // Simulate a single "a AP b" invariant.
 
         // z != a
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(!f1.equals(f2));
         // z is not fail
@@ -380,93 +385,514 @@ public class FsmStateSetTests extends SynopticTest {
         assertTrue(!f2.isFail());
 
         // z != b
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgB);
         assertTrue(!f1.equals(f2));
         // b is fail
         assertTrue(f2.isFail());
 
         // a != b
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgB);
         assertTrue(!f1.equals(f2));
 
         // z->b == b
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
         f1.transition(msgB);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgB);
         assertTrue(f1.equals(f2));
 
         // z->a == a
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
         f1.transition(msgA);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // z->z == z
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgZ);
         f1.transition(msgZ);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgZ);
         assertTrue(f1.equals(f2));
 
         // a->a == a
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
         f1.transition(msgA);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // a->b == a
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
         f1.transition(msgB);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // a->z == a
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.setInitial(msgA);
         f1.transition(msgZ);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.setInitial(msgA);
         assertTrue(f1.equals(f2));
 
         // b->a == b
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.transition(msgB);
         f1.transition(msgA);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.transition(msgB);
         assertTrue(f1.equals(f2));
 
         // b->b == b
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.transition(msgB);
         f1.transition(msgB);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.transition(msgB);
         assertTrue(f1.equals(f2));
 
         // b->z == b
-        f1 = initStateSet("1 1", invGen);
+        f1 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f1.transition(msgB);
         f1.transition(msgZ);
-        f2 = initStateSet("1 1", invGen);
+        f2 = initStateSet("1 1", invGen, Event.defTimeRelationStr);
         f2.transition(msgB);
         assertTrue(f1.equals(f2));
 
         // TODO: test multiple simultaneous AP machines
+    }
+    
+    @Test
+    public void AFbyInvFsmsMultiRelationalSingleTransitionTypeTest() {
+        iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
+            @Override
+            public BinaryInvariant genInv(EventType a, EventType b,
+                    String relation) {
+                return new AFBiRelationInvariant(a, b, relation);
+            }
+
+            @Override
+            public FsmStateSet<EventNode> genFsmStateSet(
+                    List<BinaryInvariant> invs) {
+                return new AFbyInvFsms<EventNode>(invs);
+            }
+        };
+
+        FsmStateSet<EventNode> f1, f2;
+
+        // ////////
+        // Simulate a single "a AFby b" invariant.
+
+        // z (initial) != a (initial)
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(!f1.equals(f2));
+        // z is not fail
+        assertTrue(!f1.isFail());
+        // a is fail
+        assertTrue(f2.isFail());
+
+        // z (initial) == b (initial)
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgB);
+        assertTrue(f1.equals(f2));
+
+        // z->a (initial z and then transition by a) == a (initial
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f1.transition(msgA, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // z->z == z
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f1.transition(msgZ, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgZ);
+        assertTrue(f1.equals(f2));
+
+        // a->a == a
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgA, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // a->b != a
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgB, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(!f1.equals(f2));
+        // a->b is not fail
+        assertTrue(!f1.isFail());
+
+        // a->b->a == a
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgB, nonTimeRelation);
+        f1.transition(msgA, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // a->b->a->b == a->b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgB, nonTimeRelation);
+        f1.transition(msgA, nonTimeRelation);
+        f1.transition(msgB, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        f2.transition(msgB, nonTimeRelation);
+        assertTrue(f1.equals(f2));
+
+        // TODO: test multiple simultaneous AFby machines
+    }
+
+    @Test
+    public void NFbyInvFsmsMultiRelationalSingleTransitionTypeTest() {
+        iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
+            @Override
+            public BinaryInvariant genInv(EventType a, EventType b,
+                    String relation) {
+                return new NFBiRelationInvariant(a, b, relation);
+            }
+
+            @Override
+            public FsmStateSet<EventNode> genFsmStateSet(
+                    List<BinaryInvariant> invs) {
+                return new NFbyInvFsms<EventNode>(invs);
+            }
+        };
+
+        FsmStateSet<EventNode> f1, f2;
+
+        // ////////
+        // Simulate a single "a NFby b" invariant.
+
+        // z != a
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(!f1.equals(f2));
+        // z is not fail
+        assertTrue(!f1.isFail());
+        // a is not fail
+        assertTrue(!f2.isFail());
+
+        // z == b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgB);
+        assertTrue(f1.equals(f2));
+
+        // z->a == a
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f1.transition(msgA, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // z->b == z
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f1.transition(msgB, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgB);
+        assertTrue(f1.equals(f2));
+
+        // z->z == z
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f1.transition(msgZ, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgZ);
+        assertTrue(f1.equals(f2));
+
+        // a->a == a
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgA, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // a->b != a
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgB, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(!f1.equals(f2));
+        // a->b is fail
+        assertTrue(f1.isFail());
+
+        // a->b->a == a->b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgB, nonTimeRelation);
+        f1.transition(msgA, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        f2.transition(msgB, nonTimeRelation);
+        assertTrue(f1.equals(f2));
+
+        // a->b->b == a->b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgB, nonTimeRelation);
+        f1.transition(msgB, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        f2.transition(msgB, nonTimeRelation);
+        assertTrue(f1.equals(f2));
+
+        // a->b->z == a->b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgB, nonTimeRelation);
+        f1.transition(msgZ, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        f2.transition(msgB, nonTimeRelation);
+        assertTrue(f1.equals(f2));
+
+        // TODO: test multiple simultaneous NFby machines
+    }
+
+    @Test
+    public void APInvFsmsMultiRelationalSingleTransitionTypeTest() {
+        iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
+            @Override
+            public BinaryInvariant genInv(EventType a, EventType b,
+                    String relation) {
+                return new APBiRelationInvariant(a, b, relation);
+            }
+
+            @Override
+            public FsmStateSet<EventNode> genFsmStateSet(
+                    List<BinaryInvariant> invs) {
+                return new APInvFsms<EventNode>(invs);
+            }
+        };
+
+        FsmStateSet<EventNode> f1, f2;
+
+        // ////////
+        // Simulate a single "a AP b" invariant.
+
+        // z != a
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(!f1.equals(f2));
+        // z is not fail
+        assertTrue(!f1.isFail());
+        // a is not fail
+        assertTrue(!f2.isFail());
+
+        // z != b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgB);
+        assertTrue(!f1.equals(f2));
+        // b is fail
+        assertTrue(f2.isFail());
+
+        // a != b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgB);
+        assertTrue(!f1.equals(f2));
+
+        // z->b == b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f1.transition(msgB, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgB);
+        assertTrue(f1.equals(f2));
+
+        // z->a == a
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f1.transition(msgA, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // z->z == z
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgZ);
+        f1.transition(msgZ, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgZ);
+        assertTrue(f1.equals(f2));
+
+        // a->a == a
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgA, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // a->b == a
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgB, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // a->z == a
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgZ, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        assertTrue(f1.equals(f2));
+
+        // b->a == b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.transition(msgB, nonTimeRelation);
+        f1.transition(msgA, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.transition(msgB, nonTimeRelation);
+        assertTrue(f1.equals(f2));
+
+        // b->b == b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.transition(msgB, nonTimeRelation);
+        f1.transition(msgB, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.transition(msgB, nonTimeRelation);
+        assertTrue(f1.equals(f2));
+
+        // b->z == b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.transition(msgB, nonTimeRelation);
+        f1.transition(msgZ, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.transition(msgB, nonTimeRelation);
+        assertTrue(f1.equals(f2));
+
+        // TODO: test multiple simultaneous AP machines
+    }
+
+    @Test
+    public void AFbyInvFsmsMultiRelationalDualTransitionTypeTest() {
+        iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
+            @Override
+            public BinaryInvariant genInv(EventType a, EventType b,
+                    String relation) {
+                return new AFBiRelationInvariant(a, b, relation);
+            }
+
+            @Override
+            public FsmStateSet<EventNode> genFsmStateSet(
+                    List<BinaryInvariant> invs) {
+                return new AFbyInvFsms<EventNode>(invs);
+            }
+        };
+
+        FsmStateSet<EventNode> f1, f2;    
+     
+        // a->b->a->b == a->b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgB, nonTimeRelation);
+        f1.transition(msgA, Event.defTimeRelationStr);
+        f1.transition(msgB, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        f2.transition(msgB, nonTimeRelation);
+        assertTrue(f1.equals(f2));
+    }
+    
+    @Test
+    public void NFbyInvFsmsMultiRelationalDualTransitionTypeTest() {
+        iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
+            @Override
+            public BinaryInvariant genInv(EventType a, EventType b,
+                    String relation) {
+                return new NFBiRelationInvariant(a, b, relation);
+            }
+
+            @Override
+            public FsmStateSet<EventNode> genFsmStateSet(
+                    List<BinaryInvariant> invs) {
+                return new NFbyInvFsms<EventNode>(invs);
+            }
+        };
+
+        FsmStateSet<EventNode> f1, f2;
+        
+        // a->b->a == a->b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.setInitial(msgA);
+        f1.transition(msgB, nonTimeRelation);
+        f1.transition(msgA, Event.defTimeRelationStr);
+        f1.transition(msgB, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.setInitial(msgA);
+        f2.transition(msgB, nonTimeRelation);
+        assertTrue(f1.equals(f2));
+    }
+    
+    @Test
+    public void APInvFsmsMultiRelationalDualTransitionTypeTest() {
+        iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
+            @Override
+            public BinaryInvariant genInv(EventType a, EventType b,
+                    String relation) {
+                return new APBiRelationInvariant(a, b, relation);
+            }
+
+            @Override
+            public FsmStateSet<EventNode> genFsmStateSet(
+                    List<BinaryInvariant> invs) {
+                return new APInvFsms<EventNode>(invs);
+            }
+        };
+
+        FsmStateSet<EventNode> f1, f2;
+        
+        // b->z == b
+        f1 = initStateSet("1 1", invGen, nonTimeRelation);
+        f1.transition(msgB, nonTimeRelation);
+        f1.transition(msgZ, Event.defTimeRelationStr);
+        f1.transition(msgZ, nonTimeRelation);
+        f2 = initStateSet("1 1", invGen, nonTimeRelation);
+        f2.transition(msgB, nonTimeRelation);
+        assertTrue(f1.equals(f2));
     }
 }
