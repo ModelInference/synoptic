@@ -261,6 +261,7 @@ public class DynopticMainTests extends DynopticTest {
         runDynFromFileArgs(args);
     }
 
+    /** A trivial example with 4 total events. */
     @Test
     public void runSimpleConcurrencyFileSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
@@ -276,6 +277,7 @@ public class DynopticMainTests extends DynopticTest {
         runDynFromFileArgs(args);
     }
 
+    /** Same as the above, but uses a String input instead of a file input. */
     @Test
     public void runSimpleConcurrencyStringSuccess() throws Exception {
         List<String> args = getBasicArgsStr();
@@ -290,6 +292,27 @@ public class DynopticMainTests extends DynopticTest {
         dyn = new DynopticMain(opts);
 
         String log = "1,0 e1\n" + "0,1 f1\n" + "2,0 M!m\n" + "2,2 M?m";
+        dyn.run(log);
+    }
+
+    /** A slightly more complex example than the above. */
+    @Test
+    public void runSimpleConcurrencyString2Success() throws Exception {
+        List<String> args = getBasicArgsStr();
+        args.add("-r");
+        args.add("^(?<VTIME>)(?<TYPE>)$");
+        args.add("-s");
+        args.add("^--$");
+        args.add("-q");
+        args.add("M:0->1");
+
+        opts = new DynopticOptions(args.toArray(new String[0]));
+        dyn = new DynopticMain(opts);
+
+        String log = "1,0 send_m\n" + "2,0 M!m\n" + "3,0 M!m\n" + "4,3 A?a\n"
+                + "5,3 send_m\n" + "2,1 M?m\n" + "2,2 recv_m\n" + "2,3 A!a\n"
+                + "3,4 M?m\n";
+
         dyn.run(log);
     }
 }

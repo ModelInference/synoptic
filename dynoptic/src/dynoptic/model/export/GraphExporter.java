@@ -137,7 +137,7 @@ public class GraphExporter {
                     + e.getMessage(), e);
         }
         // /////////////
-        exportAbsFSM(writer, gfsm);
+        exportAbsFSM(writer, gfsm, "gfsm [pnum=" + gfsm.getNumProcesses() + "]");
         // /////////////
         writer.close();
     }
@@ -160,7 +160,7 @@ public class GraphExporter {
             throws IOException {
         // Write out each FSM in CFSM as one graph.
         for (FSM fsmGraph : cfsmGraph.getFSMs()) {
-            exportAbsFSM(writer, fsmGraph);
+            exportAbsFSM(writer, fsmGraph, "pid " + fsmGraph.getPid());
         }
     }
 
@@ -169,7 +169,7 @@ public class GraphExporter {
      * string using the passed writer.
      */
     private static <State extends AbsFSMState<State>> void exportAbsFSM(
-            Writer writer, AbsFSM<State> fsmGraph) {
+            Writer writer, AbsFSM<State> fsmGraph, String title) {
         GraphExportFormatter formatter = new DotExportFormatter();
 
         try {
@@ -198,6 +198,11 @@ public class GraphExporter {
                 nodeToInt.put(node, nodeCnt);
                 nodeCnt += 1;
             }
+
+            // As the last node add a title node, which is not part of the
+            // graph.
+            writer.write("title_node [label=\"" + title
+                    + "\",shape=box, style=rounded];");
 
             // /////////////////////
             // EXPORT EDGES:
