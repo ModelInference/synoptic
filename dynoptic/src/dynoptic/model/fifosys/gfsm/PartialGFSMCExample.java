@@ -153,11 +153,15 @@ public class PartialGFSMCExample {
                     rets.add(ret);
                     // We cannot re-use partsPath or eventsPath as ret refers to
                     // both of them.
-                    partsPath = new ArrayList<GFSMState>(path);
+                    partsPath = new ArrayList<GFSMState>();
                     eventsPath = new ArrayList<DistEventType>();
                 }
+                partsPath.clear();
+                assert eventsPath.size() == 0;
             }
-            assert rets.size() != 0;
+            if (rets.size() == 0) {
+                assert rets.size() != 0;
+            }
 
             // TODO: if there are multiple options for a complete path, then we
             // must somehow decide among them. For now, we just use the first
