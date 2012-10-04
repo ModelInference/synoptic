@@ -15,6 +15,19 @@ public interface IStateSet<T, StateSetType> {
      *            The input event to transition the FSM.
      */
     void transition(T input);
+    
+    /**
+     * Mutates the StateSet, according to which states could be inhabited after
+     * the given input is provided with respect to the relation type of the
+     * transition between events.
+     * 
+     * @param input
+     *            The input event to transition the FSM.       
+     * @param relation
+     *            The type of the transition between the last event and
+     *            the input event.
+     */
+    void transition(T input, String relation);
 
     /**
      * Merges this stateset with another, such that all states inhabited by

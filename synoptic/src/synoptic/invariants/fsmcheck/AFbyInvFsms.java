@@ -4,6 +4,7 @@ import java.util.BitSet;
 import java.util.List;
 
 import synoptic.invariants.BinaryInvariant;
+import synoptic.model.event.Event;
 import synoptic.model.interfaces.INode;
 
 /**
@@ -77,6 +78,12 @@ public class AFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
 
         s2.and(neither); // If in state 2, stay if input is neither a or b
         s2.or(isA); // Transition to state 2 if input is a
+    }
+
+    @Override
+    public void transition(T input, String relation) {
+        super.transition(input, relation);
+        
     }
 }
     
