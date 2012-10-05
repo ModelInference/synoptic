@@ -80,6 +80,7 @@ public class GFSMTests extends DynopticTest {
         // Check that the two observations were initially partitioned into a
         // single partition (using default queue-based partitioning).
         assertTrue(g.getStates().size() == 1);
+
         GFSMState part = g.getStates().iterator().next();
 
         // Make sure both observations have the right partition as parent.
