@@ -180,7 +180,10 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
     }
 
     public void addTransition(Event e, ObsFifoSysState s) {
-        assert !this.transitions.containsKey(e);
+        assert (e.getEType() instanceof DistEventType);
+        
+        DistEventType eType = (DistEventType) e.getEType();
+        assert !this.transitions.containsKey(eType);
 
         if (DynopticMain.assertsOn) {
             // Make sure that the following states belongs to the same "system",
@@ -189,9 +192,8 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
             assert s.getNumProcesses() == getNumProcesses();
         }
 
-        assert (e.getEType() instanceof DistEventType);
         observedTxns.add(e);
-        this.transitions.put((DistEventType) e.getEType(), s);
+        this.transitions.put(eType, s);
     }
 
     public GFSMState getParent() {
