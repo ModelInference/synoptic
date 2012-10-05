@@ -507,6 +507,8 @@ public class DynopticMain {
             DAGsTraceGraph traceGraph) {
         assert numProcesses != -1;
 
+        // Note: this list can contain only 1 ObsFifoSys even when there are multiple traces,
+        // if assume consistent per-process initial state.
         List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>();
 
         // Maps an observed event to the generated ObsDAGNode that emits the
@@ -629,7 +631,12 @@ public class DynopticMain {
             ObsDAG dag = new ObsDAG(initDagCfg, termDagCfg, channelIds);
             logger.info("Generating ObsFifoSys.");
             ObsFifoSys fifoSys = dag.getObsFifoSys();
-            traces.add(fifoSys);
+            
+            if (opts.consistentInitState && !traces.isEmpty()) {                
+                traces.set(0, fifoSys);
+            } else {
+                traces.add(fifoSys);
+            }
         }
         return traces;
     }
