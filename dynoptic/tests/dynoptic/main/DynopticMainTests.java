@@ -304,7 +304,7 @@ public class DynopticMainTests extends DynopticTest {
         args.add("-s");
         args.add("^--$");
         args.add("-q");
-        args.add("M:0->1");
+        args.add("M:0->1;A:1->0");
 
         opts = new DynopticOptions(args.toArray(new String[0]));
         dyn = new DynopticMain(opts);

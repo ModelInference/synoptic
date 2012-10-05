@@ -39,6 +39,8 @@ public class FSM extends AbsFSM<FSMState> {
         super();
 
         assert states != null;
+        assert initStates != null;
+        assert acceptStates != null;
         assert states.containsAll(initStates);
         assert states.containsAll(acceptStates);
         assert nextScmFSMStateId >= 0;

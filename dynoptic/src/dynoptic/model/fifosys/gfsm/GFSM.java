@@ -334,6 +334,8 @@ public class GFSM extends FifoSys<GFSMState> {
 
             // Create a new FSM state corresponding to each GFSMState.
             for (GFSMState gstate : states) {
+                // NOTE: accepting() for fstate is UNRELIABLE until it is
+                // dynamically computed below.
                 FSMState fstate = new FSMState(gstate.isAccept(),
                         gstate.isInitForPid(pid), pid, nextScmId);
                 if (fstate.isInitial()) {
@@ -397,41 +399,74 @@ public class GFSM extends FifoSys<GFSMState> {
             }
 
             // 2. Remove those FSM states that are not reachable from any
-            // initial state -- that are not in txClosure.
-            Set<GFSMState> set = stateMap.keySet();
-            Iterator<GFSMState> itr = set.iterator();
-            while (itr.hasNext()) {
-                GFSMState gstate = itr.next();
+            // initial state -- that are not in txClosure -- from stateMap.
+            Set<GFSMState> keySet = stateMap.keySet();
+            Iterator<GFSMState> keyItr = keySet.iterator();
+            while (keyItr.hasNext()) {
+                GFSMState gstate = keyItr.next();
                 FSMState fstate = stateMap.get(gstate);
                 // Skip states that are initial -- we can always reach these.
                 if (fstate.isInitial()) {
                     continue;
                 }
 
-                // Remove from stateMap, as well as accepting set of states.
                 if (!txClosure.contains(fstate)) {
-                    itr.remove();
+                    // Remove from stateMap, as well as accepting set of states.
+                    keyItr.remove();
                     acceptFSMStates.remove(fstate);
                 }
             }
 
+            // We want to create the smallest possible FSM for efficiency (McScM
+            // runs faster on smaller models) and so that the models are simple
+            // to inspect.
+
+            // 1. Merge any FSM states that are bisimular --- if their behavior
+            // is indistinguishable.
+            boolean merged = false;
+            do {
+                merged = false;
+                keySet = stateMap.keySet();
+                keyItr = keySet.iterator();
+                while (keyItr.hasNext()) {
+                    GFSMState gstate = keyItr.next();
+                    GFSMState gstate2 = findBisimularFSMState(gstate, stateMap);
+
+                    // Did not find a corresponding gstate2 that maps to fstate2
+                    // that is bisimular to fstate.
+                    if (gstate2 == null) {
+                        continue;
+                    }
+
+                    FSMState fstate = stateMap.get(gstate);
+                    FSMState fstate2 = stateMap.get(gstate2);
+
+                    // Merges fstate INTO fstate2.
+                    remapPredTxns(fstate, fstate2, stateMap);
+
+                    // Remove gstate/fstate from the stateMap, and remove
+                    // fstate from accepting set
+                    keyItr.remove();
+                    acceptFSMStates.remove(fstate);
+                    initFSMStates.remove(fstate);
+                    merged = true;
+                    break;
+                }
+                // Re-try all possible n^2 merges if we've just merged two
+                // states, since this might induce further state equivalence and
+                // merging.
+            } while (merged);
+
+            // 2. TODO: Check if after bisimulation merging above the FSM is
+            // now a DFA and we can use standard minimization to further
+            // minimize the FSM.
+
+            assert !acceptFSMStates.isEmpty();
+            assert !initFSMStates.isEmpty();
+
             // Create the FSM for this pid, and add it to the CFSM.
             FSM fsm = new FSM(pid, initFSMStates, acceptFSMStates,
                     stateMap.values(), nextScmId);
-
-            /*
-             * if (fsm.getAcceptStates().isEmpty()) { logger.info("GFSM: " +
-             * this.toString() + "\n"); logger.info("Problem FSM: " +
-             * fsm.toString() + "\n");
-             * 
-             * String s = ""; // for (Entry<GFSMState, FSMState> e :
-             * stateMap.entrySet()) { // s += e.getKey().toShortString() + " : "
-             * // + e.getValue().toString() + "\n"; // }
-             * logger.info("stateMap: \n" + s);
-             */
-            assert !fsm.getAcceptStates().isEmpty();
-            // }
-            assert !fsm.getInitStates().isEmpty();
 
             cfsm.addFSM(fsm);
 
@@ -441,6 +476,87 @@ public class GFSM extends FifoSys<GFSMState> {
             txClosure.clear();
         }
         return cfsm;
+    }
+
+    /**
+     * Changes transitions from all predecessors of fstate to transition instead
+     * to fstate2.
+     */
+    private void remapPredTxns(FSMState fstate, FSMState fstate2,
+            Map<GFSMState, FSMState> stateMap) {
+        // Find predecessors of fstate.
+
+        // TODO: we need a better way of doing this -- need a map from children
+        // to parents
+        for (FSMState fPred : stateMap.values()) {
+            if (fPred == fstate) {
+                continue;
+            }
+            if (!fPred.getNextStates().contains(fstate)) {
+                continue;
+            }
+
+            // TODO: need a better way of doing this, too -- have a way to
+            // update transitions to states in bulk.
+            for (DistEventType e : new LinkedHashSet<DistEventType>(
+                    fPred.getTransitioningEvents())) {
+                if (fPred.getNextStates(e).contains(fstate)) {
+                    fPred.rmTransition(e, fstate);
+                    fPred.addTransition(e, fstate2);
+                }
+            }
+        }
+    }
+
+    /**
+     * Attempts to find an FSM state, fstate2, that is bisimular (behaviorally
+     * indistinguishable) from the FSM state stateMap[gstate]. Returns gstate2
+     * such that fstate2 = stateMap[gstate2]. If no such fstate2 exists, then
+     * returns null.
+     */
+    private GFSMState findBisimularFSMState(GFSMState gstate,
+            Map<GFSMState, FSMState> stateMap) {
+        FSMState fstate = stateMap.get(gstate);
+
+        for (GFSMState gstate2 : stateMap.keySet()) {
+            if (gstate == gstate2) {
+                continue;
+            }
+            FSMState fstate2 = stateMap.get(gstate2);
+
+            // States must have identical initial/accept properties
+            // to be mergeable.
+            if (fstate.isInitial() != fstate2.isInitial()) {
+                continue;
+            }
+            if (fstate.isAccept() != fstate2.isAccept()) {
+                continue;
+            }
+
+            // Compare transitions of fstate and fstate2
+            Set<DistEventType> txns1 = fstate.getTransitioningEvents();
+            Set<DistEventType> txns2 = fstate2.getTransitioningEvents();
+            if (!txns1.equals(txns2)) {
+                continue;
+            }
+
+            boolean txns_identical = true;
+            for (DistEventType tx : txns1) {
+                if (!fstate.getNextStates(tx).equals(fstate2.getNextStates(tx))) {
+                    // States reachable along tx are different,
+                    // therefore fstate and fstate2 are not
+                    // bisimular.
+                    txns_identical = false;
+                    break;
+                }
+            }
+            if (!txns_identical) {
+                continue;
+            }
+
+            return gstate2;
+        }
+        return null;
     }
 
     /**
