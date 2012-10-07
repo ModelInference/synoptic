@@ -80,10 +80,5 @@ public class AFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
         s2.or(isA); // Transition to state 2 if input is a
     }
 
-    @Override
-    public void transition(T input, String relation) {
-        super.transition(input, relation);
-        
-    }
 }
     

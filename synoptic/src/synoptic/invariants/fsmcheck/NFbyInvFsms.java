@@ -1,6 +1,7 @@
 package synoptic.invariants.fsmcheck;
 
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.List;
 
 import synoptic.invariants.BinaryInvariant;
@@ -57,6 +58,7 @@ public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
         sets.set(STATE_TWO, (BitSet) isA.clone());
         isA.flip(0, invariantsCount);
         sets.set(STATE_ONE, isA);
+        sets.set(STATE_THREE, new BitSet());
     }
 
     @Override
@@ -92,9 +94,4 @@ public class NFbyInvFsms<T extends INode<T>> extends FsmStateSet<T> {
         s1.andNot(isA); // s1 = s1 & !isA
     }
 
-    @Override
-    public void transition(T input, String relation) {
-        super.transition(input, relation);
-        
-    }
 }

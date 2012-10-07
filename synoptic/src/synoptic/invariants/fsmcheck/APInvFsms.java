@@ -1,6 +1,7 @@
 package synoptic.invariants.fsmcheck;
 
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.List;
 
 import synoptic.invariants.BinaryInvariant;
@@ -91,9 +92,4 @@ public class APInvFsms<T extends INode<T>> extends FsmStateSet<T> {
         s1.and(neither);
     }
 
-    @Override
-    public void transition(T input, String relation) {
-        super.transition(input, relation);
-        
-    }
 }
