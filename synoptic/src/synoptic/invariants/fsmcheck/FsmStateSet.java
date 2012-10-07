@@ -4,9 +4,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import com.sun.org.apache.xml.internal.utils.UnImplNode;
 
 import synoptic.invariants.BinaryInvariant;
 import synoptic.main.SynopticMain;
@@ -300,20 +305,13 @@ public abstract class FsmStateSet<T extends INode<T>> implements
                 + sets.toString();
     }
     
-    @Override
-    public void transition(T input, String relation) {
-        SynopticMain synopticMain = SynopticMain.getInstanceWithExistenceCheck();
-        
-        boolean multipleRelationsEnabled = synopticMain.options.multipleRelations;
-        
-        if (!multipleRelationsEnabled) {
-            throw new IllegalStateException("Multiple relations disabled.");
-        }
-        
-        if (relation.equals(Event.defTimeRelationStr)) {
-            transition(input);
-            return;
-        }
-        
+    public void transition(T input, String relation, Set<String> outgoingRelations) {
+        throw new UnsupportedOperationException("Multi-relational model" +
+                "checking is unimplemented for this class");
+    }
+    
+    public void setInitial(T x, Set<String> outgoingRelations) {
+        throw new UnsupportedOperationException("Multi-relational model" +
+                "checking is unimplemented for this class");
     }
 }

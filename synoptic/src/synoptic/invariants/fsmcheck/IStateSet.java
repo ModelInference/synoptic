@@ -1,11 +1,21 @@
 package synoptic.invariants.fsmcheck;
 
+import java.util.Set;
+
 public interface IStateSet<T, StateSetType> {
     /**
      * Resets the stateset to be as if it started on the passed node. This
      * should be called for all initial statesets.
      */
     void setInitial(T x);
+    
+    /**
+     * Resets the stateset to be as if it started on the passed node. This
+     * should be called for all initial statesets. Done with respect to
+     * the input event's outgoing relations for multi-relational model
+     * checking.
+     */
+    public void setInitial(T x, Set<String> outgoingRelations);
 
     /**
      * Mutates the StateSet, according to which states could be inhabited after
@@ -27,7 +37,7 @@ public interface IStateSet<T, StateSetType> {
      *            The type of the transition between the last event and
      *            the input event.
      */
-    void transition(T input, String relation);
+    void transition(T input, String relation, Set<String> outgoingRelations);
 
     /**
      * Merges this stateset with another, such that all states inhabited by

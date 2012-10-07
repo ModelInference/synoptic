@@ -1,7 +1,9 @@
 package synoptic.invariants.fsmcheck;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
@@ -165,5 +167,14 @@ public abstract class TracingStateSet<T extends INode<T>> implements
             s.append(o.toString());
         }
     }
-
+    
+    public void transition(T input, String relation, Set<String> outgoingRelations) {
+        throw new UnsupportedOperationException("Multi-relational model" +
+                "checking is unimplemented for this class");
+    }
+    
+    public void setInitial(T x, Set<String> outgoingRelations) {
+        throw new UnsupportedOperationException("Multi-relational model" +
+                "checking is unimplemented for this class");
+    }
 }
