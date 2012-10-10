@@ -307,7 +307,7 @@ public class DynopticMain {
         // them), and an ObsDag per execution parsed from the log.
         logger.info("Generating ObsFifoSys from DAGsTraceGraph...");
         List<ObsFifoSys> traces = synTraceGraphToDynObsFifoSys(traceGraph);
-        
+
         // //////////////////
         // If assume consistent per-process initial state, check that
         // only one ObsFifoSys is created.
@@ -501,12 +501,12 @@ public class DynopticMain {
     }
 
     /**
-     * Uses Synoptic event nodes and ordering constraints between these to
+     * Uses Synoptic event nodes and ordering constraints between these nodes to
      * generate ObsFSMStates (anonymous states), obsDAGNodes (to contain
      * obsFSMStates and encode dependencies between them), and an ObsDag per
      * execution parsed from the log. Then, this function converts each ObsDag
      * into an observed FifoSys. The list of these observed FifoSys instances is
-     * then returned.
+     * then returned. Note that if the consistentInitState is set then just one observed FifoSys is returned.
      * 
      * @param traceGraph
      * @param numProcesses
@@ -517,8 +517,8 @@ public class DynopticMain {
             DAGsTraceGraph traceGraph) {
         assert numProcesses != -1;
 
-        // Note: this list can contain only 1 ObsFifoSys even when there are multiple traces,
-        // if assume consistent per-process initial state.
+        // Note: if we assume consistent per-process initial state then this
+        // list will contain just 1 ObsFifoSys, even with multiple traces,
         List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>();
 
         // Maps an observed event to the generated ObsDAGNode that emits the
@@ -576,14 +576,15 @@ public class DynopticMain {
                 assert eNode != null;
 
                 ObsFSMState obsState;
-                
+
                 if (opts.consistentInitState) {
-                    // Process i is in one unique state at the start of any execution.
-                    obsState = ObsFSMState.ObservedPerProcessInitialFSMState(pid);
+                    // Process i starts in the same state in all executions.
+                    obsState = ObsFSMState
+                            .ObservedPerProcessInitialFSMState(pid);
                 } else {
                     obsState = ObsFSMState.ObservedInitialFSMState(pid);
                 }
-                
+
                 ObsDAGNode prevNode = new ObsDAGNode(obsState);
 
                 initDagCfg.set(pid, prevNode);
@@ -592,13 +593,16 @@ public class DynopticMain {
                     Event e = eNode.getEvent();
 
                     if (opts.consistentInitState) {
-                        // A new state is a function of its previous state and previous event.
+                        // A new state is a function of its previous state and
+                        // previous event.
                         DistEventType prevEvent = (DistEventType) e.getEType();
-                        obsState = ObsFSMState.ObservedIntermediateFSMState(pid, obsState, prevEvent);
+                        obsState = ObsFSMState.ObservedIntermediateFSMState(
+                                pid, obsState, prevEvent);
                     } else {
-                        obsState = ObsFSMState.ObservedIntermediateFSMState(pid);
+                        obsState = ObsFSMState
+                                .ObservedIntermediateFSMState(pid);
                     }
-                    
+
                     ObsDAGNode nextNode = new ObsDAGNode(obsState);
 
                     prevNode.addTransition(e, nextNode);
@@ -656,8 +660,8 @@ public class DynopticMain {
             ObsDAG dag = new ObsDAG(initDagCfg, termDagCfg, channelIds);
             logger.info("Generating ObsFifoSys.");
             ObsFifoSys fifoSys = dag.getObsFifoSys();
-            
-            if (opts.consistentInitState && !traces.isEmpty()) {                
+
+            if (opts.consistentInitState && !traces.isEmpty()) {
                 traces.set(0, fifoSys);
             } else {
                 traces.add(fifoSys);
