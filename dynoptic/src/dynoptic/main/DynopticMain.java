@@ -575,7 +575,15 @@ public class DynopticMain {
                 EventNode eNode = pidInitialNodes.get(pid);
                 assert eNode != null;
 
-                ObsFSMState obsState = ObsFSMState.ObservedInitialFSMState(pid);
+                ObsFSMState obsState;
+                
+                if (opts.consistentInitState) {
+                    // Process i is in one unique state at the start of any execution.
+                    obsState = ObsFSMState.ObservedPerProcessInitialFSMState(pid);
+                } else {
+                    obsState = ObsFSMState.ObservedInitialFSMState(pid);
+                }
+                
                 ObsDAGNode prevNode = new ObsDAGNode(obsState);
 
                 initDagCfg.set(pid, prevNode);
@@ -583,7 +591,14 @@ public class DynopticMain {
                 while (eNode != null) {
                     Event e = eNode.getEvent();
 
-                    obsState = ObsFSMState.ObservedIntermediateFSMState(pid);
+                    if (opts.consistentInitState) {
+                        // A new state is a function of its previous state and previous event.
+                        DistEventType prevEvent = (DistEventType) e.getEType();
+                        obsState = ObsFSMState.ObservedIntermediateFSMState(pid, obsState, prevEvent);
+                    } else {
+                        obsState = ObsFSMState.ObservedIntermediateFSMState(pid);
+                    }
+                    
                     ObsDAGNode nextNode = new ObsDAGNode(obsState);
 
                     prevNode.addTransition(e, nextNode);
