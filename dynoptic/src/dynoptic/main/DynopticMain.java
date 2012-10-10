@@ -307,6 +307,13 @@ public class DynopticMain {
         // them), and an ObsDag per execution parsed from the log.
         logger.info("Generating ObsFifoSys from DAGsTraceGraph...");
         List<ObsFifoSys> traces = synTraceGraphToDynObsFifoSys(traceGraph);
+        
+        // //////////////////
+        // If assume consistent per-process initial state, check that
+        // only one ObsFifoSys is created.
+        if (opts.consistentInitState) {
+            assert traces.size() == 1;
+        }
 
         // ///////////////////
         // Express/convert Synoptic invariants as Dynoptic invariants.
