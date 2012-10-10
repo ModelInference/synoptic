@@ -120,11 +120,16 @@ public class ObsDAG {
 
         // Add a transition between the FIFO states.
         DistEventType eType = (DistEventType) e.getEType();
-        
-        // currSysState might already has transition e, if maintain
+
+        // currSysState might already have a transition e if we are maintaining
         // only 1 ObsFifoSys.
         if (!currSysState.getTransitioningEvents().contains(eType)) {
             currSysState.addTransition(e, nextSysState);
+        } else {
+            // Make sure that the state we're transitioning to already is the
+            // one we are supposed to be transitioning to according to the
+            // current traversal.
+            assert currSysState.getNextState(eType).equals(nextSysState);
         }
 
         // Update the nextNode as having occurred.
