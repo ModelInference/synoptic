@@ -1,0 +1,109 @@
+Parameter descriptions:
+
+Trace Type - type 1: a set of unique messages that repeats, eg (a b c a b c a b c .... )
+M - number of messages in the trace
+n - number of partitions for the trace
+r - number of unique messages in type 1 traces (eg how often messages repeat)
+k - the GK-tail k parameter
+invariants - weather invariants are used for GK tail
+
+note that the "n" parameter is directly related to the "divide" factor for the divide-and-conquer scalable approach. (eg each partition is its own sub-problem in this case)
+
+
+Tests were run on an x86 Windows 7 machine with an intel core 2 duo (2.2 GHz) and 2GB ram
+
+
+RESULTS (GK tail no invariants):
+
+
+*** Varying n parameter ****
+Trivial GK Tail Test Parameters ( Trace Type=1 M=800 n=1 r=10 k=1 invariants=false) ==> TIME: 5085 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=800 n=2 r=10 k=1 invariants=false) ==> TIME: 4655 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=800 n=4 r=10 k=1 invariants=false) ==> TIME: 4571 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=800 n=5 r=10 k=1 invariants=false) ==> TIME: 4529 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=800 n=10 r=10 k=1 invariants=false) ==> TIME: 4429 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=800 n=1 r=10 k=1 invariants=false) ==> TIME: 1461 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=800 n=2 r=10 k=1 invariants=false) ==> TIME: 523 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=800 n=4 r=10 k=1 invariants=false) ==> TIME: 167 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=800 n=5 r=10 k=1 invariants=false) ==> TIME: 152 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=800 n=10 r=10 k=1 invariants=false) ==> TIME: 104 ms (average over 3 iterations)
+
+*** Varying M parameter ****
+Trivial GK Tail Test Parameters ( Trace Type=1 M=100 n=2 r=10 k=1 invariants=false) ==> TIME: 20 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=200 n=2 r=10 k=1 invariants=false) ==> TIME: 87 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=300 n=2 r=10 k=1 invariants=false) ==> TIME: 242 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=400 n=2 r=10 k=1 invariants=false) ==> TIME: 681 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=500 n=2 r=10 k=1 invariants=false) ==> TIME: 1174 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=600 n=2 r=10 k=1 invariants=false) ==> TIME: 2134 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=700 n=2 r=10 k=1 invariants=false) ==> TIME: 3244 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=800 n=2 r=10 k=1 invariants=false) ==> TIME: 4630 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=900 n=2 r=10 k=1 invariants=false) ==> TIME: 5635 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=100 n=2 r=10 k=1 invariants=false) ==> TIME: 3 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=200 n=2 r=10 k=1 invariants=false) ==> TIME: 14 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=300 n=2 r=10 k=1 invariants=false) ==> TIME: 79 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=400 n=2 r=10 k=1 invariants=false) ==> TIME: 84 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=500 n=2 r=10 k=1 invariants=false) ==> TIME: 267 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=600 n=2 r=10 k=1 invariants=false) ==> TIME: 229 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=700 n=2 r=10 k=1 invariants=false) ==> TIME: 308 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=800 n=2 r=10 k=1 invariants=false) ==> TIME: 541 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=900 n=2 r=10 k=1 invariants=false) ==> TIME: 725 ms (average over 3 iterations)
+
+------------------------------------------------------------------------------------------------------------
+
+RESULTS (GK tial with invariants)
+
+!!!! NOTE THAT FOR THIS TEST M = 300 instead of 800
+
+*** Varying n parameter ****
+Scalable GK Tail Test Parameters ( Trace Type=1 M=300 n=1 r=10 k=1 invariants=true) ==> TIME: 3448 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=300 n=2 r=10 k=1 invariants=true) ==> TIME: 954 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=300 n=4 r=10 k=1 invariants=true) ==> TIME: 276 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=300 n=5 r=10 k=1 invariants=true) ==> TIME: 206 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=300 n=10 r=10 k=1 invariants=true) ==> TIME: 110 ms (average over 3 iterations)
+
+!!!! Back to M = 800
+
+*** Varying n parameter ****
+Scalable GK Tail Test Parameters ( Trace Type=1 M=300 n=1 r=10 k=1 invariants=true) ==> !! TIMED OUT !!
+Scalable GK Tail Test Parameters ( Trace Type=1 M=300 n=2 r=10 k=1 invariants=true) ==> !! TIMED OUT !!
+Scalable GK Tail Test Parameters ( Trace Type=1 M=800 n=4 r=10 k=1 invariants=true) ==> TIME: 4034 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=800 n=5 r=10 k=1 invariants=true) ==> TIME: 2853 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=800 n=10 r=10 k=1 invariants=true) ==> TIME: 884 ms (average over 3 iterations)
+
+*** Varying M parameter ****
+Trivial GK Tail Test Parameters ( Trace Type=1 M=100 n=2 r=10 k=1 invariants=true) ==> TIME: 364 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=200 n=2 r=10 k=1 invariants=true) ==> TIME: 2751 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=300 n=2 r=10 k=1 invariants=true) ==> TIME: 9766 ms (average over 3 iterations)
+Trivial GK Tail Test Parameters ( Trace Type=1 M=400 n=2 r=10 k=1 invariants=true) ==> TIME: 27175 ms (average over 3 iterations)
+
+(terminated after this for trivial gk tail - but seems to establish a cubic trend )
+
+Scalable GK Tail Test Parameters ( Trace Type=1 M=100 n=2 r=10 k=1 invariants=true) ==> TIME: 42 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=200 n=2 r=10 k=1 invariants=true) ==> TIME: 269 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=300 n=2 r=10 k=1 invariants=true) ==> TIME: 858 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=400 n=2 r=10 k=1 invariants=true) ==> TIME: 1968 ms (average over 3 iterations)
+Scalable GK Tail Test Parameters ( Trace Type=1 M=500 n=2 r=10 k=1 invariants=true) ==> TIME: 3960 ms (average over 3 iterations)
+
+(terminated after this for scalable gk tail)
+
+------------------------------------------------------------------------------------------------------------
+
+RESULTS (BISMULATION):
+
+*** Varying n parameter ****
+Bisimulation Test Parameters ( Trace Type=1 M=800 n=1 r=10 rho=0.5 invariants=false) ==> TIME: 106 ms (average over 3 iterations)
+Bisimulation Test Parameters ( Trace Type=1 M=800 n=2 r=10 rho=0.5 invariants=false) ==> TIME: 60 ms (average over 3 iterations)
+Bisimulation Test Parameters ( Trace Type=1 M=800 n=4 r=10 rho=0.5 invariants=false) ==> TIME: 35 ms (average over 3 iterations)
+Bisimulation Test Parameters ( Trace Type=1 M=800 n=5 r=10 rho=0.5 invariants=false) ==> TIME: 25 ms (average over 3 iterations)
+Bisimulation Test Parameters ( Trace Type=1 M=800 n=10 r=10 rho=0.5 invariants=false) ==> TIME: 25 ms (average over 3 iterations)
+*** Varying M parameter ****
+Bisimulation Test Parameters ( Trace Type=1 M=100 n=2 r=10 rho=0.5 invariants=false) ==> TIME: 1 ms (average over 3 iterations)
+Bisimulation Test Parameters ( Trace Type=1 M=200 n=2 r=10 rho=0.5 invariants=false) ==> TIME: 5 ms (average over 3 iterations)
+Bisimulation Test Parameters ( Trace Type=1 M=300 n=2 r=10 rho=0.5 invariants=false) ==> TIME: 8 ms (average over 3 iterations)
+Bisimulation Test Parameters ( Trace Type=1 M=400 n=2 r=10 rho=0.5 invariants=false) ==> TIME: 14 ms (average over 3 iterations)
+Bisimulation Test Parameters ( Trace Type=1 M=500 n=2 r=10 rho=0.5 invariants=false) ==> TIME: 25 ms (average over 3 iterations)
+Bisimulation Test Parameters ( Trace Type=1 M=600 n=2 r=10 rho=0.5 invariants=false) ==> TIME: 29 ms (average over 3 iterations)
+Bisimulation Test Parameters ( Trace Type=1 M=700 n=2 r=10 rho=0.5 invariants=false) ==> TIME: 42 ms (average over 3 iterations)
+Bisimulation Test Parameters ( Trace Type=1 M=800 n=2 r=10 rho=0.5 invariants=false) ==> TIME: 56 ms (average over 3 iterations)
+Bisimulation Test Parameters ( Trace Type=1 M=900 n=2 r=10 rho=0.5 invariants=false) ==> TIME: 58 ms (average over 3 iterations)
+
