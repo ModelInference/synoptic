@@ -124,7 +124,7 @@ public class ObsDAG {
         // currSysState might already have a transition e if we are maintaining
         // only 1 ObsFifoSys.
         if (!currSysState.getTransitioningEvents().contains(eType)) {
-            currSysState.addTransition(e, nextSysState);
+            currSysState.addTransition(eType, nextSysState);
         } else {
             // Make sure that the state we're transitioning to already is the
             // one we are supposed to be transitioning to according to the
