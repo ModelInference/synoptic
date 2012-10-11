@@ -408,7 +408,7 @@ public class ModelCheckersTests extends SynopticTest {
     public void NoAPLinearGraphTest() throws InternalSynopticException,
             ParseException {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
-        String[] events = new String[] { "x", "a", "x", "y", "b" };
+        String[] events = new String[] { "x", "a", "y", "b" };
         ITemporalInvariant inv = new AlwaysPrecedesInvariant("a", "b",
                 Event.defTimeRelationStr);
         testLinearGraphCExample(events, inv, false, 0);
