@@ -22,14 +22,13 @@ import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
-import synoptic.model.event.Event;
 
 public class GFSMTests extends DynopticTest {
 
     GFSM g;
 
     ObsFifoSysState Si, St;
-    Event e;
+    DistEventType e;
 
     @Override
     public void setUp() {
@@ -55,7 +54,7 @@ public class GFSMTests extends DynopticTest {
         St = ObsFifoSysState.getFifoSysState(obsPt, PtChstate);
 
         // Si -> St
-        e = new Event(DistEventType.LocalEvent("e", 0));
+        e = DistEventType.LocalEvent("e", 0);
         Si.addTransition(e, St);
 
         List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>(1);
@@ -111,9 +110,8 @@ public class GFSMTests extends DynopticTest {
         assertTrue(part.getNextStates().contains(part));
 
         assertTrue(part.getTransitioningEvents().size() == 1);
-        assertTrue(part.getNextStates((DistEventType) e.getEType()).size() == 1);
-        assertTrue(part.getNextStates((DistEventType) e.getEType()).contains(
-                part));
+        assertTrue(part.getNextStates(e).size() == 1);
+        assertTrue(part.getNextStates(e).contains(part));
     }
 
     @Test
