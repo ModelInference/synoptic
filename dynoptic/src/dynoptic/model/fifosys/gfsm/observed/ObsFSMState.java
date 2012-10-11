@@ -1,5 +1,10 @@
 package dynoptic.model.fifosys.gfsm.observed;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import synoptic.model.event.DistEventType;
 
 /**
@@ -43,6 +48,15 @@ public class ObsFSMState {
 
     // TODO: For non-anon states include things like line number and filename,
     // and so forth.
+    
+    // A global cache of previously created ObsFSMState instances. This takes
+    // advantage of having consistent initial states.
+    // Note: Key is a list [state_name, is_initial, is_terminal].
+    private static final Map<List<String>, ObsFSMState> obsFsmStatesMap;
+    
+    static {
+        obsFsmStatesMap = new HashMap<List<String>, ObsFSMState>();
+    }
 
     // /////////// Terminal states:
 
@@ -64,7 +78,8 @@ public class ObsFSMState {
             DistEventType prevEvent) {
         int nameHash = prevState.hashCode();
         nameHash = 31 * nameHash + prevEvent.hashCode();
-        return new ObsFSMState(pid, false, true, "a" + Integer.toString(nameHash));
+        String name = "a" + Integer.toString(nameHash);
+        return getObsFSMState(pid, false, true, name);
     }
 
     // /////////// Initial states:
@@ -84,7 +99,8 @@ public class ObsFSMState {
      * Creates anonymous per-process initial state.
      */
     public static ObsFSMState ObservedPerProcessInitialFSMState(int pid) {
-        return new ObsFSMState(pid, true, false, "a" + Integer.toString(pid));
+        String name = "a" + Integer.toString(pid);
+        return getObsFSMState(pid, true, false, name);
     }
 
     // /////////// Terminal+Initial states:
@@ -105,7 +121,8 @@ public class ObsFSMState {
      * Creates anonymous per-process initial/terminal state.
      */
     public static ObsFSMState ObservedPerProcessInitialTerminalFSMState(int pid) {
-        return new ObsFSMState(pid, true, true, "a" + Integer.toString(pid));
+        String name = "a" + Integer.toString(pid);
+        return getObsFSMState(pid, true, true, name);
     }
 
     // /////////// Intermediate states:
@@ -128,11 +145,30 @@ public class ObsFSMState {
             DistEventType prevEvent) {
         int nameHash = prevState.hashCode();
         nameHash = 31 * nameHash + prevEvent.hashCode();
-        return new ObsFSMState(pid, false, false, "a" + Integer.toString(nameHash));
+        String name = "a" + Integer.toString(nameHash);
+        return getObsFSMState(pid, false, false, name);
     }
 
     // //////////////////////////////////////////////////////////////////
 
+    // Returns a cached ObsFSMState if one was previously created.
+    // Otherwise, creates a new ObsFSMState, caches and returns it.
+    private static ObsFSMState getObsFSMState(int pid, boolean isInit, boolean isTerm,
+            String name) {
+        List<String> key = new ArrayList<String>(3);
+        key.add(name);
+        key.add(Boolean.toString(isInit));
+        key.add(Boolean.toString(isTerm));
+        
+        if (obsFsmStatesMap.containsKey(key)) {
+            return obsFsmStatesMap.get(key);
+        }
+        
+        ObsFSMState state = new ObsFSMState(pid, false, true, name);
+        obsFsmStatesMap.put(key, state);
+        return state;
+    }
+    
     private ObsFSMState(int pid, boolean isInit, boolean isTerminal, String name) {
         assert name != null;
 
