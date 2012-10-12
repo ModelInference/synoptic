@@ -55,21 +55,22 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
      * 
      * @param nextFsmStates
      * @param nextChannelStates
+     * @param consistentInitState
      * @return
      */
     public static ObsFifoSysState getFifoSysState(ObsMultFSMState fsmStates,
-            ImmutableMultiChState channelStates) {
+            ImmutableMultiChState channelStates, boolean consistentInitState) {
         assert fsmStates != null;
         assert channelStates != null;
 
-        ObsFifoSysState ret;
-
         if (fifoSysStatesMap.containsKey(fsmStates)) {
-            ret = fifoSysStatesMap.get(fsmStates);
+            ObsFifoSysState ret = fifoSysStatesMap.get(fsmStates);
             if (!ret.getChannelStates().equals(channelStates)) {
                 assert ret.getChannelStates().equals(channelStates);
             }
-        } else if (fsmStates.isInitial()) {
+            return ret;
+        }
+        if (consistentInitState && fsmStates.isInitial()) {
             // NOTE: This handles the case where some initial states are also
             // terminal states. For example, if we have 2 ObsMultFSMStates
             // [i_s0, i_t0] and [i_s0_f, i_t0], they are not equal, but we want
@@ -78,13 +79,13 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
                 if (multFSMState.isInitial()) {
                     // If assume consistent per-process initial state, there would be
                     // only one initial ObsFifoSysState.
-                    ret = fifoSysStatesMap.get(multFSMState);
+                    ObsFifoSysState ret = fifoSysStatesMap.get(multFSMState);
                     unionInitialFifoSysStates(fsmStates, ret);
                     return ret;
                 }
             }
         }
-        ret = new ObsFifoSysState(fsmStates, channelStates);
+        ObsFifoSysState ret = new ObsFifoSysState(fsmStates, channelStates);
         fifoSysStatesMap.put(fsmStates, ret);
         return ret;
     }

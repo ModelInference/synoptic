@@ -27,9 +27,13 @@ public class ObsDAG {
     List<ObsDAGNode> termDagConfig;
     // The channel ids of the system that generated this DAG execution.
     List<ChannelId> channelIds;
+    // Whether or not to assume that process i is in one unique state
+    // at the start of all executions.
+    boolean consistentInitState;
 
     public ObsDAG(List<ObsDAGNode> initDagConfig,
-            List<ObsDAGNode> termDagConfig, List<ChannelId> channelIds) {
+            List<ObsDAGNode> termDagConfig, List<ChannelId> channelIds,
+            boolean consistentInitState) {
         assert initDagConfig != null;
         assert termDagConfig != null;
         assert channelIds != null;
@@ -40,6 +44,7 @@ public class ObsDAG {
         this.initDagConfig = initDagConfig;
         this.termDagConfig = termDagConfig;
         this.channelIds = channelIds;
+        this.consistentInitState = consistentInitState;
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -51,9 +56,11 @@ public class ObsDAG {
         ImmutableMultiChState emptyChannelsState = ImmutableMultiChState
                 .fromChannelIds(channelIds);
         initS = ObsFifoSysState.getFifoSysState(
-                fsmStatesFromDagConfig(initDagConfig), emptyChannelsState);
+                fsmStatesFromDagConfig(initDagConfig), emptyChannelsState,
+                consistentInitState);
         termS = ObsFifoSysState.getFifoSysState(
-                fsmStatesFromDagConfig(termDagConfig), emptyChannelsState);
+                fsmStatesFromDagConfig(termDagConfig), emptyChannelsState,
+                consistentInitState);
 
         // This will keep track of all states we've created thus far.
         Set<ObsFifoSysState> fifoStates = new LinkedHashSet<ObsFifoSysState>();
@@ -115,7 +122,8 @@ public class ObsDAG {
 
         // Look up/create the next FIFO sys state.
         ObsFifoSysState nextSysState = ObsFifoSysState.getFifoSysState(
-                fsmStatesFromDagConfig(curDagConfig), nextChStates);
+                fsmStatesFromDagConfig(curDagConfig), nextChStates,
+                consistentInitState);
         states.add(nextSysState);
 
         // Add a transition between the FIFO states.

@@ -57,7 +57,7 @@ public class GFSMStateTests extends DynopticTest {
         ImmutableMultiChState obsChStates = ImmutableMultiChState
                 .fromChannelIds(cids);
         ObsFifoSysState o = ObsFifoSysState.getFifoSysState(
-                fsmStates, obsChStates);
+                fsmStates, obsChStates, false);
         s.addObs(o);
         logger.info(s.toString());
 
