@@ -72,7 +72,7 @@ public class ObsFSMState {
     }
     
     /**
-     * Creates anonymous per-process terminal state.
+     * Creates anonymous per-process terminal state, or returns the existing one.
      */
     public static ObsFSMState ObservedTerminalFSMState(int pid, ObsFSMState prevState,
             DistEventType prevEvent) {
@@ -96,7 +96,7 @@ public class ObsFSMState {
     }
     
     /**
-     * Creates anonymous per-process initial state.
+     * Creates anonymous per-process initial state, or returns the existing one.
      */
     public static ObsFSMState ObservedPerProcessInitialFSMState(int pid) {
         String name = "a" + Integer.toString(pid);
@@ -118,7 +118,7 @@ public class ObsFSMState {
     }
     
     /**
-     * Creates anonymous per-process initial/terminal state.
+     * Creates anonymous per-process initial/terminal state, or returns the existing one.
      */
     public static ObsFSMState ObservedPerProcessInitialTerminalFSMState(int pid) {
         String name = "a" + Integer.toString(pid);
@@ -139,7 +139,7 @@ public class ObsFSMState {
     }
     
     /**
-     * Creates anonymous per-process intermediate state.
+     * Creates anonymous per-process intermediate state, or returns the existing one.
      */
     public static ObsFSMState ObservedIntermediateFSMState(int pid, ObsFSMState prevState,
             DistEventType prevEvent) {
