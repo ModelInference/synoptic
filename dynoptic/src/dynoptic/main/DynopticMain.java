@@ -657,7 +657,8 @@ public class DynopticMain {
             }
 
             logger.info("Generating ObsDAG.");
-            ObsDAG dag = new ObsDAG(initDagCfg, termDagCfg, channelIds);
+            ObsDAG dag = new ObsDAG(initDagCfg, termDagCfg, channelIds,
+                    opts.consistentInitState);
             logger.info("Generating ObsFifoSys.");
             ObsFifoSys fifoSys = dag.getObsFifoSys();
 

@@ -50,8 +50,8 @@ public class GFSMTests extends DynopticTest {
         ImmutableMultiChState PtChstate = ImmutableMultiChState
                 .fromChannelIds(cids);
 
-        Si = ObsFifoSysState.getFifoSysState(obsPi, PiChstate);
-        St = ObsFifoSysState.getFifoSysState(obsPt, PtChstate);
+        Si = ObsFifoSysState.getFifoSysState(obsPi, PiChstate, false);
+        St = ObsFifoSysState.getFifoSysState(obsPt, PtChstate, false);
 
         // Si -> St
         e = DistEventType.LocalEvent("e", 0);

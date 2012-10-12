@@ -43,7 +43,7 @@ public class ObsFifoSysStateTests extends DynopticTest {
                 .fromChannelIds(cids);
 
         ObsFifoSysState s = ObsFifoSysState.getFifoSysState(
-                obsFSMState, Pmc);
+                obsFSMState, Pmc, false);
 
         assertTrue(s.isAccept());
         assertFalse(s.isInitial());
@@ -58,7 +58,7 @@ public class ObsFifoSysStateTests extends DynopticTest {
         // Retrieve another instance of fifo sys state, and make sure that the
         // internal cache returns the prior instance.
         ObsFifoSysState s2 = ObsFifoSysState.getFifoSysState(
-                obsFSMState, Pmc);
+                obsFSMState, Pmc, false);
 
         assertTrue(s == s2);
     }
