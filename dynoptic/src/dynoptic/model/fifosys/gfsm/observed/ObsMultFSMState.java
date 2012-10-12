@@ -95,4 +95,8 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
         assert false : "Transition information for ObsMultFSMState is maintained by ObservedFifoSysState instances.";
         return null;
     }
+    
+    public List<ObsFSMState> getFSMStates() {
+        return fsmStates;
+    }
 }
