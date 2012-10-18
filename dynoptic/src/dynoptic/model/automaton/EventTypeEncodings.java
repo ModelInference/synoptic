@@ -1,4 +1,4 @@
-package dynoptic.util;
+package dynoptic.model.automaton;
 
 import java.util.HashMap;
 import java.util.Map;
