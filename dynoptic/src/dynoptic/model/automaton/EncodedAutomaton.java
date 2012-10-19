@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 import dk.brics.automaton.Automaton;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
-import dynoptic.model.fifosys.cfsm.fsm.FSM;
-import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+import dynoptic.model.AbsFSM;
+import dynoptic.model.AbsFSMState;
 
 import synoptic.model.event.DistEventType;
 
@@ -16,7 +16,7 @@ import synoptic.model.event.DistEventType;
  * Wrapper class for dk.brics.automaton.Automaton which provides character
  * encodings for building Automaton with EventTypes rather than characters.
  */
-public class EncodedAutomaton {
+public class EncodedAutomaton<T extends AbsFSMState<T>>  {
 
     public static Logger logger;
     static {
@@ -32,20 +32,20 @@ public class EncodedAutomaton {
     private EventTypeEncodings<DistEventType> encodings;
 
     public EncodedAutomaton(EventTypeEncodings<DistEventType> encodings,
-            FSM fsm) {
+            AbsFSM<T> fsm) {
         this.encodings = encodings;
         model = new Automaton();
         convertFSMToAutomaton(fsm);
     }
     
-    private void convertFSMToAutomaton(FSM fsm) {
+    private void convertFSMToAutomaton(AbsFSM<T> fsm) {
         // initial state of this automaton
         State initialState = new State();
         
-        Set<FSMState> visited = new LinkedHashSet<FSMState>();
-        Set<FSMState> initStates = fsm.getInitStates();
+        Set<T> visited = new LinkedHashSet<T>();
+        Set<T> initStates = fsm.getInitStates();
         
-        for (FSMState initState : initStates) {
+        for (T initState : initStates) {
             if (!visited.contains(initState)) {
                 DFS(initState, initialState, visited);
             }
@@ -63,14 +63,14 @@ public class EncodedAutomaton {
      * @param autoState - Automaton state equivalent to the FSM state
      * @param visited - visited FSM states
      */
-    private void DFS(FSMState state, State autoState, Set<FSMState> visited) {
+    private void DFS(T state, State autoState, Set<T> visited) {
         visited.add(state);
         Set<DistEventType> transitions = state.getTransitioningEvents();
         
         for (DistEventType transition : transitions) {
-            Set<FSMState> nextStates = state.getNextStates(transition);
+            Set<T> nextStates = state.getNextStates(transition);
             
-            for (FSMState nextState : nextStates) {
+            for (T nextState : nextStates) {
                 if (!visited.contains(nextState)) {
                     char c = encodings.getEncoding(transition);
                     State nextAutoState = new State();
