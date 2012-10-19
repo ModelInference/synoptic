@@ -27,6 +27,8 @@ public class EncodedAutomaton {
     private Automaton model;
     
     // The encoding scheme for the Automaton.
+    // NOTE: To compare 2 EncodedAutomatons, their EventType encodings
+    // must be equivalent.
     private EventTypeEncodings<DistEventType> encodings;
 
     public EncodedAutomaton(EventTypeEncodings<DistEventType> encodings,
