@@ -65,6 +65,7 @@ public class EncodedAutomaton<T extends AbsFSMState<T>>  {
      */
     private void DFS(T state, State autoState, Set<T> visited) {
         visited.add(state);
+        autoState.setAccept(state.isAccept());
         Set<DistEventType> transitions = state.getTransitioningEvents();
         
         for (DistEventType transition : transitions) {
