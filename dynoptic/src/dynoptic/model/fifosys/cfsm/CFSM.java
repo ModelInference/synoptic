@@ -369,6 +369,25 @@ public class CFSM extends FifoSys<CFSMState> {
 
         return ret;
     }
+    
+    /**
+     * @return true if this CFSM is equivalent to the given CFSM.
+     */
+    public boolean isEquivalent(CFSM other) {
+        if (fsms.size() == other.fsms.size()) {
+            
+            for (int i = 0; i < fsms.size(); i++) {
+                FSM thisFSM = fsms.get(i);
+                FSM otherFSM = other.fsms.get(i);
+                
+                if (!thisFSM.isEquivalent(otherFSM)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 
     // //////////////////////////////////////////////////////////////////
 
