@@ -85,6 +85,10 @@ public class EncodedAutomaton<T extends AbsFSMState<T>>  {
         }
     }
     
+    public EventTypeEncodings<DistEventType> getEventTypeEncodings() {
+        return encodings;
+    }
+    
     @Override
     public int hashCode() {
         return model.hashCode();
