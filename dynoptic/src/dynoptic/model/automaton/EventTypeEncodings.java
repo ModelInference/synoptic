@@ -85,4 +85,18 @@ public class EventTypeEncodings <T extends EventType> {
     protected Automaton getInitialModel() {
         return alphabet.toAutomaton();
     }
+    
+    @Override
+    public int hashCode() {
+        return eventEncodings.hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object other) {
+        if (!this.getClass().equals(other.getClass())) {
+            return false;
+        }
+        EventTypeEncodings<T> encodings = (EventTypeEncodings<T>) other;
+        return eventEncodings.equals(encodings.eventEncodings);
+    }
 }
