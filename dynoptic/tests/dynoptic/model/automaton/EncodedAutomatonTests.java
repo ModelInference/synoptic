@@ -9,105 +9,147 @@ import org.junit.Test;
 
 import synoptic.model.event.DistEventType;
 
-import dk.brics.automaton.Automaton;
-import dk.brics.automaton.State;
-import dk.brics.automaton.Transition;
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 
 public class EncodedAutomatonTests extends DynopticTest {
 
+    int pid = 0;
+    int scmId = 0;
+    
+    DistEventType e1 = DistEventType.LocalEvent("e1", pid);
+    DistEventType e2 = DistEventType.LocalEvent("e2", pid);
+    DistEventType f1 = DistEventType.LocalEvent("e1", pid);
+    DistEventType f2 = DistEventType.LocalEvent("e2", pid);
+    
     @Test
-    public void fsmIsEquivalentOneState() {
-        int pid = 0;
-        int scmId = 0;
+    public void isEquivalentOneStateFSM() {
+        FSMState s0 = getInitAndAcceptState();
+        Set<FSMState> sStates = addStatesToSet(s0);
         
-        FSMState s0 = new FSMState(true, true, pid, scmId);
-        Set<FSMState> states1 = new LinkedHashSet<FSMState>();
-        states1.add(s0);
+        FSMState t0 = getInitAndAcceptState();
+        Set<FSMState> tStates = addStatesToSet(t0);
         
-        FSMState t0 = new FSMState(true, true, pid, scmId);
-        Set<FSMState> states2 = new LinkedHashSet<FSMState>();
-        states2.add(t0);
+        FSM fsm1 = new FSM(pid, s0, s0, sStates, scmId);
+        FSM fsm2 = new FSM(pid, t0, t0, tStates, scmId);
         
-        FSM fsm1 = new FSM(pid, s0, s0, states1, scmId);
-        FSM fsm2 = new FSM(pid, t0, t0, states2, scmId);
-        
-        EventTypeEncodings<DistEventType> encodings = fsm1.getEventTypeEncodings();
-        EncodedAutomaton<FSMState> aut1 = fsm1.getEncodedAutomaton(encodings);
-        EncodedAutomaton<FSMState> aut2 = fsm2.getEncodedAutomaton(encodings);
-        
-        assertTrue(aut1.equals(aut2));
         assertTrue(fsm1.isEquivalent(fsm2));
     }
     
     @Test
-    public void fsmIsEquivalentTwoStates() {
+    public void isEquivalentTwoStateFSM() {
+        FSMState s0 = getInitState();
+        FSMState s1 = getAcceptState();
+        s0.addTransition(e1, s1);
+        Set<FSMState> sStates = addStatesToSet(s0, s1);
         
-        int pid = 0;
-        int scmId = 0;
+        FSMState t0 = getInitState();
+        FSMState t1 = getAcceptState();
+        t0.addTransition(f1, t1);
+        Set<FSMState> tStates = addStatesToSet(t0, t1);
         
-        FSMState s0 = new FSMState(false, true, pid, scmId);
-        FSMState s1 = new FSMState(true, false, pid, scmId);
-        DistEventType e = DistEventType.LocalEvent("e", pid);
-        s0.addTransition(e, s1);
-        Set<FSMState> states1 = new LinkedHashSet<FSMState>();
-        states1.add(s0);
-        states1.add(s1);
-        
-        FSMState t0 = new FSMState(false, true, pid, scmId);
-        FSMState t1 = new FSMState(true, false, pid, scmId);
-        DistEventType f = DistEventType.LocalEvent("e", pid);
-        t0.addTransition(f, t1);
-        Set<FSMState> states2 = new LinkedHashSet<FSMState>();
-        states2.add(t0);
-        states2.add(t1);
-        
-        FSM fsm1 = new FSM(pid, s0, s1, states1, scmId);
-        FSM fsm2 = new FSM(pid, t0, t1, states2, scmId);
+        FSM fsm1 = new FSM(pid, s0, s1, sStates, scmId);
+        FSM fsm2 = new FSM(pid, t0, t1, tStates, scmId);
 
-        EventTypeEncodings<DistEventType> encodings = fsm1.getEventTypeEncodings();
-        EncodedAutomaton<FSMState> aut1 = fsm1.getEncodedAutomaton(encodings);
-        EncodedAutomaton<FSMState> aut2 = fsm2.getEncodedAutomaton(encodings);
-
-        assertTrue(aut1.equals(aut2));
         assertTrue(fsm1.isEquivalent(fsm2));
+    }
+    
+    @Test
+    public void isEquivalentTwoAcceptStateFSM() {
+        FSMState s0 = getInitState();
+        FSMState s1 = getAcceptState();
+        FSMState s2 = getAcceptState();
+        s0.addTransition(e1, s1);
+        s0.addTransition(e2, s2);
+        Set<FSMState> sStates = addStatesToSet(s0, s1, s2);
+        Set<FSMState> sInitStates = addStatesToSet(s0);
+        Set<FSMState> sAcceptStates = addStatesToSet(s1, s2);
         
-        /*
-        Automaton aut1 = new Automaton();
-        Automaton aut2 = new Automaton();
+        FSMState t0 = getInitState();
+        FSMState t1 = getAcceptState();
+        FSMState t2 = getAcceptState();
+        t0.addTransition(f1, t1);
+        t0.addTransition(f2, t2);
+        Set<FSMState> tStates = addStatesToSet(t0, t1, t2);
+        Set<FSMState> tInitStates = addStatesToSet(t0);
+        Set<FSMState> tAcceptStates = addStatesToSet(t1, t2);
         
-        // proc1
-        State s_0 = new State();
-        s_0.setAccept(false);
-        State s_1 = new State();
-        s_1.setAccept(true);
+        FSM fsm1 = new FSM(pid, sInitStates, sAcceptStates, sStates, scmId);
+        FSM fsm2 = new FSM(pid, tInitStates, tAcceptStates, tStates, scmId);
+
+        assertTrue(fsm1.isEquivalent(fsm2));
+    }
+    
+    @Test
+    public void isEquivalentTwoInitStateFSM() {
+        FSMState s0 = getInitState();
+        FSMState s1 = getInitState();
+        FSMState s2 = getAcceptState();
+        s0.addTransition(e1, s2);
+        s1.addTransition(e2, s2);
+        Set<FSMState> sStates = addStatesToSet(s0, s1, s2);
+        Set<FSMState> sInitStates = addStatesToSet(s0, s1);
+        Set<FSMState> sAcceptStates = addStatesToSet(s2);
         
-        char c1 = 'c';
-        Transition e1 = new Transition(c1, c1, s_1);
-        s_0.addTransition(e1);
+        FSMState t0 = getInitState();
+        FSMState t1 = getInitState();
+        FSMState t2 = getAcceptState();
+        t0.addTransition(f1, t2);
+        t1.addTransition(f2, t2);
+        Set<FSMState> tStates = addStatesToSet(t0, t1, t2);
+        Set<FSMState> tInitStates = addStatesToSet(t0, t1);
+        Set<FSMState> tAcceptStates = addStatesToSet(t2);
         
-        // proc2
-        State t_0 = new State();
-        t_0.setAccept(false);
-        State t_1 = new State();
-        t_1.setAccept(true);
-        
-        char c2 = 'c';
-        Transition f = new Transition(c2, c2, t_1);
-        t_0.addTransition(f);
-        
-        aut1.setInitialState(s_0);
-        aut1.setDeterministic(false);
-        aut1.restoreInvariant();
-        
-        aut2.setInitialState(t_0);
-        aut2.setDeterministic(false);
-        aut2.restoreInvariant();
-        
-        assertTrue(aut1.equals(aut2));
-        */
+        FSM fsm1 = new FSM(pid, sInitStates, sAcceptStates, sStates, scmId);
+        FSM fsm2 = new FSM(pid, tInitStates, tAcceptStates, tStates, scmId);
+
+        assertTrue(fsm1.isEquivalent(fsm2));
     }
 
+    @Test
+    public void isEquivalentFalse() {
+        FSMState s0 = getInitState();
+        FSMState s1 = getIntermediateState();
+        FSMState s2 = getAcceptState();
+        s0.addTransition(e1, s1);
+        s1.addTransition(e2, s2);
+        Set<FSMState> sStates = addStatesToSet(s0, s1, s2);
+        
+        FSMState t0 = getInitState();
+        FSMState t1 = getIntermediateState();
+        FSMState t2 = getAcceptState();
+        t0.addTransition(f2, t1);
+        t1.addTransition(f1, t2);
+        Set<FSMState> tStates = addStatesToSet(t0, t1, t2);
+        
+        FSM fsm1 = new FSM(pid, s0, s2, sStates, scmId);
+        FSM fsm2 = new FSM(pid, t0, t2, tStates, scmId);
+
+        assertFalse(fsm1.isEquivalent(fsm2));
+    }
+    
+    private FSMState getInitState() {
+        return new FSMState(false, true, pid, scmId);
+    }
+    
+    private FSMState getAcceptState() {
+        return new FSMState(true, false, pid, scmId);
+    }
+    
+    private FSMState getInitAndAcceptState() {
+        return new FSMState(true, true, pid, scmId);
+    }
+    
+    private FSMState getIntermediateState() {
+        return new FSMState(false, false, pid, scmId);
+    }
+    
+    private Set<FSMState> addStatesToSet(FSMState ...fsmStates) {
+        Set<FSMState> states = new LinkedHashSet<FSMState>();
+        for (FSMState state : fsmStates) {
+            states.add(state);
+        }
+        return states;
+    }
 }
