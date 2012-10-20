@@ -58,6 +58,35 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
     }
     
     /**
+     * Creates EventType encodings for all transitioning events in this FSM.
+     * Note that, when comparing any 2 FSMs, only encodings from one of them
+     * is used.
+     * 
+     * @return EventType encodings
+     */
+    public EventTypeEncodings<DistEventType> getEventTypeEncodings() {
+        if (encodings == null) {
+            encodings = new EventTypeEncodings<DistEventType>(alphabet);
+        }
+        return encodings;
+    }
+    
+    /**
+     * Creates an EncodedAutomaton for this FSM using the given EventType
+     * encodings.
+     * 
+     * @return EncodedAutomaton
+     */
+    public EncodedAutomaton<State> getEncodedAutomaton(
+            EventTypeEncodings<DistEventType> eventEncodings) {
+        if (encodedAutomaton == null || 
+                !encodedAutomaton.getEventTypeEncodings().equals(eventEncodings)) {
+            encodedAutomaton = new EncodedAutomaton<State>(eventEncodings, this);
+        }
+        return encodedAutomaton;
+    }
+
+    /**
      * @return true if the language of this FSM is equal to the language of
      * the given FSM.
      */
@@ -72,22 +101,6 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
     }
 
     // //////////////////////////////////////////////////////////////////
-
-    public EventTypeEncodings<DistEventType> getEventTypeEncodings() {
-        if (encodings == null) {
-            encodings = new EventTypeEncodings<DistEventType>(alphabet);
-        }
-        return encodings;
-    }
-    
-    public EncodedAutomaton<State> getEncodedAutomaton(
-            EventTypeEncodings<DistEventType> eventEncodings) {
-        if (encodedAutomaton == null || 
-                !encodedAutomaton.getEventTypeEncodings().equals(eventEncodings)) {
-            encodedAutomaton = new EncodedAutomaton<State>(eventEncodings, this);
-        }
-        return encodedAutomaton;
-    }
 
     /** Recomputes the alphabet of the FSM based on current states. */
     protected void recomputeAlphabet() {
