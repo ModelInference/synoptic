@@ -96,6 +96,13 @@ public class EncodedAutomaton<T extends AbsFSMState<T>>  {
     
     @Override
     public boolean equals(Object other) {
-        return model.equals(other);
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof EncodedAutomaton)) {
+            return false;
+        }
+        EncodedAutomaton<T> encodedAutomaton = (EncodedAutomaton<T>) other;
+        return model.equals(encodedAutomaton.model);
     }
 }
