@@ -73,14 +73,14 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
 
     // //////////////////////////////////////////////////////////////////
 
-    protected EventTypeEncodings<DistEventType> getEventTypeEncodings() {
+    public EventTypeEncodings<DistEventType> getEventTypeEncodings() {
         if (encodings == null) {
             encodings = new EventTypeEncodings<DistEventType>(alphabet);
         }
         return encodings;
     }
     
-    protected EncodedAutomaton<State> getEncodedAutomaton(
+    public EncodedAutomaton<State> getEncodedAutomaton(
             EventTypeEncodings<DistEventType> eventEncodings) {
         if (encodedAutomaton == null || 
                 !encodedAutomaton.getEventTypeEncodings().equals(eventEncodings)) {
