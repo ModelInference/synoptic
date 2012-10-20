@@ -93,7 +93,10 @@ public class EventTypeEncodings <T extends EventType> {
     
     @Override
     public boolean equals(Object other) {
-        if (!this.getClass().equals(other.getClass())) {
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof EventTypeEncodings)) {
             return false;
         }
         EventTypeEncodings<T> encodings = (EventTypeEncodings<T>) other;
