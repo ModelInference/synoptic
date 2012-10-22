@@ -506,7 +506,8 @@ public class DynopticMain {
      * obsFSMStates and encode dependencies between them), and an ObsDag per
      * execution parsed from the log. Then, this function converts each ObsDag
      * into an observed FifoSys. The list of these observed FifoSys instances is
-     * then returned. Note that if the consistentInitState is set then just one observed FifoSys is returned.
+     * then returned. Note that if the consistentInitState is set then just one
+     * observed FifoSys is returned.
      * 
      * @param traceGraph
      * @param numProcesses
@@ -578,11 +579,13 @@ public class DynopticMain {
                 ObsFSMState obsState;
 
                 if (opts.consistentInitState) {
-                    // Process i starts in the same state in all executions.
-                    obsState = ObsFSMState
-                            .ObservedPerProcessInitialFSMState(pid);
+                    // Every process starts in the same (anonymous) state across
+                    // all executions.
+                    obsState = ObsFSMState.consistentAnonInitObsFSMState(pid);
                 } else {
-                    obsState = ObsFSMState.ObservedInitialFSMState(pid);
+                    // Every process starts in a unique anonymous state across
+                    // all executions.
+                    obsState = ObsFSMState.anonObsFSMState(pid, true, false);
                 }
 
                 ObsDAGNode prevNode = new ObsDAGNode(obsState);
@@ -596,11 +599,12 @@ public class DynopticMain {
                         // A new state is a function of its previous state and
                         // previous event.
                         DistEventType prevEvent = (DistEventType) e.getEType();
-                        obsState = ObsFSMState.ObservedIntermediateFSMState(
-                                pid, obsState, prevEvent);
+                        obsState = ObsFSMState.consistentAnonObsFSMState(
+                                obsState, prevEvent);
                     } else {
-                        obsState = ObsFSMState
-                                .ObservedIntermediateFSMState(pid);
+                        // A new state is globally new.
+                        obsState = ObsFSMState.anonObsFSMState(pid, false,
+                                false);
                     }
 
                     ObsDAGNode nextNode = new ObsDAGNode(obsState);
@@ -612,6 +616,9 @@ public class DynopticMain {
                     eNode = eNode.getProcessLocalSuccessor();
                 }
                 termDagCfg.set(pid, prevNode);
+                // Terminal is an accumulating property -- obsState might not
+                // have been terminal for prior traces, but it is in this trace,
+                // and so it will remain for this log.
                 obsState.markTerm();
             }
 

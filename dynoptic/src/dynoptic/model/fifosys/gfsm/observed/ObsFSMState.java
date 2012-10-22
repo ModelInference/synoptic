@@ -1,11 +1,10 @@
 package dynoptic.model.fifosys.gfsm.observed;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import synoptic.model.event.DistEventType;
+import synoptic.util.Pair;
 
 /**
  * <p>
@@ -25,7 +24,7 @@ public class ObsFSMState {
 
     private static String getNextAnonName() {
         prevAnonId++;
-        return "a" + Integer.toString(prevAnonId);
+        return Integer.toString(prevAnonId);
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -35,12 +34,14 @@ public class ObsFSMState {
 
     // Whether or not this state is an anonymous state -- it was synthesized
     // because no concrete state name was given in the trace between two events.
-    // final boolean isAnon;
+    final boolean isAnon;
 
     // Whether or not this state is an initial state.
     private boolean isInitial;
 
     // Whether or not this state is a terminal state in a trace.
+    // _not_ final because this field might change if we learn that process
+    // can terminate in a state that we've created for a previous trace.
     private boolean isTerminal;
 
     // The string representation of this state.
@@ -48,141 +49,81 @@ public class ObsFSMState {
 
     // TODO: For non-anon states include things like line number and filename,
     // and so forth.
-    
-    // A global cache of previously created ObsFSMState instances. This takes
-    // advantage of having consistent initial states.
-    // Note: Key is a list [state_name, is_initial, is_terminal].
-    private static final Map<List<String>, ObsFSMState> obsFsmStatesMap;
-    
+
+    // A cache of previously created ObsFSMState instances. This is used by code
+    // that generates consistent process states -- the state of a process is
+    // determined by the sequence of events (= previous state + next event) that
+    // it executed, and each process begins execution in the same initial state.
+    private static final Map<Pair<ObsFSMState, DistEventType>, ObsFSMState> prevStateAndEventMap;
+    private static final Map<Integer, ObsFSMState> initialProcessStatesMap;
+
     static {
-        obsFsmStatesMap = new HashMap<List<String>, ObsFSMState>();
+        prevStateAndEventMap = new HashMap<Pair<ObsFSMState, DistEventType>, ObsFSMState>();
+        initialProcessStatesMap = new HashMap<Integer, ObsFSMState>();
     }
 
-    // /////////// Terminal states:
-
-    /**
-     * Creates anonymous globally-unique terminal state.
-     */
-    public static ObsFSMState ObservedTerminalFSMState(int pid) {
-        return new ObsFSMState(pid, false, true, getNextAnonName());
+    /** Anonymous, globally-unique states. */
+    public static ObsFSMState anonObsFSMState(int pid, boolean isInit,
+            boolean isTerm) {
+        return new ObsFSMState(pid, isInit, isTerm, getNextAnonName(), true);
     }
 
-    public static ObsFSMState ObservedTerminalFSMState(int pid, String name) {
-        return new ObsFSMState(pid, false, true, name);
+    /** Named states. */
+    public static ObsFSMState namedObsFSMState(int pid, String name,
+            boolean isInit, boolean isTerm) {
+        return new ObsFSMState(pid, isInit, isTerm, name, false);
     }
-    
-    /**
-     * Creates anonymous per-process terminal state, or returns the existing one.
-     */
-    public static ObsFSMState ObservedTerminalFSMState(int pid, ObsFSMState prevState,
+
+    /** Returns the _initial_ consistent anonymous state for a process. */
+    public static ObsFSMState consistentAnonInitObsFSMState(int pid) {
+        if (initialProcessStatesMap.containsKey(pid)) {
+            return initialProcessStatesMap.get(pid);
+        }
+
+        String name = Integer.toString(pid);
+        ObsFSMState state = new ObsFSMState(pid, true, false, name, true);
+        initialProcessStatesMap.put(pid, state);
+        return state;
+    }
+
+    /** Consistent anonymous (non-initial) state. */
+    public static ObsFSMState consistentAnonObsFSMState(ObsFSMState prevState,
             DistEventType prevEvent) {
-        int nameHash = prevState.hashCode();
-        nameHash = 31 * nameHash + prevEvent.hashCode();
-        String name = "a" + Integer.toString(nameHash);
-        return getObsFSMState(pid, false, true, name);
-    }
+        assert prevState != null;
+        assert prevEvent != null;
 
-    // /////////// Initial states:
+        Pair<ObsFSMState, DistEventType> key = new Pair<ObsFSMState, DistEventType>(
+                prevState, prevEvent);
+        if (prevStateAndEventMap.containsKey(key)) {
+            return prevStateAndEventMap.get(key);
+        }
 
-    /**
-     * Creates anonymous globally-unique initial state.
-     */
-    public static ObsFSMState ObservedInitialFSMState(int pid) {
-        return new ObsFSMState(pid, true, false, getNextAnonName());
-    }
-
-    public static ObsFSMState ObservedInitialFSMState(int pid, String name) {
-        return new ObsFSMState(pid, true, false, name);
-    }
-    
-    /**
-     * Creates anonymous per-process initial state, or returns the existing one.
-     */
-    public static ObsFSMState ObservedPerProcessInitialFSMState(int pid) {
-        String name = "a" + Integer.toString(pid);
-        return getObsFSMState(pid, true, false, name);
-    }
-
-    // /////////// Terminal+Initial states:
-
-    /**
-     * Creates anonymous globally-unique initial/terminal state.
-     */
-    public static ObsFSMState ObservedInitialTerminalFSMState(int pid) {
-        return new ObsFSMState(pid, true, true, getNextAnonName());
-    }
-
-    public static ObsFSMState ObservedInitialTerminalFSMState(int pid,
-            String name) {
-        return new ObsFSMState(pid, true, true, name);
-    }
-    
-    /**
-     * Creates anonymous per-process initial/terminal state, or returns the existing one.
-     */
-    public static ObsFSMState ObservedPerProcessInitialTerminalFSMState(int pid) {
-        String name = "a" + Integer.toString(pid);
-        return getObsFSMState(pid, true, true, name);
-    }
-
-    // /////////// Intermediate states:
-
-    /**
-     * Creates anonymous globally-unique intermediate state.
-     */
-    public static ObsFSMState ObservedIntermediateFSMState(int pid) {
-        return new ObsFSMState(pid, false, false, getNextAnonName());
-    }
-
-    public static ObsFSMState ObservedIntermediateFSMState(int pid, String name) {
-        return new ObsFSMState(pid, false, false, name);
-    }
-    
-    /**
-     * Creates anonymous per-process intermediate state, or returns the existing one.
-     */
-    public static ObsFSMState ObservedIntermediateFSMState(int pid, ObsFSMState prevState,
-            DistEventType prevEvent) {
-        int nameHash = prevState.hashCode();
-        nameHash = 31 * nameHash + prevEvent.hashCode();
-        String name = "a" + Integer.toString(nameHash);
-        return getObsFSMState(pid, false, false, name);
+        String name = prevState.getName() + "." + prevEvent.getEType();
+        ObsFSMState state = new ObsFSMState(prevState.getPid(), false, false,
+                name, true);
+        prevStateAndEventMap.put(key, state);
+        return state;
     }
 
     // //////////////////////////////////////////////////////////////////
 
-    // Returns a cached ObsFSMState if one was previously created.
-    // Otherwise, creates a new ObsFSMState, caches and returns it.
-    private static ObsFSMState getObsFSMState(int pid, boolean isInit, boolean isTerm,
-            String name) {
-        List<String> key = new ArrayList<String>(3);
-        key.add(name);
-        key.add(Boolean.toString(isInit));
-        key.add(Boolean.toString(isTerm));
-        
-        if (obsFsmStatesMap.containsKey(key)) {
-            return obsFsmStatesMap.get(key);
-        }
-        
-        ObsFSMState state = new ObsFSMState(pid, false, true, name);
-        obsFsmStatesMap.put(key, state);
-        return state;
-    }
-    
-    private ObsFSMState(int pid, boolean isInit, boolean isTerminal, String name) {
+    private ObsFSMState(int pid, boolean isInit, boolean isTerminal,
+            String name, boolean isAnon) {
         assert name != null;
 
         this.pid = pid;
         this.isInitial = isInit;
         this.isTerminal = isTerminal;
         this.name = name;
+        this.isAnon = isAnon;
     }
 
     // //////////////////////////////////////////////////////////////////
 
     @Override
     public String toString() {
-        return ((isInitial) ? "i_" : "") + name + ((isTerminal) ? "_t" : "");
+        return ((isInitial) ? "i_" : "") + ((isAnon) ? "a" : "") + name
+                + ((isTerminal) ? "_t" : "");
     }
 
     @Override

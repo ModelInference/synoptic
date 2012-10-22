@@ -84,19 +84,16 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
     public Set<DistEventType> getTransitioningEvents() {
         // We do not maintain transitions here because these need to depend on
         // the state of the queue, and queue state is not maintained here.
-        assert false : "Transition information for ObsMultFSMState is maintained by ObservedFifoSysState instances.";
-        return null;
+        throw new RuntimeException(
+                "Transition information for ObsMultFSMState is maintained by ObservedFifoSysState instances.");
     }
 
     @Override
     public Set<ObsMultFSMState> getNextStates(DistEventType event) {
         // We do not maintain transitions here because these need to depend on
         // the state of the queue, and queue state is not maintained here.
-        assert false : "Transition information for ObsMultFSMState is maintained by ObservedFifoSysState instances.";
-        return null;
+        throw new RuntimeException(
+                "Transition information for ObsMultFSMState is maintained by ObservedFifoSysState instances.");
     }
-    
-    public List<ObsFSMState> getFSMStates() {
-        return fsmStates;
-    }
+
 }
