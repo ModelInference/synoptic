@@ -11,7 +11,6 @@ import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import dynoptic.model.fifosys.gfsm.GFSMState;
-import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 
 import synoptic.model.channelid.ChannelId;
@@ -63,58 +62,21 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
         assert fsmStates != null;
         assert channelStates != null;
 
+        // Check if we've already created a fifo sys state with this
+        // MultiFSMState.
         if (fifoSysStatesMap.containsKey(fsmStates)) {
             ObsFifoSysState ret = fifoSysStatesMap.get(fsmStates);
+            // Check that the returned state has the expected channels state.
             if (!ret.getChannelStates().equals(channelStates)) {
                 assert ret.getChannelStates().equals(channelStates);
             }
+
             return ret;
         }
-        if (consistentInitState && fsmStates.isInitial()) {
-            // NOTE: This handles the case where some initial states are also
-            // terminal states. For example, if we have 2 ObsMultFSMStates
-            // [i_s0, i_t0] and [i_s0_f, i_t0], they are not equal, but we want
-            // to union their isTerminals to get [i_s0_f, i_t0].
-            for (ObsMultFSMState multFSMState : fifoSysStatesMap.keySet()) {
-                if (multFSMState.isInitial()) {
-                    // If assume consistent per-process initial state, there would be
-                    // only one initial ObsFifoSysState.
-                    ObsFifoSysState ret = fifoSysStatesMap.get(multFSMState);
-                    unionInitialFifoSysStates(fsmStates, ret);
-                    return ret;
-                }
-            }
-        }
+
         ObsFifoSysState ret = new ObsFifoSysState(fsmStates, channelStates);
         fifoSysStatesMap.put(fsmStates, ret);
         return ret;
-    }
-    
-    /**
-     * For each ObsFSMState pair of the same pid, unions their isTerminals.
-     * @modifies dest
-     */
-    private static void unionInitialFifoSysStates(ObsMultFSMState src, 
-            ObsFifoSysState dest) {
-        assert src.isInitial();
-        assert dest.isInitial();
-        
-        List<ObsFSMState> srcList = src.getFSMStates();
-        List<ObsFSMState> destList = dest.fsmStates.getFSMStates();
-        
-        assert srcList.size() == destList.size();
-        
-        for (int i = 0; i < srcList.size(); i++) {
-            ObsFSMState srcState = srcList.get(i);
-            ObsFSMState destState = destList.get(i);
-            
-            assert srcState.getPid() == destState.getPid();
-            assert srcState.getName().equals(destState.getName());
-            
-            if (srcState.isTerminal() && !destState.isTerminal()) {
-                destState.markTerm();
-            }
-        }
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -237,7 +199,7 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
         return transitions.get(event);
     }
 
-    public void addTransition(DistEventType e, ObsFifoSysState s) {        
+    public void addTransition(DistEventType e, ObsFifoSysState s) {
         assert !this.transitions.containsKey(e);
 
         if (DynopticMain.assertsOn) {

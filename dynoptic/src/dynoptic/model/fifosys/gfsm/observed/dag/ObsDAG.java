@@ -27,7 +27,7 @@ public class ObsDAG {
     List<ObsDAGNode> termDagConfig;
     // The channel ids of the system that generated this DAG execution.
     List<ChannelId> channelIds;
-    // Whether or not to assume that process i is in one unique state
+    // Whether or not to assume that process i is in the same (anonymous) state
     // at the start of all executions.
     boolean consistentInitState;
 

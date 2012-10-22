@@ -15,7 +15,7 @@ import synoptic.model.event.Event;
 public class ObsDAGNode {
 
     // The local state corresponding to this DAG node. These ObservedFSMState
-    // instances are re-used and long-lived, while DAG states are used only to
+    // instances are re-used and long-lived, while DAG nodes are used only to
     // construct Traces.
     private ObsFSMState obsState = null;
 

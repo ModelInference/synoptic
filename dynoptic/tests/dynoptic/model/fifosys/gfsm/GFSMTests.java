@@ -35,11 +35,11 @@ public class GFSMTests extends DynopticTest {
         List<ObsFSMState> Pi = new ArrayList<ObsFSMState>();
         List<ObsFSMState> Pt = new ArrayList<ObsFSMState>();
 
-        ObsFSMState p0i = ObsFSMState.ObservedInitialFSMState(0, "i");
+        ObsFSMState p0i = ObsFSMState.namedObsFSMState(0, "i", true, false);
         Pi.add(p0i);
         ObsMultFSMState obsPi = new ObsMultFSMState(Pi);
 
-        ObsFSMState p0t = ObsFSMState.ObservedTerminalFSMState(0, "t");
+        ObsFSMState p0t = ObsFSMState.namedObsFSMState(0, "t", false, true);
         Pt.add(p0t);
         ObsMultFSMState obsPt = new ObsMultFSMState(Pt);
 

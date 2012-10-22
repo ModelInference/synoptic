@@ -16,16 +16,16 @@ import synoptic.model.event.Event;
 public class ObsDagTests extends DynopticTest {
 
     public ObsDAG getSimpleDag() {
-        ObsFSMState state0I = ObsFSMState.ObservedInitialFSMState(0);
-        ObsFSMState state1I = ObsFSMState.ObservedInitialFSMState(1);
+        ObsFSMState state0I = ObsFSMState.anonObsFSMState(0, true, false);
+        ObsFSMState state1I = ObsFSMState.anonObsFSMState(1, true, false);
         ObsDAGNode node0I = new ObsDAGNode(state0I);
         ObsDAGNode node1I = new ObsDAGNode(state1I);
         List<ObsDAGNode> initDagConfig = new ArrayList<ObsDAGNode>();
         initDagConfig.add(node0I);
         initDagConfig.add(node1I);
 
-        ObsFSMState state0T = ObsFSMState.ObservedTerminalFSMState(0);
-        ObsFSMState state1T = ObsFSMState.ObservedTerminalFSMState(1);
+        ObsFSMState state0T = ObsFSMState.anonObsFSMState(0, false, true);
+        ObsFSMState state1T = ObsFSMState.anonObsFSMState(1, false, true);
         ObsDAGNode node0T = new ObsDAGNode(state0T);
         ObsDAGNode node1T = new ObsDAGNode(state1T);
 
