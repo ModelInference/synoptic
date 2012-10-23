@@ -22,18 +22,17 @@ import synoptic.model.event.Event;
 public class ObsDAG {
 
     // Ordered list of initial (root) DAG nodes, ordered by process id.
-    List<ObsDAGNode> initDagConfig;
+    private final List<ObsDAGNode> initDagConfig;
     // Ordered list of terminal (leaf) DAG nodes, ordered by process id.
-    List<ObsDAGNode> termDagConfig;
+    private final List<ObsDAGNode> termDagConfig;
     // The channel ids of the system that generated this DAG execution.
     List<ChannelId> channelIds;
-    // Whether or not to assume that process i is in the same (anonymous) state
-    // at the start of all executions.
-    boolean consistentInitState;
+
+    private final ObsFifoSysState initS, termS;
+    private final ImmutableMultiChState emptyChannelsState;
 
     public ObsDAG(List<ObsDAGNode> initDagConfig,
-            List<ObsDAGNode> termDagConfig, List<ChannelId> channelIds,
-            boolean consistentInitState) {
+            List<ObsDAGNode> termDagConfig, List<ChannelId> channelIds) {
         assert initDagConfig != null;
         assert termDagConfig != null;
         assert channelIds != null;
@@ -44,28 +43,33 @@ public class ObsDAG {
         this.initDagConfig = initDagConfig;
         this.termDagConfig = termDagConfig;
         this.channelIds = channelIds;
-        this.consistentInitState = consistentInitState;
+
+        emptyChannelsState = ImmutableMultiChState.fromChannelIds(channelIds);
+
+        initS = ObsFifoSysState.getFifoSysState(
+                fsmStatesFromDagConfig(initDagConfig), emptyChannelsState);
+        termS = ObsFifoSysState.getFifoSysState(
+                fsmStatesFromDagConfig(termDagConfig), emptyChannelsState);
     }
 
     // //////////////////////////////////////////////////////////////////
 
-    /** Creates an observed fifo system from the observed DAG. */
-    public ObsFifoSys getObsFifoSys() {
-        ObsFifoSysState initS, termS;
+    public ObsFifoSysState getInitFifoSysState() {
+        return initS;
+    }
 
-        ImmutableMultiChState emptyChannelsState = ImmutableMultiChState
-                .fromChannelIds(channelIds);
-        initS = ObsFifoSysState.getFifoSysState(
-                fsmStatesFromDagConfig(initDagConfig), emptyChannelsState,
-                consistentInitState);
-        termS = ObsFifoSysState.getFifoSysState(
-                fsmStatesFromDagConfig(termDagConfig), emptyChannelsState,
-                consistentInitState);
+    public ObsFifoSysState getTermFifoSysState() {
+        return termS;
+    }
 
+    /**
+     * Performs a DFS exploration to generated ObsFifoSysState instances and
+     * returns the set of these. NOTE: this set does _not_ include the initial
+     * and terminal instances (initS, termS).
+     */
+    public Set<ObsFifoSysState> genFifoStates() {
         // This will keep track of all states we've created thus far.
         Set<ObsFifoSysState> fifoStates = new LinkedHashSet<ObsFifoSysState>();
-        fifoStates.add(initS);
-        fifoStates.add(termS);
 
         // Mark all the nodes in the initial config as having occurred.
         for (ObsDAGNode node : initDagConfig) {
@@ -89,7 +93,14 @@ public class ObsDAG {
         for (ObsDAGNode node : initDagConfig) {
             node.setOccurred(false);
         }
+        return fifoStates;
+    }
 
+    /** Creates an observed fifo system from the observed DAG. */
+    public ObsFifoSys getObsFifoSys() {
+        Set<ObsFifoSysState> fifoStates = genFifoStates();
+        fifoStates.add(initS);
+        fifoStates.add(termS);
         return new ObsFifoSys(channelIds, initS, termS, fifoStates);
     }
 
@@ -122,8 +133,7 @@ public class ObsDAG {
 
         // Look up/create the next FIFO sys state.
         ObsFifoSysState nextSysState = ObsFifoSysState.getFifoSysState(
-                fsmStatesFromDagConfig(curDagConfig), nextChStates,
-                consistentInitState);
+                fsmStatesFromDagConfig(curDagConfig), nextChStates);
         states.add(nextSysState);
 
         // Add a transition between the FIFO states.

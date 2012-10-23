@@ -2,11 +2,8 @@ package dynoptic.main;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,9 +20,6 @@ import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.gfsm.CompleteGFSMCExample;
 import dynoptic.model.fifosys.gfsm.GFSM;
 import dynoptic.model.fifosys.gfsm.PartialGFSMCExample;
-import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
-import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAG;
-import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAGNode;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
@@ -40,7 +34,6 @@ import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
-import synoptic.model.event.Event;
 import synoptic.model.event.StringEventType;
 import synoptic.model.export.DotExportFormatter;
 import synoptic.util.InternalSynopticException;
@@ -306,7 +299,8 @@ public class DynopticMain {
         // obsDAGNodes (to contain obsFSMStates and encode dependencies between
         // them), and an ObsDag per execution parsed from the log.
         logger.info("Generating ObsFifoSys from DAGsTraceGraph...");
-        List<ObsFifoSys> traces = synTraceGraphToDynObsFifoSys(traceGraph);
+        List<ObsFifoSys> traces = ObsFifoSys.synTraceGraphToDynObsFifoSys(
+                traceGraph, numProcesses, channelIds, opts.consistentInitState);
 
         // //////////////////
         // If assume consistent per-process initial state, check that
@@ -498,184 +492,6 @@ public class DynopticMain {
             throw new OptionException("Process ID range for the log has gaps: "
                     + usedPids.toString());
         }
-    }
-
-    /**
-     * Uses Synoptic event nodes and ordering constraints between these nodes to
-     * generate ObsFSMStates (anonymous states), obsDAGNodes (to contain
-     * obsFSMStates and encode dependencies between them), and an ObsDag per
-     * execution parsed from the log. Then, this function converts each ObsDag
-     * into an observed FifoSys. The list of these observed FifoSys instances is
-     * then returned. Note that if the consistentInitState is set then just one
-     * observed FifoSys is returned.
-     * 
-     * @param traceGraph
-     * @param numProcesses
-     * @param parsedEvents
-     * @return
-     */
-    public List<ObsFifoSys> synTraceGraphToDynObsFifoSys(
-            DAGsTraceGraph traceGraph) {
-        assert numProcesses != -1;
-
-        // Note: if we assume consistent per-process initial state then this
-        // list will contain just 1 ObsFifoSys, even with multiple traces,
-        List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>();
-
-        // Maps an observed event to the generated ObsDAGNode that emits the
-        // event in the Dynoptic DAG.
-        Map<Event, ObsDAGNode> preEventNodesMap = new LinkedHashMap<Event, ObsDAGNode>();
-
-        // Build a Dynoptic ObsDAG for each Synoptic trace DAG.
-        for (int traceId = 0; traceId < traceGraph.getNumTraces(); traceId++) {
-            logger.info("Processing trace " + traceId);
-            preEventNodesMap.clear();
-
-            // These contain the initial and terminal configurations in terms of
-            // process states. These are used to construct the ObsDAG.
-            List<ObsDAGNode> initDagCfg = Arrays
-                    .asList(new ObsDAGNode[numProcesses]);
-
-            List<ObsDAGNode> termDagCfg = Arrays
-                    .asList(new ObsDAGNode[numProcesses]);
-
-            // Maps a pid to the first event node for that pid.
-            List<EventNode> pidInitialNodes = Arrays
-                    .asList(new EventNode[numProcesses]);
-
-            // Populate the pidInitialNodes list.
-            logger.info("Populating initial nodes list");
-            for (EventNode eNode : traceGraph.getNodes()) {
-                // Skip nodes from other traces.
-                if (eNode.getTraceID() != traceId) {
-                    continue;
-                }
-
-                // Skip special nodes.
-                if (eNode.isInitial() || eNode.isTerminal()) {
-                    continue;
-                }
-
-                Event e = eNode.getEvent();
-                int ePid = ((DistEventType) e.getEType()).getPid();
-
-                if (pidInitialNodes.get(ePid) == null
-                        || eNode.getTime().lessThan(
-                                pidInitialNodes.get(ePid).getTime())) {
-                    pidInitialNodes.set(ePid, eNode);
-                }
-            }
-
-            // Walk the per-process chain starting at the initial node, and
-            // create the corresponding Dynoptic states (without remote
-            // dependencies).
-            for (int pid = 0; pid < numProcesses; pid++) {
-                logger.info("Walking process[" + pid
-                        + "] chain to create ObsFSMState instances.");
-
-                EventNode eNode = pidInitialNodes.get(pid);
-                assert eNode != null;
-
-                ObsFSMState obsState;
-
-                if (opts.consistentInitState) {
-                    // Every process starts in the same (anonymous) state across
-                    // all executions.
-                    obsState = ObsFSMState.consistentAnonInitObsFSMState(pid);
-                } else {
-                    // Every process starts in a unique anonymous state across
-                    // all executions.
-                    obsState = ObsFSMState.anonObsFSMState(pid, true, false);
-                }
-
-                ObsDAGNode prevNode = new ObsDAGNode(obsState);
-
-                initDagCfg.set(pid, prevNode);
-
-                while (eNode != null) {
-                    Event e = eNode.getEvent();
-
-                    if (opts.consistentInitState) {
-                        // A new state is a function of its previous state and
-                        // previous event.
-                        DistEventType prevEvent = (DistEventType) e.getEType();
-                        obsState = ObsFSMState.consistentAnonObsFSMState(
-                                obsState, prevEvent);
-                    } else {
-                        // A new state is globally new.
-                        obsState = ObsFSMState.anonObsFSMState(pid, false,
-                                false);
-                    }
-
-                    ObsDAGNode nextNode = new ObsDAGNode(obsState);
-
-                    prevNode.addTransition(e, nextNode);
-                    preEventNodesMap.put(e, prevNode);
-
-                    prevNode = nextNode;
-                    eNode = eNode.getProcessLocalSuccessor();
-                }
-                termDagCfg.set(pid, prevNode);
-                // Terminal is an accumulating property -- obsState might not
-                // have been terminal for prior traces, but it is in this trace,
-                // and so it will remain for this log.
-                obsState.markTerm();
-            }
-
-            // Walk the same chains as above, but now record the remote
-            // dependencies between events as dependencies between states.
-            for (int pid = 0; pid < numProcesses; pid++) {
-                logger.info("Walking process[" + pid
-                        + "] chain to record remote dependencies");
-
-                EventNode eNode = pidInitialNodes.get(pid);
-
-                while (eNode != null) {
-                    Event e = eNode.getEvent();
-
-                    // Record remote dependencies.
-                    for (EventNode eNodeSucc : eNode.getAllSuccessors()) {
-                        if (eNodeSucc.isTerminal()) {
-                            continue;
-                        }
-                        Event eSucc = eNodeSucc.getEvent();
-                        int eSuccPid = ((DistEventType) eSucc.getEType())
-                                .getPid();
-
-                        if (eSuccPid != pid) {
-                            assert preEventNodesMap.containsKey(e);
-                            if (!preEventNodesMap.containsKey(eSucc)) {
-
-                                assert preEventNodesMap.containsKey(eSucc);
-
-                            }
-                            // post-state of eSucc depends on the post-state of
-                            // e having occurred.
-                            ObsDAGNode eSuccPost = preEventNodesMap.get(eSucc)
-                                    .getNextState();
-                            ObsDAGNode ePost = preEventNodesMap.get(e)
-                                    .getNextState();
-                            eSuccPost.addRemoteDependency(ePost);
-                        }
-                    }
-
-                    eNode = eNode.getProcessLocalSuccessor();
-                }
-            }
-
-            logger.info("Generating ObsDAG.");
-            ObsDAG dag = new ObsDAG(initDagCfg, termDagCfg, channelIds,
-                    opts.consistentInitState);
-            logger.info("Generating ObsFifoSys.");
-            ObsFifoSys fifoSys = dag.getObsFifoSys();
-
-            if (opts.consistentInitState && !traces.isEmpty()) {
-                traces.set(0, fifoSys);
-            } else {
-                traces.add(fifoSys);
-            }
-        }
-        return traces;
     }
 
     /**
