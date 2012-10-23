@@ -31,7 +31,7 @@ public class ObsFifoSysStateTests extends DynopticTest {
         P.add(p0);
         P.add(p1);
 
-        ObsMultFSMState obsFSMState = new ObsMultFSMState(P);
+        ObsMultFSMState obsFSMState = ObsMultFSMState.getMultiFSMState(P);
 
         cids = new ArrayList<ChannelId>(2);
         cid1 = new ChannelId(0, 1, 0);

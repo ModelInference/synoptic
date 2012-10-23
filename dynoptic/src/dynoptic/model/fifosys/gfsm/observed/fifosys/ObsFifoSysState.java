@@ -44,6 +44,11 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
         fifoSysStatesMap = new LinkedHashMap<ObsMultFSMState, ObsFifoSysState>();
     }
 
+    // Used by tests and DynopticMain to clear the states cache.
+    public static void clearCache() {
+        fifoSysStatesMap.clear();
+    }
+
     /**
      * Returns a cached ObservedFifoSysState instance, if one was previously
      * created with the given FSM states. Otherwise, returns a new instance and

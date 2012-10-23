@@ -2,7 +2,9 @@ package dynoptic.model.fifosys.gfsm.observed.fifosys;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,6 +63,12 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
         ObsDAG dag = null;
         ObsFifoSys fifoSys = null;
         Set<ObsFifoSysState> fifoStates = null;
+        // In case of consistentInitState, there is just one initial state in
+        // the observed fifo sys, and there are _multiple_ terminal states. This
+        // set keeps track of these terminal states.
+        Set<ObsFifoSysState> termStates = new LinkedHashSet<ObsFifoSysState>();
+
+        int numFifoStates = 0;
 
         // Build a Dynoptic ObsDAG for each Synoptic trace DAG.
         for (int traceId = 0; traceId < traceGraph.getNumTraces(); traceId++) {
@@ -97,6 +105,8 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
             logger.info("Generating ObsDAG.");
             dag = new ObsDAG(initDagCfg, termDagCfg, channelIds);
 
+            termStates.add(dag.getTermFifoSysState());
+
             logger.info("Generating ObsFifoSys.");
             if (consistentInitState) {
                 // Accumulate fifo sys state instances, but delay creating a
@@ -108,6 +118,7 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
                 }
             } else {
                 fifoSys = dag.getObsFifoSys();
+                numFifoStates += fifoSys.getStates().size();
                 traces.add(fifoSys);
             }
         }
@@ -115,12 +126,18 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
         if (consistentInitState) {
             assert dag != null;
             assert fifoStates != null;
+
+            // Since all DAGs share the initial state when consistentInitState
+            // is enabled, we can just use the initial state of the last DAG.
             ObsFifoSysState initS = dag.getInitFifoSysState();
-            ObsFifoSysState termS = dag.getTermFifoSysState();
             fifoStates.add(initS);
-            fifoStates.add(termS);
-            fifoSys = new ObsFifoSys(channelIds, initS, termS, fifoStates);
-            traces.set(0, fifoSys);
+            fifoStates.addAll(termStates);
+            fifoSys = new ObsFifoSys(channelIds, initS, termStates, fifoStates);
+            traces.add(fifoSys);
+            logger.info("[consistentInitState] Total fifo states created: "
+                    + fifoStates.size());
+        } else {
+            logger.info("Total fifo states created: " + numFifoStates);
         }
 
         return traces;
@@ -277,16 +294,23 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
     // //////////////////////////////////////////////////////////////////
 
     private final ObsFifoSysState initState;
-    private final ObsFifoSysState termState;
+    private final Set<ObsFifoSysState> termStates;
 
     public ObsFifoSys(List<ChannelId> channelIds, ObsFifoSysState initState,
             ObsFifoSysState termState, Set<ObsFifoSysState> states) {
+        this(channelIds, initState, Collections.singleton(termState), states);
+    }
+
+    public ObsFifoSys(List<ChannelId> channelIds, ObsFifoSysState initState,
+            Set<ObsFifoSysState> termStates, Set<ObsFifoSysState> states) {
         super(initState.getNumProcesses(), channelIds);
         assert initState.isInitial();
-        assert termState.isAccept();
+        for (ObsFifoSysState termS : termStates) {
+            assert termS.isAccept();
+        }
 
         assert states.contains(initState);
-        assert states.contains(termState);
+        assert states.containsAll(termStates);
 
         if (DynopticMain.assertsOn) {
             for (ObsFifoSysState s : states) {
@@ -295,7 +319,7 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
                 // There can only be one initial and one accept state in a
                 // trace.
                 if (s.isAccept()) {
-                    assert termState == s;
+                    assert termStates.contains(s);
                 }
                 if (s.isInitial()) {
                     assert initState == s;
@@ -304,7 +328,7 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
         }
 
         this.initState = initState;
-        this.termState = termState;
+        this.termStates = termStates;
         this.states.addAll(states);
     }
 
@@ -314,8 +338,8 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
         return initState;
     }
 
-    public ObsFifoSysState getTermState() {
-        return termState;
+    public Set<ObsFifoSysState> getTermStates() {
+        return termStates;
     }
 
     public int getNumProcesses() {

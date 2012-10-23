@@ -1,6 +1,8 @@
 package dynoptic.model.fifosys.gfsm.observed;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.fifosys.AbsMultiFSMState;
@@ -17,7 +19,28 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
     // IDs.
     protected List<ObsFSMState> fsmStates;
 
-    public ObsMultFSMState(List<ObsFSMState> fsmStates) {
+    private static final Map<List<ObsFSMState>, ObsMultFSMState> cache;
+
+    static {
+        cache = new LinkedHashMap<List<ObsFSMState>, ObsMultFSMState>();
+    }
+
+    // Used by tests and DynopticMain to clear the states cache.
+    public static void clearCache() {
+        cache.clear();
+    }
+
+    public static ObsMultFSMState getMultiFSMState(List<ObsFSMState> states) {
+        if (cache.containsKey(states)) {
+            return cache.get(states);
+        }
+
+        ObsMultFSMState mstate = new ObsMultFSMState(states);
+        cache.put(states, mstate);
+        return mstate;
+    }
+
+    private ObsMultFSMState(List<ObsFSMState> fsmStates) {
         super(fsmStates.size());
         this.fsmStates = fsmStates;
     }
@@ -72,6 +95,9 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
     public boolean equals(Object o) {
         if (o == null) {
             return false;
+        }
+        if (this == o) {
+            return true;
         }
         if (!(o instanceof ObsMultFSMState)) {
             return false;

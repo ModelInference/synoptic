@@ -52,7 +52,8 @@ public class GFSMStateTests extends DynopticTest {
         List<ObsFSMState> obsFsmStates = new ArrayList<ObsFSMState>();
         obsFsmStates.add(ObsFSMState.anonObsFSMState(0, true, true));
         obsFsmStates.add(ObsFSMState.anonObsFSMState(1, true, true));
-        ObsMultFSMState fsmStates = new ObsMultFSMState(obsFsmStates);
+        ObsMultFSMState fsmStates = ObsMultFSMState
+                .getMultiFSMState(obsFsmStates);
 
         ImmutableMultiChState obsChStates = ImmutableMultiChState
                 .fromChannelIds(cids);
