@@ -54,11 +54,10 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
      * 
      * @param nextFsmStates
      * @param nextChannelStates
-     * @param consistentInitState
      * @return
      */
     public static ObsFifoSysState getFifoSysState(ObsMultFSMState fsmStates,
-            ImmutableMultiChState channelStates, boolean consistentInitState) {
+            ImmutableMultiChState channelStates) {
         assert fsmStates != null;
         assert channelStates != null;
 
