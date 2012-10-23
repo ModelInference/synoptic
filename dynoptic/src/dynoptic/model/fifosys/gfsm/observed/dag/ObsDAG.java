@@ -147,7 +147,9 @@ public class ObsDAG {
             // Make sure that the state we're transitioning to already is the
             // one we are supposed to be transitioning to according to the
             // current traversal.
-            assert currSysState.getNextState(eType).equals(nextSysState);
+            if (!currSysState.getNextState(eType).equals(nextSysState)) {
+                assert currSysState.getNextState(eType).equals(nextSysState);
+            }
         }
 
         // Update the nextNode as having occurred.
@@ -181,7 +183,7 @@ public class ObsDAG {
             fsmStates.add(node.getObsState());
         }
 
-        ObsMultFSMState ret = new ObsMultFSMState(fsmStates);
+        ObsMultFSMState ret = ObsMultFSMState.getMultiFSMState(fsmStates);
         return ret;
     }
 

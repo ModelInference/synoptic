@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
@@ -30,18 +31,19 @@ public class GFSMTests extends DynopticTest {
     ObsFifoSysState Si, St;
     DistEventType e;
 
-    @Override
-    public void setUp() {
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
         List<ObsFSMState> Pi = new ArrayList<ObsFSMState>();
         List<ObsFSMState> Pt = new ArrayList<ObsFSMState>();
 
         ObsFSMState p0i = ObsFSMState.namedObsFSMState(0, "i", true, false);
         Pi.add(p0i);
-        ObsMultFSMState obsPi = new ObsMultFSMState(Pi);
+        ObsMultFSMState obsPi = ObsMultFSMState.getMultiFSMState(Pi);
 
         ObsFSMState p0t = ObsFSMState.namedObsFSMState(0, "t", false, true);
         Pt.add(p0t);
-        ObsMultFSMState obsPt = new ObsMultFSMState(Pt);
+        ObsMultFSMState obsPt = ObsMultFSMState.getMultiFSMState(Pt);
 
         // Empty channeldIds list -- no queues.
         List<ChannelId> cids = new ArrayList<ChannelId>();

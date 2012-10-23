@@ -192,7 +192,7 @@ public class DynopticOptions extends Options {
     @Option(
             value = "Each process begins execution in the same initial state across all traces in the log",
             aliases = "consistent-init-state")
-    public boolean consistentInitState = false;
+    public boolean consistentInitState = true;
 
     // end option group "Strategy Options"
     // //////////////////////////////////////////////////

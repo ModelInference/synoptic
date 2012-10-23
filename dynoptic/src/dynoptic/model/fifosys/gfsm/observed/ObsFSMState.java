@@ -1,6 +1,6 @@
 package dynoptic.model.fifosys.gfsm.observed;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import synoptic.model.event.DistEventType;
@@ -58,8 +58,15 @@ public class ObsFSMState {
     private static final Map<Integer, ObsFSMState> initialProcessStatesMap;
 
     static {
-        prevStateAndEventMap = new HashMap<Pair<ObsFSMState, DistEventType>, ObsFSMState>();
-        initialProcessStatesMap = new HashMap<Integer, ObsFSMState>();
+        prevStateAndEventMap = new LinkedHashMap<Pair<ObsFSMState, DistEventType>, ObsFSMState>();
+        initialProcessStatesMap = new LinkedHashMap<Integer, ObsFSMState>();
+    }
+
+    // Used by tests and DynopticMain to clear the states cache.
+    public static void clearCache() {
+        prevStateAndEventMap.clear();
+        initialProcessStatesMap.clear();
+        prevAnonId = -1;
     }
 
     /** Anonymous, globally-unique states. */
@@ -98,7 +105,7 @@ public class ObsFSMState {
             return prevStateAndEventMap.get(key);
         }
 
-        String name = prevState.getName() + "." + prevEvent.getEType();
+        String name = prevState.getName() + "." + prevEvent.toString();
         ObsFSMState state = new ObsFSMState(prevState.getPid(), false, false,
                 name, true);
         prevStateAndEventMap.put(key, state);
@@ -152,7 +159,7 @@ public class ObsFSMState {
             return false;
         }
 
-        if (!otherF.isTerminal() != isTerminal) {
+        if (otherF.isTerminal() != isTerminal) {
             return false;
         }
 
