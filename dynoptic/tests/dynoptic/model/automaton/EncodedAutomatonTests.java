@@ -27,6 +27,7 @@ public class EncodedAutomatonTests extends DynopticTest {
     DistEventType e2 = DistEventType.LocalEvent("e2", pid0);
     DistEventType f1 = DistEventType.LocalEvent("e1", pid0);
     DistEventType f2 = DistEventType.LocalEvent("e2", pid0);
+    DistEventType g1 = DistEventType.LocalEvent("e1", pid1);
     
     @Test
     public void isEquivalentOneStateFSM() {
@@ -113,7 +114,7 @@ public class EncodedAutomatonTests extends DynopticTest {
     }
 
     @Test
-    public void isEquivalentFSMFalse() {
+    public void isEquivalentFSMDiffEventOrder() {
         FSMState s0 = getInitState(pid0);
         FSMState s1 = getIntermediateState(pid0);
         FSMState s2 = getAcceptState(pid0);
@@ -135,16 +136,86 @@ public class EncodedAutomatonTests extends DynopticTest {
     }
     
     @Test
+    public void isEquivalentDiffAcceptLabelFSM() {
+        FSMState s0 = getInitState(pid0);
+        FSMState s1 = getAcceptState(pid0);
+        FSMState s2 = getAcceptState(pid0);
+        s0.addTransition(e1, s1);
+        s0.addTransition(e2, s2);
+        Set<FSMState> sStates = addStatesToSet(s0, s1, s2);
+        Set<FSMState> sInitStates = addStatesToSet(s0);
+        Set<FSMState> sAcceptStates = addStatesToSet(s1, s2);
+        
+        FSMState t0 = getInitState(pid0);
+        FSMState t1 = getAcceptState(pid0);
+        FSMState t2 = getIntermediateState(pid0);
+        t0.addTransition(f1, t1);
+        t0.addTransition(f2, t2);
+        Set<FSMState> tStates = addStatesToSet(t0, t1, t2);
+        Set<FSMState> tInitStates = addStatesToSet(t0);
+        Set<FSMState> tAcceptStates = addStatesToSet(t1);
+        
+        FSM fsm1 = new FSM(pid0, sInitStates, sAcceptStates, sStates, nextScmId);
+        FSM fsm2 = new FSM(pid0, tInitStates, tAcceptStates, tStates, nextScmId);
+
+        assertFalse(fsm1.isEquivalent(fsm2));
+    }
+    
+    @Test
+    public void isEquivalentDiffInitLabelFSM() {
+        FSMState s0 = getInitState(pid0);
+        FSMState s1 = getInitState(pid0);
+        FSMState s2 = getAcceptState(pid0);
+        s0.addTransition(e1, s2);
+        s1.addTransition(e2, s2);
+        Set<FSMState> sStates = addStatesToSet(s0, s1, s2);
+        Set<FSMState> sInitStates = addStatesToSet(s0, s1);
+        Set<FSMState> sAcceptStates = addStatesToSet(s2);
+        
+        FSMState t0 = getIntermediateState(pid0);
+        FSMState t1 = getInitState(pid0);
+        FSMState t2 = getAcceptState(pid0);
+        t0.addTransition(f1, t2);
+        t1.addTransition(f2, t2);
+        Set<FSMState> tStates = addStatesToSet(t0, t1, t2);
+        Set<FSMState> tInitStates = addStatesToSet(t1);
+        Set<FSMState> tAcceptStates = addStatesToSet(t2);
+        
+        FSM fsm1 = new FSM(pid0, sInitStates, sAcceptStates, sStates, nextScmId);
+        FSM fsm2 = new FSM(pid0, tInitStates, tAcceptStates, tStates, nextScmId);
+
+        assertFalse(fsm1.isEquivalent(fsm2));
+    }
+    
+    @Test
+    public void isEquivalentSameLanguage() {
+        FSM dfa = getTwoStateFSM(pid0, e1);
+        
+        FSMState s0 = getInitState(pid0);
+        FSMState s1 = getAcceptState(pid0);
+        FSMState s2 = getAcceptState(pid0);
+        s0.addTransition(e1, s1);
+        s0.addTransition(e1, s2);
+        Set<FSMState> states = addStatesToSet(s0, s1, s2);
+        Set<FSMState> initStates = addStatesToSet(s0);
+        Set<FSMState> acceptStates = addStatesToSet(s1, s2);
+        
+        FSM nfa = new FSM(pid0, initStates, acceptStates, states, nextScmId);
+        
+        assertTrue(dfa.isEquivalent(nfa));
+    }
+    
+    @Test
     public void isEquivalentCFSM() {        
         FSM fsm1 = getOneStateFSM(pid0);
-        FSM fsm2 = getOneStateFSM(pid1);
+        FSM fsm2 = getTwoStateFSM(pid1, g1);
         
         CFSM cfsm1 = new CFSM(2, Collections.<ChannelId> emptyList());
         cfsm1.addFSM(fsm1);
         cfsm1.addFSM(fsm2);
         
         FSM fsm3 = getOneStateFSM(pid0);
-        FSM fsm4 = getOneStateFSM(pid1);
+        FSM fsm4 = getTwoStateFSM(pid1, g1);
         
         CFSM cfsm2 = new CFSM(2, Collections.<ChannelId> emptyList());
         cfsm2.addFSM(fsm3);
@@ -154,16 +225,16 @@ public class EncodedAutomatonTests extends DynopticTest {
     }
     
     @Test
-    public void isEquivalentCFSMFalseSameSize() {
-        FSM fsm1 = getTwoStateFSM(pid0, e1);
-        FSM fsm2 = getOneStateFSM(pid1);
+    public void isEquivalentCFSMFalseDiffPid() {
+        FSM fsm1 = getOneStateFSM(pid0);
+        FSM fsm2 = getTwoStateFSM(pid1, g1);
         
         CFSM cfsm1 = new CFSM(2, Collections.<ChannelId> emptyList());
         cfsm1.addFSM(fsm1);
         cfsm1.addFSM(fsm2);
         
-        FSM fsm3 = getOneStateFSM(pid0);
-        FSM fsm4 = getOneStateFSM(pid1);
+        FSM fsm3 = getOneStateFSM(pid1);
+        FSM fsm4 = getTwoStateFSM(pid0, e1);
         
         CFSM cfsm2 = new CFSM(2, Collections.<ChannelId> emptyList());
         cfsm2.addFSM(fsm3);
