@@ -25,16 +25,11 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
     protected final Set<State> initStates;
     protected final Set<State> acceptStates;
     
-    protected EventTypeEncodings<DistEventType> encodings;
-    protected EncodedAutomaton<State> encodedAutomaton;
-    
     public AbsFSM() {
         this.states = new LinkedHashSet<State>();
         this.alphabet = new FSMAlphabet();
         this.initStates = new LinkedHashSet<State>();
         this.acceptStates = new LinkedHashSet<State>();
-        this.encodings = null; 
-        this.encodedAutomaton = null;
     }
 
     /** Returns the initial states for the FSM. */
@@ -65,10 +60,8 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
      * @return EventType encodings
      */
     public EventTypeEncodings<DistEventType> getEventTypeEncodings() {
-        if (encodings == null) {
-            encodings = new EventTypeEncodings<DistEventType>(alphabet);
-        }
-        return encodings;
+        recomputeAlphabet(); // events of this FSM might have changed
+        return new EventTypeEncodings<DistEventType>(alphabet);
     }
     
     /**
@@ -79,11 +72,7 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
      */
     public EncodedAutomaton<State> getEncodedAutomaton(
             EventTypeEncodings<DistEventType> eventEncodings) {
-        if (encodedAutomaton == null || 
-                !encodedAutomaton.getEventTypeEncodings().equals(eventEncodings)) {
-            encodedAutomaton = new EncodedAutomaton<State>(eventEncodings, this);
-        }
-        return encodedAutomaton;
+        return new EncodedAutomaton<State>(eventEncodings, this);
     }
 
     /**
