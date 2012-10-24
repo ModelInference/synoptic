@@ -9,7 +9,7 @@ public class ObsDagNodeTests extends DynopticTest {
 
     @Test
     public void create() {
-        ObsFSMState state = ObsFSMState.ObservedIntermediateFSMState(0);
+        ObsFSMState state = ObsFSMState.anonObsFSMState(0, false, false);
         ObsDAGNode node = new ObsDAGNode(state);
     }
 }

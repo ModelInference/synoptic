@@ -2,7 +2,6 @@ package dynoptic.model.fifosys.gfsm.observed.fifosys;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +15,6 @@ import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
-import synoptic.model.event.Event;
 
 /**
  * <p>
@@ -46,6 +44,11 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
         fifoSysStatesMap = new LinkedHashMap<ObsMultFSMState, ObsFifoSysState>();
     }
 
+    // Used by tests and DynopticMain to clear the states cache.
+    public static void clearCache() {
+        fifoSysStatesMap.clear();
+    }
+
     /**
      * Returns a cached ObservedFifoSysState instance, if one was previously
      * created with the given FSM states. Otherwise, returns a new instance and
@@ -63,17 +66,20 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
         assert fsmStates != null;
         assert channelStates != null;
 
-        ObsFifoSysState ret;
-
+        // Check if we've already created a fifo sys state with this
+        // MultiFSMState.
         if (fifoSysStatesMap.containsKey(fsmStates)) {
-            ret = fifoSysStatesMap.get(fsmStates);
+            ObsFifoSysState ret = fifoSysStatesMap.get(fsmStates);
+            // Check that the returned state has the expected channels state.
             if (!ret.getChannelStates().equals(channelStates)) {
                 assert ret.getChannelStates().equals(channelStates);
             }
-        } else {
-            ret = new ObsFifoSysState(fsmStates, channelStates);
-            fifoSysStatesMap.put(fsmStates, ret);
+
+            return ret;
         }
+
+        ObsFifoSysState ret = new ObsFifoSysState(fsmStates, channelStates);
+        fifoSysStatesMap.put(fsmStates, ret);
         return ret;
     }
 
@@ -90,10 +96,6 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
 
     // Potentially observed transitions for each following event type.
     private final Map<DistEventType, ObsFifoSysState> transitions;
-
-    // List of observed event instances -- there is a one-to-one correspondence
-    // between event observed txn Event and a key in the transitions map.
-    private final Set<Event> observedTxns;
 
     private ObsFifoSysState(ObsMultFSMState fsmStates,
             ImmutableMultiChState channelStates) {
@@ -119,7 +121,6 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
         this.fsmStates = fsmStates;
         this.channelStates = channelStates;
         this.transitions = new LinkedHashMap<DistEventType, ObsFifoSysState>();
-        this.observedTxns = new LinkedHashSet<Event>();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -202,21 +203,17 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
         return transitions.get(event);
     }
 
-    public void addTransition(Event e, ObsFifoSysState s) {
-        assert (e.getEType() instanceof DistEventType);
-        
-        DistEventType eType = (DistEventType) e.getEType();
-        assert !this.transitions.containsKey(eType);
+    public void addTransition(DistEventType e, ObsFifoSysState s) {
+        assert !this.transitions.containsKey(e);
 
         if (DynopticMain.assertsOn) {
             // Make sure that the following states belongs to the same "system",
             // which is identified by number of processes and the channelIds.
-            assert channelStates.getChannelIds().equals(getChannelIds());
+            assert channelStates.getChannelIds().equals(s.getChannelIds());
             assert s.getNumProcesses() == getNumProcesses();
         }
 
-        observedTxns.add(e);
-        this.transitions.put(eType, s);
+        this.transitions.put(e, s);
     }
 
     public GFSMState getParent() {

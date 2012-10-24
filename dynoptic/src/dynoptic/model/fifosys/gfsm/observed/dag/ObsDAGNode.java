@@ -15,7 +15,7 @@ import synoptic.model.event.Event;
 public class ObsDAGNode {
 
     // The local state corresponding to this DAG node. These ObservedFSMState
-    // instances are re-used and long-lived, while DAG states are used only to
+    // instances are re-used and long-lived, while DAG nodes are used only to
     // construct Traces.
     private ObsFSMState obsState = null;
 
@@ -49,13 +49,17 @@ public class ObsDAGNode {
      * this state.
      */
     public void addTransition(Event event, ObsDAGNode nextState_) {
-        assert !obsState.isTerminal();
         assert event != null;
         assert nextState_ != null;
         assert this.nextEvent == null;
         assert this.nextState == null;
         assert ((DistEventType) event.getEType()).getPid() == getPid();
         assert nextState_.getPid() == getPid();
+
+        // Note, even if obsState is terminal, we can still add DAGNode
+        // transition because since it is merely a container on top of states
+        // that might exist from prior traces (and might be terminal in those
+        // other traces).
 
         this.nextEvent = event;
         this.nextState = nextState_;
