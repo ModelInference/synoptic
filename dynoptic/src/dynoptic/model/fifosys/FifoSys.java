@@ -80,4 +80,36 @@ abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     public int getNumProcesses() {
         return numProcesses;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof FifoSys)) {
+            return false;
+
+        }
+        FifoSys<?> fOther = (FifoSys<?>) other;
+
+        if (fOther.numProcesses != numProcesses) {
+            return false;
+        }
+        if (!fOther.channelIds.equals(channelIds)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int ret = 31;
+        ret = ret * 31 + numProcesses;
+        ret = ret * 31 + channelIds.hashCode();
+        return ret;
+    }
+
 }
