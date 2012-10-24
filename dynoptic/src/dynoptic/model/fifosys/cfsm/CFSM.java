@@ -380,7 +380,8 @@ public class CFSM extends FifoSys<CFSMState> {
                 FSM thisFSM = fsms.get(i);
                 FSM otherFSM = other.fsms.get(i);
                 
-                if (!thisFSM.isEquivalent(otherFSM)) {
+                if (thisFSM.getPid() != otherFSM.getPid() ||
+                        !thisFSM.isEquivalent(otherFSM)) {
                     return false;
                 }
             }
