@@ -138,6 +138,26 @@ public class CFSM extends FifoSys<CFSMState> {
         return ret.substring(0, ret.length() - 1);
     }
 
+    @Override
+    public int hashCode() {
+        int ret = 31;
+        ret = ret * 31 + fsms.hashCode();
+        return ret;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
+        if (!(other instanceof CFSM)) {
+            return false;
+        }
+        CFSM cOther = (CFSM) other;
+
+        return fsms.equals(cOther.fsms);
+    }
+
     // //////////////////////////////////////////////////////////////////
 
     /** Returns the bad states for all invariants that augment this CFSM. */
@@ -368,26 +388,6 @@ public class CFSM extends FifoSys<CFSMState> {
         }
 
         return ret;
-    }
-    
-    /**
-     * @return true if this CFSM is equivalent to the given CFSM.
-     */
-    public boolean isEquivalent(CFSM other) {
-        if (fsms.size() == other.fsms.size()) {
-            
-            for (int i = 0; i < fsms.size(); i++) {
-                FSM thisFSM = fsms.get(i);
-                FSM otherFSM = other.fsms.get(i);
-                
-                if (thisFSM.getPid() != otherFSM.getPid() ||
-                        !thisFSM.isEquivalent(otherFSM)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
     }
 
     // //////////////////////////////////////////////////////////////////

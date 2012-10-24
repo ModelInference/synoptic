@@ -24,7 +24,7 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
     // Initial, and accept states.
     protected final Set<State> initStates;
     protected final Set<State> acceptStates;
-    
+
     public AbsFSM() {
         this.states = new LinkedHashSet<State>();
         this.alphabet = new FSMAlphabet();
@@ -51,11 +51,11 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
     public Set<State> getStates() {
         return states;
     }
-    
+
     /**
      * Creates EventType encodings for all transitioning events in this FSM.
-     * Note that, when comparing any 2 FSMs, only encodings from one of them
-     * is used.
+     * Note that, when comparing any 2 FSMs, only encodings from one of them is
+     * used.
      * 
      * @return EventType encodings
      */
@@ -63,7 +63,7 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
         recomputeAlphabet(); // events of this FSM might have changed
         return new EventTypeEncodings<DistEventType>(alphabet);
     }
-    
+
     /**
      * Creates an EncodedAutomaton for this FSM using the given EventType
      * encodings.
@@ -76,16 +76,40 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
     }
 
     /**
-     * @return true if the language of this FSM is equal to the language of
-     * the given FSM.
+     * @return true if the language of this FSM is equal to the language of the
+     *         given FSM.
      */
-    public boolean isEquivalent(AbsFSM<State> other) {
-        // use encodings of this
+    @Override
+    public int hashCode() {
         EventTypeEncodings<DistEventType> eventEncodings = getEventTypeEncodings();
-        EncodedAutomaton<State> thisAutomaton = getEncodedAutomaton(
-                eventEncodings);
-        EncodedAutomaton<State> otherAutomaton = other.getEncodedAutomaton(
-                eventEncodings);
+        EncodedAutomaton<State> thisAutomaton = getEncodedAutomaton(eventEncodings);
+        int ret = 31;
+        ret = ret * 31 + thisAutomaton.hashCode();
+        return ret;
+    }
+
+    /**
+     * @return true if the language of this FSM is equal to the language of the
+     *         given FSM.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof AbsFSM)) {
+            return false;
+        }
+        AbsFSM<State> aOther = (AbsFSM<State>) other;
+
+        // Use encodings of this.
+        EventTypeEncodings<DistEventType> eventEncodings = getEventTypeEncodings();
+        EncodedAutomaton<State> thisAutomaton = getEncodedAutomaton(eventEncodings);
+        EncodedAutomaton<State> otherAutomaton = aOther
+                .getEncodedAutomaton(eventEncodings);
         return thisAutomaton.equals(otherAutomaton);
     }
 

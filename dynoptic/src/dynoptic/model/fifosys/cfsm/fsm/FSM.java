@@ -125,6 +125,26 @@ public class FSM extends AbsFSM<FSMState> {
         return ret;
     }
 
+    @Override
+    public int hashCode() {
+        int ret = super.hashCode();
+        ret = ret * 31 + pid;
+        return ret;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
+
+        FSM fOther = (FSM) other;
+        if (pid != fOther.pid) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Generate SCM representation of this FSM, using a specific channelIds
      * ordering.
