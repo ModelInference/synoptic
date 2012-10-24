@@ -17,6 +17,7 @@ public class EncodedAutomatonTests extends DynopticTest {
 
     int pid = 0;
     int scmId = 0;
+    int nextScmId = 1;
     
     DistEventType e1 = DistEventType.LocalEvent("e1", pid);
     DistEventType e2 = DistEventType.LocalEvent("e2", pid);
@@ -31,8 +32,8 @@ public class EncodedAutomatonTests extends DynopticTest {
         FSMState t0 = getInitAndAcceptState();
         Set<FSMState> tStates = addStatesToSet(t0);
         
-        FSM fsm1 = new FSM(pid, s0, s0, sStates, scmId);
-        FSM fsm2 = new FSM(pid, t0, t0, tStates, scmId);
+        FSM fsm1 = new FSM(pid, s0, s0, sStates, nextScmId);
+        FSM fsm2 = new FSM(pid, t0, t0, tStates, nextScmId);
         
         assertTrue(fsm1.isEquivalent(fsm2));
     }
@@ -49,8 +50,8 @@ public class EncodedAutomatonTests extends DynopticTest {
         t0.addTransition(f1, t1);
         Set<FSMState> tStates = addStatesToSet(t0, t1);
         
-        FSM fsm1 = new FSM(pid, s0, s1, sStates, scmId);
-        FSM fsm2 = new FSM(pid, t0, t1, tStates, scmId);
+        FSM fsm1 = new FSM(pid, s0, s1, sStates, nextScmId);
+        FSM fsm2 = new FSM(pid, t0, t1, tStates, nextScmId);
 
         assertTrue(fsm1.isEquivalent(fsm2));
     }
@@ -75,8 +76,8 @@ public class EncodedAutomatonTests extends DynopticTest {
         Set<FSMState> tInitStates = addStatesToSet(t0);
         Set<FSMState> tAcceptStates = addStatesToSet(t1, t2);
         
-        FSM fsm1 = new FSM(pid, sInitStates, sAcceptStates, sStates, scmId);
-        FSM fsm2 = new FSM(pid, tInitStates, tAcceptStates, tStates, scmId);
+        FSM fsm1 = new FSM(pid, sInitStates, sAcceptStates, sStates, nextScmId);
+        FSM fsm2 = new FSM(pid, tInitStates, tAcceptStates, tStates, nextScmId);
 
         assertTrue(fsm1.isEquivalent(fsm2));
     }
@@ -101,8 +102,8 @@ public class EncodedAutomatonTests extends DynopticTest {
         Set<FSMState> tInitStates = addStatesToSet(t0, t1);
         Set<FSMState> tAcceptStates = addStatesToSet(t2);
         
-        FSM fsm1 = new FSM(pid, sInitStates, sAcceptStates, sStates, scmId);
-        FSM fsm2 = new FSM(pid, tInitStates, tAcceptStates, tStates, scmId);
+        FSM fsm1 = new FSM(pid, sInitStates, sAcceptStates, sStates, nextScmId);
+        FSM fsm2 = new FSM(pid, tInitStates, tAcceptStates, tStates, nextScmId);
 
         assertTrue(fsm1.isEquivalent(fsm2));
     }
@@ -123,8 +124,8 @@ public class EncodedAutomatonTests extends DynopticTest {
         t1.addTransition(f1, t2);
         Set<FSMState> tStates = addStatesToSet(t0, t1, t2);
         
-        FSM fsm1 = new FSM(pid, s0, s2, sStates, scmId);
-        FSM fsm2 = new FSM(pid, t0, t2, tStates, scmId);
+        FSM fsm1 = new FSM(pid, s0, s2, sStates, nextScmId);
+        FSM fsm2 = new FSM(pid, t0, t2, tStates, nextScmId);
 
         assertFalse(fsm1.isEquivalent(fsm2));
     }
