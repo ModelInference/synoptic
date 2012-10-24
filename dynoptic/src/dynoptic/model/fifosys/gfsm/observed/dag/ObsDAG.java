@@ -22,11 +22,14 @@ import synoptic.model.event.Event;
 public class ObsDAG {
 
     // Ordered list of initial (root) DAG nodes, ordered by process id.
-    List<ObsDAGNode> initDagConfig;
+    private final List<ObsDAGNode> initDagConfig;
     // Ordered list of terminal (leaf) DAG nodes, ordered by process id.
-    List<ObsDAGNode> termDagConfig;
+    private final List<ObsDAGNode> termDagConfig;
     // The channel ids of the system that generated this DAG execution.
     List<ChannelId> channelIds;
+
+    private final ObsFifoSysState initS, termS;
+    private final ImmutableMultiChState emptyChannelsState;
 
     public ObsDAG(List<ObsDAGNode> initDagConfig,
             List<ObsDAGNode> termDagConfig, List<ChannelId> channelIds) {
@@ -40,25 +43,33 @@ public class ObsDAG {
         this.initDagConfig = initDagConfig;
         this.termDagConfig = termDagConfig;
         this.channelIds = channelIds;
-    }
 
-    // //////////////////////////////////////////////////////////////////
+        emptyChannelsState = ImmutableMultiChState.fromChannelIds(channelIds);
 
-    /** Creates an observed fifo system from the observed DAG. */
-    public ObsFifoSys getObsFifoSys() {
-        ObsFifoSysState initS, termS;
-
-        ImmutableMultiChState emptyChannelsState = ImmutableMultiChState
-                .fromChannelIds(channelIds);
         initS = ObsFifoSysState.getFifoSysState(
                 fsmStatesFromDagConfig(initDagConfig), emptyChannelsState);
         termS = ObsFifoSysState.getFifoSysState(
                 fsmStatesFromDagConfig(termDagConfig), emptyChannelsState);
+    }
 
+    // //////////////////////////////////////////////////////////////////
+
+    public ObsFifoSysState getInitFifoSysState() {
+        return initS;
+    }
+
+    public ObsFifoSysState getTermFifoSysState() {
+        return termS;
+    }
+
+    /**
+     * Performs a DFS exploration to generated ObsFifoSysState instances and
+     * returns the set of these. NOTE: this set does _not_ include the initial
+     * and terminal instances (initS, termS).
+     */
+    public Set<ObsFifoSysState> genFifoStates() {
         // This will keep track of all states we've created thus far.
         Set<ObsFifoSysState> fifoStates = new LinkedHashSet<ObsFifoSysState>();
-        fifoStates.add(initS);
-        fifoStates.add(termS);
 
         // Mark all the nodes in the initial config as having occurred.
         for (ObsDAGNode node : initDagConfig) {
@@ -82,7 +93,14 @@ public class ObsDAG {
         for (ObsDAGNode node : initDagConfig) {
             node.setOccurred(false);
         }
+        return fifoStates;
+    }
 
+    /** Creates an observed fifo system from the observed DAG. */
+    public ObsFifoSys getObsFifoSys() {
+        Set<ObsFifoSysState> fifoStates = genFifoStates();
+        fifoStates.add(initS);
+        fifoStates.add(termS);
         return new ObsFifoSys(channelIds, initS, termS, fifoStates);
     }
 
@@ -119,7 +137,20 @@ public class ObsDAG {
         states.add(nextSysState);
 
         // Add a transition between the FIFO states.
-        currSysState.addTransition(e, nextSysState);
+        DistEventType eType = (DistEventType) e.getEType();
+
+        // currSysState might already have a transition e if we are maintaining
+        // only 1 ObsFifoSys.
+        if (!currSysState.getTransitioningEvents().contains(eType)) {
+            currSysState.addTransition(eType, nextSysState);
+        } else {
+            // Make sure that the state we're transitioning to already is the
+            // one we are supposed to be transitioning to according to the
+            // current traversal.
+            if (!currSysState.getNextState(eType).equals(nextSysState)) {
+                assert currSysState.getNextState(eType).equals(nextSysState);
+            }
+        }
 
         // Update the nextNode as having occurred.
         nextNode.setOccurred(true);
@@ -152,7 +183,7 @@ public class ObsDAG {
             fsmStates.add(node.getObsState());
         }
 
-        ObsMultFSMState ret = new ObsMultFSMState(fsmStates);
+        ObsMultFSMState ret = ObsMultFSMState.getMultiFSMState(fsmStates);
         return ret;
     }
 
