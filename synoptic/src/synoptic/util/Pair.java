@@ -17,4 +17,34 @@ public class Pair<L, R> {
     public R getRight() {
         return r;
     }
+
+    @Override
+    public int hashCode() {
+        int result = l.hashCode();
+        result = 31 * result + r.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+
+        if (!(other instanceof Pair)) {
+            return false;
+        }
+
+        Pair<L, R> otherP = (Pair<L, R>) other;
+        if (!otherP.getLeft().equals(l)) {
+            return false;
+        }
+        if (!otherP.getRight().equals(r)) {
+            return false;
+        }
+        return true;
+    }
 }

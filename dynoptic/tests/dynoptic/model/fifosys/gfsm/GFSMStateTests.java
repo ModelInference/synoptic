@@ -10,13 +10,13 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import synoptic.model.channelid.ChannelId;
-
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+
+import synoptic.model.channelid.ChannelId;
 
 public class GFSMStateTests extends DynopticTest {
 
@@ -50,14 +50,15 @@ public class GFSMStateTests extends DynopticTest {
         GFSMState s = new GFSMState(2);
 
         List<ObsFSMState> obsFsmStates = new ArrayList<ObsFSMState>();
-        obsFsmStates.add(ObsFSMState.ObservedInitialTerminalFSMState(0));
-        obsFsmStates.add(ObsFSMState.ObservedInitialTerminalFSMState(1));
-        ObsMultFSMState fsmStates = new ObsMultFSMState(obsFsmStates);
+        obsFsmStates.add(ObsFSMState.anonObsFSMState(0, true, true));
+        obsFsmStates.add(ObsFSMState.anonObsFSMState(1, true, true));
+        ObsMultFSMState fsmStates = ObsMultFSMState
+                .getMultiFSMState(obsFsmStates);
 
         ImmutableMultiChState obsChStates = ImmutableMultiChState
                 .fromChannelIds(cids);
-        ObsFifoSysState o = ObsFifoSysState.getFifoSysState(
-                fsmStates, obsChStates);
+        ObsFifoSysState o = ObsFifoSysState.getFifoSysState(fsmStates,
+                obsChStates);
         s.addObs(o);
         logger.info(s.toString());
 

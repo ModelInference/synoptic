@@ -18,6 +18,9 @@ import org.junit.rules.TestName;
 
 import dynoptic.main.DynopticMain;
 import dynoptic.main.DynopticOptions;
+import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
+import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
 import synoptic.model.channelid.ChannelId;
 
@@ -63,6 +66,11 @@ public class DynopticTest {
         opts.logLvlVerbose = true;
         opts.logLvlExtraVerbose = false;
         DynopticMain.setUpLogging(opts);
+
+        // Clear all object caches.
+        ObsFifoSysState.clearCache();
+        ObsFSMState.clearCache();
+        ObsMultFSMState.clearCache();
     }
 
     // //////////////////////////////////////////////////
