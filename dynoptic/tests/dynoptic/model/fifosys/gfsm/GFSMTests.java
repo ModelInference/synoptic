@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
@@ -22,27 +23,27 @@ import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
-import synoptic.model.event.Event;
 
 public class GFSMTests extends DynopticTest {
 
     GFSM g;
 
     ObsFifoSysState Si, St;
-    Event e;
+    DistEventType e;
 
-    @Override
-    public void setUp() {
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
         List<ObsFSMState> Pi = new ArrayList<ObsFSMState>();
         List<ObsFSMState> Pt = new ArrayList<ObsFSMState>();
 
-        ObsFSMState p0i = ObsFSMState.ObservedInitialFSMState(0, "i");
+        ObsFSMState p0i = ObsFSMState.namedObsFSMState(0, "i", true, false);
         Pi.add(p0i);
-        ObsMultFSMState obsPi = new ObsMultFSMState(Pi);
+        ObsMultFSMState obsPi = ObsMultFSMState.getMultiFSMState(Pi);
 
-        ObsFSMState p0t = ObsFSMState.ObservedTerminalFSMState(0, "t");
+        ObsFSMState p0t = ObsFSMState.namedObsFSMState(0, "t", false, true);
         Pt.add(p0t);
-        ObsMultFSMState obsPt = new ObsMultFSMState(Pt);
+        ObsMultFSMState obsPt = ObsMultFSMState.getMultiFSMState(Pt);
 
         // Empty channeldIds list -- no queues.
         List<ChannelId> cids = new ArrayList<ChannelId>();
@@ -55,7 +56,7 @@ public class GFSMTests extends DynopticTest {
         St = ObsFifoSysState.getFifoSysState(obsPt, PtChstate);
 
         // Si -> St
-        e = new Event(DistEventType.LocalEvent("e", 0));
+        e = DistEventType.LocalEvent("e", 0);
         Si.addTransition(e, St);
 
         List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>(1);
@@ -111,9 +112,8 @@ public class GFSMTests extends DynopticTest {
         assertTrue(part.getNextStates().contains(part));
 
         assertTrue(part.getTransitioningEvents().size() == 1);
-        assertTrue(part.getNextStates((DistEventType) e.getEType()).size() == 1);
-        assertTrue(part.getNextStates((DistEventType) e.getEType()).contains(
-                part));
+        assertTrue(part.getNextStates(e).size() == 1);
+        assertTrue(part.getNextStates(e).contains(part));
     }
 
     @Test
