@@ -1,4 +1,4 @@
-   Introduction
+Introduction
 ============
 
 Synoptic is a tool that summarizes log files. More exactly, Synoptic
