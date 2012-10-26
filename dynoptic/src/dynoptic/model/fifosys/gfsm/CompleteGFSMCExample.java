@@ -118,7 +118,6 @@ public class CompleteGFSMCExample extends PartialGFSMCExample {
             resolve((AlwaysFollowedBy) inv, pGraph);
         } else if (inv instanceof NeverFollowedBy) {
             resolve((NeverFollowedBy) inv, pGraph);
-
         }
         this.isResolved = true;
     }
