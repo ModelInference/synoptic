@@ -97,7 +97,7 @@ public class FSMState extends AbsFSMState<FSMState> {
         int ret = 31;
         ret = ret * 31 + (isAccept ? 1 : 0);
         ret = ret * 31 + (isInitial ? 1 : 0);
-        ret = ret * 31 + transitions.hashCode();
+        // not use transitions because it causes stack overflow
         ret = ret * 31 + pid;
         ret = ret * 31 + scmId;
         return 1;
@@ -122,10 +122,7 @@ public class FSMState extends AbsFSMState<FSMState> {
         if (state.isInitial != this.isInitial) {
             return false;
         }
-        
-        if (!state.transitions.equals(this.transitions)) {
-            return false;
-        }
+        // not use transitions because it causes stack overflow
         
         if (state.pid != this.pid) {
             return false;
