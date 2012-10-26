@@ -579,6 +579,38 @@ public class GFSM extends FifoSys<GFSMState> {
         return paths;
     }
 
+    public List<Set<ProcessProjGFSMCExample>> getCExamplePaths(
+            McScMCExample cExample) {
+        List<Set<ProcessProjGFSMCExample>> paths = new ArrayList<Set<ProcessProjGFSMCExample>>();
+        for (int i = 0; i < this.numProcesses; i++) {
+            LinkedHashSet<ProcessProjGFSMCExample> s = new LinkedHashSet<ProcessProjGFSMCExample>();
+
+            Set<GFSMState> curStates = getInitStates();
+
+            for (DistEventType e : cExample.getEvents()) {
+                if (e.getPid() != i) {
+                    continue;
+                }
+
+                getNextStates(curStates, e, s);
+
+            }
+
+            assert !s.isEmpty();
+
+            paths.add(s);
+        }
+        // Explore potential paths from each global initial state in the GFSM.
+        for (GFSMState parent : getInitStates()) {
+            List<CompleteGFSMCExample> newPaths = buildCExamplePaths(cExample,
+                    0, parent);
+            if (newPaths != null) {
+                paths.addAll(newPaths);
+            }
+        }
+        return paths;
+    }
+
     /**
      * Returns the longest _partial_ counter-example path in the GFSM that
      * correspond to the event-based McScMCExample. If a complete
