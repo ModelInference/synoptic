@@ -181,6 +181,7 @@ public class FSM extends AbsFSM<FSMState> {
             boolean recurse = false;
             
             if (nextFSMState == null) {
+                // nextState has not been visited
                 recurse = true;
                 // Note: automaton has only 1 initial state
                 nextFSMState = new FSMState(nextState.isAccept(), false, pid, visited.size());
@@ -189,7 +190,7 @@ public class FSM extends AbsFSM<FSMState> {
                 if (nextState.isAccept()) {
                     acceptStates.add(nextFSMState);
                 }
-            } // else: all descendants of nextFSMState have been visited; no need to recurse
+            } // else: all descendants of nextState have been visited; no need to recurse
             
             for (char c = min; c <= max; c++) {
                 try {

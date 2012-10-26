@@ -1,6 +1,7 @@
 package dynoptic.model.automaton;
 
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -43,11 +44,11 @@ public class EncodedAutomaton<T extends AbsFSMState<T>> {
         // initial state of this automaton
         State initialState = new State();
 
-        Set<T> visited = new LinkedHashSet<T>();
+        Map<T, State> visited = new LinkedHashMap<T, State>();
         Set<T> initStates = fsm.getInitStates();
 
         for (T initState : initStates) {
-            if (!visited.contains(initState)) {
+            if (!visited.containsKey(initState)) {
                 DFS(initState, initialState, visited);
             }
         }
@@ -65,10 +66,10 @@ public class EncodedAutomaton<T extends AbsFSMState<T>> {
      * @param autoState
      *            - Automaton state equivalent to the FSM state
      * @param visited
-     *            - visited FSM states
+     *            - mapping from visited FSM states to their corresponding Automaton states
      */
-    private void DFS(T state, State autoState, Set<T> visited) {
-        visited.add(state);
+    private void DFS(T state, State autoState, Map<T, State> visited) {
+        visited.put(state, autoState);
         autoState.setAccept(state.isAccept());
         Set<DistEventType> transitions = state.getTransitioningEvents();
 
@@ -76,13 +77,21 @@ public class EncodedAutomaton<T extends AbsFSMState<T>> {
             Set<T> nextStates = state.getNextStates(transition);
 
             for (T nextState : nextStates) {
-                if (!visited.contains(nextState)) {
-                    char c = encodings.getEncoding(transition);
-                    State nextAutoState = new State();
-                    Transition autoTransition = new Transition(c, c,
-                            nextAutoState);
-                    autoState.addTransition(autoTransition);
-
+                State nextAutoState = visited.get(nextState);
+                boolean recurse = false;
+                
+                if (nextAutoState == null) {
+                    // nextState has not been visited
+                    recurse = true;
+                    nextAutoState = new State();
+                } // else: all descendants of nextState have been visited; no need to recurse
+                
+                char c = encodings.getEncoding(transition);
+                Transition autoTransition = new Transition(c, c,
+                        nextAutoState);
+                autoState.addTransition(autoTransition);
+                
+                if (recurse) {
                     DFS(nextState, nextAutoState, visited);
                 }
             }
