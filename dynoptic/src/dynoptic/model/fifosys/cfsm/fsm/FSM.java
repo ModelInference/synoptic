@@ -2,11 +2,18 @@ package dynoptic.model.fifosys.cfsm.fsm;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
+import dk.brics.automaton.Automaton;
+import dk.brics.automaton.State;
+import dk.brics.automaton.Transition;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
+import dynoptic.model.automaton.EncodedAutomaton;
+import dynoptic.model.automaton.EventTypeEncodings;
 import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
 
 import synoptic.model.event.DistEventType;
@@ -115,7 +122,91 @@ public class FSM extends AbsFSM<FSMState> {
     public int getPid() {
         return this.pid;
     }
-
+    
+    /**
+     * Performs Hopcroft's algorithm to minimize this FSM.
+     */
+    public void minimize() {
+        // minimize encoded automaton
+        EventTypeEncodings<DistEventType> encodings = getEventTypeEncodings();
+        EncodedAutomaton<FSMState> encodedAutomaton = getEncodedAutomaton(
+                encodings);
+        encodedAutomaton.minimize();
+        Automaton minAutomaton = encodedAutomaton.getAutomaton();
+        
+        /* minimize this FSM */
+        // clear all states (states might be collapsed after minimized)
+        states.clear();
+        initStates.clear();
+        acceptStates.clear();
+        
+        State initState = minAutomaton.getInitialState();
+        FSMState fsmInitState = new FSMState(initState.isAccept(), true, pid, 0);
+        // populate states of this FSM again
+        states.add(fsmInitState);
+        initStates.add(fsmInitState);
+        if (initState.isAccept()) {
+            acceptStates.add(fsmInitState);
+        }
+        // map: automaton state -> FSM state
+        Map<State, FSMState> visited = new LinkedHashMap<State, FSMState>();
+        DFS(initState, fsmInitState, visited, encodings);
+        
+        recomputeAlphabet();
+    }
+    
+    /**
+     * Traverses the Automaton while constructing an equivalent FSM.
+     * 
+     * @param state 
+     *            - Automaton state to begin DFS
+     * @param fsmState
+     *            - FSM state equivalent to the Automaton state
+     * @param visited
+     *            - mapping from visited Automaton states to their corresponding FSM states
+     * @param encodings
+     *            - EventType encodings
+     */
+    private void DFS(State state, FSMState fsmState, Map<State, FSMState> visited, 
+            EventTypeEncodings<DistEventType> encodings) {
+        visited.put(state, fsmState);
+        Set<Transition> transitions = state.getTransitions();
+        
+        for(Transition transition : transitions) {
+            char min = transition.getMin();
+            char max = transition.getMax(); // is max inclusive?
+            State nextState = transition.getDest();
+            
+            FSMState nextFSMState = visited.get(nextState);
+            boolean recurse = false;
+            
+            if (nextFSMState == null) {
+                recurse = true;
+                // Note: automaton has only 1 initial state
+                nextFSMState = new FSMState(nextState.isAccept(), false, pid, visited.size());
+                // populate states of this FSM again
+                states.add(nextFSMState);
+                if (nextState.isAccept()) {
+                    acceptStates.add(nextFSMState);
+                }
+            } // else: all descendants of nextFSMState have been visited; no need to recurse
+            
+            for (char c = min; c <= max; c++) {
+                try {
+                    DistEventType e = encodings.getEventType(c);
+                    fsmState.addTransition(e, nextFSMState);
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+                
+            }
+            
+            if (recurse) {
+                DFS(nextState, nextFSMState, visited, encodings);
+            }
+        }
+    }
+    
     @Override
     public String toString() {
         String ret = "FSM[pid=" + pid + "]";

@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import dk.brics.automaton.Automaton;
+import dk.brics.automaton.MinimizationOperations;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 import dynoptic.model.AbsFSM;
@@ -55,7 +56,7 @@ public class EncodedAutomaton<T extends AbsFSMState<T>> {
         model.setDeterministic(false);
         model.restoreInvariant();
     }
-
+    
     /**
      * Traverses the FSM while constructing an equivalent Automaton.
      * 
@@ -88,10 +89,17 @@ public class EncodedAutomaton<T extends AbsFSMState<T>> {
         }
     }
 
-    public EventTypeEncodings<DistEventType> getEventTypeEncodings() {
-        return encodings;
+    /**
+     * Performs Hopcroft's algorithm to minimize this Automaton.
+     */
+    public void minimize() {
+        MinimizationOperations.minimizeHopcroft(model);
     }
-
+    
+    public Automaton getAutomaton() {
+        return model;
+    }
+    
     @Override
     public int hashCode() {
         return model.hashCode();
