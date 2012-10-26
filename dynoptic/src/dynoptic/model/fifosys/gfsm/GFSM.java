@@ -12,8 +12,10 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import mcscm.McScMCExample;
+import dk.brics.automaton.Automaton;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSMState;
+import dynoptic.model.automaton.EncodedAutomaton;
 import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
@@ -305,10 +307,10 @@ public class GFSM extends FifoSys<GFSMState> {
      * GFSM to construct/specify all the process FSMs that should be part of the
      * CFSM.
      * 
-     * @param gfsm
+     * @param minimize - whether to minimize each of the process FSMs
      * @return
      */
-    public CFSM getCFSM() {
+    public CFSM getCFSM(boolean minimize) {
         // This is the CFSM that we will return, once we populate it with all
         // the process FSMs.
         CFSM cfsm = new CFSM(numProcesses, channelIds);
@@ -467,6 +469,10 @@ public class GFSM extends FifoSys<GFSMState> {
             // Create the FSM for this pid, and add it to the CFSM.
             FSM fsm = new FSM(pid, initFSMStates, acceptFSMStates,
                     stateMap.values(), nextScmId);
+            
+            if (minimize && fsm.isDeterministic()) {
+                fsm.minimize();
+            }
 
             cfsm.addFSM(fsm);
 

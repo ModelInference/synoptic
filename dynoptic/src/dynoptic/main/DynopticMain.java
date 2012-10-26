@@ -339,9 +339,9 @@ public class DynopticMain {
         // (dot-format).
 
         logger.info("Final scm model:");
-        logger.info(pGraph.getCFSM().toScmString("final model"));
+        logger.info(pGraph.getCFSM(opts.minimize).toScmString("final model"));
 
-        CFSM cfsm = pGraph.getCFSM();
+        CFSM cfsm = pGraph.getCFSM(opts.minimize);
         String outputFileName = opts.outputPathPrefix + ".dot";
         GraphExporter.exportCFSM(outputFileName, cfsm);
         GraphExporter.generatePngFileFromDotFile(outputFileName);
@@ -608,7 +608,7 @@ public class DynopticMain {
         GraphExporter.generatePngFileFromDotFile(dotFilename);
 
         // Export intermediate CFSM:
-        CFSM cfsm = pGraph.getCFSM();
+        CFSM cfsm = pGraph.getCFSM(opts.minimize);
 
         dotFilename = gfsmPrefixFilename + ".cfsm-no-inv." + gfsmCounter
                 + ".dot";
@@ -631,7 +631,7 @@ public class DynopticMain {
             }
 
             // Get the CFSM corresponding to the partition graph.
-            cfsm = pGraph.getCFSM();
+            cfsm = pGraph.getCFSM(opts.minimize);
             // Augment the CFSM with synthetic states/events to check curInv.
             cfsm.augmentWithInvTracing(curInv);
 
@@ -724,7 +724,7 @@ public class DynopticMain {
                         .getCExamplePaths(result.getCExample());
 
                 if (paths == null || paths.isEmpty()) {
-                    cfsm = pGraph.getCFSM();
+                    cfsm = pGraph.getCFSM(opts.minimize);
 
                     // A complete counter-example path does not exist. This may
                     // occur when the GFSM->CFSM conversion does not produce
@@ -823,7 +823,7 @@ public class DynopticMain {
                 }
 
                 // Export intermediate CFSM:
-                cfsm = pGraph.getCFSM();
+                cfsm = pGraph.getCFSM(opts.minimize);
 
                 dotFilename = gfsmPrefixFilename + ".cfsm-no-inv."
                         + gfsmCounter + ".dot";

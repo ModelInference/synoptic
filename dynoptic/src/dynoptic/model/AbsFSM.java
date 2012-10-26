@@ -74,7 +74,23 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
             EventTypeEncodings<DistEventType> eventEncodings) {
         return new EncodedAutomaton<State>(eventEncodings, this);
     }
-
+    
+    /**
+     * @return true if this FSM is deterministic.
+     */
+    public boolean isDeterministic() {
+        for (State state : states) {
+            Set<DistEventType> events = state.getTransitioningEvents();
+            
+            for (DistEventType event : events) {
+                if (state.getNextStates(event).size() > 1) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
     /**
      * @return true if the language of this FSM is equal to the language of the
      *         given FSM.
