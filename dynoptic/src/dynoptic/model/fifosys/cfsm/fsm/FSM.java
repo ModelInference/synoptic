@@ -122,24 +122,23 @@ public class FSM extends AbsFSM<FSMState> {
     public int getPid() {
         return this.pid;
     }
-    
+
     /**
      * Performs Hopcroft's algorithm to minimize this FSM.
      */
     public void minimize() {
         // minimize encoded automaton
         EventTypeEncodings<DistEventType> encodings = getEventTypeEncodings();
-        EncodedAutomaton<FSMState> encodedAutomaton = getEncodedAutomaton(
-                encodings);
+        EncodedAutomaton<FSMState> encodedAutomaton = getEncodedAutomaton(encodings);
         encodedAutomaton.minimize();
         Automaton minAutomaton = encodedAutomaton.getAutomaton();
-        
+
         /* minimize this FSM */
         // clear all states (states might be collapsed after minimized)
         states.clear();
         initStates.clear();
         acceptStates.clear();
-        
+
         State initState = minAutomaton.getInitialState();
         FSMState fsmInitState = new FSMState(initState.isAccept(), true, pid, 0);
         // populate states of this FSM again
@@ -151,63 +150,59 @@ public class FSM extends AbsFSM<FSMState> {
         // map: automaton state -> FSM state
         Map<State, FSMState> visited = new LinkedHashMap<State, FSMState>();
         DFS(initState, fsmInitState, visited, encodings);
-        
+
         recomputeAlphabet();
     }
-    
+
     /**
      * Traverses the Automaton while constructing an equivalent FSM.
      * 
-     * @param state 
+     * @param state
      *            - Automaton state to begin DFS
      * @param fsmState
      *            - FSM state equivalent to the Automaton state
      * @param visited
-     *            - mapping from visited Automaton states to their corresponding FSM states
+     *            - mapping from visited Automaton states to their corresponding
+     *            FSM states
      * @param encodings
      *            - EventType encodings
      */
-    private void DFS(State state, FSMState fsmState, Map<State, FSMState> visited, 
+    private void DFS(State state, FSMState fsmState,
+            Map<State, FSMState> visited,
             EventTypeEncodings<DistEventType> encodings) {
         visited.put(state, fsmState);
         Set<Transition> transitions = state.getTransitions();
-        
-        for(Transition transition : transitions) {
-            char min = transition.getMin();
-            char max = transition.getMax(); // is max inclusive?
+
+        for (Transition transition : transitions) {
             State nextState = transition.getDest();
-            
+
             FSMState nextFSMState = visited.get(nextState);
-            boolean recurse = false;
-            
+
             if (nextFSMState == null) {
-                // nextState has not been visited
-                recurse = true;
                 // Note: automaton has only 1 initial state
-                nextFSMState = new FSMState(nextState.isAccept(), false, pid, visited.size());
+                nextFSMState = new FSMState(nextState.isAccept(), false, pid,
+                        visited.size());
                 // populate states of this FSM again
                 states.add(nextFSMState);
                 if (nextState.isAccept()) {
                     acceptStates.add(nextFSMState);
                 }
-            } // else: all descendants of nextState have been visited; no need to recurse
-            
-            for (char c = min; c <= max; c++) {
-                try {
-                    DistEventType e = encodings.getEventType(c);
-                    fsmState.addTransition(e, nextFSMState);
-                } catch (IllegalArgumentException e) {
-                    continue;
-                }
-                
-            }
-            
-            if (recurse) {
+
+                // nextState has not been visited
                 DFS(nextState, nextFSMState, visited, encodings);
             }
+
+            // Interval min and max are inclusive.
+            char min = transition.getMin();
+            char max = transition.getMax();
+            for (char c = min; c <= max; c++) {
+                DistEventType e = encodings.getEventType(c);
+                fsmState.addTransition(e, nextFSMState);
+            }
+
         }
     }
-    
+
     @Override
     public String toString() {
         String ret = "FSM[pid=" + pid + "]";
