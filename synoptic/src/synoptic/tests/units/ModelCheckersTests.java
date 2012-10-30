@@ -47,6 +47,15 @@ import synoptic.util.InternalSynopticException;
  */
 @RunWith(value = Parameterized.class)
 public class ModelCheckersTests extends SynopticTest {
+    
+    public static final ITemporalInvariant aAFbyB = 
+            new AlwaysFollowedInvariant("a", "b", Event.defTimeRelationStr);
+    
+    public static final ITemporalInvariant aNFbyB = 
+            new NeverFollowedInvariant("a", "b", Event.defTimeRelationStr);
+    
+    public static final ITemporalInvariant aAPb = 
+            new AlwaysPrecedesInvariant("a", "b", Event.defTimeRelationStr);
 
     /**
      * Generates parameters for this unit test. The first instance of this test
@@ -225,11 +234,7 @@ public class ModelCheckersTests extends SynopticTest {
     public void NoAFbyLinearGraphWithCycleTest() throws Exception {
         String[] events = new String[] { "x", "a", "c", "x", "a", "y", "b", "w" };
 
-        ITemporalInvariant inv = new AlwaysFollowedInvariant(
-                new StringEventType("a"), new StringEventType("b"),
-                Event.defTimeRelationStr);
-
-        testPartitionGraphCExample(events, inv, false, null);
+        testPartitionGraphCExample(events, aAFbyB, false, null);
     }
 
     /**
@@ -244,14 +249,11 @@ public class ModelCheckersTests extends SynopticTest {
         String[] events = new String[] { "x", "a", "b", "x", "a", "y", "w",
                 "--", "x", "a", "y", "w" };
 
-        ITemporalInvariant inv = new AlwaysFollowedInvariant(
-                new StringEventType("a"), new StringEventType("b"),
-                Event.defTimeRelationStr);
-
         List<EventType> cExampleLabels = stringsToStringEventTypes(new String[] {
                 "x", "a", "y", "w" });
+        
         cExampleLabels.add(StringEventType.newTerminalStringEventType());
-        testPartitionGraphCExample(events, inv, true, cExampleLabels);
+        testPartitionGraphCExample(events, aAFbyB, true, cExampleLabels);
     }
 
     /**
@@ -265,9 +267,8 @@ public class ModelCheckersTests extends SynopticTest {
             ParseException {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "a", "x", "y", "b" };
-        ITemporalInvariant inv = new AlwaysFollowedInvariant("a", "b",
-                Event.defTimeRelationStr);
-        testLinearGraphCExample(events, inv, false, 0);
+        
+        testLinearGraphCExample(events, aAFbyB, false, 0);
     }
 
     /**
@@ -283,7 +284,8 @@ public class ModelCheckersTests extends SynopticTest {
         String[] events = new String[] { "a", "x", "y", "z" };
         ITemporalInvariant inv = new AlwaysFollowedInvariant("a", "b",
                 Event.defTimeRelationStr);
-        testLinearGraphCExample(events, inv, true, 5);
+        
+        testLinearGraphCExample(events, aAFbyB, true, 5);
     }
 
     // //////////////////////////// NFby:
@@ -298,11 +300,7 @@ public class ModelCheckersTests extends SynopticTest {
     public void NoNFbyLinearGraphWithCycleTest() throws Exception {
         String[] events = new String[] { "a", "c", "a", "d", "e" };
 
-        ITemporalInvariant inv = new NeverFollowedInvariant(
-                new StringEventType("a"), new StringEventType("b"),
-                Event.defTimeRelationStr);
-
-        testPartitionGraphCExample(events, inv, false, null);
+        testPartitionGraphCExample(events, aNFbyB, false, null);
     }
 
     /**
@@ -314,9 +312,6 @@ public class ModelCheckersTests extends SynopticTest {
     public void NFbyLinearGraphWithCycleTest() throws Exception {
         String[] events = new String[] { "a", "c", "d", "a", "c", "d", "b" };
 
-        ITemporalInvariant inv = new NeverFollowedInvariant(
-                new StringEventType("a"), new StringEventType("b"),
-                Event.defTimeRelationStr);
 
         List<EventType> cExampleLabels = null;
 
@@ -328,7 +323,7 @@ public class ModelCheckersTests extends SynopticTest {
                     "d", "a", "c", "d", "b" });
         }
         // NOTE: NFby c-examples do not need to end with a TERMINAL node
-        testPartitionGraphCExample(events, inv, true, cExampleLabels);
+        testPartitionGraphCExample(events, aNFbyB, true, cExampleLabels);
     }
 
     /**
@@ -342,9 +337,8 @@ public class ModelCheckersTests extends SynopticTest {
             ParseException {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "a", "x", "y", "z" };
-        ITemporalInvariant inv = new NeverFollowedInvariant("a", "b",
-                Event.defTimeRelationStr);
-        testLinearGraphCExample(events, inv, false, 0);
+
+        testLinearGraphCExample(events, aNFbyB, false, 0);
     }
 
     /**
@@ -358,9 +352,8 @@ public class ModelCheckersTests extends SynopticTest {
             ParseException {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "a", "x", "y", "z", "b" };
-        ITemporalInvariant inv = new NeverFollowedInvariant("a", "b",
-                Event.defTimeRelationStr);
-        testLinearGraphCExample(events, inv, true, 5);
+
+        testLinearGraphCExample(events, aNFbyB, true, 5);
     }
 
     // //////////////////////////// AP:
@@ -374,11 +367,7 @@ public class ModelCheckersTests extends SynopticTest {
     public void NoAPLinearGraphWithCycleTest() throws Exception {
         String[] events = new String[] { "a", "c", "a", "b" };
 
-        ITemporalInvariant inv = new AlwaysPrecedesInvariant(
-                new StringEventType("a"), new StringEventType("b"),
-                Event.defTimeRelationStr);
-
-        testPartitionGraphCExample(events, inv, false, null);
+        testPartitionGraphCExample(events, aAPb, false, null);
     }
 
     /**
@@ -390,12 +379,9 @@ public class ModelCheckersTests extends SynopticTest {
     public void APLinearGraphWithCycleTest() throws Exception {
         String[] events = new String[] { "z", "x", "z", "b" };
 
-        ITemporalInvariant inv = new AlwaysPrecedesInvariant(
-                new StringEventType("a"), new StringEventType("b"),
-                Event.defTimeRelationStr);
         List<EventType> cExampleLabels = stringsToStringEventTypes(new String[] {
                 "z", "b" });
-        testPartitionGraphCExample(events, inv, true, cExampleLabels);
+        testPartitionGraphCExample(events, aAPb, true, cExampleLabels);
     }
 
     /**
@@ -409,9 +395,8 @@ public class ModelCheckersTests extends SynopticTest {
             ParseException {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "x", "a", "x", "y", "b" };
-        ITemporalInvariant inv = new AlwaysPrecedesInvariant("a", "b",
-                Event.defTimeRelationStr);
-        testLinearGraphCExample(events, inv, false, 0);
+
+        testLinearGraphCExample(events, aAPb, false, 0);
     }
 
     /**
@@ -425,9 +410,8 @@ public class ModelCheckersTests extends SynopticTest {
             ParseException {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "x", "y", "z", "b", "a" };
-        ITemporalInvariant inv = new AlwaysPrecedesInvariant("a", "b",
-                Event.defTimeRelationStr);
-        testLinearGraphCExample(events, inv, true, 4);
+
+        testLinearGraphCExample(events, aAPb, true, 4);
     }
 
     // /////////////////////////
