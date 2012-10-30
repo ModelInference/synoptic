@@ -1,0 +1,3 @@
+-r ^.+StackAr/DataStructures/StackAr\.(?<TYPE>)\..*$
+-s ^.+ c .*<init>.*$
+-o output/StackAr
