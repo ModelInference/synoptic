@@ -17,8 +17,8 @@ import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.model.export.GraphExporter;
 import dynoptic.model.fifosys.cfsm.CFSM;
-import dynoptic.model.fifosys.gfsm.CompleteGFSMCExample;
 import dynoptic.model.fifosys.gfsm.GFSM;
+import dynoptic.model.fifosys.gfsm.GFSMPath;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
@@ -710,93 +710,12 @@ public class DynopticMain {
                 logger.info("Model checking " + curInv.toString() + " : "
                         + invsCounter + " / " + totalInvs);
             } else {
-                // Refine the pGraph to eliminate the counter example.
-
-                // Match the sequence of events in the counter-example to
-                // paths of corresponding GFSM states.
-                List<CompleteGFSMCExample> paths = pGraph
-                        .getCExamplePaths(result.getCExample());
-
-                /*
-                 * if (paths == null || paths.isEmpty()) { cfsm =
-                 * pGraph.getCFSM();
-                 * 
-                 * // A complete counter-example path does not exist. This may
-                 * // occur when the GFSM->CFSM conversion does not produce //
-                 * identical models (the CFSM model can be more general, //
-                 * i.e., accept more behavior). In this case, we first find //
-                 * the partial counter-example path with is the longest //
-                 * partitions path that matches the McScM counter-example.
-                 * PartialGFSMCExample partialPath = pGraph
-                 * .getLongestPartialCExamplePath(result.getCExample());
-                 * 
-                 * logger.info("Found partial path: " + partialPath.toString());
-                 * 
-                 * if (partialPath.pathLength() == result.getCExample()
-                 * .getEvents().size() + 1) {
-                 * logger.info("Resolving partial non-extended path: " +
-                 * partialPath.toString()); boolean ret =
-                 * partialPath.resolve(pGraph); if (!ret) { // Find a
-                 * permutation of the counter-example from // scratch, since we
-                 * cannot resolve the partial // c-example that does not
-                 * terminate in accepting // state.
-                 * 
-                 * logger.info(
-                 * "Scrapping partial c-example and re-creating a permuted c-example."
-                 * );
-                 * 
-                 * partialPath = new PartialGFSMCExample( result.getCExample());
-                 * 
-                 * CompleteGFSMCExample completePath = partialPath
-                 * .extendToCompletePath(curInv, pGraph);
-                 * 
-                 * assert completePath != null;
-                 * 
-                 * logger.info("Extended partial path to complete path: " +
-                 * completePath.toString());
-                 * 
-                 * logger.info("Resolving " + completePath.toString());
-                 * completePath.resolve(curInv, pGraph); }
-                 * 
-                 * } else { // Now, extend the partial path to a complete path
-                 * // through // permutation of events in the McScM
-                 * counter-example. CompleteGFSMCExample completePath =
-                 * partialPath .extendToCompletePath(curInv, pGraph);
-                 * 
-                 * assert completePath != null;
-                 * 
-                 * logger.info("Extended partial path to complete path: " +
-                 * completePath.toString());
-                 * 
-                 * logger.info("Resolving " + completePath.toString());
-                 * completePath.resolve(curInv, pGraph); }
-                 * 
-                 * } else {
-                 */
-                // Resolve all of the complete counter-example paths.
-                for (CompleteGFSMCExample path : paths) {
-                    logger.info("Resolving " + path.toString());
-
-                    // TODO: if the paths overlap then it might be
-                    // possible to resolve multiple paths with a single
-                    // refinement. Implement this optimization.
-
-                    // Check if path is still feasible before attempting to
-                    // resolve it (resolving prior paths might have made it
-                    // infeasible)
-                    if (!pGraph.feasible(path)) {
-                        logger.info("Path no longer feasible");
-                        continue;
-                    }
-
-                    path.resolve(curInv, pGraph);
-
-                    if (!path.isResolved()) {
-                        throw new Exception("Cannot resolve " + path.toString()
-                                + " for " + curInv.toString());
-                    }
+                // Refine the pGraph in an attempt to eliminate the counter
+                // example.
+                if (!refineCExample(pGraph, curInv, result)) {
+                    throw new Exception(
+                            "Unable to eliminate CFSM counter-example from GFSM.");
                 }
-                // }
 
                 // Increment the number of refinements:
                 gfsmCounter += 1;
@@ -813,9 +732,41 @@ public class DynopticMain {
                     invsToSatisfy.addAll(timedOutInvs);
                     timedOutInvs.clear();
                 }
-
             }
         }
+    }
+
+    /**
+     * @param pGraph
+     * @param curInv
+     * @param result
+     */
+    private boolean refineCExample(GFSM pGraph, BinaryInvariant curInv,
+            VerifyResult result) {
+        // Match the sequence of events in the counter-example to
+        // paths of corresponding GFSM states.
+
+        // Resolve all of the complete counter-example paths by:
+        // refining all possible stitching partitions for pid 0.
+        // However, if none of these can be refined then try pid 1, and
+        // so on. By construction we are guaranteed to be able to
+        // eliminate this execution, so we are making progress as long
+        // as we refine at each step.
+        for (int i = 0; i < this.getNumProcesses(); i++) {
+            // Get set of GFSM paths for process i that generate the
+            // sub-sequence of process i events in the counter-example.
+            Set<GFSMPath> processPaths = pGraph.getCExamplePaths(
+                    result.getCExample(), i);
+            // Attempt to refine stitching partitions along these paths.
+            for (GFSMPath path : processPaths) {
+                logger.info("Attempting to resolve " + path.toString()
+                        + " for process " + i);
+                if (path.refine(pGraph)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
