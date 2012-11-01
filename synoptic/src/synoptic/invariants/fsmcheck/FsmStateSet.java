@@ -95,7 +95,8 @@ public abstract class FsmStateSet<T extends INode<T>> implements
         }
 
         invariantsMap = new ArrayList<Map<EventType, BitSet>>(2);
-        Map<EventType, BitSet> amap = new LinkedHashMap<EventType, BitSet>(), bmap = new LinkedHashMap<EventType, BitSet>();
+        Map<EventType, BitSet> amap = new LinkedHashMap<EventType, BitSet>();
+        Map<EventType, BitSet> bmap = new LinkedHashMap<EventType, BitSet>();
         invariantsMap.add(amap);
         invariantsMap.add(bmap);
         for (int i = 0; i < invariants.size(); i++) {
@@ -104,10 +105,12 @@ public abstract class FsmStateSet<T extends INode<T>> implements
             BitSet aset = amap.get(first);
             BitSet bset = bmap.get(second);
             if (aset == null) {
-                amap.put(first, aset = new BitSet());
+                aset = new BitSet();
+                amap.put(first, aset);
             }
             if (bset == null) {
-                bmap.put(second, bset = new BitSet());
+                bset = new BitSet();
+                bmap.put(second, bset);
             }
             aset.set(i);
             bset.set(i);

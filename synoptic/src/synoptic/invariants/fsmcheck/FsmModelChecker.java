@@ -155,9 +155,9 @@ public class FsmModelChecker {
             }
         }
 
-        BitSet afs = whichFail(new AFbyInvFsms<T>(alwaysFollowed), graph), aps = whichFail(
-                new APInvFsms<T>(alwaysPrecedes), graph), nfs = whichFail(
-                new NFbyInvFsms<T>(neverFollowed), graph);
+        BitSet afs = whichFail(new AFbyInvFsms<T>(alwaysFollowed), graph);
+        BitSet aps = whichFail(new APInvFsms<T>(alwaysPrecedes), graph);
+        BitSet nfs = whichFail(new NFbyInvFsms<T>(neverFollowed), graph);
 
         List<BinaryInvariant> results = new ArrayList<BinaryInvariant>();
         bitFilter(afs, alwaysFollowed, results);
