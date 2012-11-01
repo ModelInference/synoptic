@@ -16,6 +16,10 @@ import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
+import synoptic.invariants.fsmcheck.birelational.AFBiRelationStateSet;
+import synoptic.invariants.fsmcheck.birelational.APBiRelationStateSet;
+import synoptic.invariants.fsmcheck.birelational.NFBiRelationStateSet;
+import synoptic.main.SynopticMain;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
@@ -136,7 +140,7 @@ public class FsmModelChecker {
     @SuppressWarnings("rawtypes")
     public static <T extends INode<T>> List<BinaryInvariant> runBitSetChecker(
             Iterable<BinaryInvariant> invariants, IGraph<T> graph) {
-
+        
         // TODO: store the TemporalInvariantSet in this way instead of needing
         // to process it here.
         // Filter the elements of the set into categorized lists.
@@ -154,10 +158,10 @@ public class FsmModelChecker {
                 neverFollowed.add((BinaryInvariant) inv);
             }
         }
-
-        BitSet afs = whichFail(new AFbyInvFsms<T>(alwaysFollowed), graph), aps = whichFail(
-                new APInvFsms<T>(alwaysPrecedes), graph), nfs = whichFail(
-                new NFbyInvFsms<T>(neverFollowed), graph);
+        
+        BitSet afs = whichFail(new AFbyInvFsms<T>(alwaysFollowed), graph);
+        BitSet aps = whichFail(new APInvFsms<T>(alwaysPrecedes), graph);
+        BitSet nfs = whichFail(new NFbyInvFsms<T>(neverFollowed), graph);
 
         List<BinaryInvariant> results = new ArrayList<BinaryInvariant>();
         bitFilter(afs, alwaysFollowed, results);
@@ -179,13 +183,14 @@ public class FsmModelChecker {
     @SuppressWarnings("unchecked")
     public static <Node extends INode<Node>> CExamplePath<Node> getCounterExample(
             BinaryInvariant invariant, IGraph<Node> graph) {
-
+        
         TracingStateSet<Node> stateset = null;
         if (invariant == null) {
             return null;
         }
         Class<BinaryInvariant> invClass = (Class<BinaryInvariant>) invariant
                 .getClass();
+        
         if (invClass.equals(AlwaysFollowedInvariant.class)) {
             stateset = new AFbyTracingSet<Node>(invariant);
         } else if (invClass.equals(AlwaysPrecedesInvariant.class)) {
@@ -193,6 +198,7 @@ public class FsmModelChecker {
         } else if (invClass.equals(NeverFollowedInvariant.class)) {
             stateset = new NFbyTracingSet<Node>(invariant);
         }
+
 
         // Return the shortest path, ending on a final node, which causes the
         // invariant to fail.

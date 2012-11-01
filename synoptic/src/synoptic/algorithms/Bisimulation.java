@@ -378,12 +378,10 @@ public class Bisimulation {
 
             Set<String> relations = incomingTransition.getRelation();
             PartitionSplit newSplit;
-            if (relations.size() == 1) {
-                // Single relation case.
+            if (relations.size() == 1) { // Single relation case.
                 newSplit = curPartition.getCandidateSplitBasedOnIncoming(
                         prevPartition, relations);
-            } else {
-                // Multi-relational case.
+            } else { // Multi-relational case.
                 newSplit = curPartition.getCandidateSplitBasedOnIncoming(
                         prevPartition, relations);
             }
