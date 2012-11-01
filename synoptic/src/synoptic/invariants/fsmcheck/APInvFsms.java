@@ -50,8 +50,9 @@ public class APInvFsms<T extends INode<T>> extends FsmStateSet<T> {
 
     @Override
     public void setInitial(T input) {
-        BitSet isA = getInputInvariantsDependencies(0, input), isB = getInputInvariantsDependencies(
-                1, input), neither = nor(isA, isB, count);
+        BitSet isA = getInputInvariantsDependencies(0, input);
+        BitSet isB = getInputInvariantsDependencies(1, input);
+        BitSet neither = nor(isA, isB, count);
         sets.set(0, neither);
         sets.set(1, isA);
         sets.set(2, isB);
