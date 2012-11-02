@@ -72,6 +72,8 @@ public class ModelCheckersTests extends SynopticTest {
     }
 
     boolean useFSMChecker;
+    
+    boolean multipleRelations;
 
     public ModelCheckersTests(boolean useFSMChecker) {
         this.useFSMChecker = useFSMChecker;
@@ -81,6 +83,7 @@ public class ModelCheckersTests extends SynopticTest {
     public void setUp() throws ParseException {
         super.setUp();
         synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker = this.useFSMChecker;
+        multipleRelations = synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.multipleRelations;
     }
 
     /**
