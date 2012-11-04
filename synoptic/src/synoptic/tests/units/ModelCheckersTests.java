@@ -414,7 +414,48 @@ public class ModelCheckersTests extends SynopticTest {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "x", "y", "z", "b", "a" };
 
-        testLinearGraphCExample(events, aAPb, true, 4);
+    }
+    
+    @Test
+    public void NoNFBiCycle() throws Exception {
+        String[] events = { "1 x", "2 r a", "3 b", "3 x" };
+        testPartitionGraphCExample(events, aNFbyB, false, null);
+    }
+    
+    @Test
+    public void NFBiCycle() throws Exception {
+        String[] events = { "1 x", "2 r a", "3 b", "3 r x" };
+        List<EventType> cExampleLabels = 
+                stringsToStringEventTypes(new String[] {"x", "a", "b"});
+        testPartitionGraphCExample(events, aNFbyB, true, cExampleLabels);
+    }
+    
+    @Test
+    public void NoAPBiCycle() throws Exception {
+        String[] events = { "1 x", "2 r a", "3 b", "3 r x" };
+        testPartitionGraphCExample(events, aAPb, false, null);
+    }
+    
+    @Test
+    public void APBiCycle() throws Exception {
+        String[] events = { "1 x", "2 a", "3 b", "3 r x" };
+        List<EventType> cExampleLabels = 
+                stringsToStringEventTypes(new String[] {"b"});
+        testPartitionGraphCExample(events, aAPb, true, cExampleLabels);
+    }
+    
+    @Test
+    public void NoAFBiCycle() throws Exception {
+        String[] events = { "1 x", "2 r a", "3 b", "3 r x" };
+        testPartitionGraphCExample(events, aAFbyB, false, null);
+    }
+    
+    @Test
+    public void AFBiCycle() throws Exception {
+        String[] events = { "1 x", "2 r a", "3 b", "3 x" };
+        List<EventType> cExampleLabels = 
+                stringsToStringEventTypes(new String[] {"x", "a"});
+        testPartitionGraphCExample(events, aAFbyB, true, cExampleLabels);
     }
 
     // /////////////////////////
