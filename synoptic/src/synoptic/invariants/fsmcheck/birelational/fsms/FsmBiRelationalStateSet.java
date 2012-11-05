@@ -1,16 +1,13 @@
-package synoptic.invariants.fsmcheck.birelational;
+package synoptic.invariants.fsmcheck.birelational.fsms;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import synoptic.invariants.BinaryInvariant;
-import synoptic.invariants.fsmcheck.AFbyInvFsms;
 import synoptic.invariants.fsmcheck.FsmStateSet;
-import synoptic.invariants.fsmcheck.IStateSet;
 import synoptic.main.SynopticMain;
 import synoptic.model.interfaces.INode;
 

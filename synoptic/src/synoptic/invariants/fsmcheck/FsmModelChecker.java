@@ -16,10 +16,6 @@ import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.invariants.fsmcheck.birelational.AFBiRelationStateSet;
-import synoptic.invariants.fsmcheck.birelational.APBiRelationStateSet;
-import synoptic.invariants.fsmcheck.birelational.NFBiRelationStateSet;
-import synoptic.main.SynopticMain;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
