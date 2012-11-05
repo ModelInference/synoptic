@@ -1,10 +1,7 @@
-package synoptic.invariants.fsmcheck.birelational;
+package synoptic.invariants.fsmcheck.birelational.fsms;
 
 import java.util.List;
-import java.util.Set;
-
 import synoptic.invariants.BinaryInvariant;
-import synoptic.invariants.fsmcheck.AFbyInvFsms;
 import synoptic.invariants.fsmcheck.APInvFsms;
 import synoptic.model.interfaces.INode;
 

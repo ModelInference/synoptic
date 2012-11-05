@@ -4,7 +4,6 @@ import java.util.BitSet;
 import java.util.List;
 
 import synoptic.invariants.BinaryInvariant;
-import synoptic.model.event.Event;
 import synoptic.model.interfaces.INode;
 
 /**

@@ -4,18 +4,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.sun.org.apache.xml.internal.utils.UnImplNode;
-
 import synoptic.invariants.BinaryInvariant;
-import synoptic.main.SynopticMain;
-import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 import synoptic.util.InternalSynopticException;
