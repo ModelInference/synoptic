@@ -1,0 +1,62 @@
+# one rx
+M?m0
+recv_m
+A!a0
+--
+# one rx with one retry
+M?m0
+recv_m
+A!a0
+M?m0
+A!a0
+--
+# two rx
+M?m0
+recv_m
+A!a0
+M?m1
+recv_m
+A!a1
+--
+# two rx, first retry
+M?m0
+recv_m
+A!a0
+M?m0
+A!a0
+M?m1
+recv_m
+A!a1
+--
+# two rx, second retry
+M?m0
+recv_m
+A!a0
+M?m1
+recv_m
+A!a1
+M?m1
+A!a1
+--
+# two rx, both retry
+M?m0
+recv_m
+A!a0
+M?m0
+A!a0
+M?m1
+recv_m
+A!a1
+M?m1
+A!a1
+--
+# three rx
+M?m0
+recv_m
+A!a0
+M?m1
+recv_m
+A!a1
+M?m0
+recv_m
+A!a0
