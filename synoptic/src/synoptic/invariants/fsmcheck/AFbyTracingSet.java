@@ -72,7 +72,7 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-     public HistoryNode failpath() {
+    public HistoryNode failpath() {
         return wasA;
     }
 
@@ -116,6 +116,5 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         appendWNull(result, wasB);
         return result.toString();
     }
-
 
 }

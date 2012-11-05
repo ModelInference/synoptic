@@ -66,7 +66,7 @@ public abstract class FsmBiRelationalStateSet<T extends INode<T>> extends FsmSta
         boolean multipleRelationsEnabled = synopticMain.options.multipleRelations;
         
         if (!multipleRelationsEnabled) {
-            // throw new IllegalStateException("Multiple relations disabled.");
+            throw new IllegalStateException("Multiple relations disabled.");
         }
         
         if (!initialized) {
@@ -105,7 +105,7 @@ public abstract class FsmBiRelationalStateSet<T extends INode<T>> extends FsmSta
 
     }
     
-    private static boolean setsIntersect(Set<String> a, Set<String> b) {
+    public static boolean setsIntersect(Set<String> a, Set<String> b) {
         for (String aString : a) {
             if (b.contains(aString)) {
                 return true;
