@@ -47,9 +47,10 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public HistoryNode setInitialHistoryReset(T x) {
-        neitherSeen = firstA = firstB = null;
-        return new HistoryNode(x, null, 1);
+    public void setInitialHistoryReset() {
+        neitherSeen = null;
+        firstA = null;
+        firstB = null;
     }
     
     @Override
