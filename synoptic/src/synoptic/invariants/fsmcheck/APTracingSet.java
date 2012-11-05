@@ -35,10 +35,8 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     // Can initialize to any state based on x's EventType
     @Override
-    public void setInitial(T x) {
+    public void setInitialEventTest(T x, HistoryNode newHistory) {
         EventType name = x.getEType();
-        HistoryNode newHistory = new HistoryNode(x, null, 1);
-        neitherSeen = firstA = firstB = null;
         if (a.equals(name)) {
             firstA = newHistory;
         } else if (b.equals(name)) {
@@ -46,6 +44,12 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         } else {
             neitherSeen = newHistory;
         }
+    }
+
+    @Override
+    public HistoryNode setInitialHistoryReset(T x) {
+        neitherSeen = firstA = firstB = null;
+        return new HistoryNode(x, null, 1);
     }
     
     @Override
@@ -124,4 +128,6 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         appendWNull(result, neitherSeen);
         return result.toString();
     }
+
+
 }

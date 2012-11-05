@@ -36,9 +36,8 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     // Can initialize to any state based on x's EventType
     @Override
-    public void setInitial(T x) {
+    public void setInitialEventTest(T x, HistoryNode newHistory) {
         EventType name = x.getEType();
-        HistoryNode newHistory = new HistoryNode(x, null, 1);
         if (name.equals(a)) {
             wasB = null;
             wasA = newHistory;
@@ -46,6 +45,11 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
             wasB = newHistory;
             wasA = null;
         }
+    }
+
+    @Override
+    public HistoryNode setInitialHistoryReset(T x) {
+        return new HistoryNode(x, null, 1);
     }
     
     @Override
@@ -112,4 +116,6 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         appendWNull(result, wasB);
         return result.toString();
     }
+
+
 }
