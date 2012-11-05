@@ -1,6 +1,9 @@
 package dynoptic.model.automaton;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +19,9 @@ import synoptic.model.event.EventType;
  */
 public class EventTypeEncodings <T extends EventType> {
 
+    /* The lowest char used in these encodings */
+    private static final char START_CHAR = 1000;
+    
     private Map<T, Character> eventEncodings;
     private Map<Character, T> charEncodings;
     private RegExp alphabet;
@@ -28,8 +34,12 @@ public class EventTypeEncodings <T extends EventType> {
         /** The reverse eventEncodings map -- always maintained up to date. */
         charEncodings = new HashMap<Character, T>();
 
-        cur = 1000;
-        for (T e : events) {
+        // Sort the events -- canonicalizing alphabet encodings
+        List<T> sortedEvents = new ArrayList<T>(events);
+        Collections.sort(sortedEvents);
+        
+        cur = START_CHAR;
+        for (T e : sortedEvents) {
             addEncoding(e, cur);
             cur++;
         }
