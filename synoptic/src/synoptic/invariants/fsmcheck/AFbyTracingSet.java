@@ -47,9 +47,9 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
             wasA = null;
         }
     }
-
+    
     @Override
-    public void transition(T x) {
+    public void transitionEventTest(T x) {
         EventType name = x.getEType();
         // Transitions to wasA or wasB based on x's EventType
         if (a.equals(name)) {
@@ -59,12 +59,16 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
             wasB = yieldShorter(wasA, wasB);
             wasA = null;
         }
+    }
+    
+    @Override
+    public void transitionHistoryExtend(T x) {
         wasA = extendIfNonNull(x, wasA);
         wasB = extendIfNonNull(x, wasB);
     }
 
     @Override
-    public HistoryNode failpath() {
+     public HistoryNode failpath() {
         return wasA;
     }
 

@@ -47,9 +47,9 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
             neitherSeen = newHistory;
         }
     }
-
+    
     @Override
-    public void transition(T x) {
+    public void transitionEventTest(T x) {
         EventType name = x.getEType();
         /* If starting from neitherSeen, permanently transitions to firstA or 
          * firstB based on x's EventType
@@ -61,6 +61,10 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
             firstB = yieldShorter(neitherSeen, firstB);
             neitherSeen = null;
         }
+    }
+    
+    @Override
+    public void transitionHistoryExtend(T x) {
         neitherSeen = extendIfNonNull(x, neitherSeen);
         firstA = extendIfNonNull(x, firstA);
         firstB = extendIfNonNull(x, firstB);
