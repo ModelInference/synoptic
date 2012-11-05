@@ -20,7 +20,7 @@ import synoptic.model.event.DistEventType;
  * 3. It does not maintain inter-state transitions. These are managed by FSMState instances.
  * </pre>
  */
-public class FSM extends AbsFSM<FSMState> {
+public class FSM extends AbsFSM<FSMState, DistEventType> {
     // The process id of this FSM in the CFSM.
     final int pid;
 

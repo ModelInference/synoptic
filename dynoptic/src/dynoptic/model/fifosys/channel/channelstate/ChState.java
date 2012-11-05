@@ -2,22 +2,49 @@ package dynoptic.model.fifosys.channel.channelstate;
 
 import java.util.ArrayList;
 
+import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
+
 import synoptic.model.channelid.ChannelId;
-import synoptic.model.event.DistEventType;
+import synoptic.model.event.IDistEventType;
 
 /**
  * The ChannelState maintains the queue state for a channel, identified by a
  * specific channel id.
  */
-public class ChState implements Cloneable {
-    final ChannelId chId;
-    final ArrayList<DistEventType> queue;
+public class ChState<TxnEType extends IDistEventType> implements Cloneable {
 
-    public ChState(ChannelId chId) {
-        this(chId, new ArrayList<DistEventType>());
+    public static boolean equalsObsDistETypeIgnoringTraceIds(
+            ChState<ObsDistEventType> chS1, ChState<ObsDistEventType> chS2) {
+        if (chS1 == null || chS2 == null) {
+            return false;
+        }
+
+        if (!chS1.chId.equals(chS2.chId)) {
+            return false;
+        }
+
+        if (chS1.queue.size() != chS2.queue.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < chS1.queue.size(); i++) {
+            if (chS1.queue.get(i).equalsIgnoringTraceIds(chS2.queue.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    private ChState(ChannelId chId, ArrayList<DistEventType> queue) {
+    // //////////////////////////////////////////////////////////////////
+
+    private final ChannelId chId;
+    private final ArrayList<TxnEType> queue;
+
+    public ChState(ChannelId chId) {
+        this(chId, new ArrayList<TxnEType>());
+    }
+
+    private ChState(ChannelId chId, ArrayList<TxnEType> queue) {
         assert chId != null;
         assert queue != null;
 
@@ -30,8 +57,8 @@ public class ChState implements Cloneable {
     @Override
     public String toString() {
         String ret = chId.toString() + ": [";
-        for (DistEventType e : queue) {
-            ret = ret + e.getEType() + ", ";
+        for (TxnEType e : queue) {
+            ret = ret + e.toString() + ", ";
         }
         ret = ret + "]";
         return ret;
@@ -55,9 +82,8 @@ public class ChState implements Cloneable {
         }
         if (!(other instanceof ChState)) {
             return false;
-
         }
-        ChState s = (ChState) other;
+        ChState<?> s = (ChState<?>) other;
         if (!s.chId.equals(chId)) {
             return false;
         }
@@ -69,17 +95,17 @@ public class ChState implements Cloneable {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public ChState clone() {
+    public ChState<TxnEType> clone() {
         // Since ChannelId is immutable and Event is immutable all we need to do
         // is make sure to clone the ArrayList that maintains events to produce
         // a new independent deep-copy of ChannelState.
-        return new ChState(chId, (ArrayList<DistEventType>) queue.clone());
+        return new ChState<TxnEType>(chId, (ArrayList<TxnEType>) queue.clone());
     }
 
     // //////////////////////////////////////////////////////////////////
 
     /** Adds an event to the back of the queue. */
-    public void enqueue(DistEventType e) {
+    public void enqueue(TxnEType e) {
         assert e.isSendEvent();
         assert e.getChannelId().equals(chId);
 
@@ -87,12 +113,12 @@ public class ChState implements Cloneable {
     }
 
     /** Removes and returns the event at the top of the queue. */
-    public DistEventType dequeue() {
+    public TxnEType dequeue() {
         return queue.remove(0);
     }
 
     /** Returns the event at the top of the queue, without removing it. */
-    public DistEventType peek() {
+    public TxnEType peek() {
         return queue.get(0);
     }
 
@@ -103,5 +129,17 @@ public class ChState implements Cloneable {
 
     public ChannelId getChannelId() {
         return chId;
+    }
+
+    /** Merges trace ids of obs event types in chS into this. */
+    public void mergeInTraceIds(ChState<ObsDistEventType> chS) {
+        assert chS != null;
+        assert this.chId.equals(chS.chId);
+        assert this.queue.size() == chS.queue.size();
+
+        for (int i = 0; i < this.queue.size(); i++) {
+            ((ObsDistEventType) this.queue.get(i))
+                    .addTraceIds(chS.queue.get(i));
+        }
     }
 }

@@ -5,14 +5,17 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import synoptic.model.event.DistEventType;
+import synoptic.model.event.IDistEventType;
 
 /**
  * Captures complete state of an FSM at some instant.
  * 
  * @param <NextState>
  *            The type of the next state (set) returned by getNextStates.
+ * @param <TxnEType>
+ *            The type of transition event type; a variant of DistEventType.
  */
-abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
+abstract public class AbsFSMState<NextState extends AbsFSMState<NextState, TxnEType>, TxnEType extends IDistEventType> {
 
     /** Used for functional calls below. */
     protected interface IStateToBooleanFn<T> {
@@ -20,17 +23,17 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
     }
 
     // Fn: (AbsFSMState s) -> "s an accept state"
-    static protected IStateToBooleanFn<AbsFSMState<?>> fnIsInitialState = new IStateToBooleanFn<AbsFSMState<?>>() {
+    static protected IStateToBooleanFn<AbsFSMState<?, ?>> fnIsInitialState = new IStateToBooleanFn<AbsFSMState<?, ?>>() {
         @Override
-        public boolean eval(AbsFSMState<?> s) {
+        public boolean eval(AbsFSMState<?, ?> s) {
             return s.isAccept();
         }
     };
 
     // Fn: (AbsFSMState s) -> "s an init state"
-    static protected IStateToBooleanFn<AbsFSMState<?>> fnIsAcceptState = new IStateToBooleanFn<AbsFSMState<?>>() {
+    static protected IStateToBooleanFn<AbsFSMState<?, ?>> fnIsAcceptState = new IStateToBooleanFn<AbsFSMState<?, ?>>() {
         @Override
-        public boolean eval(AbsFSMState<?> s) {
+        public boolean eval(AbsFSMState<?, ?> s) {
             return s.isInitial();
         }
     };
@@ -44,9 +47,9 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
      * @return
      */
     static protected boolean statesEvalToTrue(
-            Collection<? extends AbsFSMState<?>> states,
-            IStateToBooleanFn<AbsFSMState<?>> fn) {
-        for (AbsFSMState<?> s : states) {
+            Collection<? extends AbsFSMState<?, ?>> states,
+            IStateToBooleanFn<AbsFSMState<?, ?>> fn) {
+        for (AbsFSMState<?, ?> s : states) {
             if (!fn.eval(s)) {
                 return false;
             }
@@ -63,7 +66,7 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
      * 
      * @param visited
      */
-    public static <State extends AbsFSMState<State>> void findTransitiveClosure(
+    public static <State extends AbsFSMState<State, EType>, EType extends DistEventType> void findTransitiveClosure(
             State s, Set<State> visited, Set<State> txClosure) {
         findNonPidTransitiveClosure(-1, s, visited, txClosure);
     }
@@ -76,13 +79,13 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
      * 
      * @param visited
      */
-    public static <State extends AbsFSMState<State>> void findNonPidTransitiveClosure(
+    public static <State extends AbsFSMState<State, EType>, EType extends DistEventType> void findNonPidTransitiveClosure(
             int pid, State s, Set<State> visited,
             Set<State> nonPidTxClosureStates) {
         // Record that we have visited s.
         visited.add(s);
 
-        for (DistEventType e : s.getTransitioningEvents()) {
+        for (EType e : s.getTransitioningEvents()) {
             if (pid != -1 && e.getPid() == pid) {
                 continue;
             }
@@ -116,7 +119,7 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
      * The set of possible (abstract, non-observed) event types that can trigger
      * a transition from this state.
      */
-    abstract public Set<DistEventType> getTransitioningEvents();
+    abstract public Set<TxnEType> getTransitioningEvents();
 
     /**
      * Returns the unmodifiable (read-only) set of states that follow this state
@@ -125,7 +128,7 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
      * @param event
      * @return
      */
-    abstract public Set<NextState> getNextStates(DistEventType event);
+    abstract public Set<NextState> getNextStates(TxnEType event);
 
     /**
      * Returns the set of all states that follows this state.
@@ -135,7 +138,7 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState>> {
      */
     public Set<NextState> getNextStates() {
         Set<NextState> ret = new LinkedHashSet<NextState>();
-        for (DistEventType e : getTransitioningEvents()) {
+        for (TxnEType e : getTransitioningEvents()) {
             ret.addAll(getNextStates(e));
         }
         return ret;

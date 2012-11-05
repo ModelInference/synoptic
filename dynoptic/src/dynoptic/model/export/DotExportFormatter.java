@@ -4,7 +4,7 @@ import java.util.Set;
 
 import dynoptic.model.AbsFSMState;
 
-import synoptic.model.event.DistEventType;
+import synoptic.model.event.IDistEventType;
 
 /**
  * Implements a GraphViz exporter (DOT language) for graphs:
@@ -29,8 +29,8 @@ public class DotExportFormatter extends GraphExportFormatter {
     }
 
     @Override
-    public <State extends AbsFSMState<State>> String nodeToString(int nodeId,
-            State node, boolean isInitial, boolean isTerminal) {
+    public <State extends AbsFSMState<State, TxnEType>, TxnEType extends IDistEventType> String nodeToString(
+            int nodeId, State node, boolean isInitial, boolean isTerminal) {
         String attributes = "label=\"" + quote(Integer.toString(nodeId))
                 + "\",shape=circle";
         String extra = "";
@@ -51,7 +51,7 @@ public class DotExportFormatter extends GraphExportFormatter {
 
     @Override
     public String edgeToStringWithDistEvent(int nodeSrc, int nodeDst,
-            DistEventType event, Set<String> relations) {
+            IDistEventType event, Set<String> relations) {
         String attributes = "label=\"" + quote(event.toDotString()) + "\"";
         return edgeToString(nodeSrc, nodeDst, attributes, relations);
     }
@@ -67,4 +67,5 @@ public class DotExportFormatter extends GraphExportFormatter {
         // s += "color=" + getRelationColor(relations);
         return s + "];" + "\n";
     }
+
 }

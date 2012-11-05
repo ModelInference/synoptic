@@ -52,7 +52,7 @@ import synoptic.model.event.DistEventType;
  * FifoSysExecution.
  * </p>
  */
-public class GFSM extends FifoSys<GFSMState> {
+public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
     public static Logger logger = Logger.getLogger("GFSM");
 
@@ -591,9 +591,6 @@ public class GFSM extends FifoSys<GFSMState> {
                 suffixPaths = getSuffixPaths(firstState, e, visited);
                 if (suffixPaths == null) {
                     continue;
-                }
-                for (GFSMPath p : suffixPaths) {
-                    p.prefixState(firstState);
                 }
 
                 // path becomes a prefix.

@@ -44,17 +44,17 @@ import synoptic.model.event.DistEventType;
  * maintain execution instance state. FifoSysExecution does this.
  * </p>
  */
-public class CFSM extends FifoSys<CFSMState> {
+public class CFSM extends FifoSys<CFSMState, DistEventType> {
 
     // FSM f -> states returned by eval(f)
-    protected interface IFSMToStateSetFn<T extends AbsFSMState<T>> {
-        Set<T> eval(AbsFSM<T> s);
+    protected interface IFSMToStateSetFn<T extends AbsFSMState<T, ?>> {
+        Set<T> eval(AbsFSM<T, ?> s);
     }
 
     // Fn: (FSM f) -> initial states of f.
     static private IFSMToStateSetFn<FSMState> fnGetInitialStates = new IFSMToStateSetFn<FSMState>() {
         @Override
-        public Set<FSMState> eval(AbsFSM<FSMState> f) {
+        public Set<FSMState> eval(AbsFSM<FSMState, ?> f) {
             return f.getInitStates();
         }
     };
@@ -62,7 +62,7 @@ public class CFSM extends FifoSys<CFSMState> {
     // Fn: (FSM f) -> accept states of f.
     static private IFSMToStateSetFn<FSMState> fnGetAcceptStates = new IFSMToStateSetFn<FSMState>() {
         @Override
-        public Set<FSMState> eval(AbsFSM<FSMState> f) {
+        public Set<FSMState> eval(AbsFSM<FSMState, ?> f) {
             return f.getAcceptStates();
         }
     };
@@ -104,7 +104,7 @@ public class CFSM extends FifoSys<CFSMState> {
     // //////////////////////////////////////////////////////////////////
 
     @Override
-    public FSMAlphabet getAlphabet() {
+    public FSMAlphabet<DistEventType> getAlphabet() {
         assert unSpecifiedPids == 0;
 
         // Return the union of the alphabets of all of the FSMs.

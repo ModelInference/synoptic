@@ -10,13 +10,13 @@ import dk.brics.automaton.Transition;
 import dynoptic.model.AbsFSM;
 import dynoptic.model.AbsFSMState;
 
-import synoptic.model.event.DistEventType;
+import synoptic.model.event.IDistEventType;
 
 /**
  * Wrapper class for dk.brics.automaton.Automaton which provides character
  * encodings for building Automaton with EventTypes rather than characters.
  */
-public class EncodedAutomaton<T extends AbsFSMState<T>> {
+public class EncodedAutomaton<T extends AbsFSMState<T, TxnEType>, TxnEType extends IDistEventType> {
 
     public static Logger logger;
     static {
@@ -29,16 +29,16 @@ public class EncodedAutomaton<T extends AbsFSMState<T>> {
     // The encoding scheme for the Automaton.
     // NOTE: To compare 2 EncodedAutomatons, their EventType encodings
     // must be equivalent.
-    private EventTypeEncodings<DistEventType> encodings;
+    private EventTypeEncodings<TxnEType> encodings;
 
-    public EncodedAutomaton(EventTypeEncodings<DistEventType> encodings,
-            AbsFSM<T> fsm) {
+    public EncodedAutomaton(EventTypeEncodings<TxnEType> encodings,
+            AbsFSM<T, TxnEType> fsm) {
         this.encodings = encodings;
         model = new Automaton();
         convertFSMToAutomaton(fsm);
     }
 
-    private void convertFSMToAutomaton(AbsFSM<T> fsm) {
+    private void convertFSMToAutomaton(AbsFSM<T, TxnEType> fsm) {
         // initial state of this automaton
         State initialState = new State();
 
@@ -69,9 +69,9 @@ public class EncodedAutomaton<T extends AbsFSMState<T>> {
     private void DFS(T state, State autoState, Set<T> visited) {
         visited.add(state);
         autoState.setAccept(state.isAccept());
-        Set<DistEventType> transitions = state.getTransitioningEvents();
+        Set<TxnEType> transitions = state.getTransitioningEvents();
 
-        for (DistEventType transition : transitions) {
+        for (TxnEType transition : transitions) {
             Set<T> nextStates = state.getNextStates(transition);
 
             for (T nextState : nextStates) {
@@ -88,7 +88,7 @@ public class EncodedAutomaton<T extends AbsFSMState<T>> {
         }
     }
 
-    public EventTypeEncodings<DistEventType> getEventTypeEncodings() {
+    public EventTypeEncodings<TxnEType> getEventTypeEncodings() {
         return encodings;
     }
 
@@ -108,7 +108,7 @@ public class EncodedAutomaton<T extends AbsFSMState<T>> {
         if (!(other instanceof EncodedAutomaton)) {
             return false;
         }
-        EncodedAutomaton<T> encodedAutomaton = (EncodedAutomaton<T>) other;
+        EncodedAutomaton<T, TxnEType> encodedAutomaton = (EncodedAutomaton<T, TxnEType>) other;
         return model.equals(encodedAutomaton.model);
     }
 }

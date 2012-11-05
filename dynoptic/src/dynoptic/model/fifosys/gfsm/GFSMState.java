@@ -8,6 +8,7 @@ import java.util.Set;
 
 import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.AbsMultiFSMState;
+import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
 
 import synoptic.model.event.DistEventType;
@@ -28,7 +29,7 @@ import synoptic.model.event.DistEventType;
  * In many ways this class mimics a Synoptic Partition class/concept.
  * </p>
  */
-public class GFSMState extends AbsMultiFSMState<GFSMState> {
+public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
     // Set of observed state instances.
     private final Set<ObsFifoSysState> observedStates;
 
@@ -127,6 +128,10 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
         assert transitions.containsKey(event);
 
         return transitions.get(event);
+    }
+
+    public Set<GFSMState> getNextStates(ObsDistEventType event) {
+        return this.getNextStates(event.getDistEType());
     }
 
     @Override
@@ -248,16 +253,17 @@ public class GFSMState extends AbsMultiFSMState<GFSMState> {
 
     /** Updates the cached transitions for a particular observed state. */
     private void cacheObservedParentTransitions(ObsFifoSysState s) {
-        for (DistEventType e : s.getTransitioningEvents()) {
+        for (ObsDistEventType e : s.getTransitioningEvents()) {
             GFSMState nextPartition = s.getNextState(e).getParent();
             assert nextPartition != null;
 
             Set<GFSMState> partitions;
-            if (!transitions.containsKey(e)) {
+            DistEventType eType = e.getDistEType();
+            if (!transitions.containsKey(eType)) {
                 partitions = new LinkedHashSet<GFSMState>();
-                transitions.put(e, partitions);
+                transitions.put(eType, partitions);
             } else {
-                partitions = transitions.get(e);
+                partitions = transitions.get(eType);
             }
             partitions.add(nextPartition);
         }

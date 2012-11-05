@@ -10,8 +10,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import dynoptic.invariants.BinaryInvariant;
+import dynoptic.invariants.checkers.BinChecker;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.FifoSys;
+import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAG;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAGNode;
@@ -28,7 +31,7 @@ import synoptic.model.event.Event;
  * ObservedFifoSysState instances. An instance of ObsFifoSys merely maintains a
  * pointer to the initial/terminal states.
  */
-public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
+public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
 
     private static Logger logger = Logger.getLogger("ObsFifoSys");
 
@@ -103,7 +106,7 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
                     pidInitialNodes);
 
             logger.info("Generating ObsDAG.");
-            dag = new ObsDAG(initDagCfg, termDagCfg, channelIds);
+            dag = new ObsDAG(initDagCfg, termDagCfg, channelIds, traceId);
 
             termStates.add(dag.getTermFifoSysState());
 
@@ -262,6 +265,8 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
 
     /**
      * Populates the pidInitialNodes list with the first event for each process.
+     * We identify the first node by it's timestamp -- the node that has the
+     * earliest timestamp is the first node.
      * 
      * @param traceGraph
      * @param traceId
@@ -269,6 +274,7 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
      */
     private static void buildInitPidEventNodes(DAGsTraceGraph traceGraph,
             int traceId, List<EventNode> pidInitialNodes) {
+
         for (EventNode eNode : traceGraph.getNodes()) {
             // Skip nodes from other traces.
             if (eNode.getTraceID() != traceId) {
@@ -280,14 +286,26 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
                 continue;
             }
 
+            // Retrieve the pid of the process that generated the event.
             Event e = eNode.getEvent();
             int ePid = ((DistEventType) e.getEType()).getPid();
 
+            assert ePid < pidInitialNodes.size();
+
+            // If we have no event for this pid, or if this event has an earlier
+            // timestamp than the node we know about, then set it to be the
+            // earliest event for this pid.
             if (pidInitialNodes.get(ePid) == null
                     || eNode.getTime().lessThan(
                             pidInitialNodes.get(ePid).getTime())) {
                 pidInitialNodes.set(ePid, eNode);
             }
+        }
+
+        // Make sure that all of the processes have an "earliest" event node
+        // set.
+        for (EventNode eNode : pidInitialNodes) {
+            assert eNode != null;
         }
     }
 
@@ -353,6 +371,39 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
     @Override
     public String toString() {
         return "ObsFifoSys[" + this.states.size() + "]";
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
+    /**
+     * This method model checks ObsFifoSys against minedInvs and returns the set
+     * of invariants that are violated by the ObsFifoSys. The model checking is
+     * simplistic: (1) since ObsFifoSys is a DAG, we don't have to worry about
+     * cycles and re-visiting nodes, (2) we only care about removing stitching,
+     * and not the complete path -- once we find a violation, we percolate up
+     * until we see that there is a stitching edge (with a different trace id),
+     * (3) we only care about the three basic invariant types.
+     * 
+     * @param minedInvs
+     */
+    public List<BinaryInvariant> findInvalidatedInvariants(
+            List<BinaryInvariant> minedInvs) {
+        List<BinaryInvariant> ret = new ArrayList<BinaryInvariant>();
+        for (BinaryInvariant inv : minedInvs) {
+            BinChecker invChecker = BinChecker.newChecker(inv);
+            if (!checkInvariant(invChecker)) {
+                ret.add(inv);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Runs the invChecker over this instance of observed fifo sys to check if
+     * it satisfied the corresponding invariant.
+     */
+    private boolean checkInvariant(BinChecker invChecker) {
+        return false;
     }
 
 }

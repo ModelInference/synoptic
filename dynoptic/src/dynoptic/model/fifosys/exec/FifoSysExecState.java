@@ -7,9 +7,9 @@ import java.util.Set;
 
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.channel.channelstate.MutableMultiChState;
+import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 
 import synoptic.model.channelid.ChannelId;
-import synoptic.model.event.DistEventType;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -20,8 +20,9 @@ import synoptic.util.InternalSynopticException;
  *            Represents the state of _all_ the processes participating in the
  *            system. This does _not_ include channel states.
  */
-public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMState>>
-        extends AbsMultiFSMState<FifoSysExecState<MultiFSMState>> {
+public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMState, ObsDistEventType>>
+        extends
+        AbsMultiFSMState<FifoSysExecState<MultiFSMState>, ObsDistEventType> {
 
     // The current state of the system.
     MultiFSMState processStates;
@@ -86,16 +87,16 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     }
 
     @Override
-    public Set<DistEventType> getTransitioningEvents() {
+    public Set<ObsDistEventType> getTransitioningEvents() {
         return processStates.getTransitioningEvents();
     }
 
     @Override
     public Set<FifoSysExecState<MultiFSMState>> getNextStates(
-            DistEventType event) {
+            ObsDistEventType event) {
         Set<FifoSysExecState<MultiFSMState>> ret = new LinkedHashSet<FifoSysExecState<MultiFSMState>>();
 
-        Set<DistEventType> enabledEvents = this.getEnabledEvents();
+        Set<ObsDistEventType> enabledEvents = this.getEnabledEvents();
 
         // If the event is not enabled, then no next states are possible.
         if (!enabledEvents.contains(event)) {
@@ -112,7 +113,7 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
             clonedChannelStates.enqueue(event);
         } else if (event.isRecvEvent()) {
             // Consume a message from the top of the queue.
-            DistEventType recvdEvent = clonedChannelStates.dequeue(event
+            ObsDistEventType recvdEvent = clonedChannelStates.dequeue(event
                     .getChannelId());
 
             if (!event.equals(recvdEvent)) {
@@ -156,15 +157,15 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
      * is, those events that this FSM can transition on based on its current
      * state.
      */
-    public Set<DistEventType> getEnabledEvents() {
+    public Set<ObsDistEventType> getEnabledEvents() {
         // The Set of possible events -- these are the only events that we have
         // to consider.
-        Set<DistEventType> potentialEvents = getTransitioningEvents();
+        Set<ObsDistEventType> potentialEvents = getTransitioningEvents();
 
         // Traverse potentialEvents and build ret from all events that are
         // feasible -- all local/send events, and some receive events.
-        Set<DistEventType> ret = new LinkedHashSet<DistEventType>();
-        for (DistEventType e : potentialEvents) {
+        Set<ObsDistEventType> ret = new LinkedHashSet<ObsDistEventType>();
+        for (ObsDistEventType e : potentialEvents) {
             // Filter out those events that cannot be received because of
             // incompatible FIFO queue state (i.e., cannot receive 'm' if 'm' is
             // not at the head of the queue).

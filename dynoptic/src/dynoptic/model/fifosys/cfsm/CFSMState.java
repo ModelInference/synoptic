@@ -17,7 +17,7 @@ import synoptic.model.event.DistEventType;
  * Captures the current state of a CFSM -- essentially a vector of FSMStates --
  * without the channel state.
  */
-public final class CFSMState extends AbsMultiFSMState<CFSMState> {
+public final class CFSMState extends AbsMultiFSMState<CFSMState, DistEventType> {
 
     // List of FSMStates, ordered according to process IDs: 0 - (size-1).
     private final List<FSMState> fsmStates;

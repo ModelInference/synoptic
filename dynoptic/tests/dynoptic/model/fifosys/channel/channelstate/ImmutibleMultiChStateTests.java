@@ -24,7 +24,7 @@ public class ImmutibleMultiChStateTests extends DynopticTest {
     ImmutableMultiChState mc3;
     ImmutableMultiChState mc4;
 
-    List<ChState> chStates;
+    List<ChState<DistEventType>> chStates;
 
     @Before
     public void setUp() throws Exception {
@@ -36,9 +36,9 @@ public class ImmutibleMultiChStateTests extends DynopticTest {
         cids.add(cid1);
         cids.add(cid2);
 
-        chStates = new ArrayList<ChState>(2);
-        chStates.add(new ChState(cid1));
-        chStates.add(new ChState(cid2));
+        chStates = new ArrayList<ChState<DistEventType>>(2);
+        chStates.add(new ChState<DistEventType>(cid1));
+        chStates.add(new ChState<DistEventType>(cid2));
     }
 
     @Test

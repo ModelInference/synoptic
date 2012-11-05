@@ -15,13 +15,13 @@ import synoptic.model.event.DistEventType;
  * through static methods that perform instance caching and return a previously
  * created instance, if one already exists.
  */
-public class ImmutableMultiChState extends AbsMultiChState {
+public class ImmutableMultiChState extends AbsMultiChState<DistEventType> {
 
     // Global cache of channel states already created.
-    private static final Map<List<ChState>, ImmutableMultiChState> chCache;
+    private static final Map<List<ChState<DistEventType>>, ImmutableMultiChState> chCache;
 
     static {
-        chCache = new LinkedHashMap<List<ChState>, ImmutableMultiChState>();
+        chCache = new LinkedHashMap<List<ChState<DistEventType>>, ImmutableMultiChState>();
     }
 
     /**
@@ -32,7 +32,7 @@ public class ImmutableMultiChState extends AbsMultiChState {
      */
     public static ImmutableMultiChState fromChannelIds(
             List<ChannelId> channelIds) {
-        List<ChState> chStates = chStatesFromChIds(channelIds);
+        List<ChState<DistEventType>> chStates = chStatesFromChIds(channelIds);
         return fromChannelStates(chStates);
     }
 
@@ -41,7 +41,8 @@ public class ImmutableMultiChState extends AbsMultiChState {
      * previously created with the given channel states. Otherwise, returns a
      * new instance and caches it.
      */
-    public static ImmutableMultiChState fromChannelStates(List<ChState> chStates) {
+    public static ImmutableMultiChState fromChannelStates(
+            List<ChState<DistEventType>> chStates) {
         ImmutableMultiChState ret;
 
         if (chCache.containsKey(chStates)) {
@@ -55,7 +56,7 @@ public class ImmutableMultiChState extends AbsMultiChState {
 
     // //////////////////////////////////////////////////////////////////
 
-    private ImmutableMultiChState(List<ChState> chStates) {
+    private ImmutableMultiChState(List<ChState<DistEventType>> chStates) {
         super(chStates);
     }
 
@@ -74,12 +75,43 @@ public class ImmutableMultiChState extends AbsMultiChState {
 
         if (!(other instanceof ImmutableMultiChState)) {
             return false;
-
         }
         return true;
     }
 
     // //////////////////////////////////////////////////////////////////
+
+    /**
+     * Used to establish equality of immutable multi ch states that contain
+     * ObsDistEventType instances that might have come from different traces in
+     * the log (standard equals() won't work for these).
+     */
+    /*
+     * public boolean equalsIgnoringTraceIds(Object other) { if (other == null)
+     * { return false; } if (this == other) { return true; } if (!(other
+     * instanceof ImmutableMultiChState)) { return false; }
+     * ImmutableMultiChState mc = (ImmutableMultiChState) other; if
+     * (this.channelStates.size() != mc.channelStates.size()) { return false; }
+     * for (int i = 0; i < this.channelStates.size(); i++) {
+     * ChState<ObsDistEventType> chS1 = this.channelStates.get(i);
+     * ChState<ObsDistEventType> chS2 = mc.channelStates.get(i); if
+     * (!ChState.equalsObsDistETypeIgnoringTraceIds(chS1, chS2)) { return false;
+     * } } return true; }
+     */
+
+    /**
+     * Merges trace ids of obs event types in each channel state in the
+     * multi-state chStates into this multi-state.
+     */
+    /*
+     * public void mergeInTraceIds(ImmutableMultiChState chStates) { assert
+     * this.channelStates.size() == chStates.channelStates.size();
+     * 
+     * for (int i = 0; i < this.channelStates.size(); i++) {
+     * ChState<DistEventType> chS1 = this.channelStates.get(i);
+     * ChState<DistEventType> chS2 = chStates.channelStates.get(i);
+     * chS1.mergeInTraceIds(chS2); } }
+     */
 
     public ImmutableMultiChState getNextChState(DistEventType e) {
         if (e.isLocalEvent()) {
@@ -89,9 +121,10 @@ public class ImmutableMultiChState extends AbsMultiChState {
 
         // Keep this.channelStates, except for the one that will be modified (at
         // the index indicated by the event) -- this ChannelState is cloned.
-        List<ChState> states = new ArrayList<ChState>(channelStates);
+        List<ChState<DistEventType>> states = new ArrayList<ChState<DistEventType>>(
+                channelStates);
         int scmId = e.getChannelId().getScmId();
-        ChState newState = states.get(scmId).clone();
+        ChState<DistEventType> newState = states.get(scmId).clone();
         states.set(scmId, newState);
 
         // 'Execute' the event by taking the appropriate action on the queue.

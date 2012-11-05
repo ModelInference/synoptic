@@ -292,29 +292,6 @@ public class DynopticMain {
             return;
         }
 
-        // //////////////////
-        // Use Synoptic event nodes and ordering constraints
-        // between these to generate ObsFSMStates (anonymous states),
-        // obsDAGNodes (to contain obsFSMStates and encode dependencies between
-        // them), and an ObsDag per execution parsed from the log.
-        logger.info("Generating ObsFifoSys from DAGsTraceGraph...");
-        List<ObsFifoSys> traces = ObsFifoSys.synTraceGraphToDynObsFifoSys(
-                traceGraph, numProcesses, channelIds, opts.consistentInitState);
-        assert traces.size() > 0;
-
-        // //////////////////
-        // If assume consistent per-process initial state, check that
-        // only one ObsFifoSys is created.
-        if (opts.consistentInitState) {
-            assert traces.size() == 1;
-
-            // The consistentInitState generates stitchings that may not satisfy
-            // the mined invariants. We need to check that the observed fifo sys
-            // satisfies all of the mined invariants, and removed violating
-            // stitchings.
-
-        }
-
         // ///////////////////
         // Convert Synoptic invariants into Dynoptic invariants.
         logger.info("Converting Synoptic invariants to Dynoptic invariants...");
@@ -326,6 +303,28 @@ public class DynopticMain {
         if (dynInvs.isEmpty()) {
             logger.info("Mined 0 Dynoptic invariants. Stopping.");
             return;
+        }
+
+        // //////////////////
+        // Use Synoptic event nodes and ordering constraints
+        // between these to generate ObsFSMStates (anonymous states),
+        // obsDAGNodes (to contain obsFSMStates and encode dependencies between
+        // them), and an ObsDag per execution parsed from the log.
+        logger.info("Generating ObsFifoSys from DAGsTraceGraph...");
+        List<ObsFifoSys> traces = ObsFifoSys.synTraceGraphToDynObsFifoSys(
+                traceGraph, numProcesses, channelIds, opts.consistentInitState);
+
+        assert traces.size() > 0;
+
+        // //////////////////
+        // If assume consistent per-process initial state, check that
+        // only one ObsFifoSys is created.
+        // Also, this option allows stitchings between traces, which may lead to
+        // invariant violations. This post-processing step removes such
+        // stitchings.
+        if (opts.consistentInitState) {
+            assert traces.size() == 1;
+            traces.get(0).findInvalidatedInvariants(dynInvs);
         }
 
         // ///////////////////
@@ -757,10 +756,13 @@ public class DynopticMain {
             // sub-sequence of process i events in the counter-example.
             Set<GFSMPath> processPaths = pGraph.getCExamplePaths(
                     result.getCExample(), i);
+
+            logger.info("Process " + i + " paths: " + processPaths.toString());
+
             // Attempt to refine stitching partitions along these paths.
             for (GFSMPath path : processPaths) {
-                logger.info("Attempting to resolve " + path.toString()
-                        + " for process " + i);
+                logger.info("Attempting to resolve process " + i + " path: "
+                        + path.toString());
                 if (path.refine(pGraph)) {
                     return true;
                 }
