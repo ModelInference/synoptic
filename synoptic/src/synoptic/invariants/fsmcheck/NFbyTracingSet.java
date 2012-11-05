@@ -41,9 +41,10 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public HistoryNode setInitialHistoryReset(T x) {
-        aNotSeen = aSeen = bSeenAfter = null; 
-        return new HistoryNode(x, null, 1);
+    public void setInitialHistoryReset() {
+        aNotSeen = null;
+        aSeen = null;
+        bSeenAfter = null; 
     }
     
     @Override

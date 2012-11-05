@@ -39,17 +39,16 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     public void setInitialEventTest(T x, HistoryNode newHistory) {
         EventType name = x.getEType();
         if (name.equals(a)) {
-            wasB = null;
             wasA = newHistory;
         } else {
             wasB = newHistory;
-            wasA = null;
         }
     }
 
     @Override
-    public HistoryNode setInitialHistoryReset(T x) {
-        return new HistoryNode(x, null, 1);
+    public void setInitialHistoryReset() {
+        wasA = null;
+        wasB = null;
     }
     
     @Override
