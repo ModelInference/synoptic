@@ -31,15 +31,19 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     }
 
     @Override
-    public void setInitial(T x) {
+    public void setInitialEventTest(T x, HistoryNode newHistory) {
         EventType name = x.getEType();
-        HistoryNode newHistory = new HistoryNode(x, null, 1);
-        aNotSeen = aSeen = bSeenAfter = null;
         if (a.equals(name)) {
             aSeen = newHistory;
         } else {
             aNotSeen = newHistory;
         }
+    }
+
+    @Override
+    public HistoryNode setInitialHistoryReset(T x) {
+        aNotSeen = aSeen = bSeenAfter = null; 
+        return new HistoryNode(x, null, 1);
     }
     
     @Override
