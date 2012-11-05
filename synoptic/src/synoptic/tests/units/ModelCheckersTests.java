@@ -67,7 +67,7 @@ public class ModelCheckersTests extends SynopticTest {
      */
     @Parameters
     public static Collection<Object[]> data() {
-        Object[][] data = new Object[][] { { true }, { false } };
+        Object[][] data = new Object[][] { { true, true }, { true, false }, { false, false }};
         return Arrays.asList(data);
     }
 
@@ -75,15 +75,16 @@ public class ModelCheckersTests extends SynopticTest {
     
     boolean multipleRelations;
 
-    public ModelCheckersTests(boolean useFSMChecker) {
+    public ModelCheckersTests(boolean useFSMChecker, boolean multipleRelations) {
         this.useFSMChecker = useFSMChecker;
+        this.multipleRelations = multipleRelations;
     }
 
     @Before
     public void setUp() throws ParseException {
         super.setUp();
         synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker = this.useFSMChecker;
-        multipleRelations = synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.multipleRelations;
+        synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.multipleRelations = this.multipleRelations;
     }
 
     /**
@@ -176,16 +177,27 @@ public class ModelCheckersTests extends SynopticTest {
      * NOTE: INITIAL is always included, therefore cExampleLabels should not
      * include it. However, if TERMINAL is to be included, it should be
      * specified in cExampleLabels.
+     * @param multipleRelations TODO
      * 
      * @throws Exception
      */
     private static void testPartitionGraphCExample(String[] events,
             ITemporalInvariant inv, boolean cExampleExists,
-            List<EventType> cExampleLabels) throws Exception {
+            List<EventType> cExampleLabels, boolean multipleRelations) throws Exception {
 
         TraceParser parser = new TraceParser();
-        parser.addRegex("^(?<TYPE>)$");
-        parser.addPartitionsSeparator("^--$");
+        
+        if (multipleRelations) {
+            parser.addRegex("^(?<TIME>)(?<TYPE>)$");
+            parser.addRegex("^(?<TIME>)(?<RELATION>)(?<TYPE>)$");
+            parser.addRegex("^(?<TIME>)(?<RELATION*>)cl(?<TYPE>)$");
+            parser.addPartitionsSeparator("^--$");
+        } else {
+            parser.addRegex("^(?<TYPE>)$");
+            parser.addPartitionsSeparator("^--$");
+        }
+        
+        
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser,
                 new TransitiveClosureInvMiner(), false);
 
@@ -237,7 +249,7 @@ public class ModelCheckersTests extends SynopticTest {
     public void NoAFbyLinearGraphWithCycleTest() throws Exception {
         String[] events = new String[] { "x", "a", "c", "x", "a", "y", "b", "w" };
 
-        testPartitionGraphCExample(events, aAFbyB, false, null);
+        testPartitionGraphCExample(events, aAFbyB, false, null, false);
     }
 
     /**
@@ -256,7 +268,7 @@ public class ModelCheckersTests extends SynopticTest {
                 "x", "a", "y", "w" });
         
         cExampleLabels.add(StringEventType.newTerminalStringEventType());
-        testPartitionGraphCExample(events, aAFbyB, true, cExampleLabels);
+        testPartitionGraphCExample(events, aAFbyB, true, cExampleLabels, false);
     }
 
     /**
@@ -303,7 +315,7 @@ public class ModelCheckersTests extends SynopticTest {
     public void NoNFbyLinearGraphWithCycleTest() throws Exception {
         String[] events = new String[] { "a", "c", "a", "d", "e" };
 
-        testPartitionGraphCExample(events, aNFbyB, false, null);
+        testPartitionGraphCExample(events, aNFbyB, false, null, false);
     }
 
     /**
@@ -326,7 +338,7 @@ public class ModelCheckersTests extends SynopticTest {
                     "d", "a", "c", "d", "b" });
         }
         // NOTE: NFby c-examples do not need to end with a TERMINAL node
-        testPartitionGraphCExample(events, aNFbyB, true, cExampleLabels);
+        testPartitionGraphCExample(events, aNFbyB, true, cExampleLabels, false);
     }
 
     /**
@@ -370,7 +382,7 @@ public class ModelCheckersTests extends SynopticTest {
     public void NoAPLinearGraphWithCycleTest() throws Exception {
         String[] events = new String[] { "a", "c", "a", "b" };
 
-        testPartitionGraphCExample(events, aAPb, false, null);
+        testPartitionGraphCExample(events, aAPb, false, null, false);
     }
 
     /**
@@ -384,7 +396,7 @@ public class ModelCheckersTests extends SynopticTest {
 
         List<EventType> cExampleLabels = stringsToStringEventTypes(new String[] {
                 "z", "b" });
-        testPartitionGraphCExample(events, aAPb, true, cExampleLabels);
+        testPartitionGraphCExample(events, aAPb, true, cExampleLabels, false);
     }
 
     /**
@@ -413,49 +425,73 @@ public class ModelCheckersTests extends SynopticTest {
             ParseException {
         // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
         String[] events = new String[] { "x", "y", "z", "b", "a" };
-
+        testLinearGraphCExample(events, aAPb, true, 4);
     }
     
     @Test
     public void NoNFBiCycle() throws Exception {
-        String[] events = { "1 x", "2 r a", "3 b", "3 x" };
-        testPartitionGraphCExample(events, aNFbyB, false, null);
+        if (!multipleRelations) {
+            return;
+        }
+        
+        String[] events = { "1 x", "2 r a", "3 b", "4 x" };
+        testPartitionGraphCExample(events, aNFbyB, false, null, multipleRelations);
     }
     
     @Test
     public void NFBiCycle() throws Exception {
-        String[] events = { "1 x", "2 r a", "3 b", "3 r x" };
+        if (!multipleRelations) {
+            return;
+        }
+        
+        String[] events = { "1 x", "2 r a", "3 b", "4 r x" };
         List<EventType> cExampleLabels = 
                 stringsToStringEventTypes(new String[] {"x", "a", "b"});
-        testPartitionGraphCExample(events, aNFbyB, true, cExampleLabels);
+        testPartitionGraphCExample(events, aNFbyB, true, cExampleLabels, multipleRelations);
     }
     
     @Test
     public void NoAPBiCycle() throws Exception {
-        String[] events = { "1 x", "2 r a", "3 b", "3 r x" };
-        testPartitionGraphCExample(events, aAPb, false, null);
+        if (!multipleRelations) {
+            return;
+        }
+        
+        String[] events = { "1 x", "2 r a", "3 b", "4 r x" };
+        testPartitionGraphCExample(events, aAPb, false, null, multipleRelations);
     }
     
     @Test
     public void APBiCycle() throws Exception {
-        String[] events = { "1 x", "2 a", "3 b", "3 r x" };
+        if (!multipleRelations) {
+            return;
+        }
+        
+        String[] events = { "1 x", "2 a", "3 b", "4 r x" };
         List<EventType> cExampleLabels = 
                 stringsToStringEventTypes(new String[] {"b"});
-        testPartitionGraphCExample(events, aAPb, true, cExampleLabels);
+        testPartitionGraphCExample(events, aAPb, true, cExampleLabels, multipleRelations);
     }
     
     @Test
     public void NoAFBiCycle() throws Exception {
-        String[] events = { "1 x", "2 r a", "3 b", "3 r x" };
-        testPartitionGraphCExample(events, aAFbyB, false, null);
+        if (!multipleRelations) {
+            return;
+        }
+        
+        String[] events = { "1 x", "2 r a", "3 b", "4 r x" };
+        testPartitionGraphCExample(events, aAFbyB, false, null, multipleRelations);
     }
     
     @Test
     public void AFBiCycle() throws Exception {
-        String[] events = { "1 x", "2 r a", "3 b", "3 x" };
+        if (!multipleRelations) {
+            return;
+        }
+        
+        String[] events = { "1 x", "2 r a", "3 b", "4 x" };
         List<EventType> cExampleLabels = 
                 stringsToStringEventTypes(new String[] {"x", "a"});
-        testPartitionGraphCExample(events, aAFbyB, true, cExampleLabels);
+        testPartitionGraphCExample(events, aAFbyB, true, cExampleLabels, multipleRelations);
     }
 
     // /////////////////////////
