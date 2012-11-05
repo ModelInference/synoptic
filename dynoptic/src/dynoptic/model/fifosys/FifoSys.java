@@ -1,15 +1,13 @@
 package dynoptic.model.fifosys;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
-import dynoptic.model.fifosys.exec.FifoSysExecution;
 
 import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.IDistEventType;
 
 /**
  * <p>
@@ -27,8 +25,8 @@ import synoptic.model.channelid.ChannelId;
  *            Represents the state of _all_ the processes participating in the
  *            system. This does _not_ include channel states.
  */
-abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMState>>
-        extends AbsFSM<MultiFSMState> {
+abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMState, TxnEType>, TxnEType extends IDistEventType>
+        extends AbsFSM<MultiFSMState, TxnEType> {
     // Total number of processes in the system. These are numbered 0 through
     // (numProcesses - 1).
     final protected int numProcesses;
@@ -65,13 +63,13 @@ abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
      * initialized to an init state of this FIFO system. Multiple executions are
      * returned when there are multiple possible init states.
      */
-    public Set<FifoSysExecution<MultiFSMState>> newExecution() {
-        Set<FifoSysExecution<MultiFSMState>> ret = new LinkedHashSet<FifoSysExecution<MultiFSMState>>();
-        for (MultiFSMState init : this.getInitStates()) {
-            ret.add(new FifoSysExecution<MultiFSMState>(this, init));
-        }
-        return ret;
-    }
+    /*
+     * public Set<FifoSysExecution<MultiFSMState>> newExecution() {
+     * Set<FifoSysExecution<MultiFSMState>> ret = new
+     * LinkedHashSet<FifoSysExecution<MultiFSMState>>(); for (MultiFSMState init
+     * : this.getInitStates()) { ret.add(new
+     * FifoSysExecution<MultiFSMState>(this, init)); } return ret; }
+     */
 
     public List<ChannelId> getChannelIds() {
         return channelIds;
@@ -93,7 +91,7 @@ abstract public class FifoSys<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
             return false;
 
         }
-        FifoSys<?> fOther = (FifoSys<?>) other;
+        FifoSys<?, ?> fOther = (FifoSys<?, ?>) other;
 
         if (fOther.numProcesses != numProcesses) {
             return false;

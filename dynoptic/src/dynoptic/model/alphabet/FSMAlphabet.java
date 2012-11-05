@@ -5,31 +5,32 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import synoptic.model.event.DistEventType;
+import synoptic.model.event.IDistEventType;
 
 /**
  * A collection of events that can be processed by an FSM that is part of a
  * CFSM. This includes both the local events as well as send/receive
  * (communication) events.
  */
-public class FSMAlphabet implements Set<DistEventType> {
+public class FSMAlphabet<TxnEType extends IDistEventType> implements
+        Set<TxnEType> {
     private static final String EMPTY_STR_SCM_RE = "(_)";
-    Set<DistEventType> events;
+    Set<TxnEType> events;
 
     public FSMAlphabet() {
-        events = new LinkedHashSet<DistEventType>();
+        events = new LinkedHashSet<TxnEType>();
     }
 
     // //////////////////////////////////////////////////////////////////
     // Methods for Set<>, which we simply pass onto the internal events set.
 
     @Override
-    public boolean add(DistEventType arg0) {
+    public boolean add(TxnEType arg0) {
         return events.add(arg0);
     }
 
     @Override
-    public boolean addAll(Collection<? extends DistEventType> arg0) {
+    public boolean addAll(Collection<? extends TxnEType> arg0) {
         // NOTE: we might end up adding the same event multiple times. This is
         // okay, since the event might occur on different transitions.
         return events.addAll(arg0);
@@ -56,7 +57,7 @@ public class FSMAlphabet implements Set<DistEventType> {
     }
 
     @Override
-    public Iterator<DistEventType> iterator() {
+    public Iterator<TxnEType> iterator() {
         return events.iterator();
     }
 
@@ -99,7 +100,7 @@ public class FSMAlphabet implements Set<DistEventType> {
 
     public Set<String> getLocalEventScmStrings() {
         Set<String> ret = new LinkedHashSet<String>();
-        for (DistEventType e : events) {
+        for (TxnEType e : events) {
             if (e.isLocalEvent()) {
                 ret.add(e.getScmEventFullString());
             }
@@ -120,7 +121,7 @@ public class FSMAlphabet implements Set<DistEventType> {
         return scmQRe(null);
     }
 
-    public String anyEventExceptOneScmQRe(DistEventType ignoreE) {
+    public String anyEventExceptOneScmQRe(TxnEType ignoreE) {
         assert events.contains(ignoreE);
 
         return scmQRe(ignoreE);
@@ -132,7 +133,7 @@ public class FSMAlphabet implements Set<DistEventType> {
      * Concatenates a list of event strings into a re expression representing a
      * set of strings.
      */
-    private String scmQRe(DistEventType ignoreE) {
+    private String scmQRe(TxnEType ignoreE) {
         String ret = "(";
         Set<String> eventStrings = getUniqueEventStrings(ignoreE);
         Iterator<String> iter = eventStrings.iterator();
@@ -159,9 +160,9 @@ public class FSMAlphabet implements Set<DistEventType> {
      * '0!m' and '0?m' are unique, but the event string for both event types is
      * 'm'.
      */
-    private Set<String> getUniqueEventStrings(DistEventType ignoreE) {
+    private Set<String> getUniqueEventStrings(TxnEType ignoreE) {
         Set<String> ret = new LinkedHashSet<String>();
-        for (DistEventType e : events) {
+        for (TxnEType e : events) {
             if ((ignoreE != null) && e.equals(ignoreE)) {
                 continue;
             }

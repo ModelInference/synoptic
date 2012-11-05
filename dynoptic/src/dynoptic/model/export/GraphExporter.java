@@ -16,7 +16,7 @@ import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.gfsm.GFSM;
 
 import synoptic.main.SynopticMain;
-import synoptic.model.event.DistEventType;
+import synoptic.model.event.IDistEventType;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -168,8 +168,8 @@ public class GraphExporter {
      * Exports any instance that has AbsFSM type to a string and writes that
      * string using the passed writer.
      */
-    private static <State extends AbsFSMState<State>> void exportAbsFSM(
-            Writer writer, AbsFSM<State> fsmGraph, String title) {
+    private static <State extends AbsFSMState<State, TxnEType>, TxnEType extends IDistEventType> void exportAbsFSM(
+            Writer writer, AbsFSM<State, TxnEType> fsmGraph, String title) {
         GraphExportFormatter formatter = new DotExportFormatter();
 
         try {
@@ -209,9 +209,9 @@ public class GraphExporter {
             // Export all the edges corresponding to the nodes in the graph.
             for (State node : nodes) {
                 int nodeSrc = nodeToInt.get(node);
-                Set<DistEventType> transitions = node.getTransitioningEvents();
+                Set<TxnEType> transitions = node.getTransitioningEvents();
 
-                for (DistEventType trans : transitions) {
+                for (TxnEType trans : transitions) {
                     Set<State> nextNodes = node.getNextStates(trans);
 
                     for (State nextNode : nextNodes) {

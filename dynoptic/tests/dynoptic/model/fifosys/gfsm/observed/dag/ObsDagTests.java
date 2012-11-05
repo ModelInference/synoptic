@@ -40,7 +40,7 @@ public class ObsDagTests extends DynopticTest {
         termDagConfig.add(node1T);
 
         List<ChannelId> channelIds = new ArrayList<ChannelId>();
-        ObsDAG dag = new ObsDAG(initDagConfig, termDagConfig, channelIds);
+        ObsDAG dag = new ObsDAG(initDagConfig, termDagConfig, channelIds, 1);
         return dag;
     }
 

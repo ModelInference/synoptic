@@ -11,7 +11,7 @@ import synoptic.model.channelid.ChannelId;
  * example, it could also be interpreted as a role that a host performs in the
  * system (e.g. replica role id, or a string like "client").
  */
-public class DistEventType extends EventType {
+public class DistEventType extends EventType implements IDistEventType {
     // The string representation of the event type (e.g., "send").
     private String eType;
 
@@ -199,7 +199,6 @@ public class DistEventType extends EventType {
             return getScmEventFullString();
         }
         return eType;
-
     }
 
     public String getScmEventFullString() {

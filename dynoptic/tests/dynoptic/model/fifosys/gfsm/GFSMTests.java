@@ -16,6 +16,7 @@ import dynoptic.DynopticTest;
 import dynoptic.model.export.GraphExporter;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
+import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
@@ -29,7 +30,7 @@ public class GFSMTests extends DynopticTest {
     GFSM g;
 
     ObsFifoSysState Si, St;
-    DistEventType e;
+    ObsDistEventType e;
 
     @Before
     public void setUp() throws Exception {
@@ -56,7 +57,7 @@ public class GFSMTests extends DynopticTest {
         St = ObsFifoSysState.getFifoSysState(obsPt, PtChstate);
 
         // Si -> St
-        e = DistEventType.LocalEvent("e", 0);
+        e = new ObsDistEventType(DistEventType.LocalEvent("e", 0), 1);
         Si.addTransition(e, St);
 
         List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>(1);

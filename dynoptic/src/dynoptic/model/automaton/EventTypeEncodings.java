@@ -7,14 +7,14 @@ import java.util.Set;
 import dk.brics.automaton.Automaton;
 import dk.brics.automaton.RegExp;
 
-import synoptic.model.event.EventType;
+import synoptic.model.event.IDistEventType;
 
 /**
  * Encodes the EventType to be used by an EncodedAutomaton to characters. All
  * EventTypes to be used must be provided upon creation of an
  * EventTypeEncodings.
  */
-public class EventTypeEncodings <T extends EventType> {
+public class EventTypeEncodings<T extends IDistEventType> {
 
     private Map<T, Character> eventEncodings;
     private Map<Character, T> charEncodings;
@@ -85,12 +85,12 @@ public class EventTypeEncodings <T extends EventType> {
     protected Automaton getInitialModel() {
         return alphabet.toAutomaton();
     }
-    
+
     @Override
     public int hashCode() {
         return eventEncodings.hashCode();
     }
-    
+
     @Override
     public boolean equals(Object other) {
         if (other == this) {

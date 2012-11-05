@@ -42,5 +42,4 @@ public class AlwaysFollowedBy extends BinaryInvariant {
         }
         return !lastFirst;
     }
-
 }

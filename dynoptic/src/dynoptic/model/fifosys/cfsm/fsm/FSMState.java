@@ -21,7 +21,7 @@ import synoptic.model.event.DistEventType;
  * different FSMState instances (the FSM can be an NFA).
  * </p>
  */
-public class FSMState extends AbsFSMState<FSMState> {
+public class FSMState extends AbsFSMState<FSMState, DistEventType> {
     // Whether or not this state is an accepting/initial state.
     private boolean isAccept;
     private boolean isInitial;
