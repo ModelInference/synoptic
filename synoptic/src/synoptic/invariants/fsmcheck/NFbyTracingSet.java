@@ -41,9 +41,9 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
             aNotSeen = newHistory;
         }
     }
-
+    
     @Override
-    public void transition(T x) {
+    public void transitionEventTest(T x) {
         EventType name = x.getEType();
 
         // bSeenAfter is set if aSeen is set or bSeenAfter is already set. 
@@ -61,7 +61,10 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
             aSeen = yieldShorter(aNotSeen, aSeen);
             aNotSeen = null;
         }
+    }
 
+    @Override
+    public void transitionHistoryExtend(T x) {
         // Advance history for all states.
         aNotSeen = extendIfNonNull(x, aNotSeen);
         aSeen = extendIfNonNull(x, aSeen);
@@ -122,4 +125,5 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         appendWNull(result, aNotSeen);
         return result.toString();
     }
+
 }
