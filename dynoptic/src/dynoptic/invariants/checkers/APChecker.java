@@ -65,4 +65,17 @@ public class APChecker extends BinChecker {
         return s == State.SAW_Y;
     }
 
+    @Override
+    public void inheritState(BinChecker otherChecker) {
+        assert otherChecker instanceof APChecker;
+        this.s = ((APChecker) otherChecker).s;
+    }
+
+    @Override
+    public BinChecker getClone() {
+        APChecker ch = new APChecker(inv);
+        ch.s = this.s;
+        return ch;
+    }
+
 }

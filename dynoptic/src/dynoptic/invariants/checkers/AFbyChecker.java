@@ -53,4 +53,17 @@ public class AFbyChecker extends BinChecker {
     public boolean isFail() {
         return s == State.SAW_X;
     }
+
+    @Override
+    public void inheritState(BinChecker otherChecker) {
+        assert otherChecker instanceof AFbyChecker;
+        this.s = ((AFbyChecker) otherChecker).s;
+    }
+
+    @Override
+    public BinChecker getClone() {
+        AFbyChecker ch = new AFbyChecker(inv);
+        ch.s = this.s;
+        return ch;
+    }
 }

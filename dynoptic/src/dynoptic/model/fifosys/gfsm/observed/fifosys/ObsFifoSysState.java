@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -229,13 +228,11 @@ public class ObsFifoSysState extends
     }
 
     public ObsFifoSysState getNextState(DistEventType event) {
-        for (Entry<ObsDistEventType, ObsFifoSysState> entry : transitions
-                .entrySet()) {
-            if (entry.getKey().getDistEType().equals(event)) {
-                return entry.getValue();
-            }
+        ObsDistEventType txn = getObsTransitionByEType(event);
+        if (txn == null) {
+            return null;
         }
-        return null;
+        return getNextState(txn);
     }
 
     public void addTransition(ObsDistEventType e, ObsFifoSysState s) {

@@ -14,6 +14,7 @@ import dynoptic.model.AbsFSMState;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.gfsm.GFSM;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 
 import synoptic.main.SynopticMain;
 import synoptic.model.event.IDistEventType;
@@ -142,6 +143,23 @@ public class GraphExporter {
         writer.close();
     }
 
+    public static void exportObsFifoSys(String fileName, ObsFifoSys obsFifoSys) {
+        File f = new File(fileName);
+        logger.info("Exporting ObsFifoSys to: " + fileName);
+        final PrintWriter writer;
+        try {
+            writer = new PrintWriter(f);
+        } catch (final IOException e) {
+            throw new RuntimeException("Error opening file for graph export: "
+                    + e.getMessage(), e);
+        }
+        // /////////////
+        exportAbsFSM(writer, obsFifoSys,
+                "ObsFifoSys [pnum=" + obsFifoSys.getNumProcesses() + "]");
+        // /////////////
+        writer.close();
+    }
+
     /**
      * Exports the CFSM to a format determined by Main.graphExportFormatter,
      * writing the resulting string to writer. Each FSM in CFSM is exported as
@@ -233,4 +251,5 @@ public class GraphExporter {
                             + e.getMessage(), e);
         }
     }
+
 }

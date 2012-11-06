@@ -75,11 +75,15 @@ public class ObsDistEventType implements IDistEventType {
 
     @Override
     public int hashCode() {
-        return etype.hashCode();
+        int result = etype.hashCode();
+        result = 31 * result + traceIds.hashCode();
+        return result;
     }
 
     @Override
     public boolean equals(Object other) {
+        assert (other instanceof ObsDistEventType);
+
         if (!equalsIgnoringTraceIds(other)) {
             return false;
         }

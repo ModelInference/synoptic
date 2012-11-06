@@ -411,7 +411,16 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
             return !invChecker.isFail();
         }
 
-        for (ObsDistEventType e : curState.getTransitioningEvents()) {
+        Set<ObsDistEventType> nextEvents = curState.getTransitioningEvents();
+
+        // Create a copy of the checker state to use if we have more than
+        // sub-branch to explore.
+        BinChecker clonedOrig = null;
+        if (nextEvents.size() > 1) {
+            clonedOrig = invChecker.getClone();
+        }
+
+        for (ObsDistEventType e : nextEvents) {
             Validity mcResult = invChecker.transition(e.getDistEType());
             if (mcResult == Validity.PERM_FAIL) {
                 return false;
@@ -421,6 +430,11 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
             }
             if (!checkInvariant(invChecker, curState.getNextState(e))) {
                 return false;
+            }
+
+            // Update the copy of the invChecker with state from the original.
+            if (clonedOrig != null) {
+                invChecker.inheritState(clonedOrig);
             }
         }
         // If we got here then all of the sub-branches we've explored above

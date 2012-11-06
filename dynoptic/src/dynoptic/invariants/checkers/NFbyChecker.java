@@ -62,4 +62,17 @@ public class NFbyChecker extends BinChecker {
         return s == State.SAW_XY;
     }
 
+    @Override
+    public void inheritState(BinChecker otherChecker) {
+        assert otherChecker instanceof NFbyChecker;
+        this.s = ((NFbyChecker) otherChecker).s;
+    }
+
+    @Override
+    public BinChecker getClone() {
+        NFbyChecker ch = new NFbyChecker(inv);
+        ch.s = this.s;
+        return ch;
+    }
+
 }
