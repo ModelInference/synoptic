@@ -1,7 +1,8 @@
 package dynoptic.model.fifosys.channel.channelid;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
+
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -23,7 +24,7 @@ public class LocalEventsChannelId extends ChannelId {
     public LocalEventsChannelId(int scmId) {
         // NOTE: srcPid and dstPid of 0 are arbitrary values.
         super(0, 0, scmId, "ch-locals");
-        eventStrToDistEventType = new LinkedHashMap<String, DistEventType>();
+        eventStrToDistEventType = Util.newMap();
     }
 
     // //////////////////////////////////////////////////////////////////

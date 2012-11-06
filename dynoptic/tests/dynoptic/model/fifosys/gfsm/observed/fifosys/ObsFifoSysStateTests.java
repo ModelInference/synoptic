@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -13,6 +12,7 @@ import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 
@@ -25,7 +25,7 @@ public class ObsFifoSysStateTests extends DynopticTest {
     @Test
     public void create() {
 
-        List<ObsFSMState> P = new ArrayList<ObsFSMState>();
+        List<ObsFSMState> P = Util.newList();
         ObsFSMState p0 = ObsFSMState.namedObsFSMState(0, "p", false, true);
         ObsFSMState p1 = ObsFSMState.namedObsFSMState(1, "q", false, true);
         P.add(p0);
@@ -33,7 +33,7 @@ public class ObsFifoSysStateTests extends DynopticTest {
 
         ObsMultFSMState obsFSMState = ObsMultFSMState.getMultiFSMState(P);
 
-        cids = new ArrayList<ChannelId>(2);
+        cids = Util.newList(2);
         cid1 = new ChannelId(0, 1, 0);
         cid2 = new ChannelId(1, 0, 1);
         cids.add(cid1);

@@ -1,7 +1,6 @@
 package dynoptic.main;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +19,7 @@ import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.gfsm.GFSM;
 import dynoptic.model.fifosys.gfsm.GFSMPath;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
+import dynoptic.util.Util;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
@@ -475,8 +475,8 @@ public class DynopticMain {
         // events that capture message send/receives). And determine the number
         // of processes in the system.
 
-        Set<ChannelId> usedChannelIds = new LinkedHashSet<ChannelId>();
-        Set<Integer> usedPids = new LinkedHashSet<Integer>();
+        Set<ChannelId> usedChannelIds = Util.newSet();
+        Set<Integer> usedPids = Util.newSet();
 
         for (EventNode eNode : parsedEvents) {
             synoptic.model.event.EventType synEType = eNode.getEType();
@@ -530,7 +530,7 @@ public class DynopticMain {
      */
     public static List<BinaryInvariant> synInvsToDynInvs(
             TemporalInvariantSet minedInvs) {
-        List<BinaryInvariant> dynInvs = new ArrayList<BinaryInvariant>();
+        List<BinaryInvariant> dynInvs = Util.newList();
 
         BinaryInvariant dynInv = null;
 
@@ -608,16 +608,15 @@ public class DynopticMain {
 
         // Make a copy of invs, as we'll be modifying the list (removing
         // invariants once they are satisfied by the model).
-        List<BinaryInvariant> invsToSatisfy = new ArrayList<BinaryInvariant>(
-                invs);
+        List<BinaryInvariant> invsToSatisfy = Util.newList(invs);
 
         // The set of invariants that have timed-out so far. This set is reset
         // whenever we successfully check/refine an invariant.
-        Set<BinaryInvariant> timedOutInvs = new LinkedHashSet<BinaryInvariant>();
+        Set<BinaryInvariant> timedOutInvs = Util.newSet();
 
         // The set of invariants (subset of original invsToSatisfy) that the
         // model satisfies.
-        Set<BinaryInvariant> satisfiedInvs = new LinkedHashSet<BinaryInvariant>();
+        Set<BinaryInvariant> satisfiedInvs = Util.newSet();
 
         // curInv will _always_ refer to the 0th element of invsToSatisfy.
         BinaryInvariant curInv = invsToSatisfy.get(0);

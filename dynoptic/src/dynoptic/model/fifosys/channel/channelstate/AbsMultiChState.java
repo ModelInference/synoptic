@@ -1,7 +1,8 @@
 package dynoptic.model.fifosys.channel.channelstate;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.IDistEventType;
@@ -35,8 +36,7 @@ abstract public class AbsMultiChState<TxnEType extends IDistEventType> {
             List<ChannelId> channelIds) {
         assert channelIds != null;
 
-        List<ChState<EType>> ret = new ArrayList<ChState<EType>>(
-                channelIds.size());
+        List<ChState<EType>> ret = Util.newList(channelIds.size());
 
         // Populate the channels map based on the channelIds.
         for (ChannelId chId : channelIds) {
@@ -83,7 +83,7 @@ abstract public class AbsMultiChState<TxnEType extends IDistEventType> {
 
     public List<ChannelId> getChannelIds() {
         // TODO: cache the returned channel ids.
-        List<ChannelId> ret = new ArrayList<ChannelId>(channelStates.size());
+        List<ChannelId> ret = Util.newList(channelStates.size());
         for (ChState<TxnEType> s : channelStates) {
             ret.add(s.getChannelId());
         }

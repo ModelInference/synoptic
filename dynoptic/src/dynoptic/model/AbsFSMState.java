@@ -1,8 +1,9 @@
 package dynoptic.model;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Set;
+
+import dynoptic.util.Util;
 
 import synoptic.model.event.DistEventType;
 import synoptic.model.event.IDistEventType;
@@ -137,7 +138,7 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState, TxnET
      * @return
      */
     public Set<NextState> getNextStates() {
-        Set<NextState> ret = new LinkedHashSet<NextState>();
+        Set<NextState> ret = Util.newSet();
         for (TxnEType e : getTransitioningEvents()) {
             ret.addAll(getNextStates(e));
         }

@@ -7,7 +7,6 @@ import static org.junit.Assert.fail;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -43,7 +43,7 @@ public class McScMTests {
         logger.setLevel(Level.INFO);
         mcscm = new McScM(verifyPath);
 
-        cids = new ArrayList<ChannelId>();
+        cids = Util.newList();
         cid0 = new ChannelId(1, 2, 0);
         cid1 = new ChannelId(1, 2, 1);
         cids.add(cid0);

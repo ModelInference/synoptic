@@ -1,7 +1,8 @@
 package dynoptic.model.fifosys.gfsm.observed;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
+
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -21,7 +22,7 @@ public class ObsDistEventType implements IDistEventType {
     public ObsDistEventType(DistEventType etype, int traceId) {
         this.etype = etype;
 
-        this.traceIds = new LinkedHashSet<Integer>();
+        this.traceIds = Util.newSet();
         traceIds.add(traceId);
     }
 
@@ -32,12 +33,6 @@ public class ObsDistEventType implements IDistEventType {
     public Set<Integer> getTraceIds() {
         return traceIds;
     }
-
-    /** Merge the trace ids from e into this. */
-    /*
-     * public void addTraceIds(ObsDistEventType e) { assert
-     * this.etype.equals(e.etype); this.traceIds.addAll(e.getTraceIds()); }
-     */
 
     /** Adds a single trace Id to this observed transition. */
     public void addTraceId(int traceId) {

@@ -1,9 +1,9 @@
 package dynoptic.model.fifosys.channel.channelstate;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 
@@ -32,8 +32,8 @@ public class MutableMultiChState extends AbsMultiChState<ObsDistEventType>
     @Override
     public MutableMultiChState clone() {
         // Capture the current state of all the channels.
-        List<ChState<ObsDistEventType>> clonedChannels = new ArrayList<ChState<ObsDistEventType>>(
-                channelStates.size());
+        List<ChState<ObsDistEventType>> clonedChannels = Util
+                .newList(channelStates.size());
         for (ChState<ObsDistEventType> s : channelStates) {
             clonedChannels.add(s.clone());
         }

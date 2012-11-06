@@ -1,11 +1,11 @@
 package dynoptic.model.fifosys.gfsm.observed;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.fifosys.AbsMultiFSMState;
+import dynoptic.util.Util;
 
 /**
  * Represents the instantaneous observed state across all of the processes in a
@@ -21,7 +21,7 @@ public class ObsMultFSMState extends
     private static final Map<List<ObsFSMState>, ObsMultFSMState> cache;
 
     static {
-        cache = new LinkedHashMap<List<ObsFSMState>, ObsMultFSMState>();
+        cache = Util.newMap();
     }
 
     // Used by tests and DynopticMain to clear the states cache.

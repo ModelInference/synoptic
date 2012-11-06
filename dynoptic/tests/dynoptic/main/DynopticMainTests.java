@@ -3,7 +3,6 @@ package dynoptic.main;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -15,6 +14,7 @@ import dynoptic.invariants.AlwaysPrecedes;
 import dynoptic.invariants.BinaryInvariant;
 import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
+import dynoptic.util.Util;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
@@ -32,7 +32,7 @@ public class DynopticMainTests extends DynopticTest {
     public DynopticOptions opts;
 
     public List<String> getBasicArgsStr() throws Exception {
-        List<String> args = new ArrayList<String>();
+        List<String> args = Util.newList();
         args.add("-v");
         args.add(super.getMcPath());
         args.add("-o");

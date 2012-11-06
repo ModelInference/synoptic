@@ -6,8 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
+
+import dynoptic.util.Util;
 
 /** Some process handling routines. */
 public class ProcessUtil {
@@ -70,7 +71,7 @@ public class ProcessUtil {
         BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(inputStream));
 
-        List<String> lines = new ArrayList<String>();
+        List<String> lines = Util.newList();
         String line;
 
         while ((line = bufferedReader.readLine()) != null) {

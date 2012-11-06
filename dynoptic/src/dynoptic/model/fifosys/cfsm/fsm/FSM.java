@@ -2,12 +2,12 @@ package dynoptic.model.fifosys.cfsm.fsm;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import dynoptic.main.DynopticMain;
 import dynoptic.model.AbsFSM;
 import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
+import dynoptic.util.Util;
 
 import synoptic.model.event.DistEventType;
 
@@ -50,7 +50,7 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
             // 1. all states transition only to states in the states collection
             // 2. all states have a pid that matches the pid of this FSM
             // 3. all init/accept states are in fact init/accept
-            Set<Integer> scmIds = new LinkedHashSet<Integer>();
+            Set<Integer> scmIds = Util.newSet();
             for (FSMState s : states) {
                 // NOTE: states might contain duplicates!
                 scmIds.add(s.getScmId());

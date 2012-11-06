@@ -3,13 +3,13 @@ package dynoptic.model.fifosys.channel.channelstate;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -30,13 +30,13 @@ public class ImmutibleMultiChStateTests extends DynopticTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        cids = new ArrayList<ChannelId>(2);
+        cids = Util.newList(2);
         cid1 = new ChannelId(1, 2, 0);
         cid2 = new ChannelId(2, 1, 1);
         cids.add(cid1);
         cids.add(cid2);
 
-        chStates = new ArrayList<ChState<DistEventType>>(2);
+        chStates = Util.newList(2);
         chStates.add(new ChState<DistEventType>(cid1));
         chStates.add(new ChState<DistEventType>(cid2));
     }
@@ -58,7 +58,7 @@ public class ImmutibleMultiChStateTests extends DynopticTest {
         assertTrue(mc == mc3);
         assertTrue(mc.equals(mc3));
 
-        cids = new ArrayList<ChannelId>(2);
+        cids = Util.newList(2);
         cid1 = new ChannelId(1, 2, 0);
         cid2 = new ChannelId(2, 2, 1);
         cids.add(cid1);

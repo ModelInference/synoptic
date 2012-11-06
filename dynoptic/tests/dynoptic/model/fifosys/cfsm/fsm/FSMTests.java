@@ -3,13 +3,13 @@ package dynoptic.model.fifosys.cfsm.fsm;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -42,18 +42,18 @@ public class FSMTests extends DynopticTest {
     @Override
     public void setUp() {
         init_1 = new FSMState(false, true, 1, 0);
-        listInit_1 = new LinkedHashSet<FSMState>();
+        listInit_1 = Util.newSet();
         listInit_1.add(init_1);
 
         accepting_1 = new FSMState(true, false, 1, 1);
-        listAccepting_1 = new LinkedHashSet<FSMState>();
+        listAccepting_1 = Util.newSet();
         listAccepting_1.add(accepting_1);
 
         state_2 = new FSMState(false, false, 2, 2);
         cid = new ChannelId(1, 2, 0);
         e_pid1 = DistEventType.SendEvent("m", cid);
         e2_pid1 = DistEventType.LocalEvent("e", 1);
-        states = new LinkedHashSet<FSMState>();
+        states = Util.newSet();
     }
 
     @Test

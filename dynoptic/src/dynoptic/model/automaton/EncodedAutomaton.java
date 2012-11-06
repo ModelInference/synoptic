@@ -1,6 +1,5 @@
 package dynoptic.model.automaton;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -9,6 +8,7 @@ import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 import dynoptic.model.AbsFSM;
 import dynoptic.model.AbsFSMState;
+import dynoptic.util.Util;
 
 import synoptic.model.event.IDistEventType;
 
@@ -42,7 +42,7 @@ public class EncodedAutomaton<T extends AbsFSMState<T, TxnEType>, TxnEType exten
         // initial state of this automaton
         State initialState = new State();
 
-        Set<T> visited = new LinkedHashSet<T>();
+        Set<T> visited = Util.newSet();
         Set<T> initStates = fsm.getInitStates();
 
         for (T initState : initStates) {

@@ -1,7 +1,5 @@
 package dynoptic.model.fifosys.gfsm.observed.dag;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -11,6 +9,7 @@ import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -74,7 +73,7 @@ public class ObsDAG {
      */
     public Set<ObsFifoSysState> genFifoStates() {
         // This will keep track of all states we've created thus far.
-        Set<ObsFifoSysState> fifoStates = new LinkedHashSet<ObsFifoSysState>();
+        Set<ObsFifoSysState> fifoStates = Util.newSet();
 
         // Mark all the nodes in the initial config as having occurred.
         for (ObsDAGNode node : initDagConfig) {
@@ -84,8 +83,7 @@ public class ObsDAG {
         // Copy the initDagConfig into curDagconfig, since we will be modifying
         // this config to track where we are in the space of possible DAG
         // configurations.
-        List<ObsDAGNode> currDagConfig = new ArrayList<ObsDAGNode>(
-                initDagConfig);
+        List<ObsDAGNode> currDagConfig = Util.newList(initDagConfig);
 
         // Iterate through all the nodes enabled from the current configuration,
         // and explore each of them DFS-style.
@@ -194,7 +192,7 @@ public class ObsDAG {
      * @return
      */
     private ObsMultFSMState fsmStatesFromDagConfig(List<ObsDAGNode> dagConfig) {
-        List<ObsFSMState> fsmStates = new ArrayList<ObsFSMState>();
+        List<ObsFSMState> fsmStates = Util.newList();
 
         for (ObsDAGNode node : dagConfig) {
             fsmStates.add(node.getObsState());
@@ -213,7 +211,7 @@ public class ObsDAG {
      * @return
      */
     private Set<ObsDAGNode> getEnabledNodes(List<ObsDAGNode> curConfig) {
-        Set<ObsDAGNode> ret = new LinkedHashSet<ObsDAGNode>();
+        Set<ObsDAGNode> ret = Util.newSet();
         for (ObsDAGNode node : curConfig) {
             if (!node.isTermState() && node.getNextState().isEnabled()) {
                 ret.add(node.getNextState());

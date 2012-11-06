@@ -1,8 +1,9 @@
 package dynoptic.main;
 
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
+
+import dynoptic.util.Util;
 
 import plume.Option;
 import plume.OptionGroup;
@@ -210,7 +211,7 @@ public class DynopticOptions extends Options {
      */
     public DynopticOptions() {
         randomSeed = System.currentTimeMillis();
-        logFilenames = new LinkedList<String>();
+        logFilenames = Util.newList();
         args = null;
     }
 

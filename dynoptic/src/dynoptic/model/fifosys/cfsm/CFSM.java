@@ -1,8 +1,6 @@
 package dynoptic.model.fifosys.cfsm;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -94,11 +92,11 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
 
     public CFSM(int numProcesses, List<ChannelId> channelIds) {
         super(numProcesses, channelIds);
-        fsms = new ArrayList<FSM>(Collections.nCopies(numProcesses, (FSM) null));
+        fsms = Util.newList(Collections.nCopies(numProcesses, (FSM) null));
         unSpecifiedPids = numProcesses;
         firstSyntheticChIndex = Integer.MAX_VALUE;
         localEventsChIndex = Integer.MAX_VALUE;
-        invs = new ArrayList<BinaryInvariant>();
+        invs = Util.newList();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -166,7 +164,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
 
         // TODO: Sub-optimality -- we are needlessly creating many lists by
         // calling getBadState(inv) repeatedly.
-        List<BadState> ret = new ArrayList<BadState>();
+        List<BadState> ret = Util.newList();
         for (BinaryInvariant inv : invs) {
             ret.addAll(getBadStates(inv));
         }
@@ -189,14 +187,14 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         if (invs.size() == 0) {
             return Collections.emptyList();
         }
-        List<BadState> badStates = new ArrayList<BadState>();
+        List<BadState> badStates = Util.newList();
 
         Set<CFSMState> accepts = this.getAcceptStates();
         if (accepts.isEmpty()) {
             assert !accepts.isEmpty();
         }
 
-        List<String> qReList = new ArrayList<String>(channelIds.size());
+        List<String> qReList = Util.newList(channelIds.size());
 
         // Set non-synthetic queues reg-exps to accept the empty string.
         for (int i = 0; i < firstSyntheticChIndex; i++) {
@@ -394,7 +392,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
 
     private Set<CFSMState> deriveAllPermsOfStates(IFSMToStateSetFn<FSMState> fn) {
         if (numProcesses == 1) {
-            Set<CFSMState> ret = new LinkedHashSet<CFSMState>();
+            Set<CFSMState> ret = Util.newSet();
             for (FSMState s : fn.eval(fsms.get(0))) {
                 ret.add(new CFSMState(s));
             }
@@ -444,7 +442,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         this.channelIds.add(invCid);
 
         // Update the FSM corresponding to e1.
-        Set<FSMState> visited = new LinkedHashSet<FSMState>();
+        Set<FSMState> visited = Util.newSet();
         FSM f1 = this.fsms.get(e1.getPid());
         DistEventType e1Tracer1 = DistEventType
                 .SynthSendEvent(e1, invCid, true);
@@ -486,7 +484,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         this.channelIds.add(invCid);
 
         // Update the FSM corresponding to e1.
-        Set<FSMState> visited = new LinkedHashSet<FSMState>();
+        Set<FSMState> visited = Util.newSet();
         FSM f1 = this.fsms.get(e1.getPid());
         DistEventType e1Tracer1 = DistEventType
                 .SynthSendEvent(e1, invCid, true);

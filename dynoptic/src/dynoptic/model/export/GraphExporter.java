@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -15,6 +14,7 @@ import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.gfsm.GFSM;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
+import dynoptic.util.Util;
 
 import synoptic.main.SynopticMain;
 import synoptic.model.event.IDistEventType;
@@ -196,14 +196,14 @@ public class GraphExporter {
 
             // A mapping between nodes in the graph and the their integer
             // identifiers in the dot output.
-            LinkedHashMap<State, Integer> nodeToInt = new LinkedHashMap<State, Integer>();
+            Map<State, Integer> nodeToInt = Util.newMap();
 
             // A unique identifier used to represent nodes in the exported file.
             int nodeCnt = 0;
 
             // NOTE: we must create a new collection so that we do not modify
             // the set maintained by the graph!
-            Set<State> nodes = new LinkedHashSet<State>(fsmGraph.getStates());
+            Set<State> nodes = Util.newSet(fsmGraph.getStates());
 
             // /////////////////////
             // EXPORT NODES:

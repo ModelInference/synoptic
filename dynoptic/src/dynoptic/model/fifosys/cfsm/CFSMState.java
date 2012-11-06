@@ -1,12 +1,11 @@
 package dynoptic.model.fifosys.cfsm;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+import dynoptic.util.Util;
 
 import synoptic.model.event.DistEventType;
 
@@ -28,7 +27,7 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState, DistEventType> 
      */
     public static Set<CFSMState> CFSMStatesFromFSMListLists(
             List<List<FSMState>> list) {
-        Set<CFSMState> ret = new LinkedHashSet<CFSMState>();
+        Set<CFSMState> ret = Util.newSet();
         for (List<FSMState> item : list) {
             ret.add(new CFSMState(item));
         }
@@ -40,7 +39,7 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState, DistEventType> 
     /** Single FSM state. */
     public CFSMState(FSMState s) {
         super(1);
-        this.fsmStates = new ArrayList<FSMState>();
+        this.fsmStates = Util.newList();
         this.fsmStates.add(s);
     }
 
@@ -80,7 +79,7 @@ public final class CFSMState extends AbsMultiFSMState<CFSMState, DistEventType> 
 
     @Override
     public Set<DistEventType> getTransitioningEvents() {
-        Set<DistEventType> ret = new LinkedHashSet<DistEventType>();
+        Set<DistEventType> ret = Util.newSet();
         for (FSMState p : fsmStates) {
             ret.addAll(p.getTransitioningEvents());
         }

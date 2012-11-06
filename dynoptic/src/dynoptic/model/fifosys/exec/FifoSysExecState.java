@@ -1,13 +1,13 @@
 package dynoptic.model.fifosys.exec;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.channel.channelstate.MutableMultiChState;
 import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.util.InternalSynopticException;
@@ -94,7 +94,7 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     @Override
     public Set<FifoSysExecState<MultiFSMState>> getNextStates(
             ObsDistEventType event) {
-        Set<FifoSysExecState<MultiFSMState>> ret = new LinkedHashSet<FifoSysExecState<MultiFSMState>>();
+        Set<FifoSysExecState<MultiFSMState>> ret = Util.newSet();
 
         Set<ObsDistEventType> enabledEvents = this.getEnabledEvents();
 
@@ -164,7 +164,7 @@ public class FifoSysExecState<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
 
         // Traverse potentialEvents and build ret from all events that are
         // feasible -- all local/send events, and some receive events.
-        Set<ObsDistEventType> ret = new LinkedHashSet<ObsDistEventType>();
+        Set<ObsDistEventType> ret = Util.newSet();
         for (ObsDistEventType e : potentialEvents) {
             // Filter out those events that cannot be received because of
             // incompatible FIFO queue state (i.e., cannot receive 'm' if 'm' is
