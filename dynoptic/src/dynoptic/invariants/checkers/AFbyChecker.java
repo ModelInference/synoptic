@@ -4,27 +4,24 @@ import dynoptic.invariants.BinaryInvariant;
 
 import synoptic.model.event.DistEventType;
 
-public class AFbyChecker extends BinChecker {
+enum AFbyState {
+    // INITIAL (accepting):
+    // initial state and the state after having observed y.
+    INITIAL,
 
-    private enum State {
-        // INITIAL (accepting):
-        // initial state and the state after having observed y.
-        INITIAL,
+    // SAW_X (rejecting):
+    // state after having observed x.
+    SAW_X;
+}
 
-        // SAW_X (rejecting):
-        // state after having observed x.
-        SAW_X;
-    }
-
-    State s;
+public class AFbyChecker extends BinChecker<AFbyState> {
 
     /**
      * @param inv
      *            x AFby y
      */
     public AFbyChecker(BinaryInvariant inv) {
-        super(inv);
-        s = State.INITIAL;
+        super(inv, AFbyState.INITIAL);
     }
 
     /**
@@ -33,17 +30,17 @@ public class AFbyChecker extends BinChecker {
     @Override
     public Validity transition(DistEventType e) {
         if (inv.getFirst().equals(e)) {
-            s = State.SAW_X;
+            s = AFbyState.SAW_X;
             return Validity.TEMP_FAIL;
         }
 
         if (inv.getSecond().equals(e)) {
-            s = State.INITIAL;
+            s = AFbyState.INITIAL;
             return Validity.TEMP_SUCCESS;
         }
 
         // Otherwise state is unchanged.
-        if (s == State.INITIAL) {
+        if (s == AFbyState.INITIAL) {
             return Validity.TEMP_SUCCESS;
         }
         return Validity.TEMP_FAIL;
@@ -51,17 +48,12 @@ public class AFbyChecker extends BinChecker {
 
     @Override
     public boolean isFail() {
-        return s == State.SAW_X;
+        return s == AFbyState.SAW_X;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void inheritState(BinChecker otherChecker) {
-        assert otherChecker instanceof AFbyChecker;
-        this.s = ((AFbyChecker) otherChecker).s;
-    }
-
-    @Override
-    public BinChecker getClone() {
+    public AFbyChecker getClone() {
         AFbyChecker ch = new AFbyChecker(inv);
         ch.s = this.s;
         return ch;

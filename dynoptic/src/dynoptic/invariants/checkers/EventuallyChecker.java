@@ -4,27 +4,24 @@ import dynoptic.invariants.BinaryInvariant;
 
 import synoptic.model.event.DistEventType;
 
-public class EventuallyChecker extends BinChecker {
+enum EventuallyState {
+    // INITIAL (rejecting):
+    // initial state.
+    INITIAL,
 
-    private enum State {
-        // INITIAL (rejecting):
-        // initial state.
-        INITIAL,
+    // SAW_X (permanently accepting):
+    // state after having observed x.
+    SAW_X;
+}
 
-        // SAW_X (permanently accepting):
-        // state after having observed x.
-        SAW_X;
-    }
-
-    State s;
+public class EventuallyChecker extends BinChecker<EventuallyState> {
 
     /**
      * @param inv
      *            Eventually x
      */
     public EventuallyChecker(BinaryInvariant inv) {
-        super(inv);
-        s = State.INITIAL;
+        super(inv, EventuallyState.INITIAL);
     }
 
     /**
@@ -32,14 +29,14 @@ public class EventuallyChecker extends BinChecker {
      */
     @Override
     public Validity transition(DistEventType e) {
-        if (s == State.SAW_X) {
+        if (s == EventuallyState.SAW_X) {
             return Validity.PERM_SUCCESS;
         }
 
-        assert s == State.INITIAL;
+        assert s == EventuallyState.INITIAL;
 
         if (inv.getSecond().equals(e)) {
-            s = State.SAW_X;
+            s = EventuallyState.SAW_X;
             return Validity.PERM_SUCCESS;
         }
         // Remain at INITIAL.
@@ -48,17 +45,12 @@ public class EventuallyChecker extends BinChecker {
 
     @Override
     public boolean isFail() {
-        return s == State.INITIAL;
+        return s == EventuallyState.INITIAL;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void inheritState(BinChecker otherChecker) {
-        assert otherChecker instanceof EventuallyChecker;
-        this.s = ((EventuallyChecker) otherChecker).s;
-    }
-
-    @Override
-    public BinChecker getClone() {
+    public EventuallyChecker getClone() {
         EventuallyChecker ch = new EventuallyChecker(inv);
         ch.s = this.s;
         return ch;

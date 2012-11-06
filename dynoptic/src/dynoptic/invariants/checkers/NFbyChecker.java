@@ -4,31 +4,28 @@ import dynoptic.invariants.BinaryInvariant;
 
 import synoptic.model.event.DistEventType;
 
-public class NFbyChecker extends BinChecker {
+enum NFbyState {
+    // INITIAL (accepting):
+    // initial state.
+    INITIAL,
 
-    private enum State {
-        // INITIAL (accepting):
-        // initial state.
-        INITIAL,
+    // SAW_X (accepting):
+    // state after having observed x.
+    SAW_X,
 
-        // SAW_X (accepting):
-        // state after having observed x.
-        SAW_X,
+    // SAW_XY (permanently rejecting):
+    // state after observing x, and then y.
+    SAW_XY;
+}
 
-        // SAW_XY (permanently rejecting):
-        // state after observing x, and then y.
-        SAW_XY;
-    }
-
-    State s;
+public class NFbyChecker extends BinChecker<NFbyState> {
 
     /**
      * @param inv
      *            x NFby y
      */
     public NFbyChecker(BinaryInvariant inv) {
-        super(inv);
-        s = State.INITIAL;
+        super(inv, NFbyState.INITIAL);
     }
 
     /**
@@ -36,40 +33,35 @@ public class NFbyChecker extends BinChecker {
      */
     @Override
     public Validity transition(DistEventType e) {
-        if (s == State.SAW_XY) {
+        if (s == NFbyState.SAW_XY) {
             // Permanently rejecting.
             return Validity.PERM_FAIL;
         }
 
-        if (s == State.SAW_X) {
+        if (s == NFbyState.SAW_X) {
             if (inv.getSecond().equals(e)) {
-                s = State.SAW_XY;
+                s = NFbyState.SAW_XY;
                 return Validity.PERM_FAIL;
             }
             return Validity.TEMP_SUCCESS;
         }
 
-        assert s == State.INITIAL;
+        assert s == NFbyState.INITIAL;
 
         if (inv.getFirst().equals(e)) {
-            s = State.SAW_X;
+            s = NFbyState.SAW_X;
         }
         return Validity.TEMP_SUCCESS;
     }
 
     @Override
     public boolean isFail() {
-        return s == State.SAW_XY;
+        return s == NFbyState.SAW_XY;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void inheritState(BinChecker otherChecker) {
-        assert otherChecker instanceof NFbyChecker;
-        this.s = ((NFbyChecker) otherChecker).s;
-    }
-
-    @Override
-    public BinChecker getClone() {
+    public NFbyChecker getClone() {
         NFbyChecker ch = new NFbyChecker(inv);
         ch.s = this.s;
         return ch;
