@@ -276,6 +276,14 @@ public class DynopticMain {
      */
     public void run(DAGsTraceGraph traceGraph) throws IOException,
             InterruptedException, Exception {
+
+        // Export a visualization of the traceGraph
+        String dotFilename = opts.outputPathPrefix + ".trace-graph.dot";
+        synoptic.model.export.GraphExporter.exportGraph(dotFilename,
+                traceGraph, true);
+        synoptic.model.export.GraphExporter
+                .generatePngFileFromDotFile(dotFilename);
+
         // //////////////////
         // Mine Synoptic invariants
         TemporalInvariantSet minedInvs = synMain.minePOInvariants(
@@ -315,6 +323,11 @@ public class DynopticMain {
                 traceGraph, numProcesses, channelIds, opts.consistentInitState);
 
         assert traces.size() > 0;
+
+        // Export (just the first!) Observed FIFO System instance:
+        dotFilename = opts.outputPathPrefix + ".obsfifosys.tid1.dot";
+        GraphExporter.exportObsFifoSys(dotFilename, traces.get(0));
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
 
         // //////////////////
         // If assume consistent per-process initial state, check that

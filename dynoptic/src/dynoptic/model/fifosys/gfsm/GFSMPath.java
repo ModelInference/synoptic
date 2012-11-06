@@ -14,9 +14,8 @@ import synoptic.model.event.DistEventType;
 /**
  * Represents a path in the GFSM. This is used to store GFSM paths that
  * correspond to an event-based counter-example that is returned by the McScM
- * model checker. Note that this correspondence depends on the client -- e.g.,
- * it could be that does not match the events exactly and only matches the event
- * sub-sequence for a particular process.
+ * model checker. Note that this correspondence is not exact -- a GFSMPath
+ * represents the events sub-sequence for a particular process.
  */
 public class GFSMPath {
     protected static Logger logger = Logger.getLogger("GFSMCExample");
@@ -27,31 +26,38 @@ public class GFSMPath {
     // Sequence of events that connect partitions in the path.
     private final List<DistEventType> events;
 
+    private final int pid;
+
     // /////////////////////////////////////////////////////////////
 
-    public GFSMPath() {
+    public GFSMPath(int pid) {
         this.states = new ArrayList<GFSMState>();
         this.events = new ArrayList<DistEventType>();
+        this.pid = pid;
     }
 
-    public GFSMPath(GFSMState s) {
-        this();
+    public GFSMPath(GFSMState s, int pid) {
+        this(pid);
         this.states.add(s);
     }
 
-    public GFSMPath(List<GFSMState> path, List<DistEventType> eventsPath) {
+    public GFSMPath(List<GFSMState> path, List<DistEventType> eventsPath,
+            int pid) {
         assert path.size() == (eventsPath.size() + 1);
 
+        this.pid = pid;
         this.states = path;
         this.events = eventsPath;
     }
 
     public GFSMPath(GFSMPath path) {
-        this(path.getStates(), path.getEvents());
+        this(path.getStates(), path.getEvents(), path.getPid());
     }
 
     public GFSMPath(GFSMPath prefix, GFSMPath nextPath) {
         this(prefix);
+        assert prefix.getPid() == nextPath.getPid();
+
         this.states.addAll(nextPath.getStates());
         this.events.addAll(nextPath.getEvents());
     }
@@ -73,6 +79,10 @@ public class GFSMPath {
 
     public List<DistEventType> getEvents() {
         return events;
+    }
+
+    public int getPid() {
+        return pid;
     }
 
     public GFSMState lastState() {
@@ -108,7 +118,10 @@ public class GFSMPath {
      * @param pGraph
      */
     public boolean refine(GFSM pGraph) {
-        assert states.size() >= 2;
+        if (states.size() == 1) {
+            // No transitions observed along this path, so we cannot refine it.
+            return false;
+        }
 
         int maxStitchPartIndex = findMaxStitchPartIndex(0);
         if (maxStitchPartIndex == -1) {
@@ -137,11 +150,14 @@ public class GFSMPath {
         logger.info("Refining partition: " + part + ", at index " + partIndex);
 
         // We can't refine a partition if it contains just a single observation.
+        //
+        // NOTE: the code that determines the partition to refine cannot return
+        // a partition with a single concrete state as stitching, since the
+        // abstract counter-example can be extended in the concrete event-space
+        // by at least by one more event.
         if (part.getObservedStates().size() == 1) {
             assert part.getObservedStates().size() > 1;
         }
-
-        logger.info("Refining partition: " + part);
 
         // Construct setRight.
         Set<ObsFifoSysState> setRight;
@@ -151,7 +167,7 @@ public class GFSMPath {
             // isolate the observations that allow the counter-example path
             // to terminate at this partition from events that have
             // transitioned the path into this partition.
-            setRight = part.getTerminalObservations();
+            setRight = part.getTerminalObsForPid(pid);
         } else {
             // Construct setRight to contain observations that transition
             // from part to partNext in the counter-example path.
@@ -270,6 +286,9 @@ public class GFSMPath {
         Set<ObsFifoSysState> xObsSources = xPartSrc
                 .getObservedStatesWithTransition(x);
 
+        // There must be _some_ concrete state that has the abstract transition.
+        assert !xObsSources.isEmpty();
+
         // Track forward each observation that emits x from xPartSrcIndex
         // partition along the path and identify the partition
         // where the observation was 'stitched' onto another observation. The
@@ -283,7 +302,12 @@ public class GFSMPath {
             // start through the counter-example path.
             while (true) {
                 if (sPartIndex == (states.size() - 1)) {
-                    // Reached the end of the path.
+                    // Reached the end of the path. This is a valid end to
+                    // a path if s is a terminal observed state for pid.
+                    if (s.isAcceptForPid(pid)) {
+                        // Reset sPartIndex to indicate that this path is valid.
+                        sPartIndex = -1;
+                    }
                     break;
                 }
 
@@ -301,11 +325,10 @@ public class GFSMPath {
                 sPartIndex += 1;
             }
 
-            // If we broke out above because of a stitching, and not because of
-            // the end of the path..
-            if (sPartIndex != (states.size() - 1)) {
-                // Then, update the max index, if we reached further than
-                // before.
+            // If we broke out above because of a stitching or because we
+            // terminated in a state that we shouldn't have terminated in, then
+            // potentially update the maxStitchPartIndex.
+            if (sPartIndex != -1) {
                 if (sPartIndex > maxStitchPartIndex) {
                     maxStitchPartIndex = sPartIndex;
                 }

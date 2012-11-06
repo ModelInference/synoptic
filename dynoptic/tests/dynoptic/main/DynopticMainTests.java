@@ -274,7 +274,7 @@ public class DynopticMainTests extends DynopticTest {
         args.add("-i");
         args.add("-d");
         args.add("../traces/EndToEndDynopticTests/simple-po-concurrency/trace.txt");
-        // runDynFromFileArgs(args);
+        runDynFromFileArgs(args);
     }
 
     /** Same as the above, but uses a String input instead of a file input. */

@@ -51,4 +51,17 @@ public class EventuallyChecker extends BinChecker {
         return s == State.INITIAL;
     }
 
+    @Override
+    public void inheritState(BinChecker otherChecker) {
+        assert otherChecker instanceof EventuallyChecker;
+        this.s = ((EventuallyChecker) otherChecker).s;
+    }
+
+    @Override
+    public BinChecker getClone() {
+        EventuallyChecker ch = new EventuallyChecker(inv);
+        ch.s = this.s;
+        return ch;
+    }
+
 }

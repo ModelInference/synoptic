@@ -75,10 +75,24 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
      * Returns the set of all observations that are accepting/terminal in this
      * partition.
      */
-    public Set<ObsFifoSysState> getTerminalObservations() {
+    public Set<ObsFifoSysState> getTerminalObs() {
         Set<ObsFifoSysState> ret = new LinkedHashSet<ObsFifoSysState>();
         for (ObsFifoSysState s : observedStates) {
             if (s.isAccept()) {
+                ret.add(s);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Returns the set of all observations that are accepting/terminal in this
+     * partition.
+     */
+    public Set<ObsFifoSysState> getTerminalObsForPid(int pid) {
+        Set<ObsFifoSysState> ret = new LinkedHashSet<ObsFifoSysState>();
+        for (ObsFifoSysState s : observedStates) {
+            if (s.isAcceptForPid(pid)) {
                 ret.add(s);
             }
         }
@@ -224,7 +238,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
     public Set<ObsFifoSysState> getObservedStatesWithTransition(DistEventType e) {
         Set<ObsFifoSysState> ret = new LinkedHashSet<ObsFifoSysState>();
         for (ObsFifoSysState s : observedStates) {
-            if (s.getTransitioningEvents().contains(e)) {
+            if (s.getObsTransitionByEType(e) != null) {
                 ret.add(s);
             }
         }

@@ -69,4 +69,9 @@ public abstract class BinChecker {
     /** @return whether or not the current state is a rejecting state. */
     abstract public boolean isFail();
 
+    /** Updates the state of this checker with state of otherChecker */
+    abstract public void inheritState(BinChecker otherChecker);
+
+    /** Returns a clone of this checker. */
+    abstract public BinChecker getClone();
 }

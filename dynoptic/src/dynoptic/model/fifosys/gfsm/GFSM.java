@@ -572,7 +572,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
         // Initialize paths with all the initial states in the model.
         for (GFSMState initS : getInitStates()) {
-            paths.add(new GFSMPath(initS));
+            paths.add(new GFSMPath(initS, pid));
         }
 
         // Build paths for sub-sequence of process pid events.
@@ -588,7 +588,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                 // as the last event, and only contain transitions for process
                 // pid before e.
                 GFSMState firstState = path.lastState();
-                suffixPaths = getSuffixPaths(firstState, e, visited);
+                suffixPaths = getSuffixPaths(firstState, e, visited, pid);
                 if (suffixPaths == null) {
                     continue;
                 }
@@ -629,7 +629,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
      * @param suffixPaths
      */
     private Set<GFSMPath> getSuffixPaths(GFSMState state, DistEventType e,
-            Set<GFSMState> visited) {
+            Set<GFSMState> visited, int pid) {
 
         if (visited.contains(state)) {
             return null;
@@ -643,7 +643,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                     suffixPaths = new LinkedHashSet<GFSMPath>();
                 }
                 for (GFSMState stateFinal : state.getNextStates(e)) {
-                    GFSMPath p = new GFSMPath();
+                    GFSMPath p = new GFSMPath(pid);
                     p.prefixEventAndState(e, stateFinal);
                     // Note, we add current state to prefix of p, but only once
                     // we are done with the outer loop.
@@ -661,7 +661,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
             // whatever paths we get back (at end of the function).
             for (GFSMState stateNext : state.getNextStates(e_)) {
                 Set<GFSMPath> newSuffixPaths = getSuffixPaths(stateNext, e,
-                        visited);
+                        visited, pid);
                 // Make sure to add the -- e_ --> stateNext to all suffixPaths
                 // we get back (if there were any that terminate with e)
                 if (newSuffixPaths != null) {
