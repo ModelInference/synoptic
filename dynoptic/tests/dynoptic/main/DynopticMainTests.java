@@ -243,7 +243,7 @@ public class DynopticMainTests extends DynopticTest {
         args.add("-i");
         args.add("-d");
         args.add("../traces/EndToEndDynopticTests/AlternatingBitProtocol/trace_po_sr_simple.txt");
-        runDynFromFileArgs(args);
+        // runDynFromFileArgs(args);
     }
 
     @Test
@@ -292,7 +292,7 @@ public class DynopticMainTests extends DynopticTest {
         dyn = new DynopticMain(opts);
 
         String log = "1,0 e1\n" + "0,1 f1\n" + "2,0 M!m\n" + "2,2 M?m";
-        // dyn.run(log);
+        dyn.run(log);
     }
 
     /** A slightly more complex example than the above. */
@@ -313,6 +313,6 @@ public class DynopticMainTests extends DynopticTest {
                 + "5,3 send_m\n" + "2,1 M?m\n" + "2,2 recv_m\n" + "2,3 A!a\n"
                 + "3,4 M?m\n";
 
-        dyn.run(log);
+        // dyn.run(log);
     }
 }
