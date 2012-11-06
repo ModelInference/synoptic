@@ -72,8 +72,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
     public GFSM(List<ObsFifoSys> traces) {
         super(traces.get(0).getNumProcesses(), traces.get(0).getChannelIds());
 
-        Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition = Util
-                .newMap();
+        Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition = Util.newMap();
 
         for (ObsFifoSys t : traces) {
             assert t.getNumProcesses() == numProcesses;
@@ -503,8 +502,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
             // TODO: need a better way of doing this, too -- have a way to
             // update transitions to states in bulk.
-            for (DistEventType e : Util.newSet(fPred
-                    .getTransitioningEvents())) {
+            for (DistEventType e : Util.newSet(fPred.getTransitioningEvents())) {
                 if (fPred.getNextStates(e).contains(fstate)) {
                     fPred.rmTransition(e, fstate);
                     fPred.addTransition(e, fstate2);
@@ -566,29 +564,35 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
     public Set<GFSMPath> getCExamplePaths(McScMCExample cExample, int pid) {
         Set<GFSMPath> paths = Util.newSet();
-        Set<GFSMPath> newPaths = Util.newSet();
-        Set<GFSMState> visited = Util.newSet();
-        Set<GFSMPath> suffixPaths = null;
 
         // Initialize paths with all the initial states in the model.
         for (GFSMState initS : getInitStates()) {
             paths.add(new GFSMPath(initS, pid));
         }
 
-        // Build paths for sub-sequence of process pid events.
+        // States visited during suffix paths construction.
+        Set<GFSMState> visitedStates = Util.newSet();
+        // Suffix paths that we use to build up the paths.
+        Set<GFSMPath> suffixPaths = null;
+        // Temporary holding for new set of paths.
+        Set<GFSMPath> newPaths = Util.newSet();
+
+        // Build paths for sub-sequence of process pid events in the
+        // counter-example.
         for (DistEventType e : cExample.getEvents()) {
+
             // Skip non-process pid events.
             if (e.getPid() != pid) {
                 continue;
             }
 
-            // Extend the constructed paths.
+            // Extend the constructed paths. The new paths are in newPaths.
             for (GFSMPath path : paths) {
                 // Populate suffix paths with extensions to path that end with e
-                // as the last event, and only contain transitions for process
-                // pid before e.
+                // as the last event, and only contain non pid transitions
+                // before the e transition.
                 GFSMState firstState = path.lastState();
-                suffixPaths = getSuffixPaths(firstState, e, visited, pid);
+                suffixPaths = getSuffixPaths(firstState, e, visitedStates, pid);
                 if (suffixPaths == null) {
                     continue;
                 }
@@ -605,9 +609,11 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                 }
             }
             if (newPaths.isEmpty()) {
-                return Collections.EMPTY_SET;
+                // If we were not able to extend any of the paths then we're
+                // done.
+                return Collections.emptySet();
             }
-            visited.clear();
+            visitedStates.clear();
 
             paths.clear();
             paths.addAll(newPaths);

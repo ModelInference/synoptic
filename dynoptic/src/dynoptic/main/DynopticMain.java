@@ -1,13 +1,13 @@
 package dynoptic.main;
 
 import java.io.IOException;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import mcscm.McScM;
+import mcscm.McScMCExample;
 import mcscm.VerifyResult;
 import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.AlwaysPrecedes;
@@ -733,10 +733,7 @@ public class DynopticMain {
             } else {
                 // Refine the pGraph in an attempt to eliminate the counter
                 // example.
-                if (!refineCExample(pGraph, curInv, result)) {
-                    throw new Exception(
-                            "Unable to eliminate CFSM counter-example from GFSM.");
-                }
+                refineCExample(pGraph, result.getCExample());
 
                 // Increment the number of refinements:
                 gfsmCounter += 1;
@@ -758,39 +755,50 @@ public class DynopticMain {
     }
 
     /**
-     * @param pGraph
-     * @param curInv
-     * @param result
+     * Matches the sequence of events in the counter-example to paths of
+     * corresponding GFSM states for each process. Then, refines each process'
+     * paths until all paths for some process are successfully refined.
+     * 
+     * @throws Exception
+     *             if we were not able to eliminate the counter-example
      */
-    private boolean refineCExample(GFSM pGraph, BinaryInvariant curInv,
-            VerifyResult result) {
-        // Match the sequence of events in the counter-example to
-        // paths of corresponding GFSM states.
+    private void refineCExample(GFSM pGraph, McScMCExample cexample)
+            throws Exception {
 
         // Resolve all of the complete counter-example paths by:
         // refining all possible stitching partitions for pid 0.
-        // However, if none of these can be refined then try pid 1, and
+        // However, if not all of these can be refined then try pid 1, and
         // so on. By construction we are guaranteed to be able to
         // eliminate this execution, so we are making progress as long
         // as we refine at each step.
         for (int i = 0; i < this.getNumProcesses(); i++) {
             // Get set of GFSM paths for process i that generate the
             // sub-sequence of process i events in the counter-example.
-            Set<GFSMPath> processPaths = pGraph.getCExamplePaths(
-                    result.getCExample(), i);
+            Set<GFSMPath> processPaths = pGraph.getCExamplePaths(cexample, i);
 
             logger.info("Process " + i + " paths: " + processPaths.toString());
 
             // Attempt to refine stitching partitions along these paths.
+            boolean refinedAll = true;
             for (GFSMPath path : processPaths) {
                 logger.info("Attempting to resolve process " + i + " path: "
                         + path.toString());
                 if (path.refine(pGraph)) {
-                    return true;
+                    break;
+                } else {
+                    refinedAll = false;
                 }
             }
+
+            // We were able to refine all paths for process i. Therefore, the
+            // abstract counter-example path cannot exist.
+            if (refinedAll) {
+                return;
+            }
+
         }
-        return false;
+        throw new Exception(
+                "Unable to eliminate CFSM counter-example from GFSM.");
     }
 
     /**

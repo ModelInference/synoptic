@@ -25,49 +25,64 @@ public class GFSMPath {
     // Sequence of events that connect partitions in the path.
     private final List<DistEventType> events;
 
+    // The process that this GFSMPath corresponds to -- used during
+    // counter-example conversion and refinement.
     private final int pid;
 
     // /////////////////////////////////////////////////////////////
 
+    /**
+     * Internal constructor for a path of length |path|, with |path| - 1
+     * inter-connecting events.
+     */
+    private GFSMPath(List<GFSMState> path, List<DistEventType> eventsPath,
+            int pid) {
+        assert path.size() == (eventsPath.size() + 1);
+
+        this.pid = pid;
+        // Make defensive copies of path/events lists.
+        this.states = Util.newList(path);
+        this.events = Util.newList(eventsPath);
+    }
+
+    // /////////////////////////////////////////////////////////////
+
+    /** New empty path. */
     public GFSMPath(int pid) {
         this.states = Util.newList();
         this.events = Util.newList();
         this.pid = pid;
     }
 
+    /** New path with a single initial state. */
     public GFSMPath(GFSMState s, int pid) {
         this(pid);
         this.states.add(s);
     }
 
-    public GFSMPath(List<GFSMState> path, List<DistEventType> eventsPath,
-            int pid) {
-        assert path.size() == (eventsPath.size() + 1);
-
-        this.pid = pid;
-        this.states = path;
-        this.events = eventsPath;
-    }
-
+    /** New path based off of an existing path. */
     public GFSMPath(GFSMPath path) {
         this(path.getStates(), path.getEvents(), path.getPid());
     }
 
-    public GFSMPath(GFSMPath prefix, GFSMPath nextPath) {
+    /** New path that is the stitching of pre-existing prefix and suffix paths. */
+    public GFSMPath(GFSMPath prefix, GFSMPath suffix) {
         this(prefix);
-        assert prefix.getPid() == nextPath.getPid();
+        assert prefix.getPid() == suffix.getPid();
 
-        this.states.addAll(nextPath.getStates());
-        this.events.addAll(nextPath.getEvents());
+        this.states.addAll(suffix.getStates());
+        this.events.addAll(suffix.getEvents());
     }
 
     // /////////////////////////////////////////////////////////////
 
+    /** Adds a state and event to the _front_ of a path. */
     public void prefixEventAndState(DistEventType e, GFSMState s) {
         states.add(0, s);
         events.add(0, e);
     }
 
+    /** Adds a single state to front of a path. */
     public void prefixState(GFSMState s) {
         states.add(0, s);
     }
