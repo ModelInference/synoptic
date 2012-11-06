@@ -17,9 +17,12 @@ import java.util.logging.Logger;
 
 import synoptic.benchmarks.PerformanceMetrics;
 import synoptic.benchmarks.TimedTask;
+import synoptic.invariants.birelational.BiRelationalInvariant;
 import synoptic.invariants.fsmcheck.FsmModelChecker;
+import synoptic.invariants.fsmcheck.birelational.BiFsmModelChecker;
 import synoptic.invariants.ltlchecker.GraphLTLChecker;
 import synoptic.main.SynopticMain;
+import synoptic.main.options.SynopticOptions;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
@@ -155,8 +158,15 @@ public class TemporalInvariantSet implements Iterable<ITemporalInvariant> {
             if (syn.options.useFSMChecker) {
                 paths = new ArrayList<CExamplePath<T>>();
                 for (ITemporalInvariant tinv : invariants) {
-                    CExamplePath<T> path = FsmModelChecker.getCounterExample(
-                            (BinaryInvariant) tinv, graph);
+                    CExamplePath<T> path = null;
+                    if (syn.options.multipleRelations) {
+                        path = BiFsmModelChecker.
+                                getCounterExample((BiRelationalInvariant) tinv, graph);
+                    } else {
+                        path = FsmModelChecker.
+                                getCounterExample((BinaryInvariant) tinv, graph);
+                    }
+
                     if (path != null) {
                         paths.add(path);
                     }

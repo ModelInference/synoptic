@@ -38,7 +38,7 @@ public abstract class TracingStateSet<T extends INode<T>> implements
     public class HistoryNode implements Comparable<HistoryNode> {
         T node;
         HistoryNode previous;
-        int count;
+        public int count;
 
         public HistoryNode(T node, HistoryNode previous, int count) {
             this.node = node;

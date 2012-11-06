@@ -21,7 +21,7 @@ public class NFBiTracingSet<T extends INode<T>> extends TracingBiRelationalState
     }
     
     @Override
-    public TracingStateSet<T> copy() {
+    public TracingBiRelationalStateSet<T> copy() {
         return new NFBiTracingSet<T>(tracingSet.copy());
     }
 }
