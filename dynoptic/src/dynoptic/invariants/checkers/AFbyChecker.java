@@ -9,10 +9,11 @@ public class AFbyChecker extends BinChecker {
     private enum State {
         // INITIAL (accepting):
         // initial state and the state after having observed y.
-        //
+        INITIAL,
+
         // SAW_X (rejecting):
         // state after having observed x.
-        INITIAL, SAW_X;
+        SAW_X;
     }
 
     State s;
@@ -30,16 +31,21 @@ public class AFbyChecker extends BinChecker {
      * @return whether or not the new state is an accepting state.
      */
     @Override
-    public boolean transition(DistEventType e) {
+    public Validity transition(DistEventType e) {
         if (inv.getFirst().equals(e)) {
             s = State.SAW_X;
-            return false;
+            return Validity.TEMP_FAIL;
         }
 
         if (inv.getSecond().equals(e)) {
             s = State.INITIAL;
-            return true;
+            return Validity.TEMP_SUCCESS;
         }
-        return s == State.INITIAL;
+
+        // Otherwise state is unchanged.
+        if (s == State.INITIAL) {
+            return Validity.TEMP_SUCCESS;
+        }
+        return Validity.TEMP_FAIL;
     }
 }

@@ -386,9 +386,9 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
      * 
      * @param minedInvs
      */
-    public List<BinaryInvariant> findInvalidatedInvariants(
+    public Set<BinaryInvariant> findInvalidatedInvariants(
             List<BinaryInvariant> minedInvs) {
-        List<BinaryInvariant> ret = new ArrayList<BinaryInvariant>();
+        Set<BinaryInvariant> ret = new LinkedHashSet<BinaryInvariant>();
         for (BinaryInvariant inv : minedInvs) {
             BinChecker invChecker = BinChecker.newChecker(inv);
             if (!checkInvariant(invChecker)) {

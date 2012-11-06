@@ -324,7 +324,17 @@ public class DynopticMain {
         // stitchings.
         if (opts.consistentInitState) {
             assert traces.size() == 1;
-            traces.get(0).findInvalidatedInvariants(dynInvs);
+
+            Set<BinaryInvariant> faultyInvs = traces.get(0)
+                    .findInvalidatedInvariants(dynInvs);
+            if (!faultyInvs.isEmpty()) {
+                logger.warning("Input traces are incomplete --- some mined invariants cannot be satisfied: "
+                        + faultyInvs.toString());
+
+                dynInvs.removeAll(faultyInvs);
+                logger.info("Ignoring faulty invariant and continuing. New invariants set: "
+                        + dynInvs.toString());
+            }
         }
 
         // ///////////////////

@@ -14,6 +14,24 @@ import synoptic.model.event.DistEventType;
  */
 public abstract class BinChecker {
 
+    public enum Validity {
+        // Temporarily failing -- failed if at end of trace, but might
+        // recover/succeed if trace is incomplete.
+        TEMP_FAIL,
+
+        // Temporarily successful -- successful if at end of trace, but might
+        // fail if trace is incomplete.
+        TEMP_SUCCESS,
+
+        // (optimization) Permanently failing -- no reason to continue checking
+        // the invariant.
+        PERM_FAIL,
+
+        // (optimization) Permanently successful -- no reason to continue
+        // checking the invariant.
+        PERM_SUCCESS,
+    }
+
     public static BinChecker newChecker(BinaryInvariant inv) {
         assert inv != null;
 
@@ -45,6 +63,6 @@ public abstract class BinChecker {
     /**
      * @return whether or not the new state is an accepting state.
      */
-    abstract public boolean transition(DistEventType e);
+    abstract public Validity transition(DistEventType e);
 
 }
