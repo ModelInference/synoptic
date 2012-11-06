@@ -132,14 +132,12 @@ public class ChState<TxnEType extends IDistEventType> implements Cloneable {
     }
 
     /** Merges trace ids of obs event types in chS into this. */
-    public void mergeInTraceIds(ChState<ObsDistEventType> chS) {
-        assert chS != null;
-        assert this.chId.equals(chS.chId);
-        assert this.queue.size() == chS.queue.size();
-
-        for (int i = 0; i < this.queue.size(); i++) {
-            ((ObsDistEventType) this.queue.get(i))
-                    .addTraceIds(chS.queue.get(i));
-        }
-    }
+    /*
+     * public void mergeInTraceIds(ChState<ObsDistEventType> chS) { assert chS
+     * != null; assert this.chId.equals(chS.chId); assert this.queue.size() ==
+     * chS.queue.size();
+     * 
+     * for (int i = 0; i < this.queue.size(); i++) { ((ObsDistEventType)
+     * this.queue.get(i)) .addTraceIds(chS.queue.get(i)); } }
+     */
 }

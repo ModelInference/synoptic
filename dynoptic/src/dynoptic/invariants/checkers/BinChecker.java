@@ -35,6 +35,11 @@ public abstract class BinChecker {
     public static BinChecker newChecker(BinaryInvariant inv) {
         assert inv != null;
 
+        // NOTE: EventuallyHappens instance must be checked for first, as it
+        // sub-classes AFby.
+        if (inv instanceof EventuallyHappens) {
+            return new EventuallyChecker(inv);
+        }
         if (inv instanceof AlwaysFollowedBy) {
             return new AFbyChecker(inv);
         }
@@ -44,9 +49,7 @@ public abstract class BinChecker {
         if (inv instanceof AlwaysPrecedes) {
             return new APChecker(inv);
         }
-        if (inv instanceof EventuallyHappens) {
-            return new EventuallyChecker(inv);
-        }
+
         throw new IllegalArgumentException("Invariant " + inv.toString()
                 + " has an unsupported type.");
     }
@@ -60,9 +63,10 @@ public abstract class BinChecker {
         this.inv = inv;
     }
 
-    /**
-     * @return whether or not the new state is an accepting state.
-     */
+    /** @return whether or not the new state is an accepting state. */
     abstract public Validity transition(DistEventType e);
+
+    /** @return whether or not the current state is a rejecting state. */
+    abstract public boolean isFail();
 
 }

@@ -34,10 +34,10 @@ public class ObsDistEventType implements IDistEventType {
     }
 
     /** Merge the trace ids from e into this. */
-    public void addTraceIds(ObsDistEventType e) {
-        assert this.etype.equals(e.etype);
-        this.traceIds.addAll(e.getTraceIds());
-    }
+    /*
+     * public void addTraceIds(ObsDistEventType e) { assert
+     * this.etype.equals(e.etype); this.traceIds.addAll(e.getTraceIds()); }
+     */
 
     /** Adds a single trace Id to this observed transition. */
     public void addTraceId(int traceId) {

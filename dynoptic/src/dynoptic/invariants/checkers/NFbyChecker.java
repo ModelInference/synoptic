@@ -57,4 +57,9 @@ public class NFbyChecker extends BinChecker {
         return Validity.TEMP_SUCCESS;
     }
 
+    @Override
+    public boolean isFail() {
+        return s == State.SAW_XY;
+    }
+
 }

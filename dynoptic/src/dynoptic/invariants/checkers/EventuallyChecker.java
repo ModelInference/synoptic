@@ -46,4 +46,9 @@ public class EventuallyChecker extends BinChecker {
         return Validity.TEMP_FAIL;
     }
 
+    @Override
+    public boolean isFail() {
+        return s == State.INITIAL;
+    }
+
 }

@@ -60,4 +60,9 @@ public class APChecker extends BinChecker {
         return Validity.TEMP_SUCCESS;
     }
 
+    @Override
+    public boolean isFail() {
+        return s == State.SAW_Y;
+    }
+
 }
