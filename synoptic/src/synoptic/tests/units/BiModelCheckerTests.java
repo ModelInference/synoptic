@@ -21,16 +21,13 @@ import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
-import synoptic.main.SynopticMain;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
 import synoptic.model.EventNode;
 import synoptic.model.Partition;
 import synoptic.model.PartitionGraph;
-import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
-import synoptic.model.event.StringEventType;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 import synoptic.model.interfaces.ITransition;
@@ -46,16 +43,18 @@ import synoptic.util.InternalSynopticException;
  * @author ivan
  */
 @RunWith(value = Parameterized.class)
-public class ModelCheckersTests extends SynopticTest {
+public class BiModelCheckerTests extends SynopticTest {
+    
+    public static String nonTimeRelation = "r";
     
     public static final ITemporalInvariant aAFbyB = 
-            new AlwaysFollowedInvariant("a", "b", Event.defTimeRelationStr);
+            new AlwaysFollowedInvariant("a", "b", nonTimeRelation);
     
     public static final ITemporalInvariant aNFbyB = 
-            new NeverFollowedInvariant("a", "b", Event.defTimeRelationStr);
+            new NeverFollowedInvariant("a", "b", nonTimeRelation);
     
     public static final ITemporalInvariant aAPb = 
-            new AlwaysPrecedesInvariant("a", "b", Event.defTimeRelationStr);
+            new AlwaysPrecedesInvariant("a", "b", nonTimeRelation);
 
     /**
      * Generates parameters for this unit test. The first instance of this test
@@ -67,14 +66,14 @@ public class ModelCheckersTests extends SynopticTest {
      */
     @Parameters
     public static Collection<Object[]> data() {
-        Object[][] data = new Object[][] { { true }, { false }};
+        Object[][] data = new Object[][] { { true }};
         return Arrays.asList(data);
     }
 
     boolean useFSMChecker;
     
 
-    public ModelCheckersTests(boolean useFSMChecker) {
+    public BiModelCheckerTests(boolean useFSMChecker) {
         this.useFSMChecker = useFSMChecker;
     }
 
@@ -82,6 +81,7 @@ public class ModelCheckersTests extends SynopticTest {
     public void setUp() throws ParseException {
         super.setUp();
         synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker = this.useFSMChecker;
+        synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.multipleRelations = true;
     }
 
     /**
@@ -184,8 +184,15 @@ public class ModelCheckersTests extends SynopticTest {
 
         TraceParser parser = new TraceParser();
         
-        parser.addRegex("^(?<TYPE>)$");
-        parser.addPartitionsSeparator("^--$");
+        if (multipleRelations) {
+            parser.addRegex("^(?<TIME>)(?<TYPE>)$");
+            parser.addRegex("^(?<TIME>)(?<RELATION>)(?<TYPE>)$");
+            parser.addRegex("^(?<TIME>)(?<RELATION*>)cl(?<TYPE>)$");
+            parser.addPartitionsSeparator("^--$");
+        } else {
+            parser.addRegex("^(?<TYPE>)$");
+            parser.addPartitionsSeparator("^--$");
+        }
         
         
         PartitionGraph pGraph = genInitialPartitionGraph(events, parser,
@@ -225,244 +232,124 @@ public class ModelCheckersTests extends SynopticTest {
         }
         testCExamplePath(pGraph, inv, cExampleExists, expectedPath);
     }
-
-    // //////////////////////////// AFby:
-
-    /**
-     * Tests that a linear graph with a cycle does _not_ generate an AFby
-     * c-example. This demonstrates why we need "<> TERMINAL ->" as the prefix
-     * in the AFby LTL formula -- without this prefix this tests fails.
-     * 
-     * @throws Exception
-     */
+    
+    
     @Test
-    public void NoAFbyLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "x", "a", "c", "x", "a", "y", "b", "w" };
-
-        testPartitionGraphCExample(events, aAFbyB, false, null, false);
+    public void NoNFBiCycle() throws Exception {        
+        String[] events = { "1 x", "2 r a", "3 b", "4 x" };
+        testPartitionGraphCExample(events, aNFbyB, false, null, true);
     }
-
-    /**
-     * Tests that a linear graph with a cycle does generate an AFby c-example.
-     * This tests the LTL formula that includes an "eventually TERMINAL" clause
-     * to permit only those counter-examples that reach the TERMINAL node.
-     * 
-     * @throws Exception
-     */
+    
     @Test
-    public void AFbyLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "x", "a", "b", "x", "a", "y", "w",
-                "--", "x", "a", "y", "w" };
-
-        List<EventType> cExampleLabels = stringsToStringEventTypes(new String[] {
-                "x", "a", "y", "w" });
+    public void NFBiCycle() throws Exception {
         
-        cExampleLabels.add(StringEventType.newTerminalStringEventType());
-        testPartitionGraphCExample(events, aAFbyB, true, cExampleLabels, false);
+        String[] events = { "1 x", "2 r a", "3 b", "4 r x" };
+        List<EventType> cExampleLabels = 
+                stringsToStringEventTypes(new String[] {"x", "a", "b"});
+        testPartitionGraphCExample(events, aNFbyB, true, cExampleLabels, true);
     }
-
-    /**
-     * Tests that a linear graph does not generate an AFby c-example.
-     * 
-     * @throws InternalSynopticException
-     * @throws ParseException
-     */
+    
     @Test
-    public void NoAFbyLinearGraphTest() throws InternalSynopticException,
-            ParseException {
-        // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
-        String[] events = new String[] { "a", "x", "y", "b" };
+    public void NFBiLinearOne() throws Exception {
+        String[] events = { "1 a", "2 r a", "3 z", "4 b", "5 r b" };
+        testLinearGraphCExample(events, aNFbyB, true, 4);
+    }
+    
+    @Test
+    public void NoNFBiLinearOne() throws Exception {
         
-        testLinearGraphCExample(events, aAFbyB, false, 0);
-    }
-
-    /**
-     * Tests that a linear graph does generate an AFby c-example.
-     * 
-     * @throws InternalSynopticException
-     * @throws ParseException
-     */
-    @Test
-    public void AFbyLinearGraphTest() throws InternalSynopticException,
-            ParseException {
-        // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
-        String[] events = new String[] { "a", "x", "y", "z" };
-        
-        testLinearGraphCExample(events, aAFbyB, true, 5);
-    }
-
-    // //////////////////////////// NFby:
-
-    /**
-     * Tests that a linear graph with a cycle does not generate an NFby
-     * c-example.
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void NoNFbyLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "a", "c", "a", "d", "e" };
-
-        testPartitionGraphCExample(events, aNFbyB, false, null, false);
-    }
-
-    /**
-     * Tests that a linear graph with a cycle does generate an NFby c-example.
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void NFbyLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "a", "c", "d", "a", "c", "d", "b" };
-
-
-        List<EventType> cExampleLabels = null;
-
-        if (SynopticMain.getInstanceWithExistenceCheck().options.useFSMChecker) {
-            cExampleLabels = stringsToStringEventTypes(new String[] { "a", "c",
-                    "d", "b" });
-        } else {
-            cExampleLabels = stringsToStringEventTypes(new String[] { "a", "c",
-                    "d", "a", "c", "d", "b" });
-        }
-        // NOTE: NFby c-examples do not need to end with a TERMINAL node
-        testPartitionGraphCExample(events, aNFbyB, true, cExampleLabels, false);
-    }
-
-    /**
-     * Tests that a linear graph does not generate an NFby c-example.
-     * 
-     * @throws InternalSynopticException
-     * @throws ParseException
-     */
-    @Test
-    public void NoNFbyLinearGraphTest() throws InternalSynopticException,
-            ParseException {
-        // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
-        String[] events = new String[] { "a", "x", "y", "z" };
-
+        String[] events = { "1 a", "2 b", "3 r b"};
         testLinearGraphCExample(events, aNFbyB, false, 0);
     }
-
-    /**
-     * Tests that a linear graph does generate an NFby c-example.
-     * 
-     * @throws InternalSynopticException
-     * @throws ParseException
-     */
+    
     @Test
-    public void NFbyLinearGraphTest() throws InternalSynopticException,
-            ParseException {
-        // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
-        String[] events = new String[] { "a", "x", "y", "z", "b" };
-
-        testLinearGraphCExample(events, aNFbyB, true, 5);
+    public void NoNFBiLinearTwo() throws Exception {
+        
+        String[] events = { "1 a", "2 r a", "3 b", "4 z", "5 r z" };
+        testLinearGraphCExample(events, aNFbyB, false, 0);
     }
-
-    // //////////////////////////// AP:
-
-    /**
-     * Tests that a linear graph with a cycle does not generate an AP c-example.
-     * 
-     * @throws Exception
-     */
+    
     @Test
-    public void NoAPLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "a", "c", "a", "b" };
-
-        testPartitionGraphCExample(events, aAPb, false, null, false);
+    public void NoNFBiLinearThree() throws Exception {
+        
+        String[] events = { "1 a", "2 r a", "3 b"};
+        testLinearGraphCExample(events, aNFbyB, false, 0);
     }
-
-    /**
-     * Tests that a linear graph with a cycle does generate an AP c-example.
-     * 
-     * @throws Exception
-     */
+    
     @Test
-    public void APLinearGraphWithCycleTest() throws Exception {
-        String[] events = new String[] { "z", "x", "z", "b" };
-
-        List<EventType> cExampleLabels = stringsToStringEventTypes(new String[] {
-                "z", "b" });
-        testPartitionGraphCExample(events, aAPb, true, cExampleLabels, false);
+    public void NoAPBiCycle() throws Exception {        
+        String[] events = { "1 x", "2 r a", "3 b", "4 r x" };
+        testPartitionGraphCExample(events, aAPb, false, null, true);
     }
-
-    /**
-     * Tests that a linear graph does not generate an AP c-example.
-     * 
-     * @throws InternalSynopticException
-     * @throws ParseException
-     */
+    
     @Test
-    public void NoAPLinearGraphTest() throws InternalSynopticException,
-            ParseException {
-        // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
-        String[] events = new String[] { "x", "a", "x", "y", "b" };
-
+    public void APBiCycle() throws Exception {        
+        String[] events = { "1 x", "2 a", "3 b", "4 r x" };
+        List<EventType> cExampleLabels = 
+                stringsToStringEventTypes(new String[] {"b"});
+        testPartitionGraphCExample(events, aAPb, true, cExampleLabels, true);
+    }
+    
+    @Test
+    public void NoAPBiLinearOne() throws InternalSynopticException, ParseException {       
+        String[] events = { "1 a", "2 r a", "3 z", "4 b", "5 r b"};
         testLinearGraphCExample(events, aAPb, false, 0);
     }
-
-    /**
-     * Tests that a linear graph does generate an AP c-example.
-     * 
-     * @throws InternalSynopticException
-     * @throws ParseException
-     */
+    
     @Test
-    public void APLinearGraphTest() throws InternalSynopticException,
-            ParseException {
-        // logger.info("Using the FSMChecker: " + Main.useFSMChecker);
-        String[] events = new String[] { "x", "y", "z", "b", "a" };
+    public void NoAPBiLinearTwo() throws InternalSynopticException, ParseException {       
+        String[] events = { "1 z", "2 r z", "3 b"};
+        testLinearGraphCExample(events, aAPb, false, 0);
+    }
+    
+    @Test
+    public void APBiLinearOne() throws InternalSynopticException, ParseException {      
+        String[] events = { "1 a", "2 b", "3 r b"};
         testLinearGraphCExample(events, aAPb, true, 4);
     }
+    
+    @Test
+    public void APBiLinearTwo() throws InternalSynopticException, ParseException {        
+        String[] events = { "1 z", "2 r z", "3 a", "4 b", "5 r b"};
+        testLinearGraphCExample(events, aAPb, true, 6);
+    }
+    
+    @Test
+    public void NoAFBiCycle() throws Exception {        
+        String[] events = { "1 x", "2 r a", "3 b", "4 r x" };
+        testPartitionGraphCExample(events, aAFbyB, false, null, true);
+    }
+    
+    @Test
+    public void AFBiCycle() throws Exception {        
+        String[] events = { "1 x", "2 r a", "3 b", "4 x" };
+        List<EventType> cExampleLabels = 
+                stringsToStringEventTypes(new String[] {"x", "a"});
+        testPartitionGraphCExample(events, aAFbyB, true, cExampleLabels, true);
+    }
+    
+    @Test
+    public void NoAFBiLinearOne() throws InternalSynopticException, ParseException {        
+        String[] events = { "1 a", "2 z", "3 r z"};
+        testLinearGraphCExample(events, aAFbyB, false, 0);
+    }
+    
+    @Test
+    public void NoAFBiLinearTwo() throws InternalSynopticException, ParseException {       
+        String[] events = { "1 a", "2 r a", "3 z", "4 b", "5 r b"};
+        testLinearGraphCExample(events, aAFbyB, false, 0);
+    }
+    
+    @Test
+    public void AFBiLinearOne() throws InternalSynopticException, ParseException {     
+        String[] events = { "1 a", "2 r a", "3 b", "4 z", "5 r z"};
+        testLinearGraphCExample(events, aAFbyB, true, 6);
+    }
+    
+    @Test
+    public void AFBiLinearTwo() throws InternalSynopticException, ParseException {
+        String[] events = { "1 a", "2 r a", "3 b"};
+        testLinearGraphCExample(events, aAFbyB, true, 4);
+    }
 
-    // /////////////////////////
-
-    // compareViolations is not used above because the NASA and FSM checkers
-    // often produce different, but correct, violating paths. This function
-    // might be useful for testing for violations before and after modifying a
-    // graph in some specific way.
-
-    /**
-     * Compares counter-example violations paths generated by the two model
-     * checkers. We compare the two model checkers by parsing events from the
-     * same log (using the defParser) and then model checking the resulting
-     * graphs for invariants using both types of model checkers.
-     * 
-     * @param <T>
-     *            types of nodes in the graph
-     * @param invs
-     *            the invariants for which counter-examples should be produced
-     * @param graph
-     *            the graph over which counter-examples should be produced
-     */
-    // private <T extends INode<T>> void compareViolations(
-    // List<ITemporalInvariant> invs, IGraph<T> graph) {
-    // GraphLTLChecker<T> ch = new GraphLTLChecker<T>();
-    //
-    // List<BinaryInvariant> bitSetInput = new ArrayList<BinaryInvariant>();
-    // for (ITemporalInvariant tinv : invs) {
-    // bitSetInput.add((BinaryInvariant) tinv);
-    // }
-    // List<BinaryInvariant> violated = FsmModelChecker.runBitSetChecker(
-    // bitSetInput, graph);
-    //
-    // for (int i = 0; i < invs.size(); i++) {
-    // BinaryInvariant inv = (BinaryInvariant) invs.get(i);
-    // RelationPath<T> path = ch.getCounterExample(inv, graph);
-    // RelationPath<T> fsm_path = FsmModelChecker.getCounterExample(inv,
-    // graph);
-    //
-    // assertTrue(fsm_path == null == (path == null));
-    //
-    // if (fsm_path != null) {
-    // logger.fine("both found " + inv);
-    // logger.fine("fsm_path.size = " + fsm_path.path.size());
-    // logger.fine("path.size = " + path.path.size());
-    // assertTrue(fsm_path.path.size() == path.path.size());
-    // assertTrue(path.path.get(path.path.size() - 1).isTerminal());
-    // }
-    // assertTrue(path != null == violated.contains(inv));
-    // }
-    // }
 }

@@ -2,6 +2,7 @@ package synoptic.invariants.fsmcheck.birelational.tracing;
 
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.fsmcheck.AFbyTracingSet;
+import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
@@ -15,4 +16,12 @@ public class AFBiTracingSet<T extends INode<T>> extends TracingBiRelationalState
         super(new AFbyTracingSet<T>(inv));
     }
 
+    public AFBiTracingSet(TracingStateSet<T> tracingSet) {
+        super(tracingSet);
+    }
+    
+    @Override
+    public TracingStateSet<T> copy() {
+        return new AFBiTracingSet<T>(tracingSet.copy());
+    }
 }

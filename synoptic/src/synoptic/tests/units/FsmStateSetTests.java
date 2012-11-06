@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.Test;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
@@ -26,6 +27,7 @@ import synoptic.invariants.fsmcheck.birelational.fsms.AFBiRelationStateSet;
 import synoptic.invariants.fsmcheck.birelational.fsms.APBiRelationStateSet;
 import synoptic.invariants.fsmcheck.birelational.fsms.FsmBiRelationalStateSet;
 import synoptic.invariants.fsmcheck.birelational.fsms.NFBiRelationStateSet;
+import synoptic.main.parser.ParseException;
 import synoptic.model.EventNode;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
@@ -46,6 +48,11 @@ public class FsmStateSetTests extends SynopticTest {
     public static EventNode msgB = new EventNode(new Event("b"));
     public static EventNode msgZ = new EventNode(new Event("z"));
 
+    @After
+    public void setUp() throws ParseException {
+        synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.multipleRelations = false;
+    }
+    
     /**
      * Converts a string representation of a bit set to a BitSet instance.
      */
@@ -827,6 +834,8 @@ public class FsmStateSetTests extends SynopticTest {
 
     @Test
     public void AFbyInvFsmsMultiRelationalDualTransitionTypeTest() {
+        synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.multipleRelations = true;
+        
         iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
             @Override
             public BinaryInvariant genInv(EventType a, EventType b,
@@ -877,6 +886,8 @@ public class FsmStateSetTests extends SynopticTest {
     
     @Test
     public void NFbyInvFsmsMultiRelationalDualTransitionTypeTest() {
+        synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.multipleRelations = true;
+        
         iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
             @Override
             public BinaryInvariant genInv(EventType a, EventType b,
@@ -928,6 +939,8 @@ public class FsmStateSetTests extends SynopticTest {
     
     @Test
     public void APInvFsmsMultiRelationalDualTransitionTypeTest() {
+        synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.multipleRelations = true;
+        
         iInvSpecificGenerator invGen = new iInvSpecificGenerator() {
             @Override
             public BinaryInvariant genInv(EventType a, EventType b,

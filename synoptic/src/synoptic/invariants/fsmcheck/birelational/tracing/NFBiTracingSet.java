@@ -2,6 +2,7 @@ package synoptic.invariants.fsmcheck.birelational.tracing;
 
 import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.fsmcheck.NFbyTracingSet;
+import synoptic.invariants.fsmcheck.TracingStateSet;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
@@ -13,5 +14,14 @@ public class NFBiTracingSet<T extends INode<T>> extends TracingBiRelationalState
 
     public NFBiTracingSet(BinaryInvariant inv) {
         super(new NFbyTracingSet<T>(inv));
+    }
+
+    public NFBiTracingSet(TracingStateSet<T> tracingSet) {
+        super(tracingSet);
+    }
+    
+    @Override
+    public TracingStateSet<T> copy() {
+        return new NFBiTracingSet<T>(tracingSet.copy());
     }
 }
