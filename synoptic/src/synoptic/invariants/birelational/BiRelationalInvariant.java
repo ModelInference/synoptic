@@ -19,5 +19,9 @@ public abstract class BiRelationalInvariant extends BinaryInvariant {
         super(first, second, relation);
         this.orderingRelation = orderingRelation;
     }
+    
+    public String getOrderingRelation() {
+        return orderingRelation;
+    }
 
 }

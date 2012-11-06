@@ -16,10 +16,6 @@ import synoptic.invariants.BinaryInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
 import synoptic.invariants.NeverFollowedInvariant;
-import synoptic.invariants.fsmcheck.birelational.fsms.AFBiRelationStateSet;
-import synoptic.invariants.fsmcheck.birelational.tracing.AFBiTracingSet;
-import synoptic.invariants.fsmcheck.birelational.tracing.APBiTracingSet;
-import synoptic.invariants.fsmcheck.birelational.tracing.NFBiTracingSet;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
@@ -51,10 +47,7 @@ public class FsmModelChecker {
     public static <Node extends INode<Node>, StateSet extends IStateSet<Node, StateSet>> Map<Node, StateSet> runChecker(
             IStateSet<Node, StateSet> initial, IGraph<Node> graph,
             boolean earlyExit) {
-
-        boolean multipleRelations = 
-                synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.multipleRelations;
-        
+  
         // A queue of nodes that we should process.
         Queue<Node> workList = new LinkedList<Node>();
 
@@ -69,11 +62,8 @@ public class FsmModelChecker {
         // Add initial node to the worklist.
         Node node = graph.getDummyInitialNode();
         workList.add(node);
-        if (multipleRelations) {
-            states.get(node).setInitial(node, node.getAllTransitions());
-        } else {
-            states.get(node).setInitial(node);
-        }
+
+        states.get(node).setInitial(node);
 
         // Actual model checking step - takes an item off the worklist, and
         // transitions the state found at that node, using the labels of all
@@ -146,11 +136,7 @@ public class FsmModelChecker {
      */
     @SuppressWarnings("rawtypes")
     public static <T extends INode<T>> List<BinaryInvariant> runBitSetChecker(
-            Iterable<BinaryInvariant> invariants, IGraph<T> graph) {
-        boolean multipleRelations = 
-                synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.multipleRelations;
-        
-        
+            Iterable<BinaryInvariant> invariants, IGraph<T> graph) {    
         // TODO: store the TemporalInvariantSet in this way instead of needing
         // to process it here.
         // Filter the elements of the set into categorized lists.
@@ -169,18 +155,10 @@ public class FsmModelChecker {
             }
         }
         
-        BitSet afs = null;
-        BitSet aps = null;
-        BitSet nfs = null;
-        if (multipleRelations) {
-            afs = whichFail(new AFBiRelationStateSet<T>(alwaysFollowed), graph);
-            aps = whichFail(new APInvFsms<T>(alwaysPrecedes), graph);
-            nfs = whichFail(new NFbyInvFsms<T>(neverFollowed), graph);
-        } else {
-            afs = whichFail(new AFbyInvFsms<T>(alwaysFollowed), graph);
-            aps = whichFail(new APInvFsms<T>(alwaysPrecedes), graph);
-            nfs = whichFail(new NFbyInvFsms<T>(neverFollowed), graph);
-        }
+
+        BitSet afs = whichFail(new AFbyInvFsms<T>(alwaysFollowed), graph);
+        BitSet aps = whichFail(new APInvFsms<T>(alwaysPrecedes), graph);
+        BitSet nfs = whichFail(new NFbyInvFsms<T>(neverFollowed), graph);
         
         List<BinaryInvariant> results = new ArrayList<BinaryInvariant>();
         bitFilter(afs, alwaysFollowed, results);
@@ -201,10 +179,7 @@ public class FsmModelChecker {
      */
     @SuppressWarnings("unchecked")
     public static <Node extends INode<Node>> CExamplePath<Node> getCounterExample(
-            BinaryInvariant invariant, IGraph<Node> graph) {
-        boolean multipleRelations = 
-                synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.multipleRelations;
-        
+            BinaryInvariant invariant, IGraph<Node> graph) { 
         
         TracingStateSet<Node> stateset = null;
         if (invariant == null) {
@@ -212,25 +187,14 @@ public class FsmModelChecker {
         }
         Class<BinaryInvariant> invClass = (Class<BinaryInvariant>) invariant
                 .getClass();
-        
-        if (multipleRelations) {
-            if (invClass.equals(AlwaysFollowedInvariant.class)) {
-                stateset = new AFBiTracingSet<Node>(invariant);
-            } else if (invClass.equals(AlwaysPrecedesInvariant.class)) {
-                stateset = new APBiTracingSet<Node>(invariant);
-            } else if (invClass.equals(NeverFollowedInvariant.class)) {
-                stateset = new NFBiTracingSet<Node>(invariant);
-            }
-        } else {        
-            if (invClass.equals(AlwaysFollowedInvariant.class)) {
-                stateset = new AFbyTracingSet<Node>(invariant);
-            } else if (invClass.equals(AlwaysPrecedesInvariant.class)) {
-                stateset = new APTracingSet<Node>(invariant);
-            } else if (invClass.equals(NeverFollowedInvariant.class)) {
-                stateset = new NFbyTracingSet<Node>(invariant);
-            }
+            
+        if (invClass.equals(AlwaysFollowedInvariant.class)) {
+            stateset = new AFbyTracingSet<Node>(invariant);
+        } else if (invClass.equals(AlwaysPrecedesInvariant.class)) {
+            stateset = new APTracingSet<Node>(invariant);
+        } else if (invClass.equals(NeverFollowedInvariant.class)) {
+            stateset = new NFbyTracingSet<Node>(invariant);
         }
-
 
         // Return the shortest path, ending on a final node, which causes the
         // invariant to fail.

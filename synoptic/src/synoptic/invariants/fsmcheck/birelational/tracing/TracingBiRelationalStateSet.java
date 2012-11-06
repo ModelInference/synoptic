@@ -189,7 +189,7 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
     @Override
     public void mergeWith(TracingStateSet<T> other) {
         if (other instanceof TracingBiRelationalStateSet) {
-            tracingSet.mergeWith(getComposedSet());
+            tracingSet.mergeWith(getMonoTracingSet());
         } else {
             throw new IllegalArgumentException("Cannot merge mono and multirelational state sets");
         }
@@ -198,7 +198,7 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
     @Override
     public boolean isSubset(TracingStateSet<T> other) {
         if (other instanceof TracingBiRelationalStateSet) {
-            return tracingSet.isSubset(getComposedSet());
+            return tracingSet.isSubset(getMonoTracingSet());
         } else {
             throw new IllegalArgumentException("Cannot compare mono and multirelational state sets");
         }
@@ -214,10 +214,11 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
         return !beforeProjectedGraph && super.isFail();
     }
     
-    public TracingStateSet<T> getComposedSet() {
+    public TracingStateSet<T> getMonoTracingSet() {
         return tracingSet;
     }
     
+    public abstract TracingBiRelationalStateSet<T> copy();
 }
 
     

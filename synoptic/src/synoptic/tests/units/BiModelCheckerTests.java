@@ -14,12 +14,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import synoptic.invariants.AlwaysFollowedInvariant;
-import synoptic.invariants.AlwaysPrecedesInvariant;
 import synoptic.invariants.CExamplePath;
 import synoptic.invariants.ITemporalInvariant;
-import synoptic.invariants.NeverFollowedInvariant;
 import synoptic.invariants.TemporalInvariantSet;
+import synoptic.invariants.birelational.AFBiRelationInvariant;
+import synoptic.invariants.birelational.APBiRelationInvariant;
+import synoptic.invariants.birelational.NFBiRelationInvariant;
 import synoptic.invariants.miners.TransitiveClosureInvMiner;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
@@ -48,13 +48,13 @@ public class BiModelCheckerTests extends SynopticTest {
     public static String nonTimeRelation = "r";
     
     public static final ITemporalInvariant aAFbyB = 
-            new AlwaysFollowedInvariant("a", "b", nonTimeRelation);
+            new AFBiRelationInvariant("a", "b", nonTimeRelation);
     
     public static final ITemporalInvariant aNFbyB = 
-            new NeverFollowedInvariant("a", "b", nonTimeRelation);
+            new NFBiRelationInvariant("a", "b", nonTimeRelation);
     
     public static final ITemporalInvariant aAPb = 
-            new AlwaysPrecedesInvariant("a", "b", nonTimeRelation);
+            new APBiRelationInvariant("a", "b", nonTimeRelation);
 
     /**
      * Generates parameters for this unit test. The first instance of this test
