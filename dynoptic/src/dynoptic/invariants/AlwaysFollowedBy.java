@@ -2,6 +2,8 @@ package dynoptic.invariants;
 
 import java.util.List;
 
+import dynoptic.invariants.checkers.AFbyChecker;
+
 import synoptic.model.event.DistEventType;
 
 /** A Dynoptic representation of the AFby invariant. */
@@ -41,5 +43,11 @@ public class AlwaysFollowedBy extends BinaryInvariant {
             }
         }
         return !lastFirst;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public AFbyChecker newChecker() {
+        return new AFbyChecker(this);
     }
 }

@@ -25,7 +25,7 @@ public class CheckersTests {
         DistEventType z = DistEventType.LocalEvent("z", 1);
 
         BinaryInvariant inv = new AlwaysFollowedBy(x, y);
-        BinChecker invCh = BinChecker.newChecker(inv);
+        AFbyChecker invCh = inv.newChecker();
         assertFalse(invCh.isFail());
 
         // x
@@ -67,7 +67,7 @@ public class CheckersTests {
         DistEventType z = DistEventType.LocalEvent("z", 1);
 
         BinaryInvariant inv = new NeverFollowedBy(x, y);
-        BinChecker invCh = BinChecker.newChecker(inv);
+        NFbyChecker invCh = inv.newChecker();
         assertFalse(invCh.isFail());
 
         // y
@@ -116,7 +116,7 @@ public class CheckersTests {
         DistEventType z = DistEventType.LocalEvent("z", 1);
 
         BinaryInvariant inv = new AlwaysPrecedes(x, y);
-        BinChecker invCh = BinChecker.newChecker(inv);
+        APChecker invCh = inv.newChecker();
         assertFalse(invCh.isFail());
 
         // z
@@ -142,7 +142,7 @@ public class CheckersTests {
 
         // /////////////////////////////
 
-        invCh = BinChecker.newChecker(inv);
+        invCh = inv.newChecker();
 
         // z
         v = invCh.transition(z);
@@ -168,7 +168,7 @@ public class CheckersTests {
         DistEventType y = DistEventType.LocalEvent("y", 1);
 
         BinaryInvariant inv = new EventuallyHappens(x);
-        BinChecker invCh = BinChecker.newChecker(inv);
+        EventuallyChecker invCh = inv.newChecker();
         assertTrue(invCh.isFail());
 
         // y

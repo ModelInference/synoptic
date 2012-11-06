@@ -4,31 +4,28 @@ import dynoptic.invariants.BinaryInvariant;
 
 import synoptic.model.event.DistEventType;
 
-public class APChecker extends BinChecker {
+enum APState {
+    // INITIAL (accepting):
+    // initial state.
+    INITIAL,
 
-    private enum State {
-        // INITIAL (accepting):
-        // initial state.
-        INITIAL,
+    // SAW_X (permanently accepting):
+    // state after having observed x.
+    SAW_X,
 
-        // SAW_X (permanently accepting):
-        // state after having observed x.
-        SAW_X,
+    // SAW_Y (permanently rejecting):
+    // state after having observed y.
+    SAW_Y;
+}
 
-        // SAW_Y (permanently rejecting):
-        // state after having observed y.
-        SAW_Y;
-    }
-
-    State s;
+public class APChecker extends BinChecker<APState> {
 
     /**
      * @param inv
      *            x AP y
      */
     public APChecker(BinaryInvariant inv) {
-        super(inv);
-        s = State.INITIAL;
+        super(inv, APState.INITIAL);
     }
 
     /**
@@ -36,23 +33,23 @@ public class APChecker extends BinChecker {
      */
     @Override
     public Validity transition(DistEventType e) {
-        if (s == State.SAW_X) {
+        if (s == APState.SAW_X) {
             return Validity.PERM_SUCCESS;
         }
 
-        if (s == State.SAW_Y) {
+        if (s == APState.SAW_Y) {
             return Validity.PERM_FAIL;
         }
 
-        assert s == State.INITIAL;
+        assert s == APState.INITIAL;
 
         if (inv.getFirst().equals(e)) {
-            s = State.SAW_X;
+            s = APState.SAW_X;
             return Validity.PERM_SUCCESS;
         }
 
         if (inv.getSecond().equals(e)) {
-            s = State.SAW_Y;
+            s = APState.SAW_Y;
             return Validity.PERM_FAIL;
         }
 
@@ -62,17 +59,12 @@ public class APChecker extends BinChecker {
 
     @Override
     public boolean isFail() {
-        return s == State.SAW_Y;
+        return s == APState.SAW_Y;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void inheritState(BinChecker otherChecker) {
-        assert otherChecker instanceof APChecker;
-        this.s = ((APChecker) otherChecker).s;
-    }
-
-    @Override
-    public BinChecker getClone() {
+    public APChecker getClone() {
         APChecker ch = new APChecker(inv);
         ch.s = this.s;
         return ch;
