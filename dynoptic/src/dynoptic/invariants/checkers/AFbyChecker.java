@@ -48,4 +48,9 @@ public class AFbyChecker extends BinChecker {
         }
         return Validity.TEMP_FAIL;
     }
+
+    @Override
+    public boolean isFail() {
+        return s == State.SAW_X;
+    }
 }

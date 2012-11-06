@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import dynoptic.invariants.BinaryInvariant;
 import dynoptic.invariants.checkers.BinChecker;
+import dynoptic.invariants.checkers.BinChecker.Validity;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
@@ -389,9 +390,10 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
     public Set<BinaryInvariant> findInvalidatedInvariants(
             List<BinaryInvariant> minedInvs) {
         Set<BinaryInvariant> ret = new LinkedHashSet<BinaryInvariant>();
+        ObsFifoSysState initS = this.getInitState();
         for (BinaryInvariant inv : minedInvs) {
             BinChecker invChecker = BinChecker.newChecker(inv);
-            if (!checkInvariant(invChecker)) {
+            if (!checkInvariant(invChecker, initS)) {
                 ret.add(inv);
             }
         }
@@ -402,8 +404,27 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
      * Runs the invChecker over this instance of observed fifo sys to check if
      * it satisfied the corresponding invariant.
      */
-    private boolean checkInvariant(BinChecker invChecker) {
-        return false;
-    }
+    private boolean checkInvariant(BinChecker invChecker,
+            ObsFifoSysState curState) {
+        if (curState.isAccept()) {
+            // Return whether or not the invariant holds.
+            return !invChecker.isFail();
+        }
 
+        for (ObsDistEventType e : curState.getTransitioningEvents()) {
+            Validity mcResult = invChecker.transition(e.getDistEType());
+            if (mcResult == Validity.PERM_FAIL) {
+                return false;
+            } else if (mcResult == Validity.PERM_SUCCESS) {
+                // The e sub-branch checks out, move on to other sub-branches.
+                continue;
+            }
+            if (!checkInvariant(invChecker, curState.getNextState(e))) {
+                return false;
+            }
+        }
+        // If we got here then all of the sub-branches we've explored above
+        // returned true, so the invariant holds in this sub-tree.
+        return true;
+    }
 }
