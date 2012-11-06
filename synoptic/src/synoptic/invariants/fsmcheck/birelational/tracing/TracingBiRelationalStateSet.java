@@ -21,7 +21,7 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
     private Set<String> relations;
     private Set<String> closureRelations;
     
-    private TracingStateSet<T> tracingSet;
+    protected TracingStateSet<T> tracingSet;
     
     /* Keeps track of the potential counter-example while the stateset has not
      * yet seen the projected graph.
@@ -61,7 +61,7 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
     
     @Override
     public void transition(T input) {
-        tracingSet.transition(input);
+        throw new UnsupportedOperationException();
     }
     
     // --relation--> (input)
@@ -104,16 +104,16 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
             
             if (!relations.contains(relation)) {
                 inProjectedGraph = false;
-                transitionHistoryExtend(input);
             } else {
-                transition(input);
+                transitionEventTest(input);
             }
+            transitionHistoryExtend(input);
             
         } else { // not in projected graph
             
             if (relationsIntersectOutgoing) {
                 inProjectedGraph = true;
-                transition(input);
+                transitionEventTest(input);
             } else {
                 transitionHistoryExtend(input);
             }
@@ -132,7 +132,7 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
     
     @Override
     public void setInitial(T x) {
-        tracingSet.setInitial(x);
+        throw new UnsupportedOperationException();
     }
     
     /**
@@ -142,15 +142,14 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
     @Override
     public void setInitial(T x, Set<String> outgoingRelations) {
         initialized = true;
-        
+        setInitialHistoryReset();
         if (setsIntersect(relations, outgoingRelations)) {
             beforeProjectedGraph = false;
             inProjectedGraph = true;
-            setInitial(x);
+            setInitialEventTest(x, new HistoryNode(x, null, 1));
         } else {
             beforeProjectedGraph = true;
             inProjectedGraph = false;
-            setInitialHistoryReset();
             extendPreHistory(x);
         }
     }
@@ -188,18 +187,21 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
     }
 
     @Override
-    public TracingStateSet<T> copy() {
-        return tracingSet.copy();
-    }
-
-    @Override
     public void mergeWith(TracingStateSet<T> other) {
-        tracingSet.mergeWith(other);
+        if (other instanceof TracingBiRelationalStateSet) {
+            tracingSet.mergeWith(getComposedSet());
+        } else {
+            throw new IllegalArgumentException("Cannot merge mono and multirelational state sets");
+        }
     }
 
     @Override
     public boolean isSubset(TracingStateSet<T> other) {
-        return tracingSet.isSubset(other);
+        if (other instanceof TracingBiRelationalStateSet) {
+            return tracingSet.isSubset(getComposedSet());
+        } else {
+            throw new IllegalArgumentException("Cannot compare mono and multirelational state sets");
+        }
     }
 
     @Override
@@ -211,6 +213,11 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
     public boolean isFail() {
         return !beforeProjectedGraph && super.isFail();
     }
+    
+    public TracingStateSet<T> getComposedSet() {
+        return tracingSet;
+    }
+    
 }
 
     

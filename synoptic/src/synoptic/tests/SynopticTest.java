@@ -93,9 +93,17 @@ public abstract class SynopticTest extends SynopticLibTest {
      * re-used for parsing different traces (it is stateful).
      */
     public static TraceParser genDefParser() {
+        boolean multipleRelations = 
+                synoptic.main.SynopticMain.getInstanceWithExistenceCheck().options.multipleRelations;
         TraceParser parser = new TraceParser();
         try {
-            parser.addRegex("^(?<TYPE>)$");
+            if (multipleRelations) {
+                parser.addRegex("^(?<TIME>)(?<TYPE>)$");
+                parser.addRegex("^(?<TIME>)(?<RELATION>)(?<TYPE>)$");
+                parser.addRegex("^(?<TIME>)(?<RELATION*>)cl(?<TYPE>)$");
+            } else {
+                parser.addRegex("^(?<TYPE>)$");
+            }
         } catch (ParseException e) {
             throw new InternalSynopticException(e);
         }
