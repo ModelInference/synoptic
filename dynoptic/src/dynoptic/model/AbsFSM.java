@@ -1,11 +1,11 @@
 package dynoptic.model;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import dynoptic.model.alphabet.FSMAlphabet;
 import dynoptic.model.automaton.EncodedAutomaton;
 import dynoptic.model.automaton.EventTypeEncodings;
+import dynoptic.util.Util;
 
 import synoptic.model.event.IDistEventType;
 
@@ -26,10 +26,10 @@ public abstract class AbsFSM<State extends AbsFSMState<State, TxnEType>, TxnETyp
     protected final Set<State> acceptStates;
 
     public AbsFSM() {
-        this.states = new LinkedHashSet<State>();
+        this.states = Util.newSet();
         this.alphabet = new FSMAlphabet<TxnEType>();
-        this.initStates = new LinkedHashSet<State>();
-        this.acceptStates = new LinkedHashSet<State>();
+        this.initStates = Util.newSet();
+        this.acceptStates = Util.newSet();
     }
 
     /** Returns the initial states for the FSM. */

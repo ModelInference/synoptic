@@ -1,10 +1,7 @@
 package dynoptic.model.fifosys.gfsm.observed.fifosys;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +16,7 @@ import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAG;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAGNode;
+import dynoptic.util.Util;
 
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
@@ -58,11 +56,11 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
 
         // Note: if we assume consistent per-process initial state then this
         // list will contain just 1 ObsFifoSys, even with multiple traces,
-        List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>();
+        List<ObsFifoSys> traces = Util.newList();
 
         // Maps an observed event to the generated ObsDAGNode that emits the
         // event in the Dynoptic DAG.
-        Map<Event, ObsDAGNode> preEventNodesMap = new LinkedHashMap<Event, ObsDAGNode>();
+        Map<Event, ObsDAGNode> preEventNodesMap = Util.newMap();
 
         ObsDAG dag = null;
         ObsFifoSys fifoSys = null;
@@ -70,7 +68,7 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
         // In case of consistentInitState, there is just one initial state in
         // the observed fifo sys, and there are _multiple_ terminal states. This
         // set keeps track of these terminal states.
-        Set<ObsFifoSysState> termStates = new LinkedHashSet<ObsFifoSysState>();
+        Set<ObsFifoSysState> termStates = Util.newSet();
 
         int numFifoStates = 0;
 
@@ -389,7 +387,7 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
      */
     public <State, InvChecker extends BinChecker<State>> Set<BinaryInvariant> findInvalidatedInvariants(
             List<BinaryInvariant> minedInvs) {
-        Set<BinaryInvariant> ret = new LinkedHashSet<BinaryInvariant>();
+        Set<BinaryInvariant> ret = Util.newSet();
         ObsFifoSysState initS = this.getInitState();
         for (BinaryInvariant inv : minedInvs) {
             InvChecker invChecker = inv.newChecker();

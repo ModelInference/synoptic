@@ -2,8 +2,9 @@ package dynoptic.model.alphabet;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Set;
+
+import dynoptic.util.Util;
 
 import synoptic.model.event.IDistEventType;
 
@@ -18,7 +19,7 @@ public class FSMAlphabet<TxnEType extends IDistEventType> implements
     Set<TxnEType> events;
 
     public FSMAlphabet() {
-        events = new LinkedHashSet<TxnEType>();
+        events = Util.newSet();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -99,7 +100,7 @@ public class FSMAlphabet<TxnEType extends IDistEventType> implements
     // //////////////////////////////////////////////////////////////////
 
     public Set<String> getLocalEventScmStrings() {
-        Set<String> ret = new LinkedHashSet<String>();
+        Set<String> ret = Util.newSet();
         for (TxnEType e : events) {
             if (e.isLocalEvent()) {
                 ret.add(e.getScmEventFullString());
@@ -161,7 +162,7 @@ public class FSMAlphabet<TxnEType extends IDistEventType> implements
      * 'm'.
      */
     private Set<String> getUniqueEventStrings(TxnEType ignoreE) {
-        Set<String> ret = new LinkedHashSet<String>();
+        Set<String> ret = Util.newSet();
         for (TxnEType e : events) {
             if ((ignoreE != null) && e.equals(ignoreE)) {
                 continue;

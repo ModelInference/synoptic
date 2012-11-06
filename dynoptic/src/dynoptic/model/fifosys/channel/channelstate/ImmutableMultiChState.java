@@ -1,9 +1,9 @@
 package dynoptic.model.fifosys.channel.channelstate;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -21,7 +21,7 @@ public class ImmutableMultiChState extends AbsMultiChState<DistEventType> {
     private static final Map<List<ChState<DistEventType>>, ImmutableMultiChState> chCache;
 
     static {
-        chCache = new LinkedHashMap<List<ChState<DistEventType>>, ImmutableMultiChState>();
+        chCache = Util.newMap();
     }
 
     /**
@@ -81,38 +81,6 @@ public class ImmutableMultiChState extends AbsMultiChState<DistEventType> {
 
     // //////////////////////////////////////////////////////////////////
 
-    /**
-     * Used to establish equality of immutable multi ch states that contain
-     * ObsDistEventType instances that might have come from different traces in
-     * the log (standard equals() won't work for these).
-     */
-    /*
-     * public boolean equalsIgnoringTraceIds(Object other) { if (other == null)
-     * { return false; } if (this == other) { return true; } if (!(other
-     * instanceof ImmutableMultiChState)) { return false; }
-     * ImmutableMultiChState mc = (ImmutableMultiChState) other; if
-     * (this.channelStates.size() != mc.channelStates.size()) { return false; }
-     * for (int i = 0; i < this.channelStates.size(); i++) {
-     * ChState<ObsDistEventType> chS1 = this.channelStates.get(i);
-     * ChState<ObsDistEventType> chS2 = mc.channelStates.get(i); if
-     * (!ChState.equalsObsDistETypeIgnoringTraceIds(chS1, chS2)) { return false;
-     * } } return true; }
-     */
-
-    /**
-     * Merges trace ids of obs event types in each channel state in the
-     * multi-state chStates into this multi-state.
-     */
-    /*
-     * public void mergeInTraceIds(ImmutableMultiChState chStates) { assert
-     * this.channelStates.size() == chStates.channelStates.size();
-     * 
-     * for (int i = 0; i < this.channelStates.size(); i++) {
-     * ChState<DistEventType> chS1 = this.channelStates.get(i);
-     * ChState<DistEventType> chS2 = chStates.channelStates.get(i);
-     * chS1.mergeInTraceIds(chS2); } }
-     */
-
     public ImmutableMultiChState getNextChState(DistEventType e) {
         if (e.isLocalEvent()) {
             // These events do not change the channel state.
@@ -121,8 +89,7 @@ public class ImmutableMultiChState extends AbsMultiChState<DistEventType> {
 
         // Keep this.channelStates, except for the one that will be modified (at
         // the index indicated by the event) -- this ChannelState is cloned.
-        List<ChState<DistEventType>> states = new ArrayList<ChState<DistEventType>>(
-                channelStates);
+        List<ChState<DistEventType>> states = Util.newList(channelStates);
         int scmId = e.getChannelId().getScmId();
         ChState<DistEventType> newState = states.get(scmId).clone();
         states.set(scmId, newState);

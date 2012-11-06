@@ -4,7 +4,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.Test;
@@ -13,6 +12,7 @@ import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -294,7 +294,7 @@ public class EncodedAutomatonTests extends DynopticTest {
 
     /** Converts a list of FSMState instances into a set, and returns the set. */
     private Set<FSMState> toSet(FSMState... fsmStates) {
-        Set<FSMState> states = new LinkedHashSet<FSMState>();
+        Set<FSMState> states = Util.newSet();
         for (FSMState state : fsmStates) {
             states.add(state);
         }

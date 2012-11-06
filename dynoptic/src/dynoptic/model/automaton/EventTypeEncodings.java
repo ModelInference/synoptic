@@ -1,11 +1,11 @@
 package dynoptic.model.automaton;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import dk.brics.automaton.Automaton;
 import dk.brics.automaton.RegExp;
+import dynoptic.util.Util;
 
 import synoptic.model.event.IDistEventType;
 
@@ -23,10 +23,10 @@ public class EventTypeEncodings<T extends IDistEventType> {
 
     public EventTypeEncodings(Set<T> events) {
         /** Maps an event type to a char. */
-        eventEncodings = new HashMap<T, Character>();
+        eventEncodings = Util.newMap();
 
         /** The reverse eventEncodings map -- always maintained up to date. */
-        charEncodings = new HashMap<Character, T>();
+        charEncodings = Util.newMap();
 
         cur = 1000;
         for (T e : events) {

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -12,6 +11,7 @@ import org.junit.Test;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -28,7 +28,7 @@ public class MutibleMultiChStateTests extends DynopticTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        cids = new ArrayList<ChannelId>(2);
+        cids = Util.newList(2);
         cid1 = new ChannelId(1, 2, 0);
         cid2 = new ChannelId(2, 1, 1);
         cids.add(cid1);

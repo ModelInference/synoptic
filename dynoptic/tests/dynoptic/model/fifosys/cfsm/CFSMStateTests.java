@@ -4,13 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+import dynoptic.util.Util;
 
 import synoptic.model.event.DistEventType;
 
@@ -37,7 +37,7 @@ public class CFSMStateTests extends DynopticTest {
     public void createCFSMState() {
         CFSMState tmp = new CFSMState(new FSMState(true, false, 0, 0));
 
-        List<FSMState> states = new ArrayList<FSMState>();
+        List<FSMState> states = Util.newList();
         states.add(i_0);
         states.add(a_1);
         CFSMState c = new CFSMState(states);
@@ -57,7 +57,7 @@ public class CFSMStateTests extends DynopticTest {
     public void createCFSMStateWithTxns() {
         i_0.addTransition(e_0, q_0);
 
-        List<FSMState> states = new ArrayList<FSMState>();
+        List<FSMState> states = Util.newList();
         states.add(i_0);
         states.add(a_1);
         CFSMState c = new CFSMState(states);

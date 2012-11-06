@@ -1,7 +1,14 @@
 package dynoptic.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import synoptic.util.Pair;
 
 public final class Util {
 
@@ -59,4 +66,41 @@ public final class Util {
             }
         }
     }
+
+    /**
+     * Generic factory methods to make declarations more concise, via type
+     * inference.
+     */
+    public static <K, V> Map<K, V> newMap() {
+        return new LinkedHashMap<K, V>();
+    }
+
+    public static <V> Set<V> newSet() {
+        return new LinkedHashSet<V>();
+    }
+
+    public static <V> Set<V> newSet(Set<V> s) {
+        return new LinkedHashSet<V>(s);
+    }
+
+    public static <V> Set<V> newSet(int initCap) {
+        return new LinkedHashSet<V>(initCap);
+    }
+
+    public static <V> List<V> newList() {
+        return new ArrayList<V>();
+    }
+
+    public static <V> List<V> newList(Collection<V> c) {
+        return new ArrayList<V>(c);
+    }
+
+    public static <V> List<V> newList(int initCap) {
+        return new ArrayList<V>(initCap);
+    }
+
+    public static <L, R> Pair<L, R> newPair(L l, R r) {
+        return new Pair<L, R>(l, r);
+    }
+
 }

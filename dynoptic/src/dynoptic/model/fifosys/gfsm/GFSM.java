@@ -3,8 +3,6 @@ package dynoptic.model.fifosys.gfsm;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -20,6 +18,7 @@ import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -73,7 +72,8 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
     public GFSM(List<ObsFifoSys> traces) {
         super(traces.get(0).getNumProcesses(), traces.get(0).getChannelIds());
 
-        Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition = new LinkedHashMap<Integer, Set<ObsFifoSysState>>();
+        Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition = Util
+                .newMap();
 
         for (ObsFifoSys t : traces) {
             assert t.getNumProcesses() == numProcesses;
@@ -87,7 +87,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
         Set<ObsFifoSysState> allObs = null;
         if (DynopticMain.assertsOn) {
-            allObs = new LinkedHashSet<ObsFifoSysState>();
+            allObs = Util.newSet();
         }
 
         // Create the GFSMState partitions based off of sets of observations.
@@ -132,7 +132,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
             ObsFifoSysState obs) {
         int hash = obs.getChannelStates().topOfQueuesHash();
         if (!qTopHashToPartition.containsKey(hash)) {
-            Set<ObsFifoSysState> partition = new LinkedHashSet<ObsFifoSysState>();
+            Set<ObsFifoSysState> partition = Util.newSet();
             qTopHashToPartition.put(hash, partition);
         }
         qTopHashToPartition.get(hash).add(obs);
@@ -159,7 +159,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
     @Override
     public Set<GFSMState> getInitStates() {
-        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
+        Set<GFSMState> ret = Util.newSet();
         for (GFSMState s : states) {
             if (s.isInitial()) {
                 ret.add(s);
@@ -170,7 +170,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
     @Override
     public Set<GFSMState> getAcceptStates() {
-        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
+        Set<GFSMState> ret = Util.newSet();
         for (GFSMState s : states) {
             if (s.isAccept()) {
                 ret.add(s);
@@ -192,7 +192,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
     /** Returns the set of partitions that are accepting for a pid. */
     public Set<GFSMState> getAcceptStatesForPid(int pid) {
-        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
+        Set<GFSMState> ret = Util.newSet();
         for (GFSMState s : states) {
             if (s.isAcceptForPid(pid)) {
                 ret.add(s);
@@ -203,7 +203,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
     /** Returns the set of partitions that are initial for a pid. */
     public Set<GFSMState> getInitStatesForPid(int pid) {
-        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
+        Set<GFSMState> ret = Util.newSet();
         for (GFSMState s : states) {
             if (s.isInitForPid(pid)) {
                 ret.add(s);
@@ -320,15 +320,15 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
         logger.info("GFSM -> CFSM: " + this.toString() + "\n");
 
-        Set<FSMState> initFSMStates = new LinkedHashSet<FSMState>();
-        Set<FSMState> acceptFSMStates = new LinkedHashSet<FSMState>();
-        Set<GFSMState> nonPidTxClosureStates = new LinkedHashSet<GFSMState>();
-        Map<GFSMState, FSMState> stateMap = new LinkedHashMap<GFSMState, FSMState>();
+        Set<FSMState> initFSMStates = Util.newSet();
+        Set<FSMState> acceptFSMStates = Util.newSet();
+        Set<GFSMState> nonPidTxClosureStates = Util.newSet();
+        Map<GFSMState, FSMState> stateMap = Util.newMap();
 
-        Set<GFSMState> gvisited = new LinkedHashSet<GFSMState>();
+        Set<GFSMState> gvisited = Util.newSet();
 
-        Set<FSMState> txClosure = new LinkedHashSet<FSMState>();
-        Set<FSMState> fvisited = new LinkedHashSet<FSMState>();
+        Set<FSMState> txClosure = Util.newSet();
+        Set<FSMState> fvisited = Util.newSet();
 
         // Create an FSM per pid.
         for (int pid = 0; pid < numProcesses; pid++) {
@@ -503,8 +503,8 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
             // TODO: need a better way of doing this, too -- have a way to
             // update transitions to states in bulk.
-            for (DistEventType e : new LinkedHashSet<DistEventType>(
-                    fPred.getTransitioningEvents())) {
+            for (DistEventType e : Util.newSet(fPred
+                    .getTransitioningEvents())) {
                 if (fPred.getNextStates(e).contains(fstate)) {
                     fPred.rmTransition(e, fstate);
                     fPred.addTransition(e, fstate2);
@@ -565,9 +565,9 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
     }
 
     public Set<GFSMPath> getCExamplePaths(McScMCExample cExample, int pid) {
-        Set<GFSMPath> paths = new LinkedHashSet<GFSMPath>();
-        Set<GFSMPath> newPaths = new LinkedHashSet<GFSMPath>();
-        Set<GFSMState> visited = new LinkedHashSet<GFSMState>();
+        Set<GFSMPath> paths = Util.newSet();
+        Set<GFSMPath> newPaths = Util.newSet();
+        Set<GFSMState> visited = Util.newSet();
         Set<GFSMPath> suffixPaths = null;
 
         // Initialize paths with all the initial states in the model.
@@ -640,7 +640,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
         for (DistEventType e_ : state.getTransitioningEvents()) {
             if (e_.equals(e)) {
                 if (suffixPaths == null) {
-                    suffixPaths = new LinkedHashSet<GFSMPath>();
+                    suffixPaths = Util.newSet();
                 }
                 for (GFSMState stateFinal : state.getNextStates(e)) {
                     GFSMPath p = new GFSMPath(pid);
@@ -669,7 +669,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                         p.prefixEventAndState(e_, stateNext);
                     }
                     if (suffixPaths == null) {
-                        suffixPaths = new LinkedHashSet<GFSMPath>();
+                        suffixPaths = Util.newSet();
                     }
                     suffixPaths.addAll(newSuffixPaths);
                 }

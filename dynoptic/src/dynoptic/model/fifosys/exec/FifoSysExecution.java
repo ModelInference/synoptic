@@ -1,7 +1,5 @@
 package dynoptic.model.fifosys.exec;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -9,6 +7,7 @@ import java.util.Set;
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.FifoSys;
 import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
+import dynoptic.util.Util;
 
 import synoptic.util.InternalSynopticException;
 
@@ -47,7 +46,7 @@ public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
         // We start with the initial state and empty queues.
         this.currState = new FifoSysExecState<MultiFSMState>(initState,
                 fifoSys.getChannelIds());
-        this.stateSequence = new LinkedList<FifoSysExecState<MultiFSMState>>();
+        this.stateSequence = Util.newList();
         this.stateSequence.add(currState);
     }
 
@@ -73,8 +72,8 @@ public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
         }
 
         // Get the next state non-deterministically (randomly) based on event.
-        ArrayList<FifoSysExecState<MultiFSMState>> followingArray = new ArrayList<FifoSysExecState<MultiFSMState>>(
-                following);
+        List<FifoSysExecState<MultiFSMState>> followingArray = Util
+                .newList(following);
         int i = new Random().nextInt(following.size());
         currState = followingArray.get(i);
 

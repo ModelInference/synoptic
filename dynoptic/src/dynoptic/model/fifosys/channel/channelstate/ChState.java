@@ -1,8 +1,10 @@
 package dynoptic.model.fifosys.channel.channelstate;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.IDistEventType;
@@ -38,13 +40,13 @@ public class ChState<TxnEType extends IDistEventType> implements Cloneable {
     // //////////////////////////////////////////////////////////////////
 
     private final ChannelId chId;
-    private final ArrayList<TxnEType> queue;
+    private final List<TxnEType> queue;
 
     public ChState(ChannelId chId) {
-        this(chId, new ArrayList<TxnEType>());
+        this(chId, Util.<TxnEType> newList());
     }
 
-    private ChState(ChannelId chId, ArrayList<TxnEType> queue) {
+    private ChState(ChannelId chId, List<TxnEType> queue) {
         assert chId != null;
         assert queue != null;
 
@@ -99,7 +101,8 @@ public class ChState<TxnEType extends IDistEventType> implements Cloneable {
         // Since ChannelId is immutable and Event is immutable all we need to do
         // is make sure to clone the ArrayList that maintains events to produce
         // a new independent deep-copy of ChannelState.
-        return new ChState<TxnEType>(chId, (ArrayList<TxnEType>) queue.clone());
+        return new ChState<TxnEType>(chId,
+                (List<TxnEType>) ((ArrayList<TxnEType>) queue).clone());
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -130,14 +133,4 @@ public class ChState<TxnEType extends IDistEventType> implements Cloneable {
     public ChannelId getChannelId() {
         return chId;
     }
-
-    /** Merges trace ids of obs event types in chS into this. */
-    /*
-     * public void mergeInTraceIds(ChState<ObsDistEventType> chS) { assert chS
-     * != null; assert this.chId.equals(chS.chId); assert this.queue.size() ==
-     * chS.queue.size();
-     * 
-     * for (int i = 0; i < this.queue.size(); i++) { ((ObsDistEventType)
-     * this.queue.get(i)) .addTraceIds(chS.queue.get(i)); } }
-     */
 }

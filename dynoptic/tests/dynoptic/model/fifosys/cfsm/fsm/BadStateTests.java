@@ -1,6 +1,5 @@
 package dynoptic.model.fifosys.cfsm.fsm;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -8,6 +7,7 @@ import org.junit.Test;
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.cfsm.BadState;
 import dynoptic.model.fifosys.cfsm.CFSMState;
+import dynoptic.util.Util;
 
 public class BadStateTests extends DynopticTest {
 
@@ -21,12 +21,12 @@ public class BadStateTests extends DynopticTest {
     public void createAndScmString() {
         i_0 = new FSMState(false, true, 0, 0);
         a_1 = new FSMState(true, false, 1, 2);
-        List<FSMState> states = new ArrayList<FSMState>();
+        List<FSMState> states = Util.newList();
         states.add(i_0);
         states.add(a_1);
         CFSMState c = new CFSMState(states);
 
-        List<String> qReList = new ArrayList<String>();
+        List<String> qReList = Util.newList();
         qReList.add(".*");
         qReList.add(".*");
 

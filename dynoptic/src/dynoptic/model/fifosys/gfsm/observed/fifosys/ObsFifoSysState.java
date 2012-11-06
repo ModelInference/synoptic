@@ -1,7 +1,6 @@
 package dynoptic.model.fifosys.gfsm.observed.fifosys;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +12,7 @@ import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import dynoptic.model.fifosys.gfsm.GFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -43,7 +43,7 @@ public class ObsFifoSysState extends
     private static final Map<ObsMultFSMState, ObsFifoSysState> fifoSysStatesMap;
 
     static {
-        fifoSysStatesMap = new LinkedHashMap<ObsMultFSMState, ObsFifoSysState>();
+        fifoSysStatesMap = Util.newMap();
     }
 
     // Used by tests and DynopticMain to clear the states cache.
@@ -72,18 +72,10 @@ public class ObsFifoSysState extends
         // MultiFSMState.
         if (fifoSysStatesMap.containsKey(fsmStates)) {
             ObsFifoSysState ret = fifoSysStatesMap.get(fsmStates);
-            // Check that the returned state has the expected channels state,
-            // modulo trace ids -- it is okay if the concrete channel states
-            // differ in trace ids of the individual event types. Because we
-            // merge them together into a set of trace ids.
-
-            // if
-            // (!ret.getChannelStates().equalsIgnoringTraceIds(channelStates)) {
+            // Check that the returned state has the expected channels state.
             if (!ret.getChannelStates().equals(channelStates)) {
                 assert ret.getChannelStates().equals(channelStates);
             }
-
-            // ret.mergeInTraceIds(channelStates);
 
             return ret;
         }
@@ -130,13 +122,8 @@ public class ObsFifoSysState extends
 
         this.fsmStates = fsmStates;
         this.channelStates = channelStates;
-        this.transitions = new LinkedHashMap<ObsDistEventType, ObsFifoSysState>();
+        this.transitions = Util.newMap();
     }
-
-    /*
-     * private void mergeInTraceIds(ImmutableMultiChState chStates) {
-     * this.channelStates.mergeInTraceIds(chStates); }
-     */
 
     // //////////////////////////////////////////////////////////////////
 

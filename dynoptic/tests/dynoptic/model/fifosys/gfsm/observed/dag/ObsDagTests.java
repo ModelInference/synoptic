@@ -1,6 +1,5 @@
 package dynoptic.model.fifosys.gfsm.observed.dag;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -8,6 +7,7 @@ import org.junit.Test;
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -20,7 +20,7 @@ public class ObsDagTests extends DynopticTest {
         ObsFSMState state1I = ObsFSMState.anonObsFSMState(1, true, false);
         ObsDAGNode node0I = new ObsDAGNode(state0I);
         ObsDAGNode node1I = new ObsDAGNode(state1I);
-        List<ObsDAGNode> initDagConfig = new ArrayList<ObsDAGNode>();
+        List<ObsDAGNode> initDagConfig = Util.newList();
         initDagConfig.add(node0I);
         initDagConfig.add(node1I);
 
@@ -35,11 +35,11 @@ public class ObsDagTests extends DynopticTest {
         node0I.addTransition(e, node0T);
         node1I.addTransition(f, node1T);
 
-        List<ObsDAGNode> termDagConfig = new ArrayList<ObsDAGNode>();
+        List<ObsDAGNode> termDagConfig = Util.newList();
         termDagConfig.add(node0T);
         termDagConfig.add(node1T);
 
-        List<ChannelId> channelIds = new ArrayList<ChannelId>();
+        List<ChannelId> channelIds = Util.newList();
         ObsDAG dag = new ObsDAG(initDagConfig, termDagConfig, channelIds, 1);
         return dag;
     }

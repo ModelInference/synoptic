@@ -1,12 +1,11 @@
 package dynoptic.model.fifosys.cfsm.fsm;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.AbsFSMState;
 import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
+import dynoptic.util.Util;
 
 import synoptic.model.event.DistEventType;
 
@@ -46,7 +45,7 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
         this.isInitial = isInitial;
         this.pid = pid;
         this.scmId = scmId;
-        transitions = new LinkedHashMap<DistEventType, Set<FSMState>>();
+        transitions = Util.newMap();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -83,7 +82,7 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
         // because transitions are iterated over and at the same time modified
         // in CFSM.recurseAddSendToEventTx(). This is a potential, but
         // difficult, FIXME.
-        return new LinkedHashSet<FSMState>(transitions.get(event));
+        return Util.newSet(transitions.get(event));
     }
 
     @Override
@@ -199,7 +198,7 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
     private void addTransitionNoChecks(DistEventType e, FSMState s) {
         Set<FSMState> following;
         if (transitions.get(e) == null) {
-            following = new LinkedHashSet<FSMState>();
+            following = Util.newSet();
             transitions.put(e, following);
         } else {
             following = transitions.get(e);

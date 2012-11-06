@@ -4,10 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+
+import dynoptic.util.Util;
 
 import synoptic.model.event.DistEventType;
 
@@ -49,7 +50,7 @@ public class AlwaysFollowedByTests extends AbsInvTesting {
     @Test
     public void testSatisfies() {
         AlwaysFollowedBy inv1 = new AlwaysFollowedBy(e1, e2);
-        List<DistEventType> ePath = new ArrayList<DistEventType>();
+        List<DistEventType> ePath = Util.newList();
 
         // Empty path always satisfies AFby.
         assertTrue(inv1.satisfies(ePath));

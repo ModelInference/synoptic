@@ -1,13 +1,12 @@
 package dynoptic.model.fifosys.gfsm;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+import dynoptic.util.Util;
 
 import synoptic.model.event.DistEventType;
 
@@ -31,8 +30,8 @@ public class GFSMPath {
     // /////////////////////////////////////////////////////////////
 
     public GFSMPath(int pid) {
-        this.states = new ArrayList<GFSMState>();
-        this.events = new ArrayList<DistEventType>();
+        this.states = Util.newList();
+        this.events = Util.newList();
         this.pid = pid;
     }
 
@@ -171,7 +170,7 @@ public class GFSMPath {
         } else {
             // Construct setRight to contain observations that transition
             // from part to partNext in the counter-example path.
-            setRight = new LinkedHashSet<ObsFifoSysState>();
+            setRight = Util.newSet();
             DistEventType eNext = events.get(partIndex);
             GFSMState partNext = states.get(partIndex + 1);
             for (ObsFifoSysState s : part
@@ -215,7 +214,7 @@ public class GFSMPath {
         // ///////////////
         // For simplicity, we construct setLeft to be the complement of
         // setRight.
-        setLeft = new LinkedHashSet<ObsFifoSysState>();
+        setLeft = Util.newSet();
         for (ObsFifoSysState s : part.getObservedStates()) {
             if (!setRight.contains(s)) {
                 setLeft.add(s);
