@@ -9,13 +9,15 @@ public class APChecker extends BinChecker {
     private enum State {
         // INITIAL (accepting):
         // initial state.
-        //
+        INITIAL,
+
         // SAW_X (permanently accepting):
         // state after having observed x.
-        //
+        SAW_X,
+
         // SAW_Y (permanently rejecting):
         // state after having observed y.
-        INITIAL, SAW_X, SAW_Y;
+        SAW_Y;
     }
 
     State s;
@@ -33,29 +35,29 @@ public class APChecker extends BinChecker {
      * @return whether or not the new state is an accepting state.
      */
     @Override
-    public boolean transition(DistEventType e) {
+    public Validity transition(DistEventType e) {
         if (s == State.SAW_X) {
-            return true;
+            return Validity.PERM_SUCCESS;
         }
 
         if (s == State.SAW_Y) {
-            return false;
+            return Validity.PERM_FAIL;
         }
 
         assert s == State.INITIAL;
 
         if (inv.getFirst().equals(e)) {
             s = State.SAW_X;
-            return true;
+            return Validity.PERM_SUCCESS;
         }
 
         if (inv.getSecond().equals(e)) {
             s = State.SAW_Y;
-            return false;
+            return Validity.PERM_FAIL;
         }
 
         // Remain at INITIAL
-        return true;
+        return Validity.TEMP_SUCCESS;
     }
 
 }

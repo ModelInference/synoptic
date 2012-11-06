@@ -9,13 +9,15 @@ public class NFbyChecker extends BinChecker {
     private enum State {
         // INITIAL (accepting):
         // initial state.
-        //
+        INITIAL,
+
         // SAW_X (accepting):
         // state after having observed x.
-        //
+        SAW_X,
+
         // SAW_XY (permanently rejecting):
         // state after observing x, and then y.
-        INITIAL, SAW_X, SAW_XY;
+        SAW_XY;
     }
 
     State s;
@@ -33,28 +35,26 @@ public class NFbyChecker extends BinChecker {
      * @return whether or not the new state is an accepting state.
      */
     @Override
-    public boolean transition(DistEventType e) {
+    public Validity transition(DistEventType e) {
         if (s == State.SAW_XY) {
             // Permanently rejecting.
-            return false;
+            return Validity.PERM_FAIL;
         }
 
         if (s == State.SAW_X) {
             if (inv.getSecond().equals(e)) {
                 s = State.SAW_XY;
-                return false;
+                return Validity.PERM_FAIL;
             }
-            return true;
+            return Validity.TEMP_SUCCESS;
         }
 
         assert s == State.INITIAL;
 
         if (inv.getFirst().equals(e)) {
             s = State.SAW_X;
-            return true;
         }
-
-        return true;
+        return Validity.TEMP_SUCCESS;
     }
 
 }

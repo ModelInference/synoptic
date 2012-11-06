@@ -9,10 +9,11 @@ public class EventuallyChecker extends BinChecker {
     private enum State {
         // INITIAL (rejecting):
         // initial state.
-        //
+        INITIAL,
+
         // SAW_X (permanently accepting):
         // state after having observed x.
-        INITIAL, SAW_X;
+        SAW_X;
     }
 
     State s;
@@ -30,19 +31,19 @@ public class EventuallyChecker extends BinChecker {
      * @return whether or not the new state is an accepting state.
      */
     @Override
-    public boolean transition(DistEventType e) {
+    public Validity transition(DistEventType e) {
         if (s == State.SAW_X) {
-            return true;
+            return Validity.PERM_SUCCESS;
         }
 
         assert s == State.INITIAL;
 
         if (inv.getSecond().equals(e)) {
             s = State.SAW_X;
-            return true;
+            return Validity.PERM_SUCCESS;
         }
         // Remain at INITIAL.
-        return false;
+        return Validity.TEMP_FAIL;
     }
 
 }
