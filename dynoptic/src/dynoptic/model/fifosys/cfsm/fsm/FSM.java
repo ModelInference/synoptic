@@ -122,6 +122,25 @@ public class FSM extends AbsFSM<FSMState> {
     public int getPid() {
         return this.pid;
     }
+    
+    /**
+     * @return true if this FSM is deterministic.
+     */
+    public boolean isDeterministic() {
+        if (initStates.size() > 1) {
+            return false;
+        }
+        for (FSMState state : states) {
+            Set<DistEventType> events = state.getTransitioningEvents();
+
+            for (DistEventType event : events) {
+                if (state.getNextStates(event).size() > 1) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     /**
      * Performs Hopcroft's algorithm to minimize this FSM.
