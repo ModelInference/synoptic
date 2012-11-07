@@ -367,9 +367,9 @@ public class DynopticMain {
         // (dot-format).
 
         logger.info("Final scm model:");
-        logger.info(pGraph.getCFSM().toScmString("final model"));
+        logger.info(pGraph.getCFSM(opts.minimize).toScmString("final model"));
 
-        CFSM cfsm = pGraph.getCFSM();
+        CFSM cfsm = pGraph.getCFSM(opts.minimize);
         String outputFileName = opts.outputPathPrefix + ".dot";
         GraphExporter.exportCFSM(outputFileName, cfsm);
         GraphExporter.generatePngFileFromDotFile(outputFileName);
@@ -653,7 +653,8 @@ public class DynopticMain {
                     + invsToSatisfy.size() == totalInvs;
 
             // Get the CFSM corresponding to the partition graph.
-            CFSM cfsm = pGraph.getCFSM();
+            CFSM cfsm = pGraph.getCFSM(opts.minimize);
+
             // Augment the CFSM with synthetic states/events to check curInv.
             cfsm.augmentWithInvTracing(curInv);
 
@@ -823,7 +824,7 @@ public class DynopticMain {
         GraphExporter.generatePngFileFromDotFile(dotFilename);
 
         // Export CFSM:
-        CFSM cfsm = pGraph.getCFSM();
+        CFSM cfsm = pGraph.getCFSM(opts.minimize);
 
         dotFilename = gfsmPrefixFilename + ".cfsm-no-inv." + gfsmCounter
                 + ".dot";

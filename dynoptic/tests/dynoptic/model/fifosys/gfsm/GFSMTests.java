@@ -119,7 +119,7 @@ public class GFSMTests extends DynopticTest {
 
     @Test
     public void gfsmToCFSM() {
-        CFSM c = g.getCFSM();
+        CFSM c = g.getCFSM(false);
         assertTrue(c.getNumProcesses() == 1);
         assertTrue(c.getInitStates().size() == 1);
         assertTrue(c.getAcceptStates().size() == 1);
