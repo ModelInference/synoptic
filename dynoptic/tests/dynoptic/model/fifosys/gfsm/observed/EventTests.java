@@ -8,7 +8,7 @@ import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
 import synoptic.model.event.Event;
 
-public class ObsEventTests extends DynopticTest {
+public class EventTests extends DynopticTest {
 
     @Test
     public void create() {

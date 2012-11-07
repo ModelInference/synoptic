@@ -1,15 +1,14 @@
 package dynoptic.model.fifosys.exec;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.FifoSys;
+import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
+import dynoptic.util.Util;
 
-import synoptic.model.event.DistEventType;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -28,10 +27,10 @@ import synoptic.util.InternalSynopticException;
  *            system. This does _not_ include channel states (channel state is
  *            maintained by the FifoState<State> instance).
  */
-public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMState>> {
+public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMState, ObsDistEventType>> {
 
     // The FIFO system for which this is an execution.
-    final FifoSys<MultiFSMState> fifoSys;
+    final FifoSys<MultiFSMState, ObsDistEventType> fifoSys;
 
     // The current state of the FIFO system -- this includes the state of all
     // the processes and state of all the channels.
@@ -40,14 +39,14 @@ public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     // Sequence of states that we have executed before (includes currentState)
     final List<FifoSysExecState<MultiFSMState>> stateSequence;
 
-    public FifoSysExecution(FifoSys<MultiFSMState> fifoSys,
+    public FifoSysExecution(FifoSys<MultiFSMState, ObsDistEventType> fifoSys,
             MultiFSMState initState) {
         this.fifoSys = fifoSys;
 
         // We start with the initial state and empty queues.
         this.currState = new FifoSysExecState<MultiFSMState>(initState,
                 fifoSys.getChannelIds());
-        this.stateSequence = new LinkedList<FifoSysExecState<MultiFSMState>>();
+        this.stateSequence = Util.newList();
         this.stateSequence.add(currState);
     }
 
@@ -64,7 +63,7 @@ public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
      * @param event
      * @return
      */
-    public FifoSysExecState<MultiFSMState> transition(DistEventType event) {
+    public FifoSysExecState<MultiFSMState> transition(ObsDistEventType event) {
         Set<FifoSysExecState<MultiFSMState>> following = this.currState
                 .getNextStates(event);
         if (following.size() == 0) {
@@ -73,8 +72,8 @@ public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
         }
 
         // Get the next state non-deterministically (randomly) based on event.
-        ArrayList<FifoSysExecState<MultiFSMState>> followingArray = new ArrayList<FifoSysExecState<MultiFSMState>>(
-                following);
+        List<FifoSysExecState<MultiFSMState>> followingArray = Util
+                .newList(following);
         int i = new Random().nextInt(following.size());
         currState = followingArray.get(i);
 

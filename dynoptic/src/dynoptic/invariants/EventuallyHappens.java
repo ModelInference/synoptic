@@ -2,17 +2,17 @@ package dynoptic.invariants;
 
 import java.util.List;
 
+import dynoptic.invariants.checkers.EventuallyChecker;
+
 import synoptic.model.event.DistEventType;
 
 /**
- * Represents an "X eventually happens" invariant type, which corresponds to the
- * "INITIAL AFby X" Synoptic invariant type. We consider this invariant as an
- * AFby invariant for expedience.<br/>
- * TODO: refactor invariant class hierarchy.
+ * Represents an "X eventually happens" invariant type.
  */
-public class EventuallyHappens extends AlwaysFollowedBy {
+public class EventuallyHappens extends BinaryInvariant {
+
     public EventuallyHappens(DistEventType event) {
-        super(DistEventType.INITIALEventType, event);
+        super(DistEventType.INITIALEventType, event, "Eventually");
     }
 
     public DistEventType getEvent() {
@@ -43,5 +43,11 @@ public class EventuallyHappens extends AlwaysFollowedBy {
         }
         // Never saw 'second' => eventually 'second' is false.
         return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public EventuallyChecker newChecker() {
+        return new EventuallyChecker(this);
     }
 }

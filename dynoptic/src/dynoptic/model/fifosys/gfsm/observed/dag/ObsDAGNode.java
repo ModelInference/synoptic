@@ -1,9 +1,9 @@
 package dynoptic.model.fifosys.gfsm.observed.dag;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
+import dynoptic.util.Util;
 
 import synoptic.model.event.DistEventType;
 import synoptic.model.event.Event;
@@ -33,7 +33,7 @@ public class ObsDAGNode {
     // not occurred yet in the trace then this state cannot occur. This set only
     // includes remote dependencies -- states at other processes (since locally,
     // this state trivially depends only on the preceding state).
-    private Set<ObsDAGNode> remoteDependencies = new LinkedHashSet<ObsDAGNode>();
+    private Set<ObsDAGNode> remoteDependencies = Util.newSet();
 
     // Whether or not this state has occurred in a trace simulation.
     private boolean occurredInSym = false;

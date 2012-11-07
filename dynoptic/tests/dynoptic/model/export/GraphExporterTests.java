@@ -5,9 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -17,6 +15,7 @@ import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -50,13 +49,13 @@ public class GraphExporterTests extends DynopticTest {
 
         // Channel connecting pid 0 and pid 1
         ChannelId chId = new ChannelId(pid0, pid1, 0);
-        channels = new ArrayList<ChannelId>(1);
+        channels = Util.newList(1);
         channels.add(chId);
     }
 
     @Test
     public void oneFSMOneStateTest() throws IOException {
-        Set<FSMState> states = new LinkedHashSet<FSMState>(1);
+        Set<FSMState> states = Util.newSet(1);
         states.add(s_0);
 
         FSM f0 = new FSM(pid0, s_0, s_0, states, 2);
@@ -69,7 +68,7 @@ public class GraphExporterTests extends DynopticTest {
 
     @Test
     public void oneFSMTwoStatesTest() throws IOException {
-        Set<FSMState> states = new LinkedHashSet<FSMState>(2);
+        Set<FSMState> states = Util.newSet(2);
         states.add(s0);
         states.add(s1);
 
@@ -87,7 +86,7 @@ public class GraphExporterTests extends DynopticTest {
 
     @Test
     public void twoFSMsTwoStatesEachLocalEventsTest() throws IOException {
-        Set<FSMState> p0States = new LinkedHashSet<FSMState>(2);
+        Set<FSMState> p0States = Util.newSet(2);
         p0States.add(s0);
         p0States.add(s1);
 
@@ -97,7 +96,7 @@ public class GraphExporterTests extends DynopticTest {
 
         FSM f0 = new FSM(pid0, s0, s1, p0States, 2);
 
-        Set<FSMState> p1States = new LinkedHashSet<FSMState>(2);
+        Set<FSMState> p1States = Util.newSet(2);
         p1States.add(t0);
         p1States.add(t1);
 
@@ -116,7 +115,7 @@ public class GraphExporterTests extends DynopticTest {
 
     @Test
     public void twoFSMsTwoStatesEachCommEventsTest() throws IOException {
-        Set<FSMState> p0States = new LinkedHashSet<FSMState>(2);
+        Set<FSMState> p0States = Util.newSet(2);
         p0States.add(s0);
         p0States.add(s1);
 
@@ -126,7 +125,7 @@ public class GraphExporterTests extends DynopticTest {
 
         FSM f0 = new FSM(pid0, s0, s1, p0States, 2);
 
-        Set<FSMState> p1States = new LinkedHashSet<FSMState>(2);
+        Set<FSMState> p1States = Util.newSet(2);
         p1States.add(t0);
         p1States.add(t1);
 

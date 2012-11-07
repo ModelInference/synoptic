@@ -3,7 +3,6 @@ package dynoptic.main;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -15,6 +14,7 @@ import dynoptic.invariants.AlwaysPrecedes;
 import dynoptic.invariants.BinaryInvariant;
 import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
+import dynoptic.util.Util;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
@@ -32,7 +32,7 @@ public class DynopticMainTests extends DynopticTest {
     public DynopticOptions opts;
 
     public List<String> getBasicArgsStr() throws Exception {
-        List<String> args = new ArrayList<String>();
+        List<String> args = Util.newList();
         args.add("-v");
         args.add(super.getMcPath());
         args.add("-o");
@@ -243,7 +243,7 @@ public class DynopticMainTests extends DynopticTest {
         args.add("-i");
         args.add("-d");
         args.add("../traces/EndToEndDynopticTests/AlternatingBitProtocol/trace_po_sr_simple.txt");
-        runDynFromFileArgs(args);
+        // runDynFromFileArgs(args);
     }
 
     @Test
@@ -274,7 +274,7 @@ public class DynopticMainTests extends DynopticTest {
         args.add("-i");
         args.add("-d");
         args.add("../traces/EndToEndDynopticTests/simple-po-concurrency/trace.txt");
-        // runDynFromFileArgs(args);
+        runDynFromFileArgs(args);
     }
 
     /** Same as the above, but uses a String input instead of a file input. */
@@ -292,7 +292,7 @@ public class DynopticMainTests extends DynopticTest {
         dyn = new DynopticMain(opts);
 
         String log = "1,0 e1\n" + "0,1 f1\n" + "2,0 M!m\n" + "2,2 M?m";
-        // dyn.run(log);
+        dyn.run(log);
     }
 
     /** A slightly more complex example than the above. */
@@ -313,6 +313,6 @@ public class DynopticMainTests extends DynopticTest {
                 + "5,3 send_m\n" + "2,1 M?m\n" + "2,2 recv_m\n" + "2,3 A!a\n"
                 + "3,4 M?m\n";
 
-        dyn.run(log);
+        // dyn.run(log);
     }
 }

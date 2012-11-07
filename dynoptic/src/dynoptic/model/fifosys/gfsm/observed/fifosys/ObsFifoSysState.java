@@ -1,7 +1,6 @@
 package dynoptic.model.fifosys.gfsm.observed.fifosys;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +10,9 @@ import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import dynoptic.model.fifosys.gfsm.GFSMState;
+import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -32,7 +33,8 @@ import synoptic.model.event.DistEventType;
  * channel states based on the sequence of send/receive operations.
  * </p>
  */
-public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
+public class ObsFifoSysState extends
+        AbsMultiFSMState<ObsFifoSysState, ObsDistEventType> {
     static Logger logger = Logger.getLogger("ObsFifoSysState");
 
     // A global cache of previously created ObsFifoSysState instances. This is
@@ -41,7 +43,7 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
     private static final Map<ObsMultFSMState, ObsFifoSysState> fifoSysStatesMap;
 
     static {
-        fifoSysStatesMap = new LinkedHashMap<ObsMultFSMState, ObsFifoSysState>();
+        fifoSysStatesMap = Util.newMap();
     }
 
     // Used by tests and DynopticMain to clear the states cache.
@@ -94,8 +96,8 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
     // The observed state of all the channels in the system.
     private final ImmutableMultiChState channelStates;
 
-    // Potentially observed transitions for each following event type.
-    private final Map<DistEventType, ObsFifoSysState> transitions;
+    // Observed transitions for each following event type.
+    private final Map<ObsDistEventType, ObsFifoSysState> transitions;
 
     private ObsFifoSysState(ObsMultFSMState fsmStates,
             ImmutableMultiChState channelStates) {
@@ -120,7 +122,7 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
 
         this.fsmStates = fsmStates;
         this.channelStates = channelStates;
-        this.transitions = new LinkedHashMap<DistEventType, ObsFifoSysState>();
+        this.transitions = Util.newMap();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -141,12 +143,12 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
     }
 
     @Override
-    public Set<DistEventType> getTransitioningEvents() {
+    public Set<ObsDistEventType> getTransitioningEvents() {
         return transitions.keySet();
     }
 
     @Override
-    public Set<ObsFifoSysState> getNextStates(DistEventType event) {
+    public Set<ObsFifoSysState> getNextStates(ObsDistEventType event) {
         return Collections.singleton(transitions.get(event));
     }
 
@@ -199,12 +201,31 @@ public class ObsFifoSysState extends AbsMultiFSMState<ObsFifoSysState> {
 
     // //////////////////////////////////////////////////////////////////
 
-    public ObsFifoSysState getNextState(DistEventType event) {
+    public ObsDistEventType getObsTransitionByEType(DistEventType eType) {
+        for (ObsDistEventType txn : transitions.keySet()) {
+            if (txn.equalsIgnoringTraceIds(eType)) {
+                return txn;
+            }
+        }
+        return null;
+    }
+
+    public ObsFifoSysState getNextState(ObsDistEventType event) {
         return transitions.get(event);
     }
 
-    public void addTransition(DistEventType e, ObsFifoSysState s) {
-        assert !this.transitions.containsKey(e);
+    public ObsFifoSysState getNextState(DistEventType event) {
+        ObsDistEventType txn = getObsTransitionByEType(event);
+        if (txn == null) {
+            return null;
+        }
+        return getNextState(txn);
+    }
+
+    public void addTransition(ObsDistEventType e, ObsFifoSysState s) {
+        if (this.transitions.containsKey(e)) {
+            assert !this.transitions.containsKey(e);
+        }
 
         if (DynopticMain.assertsOn) {
             // Make sure that the following states belongs to the same "system",

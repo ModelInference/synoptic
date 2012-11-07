@@ -1,9 +1,9 @@
 package dynoptic.model.fifosys.channel.channelstate;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -15,13 +15,13 @@ import synoptic.model.event.DistEventType;
  * through static methods that perform instance caching and return a previously
  * created instance, if one already exists.
  */
-public class ImmutableMultiChState extends AbsMultiChState {
+public class ImmutableMultiChState extends AbsMultiChState<DistEventType> {
 
     // Global cache of channel states already created.
-    private static final Map<List<ChState>, ImmutableMultiChState> chCache;
+    private static final Map<List<ChState<DistEventType>>, ImmutableMultiChState> chCache;
 
     static {
-        chCache = new LinkedHashMap<List<ChState>, ImmutableMultiChState>();
+        chCache = Util.newMap();
     }
 
     /**
@@ -32,7 +32,7 @@ public class ImmutableMultiChState extends AbsMultiChState {
      */
     public static ImmutableMultiChState fromChannelIds(
             List<ChannelId> channelIds) {
-        List<ChState> chStates = chStatesFromChIds(channelIds);
+        List<ChState<DistEventType>> chStates = chStatesFromChIds(channelIds);
         return fromChannelStates(chStates);
     }
 
@@ -41,7 +41,8 @@ public class ImmutableMultiChState extends AbsMultiChState {
      * previously created with the given channel states. Otherwise, returns a
      * new instance and caches it.
      */
-    public static ImmutableMultiChState fromChannelStates(List<ChState> chStates) {
+    public static ImmutableMultiChState fromChannelStates(
+            List<ChState<DistEventType>> chStates) {
         ImmutableMultiChState ret;
 
         if (chCache.containsKey(chStates)) {
@@ -55,7 +56,7 @@ public class ImmutableMultiChState extends AbsMultiChState {
 
     // //////////////////////////////////////////////////////////////////
 
-    private ImmutableMultiChState(List<ChState> chStates) {
+    private ImmutableMultiChState(List<ChState<DistEventType>> chStates) {
         super(chStates);
     }
 
@@ -74,7 +75,6 @@ public class ImmutableMultiChState extends AbsMultiChState {
 
         if (!(other instanceof ImmutableMultiChState)) {
             return false;
-
         }
         return true;
     }
@@ -89,9 +89,9 @@ public class ImmutableMultiChState extends AbsMultiChState {
 
         // Keep this.channelStates, except for the one that will be modified (at
         // the index indicated by the event) -- this ChannelState is cloned.
-        List<ChState> states = new ArrayList<ChState>(channelStates);
+        List<ChState<DistEventType>> states = Util.newList(channelStates);
         int scmId = e.getChannelId().getScmId();
-        ChState newState = states.get(scmId).clone();
+        ChState<DistEventType> newState = states.get(scmId).clone();
         states.set(scmId, newState);
 
         // 'Execute' the event by taking the appropriate action on the queue.

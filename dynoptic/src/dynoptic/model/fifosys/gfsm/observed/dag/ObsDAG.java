@@ -1,15 +1,15 @@
 package dynoptic.model.fifosys.gfsm.observed.dag;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
+import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -31,8 +31,11 @@ public class ObsDAG {
     private final ObsFifoSysState initS, termS;
     private final ImmutableMultiChState emptyChannelsState;
 
+    private final int traceId;
+
     public ObsDAG(List<ObsDAGNode> initDagConfig,
-            List<ObsDAGNode> termDagConfig, List<ChannelId> channelIds) {
+            List<ObsDAGNode> termDagConfig, List<ChannelId> channelIds,
+            int traceId) {
         assert initDagConfig != null;
         assert termDagConfig != null;
         assert channelIds != null;
@@ -43,6 +46,7 @@ public class ObsDAG {
         this.initDagConfig = initDagConfig;
         this.termDagConfig = termDagConfig;
         this.channelIds = channelIds;
+        this.traceId = traceId;
 
         emptyChannelsState = ImmutableMultiChState.fromChannelIds(channelIds);
 
@@ -69,7 +73,7 @@ public class ObsDAG {
      */
     public Set<ObsFifoSysState> genFifoStates() {
         // This will keep track of all states we've created thus far.
-        Set<ObsFifoSysState> fifoStates = new LinkedHashSet<ObsFifoSysState>();
+        Set<ObsFifoSysState> fifoStates = Util.newSet();
 
         // Mark all the nodes in the initial config as having occurred.
         for (ObsDAGNode node : initDagConfig) {
@@ -79,8 +83,7 @@ public class ObsDAG {
         // Copy the initDagConfig into curDagconfig, since we will be modifying
         // this config to track where we are in the space of possible DAG
         // configurations.
-        List<ObsDAGNode> currDagConfig = new ArrayList<ObsDAGNode>(
-                initDagConfig);
+        List<ObsDAGNode> currDagConfig = Util.newList(initDagConfig);
 
         // Iterate through all the nodes enabled from the current configuration,
         // and explore each of them DFS-style.
@@ -123,10 +126,11 @@ public class ObsDAG {
         // Retrieve the event that will cause the transition.
         Event e = nextNode.getPrevState().getNextEvent();
 
+        DistEventType eType = (DistEventType) e.getEType();
+
         // Create the next set of channel states based off of the previous
         // channel state and the event type.
-        ImmutableMultiChState nextChStates = currChStates
-                .getNextChState((DistEventType) e.getEType());
+        ImmutableMultiChState nextChStates = currChStates.getNextChState(eType);
 
         // Update the DAG config by transitioning to the next node.
         curDagConfig.set(nextNode.getPid(), nextNode);
@@ -136,20 +140,31 @@ public class ObsDAG {
                 fsmStatesFromDagConfig(curDagConfig), nextChStates);
         states.add(nextSysState);
 
-        // Add a transition between the FIFO states.
-        DistEventType eType = (DistEventType) e.getEType();
+        // Add a transition between the FIFO states, if this kind of
+        // transitioning event type has not been observed previously.
 
         // currSysState might already have a transition e if we are maintaining
         // only 1 ObsFifoSys.
-        if (!currSysState.getTransitioningEvents().contains(eType)) {
-            currSysState.addTransition(eType, nextSysState);
+        // if (!currSysState.getTransitioningEvents().contains(obsEType)) {
+        ObsDistEventType existingTxn = currSysState
+                .getObsTransitionByEType(eType);
+        if (existingTxn == null) {
+            // NOTE: we do not want to cache the ObsDistEventType, since each
+            // edge must have its own instance.
+            ObsDistEventType obsEType = new ObsDistEventType(eType, traceId);
+            currSysState.addTransition(obsEType, nextSysState);
         } else {
-            // Make sure that the state we're transitioning to already is the
+            // 1. Make sure that the state we're transitioning to already is the
             // one we are supposed to be transitioning to according to the
             // current traversal.
-            if (!currSysState.getNextState(eType).equals(nextSysState)) {
-                assert currSysState.getNextState(eType).equals(nextSysState);
+            if (!currSysState.getNextState(existingTxn).equals(nextSysState)) {
+                assert currSysState.getNextState(existingTxn).equals(
+                        nextSysState);
             }
+
+            // 2. Merge in the trace-ids of the observed event instances that
+            // generated the transition.
+            existingTxn.addTraceId(traceId);
         }
 
         // Update the nextNode as having occurred.
@@ -177,7 +192,7 @@ public class ObsDAG {
      * @return
      */
     private ObsMultFSMState fsmStatesFromDagConfig(List<ObsDAGNode> dagConfig) {
-        List<ObsFSMState> fsmStates = new ArrayList<ObsFSMState>();
+        List<ObsFSMState> fsmStates = Util.newList();
 
         for (ObsDAGNode node : dagConfig) {
             fsmStates.add(node.getObsState());
@@ -196,7 +211,7 @@ public class ObsDAG {
      * @return
      */
     private Set<ObsDAGNode> getEnabledNodes(List<ObsDAGNode> curConfig) {
-        Set<ObsDAGNode> ret = new LinkedHashSet<ObsDAGNode>();
+        Set<ObsDAGNode> ret = Util.newSet();
         for (ObsDAGNode node : curConfig) {
             if (!node.isTermState() && node.getNextState().isEnabled()) {
                 ret.add(node.getNextState());

@@ -4,7 +4,7 @@ import java.util.Set;
 
 import dynoptic.model.AbsFSMState;
 
-import synoptic.model.event.DistEventType;
+import synoptic.model.event.IDistEventType;
 
 /**
  * Base class representing possible exported/serializing formats for graphs.
@@ -33,7 +33,7 @@ public abstract class GraphExportFormatter {
      * @param isTerminal
      *            whether or not node is terminal
      */
-    public abstract <State extends AbsFSMState<State>> String nodeToString(
+    public abstract <State extends AbsFSMState<State, TxnEType>, TxnEType extends IDistEventType> String nodeToString(
             int nodeId, State node, boolean isInitial, boolean isTerminal);
 
     /**
@@ -51,7 +51,7 @@ public abstract class GraphExportFormatter {
      * @return
      */
     public abstract String edgeToStringWithDistEvent(int nodeSrc, int nodeDst,
-            DistEventType event, Set<String> relations);
+            IDistEventType event, Set<String> relations);
 
     /**
      * Returns a string with escaped forward slashes and double quotes.

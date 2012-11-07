@@ -15,6 +15,7 @@ import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 
@@ -27,7 +28,7 @@ public class GFSMStateTests extends DynopticTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        cids = new ArrayList<ChannelId>(2);
+        cids = Util.newList(2);
         // Two process system.
         cid1 = new ChannelId(0, 1, 0);
         cid2 = new ChannelId(1, 0, 1);
@@ -49,7 +50,7 @@ public class GFSMStateTests extends DynopticTest {
     public void stateWithObs() {
         GFSMState s = new GFSMState(2);
 
-        List<ObsFSMState> obsFsmStates = new ArrayList<ObsFSMState>();
+        List<ObsFSMState> obsFsmStates = Util.newList();
         obsFsmStates.add(ObsFSMState.anonObsFSMState(0, true, true));
         obsFsmStates.add(ObsFSMState.anonObsFSMState(1, true, true));
         ObsMultFSMState fsmStates = ObsMultFSMState

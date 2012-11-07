@@ -1,14 +1,13 @@
 package dynoptic.main;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import mcscm.McScM;
+import mcscm.McScMCExample;
 import mcscm.VerifyResult;
 import dynoptic.invariants.AlwaysFollowedBy;
 import dynoptic.invariants.AlwaysPrecedes;
@@ -17,10 +16,10 @@ import dynoptic.invariants.EventuallyHappens;
 import dynoptic.invariants.NeverFollowedBy;
 import dynoptic.model.export.GraphExporter;
 import dynoptic.model.fifosys.cfsm.CFSM;
-import dynoptic.model.fifosys.gfsm.CompleteGFSMCExample;
 import dynoptic.model.fifosys.gfsm.GFSM;
-import dynoptic.model.fifosys.gfsm.PartialGFSMCExample;
+import dynoptic.model.fifosys.gfsm.GFSMPath;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
+import dynoptic.util.Util;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
@@ -167,7 +166,7 @@ public class DynopticMain {
         }
 
         channelIds = ChannelId.parseChannelSpec(opts.channelSpec);
-        if (channelIds.size() == 0) {
+        if (channelIds.isEmpty()) {
             err = "Could not parse the channel specification:\n\t"
                     + opts.getOptDesc("channelSpec");
             throw new OptionException(err);
@@ -209,7 +208,7 @@ public class DynopticMain {
             initializeSynoptic();
         }
 
-        if (opts.logFilenames.size() == 0) {
+        if (opts.logFilenames.isEmpty()) {
             String err = "No log filenames specified, exiting. Specify log files at the end of the command line.";
             throw new OptionException(err);
         }
@@ -277,6 +276,14 @@ public class DynopticMain {
      */
     public void run(DAGsTraceGraph traceGraph) throws IOException,
             InterruptedException, Exception {
+
+        // Export a visualization of the traceGraph
+        String dotFilename = opts.outputPathPrefix + ".trace-graph.dot";
+        synoptic.model.export.GraphExporter.exportGraph(dotFilename,
+                traceGraph, true);
+        synoptic.model.export.GraphExporter
+                .generatePngFileFromDotFile(dotFilename);
+
         // //////////////////
         // Mine Synoptic invariants
         TemporalInvariantSet minedInvs = synMain.minePOInvariants(
@@ -293,6 +300,19 @@ public class DynopticMain {
             return;
         }
 
+        // ///////////////////
+        // Convert Synoptic invariants into Dynoptic invariants.
+        logger.info("Converting Synoptic invariants to Dynoptic invariants...");
+        List<BinaryInvariant> dynInvs = synInvsToDynInvs(minedInvs);
+
+        logger.info(minedInvs.numInvariants() + " Synoptic invs --> "
+                + dynInvs.size() + " Dynoptic invs.");
+
+        if (dynInvs.isEmpty()) {
+            logger.info("Mined 0 Dynoptic invariants. Stopping.");
+            return;
+        }
+
         // //////////////////
         // Use Synoptic event nodes and ordering constraints
         // between these to generate ObsFSMStates (anonymous states),
@@ -302,24 +322,32 @@ public class DynopticMain {
         List<ObsFifoSys> traces = ObsFifoSys.synTraceGraphToDynObsFifoSys(
                 traceGraph, numProcesses, channelIds, opts.consistentInitState);
 
+        assert traces.size() > 0;
+
+        // Export (just the first!) Observed FIFO System instance:
+        dotFilename = opts.outputPathPrefix + ".obsfifosys.tid1.dot";
+        GraphExporter.exportObsFifoSys(dotFilename, traces.get(0));
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
+
         // //////////////////
         // If assume consistent per-process initial state, check that
         // only one ObsFifoSys is created.
+        // Also, this option allows stitchings between traces, which may lead to
+        // invariant violations. This post-processing step removes such
+        // stitchings.
         if (opts.consistentInitState) {
             assert traces.size() == 1;
-        }
 
-        // ///////////////////
-        // Express/convert Synoptic invariants as Dynoptic invariants.
-        logger.info("Converting Synoptic invariants to Dynoptic invariants...");
-        List<BinaryInvariant> dynInvs = synInvsToDynInvs(minedInvs);
+            Set<BinaryInvariant> faultyInvs = traces.get(0)
+                    .findInvalidatedInvariants(dynInvs);
+            if (!faultyInvs.isEmpty()) {
+                logger.warning("Input traces are incomplete --- some mined invariants cannot be satisfied: "
+                        + faultyInvs.toString());
 
-        logger.info(minedInvs.numInvariants() + " Synoptic invs --> "
-                + dynInvs.size() + " Dynoptic invs.");
-
-        if (dynInvs.size() == 0) {
-            logger.info("Mined 0 Dynoptic invariants. Stopping.");
-            return;
+                dynInvs.removeAll(faultyInvs);
+                logger.info("Ignoring faulty invariant and continuing. New invariants set: "
+                        + dynInvs.toString());
+            }
         }
 
         // ///////////////////
@@ -339,9 +367,9 @@ public class DynopticMain {
         // (dot-format).
 
         logger.info("Final scm model:");
-        logger.info(pGraph.getCFSM().toScmString("final model"));
+        logger.info(pGraph.getCFSM(opts.minimize).toScmString("final model"));
 
-        CFSM cfsm = pGraph.getCFSM();
+        CFSM cfsm = pGraph.getCFSM(opts.minimize);
         String outputFileName = opts.outputPathPrefix + ".dot";
         GraphExporter.exportCFSM(outputFileName, cfsm);
         GraphExporter.generatePngFileFromDotFile(outputFileName);
@@ -437,7 +465,7 @@ public class DynopticMain {
      */
     private void postParseEvents(List<EventNode> parsedEvents) throws Exception {
 
-        if (parsedEvents.size() == 0) {
+        if (parsedEvents.isEmpty()) {
             throw new OptionException(
                     "Did not parse any events from the input log files. Stopping.");
         }
@@ -447,8 +475,8 @@ public class DynopticMain {
         // events that capture message send/receives). And determine the number
         // of processes in the system.
 
-        Set<ChannelId> usedChannelIds = new LinkedHashSet<ChannelId>();
-        Set<Integer> usedPids = new LinkedHashSet<Integer>();
+        Set<ChannelId> usedChannelIds = Util.newSet();
+        Set<Integer> usedPids = Util.newSet();
 
         for (EventNode eNode : parsedEvents) {
             synoptic.model.event.EventType synEType = eNode.getEType();
@@ -502,7 +530,7 @@ public class DynopticMain {
      */
     public static List<BinaryInvariant> synInvsToDynInvs(
             TemporalInvariantSet minedInvs) {
-        List<BinaryInvariant> dynInvs = new ArrayList<BinaryInvariant>();
+        List<BinaryInvariant> dynInvs = Util.newList();
 
         BinaryInvariant dynInv = null;
 
@@ -572,14 +600,24 @@ public class DynopticMain {
      * @throws IOException
      * @throws InterruptedException
      */
-    public void checkInvsRefineGFSM(List<BinaryInvariant> invsToSatisfy,
-            GFSM pGraph) throws Exception, IOException, InterruptedException {
+    public void checkInvsRefineGFSM(List<BinaryInvariant> invs, GFSM pGraph)
+            throws Exception, IOException, InterruptedException {
         assert pGraph != null;
-        assert invsToSatisfy != null;
-        assert invsToSatisfy.size() > 0;
+        assert invs != null;
+        assert invs.size() > 0;
 
-        Set<BinaryInvariant> timedOutInvs = new LinkedHashSet<BinaryInvariant>();
-        Set<BinaryInvariant> satisfiedInvs = new LinkedHashSet<BinaryInvariant>();
+        // Make a copy of invs, as we'll be modifying the list (removing
+        // invariants once they are satisfied by the model).
+        List<BinaryInvariant> invsToSatisfy = Util.newList(invs);
+
+        // The set of invariants that have timed-out so far. This set is reset
+        // whenever we successfully check/refine an invariant.
+        Set<BinaryInvariant> timedOutInvs = Util.newSet();
+
+        // The set of invariants (subset of original invsToSatisfy) that the
+        // model satisfies.
+        Set<BinaryInvariant> satisfiedInvs = Util.newSet();
+
         // curInv will _always_ refer to the 0th element of invsToSatisfy.
         BinaryInvariant curInv = invsToSatisfy.get(0);
 
@@ -602,23 +640,11 @@ public class DynopticMain {
 
         // This counts the number of times we've refined the gfsm.
         int gfsmCounter = 0;
+
         String gfsmPrefixFilename = opts.outputPathPrefix;
-        String dotFilename = gfsmPrefixFilename + ".gfsm.0.dot";
-        GraphExporter.exportGFSM(dotFilename, pGraph);
-        GraphExporter.generatePngFileFromDotFile(dotFilename);
 
-        // Export intermediate CFSM:
-        CFSM cfsm = pGraph.getCFSM();
-
-        dotFilename = gfsmPrefixFilename + ".cfsm-no-inv." + gfsmCounter
-                + ".dot";
-        GraphExporter.exportCFSM(dotFilename, cfsm);
-        GraphExporter.generatePngFileFromDotFile(dotFilename);
-
-        cfsm.augmentWithInvTracing(curInv);
-        dotFilename = gfsmPrefixFilename + ".cfsm." + gfsmCounter + ".dot";
-        GraphExporter.exportCFSM(dotFilename, cfsm);
-        GraphExporter.generatePngFileFromDotFile(dotFilename);
+        exportIntermediateModels(pGraph, curInv, gfsmCounter,
+                gfsmPrefixFilename);
 
         while (true) {
             assert invsCounter <= totalInvs;
@@ -626,12 +652,9 @@ public class DynopticMain {
             assert timedOutInvs.size() + satisfiedInvs.size()
                     + invsToSatisfy.size() == totalInvs;
 
-            if (gfsmCounter == 2) {
-                assert true;
-            }
-
             // Get the CFSM corresponding to the partition graph.
-            cfsm = pGraph.getCFSM();
+            CFSM cfsm = pGraph.getCFSM(opts.minimize);
+
             // Augment the CFSM with synthetic states/events to check curInv.
             cfsm.augmentWithInvTracing(curInv);
 
@@ -639,14 +662,7 @@ public class DynopticMain {
             String cStr = cfsm.toScmString("checking_"
                     + curInv.getConnectorString());
 
-            // logger.info(cStr);
-
-            // TODO: if we are re-checking an invariant, indicate how many times
-            // we have rechecked it (since the last time it timed-out, if that
-            // ever happened).
-
             logger.info("*******************************************************");
-
             logger.info("Checking ... " + curInv.toString() + ". Inv "
                     + invsCounter + " / " + totalInvs
                     + ", refinements so far: " + gfsmCounter);
@@ -664,9 +680,9 @@ public class DynopticMain {
                         + curInv.toString());
 
                 // No invariants are left to try -- increase the timeout value,
-                // unless we are the timeout limit, in which case we throw an
-                // exception.
-                if (invsToSatisfy.size() == 0) {
+                // unless we reached the timeout limit, in which case we throw
+                // an exception.
+                if (invsToSatisfy.isEmpty()) {
                     logger.info("Timed out in checking these invariants with timeout value "
                             + curTimeout + " :" + timedOutInvs.toString());
 
@@ -697,17 +713,17 @@ public class DynopticMain {
             logger.info(result.toRawString());
             logger.info(result.toString());
 
-            // If there is no counter-example, then the invariant holds true.
-            if (result.getCExample() == null) {
+            if (result.modelIsSafe()) {
                 // Remove the current invariant from the invsToSatisfy list.
-                invsToSatisfy.remove(0);
+                BinaryInvariant curInvCheck = invsToSatisfy.remove(0);
+                assert curInvCheck == curInv;
                 satisfiedInvs.add(curInv);
 
-                if (invsToSatisfy.size() == 0) {
+                if (invsToSatisfy.isEmpty()) {
                     // No more invariants to check. We are done.
                     logger.info("Finished checking " + invsCounter + " / "
                             + totalInvs + " invariants.");
-                    break;
+                    return;
                 }
 
                 // Grab and start checking the next invariant.
@@ -716,125 +732,15 @@ public class DynopticMain {
                 logger.info("Model checking " + curInv.toString() + " : "
                         + invsCounter + " / " + totalInvs);
             } else {
-                // Refine the pGraph to eliminate cExample.
-
-                // Match the sequence of events in the counter-example to
-                // paths of corresponding GFSM states.
-                List<CompleteGFSMCExample> paths = pGraph
-                        .getCExamplePaths(result.getCExample());
-
-                if (paths == null || paths.isEmpty()) {
-                    cfsm = pGraph.getCFSM();
-
-                    // A complete counter-example path does not exist. This may
-                    // occur when the GFSM->CFSM conversion does not produce
-                    // identical models (the CFSM model can be more general,
-                    // i.e., accept more behavior). In this case, we first find
-                    // the partial counter-example path with is the longest
-                    // partitions path that matches the McScM counter-example.
-                    PartialGFSMCExample partialPath = pGraph
-                            .getLongestPartialCExamplePath(result.getCExample());
-
-                    logger.info("Found partial path: " + partialPath.toString());
-
-                    if (partialPath.pathLength() == result.getCExample()
-                            .getEvents().size() + 1) {
-                        logger.info("Resolving partial non-extended path: "
-                                + partialPath.toString());
-                        boolean ret = partialPath.resolve(pGraph);
-                        if (!ret) {
-                            // Find a permutation of the counter-example from
-                            // scratch, since we cannot resolve the partial
-                            // c-example that does not terminate in accepting
-                            // state.
-
-                            logger.info("Scrapping partial c-example and re-creating a permuted c-example.");
-
-                            partialPath = new PartialGFSMCExample(
-                                    result.getCExample());
-
-                            CompleteGFSMCExample completePath = partialPath
-                                    .extendToCompletePath(curInv, pGraph);
-
-                            assert completePath != null;
-
-                            logger.info("Extended partial path to complete path: "
-                                    + completePath.toString());
-
-                            logger.info("Resolving " + completePath.toString());
-                            completePath.resolve(curInv, pGraph);
-                        }
-
-                    } else {
-                        // Now, extend the partial path to a complete path
-                        // through
-                        // permutation of events in the McScM counter-example.
-                        CompleteGFSMCExample completePath = partialPath
-                                .extendToCompletePath(curInv, pGraph);
-
-                        assert completePath != null;
-
-                        logger.info("Extended partial path to complete path: "
-                                + completePath.toString());
-
-                        logger.info("Resolving " + completePath.toString());
-                        completePath.resolve(curInv, pGraph);
-                    }
-
-                } else {
-                    // Resolve all of the complete counter-example paths.
-                    for (CompleteGFSMCExample path : paths) {
-                        logger.info("Resolving " + path.toString());
-
-                        // TODO 2: if the paths overlap then it might be
-                        // possible to resolve multiple paths with a single
-                        // refinement. Implement this optimization.
-
-                        // Check if path is still feasible before attempting to
-                        // resolve it (resolving prior paths might have made it
-                        // infeasible)
-                        if (!pGraph.feasible(path)) {
-                            logger.info("Path no longer feasible");
-                            continue;
-                        }
-
-                        path.resolve(curInv, pGraph);
-
-                        if (!path.isResolved()) {
-                            throw new Exception("Cannot resolve "
-                                    + path.toString() + " for "
-                                    + curInv.toString());
-                        }
-                    }
-                }
+                // Refine the pGraph in an attempt to eliminate the counter
+                // example.
+                refineCExample(pGraph, result.getCExample());
 
                 // Increment the number of refinements:
                 gfsmCounter += 1;
 
-                // Export intermediate GFSM:
-                dotFilename = gfsmPrefixFilename + ".gfsm." + gfsmCounter
-                        + ".dot";
-                GraphExporter.exportGFSM(dotFilename, pGraph);
-                GraphExporter.generatePngFileFromDotFile(dotFilename);
-
-                if (gfsmCounter == 1) {
-                    logger.info("");
-                    assert true;
-                }
-
-                // Export intermediate CFSM:
-                cfsm = pGraph.getCFSM();
-
-                dotFilename = gfsmPrefixFilename + ".cfsm-no-inv."
-                        + gfsmCounter + ".dot";
-                GraphExporter.exportCFSM(dotFilename, cfsm);
-                GraphExporter.generatePngFileFromDotFile(dotFilename);
-
-                cfsm.augmentWithInvTracing(curInv);
-                dotFilename = gfsmPrefixFilename + ".cfsm." + gfsmCounter
-                        + ".dot";
-                GraphExporter.exportCFSM(dotFilename, cfsm);
-                GraphExporter.generatePngFileFromDotFile(dotFilename);
+                exportIntermediateModels(pGraph, curInv, gfsmCounter,
+                        gfsmPrefixFilename);
 
                 // Model changed through refinement. Therefore, forget any
                 // invariants that might have timed out previously,
@@ -845,9 +751,91 @@ public class DynopticMain {
                     invsToSatisfy.addAll(timedOutInvs);
                     timedOutInvs.clear();
                 }
-
             }
         }
+    }
+
+    /**
+     * Matches the sequence of events in the counter-example to paths of
+     * corresponding GFSM states for each process. Then, refines each process'
+     * paths until all paths for some process are successfully refined.
+     * 
+     * @throws Exception
+     *             if we were not able to eliminate the counter-example
+     */
+    private void refineCExample(GFSM pGraph, McScMCExample cexample)
+            throws Exception {
+
+        // Resolve all of the complete counter-example paths by:
+        // refining all possible stitching partitions for pid 0.
+        // However, if not all of these can be refined then try pid 1, and
+        // so on. By construction we are guaranteed to be able to
+        // eliminate this execution, so we are making progress as long
+        // as we refine at each step.
+        for (int i = 0; i < this.getNumProcesses(); i++) {
+            // Get set of GFSM paths for process i that generate the
+            // sub-sequence of process i events in the counter-example.
+            Set<GFSMPath> processPaths = pGraph.getCExamplePaths(cexample, i);
+
+            logger.info("Process " + i + " paths: " + processPaths.toString());
+
+            // Attempt to refine stitching partitions along these paths.
+            boolean refinedAll = true;
+            for (GFSMPath path : processPaths) {
+                logger.info("Attempting to resolve process " + i + " path: "
+                        + path.toString());
+                if (path.refine(pGraph)) {
+                    break;
+                } else {
+                    refinedAll = false;
+                }
+            }
+
+            // We were able to refine all paths for process i. Therefore, the
+            // abstract counter-example path cannot exist.
+            if (refinedAll) {
+                return;
+            }
+
+        }
+        throw new Exception(
+                "Unable to eliminate CFSM counter-example from GFSM.");
+    }
+
+    /**
+     * Exports the GFSM model, as well as the corresponding CFSM, and CFSM
+     * augmented with the invariant we are currently checking.
+     * 
+     * @param pGraph
+     * @param curInv
+     * @param gfsmCounter
+     * @param gfsmPrefixFilename
+     * @throws IOException
+     * @throws Exception
+     */
+    private void exportIntermediateModels(GFSM pGraph, BinaryInvariant curInv,
+            int gfsmCounter, String gfsmPrefixFilename) throws IOException,
+            Exception {
+
+        // Export GFSM:
+        String dotFilename = gfsmPrefixFilename + ".gfsm." + gfsmCounter
+                + ".dot";
+        GraphExporter.exportGFSM(dotFilename, pGraph);
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
+
+        // Export CFSM:
+        CFSM cfsm = pGraph.getCFSM(opts.minimize);
+
+        dotFilename = gfsmPrefixFilename + ".cfsm-no-inv." + gfsmCounter
+                + ".dot";
+        GraphExporter.exportCFSM(dotFilename, cfsm);
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
+
+        // Export CFSM, augmented with curInv:
+        cfsm.augmentWithInvTracing(curInv);
+        dotFilename = gfsmPrefixFilename + ".cfsm." + gfsmCounter + ".dot";
+        GraphExporter.exportCFSM(dotFilename, cfsm);
+        GraphExporter.generatePngFileFromDotFile(dotFilename);
     }
 
 }

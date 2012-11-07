@@ -28,7 +28,6 @@
         <pathelement location="${util.synoptic.libdir}/junit-4.9b2.jar"/>
         <pathelement location="${util.synoptic.libdir}/plume.jar"/>
     	<pathelement location="${util.synoptic.libdir}/synoptic.jar"/>
-    	<pathelement location="${util.synoptic.libdir}/automaton.jar"/>
     </path>
 
     <!-- The complete classpath for running the compiled synoptic. -->

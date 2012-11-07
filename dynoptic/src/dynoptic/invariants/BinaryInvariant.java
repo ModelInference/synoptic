@@ -2,6 +2,8 @@ package dynoptic.invariants;
 
 import java.util.List;
 
+import dynoptic.invariants.checkers.BinChecker;
+
 import synoptic.model.event.DistEventType;
 
 /**
@@ -170,4 +172,7 @@ abstract public class BinaryInvariant {
 
     /** Whether or not the passed eventsPath satisfied this invariant type. */
     public abstract boolean satisfies(List<DistEventType> eventsPath);
+
+    /** Returns an invariant checker instance corresponding to this invariant. */
+    public abstract <InvChecker extends BinChecker<?>> InvChecker newChecker();
 }

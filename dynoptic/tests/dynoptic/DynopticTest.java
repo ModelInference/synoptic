@@ -4,7 +4,6 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +20,7 @@ import dynoptic.main.DynopticOptions;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 
@@ -83,7 +83,7 @@ public class DynopticTest {
      * @return
      */
     protected List<ChannelId> getAllToAllChannelIds(int numProcesses) {
-        List<ChannelId> channels = new ArrayList<ChannelId>(numProcesses
+        List<ChannelId> channels = Util.newList(numProcesses
                 * (numProcesses - 1));
 
         int scmId = 0;

@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -14,9 +13,11 @@ import dynoptic.model.AbsFSMState;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.gfsm.GFSM;
+import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
+import dynoptic.util.Util;
 
 import synoptic.main.SynopticMain;
-import synoptic.model.event.DistEventType;
+import synoptic.model.event.IDistEventType;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -142,6 +143,23 @@ public class GraphExporter {
         writer.close();
     }
 
+    public static void exportObsFifoSys(String fileName, ObsFifoSys obsFifoSys) {
+        File f = new File(fileName);
+        logger.info("Exporting ObsFifoSys to: " + fileName);
+        final PrintWriter writer;
+        try {
+            writer = new PrintWriter(f);
+        } catch (final IOException e) {
+            throw new RuntimeException("Error opening file for graph export: "
+                    + e.getMessage(), e);
+        }
+        // /////////////
+        exportAbsFSM(writer, obsFifoSys,
+                "ObsFifoSys [pnum=" + obsFifoSys.getNumProcesses() + "]");
+        // /////////////
+        writer.close();
+    }
+
     /**
      * Exports the CFSM to a format determined by Main.graphExportFormatter,
      * writing the resulting string to writer. Each FSM in CFSM is exported as
@@ -168,8 +186,8 @@ public class GraphExporter {
      * Exports any instance that has AbsFSM type to a string and writes that
      * string using the passed writer.
      */
-    private static <State extends AbsFSMState<State>> void exportAbsFSM(
-            Writer writer, AbsFSM<State> fsmGraph, String title) {
+    private static <State extends AbsFSMState<State, TxnEType>, TxnEType extends IDistEventType> void exportAbsFSM(
+            Writer writer, AbsFSM<State, TxnEType> fsmGraph, String title) {
         GraphExportFormatter formatter = new DotExportFormatter();
 
         try {
@@ -178,14 +196,14 @@ public class GraphExporter {
 
             // A mapping between nodes in the graph and the their integer
             // identifiers in the dot output.
-            LinkedHashMap<State, Integer> nodeToInt = new LinkedHashMap<State, Integer>();
+            Map<State, Integer> nodeToInt = Util.newMap();
 
             // A unique identifier used to represent nodes in the exported file.
             int nodeCnt = 0;
 
             // NOTE: we must create a new collection so that we do not modify
             // the set maintained by the graph!
-            Set<State> nodes = new LinkedHashSet<State>(fsmGraph.getStates());
+            Set<State> nodes = Util.newSet(fsmGraph.getStates());
 
             // /////////////////////
             // EXPORT NODES:
@@ -209,9 +227,9 @@ public class GraphExporter {
             // Export all the edges corresponding to the nodes in the graph.
             for (State node : nodes) {
                 int nodeSrc = nodeToInt.get(node);
-                Set<DistEventType> transitions = node.getTransitioningEvents();
+                Set<TxnEType> transitions = node.getTransitioningEvents();
 
-                for (DistEventType trans : transitions) {
+                for (TxnEType trans : transitions) {
                     Set<State> nextNodes = node.getNextStates(trans);
 
                     for (State nextNode : nextNodes) {
@@ -233,4 +251,5 @@ public class GraphExporter {
                             + e.getMessage(), e);
         }
     }
+
 }

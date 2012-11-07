@@ -1,12 +1,11 @@
 package dynoptic.model.fifosys.cfsm.fsm;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.AbsFSMState;
 import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
+import dynoptic.util.Util;
 
 import synoptic.model.event.DistEventType;
 
@@ -21,7 +20,7 @@ import synoptic.model.event.DistEventType;
  * different FSMState instances (the FSM can be an NFA).
  * </p>
  */
-public class FSMState extends AbsFSMState<FSMState> {
+public class FSMState extends AbsFSMState<FSMState, DistEventType> {
     // Whether or not this state is an accepting/initial state.
     private boolean isAccept;
     private boolean isInitial;
@@ -46,7 +45,7 @@ public class FSMState extends AbsFSMState<FSMState> {
         this.isInitial = isInitial;
         this.pid = pid;
         this.scmId = scmId;
-        transitions = new LinkedHashMap<DistEventType, Set<FSMState>>();
+        transitions = Util.newMap();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -83,13 +82,59 @@ public class FSMState extends AbsFSMState<FSMState> {
         // because transitions are iterated over and at the same time modified
         // in CFSM.recurseAddSendToEventTx(). This is a potential, but
         // difficult, FIXME.
-        return new LinkedHashSet<FSMState>(transitions.get(event));
+        return Util.newSet(transitions.get(event));
     }
 
     @Override
     public String toString() {
         return "FSM_state: init[" + isInitial + "], accept[" + isAccept
                 + "] id[" + scmId + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        int ret = 31;
+        ret = ret * 31 + (isAccept ? 1 : 0);
+        ret = ret * 31 + (isInitial ? 1 : 0);
+        // FIXME: Issue 276
+        // Not using transitions because they cause a stack overflow.
+        ret = ret * 31 + pid;
+        ret = ret * 31 + scmId;
+        return 1;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+
+        if (!(other instanceof FSMState)) {
+            return false;
+        }
+
+        FSMState state = (FSMState) other;
+
+        if (state.isAccept != this.isAccept) {
+            return false;
+        }
+
+        if (state.isInitial != this.isInitial) {
+            return false;
+        }
+
+        // FIXME: Issue 276
+        // Not using transitions because they cause a stack overflow.
+
+        if (state.pid != this.pid) {
+            return false;
+        }
+
+        if (state.scmId != this.scmId) {
+            return false;
+        }
+
+        return true;
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -199,7 +244,7 @@ public class FSMState extends AbsFSMState<FSMState> {
     private void addTransitionNoChecks(DistEventType e, FSMState s) {
         Set<FSMState> following;
         if (transitions.get(e) == null) {
-            following = new LinkedHashSet<FSMState>();
+            following = Util.newSet();
             transitions.put(e, following);
         } else {
             following = transitions.get(e);

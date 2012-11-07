@@ -1,20 +1,22 @@
 package dynoptic.model.fifosys.gfsm.observed.fifosys;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import dynoptic.invariants.BinaryInvariant;
+import dynoptic.invariants.checkers.BinChecker;
+import dynoptic.invariants.checkers.BinChecker.Validity;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.FifoSys;
+import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAG;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAGNode;
+import dynoptic.util.Util;
 
 import synoptic.model.DAGsTraceGraph;
 import synoptic.model.EventNode;
@@ -28,7 +30,7 @@ import synoptic.model.event.Event;
  * ObservedFifoSysState instances. An instance of ObsFifoSys merely maintains a
  * pointer to the initial/terminal states.
  */
-public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
+public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
 
     private static Logger logger = Logger.getLogger("ObsFifoSys");
 
@@ -54,11 +56,11 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
 
         // Note: if we assume consistent per-process initial state then this
         // list will contain just 1 ObsFifoSys, even with multiple traces,
-        List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>();
+        List<ObsFifoSys> traces = Util.newList();
 
         // Maps an observed event to the generated ObsDAGNode that emits the
         // event in the Dynoptic DAG.
-        Map<Event, ObsDAGNode> preEventNodesMap = new LinkedHashMap<Event, ObsDAGNode>();
+        Map<Event, ObsDAGNode> preEventNodesMap = Util.newMap();
 
         ObsDAG dag = null;
         ObsFifoSys fifoSys = null;
@@ -66,7 +68,7 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
         // In case of consistentInitState, there is just one initial state in
         // the observed fifo sys, and there are _multiple_ terminal states. This
         // set keeps track of these terminal states.
-        Set<ObsFifoSysState> termStates = new LinkedHashSet<ObsFifoSysState>();
+        Set<ObsFifoSysState> termStates = Util.newSet();
 
         int numFifoStates = 0;
 
@@ -103,7 +105,7 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
                     pidInitialNodes);
 
             logger.info("Generating ObsDAG.");
-            dag = new ObsDAG(initDagCfg, termDagCfg, channelIds);
+            dag = new ObsDAG(initDagCfg, termDagCfg, channelIds, traceId);
 
             termStates.add(dag.getTermFifoSysState());
 
@@ -262,6 +264,8 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
 
     /**
      * Populates the pidInitialNodes list with the first event for each process.
+     * We identify the first node by it's timestamp -- the node that has the
+     * earliest timestamp is the first node.
      * 
      * @param traceGraph
      * @param traceId
@@ -269,6 +273,7 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
      */
     private static void buildInitPidEventNodes(DAGsTraceGraph traceGraph,
             int traceId, List<EventNode> pidInitialNodes) {
+
         for (EventNode eNode : traceGraph.getNodes()) {
             // Skip nodes from other traces.
             if (eNode.getTraceID() != traceId) {
@@ -280,14 +285,26 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
                 continue;
             }
 
+            // Retrieve the pid of the process that generated the event.
             Event e = eNode.getEvent();
             int ePid = ((DistEventType) e.getEType()).getPid();
 
+            assert ePid < pidInitialNodes.size();
+
+            // If we have no event for this pid, or if this event has an earlier
+            // timestamp than the node we know about, then set it to be the
+            // earliest event for this pid.
             if (pidInitialNodes.get(ePid) == null
                     || eNode.getTime().lessThan(
                             pidInitialNodes.get(ePid).getTime())) {
                 pidInitialNodes.set(ePid, eNode);
             }
+        }
+
+        // Make sure that all of the processes have an "earliest" event node
+        // set.
+        for (EventNode eNode : pidInitialNodes) {
+            assert eNode != null;
         }
     }
 
@@ -355,4 +372,71 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState> {
         return "ObsFifoSys[" + this.states.size() + "]";
     }
 
+    // //////////////////////////////////////////////////////////////////
+
+    /**
+     * This method model checks ObsFifoSys against minedInvs and returns the set
+     * of invariants that are violated by the ObsFifoSys. The model checking is
+     * simplistic: (1) since ObsFifoSys is a DAG, we don't have to worry about
+     * cycles and re-visiting nodes, (2) we only care about removing stitching,
+     * and not the complete path -- once we find a violation, we percolate up
+     * until we see that there is a stitching edge (with a different trace id),
+     * (3) we only care about the three basic invariant types.
+     * 
+     * @param minedInvs
+     */
+    public <State, InvChecker extends BinChecker<State>> Set<BinaryInvariant> findInvalidatedInvariants(
+            List<BinaryInvariant> minedInvs) {
+        Set<BinaryInvariant> ret = Util.newSet();
+        ObsFifoSysState initS = this.getInitState();
+        for (BinaryInvariant inv : minedInvs) {
+            InvChecker invChecker = inv.newChecker();
+            if (!checkInvariant(invChecker, initS)) {
+                ret.add(inv);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Runs the invChecker over this instance of observed fifo sys to check if
+     * it satisfied the corresponding invariant.
+     */
+    private <State, InvChecker extends BinChecker<State>> boolean checkInvariant(
+            InvChecker invChecker, ObsFifoSysState curState) {
+        if (curState.isAccept()) {
+            // Return whether or not the invariant holds.
+            return !invChecker.isFail();
+        }
+
+        Set<ObsDistEventType> nextEvents = curState.getTransitioningEvents();
+
+        // Create a copy of the checker state to use if we have more than
+        // sub-branch to explore.
+        InvChecker clonedOrig = null;
+        if (nextEvents.size() > 1) {
+            clonedOrig = invChecker.getClone();
+        }
+
+        for (ObsDistEventType e : nextEvents) {
+            Validity mcResult = invChecker.transition(e.getDistEType());
+            if (mcResult == Validity.PERM_FAIL) {
+                return false;
+            } else if (mcResult == Validity.PERM_SUCCESS) {
+                // The e sub-branch checks out, move on to other sub-branches.
+                continue;
+            }
+            if (!checkInvariant(invChecker, curState.getNextState(e))) {
+                return false;
+            }
+
+            // Update the copy of the invChecker with state from the original.
+            if (clonedOrig != null) {
+                invChecker.inheritState(clonedOrig);
+            }
+        }
+        // If we got here then all of the sub-branches we've explored above
+        // returned true, so the invariant holds in this sub-tree.
+        return true;
+    }
 }
