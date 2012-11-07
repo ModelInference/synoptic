@@ -105,7 +105,8 @@ public class ObsFifoSysState extends
     // Observed transitions for each following event type.
     private final Map<ObsDistEventType, ObsFifoSysState> transitions;
 
-    // A unique int identifier for this ObsFifoSysState.
+    // A unique int identifier for this ObsFifoSysState. Also used by
+    // hashCode().
     private final int stateId;
 
     private ObsFifoSysState(ObsMultFSMState fsmStates,
@@ -211,50 +212,10 @@ public class ObsFifoSysState extends
 
     @Override
     public int hashCode() {
-        /*
-         * int ret = 31; ret = ret * 31 + fsmStates.hashCode(); ret = ret * 31 +
-         * channelStates.hashCode(); return ret;
-         */
         return stateId;
     }
 
     // //////////////////////////////////////////////////////////////////
-
-    public ObsDistEventType getObsTransitionByEType(DistEventType eType) {
-        for (ObsDistEventType txn : transitions.keySet()) {
-            if (txn.equalsIgnoringTraceIds(eType)) {
-                return txn;
-            }
-        }
-        return null;
-    }
-
-    public ObsFifoSysState getNextState(ObsDistEventType event) {
-        return transitions.get(event);
-    }
-
-    public ObsFifoSysState getNextState(DistEventType event) {
-        ObsDistEventType txn = getObsTransitionByEType(event);
-        if (txn == null) {
-            return null;
-        }
-        return getNextState(txn);
-    }
-
-    public void addTransition(ObsDistEventType e, ObsFifoSysState s) {
-        if (this.transitions.containsKey(e)) {
-            assert !this.transitions.containsKey(e);
-        }
-
-        if (DynopticMain.assertsOn) {
-            // Make sure that the following states belongs to the same "system",
-            // which is identified by number of processes and the channelIds.
-            assert channelStates.getChannelIds().equals(s.getChannelIds());
-            assert s.getNumProcesses() == getNumProcesses();
-        }
-
-        this.transitions.put(e, s);
-    }
 
     public GFSMState getParent() {
         return parent;
@@ -278,6 +239,62 @@ public class ObsFifoSysState extends
 
     public ObsMultFSMState getFSMStates() {
         return fsmStates;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+
+    /** Looks up the next state on an OBSERVED dist event type. */
+    public ObsFifoSysState getNextState(ObsDistEventType event) {
+        return transitions.get(event);
+    }
+
+    /**
+     * Returns the OBSERVED event type correspond to an input ABSTRACT event
+     * type. We guarantee that there is just _one_ just OBSERVED event type for
+     * an ABSTRACT event type.
+     */
+    public ObsDistEventType getObsTransitionByEType(DistEventType eType) {
+        for (ObsDistEventType txn : transitions.keySet()) {
+            if (txn.equalsIgnoringTraceIds(eType)) {
+                return txn;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Looks up the next state on an ABSTRACT dist event type.
+     */
+    public ObsFifoSysState getNextState(DistEventType event) {
+        ObsDistEventType txn = getObsTransitionByEType(event);
+        if (txn == null) {
+            return null;
+        }
+        return getNextState(txn);
+    }
+
+    /** Adds a transition on e from this to s. */
+    public void addTransition(ObsDistEventType e, ObsFifoSysState s) {
+        if (DynopticMain.assertsOn) {
+            // The Fifo system is a DAG, and cannot have self-loops.
+            // TODO: check that there are no loops in general.
+            assert !this.equals(s);
+
+            assert !this.transitions.containsKey(e);
+            // Make sure that we don't have another observed event with the same
+            // abstract event type.
+            assert getObsTransitionByEType(e.getDistEType()) == null;
+
+            // Make sure that the following states belongs to the same "system",
+            // which is identified by number of processes and the channelIds.
+            assert channelStates.getChannelIds().equals(s.getChannelIds());
+            assert s.getNumProcesses() == getNumProcesses();
+
+            // TODO: check that transforming this with e results in s -- e.g.,
+            // check that if e = c!m then s.c = [m + this.c]
+        }
+
+        this.transitions.put(e, s);
     }
 
 }

@@ -99,6 +99,8 @@ public class ObsFSMState {
             DistEventType prevEvent) {
         assert prevState != null;
         assert prevEvent != null;
+        // The event must correspond to the process of prevState.
+        assert prevEvent.getPid() == prevState.getPid();
 
         Pair<ObsFSMState, DistEventType> key = Util.newPair(prevState,
                 prevEvent);
@@ -178,10 +180,6 @@ public class ObsFSMState {
 
     public int getPid() {
         return pid;
-    }
-
-    public void markInit() {
-        this.isInitial = true;
     }
 
     public void markTerm() {

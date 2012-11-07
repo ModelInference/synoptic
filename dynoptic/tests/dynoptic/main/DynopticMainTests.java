@@ -224,7 +224,7 @@ public class DynopticMainTests extends DynopticTest {
         dyn = new DynopticMain(opts);
 
         long startTime = System.currentTimeMillis();
-        // dyn.run();
+        dyn.run();
         long endTime = System.currentTimeMillis();
         long msTime = (endTime - startTime);
         long sTime = msTime / 1000;
@@ -274,7 +274,7 @@ public class DynopticMainTests extends DynopticTest {
         args.add("-i");
         args.add("-d");
         args.add("../traces/EndToEndDynopticTests/simple-po-concurrency/trace.txt");
-        // runDynFromFileArgs(args);
+        runDynFromFileArgs(args);
     }
 
     /** Same as the above, but uses a String input instead of a file input. */
@@ -292,7 +292,7 @@ public class DynopticMainTests extends DynopticTest {
         dyn = new DynopticMain(opts);
 
         String log = "1,0 e1\n" + "0,1 f1\n" + "2,0 M!m\n" + "2,2 M?m";
-        // dyn.run(log);
+        dyn.run(log);
     }
 
     /** A slightly more complex example than the above. */
