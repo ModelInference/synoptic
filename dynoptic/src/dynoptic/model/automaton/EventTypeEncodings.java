@@ -10,24 +10,24 @@ import dk.brics.automaton.Automaton;
 import dk.brics.automaton.RegExp;
 import dynoptic.util.Util;
 
-import synoptic.model.event.IDistEventType;
+import synoptic.model.event.DistEventType;
 
 /**
  * Encodes the EventType to be used by an EncodedAutomaton to characters. All
  * EventTypes to be used must be provided upon creation of an
  * EventTypeEncodings.
  */
-public class EventTypeEncodings<T extends IDistEventType> {
+public class EventTypeEncodings {
 
     /* The lowest char used in these encodings */
     private static final char START_CHAR = 1000;
 
-    private Map<T, Character> eventEncodings;
-    private Map<Character, T> charEncodings;
+    private Map<DistEventType, Character> eventEncodings;
+    private Map<Character, DistEventType> charEncodings;
     private RegExp alphabet;
     private char cur;
 
-    public EventTypeEncodings(Set<T> events) {
+    public EventTypeEncodings(Set<DistEventType> events) {
         /** Maps an event type to a char. */
         eventEncodings = Util.newMap();
 
@@ -35,11 +35,11 @@ public class EventTypeEncodings<T extends IDistEventType> {
         charEncodings = Util.newMap();
 
         // Sort the events -- canonicalizing alphabet encodings
-        List<T> sortedEvents = new ArrayList<T>(events);
+        List<DistEventType> sortedEvents = new ArrayList<DistEventType>(events);
         Collections.sort(sortedEvents);
 
         cur = START_CHAR;
-        for (T e : sortedEvents) {
+        for (DistEventType e : sortedEvents) {
             addEncoding(e, cur);
             cur++;
         }
@@ -58,7 +58,7 @@ public class EventTypeEncodings<T extends IDistEventType> {
      * Adds a new encoding of e to c. Maintains both the forward and the reverse
      * event to character maps.
      */
-    private void addEncoding(T e, char c) {
+    private void addEncoding(DistEventType e, char c) {
         assert !eventEncodings.containsKey(e);
         assert !charEncodings.containsKey(c);
 
@@ -70,7 +70,7 @@ public class EventTypeEncodings<T extends IDistEventType> {
      * Returns a character encoding for the given EventType, assigning a new
      * character if this EventType has not yet been seen.
      */
-    public char getEncoding(T e) {
+    public char getEncoding(DistEventType e) {
         if (!eventEncodings.containsKey(e)) {
             addEncoding(e, cur);
             char c = cur;
@@ -80,7 +80,7 @@ public class EventTypeEncodings<T extends IDistEventType> {
         return eventEncodings.get(e);
     }
 
-    public T getEventType(char c) {
+    public DistEventType getEventType(char c) {
         if (!charEncodings.containsKey(c)) {
             throw new IllegalArgumentException(
                     "The passed char has not been mapped to an event type.");
@@ -109,7 +109,7 @@ public class EventTypeEncodings<T extends IDistEventType> {
         if (!(other instanceof EventTypeEncodings)) {
             return false;
         }
-        EventTypeEncodings<T> encodings = (EventTypeEncodings<T>) other;
+        EventTypeEncodings encodings = (EventTypeEncodings) other;
         return eventEncodings.equals(encodings.eventEncodings);
     }
 }
