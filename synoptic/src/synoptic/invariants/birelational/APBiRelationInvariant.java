@@ -3,6 +3,8 @@ package synoptic.invariants.birelational;
 import java.util.List;
 
 import synoptic.invariants.AlwaysPrecedesInvariant;
+import synoptic.model.Partition;
+import synoptic.model.Transition;
 import synoptic.model.event.Event;
 import synoptic.model.event.EventType;
 import synoptic.model.event.StringEventType;
@@ -60,8 +62,23 @@ public class APBiRelationInvariant extends BiRelationalInvariant {
      * @return the sub-trace described above
      */
     @Override
-    public <T extends INode<T>> List<T> shorten(List<T> path) {
-        return AlwaysPrecedesInvariant.APShorten(path, first, second);
+    public <T extends INode<T>> List<T> shorten(List<T> trace) {
+        List<Transition<Partition>> outgoing = null;
+        List<Transition<Partition>> incoming = null;
+        for (int trace_pos = 0; trace_pos < trace.size(); trace_pos++) {
+            T message = trace.get(trace_pos);
+            if (message.getEType().equals(first)) {
+                return null;
+            }
+            
+            if (message.getEType().equals(second)) {
+
+                return trace.subList(0, trace_pos + 1);
+
+            }
+        }
+        // We found neither a 'first' nor a 'second'.
+        return null;
     }
 
     @Override

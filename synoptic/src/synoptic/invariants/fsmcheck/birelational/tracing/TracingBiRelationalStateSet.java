@@ -10,23 +10,23 @@ import synoptic.model.interfaces.INode;
 public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends TracingStateSet<T> {
 
     // We have not yet seen the projected graph.
-    private boolean beforeProjectedGraph;
+    protected boolean beforeProjectedGraph;
     // Whether or not we are traversing the projected graph.
-    private boolean inProjectedGraph;
+    protected boolean inProjectedGraph;
     /* Make sure beforeProjectedGraph and inProjectedGraph get
      * set before calling transition.
      */
-    private boolean initialized;
+    protected boolean initialized;
     
-    private Set<String> relations;
-    private Set<String> closureRelations;
+    protected Set<String> relations;
+    protected Set<String> closureRelations;
     
     protected TracingStateSet<T> tracingSet;
     
     /* Keeps track of the potential counter-example while the stateset has not
      * yet seen the projected graph.
      */
-    private HistoryNode preHistory;
+    protected HistoryNode preHistory;
     
     public TracingBiRelationalStateSet(TracingStateSet<T> tracingSet) {
         this.initialized = false; 
@@ -55,6 +55,14 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
         closureRelations.add(closureRelation);
     }
     
+    public void addAllClosureRelations(Set<String> closureRelations) {
+        this.relations.addAll(closureRelations);
+    }
+    
+    public void setPreHistory(HistoryNode preHistory) {
+        this.preHistory = preHistory;
+    }
+    
     public boolean tracksClosureRelation(String closureRelation) {
         return closureRelations.contains(closureRelation);
     }
@@ -75,9 +83,9 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
             throw new IllegalStateException("Multiple relations disabled.");
         }
         
-        if (!initialized) {
-            throw new IllegalStateException("Tracing set uninitialized.");
-        }
+//        if (!initialized) {
+//            throw new IllegalStateException("Tracing set uninitialized.");
+//        }
         
         if (outgoingRelations == null) {
             throw new NullPointerException();
@@ -113,10 +121,9 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
             
             if (relationsIntersectOutgoing) {
                 inProjectedGraph = true;
-                transitionEventTest(input);
-            } else {
-                transitionHistoryExtend(input);
+                transitionEventTest(input);  
             }
+            transitionHistoryExtend(input);
         }
     }
     
@@ -141,7 +148,7 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
      */
     @Override
     public void setInitial(T x, Set<String> outgoingRelations) {
-        initialized = true;
+        //initialized = true;
         setInitialHistoryReset();
         if (setsIntersect(relations, outgoingRelations)) {
             beforeProjectedGraph = false;
@@ -189,7 +196,9 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
     @Override
     public void mergeWith(TracingStateSet<T> other) {
         if (other instanceof TracingBiRelationalStateSet) {
-            tracingSet.mergeWith(getMonoTracingSet());
+            TracingBiRelationalStateSet<T> o = (TracingBiRelationalStateSet<T>) other;
+            tracingSet.mergeWith(o.getMonoTracingSet());
+            preHistory = yieldShorter(preHistory, o.preHistory);
         } else {
             throw new IllegalArgumentException("Cannot merge mono and multirelational state sets");
         }
@@ -198,7 +207,10 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
     @Override
     public boolean isSubset(TracingStateSet<T> other) {
         if (other instanceof TracingBiRelationalStateSet) {
-            return tracingSet.isSubset(getMonoTracingSet());
+            TracingBiRelationalStateSet<T> o = (TracingBiRelationalStateSet<T>) other;
+            return tracingSet.isSubset(o.getMonoTracingSet()) && 
+                    beforeProjectedGraph == o.beforeProjectedGraph && 
+                    inProjectedGraph == o.inProjectedGraph; 
         } else {
             throw new IllegalArgumentException("Cannot compare mono and multirelational state sets");
         }

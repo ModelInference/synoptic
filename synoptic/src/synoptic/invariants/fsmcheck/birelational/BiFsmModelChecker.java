@@ -1,11 +1,16 @@
 package synoptic.invariants.fsmcheck.birelational;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
+
+import javax.naming.event.EventContext;
 
 import synoptic.invariants.AlwaysFollowedInvariant;
 import synoptic.invariants.AlwaysPrecedesInvariant;
@@ -22,6 +27,9 @@ import synoptic.invariants.fsmcheck.birelational.tracing.NFBiTracingSet;
 import synoptic.invariants.fsmcheck.birelational.tracing.TracingBiRelationalStateSet;
 import synoptic.main.SynopticMain;
 import synoptic.main.options.SynopticOptions;
+import synoptic.model.Partition;
+import synoptic.model.Transition;
+import synoptic.model.event.Event;
 import synoptic.model.interfaces.IGraph;
 import synoptic.model.interfaces.INode;
 
@@ -53,9 +61,10 @@ public class BiFsmModelChecker {
      *            The graph to analyze.
      * @return The associations between node and stateset.
      */
+    @SuppressWarnings("unchecked")
     public static <Node extends INode<Node>> Map<Node, TracingBiRelationalStateSet<Node>> runChecker(
             TracingBiRelationalStateSet<Node> stateset, IGraph<Node> graph,
-            boolean earlyExit) {
+            boolean earlyExit, BiRelationalInvariant invariant) {
 
         
         // A queue of nodes that we should process.
@@ -65,17 +74,28 @@ public class BiFsmModelChecker {
         Map<Node, TracingBiRelationalStateSet<Node>> states = new LinkedHashMap<Node, TracingBiRelationalStateSet<Node>>();
 
         // Populate the state map with initial states.
-        for (Node node : graph.getNodes()) {
-            states.put(node, stateset.copy());
-        }
+//        for (Node node : graph.getNodes()) {
+//            states.put(node, stateset.copy());
+//        }
 
         // Add initial node to the worklist.
         Node node = graph.getDummyInitialNode();
         workList.add(node);
+        states.put(node, stateset);
 
         TracingBiRelationalStateSet<Node> stateSet = states.get(node);
-        // stateSet.setInitial(node);
+        
+        Map<Node, Set<String>> outgoingRelations = new HashMap<Node, Set<String>>();
+        Map<Node, Set<String>> incomingRelations = new HashMap<Node, Set<String>>();
+        
+        for (Node target : graph.getAdjacentNodes(node)) {
+            List<Transition<Partition>> transitions = (List<Transition<Partition>>) node.getAllTransitions();
+            mapRelationsToPartition(outgoingRelations, node, transitions);
+            mapRelationsToPartition(incomingRelations, target, transitions);
+        }
 
+        stateSet.setInitial(node, outgoingRelations.get(node));
+        
 
         // Actual model checking step - takes an item off the worklist, and
         // transitions the state found at that node, using the labels of all
@@ -91,18 +111,42 @@ public class BiFsmModelChecker {
 
             // Process all the nodes that are adjacent to the current node.
             for (Node target : graph.getAdjacentNodes(node)) {
-                TracingBiRelationalStateSet<Node> oldTargetStates = states.get(target);
+                
                 TracingBiRelationalStateSet<Node> updatesToTargetStates = current.copy();
                 
-                // updatesToTargetStates.transition(target);
-
+                List<Transition<Partition>> transitions = 
+                        (List<Transition<Partition>>) target.getAllTransitions();
+                mapRelationsToPartition(outgoingRelations, node, transitions);
+                mapRelationsToPartition(incomingRelations, target, transitions);
+                
+                Set<String> outgoing = outgoingRelations.get(node);
+                Set<String> incoming = incomingRelations.get(target);
+                
+                String relation = invariant.getRelation();
+                String orderRelation = invariant.getOrderingRelation();
+                
+                if (incoming.contains(relation)) {
+                    updatesToTargetStates.transition(target, relation, outgoing);
+                } else if (incoming.contains(orderRelation)) {
+                    updatesToTargetStates.transition(target, orderRelation, outgoing);
+                } else {
+                    throw new IllegalStateException("Invariant relations not present in graph transition");
+                }
+                
+                TracingBiRelationalStateSet<Node> oldTargetStates = states.get(target);
+                
                 // Evaluate isSubset _before_ the merge.
-                boolean isSubset = updatesToTargetStates
-                        .isSubset(oldTargetStates);
-                oldTargetStates.mergeWith(updatesToTargetStates);
-                if (earlyExit && oldTargetStates.isFail()
-                        && target.isTerminal()) {
-                    return states;
+                boolean isSubset = false;
+                
+                if (oldTargetStates != null) {
+                    isSubset = updatesToTargetStates.isSubset(oldTargetStates);
+                    oldTargetStates.mergeWith(updatesToTargetStates);
+                    if (earlyExit && oldTargetStates.isFail()
+                            && target.isTerminal()) {
+                        return states;
+                    }
+                } else {
+                    states.put(target, updatesToTargetStates);
                 }
 
                 // Optimization: if updatesToTargetStates is subset of
@@ -115,6 +159,29 @@ public class BiFsmModelChecker {
         }
 
         return states;
+    }
+    
+    public static <Node extends INode<Node>> void mapRelationsToPartition(
+            Map<Node, Set<String>> relationsMap, 
+            Node partition, List<Transition<Partition>> transitions) {
+        
+        Set<String> relations = relationsMap.get(partition);
+        
+        if (relations == null) {
+            relations = new HashSet<String>();
+        }
+        
+        for (Transition<Partition> t : transitions) {
+            relations.addAll(t.getRelation());
+        }
+        
+        // hax
+        if (partition.getEType().isTerminalEventType()) {
+            relations.add(Event.defTimeRelationStr);
+        }
+        
+        relationsMap.put(partition, relations);
+        
     }
 
     /**
@@ -155,7 +222,7 @@ public class BiFsmModelChecker {
         // invariant to fail.
         TracingBiRelationalStateSet<Node>.HistoryNode shortestPath = null;
         Set<Entry<Node, TracingBiRelationalStateSet<Node>>> entrySet = runChecker(stateset,
-                graph, true).entrySet();
+                graph, true, invariant).entrySet();
         for (Entry<Node, TracingBiRelationalStateSet<Node>> e : entrySet) {
             TracingBiRelationalStateSet<Node> stateSet = e.getValue();
             Node node = e.getKey();
