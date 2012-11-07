@@ -28,6 +28,10 @@ public class NFbyChecker extends BinChecker<NFbyState> {
         super(inv, NFbyState.INITIAL);
     }
 
+    public NFbyChecker(NFbyChecker ch) {
+        super(ch.inv, ch.s);
+    }
+
     /**
      * @return whether or not the new state is an accepting state.
      */
@@ -59,12 +63,9 @@ public class NFbyChecker extends BinChecker<NFbyState> {
         return s == NFbyState.SAW_XY;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public NFbyChecker getClone() {
-        NFbyChecker ch = new NFbyChecker(inv);
-        ch.s = this.s;
-        return ch;
+        return new NFbyChecker(this);
     }
 
 }

@@ -24,6 +24,10 @@ public class EventuallyChecker extends BinChecker<EventuallyState> {
         super(inv, EventuallyState.INITIAL);
     }
 
+    public EventuallyChecker(EventuallyChecker ch) {
+        super(ch.inv, ch.s);
+    }
+
     /**
      * @return whether or not the new state is an accepting state.
      */
@@ -48,12 +52,9 @@ public class EventuallyChecker extends BinChecker<EventuallyState> {
         return s == EventuallyState.INITIAL;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public EventuallyChecker getClone() {
-        EventuallyChecker ch = new EventuallyChecker(inv);
-        ch.s = this.s;
-        return ch;
+        return new EventuallyChecker(this);
     }
 
 }

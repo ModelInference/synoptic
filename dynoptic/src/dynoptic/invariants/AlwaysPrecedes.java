@@ -47,7 +47,6 @@ public class AlwaysPrecedes extends BinaryInvariant {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public APChecker newChecker() {
         return new APChecker(this);

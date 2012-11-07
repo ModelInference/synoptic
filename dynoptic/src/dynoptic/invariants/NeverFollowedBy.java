@@ -45,7 +45,6 @@ public class NeverFollowedBy extends BinaryInvariant {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public NFbyChecker newChecker() {
         return new NFbyChecker(this);

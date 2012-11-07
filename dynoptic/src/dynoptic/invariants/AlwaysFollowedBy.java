@@ -45,7 +45,6 @@ public class AlwaysFollowedBy extends BinaryInvariant {
         return !lastFirst;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public AFbyChecker newChecker() {
         return new AFbyChecker(this);

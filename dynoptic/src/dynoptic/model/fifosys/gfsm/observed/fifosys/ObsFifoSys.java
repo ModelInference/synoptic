@@ -385,12 +385,12 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
      * 
      * @param minedInvs
      */
-    public <State, InvChecker extends BinChecker<State>> Set<BinaryInvariant> findInvalidatedInvariants(
+    public Set<BinaryInvariant> findInvalidatedInvariants(
             List<BinaryInvariant> minedInvs) {
         Set<BinaryInvariant> ret = Util.newSet();
         ObsFifoSysState initS = this.getInitState();
         for (BinaryInvariant inv : minedInvs) {
-            InvChecker invChecker = inv.newChecker();
+            BinChecker<?> invChecker = inv.newChecker();
             if (!checkInvariant(invChecker, initS)) {
                 ret.add(inv);
             }
@@ -402,8 +402,8 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
      * Runs the invChecker over this instance of observed fifo sys to check if
      * it satisfied the corresponding invariant.
      */
-    private <State, InvChecker extends BinChecker<State>> boolean checkInvariant(
-            InvChecker invChecker, ObsFifoSysState curState) {
+    private <State> boolean checkInvariant(BinChecker<State> invChecker,
+            ObsFifoSysState curState) {
         if (curState.isAccept()) {
             // Return whether or not the invariant holds.
             return !invChecker.isFail();
@@ -413,7 +413,8 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
 
         // Create a copy of the checker state to use if we have more than
         // sub-branch to explore.
-        InvChecker clonedOrig = null;
+        // InvChecker clonedOrig = null;
+        BinChecker<State> clonedOrig = null;
         if (nextEvents.size() > 1) {
             clonedOrig = invChecker.getClone();
         }

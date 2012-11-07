@@ -42,8 +42,9 @@ public abstract class BinChecker<State> {
     }
 
     /** Updates the state of this checker with state of otherChecker */
-    public <InvChecker extends BinChecker<State>> void inheritState(
-            InvChecker otherChecker) {
+    // public <InvChecker extends BinChecker<State>> void inheritState(
+    public void inheritState(BinChecker<State> otherChecker) {
+        assert otherChecker.s.getClass() == this.s.getClass();
         this.s = otherChecker.s;
     }
 
@@ -56,5 +57,5 @@ public abstract class BinChecker<State> {
     abstract public boolean isFail();
 
     /** Returns a clone of this checker. */
-    abstract public <InvChecker extends BinChecker<State>> InvChecker getClone();
+    abstract public BinChecker<State> getClone();
 }

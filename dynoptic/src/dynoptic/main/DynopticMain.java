@@ -784,10 +784,9 @@ public class DynopticMain {
             for (GFSMPath path : processPaths) {
                 logger.info("Attempting to resolve process " + i + " path: "
                         + path.toString());
-                if (path.refine(pGraph)) {
-                    break;
-                } else {
+                if (!path.refine(pGraph)) {
                     refinedAll = false;
+                    break;
                 }
             }
 

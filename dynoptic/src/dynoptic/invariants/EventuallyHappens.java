@@ -45,7 +45,6 @@ public class EventuallyHappens extends BinaryInvariant {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public EventuallyChecker newChecker() {
         return new EventuallyChecker(this);

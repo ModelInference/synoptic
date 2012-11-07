@@ -28,6 +28,10 @@ public class APChecker extends BinChecker<APState> {
         super(inv, APState.INITIAL);
     }
 
+    public APChecker(APChecker ch) {
+        super(ch.inv, ch.s);
+    }
+
     /**
      * @return whether or not the new state is an accepting state.
      */
@@ -62,12 +66,9 @@ public class APChecker extends BinChecker<APState> {
         return s == APState.SAW_Y;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public APChecker getClone() {
-        APChecker ch = new APChecker(inv);
-        ch.s = this.s;
-        return ch;
+        return new APChecker(this);
     }
 
 }
