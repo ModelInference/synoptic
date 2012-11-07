@@ -75,6 +75,7 @@ abstract public class AbsMultiChState<TxnEType extends IDistEventType> {
             return false;
 
         }
+        @SuppressWarnings("unchecked")
         AbsMultiChState<TxnEType> mc = (AbsMultiChState<TxnEType>) other;
         return mc.channelStates.equals(channelStates);
     }

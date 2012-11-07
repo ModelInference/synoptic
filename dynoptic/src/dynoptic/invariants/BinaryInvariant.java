@@ -174,5 +174,5 @@ abstract public class BinaryInvariant {
     public abstract boolean satisfies(List<DistEventType> eventsPath);
 
     /** Returns an invariant checker instance corresponding to this invariant. */
-    public abstract <InvChecker extends BinChecker<?>> InvChecker newChecker();
+    public abstract BinChecker<?> newChecker();
 }

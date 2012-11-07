@@ -14,7 +14,7 @@ public class AlphabetTests extends DynopticTest {
 
     @Test
     public void createAlphabet() {
-        FSMAlphabet a = new FSMAlphabet();
+        FSMAlphabet<DistEventType> a = new FSMAlphabet<DistEventType>();
         DistEventType e = DistEventType.LocalEvent("e", 0);
         a.add(e);
         assertEquals(a.size(), 1);

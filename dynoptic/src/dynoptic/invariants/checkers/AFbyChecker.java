@@ -24,6 +24,10 @@ public class AFbyChecker extends BinChecker<AFbyState> {
         super(inv, AFbyState.INITIAL);
     }
 
+    public AFbyChecker(AFbyChecker ch) {
+        super(ch.inv, ch.s);
+    }
+
     /**
      * @return whether or not the new state is an accepting state.
      */
@@ -51,11 +55,8 @@ public class AFbyChecker extends BinChecker<AFbyState> {
         return s == AFbyState.SAW_X;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public AFbyChecker getClone() {
-        AFbyChecker ch = new AFbyChecker(inv);
-        ch.s = this.s;
-        return ch;
+    public BinChecker<AFbyState> getClone() {
+        return new AFbyChecker(this);
     }
 }
