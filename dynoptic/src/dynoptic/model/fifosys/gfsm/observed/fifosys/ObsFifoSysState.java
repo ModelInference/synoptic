@@ -42,8 +42,12 @@ public class ObsFifoSysState extends
     // created because of different interleavings of concurrent events.
     private static final Map<ObsMultFSMState, ObsFifoSysState> fifoSysStatesMap;
 
+    // The stateId value to give to the next ObsFifoSysState instance.
+    private static int nextFifoSysStateId;
+
     static {
         fifoSysStatesMap = Util.newMap();
+        nextFifoSysStateId = 0;
     }
 
     // Used by tests and DynopticMain to clear the states cache.
@@ -80,7 +84,9 @@ public class ObsFifoSysState extends
             return ret;
         }
 
-        ObsFifoSysState ret = new ObsFifoSysState(fsmStates, channelStates);
+        ObsFifoSysState ret = new ObsFifoSysState(fsmStates, channelStates,
+                nextFifoSysStateId);
+        nextFifoSysStateId += 1;
         fifoSysStatesMap.put(fsmStates, ret);
         return ret;
     }
@@ -99,9 +105,13 @@ public class ObsFifoSysState extends
     // Observed transitions for each following event type.
     private final Map<ObsDistEventType, ObsFifoSysState> transitions;
 
+    // A unique int identifier for this ObsFifoSysState.
+    private final int stateId;
+
     private ObsFifoSysState(ObsMultFSMState fsmStates,
-            ImmutableMultiChState channelStates) {
+            ImmutableMultiChState channelStates, int stateId) {
         super(fsmStates.getNumProcesses());
+        this.stateId = stateId;
 
         if (DynopticMain.assertsOn) {
             // Make sure that channelStates only reference pids that are less
@@ -152,10 +162,18 @@ public class ObsFifoSysState extends
         return Collections.singleton(transitions.get(event));
     }
 
-    @Override
-    public String toString() {
+    public String toLongString() {
         return "ObsFifoSysState[" + fsmStates.toString() + "; "
                 + channelStates.toString() + "]";
+    }
+
+    public String toShortIntStr() {
+        return String.valueOf(stateId);
+    }
+
+    @Override
+    public String toString() {
+        return toShortIntStr();
     }
 
     @Override
@@ -193,10 +211,11 @@ public class ObsFifoSysState extends
 
     @Override
     public int hashCode() {
-        int ret = 31;
-        ret = ret * 31 + fsmStates.hashCode();
-        ret = ret * 31 + channelStates.hashCode();
-        return ret;
+        /*
+         * int ret = 31; ret = ret * 31 + fsmStates.hashCode(); ret = ret * 31 +
+         * channelStates.hashCode(); return ret;
+         */
+        return stateId;
     }
 
     // //////////////////////////////////////////////////////////////////
