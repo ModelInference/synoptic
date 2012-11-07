@@ -178,9 +178,13 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
         return ret;
     }
 
+    public String toIntermediateString() {
+        return "Part-" + observedStates.size() + "-" + this.hashCode();
+    }
+
     @Override
     public String toString() {
-        return "Part-" + observedStates.size() + "-" + this.hashCode();
+        return this.observedStates.toString();
     }
 
     // //////////////////////////////////////////////////////////////////

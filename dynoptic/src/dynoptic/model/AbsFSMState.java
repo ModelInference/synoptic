@@ -106,6 +106,12 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState, TxnET
 
     // //////////////////////////////////////////////////////////////////
 
+    /*
+     * public String toShortIntStr() { String nodeLabel =
+     * String.valueOf(this.hashCode()); nodeLabel = nodeLabel.substring(0,
+     * Math.min(4, nodeLabel.length() - 1)); return nodeLabel; }
+     */
+
     /**
      * Whether or not the FSM state is an initial state in the FSM.
      */
