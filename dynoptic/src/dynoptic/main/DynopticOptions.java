@@ -194,11 +194,9 @@ public class DynopticOptions extends Options {
             value = "Each process begins execution in the same initial state across all traces in the log",
             aliases = "-consistent-init-state")
     public boolean consistentInitState = true;
-    
-    @Option(
-            value = "Minimize each of the process FSMs",
-            aliases = "-minimize")
-    public boolean minimize = true;
+
+    @Option(value = "Minimize each of the process FSMs", aliases = "-minimize")
+    public boolean minimize = false;
 
     // end option group "Strategy Options"
     // //////////////////////////////////////////////////
