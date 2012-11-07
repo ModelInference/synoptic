@@ -8,17 +8,17 @@ import dk.brics.automaton.Automaton;
 import dk.brics.automaton.MinimizationOperations;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
-import dynoptic.model.AbsFSM;
-import dynoptic.model.AbsFSMState;
+import dynoptic.model.fifosys.cfsm.fsm.FSM;
+import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 import dynoptic.util.Util;
 
-import synoptic.model.event.IDistEventType;
+import synoptic.model.event.DistEventType;
 
 /**
  * Wrapper class for dk.brics.automaton.Automaton which provides character
  * encodings for building Automaton with EventTypes rather than characters.
  */
-public class EncodedAutomaton<T extends AbsFSMState<T, TxnEType>, TxnEType extends IDistEventType> {
+public class EncodedAutomaton {
 
     public static Logger logger;
     static {
@@ -31,23 +31,22 @@ public class EncodedAutomaton<T extends AbsFSMState<T, TxnEType>, TxnEType exten
     // The encoding scheme for the Automaton.
     // NOTE: To compare 2 EncodedAutomatons, their EventType encodings
     // must be equivalent.
-    private EventTypeEncodings<TxnEType> encodings;
+    private EventTypeEncodings encodings;
 
-    public EncodedAutomaton(EventTypeEncodings<TxnEType> encodings,
-            AbsFSM<T, TxnEType> fsm) {
+    public EncodedAutomaton(EventTypeEncodings encodings, FSM fsm) {
         this.encodings = encodings;
         model = new Automaton();
         convertFSMToAutomaton(fsm);
     }
 
-    private void convertFSMToAutomaton(AbsFSM<T, TxnEType> fsm) {
+    private void convertFSMToAutomaton(FSM fsm) {
         // initial state of this automaton
         State initialState = new State();
 
-        Map<T, State> visited = Util.newMap();
-        Set<T> initStates = fsm.getInitStates();
+        Map<FSMState, State> visited = Util.newMap();
+        Set<FSMState> initStates = fsm.getInitStates();
 
-        for (T initState : initStates) {
+        for (FSMState initState : initStates) {
             if (!visited.containsKey(initState)) {
                 DFS(initState, initialState, visited);
             }
@@ -69,15 +68,15 @@ public class EncodedAutomaton<T extends AbsFSMState<T, TxnEType>, TxnEType exten
      *            - mapping from visited FSM states to their corresponding
      *            Automaton states
      */
-    private void DFS(T state, State autoState, Map<T, State> visited) {
+    private void DFS(FSMState state, State autoState, Map<FSMState, State> visited) {
         visited.put(state, autoState);
         autoState.setAccept(state.isAccept());
-        Set<TxnEType> transitions = state.getTransitioningEvents();
+        Set<DistEventType> transitions = state.getTransitioningEvents();
 
-        for (TxnEType transition : transitions) {
-            Set<T> nextStates = state.getNextStates(transition);
+        for (DistEventType transition : transitions) {
+            Set<FSMState> nextStates = state.getNextStates(transition);
 
-            for (T nextState : nextStates) {
+            for (FSMState nextState : nextStates) {
                 State nextAutoState = visited.get(nextState);
                 boolean recurse = false;
 
@@ -126,7 +125,7 @@ public class EncodedAutomaton<T extends AbsFSMState<T, TxnEType>, TxnEType exten
         if (!(other instanceof EncodedAutomaton)) {
             return false;
         }
-        EncodedAutomaton<T, TxnEType> encodedAutomaton = (EncodedAutomaton<T, TxnEType>) other;
+        EncodedAutomaton encodedAutomaton = (EncodedAutomaton) other;
         return model.equals(encodedAutomaton.model);
     }
 }

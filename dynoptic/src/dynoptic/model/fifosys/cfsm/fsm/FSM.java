@@ -147,8 +147,8 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
      */
     public void minimize() {
         // minimize encoded automaton
-        EventTypeEncodings<DistEventType> encodings = getEventTypeEncodings();
-        EncodedAutomaton<FSMState, DistEventType> encodedAutomaton = getEncodedAutomaton(encodings);
+        EventTypeEncodings encodings = getEventTypeEncodings();
+        EncodedAutomaton encodedAutomaton = getEncodedAutomaton(encodings);
         encodedAutomaton.minimize();
         Automaton minAutomaton = encodedAutomaton.getAutomaton();
 
@@ -187,8 +187,7 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
      *            - EventType encodings
      */
     private void DFS(State state, FSMState fsmState,
-            Map<State, FSMState> visited,
-            EventTypeEncodings<DistEventType> encodings) {
+            Map<State, FSMState> visited, EventTypeEncodings encodings) {
         visited.put(state, fsmState);
         Set<Transition> transitions = state.getTransitions();
 
@@ -221,6 +220,70 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
 
         }
     }
+    
+    /**
+     * Creates EventType encodings for all transitioning events in this FSM.
+     * Note that, when comparing any 2 FSMs, only encodings from one of them is
+     * used.
+     * 
+     * @return EventType encodings
+     */
+    public EventTypeEncodings getEventTypeEncodings() {
+        recomputeAlphabet(); // events of this FSM might have changed
+        return new EventTypeEncodings(alphabet);
+    }
+
+    /**
+     * Creates an EncodedAutomaton for this FSM using the given EventType
+     * encodings.
+     * 
+     * @return EncodedAutomaton
+     */
+    public EncodedAutomaton getEncodedAutomaton(EventTypeEncodings eventEncodings) {
+        return new EncodedAutomaton(eventEncodings, this);
+    }
+
+    /**
+     * @return true if the language of this FSM is equal to the language of the
+     *         given FSM.
+     */
+    @Override
+    public int hashCode() {
+        EventTypeEncodings eventEncodings = getEventTypeEncodings();
+        EncodedAutomaton thisAutomaton = getEncodedAutomaton(eventEncodings);
+        int ret = 31;
+        ret = ret * 31 + thisAutomaton.hashCode();
+        ret = ret * 31 + pid;
+        return ret;
+    }
+
+    /**
+     * @return true if the language of this FSM is equal to the language of the
+     *         given FSM.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof FSM)) {
+            return false;
+        }
+        FSM fsm = (FSM) other;
+        
+        if (pid != fsm.pid) {
+            return false;
+        }
+
+        // Use encodings of this.
+        EventTypeEncodings eventEncodings = getEventTypeEncodings();
+        EncodedAutomaton thisAutomaton = getEncodedAutomaton(eventEncodings);
+        EncodedAutomaton otherAutomaton = fsm.getEncodedAutomaton(eventEncodings);
+        return thisAutomaton.equals(otherAutomaton);
+    }
 
     @Override
     public String toString() {
@@ -229,26 +292,6 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
         ret += "\n\tinits: " + initStates.toString();
         ret += "\n\taccepts: " + acceptStates.toString();
         return ret;
-    }
-
-    @Override
-    public int hashCode() {
-        int ret = super.hashCode();
-        ret = ret * 31 + pid;
-        return ret;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (!super.equals(other)) {
-            return false;
-        }
-
-        FSM fOther = (FSM) other;
-        if (pid != fOther.pid) {
-            return false;
-        }
-        return true;
     }
 
     /**
