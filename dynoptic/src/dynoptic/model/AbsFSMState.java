@@ -9,12 +9,14 @@ import synoptic.model.event.DistEventType;
 import synoptic.model.event.IDistEventType;
 
 /**
- * Captures complete state of an FSM at some instant.
+ * An abstraction for a state of an FSM. This state can be initial/terminal, and
+ * has some number of transitions to other state instances.
  * 
  * @param <NextState>
  *            The type of the next state (set) returned by getNextStates.
  * @param <TxnEType>
- *            The type of transition event type; a variant of DistEventType.
+ *            The type of transition event type; implements the IDistEventType
+ *            interface
  */
 abstract public class AbsFSMState<NextState extends AbsFSMState<NextState, TxnEType>, TxnEType extends IDistEventType> {
 
@@ -39,23 +41,27 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState, TxnET
         }
     };
 
-    /**
-     * Returns true if all the AbsFSMState states in the collection evaluate to
-     * true through fn.
-     * 
-     * @param states
-     * @return
-     * @return
-     */
-    static protected boolean statesEvalToTrue(
-            Collection<? extends AbsFSMState<?, ?>> states,
-            IStateToBooleanFn<AbsFSMState<?, ?>> fn) {
-        for (AbsFSMState<?, ?> s : states) {
+    /** Returns true iff each state in states evaluates to true through fn. */
+    static protected <S extends AbsFSMState<?, ?>> boolean statesEvalToTrue(
+            Collection<S> states, IStateToBooleanFn<AbsFSMState<?, ?>> fn) {
+        for (S s : states) {
             if (!fn.eval(s)) {
                 return false;
             }
         }
         return true;
+    }
+
+    /** Returns a set of states that evaluate to true through fn. */
+    static protected <S extends AbsFSMState<?, ?>> Set<S> getStatesThatEvalToTrue(
+            Set<S> states, IStateToBooleanFn<AbsFSMState<?, ?>> fn) {
+        Set<S> ret = Util.newSet();
+        for (S s : states) {
+            if (fn.eval(s)) {
+                ret.add(s);
+            }
+        }
+        return ret;
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -105,12 +111,6 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState, TxnET
     }
 
     // //////////////////////////////////////////////////////////////////
-
-    /*
-     * public String toShortIntStr() { String nodeLabel =
-     * String.valueOf(this.hashCode()); nodeLabel = nodeLabel.substring(0,
-     * Math.min(4, nodeLabel.length() - 1)); return nodeLabel; }
-     */
 
     /**
      * Whether or not the FSM state is an initial state in the FSM.

@@ -61,13 +61,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
 
     /** Returns the set of all observations that are initial in this partition. */
     public Set<ObsFifoSysState> getInitialObservations() {
-        Set<ObsFifoSysState> ret = Util.newSet();
-        for (ObsFifoSysState s : observedStates) {
-            if (s.isInitial()) {
-                ret.add(s);
-            }
-        }
-        return ret;
+        return getStatesThatEvalToTrue(observedStates, fnIsInitialState);
     }
 
     /**
@@ -75,13 +69,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
      * partition.
      */
     public Set<ObsFifoSysState> getTerminalObs() {
-        Set<ObsFifoSysState> ret = Util.newSet();
-        for (ObsFifoSysState s : observedStates) {
-            if (s.isAccept()) {
-                ret.add(s);
-            }
-        }
-        return ret;
+        return getStatesThatEvalToTrue(observedStates, fnIsAcceptState);
     }
 
     /**

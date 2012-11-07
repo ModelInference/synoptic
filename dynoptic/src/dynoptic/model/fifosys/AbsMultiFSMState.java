@@ -40,7 +40,6 @@ public abstract class AbsMultiFSMState<State extends AbsFSMState<State, TxnEType
     protected static boolean atLeastOneStatePidEvalTrue(
             Collection<? extends AbsMultiFSMState<?, ?>> states,
             IStatePidToBooleanFn fn, int pid) {
-        // for (ObservedFifoSysState s : observedStates) {
         for (AbsMultiFSMState<?, ?> s : states) {
             if (fn.eval(s, pid)) {
                 return true;
