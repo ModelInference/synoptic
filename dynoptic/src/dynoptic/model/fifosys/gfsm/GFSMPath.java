@@ -32,26 +32,51 @@ public class GFSMPath {
     // /////////////////////////////////////////////////////////////
 
     /**
-     * Internal constructor for a path of length |path|, with |path| - 1
+     * Internal constructor for a complete path: length |path|, with |path| - 1
      * inter-connecting events.
      */
-    private GFSMPath(List<GFSMState> path, List<DistEventType> eventsPath,
-            int pid) {
-        assert path.size() == (eventsPath.size() + 1);
+    private GFSMPath(List<GFSMState> states, List<DistEventType> events, int pid) {
+        assert states != null;
+        assert events != null;
 
         this.pid = pid;
         // Make defensive copies of path/events lists.
-        this.states = Util.newList(path);
-        this.events = Util.newList(eventsPath);
+        this.states = Util.newList(states);
+        this.events = Util.newList(events);
+    }
+
+    /** Checks the path for completeness/consistency. */
+    static private void checkPathCompleteness(GFSMPath p) {
+        assert p.states != null;
+        assert p.events != null;
+
+        // Empty path is a complete path.
+        if (p.states.isEmpty()) {
+            assert p.events.isEmpty();
+            return;
+        }
+
+        // A complete path must start/end with a state.
+        assert p.states.size() == (p.events.size() + 1);
+
+        // A state must contain at least one observation that emits the
+        // appropriate event, and this event must point to the appropriate next
+        // state.
+        for (int sid = 0; sid < p.states.size() - 2; sid++) {
+            GFSMState s = p.states.get(sid);
+            DistEventType e = p.events.get(sid);
+            GFSMState sNext = p.states.get(sid + 1);
+
+            assert s.getTransitioningEvents().contains(e);
+            assert s.getNextStates(e).contains(sNext);
+        }
     }
 
     // /////////////////////////////////////////////////////////////
 
     /** New empty path. */
     public GFSMPath(int pid) {
-        this.states = Util.newList();
-        this.events = Util.newList();
-        this.pid = pid;
+        this(Util.<GFSMState> newList(), Util.<DistEventType> newList(), pid);
     }
 
     /** New path with a single initial state. */
@@ -62,41 +87,44 @@ public class GFSMPath {
 
     /** New path based off of an existing path. */
     public GFSMPath(GFSMPath path) {
-        this(path.getStates(), path.getEvents(), path.getPid());
+        this(path.states, path.events, path.pid);
     }
 
-    /** New path that is the stitching of pre-existing prefix and suffix paths. */
+    /**
+     * New path that is the stitching of pre-existing (complete path) prefix and
+     * suffix paths.
+     */
     public GFSMPath(GFSMPath prefix, GFSMPath suffix) {
         this(prefix);
-        assert prefix.getPid() == suffix.getPid();
+        checkPathCompleteness(prefix);
 
-        this.states.addAll(suffix.getStates());
-        this.events.addAll(suffix.getEvents());
+        assert prefix.pid == suffix.pid;
+
+        // Prefix must begin and end on a state.
+        assert prefix.states.size() == (prefix.events.size() + 1);
+        // Suffix must begin on an event and end on a state.
+        assert suffix.states.size() == (suffix.events.size());
+
+        this.states.addAll(suffix.states);
+        this.events.addAll(suffix.events);
+
+        // Check that the resulting stitched path is valid.
+        checkPathCompleteness(this);
     }
 
+    /*
+     * private List<GFSMState> getStates() { return states; }
+     * 
+     * private List<DistEventType> getEvents() { return events; }
+     * 
+     * public int getPid() { return pid; }
+     */
     // /////////////////////////////////////////////////////////////
 
     /** Adds a state and event to the _front_ of a path. */
     public void prefixEventAndState(DistEventType e, GFSMState s) {
         states.add(0, s);
         events.add(0, e);
-    }
-
-    /** Adds a single state to front of a path. */
-    public void prefixState(GFSMState s) {
-        states.add(0, s);
-    }
-
-    public List<GFSMState> getStates() {
-        return states;
-    }
-
-    public List<DistEventType> getEvents() {
-        return events;
-    }
-
-    public int getPid() {
-        return pid;
     }
 
     public GFSMState lastState() {
@@ -110,6 +138,8 @@ public class GFSMPath {
      */
     @Override
     public String toString() {
+        // TODO: this does not handle incomplete paths.
+
         String ret = "GFSMPath : ";
         int i = 0;
         for (GFSMState p : states) {
@@ -132,6 +162,8 @@ public class GFSMPath {
      * @param pGraph
      */
     public boolean refine(GFSM pGraph) {
+        checkPathCompleteness(this);
+
         if (states.size() == 1) {
             // No transitions observed along this path, so we cannot refine it.
             return false;
@@ -158,7 +190,7 @@ public class GFSMPath {
      * @param pGraph
      * @param partIndex
      */
-    protected void refinePartition(GFSM pGraph, int partIndex) {
+    private void refinePartition(GFSM pGraph, int partIndex) {
         GFSMState part = states.get(partIndex);
 
         logger.info("Refining partition: " + part + ", at index " + partIndex);
