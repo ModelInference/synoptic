@@ -22,6 +22,13 @@ public class AFBiTracingSet<T extends INode<T>> extends TracingBiRelationalState
     
     @Override
     public TracingBiRelationalStateSet<T> copy() {
-        return new AFBiTracingSet<T>(tracingSet.copy());
+        TracingBiRelationalStateSet<T> copy = new AFBiTracingSet<T>(tracingSet.copy());
+        copy.initialized = initialized;
+        copy.relations.addAll(relations);
+        copy.closureRelations.addAll(closureRelations);
+        copy.preHistory = preHistory;
+        copy.beforeProjectedGraph = beforeProjectedGraph;
+        copy.inProjectedGraph = inProjectedGraph;
+        return copy;
     }
 }

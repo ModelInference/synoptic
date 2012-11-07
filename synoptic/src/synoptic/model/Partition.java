@@ -472,7 +472,7 @@ public class Partition implements INode<Partition> {
     }
 
     @Override
-    public List<? extends ITransition<Partition>> getAllTransitions() {
+    public List<Transition<Partition>> getAllTransitions() {
         // TODO: implement a transition cache optimization.
         List<Transition<Partition>> ret = new ArrayList<Transition<Partition>>();
         Set<Partition> children = new LinkedHashSet<Partition>();

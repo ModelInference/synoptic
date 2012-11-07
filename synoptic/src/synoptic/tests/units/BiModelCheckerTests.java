@@ -286,7 +286,7 @@ public class BiModelCheckerTests extends SynopticTest {
     public void APBiCycle() throws Exception {        
         String[] events = { "1 x", "2 a", "3 b", "4 r x" };
         List<EventType> cExampleLabels = 
-                stringsToStringEventTypes(new String[] {"b"});
+                stringsToStringEventTypes(new String[] {"x", "a", "b"});
         testPartitionGraphCExample(events, aAPb, true, cExampleLabels, true);
     }
     
