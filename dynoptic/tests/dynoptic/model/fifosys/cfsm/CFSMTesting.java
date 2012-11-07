@@ -1,13 +1,13 @@
 package dynoptic.model.fifosys.cfsm;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import dynoptic.DynopticTest;
 import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -43,12 +43,12 @@ public class CFSMTesting extends DynopticTest {
         p0Init = new FSMState(false, true, 0, 0);
         p0Accept = new FSMState(true, false, 0, 1);
 
-        states = new LinkedHashSet<FSMState>();
+        states = Util.newSet();
         states.add(p0Init);
         states.add(p0Accept);
 
         cid = new ChannelId(0, 1, 0);
-        channels = new ArrayList<ChannelId>(1);
+        channels = Util.newList(1);
         channels.add(cid);
 
         p0Sm = DistEventType.SendEvent("m", cid);

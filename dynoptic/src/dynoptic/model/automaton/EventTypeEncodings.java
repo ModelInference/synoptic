@@ -2,26 +2,26 @@ package dynoptic.model.automaton;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import dk.brics.automaton.Automaton;
 import dk.brics.automaton.RegExp;
+import dynoptic.util.Util;
 
-import synoptic.model.event.EventType;
+import synoptic.model.event.IDistEventType;
 
 /**
  * Encodes the EventType to be used by an EncodedAutomaton to characters. All
  * EventTypes to be used must be provided upon creation of an
  * EventTypeEncodings.
  */
-public class EventTypeEncodings <T extends EventType> {
+public class EventTypeEncodings<T extends IDistEventType> {
 
     /* The lowest char used in these encodings */
     private static final char START_CHAR = 1000;
-    
+
     private Map<T, Character> eventEncodings;
     private Map<Character, T> charEncodings;
     private RegExp alphabet;
@@ -29,15 +29,15 @@ public class EventTypeEncodings <T extends EventType> {
 
     public EventTypeEncodings(Set<T> events) {
         /** Maps an event type to a char. */
-        eventEncodings = new HashMap<T, Character>();
+        eventEncodings = Util.newMap();
 
         /** The reverse eventEncodings map -- always maintained up to date. */
-        charEncodings = new HashMap<Character, T>();
+        charEncodings = Util.newMap();
 
         // Sort the events -- canonicalizing alphabet encodings
         List<T> sortedEvents = new ArrayList<T>(events);
         Collections.sort(sortedEvents);
-        
+
         cur = START_CHAR;
         for (T e : sortedEvents) {
             addEncoding(e, cur);
@@ -95,12 +95,12 @@ public class EventTypeEncodings <T extends EventType> {
     protected Automaton getInitialModel() {
         return alphabet.toAutomaton();
     }
-    
+
     @Override
     public int hashCode() {
         return eventEncodings.hashCode();
     }
-    
+
     @Override
     public boolean equals(Object other) {
         if (other == this) {

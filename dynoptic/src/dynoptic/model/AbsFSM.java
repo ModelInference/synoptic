@@ -1,35 +1,35 @@
 package dynoptic.model;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import dynoptic.model.alphabet.FSMAlphabet;
 import dynoptic.model.automaton.EncodedAutomaton;
 import dynoptic.model.automaton.EventTypeEncodings;
+import dynoptic.util.Util;
 
-import synoptic.model.event.DistEventType;
+import synoptic.model.event.IDistEventType;
 
 /**
  * Describes a basic interface for an FSM.
  */
-public abstract class AbsFSM<State extends AbsFSMState<State>> {
+public abstract class AbsFSM<State extends AbsFSMState<State, TxnEType>, TxnEType extends IDistEventType> {
 
     // The set of all FSM states. This includes initial and
     // accept states. States manage transitions internally.
     protected final Set<State> states;
 
     // The FSM's alphabet.
-    protected final FSMAlphabet alphabet;
+    protected final FSMAlphabet<TxnEType> alphabet;
 
     // Initial, and accept states.
     protected final Set<State> initStates;
     protected final Set<State> acceptStates;
 
     public AbsFSM() {
-        this.states = new LinkedHashSet<State>();
-        this.alphabet = new FSMAlphabet();
-        this.initStates = new LinkedHashSet<State>();
-        this.acceptStates = new LinkedHashSet<State>();
+        this.states = Util.newSet();
+        this.alphabet = new FSMAlphabet<TxnEType>();
+        this.initStates = Util.newSet();
+        this.acceptStates = Util.newSet();
     }
 
     /** Returns the initial states for the FSM. */
@@ -43,7 +43,7 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
     }
 
     /** An FSM uses a finite alphabet of events. */
-    public FSMAlphabet getAlphabet() {
+    public FSMAlphabet<TxnEType> getAlphabet() {
         return alphabet;
     }
 
@@ -59,9 +59,9 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
      * 
      * @return EventType encodings
      */
-    public EventTypeEncodings<DistEventType> getEventTypeEncodings() {
+    public EventTypeEncodings<TxnEType> getEventTypeEncodings() {
         recomputeAlphabet(); // events of this FSM might have changed
-        return new EventTypeEncodings<DistEventType>(alphabet);
+        return new EventTypeEncodings<TxnEType>(alphabet);
     }
 
     /**
@@ -70,9 +70,9 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
      * 
      * @return EncodedAutomaton
      */
-    public EncodedAutomaton<State> getEncodedAutomaton(
-            EventTypeEncodings<DistEventType> eventEncodings) {
-        return new EncodedAutomaton<State>(eventEncodings, this);
+    public EncodedAutomaton<State, TxnEType> getEncodedAutomaton(
+            EventTypeEncodings<TxnEType> eventEncodings) {
+        return new EncodedAutomaton<State, TxnEType>(eventEncodings, this);
     }
 
     /**
@@ -81,8 +81,8 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
      */
     @Override
     public int hashCode() {
-        EventTypeEncodings<DistEventType> eventEncodings = getEventTypeEncodings();
-        EncodedAutomaton<State> thisAutomaton = getEncodedAutomaton(eventEncodings);
+        EventTypeEncodings<TxnEType> eventEncodings = getEventTypeEncodings();
+        EncodedAutomaton<State, TxnEType> thisAutomaton = getEncodedAutomaton(eventEncodings);
         int ret = 31;
         ret = ret * 31 + thisAutomaton.hashCode();
         return ret;
@@ -103,12 +103,12 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
         if (!(other instanceof AbsFSM)) {
             return false;
         }
-        AbsFSM<State> aOther = (AbsFSM<State>) other;
+        AbsFSM<State, TxnEType> aOther = (AbsFSM<State, TxnEType>) other;
 
         // Use encodings of this.
-        EventTypeEncodings<DistEventType> eventEncodings = getEventTypeEncodings();
-        EncodedAutomaton<State> thisAutomaton = getEncodedAutomaton(eventEncodings);
-        EncodedAutomaton<State> otherAutomaton = aOther
+        EventTypeEncodings<TxnEType> eventEncodings = getEventTypeEncodings();
+        EncodedAutomaton<State, TxnEType> thisAutomaton = getEncodedAutomaton(eventEncodings);
+        EncodedAutomaton<State, TxnEType> otherAutomaton = aOther
                 .getEncodedAutomaton(eventEncodings);
         return thisAutomaton.equals(otherAutomaton);
     }
@@ -119,7 +119,7 @@ public abstract class AbsFSM<State extends AbsFSMState<State>> {
     protected void recomputeAlphabet() {
         this.alphabet.clear();
         for (State s : states) {
-            Set<? extends DistEventType> events = s.getTransitioningEvents();
+            Set<TxnEType> events = s.getTransitioningEvents();
             if (events.size() != 0) {
                 alphabet.addAll(events);
             }

@@ -1,7 +1,8 @@
 package dynoptic.model.fifosys.gfsm.observed;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
+
+import dynoptic.util.Util;
 
 import synoptic.model.event.DistEventType;
 import synoptic.util.Pair;
@@ -58,8 +59,8 @@ public class ObsFSMState {
     private static final Map<Integer, ObsFSMState> initialProcessStatesMap;
 
     static {
-        prevStateAndEventMap = new LinkedHashMap<Pair<ObsFSMState, DistEventType>, ObsFSMState>();
-        initialProcessStatesMap = new LinkedHashMap<Integer, ObsFSMState>();
+        prevStateAndEventMap = Util.newMap();
+        initialProcessStatesMap = Util.newMap();
     }
 
     // Used by tests and DynopticMain to clear the states cache.
@@ -99,8 +100,8 @@ public class ObsFSMState {
         assert prevState != null;
         assert prevEvent != null;
 
-        Pair<ObsFSMState, DistEventType> key = new Pair<ObsFSMState, DistEventType>(
-                prevState, prevEvent);
+        Pair<ObsFSMState, DistEventType> key = Util.newPair(prevState,
+                prevEvent);
         if (prevStateAndEventMap.containsKey(key)) {
             return prevStateAndEventMap.get(key);
         }

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -16,10 +15,12 @@ import dynoptic.DynopticTest;
 import dynoptic.model.export.GraphExporter;
 import dynoptic.model.fifosys.cfsm.CFSM;
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
+import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.ObsMultFSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -29,13 +30,13 @@ public class GFSMTests extends DynopticTest {
     GFSM g;
 
     ObsFifoSysState Si, St;
-    DistEventType e;
+    ObsDistEventType e;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        List<ObsFSMState> Pi = new ArrayList<ObsFSMState>();
-        List<ObsFSMState> Pt = new ArrayList<ObsFSMState>();
+        List<ObsFSMState> Pi = Util.newList();
+        List<ObsFSMState> Pt = Util.newList();
 
         ObsFSMState p0i = ObsFSMState.namedObsFSMState(0, "i", true, false);
         Pi.add(p0i);
@@ -46,7 +47,7 @@ public class GFSMTests extends DynopticTest {
         ObsMultFSMState obsPt = ObsMultFSMState.getMultiFSMState(Pt);
 
         // Empty channeldIds list -- no queues.
-        List<ChannelId> cids = new ArrayList<ChannelId>();
+        List<ChannelId> cids = Util.newList();
         ImmutableMultiChState PiChstate = ImmutableMultiChState
                 .fromChannelIds(cids);
         ImmutableMultiChState PtChstate = ImmutableMultiChState
@@ -56,12 +57,12 @@ public class GFSMTests extends DynopticTest {
         St = ObsFifoSysState.getFifoSysState(obsPt, PtChstate);
 
         // Si -> St
-        e = DistEventType.LocalEvent("e", 0);
+        e = new ObsDistEventType(DistEventType.LocalEvent("e", 0), 1);
         Si.addTransition(e, St);
 
-        List<ObsFifoSys> traces = new ArrayList<ObsFifoSys>(1);
+        List<ObsFifoSys> traces = Util.newList(1);
 
-        Set<ObsFifoSysState> states = new LinkedHashSet<ObsFifoSysState>();
+        Set<ObsFifoSysState> states = Util.newSet();
         states.add(Si);
         states.add(St);
         ObsFifoSys trace = new ObsFifoSys(cids, Si, St, states);
@@ -118,7 +119,7 @@ public class GFSMTests extends DynopticTest {
 
     @Test
     public void gfsmToCFSM() {
-        CFSM c = g.getCFSM();
+        CFSM c = g.getCFSM(false);
         assertTrue(c.getNumProcesses() == 1);
         assertTrue(c.getInitStates().size() == 1);
         assertTrue(c.getAcceptStates().size() == 1);

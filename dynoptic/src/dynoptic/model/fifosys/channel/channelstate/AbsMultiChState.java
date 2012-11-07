@@ -1,22 +1,24 @@
 package dynoptic.model.fifosys.channel.channelstate;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import dynoptic.util.Util;
+
 import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.IDistEventType;
 
 /**
  * Implements basic functionality and maintains channel states for a number of
  * processes in a FIFO system.
  */
-abstract public class AbsMultiChState {
+abstract public class AbsMultiChState<TxnEType extends IDistEventType> {
 
     // List of channel states ordered according to the scm ID of the
     // corresponding channel ID.
-    final List<ChState> channelStates;
+    final List<ChState<TxnEType>> channelStates;
 
     /** Private constructor used by clone() */
-    protected AbsMultiChState(List<ChState> chStates) {
+    protected AbsMultiChState(List<ChState<TxnEType>> chStates) {
         assert chStates != null;
 
         this.channelStates = chStates;
@@ -30,14 +32,15 @@ abstract public class AbsMultiChState {
      * 
      * @param channelIds
      */
-    protected static List<ChState> chStatesFromChIds(List<ChannelId> channelIds) {
+    protected static <EType extends IDistEventType> List<ChState<EType>> chStatesFromChIds(
+            List<ChannelId> channelIds) {
         assert channelIds != null;
 
-        List<ChState> ret = new ArrayList<ChState>(channelIds.size());
+        List<ChState<EType>> ret = Util.newList(channelIds.size());
 
         // Populate the channels map based on the channelIds.
         for (ChannelId chId : channelIds) {
-            ret.add(new ChState(chId));
+            ret.add(new ChState<EType>(chId));
         }
         return ret;
     }
@@ -47,7 +50,7 @@ abstract public class AbsMultiChState {
     @Override
     public String toString() {
         String ret = "ChStates[";
-        for (ChState s : channelStates) {
+        for (ChState<TxnEType> s : channelStates) {
             // channelState string includes the channelId.
             ret = ret + s.toString() + ", ";
         }
@@ -72,7 +75,7 @@ abstract public class AbsMultiChState {
             return false;
 
         }
-        AbsMultiChState mc = (AbsMultiChState) other;
+        AbsMultiChState<TxnEType> mc = (AbsMultiChState<TxnEType>) other;
         return mc.channelStates.equals(channelStates);
     }
 
@@ -80,8 +83,8 @@ abstract public class AbsMultiChState {
 
     public List<ChannelId> getChannelIds() {
         // TODO: cache the returned channel ids.
-        List<ChannelId> ret = new ArrayList<ChannelId>(channelStates.size());
-        for (ChState s : channelStates) {
+        List<ChannelId> ret = Util.newList(channelStates.size());
+        for (ChState<TxnEType> s : channelStates) {
             ret.add(s.getChannelId());
         }
         return ret;
@@ -89,7 +92,7 @@ abstract public class AbsMultiChState {
 
     /** Whether or not all queues are empty. */
     public boolean isEmpty() {
-        for (ChState s : channelStates) {
+        for (ChState<TxnEType> s : channelStates) {
             if (s.size() != 0) {
                 return false;
             }
@@ -101,7 +104,7 @@ abstract public class AbsMultiChState {
     public boolean isEmptyForPid(int pid) {
         // NOTE: A process is not required to be associated with a queue on
         // which it is a receiver. In this case, this always return true.
-        for (ChState s : channelStates) {
+        for (ChState<TxnEType> s : channelStates) {
             if (s.getChannelId().getDstPid() == pid && s.size() != 0) {
                 return false;
             }
@@ -115,7 +118,7 @@ abstract public class AbsMultiChState {
      */
     public int topOfQueuesHash() {
         int ret = 17;
-        for (ChState s : channelStates) {
+        for (ChState<TxnEType> s : channelStates) {
             if (s.size() != 0) {
                 ret = 31 * ret + s.peek().hashCode();
             } else {

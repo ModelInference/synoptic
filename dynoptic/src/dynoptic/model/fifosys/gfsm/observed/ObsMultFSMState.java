@@ -1,19 +1,18 @@
 package dynoptic.model.fifosys.gfsm.observed;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import dynoptic.model.fifosys.AbsMultiFSMState;
-
-import synoptic.model.event.DistEventType;
+import dynoptic.util.Util;
 
 /**
  * Represents the instantaneous observed state across all of the processes in a
  * FIFO system. This does not include the queue state of the processes.
  */
-public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
+public class ObsMultFSMState extends
+        AbsMultiFSMState<ObsMultFSMState, ObsDistEventType> {
 
     // Observed FSM states tuple. The list is ordered according to process
     // IDs.
@@ -22,7 +21,7 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
     private static final Map<List<ObsFSMState>, ObsMultFSMState> cache;
 
     static {
-        cache = new LinkedHashMap<List<ObsFSMState>, ObsMultFSMState>();
+        cache = Util.newMap();
     }
 
     // Used by tests and DynopticMain to clear the states cache.
@@ -107,7 +106,7 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
     }
 
     @Override
-    public Set<DistEventType> getTransitioningEvents() {
+    public Set<ObsDistEventType> getTransitioningEvents() {
         // We do not maintain transitions here because these need to depend on
         // the state of the queue, and queue state is not maintained here.
         throw new RuntimeException(
@@ -115,7 +114,7 @@ public class ObsMultFSMState extends AbsMultiFSMState<ObsMultFSMState> {
     }
 
     @Override
-    public Set<ObsMultFSMState> getNextStates(DistEventType event) {
+    public Set<ObsMultFSMState> getNextStates(ObsDistEventType event) {
         // We do not maintain transitions here because these need to depend on
         // the state of the queue, and queue state is not maintained here.
         throw new RuntimeException(

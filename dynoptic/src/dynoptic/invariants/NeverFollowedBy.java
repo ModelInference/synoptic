@@ -2,6 +2,8 @@ package dynoptic.invariants;
 
 import java.util.List;
 
+import dynoptic.invariants.checkers.NFbyChecker;
+
 import synoptic.model.event.DistEventType;
 
 /** A Dynoptic representation of the NFby invariant. */
@@ -41,5 +43,11 @@ public class NeverFollowedBy extends BinaryInvariant {
         }
         // Never saw 'first' followed by 'second' => first NFby second
         return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public NFbyChecker newChecker() {
+        return new NFbyChecker(this);
     }
 }

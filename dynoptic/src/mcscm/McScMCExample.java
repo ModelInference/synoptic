@@ -1,12 +1,12 @@
 package mcscm;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import dynoptic.model.fifosys.channel.channelid.InvChannelId;
 import dynoptic.model.fifosys.channel.channelid.LocalEventsChannelId;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -86,7 +86,7 @@ public class McScMCExample {
 
     public McScMCExample(List<ChannelId> cids) {
         this.cids = cids;
-        events = new ArrayList<DistEventType>();
+        events = Util.newList();
     }
 
     // //////////////////////////////////////////////////////////////////

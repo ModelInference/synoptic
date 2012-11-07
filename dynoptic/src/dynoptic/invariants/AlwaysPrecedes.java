@@ -2,6 +2,8 @@ package dynoptic.invariants;
 
 import java.util.List;
 
+import dynoptic.invariants.checkers.APChecker;
+
 import synoptic.model.event.DistEventType;
 
 /** A Dynoptic representation of the AP invariant. */
@@ -43,5 +45,11 @@ public class AlwaysPrecedes extends BinaryInvariant {
         // Either we never saw 'second', or we saw a 'first' before a first
         // instance of 'second' => first AP second.
         return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public APChecker newChecker() {
+        return new APChecker(this);
     }
 }

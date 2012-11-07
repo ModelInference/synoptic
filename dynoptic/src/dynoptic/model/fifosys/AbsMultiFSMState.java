@@ -4,24 +4,26 @@ import java.util.Collection;
 
 import dynoptic.model.AbsFSMState;
 
+import synoptic.model.event.IDistEventType;
+
 /**
  * Partial specification for the non-channel state of multiple FSM processes.
  * 
  * @param <State>
  *            The state of a single FSM process.
  */
-public abstract class AbsMultiFSMState<State extends AbsFSMState<State>>
-        extends AbsFSMState<State> {
+public abstract class AbsMultiFSMState<State extends AbsFSMState<State, TxnEType>, TxnEType extends IDistEventType>
+        extends AbsFSMState<State, TxnEType> {
 
     /** Used for functional calls to atLeastOneStateEvalTruePerPid. */
     protected interface IStatePidToBooleanFn {
-        boolean eval(AbsMultiFSMState<?> s, int pid);
+        boolean eval(AbsMultiFSMState<?, ?> s, int pid);
     }
 
     // Fn: (ObservedFifoSysState s, pid p) -> "s accept for pid"
     protected static IStatePidToBooleanFn fnIsAcceptForPid = new IStatePidToBooleanFn() {
         @Override
-        public boolean eval(AbsMultiFSMState<?> s, int pid) {
+        public boolean eval(AbsMultiFSMState<?, ?> s, int pid) {
             return s.isAcceptForPid(pid);
         }
     };
@@ -29,17 +31,17 @@ public abstract class AbsMultiFSMState<State extends AbsFSMState<State>>
     // Fn: (ObservedFifoSysState s, pid p) -> "s initial for pid"
     protected static IStatePidToBooleanFn fnIsInitialForPid = new IStatePidToBooleanFn() {
         @Override
-        public boolean eval(AbsMultiFSMState<?> s, int pid) {
+        public boolean eval(AbsMultiFSMState<?, ?> s, int pid) {
             return s.isInitForPid(pid);
         }
     };
 
     /** Used to evaluate whether this GFSMState is accept/initial. */
     protected static boolean atLeastOneStatePidEvalTrue(
-            Collection<? extends AbsMultiFSMState<?>> states,
+            Collection<? extends AbsMultiFSMState<?, ?>> states,
             IStatePidToBooleanFn fn, int pid) {
         // for (ObservedFifoSysState s : observedStates) {
-        for (AbsMultiFSMState<?> s : states) {
+        for (AbsMultiFSMState<?, ?> s : states) {
             if (fn.eval(s, pid)) {
                 return true;
             }

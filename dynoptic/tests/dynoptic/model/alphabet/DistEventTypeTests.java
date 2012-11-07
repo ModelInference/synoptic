@@ -4,13 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -158,7 +158,7 @@ public class DistEventTypeTests extends DynopticTest {
     @Test
     public void checkEventStrParsingSend() {
         DistEventType e = new DistEventType("A!m", "sender");
-        List<ChannelId> cids = new ArrayList<ChannelId>();
+        List<ChannelId> cids = Util.newList();
         cids.add(cid);
         cids.add(cid2);
         // Should not return an error.
@@ -177,7 +177,7 @@ public class DistEventTypeTests extends DynopticTest {
     @Test
     public void checkEventStrParsingRecv() {
         DistEventType e = new DistEventType("A?m", "receiver");
-        List<ChannelId> cids = new ArrayList<ChannelId>();
+        List<ChannelId> cids = Util.newList();
         cids.add(cid);
         cids.add(cid2);
         // Should not return an error.
@@ -196,7 +196,7 @@ public class DistEventTypeTests extends DynopticTest {
     @Test
     public void checkEventStrParsingLocal() {
         DistEventType e = new DistEventType("e", "1");
-        List<ChannelId> cids = new ArrayList<ChannelId>();
+        List<ChannelId> cids = Util.newList();
         cids.add(cid);
         cids.add(cid2);
         // Should not return an error.
@@ -215,7 +215,7 @@ public class DistEventTypeTests extends DynopticTest {
     @Test
     public void checkEventStrParsingErr1() {
         DistEventType e = new DistEventType("A?m", "receiver");
-        List<ChannelId> cids = new ArrayList<ChannelId>();
+        List<ChannelId> cids = Util.newList();
         // Leave out cid on purpose.
         // cids.add(cid);
         cids.add(cid2);
@@ -226,7 +226,7 @@ public class DistEventTypeTests extends DynopticTest {
     @Test
     public void checkEventStrParsingErr2() {
         DistEventType e = new DistEventType("A??m", "receiver");
-        List<ChannelId> cids = new ArrayList<ChannelId>();
+        List<ChannelId> cids = Util.newList();
         cids.add(cid);
         cids.add(cid2);
         // Should return an _error_ -- problem parsing ??.

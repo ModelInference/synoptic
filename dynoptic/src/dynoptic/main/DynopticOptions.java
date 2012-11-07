@@ -1,8 +1,9 @@
 package dynoptic.main;
 
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
+
+import dynoptic.util.Util;
 
 import plume.Option;
 import plume.OptionGroup;
@@ -191,8 +192,13 @@ public class DynopticOptions extends Options {
     @OptionGroup("Strategy Options")
     @Option(
             value = "Each process begins execution in the same initial state across all traces in the log",
-            aliases = "consistent-init-state")
+            aliases = "-consistent-init-state")
     public boolean consistentInitState = true;
+    
+    @Option(
+            value = "Minimize each of the process FSMs",
+            aliases = "-minimize")
+    public boolean minimize = true;
 
     // end option group "Strategy Options"
     // //////////////////////////////////////////////////
@@ -210,7 +216,7 @@ public class DynopticOptions extends Options {
      */
     public DynopticOptions() {
         randomSeed = System.currentTimeMillis();
-        logFilenames = new LinkedList<String>();
+        logFilenames = Util.newList();
         args = null;
     }
 

@@ -1,10 +1,8 @@
 package dynoptic.model.fifosys.gfsm;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -20,6 +18,7 @@ import dynoptic.model.fifosys.cfsm.fsm.FSM;
 import dynoptic.model.fifosys.cfsm.fsm.FSMState;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSys;
 import dynoptic.model.fifosys.gfsm.observed.fifosys.ObsFifoSysState;
+import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
 import synoptic.model.event.DistEventType;
@@ -52,7 +51,7 @@ import synoptic.model.event.DistEventType;
  * FifoSysExecution.
  * </p>
  */
-public class GFSM extends FifoSys<GFSMState> {
+public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
     public static Logger logger = Logger.getLogger("GFSM");
 
@@ -73,7 +72,7 @@ public class GFSM extends FifoSys<GFSMState> {
     public GFSM(List<ObsFifoSys> traces) {
         super(traces.get(0).getNumProcesses(), traces.get(0).getChannelIds());
 
-        Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition = new LinkedHashMap<Integer, Set<ObsFifoSysState>>();
+        Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition = Util.newMap();
 
         for (ObsFifoSys t : traces) {
             assert t.getNumProcesses() == numProcesses;
@@ -87,7 +86,7 @@ public class GFSM extends FifoSys<GFSMState> {
 
         Set<ObsFifoSysState> allObs = null;
         if (DynopticMain.assertsOn) {
-            allObs = new LinkedHashSet<ObsFifoSysState>();
+            allObs = Util.newSet();
         }
 
         // Create the GFSMState partitions based off of sets of observations.
@@ -132,7 +131,7 @@ public class GFSM extends FifoSys<GFSMState> {
             ObsFifoSysState obs) {
         int hash = obs.getChannelStates().topOfQueuesHash();
         if (!qTopHashToPartition.containsKey(hash)) {
-            Set<ObsFifoSysState> partition = new LinkedHashSet<ObsFifoSysState>();
+            Set<ObsFifoSysState> partition = Util.newSet();
             qTopHashToPartition.put(hash, partition);
         }
         qTopHashToPartition.get(hash).add(obs);
@@ -159,7 +158,7 @@ public class GFSM extends FifoSys<GFSMState> {
 
     @Override
     public Set<GFSMState> getInitStates() {
-        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
+        Set<GFSMState> ret = Util.newSet();
         for (GFSMState s : states) {
             if (s.isInitial()) {
                 ret.add(s);
@@ -170,7 +169,7 @@ public class GFSM extends FifoSys<GFSMState> {
 
     @Override
     public Set<GFSMState> getAcceptStates() {
-        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
+        Set<GFSMState> ret = Util.newSet();
         for (GFSMState s : states) {
             if (s.isAccept()) {
                 ret.add(s);
@@ -192,7 +191,7 @@ public class GFSM extends FifoSys<GFSMState> {
 
     /** Returns the set of partitions that are accepting for a pid. */
     public Set<GFSMState> getAcceptStatesForPid(int pid) {
-        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
+        Set<GFSMState> ret = Util.newSet();
         for (GFSMState s : states) {
             if (s.isAcceptForPid(pid)) {
                 ret.add(s);
@@ -203,7 +202,7 @@ public class GFSM extends FifoSys<GFSMState> {
 
     /** Returns the set of partitions that are initial for a pid. */
     public Set<GFSMState> getInitStatesForPid(int pid) {
-        Set<GFSMState> ret = new LinkedHashSet<GFSMState>();
+        Set<GFSMState> ret = Util.newSet();
         for (GFSMState s : states) {
             if (s.isInitForPid(pid)) {
                 ret.add(s);
@@ -240,24 +239,29 @@ public class GFSM extends FifoSys<GFSMState> {
      * Checks if the partitions and events paths associated with cExample are
      * feasible in this GFSM.
      */
-    public boolean feasible(CompleteGFSMCExample cExample) {
+    public boolean feasible(List<GFSMState> pStates, List<DistEventType> pEvents) {
+        assert !pStates.isEmpty();
+
         // 1. Check that all partitions in path are in pGraph
-        for (GFSMState s : cExample.getPartitionPath()) {
+        for (GFSMState s : pStates) {
             if (!this.states.contains(s)) {
                 return false;
             }
         }
 
-        // 2. Check that event transitions between partitions in path are still
-        // as specified by cExample are still valid in pGraph.
-        List<GFSMState> path = cExample.getPartitionPath();
+        // 2. Check that there are event transitions between pStates that
+        // correspond to pEvents.
+        for (int i = 0; i < pStates.size() - 1; i++) {
+            GFSMState s = pStates.get(i);
+            GFSMState sNext = pStates.get(i + 1);
+            DistEventType e = pEvents.get(i);
 
-        int i = 0;
-        for (DistEventType e : cExample.getMcScMCExample().getEvents()) {
-            if (!path.get(i).getNextStates(e).contains(path.get(i + 1))) {
+            if (!s.getTransitioningEvents().contains(e)) {
                 return false;
             }
-            i += 1;
+            if (!s.getNextStates(e).contains(sNext)) {
+                return false;
+            }
         }
 
         return true;
@@ -305,25 +309,26 @@ public class GFSM extends FifoSys<GFSMState> {
      * GFSM to construct/specify all the process FSMs that should be part of the
      * CFSM.
      * 
-     * @param gfsm
+     * @param minimize
+     *            - whether to minimize each of the process FSMs
      * @return
      */
-    public CFSM getCFSM() {
+    public CFSM getCFSM(boolean minimize) {
         // This is the CFSM that we will return, once we populate it with all
         // the process FSMs.
         CFSM cfsm = new CFSM(numProcesses, channelIds);
 
         logger.info("GFSM -> CFSM: " + this.toString() + "\n");
 
-        Set<FSMState> initFSMStates = new LinkedHashSet<FSMState>();
-        Set<FSMState> acceptFSMStates = new LinkedHashSet<FSMState>();
-        Set<GFSMState> nonPidTxClosureStates = new LinkedHashSet<GFSMState>();
-        Map<GFSMState, FSMState> stateMap = new LinkedHashMap<GFSMState, FSMState>();
+        Set<FSMState> initFSMStates = Util.newSet();
+        Set<FSMState> acceptFSMStates = Util.newSet();
+        Set<GFSMState> nonPidTxClosureStates = Util.newSet();
+        Map<GFSMState, FSMState> stateMap = Util.newMap();
 
-        Set<GFSMState> gvisited = new LinkedHashSet<GFSMState>();
+        Set<GFSMState> gvisited = Util.newSet();
 
-        Set<FSMState> txClosure = new LinkedHashSet<FSMState>();
-        Set<FSMState> fvisited = new LinkedHashSet<FSMState>();
+        Set<FSMState> txClosure = Util.newSet();
+        Set<FSMState> fvisited = Util.newSet();
 
         // Create an FSM per pid.
         for (int pid = 0; pid < numProcesses; pid++) {
@@ -468,6 +473,10 @@ public class GFSM extends FifoSys<GFSMState> {
             FSM fsm = new FSM(pid, initFSMStates, acceptFSMStates,
                     stateMap.values(), nextScmId);
 
+            if (minimize && fsm.isDeterministic()) {
+                fsm.minimize();
+            }
+
             cfsm.addFSM(fsm);
 
             stateMap.clear();
@@ -498,8 +507,7 @@ public class GFSM extends FifoSys<GFSMState> {
 
             // TODO: need a better way of doing this, too -- have a way to
             // update transitions to states in bulk.
-            for (DistEventType e : new LinkedHashSet<DistEventType>(
-                    fPred.getTransitioningEvents())) {
+            for (DistEventType e : Util.newSet(fPred.getTransitioningEvents())) {
                 if (fPred.getNextStates(e).contains(fstate)) {
                     fPred.rmTransition(e, fstate);
                     fPred.addTransition(e, fstate2);
@@ -559,67 +567,128 @@ public class GFSM extends FifoSys<GFSMState> {
         return null;
     }
 
-    /**
-     * Returns all counter-example paths in GFSM that correspond to the
-     * event-based McScMCExample. Since a GFSM is an NFA, we might have multiple
-     * matching paths. Constructs the paths using DFS exploration of the GFSM.
-     * 
-     * @param cExample
-     */
-    public List<CompleteGFSMCExample> getCExamplePaths(McScMCExample cExample) {
-        List<CompleteGFSMCExample> paths = new ArrayList<CompleteGFSMCExample>();
-        // Explore potential paths from each global initial state in the GFSM.
-        for (GFSMState parent : getInitStates()) {
-            List<CompleteGFSMCExample> newPaths = buildCExamplePaths(cExample,
-                    0, parent);
-            if (newPaths != null) {
-                paths.addAll(newPaths);
+    public Set<GFSMPath> getCExamplePaths(McScMCExample cExample, int pid) {
+        Set<GFSMPath> paths = Util.newSet();
+
+        // Initialize paths with all the initial states in the model.
+        for (GFSMState initS : getInitStates()) {
+            paths.add(new GFSMPath(initS, pid));
+        }
+
+        // States visited during suffix paths construction.
+        Set<GFSMState> visitedStates = Util.newSet();
+        // Suffix paths that we use to build up the paths.
+        Set<GFSMPath> suffixPaths = null;
+        // Temporary holding for new set of paths.
+        Set<GFSMPath> newPaths = Util.newSet();
+
+        // Build paths for sub-sequence of process pid events in the
+        // counter-example.
+        for (DistEventType e : cExample.getEvents()) {
+
+            // Skip non-process pid events.
+            if (e.getPid() != pid) {
+                continue;
             }
+
+            // Extend the constructed paths. The new paths are in newPaths.
+            for (GFSMPath path : paths) {
+                // Populate suffix paths with extensions to path that end with e
+                // as the last event, and only contain non pid transitions
+                // before the e transition.
+                GFSMState firstState = path.lastState();
+                suffixPaths = getSuffixPaths(firstState, e, visitedStates, pid);
+                if (suffixPaths == null) {
+                    continue;
+                }
+
+                // path becomes a prefix.
+                GFSMPath prefix = new GFSMPath(path);
+                // Iterate through nextPaths, using these as suffixes to
+                // construct extensions to the prefix.
+                Iterator<GFSMPath> iter = suffixPaths.iterator();
+                while (iter.hasNext()) {
+                    // Construct a new path: prefix + nextPath[i]
+                    GFSMPath newPath = new GFSMPath(prefix, iter.next());
+                    newPaths.add(newPath);
+                }
+            }
+            if (newPaths.isEmpty()) {
+                // If we were not able to extend any of the paths then we're
+                // done.
+                return Collections.emptySet();
+            }
+            visitedStates.clear();
+
+            paths.clear();
+            paths.addAll(newPaths);
+            newPaths.clear();
+
         }
         return paths;
     }
 
+    // //////////////////////////////////////////////////////////////////
+
     /**
-     * Returns the longest _partial_ counter-example path in the GFSM that
-     * correspond to the event-based McScMCExample. If a complete
-     * counter-example is possible, then an AssertionError is thrown: Use
-     * getCExamplePaths() to first to determine if a complete counter-example
-     * path is impossible and it is necessary to construct a partial
-     * counter-example path for refinement.
+     * Adds new GFSMPath instances to suffixPaths that begin at state, end in
+     * event e, and have non-pid process event types before e.
      * 
-     * @param cExample
+     * @param state
+     * @param e
+     * @param pid
+     * @param suffixPaths
      */
-    public PartialGFSMCExample getLongestPartialCExamplePath(
-            McScMCExample cExample) {
-        // Explore potential paths from each global initial state in the GFSM.
-        PartialGFSMCExample maxPath = null;
-        PartialGFSMCExample newPath = null;
-        for (GFSMState parent : getInitStates()) {
-            newPath = buildCExamplePartialPaths(cExample, 0, parent);
-            if (newPath == null) {
+    private Set<GFSMPath> getSuffixPaths(GFSMState state, DistEventType e,
+            Set<GFSMState> visited, int pid) {
+
+        if (visited.contains(state)) {
+            return null;
+        }
+        visited.add(state);
+
+        Set<GFSMPath> suffixPaths = null;
+        for (DistEventType e_ : state.getTransitioningEvents()) {
+            if (e_.equals(e)) {
+                if (suffixPaths == null) {
+                    suffixPaths = Util.newSet();
+                }
+                for (GFSMState stateFinal : state.getNextStates(e)) {
+                    GFSMPath p = new GFSMPath(pid);
+                    p.prefixEventAndState(e, stateFinal);
+                    // Note, we add current state to prefix of p, but only once
+                    // we are done with the outer loop.
+                    suffixPaths.add(p);
+                }
                 continue;
             }
-            if (maxPath == null || maxPath.pathLength() < newPath.pathLength()) {
-                maxPath = newPath;
+
+            if (e_.getPid() == e.getPid()) {
+                // Matching pid, but wrong type (checked for above).
+                continue;
+            }
+
+            // Otherwise, we recurse, and add current state to prefix of
+            // whatever paths we get back (at end of the function).
+            for (GFSMState stateNext : state.getNextStates(e_)) {
+                Set<GFSMPath> newSuffixPaths = getSuffixPaths(stateNext, e,
+                        visited, pid);
+                // Make sure to add the -- e_ --> stateNext to all suffixPaths
+                // we get back (if there were any that terminate with e)
+                if (newSuffixPaths != null) {
+                    for (GFSMPath p : newSuffixPaths) {
+                        p.prefixEventAndState(e_, stateNext);
+                    }
+                    if (suffixPaths == null) {
+                        suffixPaths = Util.newSet();
+                    }
+                    suffixPaths.addAll(newSuffixPaths);
+                }
             }
         }
 
-        // maxPath should contains at least one partition -- some initial
-        // partition.
-        assert maxPath != null;
-
-        // If our path contains just the initial partition, then we haven't even
-        // matched the first event in cExample. Instead, we rely on partial path
-        // extension code to give us a complete path -- trying all possilbe
-        // initial partitions.
-        if (maxPath.pathLength() == 1) {
-            return new PartialGFSMCExample(cExample);
-        }
-
-        return maxPath;
+        return suffixPaths;
     }
-
-    // //////////////////////////////////////////////////////////////////
 
     /**
      * Splits, or refines, the partition into two sets of observations --
@@ -659,105 +728,4 @@ public class GFSM extends FifoSys<GFSMState> {
 
     }
 
-    /**
-     * Returns a single longest partial counter-example path corresponding to
-     * cExample, starting at event index, and the corresponding GFSM partition
-     * parent. This method is based on buildCExamplePaths() below.
-     */
-    private PartialGFSMCExample buildCExamplePartialPaths(
-            McScMCExample cExample, int eventIndex, GFSMState parent) {
-        PartialGFSMCExample path = null, newPath = null;
-
-        // If we reached the end of the events list, then the final partition
-        // must be non-accepting, otherwise a complete c-example is possible.
-        if (eventIndex == cExample.getEvents().size()) {
-            assert !parent.isAccept();
-
-            path = new PartialGFSMCExample(cExample);
-            path.addToFrontOfPath(parent);
-            return path;
-        }
-
-        DistEventType e = cExample.getEvents().get(eventIndex);
-
-        if (!parent.getTransitioningEvents().contains(e)) {
-            // We can't make further progress along this partitions path with e
-            // as the next event.
-            path = new PartialGFSMCExample(cExample);
-            path.addToFrontOfPath(parent);
-            return path;
-        }
-
-        // Recursively build the possible partial paths by traversing through
-        // each child that is reachable on e from parent.
-        for (GFSMState child : parent.getNextStates(e)) {
-            newPath = buildCExamplePartialPaths(cExample, eventIndex + 1, child);
-            if (path == null || (newPath.pathLength() > path.pathLength())) {
-                path = newPath;
-            }
-        }
-
-        // Add the current partition to the front of the longest partial path
-        // constructed and return.
-        if (path == null) {
-            path = new PartialGFSMCExample(cExample);
-        }
-        path.addToFrontOfPath(parent);
-
-        return path;
-    }
-
-    /**
-     * Returns a set of counter-example paths that correspond to cExample,
-     * starting at event index, and the corresponding GFSM partition parent.
-     */
-    private List<CompleteGFSMCExample> buildCExamplePaths(
-            McScMCExample cExample, int eventIndex, GFSMState parent) {
-        List<CompleteGFSMCExample> paths = null, newPaths = null;
-
-        // We reached the end of the events list: construct a new GFSMCExample
-        // instance containing just the parent partition and return it.
-        if (eventIndex == cExample.getEvents().size()) {
-            // A counter-example is only valid if it ends at an accepting state.
-            if (!parent.isAccept()) {
-                return null;
-            }
-            CompleteGFSMCExample path = new CompleteGFSMCExample(cExample);
-            path.addToFrontOfPath(parent);
-            newPaths = new ArrayList<CompleteGFSMCExample>();
-            newPaths.add(path);
-            return newPaths;
-        }
-        DistEventType e = cExample.getEvents().get(eventIndex);
-
-        if (!parent.getTransitioningEvents().contains(e)) {
-            // We can't make further progress along this partitions path with e
-            // as the next event.
-            return null;
-        }
-
-        // Recursively build the paths by traversing through each child that is
-        // reachable on e from parent.
-        for (GFSMState child : parent.getNextStates(e)) {
-            newPaths = buildCExamplePaths(cExample, eventIndex + 1, child);
-            if (paths == null) {
-                paths = newPaths;
-            } else if (newPaths != null) {
-                paths.addAll(newPaths);
-            }
-        }
-
-        // If the rest of the counter-example does not result in any valid
-        // sub-paths then we can't generate one.
-        if (paths == null) {
-            return null;
-        }
-
-        // Otherwise, add the current partition to the front of the paths
-        // constructed and return.
-        for (CompleteGFSMCExample path : paths) {
-            path.addToFrontOfPath(parent);
-        }
-        return paths;
-    }
 }
