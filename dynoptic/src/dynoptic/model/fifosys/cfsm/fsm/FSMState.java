@@ -90,47 +90,50 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
         return "FSM_state: init[" + isInitial + "], accept[" + isAccept
                 + "] id[" + scmId + "]";
     }
-    
+
     @Override
     public int hashCode() {
         int ret = 31;
         ret = ret * 31 + (isAccept ? 1 : 0);
         ret = ret * 31 + (isInitial ? 1 : 0);
-        // not use transitions because it causes stack overflow
+        // FIXME: Issue 276
+        // Not using transitions because they cause a stack overflow.
         ret = ret * 31 + pid;
         ret = ret * 31 + scmId;
         return 1;
     }
-    
+
     @Override
     public boolean equals(Object other) {
         if (other == this) {
             return true;
         }
-        
+
         if (!(other instanceof FSMState)) {
             return false;
         }
-        
+
         FSMState state = (FSMState) other;
-        
+
         if (state.isAccept != this.isAccept) {
             return false;
         }
-        
+
         if (state.isInitial != this.isInitial) {
             return false;
         }
-        // not use transitions because it causes stack overflow
-        
+
+        // FIXME: Issue 276
+        // Not using transitions because they cause a stack overflow.
+
         if (state.pid != this.pid) {
             return false;
         }
-        
+
         if (state.scmId != this.scmId) {
             return false;
         }
-        
+
         return true;
     }
 
