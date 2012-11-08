@@ -339,9 +339,8 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
             // Create a new FSM state corresponding to each GFSMState.
             for (GFSMState gstate : states) {
-                // NOTE: accepting() for fstate is UNRELIABLE until it is
-                // dynamically computed below.
-                FSMState fstate = new FSMState(gstate.isAccept(),
+                // NOTE: FSMState accept flag is further computed below.
+                FSMState fstate = new FSMState(gstate.isAcceptForPid(pid),
                         gstate.isInitForPid(pid), pid, nextScmId);
                 if (fstate.isInitial()) {
                     initFSMStates.add(fstate);
@@ -356,7 +355,6 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
             // Create transitions between FSMState instances based on
             // corresponding GFSMState transitions, as well as the non-pid
             // transition transitive closure for each GFSMState.
-
             for (GFSMState gstate : states) {
                 // Find the states that can be reached through non-pid
                 // transitions (we treat them as epsilon transitions).
@@ -372,12 +370,12 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                 FSMState fstate = stateMap.get(gstate);
 
                 for (GFSMState g : nonPidTxClosureStates) {
-
-                    // If we can reach an accepting g from gstate using non-pid
-                    // (epsilon) transitions, then this process can terminate at
-                    // gstate, or equivalently, at the corresponding fstate.
-                    if (g.isAccept()) {
-                        fstate.setAccept(true);
+                    // Accept computation: If we can reach an accepting g from
+                    // gstate using non-pid (epsilon) transitions, then this
+                    // process can terminate at gstate, or equivalently, at the
+                    // corresponding fstate.
+                    if (g.isAcceptForPid(pid)) {
+                        fstate.setAccept();
                         acceptFSMStates.add(fstate);
                     }
 
