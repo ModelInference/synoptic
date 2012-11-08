@@ -658,10 +658,10 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                 assert path.numStates() == 1;
             }
         } else {
-            // Otherwise, check for expected number of states/events.
+            // Otherwise, check on path length.
             for (GFSMPath path : paths) {
-                assert path.numEvents() == numPidEvents;
-                assert path.numStates() == numPidEvents + 1;
+                assert path.numEvents() >= numPidEvents;
+                assert path.numStates() >= numPidEvents + 1;
             }
         }
 
