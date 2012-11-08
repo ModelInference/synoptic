@@ -80,7 +80,7 @@ abstract public class AbsFSMState<NextState extends AbsFSMState<NextState, TxnET
 
     /**
      * Returns a set of GFSMState nodes that are reachable from s though event
-     * transitions that are non-pid transitions. This set does not include s. If
+     * transitions that are non-pid transitions. This set does NOT include s. If
      * pid is -1 then it ignores the pid constraint and returns all reachable
      * states from s.
      * 

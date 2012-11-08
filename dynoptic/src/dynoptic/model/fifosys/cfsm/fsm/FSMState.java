@@ -144,12 +144,8 @@ public class FSMState extends AbsFSMState<FSMState, DistEventType> {
 
     // //////////////////////////////////////////////////////////////////
 
-    public void setInitial(boolean newInitial) {
-        isInitial = newInitial;
-    }
-
-    public void setAccept(boolean newAccept) {
-        isAccept = newAccept;
+    public void setAccept() {
+        isAccept = true;
     }
 
     /** Returns the pid that this state is associated with. */
