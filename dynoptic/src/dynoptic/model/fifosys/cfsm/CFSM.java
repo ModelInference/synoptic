@@ -160,7 +160,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
 
     /** Returns the bad states for all invariants that augment this CFSM. */
     public List<BadState> getBadStates() {
-        assert invs.size() != 0;
+        assert !invs.isEmpty();
 
         // TODO: Sub-optimality -- we are needlessly creating many lists by
         // calling getBadState(inv) repeatedly.
@@ -184,7 +184,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         assert invs.contains(inv);
 
         // Without invariants there are no bad states.
-        if (invs.size() == 0) {
+        if (invs.isEmpty()) {
             return Collections.emptyList();
         }
         List<BadState> badStates = Util.newList();
@@ -215,7 +215,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
                 // Add an RE for the local events queue.
                 Set<String> localEvents = this.alphabet
                         .getLocalEventScmStrings();
-                if (localEvents.size() > 0) {
+                if (!localEvents.isEmpty()) {
                     String localEventsQueueRe = "(";
                     for (String eLocal : localEvents) {
                         localEventsQueueRe += eLocal + " | ";
@@ -378,7 +378,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         }
 
         // Bad states:
-        if (invs.size() != 0) {
+        if (!invs.isEmpty()) {
             ret += "\nbad_states:\n";
             for (BadState b : getBadStates()) {
                 ret += b.toScmString() + "\n";

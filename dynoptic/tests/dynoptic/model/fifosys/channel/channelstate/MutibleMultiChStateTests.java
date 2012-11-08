@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dynoptic.DynopticTest;
-import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
@@ -54,8 +53,7 @@ public class MutibleMultiChStateTests extends DynopticTest {
 
     @Test
     public void enqueueDequeueSeq() {
-        ObsDistEventType e = new ObsDistEventType(DistEventType.SendEvent("e",
-                cid1), 1);
+        DistEventType e = DistEventType.SendEvent("e", cid1);
 
         int h1 = mc.hashCode();
 
@@ -68,7 +66,7 @@ public class MutibleMultiChStateTests extends DynopticTest {
         assertTrue(mc.isEmptyForPid(1));
 
         // Peek at e.
-        ObsDistEventType e2 = mc.peek(cid1);
+        DistEventType e2 = mc.peek(cid1);
         assertEquals(e, e2);
         assertFalse(mc.isEmpty());
         assertFalse(mc.isEmptyForPid(2));
@@ -84,15 +82,13 @@ public class MutibleMultiChStateTests extends DynopticTest {
         // Enqueue e, again, but dequeue this time using e (not the cid).
         mc.enqueue(e);
 
-        ObsDistEventType recvE = new ObsDistEventType(DistEventType.RecvEvent(
-                "e", cid1), 1);
+        DistEventType recvE = DistEventType.RecvEvent("e", cid1);
         mc.dequeue(recvE);
     }
 
     @Test
     public void cloneMCState() {
-        ObsDistEventType e = new ObsDistEventType(DistEventType.SendEvent("e",
-                cid1), 1);
+        DistEventType e = DistEventType.SendEvent("e", cid1);
         mc.enqueue(e);
 
         mc2 = mc.clone();
@@ -101,8 +97,7 @@ public class MutibleMultiChStateTests extends DynopticTest {
 
     @Test
     public void equals() {
-        ObsDistEventType e = new ObsDistEventType(DistEventType.SendEvent("e",
-                cid1), 1);
+        DistEventType e = DistEventType.SendEvent("e", cid1);
         mc.enqueue(e);
 
         assertFalse(mc.equals(null));
@@ -111,8 +106,7 @@ public class MutibleMultiChStateTests extends DynopticTest {
 
         assertFalse(mc.topOfQueuesHash() == mc2.topOfQueuesHash());
 
-        ObsDistEventType e2 = new ObsDistEventType(DistEventType.SendEvent("e",
-                cid1), 1);
+        DistEventType e2 = DistEventType.SendEvent("e", cid1);
         mc2.enqueue(e2);
 
         assertEquals(mc, mc2);

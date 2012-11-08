@@ -280,8 +280,8 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
      */
     public void refineWithRandNonRelevantObsAssignment(GFSMState part,
             Set<ObsFifoSysState> setLeft, Set<ObsFifoSysState> setRight) {
-        assert setLeft.size() > 0;
-        assert setRight.size() > 0;
+        assert !setLeft.isEmpty();
+        assert !setRight.isEmpty();
 
         // We know that setLeft and setRight have to be isolated, but what
         // about the observations in part that are in neither of these two sets?
@@ -697,7 +697,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
      */
     private void refine(GFSMState part, Set<ObsFifoSysState> setExtract) {
         assert states.contains(part);
-        assert setExtract.size() > 0;
+        assert !setExtract.isEmpty();
 
         Set<ObsFifoSysState> obsToCheck = null;
         if (DynopticMain.assertsOn) {

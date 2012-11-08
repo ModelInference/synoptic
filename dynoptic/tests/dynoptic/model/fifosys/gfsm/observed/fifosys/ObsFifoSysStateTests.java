@@ -89,7 +89,7 @@ public class ObsFifoSysStateTests extends DynopticTest {
         ObsDistEventType obsE = new ObsDistEventType(e, 0);
         s1.addTransition(obsE, s3);
         assertTrue(s1.getTransitioningEvents().size() == 1);
-        assertTrue(s1.getTransitioningEvents().contains(obsE));
+        assertTrue(s1.getTransitioningEvents().contains(e));
 
         assertTrue(s1.getNextState(obsE) == s3);
         assertTrue(s1.getNextState(e) == s3);

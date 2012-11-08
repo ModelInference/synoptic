@@ -114,7 +114,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
 
     @Override
     public Set<DistEventType> getTransitioningEvents() {
-        if (this.transitions.size() == 0) {
+        if (this.transitions.isEmpty()) {
             recreateCachedTransitions();
         }
         return transitions.keySet();
@@ -122,7 +122,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
 
     @Override
     public Set<GFSMState> getNextStates(DistEventType event) {
-        if (this.transitions.size() == 0) {
+        if (this.transitions.isEmpty()) {
             recreateCachedTransitions();
         }
 
@@ -229,7 +229,7 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
     public Set<ObsFifoSysState> getObservedStatesWithTransition(DistEventType e) {
         Set<ObsFifoSysState> ret = Util.newSet();
         for (ObsFifoSysState s : observedStates) {
-            if (s.getObsTransitionByEType(e) != null) {
+            if (s.hasTransitionOn(e)) {
                 ret.add(s);
             }
         }
@@ -258,17 +258,16 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
 
     /** Updates the cached transitions for a particular observed state. */
     private void cacheObservedParentTransitions(ObsFifoSysState s) {
-        for (ObsDistEventType e : s.getTransitioningEvents()) {
+        for (DistEventType e : s.getTransitioningEvents()) {
             GFSMState nextPartition = s.getNextState(e).getParent();
             assert nextPartition != null;
 
             Set<GFSMState> partitions;
-            DistEventType eType = e.getDistEType();
-            if (!transitions.containsKey(eType)) {
+            if (!transitions.containsKey(e)) {
                 partitions = Util.newSet();
-                transitions.put(eType, partitions);
+                transitions.put(e, partitions);
             } else {
-                partitions = transitions.get(eType);
+                partitions = transitions.get(e);
             }
             partitions.add(nextPartition);
         }

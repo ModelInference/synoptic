@@ -201,9 +201,7 @@ public class GFSMPath {
         // a partition with a single concrete state as stitching, since the
         // abstract counter-example can be extended in the concrete event-space
         // by at least by one more event.
-        if (part.getObservedStates().size() == 1) {
-            assert part.getObservedStates().size() > 1;
-        }
+        assert part.getObservedStates().size() > 1;
 
         // Construct setRight.
         Set<ObsFifoSysState> setRight;
@@ -250,10 +248,8 @@ public class GFSMPath {
             }
 
         }
-        assert setRight.size() > 0;
-        if (!(setRight.size() < part.getObservedStates().size())) {
-            assert setRight.size() < part.getObservedStates().size();
-        }
+        assert !setRight.isEmpty();
+        assert setRight.size() < part.getObservedStates().size();
 
         // Construct setLeft.
         Set<ObsFifoSysState> setLeft;
@@ -292,9 +288,7 @@ public class GFSMPath {
         // }
         // }
         // }
-        if (!(setLeft.size() > 0)) {
-            assert setLeft.size() > 0;
-        }
+        assert !setLeft.isEmpty();
 
         if (DynopticMain.assertsOn) {
             // Make sure that the two sets are disjoint.

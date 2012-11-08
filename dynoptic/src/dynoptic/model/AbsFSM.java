@@ -57,9 +57,7 @@ public abstract class AbsFSM<State extends AbsFSMState<State, TxnEType>, TxnETyp
         this.alphabet.clear();
         for (State s : states) {
             Set<TxnEType> events = s.getTransitioningEvents();
-            if (events.size() != 0) {
-                alphabet.addAll(events);
-            }
+            alphabet.addAll(events);
         }
     }
 }

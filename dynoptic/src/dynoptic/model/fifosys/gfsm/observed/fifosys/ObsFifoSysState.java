@@ -28,13 +28,17 @@ import synoptic.model.event.DistEventType;
  * FSM states that comprise this ObservedFifoSysState.
  * </p>
  * <p>
- * Also, note that the queue state (channelStates) are often implicit -- we do
- * not have a record of the actual channel states, but we can reconstruct the
- * channel states based on the sequence of send/receive operations.
+ * Queue state (channelStates) are often implicit -- we do not have a record of
+ * the actual channel states, but we can reconstruct the channel states based on
+ * the sequence of send/receive operations.
+ * </p>
+ * <p>
+ * We use DistEventType as the base transition type instead of ObsDistEventType,
+ * as ObsDistEventType instances are mutable.
  * </p>
  */
 public class ObsFifoSysState extends
-        AbsMultiFSMState<ObsFifoSysState, ObsDistEventType> {
+        AbsMultiFSMState<ObsFifoSysState, DistEventType> {
     static Logger logger = Logger.getLogger("ObsFifoSysState");
 
     // A global cache of previously created ObsFifoSysState instances. This is
@@ -102,8 +106,11 @@ public class ObsFifoSysState extends
     // The observed state of all the channels in the system.
     private final ImmutableMultiChState channelStates;
 
-    // Observed transitions for each following event type.
-    private final Map<ObsDistEventType, ObsFifoSysState> transitions;
+    // Abstract transitions, based on the abstract dist event types.
+    private final Map<DistEventType, ObsFifoSysState> absTransitions;
+
+    // Concrete/observed transitions for each abstract dist event type.
+    private final Map<DistEventType, ObsDistEventType> concTransitions;
 
     // A unique int identifier for this ObsFifoSysState. Also used by
     // hashCode().
@@ -133,7 +140,8 @@ public class ObsFifoSysState extends
 
         this.fsmStates = fsmStates;
         this.channelStates = channelStates;
-        this.transitions = Util.newMap();
+        this.absTransitions = Util.newMap();
+        this.concTransitions = Util.newMap();
     }
 
     // //////////////////////////////////////////////////////////////////
@@ -154,13 +162,13 @@ public class ObsFifoSysState extends
     }
 
     @Override
-    public Set<ObsDistEventType> getTransitioningEvents() {
-        return transitions.keySet();
+    public Set<DistEventType> getTransitioningEvents() {
+        return absTransitions.keySet();
     }
 
     @Override
-    public Set<ObsFifoSysState> getNextStates(ObsDistEventType event) {
-        return Collections.singleton(transitions.get(event));
+    public Set<ObsFifoSysState> getNextStates(DistEventType event) {
+        return Collections.singleton(absTransitions.get(event));
     }
 
     public String toLongString() {
@@ -243,9 +251,19 @@ public class ObsFifoSysState extends
 
     // //////////////////////////////////////////////////////////////////
 
+    /** Whether or not there is a transition on an abstract event type. */
+    public boolean hasTransitionOn(DistEventType event) {
+        return absTransitions.containsKey(event);
+    }
+
+    /** Looks up the next state on an ABSTRACT dist event type. */
+    public ObsFifoSysState getNextState(DistEventType event) {
+        return absTransitions.get(event);
+    }
+
     /** Looks up the next state on an OBSERVED dist event type. */
     public ObsFifoSysState getNextState(ObsDistEventType event) {
-        return transitions.get(event);
+        return absTransitions.get(event.getDistEType());
     }
 
     /**
@@ -254,36 +272,19 @@ public class ObsFifoSysState extends
      * an ABSTRACT event type.
      */
     public ObsDistEventType getObsTransitionByEType(DistEventType eType) {
-        for (ObsDistEventType txn : transitions.keySet()) {
-            if (txn.equalsIgnoringTraceIds(eType)) {
-                return txn;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Looks up the next state on an ABSTRACT dist event type.
-     */
-    public ObsFifoSysState getNextState(DistEventType event) {
-        ObsDistEventType txn = getObsTransitionByEType(event);
-        if (txn == null) {
-            return null;
-        }
-        return getNextState(txn);
+        return concTransitions.get(eType);
     }
 
     /** Adds a transition on e from this to s. */
     public void addTransition(ObsDistEventType e, ObsFifoSysState s) {
+        DistEventType eType = e.getDistEType();
         if (DynopticMain.assertsOn) {
             // The Fifo system is a DAG, and cannot have self-loops.
             // TODO: check that there are no loops in general.
             assert !this.equals(s);
 
-            assert !this.transitions.containsKey(e);
-            // Make sure that we don't have another observed event with the same
-            // abstract event type.
-            assert getObsTransitionByEType(e.getDistEType()) == null;
+            assert !this.absTransitions.containsKey(eType);
+            assert !this.concTransitions.containsKey(eType);
 
             // Make sure that the following states belongs to the same "system",
             // which is identified by number of processes and the channelIds.
@@ -294,7 +295,8 @@ public class ObsFifoSysState extends
             // check that if e = c!m then s.c = [m + this.c]
         }
 
-        this.transitions.put(e, s);
+        this.absTransitions.put(eType, s);
+        this.concTransitions.put(eType, e);
     }
 
 }

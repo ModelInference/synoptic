@@ -12,7 +12,6 @@ import dynoptic.invariants.checkers.BinChecker;
 import dynoptic.invariants.checkers.BinChecker.Validity;
 import dynoptic.main.DynopticMain;
 import dynoptic.model.fifosys.FifoSys;
-import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.model.fifosys.gfsm.observed.ObsFSMState;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAG;
 import dynoptic.model.fifosys.gfsm.observed.dag.ObsDAGNode;
@@ -30,7 +29,7 @@ import synoptic.model.event.Event;
  * ObservedFifoSysState instances. An instance of ObsFifoSys merely maintains a
  * pointer to the initial/terminal states.
  */
-public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
+public class ObsFifoSys extends FifoSys<ObsFifoSysState, DistEventType> {
 
     private static Logger logger = Logger.getLogger("ObsFifoSys");
 
@@ -409,7 +408,7 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
             return !invChecker.isFail();
         }
 
-        Set<ObsDistEventType> nextEvents = curState.getTransitioningEvents();
+        Set<DistEventType> nextEvents = curState.getTransitioningEvents();
 
         // Create a copy of the checker state to use if we have more than
         // sub-branch to explore.
@@ -419,8 +418,8 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, ObsDistEventType> {
             clonedOrig = invChecker.getClone();
         }
 
-        for (ObsDistEventType e : nextEvents) {
-            Validity mcResult = invChecker.transition(e.getDistEType());
+        for (DistEventType e : nextEvents) {
+            Validity mcResult = invChecker.transition(e);
             if (mcResult == Validity.PERM_FAIL) {
                 return false;
             } else if (mcResult == Validity.PERM_SUCCESS) {
