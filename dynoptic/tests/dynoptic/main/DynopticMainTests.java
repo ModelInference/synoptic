@@ -257,8 +257,8 @@ public class DynopticMainTests extends DynopticTest {
         args.add("M:0->1;A:1->0");
         args.add("-i");
         args.add("-d");
-        args.add("../traces/AlternatingBitProtocol/src/bam");
-        runDynFromFileArgs(args);
+        args.add("../traces/AlternatingBitProtocol/src/trace_po_sr_longer.txt");
+        // runDynFromFileArgs(args);
     }
 
     /** A trivial example with 4 total events. */
