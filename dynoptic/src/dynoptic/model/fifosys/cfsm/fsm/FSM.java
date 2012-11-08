@@ -220,7 +220,7 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
 
         }
     }
-    
+
     /**
      * Creates EventType encodings for all transitioning events in this FSM.
      * Note that, when comparing any 2 FSMs, only encodings from one of them is
@@ -239,7 +239,8 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
      * 
      * @return EncodedAutomaton
      */
-    public EncodedAutomaton getEncodedAutomaton(EventTypeEncodings eventEncodings) {
+    public EncodedAutomaton getEncodedAutomaton(
+            EventTypeEncodings eventEncodings) {
         return new EncodedAutomaton(eventEncodings, this);
     }
 
@@ -273,7 +274,7 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
             return false;
         }
         FSM fsm = (FSM) other;
-        
+
         if (pid != fsm.pid) {
             return false;
         }
@@ -281,7 +282,8 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
         // Use encodings of this.
         EventTypeEncodings eventEncodings = getEventTypeEncodings();
         EncodedAutomaton thisAutomaton = getEncodedAutomaton(eventEncodings);
-        EncodedAutomaton otherAutomaton = fsm.getEncodedAutomaton(eventEncodings);
+        EncodedAutomaton otherAutomaton = fsm
+                .getEncodedAutomaton(eventEncodings);
         return thisAutomaton.equals(otherAutomaton);
     }
 
@@ -299,7 +301,7 @@ public class FSM extends AbsFSM<FSMState, DistEventType> {
      * ordering.
      */
     public String toScmString(LocalEventsChannelId localEventsChId) {
-        assert initStates.size() > 0;
+        assert !initStates.isEmpty();
 
         String ret;
 

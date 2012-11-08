@@ -6,9 +6,9 @@ import java.util.Set;
 
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.model.fifosys.FifoSys;
-import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.util.Util;
 
+import synoptic.model.event.DistEventType;
 import synoptic.util.InternalSynopticException;
 
 /**
@@ -27,10 +27,10 @@ import synoptic.util.InternalSynopticException;
  *            system. This does _not_ include channel states (channel state is
  *            maintained by the FifoState<State> instance).
  */
-public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMState, ObsDistEventType>> {
+public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMState, DistEventType>> {
 
     // The FIFO system for which this is an execution.
-    final FifoSys<MultiFSMState, ObsDistEventType> fifoSys;
+    final FifoSys<MultiFSMState, DistEventType> fifoSys;
 
     // The current state of the FIFO system -- this includes the state of all
     // the processes and state of all the channels.
@@ -39,7 +39,7 @@ public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
     // Sequence of states that we have executed before (includes currentState)
     final List<FifoSysExecState<MultiFSMState>> stateSequence;
 
-    public FifoSysExecution(FifoSys<MultiFSMState, ObsDistEventType> fifoSys,
+    public FifoSysExecution(FifoSys<MultiFSMState, DistEventType> fifoSys,
             MultiFSMState initState) {
         this.fifoSys = fifoSys;
 
@@ -63,10 +63,10 @@ public class FifoSysExecution<MultiFSMState extends AbsMultiFSMState<MultiFSMSta
      * @param event
      * @return
      */
-    public FifoSysExecState<MultiFSMState> transition(ObsDistEventType event) {
+    public FifoSysExecState<MultiFSMState> transition(DistEventType event) {
         Set<FifoSysExecState<MultiFSMState>> following = this.currState
                 .getNextStates(event);
-        if (following.size() == 0) {
+        if (following.isEmpty()) {
             throw new InternalSynopticException(
                     "Cannot transition on an event that is not possible from this state.");
         }

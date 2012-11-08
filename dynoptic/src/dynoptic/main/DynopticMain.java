@@ -322,7 +322,7 @@ public class DynopticMain {
         List<ObsFifoSys> traces = ObsFifoSys.synTraceGraphToDynObsFifoSys(
                 traceGraph, numProcesses, channelIds, opts.consistentInitState);
 
-        assert traces.size() > 0;
+        assert !traces.isEmpty();
 
         // Export (just the first!) Observed FIFO System instance:
         dotFilename = opts.outputPathPrefix + ".obsfifosys.tid1.dot";
@@ -411,7 +411,7 @@ public class DynopticMain {
         assert parser != null;
         assert synMain != null;
         assert logFilenames != null;
-        assert logFilenames.size() != 0;
+        assert !logFilenames.isEmpty();
 
         List<EventNode> parsedEvents;
 
@@ -604,7 +604,7 @@ public class DynopticMain {
             throws Exception, IOException, InterruptedException {
         assert pGraph != null;
         assert invs != null;
-        assert invs.size() > 0;
+        assert !invs.isEmpty();
 
         // Make a copy of invs, as we'll be modifying the list (removing
         // invariants once they are satisfied by the model).
@@ -745,7 +745,7 @@ public class DynopticMain {
                 // Model changed through refinement. Therefore, forget any
                 // invariants that might have timed out previously,
                 // and add all of them back to invsToSatisfy.
-                if (timedOutInvs.size() > 0) {
+                if (!timedOutInvs.isEmpty()) {
                     // Append all of the previously timed out invariants back to
                     // invsToSatisfy.
                     invsToSatisfy.addAll(timedOutInvs);

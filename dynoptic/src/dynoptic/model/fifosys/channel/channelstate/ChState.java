@@ -3,7 +3,6 @@ package dynoptic.model.fifosys.channel.channelstate;
 import java.util.ArrayList;
 import java.util.List;
 
-import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
@@ -14,30 +13,6 @@ import synoptic.model.event.IDistEventType;
  * specific channel id.
  */
 public class ChState<TxnEType extends IDistEventType> implements Cloneable {
-
-    public static boolean equalsObsDistETypeIgnoringTraceIds(
-            ChState<ObsDistEventType> chS1, ChState<ObsDistEventType> chS2) {
-        if (chS1 == null || chS2 == null) {
-            return false;
-        }
-
-        if (!chS1.chId.equals(chS2.chId)) {
-            return false;
-        }
-
-        if (chS1.queue.size() != chS2.queue.size()) {
-            return false;
-        }
-
-        for (int i = 0; i < chS1.queue.size(); i++) {
-            if (chS1.queue.get(i).equalsIgnoringTraceIds(chS2.queue.get(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    // //////////////////////////////////////////////////////////////////
 
     private final ChannelId chId;
     private final List<TxnEType> queue;
@@ -128,6 +103,11 @@ public class ChState<TxnEType extends IDistEventType> implements Cloneable {
     /** Returns the number of events in the queue. */
     public int size() {
         return queue.size();
+    }
+
+    /** Whether or not the queue is empty. */
+    public boolean isEmpty() {
+        return queue.isEmpty();
     }
 
     public ChannelId getChannelId() {

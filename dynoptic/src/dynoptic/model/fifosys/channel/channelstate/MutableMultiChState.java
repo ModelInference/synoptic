@@ -2,28 +2,28 @@ package dynoptic.model.fifosys.channel.channelstate;
 
 import java.util.List;
 
-import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
 import dynoptic.util.Util;
 
 import synoptic.model.channelid.ChannelId;
+import synoptic.model.event.DistEventType;
 
 /**
  * Represents the state of a set of channels that are part of a FIFO system.
  * This state can be mutated, or modified. For example, a new message can be
  * enqueued and messages can be dequeued to/from channels.
  */
-public class MutableMultiChState extends AbsMultiChState<ObsDistEventType>
+public class MutableMultiChState extends AbsMultiChState<DistEventType>
         implements Cloneable {
 
     static public MutableMultiChState fromChannelIds(List<ChannelId> channelIds) {
-        List<ChState<ObsDistEventType>> chStates = AbsMultiChState
+        List<ChState<DistEventType>> chStates = AbsMultiChState
                 .chStatesFromChIds(channelIds);
         return new MutableMultiChState(chStates);
     }
 
     // //////////////////////////////////////////////////////////////////
 
-    public MutableMultiChState(List<ChState<ObsDistEventType>> channelStates) {
+    public MutableMultiChState(List<ChState<DistEventType>> channelStates) {
         super(channelStates);
     }
 
@@ -32,9 +32,9 @@ public class MutableMultiChState extends AbsMultiChState<ObsDistEventType>
     @Override
     public MutableMultiChState clone() {
         // Capture the current state of all the channels.
-        List<ChState<ObsDistEventType>> clonedChannels = Util
+        List<ChState<DistEventType>> clonedChannels = Util
                 .newList(channelStates.size());
-        for (ChState<ObsDistEventType> s : channelStates) {
+        for (ChState<DistEventType> s : channelStates) {
             clonedChannels.add(s.clone());
         }
         return new MutableMultiChState(clonedChannels);
@@ -60,29 +60,29 @@ public class MutableMultiChState extends AbsMultiChState<ObsDistEventType>
 
     // //////////////////////////////////////////////////////////////////
 
-    public void enqueue(ObsDistEventType event) {
+    public void enqueue(DistEventType event) {
         assert event.isSendEvent();
         assert event.getChannelId().getScmId() < channelStates.size();
 
         channelStates.get(event.getChannelId().getScmId()).enqueue(event);
     }
 
-    public void dequeue(ObsDistEventType expectedEvent) {
+    public void dequeue(DistEventType expectedEvent) {
         assert expectedEvent.isRecvEvent();
         assert expectedEvent.getChannelId().getScmId() < channelStates.size();
 
-        ObsDistEventType e = channelStates.get(
+        DistEventType e = channelStates.get(
                 expectedEvent.getChannelId().getScmId()).dequeue();
         assert e.getEType().equals(expectedEvent.getEType());
     }
 
-    public ObsDistEventType dequeue(ChannelId chId) {
+    public DistEventType dequeue(ChannelId chId) {
         assert chId.getScmId() < channelStates.size();
 
         return channelStates.get(chId.getScmId()).dequeue();
     }
 
-    public ObsDistEventType peek(ChannelId chId) {
+    public DistEventType peek(ChannelId chId) {
         assert chId.getScmId() < channelStates.size();
 
         return channelStates.get(chId.getScmId()).peek();

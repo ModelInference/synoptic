@@ -94,7 +94,7 @@ abstract public class AbsMultiChState<TxnEType extends IDistEventType> {
     /** Whether or not all queues are empty. */
     public boolean isEmpty() {
         for (ChState<TxnEType> s : channelStates) {
-            if (s.size() != 0) {
+            if (!s.isEmpty()) {
                 return false;
             }
         }
@@ -106,7 +106,7 @@ abstract public class AbsMultiChState<TxnEType extends IDistEventType> {
         // NOTE: A process is not required to be associated with a queue on
         // which it is a receiver. In this case, this always return true.
         for (ChState<TxnEType> s : channelStates) {
-            if (s.getChannelId().getDstPid() == pid && s.size() != 0) {
+            if (s.getChannelId().getDstPid() == pid && (!s.isEmpty())) {
                 return false;
             }
         }
@@ -120,7 +120,7 @@ abstract public class AbsMultiChState<TxnEType extends IDistEventType> {
     public int topOfQueuesHash() {
         int ret = 17;
         for (ChState<TxnEType> s : channelStates) {
-            if (s.size() != 0) {
+            if (!s.isEmpty()) {
                 ret = 31 * ret + s.peek().hashCode();
             } else {
                 // Empty queues have to be captured by the hash as well.

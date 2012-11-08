@@ -40,8 +40,8 @@ public class ObsDAG {
         assert termDagConfig != null;
         assert channelIds != null;
 
-        assert initDagConfig.size() > 0;
-        assert termDagConfig.size() > 0;
+        assert !initDagConfig.isEmpty();
+        assert !termDagConfig.isEmpty();
 
         this.initDagConfig = initDagConfig;
         this.termDagConfig = termDagConfig;
@@ -145,9 +145,9 @@ public class ObsDAG {
 
         // currSysState might already have a transition e if we are maintaining
         // only 1 ObsFifoSys.
-        // if (!currSysState.getTransitioningEvents().contains(obsEType)) {
         ObsDistEventType existingTxn = currSysState
                 .getObsTransitionByEType(eType);
+
         if (existingTxn == null) {
             // NOTE: we do not want to cache the ObsDistEventType, since each
             // edge must have its own instance.
@@ -157,10 +157,7 @@ public class ObsDAG {
             // 1. Make sure that the state we're transitioning to already is the
             // one we are supposed to be transitioning to according to the
             // current traversal.
-            if (!currSysState.getNextState(existingTxn).equals(nextSysState)) {
-                assert currSysState.getNextState(existingTxn).equals(
-                        nextSysState);
-            }
+            assert currSysState.getNextState(existingTxn).equals(nextSysState);
 
             // 2. Merge in the trace-ids of the observed event instances that
             // generated the transition.

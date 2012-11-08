@@ -7,12 +7,14 @@ import java.util.Set;
 import dynoptic.model.fifosys.AbsMultiFSMState;
 import dynoptic.util.Util;
 
+import synoptic.model.event.DistEventType;
+
 /**
  * Represents the instantaneous observed state across all of the processes in a
  * FIFO system. This does not include the queue state of the processes.
  */
 public class ObsMultFSMState extends
-        AbsMultiFSMState<ObsMultFSMState, ObsDistEventType> {
+        AbsMultiFSMState<ObsMultFSMState, DistEventType> {
 
     // Observed FSM states tuple. The list is ordered according to process
     // IDs.
@@ -106,7 +108,7 @@ public class ObsMultFSMState extends
     }
 
     @Override
-    public Set<ObsDistEventType> getTransitioningEvents() {
+    public Set<DistEventType> getTransitioningEvents() {
         // We do not maintain transitions here because these need to depend on
         // the state of the queue, and queue state is not maintained here.
         throw new RuntimeException(
@@ -114,7 +116,7 @@ public class ObsMultFSMState extends
     }
 
     @Override
-    public Set<ObsMultFSMState> getNextStates(ObsDistEventType event) {
+    public Set<ObsMultFSMState> getNextStates(DistEventType event) {
         // We do not maintain transitions here because these need to depend on
         // the state of the queue, and queue state is not maintained here.
         throw new RuntimeException(

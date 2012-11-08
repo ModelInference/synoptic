@@ -41,7 +41,7 @@ public class BadState {
 
         // Encode the queue regular expressions in SCM format, with '#'
         // acting as the channel separator.
-        if (qReList.size() > 0) {
+        if (!qReList.isEmpty()) {
             ret += "with ";
             Iterator<String> iter = qReList.iterator();
             while (iter.hasNext()) {

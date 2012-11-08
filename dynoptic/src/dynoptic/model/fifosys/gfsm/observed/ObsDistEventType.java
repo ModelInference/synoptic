@@ -77,9 +77,11 @@ public class ObsDistEventType implements IDistEventType {
 
     @Override
     public boolean equals(Object other) {
-        assert (other instanceof ObsDistEventType);
-
         if (!equalsIgnoringTraceIds(other)) {
+            return false;
+        }
+
+        if (!(other instanceof ObsDistEventType)) {
             return false;
         }
 
