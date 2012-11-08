@@ -77,13 +77,14 @@ public class GFSMState extends AbsMultiFSMState<GFSMState, DistEventType> {
      * partition.
      */
     public Set<ObsFifoSysState> getTerminalObsForPid(int pid) {
-        Set<ObsFifoSysState> ret = Util.newSet();
-        for (ObsFifoSysState s : observedStates) {
-            if (s.isAcceptForPid(pid)) {
-                ret.add(s);
-            }
-        }
-        return ret;
+        return getStatesThatEvalToTrueWithPid(observedStates, fnIsAcceptForPid,
+                pid);
+
+    }
+
+    public Set<ObsFifoSysState> getInitialObsForPid(int pid) {
+        return getStatesThatEvalToTrueWithPid(observedStates,
+                fnIsInitialForPid, pid);
     }
 
     // //////////////////////////////////////////////////////////////////

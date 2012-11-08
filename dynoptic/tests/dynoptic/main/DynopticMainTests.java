@@ -243,7 +243,7 @@ public class DynopticMainTests extends DynopticTest {
         args.add("-i");
         args.add("-d");
         args.add("../traces/EndToEndDynopticTests/AlternatingBitProtocol/trace_po_sr_simple.txt");
-        // runDynFromFileArgs(args);
+        runDynFromFileArgs(args);
     }
 
     @Test
