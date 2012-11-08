@@ -1,8 +1,10 @@
 package dynoptic.model.fifosys;
 
 import java.util.Collection;
+import java.util.Set;
 
 import dynoptic.model.AbsFSMState;
+import dynoptic.util.Util;
 
 import synoptic.model.event.IDistEventType;
 
@@ -15,13 +17,13 @@ import synoptic.model.event.IDistEventType;
 public abstract class AbsMultiFSMState<State extends AbsFSMState<State, TxnEType>, TxnEType extends IDistEventType>
         extends AbsFSMState<State, TxnEType> {
 
-    /** Used for functional calls to atLeastOneStateEvalTruePerPid. */
-    protected interface IStatePidToBooleanFn {
-        boolean eval(AbsMultiFSMState<?, ?> s, int pid);
+    /** Used for functional calls to e.g., atLeastOneStateEvalTruePerPid. */
+    protected interface IStatePidToBooleanFn<T> {
+        boolean eval(T s, int pid);
     }
 
     // Fn: (ObservedFifoSysState s, pid p) -> "s accept for pid"
-    protected static IStatePidToBooleanFn fnIsAcceptForPid = new IStatePidToBooleanFn() {
+    protected static IStatePidToBooleanFn<AbsMultiFSMState<?, ?>> fnIsAcceptForPid = new IStatePidToBooleanFn<AbsMultiFSMState<?, ?>>() {
         @Override
         public boolean eval(AbsMultiFSMState<?, ?> s, int pid) {
             return s.isAcceptForPid(pid);
@@ -29,7 +31,7 @@ public abstract class AbsMultiFSMState<State extends AbsFSMState<State, TxnEType
     };
 
     // Fn: (ObservedFifoSysState s, pid p) -> "s initial for pid"
-    protected static IStatePidToBooleanFn fnIsInitialForPid = new IStatePidToBooleanFn() {
+    protected static IStatePidToBooleanFn<AbsMultiFSMState<?, ?>> fnIsInitialForPid = new IStatePidToBooleanFn<AbsMultiFSMState<?, ?>>() {
         @Override
         public boolean eval(AbsMultiFSMState<?, ?> s, int pid) {
             return s.isInitForPid(pid);
@@ -39,13 +41,26 @@ public abstract class AbsMultiFSMState<State extends AbsFSMState<State, TxnEType
     /** Used to evaluate whether this GFSMState is accept/initial. */
     protected static boolean atLeastOneStatePidEvalTrue(
             Collection<? extends AbsMultiFSMState<?, ?>> states,
-            IStatePidToBooleanFn fn, int pid) {
+            IStatePidToBooleanFn<AbsMultiFSMState<?, ?>> fn, int pid) {
         for (AbsMultiFSMState<?, ?> s : states) {
             if (fn.eval(s, pid)) {
                 return true;
             }
         }
         return false;
+    }
+
+    /** Returns a set of states that evaluate to true through fn. */
+    protected static <S extends AbsMultiFSMState<?, ?>> Set<S> getStatesThatEvalToTrueWithPid(
+            Collection<S> states,
+            IStatePidToBooleanFn<AbsMultiFSMState<?, ?>> fn, int pid) {
+        Set<S> ret = Util.newSet();
+        for (S s : states) {
+            if (fn.eval(s, pid)) {
+                ret.add(s);
+            }
+        }
+        return ret;
     }
 
     // //////////////////////////////////////////////////////////////////

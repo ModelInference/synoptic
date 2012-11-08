@@ -112,14 +112,15 @@ public class GFSMPath {
         checkPathCompleteness(this);
     }
 
-    /*
-     * private List<GFSMState> getStates() { return states; }
-     * 
-     * private List<DistEventType> getEvents() { return events; }
-     * 
-     * public int getPid() { return pid; }
-     */
     // /////////////////////////////////////////////////////////////
+
+    public int numStates() {
+        return states.size();
+    }
+
+    public int numEvents() {
+        return events.size();
+    }
 
     /** Adds a state and event to the _front_ of a path. */
     public void prefixEventAndState(DistEventType e, GFSMState s) {
@@ -175,8 +176,7 @@ public class GFSMPath {
         }
 
         // Now refine the partition at maxStitchPartIndex.
-        refinePartition(pGraph, maxStitchPartIndex);
-        return true;
+        return refinePartition(pGraph, maxStitchPartIndex);
     }
 
     /**
@@ -190,29 +190,29 @@ public class GFSMPath {
      * @param pGraph
      * @param partIndex
      */
-    private void refinePartition(GFSM pGraph, int partIndex) {
+    private boolean refinePartition(GFSM pGraph, int partIndex) {
         GFSMState part = states.get(partIndex);
 
-        logger.info("Refining partition: " + part + ", at index " + partIndex);
+        logger.info("Tentatively refining partition: " + part + ", at index "
+                + partIndex);
 
-        // We can't refine a partition if it contains just a single observation.
-        //
-        // NOTE: the code that determines the partition to refine cannot return
-        // a partition with a single concrete state as stitching, since the
-        // abstract counter-example can be extended in the concrete event-space
-        // by at least by one more event.
-        assert part.getObservedStates().size() > 1;
+        // Ground rules:
+        // 1. We can't refine a partition if it contains just a single
+        // observation
+        // 2. Not all pid paths can be refined/eliminated.
+
+        Set<ObsFifoSysState> setRight = null;
 
         // Construct setRight.
-        Set<ObsFifoSysState> setRight;
-
         if (partIndex == (states.size() - 1)) {
             // Part is the last (terminal) partition in path, so we want to
             // isolate the observations that allow the counter-example path
             // to terminate at this partition from events that have
             // transitioned the path into this partition.
-            setRight = part.getTerminalObsForPid(pid);
-        } else {
+            setRight = getExtrema(part, false);
+
+        } else if (part.getObservedStates().size() > 1) {
+
             // Construct setRight to contain observations that transition
             // from part to partNext in the counter-example path.
             setRight = Util.newSet();
@@ -229,10 +229,11 @@ public class GFSMPath {
             // to instead construct setRight to contain observations whose
             // predecessors where in the partPrev partition, which preceded
             // partNext.
-            if (setRight.size() == part.getObservedStates().size()) {
-                // Cannot be the initial partition -- otherwise no stitching
-                // exists at this partition.
-                assert partIndex > 0;
+            //
+            // Cannot be the initial partition -- otherwise no backward
+            // stitching can exist at this partition.
+            if (setRight.size() == part.getObservedStates().size()
+                    && partIndex != 0) {
 
                 setRight.clear();
                 GFSMState partPrev = states.get(partIndex - 1);
@@ -246,18 +247,80 @@ public class GFSMPath {
                     }
                 }
             }
-
         }
-        assert !setRight.isEmpty();
-        assert setRight.size() < part.getObservedStates().size();
+
+        // If we are not able to derive a proper refinement above, try refining
+        // the initial partition.
+        if (setRight == null
+                || setRight.size() == part.getObservedStates().size()
+                || setRight.isEmpty()) {
+
+            partIndex = 0;
+            part = states.get(partIndex);
+            logger.info("Last partition cannot be refined, instead attempting to refine the 0th partition: "
+                    + states.get(partIndex));
+            setRight = getExtrema(states.get(partIndex), true);
+
+            // Give up on refining this path.
+            if (setRight == null) {
+                return false;
+            }
+        }
 
         // Construct setLeft.
-        Set<ObsFifoSysState> setLeft;
+        Set<ObsFifoSysState> setLeft = setLeftFromSetRight(setRight, part);
 
+        if (DynopticMain.assertsOn) {
+            // Make sure that the two sets are disjoint and both contain only
+            // observations from part.
+            assert !setRight.containsAll(setLeft);
+            assert !setLeft.containsAll(setRight);
+            assert part.getObservedStates().containsAll(setRight);
+            assert part.getObservedStates().containsAll(setLeft);
+        }
+
+        pGraph.refineWithRandNonRelevantObsAssignment(part, setLeft, setRight);
+        return true;
+    }
+
+    // /////////////////////////////////////////////////////////////
+
+    /**
+     * if getInits == true then gets the initials, otherwise gets the terminal
+     * observations for pid in part. Returns null if the desired set of
+     * observations are unsuitable for refinement.
+     */
+    private Set<ObsFifoSysState> getExtrema(GFSMState part, boolean getInits) {
+        if (part.getObservedStates().size() == 1) {
+            return null;
+        }
+
+        Set<ObsFifoSysState> setRight = null;
+        if (getInits) {
+            setRight = part.getInitialObsForPid(pid);
+        } else {
+            setRight = part.getTerminalObsForPid(pid);
+        }
+
+        if (setRight.isEmpty()) {
+            return null;
+        }
+        if (setRight.size() == part.getObservedStates().size()) {
+            return null;
+        }
+        return setRight;
+    }
+
+    /**
+     * Generates the set corresponding to setRight for refining the partition
+     * part.
+     */
+    private Set<ObsFifoSysState> setLeftFromSetRight(
+            Set<ObsFifoSysState> setRight, GFSMState part) {
         // ///////////////
         // For simplicity, we construct setLeft to be the complement of
         // setRight.
-        setLeft = Util.newSet();
+        Set<ObsFifoSysState> setLeft = Util.newSet();
         for (ObsFifoSysState s : part.getObservedStates()) {
             if (!setRight.contains(s)) {
                 setLeft.add(s);
@@ -289,23 +352,8 @@ public class GFSMPath {
         // }
         // }
         assert !setLeft.isEmpty();
-
-        if (DynopticMain.assertsOn) {
-            // Make sure that the two sets are disjoint.
-            for (ObsFifoSysState s : setLeft) {
-                if (setRight.contains(s)) {
-                    assert !setRight.contains(s);
-                }
-            }
-            for (ObsFifoSysState s : setRight) {
-                assert !setLeft.contains(s);
-            }
-        }
-
-        pGraph.refineWithRandNonRelevantObsAssignment(part, setLeft, setRight);
+        return setLeft;
     }
-
-    // /////////////////////////////////////////////////////////////
 
     /**
      * Takes the observed state traces that begin in partition at index

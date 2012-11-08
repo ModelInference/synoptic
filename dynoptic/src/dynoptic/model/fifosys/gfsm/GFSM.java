@@ -1,7 +1,6 @@
 package dynoptic.model.fifosys.gfsm;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -579,10 +578,25 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
         Set<GFSMPath> suffixPaths = null;
         // Temporary holding for new set of paths.
         Set<GFSMPath> newPaths = Util.newSet();
+        // The events sequence representing a counter-example in the CFSM.
+        List<DistEventType> events = cExample.getEvents();
+
+        // Find the index of the last event for pid. We'll require below that
+        // the suffix corresponding to this last event must end in a partition
+        // that is an accepting partition for pid.
+        int lastPidEventIndx = -1;
+        int numPidEvents = 0;
+        for (int i = 0; i < events.size(); i++) {
+            if (events.get(i).getPid() == pid) {
+                lastPidEventIndx = i;
+                numPidEvents += 1;
+            }
+        }
 
         // Build paths for sub-sequence of process pid events in the
         // counter-example.
-        for (DistEventType e : cExample.getEvents()) {
+        for (int eventIndx = 0; eventIndx <= lastPidEventIndx; eventIndx++) {
+            DistEventType e = events.get(eventIndx);
 
             // Skip non-process pid events.
             if (e.getPid() != pid) {
@@ -606,24 +620,75 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                 // construct extensions to the prefix.
                 Iterator<GFSMPath> iter = suffixPaths.iterator();
                 while (iter.hasNext()) {
-                    // Construct a new path: prefix + nextPath[i]
-                    GFSMPath newPath = new GFSMPath(prefix, iter.next());
+                    GFSMPath suffix = iter.next();
+
+                    // If we are processing the last event for this process,
+                    // then we require that the transitive closure of non-pid
+                    // events starting at (and including) the last state in this
+                    // suffix includes a state is a terminal state for pid.
+                    if (eventIndx == lastPidEventIndx
+                            && !pidTermStateReachableFromPartitionViaNonPidTxns(
+                                    suffix.lastState(), pid)) {
+                        continue;
+                    }
+
+                    // Construct a new path: prefix + suffix.
+                    GFSMPath newPath = new GFSMPath(prefix, suffix);
                     newPaths.add(newPath);
                 }
             }
-            if (newPaths.isEmpty()) {
-                // If we were not able to extend any of the paths then we're
-                // done.
-                return Collections.emptySet();
-            }
+            // There must always be a path for pid.
+            assert !newPaths.isEmpty();
+
             visitedStates.clear();
 
             paths.clear();
             paths.addAll(newPaths);
             newPaths.clear();
-
         }
+
+        // There must always be a path for pid.
+        assert !paths.isEmpty();
+
+        if (lastPidEventIndx == -1) {
+            // If there are no pid events, then all paths should have a single
+            // state and no events.
+            for (GFSMPath path : paths) {
+                assert path.numEvents() == 0;
+                assert path.numStates() == 1;
+            }
+        } else {
+            // Otherwise, check for expected number of states/events.
+            for (GFSMPath path : paths) {
+                assert path.numEvents() == numPidEvents;
+                assert path.numStates() == numPidEvents + 1;
+            }
+        }
+
         return paths;
+    }
+
+    /**
+     * Returns true if the non-pid transitive closure from gstate includes a
+     * state that is a terminal state for pid.
+     */
+    private boolean pidTermStateReachableFromPartitionViaNonPidTxns(
+            GFSMState gstate, int pid) {
+        if (gstate.isAcceptForPid(pid)) {
+            return true;
+        }
+
+        Set<GFSMState> nonPidTxClosureStates = Util.newSet();
+        Set<GFSMState> gvisited = Util.newSet();
+
+        AbsFSMState.findNonPidTransitiveClosure(pid, gstate, gvisited,
+                nonPidTxClosureStates);
+        for (GFSMState reachable : nonPidTxClosureStates) {
+            if (reachable.isAcceptForPid(pid)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // //////////////////////////////////////////////////////////////////
