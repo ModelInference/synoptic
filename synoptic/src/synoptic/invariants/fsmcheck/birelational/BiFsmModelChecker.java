@@ -88,11 +88,7 @@ public class BiFsmModelChecker {
         Map<Node, Set<String>> outgoingRelations = new HashMap<Node, Set<String>>();
         Map<Node, Set<String>> incomingRelations = new HashMap<Node, Set<String>>();
         
-        for (Node target : graph.getAdjacentNodes(node)) {
-            List<Transition<Partition>> transitions = (List<Transition<Partition>>) node.getAllTransitions();
-            mapRelationsToPartition(outgoingRelations, node, transitions);
-            mapRelationsToPartition(incomingRelations, target, transitions);
-        }
+        populateRelationMaps(graph, incomingRelations, outgoingRelations);
 
         stateSet.setInitial(node, outgoingRelations.get(node));
         
@@ -113,11 +109,6 @@ public class BiFsmModelChecker {
             for (Node target : graph.getAdjacentNodes(node)) {
                 
                 TracingBiRelationalStateSet<Node> updatesToTargetStates = current.copy();
-                
-                List<Transition<Partition>> transitions = 
-                        (List<Transition<Partition>>) target.getAllTransitions();
-                mapRelationsToPartition(outgoingRelations, node, transitions);
-                mapRelationsToPartition(incomingRelations, target, transitions);
                 
                 Set<String> outgoing = outgoingRelations.get(node);
                 Set<String> incoming = incomingRelations.get(target);
@@ -159,6 +150,51 @@ public class BiFsmModelChecker {
         }
 
         return states;
+    }
+    
+    // in - partition graph, unpopulated node -> relations maps
+    // out populated node -> relations maps
+    public static <Node extends INode<Node>> void populateRelationMaps(IGraph<Node> graph,
+            Map<Node, Set<String>> incomingRelations, Map<Node, Set<String>> outgoingRelations) {
+        populateIncomingRelationMap(graph, incomingRelations);
+        populateOutgoingRelationMap(graph, outgoingRelations);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static <Node extends INode<Node>> void populateIncomingRelationMap(IGraph<Node> graph,
+            Map<Node, Set<String>> incomingRelations) {
+        
+        Queue<Node> workList = new LinkedList<Node>();
+        Node initial = graph.getDummyInitialNode();
+        workList.add(initial);
+        
+        while (!workList.isEmpty()) {
+            Node current = workList.remove();
+            List<Transition<Node>> outgoingTransitions = 
+                    (List<Transition<Node>>) current.getAllTransitions();
+            
+            for (Transition<Node> t : outgoingTransitions) {
+                
+                Node target = t.getTarget();
+                
+                Set<String> relations = incomingRelations.get(target);
+                
+                if (relations == null) {
+                    relations = new HashSet<String>();
+                    incomingRelations.put(target, relations);
+                }
+                
+                relations.addAll(t.getRelation());
+                
+                workList.add(target);
+            }
+        }
+    }
+    
+    public static <Node extends INode<Node>> void populateOutgoingRelationMap(IGraph<Node> graph,
+            Map<Node, Set<String>> incomingRelations) {
+        Queue<Node> workList = new LinkedList<Node>();
+        Node initial = graph.getDummyInitialNode();
     }
     
     public static <Node extends INode<Node>> void mapRelationsToPartition(

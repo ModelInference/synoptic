@@ -72,7 +72,7 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
         throw new UnsupportedOperationException();
     }
     
-    // --relation--> (input)
+    // --relation--> (input) --outgoingRelations-->
     @Override
     public void transition(T input, String relation, Set<String> outgoingRelations) {
         SynopticMain synopticMain = SynopticMain.getInstanceWithExistenceCheck();
@@ -190,7 +190,11 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
     
     @Override
     public HistoryNode failpath() {
-        return tracingSet.failpath();
+        if (!beforeProjectedGraph) {
+            return tracingSet.failpath();
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -198,7 +202,10 @@ public abstract class TracingBiRelationalStateSet<T extends INode<T>> extends Tr
         if (other instanceof TracingBiRelationalStateSet) {
             TracingBiRelationalStateSet<T> o = (TracingBiRelationalStateSet<T>) other;
             tracingSet.mergeWith(o.getMonoTracingSet());
-            preHistory = yieldShorter(preHistory, o.preHistory);
+            this.preHistory = yieldShorter(preHistory, o.preHistory);
+            // The merge can cause problems because we might merge an
+            // into an uninitialized set which gets its state wiped later on
+            // actual initialization.
         } else {
             throw new IllegalArgumentException("Cannot merge mono and multirelational state sets");
         }
