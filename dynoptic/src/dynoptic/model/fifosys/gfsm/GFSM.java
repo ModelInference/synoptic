@@ -73,6 +73,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
         Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition = Util.newMap();
 
+        Set<ObsFifoSysState> visited = Util.newSet();
         for (ObsFifoSys t : traces) {
             assert t.getNumProcesses() == numProcesses;
             assert t.getChannelIds().equals(channelIds);
@@ -80,7 +81,8 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
             // DFS traversal to perform initial partitioning.
             ObsFifoSysState init = t.getInitState();
             addToMap(qTopHashToPartition, init);
-            traverseAndPartition(init, qTopHashToPartition);
+            traverseAndPartition(init, qTopHashToPartition, visited);
+            visited.clear();
         }
 
         Set<ObsFifoSysState> allObs = null;
@@ -141,10 +143,16 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
      * an initial partitioning.
      */
     private void traverseAndPartition(ObsFifoSysState curr,
-            Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition) {
+            Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition,
+            Set<ObsFifoSysState> visited) {
+        visited.add(curr);
         for (ObsFifoSysState next : curr.getNextStates()) {
+            // Ignore branches we've already visited.
+            if (visited.contains(next)) {
+                continue;
+            }
             addToMap(qTopHashToPartition, next);
-            traverseAndPartition(next, qTopHashToPartition);
+            traverseAndPartition(next, qTopHashToPartition, visited);
         }
     }
 

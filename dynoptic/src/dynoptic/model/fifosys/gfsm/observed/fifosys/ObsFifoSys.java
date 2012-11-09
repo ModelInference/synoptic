@@ -386,13 +386,22 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, DistEventType> {
      */
     public Set<BinaryInvariant> findInvalidatedInvariants(
             List<BinaryInvariant> minedInvs) {
+        // The set of invariants that do _not_ hold, which we will return.
         Set<BinaryInvariant> ret = Util.newSet();
+
+        // Visited keeps track of which states have been visited during
+        // invariant checking.
+        Set<ObsFifoSysState> visited = Util.newSet();
+
         ObsFifoSysState initS = this.getInitState();
         for (BinaryInvariant inv : minedInvs) {
+            logger.info("-> Checking " + inv.toString() + " for invalidation.");
             BinChecker<?> invChecker = inv.newChecker();
-            if (!checkInvariant(invChecker, initS)) {
+            if (!checkInvariant(invChecker, initS, visited)) {
+                logger.info("--> INVALID.");
                 ret.add(inv);
             }
+            visited.clear();
         }
         return ret;
     }
@@ -402,7 +411,16 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, DistEventType> {
      * it satisfied the corresponding invariant.
      */
     private <State> boolean checkInvariant(BinChecker<State> invChecker,
-            ObsFifoSysState curState) {
+            ObsFifoSysState curState, Set<ObsFifoSysState> visited) {
+        // Don't re-visit states.
+        if (visited.contains(curState)) {
+            // If we visited this state before and return false, then we would
+            // have not returned to this state. Therefore, the invariant is
+            // valid for this state and for all the branches below it.
+            return true;
+        }
+        visited.add(curState);
+
         if (curState.isAccept()) {
             // Return whether or not the invariant holds.
             return !invChecker.isFail();
@@ -426,7 +444,7 @@ public class ObsFifoSys extends FifoSys<ObsFifoSysState, DistEventType> {
                 // The e sub-branch checks out, move on to other sub-branches.
                 continue;
             }
-            if (!checkInvariant(invChecker, curState.getNextState(e))) {
+            if (!checkInvariant(invChecker, curState.getNextState(e), visited)) {
                 return false;
             }
 

@@ -338,6 +338,7 @@ public class DynopticMain {
         if (opts.consistentInitState) {
             assert traces.size() == 1;
 
+            logger.info("Finding invalidated invaraints in the observed fifo system.");
             Set<BinaryInvariant> faultyInvs = traces.get(0)
                     .findInvalidatedInvariants(dynInvs);
             if (!faultyInvs.isEmpty()) {
@@ -516,10 +517,29 @@ public class DynopticMain {
             }
         }
         numProcesses = maxPid + 1;
+        logger.info("Detected " + numProcesses + " processes in the log.");
+
         if (pidSum != ((maxPid * (maxPid + 1)) / 2) || !usedPids.contains(0)) {
             throw new OptionException("Process ID range for the log has gaps: "
                     + usedPids.toString());
         }
+
+        // Make sure that we have observed at least one event for each process
+        // associated with a used channel.
+        for (ChannelId chId : channelIds) {
+            if (chId.getSrcPid() > maxPid) {
+                throw new OptionException(
+                        "Did not observed any events for process "
+                                + chId.getSrcPid()
+                                + " that is part of channel " + chId.toString());
+            } else if (chId.getDstPid() > maxPid) {
+                throw new OptionException(
+                        "Did not observed any events for process "
+                                + chId.getDstPid()
+                                + " that is part of channel " + chId.toString());
+            }
+        }
+
     }
 
     /**
@@ -820,7 +840,7 @@ public class DynopticMain {
         String dotFilename = gfsmPrefixFilename + ".gfsm." + gfsmCounter
                 + ".dot";
         GraphExporter.exportGFSM(dotFilename, pGraph);
-        GraphExporter.generatePngFileFromDotFile(dotFilename);
+        // GraphExporter.generatePngFileFromDotFile(dotFilename);
 
         // Export CFSM:
         CFSM cfsm = pGraph.getCFSM(opts.minimize);
@@ -828,13 +848,13 @@ public class DynopticMain {
         dotFilename = gfsmPrefixFilename + ".cfsm-no-inv." + gfsmCounter
                 + ".dot";
         GraphExporter.exportCFSM(dotFilename, cfsm);
-        GraphExporter.generatePngFileFromDotFile(dotFilename);
+        // GraphExporter.generatePngFileFromDotFile(dotFilename);
 
         // Export CFSM, augmented with curInv:
         cfsm.augmentWithInvTracing(curInv);
         dotFilename = gfsmPrefixFilename + ".cfsm." + gfsmCounter + ".dot";
         GraphExporter.exportCFSM(dotFilename, cfsm);
-        GraphExporter.generatePngFileFromDotFile(dotFilename);
+        // GraphExporter.generatePngFileFromDotFile(dotFilename);
     }
 
 }
