@@ -2,6 +2,7 @@ package dynoptic.model.fifosys.gfsm.observed.dag;
 
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import dynoptic.model.fifosys.channel.channelstate.ImmutableMultiChState;
 import dynoptic.model.fifosys.gfsm.observed.ObsDistEventType;
@@ -20,6 +21,8 @@ import synoptic.model.event.Event;
  * from ObsDAG FSM to an ObsFifoSys.
  */
 public class ObsDAG {
+
+    private static Logger logger = Logger.getLogger("ObsDAG");
 
     // Ordered list of initial (root) DAG nodes, ordered by process id.
     private final List<ObsDAGNode> initDagConfig;
@@ -138,7 +141,12 @@ public class ObsDAG {
         // Look up/create the next FIFO sys state.
         ObsFifoSysState nextSysState = ObsFifoSysState.getFifoSysState(
                 fsmStatesFromDagConfig(curDagConfig), nextChStates);
-        states.add(nextSysState);
+        boolean nextSysStatePreviouslyExplored = false;
+        if (states.contains(nextSysState)) {
+            nextSysStatePreviouslyExplored = true;
+        } else {
+            states.add(nextSysState);
+        }
 
         // Add a transition between the FIFO states, if this kind of
         // transitioning event type has not been observed previously.
@@ -154,6 +162,7 @@ public class ObsDAG {
             ObsDistEventType obsEType = new ObsDistEventType(eType, traceId);
             currSysState.addTransition(obsEType, nextSysState);
         } else {
+
             // 1. Make sure that the state we're transitioning to already is the
             // one we are supposed to be transitioning to according to the
             // current traversal.
@@ -162,6 +171,14 @@ public class ObsDAG {
             // 2. Merge in the trace-ids of the observed event instances that
             // generated the transition.
             existingTxn.addTraceId(traceId);
+        }
+
+        if (nextSysStatePreviouslyExplored) {
+            // Optimization to not re-explore previous fifo states.
+            // FIXME: However, we lose the ability to add new traceIds to old
+            // edges, as this is done during re-exploration. (Issue 277)
+            curDagConfig.set(nextNode.getPid(), nextNode.getPrevState());
+            return;
         }
 
         // Update the nextNode as having occurred.
