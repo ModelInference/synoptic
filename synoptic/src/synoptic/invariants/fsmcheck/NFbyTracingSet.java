@@ -1,6 +1,7 @@
 package synoptic.invariants.fsmcheck;
 
 import synoptic.invariants.BinaryInvariant;
+import synoptic.invariants.fsmcheck.TracingStateSet.HistoryNode;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
@@ -29,33 +30,30 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
     public NFbyTracingSet(BinaryInvariant inv) {
         this(inv.getFirst(), inv.getSecond());
     }
-
+    
     @Override
-    public void setInitialEventTest(T x, HistoryNode newHistory) {
+    public void setInitial(T x) {
         EventType name = x.getEType();
+        HistoryNode newHistory =  new HistoryNode(x, null, 1);
         if (a.equals(name)) {
             aSeen = newHistory;
         } else {
             aNotSeen = newHistory;
         }
-    }
-
-    @Override
-    public void setInitialHistoryReset() {
         aNotSeen = null;
         aSeen = null;
         bSeenAfter = null; 
     }
     
     @Override
-    public void transitionEventTest(T x) {
+    public void transition(T x) {
         EventType name = x.getEType();
 
         // bSeenAfter is set if aSeen is set or bSeenAfter is already set. 
         if (b.equals(name)) {
             bSeenAfter = yieldShorter(aSeen, bSeenAfter);
             aSeen = null;
-        }
+        }   
         /*
          * aSeen can be set unless bSeenAfter is set.
          * 
@@ -66,11 +64,7 @@ public class NFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
             aSeen = yieldShorter(aNotSeen, aSeen);
             aNotSeen = null;
         }
-    }
-
-    @Override
-    public void transitionHistoryExtend(T x) {
-        // Advance history for all states.
+        
         aNotSeen = extendIfNonNull(x, aNotSeen);
         aSeen = extendIfNonNull(x, aSeen);
         bSeenAfter = extendIfNonNull(x, bSeenAfter);
