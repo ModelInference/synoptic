@@ -167,25 +167,10 @@ public abstract class TracingStateSet<T extends INode<T>> implements
         }
     }
     
-    @Override
-    public void transition(T x) {
-        transitionEventTest(x);
-        transitionHistoryExtend(x);
-    }
+    public abstract void transition(T x);
      
-    public abstract void transitionEventTest(T x);
+    public abstract void setInitial(T x);
     
-    public abstract void transitionHistoryExtend(T x);
-    
-    public void setInitial(T x) {
-        setInitialHistoryReset();
-        HistoryNode newHistory =  new HistoryNode(x, null, 1);
-        setInitialEventTest(x, newHistory);
-    }
-    
-    public abstract void setInitialEventTest(T x, HistoryNode newHistory);
-    
-    public abstract void setInitialHistoryReset();
     
     public void transition(T input, String relation, Set<String> outgoingRelations) {
         throw new UnsupportedOperationException("Multi-relational model" +

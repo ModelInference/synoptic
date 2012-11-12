@@ -1,6 +1,7 @@
 package synoptic.invariants.fsmcheck;
 
 import synoptic.invariants.BinaryInvariant;
+import synoptic.invariants.fsmcheck.TracingStateSet.HistoryNode;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
@@ -31,48 +32,6 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     public APTracingSet(BinaryInvariant inv) {
         this(inv.getFirst(), inv.getSecond());
-    }
-
-    // Can initialize to any state based on x's EventType
-    @Override
-    public void setInitialEventTest(T x, HistoryNode newHistory) {
-        EventType name = x.getEType();
-        if (a.equals(name)) {
-            firstA = newHistory;
-        } else if (b.equals(name)) {
-            firstB = newHistory;
-        } else {
-            neitherSeen = newHistory;
-        }
-    }
-
-    @Override
-    public void setInitialHistoryReset() {
-        neitherSeen = null;
-        firstA = null;
-        firstB = null;
-    }
-    
-    @Override
-    public void transitionEventTest(T x) {
-        EventType name = x.getEType();
-        /* If starting from neitherSeen, permanently transitions to firstA or 
-         * firstB based on x's EventType
-         */
-        if (a.equals(name)) {
-            firstA = yieldShorter(neitherSeen, firstA);
-            neitherSeen = null;
-        } else if (b.equals(name)) {
-            firstB = yieldShorter(neitherSeen, firstB);
-            neitherSeen = null;
-        }
-    }
-    
-    @Override
-    public void transitionHistoryExtend(T x) {
-        neitherSeen = extendIfNonNull(x, neitherSeen);
-        firstA = extendIfNonNull(x, firstA);
-        firstB = extendIfNonNull(x, firstB);
     }
 
     @Override
@@ -128,6 +87,47 @@ public class APTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         result.append(" | ");
         appendWNull(result, neitherSeen);
         return result.toString();
+    }
+    
+
+    @Override
+    public void transition(T x) {
+        EventType name = x.getEType();
+        /* If starting from neitherSeen, permanently transitions to firstA or 
+         * firstB based on x's EventType
+         */
+        if (a.equals(name)) {
+            firstA = yieldShorter(neitherSeen, firstA);
+            neitherSeen = null;
+        } else if (b.equals(name)) {
+            firstB = yieldShorter(neitherSeen, firstB);
+            neitherSeen = null;
+        }
+        
+        neitherSeen = extendIfNonNull(x, neitherSeen);
+        firstA = extendIfNonNull(x, firstA);
+        firstB = extendIfNonNull(x, firstB);
+        
+    }
+    
+
+    @Override
+    public void setInitial(T x) {
+        EventType name = x.getEType();
+        HistoryNode newHistory =  new HistoryNode(x, null, 1);
+        
+        if (a.equals(name)) {
+            firstA = newHistory;
+        } else if (b.equals(name)) {
+            firstB = newHistory;
+        } else {
+            neitherSeen = newHistory;
+        }
+        
+        neitherSeen = null;
+        firstA = null;
+        firstB = null;
+        
     }
 
 

@@ -1,6 +1,7 @@
 package synoptic.invariants.fsmcheck;
 
 import synoptic.invariants.BinaryInvariant;
+import synoptic.invariants.fsmcheck.TracingStateSet.HistoryNode;
 import synoptic.model.event.EventType;
 import synoptic.model.interfaces.INode;
 
@@ -32,42 +33,6 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
 
     public AFbyTracingSet(BinaryInvariant inv) {
         this(inv.getFirst(), inv.getSecond());
-    }
-
-    // Can initialize to any state based on x's EventType
-    @Override
-    public void setInitialEventTest(T x, HistoryNode newHistory) {
-        EventType name = x.getEType();
-        if (name.equals(a)) {
-            wasA = newHistory;
-        } else {
-            wasB = newHistory;
-        }
-    }
-
-    @Override
-    public void setInitialHistoryReset() {
-        wasA = null;
-        wasB = null;
-    }
-    
-    @Override
-    public void transitionEventTest(T x) {
-        EventType name = x.getEType();
-        // Transitions to wasA or wasB based on x's EventType
-        if (a.equals(name)) {
-            wasA = yieldShorter(wasB, wasA);
-            wasB = null;
-        } else if (b.equals(name)) {
-            wasB = yieldShorter(wasA, wasB);
-            wasA = null;
-        }
-    }
-    
-    @Override
-    public void transitionHistoryExtend(T x) {
-        wasA = extendIfNonNull(x, wasA);
-        wasB = extendIfNonNull(x, wasB);
     }
 
     @Override
@@ -114,6 +79,41 @@ public class AFbyTracingSet<T extends INode<T>> extends TracingStateSet<T> {
         result.append(" | ");
         appendWNull(result, wasB);
         return result.toString();
+    }
+
+    
+    @Override
+    public void transition(T x) {
+        EventType name = x.getEType();
+        // Transitions to wasA or wasB based on x's EventType
+        if (a.equals(name)) {
+            wasA = yieldShorter(wasB, wasA);
+            wasB = null;
+        } else if (b.equals(name)) {
+            wasB = yieldShorter(wasA, wasB);
+            wasA = null;
+        }
+        
+        wasA = extendIfNonNull(x, wasA);
+        wasB = extendIfNonNull(x, wasB);
+        
+    }
+    
+
+    @Override
+    public void setInitial(T x) {
+        EventType name = x.getEType();
+        
+        HistoryNode newHistory =  new HistoryNode(x, null, 1);
+        
+        if (name.equals(a)) {
+            wasA = newHistory;
+        } else {
+            wasB = newHistory;
+        }
+        wasA = null;
+        wasB = null;
+        
     }
 
 }
