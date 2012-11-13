@@ -9,6 +9,8 @@ import org.junit.rules.TestName;
 import junit.framework.Assert;
 
 import synoptic.invariants.miners.ITOInvariantMiner;
+import synoptic.main.SynopticMain;
+import synoptic.main.options.SynopticOptions;
 import synoptic.main.parser.ParseException;
 import synoptic.main.parser.TraceParser;
 import synoptic.model.ChainsTraceGraph;
@@ -94,8 +96,19 @@ public abstract class SynopticTest extends SynopticLibTest {
      */
     public static TraceParser genDefParser() {
         TraceParser parser = new TraceParser();
+        
+        SynopticMain syn = synoptic.main.SynopticMain.getInstanceWithExistenceCheck();
+        SynopticOptions opts = syn.options;
+        boolean multipleRelations = opts.multipleRelations;
+        
         try {
-            parser.addRegex("^(?<TYPE>)$");
+            if (multipleRelations) {
+                parser.addRegex("^(?<TIME>)(?<TYPE>)$");
+                parser.addRegex("^(?<TIME>)(?<RELATION>)(?<TYPE>)$");
+                parser.addRegex("^(?<TIME>)(?<RELATION*>)cl(?<TYPE>)$");
+            } else {
+                parser.addRegex("^(?<TYPE>)$");
+            }
         } catch (ParseException e) {
             throw new InternalSynopticException(e);
         }
