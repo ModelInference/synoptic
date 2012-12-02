@@ -409,7 +409,7 @@ public class CFSM extends FifoSys<CFSMState, DistEventType> {
         int i = 2;
         while (i != numProcesses) {
             // Modifies perms in place.
-            Util.get2DPermutations(perms, fn.eval(fsms.get(i)));
+            perms = Util.get2DPermutations(perms, fn.eval(fsms.get(i)));
             i += 1;
         }
 

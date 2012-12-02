@@ -102,6 +102,7 @@ public class DistEventType extends EventType implements IDistEventType {
         assert !eType.contains("#");
         assert !eType.contains("|");
         assert !eType.contains("+");
+        assert !eType.contains("-");
 
         // There are some other disallowed symbols, as well:
         assert !eType.contains("'");

@@ -71,8 +71,9 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
     public GFSM(List<ObsFifoSys> traces) {
         super(traces.get(0).getNumProcesses(), traces.get(0).getChannelIds());
 
+        // Compute the initial partitioning of the observed states by using the
+        // queue contents associated with each globally observed state.
         Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition = Util.newMap();
-
         Set<ObsFifoSysState> visited = Util.newSet();
         for (ObsFifoSys t : traces) {
             assert t.getNumProcesses() == numProcesses;
@@ -80,7 +81,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
 
             // DFS traversal to perform initial partitioning.
             ObsFifoSysState init = t.getInitState();
-            addToMap(qTopHashToPartition, init);
+            addToQueueContentsHashMap(qTopHashToPartition, init);
             traverseAndPartition(init, qTopHashToPartition, visited);
             visited.clear();
         }
@@ -127,11 +128,13 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
      * Constructor helper -- adds an observation to the map, by hashing on its
      * top of queue event types.
      */
-    private void addToMap(
+    private void addToQueueContentsHashMap(
             Map<Integer, Set<ObsFifoSysState>> qTopHashToPartition,
             ObsFifoSysState obs) {
         int hash = obs.getChannelStates().topOfQueuesHash();
         if (!qTopHashToPartition.containsKey(hash)) {
+            logger.info("Creating a new partition for ch-states like: "
+                    + obs.getChannelStates().toString());
             Set<ObsFifoSysState> partition = Util.newSet();
             qTopHashToPartition.put(hash, partition);
         }
@@ -151,7 +154,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
             if (visited.contains(next)) {
                 continue;
             }
-            addToMap(qTopHashToPartition, next);
+            addToQueueContentsHashMap(qTopHashToPartition, next);
             traverseAndPartition(next, qTopHashToPartition, visited);
         }
     }
@@ -467,21 +470,25 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                 // merging.
             } while (merged);
 
-            // 2. TODO: Check if after bisimulation merging above the FSM is
-            // now a DFA and we can use standard minimization to further
-            // minimize the FSM.
+            // 2. Remove states when there is a state that simulates it --
+            // TODO: INCOMPLETE.
+            // mergeSimulatingStates(initFSMStates, acceptFSMStates, stateMap);
 
             assert !acceptFSMStates.isEmpty();
             assert !initFSMStates.isEmpty();
 
-            // Create the FSM for this pid, and add it to the CFSM.
+            // Create the FSM for this pid.
             FSM fsm = new FSM(pid, initFSMStates, acceptFSMStates,
                     stateMap.values(), nextScmId);
 
+            // 3. Check if after bisimulation merging above the FSM is
+            // now a DFA and we can use standard minimization to further
+            // minimize the FSM.
             if (minimize && fsm.isDeterministic()) {
                 fsm.minimize();
             }
 
+            // Add FSM to the CFSM.
             cfsm.addFSM(fsm);
 
             stateMap.clear();
@@ -490,6 +497,78 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
             txClosure.clear();
         }
         return cfsm;
+    }
+
+    /**
+     * Incomplete, see TODO below.
+     * 
+     * @param initFSMStates
+     * @param acceptFSMStates
+     * @param stateMap
+     */
+    private void mergeSimulatingStates(Set<FSMState> initFSMStates,
+            Set<FSMState> acceptFSMStates, Map<GFSMState, FSMState> stateMap) {
+        Set<GFSMState> keySet;
+        Iterator<GFSMState> keyItr;
+        boolean merged;
+        // 2. Merge any FSM states where one state is subsumed by the
+        // behavior of another state. More specifically, if there are three
+        // FSM states f1,f2,f3 such that f1 --e--> f2, f1 --e--> f3, and the
+        // set transitions from f2 is a subset of transitions from f3 (both
+        // in events and states reached along those events) then merge f2
+        // and f3.
+        merged = false;
+        do {
+            merged = false;
+            keySet = stateMap.keySet();
+            keyItr = keySet.iterator();
+            while (keyItr.hasNext()) {
+                GFSMState gparent = keyItr.next();
+                GFSMState gchild = null, gchild2 = null;
+
+                outer:
+                for (DistEventType e : gparent.getTransitioningEvents()) {
+                    Set<GFSMState> children = gparent.getNextStates(e);
+                    // TODO: have to consider only children gchild_,
+                    // child2_
+                    // that have NO other parents besides gparent.
+                    for (GFSMState gchild_ : children) {
+                        for (GFSMState gchild2_ : children) {
+                            if (gchild_ == gchild2_) {
+                                continue;
+                            }
+
+                            if (checkSubsuming(gchild_, gchild2_, stateMap)) {
+                                gchild = gchild_;
+                                gchild2 = gchild2_;
+                                continue outer;
+                            }
+
+                        }
+                    }
+                }
+
+                if (gchild == null) {
+                    continue;
+                }
+
+                FSMState fstate, fstate2;
+                fstate = stateMap.get(gchild);
+                fstate2 = stateMap.get(gchild2);
+
+                // Merges fstate INTO fstate2.
+                remapPredTxns(fstate, fstate2, stateMap);
+
+                // Remove gstate/fstate from the stateMap, and remove
+                // fstate from accepting set
+                stateMap.remove(gchild);
+                acceptFSMStates.remove(fstate);
+                initFSMStates.remove(fstate);
+                merged = true;
+                break;
+
+            }
+        } while (merged);
     }
 
     /**
@@ -519,6 +598,27 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                 }
             }
         }
+    }
+
+    /** Checks if gchild2 SUBSUMEs gchild in the FSMState world. */
+    private boolean checkSubsuming(GFSMState gchild, GFSMState gchild2,
+            Map<GFSMState, FSMState> stateMap) {
+
+        FSMState fstate = stateMap.get(gchild);
+        FSMState fstate2 = stateMap.get(gchild2);
+
+        // States must have identical initial/accept properties
+        // to be mergeable.
+        if (fstate.isInitial() != fstate2.isInitial()) {
+            return false;
+        }
+        if (fstate.isAccept() != fstate2.isAccept()) {
+            return false;
+        }
+
+        // TODO.
+
+        return true;
     }
 
     /**
@@ -618,6 +718,7 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                 // before the e transition.
                 GFSMState firstState = path.lastState();
                 suffixPaths = getSuffixPaths(firstState, e, visitedStates, pid);
+                visitedStates.clear();
                 if (suffixPaths == null) {
                     continue;
                 }
@@ -645,10 +746,13 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                     newPaths.add(newPath);
                 }
             }
-            // There must always be a path for pid.
-            assert !newPaths.isEmpty();
 
-            visitedStates.clear();
+            // NOTE: if we cannot find any matching paths, then there are none
+            // because we have eliminated them through previous refinement!
+            if (newPaths.isEmpty()) {
+                // assert !newPaths.isEmpty();
+                return null;
+            }
 
             paths.clear();
             paths.addAll(newPaths);
@@ -734,13 +838,13 @@ public class GFSM extends FifoSys<GFSMState, DistEventType> {
                 continue;
             }
 
-            if (e_.getPid() == e.getPid()) {
+            if (e_.getPid() == pid) {
                 // Matching pid, but wrong type (checked for above).
                 continue;
             }
 
             // Otherwise, we recurse, and add current state to prefix of
-            // whatever paths we get back (at end of the function).
+            // whatever paths we get back (at end of the recursive call).
             for (GFSMState stateNext : state.getNextStates(e_)) {
                 Set<GFSMPath> newSuffixPaths = getSuffixPaths(stateNext, e,
                         visited, pid);
